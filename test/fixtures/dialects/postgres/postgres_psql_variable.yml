@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 32c7f4431105826d41bb2f70151ffdbc7aec97c55c4fa9a75fbe367c408fb9ff
+_hash: a2a834cac41b1e827aeceb36391f231ded5dd1b4995c42e6dfa2b0570689dadc
 file:
 - statement:
     select_statement:
@@ -74,52 +74,39 @@ file:
       where_clause:
         keyword: WHERE
         expression:
-        - column_reference:
+          column_reference:
           - identifier: memberships
           - dot: .
           - identifier: code
-        - comparison_operator: '='
+        unparsable:
+        - raw: '='
         - bracketed:
-            start_bracket: (
-            expression:
-              psql_variable:
-                colon: ':'
-                parameter: m1
-            end_bracket: )
-        - cast_expression:
-            casting_operator: '::'
-            data_type:
-              data_type_identifier: text
-        - binary_operator: AND
-        - column_reference:
-          - identifier: rona_mms_charge_accounts
-          - dot: .
-          - identifier: account_number
-        - comparison_operator: '='
-        - function:
-            function_name:
-              function_name_identifier: lpad
-            bracketed:
+          - start_bracket: (
+          - raw: ':'
+          - raw: m1
+          - end_bracket: )
+        - raw: '::'
+        - raw: text
+        - raw: AND
+        - raw: rona_mms_charge_accounts
+        - raw: .
+        - raw: account_number
+        - raw: '='
+        - raw: lpad
+        - bracketed:
+          - start_bracket: (
+          - bracketed:
             - start_bracket: (
-            - expression:
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    psql_variable:
-                      colon: ':'
-                      parameter: a
-                  end_bracket: )
-                cast_expression:
-                  casting_operator: '::'
-                  data_type:
-                    data_type_identifier: text
-            - comma: ','
-            - expression:
-                literal: '10'
-            - comma: ','
-            - expression:
-                literal: "'0'"
+            - raw: ':'
+            - raw: a
             - end_bracket: )
+          - raw: '::'
+          - raw: text
+          - comma: ','
+          - raw: '10'
+          - comma: ','
+          - raw: "'0'"
+          - end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -204,20 +191,16 @@ file:
           - dot: .
           - identifier: account_number
         - comparison_operator: '='
-        - function:
-            function_name:
-              function_name_identifier: lpad
-            bracketed:
-            - start_bracket: (
-            - expression:
-                psql_variable:
-                  colon: ':'
-                  literal: "'a'"
-            - comma: ','
-            - expression:
-                literal: '10'
-            - comma: ','
-            - expression:
-                literal: "'0'"
-            - end_bracket: )
+        - column_reference:
+            identifier: lpad
+        unparsable:
+          bracketed:
+          - start_bracket: (
+          - raw: ':'
+          - raw: "'a'"
+          - comma: ','
+          - raw: '10'
+          - comma: ','
+          - raw: "'0'"
+          - end_bracket: )
 - statement_terminator: ;

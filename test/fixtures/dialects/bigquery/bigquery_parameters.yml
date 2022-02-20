@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c8a45c0adfb7b9bc2b8d71cce561ec224086d168a43af6ed3e2045833a8ddc5c
+_hash: fa073db125bd3a89138a2f041abd279cf7f8172f094b6e79b754ad95bb285684
 file:
 - statement:
     select_statement:
@@ -32,51 +32,45 @@ file:
       select_clause:
         keyword: select
         select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: datetime_trunc
+          column_reference:
+            identifier: datetime_trunc
+          unparsable:
             bracketed:
-              start_bracket: (
-              expression:
-                parameterized_expression:
-                  literal: '@z2'
-              comma: ','
-              date_part: week
-              end_bracket: )
+            - start_bracket: (
+            - raw: '@z2'
+            - comma: ','
+            - raw: week
+            - end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
       select_clause:
         keyword: select
         select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: datetime_trunc
+          column_reference:
+            identifier: datetime_trunc
+          unparsable:
             bracketed:
-              start_bracket: (
-              expression:
-                parameterized_expression:
-                  literal: '@_ab'
-              comma: ','
-              date_part: week
-              end_bracket: )
+            - start_bracket: (
+            - raw: '@_ab'
+            - comma: ','
+            - raw: week
+            - end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
       select_clause:
         keyword: select
         select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: datetime_trunc
+          column_reference:
+            identifier: datetime_trunc
+          unparsable:
             bracketed:
-              start_bracket: (
-              expression:
-                parameterized_expression:
-                  literal: '@a'
-              comma: ','
-              date_part: week
-              end_bracket: )
+            - start_bracket: (
+            - raw: '@a'
+            - comma: ','
+            - raw: week
+            - end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -105,16 +99,13 @@ file:
       select_clause:
         keyword: select
         select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: concat
+          column_reference:
+            identifier: concat
+          unparsable:
             bracketed:
             - start_bracket: (
-            - expression:
-                literal: '"1"'
+            - raw: '"1"'
             - comma: ','
-            - expression:
-                parameterized_expression:
-                  question_mark: '?'
+            - raw: '?'
             - end_bracket: )
 - statement_terminator: ;

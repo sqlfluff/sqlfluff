@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2ef749549d6fa01ea926682b2bcc71414102af4c0da7315d3e8c0e617baff326
+_hash: 388fe31956be0f90d0083a85da5449f4fc17bcfe6a5f2c71fb24faa16223ecc0
 file:
 - statement:
     comment_statement:
@@ -33,16 +33,17 @@ file:
     - keyword: 'ON'
     - table_reference:
         identifier: t1
-    - bracketed:
-      - start_bracket: (
-      - identifier: id
-      - keyword: IS
-      - literal: "'Identity column'"
-      - comma: ','
-      - identifier: zip
-      - keyword: IS
-      - literal: "'Zip code'"
-      - end_bracket: )
+    - unparsable:
+        bracketed:
+        - start_bracket: (
+        - raw: id
+        - raw: IS
+        - raw: "'Identity column'"
+        - comma: ','
+        - raw: zip
+        - raw: IS
+        - raw: "'Zip code'"
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
     comment_statement:

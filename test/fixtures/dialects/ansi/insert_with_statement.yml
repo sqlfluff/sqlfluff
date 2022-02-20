@@ -3,69 +3,40 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 99c45c475a1848dd2bacc4d30513c0aeece9add81e8e8945a5e1cb8a5dfe508d
+_hash: 940ef5babfe89b665f86ff5d5ec616ff888d4f6538449e72c87db705ebb8cd6d
 file:
   statement:
     insert_statement:
-    - keyword: INSERT
-    - keyword: INTO
-    - table_reference:
-        identifier: table2
-    - bracketed:
-      - start_bracket: (
-      - column_reference:
-          identifier: column1
+      unparsable:
+      - keyword: INSERT
+      - raw: INTO
+      - raw: table2
+      - bracketed:
+        - start_bracket: (
+        - raw: column1
+        - comma: ','
+        - raw: column2
+        - comma: ','
+        - raw: column3
+        - end_bracket: )
+      - raw: WITH
+      - raw: mycte
+      - raw: AS
+      - bracketed:
+        - start_bracket: (
+        - raw: SELECT
+        - raw: foo
+        - comma: ','
+        - raw: bar
+        - raw: FROM
+        - raw: mytable1
+        - end_bracket: )
+      - raw: SELECT
+      - raw: foo
       - comma: ','
-      - column_reference:
-          identifier: column2
+      - raw: bar
       - comma: ','
-      - column_reference:
-          identifier: column3
-      - end_bracket: )
-    - with_compound_statement:
-        keyword: WITH
-        common_table_expression:
-          identifier: mycte
-          keyword: AS
-          bracketed:
-            start_bracket: (
-            select_statement:
-              select_clause:
-              - keyword: SELECT
-              - select_clause_element:
-                  column_reference:
-                    identifier: foo
-              - comma: ','
-              - select_clause_element:
-                  column_reference:
-                    identifier: bar
-              from_clause:
-                keyword: FROM
-                from_expression:
-                  from_expression_element:
-                    table_expression:
-                      table_reference:
-                        identifier: mytable1
-            end_bracket: )
-        select_statement:
-          select_clause:
-          - keyword: SELECT
-          - select_clause_element:
-              column_reference:
-                identifier: foo
-          - comma: ','
-          - select_clause_element:
-              column_reference:
-                identifier: bar
-          - comma: ','
-          - select_clause_element:
-              column_reference:
-                identifier: baz
-          from_clause:
-            keyword: FROM
-            from_expression:
-              from_expression_element:
-                table_expression:
-                  table_reference:
-                    identifier: mycte
+      - raw: baz
+      - raw: FROM
+      - raw: mycte
   statement_terminator: ;

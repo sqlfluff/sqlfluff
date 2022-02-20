@@ -3,87 +3,71 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1a2e233acba5f10ade6ac0972f5f273025a1720e49bd93100d7aca133614ba94
+_hash: ec5aebaf4b80e020049c37db8c0cb47dcc3af3414fe3c2a3976416dc8649d9a7
 file:
   statement:
-    collect_statistics_statement:
-    - keyword: collect
-    - keyword: statistics
-    - keyword: column
+    unparsable:
+    - raw: collect
+    - raw: statistics
+    - raw: column
     - bracketed:
       - start_bracket: (
-      - column_reference:
-          identifier: Org_Unit_Code
+      - raw: Org_Unit_Code
       - comma: ','
-      - column_reference:
-          identifier: Org_Unit_Type
+      - raw: Org_Unit_Type
       - comma: ','
-      - column_reference:
-          identifier: Entity_Code
+      - raw: Entity_Code
       - end_bracket: )
-    - keyword: as
-    - object_reference:
-        identifier: Org_Descendant_NUPI
+    - raw: as
+    - raw: Org_Descendant_NUPI
     - comma: ','
-    - keyword: column
+    - raw: column
     - bracketed:
         start_bracket: (
-        column_reference:
-          identifier: Org_Unit_Type
+        raw: Org_Unit_Type
         end_bracket: )
     - comma: ','
-    - keyword: column
+    - raw: column
     - bracketed:
         start_bracket: (
-        column_reference:
-          identifier: Entity_Code
+        raw: Entity_Code
         end_bracket: )
     - comma: ','
-    - keyword: column
+    - raw: column
     - bracketed:
       - start_bracket: (
-      - column_reference:
-          identifier: Org_Unit_Code
+      - raw: Org_Unit_Code
       - comma: ','
-      - column_reference:
-          identifier: Entity_Code
+      - raw: Entity_Code
       - end_bracket: )
     - comma: ','
-    - keyword: column
+    - raw: column
     - bracketed:
       - start_bracket: (
-      - column_reference:
-          identifier: Entity_Code
+      - raw: Entity_Code
       - comma: ','
-      - column_reference:
-          identifier: Parent_Org_Unit_Code
+      - raw: Parent_Org_Unit_Code
       - comma: ','
-      - column_reference:
-          identifier: Parent_Org_Unit_Type
+      - raw: Parent_Org_Unit_Type
       - end_bracket: )
     - comma: ','
-    - keyword: column
+    - raw: column
     - bracketed:
         start_bracket: (
-        column_reference:
-          identifier: Org_Unit_Code
+        raw: Org_Unit_Code
         end_bracket: )
     - comma: ','
-    - keyword: column
+    - raw: column
     - bracketed:
       - start_bracket: (
-      - column_reference:
-          identifier: Parent_Org_Unit_Code
+      - raw: Parent_Org_Unit_Code
       - comma: ','
-      - column_reference:
-          identifier: Parent_Org_Unit_Type
+      - raw: Parent_Org_Unit_Type
       - comma: ','
-      - column_reference:
-          identifier: Parent_Entity_Code
+      - raw: Parent_Entity_Code
       - end_bracket: )
-    - keyword: 'on'
-    - table_reference:
-      - identifier: sandbox_db
-      - dot: .
-      - identifier: Org_Descendant
+    - raw: 'on'
+    - raw: sandbox_db
+    - raw: .
+    - raw: Org_Descendant
   statement_terminator: ;

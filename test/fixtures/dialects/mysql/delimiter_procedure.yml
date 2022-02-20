@@ -3,46 +3,35 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e6a883be9385ea8549b194c9e8fb3b93bf686be5ef162fd33520affe7627817d
+_hash: 0451b9d325bc3034e05345d1ba726a008d56cce469051457bf0f3177f0da6317
 file:
 - statement:
     delimiter_statement:
       keyword: DELIMITER
 - statement_terminator: '~'
 - statement:
-    create_procedure_statement:
-    - keyword: CREATE
-    - keyword: PROCEDURE
-    - function_name:
-        identifier: '`testprocedure`'
-    - base:
-        bracketed:
-          start_bracket: (
-          parameter: test
-          data_type:
-            data_type_identifier: int
-          end_bracket: )
-    - characteristic_statement:
-      - keyword: DETERMINISTIC
-      - keyword: LANGUAGE
-      - keyword: SQL
-      - keyword: CONTAINS
-      - keyword: SQL
-      - keyword: SQL
-      - keyword: SECURITY
-      - keyword: DEFINER
-    - base:
-        transaction_statement:
-          keyword: BEGIN
-          statement:
-            select_statement:
-              select_clause:
-                keyword: SELECT
-                select_clause_element:
-                  expression:
-                  - literal: '1'
-                  - binary_operator: +
-                  - literal: '2'
+    unparsable:
+    - raw: CREATE
+    - raw: PROCEDURE
+    - raw: '`testprocedure`'
+    - bracketed:
+      - start_bracket: (
+      - raw: test
+      - raw: int
+      - end_bracket: )
+    - raw: DETERMINISTIC
+    - raw: LANGUAGE
+    - raw: SQL
+    - raw: CONTAINS
+    - raw: SQL
+    - raw: SQL
+    - raw: SECURITY
+    - raw: DEFINER
+    - raw: BEGIN
+    - raw: SELECT
+    - raw: '1'
+    - raw: +
+    - raw: '2'
 - statement_terminator: ;
 - statement:
     transaction_statement:

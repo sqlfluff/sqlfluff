@@ -3,63 +3,51 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 93ce5a61c7877a3681c965f696c6ac707ccabbd0b31bf1923d62c3a35b907de2
+_hash: 522f834cb42d27a290acb4bca98666f9c67aecbd27ba8df7b77a13bda4ba3d9a
 file:
   statement:
     select_statement:
       select_clause:
       - keyword: SELECT
       - select_clause_element:
-          expression:
-          - function:
-              function_name:
-                function_name_identifier: PARSE_JSON
-              bracketed:
-                start_bracket: (
-                expression:
-                  column_reference:
-                  - identifier: t
-                  - dot: .
-                  - identifier: metadata
-                end_bracket: )
-          - array_accessor:
-              start_square_bracket: '['
-              expression:
-                literal: "'names'"
-              end_square_bracket: ']'
-          - array_accessor:
-              start_square_bracket: '['
-              literal: '0'
-              end_square_bracket: ']'
-          alias_expression:
-            keyword: AS
-            identifier: first_name
+          column_reference:
+            identifier: PARSE_JSON
+          unparsable:
+          - bracketed:
+            - start_bracket: (
+            - raw: t
+            - raw: .
+            - raw: metadata
+            - end_bracket: )
+          - start_square_bracket: '['
+          - raw: "'names'"
+          - end_square_bracket: ']'
+          - start_square_bracket: '['
+          - raw: '0'
+          - end_square_bracket: ']'
+          - raw: AS
+          - raw: first_name
       - comma: ','
       - select_clause_element:
-          expression:
-            function:
-              function_name:
-                function_name_identifier: PARSE_JSON
-              bracketed:
-                start_bracket: (
-                expression:
-                  column_reference:
-                  - identifier: t
-                  - dot: .
-                  - identifier: metadata
-                end_bracket: )
-            snowflake_semi_structured_expression:
-              colon: ':'
-              semi_structured_element: customer_id
-          alias_expression:
-            keyword: AS
-            identifier: customer_id
+          column_reference:
+            identifier: PARSE_JSON
+          unparsable:
+          - bracketed:
+            - start_bracket: (
+            - raw: t
+            - raw: .
+            - raw: metadata
+            - end_bracket: )
+          - raw: ':'
+          - raw: customer_id
+          - raw: AS
+          - raw: customer_id
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
-              table_reference:
+              path:
                 identifier: tickets
             alias_expression:
               keyword: AS

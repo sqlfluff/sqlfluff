@@ -3,49 +3,37 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3d097ef2368b6e68ffe0089c51c104a0f90e44f5a87d64e363152538ea1615a5
+_hash: 79d8297d3126fdaa45d44238f16d7610e597b16bcaf85c1f1b1d764897432bec
 file:
 - statement:
     delimiter_statement:
       keyword: DELIMITER
 - statement_terminator: '~'
 - statement:
-    create_function_statement:
-    - keyword: CREATE
-    - keyword: FUNCTION
-    - function_name:
-        identifier: '`add`'
-    - base:
-        bracketed:
-          start_bracket: (
-          parameter: test
-          data_type:
-            data_type_identifier: int
-          end_bracket: )
-    - keyword: RETURNS
-    - data_type:
-        data_type_identifier: longtext
-    - characteristic_statement:
-      - keyword: DETERMINISTIC
-      - keyword: LANGUAGE
-      - keyword: SQL
-      - keyword: CONTAINS
-      - keyword: SQL
-      - keyword: SQL
-      - keyword: SECURITY
-      - keyword: DEFINER
-    - base:
-        transaction_statement:
-          keyword: BEGIN
-          statement:
-            select_statement:
-              select_clause:
-                keyword: SELECT
-                select_clause_element:
-                  expression:
-                  - literal: '1'
-                  - binary_operator: +
-                  - literal: '2'
+    unparsable:
+    - raw: CREATE
+    - raw: FUNCTION
+    - raw: '`add`'
+    - bracketed:
+      - start_bracket: (
+      - raw: test
+      - raw: int
+      - end_bracket: )
+    - raw: RETURNS
+    - raw: longtext
+    - raw: DETERMINISTIC
+    - raw: LANGUAGE
+    - raw: SQL
+    - raw: CONTAINS
+    - raw: SQL
+    - raw: SQL
+    - raw: SECURITY
+    - raw: DEFINER
+    - raw: BEGIN
+    - raw: SELECT
+    - raw: '1'
+    - raw: +
+    - raw: '2'
 - statement_terminator: ;
 - statement:
     transaction_statement:

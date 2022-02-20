@@ -575,7 +575,7 @@ def test__parser__grammar_sequence_indent_conditional(seg_list, caplog):
         (["bar", " \t ", ".", "    ", "bar", "    "], None, True, False, 6),
         # Testing allow_trailing
         (["bar", " \t ", ".", "   "], None, True, False, 0),
-        (["bar", " \t ", ".", "   "], None, True, True, 3),
+        (["bar", " \t ", ".", "   "], None, True, True, 4),
         # Testing the implications of allow_gaps
         (["bar", " \t ", ".", "    ", "bar"], 0, True, False, 5),
         (["bar", " \t ", ".", "    ", "bar"], 0, False, False, 1),
@@ -614,6 +614,8 @@ def test__parser__grammar_delimited(
         with caplog.at_level(logging.DEBUG, logger="sqlfluff.parser"):
             # Matching with whitespace shouldn't match if we need at least one delimiter
             m = g.match(seg_list, parse_context=ctx)
+            print('FIRST: ', m[0])
+            print('SECOND ', m[1])
             assert len(m) == match_len
 
 

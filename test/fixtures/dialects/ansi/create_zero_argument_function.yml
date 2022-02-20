@@ -3,45 +3,39 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 70f3b48d6b9e3569b60dbe7b4860155a93958fb624d2cd0f554c2010a6523abb
+_hash: 9dd3de3f0c802bfd893cd08b6007d0650556b03bb56056311bc90c5c40494576
 file:
 - statement:
     create_function_statement:
-    - keyword: CREATE
-    - binary_operator: OR
-    - keyword: REPLACE
-    - keyword: FUNCTION
-    - function_name:
-        function_name_identifier: a
-    - base:
-        bracketed:
+      unparsable:
+      - keyword: CREATE
+      - binary_operator: OR
+      - keyword: REPLACE
+      - keyword: FUNCTION
+      - raw: a
+      - bracketed:
           start_bracket: (
           end_bracket: )
-    - keyword: RETURNS
-    - data_type:
-        data_type_identifier: integer
-    - base:
-      - keyword: AS
-      - literal: "'\n    SELECT 1;\n'"
-      - keyword: LANGUAGE
-      - parameter: SQL
+      - raw: RETURNS
+      - raw: integer
+      - raw: AS
+      - raw: "'\n    SELECT 1;\n'"
+      - raw: LANGUAGE
+      - raw: SQL
 - statement_terminator: ;
 - statement:
     create_function_statement:
-    - keyword: CREATE
-    - keyword: FUNCTION
-    - function_name:
-        function_name_identifier: a
-    - base:
-        bracketed:
+      unparsable:
+      - keyword: CREATE
+      - keyword: FUNCTION
+      - raw: a
+      - bracketed:
           start_bracket: (
           end_bracket: )
-    - keyword: RETURNS
-    - data_type:
-        data_type_identifier: integer
-    - base:
-      - keyword: AS
-      - literal: "'\n    SELECT 1;\n'"
-      - keyword: LANGUAGE
-      - parameter: SQL
+      - raw: RETURNS
+      - raw: integer
+      - raw: AS
+      - raw: "'\n    SELECT 1;\n'"
+      - raw: LANGUAGE
+      - raw: SQL
 - statement_terminator: ;

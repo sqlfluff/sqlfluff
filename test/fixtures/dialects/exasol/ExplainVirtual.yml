@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e39f5e70fda088778750b0e69a4d16b8b874025a5a02bf42ef87046e1217e669
+_hash: 528a27cae71dbb5550bba4cb80faf0102ef92fcf529d3006a57944848c7804fb
 file:
 - statement:
     select_statement:
@@ -21,39 +21,23 @@ file:
           column_reference:
             identifier: pushdown_sql
       from_clause:
-        keyword: FROM
-        from_expression:
-          from_expression_element:
-            bracketed:
-              start_bracket: (
-              table_expression:
-                explain_virtual_statement:
-                - keyword: EXPLAIN
-                - keyword: VIRTUAL
-                - select_statement:
-                    select_clause:
-                      keyword: SELECT
-                      select_clause_element:
-                        wildcard_expression:
-                          wildcard_identifier:
-                            star: '*'
-                    from_clause:
-                      keyword: FROM
-                      from_expression:
-                        from_expression_element:
-                          table_expression:
-                            table_reference:
-                            - identifier: vs_impala
-                            - dot: .
-                            - identifier: sample_07
-                    where_clause:
-                      keyword: WHERE
-                      expression:
-                        column_reference:
-                          identifier: total_emp
-                        comparison_operator: '>'
-                        literal: '10000'
-              end_bracket: )
+        unparsable:
+          keyword: FROM
+          bracketed:
+          - start_bracket: (
+          - raw: EXPLAIN
+          - raw: VIRTUAL
+          - raw: SELECT
+          - raw: '*'
+          - raw: FROM
+          - raw: vs_impala
+          - raw: .
+          - raw: sample_07
+          - raw: WHERE
+          - raw: total_emp
+          - raw: '>'
+          - raw: '10000'
+          - end_bracket: )
 - statement_terminator: ;
 - statement:
     explain_virtual_statement:

@@ -3,50 +3,41 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6f423eff91e9a35194b8dbdbccf129cb9630492fde4d509c3bb5dab34139e631
+_hash: c2085af94ce3b5b71e664cf9123c73902131513d22d545df2dc5abb68b547a08
 file:
   statement:
-    create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: '`foo`'
+    unparsable:
+    - raw: CREATE
+    - raw: TABLE
+    - raw: '`foo`'
     - bracketed:
-        start_bracket: (
-        column_definition:
-        - identifier: '`id`'
-        - data_type:
-            data_type_identifier: int
-            bracketed:
-              start_bracket: (
-              expression:
-                literal: '11'
-              end_bracket: )
-        - column_constraint_segment:
-            keyword: unsigned
-        - column_constraint_segment:
-          - keyword: NOT
-          - keyword: 'NULL'
-        - column_constraint_segment:
-            keyword: AUTO_INCREMENT
-        comma: ','
-        table_constraint_segment:
-        - keyword: PRIMARY
-        - keyword: KEY
-        - bracketed:
-            start_bracket: (
-            column_reference:
-              identifier: '`id`'
-            end_bracket: )
-        end_bracket: )
-    - parameter: ENGINE
-    - comparison_operator: '='
-    - parameter: InnoDB
-    - keyword: DEFAULT
-    - parameter: CHARSET
-    - comparison_operator: '='
-    - parameter: utf8mb4
-    - parameter: COLLATE
-    - comparison_operator: '='
-    - parameter: utf8mb4_unicode_ci
+      - start_bracket: (
+      - raw: '`id`'
+      - raw: int
+      - bracketed:
+          start_bracket: (
+          raw: '11'
+          end_bracket: )
+      - raw: unsigned
+      - raw: NOT
+      - raw: 'NULL'
+      - raw: AUTO_INCREMENT
+      - comma: ','
+      - raw: PRIMARY
+      - raw: KEY
+      - bracketed:
+          start_bracket: (
+          raw: '`id`'
+          end_bracket: )
+      - end_bracket: )
+    - raw: ENGINE
+    - raw: '='
+    - raw: InnoDB
+    - raw: DEFAULT
+    - raw: CHARSET
+    - raw: '='
+    - raw: utf8mb4
+    - raw: COLLATE
+    - raw: '='
+    - raw: utf8mb4_unicode_ci
   statement_terminator: ;

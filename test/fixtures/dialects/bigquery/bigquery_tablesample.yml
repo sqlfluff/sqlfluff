@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 601870f0004a27fc908c82ddd1df9d9d5365fd038adf6aa6f6b3070b4dc9d4fb
+_hash: 9dc68b82130c6edfcb9c510aeefe9f81f3a07e9e78757c88d97251038fb00d06
 file:
   statement:
     select_statement:
@@ -22,12 +22,12 @@ file:
               - identifier: dataset
               - dot: .
               - identifier: my_table
-            sample_expression:
-            - keyword: TABLESAMPLE
-            - keyword: SYSTEM
-            - bracketed:
-                start_bracket: (
-                literal: '10'
-                keyword: PERCENT
-                end_bracket: )
+        unparsable:
+        - raw: TABLESAMPLE
+        - raw: SYSTEM
+        - bracketed:
+          - start_bracket: (
+          - raw: '10'
+          - raw: PERCENT
+          - end_bracket: )
   statement_terminator: ;

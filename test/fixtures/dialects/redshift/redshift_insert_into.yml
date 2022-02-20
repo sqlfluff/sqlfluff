@@ -3,81 +3,51 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 93b2aa260d4eaadc8abbd27608f9ac81f70c9ffd0a4349541ae2499e38f3b7b3
+_hash: a2bd0f75935bd6defd02c187b4318cf0f4699cd238f8b272bc6ae534736923bc
 file:
 - statement:
-    insert_statement:
-    - keyword: INSERT
-    - keyword: INTO
-    - table_reference:
-      - identifier: s1
-      - dot: .
-      - identifier: t1
-    - bracketed:
-        start_bracket: (
-        select_statement:
-          select_clause:
-          - keyword: SELECT
-          - select_clause_element:
-              column_reference:
-                identifier: col1
-          - comma: ','
-          - select_clause_element:
-              column_reference:
-                identifier: col2
-          - comma: ','
-          - select_clause_element:
-              column_reference:
-                identifier: col3
-          from_clause:
-            keyword: FROM
-            from_expression:
-              from_expression_element:
-                table_expression:
-                  table_reference:
-                    identifier: testtable
-        end_bracket: )
-- statement_terminator: ;
-- statement:
-    insert_statement:
-    - keyword: INSERT
-    - keyword: INTO
-    - table_reference:
-      - identifier: s1
-      - dot: .
-      - identifier: t1
+    unparsable:
+    - raw: INSERT
+    - raw: INTO
+    - raw: s1
+    - raw: .
+    - raw: t1
     - bracketed:
       - start_bracket: (
-      - column_reference:
-          identifier: col1
+      - raw: SELECT
+      - raw: col1
       - comma: ','
-      - column_reference:
-          identifier: col2
+      - raw: col2
+      - comma: ','
+      - raw: col3
+      - raw: FROM
+      - raw: testtable
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    unparsable:
+    - raw: INSERT
+    - raw: INTO
+    - raw: s1
+    - raw: .
+    - raw: t1
+    - bracketed:
+      - start_bracket: (
+      - raw: col1
+      - comma: ','
+      - raw: col2
       - end_bracket: )
     - bracketed:
-        start_bracket: (
-        select_statement:
-          select_clause:
-          - keyword: select
-          - select_clause_element:
-              column_reference:
-                identifier: col1
-          - comma: ','
-          - select_clause_element:
-              column_reference:
-                identifier: col2
-          - comma: ','
-          - select_clause_element:
-              column_reference:
-                identifier: col3
-          from_clause:
-            keyword: from
-            from_expression:
-              from_expression_element:
-                table_expression:
-                  table_reference:
-                    identifier: testtable
-        end_bracket: )
+      - start_bracket: (
+      - raw: select
+      - raw: col1
+      - comma: ','
+      - raw: col2
+      - comma: ','
+      - raw: col3
+      - raw: from
+      - raw: testtable
+      - end_bracket: )
 - statement_terminator: ;
 - statement:
     insert_statement:
@@ -121,34 +91,30 @@ file:
     - keyword: VALUES
 - statement_terminator: ;
 - statement:
-    insert_statement:
-    - keyword: INSERT
-    - keyword: INTO
-    - table_reference:
-      - identifier: s1
-      - dot: .
-      - identifier: t1
+    unparsable:
+    - raw: INSERT
+    - raw: INTO
+    - raw: s1
+    - raw: .
+    - raw: t1
     - bracketed:
       - start_bracket: (
-      - column_reference:
-          identifier: col1
+      - raw: col1
       - comma: ','
-      - column_reference:
-          identifier: col2
+      - raw: col2
       - end_bracket: )
-    - values_clause:
-      - keyword: VALUES
-      - bracketed:
-        - start_bracket: (
-        - literal: "'V1'"
-        - comma: ','
-        - literal: '1'
-        - end_bracket: )
+    - raw: VALUES
+    - bracketed:
+      - start_bracket: (
+      - raw: "'V1'"
       - comma: ','
-      - bracketed:
-        - start_bracket: (
-        - literal: "'V2'"
-        - comma: ','
-        - literal: '2'
-        - end_bracket: )
+      - raw: '1'
+      - end_bracket: )
+    - comma: ','
+    - bracketed:
+      - start_bracket: (
+      - raw: "'V2'"
+      - comma: ','
+      - raw: '2'
+      - end_bracket: )
 - statement_terminator: ;

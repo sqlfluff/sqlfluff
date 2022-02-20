@@ -3,56 +3,43 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 94b516f95cfe6c0efc44f7d1859aa9fea9f1028c3203c4977c303064d198db54
+_hash: b2a2716beea72015db0943de980329eef384e65a37772407d0f497b25e75032b
 file:
 - statement:
-    create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: foo
-    - bracketed:
-        start_bracket: (
-        column_definition:
-        - identifier: id
-        - data_type:
-            data_type_identifier: INTEGER
-        - column_constraint_segment:
-          - keyword: NOT
-          - keyword: 'NULL'
-        - column_constraint_segment:
-          - keyword: PRIMARY
-          - keyword: KEY
-        end_bracket: )
-    - table_end_clause_segment:
-      - keyword: WITHOUT
-      - keyword: ROWID
-- statement_terminator: ;
-- statement:
-    create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - keyword: IF
-    - keyword: NOT
-    - keyword: EXISTS
-    - table_reference:
-        identifier: wordcount
+    unparsable:
+    - raw: CREATE
+    - raw: TABLE
+    - raw: foo
     - bracketed:
       - start_bracket: (
-      - column_definition:
-          identifier: word
-          data_type:
-            data_type_identifier: TEXT
-          column_constraint_segment:
-          - keyword: PRIMARY
-          - keyword: KEY
-      - comma: ','
-      - column_definition:
-          identifier: cnt
-          data_type:
-            data_type_identifier: INTEGER
+      - raw: id
+      - raw: INTEGER
+      - raw: NOT
+      - raw: 'NULL'
+      - raw: PRIMARY
+      - raw: KEY
       - end_bracket: )
-    - table_end_clause_segment:
-      - keyword: WITHOUT
-      - keyword: ROWID
+    - raw: WITHOUT
+    - raw: ROWID
+- statement_terminator: ;
+- statement:
+    unparsable:
+    - raw: CREATE
+    - raw: TABLE
+    - raw: IF
+    - raw: NOT
+    - raw: EXISTS
+    - raw: wordcount
+    - bracketed:
+      - start_bracket: (
+      - raw: word
+      - raw: TEXT
+      - raw: PRIMARY
+      - raw: KEY
+      - comma: ','
+      - raw: cnt
+      - raw: INTEGER
+      - end_bracket: )
+    - raw: WITHOUT
+    - raw: ROWID
 - statement_terminator: ;

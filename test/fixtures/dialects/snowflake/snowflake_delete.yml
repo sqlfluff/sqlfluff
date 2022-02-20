@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bba1031dd85ce7c9672b2c2b8121f860fdf76d9ac09e35cad0a4d804ac59b0c6
+_hash: e66a7d3d8bf4c5b2da7ef0f9c37309241974a95917fe7a976b3bcf3315e4602b
 file:
 - statement:
     delete_statement:
@@ -84,31 +84,19 @@ file:
               table_reference:
                 identifier: leased_bicycles
       using_clause:
-        keyword: using
-        from_expression_element:
-          table_expression:
-            bracketed:
-              start_bracket: (
-              select_statement:
-                select_clause:
-                  keyword: select
-                  select_clause_element:
-                    column_reference:
-                      identifier: bicycle_id
-                    alias_expression:
-                      keyword: as
-                      identifier: bicycle_id
-                from_clause:
-                  keyword: from
-                  from_expression:
-                    from_expression_element:
-                      table_expression:
-                        table_reference:
-                          identifier: returned_bicycles
-              end_bracket: )
-          alias_expression:
-            keyword: as
-            identifier: returned
+        unparsable:
+        - keyword: using
+        - bracketed:
+          - start_bracket: (
+          - raw: select
+          - raw: bicycle_id
+          - raw: as
+          - raw: bicycle_id
+          - raw: from
+          - raw: returned_bicycles
+          - end_bracket: )
+        - raw: as
+        - raw: returned
       where_clause:
         keyword: where
         expression:
@@ -133,37 +121,23 @@ file:
               table_reference:
                 identifier: leased_bicycles
       using_clause:
-        keyword: using
-        from_expression_element:
-          table_expression:
-            bracketed:
-              start_bracket: (
-              select_statement:
-                select_clause:
-                  keyword: select
-                  select_clause_element:
-                    column_reference:
-                      identifier: bicycle_id
-                    alias_expression:
-                      keyword: as
-                      identifier: bicycle_id
-                from_clause:
-                  keyword: from
-                  from_expression:
-                    from_expression_element:
-                      table_expression:
-                        table_reference:
-                          identifier: returned_bicycles
-                where_clause:
-                  keyword: where
-                  expression:
-                  - literal: '1'
-                  - comparison_operator: '='
-                  - literal: '2'
-              end_bracket: )
-          alias_expression:
-            keyword: as
-            identifier: returned
+        unparsable:
+        - keyword: using
+        - bracketed:
+          - start_bracket: (
+          - raw: select
+          - raw: bicycle_id
+          - raw: as
+          - raw: bicycle_id
+          - raw: from
+          - raw: returned_bicycles
+          - raw: where
+          - raw: '1'
+          - raw: '='
+          - raw: '2'
+          - end_bracket: )
+        - raw: as
+        - raw: returned
       where_clause:
         keyword: where
         expression:

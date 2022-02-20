@@ -3,47 +3,37 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 702a7117b57ed73ac259d6bc9e110e4730066c3b75e3868db6bb6f6853b64004
+_hash: 25963dd905a4d3562b85d3b5a8202e125d4b7d411e7c1c83b11d67321fda7de3
 file:
   statement:
     select_statement:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          function:
-            function_name:
-              keyword: DATEADD
-            bracketed:
+          column_reference:
+            identifier: DATEADD
+          unparsable:
+          - bracketed:
             - start_bracket: (
-            - date_part:
-                keyword: DAY
+            - raw: DAY
             - comma: ','
-            - expression:
-                function:
-                  function_name:
-                    function_name_identifier: ROW_NUMBER
-                  bracketed:
-                    start_bracket: (
-                    end_bracket: )
-                  over_clause:
-                    keyword: OVER
-                    bracketed:
-                      start_bracket: (
-                      window_specification:
-                        orderby_clause:
-                        - keyword: ORDER
-                        - keyword: BY
-                        - column_reference:
-                            identifier: DateCD
-                        - keyword: ASC
-                      end_bracket: )
+            - raw: ROW_NUMBER
+            - bracketed:
+                start_bracket: (
+                end_bracket: )
+            - raw: OVER
+            - bracketed:
+              - start_bracket: (
+              - raw: ORDER
+              - raw: BY
+              - raw: DateCD
+              - raw: ASC
+              - end_bracket: )
             - comma: ','
-            - expression:
-                literal: "'2014-01-01'"
+            - raw: "'2014-01-01'"
             - end_bracket: )
-          alias_expression:
-            keyword: AS
-            identifier: dt
+          - raw: AS
+          - raw: dt
       from_clause:
         keyword: FROM
         from_expression:

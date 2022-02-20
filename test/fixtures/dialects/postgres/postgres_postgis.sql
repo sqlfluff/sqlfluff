@@ -4,7 +4,7 @@ CREATE TABLE public.foo
     my_geometry_column GEOMETRY (GEOMETRY, 4326),
     my_point POINT(0 0),
     my_linestring LINESTRING(0 0, 1 1, 2 1, 2 2),
-    my_simple_polygon POLYGON((0 0, 1 0, 1 1, 0 1, 0 0)),
+    my_simple_polygon POLYGON((0 0 , 1 0, 1 1, 0 1, 0 0)),
     my_complex_polygon POLYGON((0 0, 10 0, 10 10, 0 10, 0 0),(1 1, 1 2, 2 2, 2 1, 1 1)),
     my_geometry_collection GEOMETRYCOLLECTION(POINT(2 0),POLYGON((0 0, 1 0, 1 1, 0 1, 0 0))),
     my_3d_linestring LINESTRINGZ (0 0 0,1 0 0,1 1 2),

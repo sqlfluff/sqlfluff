@@ -3,136 +3,115 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9a9d8a07762da78a9691d6e3b4c84875377a2c0c8f744b69598ab161391e95b5
+_hash: fa77a26f464feca2176ad348831cec822baca8a086da1b701114a5a1d2b3ada9
 file:
 - statement:
     create_trigger:
-    - keyword: CREATE
-    - keyword: TRIGGER
-    - trigger_reference:
-        identifier: foo
-    - keyword: BEFORE
-    - keyword: INSERT
-    - keyword: 'ON'
-    - table_reference:
-        identifier: bar
-    - keyword: EXECUTE
-    - keyword: PROCEDURE
-    - function_name_identifier: proc
-    - bracketed:
-        start_bracket: (
-        expression:
-          column_reference:
-            identifier: args
-        end_bracket: )
+      unparsable:
+      - keyword: CREATE
+      - keyword: TRIGGER
+      - raw: foo
+      - raw: BEFORE
+      - raw: INSERT
+      - raw: 'ON'
+      - raw: bar
+      - raw: EXECUTE
+      - raw: PROCEDURE
+      - raw: proc
+      - bracketed:
+          start_bracket: (
+          raw: args
+          end_bracket: )
 - statement_terminator: ;
 - statement:
     create_trigger:
-    - keyword: CREATE
-    - keyword: TRIGGER
-    - trigger_reference:
-        identifier: foo
-    - keyword: BEFORE
-    - keyword: INSERT
-    - keyword: 'on'
-    - table_reference:
-        identifier: bar
-    - keyword: EXECUTE
-    - keyword: PROCEDURE
-    - function_name_identifier: proc
-    - bracketed:
-        start_bracket: (
-        expression:
-          column_reference:
-            identifier: args
-        end_bracket: )
+      unparsable:
+      - keyword: CREATE
+      - keyword: TRIGGER
+      - raw: foo
+      - raw: BEFORE
+      - raw: INSERT
+      - raw: 'on'
+      - raw: bar
+      - raw: EXECUTE
+      - raw: PROCEDURE
+      - raw: proc
+      - bracketed:
+          start_bracket: (
+          raw: args
+          end_bracket: )
 - statement_terminator: ;
 - statement:
     create_trigger:
-    - keyword: CREATE
-    - keyword: TRIGGER
-    - trigger_reference:
-        identifier: foo
-    - keyword: AFTER
-    - keyword: UPDATE
-    - keyword: OF
-    - column_reference:
-        identifier: bar
-    - comma: ','
-    - column_reference:
-        identifier: baz
-    - keyword: 'ON'
-    - table_reference:
-        identifier: bar
-    - keyword: EXECUTE
-    - keyword: PROCEDURE
-    - function_name_identifier: proc
-    - bracketed:
-        start_bracket: (
-        expression:
-          column_reference:
-            identifier: args
-        end_bracket: )
+      unparsable:
+      - keyword: CREATE
+      - keyword: TRIGGER
+      - raw: foo
+      - raw: AFTER
+      - raw: UPDATE
+      - raw: OF
+      - raw: bar
+      - comma: ','
+      - raw: baz
+      - raw: 'ON'
+      - raw: bar
+      - raw: EXECUTE
+      - raw: PROCEDURE
+      - raw: proc
+      - bracketed:
+          start_bracket: (
+          raw: args
+          end_bracket: )
 - statement_terminator: ;
 - statement:
     create_trigger:
-    - keyword: CREATE
-    - keyword: TRIGGER
-    - trigger_reference:
-        identifier: foo
-    - keyword: INSTEAD
-    - keyword: OF
-    - keyword: DELETE
-    - keyword: 'ON'
-    - table_reference:
-        identifier: bar
-    - keyword: FROM
-    - table_reference:
-        identifier: baz
-    - keyword: DEFERRABLE
-    - keyword: INITIALLY
-    - keyword: IMMEDIATE
-    - keyword: FOR
-    - keyword: EACH
-    - keyword: ROW
-    - keyword: EXECUTE
-    - keyword: PROCEDURE
-    - function_name_identifier: proc
-    - bracketed:
-        start_bracket: (
-        expression:
-          column_reference:
-            identifier: args
-        end_bracket: )
+      unparsable:
+      - keyword: CREATE
+      - keyword: TRIGGER
+      - raw: foo
+      - raw: INSTEAD
+      - raw: OF
+      - raw: DELETE
+      - raw: 'ON'
+      - raw: bar
+      - raw: FROM
+      - raw: baz
+      - raw: DEFERRABLE
+      - raw: INITIALLY
+      - raw: IMMEDIATE
+      - raw: FOR
+      - raw: EACH
+      - raw: ROW
+      - raw: EXECUTE
+      - raw: PROCEDURE
+      - raw: proc
+      - bracketed:
+          start_bracket: (
+          raw: args
+          end_bracket: )
 - statement_terminator: ;
 - statement:
     create_trigger:
-    - keyword: CREATE
-    - keyword: TRIGGER
-    - trigger_reference:
-        identifier: foo
-    - keyword: BEFORE
-    - keyword: INSERT
-    - keyword: 'ON'
-    - table_reference:
-        identifier: bar
-    - keyword: WHEN
-    - bracketed:
-        start_bracket: (
-        expression:
-        - column_reference:
-            identifier: a
-        - comparison_operator: '='
-        - column_reference:
-            identifier: b
-        end_bracket: )
-    - keyword: EXECUTE
-    - keyword: PROCEDURE
-    - function_name_identifier: proc
-    - bracketed:
-        start_bracket: (
-        expression:
-          column_reference:
-            identifier: args
-        end_bracket: )
+      unparsable:
+      - keyword: CREATE
+      - keyword: TRIGGER
+      - raw: foo
+      - raw: BEFORE
+      - raw: INSERT
+      - raw: 'ON'
+      - raw: bar
+      - raw: WHEN
+      - bracketed:
+        - start_bracket: (
+        - raw: a
+        - raw: '='
+        - raw: b
+        - end_bracket: )
+      - raw: EXECUTE
+      - raw: PROCEDURE
+      - raw: proc
+      - bracketed:
+          start_bracket: (
+          raw: args
+          end_bracket: )
 - statement_terminator: ;

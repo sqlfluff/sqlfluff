@@ -3,84 +3,53 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7e657292b3a7d84936b41ac263313c771c046037bf645a34de6ee4066d8777a6
+_hash: 3a5c6791850328ec9daebaf730f502ee28467e9d91f6593e1234c649adc1ffca
 file:
 - statement:
     with_compound_statement:
-      keyword: WITH
-      common_table_expression:
-        identifier: Produce
-        keyword: AS
-        bracketed:
-          start_bracket: (
-          set_expression:
-          - select_statement:
-              select_clause:
-              - keyword: SELECT
-              - select_clause_element:
-                  literal: "'Kale'"
-                  alias_expression:
-                    keyword: as
-                    identifier: product
-              - comma: ','
-              - select_clause_element:
-                  literal: '51'
-                  alias_expression:
-                    keyword: as
-                    identifier: Q1
-              - comma: ','
-              - select_clause_element:
-                  literal: '23'
-                  alias_expression:
-                    keyword: as
-                    identifier: Q2
-              - comma: ','
-              - select_clause_element:
-                  literal: '45'
-                  alias_expression:
-                    keyword: as
-                    identifier: Q3
-              - comma: ','
-              - select_clause_element:
-                  literal: '3'
-                  alias_expression:
-                    keyword: as
-                    identifier: Q4
-          - set_operator:
-            - keyword: UNION
-            - keyword: ALL
-          - select_statement:
-              select_clause:
-              - keyword: SELECT
-              - select_clause_element:
-                  literal: "'Apple'"
-              - comma: ','
-              - select_clause_element:
-                  literal: '77'
-              - comma: ','
-              - select_clause_element:
-                  literal: '0'
-              - comma: ','
-              - select_clause_element:
-                  literal: '25'
-              - comma: ','
-              - select_clause_element:
-                  literal: '2'
-          end_bracket: )
-      select_statement:
-        select_clause:
-          keyword: SELECT
-          select_clause_element:
-            wildcard_expression:
-              wildcard_identifier:
-                star: '*'
-        from_clause:
-          keyword: FROM
-          from_expression:
-            from_expression_element:
-              table_expression:
-                table_reference:
-                  identifier: Produce
+      unparsable:
+      - keyword: WITH
+      - raw: Produce
+      - raw: AS
+      - bracketed:
+        - start_bracket: (
+        - raw: SELECT
+        - raw: "'Kale'"
+        - raw: as
+        - raw: product
+        - comma: ','
+        - raw: '51'
+        - raw: as
+        - raw: Q1
+        - comma: ','
+        - raw: '23'
+        - raw: as
+        - raw: Q2
+        - comma: ','
+        - raw: '45'
+        - raw: as
+        - raw: Q3
+        - comma: ','
+        - raw: '3'
+        - raw: as
+        - raw: Q4
+        - raw: UNION
+        - raw: ALL
+        - raw: SELECT
+        - raw: "'Apple'"
+        - comma: ','
+        - raw: '77'
+        - comma: ','
+        - raw: '0'
+        - comma: ','
+        - raw: '25'
+        - comma: ','
+        - raw: '2'
+        - end_bracket: )
+      - raw: SELECT
+      - raw: '*'
+      - raw: FROM
+      - raw: Produce
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -97,25 +66,25 @@ file:
             table_expression:
               table_reference:
                 identifier: Produce
-          from_unpivot_expression:
-            keyword: UNPIVOT
-            bracketed:
+        unparsable:
+          raw: UNPIVOT
+          bracketed:
+          - start_bracket: (
+          - raw: sales
+          - raw: FOR
+          - raw: quarter
+          - raw: IN
+          - bracketed:
             - start_bracket: (
-            - identifier: sales
-            - keyword: FOR
-            - identifier: quarter
-            - keyword: IN
-            - bracketed:
-              - start_bracket: (
-              - identifier: Q1
-              - comma: ','
-              - identifier: Q2
-              - comma: ','
-              - identifier: Q3
-              - comma: ','
-              - identifier: Q4
-              - end_bracket: )
+            - raw: Q1
+            - comma: ','
+            - raw: Q2
+            - comma: ','
+            - raw: Q3
+            - comma: ','
+            - raw: Q4
             - end_bracket: )
+          - end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -132,40 +101,38 @@ file:
             table_expression:
               table_reference:
                 identifier: Produce
-          from_unpivot_expression:
-            keyword: UNPIVOT
-            bracketed:
+        unparsable:
+          raw: UNPIVOT
+          bracketed:
+          - start_bracket: (
+          - bracketed:
+            - start_bracket: (
+            - raw: first_half_sales
+            - comma: ','
+            - raw: second_half_sales
+            - end_bracket: )
+          - raw: FOR
+          - raw: semesters
+          - raw: IN
+          - bracketed:
             - start_bracket: (
             - bracketed:
               - start_bracket: (
-              - identifier: first_half_sales
+              - raw: Q1
               - comma: ','
-              - identifier: second_half_sales
+              - raw: Q2
               - end_bracket: )
-            - keyword: FOR
-            - identifier: semesters
-            - keyword: IN
+            - raw: AS
+            - raw: "'semester_1'"
+            - comma: ','
             - bracketed:
               - start_bracket: (
-              - bracketed:
-                - start_bracket: (
-                - identifier: Q1
-                - comma: ','
-                - identifier: Q2
-                - end_bracket: )
-              - alias_expression:
-                  keyword: AS
-                  literal: "'semester_1'"
+              - raw: Q3
               - comma: ','
-              - bracketed:
-                - start_bracket: (
-                - identifier: Q3
-                - comma: ','
-                - identifier: Q4
-                - end_bracket: )
-              - alias_expression:
-                  keyword: AS
-                  literal: "'semester_2'"
+              - raw: Q4
               - end_bracket: )
+            - raw: AS
+            - raw: "'semester_2'"
             - end_bracket: )
+          - end_bracket: )
 - statement_terminator: ;

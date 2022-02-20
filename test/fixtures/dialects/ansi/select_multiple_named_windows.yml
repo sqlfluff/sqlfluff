@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 83852fc6c49ca773d2533d7590085feb46a556c64badd8a6259f89bf9851c281
+_hash: 62237ccbffadabec14a4036ef6a8c54db24fbe993cd3ba8aaab3dac87efb4adb
 file:
   statement:
     select_statement:
@@ -22,25 +22,20 @@ file:
             identifier: category
       - comma: ','
       - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: LAST_VALUE
-            bracketed:
+          column_reference:
+            identifier: LAST_VALUE
+          unparsable:
+          - bracketed:
               start_bracket: (
-              expression:
-                column_reference:
-                  identifier: item
+              raw: item
               end_bracket: )
-            over_clause:
-              keyword: OVER
-              bracketed:
-                start_bracket: (
-                window_specification:
-                  identifier: d
-                end_bracket: )
-          alias_expression:
-            keyword: AS
-            identifier: most_popular
+          - raw: OVER
+          - bracketed:
+              start_bracket: (
+              raw: d
+              end_bracket: )
+          - raw: AS
+          - raw: most_popular
       from_clause:
         keyword: FROM
         from_expression:

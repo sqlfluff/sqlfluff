@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6138f83f26b04fb2bb50c6bd85c2e0e3b71ef9cdd56ca3bb89cfd9d76fc8db3e
+_hash: 3eeb322c67013c3b6ba03e3d0d30e8346681dd9d800e0961ba9870865fcc5974
 file:
 - statement:
     alter_table_statement:
@@ -23,37 +23,32 @@ file:
               identifier: new_dec
               data_type:
                 keyword: DECIMAL
-                bracketed:
-                - start_bracket: (
-                - literal: '18'
-                - comma: ','
-                - literal: '0'
-                - end_bracket: )
+      unparsable:
+        bracketed:
+        - start_bracket: (
+        - raw: '18'
+        - comma: ','
+        - raw: '0'
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
     alter_table_statement:
-      alter_table_column_statement:
+      unparsable:
       - keyword: ALTER
       - keyword: TABLE
-      - table_reference:
-          identifier: t
-      - alter_table_add_column:
-          keyword: ADD
-          bracketed:
+      - raw: t
+      - raw: ADD
+      - bracketed:
+        - start_bracket: (
+        - raw: new_char
+        - raw: CHAR
+        - bracketed:
             start_bracket: (
-            column_definition:
-              column_datatype_definition:
-                identifier: new_char
-                data_type:
-                  keyword: CHAR
-                  bracketed:
-                    start_bracket: (
-                    literal: '10'
-                    end_bracket: )
-              column_option:
-                keyword: DEFAULT
-                literal: "'some text'"
+            raw: '10'
             end_bracket: )
+        - raw: DEFAULT
+        - raw: "'some text'"
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -82,48 +77,41 @@ file:
 - statement_terminator: ;
 - statement:
     alter_table_statement:
-      alter_table_column_statement:
+      unparsable:
       - keyword: ALTER
       - keyword: TABLE
-      - table_reference:
-          identifier: t
-      - alter_table_modify_column:
-          keyword: MODIFY
-          bracketed:
-            start_bracket: (
-            identifier: i
-            data_type:
-              keyword: DECIMAL
-              bracketed:
-              - start_bracket: (
-              - literal: '10'
-              - comma: ','
-              - literal: '2'
-              - end_bracket: )
-            end_bracket: )
+      - raw: t
+      - raw: MODIFY
+      - bracketed:
+        - start_bracket: (
+        - raw: i
+        - raw: DECIMAL
+        - bracketed:
+          - start_bracket: (
+          - raw: '10'
+          - comma: ','
+          - raw: '2'
+          - end_bracket: )
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
     alter_table_statement:
-      alter_table_column_statement:
+      unparsable:
       - keyword: ALTER
       - keyword: TABLE
-      - table_reference:
-          identifier: t
-      - alter_table_modify_column:
-          keyword: MODIFY
-          bracketed:
+      - raw: t
+      - raw: MODIFY
+      - bracketed:
+        - start_bracket: (
+        - raw: j
+        - raw: VARCHAR
+        - bracketed:
             start_bracket: (
-            identifier: j
-            data_type:
-              keyword: VARCHAR
-              bracketed:
-                start_bracket: (
-                literal: '5'
-                end_bracket: )
-            column_option:
-              keyword: DEFAULT
-              literal: "'text'"
+            raw: '5'
             end_bracket: )
+        - raw: DEFAULT
+        - raw: "'text'"
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -139,10 +127,11 @@ file:
             keyword: INTEGER
           column_option:
             keyword: IDENTITY
-            bracketed:
-              start_bracket: (
-              literal: '1000'
-              end_bracket: )
+      unparsable:
+        bracketed:
+          start_bracket: (
+          raw: '1000'
+          end_bracket: )
 - statement_terminator: ;
 - statement:
     alter_table_statement:

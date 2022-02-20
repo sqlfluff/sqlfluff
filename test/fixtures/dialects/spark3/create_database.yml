@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b87f3a3980afe193145d52dac614d424e692e16c69d73cdbd3b5d99c639f0573
+_hash: f5ad0e0746e182f4e86574e347a19619c13ce2085f2d56faa99dde7dd30656a7
 file:
 - base:
     create_database_statement:
@@ -18,13 +18,14 @@ file:
     - literal: '"database_comment"'
     - keyword: LOCATION
     - literal: '"root/database_directory"'
-    - keyword: WITH
-    - keyword: DBPROPERTIES
+    unparsable:
+    - raw: WITH
+    - raw: DBPROPERTIES
     - bracketed:
       - start_bracket: (
-      - literal: '"property_name"'
-      - comparison_operator: '='
-      - literal: '"property_value"'
+      - raw: '"property_name"'
+      - raw: '='
+      - raw: '"property_value"'
       - end_bracket: )
 - statement_terminator: ;
 - base:
@@ -40,13 +41,14 @@ file:
     - literal: '"database_comment"'
     - keyword: LOCATION
     - literal: '"root/database_directory"'
-    - keyword: WITH
-    - keyword: DBPROPERTIES
+    unparsable:
+    - raw: WITH
+    - raw: DBPROPERTIES
     - bracketed:
       - start_bracket: (
-      - literal: '"property_name"'
-      - comparison_operator: '='
-      - literal: '"property_value"'
+      - raw: '"property_name"'
+      - raw: '='
+      - raw: '"property_value"'
       - end_bracket: )
 - statement_terminator: ;
 - base:
@@ -79,16 +81,17 @@ file:
     - literal: "'This is customer database'"
     - keyword: LOCATION
     - literal: "'/user'"
-    - keyword: WITH
-    - keyword: DBPROPERTIES
+    unparsable:
+    - raw: WITH
+    - raw: DBPROPERTIES
     - bracketed:
       - start_bracket: (
-      - literal: '"ID"'
-      - comparison_operator: '='
-      - literal: '"001"'
+      - raw: '"ID"'
+      - raw: '='
+      - raw: '"001"'
       - comma: ','
-      - literal: '"Name"'
-      - comparison_operator: '='
-      - literal: "'John'"
+      - raw: '"Name"'
+      - raw: '='
+      - raw: "'John'"
       - end_bracket: )
 - statement_terminator: ;

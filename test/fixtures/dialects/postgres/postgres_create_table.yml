@@ -3,417 +3,311 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a18c86f29aa197a2f2f6820db8864e1383579ed116cd5f823438bc564273deff
+_hash: ce794aba287330c58f5cba6526fffccd077d0b01f4d569571273ae7eb815df96
 file:
 - statement:
-    create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: counters
-    - bracketed:
-        start_bracket: (
-        column_reference:
-          identifier: my_type
-        data_type:
-          identifier: public
-          dot: .
-          data_type_identifier: MY_TYPE
-        end_bracket: )
-- statement_terminator: ;
-- statement:
-    create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: distributors
+    unparsable:
+    - raw: CREATE
+    - raw: TABLE
+    - raw: counters
     - bracketed:
       - start_bracket: (
-      - column_reference:
-          identifier: did
-      - data_type:
-          data_type_identifier: integer
-      - column_constraint_segment:
-        - keyword: PRIMARY
-        - keyword: KEY
-      - column_constraint_segment:
-        - keyword: GENERATED
-        - keyword: BY
-        - keyword: DEFAULT
-        - keyword: AS
-        - keyword: IDENTITY
-      - comma: ','
-      - column_reference:
-          identifier: name
-      - data_type:
-          data_type_identifier: varchar
-          bracketed:
-            start_bracket: (
-            expression:
-              literal: '40'
-            end_bracket: )
-      - column_constraint_segment:
-        - keyword: NOT
-        - keyword: 'NULL'
-      - column_constraint_segment:
-          keyword: CHECK
-          bracketed:
-            start_bracket: (
-            expression:
-              column_reference:
-                identifier: name
-              comparison_operator: <>
-              literal: "''"
-            end_bracket: )
+      - raw: my_type
+      - raw: public
+      - raw: .
+      - raw: MY_TYPE
       - end_bracket: )
 - statement_terminator: ;
 - statement:
-    create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: distributors
+    unparsable:
+    - raw: CREATE
+    - raw: TABLE
+    - raw: distributors
     - bracketed:
       - start_bracket: (
-      - column_reference:
-          identifier: did
-      - data_type:
-          data_type_identifier: integer
-      - column_constraint_segment:
-          keyword: CHECK
-          bracketed:
-            start_bracket: (
-            expression:
-              column_reference:
-                identifier: did
-              comparison_operator: '>'
-              literal: '100'
-            end_bracket: )
+      - raw: did
+      - raw: integer
+      - raw: PRIMARY
+      - raw: KEY
+      - raw: GENERATED
+      - raw: BY
+      - raw: DEFAULT
+      - raw: AS
+      - raw: IDENTITY
       - comma: ','
-      - column_reference:
-          identifier: name
-      - data_type:
-          data_type_identifier: varchar
-          bracketed:
-            start_bracket: (
-            expression:
-              literal: '40'
-            end_bracket: )
+      - raw: name
+      - raw: varchar
+      - bracketed:
+          start_bracket: (
+          raw: '40'
+          end_bracket: )
+      - raw: NOT
+      - raw: 'NULL'
+      - raw: CHECK
+      - bracketed:
+        - start_bracket: (
+        - raw: name
+        - raw: <>
+        - raw: "''"
+        - end_bracket: )
       - end_bracket: )
 - statement_terminator: ;
 - statement:
-    create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: distributors
+    unparsable:
+    - raw: CREATE
+    - raw: TABLE
+    - raw: distributors
     - bracketed:
       - start_bracket: (
-      - column_reference:
-          identifier: did
-      - data_type:
-          data_type_identifier: integer
+      - raw: did
+      - raw: integer
+      - raw: CHECK
+      - bracketed:
+        - start_bracket: (
+        - raw: did
+        - raw: '>'
+        - raw: '100'
+        - end_bracket: )
       - comma: ','
-      - column_reference:
-          identifier: name
-      - data_type:
-          data_type_identifier: varchar
-          bracketed:
-            start_bracket: (
-            expression:
-              literal: '40'
-            end_bracket: )
-      - comma: ','
-      - table_constraint_segment:
-        - keyword: CONSTRAINT
-        - object_reference:
-            identifier: con1
-        - keyword: CHECK
-        - bracketed:
-            start_bracket: (
-            expression:
-            - column_reference:
-                identifier: did
-            - comparison_operator: '>'
-            - literal: '100'
-            - binary_operator: AND
-            - column_reference:
-                identifier: name
-            - comparison_operator: <>
-            - literal: "''"
-            end_bracket: )
+      - raw: name
+      - raw: varchar
+      - bracketed:
+          start_bracket: (
+          raw: '40'
+          end_bracket: )
       - end_bracket: )
 - statement_terminator: ;
 - statement:
-    create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: distributors
+    unparsable:
+    - raw: CREATE
+    - raw: TABLE
+    - raw: distributors
     - bracketed:
       - start_bracket: (
-      - column_reference:
-          identifier: did
-      - data_type:
-          data_type_identifier: integer
+      - raw: did
+      - raw: integer
       - comma: ','
-      - column_reference:
-          identifier: name
-      - data_type:
-          data_type_identifier: varchar
-          bracketed:
-            start_bracket: (
-            expression:
-              literal: '40'
-            end_bracket: )
+      - raw: name
+      - raw: varchar
+      - bracketed:
+          start_bracket: (
+          raw: '40'
+          end_bracket: )
       - comma: ','
-      - table_constraint_segment:
-        - keyword: PRIMARY
-        - keyword: KEY
-        - bracketed:
-            start_bracket: (
-            column_reference:
-              identifier: did
-            end_bracket: )
+      - raw: CONSTRAINT
+      - raw: con1
+      - raw: CHECK
+      - bracketed:
+        - start_bracket: (
+        - raw: did
+        - raw: '>'
+        - raw: '100'
+        - raw: AND
+        - raw: name
+        - raw: <>
+        - raw: "''"
+        - end_bracket: )
       - end_bracket: )
 - statement_terminator: ;
 - statement:
-    create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: distributors
+    unparsable:
+    - raw: CREATE
+    - raw: TABLE
+    - raw: distributors
     - bracketed:
       - start_bracket: (
-      - column_reference:
-          identifier: did
-      - data_type:
-          data_type_identifier: integer
-      - column_constraint_segment:
-        - keyword: PRIMARY
-        - keyword: KEY
+      - raw: did
+      - raw: integer
       - comma: ','
-      - column_reference:
-          identifier: name
-      - data_type:
-          data_type_identifier: varchar
-          bracketed:
-            start_bracket: (
-            expression:
-              literal: '40'
-            end_bracket: )
+      - raw: name
+      - raw: varchar
+      - bracketed:
+          start_bracket: (
+          raw: '40'
+          end_bracket: )
+      - comma: ','
+      - raw: PRIMARY
+      - raw: KEY
+      - bracketed:
+          start_bracket: (
+          raw: did
+          end_bracket: )
       - end_bracket: )
 - statement_terminator: ;
 - statement:
-    create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: distributors
+    unparsable:
+    - raw: CREATE
+    - raw: TABLE
+    - raw: distributors
     - bracketed:
       - start_bracket: (
-      - column_reference:
-          identifier: name
-      - data_type:
-          data_type_identifier: varchar
-          bracketed:
-            start_bracket: (
-            expression:
-              literal: '40'
-            end_bracket: )
-      - column_constraint_segment:
-          keyword: DEFAULT
-          literal: "'Luso Films'"
+      - raw: did
+      - raw: integer
+      - raw: PRIMARY
+      - raw: KEY
       - comma: ','
-      - column_reference:
-          identifier: did
-      - data_type:
-          data_type_identifier: integer
-      - column_constraint_segment:
-          keyword: DEFAULT
-          function:
-            function_name:
-              function_name_identifier: nextval
-            bracketed:
-              start_bracket: (
-              expression:
-                literal: "'distributors_serial'"
-              end_bracket: )
-      - comma: ','
-      - column_reference:
-          identifier: modtime
-      - data_type:
-          datetime_type_identifier:
-            keyword: timestamp
-      - column_constraint_segment:
-          keyword: DEFAULT
-          bare_function: current_timestamp
+      - raw: name
+      - raw: varchar
+      - bracketed:
+          start_bracket: (
+          raw: '40'
+          end_bracket: )
       - end_bracket: )
 - statement_terminator: ;
 - statement:
-    create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: distributors
+    unparsable:
+    - raw: CREATE
+    - raw: TABLE
+    - raw: distributors
     - bracketed:
       - start_bracket: (
-      - column_reference:
-          identifier: did
-      - data_type:
-          data_type_identifier: integer
-      - column_constraint_segment:
-        - keyword: CONSTRAINT
-        - object_reference:
-            identifier: no_null
-        - keyword: NOT
-        - keyword: 'NULL'
+      - raw: name
+      - raw: varchar
+      - bracketed:
+          start_bracket: (
+          raw: '40'
+          end_bracket: )
+      - raw: DEFAULT
+      - raw: "'Luso Films'"
       - comma: ','
-      - column_reference:
-          identifier: name
-      - data_type:
-          data_type_identifier: varchar
-          bracketed:
-            start_bracket: (
-            expression:
-              literal: '40'
-            end_bracket: )
-      - column_constraint_segment:
-        - keyword: NOT
-        - keyword: 'NULL'
+      - raw: did
+      - raw: integer
+      - raw: DEFAULT
+      - raw: nextval
+      - bracketed:
+          start_bracket: (
+          raw: "'distributors_serial'"
+          end_bracket: )
+      - comma: ','
+      - raw: modtime
+      - raw: timestamp
+      - raw: DEFAULT
+      - raw: current_timestamp
       - end_bracket: )
 - statement_terminator: ;
 - statement:
-    create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: distributors
+    unparsable:
+    - raw: CREATE
+    - raw: TABLE
+    - raw: distributors
     - bracketed:
       - start_bracket: (
-      - column_reference:
-          identifier: did
-      - data_type:
-          data_type_identifier: integer
+      - raw: did
+      - raw: integer
+      - raw: CONSTRAINT
+      - raw: no_null
+      - raw: NOT
+      - raw: 'NULL'
       - comma: ','
-      - column_reference:
-          identifier: name
-      - data_type:
-          data_type_identifier: varchar
-          bracketed:
-            start_bracket: (
-            expression:
-              literal: '40'
-            end_bracket: )
-      - column_constraint_segment:
-          keyword: UNIQUE
+      - raw: name
+      - raw: varchar
+      - bracketed:
+          start_bracket: (
+          raw: '40'
+          end_bracket: )
+      - raw: NOT
+      - raw: 'NULL'
       - end_bracket: )
 - statement_terminator: ;
 - statement:
-    create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: distributors
+    unparsable:
+    - raw: CREATE
+    - raw: TABLE
+    - raw: distributors
     - bracketed:
       - start_bracket: (
-      - column_reference:
-          identifier: did
-      - data_type:
-          data_type_identifier: integer
+      - raw: did
+      - raw: integer
       - comma: ','
-      - column_reference:
-          identifier: name
-      - data_type:
-          data_type_identifier: varchar
-          bracketed:
-            start_bracket: (
-            expression:
-              literal: '40'
-            end_bracket: )
-      - comma: ','
-      - table_constraint_segment:
-          keyword: UNIQUE
-          bracketed:
-            start_bracket: (
-            column_reference:
-              identifier: name
-            end_bracket: )
+      - raw: name
+      - raw: varchar
+      - bracketed:
+          start_bracket: (
+          raw: '40'
+          end_bracket: )
+      - raw: UNIQUE
       - end_bracket: )
 - statement_terminator: ;
 - statement:
-    create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: distributors
+    unparsable:
+    - raw: CREATE
+    - raw: TABLE
+    - raw: distributors
     - bracketed:
       - start_bracket: (
-      - column_reference:
-          identifier: did
-      - data_type:
-          data_type_identifier: integer
+      - raw: did
+      - raw: integer
       - comma: ','
-      - column_reference:
-          identifier: name
-      - data_type:
-          data_type_identifier: varchar
-          bracketed:
-            start_bracket: (
-            expression:
-              literal: '40'
-            end_bracket: )
+      - raw: name
+      - raw: varchar
+      - bracketed:
+          start_bracket: (
+          raw: '40'
+          end_bracket: )
       - comma: ','
-      - table_constraint_segment:
-          keyword: UNIQUE
-          bracketed:
-            start_bracket: (
-            column_reference:
-              identifier: name
-            end_bracket: )
-          index_parameters:
-            keyword: WITH
-            bracketed:
-              start_bracket: (
-              parameter: fillfactor
-              comparison_operator: '='
-              literal: '70'
-              end_bracket: )
+      - raw: UNIQUE
+      - bracketed:
+          start_bracket: (
+          raw: name
+          end_bracket: )
       - end_bracket: )
-    - keyword: WITH
-    - bracketed:
-        start_bracket: (
-        parameter: fillfactor
-        comparison_operator: '='
-        literal: '70'
-        end_bracket: )
 - statement_terminator: ;
 - statement:
-    create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: cinemas
+    unparsable:
+    - raw: CREATE
+    - raw: TABLE
+    - raw: distributors
     - bracketed:
       - start_bracket: (
-      - column_reference:
-          identifier: id
-      - data_type:
-          data_type_identifier: serial
+      - raw: did
+      - raw: integer
       - comma: ','
-      - column_reference:
-          identifier: name
-      - data_type:
-          data_type_identifier: text
+      - raw: name
+      - raw: varchar
+      - bracketed:
+          start_bracket: (
+          raw: '40'
+          end_bracket: )
       - comma: ','
-      - column_reference:
-          identifier: location
-      - data_type:
-          data_type_identifier: text
+      - raw: UNIQUE
+      - bracketed:
+          start_bracket: (
+          raw: name
+          end_bracket: )
+      - raw: WITH
+      - bracketed:
+        - start_bracket: (
+        - raw: fillfactor
+        - raw: '='
+        - raw: '70'
+        - end_bracket: )
       - end_bracket: )
-    - keyword: TABLESPACE
-    - table_reference:
-        identifier: diskvol1
+    - raw: WITH
+    - bracketed:
+      - start_bracket: (
+      - raw: fillfactor
+      - raw: '='
+      - raw: '70'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    unparsable:
+    - raw: CREATE
+    - raw: TABLE
+    - raw: cinemas
+    - bracketed:
+      - start_bracket: (
+      - raw: id
+      - raw: serial
+      - comma: ','
+      - raw: name
+      - raw: text
+      - comma: ','
+      - raw: location
+      - raw: text
+      - end_bracket: )
+    - raw: TABLESPACE
+    - raw: diskvol1
 - statement_terminator: ;
 - statement:
     create_type_statement:
@@ -422,7 +316,8 @@ file:
     - object_reference:
         identifier: employee_type
     - keyword: AS
-    - bracketed:
+    unparsable:
+      bracketed:
       - start_bracket: (
       - raw: name
       - raw: text
@@ -439,579 +334,449 @@ file:
         identifier: employees
     - keyword: OF
     - parameter: employee_type
+    unparsable:
+      bracketed:
+      - start_bracket: (
+      - raw: PRIMARY
+      - raw: KEY
+      - bracketed:
+          start_bracket: (
+          raw: name
+          end_bracket: )
+      - comma: ','
+      - raw: salary
+      - raw: WITH
+      - raw: OPTIONS
+      - raw: DEFAULT
+      - raw: '1000'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    unparsable:
+    - raw: CREATE
+    - raw: TABLE
+    - raw: measurement
     - bracketed:
       - start_bracket: (
-      - table_constraint_segment:
-        - keyword: PRIMARY
-        - keyword: KEY
+      - raw: logdate
+      - raw: date
+      - raw: not
+      - raw: 'null'
+      - comma: ','
+      - raw: peaktemp
+      - raw: int
+      - comma: ','
+      - raw: unitsales
+      - raw: int
+      - end_bracket: )
+    - raw: PARTITION
+    - raw: BY
+    - raw: RANGE
+    - bracketed:
+        start_bracket: (
+        raw: logdate
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    unparsable:
+    - raw: CREATE
+    - raw: TABLE
+    - raw: measurement_year_month
+    - bracketed:
+      - start_bracket: (
+      - raw: logdate
+      - raw: date
+      - raw: not
+      - raw: 'null'
+      - comma: ','
+      - raw: peaktemp
+      - raw: int
+      - comma: ','
+      - raw: unitsales
+      - raw: int
+      - end_bracket: )
+    - raw: PARTITION
+    - raw: BY
+    - raw: RANGE
+    - bracketed:
+      - start_bracket: (
+      - raw: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - raw: YEAR
+        - raw: FROM
+        - raw: logdate
+        - end_bracket: )
+      - comma: ','
+      - raw: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - raw: MONTH
+        - raw: FROM
+        - raw: logdate
+        - end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    unparsable:
+    - raw: CREATE
+    - raw: TABLE
+    - raw: cities
+    - bracketed:
+      - start_bracket: (
+      - raw: city_id
+      - raw: bigserial
+      - raw: not
+      - raw: 'null'
+      - comma: ','
+      - raw: name
+      - raw: text
+      - raw: not
+      - raw: 'null'
+      - comma: ','
+      - raw: population
+      - raw: bigint
+      - end_bracket: )
+    - raw: PARTITION
+    - raw: BY
+    - raw: LIST
+    - bracketed:
+        start_bracket: (
+        raw: left
+        bracketed:
+        - start_bracket: (
+        - raw: lower
         - bracketed:
             start_bracket: (
-            column_reference:
-              identifier: name
+            raw: name
             end_bracket: )
-      - comma: ','
-      - column_reference:
-          identifier: salary
-      - keyword: WITH
-      - keyword: OPTIONS
-      - column_constraint_segment:
-          keyword: DEFAULT
-          literal: '1000'
-      - end_bracket: )
+        - comma: ','
+        - raw: '1'
+        - end_bracket: )
+        end_bracket: )
 - statement_terminator: ;
 - statement:
-    create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: measurement
+    unparsable:
+    - raw: CREATE
+    - raw: TABLE
+    - raw: orders
     - bracketed:
       - start_bracket: (
-      - column_reference:
-          identifier: logdate
-      - data_type:
-          datetime_type_identifier:
-            keyword: date
-      - column_constraint_segment:
-        - keyword: not
-        - keyword: 'null'
+      - raw: order_id
+      - raw: bigint
+      - raw: not
+      - raw: 'null'
       - comma: ','
-      - column_reference:
-          identifier: peaktemp
-      - data_type:
-          data_type_identifier: int
+      - raw: cust_id
+      - raw: bigint
+      - raw: not
+      - raw: 'null'
       - comma: ','
-      - column_reference:
-          identifier: unitsales
-      - data_type:
-          data_type_identifier: int
+      - raw: status
+      - raw: text
       - end_bracket: )
-    - keyword: PARTITION
-    - keyword: BY
-    - keyword: RANGE
+    - raw: PARTITION
+    - raw: BY
+    - raw: HASH
     - bracketed:
         start_bracket: (
-        column_reference:
-          identifier: logdate
+        raw: order_id
         end_bracket: )
 - statement_terminator: ;
 - statement:
-    create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: measurement_year_month
+    unparsable:
+    - raw: CREATE
+    - raw: TABLE
+    - raw: measurement_y2016m07
+    - raw: PARTITION
+    - raw: OF
+    - raw: measurement
     - bracketed:
       - start_bracket: (
-      - column_reference:
-          identifier: logdate
-      - data_type:
-          datetime_type_identifier:
-            keyword: date
-      - column_constraint_segment:
-        - keyword: not
-        - keyword: 'null'
-      - comma: ','
-      - column_reference:
-          identifier: peaktemp
-      - data_type:
-          data_type_identifier: int
-      - comma: ','
-      - column_reference:
-          identifier: unitsales
-      - data_type:
-          data_type_identifier: int
+      - raw: unitsales
+      - raw: DEFAULT
+      - raw: '0'
       - end_bracket: )
-    - keyword: PARTITION
-    - keyword: BY
-    - keyword: RANGE
+    - raw: FOR
+    - raw: VALUES
+    - raw: FROM
+    - bracketed:
+        start_bracket: (
+        raw: "'2016-07-01'"
+        end_bracket: )
+    - raw: TO
+    - bracketed:
+        start_bracket: (
+        raw: "'2016-08-01'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    unparsable:
+    - raw: CREATE
+    - raw: TABLE
+    - raw: measurement_ym_older
+    - raw: PARTITION
+    - raw: OF
+    - raw: measurement_year_month
+    - raw: FOR
+    - raw: VALUES
+    - raw: FROM
     - bracketed:
       - start_bracket: (
-      - function:
-          function_name:
-            function_name_identifier: EXTRACT
-          bracketed:
-            start_bracket: (
-            date_part: YEAR
-            keyword: FROM
-            expression:
-              column_reference:
-                identifier: logdate
-            end_bracket: )
+      - raw: MINVALUE
       - comma: ','
-      - function:
-          function_name:
-            function_name_identifier: EXTRACT
-          bracketed:
-            start_bracket: (
-            date_part: MONTH
-            keyword: FROM
-            expression:
-              column_reference:
-                identifier: logdate
-            end_bracket: )
+      - raw: MINVALUE
       - end_bracket: )
-- statement_terminator: ;
-- statement:
-    create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: cities
+    - raw: TO
     - bracketed:
       - start_bracket: (
-      - column_reference:
-          identifier: city_id
-      - data_type:
-          data_type_identifier: bigserial
-      - column_constraint_segment:
-        - keyword: not
-        - keyword: 'null'
+      - raw: '2016'
       - comma: ','
-      - column_reference:
-          identifier: name
-      - data_type:
-          data_type_identifier: text
-      - column_constraint_segment:
-        - keyword: not
-        - keyword: 'null'
-      - comma: ','
-      - column_reference:
-          identifier: population
-      - data_type:
-          data_type_identifier: bigint
+      - raw: '11'
       - end_bracket: )
-    - keyword: PARTITION
-    - keyword: BY
-    - keyword: LIST
-    - bracketed:
-        start_bracket: (
-        function:
-          function_name:
-            function_name_identifier: left
-          bracketed:
-          - start_bracket: (
-          - expression:
-              function:
-                function_name:
-                  function_name_identifier: lower
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    column_reference:
-                      identifier: name
-                  end_bracket: )
-          - comma: ','
-          - expression:
-              literal: '1'
-          - end_bracket: )
-        end_bracket: )
 - statement_terminator: ;
 - statement:
-    create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: orders
+    unparsable:
+    - raw: CREATE
+    - raw: TABLE
+    - raw: measurement_ym_y2016m11
+    - raw: PARTITION
+    - raw: OF
+    - raw: measurement_year_month
+    - raw: FOR
+    - raw: VALUES
+    - raw: FROM
     - bracketed:
       - start_bracket: (
-      - column_reference:
-          identifier: order_id
-      - data_type:
-          data_type_identifier: bigint
-      - column_constraint_segment:
-        - keyword: not
-        - keyword: 'null'
+      - raw: '2016'
       - comma: ','
-      - column_reference:
-          identifier: cust_id
-      - data_type:
-          data_type_identifier: bigint
-      - column_constraint_segment:
-        - keyword: not
-        - keyword: 'null'
-      - comma: ','
-      - column_reference:
-          identifier: status
-      - data_type:
-          data_type_identifier: text
+      - raw: '11'
       - end_bracket: )
-    - keyword: PARTITION
-    - keyword: BY
-    - keyword: HASH
+    - raw: TO
+    - bracketed:
+      - start_bracket: (
+      - raw: '2016'
+      - comma: ','
+      - raw: '12'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    unparsable:
+    - raw: CREATE
+    - raw: TABLE
+    - raw: measurement_ym_y2016m12
+    - raw: PARTITION
+    - raw: OF
+    - raw: measurement_year_month
+    - raw: FOR
+    - raw: VALUES
+    - raw: FROM
+    - bracketed:
+      - start_bracket: (
+      - raw: '2016'
+      - comma: ','
+      - raw: '12'
+      - end_bracket: )
+    - raw: TO
+    - bracketed:
+      - start_bracket: (
+      - raw: '2017'
+      - comma: ','
+      - raw: '01'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    unparsable:
+    - raw: CREATE
+    - raw: TABLE
+    - raw: measurement_ym_y2017m01
+    - raw: PARTITION
+    - raw: OF
+    - raw: measurement_year_month
+    - raw: FOR
+    - raw: VALUES
+    - raw: FROM
+    - bracketed:
+      - start_bracket: (
+      - raw: '2017'
+      - comma: ','
+      - raw: '01'
+      - end_bracket: )
+    - raw: TO
+    - bracketed:
+      - start_bracket: (
+      - raw: '2017'
+      - comma: ','
+      - raw: '02'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    unparsable:
+    - raw: CREATE
+    - raw: TABLE
+    - raw: cities_ab
+    - raw: PARTITION
+    - raw: OF
+    - raw: cities
+    - bracketed:
+      - start_bracket: (
+      - raw: CONSTRAINT
+      - raw: city_id_nonzero
+      - raw: CHECK
+      - bracketed:
+        - start_bracket: (
+        - raw: city_id
+        - raw: '!='
+        - raw: '0'
+        - end_bracket: )
+      - end_bracket: )
+    - raw: FOR
+    - raw: VALUES
+    - raw: IN
+    - bracketed:
+      - start_bracket: (
+      - raw: "'a'"
+      - comma: ','
+      - raw: "'b'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    unparsable:
+    - raw: CREATE
+    - raw: TABLE
+    - raw: cities_ab
+    - raw: PARTITION
+    - raw: OF
+    - raw: cities
+    - bracketed:
+      - start_bracket: (
+      - raw: CONSTRAINT
+      - raw: city_id_nonzero
+      - raw: CHECK
+      - bracketed:
+        - start_bracket: (
+        - raw: city_id
+        - raw: '!='
+        - raw: '0'
+        - end_bracket: )
+      - end_bracket: )
+    - raw: FOR
+    - raw: VALUES
+    - raw: IN
+    - bracketed:
+      - start_bracket: (
+      - raw: "'a'"
+      - comma: ','
+      - raw: "'b'"
+      - end_bracket: )
+    - raw: PARTITION
+    - raw: BY
+    - raw: RANGE
     - bracketed:
         start_bracket: (
-        column_reference:
-          identifier: order_id
+        raw: population
         end_bracket: )
 - statement_terminator: ;
 - statement:
-    create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: measurement_y2016m07
-    - keyword: PARTITION
-    - keyword: OF
-    - table_reference:
-        identifier: measurement
+    unparsable:
+    - raw: CREATE
+    - raw: TABLE
+    - raw: cities_ab_10000_to_100000
+    - raw: PARTITION
+    - raw: OF
+    - raw: cities_ab
+    - raw: FOR
+    - raw: VALUES
+    - raw: FROM
     - bracketed:
         start_bracket: (
-        column_reference:
-          identifier: unitsales
-        column_constraint_segment:
-          keyword: DEFAULT
-          literal: '0'
+        raw: '10000'
         end_bracket: )
-    - keyword: FOR
-    - keyword: VALUES
-    - base:
-      - keyword: FROM
-      - bracketed:
-          start_bracket: (
-          expression:
-            literal: "'2016-07-01'"
-          end_bracket: )
-      - keyword: TO
-      - bracketed:
-          start_bracket: (
-          expression:
-            literal: "'2016-08-01'"
-          end_bracket: )
-- statement_terminator: ;
-- statement:
-    create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: measurement_ym_older
-    - keyword: PARTITION
-    - keyword: OF
-    - table_reference:
-        identifier: measurement_year_month
-    - keyword: FOR
-    - keyword: VALUES
-    - base:
-      - keyword: FROM
-      - bracketed:
-        - start_bracket: (
-        - expression:
-            column_reference:
-              identifier: MINVALUE
-        - comma: ','
-        - expression:
-            column_reference:
-              identifier: MINVALUE
-        - end_bracket: )
-      - keyword: TO
-      - bracketed:
-        - start_bracket: (
-        - expression:
-            literal: '2016'
-        - comma: ','
-        - expression:
-            literal: '11'
-        - end_bracket: )
-- statement_terminator: ;
-- statement:
-    create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: measurement_ym_y2016m11
-    - keyword: PARTITION
-    - keyword: OF
-    - table_reference:
-        identifier: measurement_year_month
-    - keyword: FOR
-    - keyword: VALUES
-    - base:
-      - keyword: FROM
-      - bracketed:
-        - start_bracket: (
-        - expression:
-            literal: '2016'
-        - comma: ','
-        - expression:
-            literal: '11'
-        - end_bracket: )
-      - keyword: TO
-      - bracketed:
-        - start_bracket: (
-        - expression:
-            literal: '2016'
-        - comma: ','
-        - expression:
-            literal: '12'
-        - end_bracket: )
-- statement_terminator: ;
-- statement:
-    create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: measurement_ym_y2016m12
-    - keyword: PARTITION
-    - keyword: OF
-    - table_reference:
-        identifier: measurement_year_month
-    - keyword: FOR
-    - keyword: VALUES
-    - base:
-      - keyword: FROM
-      - bracketed:
-        - start_bracket: (
-        - expression:
-            literal: '2016'
-        - comma: ','
-        - expression:
-            literal: '12'
-        - end_bracket: )
-      - keyword: TO
-      - bracketed:
-        - start_bracket: (
-        - expression:
-            literal: '2017'
-        - comma: ','
-        - expression:
-            literal: '01'
-        - end_bracket: )
-- statement_terminator: ;
-- statement:
-    create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: measurement_ym_y2017m01
-    - keyword: PARTITION
-    - keyword: OF
-    - table_reference:
-        identifier: measurement_year_month
-    - keyword: FOR
-    - keyword: VALUES
-    - base:
-      - keyword: FROM
-      - bracketed:
-        - start_bracket: (
-        - expression:
-            literal: '2017'
-        - comma: ','
-        - expression:
-            literal: '01'
-        - end_bracket: )
-      - keyword: TO
-      - bracketed:
-        - start_bracket: (
-        - expression:
-            literal: '2017'
-        - comma: ','
-        - expression:
-            literal: '02'
-        - end_bracket: )
-- statement_terminator: ;
-- statement:
-    create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: cities_ab
-    - keyword: PARTITION
-    - keyword: OF
-    - table_reference:
-        identifier: cities
+    - raw: TO
     - bracketed:
         start_bracket: (
-        table_constraint_segment:
-        - keyword: CONSTRAINT
-        - object_reference:
-            identifier: city_id_nonzero
-        - keyword: CHECK
-        - bracketed:
-            start_bracket: (
-            expression:
-              column_reference:
-                identifier: city_id
-              comparison_operator: '!='
-              literal: '0'
-            end_bracket: )
-        end_bracket: )
-    - keyword: FOR
-    - keyword: VALUES
-    - base:
-        keyword: IN
-        bracketed:
-        - start_bracket: (
-        - expression:
-            literal: "'a'"
-        - comma: ','
-        - expression:
-            literal: "'b'"
-        - end_bracket: )
-- statement_terminator: ;
-- statement:
-    create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: cities_ab
-    - keyword: PARTITION
-    - keyword: OF
-    - table_reference:
-        identifier: cities
-    - bracketed:
-        start_bracket: (
-        table_constraint_segment:
-        - keyword: CONSTRAINT
-        - object_reference:
-            identifier: city_id_nonzero
-        - keyword: CHECK
-        - bracketed:
-            start_bracket: (
-            expression:
-              column_reference:
-                identifier: city_id
-              comparison_operator: '!='
-              literal: '0'
-            end_bracket: )
-        end_bracket: )
-    - keyword: FOR
-    - keyword: VALUES
-    - base:
-        keyword: IN
-        bracketed:
-        - start_bracket: (
-        - expression:
-            literal: "'a'"
-        - comma: ','
-        - expression:
-            literal: "'b'"
-        - end_bracket: )
-    - keyword: PARTITION
-    - keyword: BY
-    - keyword: RANGE
-    - bracketed:
-        start_bracket: (
-        column_reference:
-          identifier: population
+        raw: '100000'
         end_bracket: )
 - statement_terminator: ;
 - statement:
-    create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: cities_ab_10000_to_100000
-    - keyword: PARTITION
-    - keyword: OF
-    - table_reference:
-        identifier: cities_ab
-    - keyword: FOR
-    - keyword: VALUES
-    - base:
-      - keyword: FROM
-      - bracketed:
-          start_bracket: (
-          expression:
-            literal: '10000'
-          end_bracket: )
-      - keyword: TO
-      - bracketed:
-          start_bracket: (
-          expression:
-            literal: '100000'
-          end_bracket: )
+    unparsable:
+    - raw: CREATE
+    - raw: TABLE
+    - raw: orders_p1
+    - raw: PARTITION
+    - raw: OF
+    - raw: orders
+    - raw: FOR
+    - raw: VALUES
+    - raw: WITH
+    - bracketed:
+      - start_bracket: (
+      - raw: MODULUS
+      - raw: '4'
+      - comma: ','
+      - raw: REMAINDER
+      - raw: '0'
+      - end_bracket: )
 - statement_terminator: ;
 - statement:
-    create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: orders_p1
-    - keyword: PARTITION
-    - keyword: OF
-    - table_reference:
-        identifier: orders
-    - keyword: FOR
-    - keyword: VALUES
-    - base:
-        keyword: WITH
-        bracketed:
-        - start_bracket: (
-        - keyword: MODULUS
-        - literal: '4'
-        - comma: ','
-        - keyword: REMAINDER
-        - literal: '0'
-        - end_bracket: )
+    unparsable:
+    - raw: CREATE
+    - raw: TABLE
+    - raw: orders_p2
+    - raw: PARTITION
+    - raw: OF
+    - raw: orders
+    - raw: FOR
+    - raw: VALUES
+    - raw: WITH
+    - bracketed:
+      - start_bracket: (
+      - raw: MODULUS
+      - raw: '4'
+      - comma: ','
+      - raw: REMAINDER
+      - raw: '1'
+      - end_bracket: )
 - statement_terminator: ;
 - statement:
-    create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: orders_p2
-    - keyword: PARTITION
-    - keyword: OF
-    - table_reference:
-        identifier: orders
-    - keyword: FOR
-    - keyword: VALUES
-    - base:
-        keyword: WITH
-        bracketed:
-        - start_bracket: (
-        - keyword: MODULUS
-        - literal: '4'
-        - comma: ','
-        - keyword: REMAINDER
-        - literal: '1'
-        - end_bracket: )
+    unparsable:
+    - raw: CREATE
+    - raw: TABLE
+    - raw: orders_p3
+    - raw: PARTITION
+    - raw: OF
+    - raw: orders
+    - raw: FOR
+    - raw: VALUES
+    - raw: WITH
+    - bracketed:
+      - start_bracket: (
+      - raw: MODULUS
+      - raw: '4'
+      - comma: ','
+      - raw: REMAINDER
+      - raw: '2'
+      - end_bracket: )
 - statement_terminator: ;
 - statement:
-    create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: orders_p3
-    - keyword: PARTITION
-    - keyword: OF
-    - table_reference:
-        identifier: orders
-    - keyword: FOR
-    - keyword: VALUES
-    - base:
-        keyword: WITH
-        bracketed:
-        - start_bracket: (
-        - keyword: MODULUS
-        - literal: '4'
-        - comma: ','
-        - keyword: REMAINDER
-        - literal: '2'
-        - end_bracket: )
-- statement_terminator: ;
-- statement:
-    create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: orders_p4
-    - keyword: PARTITION
-    - keyword: OF
-    - table_reference:
-        identifier: orders
-    - keyword: FOR
-    - keyword: VALUES
-    - base:
-        keyword: WITH
-        bracketed:
-        - start_bracket: (
-        - keyword: MODULUS
-        - literal: '4'
-        - comma: ','
-        - keyword: REMAINDER
-        - literal: '3'
-        - end_bracket: )
+    unparsable:
+    - raw: CREATE
+    - raw: TABLE
+    - raw: orders_p4
+    - raw: PARTITION
+    - raw: OF
+    - raw: orders
+    - raw: FOR
+    - raw: VALUES
+    - raw: WITH
+    - bracketed:
+      - start_bracket: (
+      - raw: MODULUS
+      - raw: '4'
+      - comma: ','
+      - raw: REMAINDER
+      - raw: '3'
+      - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:
@@ -1026,298 +791,207 @@ file:
     - keyword: DEFAULT
 - statement_terminator: ;
 - statement:
-    create_table_statement:
-    - keyword: CREATE
-    - keyword: UNLOGGED
-    - keyword: TABLE
-    - table_reference:
-        identifier: staging
+    unparsable:
+    - raw: CREATE
+    - raw: UNLOGGED
+    - raw: TABLE
+    - raw: staging
     - bracketed:
       - start_bracket: (
-      - column_reference:
-          identifier: event_type
-      - data_type:
-          data_type_identifier: INTEGER
+      - raw: event_type
+      - raw: INTEGER
       - comma: ','
-      - column_reference:
-          identifier: event_time
-      - data_type:
-          datetime_type_identifier:
-            keyword: TIMESTAMP
+      - raw: event_time
+      - raw: TIMESTAMP
       - comma: ','
-      - column_reference:
-          identifier: user_email
-      - data_type:
-          data_type_identifier: VARCHAR
+      - raw: user_email
+      - raw: VARCHAR
       - comma: ','
-      - column_reference:
-          identifier: phone_number
-      - data_type:
-          data_type_identifier: VARCHAR
+      - raw: phone_number
+      - raw: VARCHAR
       - comma: ','
-      - column_reference:
-          identifier: processing_date
-      - data_type:
-          datetime_type_identifier:
-            keyword: DATE
+      - raw: processing_date
+      - raw: DATE
       - comma: ','
-      - table_constraint_segment:
-        - keyword: PRIMARY
-        - keyword: KEY
-        - bracketed:
-          - start_bracket: (
-          - column_reference:
-              identifier: event_type
-          - comma: ','
-          - column_reference:
-              identifier: event_time
-          - comma: ','
-          - column_reference:
-              identifier: user_email
-          - comma: ','
-          - column_reference:
-              identifier: phone_number
-          - comma: ','
-          - column_reference:
-              identifier: processing_date
-          - end_bracket: )
+      - raw: PRIMARY
+      - raw: KEY
+      - bracketed:
+        - start_bracket: (
+        - raw: event_type
+        - comma: ','
+        - raw: event_time
+        - comma: ','
+        - raw: user_email
+        - comma: ','
+        - raw: phone_number
+        - comma: ','
+        - raw: processing_date
+        - end_bracket: )
       - end_bracket: )
 - statement_terminator: ;
 - statement:
-    create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: measurement
+    unparsable:
+    - raw: CREATE
+    - raw: TABLE
+    - raw: measurement
     - bracketed:
       - start_bracket: (
-      - column_reference:
-          identifier: city_id
-      - data_type:
-          data_type_identifier: int
-      - column_constraint_segment:
-        - keyword: NOT
-        - keyword: 'NULL'
+      - raw: city_id
+      - raw: int
+      - raw: NOT
+      - raw: 'NULL'
       - comma: ','
-      - column_reference:
-          identifier: logdate
-      - data_type:
-          datetime_type_identifier:
-            keyword: date
-      - column_constraint_segment:
-        - keyword: NOT
-        - keyword: 'NULL'
+      - raw: logdate
+      - raw: date
+      - raw: NOT
+      - raw: 'NULL'
       - comma: ','
-      - column_reference:
-          identifier: peaktemp
-      - data_type:
-          data_type_identifier: int
+      - raw: peaktemp
+      - raw: int
       - comma: ','
-      - column_reference:
-          identifier: unitsales
-      - data_type:
-          data_type_identifier: int
+      - raw: unitsales
+      - raw: int
       - end_bracket: )
-    - keyword: PARTITION
-    - keyword: BY
-    - keyword: RANGE
+    - raw: PARTITION
+    - raw: BY
+    - raw: RANGE
     - bracketed:
         start_bracket: (
-        column_reference:
-          identifier: logdate
+        raw: logdate
         end_bracket: )
 - statement_terminator: ;
 - statement:
-    create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-      - identifier: public
-      - dot: .
-      - identifier: public
+    unparsable:
+    - raw: CREATE
+    - raw: TABLE
+    - raw: public
+    - raw: .
+    - raw: public
     - bracketed:
       - start_bracket: (
-      - column_reference:
-          identifier: id
-      - data_type:
-          data_type_identifier: serial
-      - column_constraint_segment:
-        - keyword: NOT
-        - keyword: 'NULL'
+      - raw: id
+      - raw: serial
+      - raw: NOT
+      - raw: 'NULL'
       - comma: ','
-      - column_reference:
-          identifier: name
-      - data_type:
-          data_type_identifier: text
-      - column_constraint_segment:
-        - keyword: NOT
-        - keyword: 'NULL'
+      - raw: name
+      - raw: text
+      - raw: NOT
+      - raw: 'NULL'
       - comma: ','
-      - column_reference:
-          identifier: group_name
-      - data_type:
-          data_type_identifier: text
-      - column_constraint_segment:
-          keyword: 'NULL'
+      - raw: group_name
+      - raw: text
+      - raw: 'NULL'
       - comma: ','
-      - column_reference:
-          identifier: cluster_id
-      - data_type:
-          data_type_identifier: int8
-      - column_constraint_segment:
-          keyword: 'NULL'
+      - raw: cluster_id
+      - raw: int8
+      - raw: 'NULL'
       - comma: ','
-      - column_reference:
-          identifier: date_created
-      - data_type:
-          datetime_type_identifier:
-            keyword: timestamp
-      - column_constraint_segment:
-        - keyword: NOT
-        - keyword: 'NULL'
-      - column_constraint_segment:
-          keyword: DEFAULT
-          bare_function: CURRENT_TIMESTAMP
+      - raw: date_created
+      - raw: timestamp
+      - raw: NOT
+      - raw: 'NULL'
+      - raw: DEFAULT
+      - raw: CURRENT_TIMESTAMP
       - comma: ','
-      - column_reference:
-          identifier: date_updated
-      - data_type:
-          datetime_type_identifier:
-            keyword: timestamp
-      - column_constraint_segment:
-        - keyword: NOT
-        - keyword: 'NULL'
-      - column_constraint_segment:
-          keyword: DEFAULT
-          bare_function: CURRENT_TIMESTAMP
+      - raw: date_updated
+      - raw: timestamp
+      - raw: NOT
+      - raw: 'NULL'
+      - raw: DEFAULT
+      - raw: CURRENT_TIMESTAMP
       - comma: ','
-      - column_reference:
-          identifier: operation_id
-      - data_type:
-          data_type_identifier: int4
-      - column_constraint_segment:
-        - keyword: NOT
-        - keyword: 'NULL'
-      - column_constraint_segment:
-          keyword: DEFAULT
-          expression:
-            literal: "'-1'"
-            cast_expression:
-              casting_operator: '::'
-              data_type:
-                data_type_identifier: integer
+      - raw: operation_id
+      - raw: int4
+      - raw: NOT
+      - raw: 'NULL'
+      - raw: DEFAULT
+      - raw: "'-1'"
+      - raw: '::'
+      - raw: integer
       - end_bracket: )
 - statement_terminator: ;
 - statement:
-    create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-      - identifier: main
-      - dot: .
-      - identifier: test_table
+    unparsable:
+    - raw: CREATE
+    - raw: TABLE
+    - raw: main
+    - raw: .
+    - raw: test_table
     - bracketed:
       - start_bracket: (
-      - column_reference:
-          identifier: '"col1"'
-      - data_type:
-        - keyword: character
-        - keyword: varying
-        - bracketed:
-            start_bracket: (
-            expression:
-              literal: '40'
-            end_bracket: )
-      - column_constraint_segment:
-        - keyword: NOT
-        - keyword: 'NULL'
+      - raw: '"col1"'
+      - raw: character
+      - raw: varying
+      - bracketed:
+          start_bracket: (
+          raw: '40'
+          end_bracket: )
+      - raw: NOT
+      - raw: 'NULL'
       - comma: ','
-      - column_reference:
-          identifier: '"col2"'
-      - data_type:
-        - keyword: double
-        - keyword: precision
+      - raw: '"col2"'
+      - raw: double
+      - raw: precision
       - end_bracket: )
 - statement_terminator: ;
 - statement:
-    create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: groups
+    unparsable:
+    - raw: CREATE
+    - raw: TABLE
+    - raw: groups
     - bracketed:
       - start_bracket: (
-      - column_reference:
-          identifier: group_id
-      - data_type:
-          data_type_identifier: INTEGER
-      - column_constraint_segment:
-        - keyword: PRIMARY
-        - keyword: KEY
-      - column_constraint_segment:
-        - keyword: generated
-        - keyword: BY
-        - keyword: DEFAULT
-        - keyword: AS
-        - keyword: IDENTITY
+      - raw: group_id
+      - raw: INTEGER
+      - raw: PRIMARY
+      - raw: KEY
+      - raw: generated
+      - raw: BY
+      - raw: DEFAULT
+      - raw: AS
+      - raw: IDENTITY
       - end_bracket: )
 - statement_terminator: ;
 - statement:
-    create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: users
+    unparsable:
+    - raw: CREATE
+    - raw: TABLE
+    - raw: users
     - bracketed:
       - start_bracket: (
-      - column_reference:
-          identifier: user_id
-      - data_type:
-          data_type_identifier: INTEGER
-      - column_constraint_segment:
-        - keyword: PRIMARY
-        - keyword: KEY
-      - column_constraint_segment:
-        - keyword: generated
-        - keyword: BY
-        - keyword: DEFAULT
-        - keyword: AS
-        - keyword: IDENTITY
+      - raw: user_id
+      - raw: INTEGER
+      - raw: PRIMARY
+      - raw: KEY
+      - raw: generated
+      - raw: BY
+      - raw: DEFAULT
+      - raw: AS
+      - raw: IDENTITY
       - comma: ','
-      - column_reference:
-          identifier: group_id
-      - data_type:
-          data_type_identifier: INTEGER
-      - column_constraint_segment:
-        - keyword: REFERENCES
-        - column_reference:
-            identifier: groups
-        - bracketed:
-            start_bracket: (
-            column_reference:
-              identifier: group_id
-            end_bracket: )
-        - keyword: 'ON'
-        - keyword: DELETE
-        - referential_action:
-            keyword: CASCADE
+      - raw: group_id
+      - raw: INTEGER
+      - raw: REFERENCES
+      - raw: groups
+      - bracketed:
+          start_bracket: (
+          raw: group_id
+          end_bracket: )
+      - raw: 'ON'
+      - raw: DELETE
+      - raw: CASCADE
       - comma: ','
-      - column_reference:
-          identifier: domain_id
-      - data_type:
-          data_type_identifier: INTEGER
-      - column_constraint_segment:
-        - keyword: REFERENCES
-        - column_reference:
-            identifier: groups
-        - bracketed:
-            start_bracket: (
-            column_reference:
-              identifier: group_id
-            end_bracket: )
-        - keyword: 'ON'
-        - keyword: UPDATE
-        - referential_action:
-            keyword: RESTRICT
+      - raw: domain_id
+      - raw: INTEGER
+      - raw: REFERENCES
+      - raw: groups
+      - bracketed:
+          start_bracket: (
+          raw: group_id
+          end_bracket: )
+      - raw: 'ON'
+      - raw: UPDATE
+      - raw: RESTRICT
       - end_bracket: )
 - statement_terminator: ;

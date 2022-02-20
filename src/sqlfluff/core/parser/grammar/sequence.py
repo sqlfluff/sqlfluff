@@ -256,7 +256,7 @@ class Bracketed(Sequence):
             seg_buff = segments  # pragma: no cover TODO?
 
         # Rehydrate the bracket segments in question.
-        # bracket_persits controls whether we make a BracketedSegment or not.
+        # bracket_persists controls whether we make a BracketedSegment or not.
         start_bracket, end_bracket, bracket_persists = self.get_bracket_from_dialect(
             parse_context
         )
@@ -265,48 +265,48 @@ class Bracketed(Sequence):
         end_bracket = self.end_bracket or end_bracket
 
         # Are we dealing with a pre-existing BracketSegment?
-        if seg_buff[0].is_type("bracketed"):
-            seg: BracketedSegment = cast(BracketedSegment, seg_buff[0])
-            content_segs = seg.segments[len(seg.start_bracket) : -len(seg.end_bracket)]
-            bracket_segment = seg
-            trailing_segments = seg_buff[1:]
-        # Otherwise try and match the segments directly.
-        else:
+        # if seg_buff[0].is_type("bracketed"):
+        #     seg: BracketedSegment = cast(BracketedSegment, seg_buff[0])
+        #     content_segs = seg.segments[len(seg.start_bracket) : -len(seg.end_bracket)]
+        #     bracket_segment = seg
+        #     trailing_segments = seg_buff[1:]
+        # # Otherwise try and match the segments directly.
+        # else:
             # Look for the first bracket
-            with parse_context.deeper_match() as ctx:
-                start_match = start_bracket.match(seg_buff, parse_context=ctx)
-            if start_match:
-                seg_buff = start_match.unmatched_segments
-            else:
-                # Can't find the opening bracket. No Match.
-                return MatchResult.from_unmatched(segments)
+        with parse_context.deeper_match() as ctx:
+            start_match = start_bracket.match(seg_buff, parse_context=ctx)
+        if start_match:
+            seg_buff = start_match.unmatched_segments
+        else:
+            # Can't find the opening bracket. No Match.
+            return MatchResult.from_unmatched(segments)
 
-            # Look for the closing bracket
-            content_segs, end_match, _ = self._bracket_sensitive_look_ahead_match(
-                segments=seg_buff,
-                matchers=[end_bracket],
-                parse_context=parse_context,
-                start_bracket=start_bracket,
-                end_bracket=end_bracket,
-                bracket_pairs_set=self.bracket_pairs_set,
+        # Look for the closing bracket
+        content_segs, end_match, _ = self._bracket_sensitive_look_ahead_match(
+            segments=seg_buff,
+            matchers=[end_bracket],
+            parse_context=parse_context,
+            start_bracket=start_bracket,
+            end_bracket=end_bracket,
+            bracket_pairs_set=self.bracket_pairs_set,
+        )
+        if not end_match:  # pragma: no cover
+            raise SQLParseError(
+                "Couldn't find closing bracket for opening bracket.",
+                segment=start_match.matched_segments[0],
             )
-            if not end_match:  # pragma: no cover
-                raise SQLParseError(
-                    "Couldn't find closing bracket for opening bracket.",
-                    segment=start_match.matched_segments[0],
-                )
 
-            # Construct a bracket segment
-            bracket_segment = BracketedSegment(
-                segments=(
-                    start_match.matched_segments
-                    + content_segs
-                    + end_match.matched_segments
-                ),
-                start_bracket=start_match.matched_segments,
-                end_bracket=end_match.matched_segments,
-            )
-            trailing_segments = end_match.unmatched_segments
+        # Construct a bracket segment
+        bracket_segment = BracketedSegment(
+            segments=(
+                start_match.matched_segments
+                + content_segs
+                + end_match.matched_segments
+            ),
+            start_bracket=start_match.matched_segments,
+            end_bracket=end_match.matched_segments,
+        )
+        trailing_segments = end_match.unmatched_segments
 
         # Then trim whitespace and deal with the case of non-code content e.g. "(   )"
         if self.allow_gaps:

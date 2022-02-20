@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 10218af5fec93093200f4f21afdf2b5b9133a1058a0c10f7888b8ba949c395b6
+_hash: cfc2fd976dc1c3d46f9e027b491ee67ffbb7b38dbc23de579ae89e8b6f9073dc
 file:
 - statement:
     create_external_table_statement:
@@ -22,17 +22,18 @@ file:
     - slash: /
     - identifier: path1
     - slash: /
-    - keyword: file_format
-    - comparison_operator: '='
+    unparsable:
+    - raw: file_format
+    - raw: '='
     - bracketed:
       - start_bracket: (
-      - keyword: type
-      - comparison_operator: '='
-      - keyword: json
+      - raw: type
+      - raw: '='
+      - raw: json
       - end_bracket: )
-    - keyword: aws_sns_topic
-    - comparison_operator: '='
-    - literal: "'arn:aws:sns:us-west-2:001234567890:s3_mybucket'"
+    - raw: aws_sns_topic
+    - raw: '='
+    - raw: "'arn:aws:sns:us-west-2:001234567890:s3_mybucket'"
 - statement_terminator: ;
 - statement:
     create_external_table_statement:
@@ -53,15 +54,16 @@ file:
     - keyword: auto_refresh
     - comparison_operator: '='
     - literal: 'true'
-    - keyword: file_format
-    - comparison_operator: '='
+    unparsable:
+    - raw: file_format
+    - raw: '='
     - bracketed:
       - start_bracket: (
-      - keyword: type
-      - comparison_operator: '='
-      - keyword: parquet
+      - raw: type
+      - raw: '='
+      - raw: parquet
       - end_bracket: )
-    - keyword: pattern
-    - comparison_operator: '='
-    - literal: "'.*[.]parquet.*'"
+    - raw: pattern
+    - raw: '='
+    - raw: "'.*[.]parquet.*'"
 - statement_terminator: ;

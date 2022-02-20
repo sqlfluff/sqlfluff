@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0542922c0f23b3994d1068635810a4fefeee5036c5feb00bf0f5ddda08e6fc20
+_hash: 83030326fd96d596cd3219e27d80d62424d39acc8efd62067377072ac670d549
 file:
   statement:
     set_expression:
@@ -15,33 +15,25 @@ file:
               identifier: item
         - comma: ','
         - select_clause_element:
-            function:
-              function_name:
-                function_name_identifier: RANK
-              bracketed:
+            column_reference:
+              identifier: RANK
+            unparsable:
+            - bracketed:
                 start_bracket: (
                 end_bracket: )
-              over_clause:
-                keyword: OVER
-                bracketed:
-                  start_bracket: (
-                  window_specification:
-                    partitionby_clause:
-                    - keyword: PARTITION
-                    - keyword: BY
-                    - expression:
-                        column_reference:
-                          identifier: category
-                    orderby_clause:
-                    - keyword: ORDER
-                    - keyword: BY
-                    - column_reference:
-                        identifier: purchases
-                    - keyword: DESC
-                  end_bracket: )
-            alias_expression:
-              keyword: AS
-              identifier: rank
+            - raw: OVER
+            - bracketed:
+              - start_bracket: (
+              - raw: PARTITION
+              - raw: BY
+              - raw: category
+              - raw: ORDER
+              - raw: BY
+              - raw: purchases
+              - raw: DESC
+              - end_bracket: )
+            - raw: AS
+            - raw: rank
         from_clause:
           keyword: FROM
           from_expression:
@@ -76,33 +68,25 @@ file:
               identifier: item
         - comma: ','
         - select_clause_element:
-            function:
-              function_name:
-                function_name_identifier: RANK
-              bracketed:
+            column_reference:
+              identifier: RANK
+            unparsable:
+            - bracketed:
                 start_bracket: (
                 end_bracket: )
-              over_clause:
-                keyword: OVER
-                bracketed:
-                  start_bracket: (
-                  window_specification:
-                    partitionby_clause:
-                    - keyword: PARTITION
-                    - keyword: BY
-                    - expression:
-                        column_reference:
-                          identifier: category
-                    orderby_clause:
-                    - keyword: ORDER
-                    - keyword: BY
-                    - column_reference:
-                        identifier: purchases
-                    - keyword: DESC
-                  end_bracket: )
-            alias_expression:
-              keyword: AS
-              identifier: rank
+            - raw: OVER
+            - bracketed:
+              - start_bracket: (
+              - raw: PARTITION
+              - raw: BY
+              - raw: category
+              - raw: ORDER
+              - raw: BY
+              - raw: purchases
+              - raw: DESC
+              - end_bracket: )
+            - raw: AS
+            - raw: rank
         from_clause:
           keyword: FROM
           from_expression:

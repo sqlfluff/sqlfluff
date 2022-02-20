@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 00e6fe8bd1247d37d06c48415c9aba343997a36dc76a5c04671ee817570dcf6d
+_hash: 720d2095d066bba2d6fbf02b1fade8fcbe730ecdf8479148069f459ed4e3f781
 file:
 - statement:
     update_statement:
@@ -153,29 +153,20 @@ file:
             binary_operator: '*'
             literal: '10'
       preferring_clause:
-        keyword: PREFERRING
-        preference_term:
-          function:
-            function_name:
-              function_name_identifier: HIGH
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  identifier: order_date
-              end_bracket: )
-        partitionby_clause:
-        - keyword: PARTITION
-        - keyword: BY
+        unparsable:
+        - keyword: PREFERRING
+        - raw: HIGH
+        - bracketed:
+            start_bracket: (
+            raw: order_date
+            end_bracket: )
+        - raw: PARTITION
+        - raw: BY
         - bracketed:
           - start_bracket: (
-          - expression:
-              column_reference:
-                identifier: shop_id
+          - raw: shop_id
           - comma: ','
-          - expression:
-              column_reference:
-                identifier: order_id
+          - raw: order_id
           - end_bracket: )
 - statement_terminator: ;
 - statement:

@@ -3,48 +3,36 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: abe24ca1345b64f49944cf81b4bd9ad8700b8969f15a45493f457c6875f4b87c
+_hash: dc34624c38d28f0feb3b449030415fcbb259fc04d5d2d7c7489f3a85159008ba
 file:
   statement:
     create_table_statement:
-    - keyword: CREATE
-    - keyword: EXTERNAL
-    - keyword: TABLE
-    - keyword: IF
-    - keyword: NOT
-    - keyword: EXISTS
-    - table_reference:
-        identifier: foo
-    - bracketed:
-      - start_bracket: (
-      - column_definition:
-          identifier: col1
-          data_type:
-            primitive_type:
-              keyword: int
-      - comma: ','
-      - column_definition:
-          identifier: col2
-          data_type:
-            primitive_type:
-              keyword: string
-      - end_bracket: )
-    - keyword: PARTITIONED
-    - keyword: BY
-    - bracketed:
-      - start_bracket: (
-      - column_definition:
-          identifier: col3
-          data_type:
-            primitive_type:
-              keyword: string
-      - comma: ','
-      - column_definition:
-          identifier: col4
-          data_type:
-            primitive_type:
-              keyword: date
-      - end_bracket: )
-    - keyword: LOCATION
-    - literal: "'hdfs://path'"
+      unparsable:
+      - keyword: CREATE
+      - keyword: EXTERNAL
+      - keyword: TABLE
+      - raw: IF
+      - raw: NOT
+      - raw: EXISTS
+      - raw: foo
+      - bracketed:
+        - start_bracket: (
+        - raw: col1
+        - raw: int
+        - comma: ','
+        - raw: col2
+        - raw: string
+        - end_bracket: )
+      - raw: PARTITIONED
+      - raw: BY
+      - bracketed:
+        - start_bracket: (
+        - raw: col3
+        - raw: string
+        - comma: ','
+        - raw: col4
+        - raw: date
+        - end_bracket: )
+      - raw: LOCATION
+      - raw: "'hdfs://path'"
   statement_terminator: ;

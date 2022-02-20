@@ -3,54 +3,37 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e6a682c094d53ff0e0db4c2997dbd6a000d661fbff503448cb2275bd903e4875
+_hash: 30e97c5f05d73580037a4095bffefd9912668c1748582ef82cb1186b6e7057b3
 file:
   statement:
     insert_statement:
-    - keyword: INSERT
-    - keyword: OVERWRITE
-    - keyword: TABLE
-    - table_reference:
-        identifier: foo
-    - keyword: PARTITION
-    - bracketed:
-      - start_bracket: (
-      - column_reference:
-          identifier: a
-      - comparison_operator: '='
-      - literal: "'test_foo'"
+      unparsable:
+      - keyword: INSERT
+      - raw: OVERWRITE
+      - raw: TABLE
+      - raw: foo
+      - raw: PARTITION
+      - bracketed:
+        - start_bracket: (
+        - raw: a
+        - raw: '='
+        - raw: "'test_foo'"
+        - comma: ','
+        - raw: b
+        - raw: '='
+        - raw: "'test_bar'"
+        - end_bracket: )
+      - raw: IF
+      - raw: NOT
+      - raw: EXISTS
+      - raw: SELECT
+      - raw: a
       - comma: ','
-      - column_reference:
-          identifier: b
-      - comparison_operator: '='
-      - literal: "'test_bar'"
-      - end_bracket: )
-    - keyword: IF
-    - keyword: NOT
-    - keyword: EXISTS
-    - select_statement:
-        select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-            column_reference:
-              identifier: a
-        - comma: ','
-        - select_clause_element:
-            column_reference:
-              identifier: b
-        - comma: ','
-        - select_clause_element:
-            column_reference:
-              identifier: c
-        - comma: ','
-        - select_clause_element:
-            column_reference:
-              identifier: d
-        from_clause:
-          keyword: FROM
-          from_expression:
-            from_expression_element:
-              table_expression:
-                table_reference:
-                  identifier: bar
+      - raw: b
+      - comma: ','
+      - raw: c
+      - comma: ','
+      - raw: d
+      - raw: FROM
+      - raw: bar
   statement_terminator: ;

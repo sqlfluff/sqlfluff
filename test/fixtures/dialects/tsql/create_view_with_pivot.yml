@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4f394efeb23b6f838b5fd9f7278f98b49696440e7372e563c1c8810ed73771ae
+_hash: c6d3c22a98bfdc6a5bfadf3e6b38293b7e53ca34a8118af8add0d3006e0c7423
 file:
   batch:
     statement:
@@ -75,42 +75,28 @@ file:
                 alias_expression:
                   keyword: AS
                   identifier: SourceTable
-          from_pivot_expression:
-          - keyword: PIVOT
-          - bracketed:
-            - start_bracket: (
-            - function:
-                function_name:
-                  function_name_identifier: AVG
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    column_reference:
-                      identifier: StandardCost
-                  end_bracket: )
-            - keyword: FOR
-            - column_reference:
-                identifier: DaysToManufacture
-            - keyword: IN
-            - bracketed:
-              - start_bracket: (
-              - pivot_column_reference:
-                  identifier: '[0]'
-              - comma: ','
-              - pivot_column_reference:
-                  identifier: '[1]'
-              - comma: ','
-              - pivot_column_reference:
-                  identifier: '[2]'
-              - comma: ','
-              - pivot_column_reference:
-                  identifier: '[3]'
-              - comma: ','
-              - pivot_column_reference:
-                  identifier: '[4]'
-              - end_bracket: )
-            - end_bracket: )
-          - keyword: AS
-          - table_reference:
-              identifier: PivotTable
-          statement_terminator: ;
+  unparsable:
+  - raw: PIVOT
+  - raw: (
+  - raw: AVG
+  - raw: (
+  - raw: StandardCost
+  - raw: )
+  - raw: FOR
+  - raw: DaysToManufacture
+  - raw: IN
+  - raw: (
+  - raw: '[0]'
+  - comma: ','
+  - raw: '[1]'
+  - comma: ','
+  - raw: '[2]'
+  - comma: ','
+  - raw: '[3]'
+  - comma: ','
+  - raw: '[4]'
+  - raw: )
+  - raw: )
+  - raw: AS
+  - raw: PivotTable
+  - raw: ;

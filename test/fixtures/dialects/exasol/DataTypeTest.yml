@@ -3,726 +3,574 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9e88646485228f71ffc50c13ee7010f7ca985de224cc9fa16e4843837fb73ea2
+_hash: 4b552dc84be634bda7bc67190af7412cb112c9e4f4a5cd9f3759f56a6d1f97fe
 file:
 - statement:
     create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: t
-    - bracketed:
-        start_bracket: (
-        table_content_definition:
-          column_definition:
-            column_datatype_definition:
-              identifier: c1
-              data_type:
-                keyword: DECIMAL
-        end_bracket: )
+      unparsable:
+      - keyword: CREATE
+      - keyword: TABLE
+      - raw: t
+      - bracketed:
+        - start_bracket: (
+        - raw: c1
+        - raw: DECIMAL
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: t
-    - bracketed:
-        start_bracket: (
-        table_content_definition:
-          column_definition:
-            column_datatype_definition:
-              identifier: c1
-              data_type:
-                keyword: DECIMAL
-                bracketed:
-                  start_bracket: (
-                  literal: '10'
-                  end_bracket: )
-        end_bracket: )
+      unparsable:
+      - keyword: CREATE
+      - keyword: TABLE
+      - raw: t
+      - bracketed:
+        - start_bracket: (
+        - raw: c1
+        - raw: DECIMAL
+        - bracketed:
+            start_bracket: (
+            raw: '10'
+            end_bracket: )
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: t
-    - bracketed:
-        start_bracket: (
-        table_content_definition:
-          column_definition:
-            column_datatype_definition:
-              identifier: c1
-              data_type:
-                keyword: DECIMAL
-                bracketed:
-                - start_bracket: (
-                - literal: '10'
-                - comma: ','
-                - literal: '2'
-                - end_bracket: )
-        end_bracket: )
+      unparsable:
+      - keyword: CREATE
+      - keyword: TABLE
+      - raw: t
+      - bracketed:
+        - start_bracket: (
+        - raw: c1
+        - raw: DECIMAL
+        - bracketed:
+          - start_bracket: (
+          - raw: '10'
+          - comma: ','
+          - raw: '2'
+          - end_bracket: )
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: t
-    - bracketed:
-        start_bracket: (
-        table_content_definition:
-          column_definition:
-            column_datatype_definition:
-              identifier: c1
-              data_type:
-                keyword: DEC
-                bracketed:
-                - start_bracket: (
-                - literal: '10'
-                - comma: ','
-                - literal: '2'
-                - end_bracket: )
-        end_bracket: )
+      unparsable:
+      - keyword: CREATE
+      - keyword: TABLE
+      - raw: t
+      - bracketed:
+        - start_bracket: (
+        - raw: c1
+        - raw: DEC
+        - bracketed:
+          - start_bracket: (
+          - raw: '10'
+          - comma: ','
+          - raw: '2'
+          - end_bracket: )
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: t
-    - bracketed:
-        start_bracket: (
-        table_content_definition:
-          column_definition:
-            column_datatype_definition:
-              identifier: c1
-              data_type:
-                keyword: NUMERIC
-                bracketed:
-                  start_bracket: (
-                  literal: '10'
-                  end_bracket: )
-        end_bracket: )
+      unparsable:
+      - keyword: CREATE
+      - keyword: TABLE
+      - raw: t
+      - bracketed:
+        - start_bracket: (
+        - raw: c1
+        - raw: NUMERIC
+        - bracketed:
+            start_bracket: (
+            raw: '10'
+            end_bracket: )
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: t
-    - bracketed:
-        start_bracket: (
-        table_content_definition:
-          column_definition:
-            column_datatype_definition:
-              identifier: c1
-              data_type:
-                keyword: NUMBER
-                bracketed:
-                - start_bracket: (
-                - literal: '10'
-                - comma: ','
-                - literal: '2'
-                - end_bracket: )
-        end_bracket: )
+      unparsable:
+      - keyword: CREATE
+      - keyword: TABLE
+      - raw: t
+      - bracketed:
+        - start_bracket: (
+        - raw: c1
+        - raw: NUMBER
+        - bracketed:
+          - start_bracket: (
+          - raw: '10'
+          - comma: ','
+          - raw: '2'
+          - end_bracket: )
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: t
-    - bracketed:
-        start_bracket: (
-        table_content_definition:
-          column_definition:
-            column_datatype_definition:
-              identifier: c1
-              data_type:
-                keyword: BIGINT
-        end_bracket: )
+      unparsable:
+      - keyword: CREATE
+      - keyword: TABLE
+      - raw: t
+      - bracketed:
+        - start_bracket: (
+        - raw: c1
+        - raw: BIGINT
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: t
-    - bracketed:
-        start_bracket: (
-        table_content_definition:
-          column_definition:
-            column_datatype_definition:
-              identifier: c1
-              data_type:
-                keyword: DOUBLE
-        end_bracket: )
+      unparsable:
+      - keyword: CREATE
+      - keyword: TABLE
+      - raw: t
+      - bracketed:
+        - start_bracket: (
+        - raw: c1
+        - raw: DOUBLE
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: t
-    - bracketed:
-        start_bracket: (
-        table_content_definition:
-          column_definition:
-            column_datatype_definition:
-              identifier: c1
-              data_type:
-              - keyword: DOUBLE
-              - keyword: PRECISION
-        end_bracket: )
+      unparsable:
+      - keyword: CREATE
+      - keyword: TABLE
+      - raw: t
+      - bracketed:
+        - start_bracket: (
+        - raw: c1
+        - raw: DOUBLE
+        - raw: PRECISION
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: t
-    - bracketed:
-        start_bracket: (
-        table_content_definition:
-          column_definition:
-            column_datatype_definition:
-              identifier: c1
-              data_type:
-                keyword: FLOAT
-        end_bracket: )
+      unparsable:
+      - keyword: CREATE
+      - keyword: TABLE
+      - raw: t
+      - bracketed:
+        - start_bracket: (
+        - raw: c1
+        - raw: FLOAT
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: t
-    - bracketed:
-        start_bracket: (
-        table_content_definition:
-          column_definition:
-            column_datatype_definition:
-              identifier: c1
-              data_type:
-                keyword: INT
-        end_bracket: )
+      unparsable:
+      - keyword: CREATE
+      - keyword: TABLE
+      - raw: t
+      - bracketed:
+        - start_bracket: (
+        - raw: c1
+        - raw: INT
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: t
-    - bracketed:
-        start_bracket: (
-        table_content_definition:
-          column_definition:
-            column_datatype_definition:
-              identifier: c1
-              data_type:
-                keyword: INTEGER
-        end_bracket: )
+      unparsable:
+      - keyword: CREATE
+      - keyword: TABLE
+      - raw: t
+      - bracketed:
+        - start_bracket: (
+        - raw: c1
+        - raw: INTEGER
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: t
-    - bracketed:
-        start_bracket: (
-        table_content_definition:
-          column_definition:
-            column_datatype_definition:
-              identifier: c1
-              data_type:
-                keyword: REAL
-        end_bracket: )
+      unparsable:
+      - keyword: CREATE
+      - keyword: TABLE
+      - raw: t
+      - bracketed:
+        - start_bracket: (
+        - raw: c1
+        - raw: REAL
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: t
-    - bracketed:
-        start_bracket: (
-        table_content_definition:
-          column_definition:
-            column_datatype_definition:
-              identifier: c1
-              data_type:
-                keyword: SHORTINT
-        end_bracket: )
+      unparsable:
+      - keyword: CREATE
+      - keyword: TABLE
+      - raw: t
+      - bracketed:
+        - start_bracket: (
+        - raw: c1
+        - raw: SHORTINT
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: t
-    - bracketed:
-        start_bracket: (
-        table_content_definition:
-          column_definition:
-            column_datatype_definition:
-              identifier: c1
-              data_type:
-                keyword: TINYINT
-        end_bracket: )
+      unparsable:
+      - keyword: CREATE
+      - keyword: TABLE
+      - raw: t
+      - bracketed:
+        - start_bracket: (
+        - raw: c1
+        - raw: TINYINT
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: t
-    - bracketed:
-        start_bracket: (
-        table_content_definition:
-          column_definition:
-            column_datatype_definition:
-              identifier: c1
-              data_type:
-                keyword: SMALLINT
-        end_bracket: )
+      unparsable:
+      - keyword: CREATE
+      - keyword: TABLE
+      - raw: t
+      - bracketed:
+        - start_bracket: (
+        - raw: c1
+        - raw: SMALLINT
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: t
-    - bracketed:
-        start_bracket: (
-        table_content_definition:
-          column_definition:
-            column_datatype_definition:
-              identifier: c1
-              data_type:
-                keyword: BOOL
-        end_bracket: )
+      unparsable:
+      - keyword: CREATE
+      - keyword: TABLE
+      - raw: t
+      - bracketed:
+        - start_bracket: (
+        - raw: c1
+        - raw: BOOL
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: t
-    - bracketed:
-        start_bracket: (
-        table_content_definition:
-          column_definition:
-            column_datatype_definition:
-              identifier: c1
-              data_type:
-                keyword: BOOLEAN
-        end_bracket: )
+      unparsable:
+      - keyword: CREATE
+      - keyword: TABLE
+      - raw: t
+      - bracketed:
+        - start_bracket: (
+        - raw: c1
+        - raw: BOOLEAN
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: t
-    - bracketed:
-        start_bracket: (
-        table_content_definition:
-          column_definition:
-            column_datatype_definition:
-              identifier: c1
-              data_type:
-                keyword: DATE
-        end_bracket: )
+      unparsable:
+      - keyword: CREATE
+      - keyword: TABLE
+      - raw: t
+      - bracketed:
+        - start_bracket: (
+        - raw: c1
+        - raw: DATE
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: t
-    - bracketed:
-        start_bracket: (
-        table_content_definition:
-          column_definition:
-            column_datatype_definition:
-              identifier: c1
-              data_type:
-                keyword: TIMESTAMP
-        end_bracket: )
+      unparsable:
+      - keyword: CREATE
+      - keyword: TABLE
+      - raw: t
+      - bracketed:
+        - start_bracket: (
+        - raw: c1
+        - raw: TIMESTAMP
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: t
-    - bracketed:
-        start_bracket: (
-        table_content_definition:
-          column_definition:
-            column_datatype_definition:
-              identifier: c1
-              data_type:
-              - keyword: TIMESTAMP
-              - keyword: WITH
-              - keyword: LOCAL
-              - keyword: TIME
-              - keyword: ZONE
-        end_bracket: )
+      unparsable:
+      - keyword: CREATE
+      - keyword: TABLE
+      - raw: t
+      - bracketed:
+        - start_bracket: (
+        - raw: c1
+        - raw: TIMESTAMP
+        - raw: WITH
+        - raw: LOCAL
+        - raw: TIME
+        - raw: ZONE
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: t
-    - bracketed:
-        start_bracket: (
-        table_content_definition:
-          column_definition:
-            column_datatype_definition:
-              identifier: c1
-              data_type:
-              - keyword: INTERVAL
-              - keyword: YEAR
-              - bracketed:
-                  start_bracket: (
-                  literal: '1'
-                  end_bracket: )
-              - keyword: TO
-              - keyword: MONTH
-        end_bracket: )
+      unparsable:
+      - keyword: CREATE
+      - keyword: TABLE
+      - raw: t
+      - bracketed:
+        - start_bracket: (
+        - raw: c1
+        - raw: INTERVAL
+        - raw: YEAR
+        - bracketed:
+            start_bracket: (
+            raw: '1'
+            end_bracket: )
+        - raw: TO
+        - raw: MONTH
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: t
-    - bracketed:
-        start_bracket: (
-        table_content_definition:
-          column_definition:
-            column_datatype_definition:
-              identifier: c1
-              data_type:
-              - keyword: INTERVAL
-              - keyword: DAY
-              - bracketed:
-                  start_bracket: (
-                  literal: '2'
-                  end_bracket: )
-              - keyword: TO
-              - keyword: SECOND
-              - bracketed:
-                  start_bracket: (
-                  literal: '1'
-                  end_bracket: )
-        end_bracket: )
+      unparsable:
+      - keyword: CREATE
+      - keyword: TABLE
+      - raw: t
+      - bracketed:
+        - start_bracket: (
+        - raw: c1
+        - raw: INTERVAL
+        - raw: DAY
+        - bracketed:
+            start_bracket: (
+            raw: '2'
+            end_bracket: )
+        - raw: TO
+        - raw: SECOND
+        - bracketed:
+            start_bracket: (
+            raw: '1'
+            end_bracket: )
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: t
-    - bracketed:
-        start_bracket: (
-        table_content_definition:
-          column_definition:
-            column_datatype_definition:
-              identifier: c1
-              data_type:
-                keyword: GEOMETRY
-                bracketed:
-                  start_bracket: (
-                  literal: '1000'
-                  end_bracket: )
-        end_bracket: )
+      unparsable:
+      - keyword: CREATE
+      - keyword: TABLE
+      - raw: t
+      - bracketed:
+        - start_bracket: (
+        - raw: c1
+        - raw: GEOMETRY
+        - bracketed:
+            start_bracket: (
+            raw: '1000'
+            end_bracket: )
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: t
-    - bracketed:
-        start_bracket: (
-        table_content_definition:
-          column_definition:
-            column_datatype_definition:
-              identifier: c1
-              data_type:
-                keyword: HASHTYPE
-        end_bracket: )
+      unparsable:
+      - keyword: CREATE
+      - keyword: TABLE
+      - raw: t
+      - bracketed:
+        - start_bracket: (
+        - raw: c1
+        - raw: HASHTYPE
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: t
-    - bracketed:
-        start_bracket: (
-        table_content_definition:
-          column_definition:
-            column_datatype_definition:
-              identifier: c1
-              data_type:
-                keyword: HASHTYPE
-                bracketed:
-                  start_bracket: (
-                  literal: '8'
-                  keyword: BYTE
-                  end_bracket: )
-        end_bracket: )
+      unparsable:
+      - keyword: CREATE
+      - keyword: TABLE
+      - raw: t
+      - bracketed:
+        - start_bracket: (
+        - raw: c1
+        - raw: HASHTYPE
+        - bracketed:
+          - start_bracket: (
+          - raw: '8'
+          - raw: BYTE
+          - end_bracket: )
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: t
-    - bracketed:
-        start_bracket: (
-        table_content_definition:
-          column_definition:
-            column_datatype_definition:
-              identifier: c1
-              data_type:
-                keyword: HASHTYPE
-                bracketed:
-                  start_bracket: (
-                  literal: '8'
-                  keyword: BIT
-                  end_bracket: )
-        end_bracket: )
+      unparsable:
+      - keyword: CREATE
+      - keyword: TABLE
+      - raw: t
+      - bracketed:
+        - start_bracket: (
+        - raw: c1
+        - raw: HASHTYPE
+        - bracketed:
+          - start_bracket: (
+          - raw: '8'
+          - raw: BIT
+          - end_bracket: )
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: t
-    - bracketed:
-        start_bracket: (
-        table_content_definition:
-          column_definition:
-            column_datatype_definition:
-              identifier: c1
-              data_type:
-                keyword: CHAR
-                bracketed:
-                  start_bracket: (
-                  literal: '1'
-                  end_bracket: )
-        end_bracket: )
+      unparsable:
+      - keyword: CREATE
+      - keyword: TABLE
+      - raw: t
+      - bracketed:
+        - start_bracket: (
+        - raw: c1
+        - raw: CHAR
+        - bracketed:
+            start_bracket: (
+            raw: '1'
+            end_bracket: )
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: t
-    - bracketed:
-        start_bracket: (
-        table_content_definition:
-          column_definition:
-            column_datatype_definition:
-              identifier: c1
-              data_type:
-              - keyword: CHAR
-              - keyword: VARYING
-              - bracketed:
-                  start_bracket: (
-                  literal: '1'
-                  end_bracket: )
-        end_bracket: )
+      unparsable:
+      - keyword: CREATE
+      - keyword: TABLE
+      - raw: t
+      - bracketed:
+        - start_bracket: (
+        - raw: c1
+        - raw: CHAR
+        - raw: VARYING
+        - bracketed:
+            start_bracket: (
+            raw: '1'
+            end_bracket: )
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: t
-    - bracketed:
-        start_bracket: (
-        table_content_definition:
-          column_definition:
-            column_datatype_definition:
-              identifier: c1
-              data_type:
-                keyword: VARCHAR
-                bracketed:
-                  start_bracket: (
-                  literal: '2000'
-                  keyword: CHAR
-                  end_bracket: )
-        end_bracket: )
+      unparsable:
+      - keyword: CREATE
+      - keyword: TABLE
+      - raw: t
+      - bracketed:
+        - start_bracket: (
+        - raw: c1
+        - raw: VARCHAR
+        - bracketed:
+          - start_bracket: (
+          - raw: '2000'
+          - raw: CHAR
+          - end_bracket: )
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: t
-    - bracketed:
-        start_bracket: (
-        table_content_definition:
-          column_definition:
-            column_datatype_definition:
-              identifier: c1
-              data_type:
-                keyword: VARCHAR2
-                bracketed:
-                  start_bracket: (
-                  literal: '2000'
-                  end_bracket: )
-        end_bracket: )
+      unparsable:
+      - keyword: CREATE
+      - keyword: TABLE
+      - raw: t
+      - bracketed:
+        - start_bracket: (
+        - raw: c1
+        - raw: VARCHAR2
+        - bracketed:
+            start_bracket: (
+            raw: '2000'
+            end_bracket: )
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: t
-    - bracketed:
-        start_bracket: (
-        table_content_definition:
-          column_definition:
-            column_datatype_definition:
-              identifier: c1
-              data_type:
-                keyword: VARCHAR
-                bracketed:
-                  start_bracket: (
-                  literal: '2000'
-                  keyword: BYTE
-                  end_bracket: )
-        end_bracket: )
+      unparsable:
+      - keyword: CREATE
+      - keyword: TABLE
+      - raw: t
+      - bracketed:
+        - start_bracket: (
+        - raw: c1
+        - raw: VARCHAR
+        - bracketed:
+          - start_bracket: (
+          - raw: '2000'
+          - raw: BYTE
+          - end_bracket: )
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: t
-    - bracketed:
-        start_bracket: (
-        table_content_definition:
-          column_definition:
-            column_datatype_definition:
-              identifier: c1
-              data_type:
-              - keyword: LONG
-              - keyword: VARCHAR
-        end_bracket: )
+      unparsable:
+      - keyword: CREATE
+      - keyword: TABLE
+      - raw: t
+      - bracketed:
+        - start_bracket: (
+        - raw: c1
+        - raw: LONG
+        - raw: VARCHAR
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: t
-    - bracketed:
-        start_bracket: (
-        table_content_definition:
-          column_definition:
-            column_datatype_definition:
-              identifier: c1
-              data_type:
-              - keyword: CHARACTER
-              - keyword: LARGE
-              - keyword: OBJECT
-              - bracketed:
-                  start_bracket: (
-                  literal: '1000'
-                  end_bracket: )
-        end_bracket: )
+      unparsable:
+      - keyword: CREATE
+      - keyword: TABLE
+      - raw: t
+      - bracketed:
+        - start_bracket: (
+        - raw: c1
+        - raw: CHARACTER
+        - raw: LARGE
+        - raw: OBJECT
+        - bracketed:
+            start_bracket: (
+            raw: '1000'
+            end_bracket: )
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: t
-    - bracketed:
-        start_bracket: (
-        table_content_definition:
-          column_definition:
-            column_datatype_definition:
-              identifier: c1
-              data_type:
-              - keyword: CHARACTER
-              - keyword: VARYING
-              - bracketed:
-                  start_bracket: (
-                  literal: '1000'
-                  end_bracket: )
-        end_bracket: )
+      unparsable:
+      - keyword: CREATE
+      - keyword: TABLE
+      - raw: t
+      - bracketed:
+        - start_bracket: (
+        - raw: c1
+        - raw: CHARACTER
+        - raw: VARYING
+        - bracketed:
+            start_bracket: (
+            raw: '1000'
+            end_bracket: )
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: t
-    - bracketed:
-        start_bracket: (
-        table_content_definition:
-          column_definition:
-            column_datatype_definition:
-              identifier: c1
-              data_type:
-                keyword: CLOB
-                bracketed:
-                  start_bracket: (
-                  literal: '2000'
-                  end_bracket: )
-        end_bracket: )
+      unparsable:
+      - keyword: CREATE
+      - keyword: TABLE
+      - raw: t
+      - bracketed:
+        - start_bracket: (
+        - raw: c1
+        - raw: CLOB
+        - bracketed:
+            start_bracket: (
+            raw: '2000'
+            end_bracket: )
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: t
-    - bracketed:
-        start_bracket: (
-        table_content_definition:
-          column_definition:
-            column_datatype_definition:
-              identifier: c1
-              data_type:
-              - keyword: CLOB
-              - bracketed:
-                  start_bracket: (
-                  literal: '2000'
-                  end_bracket: )
-              - keyword: ASCII
-        end_bracket: )
+      unparsable:
+      - keyword: CREATE
+      - keyword: TABLE
+      - raw: t
+      - bracketed:
+        - start_bracket: (
+        - raw: c1
+        - raw: CLOB
+        - bracketed:
+            start_bracket: (
+            raw: '2000'
+            end_bracket: )
+        - raw: ASCII
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: t
-    - bracketed:
-        start_bracket: (
-        table_content_definition:
-          column_definition:
-            column_datatype_definition:
-              identifier: c1
-              data_type:
-              - keyword: VARCHAR
-              - bracketed:
-                  start_bracket: (
-                  literal: '2000'
-                  keyword: CHAR
-                  end_bracket: )
-              - keyword: UTF8
-        end_bracket: )
+      unparsable:
+      - keyword: CREATE
+      - keyword: TABLE
+      - raw: t
+      - bracketed:
+        - start_bracket: (
+        - raw: c1
+        - raw: VARCHAR
+        - bracketed:
+          - start_bracket: (
+          - raw: '2000'
+          - raw: CHAR
+          - end_bracket: )
+        - raw: UTF8
+        - end_bracket: )
 - statement_terminator: ;

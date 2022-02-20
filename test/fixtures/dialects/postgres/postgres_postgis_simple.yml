@@ -1,0 +1,57 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 7f1aa17ee1e063488f328a77d8b4f1c3872f1a2c7ae21114046070f85ed70e2e
+file:
+  statement:
+    unparsable:
+    - raw: CREATE
+    - raw: TABLE
+    - raw: public
+    - raw: .
+    - raw: foo
+    - bracketed:
+      - start_bracket: (
+      - raw: my_point
+      - raw: POINT
+      - bracketed:
+        - start_bracket: (
+        - raw: '0'
+        - raw: '0'
+        - end_bracket: )
+      - comma: ','
+      - raw: my_simple_polygon
+      - raw: POLYGON
+      - bracketed:
+          start_bracket: (
+          bracketed:
+          - start_bracket: (
+          - raw: '0'
+          - raw: '0'
+          - comma: ','
+          - raw: '1'
+          - raw: '0'
+          - comma: ','
+          - raw: '1'
+          - raw: '1'
+          - comma: ','
+          - raw: '0'
+          - raw: '1'
+          - comma: ','
+          - raw: '0'
+          - raw: '0'
+          - end_bracket: )
+          end_bracket: )
+      - comma: ','
+      - raw: my_geometry_column
+      - raw: GEOMETRY
+      - bracketed:
+        - start_bracket: (
+        - raw: GEOMETRY
+        - comma: ','
+        - raw: '4326'
+        - end_bracket: )
+      - end_bracket: )
+  statement_terminator: ;

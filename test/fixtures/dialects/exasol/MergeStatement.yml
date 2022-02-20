@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b5da892683d4d7e2e4ae8062d5ea1e3e62969eccf0d4071939ea1ccc89130c61
+_hash: 435671d11a647dea9fe81c98b7501f55c1e30baec43ef8640267624643f1c4b2
 file:
 - statement:
     merge_statement:
@@ -71,139 +71,95 @@ file:
               - dot: .
               - identifier: salary
     - merge_when_not_matched_clause:
-      - keyword: WHEN
-      - keyword: NOT
-      - keyword: MATCHED
-      - keyword: THEN
-      - merge_insert_clause:
-        - keyword: INSERT
-        - keyword: VALUES
+        unparsable:
+        - keyword: WHEN
+        - keyword: NOT
+        - keyword: MATCHED
+        - keyword: THEN
+        - raw: INSERT
+        - raw: VALUES
         - bracketed:
           - start_bracket: (
-          - expression:
-              column_reference:
-              - identifier: U
-              - dot: .
-              - identifier: name
+          - raw: U
+          - raw: .
+          - raw: name
           - comma: ','
-          - expression:
-              column_reference:
-              - identifier: U
-              - dot: .
-              - identifier: salary
+          - raw: U
+          - raw: .
+          - raw: salary
           - comma: ','
-          - expression:
-              bare_function: CURRENT_DATE
+          - raw: CURRENT_DATE
           - end_bracket: )
 - statement_terminator: ;
 - statement:
     merge_statement:
-    - keyword: MERGE
-    - keyword: INTO
-    - table_reference:
-        identifier: staff
-    - alias_expression:
-        identifier: T
-    - keyword: USING
-    - bracketed:
-        start_bracket: (
-        select_statement:
-          select_clause:
-            keyword: SELECT
-            select_clause_element:
-              column_reference:
-                identifier: name
-          from_clause:
-            keyword: FROM
-            from_expression:
-              from_expression_element:
-                table_expression:
-                  table_reference:
-                    identifier: X
-        end_bracket: )
-    - alias_expression:
-        identifier: U
-    - join_on_condition:
-        keyword: 'ON'
-        expression:
-        - column_reference:
-          - identifier: T
-          - dot: .
-          - identifier: name
-        - comparison_operator: '='
-        - column_reference:
-          - identifier: U
-          - dot: .
-          - identifier: name
-    - merge_when_matched_clause:
-      - keyword: WHEN
-      - keyword: MATCHED
-      - keyword: THEN
-      - merge_delete_clause:
-          keyword: DELETE
+      unparsable:
+      - keyword: MERGE
+      - keyword: INTO
+      - raw: staff
+      - raw: T
+      - raw: USING
+      - bracketed:
+        - start_bracket: (
+        - raw: SELECT
+        - raw: name
+        - raw: FROM
+        - raw: X
+        - end_bracket: )
+      - raw: U
+      - raw: 'ON'
+      - raw: T
+      - raw: .
+      - raw: name
+      - raw: '='
+      - raw: U
+      - raw: .
+      - raw: name
+      - raw: WHEN
+      - raw: MATCHED
+      - raw: THEN
+      - raw: DELETE
 - statement_terminator: ;
 - statement:
     merge_statement:
-    - keyword: MERGE
-    - keyword: INTO
-    - table_reference:
-        identifier: staff
-    - alias_expression:
-        identifier: T
-    - keyword: USING
-    - bracketed:
-        start_bracket: (
-        select_statement:
-          select_clause:
-            keyword: SELECT
-            select_clause_element:
-              column_reference:
-                identifier: name
-          from_clause:
-            keyword: FROM
-            from_expression:
-              from_expression_element:
-                table_expression:
-                  table_reference:
-                    identifier: X
-        end_bracket: )
-    - alias_expression:
-        identifier: U
-    - join_on_condition:
-        keyword: 'ON'
-        expression:
-        - column_reference:
-          - identifier: T
-          - dot: .
-          - identifier: name
-        - comparison_operator: '='
-        - column_reference:
-          - identifier: U
-          - dot: .
-          - identifier: name
-    - merge_when_not_matched_clause:
-      - keyword: WHEN
-      - keyword: NOT
-      - keyword: MATCHED
-      - keyword: THEN
-      - merge_insert_clause:
-        - keyword: INSERT
-        - keyword: VALUES
-        - bracketed:
-          - start_bracket: (
-          - expression:
-              literal: '1'
-          - comma: ','
-          - expression:
-              literal: '2'
-          - comma: ','
-          - expression:
-              literal: '3'
-          - end_bracket: )
-    - merge_when_matched_clause:
-      - keyword: WHEN
-      - keyword: MATCHED
-      - keyword: THEN
-      - merge_delete_clause:
-          keyword: DELETE
+      unparsable:
+      - keyword: MERGE
+      - keyword: INTO
+      - raw: staff
+      - raw: T
+      - raw: USING
+      - bracketed:
+        - start_bracket: (
+        - raw: SELECT
+        - raw: name
+        - raw: FROM
+        - raw: X
+        - end_bracket: )
+      - raw: U
+      - raw: 'ON'
+      - raw: T
+      - raw: .
+      - raw: name
+      - raw: '='
+      - raw: U
+      - raw: .
+      - raw: name
+      - raw: WHEN
+      - raw: NOT
+      - raw: MATCHED
+      - raw: THEN
+      - raw: INSERT
+      - raw: VALUES
+      - bracketed:
+        - start_bracket: (
+        - raw: '1'
+        - comma: ','
+        - raw: '2'
+        - comma: ','
+        - raw: '3'
+        - end_bracket: )
+      - raw: WHEN
+      - raw: MATCHED
+      - raw: THEN
+      - raw: DELETE
 - statement_terminator: ;

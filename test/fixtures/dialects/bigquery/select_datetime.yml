@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7af2ae425ce98abe713b808a25a382d475f11f1e20a0fa65b0c2d15f1fa6855f
+_hash: beb4e0b6173dc931b70f8cd1d18ab0609e371c625c2ac95f80e339c3ba13bbf8
 file:
   statement:
     select_statement:
@@ -22,22 +22,18 @@ file:
           - identifier: order_created_at
       - comma: ','
       - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: DATE
-              keyword: FROM
-              expression:
-                column_reference:
-                - identifier: gmv
-                - dot: .
-                - identifier: order_created_at
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            identifier: order_dt
+          unparsable:
+          - raw: EXTRACT
+          - bracketed:
+            - start_bracket: (
+            - raw: DATE
+            - raw: FROM
+            - raw: gmv
+            - raw: .
+            - raw: order_created_at
+            - end_bracket: )
+          - raw: AS
+          - raw: order_dt
       from_clause:
         keyword: FROM
         from_expression:
@@ -51,40 +47,31 @@ file:
       where_clause:
         keyword: WHERE
         expression:
-          column_reference:
+        - column_reference:
           - identifier: gmv
           - dot: .
           - identifier: datetime
-          comparison_operator: '>='
-          function:
-            function_name:
-              function_name_identifier: DATE_TRUNC
-            bracketed:
-              start_bracket: (
-              expression:
-                function:
-                  function_name:
-                    function_name_identifier: DATE_SUB
-                  bracketed:
-                  - start_bracket: (
-                  - expression:
-                      function:
-                        function_name:
-                          function_name_identifier: CURRENT_DATE
-                        bracketed:
-                          start_bracket: (
-                          end_bracket: )
-                  - comma: ','
-                  - expression:
-                      interval_expression:
-                        keyword: INTERVAL
-                        expression:
-                          literal: '2'
-                        date_part: YEAR
-                  - end_bracket: )
-              comma: ','
-              date_part: year
-              end_bracket: )
+        - comparison_operator: '>='
+        - column_reference:
+            identifier: DATE_TRUNC
+        unparsable:
+          bracketed:
+          - start_bracket: (
+          - raw: DATE_SUB
+          - bracketed:
+            - start_bracket: (
+            - raw: CURRENT_DATE
+            - bracketed:
+                start_bracket: (
+                end_bracket: )
+            - comma: ','
+            - raw: INTERVAL
+            - raw: '2'
+            - raw: YEAR
+            - end_bracket: )
+          - comma: ','
+          - raw: year
+          - end_bracket: )
       limit_clause:
         keyword: LIMIT
         literal: '1'

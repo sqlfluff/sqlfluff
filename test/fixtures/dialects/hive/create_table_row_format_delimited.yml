@@ -3,79 +3,62 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ec9964f0134d4577550e65980bd9baeb3c7b52976bd774143d642a7e9a8afe9e
+_hash: a27ce0a60816f309aaec0fc693809641421657b008116bb6e7d75f895564456c
 file:
   statement:
     create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: foo
-    - bracketed:
-      - start_bracket: (
-      - column_definition:
-          identifier: col1
-          data_type:
-            primitive_type:
-              keyword: INT
-          column_constraint_segment:
-          - keyword: PRIMARY
-          - keyword: KEY
-      - comma: ','
-      - column_definition:
-          identifier: col2
-          data_type:
-            primitive_type:
-              keyword: BIGINT
-          column_constraint_segment:
-          - keyword: NOT
-          - keyword: 'NULL'
-      - comma: ','
-      - column_definition:
-          identifier: col3
-          data_type:
-            primitive_type:
-              keyword: STRING
-      - comma: ','
-      - column_definition:
-          identifier: col4
-          data_type:
-            primitive_type:
-              keyword: STRING
-          column_constraint_segment:
-            comment_clause:
-              keyword: COMMENT
-              literal: "'Column 4'"
-      - end_bracket: )
-    - keyword: COMMENT
-    - literal: "'This is a test table'"
-    - row_format_clause:
-      - keyword: ROW
-      - keyword: FORMAT
-      - keyword: DELIMITED
-      - keyword: FIELDS
-      - keyword: TERMINATED
-      - keyword: BY
-      - literal: "'\\001'"
-      - keyword: COLLECTION
-      - keyword: ITEMS
-      - keyword: TERMINATED
-      - keyword: BY
-      - literal: "'\\002'"
-      - keyword: MAP
-      - keyword: KEYS
-      - keyword: TERMINATED
-      - keyword: BY
-      - literal: "'\\003'"
-      - keyword: LINES
-      - keyword: TERMINATED
-      - keyword: BY
-      - literal: "'\\004'"
-      - keyword: 'NULL'
-      - keyword: DEFINED
-      - keyword: AS
-      - literal: "'\\005'"
-    - keyword: STORED
-    - keyword: AS
-    - file_format: SEQUENCEFILE
+      unparsable:
+      - keyword: CREATE
+      - keyword: TABLE
+      - raw: foo
+      - bracketed:
+        - start_bracket: (
+        - raw: col1
+        - raw: INT
+        - raw: PRIMARY
+        - raw: KEY
+        - comma: ','
+        - raw: col2
+        - raw: BIGINT
+        - raw: NOT
+        - raw: 'NULL'
+        - comma: ','
+        - raw: col3
+        - raw: STRING
+        - comma: ','
+        - raw: col4
+        - raw: STRING
+        - raw: COMMENT
+        - raw: "'Column 4'"
+        - end_bracket: )
+      - raw: COMMENT
+      - raw: "'This is a test table'"
+      - raw: ROW
+      - raw: FORMAT
+      - raw: DELIMITED
+      - raw: FIELDS
+      - raw: TERMINATED
+      - raw: BY
+      - raw: "'\\001'"
+      - raw: COLLECTION
+      - raw: ITEMS
+      - raw: TERMINATED
+      - raw: BY
+      - raw: "'\\002'"
+      - raw: MAP
+      - raw: KEYS
+      - raw: TERMINATED
+      - raw: BY
+      - raw: "'\\003'"
+      - raw: LINES
+      - raw: TERMINATED
+      - raw: BY
+      - raw: "'\\004'"
+      - raw: 'NULL'
+      - raw: DEFINED
+      - raw: AS
+      - raw: "'\\005'"
+      - raw: STORED
+      - raw: AS
+      - raw: SEQUENCEFILE
   statement_terminator: ;

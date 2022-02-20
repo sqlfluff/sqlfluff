@@ -3,57 +3,31 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bbaee47516555b6082ece21fd3e90454de941e7c663893ade1ee071b890d8635
+_hash: ec9eb77c785154cbce181cb2a370682bc517be4b7bff520d4b80df469f21332d
 file:
   statement:
     with_compound_statement:
-      keyword: WITH
-      common_table_expression:
-        identifier: blah
-        keyword: AS
-        bracketed:
-          start_bracket: (
-          select_statement:
-            select_clause:
-            - keyword: select
-            - select_clause_element:
-                column_reference:
-                  identifier: x
-            - comma: ','
-            - select_clause_element:
-                column_reference:
-                  identifier: y
-            - comma: ','
-            - select_clause_element:
-                column_reference:
-                  identifier: z
-            from_clause:
-              keyword: FROM
-              from_expression:
-                from_expression_element:
-                  table_expression:
-                    table_reference:
-                      identifier: foo
-          end_bracket: )
-      select_statement:
-        select_clause:
-        - keyword: select
-        - select_clause_element:
-            column_reference:
-              identifier: z
+      unparsable:
+      - keyword: WITH
+      - raw: blah
+      - raw: AS
+      - bracketed:
+        - start_bracket: (
+        - raw: select
+        - raw: x
         - comma: ','
-        - select_clause_element:
-            column_reference:
-              identifier: y
+        - raw: y
         - comma: ','
-        - select_clause_element:
-            column_reference:
-              identifier: x
-        from_clause:
-          keyword: from
-          from_expression:
-            from_expression_element:
-              table_expression:
-                table_reference:
-                  identifier: blah
+        - raw: z
+        - raw: FROM
+        - raw: foo
+        - end_bracket: )
+      - raw: select
+      - raw: z
+      - comma: ','
+      - raw: y
+      - comma: ','
+      - raw: x
+      - raw: from
+      - raw: blah
   statement_terminator: ;

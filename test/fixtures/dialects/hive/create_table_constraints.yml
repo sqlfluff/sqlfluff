@@ -3,53 +3,37 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: fb4a460bb4da693f0dd677ce6f279e4924d06548890eec5c0c6272c67888c05b
+_hash: 8f2e31b7e5a67d143ef767d7ed91b40111376e614e72c7423f04ad2d55e26143
 file:
   statement:
     create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: foo
-    - bracketed:
-      - start_bracket: (
-      - column_definition:
-          identifier: col1
-          data_type:
-            primitive_type:
-              keyword: INT
-          column_constraint_segment:
-          - keyword: PRIMARY
-          - keyword: KEY
-      - comma: ','
-      - column_definition:
-          identifier: col2
-          data_type:
-            primitive_type:
-              keyword: BIGINT
-          column_constraint_segment:
-          - keyword: NOT
-          - keyword: 'NULL'
-      - comma: ','
-      - column_definition:
-          identifier: col3
-          data_type:
-            primitive_type:
-              keyword: STRING
-      - comma: ','
-      - column_definition:
-          identifier: col4
-          data_type:
-            primitive_type:
-              keyword: STRING
-          column_constraint_segment:
-            comment_clause:
-              keyword: COMMENT
-              literal: "'Column 4'"
-      - end_bracket: )
-    - keyword: COMMENT
-    - literal: "'This is a test table'"
-    - keyword: STORED
-    - keyword: AS
-    - keyword: ORC
+      unparsable:
+      - keyword: CREATE
+      - keyword: TABLE
+      - raw: foo
+      - bracketed:
+        - start_bracket: (
+        - raw: col1
+        - raw: INT
+        - raw: PRIMARY
+        - raw: KEY
+        - comma: ','
+        - raw: col2
+        - raw: BIGINT
+        - raw: NOT
+        - raw: 'NULL'
+        - comma: ','
+        - raw: col3
+        - raw: STRING
+        - comma: ','
+        - raw: col4
+        - raw: STRING
+        - raw: COMMENT
+        - raw: "'Column 4'"
+        - end_bracket: )
+      - raw: COMMENT
+      - raw: "'This is a test table'"
+      - raw: STORED
+      - raw: AS
+      - raw: ORC
   statement_terminator: ;

@@ -3,49 +3,44 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 563d01a9d3f4d84492323c33e29057117a47da895863eb69e48beccd4bc53a5e
+_hash: 998ab95430a0a9fe7f0398561e481b2bd8b75796b90c3176c4637c5b15ea72f6
 file:
 - statement:
     insert_statement:
-    - keyword: INSERT
-    - keyword: INTO
-    - table_reference:
-        identifier: test
-    - bracketed:
-      - start_bracket: (
-      - column_reference:
-          identifier: id
-      - comma: ','
-      - column_reference:
-          identifier: col1
-      - end_bracket: )
-    - keyword: OVERRIDING
-    - keyword: SYSTEM
-    - keyword: VALUE
-    - values_clause:
-        keyword: VALUES
-        bracketed:
+      unparsable:
+      - keyword: INSERT
+      - raw: INTO
+      - raw: test
+      - bracketed:
         - start_bracket: (
-        - literal: '1'
+        - raw: id
         - comma: ','
-        - literal: "'val'"
+        - raw: col1
+        - end_bracket: )
+      - raw: OVERRIDING
+      - raw: SYSTEM
+      - raw: VALUE
+      - raw: VALUES
+      - bracketed:
+        - start_bracket: (
+        - raw: '1'
+        - comma: ','
+        - raw: "'val'"
         - end_bracket: )
 - statement_terminator: ;
 - statement:
     insert_statement:
-    - keyword: INSERT
-    - keyword: INTO
-    - table_reference:
-        identifier: foo
-    - bracketed:
-        start_bracket: (
-        column_reference:
-          identifier: bar
-        end_bracket: )
-    - values_clause:
-        keyword: VALUES
-        bracketed:
+      unparsable:
+      - keyword: INSERT
+      - raw: INTO
+      - raw: foo
+      - bracketed:
           start_bracket: (
-          bare_function: current_timestamp
+          raw: bar
+          end_bracket: )
+      - raw: VALUES
+      - bracketed:
+          start_bracket: (
+          raw: current_timestamp
           end_bracket: )
 - statement_terminator: ;

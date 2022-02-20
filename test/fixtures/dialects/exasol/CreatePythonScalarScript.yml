@@ -3,63 +3,48 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 83ace62ee3511844b7a45f4449c5281ae5476a8226d730b44790b64edddd53f5
+_hash: 4c79194e0abdce310bf3150b5f3371e2436b3f44aa72f6f0cdc00796ff1bac98
 file:
   statement:
     create_udf_script:
-    - keyword: CREATE
-    - binary_operator: OR
-    - keyword: REPLACE
-    - identifier: PYTHON3
-    - keyword: SCALAR
-    - keyword: SCRIPT
-    - script_reference:
-      - identifier: MYSCHEMA
-      - dot: .
-      - identifier: MYPYTHONSCRIPT
-    - bracketed:
-      - start_bracket: (
-      - column_datatype_definition:
-          identifier: JSON_STR
-          data_type:
-            keyword: VARCHAR
-            bracketed:
-              start_bracket: (
-              literal: '2000000'
-              end_bracket: )
+      unparsable:
+      - keyword: CREATE
+      - binary_operator: OR
+      - keyword: REPLACE
+      - identifier: PYTHON3
+      - keyword: SCALAR
+      - keyword: SCRIPT
+      - raw: MYSCHEMA
+      - raw: .
+      - raw: MYPYTHONSCRIPT
+      - raw: (
+      - raw: JSON_STR
+      - raw: VARCHAR
+      - raw: (
+      - raw: '2000000'
+      - raw: )
       - comma: ','
-      - column_datatype_definition:
-          identifier: LANGUAGE_KEY
-          data_type:
-            keyword: VARCHAR
-            bracketed:
-              start_bracket: (
-              literal: '50'
-              end_bracket: )
+      - raw: LANGUAGE_KEY
+      - raw: VARCHAR
+      - raw: (
+      - raw: '50'
+      - raw: )
       - comma: ','
-      - column_datatype_definition:
-          identifier: TXT_KEY
-          data_type:
-            keyword: VARCHAR
-            bracketed:
-              start_bracket: (
-              literal: '50'
-              end_bracket: )
-      - end_bracket: )
-    - keyword: EMITS
-    - bracketed:
-        start_bracket: (
-        column_datatype_definition:
-          identifier: X
-          data_type:
-            keyword: VARCHAR
-            bracketed:
-              start_bracket: (
-              literal: '2000000'
-              end_bracket: )
-        end_bracket: )
-    - keyword: AS
-    - script_content:
+      - raw: TXT_KEY
+      - raw: VARCHAR
+      - raw: (
+      - raw: '50'
+      - raw: )
+      - raw: )
+      - raw: EMITS
+      - raw: (
+      - raw: X
+      - raw: VARCHAR
+      - raw: (
+      - raw: '2000000'
+      - raw: )
+      - raw: )
+      - raw: AS
       - raw: "\"\"\"\n/*====================================================================\n\
           \    e.g.:\n    SELECT MYSCHEMA.MYPYTHONSCRIPT(\n            '[{\""
       - raw: '@lang'
@@ -85,10 +70,9 @@ file:
           \"\"\""
       - raw: def
       - raw: run
-      - bracketed:
-          start_bracket: (
-          raw: ctx
-          end_bracket: )
+      - raw: (
+      - raw: ctx
+      - raw: )
       - raw: ':'
       - raw: pass
-  function_script_terminator: /
+      - function_script_terminator: /

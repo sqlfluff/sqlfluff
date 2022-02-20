@@ -3,57 +3,46 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5bcfa2f777d2a37d09a6ecc5387679a3764b0d9347d26a29e557be42ab526679
+_hash: 0688499e380c7d1b4f06b9ecb5aa32b074c75d7eae635efb3932e0b61f9ecbd9
 file:
   statement:
     select_statement:
       select_clause:
       - keyword: SELECT
       - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: NTH_VALUE
-            bracketed:
+          column_reference:
+            identifier: NTH_VALUE
+          unparsable:
+          - bracketed:
             - start_bracket: (
-            - expression:
-                column_reference:
-                  identifier: bar
+            - raw: bar
             - comma: ','
-            - expression:
-                literal: '1'
+            - raw: '1'
             - end_bracket: )
-            over_clause:
-              keyword: OVER
-              bracketed:
-                start_bracket: (
-                window_specification:
-                  identifier: w1
-                end_bracket: )
-          alias_expression:
-            keyword: AS
-            identifier: baz
+          - raw: OVER
+          - bracketed:
+              start_bracket: (
+              raw: w1
+              end_bracket: )
+          - raw: AS
+          - raw: baz
       - comma: ','
       - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: NTH_VALUE
-            bracketed:
+          column_reference:
+            identifier: NTH_VALUE
+          unparsable:
+          - bracketed:
             - start_bracket: (
-            - expression:
-                column_reference:
-                  identifier: bar
+            - raw: bar
             - comma: ','
-            - expression:
-                literal: '1'
+            - raw: '1'
             - end_bracket: )
-            over_clause:
-              keyword: OVER
-              bracketed:
-                start_bracket: (
-                end_bracket: )
-          alias_expression:
-            keyword: AS
-            identifier: foo
+          - raw: OVER
+          - bracketed:
+              start_bracket: (
+              end_bracket: )
+          - raw: AS
+          - raw: foo
       from_clause:
         keyword: FROM
         from_expression:

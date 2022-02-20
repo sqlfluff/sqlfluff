@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 484b70bfb2806f0ad9abded5077f111aeb6484ed8c1c40b9ac6d99aaadb8fce9
+_hash: 25bb7886e70b860b299352bea41b7ed9b618a605e16ad0a667a20bb5a7e22758
 file:
   batch:
     statement:
@@ -70,35 +70,25 @@ file:
                     end_bracket: )
                 alias_expression:
                   identifier: p
-          from_pivot_expression:
-          - keyword: UNPIVOT
-          - bracketed:
-            - start_bracket: (
-            - column_reference:
-                identifier: Orders
-            - keyword: FOR
-            - column_reference:
-                identifier: Employee
-            - keyword: IN
-            - bracketed:
-              - start_bracket: (
-              - pivot_column_reference:
-                  identifier: Emp1
-              - comma: ','
-              - pivot_column_reference:
-                  identifier: Emp2
-              - comma: ','
-              - pivot_column_reference:
-                  identifier: Emp3
-              - comma: ','
-              - pivot_column_reference:
-                  identifier: Emp4
-              - comma: ','
-              - pivot_column_reference:
-                  identifier: Emp5
-              - end_bracket: )
-            - end_bracket: )
-          - keyword: AS
-          - table_reference:
-              identifier: unpvt
-          statement_terminator: ;
+  unparsable:
+  - raw: UNPIVOT
+  - raw: (
+  - raw: Orders
+  - raw: FOR
+  - raw: Employee
+  - raw: IN
+  - raw: (
+  - raw: Emp1
+  - comma: ','
+  - raw: Emp2
+  - comma: ','
+  - raw: Emp3
+  - comma: ','
+  - raw: Emp4
+  - comma: ','
+  - raw: Emp5
+  - raw: )
+  - raw: )
+  - raw: AS
+  - raw: unpvt
+  - raw: ;

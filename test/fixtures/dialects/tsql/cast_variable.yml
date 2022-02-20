@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a70b2187383021670cb3d18d029294bda1d9652b38d34fc2a2fefb47072e0fe3
+_hash: 12462d654f2652baa24a66a7775cafb6cd482591f1ce1d6cad7a6212c070fbf8
 file:
   batch:
   - statement:
@@ -18,32 +18,26 @@ file:
             function_name:
               function_name_identifier: ISNULL
             bracketed:
-            - start_bracket: (
-            - expression:
-                function:
-                  function_name:
-                    identifier: Shared
-                    dot: .
-                    function_name_identifier: GetESTDateTime
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      function:
-                        function_name:
-                          function_name_identifier: GETDATE
-                        bracketed:
-                          start_bracket: (
-                          end_bracket: )
-                    end_bracket: )
-            - comma: ','
-            - expression:
-                function:
-                  function_name:
-                    function_name_identifier: GETDATE
+              start_bracket: (
+              expression:
+                column_reference:
+                - identifier: Shared
+                - dot: .
+                - identifier: GetESTDateTime
+              unparsable:
+              - bracketed:
+                  start_bracket: (
+                  raw: GETDATE
                   bracketed:
                     start_bracket: (
                     end_bracket: )
-            - end_bracket: )
+                  end_bracket: )
+              - comma: ','
+              - raw: GETDATE
+              - bracketed:
+                  start_bracket: (
+                  end_bracket: )
+              end_bracket: )
   - statement:
       select_statement:
         select_clause:
@@ -58,32 +52,20 @@ file:
               identifier: personid
         - comma: ','
         - select_clause_element:
-            function:
-              function_name:
-                keyword: cast
-              bracketed:
-                start_bracket: (
-                expression:
-                  literal: "'1900-01-01'"
-                keyword: as
-                data_type:
-                  identifier: datetime2
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      literal: '7'
-                    end_bracket: )
-                end_bracket: )
-            alias_expression:
-              keyword: as
-              identifier: DataRefreshDate
-        from_clause:
-          keyword: from
-          from_expression:
-            from_expression_element:
-              table_expression:
-                table_reference:
-                  identifier: encounter
-              alias_expression:
-                identifier: enc
-          statement_terminator: ;
+            column_reference:
+              identifier: cast
+  unparsable:
+  - raw: (
+  - raw: "'1900-01-01'"
+  - raw: as
+  - raw: datetime2
+  - raw: (
+  - raw: '7'
+  - raw: )
+  - raw: )
+  - raw: as
+  - raw: DataRefreshDate
+  - raw: from
+  - raw: encounter
+  - raw: enc
+  - raw: ;

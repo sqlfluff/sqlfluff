@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 04e1c92046585ea1c067f6c5bfa3c7425fb9518690fb50b45d97c6dadb776d33
+_hash: 4614da23cb234a11ad30e234acfb4cde0e4009189e9b664dd7bdc02f2cadf742
 file:
   statement:
     select_statement:
@@ -88,38 +88,26 @@ file:
             identifier: numcol2
       - comma: ','
       - select_clause_element:
-          expression:
-            array_literal:
-              start_square_bracket: '['
-              typeless_struct:
-                keyword: STRUCT
-                bracketed:
-                - start_bracket: (
-                - literal: '"Rudisha"'
-                - alias_expression:
-                    keyword: AS
-                    identifier: name
-                - comma: ','
-                - expression:
-                    array_literal:
-                    - start_square_bracket: '['
-                    - expression:
-                        literal: '23.4'
-                    - comma: ','
-                    - expression:
-                        literal: '26.3'
-                    - comma: ','
-                    - expression:
-                        literal: '26.4'
-                    - comma: ','
-                    - expression:
-                        literal: '26.1'
-                    - end_square_bracket: ']'
-                - alias_expression:
-                    keyword: AS
-                    identifier: splits
-                - end_bracket: )
-              end_square_bracket: ']'
-          alias_expression:
-            keyword: AS
-            identifier: struct1
+          unparsable:
+          - raw: '['
+          - raw: STRUCT
+          - raw: (
+          - raw: '"Rudisha"'
+          - raw: AS
+          - raw: name
+          - comma: ','
+          - raw: '['
+          - raw: '23.4'
+          - comma: ','
+          - raw: '26.3'
+          - comma: ','
+          - raw: '26.4'
+          - comma: ','
+          - raw: '26.1'
+          - raw: ']'
+          - raw: AS
+          - raw: splits
+          - raw: )
+          - raw: ']'
+          - raw: AS
+          - raw: struct1

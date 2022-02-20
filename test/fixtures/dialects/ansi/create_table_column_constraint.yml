@@ -3,139 +3,101 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e6b262b2dc1698bdae9e72a3ebfcb70eaeacca7b4d89c133c9d3471e3f0ec6ce
+_hash: 63dcbd2dcc5ef1e66b98944ddc8bee94fb7da4237c17ff31a40e1f04b2fd5795
 file:
 - statement:
-    create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: users
+    unparsable:
+    - raw: CREATE
+    - raw: TABLE
+    - raw: users
     - bracketed:
       - start_bracket: (
-      - column_definition:
-          identifier: username
-          data_type:
-            data_type_identifier: TEXT
+      - raw: username
+      - raw: TEXT
       - comma: ','
-      - column_definition:
-          identifier: age
-          data_type:
-            data_type_identifier: INT
-          column_constraint_segment:
-            keyword: CHECK
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  identifier: age
-                comparison_operator: '>'
-                literal: '18'
-              end_bracket: )
+      - raw: age
+      - raw: INT
+      - raw: CHECK
+      - bracketed:
+        - start_bracket: (
+        - raw: age
+        - raw: '>'
+        - raw: '18'
+        - end_bracket: )
       - end_bracket: )
 - statement_terminator: ;
 - statement:
-    create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: users
+    unparsable:
+    - raw: CREATE
+    - raw: TABLE
+    - raw: users
     - bracketed:
       - start_bracket: (
-      - column_definition:
-          identifier: username
-          data_type:
-            data_type_identifier: TEXT
+      - raw: username
+      - raw: TEXT
       - comma: ','
-      - column_definition:
-          identifier: age
-          data_type:
-            data_type_identifier: INT
-          column_constraint_segment:
-            keyword: CHECK
-            bracketed:
-              start_bracket: (
-              expression:
-              - column_reference:
-                  identifier: age
-              - keyword: IS
-              - keyword: NOT
-              - keyword: 'NULL'
-              end_bracket: )
+      - raw: age
+      - raw: INT
+      - raw: CHECK
+      - bracketed:
+        - start_bracket: (
+        - raw: age
+        - raw: IS
+        - raw: NOT
+        - raw: 'NULL'
+        - end_bracket: )
       - end_bracket: )
 - statement_terminator: ;
 - statement:
-    create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: Persons
+    unparsable:
+    - raw: CREATE
+    - raw: TABLE
+    - raw: Persons
     - bracketed:
       - start_bracket: (
-      - column_definition:
-          identifier: ID
-          data_type:
-            data_type_identifier: int
-          column_constraint_segment:
-          - keyword: NOT
-          - keyword: 'NULL'
+      - raw: ID
+      - raw: int
+      - raw: NOT
+      - raw: 'NULL'
       - comma: ','
-      - column_definition:
-          identifier: LastName
-          data_type:
-            data_type_identifier: varchar
-            bracketed:
-              start_bracket: (
-              expression:
-                literal: '255'
-              end_bracket: )
-          column_constraint_segment:
-          - keyword: NOT
-          - keyword: 'NULL'
+      - raw: LastName
+      - raw: varchar
+      - bracketed:
+          start_bracket: (
+          raw: '255'
+          end_bracket: )
+      - raw: NOT
+      - raw: 'NULL'
       - comma: ','
-      - column_definition:
-          identifier: FirstName
-          data_type:
-            data_type_identifier: varchar
-            bracketed:
-              start_bracket: (
-              expression:
-                literal: '255'
-              end_bracket: )
+      - raw: FirstName
+      - raw: varchar
+      - bracketed:
+          start_bracket: (
+          raw: '255'
+          end_bracket: )
       - comma: ','
-      - column_definition:
-          identifier: Age
-          data_type:
-            data_type_identifier: int
+      - raw: Age
+      - raw: int
       - comma: ','
-      - column_definition:
-          identifier: City
-          data_type:
-            data_type_identifier: varchar
-            bracketed:
-              start_bracket: (
-              expression:
-                literal: '255'
-              end_bracket: )
+      - raw: City
+      - raw: varchar
+      - bracketed:
+          start_bracket: (
+          raw: '255'
+          end_bracket: )
       - comma: ','
-      - column_definition:
-          identifier: CONSTRAINT
-          data_type:
-            data_type_identifier: CHK_Person
-          column_constraint_segment:
-            keyword: CHECK
-            bracketed:
-              start_bracket: (
-              expression:
-              - column_reference:
-                  identifier: Age
-              - comparison_operator: '>='
-              - literal: '18'
-              - binary_operator: AND
-              - column_reference:
-                  identifier: City
-              - comparison_operator: '='
-              - literal: "'Sandnes'"
-              end_bracket: )
+      - raw: CONSTRAINT
+      - raw: CHK_Person
+      - raw: CHECK
+      - bracketed:
+        - start_bracket: (
+        - raw: Age
+        - raw: '>='
+        - raw: '18'
+        - raw: AND
+        - raw: City
+        - raw: '='
+        - raw: "'Sandnes'"
+        - end_bracket: )
       - end_bracket: )
 - statement_terminator: ;

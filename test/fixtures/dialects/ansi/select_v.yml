@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5ca0990681d8061be633afaa8708b4b0f5058a452079416a8f63ee4263bc8623
+_hash: db5b3aa9f3e25df8c99db4e497d9ea1712a6bd827611d2d0afd7be17e387399d
 file:
   statement:
     with_compound_statement:
@@ -14,36 +14,22 @@ file:
         bracketed:
           start_bracket: (
           with_compound_statement:
-            keyword: WITH
-            common_table_expression:
-              identifier: ladder
-              keyword: AS
-              bracketed:
-                start_bracket: (
-                select_statement:
-                  select_clause:
-                    keyword: SELECT
-                    select_clause_element:
-                      literal: '1'
-                end_bracket: )
-            select_statement:
-              select_clause:
-                keyword: SELECT
-                select_clause_element:
-                  wildcard_expression:
-                    wildcard_identifier:
-                      star: '*'
-              from_clause:
-                keyword: FROM
-                from_expression:
-                  from_expression_element:
-                    table_expression:
-                      table_reference:
-                        identifier: ladder
-              orderby_clause:
-              - keyword: ORDER
-              - keyword: BY
-              - literal: '1'
+            unparsable:
+            - keyword: WITH
+            - raw: ladder
+            - raw: AS
+            - bracketed:
+              - start_bracket: (
+              - raw: SELECT
+              - raw: '1'
+              - end_bracket: )
+            - raw: SELECT
+            - raw: '*'
+            - raw: FROM
+            - raw: ladder
+            - raw: ORDER
+            - raw: BY
+            - raw: '1'
           end_bracket: )
       select_statement:
         select_clause:

@@ -3,40 +3,38 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 67d918930d504d591c4aa1f56f6644788a35303a8e42c7b66b33cdd3d24cb272
+_hash: 29adf8b7f2797308f4c6eca15794e60e281522d129d4a37f1e71533e857d1ded
 file:
   statement:
-    create_scripting_lua_script:
-    - keyword: CREATE
-    - binary_operator: OR
-    - keyword: REPLACE
-    - keyword: LUA
-    - keyword: SCRIPT
-    - script_reference:
-      - identifier: BRACKET
-      - dot: .
-      - identifier: SCRIPT_EXAMPLE
-    - keyword: RETURNS
-    - keyword: ROWCOUNT
-    - keyword: AS
-    - script_content:
-      - raw: local
-      - raw: _stmt
-      - raw: '='
-      - raw: '[[SOME ASSIGNMENT WITH OPEN BRACKET ( ]]'
-      - raw: x
-      - raw: '='
-      - raw: '1'
-      - raw: local
-      - raw: _stmt
-      - raw: '='
-      - raw: _stmt
-      - raw: ..
-      - raw: '[[ ) ]]'
-      - raw: local
-      - raw: _nsted
-      - raw: '='
-      - raw: '[=[one ([[two]] one]=]'
-      - raw: return
-      - raw: '1'
-  function_script_terminator: /
+    unparsable:
+    - raw: CREATE
+    - raw: OR
+    - raw: REPLACE
+    - raw: LUA
+    - raw: SCRIPT
+    - raw: BRACKET
+    - raw: .
+    - raw: SCRIPT_EXAMPLE
+    - raw: RETURNS
+    - raw: ROWCOUNT
+    - raw: AS
+    - raw: local
+    - raw: _stmt
+    - raw: '='
+    - raw: '[[SOME ASSIGNMENT WITH OPEN BRACKET ( ]]'
+    - raw: x
+    - raw: '='
+    - raw: '1'
+    - raw: local
+    - raw: _stmt
+    - raw: '='
+    - raw: _stmt
+    - raw: ..
+    - raw: '[[ ) ]]'
+    - raw: local
+    - raw: _nsted
+    - raw: '='
+    - raw: '[=[one ([[two]] one]=]'
+    - raw: return
+    - raw: '1'
+    - function_script_terminator: /

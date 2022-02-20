@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6449980ad4687111bacf6f84b876e92406d75182e1589fc5fecb55a961f52ac4
+_hash: cb4bb46c1c50c35255a0002f205b703815dee68af200334f9aa5c4ada653278f
 file:
 - statement:
     select_statement:
@@ -14,54 +14,37 @@ file:
             wildcard_identifier:
               star: '*'
       from_clause:
-        keyword: FROM
-        from_expression:
-          from_expression_element:
-            table_expression:
-              bracketed:
-                start_bracket: (
-                select_statement:
-                  select_clause:
-                    keyword: SELECT
-                    select_clause_element:
-                      wildcard_expression:
-                        wildcard_identifier:
-                          star: '*'
-                  from_clause:
-                    keyword: FROM
-                    from_expression:
-                      from_expression_element:
-                        table_expression:
-                          table_reference:
-                            identifier: Produce
-                end_bracket: )
-          from_pivot_expression:
-            keyword: PIVOT
-            bracketed:
+        unparsable:
+        - keyword: FROM
+        - bracketed:
+          - start_bracket: (
+          - raw: SELECT
+          - raw: '*'
+          - raw: FROM
+          - raw: Produce
+          - end_bracket: )
+        - raw: PIVOT
+        - bracketed:
+          - start_bracket: (
+          - raw: SUM
+          - bracketed:
+              start_bracket: (
+              raw: sales
+              end_bracket: )
+          - raw: FOR
+          - raw: quarter
+          - raw: IN
+          - bracketed:
             - start_bracket: (
-            - function:
-                function_name:
-                  function_name_identifier: SUM
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    column_reference:
-                      identifier: sales
-                  end_bracket: )
-            - keyword: FOR
-            - identifier: quarter
-            - keyword: IN
-            - bracketed:
-              - start_bracket: (
-              - literal: "'Q1'"
-              - comma: ','
-              - literal: "'Q2'"
-              - comma: ','
-              - literal: "'Q3'"
-              - comma: ','
-              - literal: "'Q4'"
-              - end_bracket: )
+            - raw: "'Q1'"
+            - comma: ','
+            - raw: "'Q2'"
+            - comma: ','
+            - raw: "'Q3'"
+            - comma: ','
+            - raw: "'Q4'"
             - end_bracket: )
+          - end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -72,57 +55,39 @@ file:
             wildcard_identifier:
               star: '*'
       from_clause:
-        keyword: FROM
-        from_expression:
-          from_expression_element:
-            table_expression:
-              bracketed:
-                start_bracket: (
-                select_statement:
-                  select_clause:
-                  - keyword: SELECT
-                  - select_clause_element:
-                      column_reference:
-                        identifier: sales
-                  - comma: ','
-                  - select_clause_element:
-                      column_reference:
-                        identifier: quarter
-                  from_clause:
-                    keyword: FROM
-                    from_expression:
-                      from_expression_element:
-                        table_expression:
-                          table_reference:
-                            identifier: Produce
-                end_bracket: )
-          from_pivot_expression:
-            keyword: PIVOT
-            bracketed:
+        unparsable:
+        - keyword: FROM
+        - bracketed:
+          - start_bracket: (
+          - raw: SELECT
+          - raw: sales
+          - comma: ','
+          - raw: quarter
+          - raw: FROM
+          - raw: Produce
+          - end_bracket: )
+        - raw: PIVOT
+        - bracketed:
+          - start_bracket: (
+          - raw: SUM
+          - bracketed:
+              start_bracket: (
+              raw: sales
+              end_bracket: )
+          - raw: FOR
+          - raw: quarter
+          - raw: IN
+          - bracketed:
             - start_bracket: (
-            - function:
-                function_name:
-                  function_name_identifier: SUM
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    column_reference:
-                      identifier: sales
-                  end_bracket: )
-            - keyword: FOR
-            - identifier: quarter
-            - keyword: IN
-            - bracketed:
-              - start_bracket: (
-              - literal: "'Q1'"
-              - comma: ','
-              - literal: "'Q2'"
-              - comma: ','
-              - literal: "'Q3'"
-              - comma: ','
-              - literal: "'Q4'"
-              - end_bracket: )
+            - raw: "'Q1'"
+            - comma: ','
+            - raw: "'Q2'"
+            - comma: ','
+            - raw: "'Q3'"
+            - comma: ','
+            - raw: "'Q4'"
             - end_bracket: )
+          - end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -133,52 +98,35 @@ file:
             wildcard_identifier:
               star: '*'
       from_clause:
-        keyword: FROM
-        from_expression:
-          from_expression_element:
-            table_expression:
-              bracketed:
-                start_bracket: (
-                select_statement:
-                  select_clause:
-                    keyword: SELECT
-                    select_clause_element:
-                      wildcard_expression:
-                        wildcard_identifier:
-                          star: '*'
-                  from_clause:
-                    keyword: FROM
-                    from_expression:
-                      from_expression_element:
-                        table_expression:
-                          table_reference:
-                            identifier: Produce
-                end_bracket: )
-          from_pivot_expression:
-            keyword: PIVOT
-            bracketed:
+        unparsable:
+        - keyword: FROM
+        - bracketed:
+          - start_bracket: (
+          - raw: SELECT
+          - raw: '*'
+          - raw: FROM
+          - raw: Produce
+          - end_bracket: )
+        - raw: PIVOT
+        - bracketed:
+          - start_bracket: (
+          - raw: SUM
+          - bracketed:
+              start_bracket: (
+              raw: sales
+              end_bracket: )
+          - raw: FOR
+          - raw: quarter
+          - raw: IN
+          - bracketed:
             - start_bracket: (
-            - function:
-                function_name:
-                  function_name_identifier: SUM
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    column_reference:
-                      identifier: sales
-                  end_bracket: )
-            - keyword: FOR
-            - identifier: quarter
-            - keyword: IN
-            - bracketed:
-              - start_bracket: (
-              - literal: "'Q1'"
-              - comma: ','
-              - literal: "'Q2'"
-              - comma: ','
-              - literal: "'Q3'"
-              - end_bracket: )
+            - raw: "'Q1'"
+            - comma: ','
+            - raw: "'Q2'"
+            - comma: ','
+            - raw: "'Q3'"
             - end_bracket: )
+          - end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -189,53 +137,35 @@ file:
             wildcard_identifier:
               star: '*'
       from_clause:
-        keyword: FROM
-        from_expression:
-          from_expression_element:
-            table_expression:
-              bracketed:
-                start_bracket: (
-                select_statement:
-                  select_clause:
-                  - keyword: SELECT
-                  - select_clause_element:
-                      column_reference:
-                        identifier: sales
-                  - comma: ','
-                  - select_clause_element:
-                      column_reference:
-                        identifier: quarter
-                  from_clause:
-                    keyword: FROM
-                    from_expression:
-                      from_expression_element:
-                        table_expression:
-                          table_reference:
-                            identifier: Produce
-                end_bracket: )
-          from_pivot_expression:
-            keyword: PIVOT
-            bracketed:
+        unparsable:
+        - keyword: FROM
+        - bracketed:
+          - start_bracket: (
+          - raw: SELECT
+          - raw: sales
+          - comma: ','
+          - raw: quarter
+          - raw: FROM
+          - raw: Produce
+          - end_bracket: )
+        - raw: PIVOT
+        - bracketed:
+          - start_bracket: (
+          - raw: SUM
+          - bracketed:
+              start_bracket: (
+              raw: sales
+              end_bracket: )
+          - raw: FOR
+          - raw: quarter
+          - raw: IN
+          - bracketed:
             - start_bracket: (
-            - function:
-                function_name:
-                  function_name_identifier: SUM
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    column_reference:
-                      identifier: sales
-                  end_bracket: )
-            - keyword: FOR
-            - identifier: quarter
-            - keyword: IN
-            - bracketed:
-              - start_bracket: (
-              - literal: "'Q1'"
-              - comma: ','
-              - literal: "'Q2'"
-              - comma: ','
-              - literal: "'Q3'"
-              - end_bracket: )
+            - raw: "'Q1'"
+            - comma: ','
+            - raw: "'Q2'"
+            - comma: ','
+            - raw: "'Q3'"
             - end_bracket: )
+          - end_bracket: )
 - statement_terminator: ;

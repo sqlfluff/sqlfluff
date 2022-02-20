@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ecfb4efbfe87fb634c571f328fa2324ab7de5c78f81c0cf38a353de93b7f1ec5
+_hash: 8e0b2b428ef0dcb8fc0ff30faeda877a124f4e7eaae5ab3b84b2963b27a92d9a
 file:
 - statement:
     declare_segment:
@@ -11,9 +11,8 @@ file:
     - identifier: var5
     - data_type_identifier: date
     - keyword: default
-    - function:
-        function_name:
-          function_name_identifier: CURRENT_DATE
+    - bare_function: CURRENT_DATE
+    - unparsable:
         bracketed:
           start_bracket: (
           end_bracket: )
@@ -28,16 +27,14 @@ file:
 - statement_terminator: ;
 - statement:
     declare_segment:
-    - keyword: declare
-    - identifier: var3
-    - data_type_identifier: string
-    - keyword: default
-    - bracketed:
-        start_bracket: (
-        select_statement:
-          select_clause:
-            keyword: SELECT
-            select_clause_element:
-              literal: '"x"'
-        end_bracket: )
+      keyword: declare
+      identifier: var3
+      data_type_identifier: string
+      unparsable:
+        raw: default
+        bracketed:
+        - start_bracket: (
+        - raw: SELECT
+        - raw: '"x"'
+        - end_bracket: )
 - statement_terminator: ;

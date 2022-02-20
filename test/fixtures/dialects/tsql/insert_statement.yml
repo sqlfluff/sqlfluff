@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 29d352ee96d634cd54d1cd65cf5b64eb1d733096f8625acb03b246022db3279f
+_hash: 59b99bef0a96ccc6ef3bf38f25cf9a543b773881fc4b0f657e0f58980e166a0e
 file:
   batch:
     statement:
@@ -110,157 +110,85 @@ file:
                 identifier: '[YEAR_WEEK]'
           - comma: ','
           - select_clause_element:
-              function:
-                function_name:
-                  keyword: CAST
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    function:
-                      function_name:
-                        identifier: '[dbo]'
-                        dot: .
-                        function_name_identifier: '[CONVERT_ISO_WEEK_TO_DATETIME]'
-                      bracketed:
-                      - start_bracket: (
-                      - expression:
-                          function:
-                            function_name:
-                              function_name_identifier: LEFT
-                            bracketed:
-                            - start_bracket: (
-                            - expression:
-                                column_reference:
-                                  identifier: YEAR_WEEK
-                            - comma: ','
-                            - expression:
-                                literal: '4'
-                            - end_bracket: )
-                      - comma: ','
-                      - expression:
-                          function:
-                            function_name:
-                              function_name_identifier: RIGHT
-                            bracketed:
-                            - start_bracket: (
-                            - expression:
-                                column_reference:
-                                  identifier: YEAR_WEEK
-                            - comma: ','
-                            - expression:
-                                literal: '2'
-                            - end_bracket: )
-                      - end_bracket: )
-                  keyword: AS
-                  data_type:
-                    identifier: DATE
-                  end_bracket: )
-              alias_expression:
-                keyword: AS
-                identifier: '[WEEK_START]'
-          - comma: ','
-          - select_clause_element:
-              function:
-                function_name:
-                  keyword: CAST
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    function:
-                      function_name:
-                        identifier: '[dbo]'
-                        dot: .
-                        function_name_identifier: '[WEEK_END]'
-                      bracketed:
-                        start_bracket: (
-                        expression:
-                          function:
-                            function_name:
-                              identifier: '[dbo]'
-                              dot: .
-                              function_name_identifier: '[CONVERT_ISO_WEEK_TO_DATETIME]'
-                            bracketed:
-                            - start_bracket: (
-                            - expression:
-                                function:
-                                  function_name:
-                                    function_name_identifier: LEFT
-                                  bracketed:
-                                  - start_bracket: (
-                                  - expression:
-                                      column_reference:
-                                        identifier: YEAR_WEEK
-                                  - comma: ','
-                                  - expression:
-                                      literal: '4'
-                                  - end_bracket: )
-                            - comma: ','
-                            - expression:
-                                function:
-                                  function_name:
-                                    function_name_identifier: RIGHT
-                                  bracketed:
-                                  - start_bracket: (
-                                  - expression:
-                                      column_reference:
-                                        identifier: YEAR_WEEK
-                                  - comma: ','
-                                  - expression:
-                                      literal: '2'
-                                  - end_bracket: )
-                            - end_bracket: )
-                        end_bracket: )
-                  keyword: AS
-                  data_type:
-                    identifier: DATE
-                  end_bracket: )
-              alias_expression:
-                keyword: AS
-                identifier: '[WEEK_END]'
-          - comma: ','
-          - select_clause_element:
-              function:
-                function_name:
-                  keyword: CAST
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    column_reference:
-                      identifier: '[RATE_14_DAY]'
-                  keyword: AS
-                  data_type:
-                    identifier: FLOAT
-                  end_bracket: )
-              alias_expression:
-                keyword: AS
-                identifier: '[RATE_14_DAY]'
-          - comma: ','
-          - select_clause_element:
-              function:
-                function_name:
-                  keyword: CAST
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    column_reference:
-                      identifier: '[CUMULATIVE_COUNT]'
-                  keyword: AS
-                  data_type:
-                    identifier: BIGINT
-                  end_bracket: )
-              alias_expression:
-                keyword: AS
-                identifier: '[CUMULATIVE_COUNT]'
-          - comma: ','
-          - select_clause_element:
               column_reference:
-                identifier: '[SOURCE]'
-          from_clause:
-            keyword: FROM
-            from_expression:
-              from_expression_element:
-                table_expression:
-                  table_reference:
-                  - identifier: STAGE
-                  - dot: .
-                  - identifier: ECDC_CASES
+                identifier: CAST
+      - unparsable:
+        - raw: (
+        - raw: '[dbo]'
+        - raw: .
+        - raw: '[CONVERT_ISO_WEEK_TO_DATETIME]'
+        - raw: (
+        - raw: LEFT
+        - raw: (
+        - raw: YEAR_WEEK
+        - comma: ','
+        - raw: '4'
+        - raw: )
+        - comma: ','
+        - raw: RIGHT
+        - raw: (
+        - raw: YEAR_WEEK
+        - comma: ','
+        - raw: '2'
+        - raw: )
+        - raw: )
+        - raw: AS
+        - raw: DATE
+        - raw: )
+        - raw: AS
+        - raw: '[WEEK_START]'
+        - comma: ','
+        - raw: CAST
+        - raw: (
+        - raw: '[dbo]'
+        - raw: .
+        - raw: '[WEEK_END]'
+        - raw: (
+        - raw: '[dbo]'
+        - raw: .
+        - raw: '[CONVERT_ISO_WEEK_TO_DATETIME]'
+        - raw: (
+        - raw: LEFT
+        - raw: (
+        - raw: YEAR_WEEK
+        - comma: ','
+        - raw: '4'
+        - raw: )
+        - comma: ','
+        - raw: RIGHT
+        - raw: (
+        - raw: YEAR_WEEK
+        - comma: ','
+        - raw: '2'
+        - raw: )
+        - raw: )
+        - raw: )
+        - raw: AS
+        - raw: DATE
+        - raw: )
+        - raw: AS
+        - raw: '[WEEK_END]'
+        - comma: ','
+        - raw: CAST
+        - raw: (
+        - raw: '[RATE_14_DAY]'
+        - raw: AS
+        - raw: FLOAT
+        - raw: )
+        - raw: AS
+        - raw: '[RATE_14_DAY]'
+        - comma: ','
+        - raw: CAST
+        - raw: (
+        - raw: '[CUMULATIVE_COUNT]'
+        - raw: AS
+        - raw: BIGINT
+        - raw: )
+        - raw: AS
+        - raw: '[CUMULATIVE_COUNT]'
+        - comma: ','
+        - raw: '[SOURCE]'
+        - raw: FROM
+        - raw: STAGE
+        - raw: .
+        - raw: ECDC_CASES

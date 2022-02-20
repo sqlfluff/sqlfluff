@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9495c06d581b86d04c89e3244fb20c301265bf4764f20c0c1631fb952c229752
+_hash: 224addb372bbfd044c49f4d0cb2a8aab4bfd24f5ae53c607995e8f0dee5a3000
 file:
 - statement:
     set_statement:
@@ -22,93 +22,75 @@ file:
         literal: "'example'"
 - statement_terminator: ;
 - statement:
-    set_statement:
-    - keyword: set
+    unparsable:
+    - raw: set
     - bracketed:
       - start_bracket: (
-      - variable: v1
+      - raw: v1
       - comma: ','
-      - variable: v2
+      - raw: v2
       - end_bracket: )
-    - comparison_operator: '='
+    - raw: '='
     - bracketed:
       - start_bracket: (
-      - expression:
-          literal: '10'
+      - raw: '10'
       - comma: ','
-      - expression:
-          literal: "'example'"
+      - raw: "'example'"
       - end_bracket: )
 - statement_terminator: ;
 - statement:
-    set_statement:
-      keyword: set
-      variable: id_threshold
-      comparison_operator: '='
-      expression:
-        bracketed:
+    unparsable:
+    - raw: set
+    - raw: id_threshold
+    - raw: '='
+    - bracketed:
+      - start_bracket: (
+      - raw: select
+      - raw: count
+      - bracketed:
           start_bracket: (
-          expression:
-            select_statement:
-              select_clause:
-                keyword: select
-                select_clause_element:
-                  function:
-                    function_name:
-                      function_name_identifier: count
-                    bracketed:
-                      start_bracket: (
-                      star: '*'
-                      end_bracket: )
-              from_clause:
-                keyword: from
-                from_expression:
-                  from_expression_element:
-                    table_expression:
-                      table_reference:
-                        identifier: table1
+          raw: '*'
           end_bracket: )
-        binary_operator: /
-        literal: '2'
+      - raw: from
+      - raw: table1
+      - end_bracket: )
+    - raw: /
+    - raw: '2'
 - statement_terminator: ;
 - statement:
-    set_statement:
-    - keyword: set
+    unparsable:
+    - raw: set
     - bracketed:
       - start_bracket: (
-      - variable: min
+      - raw: min
       - comma: ','
-      - variable: max
+      - raw: max
       - end_bracket: )
-    - comparison_operator: '='
+    - raw: '='
     - bracketed:
       - start_bracket: (
-      - expression:
-          literal: '40'
+      - raw: '40'
       - comma: ','
-      - expression:
-          literal: '70'
+      - raw: '70'
       - end_bracket: )
 - statement_terminator: ;
 - statement:
-    set_statement:
-    - keyword: set
+    unparsable:
+    - raw: set
     - bracketed:
       - start_bracket: (
-      - variable: min
+      - raw: min
       - comma: ','
-      - variable: max
+      - raw: max
       - end_bracket: )
-    - comparison_operator: '='
+    - raw: '='
     - bracketed:
       - start_bracket: (
-      - expression:
-          literal: '50'
+      - raw: '50'
       - comma: ','
-      - expression:
-          literal: '2'
-          binary_operator: '*'
-          variable: $min
+      - raw: '2'
+      - raw: '*'
+      - raw: $min
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -117,10 +99,10 @@ file:
       variable: THIS_ROLE
       comparison_operator: '='
       expression:
-        function:
-          function_name:
-            function_name_identifier: CURRENT_ROLE
-          bracketed:
-            start_bracket: (
-            end_bracket: )
+        column_reference:
+          identifier: CURRENT_ROLE
+    unparsable:
+      bracketed:
+        start_bracket: (
+        end_bracket: )
 - statement_terminator: ;

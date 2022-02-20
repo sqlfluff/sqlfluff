@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6ad8c4b333ceb3ad419da727c10bddb603bfed6862a73851b19a08c9301b28cb
+_hash: 635d2500c39c8196de32d9392fe15245bc0d6dd506f08be085ae47e312c97439
 file:
 - base:
     create_view_statement:
@@ -28,59 +28,45 @@ file:
                   identifier: experienced_employee
 - statement_terminator: ;
 - base:
-    create_view_statement:
-    - keyword: CREATE
-    - binary_operator: OR
-    - keyword: REPLACE
-    - keyword: GLOBAL
-    - keyword: TEMPORARY
-    - keyword: VIEW
-    - keyword: IF
-    - keyword: NOT
-    - keyword: EXISTS
-    - table_reference:
-        identifier: experienced_employee
+    unparsable:
+    - raw: CREATE
+    - raw: OR
+    - raw: REPLACE
+    - raw: GLOBAL
+    - raw: TEMPORARY
+    - raw: VIEW
+    - raw: IF
+    - raw: NOT
+    - raw: EXISTS
+    - raw: experienced_employee
     - bracketed:
       - start_bracket: (
-      - column_reference:
-          identifier: ID
-      - keyword: COMMENT
-      - literal: "'Unique identification number'"
+      - raw: ID
+      - raw: COMMENT
+      - raw: "'Unique identification number'"
       - comma: ','
-      - column_reference:
-          identifier: Name
+      - raw: Name
       - end_bracket: )
-    - keyword: COMMENT
-    - literal: "'View for experienced employees'"
-    - keyword: TBLPROPERTIES
+    - raw: COMMENT
+    - raw: "'View for experienced employees'"
+    - raw: TBLPROPERTIES
     - bracketed:
       - start_bracket: (
-      - literal: '"key1"'
-      - comparison_operator: '='
-      - literal: '"val1"'
+      - raw: '"key1"'
+      - raw: '='
+      - raw: '"val1"'
       - comma: ','
-      - literal: '"key2"'
-      - comparison_operator: '='
-      - literal: '"val2"'
+      - raw: '"key2"'
+      - raw: '='
+      - raw: '"val2"'
       - end_bracket: )
-    - keyword: AS
-    - select_statement:
-        select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-            column_reference:
-              identifier: ID
-        - comma: ','
-        - select_clause_element:
-            column_reference:
-              identifier: Name
-        from_clause:
-          keyword: from
-          from_expression:
-            from_expression_element:
-              table_expression:
-                table_reference:
-                  identifier: temp2
+    - raw: AS
+    - raw: SELECT
+    - raw: ID
+    - comma: ','
+    - raw: Name
+    - raw: from
+    - raw: temp2
 - statement_terminator: ;
 - base:
     create_view_statement:

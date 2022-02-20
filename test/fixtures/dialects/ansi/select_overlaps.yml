@@ -3,30 +3,31 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3dc3d6083c8e1bebb925a36ada4420b2b6a304f7d0b16e1ba9eda0cc39ed7e85
+_hash: 72ae8f4fedabd7f5deebb8cce73d40cac6d9815cffcd3c7844a399477fcb5304
 file:
   statement:
     select_statement:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          expression:
+          unparsable:
             bracketed:
             - start_bracket: (
-            - keyword: DATE
-            - literal: "'2001-02-16'"
+            - raw: DATE
+            - raw: "'2001-02-16'"
             - comma: ','
-            - keyword: DATE
-            - literal: "'2001-12-21'"
+            - raw: DATE
+            - raw: "'2001-12-21'"
             - end_bracket: )
       overlaps_clause:
-        keyword: OVERLAPS
-        bracketed:
-        - start_bracket: (
-        - keyword: DATE
-        - literal: "'2001-10-30'"
-        - comma: ','
-        - keyword: DATE
-        - literal: "'2002-10-30'"
-        - end_bracket: )
+        unparsable:
+          keyword: OVERLAPS
+          bracketed:
+          - start_bracket: (
+          - raw: DATE
+          - raw: "'2001-10-30'"
+          - comma: ','
+          - raw: DATE
+          - raw: "'2002-10-30'"
+          - end_bracket: )
   statement_terminator: ;

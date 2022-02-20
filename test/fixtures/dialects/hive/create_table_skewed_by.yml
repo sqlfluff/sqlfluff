@@ -3,77 +3,65 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9012ef70efe92b95b01d823716a6c51f09f9025fae1e55a8b99c7f384aa78e03
+_hash: 5d0bc826c60d8f3838bd6a0d48d3fe177c65aa1b84e51291c7265c37698f420d
 file:
   statement:
     create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: foo
-    - bracketed:
-      - start_bracket: (
-      - column_definition:
-          identifier: col1
-          data_type:
-            primitive_type:
-              keyword: STRING
-      - comma: ','
-      - column_definition:
-          identifier: col2
-          data_type:
-            primitive_type:
-              keyword: int
-      - comma: ','
-      - column_definition:
-          identifier: col3
-          data_type:
-            primitive_type:
-              keyword: STRING
-      - end_bracket: )
-    - skewed_by_clause:
-      - keyword: SKEWED
-      - keyword: BY
+      unparsable:
+      - keyword: CREATE
+      - keyword: TABLE
+      - raw: foo
       - bracketed:
         - start_bracket: (
-        - column_reference:
-            identifier: col1
+        - raw: col1
+        - raw: STRING
         - comma: ','
-        - column_reference:
-            identifier: col2
+        - raw: col2
+        - raw: int
+        - comma: ','
+        - raw: col3
+        - raw: STRING
         - end_bracket: )
-      - keyword: 'ON'
+      - raw: SKEWED
+      - raw: BY
+      - bracketed:
+        - start_bracket: (
+        - raw: col1
+        - comma: ','
+        - raw: col2
+        - end_bracket: )
+      - raw: 'ON'
       - bracketed:
         - start_bracket: (
         - bracketed:
           - start_bracket: (
-          - literal: "'s1'"
+          - raw: "'s1'"
           - comma: ','
-          - literal: '1'
+          - raw: '1'
           - end_bracket: )
         - comma: ','
         - bracketed:
           - start_bracket: (
-          - literal: "'s3'"
+          - raw: "'s3'"
           - comma: ','
-          - literal: '3'
+          - raw: '3'
           - end_bracket: )
         - comma: ','
         - bracketed:
           - start_bracket: (
-          - literal: "'s13'"
+          - raw: "'s13'"
           - comma: ','
-          - literal: '13'
+          - raw: '13'
           - end_bracket: )
         - comma: ','
         - bracketed:
           - start_bracket: (
-          - literal: "'s78'"
+          - raw: "'s78'"
           - comma: ','
-          - literal: '78'
+          - raw: '78'
           - end_bracket: )
         - end_bracket: )
-      - keyword: STORED
-      - keyword: AS
-      - keyword: DIRECTORIES
+      - raw: STORED
+      - raw: AS
+      - raw: DIRECTORIES
   statement_terminator: ;

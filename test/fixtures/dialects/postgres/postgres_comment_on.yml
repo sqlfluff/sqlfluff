@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 842f9ce28e2eb10dc6e532b73d49b0bb48d4fdef2bfbcc78b53943e432e5bd3c
+_hash: e0952858a73df3ac77cd986f6406e09aa79da9fed1db1fc441956421acca51cc
 file:
 - statement:
     comment_on_statement:
@@ -38,34 +38,33 @@ file:
 - statement_terminator: ;
 - statement:
     comment_on_statement:
-    - keyword: COMMENT
-    - keyword: 'ON'
-    - keyword: AGGREGATE
-    - object_reference:
-        identifier: my_aggregate
-    - bracketed:
-      - start_bracket: (
-      - raw: double
-      - raw: precision
-      - end_bracket: )
-    - keyword: IS
-    - literal: "'Computes sample variance'"
+      unparsable:
+      - keyword: COMMENT
+      - keyword: 'ON'
+      - raw: AGGREGATE
+      - raw: my_aggregate
+      - bracketed:
+        - start_bracket: (
+        - raw: double
+        - raw: precision
+        - end_bracket: )
+      - raw: IS
+      - raw: "'Computes sample variance'"
 - statement_terminator: ;
 - statement:
     comment_on_statement:
-    - keyword: COMMENT
-    - keyword: 'ON'
-    - keyword: CAST
-    - bracketed:
-      - start_bracket: (
-      - object_reference:
-          identifier: text
-      - keyword: AS
-      - object_reference:
-          identifier: int4
-      - end_bracket: )
-    - keyword: IS
-    - literal: "'Allow casts from text to int4'"
+      unparsable:
+      - keyword: COMMENT
+      - keyword: 'ON'
+      - raw: CAST
+      - bracketed:
+        - start_bracket: (
+        - raw: text
+        - raw: AS
+        - raw: int4
+        - end_bracket: )
+      - raw: IS
+      - raw: "'Allow casts from text to int4'"
 - statement_terminator: ;
 - statement:
     comment_on_statement:
@@ -192,20 +191,17 @@ file:
 - statement_terminator: ;
 - statement:
     comment_on_statement:
-    - keyword: COMMENT
-    - keyword: 'ON'
-    - keyword: FUNCTION
-    - function_name:
-        function_name_identifier: my_function
-    - base:
-        bracketed:
+      unparsable:
+      - keyword: COMMENT
+      - keyword: 'ON'
+      - raw: FUNCTION
+      - raw: my_function
+      - bracketed:
           start_bracket: (
-          data_type:
-            datetime_type_identifier:
-              keyword: timestamp
+          raw: timestamp
           end_bracket: )
-    - keyword: IS
-    - literal: "'Returns Roman Numeral'"
+      - raw: IS
+      - raw: "'Returns Roman Numeral'"
 - statement_terminator: ;
 - statement:
     comment_on_statement:
@@ -253,19 +249,19 @@ file:
 - statement_terminator: ;
 - statement:
     comment_on_statement:
-    - keyword: COMMENT
-    - keyword: 'ON'
-    - keyword: PROCEDURE
-    - object_reference:
-        identifier: my_proc
-    - bracketed:
-      - start_bracket: (
-      - raw: integer
-      - comma: ','
-      - raw: integer
-      - end_bracket: )
-    - keyword: IS
-    - literal: "'Runs a report'"
+      unparsable:
+      - keyword: COMMENT
+      - keyword: 'ON'
+      - raw: PROCEDURE
+      - raw: my_proc
+      - bracketed:
+        - start_bracket: (
+        - raw: integer
+        - comma: ','
+        - raw: integer
+        - end_bracket: )
+      - raw: IS
+      - raw: "'Runs a report'"
 - statement_terminator: ;
 - statement:
     comment_on_statement:
@@ -289,19 +285,19 @@ file:
 - statement_terminator: ;
 - statement:
     comment_on_statement:
-    - keyword: COMMENT
-    - keyword: 'ON'
-    - keyword: ROUTINE
-    - object_reference:
-        identifier: my_routine
-    - bracketed:
-      - start_bracket: (
-      - raw: integer
-      - comma: ','
-      - raw: integer
-      - end_bracket: )
-    - keyword: IS
-    - literal: "'Runs a routine (which is a function or procedure)'"
+      unparsable:
+      - keyword: COMMENT
+      - keyword: 'ON'
+      - raw: ROUTINE
+      - raw: my_routine
+      - bracketed:
+        - start_bracket: (
+        - raw: integer
+        - comma: ','
+        - raw: integer
+        - end_bracket: )
+      - raw: IS
+      - raw: "'Runs a routine (which is a function or procedure)'"
 - statement_terminator: ;
 - statement:
     comment_on_statement:

@@ -3,109 +3,89 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e3cd5f0eb9f3cf88293d3e230509ac4cef2fcc7561ec2f200ab72a70927f2e94
+_hash: 322f8ac2fe75eee6b4dcd64da8e401c58e5b7fbe003d861a661cda10cd54b17c
 file:
 - statement:
     import_statement:
-    - keyword: IMPORT
-    - keyword: INTO
-    - table_reference:
-        identifier: table_3
-    - bracketed:
-        start_bracket: (
-        identifier_list:
-        - identifier: col1
+      unparsable:
+      - keyword: IMPORT
+      - raw: INTO
+      - raw: table_3
+      - bracketed:
+        - start_bracket: (
+        - raw: col1
         - comma: ','
-        - identifier: col2
+        - raw: col2
         - comma: ','
-        - identifier: col4
-        end_bracket: )
-    - import_from_clause:
-        keyword: FROM
-        import_export_dbsrc:
-        - keyword: ORA
-        - keyword: AT
-        - connection_definition:
-          - identifier: my_oracle
-          - keyword: USER
-          - literal: "'agent_008'"
-          - keyword: IDENTIFIED
-          - keyword: BY
-          - literal: "'secret'"
-        - keyword: STATEMENT
-        - literal: "' SELECT * FROM orders WHERE order_state=''OK'' '"
-        import_errors_clause:
-        - keyword: ERRORS
-        - keyword: INTO
-        - import_error_destination:
-            table_reference:
-              identifier: error_table
-        - bracketed:
-            start_bracket: (
-            expression:
-              bare_function: CURRENT_TIMESTAMP
-            end_bracket: )
-        - reject_clause:
-          - keyword: REJECT
-          - keyword: LIMIT
-          - literal: '10'
+        - raw: col4
+        - end_bracket: )
+      - raw: FROM
+      - raw: ORA
+      - raw: AT
+      - raw: my_oracle
+      - raw: USER
+      - raw: "'agent_008'"
+      - raw: IDENTIFIED
+      - raw: BY
+      - raw: "'secret'"
+      - raw: STATEMENT
+      - raw: "' SELECT * FROM orders WHERE order_state=''OK'' '"
+      - raw: ERRORS
+      - raw: INTO
+      - raw: error_table
+      - bracketed:
+          start_bracket: (
+          raw: CURRENT_TIMESTAMP
+          end_bracket: )
+      - raw: REJECT
+      - raw: LIMIT
+      - raw: '10'
 - statement_terminator: ;
 - statement:
     import_statement:
-    - keyword: IMPORT
-    - keyword: INTO
-    - table_reference:
-        identifier: table_3
-    - bracketed:
-        start_bracket: (
-        identifier_list:
-        - identifier: col1
+      unparsable:
+      - keyword: IMPORT
+      - raw: INTO
+      - raw: table_3
+      - bracketed:
+        - start_bracket: (
+        - raw: col1
         - comma: ','
-        - identifier: col2
+        - raw: col2
         - comma: ','
-        - identifier: col4
-        end_bracket: )
-    - import_from_clause:
-        keyword: FROM
-        import_export_dbsrc:
-        - keyword: ORA
-        - keyword: AT
-        - connection_definition:
-          - identifier: my_oracle
-          - keyword: USER
-          - literal: "'agent_008'"
-          - keyword: IDENTIFIED
-          - keyword: BY
-          - literal: "'secret'"
-        - keyword: TABLE
-        - table_reference:
-          - identifier: a
-          - dot: .
-          - identifier: tab
-        - bracketed:
-            start_bracket: (
-            identifier_list:
-            - identifier: c1
-            - comma: ','
-            - identifier: c2
-            - comma: ','
-            - identifier: c3
-            end_bracket: )
-        import_errors_clause:
-        - keyword: ERRORS
-        - keyword: INTO
-        - import_error_destination:
-            table_reference:
-              identifier: error_table
-        - bracketed:
-            start_bracket: (
-            expression:
-              bare_function: CURRENT_TIMESTAMP
-            end_bracket: )
-        - reject_clause:
-          - keyword: REJECT
-          - keyword: LIMIT
-          - literal: '10'
+        - raw: col4
+        - end_bracket: )
+      - raw: FROM
+      - raw: ORA
+      - raw: AT
+      - raw: my_oracle
+      - raw: USER
+      - raw: "'agent_008'"
+      - raw: IDENTIFIED
+      - raw: BY
+      - raw: "'secret'"
+      - raw: TABLE
+      - raw: a
+      - raw: .
+      - raw: tab
+      - bracketed:
+        - start_bracket: (
+        - raw: c1
+        - comma: ','
+        - raw: c2
+        - comma: ','
+        - raw: c3
+        - end_bracket: )
+      - raw: ERRORS
+      - raw: INTO
+      - raw: error_table
+      - bracketed:
+          start_bracket: (
+          raw: CURRENT_TIMESTAMP
+          end_bracket: )
+      - raw: REJECT
+      - raw: LIMIT
+      - raw: '10'
 - statement_terminator: ;
 - statement:
     import_statement:
@@ -129,29 +109,28 @@ file:
         - literal: "'tab1_part1.csv'"
         - keyword: FILE
         - literal: "'tab1_part2.csv'"
-        - csv_cols:
-            bracketed:
+        - unparsable:
+          - bracketed:
             - start_bracket: (
-            - literal: '1'
-            - keyword: FORMAT
-            - comparison_operator: '='
-            - literal: "'DD-MM-YYYY'"
+            - raw: '1'
+            - raw: FORMAT
+            - raw: '='
+            - raw: "'DD-MM-YYYY'"
             - comma: ','
-            - literal: '2'
-            - range_operator: ..
-            - literal: '4'
-            - keyword: FORMAT
-            - comparison_operator: '='
-            - literal: "'YYYYMMDD'"
+            - raw: '2'
+            - raw: ..
+            - raw: '4'
+            - raw: FORMAT
+            - raw: '='
+            - raw: "'YYYYMMDD'"
             - end_bracket: )
-        - file_opts:
-          - keyword: COLUMN
-          - keyword: SEPARATOR
-          - comparison_operator: '='
-          - literal: "';'"
-          - keyword: SKIP
-          - comparison_operator: '='
-          - literal: '5'
+          - raw: COLUMN
+          - raw: SEPARATOR
+          - raw: '='
+          - raw: "';'"
+          - raw: SKIP
+          - raw: '='
+          - raw: '5'
 - statement_terminator: ;
 - statement:
     import_statement:
@@ -168,36 +147,35 @@ file:
             identifier: my_fileserver
         - keyword: FILE
         - literal: "'tab2_part1.fbv'"
-        - fbv_cols:
+        - unparsable:
             bracketed:
             - start_bracket: (
-            - keyword: SIZE
-            - comparison_operator: '='
-            - literal: '8'
-            - keyword: PADDING
-            - comparison_operator: '='
-            - literal: "'+'"
-            - keyword: ALIGN
-            - comparison_operator: '='
-            - keyword: RIGHT
+            - raw: SIZE
+            - raw: '='
+            - raw: '8'
+            - raw: PADDING
+            - raw: '='
+            - raw: "'+'"
+            - raw: ALIGN
+            - raw: '='
+            - raw: RIGHT
             - comma: ','
-            - keyword: SIZE
-            - comparison_operator: '='
-            - literal: '4'
+            - raw: SIZE
+            - raw: '='
+            - raw: '4'
             - comma: ','
-            - keyword: SIZE
-            - comparison_operator: '='
-            - literal: '8'
+            - raw: SIZE
+            - raw: '='
+            - raw: '8'
             - comma: ','
-            - keyword: SIZE
-            - comparison_operator: '='
-            - literal: '32'
-            - keyword: FORMAT
-            - comparison_operator: '='
-            - literal: "'DD-MM-YYYY'"
+            - raw: SIZE
+            - raw: '='
+            - raw: '32'
+            - raw: FORMAT
+            - raw: '='
+            - raw: "'DD-MM-YYYY'"
             - end_bracket: )
-        - file_opts:
-            keyword: TRIM
+            raw: TRIM
 - statement_terminator: ;
 - statement:
     import_statement:
@@ -296,26 +274,21 @@ file:
 - statement_terminator: ;
 - statement:
     import_statement:
-    - keyword: IMPORT
-    - keyword: INTO
-    - bracketed:
-        start_bracket: (
-        import_columns:
-          table_like_clause:
-            keyword: LIKE
-            table_reference:
-              identifier: CAT
-        end_bracket: )
-    - import_from_clause:
-        keyword: FROM
-        import_export_dbsrc:
-        - keyword: EXA
-        - keyword: AT
-        - connection_definition:
-            identifier: my_exa_conn
-        - keyword: STATEMENT
-        - literal: "' SELECT OBJECT_NAME, OBJECT_TYPE FROM EXA_USER_OBJECTS WHERE\
-            \ OBJECT_TYPE IN (''TABLE'', ''VIEW'') '"
+      unparsable:
+      - keyword: IMPORT
+      - raw: INTO
+      - bracketed:
+        - start_bracket: (
+        - raw: LIKE
+        - raw: CAT
+        - end_bracket: )
+      - raw: FROM
+      - raw: EXA
+      - raw: AT
+      - raw: my_exa_conn
+      - raw: STATEMENT
+      - raw: "' SELECT OBJECT_NAME, OBJECT_TYPE FROM EXA_USER_OBJECTS WHERE OBJECT_TYPE\
+          \ IN (''TABLE'', ''VIEW'') '"
 - statement_terminator: ;
 - statement:
     import_statement:

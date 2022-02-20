@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: be54eabbd7970ddb1accd3fa3bc424939e65e9aa600f6b4c558239bc7b737527
+_hash: 6285082c67c48e4523ba9254e854808a5e5edd2da8a7921f9a30dd3edfe5f6c0
 file:
   statement:
     select_statement:
@@ -22,12 +22,13 @@ file:
               identifier: r
               dot: .
               star: '*'
-            select_except_clause:
-              keyword: except
-              bracketed:
-                start_bracket: (
-                identifier: date_key
-                end_bracket: )
+      - unparsable:
+          set_operator:
+            keyword: except
+          bracketed:
+            start_bracket: (
+            raw: date_key
+            end_bracket: )
       from_clause:
         keyword: from
         from_expression:

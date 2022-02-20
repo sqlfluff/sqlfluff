@@ -3,41 +3,29 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c68bba1058bb7a958186d98c48d9f7aa693712a196a0c5aa9e11c71d6903227b
+_hash: 351a3e23e54e2aa6752f6ee0c30897e704fa0a0b1557829ac0cb698a640738a4
 file:
 - statement:
-    create_function_statement:
-    - keyword: CREATE
-    - keyword: FUNCTION
-    - function_name:
-        identifier: '`add`'
-    - base:
-        bracketed:
-          start_bracket: (
-          parameter: test
-          data_type:
-            data_type_identifier: int
-          end_bracket: )
-    - keyword: RETURNS
-    - data_type:
-        data_type_identifier: longtext
-    - characteristic_statement:
-      - keyword: DETERMINISTIC
-      - keyword: MODIFIES
-      - keyword: SQL
-      - keyword: DATA
-    - base:
-        transaction_statement:
-          keyword: BEGIN
-          statement:
-            select_statement:
-              select_clause:
-                keyword: SELECT
-                select_clause_element:
-                  expression:
-                  - literal: '1'
-                  - binary_operator: +
-                  - literal: '2'
+    unparsable:
+    - raw: CREATE
+    - raw: FUNCTION
+    - raw: '`add`'
+    - bracketed:
+      - start_bracket: (
+      - raw: test
+      - raw: int
+      - end_bracket: )
+    - raw: RETURNS
+    - raw: longtext
+    - raw: DETERMINISTIC
+    - raw: MODIFIES
+    - raw: SQL
+    - raw: DATA
+    - raw: BEGIN
+    - raw: SELECT
+    - raw: '1'
+    - raw: +
+    - raw: '2'
 - statement_terminator: ;
 - statement:
     transaction_statement:

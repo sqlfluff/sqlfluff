@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 848145908fea6f380a3d0bfda64d92403b0de27dfc1e28a2e7c703f8c31281f0
+_hash: 146c7ccf9b39621de41465379ed6c618fd1e83990a6103851fa38c13db5abfb6
 file:
 - statement:
     alter_table_statement:
@@ -14,15 +14,15 @@ file:
           identifier: t1
       - keyword: ADD
       - table_constraint_definition:
-        - keyword: CONSTRAINT
-        - identifier: my_primary_key
-        - keyword: PRIMARY
-        - keyword: KEY
-        - bracketed:
-            start_bracket: (
-            column_reference:
-              identifier: a
-            end_bracket: )
+          unparsable:
+          - keyword: CONSTRAINT
+          - raw: my_primary_key
+          - raw: PRIMARY
+          - raw: KEY
+          - bracketed:
+              start_bracket: (
+              raw: a
+              end_bracket: )
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -33,18 +33,17 @@ file:
           identifier: t2
       - keyword: ADD
       - table_constraint_definition:
-        - keyword: CONSTRAINT
-        - identifier: my_foreign_key
-        - keyword: FOREIGN
-        - keyword: KEY
-        - bracketed:
-            start_bracket: (
-            column_reference:
-              identifier: x
-            end_bracket: )
-        - keyword: REFERENCES
-        - table_reference:
-            identifier: t1
+          unparsable:
+          - keyword: CONSTRAINT
+          - raw: my_foreign_key
+          - raw: FOREIGN
+          - raw: KEY
+          - bracketed:
+              start_bracket: (
+              raw: x
+              end_bracket: )
+          - raw: REFERENCES
+          - raw: t1
 - statement_terminator: ;
 - statement:
     alter_table_statement:

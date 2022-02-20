@@ -3,102 +3,56 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 26c4cfcd873e4af02a5f95df27034c6ae6c4722857dc7713b740d2c599250953
+_hash: aac0dd38304caf974d72bb9889bf24aa7e54a10db8d4abca08845aa5c5b73ac7
 file:
   statement:
     with_compound_statement:
-      keyword: WITH
-      common_table_expression:
-        identifier: mycte1
-        keyword: AS
-        bracketed:
-          start_bracket: (
-          select_statement:
-            select_clause:
-            - keyword: SELECT
-            - select_clause_element:
-                column_reference:
-                  identifier: foo
-            - comma: ','
-            - select_clause_element:
-                column_reference:
-                  identifier: bar
-            - comma: ','
-            - select_clause_element:
-                column_reference:
-                  identifier: baz
-            from_clause:
-              keyword: FROM
-              from_expression:
-                from_expression_element:
-                  table_expression:
-                    table_reference:
-                      identifier: mytable
-          end_bracket: )
-      insert_statement:
-      - keyword: INSERT
-      - keyword: INTO
-      - table_reference:
-          identifier: table2
+      unparsable:
+      - keyword: WITH
+      - raw: mycte1
+      - raw: AS
       - bracketed:
         - start_bracket: (
-        - column_reference:
-            identifier: column1
+        - raw: SELECT
+        - raw: foo
         - comma: ','
-        - column_reference:
-            identifier: column2
+        - raw: bar
         - comma: ','
-        - column_reference:
-            identifier: column3
+        - raw: baz
+        - raw: FROM
+        - raw: mytable
         - end_bracket: )
-      - with_compound_statement:
-          keyword: WITH
-          common_table_expression:
-            identifier: mycte2
-            keyword: AS
-            bracketed:
-              start_bracket: (
-              select_statement:
-                select_clause:
-                - keyword: SELECT
-                - select_clause_element:
-                    column_reference:
-                      identifier: foo
-                - comma: ','
-                - select_clause_element:
-                    column_reference:
-                      identifier: bar
-                - comma: ','
-                - select_clause_element:
-                    column_reference:
-                      identifier: baz
-                from_clause:
-                  keyword: FROM
-                  from_expression:
-                    from_expression_element:
-                      table_expression:
-                        table_reference:
-                          identifier: mycte1
-              end_bracket: )
-          select_statement:
-            select_clause:
-            - keyword: SELECT
-            - select_clause_element:
-                column_reference:
-                  identifier: foo
-            - comma: ','
-            - select_clause_element:
-                column_reference:
-                  identifier: bar
-            - comma: ','
-            - select_clause_element:
-                column_reference:
-                  identifier: baz
-            from_clause:
-              keyword: FROM
-              from_expression:
-                from_expression_element:
-                  table_expression:
-                    table_reference:
-                      identifier: mycte2
+      - raw: INSERT
+      - raw: INTO
+      - raw: table2
+      - bracketed:
+        - start_bracket: (
+        - raw: column1
+        - comma: ','
+        - raw: column2
+        - comma: ','
+        - raw: column3
+        - end_bracket: )
+      - raw: WITH
+      - raw: mycte2
+      - raw: AS
+      - bracketed:
+        - start_bracket: (
+        - raw: SELECT
+        - raw: foo
+        - comma: ','
+        - raw: bar
+        - comma: ','
+        - raw: baz
+        - raw: FROM
+        - raw: mycte1
+        - end_bracket: )
+      - raw: SELECT
+      - raw: foo
+      - comma: ','
+      - raw: bar
+      - comma: ','
+      - raw: baz
+      - raw: FROM
+      - raw: mycte2
   statement_terminator: ;

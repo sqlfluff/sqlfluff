@@ -3,73 +3,69 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8f8facc7654e95a286ebae7597b2882a3612183ae10f599240adf58e15cf86a2
+_hash: ff3a2f77c29e4c61cc68d1e7c0ff4d6724fd3a35620c9bdc278e57f2f3e71d33
 file:
 - base:
-    alter_database_statement:
-    - keyword: ALTER
-    - keyword: DATABASE
-    - database_reference:
-        identifier: inventory
-    - keyword: SET
-    - keyword: DBPROPERTIES
+    unparsable:
+    - raw: ALTER
+    - raw: DATABASE
+    - raw: inventory
+    - raw: SET
+    - raw: DBPROPERTIES
     - bracketed:
       - start_bracket: (
-      - literal: "'Edited-by'"
-      - comparison_operator: '='
-      - literal: "'John'"
+      - raw: "'Edited-by'"
+      - raw: '='
+      - raw: "'John'"
       - end_bracket: )
 - statement_terminator: ;
 - base:
-    alter_database_statement:
-    - keyword: ALTER
-    - keyword: DATABASE
-    - database_reference:
-        identifier: inventory
-    - keyword: SET
-    - keyword: DBPROPERTIES
+    unparsable:
+    - raw: ALTER
+    - raw: DATABASE
+    - raw: inventory
+    - raw: SET
+    - raw: DBPROPERTIES
     - bracketed:
       - start_bracket: (
-      - literal: "'Edited-by'"
-      - comparison_operator: '='
-      - literal: "'John'"
+      - raw: "'Edited-by'"
+      - raw: '='
+      - raw: "'John'"
       - comma: ','
-      - literal: "'Edit-date'"
-      - comparison_operator: '='
-      - literal: "'01/01/2001'"
+      - raw: "'Edit-date'"
+      - raw: '='
+      - raw: "'01/01/2001'"
       - end_bracket: )
 - statement_terminator: ;
 - base:
-    alter_database_statement:
-    - keyword: ALTER
-    - keyword: SCHEMA
-    - database_reference:
-        identifier: inventory
-    - keyword: SET
-    - keyword: DBPROPERTIES
+    unparsable:
+    - raw: ALTER
+    - raw: SCHEMA
+    - raw: inventory
+    - raw: SET
+    - raw: DBPROPERTIES
     - bracketed:
       - start_bracket: (
-      - literal: "'Edited-by'"
-      - comparison_operator: '='
-      - literal: "'John'"
+      - raw: "'Edited-by'"
+      - raw: '='
+      - raw: "'John'"
       - end_bracket: )
 - statement_terminator: ;
 - base:
-    alter_database_statement:
-    - keyword: ALTER
-    - keyword: SCHEMA
-    - database_reference:
-        identifier: inventory
-    - keyword: SET
-    - keyword: DBPROPERTIES
+    unparsable:
+    - raw: ALTER
+    - raw: SCHEMA
+    - raw: inventory
+    - raw: SET
+    - raw: DBPROPERTIES
     - bracketed:
       - start_bracket: (
-      - literal: "'Edited-by'"
-      - comparison_operator: '='
-      - literal: "'John'"
+      - raw: "'Edited-by'"
+      - raw: '='
+      - raw: "'John'"
       - comma: ','
-      - literal: "'Edit-date'"
-      - comparison_operator: '='
-      - literal: "'01/01/2001'"
+      - raw: "'Edit-date'"
+      - raw: '='
+      - raw: "'01/01/2001'"
       - end_bracket: )
 - statement_terminator: ;

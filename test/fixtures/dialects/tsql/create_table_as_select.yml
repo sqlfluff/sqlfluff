@@ -3,246 +3,155 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 28a2902164525309f4299b0677bd61178348407fcf9655622cba8d0bd420680e
+_hash: 8daa5a47fa8b572402129c77df41d56447a97e924bea71e88adb3916df70ac2e
 file:
-  batch:
-  - statement:
-      create_table_as_select_statement:
-      - keyword: CREATE
-      - keyword: TABLE
-      - table_reference:
-        - identifier: '[dbo]'
-        - dot: .
-        - identifier: '[PL_stage]'
-      - table_distribution_index_clause:
-          keyword: WITH
-          bracketed:
-            start_bracket: (
-            table_distribution_clause:
-            - keyword: DISTRIBUTION
-            - comparison_operator: '='
-            - keyword: HASH
-            - bracketed:
-                start_bracket: (
-                column_reference:
-                  identifier: '[ID]'
-                end_bracket: )
-            comma: ','
-            table_index_clause:
-              keyword: HEAP
-            end_bracket: )
-      - keyword: AS
-      - select_statement:
-          select_clause:
-          - keyword: SELECT
-          - select_clause_element:
-              column_reference:
-              - identifier: e
-              - dot: .
-              - identifier: '[ID]'
-          - comma: ','
-          - select_clause_element:
-              column_reference:
-              - identifier: e
-              - dot: .
-              - identifier: '[ArriveDate]'
-          - comma: ','
-          - select_clause_element:
-              column_reference:
-              - identifier: e
-              - dot: .
-              - identifier: '[Contribution]'
-          - comma: ','
-          - select_clause_element:
-              column_reference:
-              - identifier: e
-              - dot: .
-              - identifier: '[DischargeDate]'
-          - comma: ','
-          - select_clause_element:
-              column_reference:
-              - identifier: e
-              - dot: .
-              - identifier: '[Encounter]'
-          - comma: ','
-          - select_clause_element:
-              column_reference:
-              - identifier: e
-              - dot: .
-              - identifier: '[Facility]'
-          - comma: ','
-          - select_clause_element:
-              column_reference:
-              - identifier: e
-              - dot: .
-              - identifier: '[Region]'
-          - comma: ','
-          - select_clause_element:
-              column_reference:
-              - identifier: e
-              - dot: .
-              - identifier: '[LOS]'
-          from_clause:
-            keyword: FROM
-            from_expression:
-              from_expression_element:
-                table_expression:
-                  table_reference:
-                  - identifier: dbo
-                  - dot: .
-                  - identifier: Encounter
-                alias_expression:
-                  identifier: e
-              join_clause:
-                keyword: JOIN
-                from_expression_element:
-                  table_expression:
-                    table_reference:
-                    - identifier: dbo
-                    - dot: .
-                    - identifier: Finance
-                  alias_expression:
-                    identifier: f
-                join_on_condition:
-                  keyword: 'ON'
-                  expression:
-                  - column_reference:
-                    - identifier: e
-                    - dot: .
-                    - identifier: '[ID]'
-                  - comparison_operator: '='
-                  - column_reference:
-                    - identifier: f
-                    - dot: .
-                    - identifier: '[ID]'
-            statement_terminator: ;
-  - statement:
-      drop_statement:
-      - keyword: DROP
-      - keyword: TABLE
-      - table_reference:
-        - identifier: '[dbo]'
-        - dot: .
-        - identifier: '[PL_stage]'
-      - statement_terminator: ;
-  - statement:
-      create_table_as_select_statement:
-      - keyword: CREATE
-      - keyword: TABLE
-      - table_reference:
-        - identifier: '[dbo]'
-        - dot: .
-        - identifier: '[PL_stage]'
-      - table_distribution_index_clause:
-          keyword: WITH
-          bracketed:
-            start_bracket: (
-            table_distribution_clause:
-            - keyword: DISTRIBUTION
-            - comparison_operator: '='
-            - keyword: HASH
-            - bracketed:
-                start_bracket: (
-                column_reference:
-                  identifier: '[ID]'
-                end_bracket: )
-            comma: ','
-            table_index_clause:
-              keyword: HEAP
-            end_bracket: )
-      - keyword: AS
-      - bracketed:
-          start_bracket: (
-          select_statement:
-            select_clause:
-            - keyword: SELECT
-            - select_clause_element:
-                column_reference:
-                - identifier: e
-                - dot: .
-                - identifier: '[ID]'
-            - comma: ','
-            - select_clause_element:
-                column_reference:
-                - identifier: e
-                - dot: .
-                - identifier: '[ArriveDate]'
-            - comma: ','
-            - select_clause_element:
-                column_reference:
-                - identifier: e
-                - dot: .
-                - identifier: '[Contribution]'
-            - comma: ','
-            - select_clause_element:
-                column_reference:
-                - identifier: e
-                - dot: .
-                - identifier: '[DischargeDate]'
-            - comma: ','
-            - select_clause_element:
-                column_reference:
-                - identifier: e
-                - dot: .
-                - identifier: '[Encounter]'
-            - comma: ','
-            - select_clause_element:
-                column_reference:
-                - identifier: e
-                - dot: .
-                - identifier: '[Facility]'
-            - comma: ','
-            - select_clause_element:
-                column_reference:
-                - identifier: e
-                - dot: .
-                - identifier: '[Region]'
-            - comma: ','
-            - select_clause_element:
-                column_reference:
-                - identifier: e
-                - dot: .
-                - identifier: '[LOS]'
-            from_clause:
-              keyword: FROM
-              from_expression:
-                from_expression_element:
-                  table_expression:
-                    table_reference:
-                    - identifier: dbo
-                    - dot: .
-                    - identifier: Encounter
-                  alias_expression:
-                    identifier: e
-                join_clause:
-                  keyword: JOIN
-                  from_expression_element:
-                    table_expression:
-                      table_reference:
-                      - identifier: dbo
-                      - dot: .
-                      - identifier: Finance
-                    alias_expression:
-                      identifier: f
-                  join_on_condition:
-                    keyword: 'ON'
-                    expression:
-                    - column_reference:
-                      - identifier: e
-                      - dot: .
-                      - identifier: '[ID]'
-                    - comparison_operator: '='
-                    - column_reference:
-                      - identifier: f
-                      - dot: .
-                      - identifier: '[ID]'
-          end_bracket: )
-      - option_clause:
-          keyword: OPTION
-          bracketed:
-            start_bracket: (
-            query_hint_segment:
-              keyword: LABEL
-              comparison_operator: '='
-              literal: "'Test_Label'"
-            end_bracket: )
+  unparsable:
+  - raw: CREATE
+  - raw: TABLE
+  - raw: '[dbo]'
+  - raw: .
+  - raw: '[PL_stage]'
+  - raw: WITH
+  - raw: (
+  - raw: DISTRIBUTION
+  - raw: '='
+  - raw: HASH
+  - raw: (
+  - raw: '[ID]'
+  - raw: )
+  - comma: ','
+  - raw: HEAP
+  - raw: )
+  - raw: AS
+  - raw: SELECT
+  - raw: e
+  - raw: .
+  - raw: '[ID]'
+  - comma: ','
+  - raw: e
+  - raw: .
+  - raw: '[ArriveDate]'
+  - comma: ','
+  - raw: e
+  - raw: .
+  - raw: '[Contribution]'
+  - comma: ','
+  - raw: e
+  - raw: .
+  - raw: '[DischargeDate]'
+  - comma: ','
+  - raw: e
+  - raw: .
+  - raw: '[Encounter]'
+  - comma: ','
+  - raw: e
+  - raw: .
+  - raw: '[Facility]'
+  - comma: ','
+  - raw: e
+  - raw: .
+  - raw: '[Region]'
+  - comma: ','
+  - raw: e
+  - raw: .
+  - raw: '[LOS]'
+  - raw: FROM
+  - raw: dbo
+  - raw: .
+  - raw: Encounter
+  - raw: e
+  - raw: JOIN
+  - raw: dbo
+  - raw: .
+  - raw: Finance
+  - raw: f
+  - raw: 'ON'
+  - raw: e
+  - raw: .
+  - raw: '[ID]'
+  - raw: '='
+  - raw: f
+  - raw: .
+  - raw: '[ID]'
+  - raw: ;
+  - raw: DROP
+  - raw: TABLE
+  - raw: '[dbo]'
+  - raw: .
+  - raw: '[PL_stage]'
+  - raw: ;
+  - raw: CREATE
+  - raw: TABLE
+  - raw: '[dbo]'
+  - raw: .
+  - raw: '[PL_stage]'
+  - raw: WITH
+  - raw: (
+  - raw: DISTRIBUTION
+  - raw: '='
+  - raw: HASH
+  - raw: (
+  - raw: '[ID]'
+  - raw: )
+  - comma: ','
+  - raw: HEAP
+  - raw: )
+  - raw: AS
+  - raw: (
+  - raw: SELECT
+  - raw: e
+  - raw: .
+  - raw: '[ID]'
+  - comma: ','
+  - raw: e
+  - raw: .
+  - raw: '[ArriveDate]'
+  - comma: ','
+  - raw: e
+  - raw: .
+  - raw: '[Contribution]'
+  - comma: ','
+  - raw: e
+  - raw: .
+  - raw: '[DischargeDate]'
+  - comma: ','
+  - raw: e
+  - raw: .
+  - raw: '[Encounter]'
+  - comma: ','
+  - raw: e
+  - raw: .
+  - raw: '[Facility]'
+  - comma: ','
+  - raw: e
+  - raw: .
+  - raw: '[Region]'
+  - comma: ','
+  - raw: e
+  - raw: .
+  - raw: '[LOS]'
+  - raw: FROM
+  - raw: dbo
+  - raw: .
+  - raw: Encounter
+  - raw: e
+  - raw: JOIN
+  - raw: dbo
+  - raw: .
+  - raw: Finance
+  - raw: f
+  - raw: 'ON'
+  - raw: e
+  - raw: .
+  - raw: '[ID]'
+  - raw: '='
+  - raw: f
+  - raw: .
+  - raw: '[ID]'
+  - raw: )
+  - raw: OPTION
+  - raw: (
+  - raw: LABEL
+  - raw: '='
+  - raw: "'Test_Label'"
+  - raw: )

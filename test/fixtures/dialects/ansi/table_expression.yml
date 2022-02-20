@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ab23f21475f5822f74b8ffd695889df1caca90e117e269ae66f6094449e0c6e2
+_hash: a171866b113e08113fc2ce322903340c35b4dc9f95e15bef2fd993d68c755112
 file:
   statement:
     select_statement:
@@ -26,17 +26,15 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    function:
-                      function_name:
-                        function_name_identifier: GENERATE_ARRAY
-                      bracketed:
-                      - start_bracket: (
-                      - expression:
-                          literal: '1'
-                      - comma: ','
-                      - expression:
-                          literal: '53'
-                      - end_bracket: )
+                    column_reference:
+                      identifier: GENERATE_ARRAY
+                  unparsable:
+                    bracketed:
+                    - start_bracket: (
+                    - raw: '1'
+                    - comma: ','
+                    - raw: '53'
+                    - end_bracket: )
                   end_bracket: )
             alias_expression:
               keyword: AS

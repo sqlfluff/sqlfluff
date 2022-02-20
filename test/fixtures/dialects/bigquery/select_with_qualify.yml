@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 500387b7b4e68eec8b20d3067c561264ca746083639d13bce977ce7d74019dcf
+_hash: ae7dda9964b4af461c15f4718814367a89995851ec6b3d4503bbf7221809a8f6
 file:
 - statement:
     select_statement:
@@ -14,33 +14,25 @@ file:
             identifier: item
       - comma: ','
       - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: RANK
-            bracketed:
+          column_reference:
+            identifier: RANK
+          unparsable:
+          - bracketed:
               start_bracket: (
               end_bracket: )
-            over_clause:
-              keyword: OVER
-              bracketed:
-                start_bracket: (
-                window_specification:
-                  partitionby_clause:
-                  - keyword: PARTITION
-                  - keyword: BY
-                  - expression:
-                      column_reference:
-                        identifier: category
-                  orderby_clause:
-                  - keyword: ORDER
-                  - keyword: BY
-                  - column_reference:
-                      identifier: purchases
-                  - keyword: DESC
-                end_bracket: )
-          alias_expression:
-            keyword: AS
-            identifier: rank
+          - raw: OVER
+          - bracketed:
+            - start_bracket: (
+            - raw: PARTITION
+            - raw: BY
+            - raw: category
+            - raw: ORDER
+            - raw: BY
+            - raw: purchases
+            - raw: DESC
+            - end_bracket: )
+          - raw: AS
+          - raw: rank
       from_clause:
         keyword: FROM
         from_expression:
@@ -74,33 +66,25 @@ file:
             identifier: item
       - comma: ','
       - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: RANK
-            bracketed:
+          column_reference:
+            identifier: RANK
+          unparsable:
+          - bracketed:
               start_bracket: (
               end_bracket: )
-            over_clause:
-              keyword: OVER
-              bracketed:
-                start_bracket: (
-                window_specification:
-                  partitionby_clause:
-                  - keyword: PARTITION
-                  - keyword: BY
-                  - expression:
-                      column_reference:
-                        identifier: category
-                  orderby_clause:
-                  - keyword: ORDER
-                  - keyword: BY
-                  - column_reference:
-                      identifier: purchases
-                  - keyword: DESC
-                end_bracket: )
-          alias_expression:
-            keyword: AS
-            identifier: rank
+          - raw: OVER
+          - bracketed:
+            - start_bracket: (
+            - raw: PARTITION
+            - raw: BY
+            - raw: category
+            - raw: ORDER
+            - raw: BY
+            - raw: purchases
+            - raw: DESC
+            - end_bracket: )
+          - raw: AS
+          - raw: rank
       from_clause:
         keyword: FROM
         from_expression:
@@ -139,33 +123,25 @@ file:
             identifier: item
       - comma: ','
       - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: RANK
-            bracketed:
+          column_reference:
+            identifier: RANK
+          unparsable:
+          - bracketed:
               start_bracket: (
               end_bracket: )
-            over_clause:
-              keyword: OVER
-              bracketed:
-                start_bracket: (
-                window_specification:
-                  partitionby_clause:
-                  - keyword: PARTITION
-                  - keyword: BY
-                  - expression:
-                      column_reference:
-                        identifier: category
-                  orderby_clause:
-                  - keyword: ORDER
-                  - keyword: BY
-                  - column_reference:
-                      identifier: purchases
-                  - keyword: DESC
-                end_bracket: )
-          alias_expression:
-            keyword: AS
-            identifier: rank
+          - raw: OVER
+          - bracketed:
+            - start_bracket: (
+            - raw: PARTITION
+            - raw: BY
+            - raw: category
+            - raw: ORDER
+            - raw: BY
+            - raw: purchases
+            - raw: DESC
+            - end_bracket: )
+          - raw: AS
+          - raw: rank
       from_clause:
         keyword: FROM
         from_expression:
@@ -202,33 +178,25 @@ file:
             identifier: item
       - comma: ','
       - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: RANK
-            bracketed:
+          column_reference:
+            identifier: RANK
+          unparsable:
+          - bracketed:
               start_bracket: (
               end_bracket: )
-            over_clause:
-              keyword: OVER
-              bracketed:
-                start_bracket: (
-                window_specification:
-                  partitionby_clause:
-                  - keyword: PARTITION
-                  - keyword: BY
-                  - expression:
-                      column_reference:
-                        identifier: category
-                  orderby_clause:
-                  - keyword: ORDER
-                  - keyword: BY
-                  - column_reference:
-                      identifier: purchases
-                  - keyword: DESC
-                end_bracket: )
-          alias_expression:
-            keyword: AS
-            identifier: rank
+          - raw: OVER
+          - bracketed:
+            - start_bracket: (
+            - raw: PARTITION
+            - raw: BY
+            - raw: category
+            - raw: ORDER
+            - raw: BY
+            - raw: purchases
+            - raw: DESC
+            - end_bracket: )
+          - raw: AS
+          - raw: rank
       from_clause:
         keyword: FROM
         from_expression:
@@ -270,33 +238,25 @@ file:
             identifier: item
       - comma: ','
       - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: RANK
-            bracketed:
+          column_reference:
+            identifier: RANK
+          unparsable:
+          - bracketed:
               start_bracket: (
               end_bracket: )
-            over_clause:
-              keyword: OVER
-              bracketed:
-                start_bracket: (
-                window_specification:
-                  partitionby_clause:
-                  - keyword: PARTITION
-                  - keyword: BY
-                  - expression:
-                      column_reference:
-                        identifier: category
-                  orderby_clause:
-                  - keyword: ORDER
-                  - keyword: BY
-                  - column_reference:
-                      identifier: purchases
-                  - keyword: DESC
-                end_bracket: )
-          alias_expression:
-            keyword: AS
-            identifier: rank
+          - raw: OVER
+          - bracketed:
+            - start_bracket: (
+            - raw: PARTITION
+            - raw: BY
+            - raw: category
+            - raw: ORDER
+            - raw: BY
+            - raw: purchases
+            - raw: DESC
+            - end_bracket: )
+          - raw: AS
+          - raw: rank
       from_clause:
         keyword: FROM
         from_expression:
@@ -333,33 +293,25 @@ file:
             identifier: item
       - comma: ','
       - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: RANK
-            bracketed:
+          column_reference:
+            identifier: RANK
+          unparsable:
+          - bracketed:
               start_bracket: (
               end_bracket: )
-            over_clause:
-              keyword: OVER
-              bracketed:
-                start_bracket: (
-                window_specification:
-                  partitionby_clause:
-                  - keyword: PARTITION
-                  - keyword: BY
-                  - expression:
-                      column_reference:
-                        identifier: category
-                  orderby_clause:
-                  - keyword: ORDER
-                  - keyword: BY
-                  - column_reference:
-                      identifier: purchases
-                  - keyword: DESC
-                end_bracket: )
-          alias_expression:
-            keyword: AS
-            identifier: rank
+          - raw: OVER
+          - bracketed:
+            - start_bracket: (
+            - raw: PARTITION
+            - raw: BY
+            - raw: category
+            - raw: ORDER
+            - raw: BY
+            - raw: purchases
+            - raw: DESC
+            - end_bracket: )
+          - raw: AS
+          - raw: rank
       from_clause:
         keyword: FROM
         from_expression:
@@ -383,34 +335,26 @@ file:
             identifier: rank
           comparison_operator: <=
           literal: '3'
-      named_window:
-        keyword: WINDOW
-        named_window_expression:
-          identifier: item_window
-          keyword: AS
-          bracketed:
-            start_bracket: (
-            window_specification:
-              partitionby_clause:
-              - keyword: PARTITION
-              - keyword: BY
-              - expression:
-                  column_reference:
-                    identifier: category
-              orderby_clause:
-              - keyword: ORDER
-              - keyword: BY
-              - column_reference:
-                  identifier: purchases
-              frame_clause:
-              - keyword: ROWS
-              - keyword: BETWEEN
-              - literal: '2'
-              - keyword: PRECEDING
-              - binary_operator: AND
-              - literal: '2'
-              - keyword: FOLLOWING
-            end_bracket: )
+      unparsable:
+      - keyword: WINDOW
+      - raw: item_window
+      - raw: AS
+      - bracketed:
+        - start_bracket: (
+        - raw: PARTITION
+        - raw: BY
+        - raw: category
+        - raw: ORDER
+        - raw: BY
+        - raw: purchases
+        - raw: ROWS
+        - raw: BETWEEN
+        - raw: '2'
+        - raw: PRECEDING
+        - raw: AND
+        - raw: '2'
+        - raw: FOLLOWING
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -421,33 +365,25 @@ file:
             identifier: item
       - comma: ','
       - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: RANK
-            bracketed:
+          column_reference:
+            identifier: RANK
+          unparsable:
+          - bracketed:
               start_bracket: (
               end_bracket: )
-            over_clause:
-              keyword: OVER
-              bracketed:
-                start_bracket: (
-                window_specification:
-                  partitionby_clause:
-                  - keyword: PARTITION
-                  - keyword: BY
-                  - expression:
-                      column_reference:
-                        identifier: category
-                  orderby_clause:
-                  - keyword: ORDER
-                  - keyword: BY
-                  - column_reference:
-                      identifier: purchases
-                  - keyword: DESC
-                end_bracket: )
-          alias_expression:
-            keyword: AS
-            identifier: rank
+          - raw: OVER
+          - bracketed:
+            - start_bracket: (
+            - raw: PARTITION
+            - raw: BY
+            - raw: category
+            - raw: ORDER
+            - raw: BY
+            - raw: purchases
+            - raw: DESC
+            - end_bracket: )
+          - raw: AS
+          - raw: rank
       from_clause:
         keyword: FROM
         from_expression:
@@ -476,32 +412,24 @@ file:
       - keyword: BY
       - column_reference:
           identifier: item
-      named_window:
-        keyword: WINDOW
-        named_window_expression:
-          identifier: item_window
-          keyword: AS
-          bracketed:
-            start_bracket: (
-            window_specification:
-              partitionby_clause:
-              - keyword: PARTITION
-              - keyword: BY
-              - expression:
-                  column_reference:
-                    identifier: category
-              orderby_clause:
-              - keyword: ORDER
-              - keyword: BY
-              - column_reference:
-                  identifier: purchases
-              frame_clause:
-              - keyword: ROWS
-              - keyword: BETWEEN
-              - literal: '2'
-              - keyword: PRECEDING
-              - binary_operator: AND
-              - literal: '2'
-              - keyword: FOLLOWING
-            end_bracket: )
+      unparsable:
+      - keyword: WINDOW
+      - raw: item_window
+      - raw: AS
+      - bracketed:
+        - start_bracket: (
+        - raw: PARTITION
+        - raw: BY
+        - raw: category
+        - raw: ORDER
+        - raw: BY
+        - raw: purchases
+        - raw: ROWS
+        - raw: BETWEEN
+        - raw: '2'
+        - raw: PRECEDING
+        - raw: AND
+        - raw: '2'
+        - raw: FOLLOWING
+        - end_bracket: )
 - statement_terminator: ;

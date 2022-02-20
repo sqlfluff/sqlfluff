@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 30f5f73cf11d4e4c4483381ee36a2c8dd448e80932b59d6d468e9286882f755f
+_hash: acda4e31c08d2c0ff5971c501394e643cb31c3eb09a5ab34e5189fbe776f77d1
 file:
 - statement:
     create_task_statement:
@@ -23,20 +23,18 @@ file:
     - keyword: AS
     - statement:
         insert_statement:
-        - keyword: INSERT
-        - keyword: INTO
-        - table_reference:
-            identifier: mytable
-        - bracketed:
-            start_bracket: (
-            column_reference:
-              identifier: ts
-            end_bracket: )
-        - values_clause:
-            keyword: VALUES
-            bracketed:
+          unparsable:
+          - keyword: INSERT
+          - raw: INTO
+          - raw: mytable
+          - bracketed:
               start_bracket: (
-              literal: '1'
+              raw: ts
+              end_bracket: )
+          - raw: VALUES
+          - bracketed:
+              start_bracket: (
+              raw: '1'
               end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -58,24 +56,22 @@ file:
     - keyword: AS
     - statement:
         insert_statement:
-        - keyword: INSERT
-        - keyword: INTO
-        - table_reference:
-            identifier: mytable
-        - bracketed:
-            start_bracket: (
-            column_reference:
-              identifier: ts
-            end_bracket: )
-        - values_clause:
-            keyword: VALUES
-            bracketed:
+          unparsable:
+          - keyword: INSERT
+          - raw: INTO
+          - raw: mytable
+          - bracketed:
+              start_bracket: (
+              raw: ts
+              end_bracket: )
+          - raw: VALUES
+          - bracketed:
             - start_bracket: (
-            - literal: '1'
+            - raw: '1'
             - comma: ','
-            - literal: '2'
+            - raw: '2'
             - comma: ','
-            - literal: '3'
+            - raw: '3'
             - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -120,20 +116,18 @@ file:
     - keyword: AS
     - statement:
         insert_statement:
-        - keyword: INSERT
-        - keyword: INTO
-        - table_reference:
-            identifier: mytable
-        - bracketed:
-            start_bracket: (
-            column_reference:
-              identifier: ts
-            end_bracket: )
-        - values_clause:
-            keyword: VALUES
-            bracketed:
+          unparsable:
+          - keyword: INSERT
+          - raw: INTO
+          - raw: mytable
+          - bracketed:
               start_bracket: (
-              literal: '1'
+              raw: ts
+              end_bracket: )
+          - raw: VALUES
+          - bracketed:
+              start_bracket: (
+              raw: '1'
               end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -145,20 +139,18 @@ file:
     - keyword: AS
     - statement:
         insert_statement:
-        - keyword: INSERT
-        - keyword: INTO
-        - table_reference:
-            identifier: mytable
-        - bracketed:
-            start_bracket: (
-            column_reference:
-              identifier: ts
-            end_bracket: )
-        - values_clause:
-            keyword: VALUES
-            bracketed:
+          unparsable:
+          - keyword: INSERT
+          - raw: INTO
+          - raw: mytable
+          - bracketed:
               start_bracket: (
-              literal: '1'
+              raw: ts
+              end_bracket: )
+          - raw: VALUES
+          - bracketed:
+              start_bracket: (
+              raw: '1'
               end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -194,57 +186,35 @@ file:
                     star: '*'
             - comma: ','
             - select_clause_element:
-                function:
-                  function_name:
-                    function_name_identifier: sum
-                  bracketed:
+                column_reference:
+                  identifier: sum
+                unparsable:
+                - bracketed:
                     start_bracket: (
-                    expression:
-                      column_reference:
-                        identifier: break
+                    raw: break
                     end_bracket: )
-                  over_clause:
-                    keyword: OVER
-                    bracketed:
-                      start_bracket: (
-                      window_specification:
-                        partitionby_clause:
-                        - keyword: PARTITION
-                        - keyword: BY
-                        - expression:
-                            column_reference:
-                              identifier: serial
-                        orderby_clause:
-                        - keyword: ORDER
-                        - keyword: BY
-                        - column_reference:
-                            identifier: datetime
-                      end_bracket: )
-                alias_expression:
-                  keyword: AS
-                  identifier: session_id
+                - raw: OVER
+                - bracketed:
+                  - start_bracket: (
+                  - raw: PARTITION
+                  - raw: BY
+                  - raw: serial
+                  - raw: ORDER
+                  - raw: BY
+                  - raw: datetime
+                  - end_bracket: )
+                - raw: AS
+                - raw: session_id
             from_clause:
-              keyword: FROM
-              from_expression:
-                from_expression_element:
-                  table_expression:
-                    bracketed:
-                      start_bracket: (
-                      select_statement:
-                        select_clause:
-                          keyword: SELECT
-                          select_clause_element:
-                            wildcard_expression:
-                              wildcard_identifier:
-                                star: '*'
-                        from_clause:
-                          keyword: FROM
-                          from_expression:
-                            from_expression_element:
-                              table_expression:
-                                table_reference:
-                                  identifier: base_table
-                      end_bracket: )
+              unparsable:
+                keyword: FROM
+                bracketed:
+                - start_bracket: (
+                - raw: SELECT
+                - raw: '*'
+                - raw: FROM
+                - raw: base_table
+                - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_task_statement:
@@ -289,89 +259,49 @@ file:
               - dot: .
               - identifier: row_number
           from_clause:
-            keyword: FROM
-            from_expression:
-              from_expression_element:
-                table_expression:
-                  bracketed:
+            unparsable:
+            - keyword: FROM
+            - bracketed:
+              - start_bracket: (
+              - raw: SELECT
+              - raw: '*'
+              - comma: ','
+              - bracketed:
+                - start_bracket: (
+                - raw: sum
+                - bracketed:
                     start_bracket: (
-                    select_statement:
-                      select_clause:
-                      - keyword: SELECT
-                      - select_clause_element:
-                          wildcard_expression:
-                            wildcard_identifier:
-                              star: '*'
-                      - comma: ','
-                      - select_clause_element:
-                          expression:
-                            bracketed:
-                              start_bracket: (
-                              expression:
-                                function:
-                                  function_name:
-                                    function_name_identifier: sum
-                                  bracketed:
-                                    start_bracket: (
-                                    expression:
-                                      column_reference:
-                                        identifier: break
-                                    end_bracket: )
-                                  over_clause:
-                                    keyword: OVER
-                                    bracketed:
-                                      start_bracket: (
-                                      window_specification:
-                                        partitionby_clause:
-                                        - keyword: PARTITION
-                                        - keyword: BY
-                                        - expression:
-                                            column_reference:
-                                              identifier: serial
-                                        orderby_clause:
-                                        - keyword: ORDER
-                                        - keyword: BY
-                                        - column_reference:
-                                            identifier: datetime
-                                      end_bracket: )
-                              end_bracket: )
-                          alias_expression:
-                            keyword: AS
-                            identifier: session_id
-                      from_clause:
-                        keyword: FROM
-                        from_expression:
-                          from_expression_element:
-                            table_expression:
-                              bracketed:
-                                start_bracket: (
-                                select_statement:
-                                  select_clause:
-                                    keyword: SELECT
-                                    select_clause_element:
-                                      wildcard_expression:
-                                        wildcard_identifier:
-                                          star: '*'
-                                  from_clause:
-                                    keyword: FROM
-                                    from_expression:
-                                      from_expression_element:
-                                        table_expression:
-                                          table_reference:
-                                            identifier: derived_table
-                                end_bracket: )
-                      orderby_clause:
-                      - keyword: ORDER
-                      - keyword: BY
-                      - column_reference:
-                          identifier: serial
-                      - comma: ','
-                      - column_reference:
-                          identifier: datetime
+                    raw: break
                     end_bracket: )
-                alias_expression:
-                  keyword: AS
-                  identifier: v
+                - raw: OVER
+                - bracketed:
+                  - start_bracket: (
+                  - raw: PARTITION
+                  - raw: BY
+                  - raw: serial
+                  - raw: ORDER
+                  - raw: BY
+                  - raw: datetime
+                  - end_bracket: )
+                - end_bracket: )
+              - raw: AS
+              - raw: session_id
+              - raw: FROM
+              - bracketed:
+                - start_bracket: (
+                - raw: SELECT
+                - raw: '*'
+                - raw: FROM
+                - raw: derived_table
+                - end_bracket: )
+              - raw: ORDER
+              - raw: BY
+              - raw: serial
+              - comma: ','
+              - raw: datetime
+              - end_bracket: )
+            - raw: AS
+            - raw: v
           where_clause:
             keyword: WHERE
             expression:
@@ -408,16 +338,14 @@ file:
       - identifier: update_session
     - keyword: AS
     - statement:
-        call_segment:
-          keyword: CALL
-          function:
-            function_name:
-              identifier: sch
-              dot: .
-              function_name_identifier: session_agg_insert
-            bracketed:
-              start_bracket: (
-              end_bracket: )
+        unparsable:
+        - raw: CALL
+        - raw: sch
+        - raw: .
+        - raw: session_agg_insert
+        - bracketed:
+            start_bracket: (
+            end_bracket: )
 - statement_terminator: ;
 - statement:
     create_task_statement:
@@ -436,12 +364,10 @@ file:
     - literal: "'USING CRON 15 7 2 * * UTC'"
     - keyword: AS
     - statement:
-        call_segment:
-          keyword: CALL
-          function:
-            function_name:
-              function_name_identifier: auto_device_insert
-            bracketed:
-              start_bracket: (
-              end_bracket: )
+        unparsable:
+        - raw: CALL
+        - raw: auto_device_insert
+        - bracketed:
+            start_bracket: (
+            end_bracket: )
 - statement_terminator: ;

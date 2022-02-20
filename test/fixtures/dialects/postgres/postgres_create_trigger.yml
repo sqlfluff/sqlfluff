@@ -3,419 +3,371 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 06ab0326affff1817e5e1896826356c9701f57abfe1baebb13efa829728e4142
+_hash: e4823bae08524219efe9c21b6ec28b4cc226cc6def226303aff951de370b5f7e
 file:
 - statement:
     create_trigger:
-    - keyword: CREATE
-    - keyword: TRIGGER
-    - trigger_reference:
-        identifier: foo
-    - keyword: AFTER
-    - keyword: INSERT
-    - keyword: 'ON'
-    - table_reference:
-        identifier: bar
-    - keyword: EXECUTE
-    - keyword: FUNCTION
-    - function_name_identifier: proc
-    - bracketed:
-        start_bracket: (
-        expression:
-          column_reference:
-            identifier: args
-        end_bracket: )
+      unparsable:
+      - keyword: CREATE
+      - keyword: TRIGGER
+      - raw: foo
+      - raw: AFTER
+      - raw: INSERT
+      - raw: 'ON'
+      - raw: bar
+      - raw: EXECUTE
+      - raw: FUNCTION
+      - raw: proc
+      - bracketed:
+          start_bracket: (
+          raw: args
+          end_bracket: )
 - statement_terminator: ;
 - statement:
     create_trigger:
-    - keyword: CREATE
-    - keyword: TRIGGER
-    - trigger_reference:
-        identifier: foo
-    - keyword: BEFORE
-    - keyword: INSERT
-    - keyword: 'on'
-    - table_reference:
-        identifier: bar
-    - keyword: EXECUTE
-    - keyword: FUNCTION
-    - function_name_identifier: proc
-    - bracketed:
-        start_bracket: (
-        expression:
-          column_reference:
-            identifier: args
-        end_bracket: )
+      unparsable:
+      - keyword: CREATE
+      - keyword: TRIGGER
+      - raw: foo
+      - raw: BEFORE
+      - raw: INSERT
+      - raw: 'on'
+      - raw: bar
+      - raw: EXECUTE
+      - raw: FUNCTION
+      - raw: proc
+      - bracketed:
+          start_bracket: (
+          raw: args
+          end_bracket: )
 - statement_terminator: ;
 - statement:
     create_trigger:
-    - keyword: CREATE
-    - keyword: TRIGGER
-    - trigger_reference:
-        identifier: foo
-    - keyword: AFTER
-    - keyword: UPDATE
-    - keyword: OF
-    - column_reference:
-        identifier: bar
-    - comma: ','
-    - column_reference:
-        identifier: baz
-    - keyword: 'ON'
-    - table_reference:
-        identifier: bar
-    - keyword: EXECUTE
-    - keyword: FUNCTION
-    - function_name_identifier: proc
-    - bracketed:
-        start_bracket: (
-        expression:
-          column_reference:
-            identifier: args
-        end_bracket: )
+      unparsable:
+      - keyword: CREATE
+      - keyword: TRIGGER
+      - raw: foo
+      - raw: AFTER
+      - raw: UPDATE
+      - raw: OF
+      - raw: bar
+      - comma: ','
+      - raw: baz
+      - raw: 'ON'
+      - raw: bar
+      - raw: EXECUTE
+      - raw: FUNCTION
+      - raw: proc
+      - bracketed:
+          start_bracket: (
+          raw: args
+          end_bracket: )
 - statement_terminator: ;
 - statement:
     create_trigger:
-    - keyword: CREATE
-    - keyword: TRIGGER
-    - trigger_reference:
-        identifier: foo
-    - keyword: INSTEAD
-    - keyword: OF
-    - keyword: DELETE
-    - keyword: 'ON'
-    - table_reference:
-        identifier: bar
-    - keyword: FROM
-    - table_reference:
-        identifier: baz
-    - keyword: DEFERRABLE
-    - keyword: INITIALLY
-    - keyword: DEFERRED
-    - keyword: FOR
-    - keyword: EACH
-    - keyword: STATEMENT
-    - keyword: EXECUTE
-    - keyword: FUNCTION
-    - function_name_identifier: proc
-    - bracketed:
-        start_bracket: (
-        expression:
-          column_reference:
-            identifier: args
-        end_bracket: )
+      unparsable:
+      - keyword: CREATE
+      - keyword: TRIGGER
+      - raw: foo
+      - raw: INSTEAD
+      - raw: OF
+      - raw: DELETE
+      - raw: 'ON'
+      - raw: bar
+      - raw: FROM
+      - raw: baz
+      - raw: DEFERRABLE
+      - raw: INITIALLY
+      - raw: DEFERRED
+      - raw: FOR
+      - raw: EACH
+      - raw: STATEMENT
+      - raw: EXECUTE
+      - raw: FUNCTION
+      - raw: proc
+      - bracketed:
+          start_bracket: (
+          raw: args
+          end_bracket: )
 - statement_terminator: ;
 - statement:
     create_trigger:
-    - keyword: CREATE
-    - keyword: TRIGGER
-    - trigger_reference:
-        identifier: foo
-    - keyword: BEFORE
-    - keyword: INSERT
-    - keyword: 'ON'
-    - table_reference:
-        identifier: bar
-    - keyword: WHEN
-    - bracketed:
-        start_bracket: (
-        expression:
-        - column_reference:
-            identifier: a
-        - comparison_operator: '='
-        - column_reference:
-            identifier: b
-        end_bracket: )
-    - keyword: EXECUTE
-    - keyword: FUNCTION
-    - function_name_identifier: proc
-    - bracketed:
-        start_bracket: (
-        expression:
-          column_reference:
-            identifier: args
-        end_bracket: )
+      unparsable:
+      - keyword: CREATE
+      - keyword: TRIGGER
+      - raw: foo
+      - raw: BEFORE
+      - raw: INSERT
+      - raw: 'ON'
+      - raw: bar
+      - raw: WHEN
+      - bracketed:
+        - start_bracket: (
+        - raw: a
+        - raw: '='
+        - raw: b
+        - end_bracket: )
+      - raw: EXECUTE
+      - raw: FUNCTION
+      - raw: proc
+      - bracketed:
+          start_bracket: (
+          raw: args
+          end_bracket: )
 - statement_terminator: ;
 - statement:
     create_trigger:
-    - keyword: CREATE
-    - binary_operator: OR
-    - keyword: REPLACE
-    - keyword: CONSTRAINT
-    - keyword: TRIGGER
-    - trigger_reference:
-        identifier: foo
-    - keyword: BEFORE
-    - keyword: INSERT
-    - keyword: 'ON'
-    - table_reference:
-        identifier: bar
-    - keyword: EXECUTE
-    - keyword: FUNCTION
-    - function_name_identifier: proc
-    - bracketed:
-        start_bracket: (
-        expression:
-          column_reference:
-            identifier: args
-        end_bracket: )
+      unparsable:
+      - keyword: CREATE
+      - binary_operator: OR
+      - keyword: REPLACE
+      - keyword: CONSTRAINT
+      - keyword: TRIGGER
+      - raw: foo
+      - raw: BEFORE
+      - raw: INSERT
+      - raw: 'ON'
+      - raw: bar
+      - raw: EXECUTE
+      - raw: FUNCTION
+      - raw: proc
+      - bracketed:
+          start_bracket: (
+          raw: args
+          end_bracket: )
 - statement_terminator: ;
 - statement:
     create_trigger:
-    - keyword: CREATE
-    - keyword: TRIGGER
-    - trigger_reference:
-        identifier: foo
-    - keyword: BEFORE
-    - keyword: INSERT
-    - keyword: 'ON'
-    - table_reference:
-        identifier: bar
-    - keyword: REFERENCING
-    - keyword: OLD
-    - keyword: TABLE
-    - keyword: as
-    - table_reference:
-        identifier: old_table
-    - keyword: NEW
-    - keyword: TABLE
-    - keyword: AS
-    - table_reference:
-        identifier: new_table
-    - keyword: EXECUTE
-    - keyword: PROCEDURE
-    - function_name_identifier: proc
-    - bracketed:
-        start_bracket: (
-        expression:
-          column_reference:
-            identifier: args
-        end_bracket: )
+      unparsable:
+      - keyword: CREATE
+      - keyword: TRIGGER
+      - raw: foo
+      - raw: BEFORE
+      - raw: INSERT
+      - raw: 'ON'
+      - raw: bar
+      - raw: REFERENCING
+      - raw: OLD
+      - raw: TABLE
+      - raw: as
+      - raw: old_table
+      - raw: NEW
+      - raw: TABLE
+      - raw: AS
+      - raw: new_table
+      - raw: EXECUTE
+      - raw: PROCEDURE
+      - raw: proc
+      - bracketed:
+          start_bracket: (
+          raw: args
+          end_bracket: )
 - statement_terminator: ;
 - statement:
     create_trigger:
-    - keyword: CREATE
-    - keyword: TRIGGER
-    - trigger_reference:
-        identifier: check_update
-    - keyword: BEFORE
-    - keyword: INSERT
-    - binary_operator: OR
-    - keyword: UPDATE
-    - keyword: 'ON'
-    - table_reference:
-        identifier: accounts
-    - keyword: FOR
-    - keyword: EACH
-    - keyword: ROW
-    - keyword: EXECUTE
-    - keyword: FUNCTION
-    - function_name_identifier: check_account_update
-    - bracketed:
-        start_bracket: (
-        end_bracket: )
+      unparsable:
+      - keyword: CREATE
+      - keyword: TRIGGER
+      - raw: check_update
+      - raw: BEFORE
+      - raw: INSERT
+      - raw: OR
+      - raw: UPDATE
+      - raw: 'ON'
+      - raw: accounts
+      - raw: FOR
+      - raw: EACH
+      - raw: ROW
+      - raw: EXECUTE
+      - raw: FUNCTION
+      - raw: check_account_update
+      - bracketed:
+          start_bracket: (
+          end_bracket: )
 - statement_terminator: ;
 - statement:
     create_trigger:
-    - keyword: CREATE
-    - binary_operator: OR
-    - keyword: REPLACE
-    - keyword: TRIGGER
-    - trigger_reference:
-        identifier: check_update
-    - keyword: BEFORE
-    - keyword: UPDATE
-    - keyword: OF
-    - column_reference:
-        identifier: balance
-    - comma: ','
-    - column_reference:
-        identifier: transactions
-    - keyword: 'ON'
-    - table_reference:
-        identifier: accounts
-    - keyword: FOR
-    - keyword: EACH
-    - keyword: ROW
-    - keyword: EXECUTE
-    - keyword: FUNCTION
-    - function_name_identifier: check_account_update
-    - bracketed:
-        start_bracket: (
-        end_bracket: )
+      unparsable:
+      - keyword: CREATE
+      - binary_operator: OR
+      - keyword: REPLACE
+      - keyword: TRIGGER
+      - raw: check_update
+      - raw: BEFORE
+      - raw: UPDATE
+      - raw: OF
+      - raw: balance
+      - comma: ','
+      - raw: transactions
+      - raw: 'ON'
+      - raw: accounts
+      - raw: FOR
+      - raw: EACH
+      - raw: ROW
+      - raw: EXECUTE
+      - raw: FUNCTION
+      - raw: check_account_update
+      - bracketed:
+          start_bracket: (
+          end_bracket: )
 - statement_terminator: ;
 - statement:
     create_trigger:
-    - keyword: CREATE
-    - binary_operator: OR
-    - keyword: REPLACE
-    - keyword: TRIGGER
-    - trigger_reference:
-        identifier: check_update
-    - keyword: BEFORE
-    - keyword: UPDATE
-    - keyword: OF
-    - column_reference:
-        identifier: balance
-    - comma: ','
-    - column_reference:
-        identifier: transactions
-    - binary_operator: OR
-    - keyword: TRUNCATE
-    - keyword: 'ON'
-    - table_reference:
-        identifier: accounts
-    - keyword: FOR
-    - keyword: EACH
-    - keyword: ROW
-    - keyword: EXECUTE
-    - keyword: FUNCTION
-    - function_name_identifier: check_account_update
-    - bracketed:
-        start_bracket: (
-        end_bracket: )
+      unparsable:
+      - keyword: CREATE
+      - binary_operator: OR
+      - keyword: REPLACE
+      - keyword: TRIGGER
+      - raw: check_update
+      - raw: BEFORE
+      - raw: UPDATE
+      - raw: OF
+      - raw: balance
+      - comma: ','
+      - raw: transactions
+      - raw: OR
+      - raw: TRUNCATE
+      - raw: 'ON'
+      - raw: accounts
+      - raw: FOR
+      - raw: EACH
+      - raw: ROW
+      - raw: EXECUTE
+      - raw: FUNCTION
+      - raw: check_account_update
+      - bracketed:
+          start_bracket: (
+          end_bracket: )
 - statement_terminator: ;
 - statement:
     create_trigger:
-    - keyword: CREATE
-    - binary_operator: OR
-    - keyword: REPLACE
-    - keyword: TRIGGER
-    - trigger_reference:
-        identifier: check_update
-    - keyword: BEFORE
-    - keyword: UPDATE
-    - keyword: OF
-    - column_reference:
-        identifier: balance
-    - keyword: 'ON'
-    - table_reference:
-        identifier: accounts
-    - keyword: FOR
-    - keyword: EACH
-    - keyword: ROW
-    - keyword: EXECUTE
-    - keyword: FUNCTION
-    - function_name_identifier: check_account_update
-    - bracketed:
-        start_bracket: (
-        end_bracket: )
+      unparsable:
+      - keyword: CREATE
+      - binary_operator: OR
+      - keyword: REPLACE
+      - keyword: TRIGGER
+      - raw: check_update
+      - raw: BEFORE
+      - raw: UPDATE
+      - raw: OF
+      - raw: balance
+      - raw: 'ON'
+      - raw: accounts
+      - raw: FOR
+      - raw: EACH
+      - raw: ROW
+      - raw: EXECUTE
+      - raw: FUNCTION
+      - raw: check_account_update
+      - bracketed:
+          start_bracket: (
+          end_bracket: )
 - statement_terminator: ;
 - statement:
     create_trigger:
-    - keyword: CREATE
-    - keyword: TRIGGER
-    - trigger_reference:
-        identifier: check_update
-    - keyword: BEFORE
-    - keyword: UPDATE
-    - keyword: 'ON'
-    - table_reference:
-        identifier: accounts
-    - keyword: FOR
-    - keyword: EACH
-    - keyword: ROW
-    - keyword: WHEN
-    - bracketed:
-        start_bracket: (
-        expression:
-        - column_reference:
-          - identifier: OLD
-          - dot: .
-          - identifier: balance
-        - keyword: IS
-        - keyword: DISTINCT
-        - keyword: FROM
-        - column_reference:
-          - identifier: NEW
-          - dot: .
-          - identifier: balance
-        end_bracket: )
-    - keyword: EXECUTE
-    - keyword: FUNCTION
-    - function_name_identifier: check_account_update
-    - bracketed:
-        start_bracket: (
-        end_bracket: )
+      unparsable:
+      - keyword: CREATE
+      - keyword: TRIGGER
+      - raw: check_update
+      - raw: BEFORE
+      - raw: UPDATE
+      - raw: 'ON'
+      - raw: accounts
+      - raw: FOR
+      - raw: EACH
+      - raw: ROW
+      - raw: WHEN
+      - bracketed:
+        - start_bracket: (
+        - raw: OLD
+        - raw: .
+        - raw: balance
+        - raw: IS
+        - raw: DISTINCT
+        - raw: FROM
+        - raw: NEW
+        - raw: .
+        - raw: balance
+        - end_bracket: )
+      - raw: EXECUTE
+      - raw: FUNCTION
+      - raw: check_account_update
+      - bracketed:
+          start_bracket: (
+          end_bracket: )
 - statement_terminator: ;
 - statement:
     create_trigger:
-    - keyword: CREATE
-    - keyword: TRIGGER
-    - trigger_reference:
-        identifier: view_insert
-    - keyword: INSTEAD
-    - keyword: OF
-    - keyword: INSERT
-    - keyword: 'ON'
-    - table_reference:
-        identifier: my_view
-    - keyword: FOR
-    - keyword: EACH
-    - keyword: ROW
-    - keyword: EXECUTE
-    - keyword: FUNCTION
-    - function_name_identifier: view_insert_row
-    - bracketed:
-        start_bracket: (
-        end_bracket: )
+      unparsable:
+      - keyword: CREATE
+      - keyword: TRIGGER
+      - raw: view_insert
+      - raw: INSTEAD
+      - raw: OF
+      - raw: INSERT
+      - raw: 'ON'
+      - raw: my_view
+      - raw: FOR
+      - raw: EACH
+      - raw: ROW
+      - raw: EXECUTE
+      - raw: FUNCTION
+      - raw: view_insert_row
+      - bracketed:
+          start_bracket: (
+          end_bracket: )
 - statement_terminator: ;
 - statement:
     create_trigger:
-    - keyword: CREATE
-    - keyword: TRIGGER
-    - trigger_reference:
-        identifier: transfer_insert
-    - keyword: AFTER
-    - keyword: INSERT
-    - keyword: 'ON'
-    - table_reference:
-        identifier: transfer
-    - keyword: REFERENCING
-    - keyword: NEW
-    - keyword: TABLE
-    - keyword: AS
-    - table_reference:
-        identifier: inserted
-    - keyword: FOR
-    - keyword: EACH
-    - keyword: STATEMENT
-    - keyword: EXECUTE
-    - keyword: FUNCTION
-    - function_name_identifier: check_transfer_balances_to_zero
-    - bracketed:
-        start_bracket: (
-        end_bracket: )
+      unparsable:
+      - keyword: CREATE
+      - keyword: TRIGGER
+      - raw: transfer_insert
+      - raw: AFTER
+      - raw: INSERT
+      - raw: 'ON'
+      - raw: transfer
+      - raw: REFERENCING
+      - raw: NEW
+      - raw: TABLE
+      - raw: AS
+      - raw: inserted
+      - raw: FOR
+      - raw: EACH
+      - raw: STATEMENT
+      - raw: EXECUTE
+      - raw: FUNCTION
+      - raw: check_transfer_balances_to_zero
+      - bracketed:
+          start_bracket: (
+          end_bracket: )
 - statement_terminator: ;
 - statement:
     create_trigger:
-    - keyword: CREATE
-    - keyword: TRIGGER
-    - trigger_reference:
-        identifier: paired_items_update
-    - keyword: AFTER
-    - keyword: UPDATE
-    - keyword: 'ON'
-    - table_reference:
-        identifier: paired_items
-    - keyword: REFERENCING
-    - keyword: NEW
-    - keyword: TABLE
-    - keyword: AS
-    - table_reference:
-        identifier: newtab
-    - keyword: OLD
-    - keyword: TABLE
-    - keyword: AS
-    - table_reference:
-        identifier: oldtab
-    - keyword: FOR
-    - keyword: EACH
-    - keyword: ROW
-    - keyword: EXECUTE
-    - keyword: FUNCTION
-    - function_name_identifier: check_matching_pairs
-    - bracketed:
-        start_bracket: (
-        end_bracket: )
+      unparsable:
+      - keyword: CREATE
+      - keyword: TRIGGER
+      - raw: paired_items_update
+      - raw: AFTER
+      - raw: UPDATE
+      - raw: 'ON'
+      - raw: paired_items
+      - raw: REFERENCING
+      - raw: NEW
+      - raw: TABLE
+      - raw: AS
+      - raw: newtab
+      - raw: OLD
+      - raw: TABLE
+      - raw: AS
+      - raw: oldtab
+      - raw: FOR
+      - raw: EACH
+      - raw: ROW
+      - raw: EXECUTE
+      - raw: FUNCTION
+      - raw: check_matching_pairs
+      - bracketed:
+          start_bracket: (
+          end_bracket: )
 - statement_terminator: ;

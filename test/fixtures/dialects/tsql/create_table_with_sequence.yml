@@ -3,72 +3,46 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 30c51a84e37fb29765e95720842f3376aa80a94548d01d41085519295e7afbf6
+_hash: cf9d80176e917faf158a871d2354eb66a614bb6f577548ba290fbdce659ceb22
 file:
-  batch:
-    statement:
-      create_table_statement:
-      - keyword: CREATE
-      - keyword: TABLE
-      - table_reference:
-        - identifier: DEST
-        - dot: .
-        - identifier: MELDER
-      - bracketed:
-        - start_bracket: (
-        - column_definition:
-          - identifier: '[ID]'
-          - data_type:
-              identifier: INT
-          - column_constraint_segment:
-            - keyword: PRIMARY
-            - keyword: KEY
-          - column_constraint_segment:
-            - keyword: NOT
-            - keyword: 'NULL'
-          - column_constraint_segment:
-              keyword: DEFAULT
-              sequence_next_value:
-              - keyword: NEXT
-              - keyword: VALUE
-              - keyword: FOR
-              - object_reference:
-                - identifier: '[dbo]'
-                - dot: .
-                - identifier: '[SEQ_MELDER]'
-        - comma: ','
-        - column_definition:
-            identifier: '[DOWNLOADED_TOTAL]'
-            data_type:
-              identifier: INT
-            column_constraint_segment:
-              keyword: 'NULL'
-        - comma: ','
-        - column_definition:
-            identifier: '[WARNED_DAILY]'
-            data_type:
-              identifier: INT
-            column_constraint_segment:
-              keyword: 'NULL'
-        - comma: ','
-        - column_definition:
-            identifier: '[DATE_OF_REPORT]'
-            data_type:
-              identifier: DATETIME
-            column_constraint_segment:
-              keyword: 'NULL'
-        - comma: ','
-        - column_definition:
-            identifier: DATE_LAST_INSERTED
-            data_type:
-              identifier: DATETIME
-            column_constraint_segment:
-              keyword: DEFAULT
-              function:
-                function_name:
-                  function_name_identifier: GETDATE
-                bracketed:
-                  start_bracket: (
-                  end_bracket: )
-        - end_bracket: )
-      - statement_terminator: ;
+  unparsable:
+  - raw: CREATE
+  - raw: TABLE
+  - raw: DEST
+  - raw: .
+  - raw: MELDER
+  - raw: (
+  - raw: '[ID]'
+  - raw: INT
+  - raw: PRIMARY
+  - raw: KEY
+  - raw: NOT
+  - raw: 'NULL'
+  - raw: DEFAULT
+  - raw: NEXT
+  - raw: VALUE
+  - raw: FOR
+  - raw: '[dbo]'
+  - raw: .
+  - raw: '[SEQ_MELDER]'
+  - comma: ','
+  - raw: '[DOWNLOADED_TOTAL]'
+  - raw: INT
+  - raw: 'NULL'
+  - comma: ','
+  - raw: '[WARNED_DAILY]'
+  - raw: INT
+  - raw: 'NULL'
+  - comma: ','
+  - raw: '[DATE_OF_REPORT]'
+  - raw: DATETIME
+  - raw: 'NULL'
+  - comma: ','
+  - raw: DATE_LAST_INSERTED
+  - raw: DATETIME
+  - raw: DEFAULT
+  - raw: GETDATE
+  - raw: (
+  - raw: )
+  - raw: )
+  - raw: ;

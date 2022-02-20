@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b5c3fc19989e1d017b4758514f4bdc849138cf6d1717f9c7cb6af3de90138d1c
+_hash: 2a37430df1692b36ec79f064877c109bb1b733afdbf1db999406c4a6a99996f5
 file:
 - statement:
     copy_into_statement:
@@ -26,13 +26,14 @@ file:
     - internal_external_stage:
         literal: '@'
         identifier: my_int_stage
-    - keyword: file_format
+    - identifier: file_format
     - comparison_operator: '='
-    - bracketed:
+    unparsable:
+      bracketed:
       - start_bracket: (
-      - keyword: type
-      - comparison_operator: '='
-      - keyword: csv
+      - raw: type
+      - raw: '='
+      - raw: csv
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -45,14 +46,15 @@ file:
     - internal_external_stage:
         literal: '@'
         identifier: my_int_stage
-    - keyword: file_format
+    - identifier: file_format
     - comparison_operator: '='
-    - bracketed:
-        start_bracket: (
-        keyword: format_name
-        comparison_operator: '='
-        literal: "'mycsv'"
-        end_bracket: )
+    unparsable:
+      bracketed:
+      - start_bracket: (
+      - raw: format_name
+      - raw: '='
+      - raw: "'mycsv'"
+      - end_bracket: )
 - statement_terminator: ;
 - statement:
     copy_into_statement:
@@ -64,17 +66,18 @@ file:
     - internal_external_stage:
         literal: '@'
         identifier: my_int_stage
-    - keyword: file_format
+    - identifier: file_format
     - comparison_operator: '='
+    unparsable:
     - bracketed:
-        start_bracket: (
-        keyword: type
-        comparison_operator: '='
-        literal: "'CSV'"
-        end_bracket: )
-    - keyword: pattern
-    - comparison_operator: '='
-    - literal: "'.*/.*/.*[.]csv[.]gz'"
+      - start_bracket: (
+      - raw: type
+      - raw: '='
+      - raw: "'CSV'"
+      - end_bracket: )
+    - raw: pattern
+    - raw: '='
+    - raw: "'.*/.*/.*[.]csv[.]gz'"
 - statement_terminator: ;
 - statement:
     copy_into_statement:
@@ -86,17 +89,18 @@ file:
     - internal_external_stage:
         literal: '@'
         identifier: my_int_stage
-    - keyword: file_format
+    - identifier: file_format
     - comparison_operator: '='
+    unparsable:
     - bracketed:
-        start_bracket: (
-        keyword: format_name
-        comparison_operator: '='
-        identifier: myformat
-        end_bracket: )
-    - keyword: pattern
-    - comparison_operator: '='
-    - literal: "'.*sales.*[.]csv'"
+      - start_bracket: (
+      - raw: format_name
+      - raw: '='
+      - raw: myformat
+      - end_bracket: )
+    - raw: pattern
+    - raw: '='
+    - raw: "'.*sales.*[.]csv'"
 - statement_terminator: ;
 - statement:
     copy_into_statement:
@@ -151,45 +155,15 @@ file:
     - keyword: INTO
     - table_reference:
         identifier: target_table
-    - keyword: FROM
-    - bracketed:
-        start_bracket: (
-        select_statement:
-          select_clause:
-            keyword: SELECT
-            select_clause_element:
-              column_reference:
-                identifier: $1
-          from_clause:
-            keyword: FROM
-            from_expression:
-              from_expression_element:
-                table_expression:
-                  internal_external_stage:
-                    literal: '@'
-                    identifier: source_stage
-        end_bracket: )
-- statement_terminator: ;
-- statement:
-    copy_into_statement:
-    - keyword: copy
-    - keyword: into
-    - table_reference:
-        identifier: mytable1
-    - bracketed:
-        start_bracket: (
-        column_reference:
-          identifier: column1
-        end_bracket: )
-    - keyword: from
-    - literal: "'s3://bucket/source'"
-    - keyword: file_format
-    - comparison_operator: '='
-    - bracketed:
+    unparsable:
+      raw: FROM
+      bracketed:
       - start_bracket: (
-      - keyword: TYPE
-      - comparison_operator: '='
-      - keyword: JSON
+      - raw: SELECT
+      - raw: $1
+      - raw: FROM
+      - raw: '@'
+      - raw: source_stage
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -198,36 +172,49 @@ file:
     - keyword: into
     - table_reference:
         identifier: mytable1
-    - keyword: from
+    unparsable:
     - bracketed:
         start_bracket: (
-        select_statement:
-          select_clause:
-            keyword: select
-            select_clause_element:
-              column_reference:
-                identifier: column1
-          from_clause:
-            keyword: from
-            from_expression:
-              from_expression_element:
-                table_expression:
-                  internal_external_stage:
-                  - literal: '@'
-                  - identifier: ext
-                  - dot: .
-                  - identifier: stage
-                  - slash: /
-                  - path:
-                      identifier: path1
+        raw: column1
         end_bracket: )
-    - keyword: file_format
-    - comparison_operator: '='
+    - raw: from
+    - raw: "'s3://bucket/source'"
+    - raw: file_format
+    - raw: '='
     - bracketed:
       - start_bracket: (
-      - keyword: TYPE
-      - comparison_operator: '='
-      - keyword: JSON
+      - raw: TYPE
+      - raw: '='
+      - raw: JSON
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_into_statement:
+    - keyword: copy
+    - keyword: into
+    - table_reference:
+        identifier: mytable1
+    unparsable:
+    - raw: from
+    - bracketed:
+      - start_bracket: (
+      - raw: select
+      - raw: column1
+      - raw: from
+      - raw: '@'
+      - raw: ext
+      - raw: .
+      - raw: stage
+      - raw: /
+      - raw: path1
+      - end_bracket: )
+    - raw: file_format
+    - raw: '='
+    - bracketed:
+      - start_bracket: (
+      - raw: TYPE
+      - raw: '='
+      - raw: JSON
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -238,15 +225,16 @@ file:
         identifier: mytable1
     - keyword: from
     - literal: "'s3://bucket/source'"
-    - keyword: file_format
+    - identifier: file_format
     - comparison_operator: '='
-    - bracketed:
+    unparsable:
+      bracketed:
       - start_bracket: (
-      - keyword: type
-      - comparison_operator: '='
-      - keyword: csv
-      - identifier: SKIP_HEADER
-      - comparison_operator: '='
-      - literal: '1'
+      - raw: type
+      - raw: '='
+      - raw: csv
+      - raw: SKIP_HEADER
+      - raw: '='
+      - raw: '1'
       - end_bracket: )
 - statement_terminator: ;

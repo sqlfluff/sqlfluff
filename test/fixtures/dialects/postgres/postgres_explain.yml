@@ -3,38 +3,31 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: dedbb68c319ea4973fa51b3f95854606bfb3f306b57d657788db9c6d03ec737b
+_hash: dc256f0507cf1d27e9a74a24642075be05a5338edc69b43f8a700122a9eab42e
 file:
 - statement:
     explain_statement:
-      keyword: explain
-      bracketed:
-      - start_bracket: (
-      - explain_option:
-          keyword: analyze
-          literal: 'true'
-      - comma: ','
-      - explain_option:
-          keyword: costs
-          literal: 'false'
-      - comma: ','
-      - explain_option:
-          keyword: verbose
-          literal: 'true'
-      - comma: ','
-      - explain_option:
-          keyword: buffers
-          literal: 'true'
-      - comma: ','
-      - explain_option:
-        - keyword: format
-        - keyword: xml
-      - end_bracket: )
-      select_statement:
-        select_clause:
-          keyword: select
-          select_clause_element:
-            literal: '1'
+      unparsable:
+      - keyword: explain
+      - bracketed:
+        - start_bracket: (
+        - raw: analyze
+        - raw: 'true'
+        - comma: ','
+        - raw: costs
+        - raw: 'false'
+        - comma: ','
+        - raw: verbose
+        - raw: 'true'
+        - comma: ','
+        - raw: buffers
+        - raw: 'true'
+        - comma: ','
+        - raw: format
+        - raw: xml
+        - end_bracket: )
+      - raw: select
+      - raw: '1'
 - statement_terminator: ;
 - statement:
     explain_statement:
@@ -59,46 +52,37 @@ file:
 - statement_terminator: ;
 - statement:
     explain_statement:
-      keyword: explain
-      bracketed:
-        start_bracket: (
-        explain_option:
-        - keyword: format
-        - keyword: text
-        end_bracket: )
-      select_statement:
-        select_clause:
-          keyword: select
-          select_clause_element:
-            literal: '1'
+      unparsable:
+      - keyword: explain
+      - bracketed:
+        - start_bracket: (
+        - raw: format
+        - raw: text
+        - end_bracket: )
+      - raw: select
+      - raw: '1'
 - statement_terminator: ;
 - statement:
     explain_statement:
-      keyword: explain
-      bracketed:
-        start_bracket: (
-        explain_option:
-        - keyword: format
-        - keyword: json
-        end_bracket: )
-      select_statement:
-        select_clause:
-          keyword: select
-          select_clause_element:
-            literal: '1'
+      unparsable:
+      - keyword: explain
+      - bracketed:
+        - start_bracket: (
+        - raw: format
+        - raw: json
+        - end_bracket: )
+      - raw: select
+      - raw: '1'
 - statement_terminator: ;
 - statement:
     explain_statement:
-      keyword: explain
-      bracketed:
-        start_bracket: (
-        explain_option:
-        - keyword: format
-        - keyword: yaml
-        end_bracket: )
-      select_statement:
-        select_clause:
-          keyword: select
-          select_clause_element:
-            literal: '1'
+      unparsable:
+      - keyword: explain
+      - bracketed:
+        - start_bracket: (
+        - raw: format
+        - raw: yaml
+        - end_bracket: )
+      - raw: select
+      - raw: '1'
 - statement_terminator: ;

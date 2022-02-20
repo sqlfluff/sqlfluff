@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: edd24b6aa86e7b4f14252157a70d81b881749276735393d01440a455bc524e9a
+_hash: 600bb7cfb8a35c96694eef03518929e06103a01d5223959fa756ab8c24007ab3
 file:
 - statement:
     export_statement:
@@ -55,114 +55,84 @@ file:
           - literal: "'secret'"
         - keyword: FILE
         - literal: "'tab1.csv'"
-        - csv_cols:
-            bracketed:
+        - unparsable:
+          - bracketed:
             - start_bracket: (
-            - literal: '1'
-            - keyword: FORMAT
-            - comparison_operator: '='
-            - literal: "'DD.MM.YYYY'"
+            - raw: '1'
+            - raw: FORMAT
+            - raw: '='
+            - raw: "'DD.MM.YYYY'"
             - comma: ','
-            - literal: '2'
-            - range_operator: ..
-            - literal: '3'
-            - keyword: DELIMIT
-            - comparison_operator: '='
-            - keyword: NEVER
+            - raw: '2'
+            - raw: ..
+            - raw: '3'
+            - raw: DELIMIT
+            - raw: '='
+            - raw: NEVER
             - end_bracket: )
-        - file_opts:
-          - keyword: COLUMN
-          - keyword: SEPARATOR
-          - comparison_operator: '='
-          - literal: "';'"
-          - keyword: ENCODING
-          - comparison_operator: '='
-          - literal: "'Latin1'"
-          - keyword: WITH
-          - keyword: COLUMN
-          - keyword: NAMES
+          - raw: COLUMN
+          - raw: SEPARATOR
+          - raw: '='
+          - raw: "';'"
+          - raw: ENCODING
+          - raw: '='
+          - raw: "'Latin1'"
+          - raw: WITH
+          - raw: COLUMN
+          - raw: NAMES
 - statement_terminator: ;
 - statement:
     export_statement:
-      keyword: EXPORT
-      bracketed:
-        start_bracket: (
-        select_statement:
-          select_clause:
-            keyword: SELECT
-            select_clause_element:
-              wildcard_expression:
-                wildcard_identifier:
-                  star: '*'
-          from_clause:
-            keyword: FROM
-            from_expression:
-              from_expression_element:
-                table_expression:
-                  table_reference:
-                    identifier: T
-          where_clause:
-            keyword: WHERE
-            expression:
-              column_reference:
-                identifier: id
-              comparison_operator: '='
-              literal: '3295'
-        end_bracket: )
-      export_into_clause:
-        keyword: INTO
-        import_file:
-        - keyword: FBV
-        - keyword: AT
-        - connection_definition:
-            identifier: my_connection
-        - keyword: FILE
-        - literal: "'t1.fbv'"
-        - keyword: FILE
-        - literal: "'t2.fbv'"
-        - file_opts:
-            keyword: REPLACE
+      unparsable:
+      - keyword: EXPORT
+      - bracketed:
+        - start_bracket: (
+        - raw: SELECT
+        - raw: '*'
+        - raw: FROM
+        - raw: T
+        - raw: WHERE
+        - raw: id
+        - raw: '='
+        - raw: '3295'
+        - end_bracket: )
+      - raw: INTO
+      - raw: FBV
+      - raw: AT
+      - raw: my_connection
+      - raw: FILE
+      - raw: "'t1.fbv'"
+      - raw: FILE
+      - raw: "'t2.fbv'"
+      - raw: REPLACE
 - statement_terminator: ;
 - statement:
     export_statement:
-      keyword: EXPORT
-      bracketed:
-        start_bracket: (
-        select_statement:
-          select_clause:
-            keyword: SELECT
-            select_clause_element:
-              wildcard_expression:
-                wildcard_identifier:
-                  star: '*'
-          from_clause:
-            keyword: FROM
-            from_expression:
-              from_expression_element:
-                table_expression:
-                  table_reference:
-                    identifier: my_view
-        end_bracket: )
-      export_into_clause:
-        keyword: INTO
-        import_export_dbsrc:
-        - keyword: EXA
-        - keyword: AT
-        - connection_definition:
-          - literal: "'192.168.6.11..14:8563'"
-          - keyword: USER
-          - literal: "'my_user'"
-          - keyword: IDENTIFIED
-          - keyword: BY
-          - literal: "'my_secret'"
-        - keyword: TABLE
-        - table_reference:
-          - identifier: my_schema
-          - dot: .
-          - identifier: my_table
-        - keyword: CREATED
-        - keyword: BY
-        - literal: "'CREATE TABLE my_table(order_id INT, price DEC(18,2))'"
+      unparsable:
+      - keyword: EXPORT
+      - bracketed:
+        - start_bracket: (
+        - raw: SELECT
+        - raw: '*'
+        - raw: FROM
+        - raw: my_view
+        - end_bracket: )
+      - raw: INTO
+      - raw: EXA
+      - raw: AT
+      - raw: "'192.168.6.11..14:8563'"
+      - raw: USER
+      - raw: "'my_user'"
+      - raw: IDENTIFIED
+      - raw: BY
+      - raw: "'my_secret'"
+      - raw: TABLE
+      - raw: my_schema
+      - raw: .
+      - raw: my_table
+      - raw: CREATED
+      - raw: BY
+      - raw: "'CREATE TABLE my_table(order_id INT, price DEC(18,2))'"
 - statement_terminator: ;
 - statement:
     export_statement:

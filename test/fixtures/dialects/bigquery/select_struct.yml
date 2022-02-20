@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e1eabbbf7187911728236ad955aac6db71d59b9eb3b9cb2616151546fa45813a
+_hash: 291c7b59b87c499c9c076bdbce794a61ace0f1a82af331ac8b17a6d7d56bbd86
 file:
 - statement:
     select_statement:
@@ -16,42 +16,25 @@ file:
           - identifier: foo_id
       - comma: ','
       - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: array
+          unparsable:
+            raw: array
             bracketed:
-              start_bracket: (
-              expression:
-                select_statement:
-                  select_clause:
-                    keyword: select
-                    select_clause_modifier:
-                    - keyword: as
-                    - keyword: struct
-                    select_clause_element:
-                      wildcard_expression:
-                        wildcard_identifier:
-                          star: '*'
-                  from_clause:
-                    keyword: from
-                    from_expression:
-                      from_expression_element:
-                        table_expression:
-                          table_reference:
-                            identifier: another_table
-                  where_clause:
-                    keyword: where
-                    expression:
-                    - column_reference:
-                      - identifier: another_table
-                      - dot: .
-                      - identifier: foo_id
-                    - comparison_operator: '='
-                    - column_reference:
-                      - identifier: some_table
-                      - dot: .
-                      - identifier: foo_id
-              end_bracket: )
+            - start_bracket: (
+            - raw: select
+            - raw: as
+            - raw: struct
+            - raw: '*'
+            - raw: from
+            - raw: another_table
+            - raw: where
+            - raw: another_table
+            - raw: .
+            - raw: foo_id
+            - raw: '='
+            - raw: some_table
+            - raw: .
+            - raw: foo_id
+            - end_bracket: )
       from_clause:
         keyword: from
         from_expression:
@@ -86,27 +69,23 @@ file:
         select_clause_element:
           typeless_struct:
             keyword: struct
-            bracketed:
+          unparsable:
+          - bracketed:
             - start_bracket: (
-            - column_reference:
-              - identifier: bar
-              - dot: .
-              - identifier: bar_id
-            - alias_expression:
-                keyword: as
-                identifier: id
+            - raw: bar
+            - raw: .
+            - raw: bar_id
+            - raw: as
+            - raw: id
             - comma: ','
-            - column_reference:
-              - identifier: bar
-              - dot: .
-              - identifier: bar_name
-            - alias_expression:
-                keyword: as
-                identifier: bar
+            - raw: bar
+            - raw: .
+            - raw: bar_name
+            - raw: as
+            - raw: bar
             - end_bracket: )
-          alias_expression:
-            keyword: as
-            identifier: bar
+          - raw: as
+          - raw: bar
       from_clause:
         keyword: from
         from_expression:

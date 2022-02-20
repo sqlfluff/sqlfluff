@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: cff7472280114d6ca9c8f399bb2358a58cf6aabad3dae801b57c711f05fe00c7
+_hash: 4933bbdd0e8e0e0a4bf6d3f977ddc6b00c3d31f3e6f78e8cc9804e5d29ca0df6
 file:
   statement:
     update_statement:
@@ -11,66 +11,38 @@ file:
       table_reference:
         identifier: table_name
       from_in_update_clause:
-        keyword: FROM
-        from_expression_element:
-          table_expression:
-            bracketed:
-              start_bracket: (
-              select_statement:
-                select_clause:
-                - keyword: SELECT
-                - select_clause_element:
-                    column_reference:
-                      identifier: a
-                - comma: ','
-                - select_clause_element:
-                    column_reference:
-                      identifier: b
-                - comma: ','
-                - select_clause_element:
-                    column_reference:
-                      identifier: c
-                - comma: ','
-                - select_clause_element:
-                    column_reference:
-                      identifier: d
-                from_clause:
-                  keyword: FROM
-                  from_expression:
-                    from_expression_element:
-                      table_expression:
-                        table_reference:
-                          identifier: t_b
-                    join_clause:
-                    - keyword: INNER
-                    - keyword: JOIN
-                    - from_expression_element:
-                        table_expression:
-                          table_reference:
-                            identifier: t_c
-                    - join_on_condition:
-                        keyword: 'ON'
-                        expression:
-                        - column_reference:
-                          - identifier: t_b
-                          - dot: .
-                          - identifier: d
-                        - comparison_operator: '='
-                        - column_reference:
-                          - identifier: t_c
-                          - dot: .
-                          - identifier: d
-                where_clause:
-                  keyword: WHERE
-                  expression:
-                    column_reference:
-                      identifier: b
-                    comparison_operator: '='
-                    literal: "'F'"
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            identifier: t_d
+        unparsable:
+        - keyword: FROM
+        - bracketed:
+          - start_bracket: (
+          - raw: SELECT
+          - raw: a
+          - comma: ','
+          - raw: b
+          - comma: ','
+          - raw: c
+          - comma: ','
+          - raw: d
+          - raw: FROM
+          - raw: t_b
+          - raw: INNER
+          - raw: JOIN
+          - raw: t_c
+          - raw: 'ON'
+          - raw: t_b
+          - raw: .
+          - raw: d
+          - raw: '='
+          - raw: t_c
+          - raw: .
+          - raw: d
+          - raw: WHERE
+          - raw: b
+          - raw: '='
+          - raw: "'F'"
+          - end_bracket: )
+        - raw: AS
+        - raw: t_d
       set_clause_list:
       - keyword: SET
       - set_clause:

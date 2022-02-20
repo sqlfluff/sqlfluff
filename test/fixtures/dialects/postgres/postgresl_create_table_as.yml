@@ -3,32 +3,22 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0b1f955ea00e6957f53eb8eea2544bf27d59b575679d5fc24f6aecf25821a44d
+_hash: 308e2dab7a95bf428c8bc9016fa71499912503a6f979ad17fbdf7f83866b580c
 file:
 - statement:
-    create_table_as_statement:
-    - keyword: CREATE
-    - keyword: TEMP
-    - keyword: TABLE
-    - table_reference:
-        identifier: t1
-    - keyword: AS
+    unparsable:
+    - raw: CREATE
+    - raw: TEMP
+    - raw: TABLE
+    - raw: t1
+    - raw: AS
     - bracketed:
-        start_bracket: (
-        select_statement:
-          select_clause:
-            keyword: SELECT
-            select_clause_element:
-              column_reference:
-                identifier: something
-          from_clause:
-            keyword: FROM
-            from_expression:
-              from_expression_element:
-                table_expression:
-                  table_reference:
-                    identifier: t2
-        end_bracket: )
+      - start_bracket: (
+      - raw: SELECT
+      - raw: something
+      - raw: FROM
+      - raw: t2
+      - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_as_statement:
@@ -75,28 +65,18 @@ file:
                   identifier: t2
 - statement_terminator: ;
 - statement:
-    create_table_as_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: t1
-    - keyword: AS
+    unparsable:
+    - raw: CREATE
+    - raw: TABLE
+    - raw: t1
+    - raw: AS
     - bracketed:
-        start_bracket: (
-        select_statement:
-          select_clause:
-            keyword: SELECT
-            select_clause_element:
-              column_reference:
-                identifier: something
-          from_clause:
-            keyword: FROM
-            from_expression:
-              from_expression_element:
-                table_expression:
-                  table_reference:
-                    identifier: t2
-        end_bracket: )
+      - start_bracket: (
+      - raw: SELECT
+      - raw: something
+      - raw: FROM
+      - raw: t2
+      - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_as_statement:
@@ -218,57 +198,37 @@ file:
                   identifier: t2
 - statement_terminator: ;
 - statement:
-    create_table_as_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: t1
-    - keyword: AS
+    unparsable:
+    - raw: CREATE
+    - raw: TABLE
+    - raw: t1
+    - raw: AS
     - bracketed:
-        start_bracket: (
-        select_statement:
-          select_clause:
-            keyword: SELECT
-            select_clause_element:
-              column_reference:
-                identifier: something
-          from_clause:
-            keyword: FROM
-            from_expression:
-              from_expression_element:
-                table_expression:
-                  table_reference:
-                    identifier: t2
-        end_bracket: )
-    - keyword: WITH
-    - keyword: 'NO'
-    - keyword: DATA
+      - start_bracket: (
+      - raw: SELECT
+      - raw: something
+      - raw: FROM
+      - raw: t2
+      - end_bracket: )
+    - raw: WITH
+    - raw: 'NO'
+    - raw: DATA
 - statement_terminator: ;
 - statement:
-    create_table_as_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: t1
-    - keyword: AS
+    unparsable:
+    - raw: CREATE
+    - raw: TABLE
+    - raw: t1
+    - raw: AS
     - bracketed:
-        start_bracket: (
-        select_statement:
-          select_clause:
-            keyword: SELECT
-            select_clause_element:
-              column_reference:
-                identifier: something
-          from_clause:
-            keyword: FROM
-            from_expression:
-              from_expression_element:
-                table_expression:
-                  table_reference:
-                    identifier: t2
-        end_bracket: )
-    - keyword: WITH
-    - keyword: DATA
+      - start_bracket: (
+      - raw: SELECT
+      - raw: something
+      - raw: FROM
+      - raw: t2
+      - end_bracket: )
+    - raw: WITH
+    - raw: DATA
 - statement_terminator: ;
 - statement:
     create_table_as_statement:
@@ -385,42 +345,37 @@ file:
                   identifier: t2
 - statement_terminator: ;
 - statement:
-    create_table_as_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: t1
+    unparsable:
+    - raw: CREATE
+    - raw: TABLE
+    - raw: t1
     - bracketed:
       - start_bracket: (
-      - column_reference:
-          identifier: c1
+      - raw: c1
       - comma: ','
-      - column_reference:
-          identifier: c2
+      - raw: c2
       - comma: ','
-      - column_reference:
-          identifier: c3
+      - raw: c3
       - end_bracket: )
-    - keyword: AS
-    - values_clause:
-      - keyword: VALUES
-      - bracketed:
-        - start_bracket: (
-        - literal: "'val1'"
-        - comma: ','
-        - literal: "'val2'"
-        - comma: ','
-        - literal: "'val3'"
-        - end_bracket: )
+    - raw: AS
+    - raw: VALUES
+    - bracketed:
+      - start_bracket: (
+      - raw: "'val1'"
       - comma: ','
-      - bracketed:
-        - start_bracket: (
-        - literal: "'val4'"
-        - comma: ','
-        - literal: "'val5'"
-        - comma: ','
-        - literal: "'val6'"
-        - end_bracket: )
+      - raw: "'val2'"
+      - comma: ','
+      - raw: "'val3'"
+      - end_bracket: )
+    - comma: ','
+    - bracketed:
+      - start_bracket: (
+      - raw: "'val4'"
+      - comma: ','
+      - raw: "'val5'"
+      - comma: ','
+      - raw: "'val6'"
+      - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_as_statement:
@@ -434,19 +389,16 @@ file:
         identifier: t2
 - statement_terminator: ;
 - statement:
-    create_table_as_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: t1
-    - keyword: AS
-    - keyword: EXECUTE
-    - function:
-        function_name:
-          function_name_identifier: func
-        bracketed:
-          start_bracket: (
-          end_bracket: )
+    unparsable:
+    - raw: CREATE
+    - raw: TABLE
+    - raw: t1
+    - raw: AS
+    - raw: EXECUTE
+    - raw: func
+    - bracketed:
+        start_bracket: (
+        end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_as_statement:
@@ -472,30 +424,20 @@ file:
                   identifier: t2
 - statement_terminator: ;
 - statement:
-    create_table_as_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: t1
-    - keyword: WITH
+    unparsable:
+    - raw: CREATE
+    - raw: TABLE
+    - raw: t1
+    - raw: WITH
     - bracketed:
-        start_bracket: (
-        parameter: val
-        comparison_operator: '='
-        literal: '70'
-        end_bracket: )
-    - keyword: AS
-    - select_statement:
-        select_clause:
-          keyword: SELECT
-          select_clause_element:
-            column_reference:
-              identifier: something
-        from_clause:
-          keyword: FROM
-          from_expression:
-            from_expression_element:
-              table_expression:
-                table_reference:
-                  identifier: t2
+      - start_bracket: (
+      - raw: val
+      - raw: '='
+      - raw: '70'
+      - end_bracket: )
+    - raw: AS
+    - raw: SELECT
+    - raw: something
+    - raw: FROM
+    - raw: t2
 - statement_terminator: ;

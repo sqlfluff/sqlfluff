@@ -3,56 +3,48 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 638c93a98748612b02bb3b1d597fd79ca15389c8d37621960e066007f53618eb
+_hash: e931182b3865cc3b2927564024ff042c6adbb9a95281ff0bf3845eda99de5dbe
 file:
   statement:
     select_statement:
       select_clause:
       - keyword: SELECT
       - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: CAST
+          column_reference:
+            identifier: CAST
+          unparsable:
             bracketed:
-              start_bracket: (
-              expression:
-                literal: '25.65'
-              keyword: AS
-              data_type:
-                data_type_identifier: int
-              end_bracket: )
+            - start_bracket: (
+            - raw: '25.65'
+            - raw: AS
+            - raw: int
+            - end_bracket: )
       - comma: ','
       - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: SAFE_CAST
-            bracketed:
-              start_bracket: (
-              expression:
-                literal: 'NULL'
-              keyword: AS
-              data_type:
-                data_type_identifier: STRING
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            identifier: age_label
+          column_reference:
+            identifier: SAFE_CAST
+          unparsable:
+          - bracketed:
+            - start_bracket: (
+            - raw: 'NULL'
+            - raw: AS
+            - raw: STRING
+            - end_bracket: )
+          - raw: AS
+          - raw: age_label
       - comma: ','
       - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: day
-              keyword: FROM
-              expression:
-                column_reference:
-                  identifier: end_time
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            identifier: day
+          column_reference:
+            identifier: EXTRACT
+          unparsable:
+          - bracketed:
+            - start_bracket: (
+            - raw: day
+            - raw: FROM
+            - raw: end_time
+            - end_bracket: )
+          - raw: AS
+          - raw: day
       from_clause:
         keyword: FROM
         from_expression:

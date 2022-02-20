@@ -3,42 +3,37 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 887562d5859ca3953a11c8ce6fb685c5a2e0f8a19be37df31bd5a131dabafe52
+_hash: 68a30e213d8f78821d37545a97be7c22a96112125fa4220941d2a17719529c5c
 file:
   statement:
     set_segment:
-    - keyword: set
-    - bracketed:
-      - start_bracket: (
-      - identifier: var2
-      - comma: ','
-      - identifier: var3
-      - comma: ','
-      - identifier: var5
-      - end_bracket: )
-    - comparison_operator: '='
-    - bracketed:
-      - start_bracket: (
-      - literal: '"y"'
-      - comma: ','
+      unparsable:
+      - keyword: set
       - bracketed:
-          start_bracket: (
-          select_statement:
-            select_clause:
-              keyword: select
-              select_clause_element:
-                literal: '"x"'
-          end_bracket: )
-      - comma: ','
-      - function:
-          function_name:
-            function_name_identifier: DATE_TRUNC
-          bracketed:
-            start_bracket: (
-            expression:
-              literal: '"2000-01-01"'
-            comma: ','
-            date_part: month
-            end_bracket: )
-      - end_bracket: )
+        - start_bracket: (
+        - raw: var2
+        - comma: ','
+        - raw: var3
+        - comma: ','
+        - raw: var5
+        - end_bracket: )
+      - raw: '='
+      - bracketed:
+        - start_bracket: (
+        - raw: '"y"'
+        - comma: ','
+        - bracketed:
+          - start_bracket: (
+          - raw: select
+          - raw: '"x"'
+          - end_bracket: )
+        - comma: ','
+        - raw: DATE_TRUNC
+        - bracketed:
+          - start_bracket: (
+          - raw: '"2000-01-01"'
+          - comma: ','
+          - raw: month
+          - end_bracket: )
+        - end_bracket: )
   statement_terminator: ;

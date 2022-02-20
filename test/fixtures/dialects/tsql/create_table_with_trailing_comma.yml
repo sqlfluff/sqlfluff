@@ -3,27 +3,19 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 64d1fe35b1f292a87f93fdc64488d02224967f2c460e436dd23fc664ab580eed
+_hash: 53fadc2f6ac0fd1d96295ba7a78c52f61de4158b5d0fd53511abcf271cad8236
 file:
-  batch:
-    statement:
-      create_table_statement:
-      - keyword: CREATE
-      - keyword: TABLE
-      - table_reference:
-        - identifier: '[dbo]'
-        - dot: .
-        - identifier: '[test]'
-      - bracketed:
-          start_bracket: (
-          column_definition:
-            identifier: '[Column B]'
-            data_type:
-              identifier: '[varchar]'
-              bracketed:
-                start_bracket: (
-                expression:
-                  literal: '100'
-                end_bracket: )
-          comma: ','
-          end_bracket: )
+  unparsable:
+  - raw: CREATE
+  - raw: TABLE
+  - raw: '[dbo]'
+  - raw: .
+  - raw: '[test]'
+  - raw: (
+  - raw: '[Column B]'
+  - raw: '[varchar]'
+  - raw: (
+  - raw: '100'
+  - raw: )
+  - comma: ','
+  - raw: )

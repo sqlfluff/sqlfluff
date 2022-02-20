@@ -3,27 +3,22 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9c2cfa717fbdc9399919fcf0063171f102f6fe35b1ec89f59bac3f4856ed99f1
+_hash: fadef52c3325b0ee2092ed54841509de0a2fc688efe69a89b87308fd0211efc9
 file:
 - statement:
-    if_then_statement:
-    - keyword: if
-    - expression:
-        bracketed:
-          start_bracket: (
-          expression:
-            column_reference:
-              identifier: x
-            comparison_operator: '='
-            literal: '0'
-          end_bracket: )
-    - keyword: then
-    - statement:
-        set_statement:
-          keyword: set
-          variable: '@errmsg'
-          comparison_operator: '='
-          literal: "''"
+    unparsable:
+    - raw: if
+    - bracketed:
+      - start_bracket: (
+      - raw: x
+      - raw: '='
+      - raw: '0'
+      - end_bracket: )
+    - raw: then
+    - raw: set
+    - raw: '@errmsg'
+    - raw: '='
+    - raw: "''"
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -33,24 +28,19 @@ file:
           literal: '1'
 - statement_terminator: ;
 - statement:
-    if_then_statement:
-    - keyword: elseif
-    - expression:
-        bracketed:
-          start_bracket: (
-          expression:
-            column_reference:
-              identifier: x
-            comparison_operator: '='
-            literal: '1'
-          end_bracket: )
-    - keyword: then
-    - statement:
-        set_statement:
-        - keyword: set
-        - variable: _test
-        - comparison_operator: '='
-        - variable: '1'
+    unparsable:
+    - raw: elseif
+    - bracketed:
+      - start_bracket: (
+      - raw: x
+      - raw: '='
+      - raw: '1'
+      - end_bracket: )
+    - raw: then
+    - raw: set
+    - raw: _test
+    - raw: '='
+    - raw: '1'
 - statement_terminator: ;
 - statement:
     if_then_statement:

@@ -3,52 +3,36 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6147ddf725ee9f91035172cca88d12fea5136b445c11b2ba83fc66c674c0e720
+_hash: 3223cf010de2b5877e081e97c9e66e2a65affc389588ada8ceddbb1782d62452
 file:
 - statement:
-    if_then_statement:
-    - keyword: if
-    - expression:
-        bracketed:
-          start_bracket: (
-          expression:
-          - bracketed:
-              start_bracket: (
-              expression:
-                select_statement:
-                  select_clause:
-                    keyword: select
-                    select_clause_element:
-                      function:
-                        function_name:
-                          function_name_identifier: count
-                        bracketed:
-                          start_bracket: (
-                          star: '*'
-                          end_bracket: )
-                  from_clause:
-                    keyword: from
-                    from_expression:
-                      from_expression_element:
-                        table_expression:
-                          table_reference:
-                            identifier: table
-              end_bracket: )
-          - comparison_operator: '='
-          - literal: '0'
-          - binary_operator: and
-          - column_reference:
-              identifier: x
-          - comparison_operator: '='
-          - literal: '1'
-          end_bracket: )
-    - keyword: then
-    - statement:
-        set_statement:
-          keyword: set
-          variable: '@errmsg'
-          comparison_operator: '='
-          literal: "''"
+    unparsable:
+    - raw: if
+    - bracketed:
+      - start_bracket: (
+      - bracketed:
+        - start_bracket: (
+        - raw: select
+        - raw: count
+        - bracketed:
+            start_bracket: (
+            raw: '*'
+            end_bracket: )
+        - raw: from
+        - raw: table
+        - end_bracket: )
+      - raw: '='
+      - raw: '0'
+      - raw: and
+      - raw: x
+      - raw: '='
+      - raw: '1'
+      - end_bracket: )
+    - raw: then
+    - raw: set
+    - raw: '@errmsg'
+    - raw: '='
+    - raw: "''"
 - statement_terminator: ;
 - statement:
     select_statement:

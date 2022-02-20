@@ -3,50 +3,42 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3f82c29898bfee1f67c347a1b44c01d7613e1ab5f8455aedb0bf5c43acd3e2f5
+_hash: 7a52d6dd2c3e9ef26017a430225033acb4a210ce07a25ee3e232829c5e9bc2d6
 file:
 - statement:
     select_statement:
       select_clause:
       - keyword: SELECT
       - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: ADD_MONTHS
-            bracketed:
+          column_reference:
+            identifier: ADD_MONTHS
+          unparsable:
+          - bracketed:
             - start_bracket: (
-            - expression:
-                column_reference:
-                - identifier: abandono
-                - dot: .
-                - identifier: FEC_CIERRE_EST
+            - raw: abandono
+            - raw: .
+            - raw: FEC_CIERRE_EST
             - comma: ','
-            - expression:
-                numeric_literal:
-                  binary_operator: '-'
-                  literal: '12'
+            - raw: '-'
+            - raw: '12'
             - end_bracket: )
-          alias_expression:
-            keyword: AS
-            identifier: FEC_CIERRE_EST_ULT12
+          - raw: AS
+          - raw: FEC_CIERRE_EST_ULT12
       - comma: ','
       - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: CAST
-            bracketed:
-              start_bracket: (
-              expression:
-                literal: "'200010'"
-              keyword: AS
-              td_internal_data_type:
-                data_type_identifier: DATE
-                keyword: FORMAT
-                literal: "'YYYYMM'"
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            identifier: CAST_STATEMENT_EXAMPLE
+          column_reference:
+            identifier: CAST
+          unparsable:
+          - bracketed:
+            - start_bracket: (
+            - raw: "'200010'"
+            - raw: AS
+            - raw: DATE
+            - raw: FORMAT
+            - raw: "'YYYYMM'"
+            - end_bracket: )
+          - raw: AS
+          - raw: CAST_STATEMENT_EXAMPLE
       from_clause:
         keyword: FROM
         from_expression:

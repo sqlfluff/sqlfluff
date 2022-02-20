@@ -3,27 +3,24 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 76e4a34314ab6b075231e9f5bc6627ac74e69ef55375dfafc589a72920597658
+_hash: 3a7e7a8cb48c40262b3bef24b81bea5781c7ff272b56fc6b165d31fcd32e24f3
 file:
   statement:
     select_statement:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: ARRAY_AGG
-            bracketed:
+          column_reference:
+            identifier: ARRAY_AGG
+          unparsable:
+          - bracketed:
             - start_bracket: (
-            - expression:
-                column_reference:
-                  identifier: x
-            - keyword: IGNORE
-            - keyword: NULLS
+            - raw: x
+            - raw: IGNORE
+            - raw: NULLS
             - end_bracket: )
-          alias_expression:
-            keyword: AS
-            identifier: array_agg
+          - raw: AS
+          - raw: array_agg
       from_clause:
         keyword: FROM
         from_expression:

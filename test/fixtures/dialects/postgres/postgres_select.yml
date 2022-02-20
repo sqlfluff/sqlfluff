@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 923953f5f41348d00cbe0e89c511b97a0c413075416949df87e5755c0b98a3c9
+_hash: 5912f88579f8081572818e4a8d083ad42256dfcd8df1e9b6fac93de395f7866f
 file:
 - statement:
     select_statement:
@@ -29,22 +29,17 @@ file:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: DATEADD
+          column_reference:
+            identifier: DATEADD
+          unparsable:
             bracketed:
             - start_bracket: (
-            - expression:
-                column_reference:
-                  identifier: day
+            - raw: day
             - comma: ','
-            - expression:
-                numeric_literal:
-                  binary_operator: '-'
-                  literal: '2'
+            - raw: '-'
+            - raw: '2'
             - comma: ','
-            - expression:
-                bare_function: current_date
+            - raw: current_date
             - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -331,23 +326,17 @@ file:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          expression:
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  identifier: c_timestamp
-                time_zone_grammar:
-                - keyword: AT
-                - keyword: TIME
-                - keyword: ZONE
-                - literal: "'Africa/Cairo'"
-              end_bracket: )
-            cast_expression:
-              casting_operator: '::'
-              data_type:
-                datetime_type_identifier:
-                  keyword: time
+          unparsable:
+          - bracketed:
+            - start_bracket: (
+            - raw: c_timestamp
+            - raw: AT
+            - raw: TIME
+            - raw: ZONE
+            - raw: "'Africa/Cairo'"
+            - end_bracket: )
+          - raw: '::'
+          - raw: time
       from_clause:
         keyword: FROM
         from_expression:

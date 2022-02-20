@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 39a70ed436010e63e75b910bfe034290508e9e89cad6dad44a52b26158e52ce6
+_hash: a016b6b8e40878db9cdca2d3e9f12c0696d38cf3d7a8f0dd0b8ccb1a17d62ed3
 file:
 - statement:
     delete_statement:
@@ -34,18 +34,14 @@ file:
     - table_reference:
         identifier: staff
     - preferring_clause:
-        keyword: PREFERRING
-        bracketed:
-          start_bracket: (
-          preference_term:
-            keyword: LOW
-            column_reference:
-              identifier: change_date
-          end_bracket: )
-        partitionby_clause:
-        - keyword: PARTITION
-        - keyword: BY
-        - expression:
-            column_reference:
-              identifier: emp_no
+        unparsable:
+        - keyword: PREFERRING
+        - bracketed:
+          - start_bracket: (
+          - raw: LOW
+          - raw: change_date
+          - end_bracket: )
+        - raw: PARTITION
+        - raw: BY
+        - raw: emp_no
 - statement_terminator: ;

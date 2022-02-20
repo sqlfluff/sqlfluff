@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5ffbd4722e9644ee5869aec87685fef9b6692871e3d4d7959c41be398247e5bf
+_hash: 699210a22ab2b31a5c92107f165c2040266c1a20bfa6c53825f16999372d327e
 file:
   statement:
     select_statement:
@@ -22,46 +22,34 @@ file:
             identifier: total_number_of_affected_accounts
       - comma: ','
       - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: SUM
-            bracketed:
+          column_reference:
+            identifier: SUM
+          unparsable:
+          - bracketed:
               start_bracket: (
-              expression:
-                column_reference:
-                  identifier: total_number_of_affected_accounts
+              raw: total_number_of_affected_accounts
               end_bracket: )
-            over_clause:
-              keyword: OVER
-              bracketed:
-                start_bracket: (
-                window_specification:
-                  partitionby_clause:
-                  - keyword: PARTITION
-                  - keyword: BY
-                  - expression:
-                      column_reference:
-                        identifier: is_sensitive
-                  orderby_clause:
-                  - keyword: ORDER
-                  - keyword: BY
-                  - column_reference:
-                      identifier: is_sensitive
-                  - comma: ','
-                  - column_reference:
-                      identifier: breach_date
-                  frame_clause:
-                  - keyword: ROWS
-                  - keyword: BETWEEN
-                  - keyword: UNBOUNDED
-                  - keyword: PRECEDING
-                  - binary_operator: AND
-                  - keyword: CURRENT
-                  - keyword: ROW
-                end_bracket: )
-          alias_expression:
-            keyword: AS
-            identifier: cumulative_number_of_affected_accounts
+          - raw: OVER
+          - bracketed:
+            - start_bracket: (
+            - raw: PARTITION
+            - raw: BY
+            - raw: is_sensitive
+            - raw: ORDER
+            - raw: BY
+            - raw: is_sensitive
+            - comma: ','
+            - raw: breach_date
+            - raw: ROWS
+            - raw: BETWEEN
+            - raw: UNBOUNDED
+            - raw: PRECEDING
+            - raw: AND
+            - raw: CURRENT
+            - raw: ROW
+            - end_bracket: )
+          - raw: AS
+          - raw: cumulative_number_of_affected_accounts
       from_clause:
         keyword: FROM
         from_expression:

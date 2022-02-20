@@ -3,41 +3,35 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 462a1619d04fbcf97e7e8a254f0e84d3d1e5ccf5f3c02b6194e4d0f0d5164d66
+_hash: 6dfcbc3b3729d790504071baa3ded9ec4e33ef26c78b6f08ffb2750c5833a69f
 file:
   statement:
     select_statement:
       select_clause:
       - keyword: SELECT
       - select_clause_element:
-          function:
-            function_name:
-              keyword: ADD_DAYS
+          column_reference:
+            identifier: ADD_DAYS
+          unparsable:
             bracketed:
             - start_bracket: (
-            - expression:
-                keyword: DATE
-                literal: "'2000-02-28'"
+            - raw: DATE
+            - raw: "'2000-02-28'"
             - comma: ','
-            - expression:
-                literal: '1'
+            - raw: '1'
             - end_bracket: )
-          alias_expression:
-            identifier: AD1
+            raw: AD1
       - comma: ','
       - select_clause_element:
-          function:
-            function_name:
-              keyword: ADD_DAYS
+          column_reference:
+            identifier: ADD_DAYS
+          unparsable:
             bracketed:
             - start_bracket: (
-            - expression:
-                keyword: TIMESTAMP
-                literal: "'2001-02-28 12:00:00'"
+            - raw: TIMESTAMP
+            - raw: "'2001-02-28 12:00:00'"
             - comma: ','
-            - expression:
-                literal: '1'
+            - raw: '1'
             - end_bracket: )
-          alias_expression:
-            identifier: AD2
+            raw: AD2
   statement_terminator: ;

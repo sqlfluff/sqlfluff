@@ -3,59 +3,47 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e24737e642c299665d6431069fe39ed65fcd2cf7f28707b993c9580007690dce
+_hash: 5ceaf4bf5d6b425a6333d295f71a8ffb6a7a7db198e17413e2a516c220e7462e
 file:
   statement:
     select_statement:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          expression:
-            case_expression:
-            - keyword: CASE
-            - keyword: WHEN
-            - expression:
-              - literal: '1'
-              - comparison_operator: '='
-              - literal: '2'
-            - keyword: THEN
-            - expression:
-                literal: '3'
-            - keyword: WHEN
-            - expression:
-              - literal: '4'
-              - comparison_operator: '>'
-              - literal: '3'
-            - keyword: THEN
-            - expression:
-              - literal: '5'
-              - binary_operator: +
-              - literal: '2'
-            - keyword: WHEN
-            - expression:
-                column_reference:
-                  identifier: some_var
-                keyword: IN
-                bracketed:
-                - start_bracket: (
-                - literal: '1'
-                - comma: ','
-                - literal: '2'
-                - comma: ','
-                - literal: '3'
-                - end_bracket: )
-            - keyword: then
-            - expression:
-                column_reference:
-                  identifier: '"nothing"'
-            - keyword: ELSE
-            - expression:
-                column_reference:
-                  identifier: '"boo"'
-            - keyword: END
-          alias_expression:
-            keyword: as
-            identifier: a_case_statement
+          unparsable:
+          - raw: CASE
+          - raw: WHEN
+          - raw: '1'
+          - raw: '='
+          - raw: '2'
+          - raw: THEN
+          - raw: '3'
+          - raw: WHEN
+          - raw: '4'
+          - raw: '>'
+          - raw: '3'
+          - raw: THEN
+          - raw: '5'
+          - raw: +
+          - raw: '2'
+          - raw: WHEN
+          - raw: some_var
+          - raw: IN
+          - bracketed:
+            - start_bracket: (
+            - raw: '1'
+            - comma: ','
+            - raw: '2'
+            - comma: ','
+            - raw: '3'
+            - end_bracket: )
+          - raw: then
+          - raw: '"nothing"'
+          - raw: ELSE
+          - raw: '"boo"'
+          - raw: END
+          - raw: as
+          - raw: a_case_statement
       from_clause:
         keyword: FROM
         from_expression:

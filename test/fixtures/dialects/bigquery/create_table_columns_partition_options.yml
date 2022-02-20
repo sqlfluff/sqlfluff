@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 74c6509baa982c24d9393c80dee2d2bd9160e6eb4845e8fd4a9fa6a94349f383
+_hash: 939dc61fb815c6eebafaea71c32ce095f751da1eaca557dfcde9e56ec9b751f4
 file:
   statement:
     create_table_statement:
@@ -27,15 +27,13 @@ file:
       - keyword: PARTITION
       - keyword: BY
       - expression:
-          function:
-            function_name:
-              function_name_identifier: DATE
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  identifier: x
-              end_bracket: )
+          column_reference:
+            identifier: DATE
+      - unparsable:
+          bracketed:
+            start_bracket: (
+            raw: x
+            end_bracket: )
     - cluster_by_segment:
       - keyword: CLUSTER
       - keyword: BY

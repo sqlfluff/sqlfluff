@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4943faa850b25ee49ce118231398cefde60879ceae13dd6be3d26155743e8383
+_hash: 5764f633f2c86d12fa0078b5953faa6d8436c1be35cd0f8ddbdad19618fa6c1a
 file:
 - statement:
     create_table_statement:
@@ -48,13 +48,12 @@ file:
     - keyword: EXISTS
     - table_reference:
         identifier: table_name
-    - bracketed:
-        start_bracket: (
-        column_definition:
-          identifier: col1
-          data_type:
-            data_type_identifier: VARCHAR
-        end_bracket: )
+    unparsable:
+      bracketed:
+      - start_bracket: (
+      - raw: col1
+      - raw: VARCHAR
+      - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:
@@ -62,13 +61,12 @@ file:
     - keyword: table
     - table_reference:
         identifier: mytable
-    - bracketed:
-        start_bracket: (
-        column_definition:
-          identifier: amount
-          data_type:
-            data_type_identifier: number
-        end_bracket: )
+    unparsable:
+      bracketed:
+      - start_bracket: (
+      - raw: amount
+      - raw: number
+      - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:
@@ -114,13 +112,12 @@ file:
     - keyword: table
     - table_reference:
         identifier: demo_temporary
-    - bracketed:
-        start_bracket: (
-        column_definition:
-          identifier: i
-          data_type:
-            data_type_identifier: integer
-        end_bracket: )
+    unparsable:
+      bracketed:
+      - start_bracket: (
+      - raw: i
+      - raw: integer
+      - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:
@@ -129,13 +126,12 @@ file:
     - keyword: table
     - table_reference:
         identifier: demo_temp
-    - bracketed:
-        start_bracket: (
-        column_definition:
-          identifier: i
-          data_type:
-            data_type_identifier: integer
-        end_bracket: )
+    unparsable:
+      bracketed:
+      - start_bracket: (
+      - raw: i
+      - raw: integer
+      - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:
@@ -145,13 +141,12 @@ file:
     - keyword: table
     - table_reference:
         identifier: demo_local_temporary
-    - bracketed:
-        start_bracket: (
-        column_definition:
-          identifier: i
-          data_type:
-            data_type_identifier: integer
-        end_bracket: )
+    unparsable:
+      bracketed:
+      - start_bracket: (
+      - raw: i
+      - raw: integer
+      - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:
@@ -161,13 +156,12 @@ file:
     - keyword: table
     - table_reference:
         identifier: demo_local_temp
-    - bracketed:
-        start_bracket: (
-        column_definition:
-          identifier: i
-          data_type:
-            data_type_identifier: integer
-        end_bracket: )
+    unparsable:
+      bracketed:
+      - start_bracket: (
+      - raw: i
+      - raw: integer
+      - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:
@@ -177,13 +171,12 @@ file:
     - keyword: table
     - table_reference:
         identifier: demo_global_temporary
-    - bracketed:
-        start_bracket: (
-        column_definition:
-          identifier: i
-          data_type:
-            data_type_identifier: integer
-        end_bracket: )
+    unparsable:
+      bracketed:
+      - start_bracket: (
+      - raw: i
+      - raw: integer
+      - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:
@@ -193,13 +186,12 @@ file:
     - keyword: table
     - table_reference:
         identifier: demo_global_temp
-    - bracketed:
-        start_bracket: (
-        column_definition:
-          identifier: i
-          data_type:
-            data_type_identifier: integer
-        end_bracket: )
+    unparsable:
+      bracketed:
+      - start_bracket: (
+      - raw: i
+      - raw: integer
+      - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:
@@ -208,13 +200,12 @@ file:
     - keyword: table
     - table_reference:
         identifier: demo_volatile
-    - bracketed:
-        start_bracket: (
-        column_definition:
-          identifier: i
-          data_type:
-            data_type_identifier: integer
-        end_bracket: )
+    unparsable:
+      bracketed:
+      - start_bracket: (
+      - raw: i
+      - raw: integer
+      - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:
@@ -222,55 +213,17 @@ file:
     - keyword: table
     - table_reference:
         identifier: example
-    - bracketed:
-        start_bracket: (
-        column_definition:
-          identifier: col1
-          data_type:
-            data_type_identifier: number
-        comment_clause:
-          keyword: comment
-          literal: "'a column comment'"
-        end_bracket: )
-    - comment_equals_clause:
-        keyword: comment
-        comparison_operator: '='
-        literal: "'a table comment'"
-- statement_terminator: ;
-- statement:
-    create_table_statement:
-    - keyword: create
-    - keyword: table
-    - table_reference:
-        identifier: testtable_summary
+    unparsable:
     - bracketed:
       - start_bracket: (
-      - identifier: name
-      - comma: ','
-      - identifier: summary_amount
+      - raw: col1
+      - raw: number
+      - raw: comment
+      - raw: "'a column comment'"
       - end_bracket: )
-    - keyword: as
-    - select_statement:
-        select_clause:
-        - keyword: select
-        - select_clause_element:
-            column_reference:
-              identifier: name
-        - comma: ','
-        - select_clause_element:
-            expression:
-            - column_reference:
-                identifier: amount1
-            - binary_operator: +
-            - column_reference:
-                identifier: amount2
-        from_clause:
-          keyword: from
-          from_expression:
-            from_expression_element:
-              table_expression:
-                table_reference:
-                  identifier: testtable
+    - raw: comment
+    - raw: '='
+    - raw: "'a table comment'"
 - statement_terminator: ;
 - statement:
     create_table_statement:
@@ -278,35 +231,44 @@ file:
     - keyword: table
     - table_reference:
         identifier: testtable_summary
+    unparsable:
     - bracketed:
-        start_bracket: (
-        column_definition:
-          identifier: barry
-          data_type:
-            data_type_identifier: char
-        end_bracket: )
-    - keyword: as
-    - select_statement:
-        select_clause:
-        - keyword: select
-        - select_clause_element:
-            column_reference:
-              identifier: name
-        - comma: ','
-        - select_clause_element:
-            expression:
-            - column_reference:
-                identifier: amount1
-            - binary_operator: +
-            - column_reference:
-                identifier: amount2
-        from_clause:
-          keyword: from
-          from_expression:
-            from_expression_element:
-              table_expression:
-                table_reference:
-                  identifier: testtable
+      - start_bracket: (
+      - raw: name
+      - comma: ','
+      - raw: summary_amount
+      - end_bracket: )
+    - raw: as
+    - raw: select
+    - raw: name
+    - comma: ','
+    - raw: amount1
+    - raw: +
+    - raw: amount2
+    - raw: from
+    - raw: testtable
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        identifier: testtable_summary
+    unparsable:
+    - bracketed:
+      - start_bracket: (
+      - raw: barry
+      - raw: char
+      - end_bracket: )
+    - raw: as
+    - raw: select
+    - raw: name
+    - comma: ','
+    - raw: amount1
+    - raw: +
+    - raw: amount2
+    - raw: from
+    - raw: testtable
 - statement_terminator: ;
 - statement:
     create_table_statement:
@@ -345,106 +307,63 @@ file:
     - keyword: table
     - table_reference:
         identifier: parquet_col
+    unparsable:
     - bracketed:
       - start_bracket: (
-      - column_definition:
-          identifier: custkey
-          data_type:
-            data_type_identifier: number
-          column_constraint_segment:
-            keyword: default
-            literal: 'null'
+      - raw: custkey
+      - raw: number
+      - raw: default
+      - raw: 'null'
       - comma: ','
-      - column_definition:
-          identifier: orderdate
-          data_type:
-            data_type_identifier: date
-          column_constraint_segment:
-            keyword: default
-            literal: 'null'
+      - raw: orderdate
+      - raw: date
+      - raw: default
+      - raw: 'null'
       - comma: ','
-      - column_definition:
-          identifier: orderstatus
-          data_type:
-            data_type_identifier: varchar
-            bracketed:
-              start_bracket: (
-              expression:
-                literal: '100'
-              end_bracket: )
-          column_constraint_segment:
-            keyword: default
-            literal: 'null'
+      - raw: orderstatus
+      - raw: varchar
+      - bracketed:
+          start_bracket: (
+          raw: '100'
+          end_bracket: )
+      - raw: default
+      - raw: 'null'
       - comma: ','
-      - column_definition:
-          identifier: price
-          data_type:
-            data_type_identifier: varchar
-            bracketed:
-              start_bracket: (
-              expression:
-                literal: '255'
-              end_bracket: )
+      - raw: price
+      - raw: varchar
+      - bracketed:
+          start_bracket: (
+          raw: '255'
+          end_bracket: )
       - end_bracket: )
-    - keyword: as
-    - select_statement:
-        select_clause:
-        - keyword: select
-        - select_clause_element:
-            expression:
-              column_reference:
-                identifier: $1
-              snowflake_semi_structured_expression:
-                colon: ':'
-                semi_structured_element: o_custkey
-              cast_expression:
-                casting_operator: '::'
-                data_type:
-                  data_type_identifier: number
-        - comma: ','
-        - select_clause_element:
-            expression:
-              column_reference:
-                identifier: $1
-              snowflake_semi_structured_expression:
-                colon: ':'
-                semi_structured_element: o_orderdate
-              cast_expression:
-                casting_operator: '::'
-                data_type:
-                  data_type_identifier: date
-        - comma: ','
-        - select_clause_element:
-            expression:
-              column_reference:
-                identifier: $1
-              snowflake_semi_structured_expression:
-                colon: ':'
-                semi_structured_element: o_orderstatus
-              cast_expression:
-                casting_operator: '::'
-                data_type:
-                  data_type_identifier: text
-        - comma: ','
-        - select_clause_element:
-            expression:
-              column_reference:
-                identifier: $1
-              snowflake_semi_structured_expression:
-                colon: ':'
-                semi_structured_element: o_totalprice
-              cast_expression:
-                casting_operator: '::'
-                data_type:
-                  data_type_identifier: text
-        from_clause:
-          keyword: from
-          from_expression:
-            from_expression_element:
-              table_expression:
-                internal_external_stage:
-                  literal: '@'
-                  identifier: my_stage
+    - raw: as
+    - raw: select
+    - raw: $1
+    - raw: ':'
+    - raw: o_custkey
+    - raw: '::'
+    - raw: number
+    - comma: ','
+    - raw: $1
+    - raw: ':'
+    - raw: o_orderdate
+    - raw: '::'
+    - raw: date
+    - comma: ','
+    - raw: $1
+    - raw: ':'
+    - raw: o_orderstatus
+    - raw: '::'
+    - raw: text
+    - comma: ','
+    - raw: $1
+    - raw: ':'
+    - raw: o_totalprice
+    - raw: '::'
+    - raw: text
+    - raw: from
+    - raw: '@'
+    - raw: my_stage
 - statement_terminator: ;
 - statement:
     create_table_statement:
@@ -452,36 +371,26 @@ file:
     - keyword: table
     - table_reference:
         identifier: collation_demo
-    - bracketed:
+    unparsable:
+      bracketed:
       - start_bracket: (
-      - column_definition:
-          identifier: uncollated_phrase
-          data_type:
-            data_type_identifier: varchar
+      - raw: uncollated_phrase
+      - raw: varchar
       - comma: ','
-      - column_definition:
-          identifier: utf8_phrase
-          data_type:
-            data_type_identifier: varchar
-          column_constraint_segment:
-            keyword: collate
-            literal: "'utf8'"
+      - raw: utf8_phrase
+      - raw: varchar
+      - raw: collate
+      - raw: "'utf8'"
       - comma: ','
-      - column_definition:
-          identifier: english_phrase
-          data_type:
-            data_type_identifier: varchar
-          column_constraint_segment:
-            keyword: collate
-            literal: "'en'"
+      - raw: english_phrase
+      - raw: varchar
+      - raw: collate
+      - raw: "'en'"
       - comma: ','
-      - column_definition:
-          identifier: spanish_phrase
-          data_type:
-            data_type_identifier: varchar
-          column_constraint_segment:
-            keyword: collate
-            literal: "'sp'"
+      - raw: spanish_phrase
+      - raw: varchar
+      - raw: collate
+      - raw: "'sp'"
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -490,56 +399,38 @@ file:
     - keyword: table
     - table_reference:
         identifier: mytable
-    - keyword: using
-    - keyword: template
+    unparsable:
+    - raw: using
+    - raw: template
     - bracketed:
-        start_bracket: (
-        select_statement:
-          select_clause:
-            keyword: select
-            select_clause_element:
-              function:
-                function_name:
-                  function_name_identifier: array_agg
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    function:
-                      function_name:
-                        function_name_identifier: object_construct
-                      bracketed:
-                        start_bracket: (
-                        star: '*'
-                        end_bracket: )
-                  end_bracket: )
-          from_clause:
-            keyword: from
-            from_expression:
-              from_expression_element:
-                table_expression:
-                  function:
-                    function_name:
-                      function_name_identifier: table
-                    bracketed:
-                      start_bracket: (
-                      expression:
-                        function:
-                          function_name:
-                            function_name_identifier: infer_schema
-                          bracketed:
-                          - start_bracket: (
-                          - snowflake_keyword_expression:
-                              parameter: location
-                              parameter_assigner: =>
-                              literal: "'@mystage'"
-                          - comma: ','
-                          - snowflake_keyword_expression:
-                              parameter: file_format
-                              parameter_assigner: =>
-                              literal: "'my_parquet_format'"
-                          - end_bracket: )
-                      end_bracket: )
-        end_bracket: )
+      - start_bracket: (
+      - raw: select
+      - raw: array_agg
+      - bracketed:
+          start_bracket: (
+          raw: object_construct
+          bracketed:
+            start_bracket: (
+            raw: '*'
+            end_bracket: )
+          end_bracket: )
+      - raw: from
+      - raw: table
+      - bracketed:
+          start_bracket: (
+          raw: infer_schema
+          bracketed:
+          - start_bracket: (
+          - raw: location
+          - raw: =>
+          - raw: "'@mystage'"
+          - comma: ','
+          - raw: file_format
+          - raw: =>
+          - raw: "'my_parquet_format'"
+          - end_bracket: )
+          end_bracket: )
+      - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:
@@ -547,13 +438,12 @@ file:
     - keyword: table
     - table_reference:
         identifier: dollar_sign_table
-    - bracketed:
-        start_bracket: (
-        column_definition:
-          identifier: foo$bar
-          data_type:
-            data_type_identifier: boolean
-        end_bracket: )
+    unparsable:
+      bracketed:
+      - start_bracket: (
+      - raw: foo$bar
+      - raw: boolean
+      - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:
@@ -563,13 +453,12 @@ file:
       - identifier: dollar_sign_schema
       - dot: .
       - identifier: dollar_sign_table
-    - bracketed:
-        start_bracket: (
-        column_definition:
-          identifier: foo$bar
-          data_type:
-            data_type_identifier: boolean
-        end_bracket: )
+    unparsable:
+      bracketed:
+      - start_bracket: (
+      - raw: foo$bar
+      - raw: boolean
+      - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:
@@ -577,51 +466,40 @@ file:
     - keyword: TABLE
     - table_reference:
         identifier: timestamp_column_default_value_demo
-    - bracketed:
+    unparsable:
+      bracketed:
       - start_bracket: (
-      - column_definition:
-          identifier: timestamp_col1
-          data_type:
-            data_type_identifier: TIMESTAMP_TZ
-          column_constraint_segment:
-          - keyword: NOT
-          - keyword: 'NULL'
-          - keyword: DEFAULT
-          - keyword: CURRENT_TIMESTAMP
+      - raw: timestamp_col1
+      - raw: TIMESTAMP_TZ
+      - raw: NOT
+      - raw: 'NULL'
+      - raw: DEFAULT
+      - raw: CURRENT_TIMESTAMP
       - comma: ','
-      - column_definition:
-          identifier: timestamp_col2
-          data_type:
-            data_type_identifier: TIMESTAMP_TZ
-          column_constraint_segment:
-          - keyword: DEFAULT
-          - keyword: CURRENT_TIMESTAMP
-          - bracketed:
-              start_bracket: (
-              end_bracket: )
+      - raw: timestamp_col2
+      - raw: TIMESTAMP_TZ
+      - raw: DEFAULT
+      - raw: CURRENT_TIMESTAMP
+      - bracketed:
+          start_bracket: (
+          end_bracket: )
       - comma: ','
-      - column_definition:
-          identifier: timestamp_col3
-          data_type:
-            data_type_identifier: TIMESTAMP_TZ
-          column_constraint_segment:
-          - keyword: DEFAULT
-          - keyword: CURRENT_TIMESTAMP
-          - bracketed:
-              start_bracket: (
-              literal: '2'
-              end_bracket: )
+      - raw: timestamp_col3
+      - raw: TIMESTAMP_TZ
+      - raw: DEFAULT
+      - raw: CURRENT_TIMESTAMP
+      - bracketed:
+          start_bracket: (
+          raw: '2'
+          end_bracket: )
       - comma: ','
-      - column_definition:
-          identifier: sysdate_col4
-          data_type:
-            data_type_identifier: TIMESTAMP_TZ
-          column_constraint_segment:
-          - keyword: DEFAULT
-          - keyword: SYSDATE
-          - bracketed:
-              start_bracket: (
-              end_bracket: )
+      - raw: sysdate_col4
+      - raw: TIMESTAMP_TZ
+      - raw: DEFAULT
+      - raw: SYSDATE
+      - bracketed:
+          start_bracket: (
+          end_bracket: )
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -630,21 +508,19 @@ file:
     - keyword: table
     - table_reference:
         identifier: test_table
-    - bracketed:
-        start_bracket: (
-        column_definition:
-          identifier: test_column
-          data_type:
-            data_type_identifier: NUMBER
-          column_constraint_segment:
-            keyword: autoincrement
-            bracketed:
-            - start_bracket: (
-            - literal: '0'
-            - comma: ','
-            - literal: '1'
-            - end_bracket: )
-        end_bracket: )
+    unparsable:
+      bracketed:
+      - start_bracket: (
+      - raw: test_column
+      - raw: NUMBER
+      - raw: autoincrement
+      - bracketed:
+        - start_bracket: (
+        - raw: '0'
+        - comma: ','
+        - raw: '1'
+        - end_bracket: )
+      - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:
@@ -654,21 +530,19 @@ file:
       - identifier: test_schema
       - dot: .
       - identifier: test_table
-    - bracketed:
-        start_bracket: (
-        column_definition:
-          identifier: test_column
-          data_type:
-            data_type_identifier: NUMBER
-          column_constraint_segment:
-            keyword: autoincrement
-            bracketed:
-            - start_bracket: (
-            - literal: '0'
-            - comma: ','
-            - literal: '1'
-            - end_bracket: )
-        end_bracket: )
+    unparsable:
+      bracketed:
+      - start_bracket: (
+      - raw: test_column
+      - raw: NUMBER
+      - raw: autoincrement
+      - bracketed:
+        - start_bracket: (
+        - raw: '0'
+        - comma: ','
+        - raw: '1'
+        - end_bracket: )
+      - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:
@@ -680,21 +554,19 @@ file:
       - identifier: test_schema
       - dot: .
       - identifier: test_table
-    - bracketed:
-        start_bracket: (
-        column_definition:
-          identifier: test_column
-          data_type:
-            data_type_identifier: NUMBER
-          column_constraint_segment:
-            keyword: autoincrement
-            bracketed:
-            - start_bracket: (
-            - literal: '0'
-            - comma: ','
-            - literal: '1'
-            - end_bracket: )
-        end_bracket: )
+    unparsable:
+      bracketed:
+      - start_bracket: (
+      - raw: test_column
+      - raw: NUMBER
+      - raw: autoincrement
+      - bracketed:
+        - start_bracket: (
+        - raw: '0'
+        - comma: ','
+        - raw: '1'
+        - end_bracket: )
+      - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:
@@ -704,13 +576,11 @@ file:
       - identifier: test_schema
       - dot: .
       - identifier: test_table
-    - bracketed:
-        start_bracket: (
-        column_definition:
-          identifier: test_column
-          data_type:
-            data_type_identifier: INTEGER
-          column_constraint_segment:
-            keyword: AUTOINCREMENT
-        end_bracket: )
+    unparsable:
+      bracketed:
+      - start_bracket: (
+      - raw: test_column
+      - raw: INTEGER
+      - raw: AUTOINCREMENT
+      - end_bracket: )
 - statement_terminator: ;

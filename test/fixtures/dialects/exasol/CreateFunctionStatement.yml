@@ -3,465 +3,413 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 82a7e047718b1f973395d09965806bbc8bc319713d4dc32b931f6e6f4b16eb03
+_hash: 57a005b21c72d94a6b7380595ff68da16919a3faca43b951cbfa001756e4ea68
 file:
 - statement:
-    create_function_statement:
-    - keyword: CREATE
-    - binary_operator: OR
-    - keyword: REPLACE
-    - keyword: FUNCTION
-    - function_reference:
-        identifier: percentage
+    unparsable:
+    - raw: CREATE
+    - raw: OR
+    - raw: REPLACE
+    - raw: FUNCTION
+    - raw: percentage
     - bracketed:
       - start_bracket: (
-      - identifier: fraction
-      - data_type:
-          keyword: DECIMAL
+      - raw: fraction
+      - raw: DECIMAL
       - comma: ','
-      - identifier: entirety
-      - data_type:
-          keyword: DECIMAL
+      - raw: entirety
+      - raw: DECIMAL
       - end_bracket: )
-    - keyword: RETURN
-    - data_type:
-        keyword: VARCHAR
-        bracketed:
-          start_bracket: (
-          literal: '10'
-          end_bracket: )
-    - keyword: IS
-    - variable: res
-    - data_type:
-        keyword: DECIMAL
-    - statement_terminator: ;
-    - keyword: BEGIN
-    - function_body:
-        function_assignment:
-          variable: res
-          assignment_operator: :=
-          expression:
-            bracketed:
-              start_bracket: (
-              expression:
-                literal: '100'
-                binary_operator: '*'
-                column_reference:
-                  identifier: fraction
-              end_bracket: )
-            binary_operator: /
-            column_reference:
-              identifier: entirety
-          statement_terminator: ;
-    - keyword: RETURN
-    - expression:
-        column_reference:
-          identifier: res
-        binary_operator: '||'
-        literal: "' %'"
-    - statement_terminator: ;
-    - keyword: END
-    - function_reference:
-        identifier: percentage
-    - statement_terminator: ;
-- function_script_terminator: /
+    - raw: RETURN
+    - raw: VARCHAR
+    - bracketed:
+        start_bracket: (
+        raw: '10'
+        end_bracket: )
+    - raw: IS
+    - raw: res
+    - raw: DECIMAL
+- statement_terminator: ;
 - statement:
-    create_function_statement:
-    - keyword: CREATE
-    - keyword: FUNCTION
-    - function_reference:
-        identifier: hello
+    unparsable:
+    - raw: BEGIN
+    - raw: res
+    - walrus_operator: :=
+    - bracketed:
+      - start_bracket: (
+      - raw: '100'
+      - raw: '*'
+      - raw: fraction
+      - end_bracket: )
+    - raw: /
+    - raw: entirety
+- statement_terminator: ;
+- statement:
+    unparsable:
+    - raw: RETURN
+    - raw: res
+    - raw: '||'
+    - raw: "' %'"
+- statement_terminator: ;
+- statement:
+    unparsable:
+    - raw: END
+    - raw: percentage
+- statement_terminator: ;
+- statement:
+    unparsable:
+    - function_script_terminator: /
+    - raw: CREATE
+    - raw: FUNCTION
+    - raw: hello
     - bracketed:
         start_bracket: (
         end_bracket: )
-    - keyword: RETURN
-    - data_type:
-        keyword: VARCHAR
-        bracketed:
-          start_bracket: (
-          literal: '10'
-          end_bracket: )
-    - keyword: AS
-    - variable: res
-    - data_type:
-        keyword: DECIMAL
-    - statement_terminator: ;
-    - keyword: BEGIN
-    - function_body:
-        function_assignment:
-          variable: res
-          assignment_operator: :=
-          function:
-            function_name:
-              identifier: hello
-              dot: .
-              function_name_identifier: world
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  identifier: '"no"'
-              end_bracket: )
-          statement_terminator: ;
-    - keyword: RETURN
-    - expression:
-        literal: "'HELLO'"
-    - statement_terminator: ;
-    - keyword: END
-    - function_reference:
-        identifier: hello
-    - statement_terminator: ;
-- function_script_terminator: /
+    - raw: RETURN
+    - raw: VARCHAR
+    - bracketed:
+        start_bracket: (
+        raw: '10'
+        end_bracket: )
+    - raw: AS
+    - raw: res
+    - raw: DECIMAL
+- statement_terminator: ;
 - statement:
-    create_function_statement:
-    - keyword: CREATE
-    - keyword: FUNCTION
-    - function_reference:
-        identifier: case_function
+    unparsable:
+    - raw: BEGIN
+    - raw: res
+    - walrus_operator: :=
+    - raw: hello
+    - raw: .
+    - raw: world
+    - bracketed:
+        start_bracket: (
+        raw: '"no"'
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    unparsable:
+    - raw: RETURN
+    - raw: "'HELLO'"
+- statement_terminator: ;
+- statement:
+    unparsable:
+    - raw: END
+    - raw: hello
+- statement_terminator: ;
+- statement:
+    unparsable:
+    - function_script_terminator: /
+    - raw: CREATE
+    - raw: FUNCTION
+    - raw: case_function
     - bracketed:
         start_bracket: (
         end_bracket: )
-    - keyword: RETURN
-    - data_type:
-        keyword: VARCHAR
-        bracketed:
-          start_bracket: (
-          literal: '10'
-          end_bracket: )
-    - keyword: AS
-    - variable: res
-    - data_type:
-        keyword: DECIMAL
-    - statement_terminator: ;
-    - keyword: BEGIN
-    - function_body:
-        function_assignment:
-          variable: res
-          assignment_operator: :=
-          expression:
-            case_expression:
-            - keyword: CASE
-            - keyword: WHEN
-            - expression:
-                column_reference:
-                  identifier: input_variable
-                comparison_operator: <
-                literal: '0'
-            - keyword: THEN
-            - expression:
-                literal: '0'
-            - keyword: ELSE
-            - expression:
-                column_reference:
-                  identifier: input_variable
-            - keyword: END
-          statement_terminator: ;
-    - keyword: RETURN
-    - expression:
-        column_reference:
-          identifier: res
-    - statement_terminator: ;
-    - keyword: END
-    - function_reference:
-        identifier: case_function
-    - statement_terminator: ;
-- function_script_terminator: /
+    - raw: RETURN
+    - raw: VARCHAR
+    - bracketed:
+        start_bracket: (
+        raw: '10'
+        end_bracket: )
+    - raw: AS
+    - raw: res
+    - raw: DECIMAL
+- statement_terminator: ;
 - statement:
-    create_function_statement:
-    - keyword: CREATE
-    - keyword: FUNCTION
-    - function_reference:
-        identifier: assignment_function
+    unparsable:
+    - raw: BEGIN
+    - raw: res
+    - walrus_operator: :=
+    - raw: CASE
+    - raw: WHEN
+    - raw: input_variable
+    - raw: <
+    - raw: '0'
+    - raw: THEN
+    - raw: '0'
+    - raw: ELSE
+    - raw: input_variable
+    - raw: END
+- statement_terminator: ;
+- statement:
+    unparsable:
+    - raw: RETURN
+    - raw: res
+- statement_terminator: ;
+- statement:
+    unparsable:
+    - raw: END
+    - raw: case_function
+- statement_terminator: ;
+- statement:
+    unparsable:
+    - function_script_terminator: /
+    - raw: CREATE
+    - raw: FUNCTION
+    - raw: assignment_function
     - bracketed:
         start_bracket: (
         end_bracket: )
-    - keyword: RETURN
-    - data_type:
-        keyword: VARCHAR
-        bracketed:
-          start_bracket: (
-          literal: '10'
-          end_bracket: )
-    - keyword: AS
-    - variable: res
-    - data_type:
-        keyword: DECIMAL
-    - statement_terminator: ;
-    - keyword: BEGIN
-    - function_body:
-        function_assignment:
-          variable: res
-          assignment_operator: :=
-          literal: "'Hello World'"
-          statement_terminator: ;
-    - keyword: RETURN
-    - expression:
-        column_reference:
-          identifier: res
-    - statement_terminator: ;
-    - keyword: END
-    - function_reference:
-        identifier: assignment_function
-    - statement_terminator: ;
-- function_script_terminator: /
+    - raw: RETURN
+    - raw: VARCHAR
+    - bracketed:
+        start_bracket: (
+        raw: '10'
+        end_bracket: )
+    - raw: AS
+    - raw: res
+    - raw: DECIMAL
+- statement_terminator: ;
 - statement:
-    create_function_statement:
-    - keyword: CREATE
-    - keyword: FUNCTION
-    - function_reference:
-        identifier: if_function
+    unparsable:
+    - raw: BEGIN
+    - raw: res
+    - walrus_operator: :=
+    - raw: "'Hello World'"
+- statement_terminator: ;
+- statement:
+    unparsable:
+    - raw: RETURN
+    - raw: res
+- statement_terminator: ;
+- statement:
+    unparsable:
+    - raw: END
+    - raw: assignment_function
+- statement_terminator: ;
+- statement:
+    unparsable:
+    - function_script_terminator: /
+    - raw: CREATE
+    - raw: FUNCTION
+    - raw: if_function
     - bracketed:
         start_bracket: (
         end_bracket: )
-    - keyword: RETURN
-    - data_type:
-        keyword: VARCHAR
-        bracketed:
-          start_bracket: (
-          literal: '10'
-          end_bracket: )
-    - keyword: AS
-    - variable: res
-    - data_type:
-        keyword: DECIMAL
-    - statement_terminator: ;
-    - keyword: BEGIN
-    - function_body:
-        function_if_branch:
-        - keyword: IF
-        - expression:
-            column_reference:
-              identifier: input_variable
-            comparison_operator: '='
-            literal: '0'
-        - keyword: THEN
-        - function_body:
-            function_assignment:
-            - variable: res
-            - assignment_operator: :=
-            - variable: 'NULL'
-            - statement_terminator: ;
-        - keyword: ELSEIF
-        - expression:
-            column_reference:
-              identifier: input_variable
-            comparison_operator: '='
-            literal: '1'
-        - keyword: THEN
-        - function_body:
-            function_assignment:
-              variable: res
-              assignment_operator: :=
-              literal: "'HELLO'"
-              statement_terminator: ;
-        - keyword: ELSEIF
-        - expression:
-            column_reference:
-              identifier: input_variable
-            comparison_operator: '='
-            literal: '2'
-        - keyword: THEN
-        - function_body:
-            function_assignment:
-              variable: res
-              assignment_operator: :=
-              literal: "'HALLO'"
-              statement_terminator: ;
-        - keyword: ELSE
-        - function_body:
-            function_assignment:
-            - variable: res
-            - assignment_operator: :=
-            - variable: input_variable
-            - statement_terminator: ;
-        - keyword: END
-        - keyword: IF
-        - statement_terminator: ;
-    - keyword: RETURN
-    - expression:
-        column_reference:
-          identifier: res
-    - statement_terminator: ;
-    - keyword: END
-    - function_reference:
-        identifier: if_function
-    - statement_terminator: ;
-- function_script_terminator: /
+    - raw: RETURN
+    - raw: VARCHAR
+    - bracketed:
+        start_bracket: (
+        raw: '10'
+        end_bracket: )
+    - raw: AS
+    - raw: res
+    - raw: DECIMAL
+- statement_terminator: ;
 - statement:
-    create_function_statement:
-    - keyword: CREATE
-    - keyword: FUNCTION
-    - function_reference:
-        identifier: for_loop_function
+    unparsable:
+    - raw: BEGIN
+    - raw: IF
+    - raw: input_variable
+    - raw: '='
+    - raw: '0'
+    - raw: THEN
+    - raw: res
+    - walrus_operator: :=
+    - raw: 'NULL'
+- statement_terminator: ;
+- statement:
+    unparsable:
+    - raw: ELSEIF
+    - raw: input_variable
+    - raw: '='
+    - raw: '1'
+    - raw: THEN
+    - raw: res
+    - walrus_operator: :=
+    - raw: "'HELLO'"
+- statement_terminator: ;
+- statement:
+    unparsable:
+    - raw: ELSEIF
+    - raw: input_variable
+    - raw: '='
+    - raw: '2'
+    - raw: THEN
+    - raw: res
+    - walrus_operator: :=
+    - raw: "'HALLO'"
+- statement_terminator: ;
+- statement:
+    unparsable:
+    - raw: ELSE
+    - raw: res
+    - walrus_operator: :=
+    - raw: input_variable
+- statement_terminator: ;
+- statement:
+    unparsable:
+    - raw: END
+    - raw: IF
+- statement_terminator: ;
+- statement:
+    unparsable:
+    - raw: RETURN
+    - raw: res
+- statement_terminator: ;
+- statement:
+    unparsable:
+    - raw: END
+    - raw: if_function
+- statement_terminator: ;
+- statement:
+    unparsable:
+    - function_script_terminator: /
+    - raw: CREATE
+    - raw: FUNCTION
+    - raw: for_loop_function
     - bracketed:
         start_bracket: (
         end_bracket: )
-    - keyword: RETURN
-    - data_type:
-        keyword: VARCHAR
-        bracketed:
-          start_bracket: (
-          literal: '10'
-          end_bracket: )
-    - keyword: AS
-    - variable: res
-    - data_type:
-        keyword: DECIMAL
-    - statement_terminator: ;
-    - keyword: BEGIN
-    - function_body:
-        function_for_loop:
-        - keyword: FOR
-        - identifier: cnt
-        - assignment_operator: :=
-        - expression:
-            literal: '1'
-        - keyword: TO
-        - expression:
-            column_reference:
-              identifier: input_variable
-        - keyword: DO
-        - function_body:
-            function_assignment:
-              variable: res
-              assignment_operator: :=
-              expression:
-                column_reference:
-                  identifier: res
-                binary_operator: '*'
-                literal: '2'
-              statement_terminator: ;
-        - keyword: END
-        - keyword: FOR
-        - statement_terminator: ;
-    - keyword: RETURN
-    - expression:
-        column_reference:
-          identifier: res
-    - statement_terminator: ;
-    - keyword: END
-    - function_reference:
-        identifier: for_loop_function
-    - statement_terminator: ;
-- function_script_terminator: /
+    - raw: RETURN
+    - raw: VARCHAR
+    - bracketed:
+        start_bracket: (
+        raw: '10'
+        end_bracket: )
+    - raw: AS
+    - raw: res
+    - raw: DECIMAL
+- statement_terminator: ;
 - statement:
-    create_function_statement:
-    - keyword: CREATE
-    - keyword: FUNCTION
-    - function_reference:
-        identifier: for_loop_function2
+    unparsable:
+    - raw: BEGIN
+    - raw: FOR
+    - raw: cnt
+    - walrus_operator: :=
+    - raw: '1'
+    - raw: TO
+    - raw: input_variable
+    - raw: DO
+    - raw: res
+    - walrus_operator: :=
+    - raw: res
+    - raw: '*'
+    - raw: '2'
+- statement_terminator: ;
+- statement:
+    unparsable:
+    - raw: END
+    - raw: FOR
+- statement_terminator: ;
+- statement:
+    unparsable:
+    - raw: RETURN
+    - raw: res
+- statement_terminator: ;
+- statement:
+    unparsable:
+    - raw: END
+    - raw: for_loop_function
+- statement_terminator: ;
+- statement:
+    unparsable:
+    - function_script_terminator: /
+    - raw: CREATE
+    - raw: FUNCTION
+    - raw: for_loop_function2
     - bracketed:
         start_bracket: (
         end_bracket: )
-    - keyword: RETURN
-    - data_type:
-        keyword: VARCHAR
-        bracketed:
-          start_bracket: (
-          literal: '10'
-          end_bracket: )
-    - keyword: AS
-    - variable: res
-    - data_type:
-        keyword: DECIMAL
-    - statement_terminator: ;
-    - keyword: BEGIN
-    - function_body:
-        function_for_loop:
-        - keyword: FOR
-        - identifier: cnt
-        - keyword: IN
-        - expression:
-            literal: '1'
-        - range_operator: ..
-        - expression:
-            literal: '10'
-        - keyword: LOOP
-        - function_body:
-            function_assignment:
-              variable: res
-              assignment_operator: :=
-              expression:
-                column_reference:
-                  identifier: res
-                binary_operator: '*'
-                literal: '2'
-              statement_terminator: ;
-        - keyword: END
-        - keyword: LOOP
-        - statement_terminator: ;
-    - keyword: RETURN
-    - expression:
-        column_reference:
-          identifier: res
-    - statement_terminator: ;
-    - keyword: END
-    - function_reference:
-        identifier: for_loop_function2
-    - statement_terminator: ;
-- function_script_terminator: /
+    - raw: RETURN
+    - raw: VARCHAR
+    - bracketed:
+        start_bracket: (
+        raw: '10'
+        end_bracket: )
+    - raw: AS
+    - raw: res
+    - raw: DECIMAL
+- statement_terminator: ;
 - statement:
-    create_function_statement:
-    - keyword: CREATE
-    - keyword: FUNCTION
-    - function_reference:
-        identifier: for_loop_function3
+    unparsable:
+    - raw: BEGIN
+    - raw: FOR
+    - raw: cnt
+    - raw: IN
+    - raw: '1'
+    - raw: ..
+    - raw: '10'
+    - raw: LOOP
+    - raw: res
+    - walrus_operator: :=
+    - raw: res
+    - raw: '*'
+    - raw: '2'
+- statement_terminator: ;
+- statement:
+    unparsable:
+    - raw: END
+    - raw: LOOP
+- statement_terminator: ;
+- statement:
+    unparsable:
+    - raw: RETURN
+    - raw: res
+- statement_terminator: ;
+- statement:
+    unparsable:
+    - raw: END
+    - raw: for_loop_function2
+- statement_terminator: ;
+- statement:
+    unparsable:
+    - function_script_terminator: /
+    - raw: CREATE
+    - raw: FUNCTION
+    - raw: for_loop_function3
     - bracketed:
         start_bracket: (
         end_bracket: )
-    - keyword: RETURN
-    - data_type:
-        keyword: VARCHAR
-        bracketed:
-          start_bracket: (
-          literal: '10'
-          end_bracket: )
-    - keyword: AS
-    - variable: res
-    - data_type:
-        keyword: DECIMAL
-    - statement_terminator: ;
-    - keyword: BEGIN
-    - function_body:
-        function_while_loop:
-        - keyword: WHILE
-        - expression:
-          - column_reference:
-              identifier: cnt
-          - comparison_operator: <=
-          - column_reference:
-              identifier: input_variable
-        - keyword: DO
-        - function_body:
-            function_assignment:
-              variable: res
-              assignment_operator: :=
-              expression:
-                column_reference:
-                  identifier: res
-                binary_operator: '*'
-                literal: '2'
-              statement_terminator: ;
-        - function_body:
-            function_assignment:
-              variable: cnt
-              assignment_operator: :=
-              expression:
-                column_reference:
-                  identifier: cnt
-                binary_operator: +
-                literal: '1'
-              statement_terminator: ;
-        - keyword: END
-        - keyword: WHILE
-        - statement_terminator: ;
-    - keyword: RETURN
-    - expression:
-        column_reference:
-          identifier: res
-    - statement_terminator: ;
-    - keyword: END
-    - function_reference:
-        identifier: for_loop_function3
-    - statement_terminator: ;
-- function_script_terminator: /
+    - raw: RETURN
+    - raw: VARCHAR
+    - bracketed:
+        start_bracket: (
+        raw: '10'
+        end_bracket: )
+    - raw: AS
+    - raw: res
+    - raw: DECIMAL
+- statement_terminator: ;
+- statement:
+    unparsable:
+    - raw: BEGIN
+    - raw: WHILE
+    - raw: cnt
+    - raw: <=
+    - raw: input_variable
+    - raw: DO
+    - raw: res
+    - walrus_operator: :=
+    - raw: res
+    - raw: '*'
+    - raw: '2'
+- statement_terminator: ;
+- statement:
+    unparsable:
+    - raw: cnt
+    - walrus_operator: :=
+    - raw: cnt
+    - raw: +
+    - raw: '1'
+- statement_terminator: ;
+- statement:
+    unparsable:
+    - raw: END
+    - raw: WHILE
+- statement_terminator: ;
+- statement:
+    unparsable:
+    - raw: RETURN
+    - raw: res
+- statement_terminator: ;
+- statement:
+    unparsable:
+    - raw: END
+    - raw: for_loop_function3
+- statement_terminator: ;
+- statement:
+    unparsable:
+      function_script_terminator: /

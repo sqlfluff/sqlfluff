@@ -3,24 +3,21 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7d1b0f55f585cefdff21f5ebc95f76313e238ec528453638d125ae3cb52fff0c
+_hash: 1d6e43fc42ba80371bf12b35afe23cc78b9fd83881b459d73af5054059a79244
 file:
   statement:
     select_statement:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: COALESCE
+          column_reference:
+            identifier: COALESCE
+          unparsable:
             bracketed:
             - start_bracket: (
-            - expression:
-                column_reference:
-                  identifier: id
+            - raw: id
             - comma: ','
-            - expression:
-                literal: '1'
+            - raw: '1'
             - end_bracket: )
       from_clause:
         keyword: FROM

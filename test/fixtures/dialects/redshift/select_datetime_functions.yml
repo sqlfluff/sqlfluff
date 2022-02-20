@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f79d6da4d21dfad60142d36bc242c250d86e4d5200f2fbbbcc45ded32f446003
+_hash: eb38e459f54b64a631b58db7d2c6e440dde353dbaa7adc20a9222db61eccb6e9
 file:
 - statement:
     select_statement:
@@ -24,13 +24,12 @@ file:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: TRUNC
+          column_reference:
+            identifier: TRUNC
+          unparsable:
             bracketed:
               start_bracket: (
-              expression:
-                bare_function: sysdate
+              raw: sysdate
               end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -46,31 +45,26 @@ file:
             identifier: pricepaid
       - comma: ','
       - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: TRUNC
-            bracketed:
+          column_reference:
+            identifier: TRUNC
+          unparsable:
+          - bracketed:
               start_bracket: (
-              expression:
-                column_reference:
-                  identifier: saletime
+              raw: saletime
               end_bracket: )
-          alias_expression:
-            keyword: AS
-            identifier: saletime
+          - raw: AS
+          - raw: saletime
       - comma: ','
       - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: TRUNC
-            bracketed:
+          column_reference:
+            identifier: TRUNC
+          unparsable:
+          - bracketed:
               start_bracket: (
-              expression:
-                bare_function: sysdate
+              raw: sysdate
               end_bracket: )
-          alias_expression:
-            keyword: AS
-            identifier: now
+          - raw: AS
+          - raw: now
       from_clause:
         keyword: FROM
         from_expression:
@@ -81,28 +75,23 @@ file:
       where_clause:
         keyword: WHERE
         expression:
-        - column_reference:
+          column_reference:
             identifier: saletime
-        - keyword: BETWEEN
-        - function:
-            function_name:
-              function_name_identifier: TRUNC
-            bracketed:
-              start_bracket: (
-              expression:
-                bare_function: sysdate
-              end_bracket: )
-        - binary_operator: '-'
-        - literal: '120'
-        - binary_operator: AND
-        - function:
-            function_name:
-              function_name_identifier: TRUNC
-            bracketed:
-              start_bracket: (
-              expression:
-                bare_function: sysdate
-              end_bracket: )
+        unparsable:
+        - raw: BETWEEN
+        - raw: TRUNC
+        - bracketed:
+            start_bracket: (
+            raw: sysdate
+            end_bracket: )
+        - raw: '-'
+        - raw: '120'
+        - raw: AND
+        - raw: TRUNC
+        - bracketed:
+            start_bracket: (
+            raw: sysdate
+            end_bracket: )
       orderby_clause:
       - keyword: ORDER
       - keyword: BY

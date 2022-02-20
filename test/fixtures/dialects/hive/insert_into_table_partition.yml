@@ -3,51 +3,34 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2b11170f6ae125eefc32024fbc81eb41ea5583cb28a75b91e9d69b4b7bd8e311
+_hash: 92c1a62b89bf5e58ca082553dd95ea17e4667df26be499770a7c3996e915eb51
 file:
   statement:
     insert_statement:
-    - keyword: INSERT
-    - keyword: INTO
-    - keyword: TABLE
-    - table_reference:
-        identifier: foo
-    - keyword: PARTITION
-    - bracketed:
-      - start_bracket: (
-      - column_reference:
-          identifier: a
-      - comparison_operator: '='
-      - literal: "'test_foo'"
+      unparsable:
+      - keyword: INSERT
+      - raw: INTO
+      - raw: TABLE
+      - raw: foo
+      - raw: PARTITION
+      - bracketed:
+        - start_bracket: (
+        - raw: a
+        - raw: '='
+        - raw: "'test_foo'"
+        - comma: ','
+        - raw: b
+        - raw: '='
+        - raw: "'test_bar'"
+        - end_bracket: )
+      - raw: SELECT
+      - raw: a
       - comma: ','
-      - column_reference:
-          identifier: b
-      - comparison_operator: '='
-      - literal: "'test_bar'"
-      - end_bracket: )
-    - select_statement:
-        select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-            column_reference:
-              identifier: a
-        - comma: ','
-        - select_clause_element:
-            column_reference:
-              identifier: b
-        - comma: ','
-        - select_clause_element:
-            column_reference:
-              identifier: c
-        - comma: ','
-        - select_clause_element:
-            column_reference:
-              identifier: d
-        from_clause:
-          keyword: FROM
-          from_expression:
-            from_expression_element:
-              table_expression:
-                table_reference:
-                  identifier: bar
+      - raw: b
+      - comma: ','
+      - raw: c
+      - comma: ','
+      - raw: d
+      - raw: FROM
+      - raw: bar
   statement_terminator: ;

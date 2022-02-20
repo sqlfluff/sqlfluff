@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 726904c5d4b645237dec5b9983008eead7c83d5317ee19144a98b23bb397000c
+_hash: a058c12bd6fd8283df37f3dff81f87410adfefcf3d2e98e5033ac07ddacd55f7
 file:
   statement:
     select_statement:
@@ -21,61 +21,48 @@ file:
             identifier: name
       - comma: ','
       - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: iff
-            bracketed:
+          column_reference:
+            identifier: iff
+          unparsable:
+          - bracketed:
             - start_bracket: (
-            - expression:
-                function:
-                  function_name:
-                    function_name_identifier: rank
-                  bracketed:
-                    start_bracket: (
-                    end_bracket: )
-                  over_clause:
-                    keyword: over
-                    bracketed:
-                      start_bracket: (
-                      window_specification:
-                        partitionby_clause:
-                        - keyword: partition
-                        - keyword: by
-                        - expression:
-                            column_reference:
-                              identifier: id
-                        orderby_clause:
-                        - keyword: order
-                        - keyword: by
-                        - column_reference:
-                            identifier: t_id
-                        - keyword: desc
-                      end_bracket: )
-                comparison_operator: '='
-                literal: '1'
+            - raw: rank
+            - bracketed:
+                start_bracket: (
+                end_bracket: )
+            - raw: over
+            - bracketed:
+              - start_bracket: (
+              - raw: partition
+              - raw: by
+              - raw: id
+              - raw: order
+              - raw: by
+              - raw: t_id
+              - raw: desc
+              - end_bracket: )
+            - raw: '='
+            - raw: '1'
             - comma: ','
-            - expression:
-                literal: 'true'
+            - raw: 'true'
             - comma: ','
-            - expression:
-                literal: 'false'
+            - raw: 'false'
             - end_bracket: )
-          alias_expression:
-            keyword: as
-            identifier: most_recent
+          - raw: as
+          - raw: most_recent
       from_clause:
       - keyword: from
       - from_expression:
           from_expression_element:
             table_expression:
-              table_reference:
+              path:
                 identifier: a
           join_clause:
           - keyword: inner
           - keyword: join
           - from_expression_element:
               table_expression:
-                table_reference:
+                path:
                   identifier: b
           - join_on_condition:
               keyword: 'on'

@@ -3,129 +3,101 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 03156b8897a230c5efa2bf3895fe229abd8cd9c5aa16466db188eb8f2ba1387e
+_hash: e26b689ebfa93e644e9930835b7bc13ee2b17e4e9ca7923a5c9e2009707e7223
 file:
   statement:
-    create_table_statement:
-    - keyword: CREATE
-    - keyword: MULTISET
-    - keyword: TABLE
-    - table_reference:
-        identifier: TABLE_2
+    unparsable:
+    - raw: CREATE
+    - raw: MULTISET
+    - raw: TABLE
+    - raw: TABLE_2
     - bracketed:
       - start_bracket: (
-      - column_definition:
-        - column_reference:
-            identifier: CHAR_FIELD
-        - td_internal_data_type:
-            data_type_identifier: CHAR
-            bracketed:
-              start_bracket: (
-              expression:
-                literal: '19'
-              end_bracket: )
-        - td_column_attribute_constraint:
-          - keyword: CHARACTER
-          - keyword: SET
-          - identifier: LATIN
-        - td_column_attribute_constraint:
-          - keyword: NOT
-          - keyword: CASESPECIFIC
-        - column_constraint_segment:
-          - keyword: NOT
-          - keyword: 'NULL'
+      - raw: CHAR_FIELD
+      - raw: CHAR
+      - bracketed:
+          start_bracket: (
+          raw: '19'
+          end_bracket: )
+      - raw: CHARACTER
+      - raw: SET
+      - raw: LATIN
+      - raw: NOT
+      - raw: CASESPECIFIC
+      - raw: NOT
+      - raw: 'NULL'
       - comma: ','
-      - column_definition:
-          column_reference:
-            identifier: DATE_FIELD
-          td_internal_data_type:
-            data_type_identifier: DATE
-            keyword: FORMAT
-            literal: "'YYYY-MM-DD'"
-          column_constraint_segment:
-          - keyword: NOT
-          - keyword: 'NULL'
+      - raw: DATE_FIELD
+      - raw: DATE
+      - raw: FORMAT
+      - raw: "'YYYY-MM-DD'"
+      - raw: NOT
+      - raw: 'NULL'
       - comma: ','
-      - column_definition:
-          column_reference:
-            identifier: BYTE_FIELD
-          td_internal_data_type:
-            data_type_identifier: BYTEINT
-          td_column_attribute_constraint:
-            keyword: COMPRESS
-            literal: '0'
+      - raw: BYTE_FIELD
+      - raw: BYTEINT
+      - raw: COMPRESS
+      - raw: '0'
       - comma: ','
-      - column_definition:
-          column_reference:
-            identifier: DECIMAL_FIELD
-          td_internal_data_type:
-            data_type_identifier: DECIMAL
-            bracketed:
-            - start_bracket: (
-            - expression:
-                literal: '15'
-            - comma: ','
-            - expression:
-                literal: '2'
-            - end_bracket: )
-          td_column_attribute_constraint:
-            keyword: COMPRESS
-            bracketed:
-            - start_bracket: (
-            - literal: '50.00'
-            - comma: ','
-            - literal: '45.50'
-            - comma: ','
-            - literal: '40.00'
-            - comma: ','
-            - literal: '30.00'
-            - comma: ','
-            - literal: '27.80'
-            - comma: ','
-            - literal: '27.05'
-            - comma: ','
-            - literal: '20.00'
-            - comma: ','
-            - literal: '17.87'
-            - comma: ','
-            - literal: '17.56'
-            - comma: ','
-            - literal: '17.41'
-            - comma: ','
-            - literal: '17.26'
-            - comma: ','
-            - literal: '17.11'
-            - comma: ','
-            - literal: '16.96'
-            - comma: ','
-            - literal: '16.82'
-            - comma: ','
-            - literal: '16.68'
-            - end_bracket: )
-      - comma: ','
-      - column_definition:
-          column_reference:
-            identifier: TIMESTAMP_FIELD
-          td_internal_data_type:
-            data_type_identifier: TIMESTAMP
-            bracketed:
-              start_bracket: (
-              expression:
-                literal: '6'
-              end_bracket: )
-          column_constraint_segment:
-          - keyword: NOT
-          - keyword: 'NULL'
-      - end_bracket: )
-    - td_table_constraint:
-      - keyword: PRIMARY
-      - keyword: INDEX
+      - raw: DECIMAL_FIELD
+      - raw: DECIMAL
       - bracketed:
         - start_bracket: (
-        - identifier: CHAR_FIELD
+        - raw: '15'
         - comma: ','
-        - identifier: DATE_FIELD
-        - comma: ','
-        - identifier: BYTE_FIELD
+        - raw: '2'
         - end_bracket: )
+      - raw: COMPRESS
+      - bracketed:
+        - start_bracket: (
+        - raw: '50.00'
+        - comma: ','
+        - raw: '45.50'
+        - comma: ','
+        - raw: '40.00'
+        - comma: ','
+        - raw: '30.00'
+        - comma: ','
+        - raw: '27.80'
+        - comma: ','
+        - raw: '27.05'
+        - comma: ','
+        - raw: '20.00'
+        - comma: ','
+        - raw: '17.87'
+        - comma: ','
+        - raw: '17.56'
+        - comma: ','
+        - raw: '17.41'
+        - comma: ','
+        - raw: '17.26'
+        - comma: ','
+        - raw: '17.11'
+        - comma: ','
+        - raw: '16.96'
+        - comma: ','
+        - raw: '16.82'
+        - comma: ','
+        - raw: '16.68'
+        - end_bracket: )
+      - comma: ','
+      - raw: TIMESTAMP_FIELD
+      - raw: TIMESTAMP
+      - bracketed:
+          start_bracket: (
+          raw: '6'
+          end_bracket: )
+      - raw: NOT
+      - raw: 'NULL'
+      - end_bracket: )
+    - raw: PRIMARY
+    - raw: INDEX
+    - bracketed:
+      - start_bracket: (
+      - raw: CHAR_FIELD
+      - comma: ','
+      - raw: DATE_FIELD
+      - comma: ','
+      - raw: BYTE_FIELD
+      - end_bracket: )
   statement_terminator: ;

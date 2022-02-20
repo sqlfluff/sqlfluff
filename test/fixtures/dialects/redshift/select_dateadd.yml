@@ -3,25 +3,22 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a32861ad6075cb6006392b30d1c85d5dc61cc4e20ba553b06afc8857ecb0382c
+_hash: 09b4c14cc6147791234f9e6ab7ee3994cce3453e55aae9a1100d9281574cdbdf
 file:
   statement:
     select_statement:
       select_clause:
         keyword: select
         select_clause_element:
-          function:
-            function_name:
-              keyword: dateadd
+          column_reference:
+            identifier: dateadd
+          unparsable:
             bracketed:
             - start_bracket: (
-            - date_part:
-                keyword: month
+            - raw: month
             - comma: ','
-            - expression:
-                literal: '18'
+            - raw: '18'
             - comma: ','
-            - expression:
-                literal: "'2008-02-28'"
+            - raw: "'2008-02-28'"
             - end_bracket: )
   statement_terminator: ;

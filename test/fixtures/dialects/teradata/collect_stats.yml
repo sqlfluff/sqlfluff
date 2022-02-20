@@ -3,46 +3,39 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b447cc55b4535f32f5a4312c0f61d92d27c203a8159c6518bfa6660b9049c03c
+_hash: f5798b14f0a6e369f93615c245256f8f42139960a8e0b0f1094b0bfbb826d632
 file:
 - statement:
-    collect_statistics_statement:
-    - keyword: COLLECT
-    - keyword: STATISTICS
-    - keyword: COLUMN
+    unparsable:
+    - raw: COLLECT
+    - raw: STATISTICS
+    - raw: COLUMN
     - bracketed:
         start_bracket: (
-        column_reference:
-          identifier: IND_TIPO_TARJETA
+        raw: IND_TIPO_TARJETA
         end_bracket: )
-    - keyword: 'ON'
-    - table_reference:
-      - identifier: DB_1
-      - dot: .
-      - identifier: TABLE_1
+    - raw: 'ON'
+    - raw: DB_1
+    - raw: .
+    - raw: TABLE_1
 - statement_terminator: ;
 - statement:
-    collect_statistics_statement:
-    - keyword: COLLECT
-    - keyword: STATISTICS
-    - keyword: INDEX
+    unparsable:
+    - raw: COLLECT
+    - raw: STATISTICS
+    - raw: INDEX
     - bracketed:
       - start_bracket: (
-      - column_reference:
-          identifier: COD_TARJETA
+      - raw: COD_TARJETA
       - comma: ','
-      - column_reference:
-          identifier: COD_EST
+      - raw: COD_EST
       - comma: ','
-      - column_reference:
-          identifier: IND_TIPO_TARJETA
+      - raw: IND_TIPO_TARJETA
       - comma: ','
-      - column_reference:
-          identifier: FEC_ANIO_MES
+      - raw: FEC_ANIO_MES
       - end_bracket: )
-    - keyword: 'ON'
-    - table_reference:
-      - identifier: DB_1
-      - dot: .
-      - identifier: TABLE_1
+    - raw: 'ON'
+    - raw: DB_1
+    - raw: .
+    - raw: TABLE_1
 - statement_terminator: ;

@@ -3,55 +3,33 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5ef45c03d07899104fc767163f3a9edc375940bf3450304ab9e257ebc21396de
+_hash: d9f4e8157e6777c5585ace5e2d04715c755b7593f3fef33a1eb4ed0d5ee6514c
 file:
   statement:
     with_compound_statement:
-      keyword: WITH
-      common_table_expression:
-        identifier: mycte
-        keyword: AS
-        bracketed:
-          start_bracket: (
-          select_statement:
-            select_clause:
-            - keyword: SELECT
-            - select_clause_element:
-                column_reference:
-                  identifier: foo
-            - comma: ','
-            - select_clause_element:
-                column_reference:
-                  identifier: bar
-            from_clause:
-              keyword: FROM
-              from_expression:
-                from_expression_element:
-                  table_expression:
-                    table_reference:
-                      identifier: mytable1
-          end_bracket: )
-      update_statement:
-        keyword: UPDATE
-        table_reference:
-          identifier: sometable
-        set_clause_list:
-          keyword: SET
-          set_clause:
-          - column_reference:
-            - identifier: sometable
-            - dot: .
-            - identifier: baz
-          - comparison_operator: '='
-          - column_reference:
-            - identifier: mycte
-            - dot: .
-            - identifier: bar
-        from_clause:
-          keyword: FROM
-          from_expression:
-            from_expression_element:
-              table_expression:
-                table_reference:
-                  identifier: mycte
+      unparsable:
+      - keyword: WITH
+      - raw: mycte
+      - raw: AS
+      - bracketed:
+        - start_bracket: (
+        - raw: SELECT
+        - raw: foo
+        - comma: ','
+        - raw: bar
+        - raw: FROM
+        - raw: mytable1
+        - end_bracket: )
+      - raw: UPDATE
+      - raw: sometable
+      - raw: SET
+      - raw: sometable
+      - raw: .
+      - raw: baz
+      - raw: '='
+      - raw: mycte
+      - raw: .
+      - raw: bar
+      - raw: FROM
+      - raw: mycte
   statement_terminator: ;

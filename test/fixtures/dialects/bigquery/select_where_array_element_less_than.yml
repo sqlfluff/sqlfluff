@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 09b9fd51ff369d07b6d31b59633c197a34955267ec2bad29cdb0999b6366ea57
+_hash: 8595e936ecf0010ad0ca3c6f34ba3eda1a570a052045846202b5cabb57a3f11b
 file:
   statement:
     select_statement:
@@ -28,14 +28,13 @@ file:
         - array_accessor:
             start_square_bracket: '['
             expression:
-              function:
-                function_name:
-                  function_name_identifier: ORDINAL
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    literal: '1'
-                  end_bracket: )
+              column_reference:
+                identifier: ORDINAL
+            unparsable:
+              bracketed:
+                start_bracket: (
+                raw: '1'
+                end_bracket: )
             end_square_bracket: ']'
         - comparison_operator: <
         - column_reference:
@@ -43,14 +42,13 @@ file:
         - array_accessor:
             start_square_bracket: '['
             expression:
-              function:
-                function_name:
-                  function_name_identifier: ORDINAL
-                bracketed:
-                  start_bracket: (
-                  expression:
-                  - literal: '1'
-                  - binary_operator: +
-                  - literal: '1'
-                  end_bracket: )
+              column_reference:
+                identifier: ORDINAL
+            unparsable:
+              bracketed:
+              - start_bracket: (
+              - raw: '1'
+              - raw: +
+              - raw: '1'
+              - end_bracket: )
             end_square_bracket: ']'

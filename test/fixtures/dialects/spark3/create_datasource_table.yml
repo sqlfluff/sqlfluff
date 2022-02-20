@@ -3,134 +3,106 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2982b5549bd6c0592922d427fbe7126972a7a388d5f4739376079e037e269b7f
+_hash: b6af66820e713da8d9533f015115929f6eb1bf6e5e6c6d89b971586061b84067
 file:
 - base:
     create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - keyword: IF
-    - keyword: NOT
-    - keyword: EXISTS
-    - table_reference:
-        identifier: table_identifier
-    - bracketed:
-        start_bracket: (
-        column_definition:
-          identifier: test
-          data_type:
-            primitive_type:
-              keyword: STRING
-        keyword: COMMENT
-        literal: '"col_comment1"'
-        end_bracket: )
-    - keyword: USING
-    - keyword: PARQUET
-    - keyword: OPTIONS
-    - bracketed:
-      - start_bracket: (
-      - literal: '"key1"'
-      - comparison_operator: '='
-      - literal: '"val1"'
-      - comma: ','
-      - literal: '"key2"'
-      - comparison_operator: '='
-      - literal: '"val2"'
-      - end_bracket: )
-    - keyword: PARTITIONED
-    - keyword: BY
-    - bracketed:
-      - start_bracket: (
-      - column_reference:
-          identifier: col_name1
-      - comma: ','
-      - column_reference:
-          identifier: col_name2
-      - end_bracket: )
-    - keyword: CLUSTERED
-    - keyword: BY
-    - bracketed:
-      - start_bracket: (
-      - column_reference:
-          identifier: col_name3
-      - comma: ','
-      - column_reference:
-          identifier: col_name4
-      - end_bracket: )
-    - keyword: SORTED
-    - keyword: BY
-    - bracketed:
-      - start_bracket: (
-      - column_reference:
-          identifier: col_name3
-      - keyword: ASC
-      - comma: ','
-      - column_reference:
-          identifier: col_name4
-      - keyword: DESC
-      - end_bracket: )
-    - keyword: INTO
-    - literal: '4'
-    - keyword: BUCKETS
-    - keyword: LOCATION
-    - literal: "'root/database/table'"
-    - keyword: COMMENT
-    - literal: "'this is a comment'"
-    - keyword: TBLPROPERTIES
-    - bracketed:
-      - start_bracket: (
-      - literal: '"key1"'
-      - comparison_operator: '='
-      - literal: '"val1"'
-      - comma: ','
-      - literal: '"key2"'
-      - comparison_operator: '='
-      - literal: '"val2"'
-      - end_bracket: )
-    - keyword: AS
-    - select_statement:
-        select_clause:
-          keyword: SELECT
-          select_clause_element:
-            wildcard_expression:
-              wildcard_identifier:
-                star: '*'
-        from_clause:
-          keyword: FROM
-          from_expression:
-            from_expression_element:
-              table_expression:
-                table_reference:
-                  identifier: student
+      unparsable:
+      - keyword: CREATE
+      - keyword: TABLE
+      - raw: IF
+      - raw: NOT
+      - raw: EXISTS
+      - raw: table_identifier
+      - bracketed:
+        - start_bracket: (
+        - raw: test
+        - raw: STRING
+        - raw: COMMENT
+        - raw: '"col_comment1"'
+        - end_bracket: )
+      - raw: USING
+      - raw: PARQUET
+      - raw: OPTIONS
+      - bracketed:
+        - start_bracket: (
+        - raw: '"key1"'
+        - raw: '='
+        - raw: '"val1"'
+        - comma: ','
+        - raw: '"key2"'
+        - raw: '='
+        - raw: '"val2"'
+        - end_bracket: )
+      - raw: PARTITIONED
+      - raw: BY
+      - bracketed:
+        - start_bracket: (
+        - raw: col_name1
+        - comma: ','
+        - raw: col_name2
+        - end_bracket: )
+      - raw: CLUSTERED
+      - raw: BY
+      - bracketed:
+        - start_bracket: (
+        - raw: col_name3
+        - comma: ','
+        - raw: col_name4
+        - end_bracket: )
+      - raw: SORTED
+      - raw: BY
+      - bracketed:
+        - start_bracket: (
+        - raw: col_name3
+        - raw: ASC
+        - comma: ','
+        - raw: col_name4
+        - raw: DESC
+        - end_bracket: )
+      - raw: INTO
+      - raw: '4'
+      - raw: BUCKETS
+      - raw: LOCATION
+      - raw: "'root/database/table'"
+      - raw: COMMENT
+      - raw: "'this is a comment'"
+      - raw: TBLPROPERTIES
+      - bracketed:
+        - start_bracket: (
+        - raw: '"key1"'
+        - raw: '='
+        - raw: '"val1"'
+        - comma: ','
+        - raw: '"key2"'
+        - raw: '='
+        - raw: '"val2"'
+        - end_bracket: )
+      - raw: AS
+      - raw: SELECT
+      - raw: '*'
+      - raw: FROM
+      - raw: student
 - statement_terminator: ;
 - base:
     create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: student
-    - bracketed:
-      - start_bracket: (
-      - column_definition:
-          identifier: id
-          data_type:
-            primitive_type:
-              keyword: INT
-      - comma: ','
-      - column_definition:
-          identifier: student_name
-          data_type:
-            primitive_type:
-              keyword: STRING
-      - comma: ','
-      - column_definition:
-          identifier: age
-          data_type:
-            primitive_type:
-              keyword: INT
-      - end_bracket: )
-    - keyword: USING
-    - keyword: CSV
+      unparsable:
+      - keyword: CREATE
+      - keyword: TABLE
+      - raw: student
+      - bracketed:
+        - start_bracket: (
+        - raw: id
+        - raw: INT
+        - comma: ','
+        - raw: student_name
+        - raw: STRING
+        - comma: ','
+        - raw: age
+        - raw: INT
+        - end_bracket: )
+      - raw: USING
+      - raw: CSV
 - statement_terminator: ;
 - base:
     create_table_statement:
@@ -158,112 +130,83 @@ file:
 - statement_terminator: ;
 - base:
     create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: student
-    - bracketed:
-      - start_bracket: (
-      - column_definition:
-          identifier: id
-          data_type:
-            primitive_type:
-              keyword: INT
-      - comma: ','
-      - column_definition:
-          identifier: student_name
-          data_type:
-            primitive_type:
-              keyword: STRING
-      - comma: ','
-      - column_definition:
-          identifier: age
-          data_type:
-            primitive_type:
-              keyword: INT
-      - end_bracket: )
+      unparsable:
+      - keyword: CREATE
+      - keyword: TABLE
+      - raw: student
+      - bracketed:
+        - start_bracket: (
+        - raw: id
+        - raw: INT
+        - comma: ','
+        - raw: student_name
+        - raw: STRING
+        - comma: ','
+        - raw: age
+        - raw: INT
+        - end_bracket: )
 - statement_terminator: ;
 - base:
     create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: student
-    - bracketed:
-      - start_bracket: (
-      - column_definition:
-          identifier: id
-          data_type:
-            primitive_type:
-              keyword: INT
-      - comma: ','
-      - column_definition:
-          identifier: student_name
-          data_type:
-            primitive_type:
-              keyword: STRING
-      - comma: ','
-      - column_definition:
-          identifier: age
-          data_type:
-            primitive_type:
-              keyword: INT
-      - end_bracket: )
-    - keyword: USING
-    - keyword: CSV
-    - keyword: COMMENT
-    - literal: "'this is a comment'"
-    - keyword: TBLPROPERTIES
-    - bracketed:
-      - start_bracket: (
-      - literal: "'foo'"
-      - comparison_operator: '='
-      - literal: "'bar'"
-      - end_bracket: )
+      unparsable:
+      - keyword: CREATE
+      - keyword: TABLE
+      - raw: student
+      - bracketed:
+        - start_bracket: (
+        - raw: id
+        - raw: INT
+        - comma: ','
+        - raw: student_name
+        - raw: STRING
+        - comma: ','
+        - raw: age
+        - raw: INT
+        - end_bracket: )
+      - raw: USING
+      - raw: CSV
+      - raw: COMMENT
+      - raw: "'this is a comment'"
+      - raw: TBLPROPERTIES
+      - bracketed:
+        - start_bracket: (
+        - raw: "'foo'"
+        - raw: '='
+        - raw: "'bar'"
+        - end_bracket: )
 - statement_terminator: ;
 - base:
     create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: student
-    - bracketed:
-      - start_bracket: (
-      - column_definition:
-          identifier: id
-          data_type:
-            primitive_type:
-              keyword: INT
-      - comma: ','
-      - column_definition:
-          identifier: student_name
-          data_type:
-            primitive_type:
-              keyword: STRING
-      - comma: ','
-      - column_definition:
-          identifier: age
-          data_type:
-            primitive_type:
-              keyword: INT
-      - end_bracket: )
-    - keyword: USING
-    - keyword: CSV
-    - keyword: PARTITIONED
-    - keyword: BY
-    - bracketed:
-        start_bracket: (
-        column_reference:
-          identifier: age
-        end_bracket: )
-    - keyword: CLUSTERED
-    - keyword: BY
-    - bracketed:
-        start_bracket: (
-        column_reference:
-          identifier: id
-        end_bracket: )
-    - keyword: INTO
-    - literal: '4'
-    - keyword: BUCKETS
+      unparsable:
+      - keyword: CREATE
+      - keyword: TABLE
+      - raw: student
+      - bracketed:
+        - start_bracket: (
+        - raw: id
+        - raw: INT
+        - comma: ','
+        - raw: student_name
+        - raw: STRING
+        - comma: ','
+        - raw: age
+        - raw: INT
+        - end_bracket: )
+      - raw: USING
+      - raw: CSV
+      - raw: PARTITIONED
+      - raw: BY
+      - bracketed:
+          start_bracket: (
+          raw: age
+          end_bracket: )
+      - raw: CLUSTERED
+      - raw: BY
+      - bracketed:
+          start_bracket: (
+          raw: id
+          end_bracket: )
+      - raw: INTO
+      - raw: '4'
+      - raw: BUCKETS
 - statement_terminator: ;

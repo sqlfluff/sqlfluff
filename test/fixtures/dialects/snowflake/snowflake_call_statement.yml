@@ -3,39 +3,30 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1ec957e99e656395133db8d33bd530cfc6c58c89ad60807928487175b16d37b0
+_hash: a9bea57c6e2818ca0f73a2b54a73e5be38f934714a18a90cd2be1de7d8cc89d5
 file:
 - statement:
-    call_segment:
-      keyword: CALL
-      function:
-        function_name:
-          function_name_identifier: MyStoredProcedure
+    unparsable:
+    - raw: CALL
+    - raw: MyStoredProcedure
+    - bracketed:
+        start_bracket: (
+        raw: CURRENT_ROLE
         bracketed:
           start_bracket: (
-          expression:
-            function:
-              function_name:
-                function_name_identifier: CURRENT_ROLE
-              bracketed:
-                start_bracket: (
-                end_bracket: )
           end_bracket: )
+        end_bracket: )
 - statement_terminator: ;
 - statement:
-    call_segment:
-      keyword: CALL
-      function:
-        function_name:
-          function_name_identifier: sv_proc1
-        bracketed:
-        - start_bracket: (
-        - expression:
-            literal: "'Manitoba'"
-        - comma: ','
-        - expression:
-            literal: '127.4'
-        - end_bracket: )
+    unparsable:
+    - raw: CALL
+    - raw: sv_proc1
+    - bracketed:
+      - start_bracket: (
+      - raw: "'Manitoba'"
+      - comma: ','
+      - raw: '127.4'
+      - end_bracket: )
 - statement_terminator: ;
 - statement:
     set_statement:
@@ -46,14 +37,11 @@ file:
         literal: '49'
 - statement_terminator: ;
 - statement:
-    call_segment:
-      keyword: CALL
-      function:
-        function_name:
-          function_name_identifier: sv_proc2
-        bracketed:
-          start_bracket: (
-          expression:
-            variable: $Variable1
-          end_bracket: )
+    unparsable:
+    - raw: CALL
+    - raw: sv_proc2
+    - bracketed:
+        start_bracket: (
+        raw: $Variable1
+        end_bracket: )
 - statement_terminator: ;

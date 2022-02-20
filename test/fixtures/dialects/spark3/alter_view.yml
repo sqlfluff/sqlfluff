@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8c1f890a4f46fdd67dc9b1d659dddb9fdfbaa4f95e2bcbc6045522df57371597
+_hash: b9b4ae50091b820b1ae963eb5c100e74a9298ace67ab4c80000990c7c5d62a18
 file:
 - base:
     alter_view_statement:
@@ -32,112 +32,96 @@ file:
       - identifier: v2
 - statement_terminator: ;
 - base:
-    alter_view_statement:
-    - keyword: ALTER
-    - keyword: VIEW
-    - table_reference:
-        identifier: view_identifier
-    - keyword: SET
-    - keyword: TBLPROPERTIES
+    unparsable:
+    - raw: ALTER
+    - raw: VIEW
+    - raw: view_identifier
+    - raw: SET
+    - raw: TBLPROPERTIES
     - bracketed:
       - start_bracket: (
-      - literal: '"property_key"'
-      - comparison_operator: '='
-      - literal: '"property_val"'
+      - raw: '"property_key"'
+      - raw: '='
+      - raw: '"property_val"'
       - end_bracket: )
 - statement_terminator: ;
 - base:
-    alter_view_statement:
-    - keyword: ALTER
-    - keyword: VIEW
-    - table_reference:
-      - identifier: tempdb1
-      - dot: .
-      - identifier: v2
-    - keyword: SET
-    - keyword: TBLPROPERTIES
+    unparsable:
+    - raw: ALTER
+    - raw: VIEW
+    - raw: tempdb1
+    - raw: .
+    - raw: v2
+    - raw: SET
+    - raw: TBLPROPERTIES
     - bracketed:
       - start_bracket: (
-      - literal: "'created.by.user'"
-      - comparison_operator: '='
-      - literal: '"John"'
+      - raw: "'created.by.user'"
+      - raw: '='
+      - raw: '"John"'
       - comma: ','
-      - literal: "'created.date'"
-      - comparison_operator: '='
-      - literal: "'01-01-2001'"
+      - raw: "'created.date'"
+      - raw: '='
+      - raw: "'01-01-2001'"
       - end_bracket: )
 - statement_terminator: ;
 - base:
-    alter_view_statement:
-    - keyword: ALTER
-    - keyword: VIEW
-    - table_reference:
-        identifier: view_identifier
-    - keyword: UNSET
-    - keyword: TBLPROPERTIES
+    unparsable:
+    - raw: ALTER
+    - raw: VIEW
+    - raw: view_identifier
+    - raw: UNSET
+    - raw: TBLPROPERTIES
     - bracketed:
         start_bracket: (
-        literal: '"property_key"'
+        raw: '"property_key"'
         end_bracket: )
 - statement_terminator: ;
 - base:
-    alter_view_statement:
-    - keyword: ALTER
-    - keyword: VIEW
-    - table_reference:
-        identifier: view_identifier
-    - keyword: UNSET
-    - keyword: TBLPROPERTIES
-    - keyword: IF
-    - keyword: EXISTS
+    unparsable:
+    - raw: ALTER
+    - raw: VIEW
+    - raw: view_identifier
+    - raw: UNSET
+    - raw: TBLPROPERTIES
+    - raw: IF
+    - raw: EXISTS
     - bracketed:
         start_bracket: (
-        literal: '"property_key"'
+        raw: '"property_key"'
         end_bracket: )
 - statement_terminator: ;
 - base:
-    alter_view_statement:
-    - keyword: ALTER
-    - keyword: VIEW
-    - table_reference:
-      - identifier: tempdb1
-      - dot: .
-      - identifier: v2
-    - keyword: UNSET
-    - keyword: TBLPROPERTIES
+    unparsable:
+    - raw: ALTER
+    - raw: VIEW
+    - raw: tempdb1
+    - raw: .
+    - raw: v2
+    - raw: UNSET
+    - raw: TBLPROPERTIES
     - bracketed:
       - start_bracket: (
-      - literal: "'created.by.user'"
+      - raw: "'created.by.user'"
       - comma: ','
-      - literal: "'created.date'"
+      - raw: "'created.date'"
       - end_bracket: )
 - statement_terminator: ;
 - base:
-    alter_view_statement:
-    - keyword: ALTER
-    - keyword: VIEW
-    - table_reference:
-        identifier: view_identifier
-    - keyword: AS
+    unparsable:
+    - raw: ALTER
+    - raw: VIEW
+    - raw: view_identifier
+    - raw: AS
     - bracketed:
-        start_bracket: (
-        select_statement:
-          select_clause:
-            keyword: SELECT
-            select_clause_element:
-              wildcard_expression:
-                wildcard_identifier:
-                  star: '*'
-          from_clause:
-            keyword: FROM
-            from_expression:
-              from_expression_element:
-                table_expression:
-                  table_reference:
-                  - identifier: tempdb1
-                  - dot: .
-                  - identifier: v1
-        end_bracket: )
+      - start_bracket: (
+      - raw: SELECT
+      - raw: '*'
+      - raw: FROM
+      - raw: tempdb1
+      - raw: .
+      - raw: v1
+      - end_bracket: )
 - statement_terminator: ;
 - base:
     alter_view_statement:

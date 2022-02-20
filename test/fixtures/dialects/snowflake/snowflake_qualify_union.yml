@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 371c117719284838c3ed35657264ef371c8c0e2fc685de5aaa84f39173629ba2
+_hash: 849d6658b50f791f23fba64adc397bcd414226696f21be47385b48b453a4f43b
 file:
   statement:
     set_expression:
@@ -27,31 +27,24 @@ file:
         having_clause:
           keyword: qualify
           expression:
-            function:
-              function_name:
-                function_name_identifier: row_number
-              bracketed:
-                start_bracket: (
-                end_bracket: )
-              over_clause:
-                keyword: over
-                bracketed:
-                  start_bracket: (
-                  window_specification:
-                    partitionby_clause:
-                    - keyword: partition
-                    - keyword: by
-                    - expression:
-                        column_reference:
-                          identifier: col1
-                    orderby_clause:
-                    - keyword: order
-                    - keyword: by
-                    - column_reference:
-                        identifier: col1
-                  end_bracket: )
-            comparison_operator: '='
-            literal: '1'
+            column_reference:
+              identifier: row_number
+          unparsable:
+          - bracketed:
+              start_bracket: (
+              end_bracket: )
+          - raw: over
+          - bracketed:
+            - start_bracket: (
+            - raw: partition
+            - raw: by
+            - raw: col1
+            - raw: order
+            - raw: by
+            - raw: col1
+            - end_bracket: )
+          - raw: '='
+          - raw: '1'
     - set_operator:
       - keyword: union
       - keyword: all

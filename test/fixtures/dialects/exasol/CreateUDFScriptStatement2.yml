@@ -3,47 +3,37 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d6a1260974bb84aebdafd6792a82821bc4da1425a6d50f1706f2fbb58a380030
+_hash: d4f034825ed1b560b13666e7978f099b7e94ff1fb26c69de16c06ebb5da4b30d
 file:
   statement:
     create_udf_script:
-    - keyword: CREATE
-    - keyword: LUA
-    - keyword: SCALAR
-    - keyword: SCRIPT
-    - script_reference:
-        identifier: map_words
-    - bracketed:
-        start_bracket: (
-        column_datatype_definition:
-          identifier: w
-          data_type:
-            keyword: varchar
-            bracketed:
-              start_bracket: (
-              literal: '10000'
-              end_bracket: )
-        end_bracket: )
-    - keyword: EMITS
-    - bracketed:
-        start_bracket: (
-        column_datatype_definition:
-          identifier: words
-          data_type:
-            keyword: varchar
-            bracketed:
-              start_bracket: (
-              literal: '100'
-              end_bracket: )
-        end_bracket: )
-    - keyword: AS
-    - script_content:
+      unparsable:
+      - keyword: CREATE
+      - keyword: LUA
+      - keyword: SCALAR
+      - keyword: SCRIPT
+      - raw: map_words
+      - raw: (
+      - raw: w
+      - raw: varchar
+      - raw: (
+      - raw: '10000'
+      - raw: )
+      - raw: )
+      - raw: EMITS
+      - raw: (
+      - raw: words
+      - raw: varchar
+      - raw: (
+      - raw: '100'
+      - raw: )
+      - raw: )
+      - raw: AS
       - raw: function
       - raw: run
-      - bracketed:
-          start_bracket: (
-          raw: ctx
-          end_bracket: )
+      - raw: (
+      - raw: ctx
+      - raw: )
       - raw: local
       - raw: word
       - raw: '='
@@ -51,13 +41,12 @@ file:
       - raw: .
       - raw: w
       - raw: if
-      - bracketed:
-        - start_bracket: (
-        - raw: word
-        - raw: '~'
-        - raw: '='
-        - raw: 'null'
-        - end_bracket: )
+      - raw: (
+      - raw: word
+      - raw: '~'
+      - raw: '='
+      - raw: 'null'
+      - raw: )
       - raw: then
       - raw: for
       - raw: i
@@ -67,21 +56,19 @@ file:
       - raw: utf8
       - raw: .
       - raw: gmatch
-      - bracketed:
-        - start_bracket: (
-        - raw: word
-        - comma: ','
-        - raw: "'([%w%p]+)'"
-        - end_bracket: )
+      - raw: (
+      - raw: word
+      - comma: ','
+      - raw: "'([%w%p]+)'"
+      - raw: )
       - raw: do
       - raw: ctx
       - raw: .
       - raw: emit
-      - bracketed:
-          start_bracket: (
-          raw: i
-          end_bracket: )
+      - raw: (
+      - raw: i
+      - raw: )
       - raw: end
       - raw: end
       - raw: end
-  function_script_terminator: /
+      - function_script_terminator: /

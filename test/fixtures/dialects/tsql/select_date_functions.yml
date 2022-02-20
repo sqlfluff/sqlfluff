@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bcaa47623a370156fcde8a3ab393a378bb4481d0ffb4b5681113e56001a0942b
+_hash: 376df135b1de6b45415646e7cad2275835e6e605bdf04e88df585b00ad701a20
 file:
   batch:
     statement:
@@ -20,20 +20,21 @@ file:
                 keyword: DATEDIFF
               bracketed:
               - start_bracket: (
-              - date_part:
-                  keyword: day
+              - expression:
+                  column_reference:
+                    identifier: day
               - comma: ','
               - expression:
                   column_reference:
                     identifier: '[mydate]'
               - comma: ','
               - expression:
-                  function:
-                    function_name:
-                      function_name_identifier: GETDATE
-                    bracketed:
-                      start_bracket: (
-                      end_bracket: )
+                  column_reference:
+                    identifier: GETDATE
+              - unparsable:
+                  bracketed:
+                    start_bracket: (
+                    end_bracket: )
               - end_bracket: )
             alias_expression:
               keyword: AS
@@ -54,12 +55,12 @@ file:
                     identifier: '[mydate]'
               - comma: ','
               - expression:
-                  function:
-                    function_name:
-                      function_name_identifier: GETDATE
-                    bracketed:
-                      start_bracket: (
-                      end_bracket: )
+                  column_reference:
+                    identifier: GETDATE
+              - unparsable:
+                  bracketed:
+                    start_bracket: (
+                    end_bracket: )
               - end_bracket: )
             alias_expression:
               keyword: AS
@@ -71,8 +72,9 @@ file:
                 keyword: DATEDIFF
               bracketed:
               - start_bracket: (
-              - date_part:
-                  keyword: year
+              - expression:
+                  column_reference:
+                    identifier: year
               - comma: ','
               - expression:
                   literal: "'2005-12-31 23:59:59.9999999'"
@@ -87,8 +89,9 @@ file:
                 keyword: DATEDIFF
               bracketed:
               - start_bracket: (
-              - date_part:
-                  keyword: quarter
+              - expression:
+                  column_reference:
+                    identifier: quarter
               - comma: ','
               - expression:
                   literal: "'2005-12-31 23:59:59.9999999'"
@@ -103,8 +106,9 @@ file:
                 keyword: DATEDIFF
               bracketed:
               - start_bracket: (
-              - date_part:
-                  keyword: month
+              - expression:
+                  column_reference:
+                    identifier: month
               - comma: ','
               - expression:
                   literal: "'2005-12-31 23:59:59.9999999'"
@@ -119,8 +123,9 @@ file:
                 keyword: DATEDIFF
               bracketed:
               - start_bracket: (
-              - date_part:
-                  keyword: dayofyear
+              - expression:
+                  column_reference:
+                    identifier: dayofyear
               - comma: ','
               - expression:
                   literal: "'2005-12-31 23:59:59.9999999'"
@@ -135,8 +140,9 @@ file:
                 keyword: DATEDIFF
               bracketed:
               - start_bracket: (
-              - date_part:
-                  keyword: day
+              - expression:
+                  column_reference:
+                    identifier: day
               - comma: ','
               - expression:
                   literal: "'2005-12-31 23:59:59.9999999'"
@@ -151,8 +157,9 @@ file:
                 keyword: DATEDIFF
               bracketed:
               - start_bracket: (
-              - date_part:
-                  keyword: week
+              - expression:
+                  column_reference:
+                    identifier: week
               - comma: ','
               - expression:
                   literal: "'2005-12-31 23:59:59.9999999'"
@@ -167,8 +174,9 @@ file:
                 keyword: DATEDIFF
               bracketed:
               - start_bracket: (
-              - date_part:
-                  keyword: hour
+              - expression:
+                  column_reference:
+                    identifier: hour
               - comma: ','
               - expression:
                   literal: "'2005-12-31 23:59:59.9999999'"
@@ -183,8 +191,9 @@ file:
                 keyword: DATEDIFF
               bracketed:
               - start_bracket: (
-              - date_part:
-                  keyword: minute
+              - expression:
+                  column_reference:
+                    identifier: minute
               - comma: ','
               - expression:
                   literal: "'2005-12-31 23:59:59.9999999'"
@@ -199,8 +208,9 @@ file:
                 keyword: DATEDIFF
               bracketed:
               - start_bracket: (
-              - date_part:
-                  keyword: second
+              - expression:
+                  column_reference:
+                    identifier: second
               - comma: ','
               - expression:
                   literal: "'2005-12-31 23:59:59.9999999'"
@@ -215,8 +225,9 @@ file:
                 keyword: DATEDIFF
               bracketed:
               - start_bracket: (
-              - date_part:
-                  keyword: millisecond
+              - expression:
+                  column_reference:
+                    identifier: millisecond
               - comma: ','
               - expression:
                   literal: "'2005-12-31 23:59:59.9999999'"
@@ -231,8 +242,9 @@ file:
                 keyword: DATEDIFF
               bracketed:
               - start_bracket: (
-              - date_part:
-                  keyword: microsecond
+              - expression:
+                  column_reference:
+                    identifier: microsecond
               - comma: ','
               - expression:
                   literal: "'2005-12-31 23:59:59.9999999'"
@@ -247,8 +259,9 @@ file:
                 keyword: DATEDIFF_BIG
               bracketed:
               - start_bracket: (
-              - date_part:
-                  keyword: microsecond
+              - expression:
+                  column_reference:
+                    identifier: microsecond
               - comma: ','
               - expression:
                   literal: "'2005-12-31 23:59:59.9999999'"
@@ -263,8 +276,9 @@ file:
                 keyword: DATEADD
               bracketed:
               - start_bracket: (
-              - date_part:
-                  keyword: year
+              - expression:
+                  column_reference:
+                    identifier: year
               - comma: ','
               - expression:
                   literal: '2147483647'
@@ -279,8 +293,9 @@ file:
                 keyword: DATEADD
               bracketed:
               - start_bracket: (
-              - date_part:
-                  keyword: year
+              - expression:
+                  column_reference:
+                    identifier: year
               - comma: ','
               - expression:
                   numeric_literal:
@@ -296,65 +311,70 @@ file:
               function_name:
                 keyword: DATENAME
               bracketed:
-                start_bracket: (
-                date_part:
-                  keyword: year
-                comma: ','
-                expression:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    identifier: year
+              - comma: ','
+              - expression:
                   literal: "'12:10:30.123'"
-                end_bracket: )
+              - end_bracket: )
         - comma: ','
         - select_clause_element:
             function:
               function_name:
                 keyword: DATENAME
               bracketed:
-                start_bracket: (
-                date_part:
-                  keyword: month
-                comma: ','
-                expression:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    identifier: month
+              - comma: ','
+              - expression:
                   literal: "'12:10:30.123'"
-                end_bracket: )
+              - end_bracket: )
         - comma: ','
         - select_clause_element:
             function:
               function_name:
                 keyword: DATENAME
               bracketed:
-                start_bracket: (
-                date_part:
-                  keyword: day
-                comma: ','
-                expression:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    identifier: day
+              - comma: ','
+              - expression:
                   literal: "'12:10:30.123'"
-                end_bracket: )
+              - end_bracket: )
         - comma: ','
         - select_clause_element:
             function:
               function_name:
                 keyword: DATENAME
               bracketed:
-                start_bracket: (
-                date_part:
-                  keyword: dayofyear
-                comma: ','
-                expression:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    identifier: dayofyear
+              - comma: ','
+              - expression:
                   literal: "'12:10:30.123'"
-                end_bracket: )
+              - end_bracket: )
         - comma: ','
         - select_clause_element:
             function:
               function_name:
                 keyword: DATENAME
               bracketed:
-                start_bracket: (
-                date_part:
-                  keyword: weekday
-                comma: ','
-                expression:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    identifier: weekday
+              - comma: ','
+              - expression:
                   literal: "'12:10:30.123'"
-                end_bracket: )
+              - end_bracket: )
         from_clause:
           keyword: FROM
           from_expression:

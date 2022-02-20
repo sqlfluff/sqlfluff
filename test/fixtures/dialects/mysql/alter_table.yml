@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 334ab689c5b966ac68643b7eaea3e499a10b695e5428c3a92753ea7a4f7705e5
+_hash: 496a63563cee65c6fc182f8392a81dfbc5eb8665de68526144e62adfe6dffe8d
 file:
 - statement:
     alter_table_statement:
@@ -17,17 +17,16 @@ file:
         identifier: '`name`'
         data_type:
           data_type_identifier: varchar
-          bracketed:
-            start_bracket: (
-            expression:
-              literal: '255'
-            end_bracket: )
-        column_constraint_segment:
-        - keyword: NOT
-        - keyword: 'NULL'
+    unparsable:
+    - bracketed:
+        start_bracket: (
+        raw: '255'
+        end_bracket: )
+    - raw: NOT
+    - raw: 'NULL'
     - comma: ','
-    - parameter: COMMENT
-    - literal: '"name of user"'
+    - raw: COMMENT
+    - raw: '"name of user"'
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -72,19 +71,17 @@ file:
     - column_reference:
         identifier: '`birthday`'
     - column_definition:
-      - identifier: '`date_of_birth`'
-      - data_type:
+        identifier: '`date_of_birth`'
+        data_type:
           data_type_identifier: INT
-          bracketed:
-            start_bracket: (
-            expression:
-              literal: '11'
-            end_bracket: )
-      - column_constraint_segment:
-          keyword: 'NULL'
-      - column_constraint_segment:
-          keyword: DEFAULT
-          literal: 'NULL'
+    unparsable:
+    - bracketed:
+        start_bracket: (
+        raw: '11'
+        end_bracket: )
+    - raw: 'NULL'
+    - raw: DEFAULT
+    - raw: 'NULL'
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -100,14 +97,13 @@ file:
         identifier: '`date_of_birth`'
         data_type:
           data_type_identifier: INT
-          bracketed:
-            start_bracket: (
-            expression:
-              literal: '11'
-            end_bracket: )
-        column_constraint_segment:
-        - keyword: NOT
-        - keyword: 'NULL'
+    unparsable:
+    - bracketed:
+        start_bracket: (
+        raw: '11'
+        end_bracket: )
+    - raw: NOT
+    - raw: 'NULL'
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -123,12 +119,12 @@ file:
         identifier: '`date_of_birth`'
         data_type:
           data_type_identifier: INT
-          bracketed:
-            start_bracket: (
-            expression:
-              literal: '11'
-            end_bracket: )
-    - keyword: FIRST
+    unparsable:
+      bracketed:
+        start_bracket: (
+        raw: '11'
+        end_bracket: )
+      raw: FIRST
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -144,14 +140,13 @@ file:
         identifier: '`date_of_birth`'
         data_type:
           data_type_identifier: INT
-          bracketed:
-            start_bracket: (
-            expression:
-              literal: '11'
-            end_bracket: )
-    - keyword: AFTER
-    - column_reference:
-        identifier: '`name`'
+    unparsable:
+    - bracketed:
+        start_bracket: (
+        raw: '11'
+        end_bracket: )
+    - raw: AFTER
+    - raw: '`name`'
 - statement_terminator: ;
 - statement:
     alter_table_statement:

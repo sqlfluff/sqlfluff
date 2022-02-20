@@ -3,54 +3,54 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6a5466882f1e7f393f438ac173939d68c75ebb24bcb35b603fc1e2586bc09c83
+_hash: 55889fa5fc6b290d46d7dfe25a158ade2743002fcdb54c9064f6c4de2f7f76a1
 file:
-- batch:
+  batch:
     statement:
       if_then_statement:
         keyword: IF
         expression:
-        - keyword: NOT
-        - keyword: EXISTS
-        - bracketed:
-            start_bracket: (
-            expression:
-              select_statement:
-                select_clause:
-                  keyword: SELECT
-                  select_clause_element:
-                    wildcard_expression:
-                      wildcard_identifier:
-                        star: '*'
-                from_clause:
-                  keyword: FROM
-                  from_expression:
-                    from_expression_element:
-                      table_expression:
-                        table_reference:
-                        - identifier: sys
-                        - dot: .
-                        - identifier: sequences
-                where_clause:
-                  keyword: WHERE
-                  expression:
-                  - column_reference:
-                      identifier: object_id
-                  - comparison_operator: '='
-                  - function:
-                      function_name:
-                        function_name_identifier: OBJECT_ID
-                      bracketed:
-                        start_bracket: (
-                        expression:
-                          literal: "N'[dbo].[SEQ_SCHEMA_NAME_TABLE_NAME]'"
-                        end_bracket: )
-                  - binary_operator: AND
-                  - column_reference:
-                      identifier: type
-                  - comparison_operator: '='
-                  - literal: "'SO'"
-            end_bracket: )
+          keyword: NOT
+          function:
+            function_name:
+              function_name_identifier: EXISTS
+            bracketed:
+              start_bracket: (
+              expression:
+                select_statement:
+                  select_clause:
+                    keyword: SELECT
+                    select_clause_element:
+                      wildcard_expression:
+                        wildcard_identifier:
+                          star: '*'
+                  from_clause:
+                    keyword: FROM
+                    from_expression:
+                      from_expression_element:
+                        table_expression:
+                          table_reference:
+                          - identifier: sys
+                          - dot: .
+                          - identifier: sequences
+                  where_clause:
+                    keyword: WHERE
+                    expression:
+                    - column_reference:
+                        identifier: object_id
+                    - comparison_operator: '='
+                    - column_reference:
+                        identifier: OBJECT_ID
+              unparsable:
+              - bracketed:
+                  start_bracket: (
+                  raw: "N'[dbo].[SEQ_SCHEMA_NAME_TABLE_NAME]'"
+                  end_bracket: )
+              - raw: AND
+              - raw: type
+              - raw: '='
+              - raw: "'SO'"
+              end_bracket: )
         statement:
           create_sequence_statement:
           - keyword: CREATE
@@ -66,576 +66,347 @@ file:
             - keyword: BY
             - literal: '1'
         statement_terminator: ;
-- go_statement:
+  go_statement:
     keyword: GO
-- batch:
-  - statement:
-      create_table_statement:
-      - keyword: CREATE
-      - keyword: TABLE
-      - table_reference:
-        - identifier: SCHEMA_NAME
-        - dot: .
-        - identifier: TABLE_NAME
-      - bracketed:
-        - start_bracket: (
-        - column_definition:
-          - identifier: '[ID]'
-          - data_type:
-              identifier: INT
-          - column_constraint_segment:
-            - keyword: PRIMARY
-            - keyword: KEY
-          - column_constraint_segment:
-            - keyword: NOT
-            - keyword: 'NULL'
-          - column_constraint_segment:
-              keyword: DEFAULT
-              bracketed:
-                start_bracket: (
-                sequence_next_value:
-                - keyword: NEXT
-                - keyword: VALUE
-                - keyword: FOR
-                - object_reference:
-                  - identifier: '[dbo]'
-                  - dot: .
-                  - identifier: '[SEQ_SCHEMA_NAME_TABLE_NAME]'
-                end_bracket: )
-        - comma: ','
-        - column_definition:
-            identifier: '[WEEK_UNIX]'
-            data_type:
-              identifier: BIGINT
-        - comma: ','
-        - column_definition:
-            identifier: GMCODE
-            data_type:
-              identifier: VARCHAR
-              bracketed:
-                start_bracket: (
-                expression:
-                  literal: '100'
-                end_bracket: )
-        - comma: ','
-        - column_definition:
-            identifier: AVERAGE_RNA_FLOW_PER_100000
-            data_type:
-              identifier: DECIMAL
-              bracketed:
-              - start_bracket: (
-              - expression:
-                  literal: '16'
-              - comma: ','
-              - expression:
-                  literal: '2'
-              - end_bracket: )
-            column_constraint_segment:
-              keyword: 'NULL'
-        - comma: ','
-        - column_definition:
-            identifier: NUMBER_OF_MEASUREMENTS
-            data_type:
-              identifier: INT
-            column_constraint_segment:
-              keyword: 'NULL'
-        - comma: ','
-        - column_definition:
-            identifier: NUMBER_OF_LOCATIONS
-            data_type:
-              identifier: INT
-            column_constraint_segment:
-              keyword: 'NULL'
-        - comma: ','
-        - column_definition:
-            identifier: TOTAL_LOCATIONS
-            data_type:
-              identifier: INT
-            column_constraint_segment:
-              keyword: 'NULL'
-        - comma: ','
-        - column_definition:
-            identifier: DATE_LAST_INSERTED
-            data_type:
-              identifier: DATETIME
-            column_constraint_segment:
-              keyword: DEFAULT
-              function:
-                function_name:
-                  function_name_identifier: GETDATE
-                bracketed:
-                  start_bracket: (
-                  end_bracket: )
-        - end_bracket: )
-      - statement_terminator: ;
-  - statement:
-      if_then_statement:
-        keyword: IF
-        expression:
-        - keyword: NOT
-        - keyword: EXISTS
-        - bracketed:
-            start_bracket: (
-            expression:
-              select_statement:
-                select_clause:
-                  keyword: SELECT
-                  select_clause_element:
-                    wildcard_expression:
-                      wildcard_identifier:
-                        star: '*'
-                from_clause:
-                  keyword: FROM
-                  from_expression:
-                    from_expression_element:
-                      table_expression:
-                        table_reference:
-                        - identifier: sys
-                        - dot: .
-                        - identifier: sequences
-                where_clause:
-                  keyword: WHERE
-                  expression:
-                  - column_reference:
-                      identifier: object_id
-                  - comparison_operator: '='
-                  - function:
-                      function_name:
-                        function_name_identifier: OBJECT_ID
-                      bracketed:
-                        start_bracket: (
-                        expression:
-                          literal: "N'[dbo].[SEQ_STAGE_CBS_POPULATION_BASE]'"
-                        end_bracket: )
-                  - binary_operator: AND
-                  - column_reference:
-                      identifier: type
-                  - comparison_operator: '='
-                  - literal: "'SO'"
-            end_bracket: )
-        statement:
-          create_sequence_statement:
-          - keyword: CREATE
-          - keyword: SEQUENCE
-          - sequence_reference:
-              identifier: SEQ_STAGE_CBS_POPULATION_BASE
-          - create_sequence_options_segment:
-            - keyword: START
-            - keyword: WITH
-            - literal: '1'
-          - create_sequence_options_segment:
-            - keyword: INCREMENT
-            - keyword: BY
-            - literal: '1'
-        statement_terminator: ;
-- go_statement:
-    keyword: GO
-- batch:
-    statement:
-      create_table_statement:
-      - keyword: CREATE
-      - keyword: TABLE
-      - table_reference:
-        - identifier: STAGE
-        - dot: .
-        - identifier: CBS_POPULATION_BASE
-      - bracketed:
-        - start_bracket: (
-        - column_definition:
-          - identifier: '[ID]'
-          - data_type:
-              identifier: INT
-          - column_constraint_segment:
-            - keyword: PRIMARY
-            - keyword: KEY
-            - keyword: NONCLUSTERED
-          - column_constraint_segment:
-            - keyword: NOT
-            - keyword: 'NULL'
-          - column_constraint_segment:
-              keyword: DEFAULT
-              bracketed:
-                start_bracket: (
-                sequence_next_value:
-                - keyword: NEXT
-                - keyword: VALUE
-                - keyword: FOR
-                - object_reference:
-                  - identifier: '[dbo]'
-                  - dot: .
-                  - identifier: '[SEQ_STAGE_CBS_POPULATION_BASE]'
-                end_bracket: )
-        - comma: ','
-        - column_definition:
-            identifier: GEMEENTE_CODE
-            data_type:
-              identifier: VARCHAR
-              bracketed:
-                start_bracket: (
-                expression:
-                  literal: '100'
-                end_bracket: )
-            column_constraint_segment:
-              keyword: 'NULL'
-        - comma: ','
-        - column_definition:
-            identifier: GEMEENTE
-            data_type:
-              identifier: VARCHAR
-              bracketed:
-                start_bracket: (
-                expression:
-                  literal: '100'
-                end_bracket: )
-            column_constraint_segment:
-              keyword: 'NULL'
-        - comma: ','
-        - column_definition:
-            identifier: LEEFTIJD
-            data_type:
-              identifier: VARCHAR
-              bracketed:
-                start_bracket: (
-                expression:
-                  literal: '100'
-                end_bracket: )
-            column_constraint_segment:
-              keyword: 'NULL'
-        - comma: ','
-        - column_definition:
-            identifier: GESLACHT
-            data_type:
-              identifier: VARCHAR
-              bracketed:
-                start_bracket: (
-                expression:
-                  literal: '100'
-                end_bracket: )
-            column_constraint_segment:
-              keyword: 'NULL'
-        - comma: ','
-        - column_definition:
-            identifier: DATUM_PEILING
-            data_type:
-              identifier: VARCHAR
-              bracketed:
-                start_bracket: (
-                expression:
-                  literal: '100'
-                end_bracket: )
-            column_constraint_segment:
-              keyword: 'NULL'
-        - comma: ','
-        - column_definition:
-            identifier: POPULATIE
-            data_type:
-              identifier: VARCHAR
-              bracketed:
-                start_bracket: (
-                expression:
-                  literal: '100'
-                end_bracket: )
-            column_constraint_segment:
-              keyword: 'NULL'
-        - comma: ','
-        - column_definition:
-            identifier: VEILIGHEIDSREGIO_CODE
-            data_type:
-              identifier: VARCHAR
-              bracketed:
-                start_bracket: (
-                expression:
-                  literal: '100'
-                end_bracket: )
-            column_constraint_segment:
-              keyword: 'NULL'
-        - comma: ','
-        - column_definition:
-            identifier: VEILIGHEIDSREGIO_NAAM
-            data_type:
-              identifier: VARCHAR
-              bracketed:
-                start_bracket: (
-                expression:
-                  literal: '100'
-                end_bracket: )
-            column_constraint_segment:
-              keyword: 'NULL'
-        - comma: ','
-        - column_definition:
-            identifier: PROVINCIE_CODE
-            data_type:
-              identifier: VARCHAR
-              bracketed:
-                start_bracket: (
-                expression:
-                  literal: '100'
-                end_bracket: )
-            column_constraint_segment:
-              keyword: 'NULL'
-        - comma: ','
-        - column_definition:
-            identifier: PROVINCIE_NAAM
-            data_type:
-              identifier: VARCHAR
-              bracketed:
-                start_bracket: (
-                expression:
-                  literal: '100'
-                end_bracket: )
-            column_constraint_segment:
-              keyword: 'NULL'
-        - comma: ','
-        - column_definition:
-            identifier: GGD_CODE
-            data_type:
-              identifier: VARCHAR
-              bracketed:
-                start_bracket: (
-                expression:
-                  literal: '100'
-                end_bracket: )
-            column_constraint_segment:
-              keyword: 'NULL'
-        - comma: ','
-        - column_definition:
-            identifier: GGD_NAAM
-            data_type:
-              identifier: VARCHAR
-              bracketed:
-                start_bracket: (
-                expression:
-                  literal: '100'
-                end_bracket: )
-            column_constraint_segment:
-              keyword: 'NULL'
-        - comma: ','
-        - column_definition:
-            identifier: DATE_LAST_INSERTED
-            data_type:
-              identifier: DATETIME
-            column_constraint_segment:
-              keyword: DEFAULT
-              function:
-                function_name:
-                  function_name_identifier: GETDATE
-                bracketed:
-                  start_bracket: (
-                  end_bracket: )
-        - end_bracket: )
-      - statement_terminator: ;
-- go_statement:
-    keyword: GO
-- batch:
-    statement:
-      create_index_statement:
-      - keyword: CREATE
-      - keyword: CLUSTERED
-      - keyword: INDEX
-      - index_reference:
-          identifier: CI_DLI_STAGE_CBS_POPULATION_BASE
-      - keyword: 'ON'
-      - table_reference:
-        - identifier: STAGE
-        - dot: .
-        - identifier: CBS_POPULATION_BASE
-      - bracketed:
-          start_bracket: (
-          index_column_definition:
-            identifier: DATE_LAST_INSERTED
-          end_bracket: )
-- go_statement:
-    keyword: GO
-- batch:
-  - statement:
-      create_index_statement:
-      - keyword: CREATE
-      - keyword: NONCLUSTERED
-      - keyword: INDEX
-      - index_reference:
-          identifier: NCI_DLI_STAGE_CIMS_VACCINATED_AGE_GROUP
-      - keyword: 'ON'
-      - table_reference:
-        - identifier: STAGE
-        - dot: .
-        - identifier: CBS_POPULATION_BASE
-      - bracketed:
-        - start_bracket: (
-        - index_column_definition:
-            identifier: DATE_LAST_INSERTED
-        - comma: ','
-        - index_column_definition:
-            identifier: GEMEENTE_CODE
-        - comma: ','
-        - index_column_definition:
-            identifier: GEMEENTE
-        - comma: ','
-        - index_column_definition:
-            identifier: LEEFTIJD
-        - comma: ','
-        - index_column_definition:
-            identifier: GESLACHT
-        - comma: ','
-        - index_column_definition:
-            identifier: DATUM_PEILING
-        - comma: ','
-        - index_column_definition:
-            identifier: POPULATIE
-        - comma: ','
-        - index_column_definition:
-            identifier: VEILIGHEIDSREGIO_CODE
-        - comma: ','
-        - index_column_definition:
-            identifier: VEILIGHEIDSREGIO_NAAM
-        - comma: ','
-        - index_column_definition:
-            identifier: PROVINCIE_CODE
-        - comma: ','
-        - index_column_definition:
-            identifier: PROVINCIE_NAAM
-        - comma: ','
-        - index_column_definition:
-            identifier: GGD_CODE
-        - comma: ','
-        - index_column_definition:
-            identifier: GGD_NAAM
-        - end_bracket: )
-      - statement_terminator: ;
-  - statement:
-      create_table_statement:
-      - keyword: CREATE
-      - keyword: TABLE
-      - table_reference:
-        - identifier: DEST
-        - dot: .
-        - identifier: POSITIVE_TESTED_PEOPLE
-      - bracketed:
-        - start_bracket: (
-        - column_definition:
-          - identifier: '[ID]'
-          - data_type:
-              identifier: INT
-          - column_constraint_segment:
-            - keyword: PRIMARY
-            - keyword: KEY
-          - column_constraint_segment:
-            - keyword: NOT
-            - keyword: 'NULL'
-          - column_constraint_segment:
-              keyword: DEFAULT
-              bracketed:
-                start_bracket: (
-                sequence_next_value:
-                - keyword: NEXT
-                - keyword: VALUE
-                - keyword: FOR
-                - object_reference:
-                  - identifier: '[dbo]'
-                  - dot: .
-                  - identifier: '[SEQ_DEST_POSITIVE_TESTED_PEOPLE]'
-                end_bracket: )
-        - comma: ','
-        - column_definition:
-            identifier: DATE_OF_REPORT
-            data_type:
-              identifier: DATETIME
-            column_constraint_segment:
-              keyword: 'NULL'
-        - comma: ','
-        - column_definition:
-            identifier: DATE_OF_REPORT_UNIX
-            data_type:
-              identifier: BIGINT
-            column_constraint_segment:
-              keyword: 'NULL'
-        - comma: ','
-        - column_definition:
-            identifier: INFECTED_DAILY_INCREASE
-            data_type:
-              identifier: DECIMAL
-              bracketed:
-              - start_bracket: (
-              - expression:
-                  literal: '16'
-              - comma: ','
-              - expression:
-                  literal: '1'
-              - end_bracket: )
-            column_constraint_segment:
-              keyword: 'NULL'
-        - comma: ','
-        - column_definition:
-            identifier: INFECTED_DAILY_TOTAL
-            data_type:
-              identifier: INT
-            column_constraint_segment:
-              keyword: 'NULL'
-        - comma: ','
-        - column_definition:
-            identifier: DATE_LAST_INSERTED
-            data_type:
-              identifier: DATETIME
-            column_constraint_segment:
-              keyword: DEFAULT
-              function:
-                function_name:
-                  function_name_identifier: GETDATE
-                bracketed:
-                  start_bracket: (
-                  end_bracket: )
-        - comma: ','
-        - column_definition:
-            identifier: '[DATE_RANGE_START]'
-            data_type:
-              identifier: datetime
-        - comma: ','
-        - column_definition:
-            identifier: '[DATE_OF_REPORTS_LAG]'
-            data_type:
-              identifier: datetime
-        - comma: ','
-        - column_definition:
-            identifier: '[DATE_RANGE_START_LAG]'
-            data_type:
-              identifier: datetime
-        - comma: ','
-        - column_definition:
-            identifier: '[7D_AVERAGE_INFECTED_DAILY_INCREASE_TOTAL]'
-            data_type:
-              identifier: decimal
-              bracketed:
-              - start_bracket: (
-              - expression:
-                  literal: '16'
-              - comma: ','
-              - expression:
-                  literal: '2'
-              - end_bracket: )
-        - comma: ','
-        - column_definition:
-            identifier: '[7D_AVERAGE_INFECTED_DAILY_INCREASE_LAG]'
-            data_type:
-              identifier: decimal
-              bracketed:
-              - start_bracket: (
-              - expression:
-                  literal: '16'
-              - comma: ','
-              - expression:
-                  literal: '2'
-              - end_bracket: )
-        - comma: ','
-        - column_definition:
-            identifier: '[7D_AVERAGE_INFECTED_DAILY_INCREASE_ABSOLUTE]'
-            data_type:
-              identifier: decimal
-              bracketed:
-              - start_bracket: (
-              - expression:
-                  literal: '16'
-              - comma: ','
-              - expression:
-                  literal: '2'
-              - end_bracket: )
-        - end_bracket: )
-      - statement_terminator: ;
+  unparsable:
+  - raw: CREATE
+  - raw: TABLE
+  - raw: SCHEMA_NAME
+  - raw: .
+  - raw: TABLE_NAME
+  - raw: (
+  - raw: '[ID]'
+  - raw: INT
+  - raw: PRIMARY
+  - raw: KEY
+  - raw: NOT
+  - raw: 'NULL'
+  - raw: DEFAULT
+  - raw: (
+  - raw: NEXT
+  - raw: VALUE
+  - raw: FOR
+  - raw: '[dbo]'
+  - raw: .
+  - raw: '[SEQ_SCHEMA_NAME_TABLE_NAME]'
+  - raw: )
+  - comma: ','
+  - raw: '[WEEK_UNIX]'
+  - raw: BIGINT
+  - comma: ','
+  - raw: GMCODE
+  - raw: VARCHAR
+  - raw: (
+  - raw: '100'
+  - raw: )
+  - comma: ','
+  - raw: AVERAGE_RNA_FLOW_PER_100000
+  - raw: DECIMAL
+  - raw: (
+  - raw: '16'
+  - comma: ','
+  - raw: '2'
+  - raw: )
+  - raw: 'NULL'
+  - comma: ','
+  - raw: NUMBER_OF_MEASUREMENTS
+  - raw: INT
+  - raw: 'NULL'
+  - comma: ','
+  - raw: NUMBER_OF_LOCATIONS
+  - raw: INT
+  - raw: 'NULL'
+  - comma: ','
+  - raw: TOTAL_LOCATIONS
+  - raw: INT
+  - raw: 'NULL'
+  - comma: ','
+  - raw: DATE_LAST_INSERTED
+  - raw: DATETIME
+  - raw: DEFAULT
+  - raw: GETDATE
+  - raw: (
+  - raw: )
+  - raw: )
+  - raw: ;
+  - raw: IF
+  - raw: NOT
+  - raw: EXISTS
+  - raw: (
+  - raw: SELECT
+  - raw: '*'
+  - raw: FROM
+  - raw: sys
+  - raw: .
+  - raw: sequences
+  - raw: WHERE
+  - raw: object_id
+  - raw: '='
+  - raw: OBJECT_ID
+  - raw: (
+  - raw: "N'[dbo].[SEQ_STAGE_CBS_POPULATION_BASE]'"
+  - raw: )
+  - raw: AND
+  - raw: type
+  - raw: '='
+  - raw: "'SO'"
+  - raw: )
+  - raw: CREATE
+  - raw: SEQUENCE
+  - raw: SEQ_STAGE_CBS_POPULATION_BASE
+  - raw: START
+  - raw: WITH
+  - raw: '1'
+  - raw: INCREMENT
+  - raw: BY
+  - raw: '1'
+  - raw: ;
+  - raw: GO
+  - raw: CREATE
+  - raw: TABLE
+  - raw: STAGE
+  - raw: .
+  - raw: CBS_POPULATION_BASE
+  - raw: (
+  - raw: '[ID]'
+  - raw: INT
+  - raw: PRIMARY
+  - raw: KEY
+  - raw: NONCLUSTERED
+  - raw: NOT
+  - raw: 'NULL'
+  - raw: DEFAULT
+  - raw: (
+  - raw: NEXT
+  - raw: VALUE
+  - raw: FOR
+  - raw: '[dbo]'
+  - raw: .
+  - raw: '[SEQ_STAGE_CBS_POPULATION_BASE]'
+  - raw: )
+  - comma: ','
+  - raw: GEMEENTE_CODE
+  - raw: VARCHAR
+  - raw: (
+  - raw: '100'
+  - raw: )
+  - raw: 'NULL'
+  - comma: ','
+  - raw: GEMEENTE
+  - raw: VARCHAR
+  - raw: (
+  - raw: '100'
+  - raw: )
+  - raw: 'NULL'
+  - comma: ','
+  - raw: LEEFTIJD
+  - raw: VARCHAR
+  - raw: (
+  - raw: '100'
+  - raw: )
+  - raw: 'NULL'
+  - comma: ','
+  - raw: GESLACHT
+  - raw: VARCHAR
+  - raw: (
+  - raw: '100'
+  - raw: )
+  - raw: 'NULL'
+  - comma: ','
+  - raw: DATUM_PEILING
+  - raw: VARCHAR
+  - raw: (
+  - raw: '100'
+  - raw: )
+  - raw: 'NULL'
+  - comma: ','
+  - raw: POPULATIE
+  - raw: VARCHAR
+  - raw: (
+  - raw: '100'
+  - raw: )
+  - raw: 'NULL'
+  - comma: ','
+  - raw: VEILIGHEIDSREGIO_CODE
+  - raw: VARCHAR
+  - raw: (
+  - raw: '100'
+  - raw: )
+  - raw: 'NULL'
+  - comma: ','
+  - raw: VEILIGHEIDSREGIO_NAAM
+  - raw: VARCHAR
+  - raw: (
+  - raw: '100'
+  - raw: )
+  - raw: 'NULL'
+  - comma: ','
+  - raw: PROVINCIE_CODE
+  - raw: VARCHAR
+  - raw: (
+  - raw: '100'
+  - raw: )
+  - raw: 'NULL'
+  - comma: ','
+  - raw: PROVINCIE_NAAM
+  - raw: VARCHAR
+  - raw: (
+  - raw: '100'
+  - raw: )
+  - raw: 'NULL'
+  - comma: ','
+  - raw: GGD_CODE
+  - raw: VARCHAR
+  - raw: (
+  - raw: '100'
+  - raw: )
+  - raw: 'NULL'
+  - comma: ','
+  - raw: GGD_NAAM
+  - raw: VARCHAR
+  - raw: (
+  - raw: '100'
+  - raw: )
+  - raw: 'NULL'
+  - comma: ','
+  - raw: DATE_LAST_INSERTED
+  - raw: DATETIME
+  - raw: DEFAULT
+  - raw: GETDATE
+  - raw: (
+  - raw: )
+  - raw: )
+  - raw: ;
+  - raw: GO
+  - raw: CREATE
+  - raw: CLUSTERED
+  - raw: INDEX
+  - raw: CI_DLI_STAGE_CBS_POPULATION_BASE
+  - raw: 'ON'
+  - raw: STAGE
+  - raw: .
+  - raw: CBS_POPULATION_BASE
+  - raw: (
+  - raw: DATE_LAST_INSERTED
+  - raw: )
+  - raw: GO
+  - raw: CREATE
+  - raw: NONCLUSTERED
+  - raw: INDEX
+  - raw: NCI_DLI_STAGE_CIMS_VACCINATED_AGE_GROUP
+  - raw: 'ON'
+  - raw: STAGE
+  - raw: .
+  - raw: CBS_POPULATION_BASE
+  - raw: (
+  - raw: DATE_LAST_INSERTED
+  - comma: ','
+  - raw: GEMEENTE_CODE
+  - comma: ','
+  - raw: GEMEENTE
+  - comma: ','
+  - raw: LEEFTIJD
+  - comma: ','
+  - raw: GESLACHT
+  - comma: ','
+  - raw: DATUM_PEILING
+  - comma: ','
+  - raw: POPULATIE
+  - comma: ','
+  - raw: VEILIGHEIDSREGIO_CODE
+  - comma: ','
+  - raw: VEILIGHEIDSREGIO_NAAM
+  - comma: ','
+  - raw: PROVINCIE_CODE
+  - comma: ','
+  - raw: PROVINCIE_NAAM
+  - comma: ','
+  - raw: GGD_CODE
+  - comma: ','
+  - raw: GGD_NAAM
+  - raw: )
+  - raw: ;
+  - raw: CREATE
+  - raw: TABLE
+  - raw: DEST
+  - raw: .
+  - raw: POSITIVE_TESTED_PEOPLE
+  - raw: (
+  - raw: '[ID]'
+  - raw: INT
+  - raw: PRIMARY
+  - raw: KEY
+  - raw: NOT
+  - raw: 'NULL'
+  - raw: DEFAULT
+  - raw: (
+  - raw: NEXT
+  - raw: VALUE
+  - raw: FOR
+  - raw: '[dbo]'
+  - raw: .
+  - raw: '[SEQ_DEST_POSITIVE_TESTED_PEOPLE]'
+  - raw: )
+  - comma: ','
+  - raw: DATE_OF_REPORT
+  - raw: DATETIME
+  - raw: 'NULL'
+  - comma: ','
+  - raw: DATE_OF_REPORT_UNIX
+  - raw: BIGINT
+  - raw: 'NULL'
+  - comma: ','
+  - raw: INFECTED_DAILY_INCREASE
+  - raw: DECIMAL
+  - raw: (
+  - raw: '16'
+  - comma: ','
+  - raw: '1'
+  - raw: )
+  - raw: 'NULL'
+  - comma: ','
+  - raw: INFECTED_DAILY_TOTAL
+  - raw: INT
+  - raw: 'NULL'
+  - comma: ','
+  - raw: DATE_LAST_INSERTED
+  - raw: DATETIME
+  - raw: DEFAULT
+  - raw: GETDATE
+  - raw: (
+  - raw: )
+  - comma: ','
+  - raw: '[DATE_RANGE_START]'
+  - raw: datetime
+  - comma: ','
+  - raw: '[DATE_OF_REPORTS_LAG]'
+  - raw: datetime
+  - comma: ','
+  - raw: '[DATE_RANGE_START_LAG]'
+  - raw: datetime
+  - comma: ','
+  - raw: '[7D_AVERAGE_INFECTED_DAILY_INCREASE_TOTAL]'
+  - raw: decimal
+  - raw: (
+  - raw: '16'
+  - comma: ','
+  - raw: '2'
+  - raw: )
+  - comma: ','
+  - raw: '[7D_AVERAGE_INFECTED_DAILY_INCREASE_LAG]'
+  - raw: decimal
+  - raw: (
+  - raw: '16'
+  - comma: ','
+  - raw: '2'
+  - raw: )
+  - comma: ','
+  - raw: '[7D_AVERAGE_INFECTED_DAILY_INCREASE_ABSOLUTE]'
+  - raw: decimal
+  - raw: (
+  - raw: '16'
+  - comma: ','
+  - raw: '2'
+  - raw: )
+  - raw: )
+  - raw: ;

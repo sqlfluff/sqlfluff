@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1b58af1b9ec665e495748f09a8c16b331e7d6572b749910bce4fbc6442c4147a
+_hash: de81a9f4dcd3bd2ae3323b1b75511ad6da8751a76cfa4fbc5d4e61ab27f18fb0
 file:
 - statement:
     select_statement:
@@ -27,32 +27,27 @@ file:
       - keyword: GROUP
       - keyword: BY
       - grouping_sets_clause:
-        - keyword: GROUPING
-        - keyword: SETS
-        - bracketed:
-          - start_bracket: (
-          - grouping_expression_list:
-              expression:
-                column_reference:
-                  identifier: foo
-          - comma: ','
-          - grouping_expression_list:
-              expression:
-                column_reference:
-                  identifier: bar
-          - end_bracket: )
+          unparsable:
+          - keyword: GROUPING
+          - keyword: SETS
+          - bracketed:
+            - start_bracket: (
+            - raw: foo
+            - comma: ','
+            - raw: bar
+            - end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
       select_clause:
       - keyword: select
       - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: count
+          column_reference:
+            identifier: count
+          unparsable:
             bracketed:
               start_bracket: (
-              star: '*'
+              raw: '*'
               end_bracket: )
       - comma: ','
       - select_clause_element:
@@ -73,32 +68,27 @@ file:
       - keyword: group
       - keyword: by
       - grouping_sets_clause:
-        - keyword: grouping
-        - keyword: sets
-        - bracketed:
-          - start_bracket: (
-          - grouping_expression_list:
-              expression:
-                column_reference:
-                  identifier: medical_license
-          - comma: ','
-          - grouping_expression_list:
-              expression:
-                column_reference:
-                  identifier: radio_license
-          - end_bracket: )
+          unparsable:
+          - keyword: grouping
+          - keyword: sets
+          - bracketed:
+            - start_bracket: (
+            - raw: medical_license
+            - comma: ','
+            - raw: radio_license
+            - end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
       select_clause:
       - keyword: select
       - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: count
+          column_reference:
+            identifier: count
+          unparsable:
             bracketed:
               start_bracket: (
-              star: '*'
+              raw: '*'
               end_bracket: )
       - comma: ','
       - select_clause_element:
@@ -119,18 +109,13 @@ file:
       - keyword: group
       - keyword: by
       - grouping_sets_clause:
-        - keyword: grouping
-        - keyword: sets
-        - bracketed:
-          - start_bracket: (
-          - grouping_expression_list:
-              expression:
-                column_reference:
-                  identifier: medical_license
-          - comma: ','
-          - grouping_expression_list:
-              expression:
-                column_reference:
-                  identifier: radio_license
-          - end_bracket: )
+          unparsable:
+          - keyword: grouping
+          - keyword: sets
+          - bracketed:
+            - start_bracket: (
+            - raw: medical_license
+            - comma: ','
+            - raw: radio_license
+            - end_bracket: )
 - statement_terminator: ;

@@ -3,128 +3,80 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ff2151dba34b7a3a60b5f56e362d230fe5ede51df541b9849fca5c98789c67a7
+_hash: 63b466109e830b44ef190d5c7bca05fe21159a05686ac8cfca164092106b2846
 file:
-  batch:
-    statement:
-      create_table_statement:
-      - keyword: CREATE
-      - keyword: TABLE
-      - table_reference:
-        - identifier: '[dbo]'
-        - dot: .
-        - identifier: '[example]'
-      - bracketed:
-        - start_bracket: (
-        - column_definition:
-            identifier: '[Column A]'
-            data_type:
-              identifier: '[int]'
-            column_constraint_segment:
-              identity_grammar:
-                keyword: IDENTITY
-        - comma: ','
-        - column_definition:
-          - identifier: '[Column B]'
-          - data_type:
-              identifier: '[int]'
-          - column_constraint_segment:
-              identity_grammar:
-                keyword: IDENTITY
-                bracketed:
-                - start_bracket: (
-                - literal: '1'
-                - comma: ','
-                - literal: '1'
-                - end_bracket: )
-          - column_constraint_segment:
-            - keyword: NOT
-            - keyword: 'NULL'
-        - comma: ','
-        - column_definition:
-            identifier: '[ColumnC]'
-            data_type:
-              identifier: varchar
-              bracketed:
-                start_bracket: (
-                expression:
-                  literal: '100'
-                end_bracket: )
-            column_constraint_segment:
-              keyword: DEFAULT
-              literal: "'mydefault'"
-        - comma: ','
-        - column_definition:
-            identifier: '[ColumnDecimal]'
-            data_type:
-              identifier: DATE
-            column_constraint_segment:
-              keyword: DEFAULT
-              function:
-                function_name:
-                  function_name_identifier: GETDATE
-                bracketed:
-                  start_bracket: (
-                  end_bracket: )
-        - comma: ','
-        - column_definition:
-          - identifier: '[col1]'
-          - data_type:
-              identifier: int
-          - column_constraint_segment:
-              keyword: default
-              bracketed:
-                start_bracket: (
-                bracketed:
-                  start_bracket: (
-                  numeric_literal:
-                    binary_operator: '-'
-                    literal: '1'
-                  end_bracket: )
-                end_bracket: )
-          - column_constraint_segment:
-            - keyword: not
-            - keyword: 'null'
-        - comma: ','
-        - column_definition:
-          - identifier: '[col1]'
-          - data_type:
-              identifier: int
-          - column_constraint_segment:
-              keyword: default
-              bracketed:
-                start_bracket: (
-                numeric_literal:
-                  binary_operator: '-'
-                  literal: '1'
-                end_bracket: )
-          - column_constraint_segment:
-            - keyword: not
-            - keyword: 'null'
-        - comma: ','
-        - column_definition:
-          - identifier: '[col1]'
-          - data_type:
-              identifier: int
-          - column_constraint_segment:
-              keyword: default
-              numeric_literal:
-                binary_operator: '-'
-                literal: '1'
-          - column_constraint_segment:
-            - keyword: not
-            - keyword: 'null'
-        - comma: ','
-        - column_definition:
-          - identifier: '[col1]'
-          - data_type:
-              identifier: INT
-          - column_constraint_segment:
-              keyword: DEFAULT
-              bracketed:
-                start_bracket: (
-                literal: 'NULL'
-                end_bracket: )
-          - column_constraint_segment:
-              keyword: 'NULL'
-        - end_bracket: )
+  unparsable:
+  - raw: CREATE
+  - raw: TABLE
+  - raw: '[dbo]'
+  - raw: .
+  - raw: '[example]'
+  - raw: (
+  - raw: '[Column A]'
+  - raw: '[int]'
+  - raw: IDENTITY
+  - comma: ','
+  - raw: '[Column B]'
+  - raw: '[int]'
+  - raw: IDENTITY
+  - raw: (
+  - raw: '1'
+  - comma: ','
+  - raw: '1'
+  - raw: )
+  - raw: NOT
+  - raw: 'NULL'
+  - comma: ','
+  - raw: '[ColumnC]'
+  - raw: varchar
+  - raw: (
+  - raw: '100'
+  - raw: )
+  - raw: DEFAULT
+  - raw: "'mydefault'"
+  - comma: ','
+  - raw: '[ColumnDecimal]'
+  - raw: DATE
+  - raw: DEFAULT
+  - raw: GETDATE
+  - raw: (
+  - raw: )
+  - comma: ','
+  - raw: '[col1]'
+  - raw: int
+  - raw: default
+  - raw: (
+  - raw: (
+  - raw: '-'
+  - raw: '1'
+  - raw: )
+  - raw: )
+  - raw: not
+  - raw: 'null'
+  - comma: ','
+  - raw: '[col1]'
+  - raw: int
+  - raw: default
+  - raw: (
+  - raw: '-'
+  - raw: '1'
+  - raw: )
+  - raw: not
+  - raw: 'null'
+  - comma: ','
+  - raw: '[col1]'
+  - raw: int
+  - raw: default
+  - raw: '-'
+  - raw: '1'
+  - raw: not
+  - raw: 'null'
+  - comma: ','
+  - raw: '[col1]'
+  - raw: INT
+  - raw: DEFAULT
+  - raw: (
+  - raw: 'NULL'
+  - raw: )
+  - raw: 'NULL'
+  - raw: )

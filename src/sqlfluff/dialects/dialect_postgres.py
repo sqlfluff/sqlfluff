@@ -491,26 +491,29 @@ class WellKnownTextGeometrySegment(BaseSegment):
         Sequence(
             OneOf(*_geometry_type_keywords),
             Bracketed(
-                Delimited(
-                    OptionallyBracketed(Delimited(Ref("SimpleGeometryGrammar"))),
-                    # 2D Arrays of coordinates - to specify surfaces
-                    Bracketed(
-                        Delimited(Bracketed(Delimited(Ref("SimpleGeometryGrammar"))))
-                    ),
-                    Ref("WellKnownTextGeometrySegment"),
-                )
+                Bracketed(Ref("NumericLiteralSegment")),
+                Delimited(Ref("SimpleGeometryGrammar"))
+                # Delimited(
+                #     OptionallyBracketed(Delimited(Ref("SimpleGeometryGrammar"))),
+                #     # 2D Arrays of coordinates - to specify surfaces
+                #     Bracketed(
+                #         Delimited(Bracketed(Delimited(Ref("SimpleGeometryGrammar"))))
+                #     ),
+                #     Ref("WellKnownTextGeometrySegment"),
+                # )
             ),
-        ),
-        Sequence(
-            OneOf("GEOMETRY", "GEOGRAPHY"),
-            Bracketed(
-                Sequence(
-                    OneOf(*_geometry_type_keywords, "GEOMETRY", "GEOGRAPHY"),
-                    Ref("CommaSegment"),
-                    Ref("NumericLiteralSegment"),
-                )
-            ),
-        ),
+        )
+    #     ),
+    #     Sequence(
+    #         OneOf("GEOMETRY", "GEOGRAPHY"),
+    #         Bracketed(
+    #             Sequence(
+    #                 OneOf(*_geometry_type_keywords, "GEOMETRY", "GEOGRAPHY"),
+    #                 Ref("CommaSegment"),
+    #                 Ref("NumericLiteralSegment"),
+    #             )
+    #         ),
+    #     ),
     )
 
 

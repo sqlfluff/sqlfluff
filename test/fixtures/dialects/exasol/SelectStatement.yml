@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c779ff30a065b616a67966cb4168c174892973c083415a6b0168ace96a4dbdc0
+_hash: 436f16bd14b71e87a77a4e00fb34849c226cde087d5124d65fdd5a3c433c24b1
 file:
 - statement:
     select_statement:
@@ -34,37 +34,28 @@ file:
           bare_function: LEVEL
       - comma: ','
       - select_clause_element:
-          expression:
-          - function:
-              function_name:
-                function_name_identifier: LPAD
-              bracketed:
-              - start_bracket: (
-              - expression:
-                  literal: "' '"
-              - comma: ','
-              - expression:
-                - literal: '2'
-                - binary_operator: '*'
-                - bare_function: LEVEL
-                - binary_operator: '-'
-                - literal: '1'
-              - end_bracket: )
-          - binary_operator: '||'
-          - function:
-              function_name:
-                function_name_identifier: SYS_CONNECT_BY_PATH
-              bracketed:
-              - start_bracket: (
-              - expression:
-                  column_reference:
-                    identifier: last_name
-              - comma: ','
-              - expression:
-                  literal: "'/'"
-              - end_bracket: )
-          alias_expression:
-            identifier: '"PATH"'
+          column_reference:
+            identifier: LPAD
+          unparsable:
+          - bracketed:
+            - start_bracket: (
+            - raw: "' '"
+            - comma: ','
+            - raw: '2'
+            - raw: '*'
+            - raw: LEVEL
+            - raw: '-'
+            - raw: '1'
+            - end_bracket: )
+          - raw: '||'
+          - raw: SYS_CONNECT_BY_PATH
+          - bracketed:
+            - start_bracket: (
+            - raw: last_name
+            - comma: ','
+            - raw: "'/'"
+            - end_bracket: )
+          - raw: '"PATH"'
       from_clause:
         keyword: FROM
         from_expression:
@@ -82,8 +73,7 @@ file:
         - comparison_operator: '='
         - column_reference:
             identifier: manager_id
-      - binary_operator: AND
-      - expression:
+        - binary_operator: AND
         - column_reference:
             identifier: dept_no
         - comparison_operator: '='
@@ -111,18 +101,15 @@ file:
             identifier: store
       - comma: ','
       - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: SUM
-            bracketed:
+          column_reference:
+            identifier: SUM
+          unparsable:
+          - bracketed:
               start_bracket: (
-              expression:
-                column_reference:
-                  identifier: price
+              raw: price
               end_bracket: )
-          alias_expression:
-            keyword: AS
-            identifier: volume
+          - raw: AS
+          - raw: volume
       from_clause:
         keyword: FROM
         from_expression:
@@ -151,18 +138,15 @@ file:
             identifier: name
       - comma: ','
       - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: SUM
-            bracketed:
+          column_reference:
+            identifier: SUM
+          unparsable:
+          - bracketed:
               start_bracket: (
-              expression:
-                column_reference:
-                  identifier: price
+              raw: price
               end_bracket: )
-          alias_expression:
-            keyword: AS
-            identifier: volume
+          - raw: AS
+          - raw: volume
       from_clause:
         keyword: FROM
         from_expression:
@@ -171,16 +155,17 @@ file:
               table_reference:
                 identifier: customers
           join_clause:
-          - keyword: JOIN
-          - from_expression_element:
+            keyword: JOIN
+            from_expression_element:
               table_expression:
                 table_reference:
                   identifier: sales
-          - keyword: USING
-          - bracketed:
-              start_bracket: (
-              identifier: c_id
-              end_bracket: )
+        unparsable:
+          raw: USING
+          bracketed:
+            start_bracket: (
+            raw: c_id
+            end_bracket: )
       group_by_clause:
       - keyword: GROUP
       - keyword: BY
@@ -194,107 +179,59 @@ file:
 - statement_terminator: ;
 - statement:
     with_compound_statement:
-      keyword: WITH
-      common_table_expression:
-        identifier: tmp_view
-        keyword: AS
-        bracketed:
+      unparsable:
+      - keyword: WITH
+      - raw: tmp_view
+      - raw: AS
+      - bracketed:
+        - start_bracket: (
+        - raw: SELECT
+        - raw: name
+        - comma: ','
+        - raw: price
+        - comma: ','
+        - raw: store
+        - raw: FROM
+        - raw: customers
+        - comma: ','
+        - raw: sales
+        - raw: WHERE
+        - raw: customers
+        - raw: .
+        - raw: c_id
+        - raw: '='
+        - raw: sales
+        - raw: .
+        - raw: c_id
+        - end_bracket: )
+      - raw: SELECT
+      - raw: sum
+      - bracketed:
           start_bracket: (
-          select_statement:
-            select_clause:
-            - keyword: SELECT
-            - select_clause_element:
-                column_reference:
-                  identifier: name
-            - comma: ','
-            - select_clause_element:
-                column_reference:
-                  identifier: price
-            - comma: ','
-            - select_clause_element:
-                column_reference:
-                  identifier: store
-            from_clause:
-            - keyword: FROM
-            - from_expression:
-                from_expression_element:
-                  table_expression:
-                    table_reference:
-                      identifier: customers
-            - comma: ','
-            - from_expression:
-                from_expression_element:
-                  table_expression:
-                    table_reference:
-                      identifier: sales
-            where_clause:
-              keyword: WHERE
-              expression:
-              - column_reference:
-                - identifier: customers
-                - dot: .
-                - identifier: c_id
-              - comparison_operator: '='
-              - column_reference:
-                - identifier: sales
-                - dot: .
-                - identifier: c_id
+          raw: price
           end_bracket: )
-      select_statement:
-        select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-            function:
-              function_name:
-                function_name_identifier: sum
-              bracketed:
-                start_bracket: (
-                expression:
-                  column_reference:
-                    identifier: price
-                end_bracket: )
-            alias_expression:
-              keyword: AS
-              identifier: volume
+      - raw: AS
+      - raw: volume
+      - comma: ','
+      - raw: name
+      - comma: ','
+      - raw: store
+      - raw: FROM
+      - raw: tmp_view
+      - raw: GROUP
+      - raw: BY
+      - raw: GROUPING
+      - raw: SETS
+      - bracketed:
+        - start_bracket: (
+        - raw: name
         - comma: ','
-        - select_clause_element:
-            column_reference:
-              identifier: name
+        - raw: store
         - comma: ','
-        - select_clause_element:
-            column_reference:
-              identifier: store
-        from_clause:
-          keyword: FROM
-          from_expression:
-            from_expression_element:
-              table_expression:
-                table_reference:
-                  identifier: tmp_view
-        group_by_clause:
-        - keyword: GROUP
-        - keyword: BY
-        - grouping_sets_clause:
-          - keyword: GROUPING
-          - keyword: SETS
-          - bracketed:
-            - start_bracket: (
-            - grouping_expression_list:
-                expression:
-                  column_reference:
-                    identifier: name
-            - comma: ','
-            - grouping_expression_list:
-                expression:
-                  column_reference:
-                    identifier: store
-            - comma: ','
-            - grouping_expression_list:
-                expression:
-                  array_literal:
-                    start_bracket: (
-                    end_bracket: )
-            - end_bracket: )
+        - bracketed:
+            start_bracket: (
+            end_bracket: )
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -305,58 +242,46 @@ file:
             wildcard_identifier:
               star: '*'
       from_clause:
-        keyword: FROM
-        from_expression:
-          from_expression_element:
-            bracketed:
-              start_bracket: (
-              table_expression:
-                import_statement:
-                - keyword: IMPORT
-                - keyword: INTO
-                - bracketed:
-                    start_bracket: (
-                    import_columns:
-                      column_datatype_definition:
-                        identifier: v
-                        data_type:
-                          keyword: VARCHAR
-                          bracketed:
-                            start_bracket: (
-                            literal: '1'
-                            end_bracket: )
-                    end_bracket: )
-                - import_from_clause:
-                    keyword: FROM
-                    import_export_dbsrc:
-                    - keyword: EXA
-                    - keyword: AT
-                    - connection_definition:
-                        identifier: my_connection
-                    - keyword: TABLE
-                    - table_reference:
-                      - identifier: sys
-                      - dot: .
-                      - identifier: dual
-              end_bracket: )
+        unparsable:
+          keyword: FROM
+          bracketed:
+          - start_bracket: (
+          - raw: IMPORT
+          - raw: INTO
+          - bracketed:
+            - start_bracket: (
+            - raw: v
+            - raw: VARCHAR
+            - bracketed:
+                start_bracket: (
+                raw: '1'
+                end_bracket: )
+            - end_bracket: )
+          - raw: FROM
+          - raw: EXA
+          - raw: AT
+          - raw: my_connection
+          - raw: TABLE
+          - raw: sys
+          - raw: .
+          - raw: dual
+          - end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          function:
-            function_name:
-              identifier: aschema
-              dot: .
-              function_name_identifier: afunction
+          column_reference:
+          - identifier: aschema
+          - dot: .
+          - identifier: afunction
+          unparsable:
             bracketed:
             - start_bracket: (
-            - expression:
-                literal: "'hello'"
+            - raw: "'hello'"
             - comma: ','
-            - expression:
-                literal: '123'
+            - raw: '123'
             - end_bracket: )
       from_clause:
         keyword: FROM
@@ -368,129 +293,93 @@ file:
               - dot: .
               - identifier: mytable
       where_clause:
-        keyword: WHERE
-        expression:
+        unparsable:
+        - keyword: WHERE
         - bracketed:
           - start_bracket: (
-          - column_reference:
-              identifier: a
+          - raw: a
           - comma: ','
-          - literal: '2'
+          - raw: '2'
           - comma: ','
-          - function:
-              function_name:
-                function_name_identifier: substr
-              bracketed:
-              - start_bracket: (
-              - expression:
-                  column_reference:
-                    identifier: c
-              - comma: ','
-              - expression:
-                  literal: '1'
-              - comma: ','
-              - expression:
-                  literal: '3'
-              - end_bracket: )
+          - raw: substr
+          - bracketed:
+            - start_bracket: (
+            - raw: c
+            - comma: ','
+            - raw: '1'
+            - comma: ','
+            - raw: '3'
+            - end_bracket: )
           - end_bracket: )
-        - keyword: IN
+        - raw: IN
         - bracketed:
-            start_bracket: (
-            select_statement:
-              select_clause:
-              - keyword: SELECT
-              - select_clause_element:
-                  column_reference:
-                    identifier: a
-              - comma: ','
-              - select_clause_element:
-                  column_reference:
-                    identifier: b
-              - comma: ','
-              - select_clause_element:
-                  column_reference:
-                    identifier: c
-              from_clause:
-                keyword: FROM
-                from_expression:
-                  from_expression_element:
-                    table_expression:
-                      table_reference:
-                      - identifier: bschema
-                      - dot: .
-                      - identifier: yourtable
-            end_bracket: )
+          - start_bracket: (
+          - raw: SELECT
+          - raw: a
+          - comma: ','
+          - raw: b
+          - comma: ','
+          - raw: c
+          - raw: FROM
+          - raw: bschema
+          - raw: .
+          - raw: yourtable
+          - end_bracket: )
 - statement_terminator: ;
 - statement:
     with_compound_statement:
-      keyword: WITH
-      common_table_expression:
-        identifier: mylist
-        keyword: AS
-        bracketed:
-          start_bracket: (
-          values_clause:
-          - keyword: VALUES
-          - bracketed:
-            - start_bracket: (
-            - literal: "'a'"
-            - comma: ','
-            - literal: "'b'"
-            - comma: ','
-            - literal: "'c'"
-            - end_bracket: )
+      unparsable:
+      - keyword: WITH
+      - raw: mylist
+      - raw: AS
+      - bracketed:
+        - start_bracket: (
+        - raw: VALUES
+        - bracketed:
+          - start_bracket: (
+          - raw: "'a'"
           - comma: ','
-          - bracketed:
-            - start_bracket: (
-            - literal: "'d'"
-            - comma: ','
-            - literal: "'e'"
-            - comma: ','
-            - literal: "'f'"
-            - end_bracket: )
+          - raw: "'b'"
           - comma: ','
+          - raw: "'c'"
+          - end_bracket: )
+        - comma: ','
+        - bracketed:
+          - start_bracket: (
+          - raw: "'d'"
+          - comma: ','
+          - raw: "'e'"
+          - comma: ','
+          - raw: "'f'"
+          - end_bracket: )
+        - comma: ','
+        - bracketed:
+          - start_bracket: (
+          - raw: f1
           - bracketed:
-            - start_bracket: (
-            - function:
-                function_name:
-                  function_name_identifier: f1
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    literal: "'a'"
-                  end_bracket: )
-            - comma: ','
-            - literal: "'b'"
-            - comma: ','
-            - literal: "'d'"
-            - end_bracket: )
-          - alias_expression:
-              keyword: AS
-              identifier: mylist
-              bracketed:
-                start_bracket: (
-                identifier_list:
-                - identifier: a
-                - comma: ','
-                - identifier: b
-                - comma: ','
-                - identifier: c
-                end_bracket: )
-          end_bracket: )
-      select_statement:
-        select_clause:
-          keyword: SELECT
-          select_clause_element:
-            wildcard_expression:
-              wildcard_identifier:
-                star: '*'
-        from_clause:
-          keyword: from
-          from_expression:
-            from_expression_element:
-              table_expression:
-                table_reference:
-                  identifier: mylist
+              start_bracket: (
+              raw: "'a'"
+              end_bracket: )
+          - comma: ','
+          - raw: "'b'"
+          - comma: ','
+          - raw: "'d'"
+          - end_bracket: )
+        - raw: AS
+        - raw: mylist
+        - bracketed:
+          - start_bracket: (
+          - raw: a
+          - comma: ','
+          - raw: b
+          - comma: ','
+          - raw: c
+          - end_bracket: )
+        - end_bracket: )
+      - raw: SELECT
+      - raw: '*'
+      - raw: from
+      - raw: mylist
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -500,41 +389,31 @@ file:
           bare_function: rowid
       - comma: ','
       - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: ROW_NUMBER
-            bracketed:
+          column_reference:
+            identifier: ROW_NUMBER
+          unparsable:
+          - bracketed:
               start_bracket: (
               end_bracket: )
-            over_clause:
-              keyword: OVER
-              bracketed:
-                start_bracket: (
-                window_specification:
-                  partitionby_clause:
-                  - keyword: PARTITION
-                  - keyword: BY
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
-                        column_reference:
-                          identifier: col1
-                    - comma: ','
-                    - expression:
-                        column_reference:
-                          identifier: col2
-                    - end_bracket: )
-                  orderby_clause:
-                  - keyword: ORDER
-                  - keyword: BY
-                  - column_reference:
-                      identifier: col1
-                  - keyword: DESC
-                  - comma: ','
-                  - column_reference:
-                      identifier: col2
-                  - keyword: DESC
-                end_bracket: )
+          - raw: OVER
+          - bracketed:
+            - start_bracket: (
+            - raw: PARTITION
+            - raw: BY
+            - bracketed:
+              - start_bracket: (
+              - raw: col1
+              - comma: ','
+              - raw: col2
+              - end_bracket: )
+            - raw: ORDER
+            - raw: BY
+            - raw: col1
+            - raw: DESC
+            - comma: ','
+            - raw: col2
+            - raw: DESC
+            - end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -544,31 +423,24 @@ file:
           bare_function: rowid
       - comma: ','
       - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: ROW_NUMBER
-            bracketed:
+          column_reference:
+            identifier: ROW_NUMBER
+          unparsable:
+          - bracketed:
               start_bracket: (
               end_bracket: )
-            over_clause:
-              keyword: OVER
-              bracketed:
-                start_bracket: (
-                window_specification:
-                  partitionby_clause:
-                  - keyword: PARTITION
-                  - keyword: BY
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
-                        column_reference:
-                          identifier: col1
-                    - comma: ','
-                    - expression:
-                        column_reference:
-                          identifier: col2
-                    - end_bracket: )
-                end_bracket: )
+          - raw: OVER
+          - bracketed:
+            - start_bracket: (
+            - raw: PARTITION
+            - raw: BY
+            - bracketed:
+              - start_bracket: (
+              - raw: col1
+              - comma: ','
+              - raw: col2
+              - end_bracket: )
+            - end_bracket: )
       orderby_clause:
       - keyword: ORDER
       - keyword: BY
@@ -588,14 +460,14 @@ file:
           column_reference:
             identifier: x
         with_invalid_unique_pk_clause:
-        - keyword: WITH
-        - keyword: INVALID
-        - keyword: UNIQUE
-        - bracketed:
-            start_bracket: (
-            column_reference:
-              identifier: myid
-            end_bracket: )
+          unparsable:
+          - keyword: WITH
+          - keyword: INVALID
+          - keyword: UNIQUE
+          - bracketed:
+              start_bracket: (
+              raw: myid
+              end_bracket: )
       from_clause:
         keyword: FROM
         from_expression:
@@ -613,21 +485,15 @@ file:
             wildcard_identifier:
               star: '*'
       from_clause:
-        keyword: FROM
-        from_expression:
-          from_expression_element:
-            table_expression:
-              function:
-                function_name:
-                  function_name_identifier: values
-                bracketed:
-                - start_bracket: (
-                - expression:
-                    literal: "'x'"
-                - comma: ','
-                - expression:
-                    literal: "'y'"
-                - end_bracket: )
+        unparsable:
+          keyword: FROM
+          raw: values
+          bracketed:
+          - start_bracket: (
+          - raw: "'x'"
+          - comma: ','
+          - raw: "'y'"
+          - end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -638,30 +504,23 @@ file:
             wildcard_identifier:
               star: '*'
       from_clause:
-        keyword: FROM
-        from_expression:
-          from_expression_element:
-            table_expression:
-              values_clause:
-                keyword: values
-                bracketed:
-                - start_bracket: (
-                - expression:
-                    literal: "'x'"
-                - comma: ','
-                - expression:
-                    literal: "'y'"
-                - end_bracket: )
-                alias_expression:
-                  keyword: AS
-                  identifier: x
-                  bracketed:
-                    start_bracket: (
-                    identifier_list:
-                    - identifier: c1
-                    - comma: ','
-                    - identifier: c2
-                    end_bracket: )
+        unparsable:
+        - keyword: FROM
+        - raw: values
+        - bracketed:
+          - start_bracket: (
+          - raw: "'x'"
+          - comma: ','
+          - raw: "'y'"
+          - end_bracket: )
+        - raw: AS
+        - raw: x
+        - bracketed:
+          - start_bracket: (
+          - raw: c1
+          - comma: ','
+          - raw: c2
+          - end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -672,40 +531,33 @@ file:
             wildcard_identifier:
               star: '*'
       from_clause:
-        keyword: FROM
-        from_expression:
-          from_expression_element:
-            table_expression:
-              values_clause:
-                keyword: values
-                bracketed:
-                - start_bracket: (
-                - expression:
-                    bracketed:
-                    - start_bracket: (
-                    - literal: "'x'"
-                    - comma: ','
-                    - literal: "'2'"
-                    - end_bracket: )
-                - comma: ','
-                - expression:
-                    bracketed:
-                    - start_bracket: (
-                    - literal: "'y'"
-                    - comma: ','
-                    - literal: "'2'"
-                    - end_bracket: )
-                - end_bracket: )
-                alias_expression:
-                  keyword: AS
-                  identifier: x
-                  bracketed:
-                    start_bracket: (
-                    identifier_list:
-                    - identifier: c1
-                    - comma: ','
-                    - identifier: c2
-                    end_bracket: )
+        unparsable:
+        - keyword: FROM
+        - raw: values
+        - bracketed:
+          - start_bracket: (
+          - bracketed:
+            - start_bracket: (
+            - raw: "'x'"
+            - comma: ','
+            - raw: "'2'"
+            - end_bracket: )
+          - comma: ','
+          - bracketed:
+            - start_bracket: (
+            - raw: "'y'"
+            - comma: ','
+            - raw: "'2'"
+            - end_bracket: )
+          - end_bracket: )
+        - raw: AS
+        - raw: x
+        - bracketed:
+          - start_bracket: (
+          - raw: c1
+          - comma: ','
+          - raw: c2
+          - end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -716,20 +568,17 @@ file:
             wildcard_identifier:
               star: '*'
       from_clause:
-        keyword: FROM
-        from_expression:
-          from_expression_element:
-            bracketed:
-              start_bracket: (
-              table_expression:
-                values_clause:
-                - keyword: VALUES
-                - literal: '1'
-                - comma: ','
-                - literal: '2'
-                - comma: ','
-                - literal: '3'
-              end_bracket: )
+        unparsable:
+          keyword: FROM
+          bracketed:
+          - start_bracket: (
+          - raw: VALUES
+          - raw: '1'
+          - comma: ','
+          - raw: '2'
+          - comma: ','
+          - raw: '3'
+          - end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -740,28 +589,23 @@ file:
             wildcard_identifier:
               star: '*'
       from_clause:
-        keyword: FROM
-        from_expression:
-          from_expression_element:
-            bracketed:
-              start_bracket: (
-              table_expression:
-                values_clause:
-                - keyword: VALUES
-                - literal: '1'
-                - comma: ','
-                - literal: '2'
-                - comma: ','
-                - literal: '3'
-              end_bracket: )
-            alias_expression:
-              keyword: AS
-              identifier: xs
-              bracketed:
-                start_bracket: (
-                identifier_list:
-                  identifier: n1
-                end_bracket: )
+        unparsable:
+        - keyword: FROM
+        - bracketed:
+          - start_bracket: (
+          - raw: VALUES
+          - raw: '1'
+          - comma: ','
+          - raw: '2'
+          - comma: ','
+          - raw: '3'
+          - end_bracket: )
+        - raw: AS
+        - raw: xs
+        - bracketed:
+            start_bracket: (
+            raw: n1
+            end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -797,26 +641,23 @@ file:
         column_reference:
           identifier: name
     - with_invalid_foreign_key_clause:
-      - keyword: WITH
-      - keyword: INVALID
-      - keyword: FOREIGN
-      - keyword: KEY
-      - bracketed:
-          start_bracket: (
-          column_reference:
-            identifier: nr
-          end_bracket: )
-      - keyword: from
-      - table_reference:
-          identifier: T1
-      - keyword: REFERENCING
-      - table_reference:
-          identifier: T2
-      - bracketed:
-          start_bracket: (
-          column_reference:
-            identifier: id
-          end_bracket: )
+        unparsable:
+        - keyword: WITH
+        - keyword: INVALID
+        - keyword: FOREIGN
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            raw: nr
+            end_bracket: )
+        - raw: from
+        - raw: T1
+        - raw: REFERENCING
+        - raw: T2
+        - bracketed:
+            start_bracket: (
+            raw: id
+            end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -826,60 +667,50 @@ file:
           wildcard_identifier:
             star: '*'
       with_invalid_foreign_key_clause:
-      - keyword: WITH
-      - keyword: INVALID
-      - keyword: FOREIGN
-      - keyword: KEY
-      - bracketed:
-        - start_bracket: (
-        - column_reference:
-            identifier: first_name
-        - comma: ','
-        - column_reference:
-            identifier: name
-        - end_bracket: )
-      - keyword: from
-      - table_reference:
-          identifier: T1
-      - keyword: REFERENCING
-      - table_reference:
-          identifier: T2
+        unparsable:
+        - keyword: WITH
+        - keyword: INVALID
+        - keyword: FOREIGN
+        - keyword: KEY
+        - bracketed:
+          - start_bracket: (
+          - raw: first_name
+          - comma: ','
+          - raw: name
+          - end_bracket: )
+        - raw: from
+        - raw: T1
+        - raw: REFERENCING
+        - raw: T2
 - statement_terminator: ;
 - statement:
     select_statement:
       keyword: SELECT
       with_invalid_foreign_key_clause:
-      - keyword: INVALID
-      - keyword: FOREIGN
-      - keyword: KEY
-      - bracketed:
-        - start_bracket: (
-        - column_reference:
-            identifier: nr
-        - comma: ','
-        - column_reference:
-            identifier: first_name
-        - comma: ','
-        - column_reference:
-            identifier: name
-        - end_bracket: )
-      - keyword: from
-      - table_reference:
-          identifier: T1
-      - keyword: REFERENCING
-      - table_reference:
-          identifier: T2
-      - bracketed:
-        - start_bracket: (
-        - column_reference:
-            identifier: id
-        - comma: ','
-        - column_reference:
-            identifier: first_name
-        - comma: ','
-        - column_reference:
-            identifier: name
-        - end_bracket: )
+        unparsable:
+        - keyword: INVALID
+        - keyword: FOREIGN
+        - keyword: KEY
+        - bracketed:
+          - start_bracket: (
+          - raw: nr
+          - comma: ','
+          - raw: first_name
+          - comma: ','
+          - raw: name
+          - end_bracket: )
+        - raw: from
+        - raw: T1
+        - raw: REFERENCING
+        - raw: T2
+        - bracketed:
+          - start_bracket: (
+          - raw: id
+          - comma: ','
+          - raw: first_name
+          - comma: ','
+          - raw: name
+          - end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -926,14 +757,14 @@ file:
       select_clause:
         keyword: SELECT
         with_invalid_unique_pk_clause:
-        - keyword: INVALID
-        - keyword: PRIMARY
-        - keyword: KEY
-        - bracketed:
-            start_bracket: (
-            column_reference:
-              identifier: first_name
-            end_bracket: )
+          unparsable:
+          - keyword: INVALID
+          - keyword: PRIMARY
+          - keyword: KEY
+          - bracketed:
+              start_bracket: (
+              raw: first_name
+              end_bracket: )
       from_clause:
         keyword: from
         from_expression:
@@ -947,41 +778,33 @@ file:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          function:
-          - function_name:
-              function_name_identifier: JSON_EXTRACT
+          column_reference:
+            identifier: JSON_EXTRACT
+          unparsable:
           - bracketed:
             - start_bracket: (
-            - expression:
-                column_reference:
-                  identifier: json_str
+            - raw: json_str
             - comma: ','
-            - expression:
-                literal: "'$.\"@id\"'"
+            - raw: "'$.\"@id\"'"
             - comma: ','
-            - expression:
-                literal: "'$.error()'"
+            - raw: "'$.error()'"
             - end_bracket: )
-          - keyword: EMITS
+          - raw: EMITS
           - bracketed:
             - start_bracket: (
-            - column_datatype_definition:
-                identifier: id
-                data_type:
-                  keyword: VARCHAR
-                  bracketed:
-                    start_bracket: (
-                    literal: '2000'
-                    end_bracket: )
+            - raw: id
+            - raw: VARCHAR
+            - bracketed:
+                start_bracket: (
+                raw: '2000'
+                end_bracket: )
             - comma: ','
-            - column_datatype_definition:
-                identifier: error_column
-                data_type:
-                  keyword: VARCHAR
-                  bracketed:
-                    start_bracket: (
-                    literal: '2000000'
-                    end_bracket: )
+            - raw: error_column
+            - raw: VARCHAR
+            - bracketed:
+                start_bracket: (
+                raw: '2000000'
+                end_bracket: )
             - end_bracket: )
       from_clause:
         keyword: FROM

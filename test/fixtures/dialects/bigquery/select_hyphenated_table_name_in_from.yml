@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 103b85caea8316516741519b191e16afa6a3241cd0c0e716e98862e2bf66accf
+_hash: fd66f23777bf4f39e0b59a357986c9ebc7d884224fee9afefefba8a01027889f
 file:
   statement:
     select_statement:
@@ -18,32 +18,28 @@ file:
         from_expression:
           from_expression_element:
             table_expression:
-              hyphenated_object_reference:
-              - identifier: project
-              - binary_operator: '-'
-              - identifier: a
-              - dot: .
-              - identifier: dataset
-              - binary_operator: '-'
-              - identifier: b
-              - dot: .
-              - identifier: table
-              - binary_operator: '-'
-              - identifier: c
-          join_clause:
-          - keyword: JOIN
-          - from_expression_element:
-              table_expression:
-                hyphenated_object_reference:
-                - identifier: dataset
-                - binary_operator: '-'
-                - identifier: c
-                - dot: .
-                - identifier: table
-                - binary_operator: '-'
-                - identifier: d
-          - keyword: USING
-          - bracketed:
-              start_bracket: (
-              identifier: a
-              end_bracket: )
+              table_reference:
+                identifier: project
+        unparsable:
+        - binary_operator: '-'
+        - raw: a
+        - raw: .
+        - raw: dataset
+        - raw: '-'
+        - raw: b
+        - raw: .
+        - raw: table
+        - raw: '-'
+        - raw: c
+        - raw: JOIN
+        - raw: dataset
+        - raw: '-'
+        - raw: c
+        - raw: .
+        - raw: table
+        - raw: '-'
+        - raw: d
+        - raw: USING
+        - raw: (
+        - raw: a
+        - raw: )

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ccc3078339f97b77c695b4327a6d0b12d1d6007c5abfaa5460ca49f812164c4e
+_hash: 9c6b5ad188acb71e3ac8b50663394ddda6c8d033617a16f439f9908a2d0ac00f
 file:
   batch:
   - statement:
@@ -29,31 +29,19 @@ file:
       print_statement:
         keyword: PRINT
         expression:
-          function:
-            function_name:
-              keyword: CAST
-            bracketed:
-              start_bracket: (
-              expression:
-                function:
-                  function_name:
-                    function_name_identifier: GETDATE
-                  bracketed:
-                    start_bracket: (
-                    end_bracket: )
-              keyword: AS
-              data_type:
-                identifier: VARCHAR
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    literal: '50'
-                  end_bracket: )
-              end_bracket: )
-        statement_terminator: ;
-  - statement:
-      print_statement:
-        keyword: PRINT
-        expression:
           column_reference:
-            parameter: '@TestVal'
+            identifier: CAST
+  unparsable:
+  - raw: (
+  - raw: GETDATE
+  - raw: (
+  - raw: )
+  - raw: AS
+  - raw: VARCHAR
+  - raw: (
+  - raw: '50'
+  - raw: )
+  - raw: )
+  - raw: ;
+  - raw: PRINT
+  - raw: '@TestVal'

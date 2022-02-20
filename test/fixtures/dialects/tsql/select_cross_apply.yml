@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0bc4b039ebf0a388fe704b591548f408c116472b58410b75ba40edab65c65aa8
+_hash: 5a14e0388e79ec6adc728b4f6685d82a7f256e83767c40e3053131eb48683c2f
 file:
   batch:
   - statement:
@@ -131,29 +131,24 @@ file:
                     function_name:
                       function_name_identifier: string_split
                     bracketed:
-                    - start_bracket: (
-                    - expression:
-                        function:
-                          function_name:
-                            function_name_identifier: replace
-                          bracketed:
-                          - start_bracket: (
-                          - expression:
-                              column_reference:
-                              - identifier: s
-                              - dot: .
-                              - identifier: some_path
-                          - comma: ','
-                          - expression:
-                              literal: "'->'"
-                          - comma: ','
-                          - expression:
-                              literal: "'{'"
-                          - end_bracket: )
-                    - comma: ','
-                    - expression:
-                        literal: "'{'"
-                    - end_bracket: )
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          identifier: replace
+                      unparsable:
+                        bracketed:
+                        - start_bracket: (
+                        - raw: s
+                        - raw: .
+                        - raw: some_path
+                        - comma: ','
+                        - raw: "'->'"
+                        - comma: ','
+                        - raw: "'{'"
+                        - end_bracket: )
+                        comma: ','
+                        raw: "'{'"
+                      end_bracket: )
                 alias_expression:
                   keyword: as
                   identifier: sp

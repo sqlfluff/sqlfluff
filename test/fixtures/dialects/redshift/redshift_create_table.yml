@@ -3,773 +3,580 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bdbdf005345ad298038f661cfa2dceb8ad5844d47095f47f7e45b54fb8887b8d
+_hash: 7e408571dc89fd025af18286084be181f966cfa7146a46abbc52f9086a820226
 file:
 - statement:
-    create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: t1
+    unparsable:
+    - raw: CREATE
+    - raw: TABLE
+    - raw: t1
     - bracketed:
       - start_bracket: (
-      - column_reference:
-          identifier: col1
-      - data_type:
-          data_type_identifier: INTEGER
-      - column_constraint_segment:
-        - keyword: PRIMARY
-        - keyword: KEY
+      - raw: col1
+      - raw: INTEGER
+      - raw: PRIMARY
+      - raw: KEY
       - comma: ','
-      - column_reference:
-          identifier: col2
-      - data_type:
-          data_type_identifier: VARCHAR
-          bracketed:
-            start_bracket: (
-            expression:
-              literal: '5'
-            end_bracket: )
-      - column_constraint_segment:
-        - keyword: NOT
-        - keyword: 'NULL'
+      - raw: col2
+      - raw: VARCHAR
+      - bracketed:
+          start_bracket: (
+          raw: '5'
+          end_bracket: )
+      - raw: NOT
+      - raw: 'NULL'
       - end_bracket: )
-    - table_constraint_segment:
-      - keyword: DISTKEY
-      - bracketed:
-          start_bracket: (
-          column_reference:
-            identifier: col1
-          end_bracket: )
-      - keyword: SORTKEY
-      - bracketed:
-          start_bracket: (
-          column_reference:
-            identifier: col1
-          end_bracket: )
-- statement_terminator: ;
-- statement:
-    create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: t1
-    - bracketed:
-      - start_bracket: (
-      - column_reference:
-          identifier: col1
-      - data_type:
-          data_type_identifier: INTEGER
-      - column_constraint_segment:
-        - keyword: PRIMARY
-        - keyword: KEY
-      - comma: ','
-      - column_reference:
-          identifier: col2
-      - data_type:
-          data_type_identifier: VARCHAR
-          bracketed:
-            start_bracket: (
-            expression:
-              literal: '5'
-            end_bracket: )
-      - column_attribute_segment:
-        - keyword: GENERATED
-        - keyword: BY
-        - keyword: DEFAULT
-        - keyword: AS
-        - keyword: IDENTITY
-        - bracketed:
-          - start_bracket: (
-          - literal: '1'
-          - comma: ','
-          - literal: '1'
-          - end_bracket: )
-      - end_bracket: )
-    - table_constraint_segment:
-      - keyword: DISTKEY
-      - bracketed:
-          start_bracket: (
-          column_reference:
-            identifier: col1
-          end_bracket: )
-      - keyword: SORTKEY
-      - bracketed:
-          start_bracket: (
-          column_reference:
-            identifier: col1
-          end_bracket: )
-- statement_terminator: ;
-- statement:
-    create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: t1
-    - bracketed:
-      - start_bracket: (
-      - column_reference:
-          identifier: col1
-      - data_type:
-          data_type_identifier: INTEGER
-      - column_constraint_segment:
-        - keyword: PRIMARY
-        - keyword: KEY
-      - comma: ','
-      - column_reference:
-          identifier: col2
-      - data_type:
-          data_type_identifier: VARCHAR
-          bracketed:
-            start_bracket: (
-            expression:
-              literal: '5'
-            end_bracket: )
-      - comma: ','
-      - column_reference:
-          identifier: col3
-      - data_type:
-          data_type_identifier: VARCHAR
-          bracketed:
-            start_bracket: (
-            expression:
-              literal: '5'
-            end_bracket: )
-      - comma: ','
-      - column_reference:
-          identifier: col4
-      - data_type:
-          data_type_identifier: VARCHAR
-          bracketed:
-            start_bracket: (
-            expression:
-              literal: '5'
-            end_bracket: )
-      - comma: ','
-      - column_reference:
-          identifier: col5
-      - data_type:
-          data_type_identifier: VARCHAR
-          bracketed:
-            start_bracket: (
-            expression:
-              literal: '5'
-            end_bracket: )
-      - comma: ','
-      - column_reference:
-          identifier: col6
-      - data_type:
-          data_type_identifier: VARCHAR
-          bracketed:
-            start_bracket: (
-            expression:
-              literal: '5'
-            end_bracket: )
-      - end_bracket: )
-    - table_constraint_segment:
-      - keyword: DISTKEY
-      - bracketed:
-          start_bracket: (
-          column_reference:
-            identifier: col1
-          end_bracket: )
-      - keyword: COMPOUND
-      - keyword: SORTKEY
-      - bracketed:
-        - start_bracket: (
-        - column_reference:
-            identifier: col4
-        - comma: ','
-        - column_reference:
-            identifier: col5
-        - comma: ','
-        - column_reference:
-            identifier: col6
-        - end_bracket: )
-- statement_terminator: ;
-- statement:
-    create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: t1
-    - bracketed:
-      - start_bracket: (
-      - column_reference:
-          identifier: col1
-      - data_type:
-          data_type_identifier: INTEGER
-      - column_constraint_segment:
-        - keyword: PRIMARY
-        - keyword: KEY
-      - comma: ','
-      - column_reference:
-          identifier: col2
-      - data_type:
-          data_type_identifier: VARCHAR
-          bracketed:
-            start_bracket: (
-            expression:
-              literal: '5'
-            end_bracket: )
-      - column_constraint_segment:
-          keyword: REFERENCES
-          table_reference:
-            identifier: t2
-          bracketed:
-            start_bracket: (
-            column_reference:
-              identifier: col1
-            end_bracket: )
-      - end_bracket: )
-    - table_constraint_segment:
-      - keyword: DISTKEY
-      - bracketed:
-          start_bracket: (
-          column_reference:
-            identifier: col1
-          end_bracket: )
-      - keyword: SORTKEY
-      - bracketed:
-          start_bracket: (
-          column_reference:
-            identifier: col1
-          end_bracket: )
-- statement_terminator: ;
-- statement:
-    create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - keyword: IF
-    - keyword: NOT
-    - keyword: EXISTS
-    - table_reference:
-        identifier: t1
-    - bracketed:
-      - start_bracket: (
-      - column_reference:
-          identifier: col1
-      - data_type:
-          data_type_identifier: INTEGER
-      - column_constraint_segment:
-        - keyword: PRIMARY
-        - keyword: KEY
-      - comma: ','
-      - column_reference:
-          identifier: col2
-      - data_type:
-          data_type_identifier: VARCHAR
-          bracketed:
-            start_bracket: (
-            expression:
-              literal: '5'
-            end_bracket: )
-      - end_bracket: )
-    - table_constraint_segment:
-      - keyword: DISTKEY
-      - bracketed:
-          start_bracket: (
-          column_reference:
-            identifier: col1
-          end_bracket: )
-      - keyword: SORTKEY
-      - bracketed:
-          start_bracket: (
-          column_reference:
-            identifier: col1
-          end_bracket: )
-- statement_terminator: ;
-- statement:
-    create_table_statement:
-    - keyword: CREATE
-    - keyword: TEMPORARY
-    - keyword: TABLE
-    - table_reference:
-        identifier: t1
-    - bracketed:
-      - start_bracket: (
-      - column_reference:
-          identifier: col1
-      - data_type:
-          data_type_identifier: INTEGER
-      - column_constraint_segment:
-        - keyword: PRIMARY
-        - keyword: KEY
-      - comma: ','
-      - column_reference:
-          identifier: col2
-      - data_type:
-          data_type_identifier: VARCHAR
-          bracketed:
-            start_bracket: (
-            expression:
-              literal: '5'
-            end_bracket: )
-      - end_bracket: )
-    - table_constraint_segment:
-      - keyword: DISTKEY
-      - bracketed:
-          start_bracket: (
-          column_reference:
-            identifier: col1
-          end_bracket: )
-      - keyword: SORTKEY
-      - bracketed:
-          start_bracket: (
-          column_reference:
-            identifier: col1
-          end_bracket: )
-- statement_terminator: ;
-- statement:
-    create_table_statement:
-    - keyword: CREATE
-    - keyword: TEMP
-    - keyword: TABLE
-    - table_reference:
-        identifier: t1
-    - bracketed:
-      - start_bracket: (
-      - column_reference:
-          identifier: col1
-      - data_type:
-          data_type_identifier: INTEGER
-      - column_constraint_segment:
-        - keyword: PRIMARY
-        - keyword: KEY
-      - comma: ','
-      - column_reference:
-          identifier: col2
-      - data_type:
-          data_type_identifier: VARCHAR
-          bracketed:
-            start_bracket: (
-            expression:
-              literal: '5'
-            end_bracket: )
-      - end_bracket: )
-    - table_constraint_segment:
-      - keyword: DISTKEY
-      - bracketed:
-          start_bracket: (
-          column_reference:
-            identifier: col1
-          end_bracket: )
-      - keyword: SORTKEY
-      - bracketed:
-          start_bracket: (
-          column_reference:
-            identifier: col1
-          end_bracket: )
-- statement_terminator: ;
-- statement:
-    create_table_statement:
-    - keyword: CREATE
-    - keyword: LOCAL
-    - keyword: TEMPORARY
-    - keyword: TABLE
-    - table_reference:
-        identifier: t1
-    - bracketed:
-      - start_bracket: (
-      - column_reference:
-          identifier: col1
-      - data_type:
-          data_type_identifier: INTEGER
-      - column_constraint_segment:
-          keyword: UNIQUE
-      - comma: ','
-      - column_reference:
-          identifier: col2
-      - data_type:
-          data_type_identifier: VARCHAR
-          bracketed:
-            start_bracket: (
-            expression:
-              literal: '5'
-            end_bracket: )
-      - end_bracket: )
-    - keyword: BACKUP
-    - keyword: 'YES'
-- statement_terminator: ;
-- statement:
-    create_table_statement:
-    - keyword: CREATE
-    - keyword: TEMPORARY
-    - keyword: TABLE
-    - table_reference:
-        identifier: t1
-    - bracketed:
-      - start_bracket: (
-      - column_reference:
-          identifier: col1
-      - data_type:
-          data_type_identifier: INTEGER
-      - column_constraint_segment:
-        - keyword: PRIMARY
-        - keyword: KEY
-      - comma: ','
-      - column_reference:
-          identifier: col2
-      - data_type:
-          data_type_identifier: VARCHAR
-          bracketed:
-            start_bracket: (
-            expression:
-              literal: '5'
-            end_bracket: )
-      - end_bracket: )
-    - keyword: BACKUP
-    - keyword: 'NO'
-    - table_constraint_segment:
-      - keyword: DISTKEY
-      - bracketed:
-          start_bracket: (
-          column_reference:
-            identifier: col1
-          end_bracket: )
-      - keyword: SORTKEY
-      - bracketed:
-        - start_bracket: (
-        - column_reference:
-            identifier: col1
-        - comma: ','
-        - column_reference:
-            identifier: col2
-        - end_bracket: )
-- statement_terminator: ;
-- statement:
-    create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: t1
-    - bracketed:
-      - start_bracket: (
-      - column_reference:
-          identifier: col1
-      - data_type:
-          data_type_identifier: INTEGER
-      - column_attribute_segment:
-          keyword: ENCODE
-          column_encoding_segment:
-            keyword: AZ64
-      - column_constraint_segment:
-        - keyword: PRIMARY
-        - keyword: KEY
-      - comma: ','
-      - column_reference:
-          identifier: col2
-      - data_type:
-          data_type_identifier: VARCHAR
-          bracketed:
-            start_bracket: (
-            expression:
-              literal: '5'
-            end_bracket: )
-      - column_attribute_segment:
-          keyword: ENCODE
-          column_encoding_segment:
-            keyword: TEXT255
-      - end_bracket: )
-    - table_constraint_segment:
-      - keyword: DISTKEY
-      - bracketed:
-          start_bracket: (
-          column_reference:
-            identifier: col1
-          end_bracket: )
-      - keyword: SORTKEY
-      - keyword: AUTO
-      - keyword: DISTSTYLE
-      - keyword: EVEN
-- statement_terminator: ;
-- statement:
-    create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-      - identifier: schema1
-      - dot: .
-      - identifier: t1
-    - bracketed:
-      - start_bracket: (
-      - column_reference:
-          identifier: col1
-      - data_type:
-          data_type_identifier: INTEGER
-      - column_attribute_segment:
-          keyword: ENCODE
-          column_encoding_segment:
-            keyword: AZ64
-      - column_constraint_segment:
-        - keyword: PRIMARY
-        - keyword: KEY
-      - comma: ','
-      - column_reference:
-          identifier: col2
-      - data_type:
-          data_type_identifier: VARCHAR
-          bracketed:
-            start_bracket: (
-            expression:
-              literal: '5'
-            end_bracket: )
-      - column_attribute_segment:
-          keyword: ENCODE
-          column_encoding_segment:
-            keyword: TEXT255
-      - comma: ','
-      - column_reference:
-          identifier: col3
-      - data_type:
-          data_type_identifier: VARCHAR
-          bracketed:
-            start_bracket: (
-            expression:
-              literal: '5'
-            end_bracket: )
-      - column_attribute_segment:
-        - keyword: COLLATE
-        - keyword: CASE_SENSITIVE
-      - comma: ','
-      - column_reference:
-          identifier: col3
-      - data_type:
-          data_type_identifier: VARCHAR
-          bracketed:
-            start_bracket: (
-            expression:
-              literal: '5'
-            end_bracket: )
-      - column_attribute_segment:
-        - keyword: COLLATE
-        - keyword: CASE_INSENSITIVE
-      - end_bracket: )
-- statement_terminator: ;
-- statement:
-    create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: UniqueKey_demo
-    - bracketed:
-      - start_bracket: (
-      - column_reference:
-          identifier: col1
-      - data_type:
-          data_type_identifier: INT
-      - column_constraint_segment:
-        - keyword: NOT
-        - keyword: 'NULL'
-        - keyword: UNIQUE
-      - comma: ','
-      - column_reference:
-          identifier: col2
-      - data_type:
-          datetime_type_identifier:
-            keyword: DATE
-      - comma: ','
-      - column_reference:
-          identifier: col3
-      - data_type:
-          data_type_identifier: VARCHAR
-          bracketed:
-            start_bracket: (
-            expression:
-              literal: '60'
-            end_bracket: )
-      - comma: ','
-      - table_constraint_segment:
-          keyword: UNIQUE
-          bracketed:
-            start_bracket: (
-            column_reference:
-              identifier: col1
-            end_bracket: )
-      - end_bracket: )
-    - table_constraint_segment:
-      - keyword: DISTKEY
-      - bracketed:
-          start_bracket: (
-          column_reference:
-            identifier: col1
-          end_bracket: )
-      - keyword: COMPOUND
-      - keyword: SORTKEY
-      - bracketed:
-        - start_bracket: (
-        - column_reference:
-            identifier: col1
-        - comma: ','
-        - column_reference:
-            identifier: col2
-        - end_bracket: )
-- statement_terminator: ;
-- statement:
-    create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: UniqueKey_demo
-    - bracketed:
-      - start_bracket: (
-      - column_reference:
-          identifier: col1
-      - data_type:
-          data_type_identifier: INT
-      - column_constraint_segment:
-        - keyword: NOT
-        - keyword: 'NULL'
-        - keyword: UNIQUE
-      - comma: ','
-      - column_reference:
-          identifier: col2
-      - data_type:
-          datetime_type_identifier:
-            keyword: DATE
-      - comma: ','
-      - column_reference:
-          identifier: col3
-      - data_type:
-          data_type_identifier: VARCHAR
-          bracketed:
-            start_bracket: (
-            expression:
-              literal: '60'
-            end_bracket: )
-      - comma: ','
-      - table_constraint_segment:
-        - keyword: PRIMARY
-        - keyword: KEY
-        - bracketed:
-            start_bracket: (
-            column_reference:
-              identifier: col1
-            end_bracket: )
-      - end_bracket: )
-    - table_constraint_segment:
-      - keyword: DISTKEY
-      - bracketed:
-          start_bracket: (
-          column_reference:
-            identifier: col1
-          end_bracket: )
-      - keyword: INTERLEAVED
-      - keyword: SORTKEY
-      - bracketed:
-        - start_bracket: (
-        - column_reference:
-            identifier: col1
-        - comma: ','
-        - column_reference:
-            identifier: col2
-        - end_bracket: )
-- statement_terminator: ;
-- statement:
-    create_table_statement:
-    - keyword: CREATE
-    - keyword: TEMP
-    - keyword: TABLE
-    - keyword: IF
-    - keyword: NOT
-    - keyword: EXISTS
-    - table_reference:
-        identifier: UniqueKey_demo
-    - bracketed:
-      - start_bracket: (
-      - column_reference:
-          identifier: col1
-      - data_type:
-          data_type_identifier: INT
-      - column_constraint_segment:
-        - keyword: NOT
-        - keyword: 'NULL'
-        - keyword: UNIQUE
-      - comma: ','
-      - column_reference:
-          identifier: col2
-      - data_type:
-          datetime_type_identifier:
-            keyword: DATE
-      - comma: ','
-      - column_reference:
-          identifier: col3
-      - data_type:
-          data_type_identifier: VARCHAR
-          bracketed:
-            start_bracket: (
-            expression:
-              literal: '60'
-            end_bracket: )
-      - comma: ','
-      - table_constraint_segment:
-        - keyword: FOREIGN
-        - keyword: KEY
-        - bracketed:
-            start_bracket: (
-            column_reference:
-              identifier: col3
-            end_bracket: )
-        - keyword: REFERENCES
-        - table_reference:
-            identifier: t2
-        - bracketed:
-            start_bracket: (
-            column_reference:
-              identifier: col5
-            end_bracket: )
-      - end_bracket: )
-- statement_terminator: ;
-- statement:
-    create_table_statement:
-    - keyword: CREATE
-    - keyword: TEMP
-    - keyword: TABLE
-    - table_reference:
-        identifier: t1
+    - raw: DISTKEY
     - bracketed:
         start_bracket: (
-        keyword: LIKE
-        table_reference:
-        - identifier: schema1
-        - dot: .
-        - identifier: t2
+        raw: col1
+        end_bracket: )
+    - raw: SORTKEY
+    - bracketed:
+        start_bracket: (
+        raw: col1
         end_bracket: )
 - statement_terminator: ;
 - statement:
-    create_table_statement:
-    - keyword: CREATE
-    - keyword: TEMP
-    - keyword: TABLE
-    - table_reference:
-        identifier: t1
+    unparsable:
+    - raw: CREATE
+    - raw: TABLE
+    - raw: t1
+    - bracketed:
+      - start_bracket: (
+      - raw: col1
+      - raw: INTEGER
+      - raw: PRIMARY
+      - raw: KEY
+      - comma: ','
+      - raw: col2
+      - raw: VARCHAR
+      - bracketed:
+          start_bracket: (
+          raw: '5'
+          end_bracket: )
+      - raw: GENERATED
+      - raw: BY
+      - raw: DEFAULT
+      - raw: AS
+      - raw: IDENTITY
+      - bracketed:
+        - start_bracket: (
+        - raw: '1'
+        - comma: ','
+        - raw: '1'
+        - end_bracket: )
+      - end_bracket: )
+    - raw: DISTKEY
     - bracketed:
         start_bracket: (
-        keyword: LIKE
-        table_reference:
-        - identifier: schema1
-        - dot: .
-        - identifier: t2
-        like_option_segment:
-        - keyword: INCLUDING
-        - keyword: DEFAULTS
+        raw: col1
+        end_bracket: )
+    - raw: SORTKEY
+    - bracketed:
+        start_bracket: (
+        raw: col1
         end_bracket: )
 - statement_terminator: ;
 - statement:
-    create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: t1
+    unparsable:
+    - raw: CREATE
+    - raw: TABLE
+    - raw: t1
+    - bracketed:
+      - start_bracket: (
+      - raw: col1
+      - raw: INTEGER
+      - raw: PRIMARY
+      - raw: KEY
+      - comma: ','
+      - raw: col2
+      - raw: VARCHAR
+      - bracketed:
+          start_bracket: (
+          raw: '5'
+          end_bracket: )
+      - comma: ','
+      - raw: col3
+      - raw: VARCHAR
+      - bracketed:
+          start_bracket: (
+          raw: '5'
+          end_bracket: )
+      - comma: ','
+      - raw: col4
+      - raw: VARCHAR
+      - bracketed:
+          start_bracket: (
+          raw: '5'
+          end_bracket: )
+      - comma: ','
+      - raw: col5
+      - raw: VARCHAR
+      - bracketed:
+          start_bracket: (
+          raw: '5'
+          end_bracket: )
+      - comma: ','
+      - raw: col6
+      - raw: VARCHAR
+      - bracketed:
+          start_bracket: (
+          raw: '5'
+          end_bracket: )
+      - end_bracket: )
+    - raw: DISTKEY
     - bracketed:
         start_bracket: (
-        keyword: LIKE
-        table_reference:
-        - identifier: schema1
-        - dot: .
-        - identifier: t2
-        like_option_segment:
-        - keyword: EXCLUDING
-        - keyword: DEFAULTS
+        raw: col1
         end_bracket: )
+    - raw: COMPOUND
+    - raw: SORTKEY
+    - bracketed:
+      - start_bracket: (
+      - raw: col4
+      - comma: ','
+      - raw: col5
+      - comma: ','
+      - raw: col6
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    unparsable:
+    - raw: CREATE
+    - raw: TABLE
+    - raw: t1
+    - bracketed:
+      - start_bracket: (
+      - raw: col1
+      - raw: INTEGER
+      - raw: PRIMARY
+      - raw: KEY
+      - comma: ','
+      - raw: col2
+      - raw: VARCHAR
+      - bracketed:
+          start_bracket: (
+          raw: '5'
+          end_bracket: )
+      - raw: REFERENCES
+      - raw: t2
+      - bracketed:
+          start_bracket: (
+          raw: col1
+          end_bracket: )
+      - end_bracket: )
+    - raw: DISTKEY
+    - bracketed:
+        start_bracket: (
+        raw: col1
+        end_bracket: )
+    - raw: SORTKEY
+    - bracketed:
+        start_bracket: (
+        raw: col1
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    unparsable:
+    - raw: CREATE
+    - raw: TABLE
+    - raw: IF
+    - raw: NOT
+    - raw: EXISTS
+    - raw: t1
+    - bracketed:
+      - start_bracket: (
+      - raw: col1
+      - raw: INTEGER
+      - raw: PRIMARY
+      - raw: KEY
+      - comma: ','
+      - raw: col2
+      - raw: VARCHAR
+      - bracketed:
+          start_bracket: (
+          raw: '5'
+          end_bracket: )
+      - end_bracket: )
+    - raw: DISTKEY
+    - bracketed:
+        start_bracket: (
+        raw: col1
+        end_bracket: )
+    - raw: SORTKEY
+    - bracketed:
+        start_bracket: (
+        raw: col1
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    unparsable:
+    - raw: CREATE
+    - raw: TEMPORARY
+    - raw: TABLE
+    - raw: t1
+    - bracketed:
+      - start_bracket: (
+      - raw: col1
+      - raw: INTEGER
+      - raw: PRIMARY
+      - raw: KEY
+      - comma: ','
+      - raw: col2
+      - raw: VARCHAR
+      - bracketed:
+          start_bracket: (
+          raw: '5'
+          end_bracket: )
+      - end_bracket: )
+    - raw: DISTKEY
+    - bracketed:
+        start_bracket: (
+        raw: col1
+        end_bracket: )
+    - raw: SORTKEY
+    - bracketed:
+        start_bracket: (
+        raw: col1
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    unparsable:
+    - raw: CREATE
+    - raw: TEMP
+    - raw: TABLE
+    - raw: t1
+    - bracketed:
+      - start_bracket: (
+      - raw: col1
+      - raw: INTEGER
+      - raw: PRIMARY
+      - raw: KEY
+      - comma: ','
+      - raw: col2
+      - raw: VARCHAR
+      - bracketed:
+          start_bracket: (
+          raw: '5'
+          end_bracket: )
+      - end_bracket: )
+    - raw: DISTKEY
+    - bracketed:
+        start_bracket: (
+        raw: col1
+        end_bracket: )
+    - raw: SORTKEY
+    - bracketed:
+        start_bracket: (
+        raw: col1
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    unparsable:
+    - raw: CREATE
+    - raw: LOCAL
+    - raw: TEMPORARY
+    - raw: TABLE
+    - raw: t1
+    - bracketed:
+      - start_bracket: (
+      - raw: col1
+      - raw: INTEGER
+      - raw: UNIQUE
+      - comma: ','
+      - raw: col2
+      - raw: VARCHAR
+      - bracketed:
+          start_bracket: (
+          raw: '5'
+          end_bracket: )
+      - end_bracket: )
+    - raw: BACKUP
+    - raw: 'YES'
+- statement_terminator: ;
+- statement:
+    unparsable:
+    - raw: CREATE
+    - raw: TEMPORARY
+    - raw: TABLE
+    - raw: t1
+    - bracketed:
+      - start_bracket: (
+      - raw: col1
+      - raw: INTEGER
+      - raw: PRIMARY
+      - raw: KEY
+      - comma: ','
+      - raw: col2
+      - raw: VARCHAR
+      - bracketed:
+          start_bracket: (
+          raw: '5'
+          end_bracket: )
+      - end_bracket: )
+    - raw: BACKUP
+    - raw: 'NO'
+    - raw: DISTKEY
+    - bracketed:
+        start_bracket: (
+        raw: col1
+        end_bracket: )
+    - raw: SORTKEY
+    - bracketed:
+      - start_bracket: (
+      - raw: col1
+      - comma: ','
+      - raw: col2
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    unparsable:
+    - raw: CREATE
+    - raw: TABLE
+    - raw: t1
+    - bracketed:
+      - start_bracket: (
+      - raw: col1
+      - raw: INTEGER
+      - raw: ENCODE
+      - raw: AZ64
+      - raw: PRIMARY
+      - raw: KEY
+      - comma: ','
+      - raw: col2
+      - raw: VARCHAR
+      - bracketed:
+          start_bracket: (
+          raw: '5'
+          end_bracket: )
+      - raw: ENCODE
+      - raw: TEXT255
+      - end_bracket: )
+    - raw: DISTKEY
+    - bracketed:
+        start_bracket: (
+        raw: col1
+        end_bracket: )
+    - raw: SORTKEY
+    - raw: AUTO
+    - raw: DISTSTYLE
+    - raw: EVEN
+- statement_terminator: ;
+- statement:
+    unparsable:
+    - raw: CREATE
+    - raw: TABLE
+    - raw: schema1
+    - raw: .
+    - raw: t1
+    - bracketed:
+      - start_bracket: (
+      - raw: col1
+      - raw: INTEGER
+      - raw: ENCODE
+      - raw: AZ64
+      - raw: PRIMARY
+      - raw: KEY
+      - comma: ','
+      - raw: col2
+      - raw: VARCHAR
+      - bracketed:
+          start_bracket: (
+          raw: '5'
+          end_bracket: )
+      - raw: ENCODE
+      - raw: TEXT255
+      - comma: ','
+      - raw: col3
+      - raw: VARCHAR
+      - bracketed:
+          start_bracket: (
+          raw: '5'
+          end_bracket: )
+      - raw: COLLATE
+      - raw: CASE_SENSITIVE
+      - comma: ','
+      - raw: col3
+      - raw: VARCHAR
+      - bracketed:
+          start_bracket: (
+          raw: '5'
+          end_bracket: )
+      - raw: COLLATE
+      - raw: CASE_INSENSITIVE
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    unparsable:
+    - raw: CREATE
+    - raw: TABLE
+    - raw: UniqueKey_demo
+    - bracketed:
+      - start_bracket: (
+      - raw: col1
+      - raw: INT
+      - raw: NOT
+      - raw: 'NULL'
+      - raw: UNIQUE
+      - comma: ','
+      - raw: col2
+      - raw: DATE
+      - comma: ','
+      - raw: col3
+      - raw: VARCHAR
+      - bracketed:
+          start_bracket: (
+          raw: '60'
+          end_bracket: )
+      - comma: ','
+      - raw: UNIQUE
+      - bracketed:
+          start_bracket: (
+          raw: col1
+          end_bracket: )
+      - end_bracket: )
+    - raw: DISTKEY
+    - bracketed:
+        start_bracket: (
+        raw: col1
+        end_bracket: )
+    - raw: COMPOUND
+    - raw: SORTKEY
+    - bracketed:
+      - start_bracket: (
+      - raw: col1
+      - comma: ','
+      - raw: col2
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    unparsable:
+    - raw: CREATE
+    - raw: TABLE
+    - raw: UniqueKey_demo
+    - bracketed:
+      - start_bracket: (
+      - raw: col1
+      - raw: INT
+      - raw: NOT
+      - raw: 'NULL'
+      - raw: UNIQUE
+      - comma: ','
+      - raw: col2
+      - raw: DATE
+      - comma: ','
+      - raw: col3
+      - raw: VARCHAR
+      - bracketed:
+          start_bracket: (
+          raw: '60'
+          end_bracket: )
+      - comma: ','
+      - raw: PRIMARY
+      - raw: KEY
+      - bracketed:
+          start_bracket: (
+          raw: col1
+          end_bracket: )
+      - end_bracket: )
+    - raw: DISTKEY
+    - bracketed:
+        start_bracket: (
+        raw: col1
+        end_bracket: )
+    - raw: INTERLEAVED
+    - raw: SORTKEY
+    - bracketed:
+      - start_bracket: (
+      - raw: col1
+      - comma: ','
+      - raw: col2
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    unparsable:
+    - raw: CREATE
+    - raw: TEMP
+    - raw: TABLE
+    - raw: IF
+    - raw: NOT
+    - raw: EXISTS
+    - raw: UniqueKey_demo
+    - bracketed:
+      - start_bracket: (
+      - raw: col1
+      - raw: INT
+      - raw: NOT
+      - raw: 'NULL'
+      - raw: UNIQUE
+      - comma: ','
+      - raw: col2
+      - raw: DATE
+      - comma: ','
+      - raw: col3
+      - raw: VARCHAR
+      - bracketed:
+          start_bracket: (
+          raw: '60'
+          end_bracket: )
+      - comma: ','
+      - raw: FOREIGN
+      - raw: KEY
+      - bracketed:
+          start_bracket: (
+          raw: col3
+          end_bracket: )
+      - raw: REFERENCES
+      - raw: t2
+      - bracketed:
+          start_bracket: (
+          raw: col5
+          end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    unparsable:
+    - raw: CREATE
+    - raw: TEMP
+    - raw: TABLE
+    - raw: t1
+    - bracketed:
+      - start_bracket: (
+      - raw: LIKE
+      - raw: schema1
+      - raw: .
+      - raw: t2
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    unparsable:
+    - raw: CREATE
+    - raw: TEMP
+    - raw: TABLE
+    - raw: t1
+    - bracketed:
+      - start_bracket: (
+      - raw: LIKE
+      - raw: schema1
+      - raw: .
+      - raw: t2
+      - raw: INCLUDING
+      - raw: DEFAULTS
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    unparsable:
+    - raw: CREATE
+    - raw: TABLE
+    - raw: t1
+    - bracketed:
+      - start_bracket: (
+      - raw: LIKE
+      - raw: schema1
+      - raw: .
+      - raw: t2
+      - raw: EXCLUDING
+      - raw: DEFAULTS
+      - end_bracket: )
 - statement_terminator: ;

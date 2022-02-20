@@ -3,43 +3,37 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 36e0851f8367db2b82ba55f7a1213880c508495ad023a51180d62465164616c1
+_hash: 4b1bbeb9606eaa994b70f1a1df480f2511889b64fdc884f78f9445bb730510b3
 file:
   statement:
     select_statement:
       select_clause:
       - keyword: SELECT
       - select_clause_element:
-          expression:
-            literal: "'9999-12-31'"
-            cast_expression:
-              bracketed:
-                start_bracket: (
-                td_internal_data_type:
-                  data_type_identifier: DATE
-                end_bracket: )
+          literal: "'9999-12-31'"
+          unparsable:
+            bracketed:
+              start_bracket: (
+              raw: DATE
+              end_bracket: )
       - comma: ','
       - select_clause_element:
-          expression:
-            literal: "'9999-12-31'"
-            cast_expression:
-              bracketed:
-                start_bracket: (
-                td_internal_data_type:
-                  data_type_identifier: DATE
-                  keyword: FORMAT
-                  literal: "'YYYY-MM-DD'"
-                end_bracket: )
+          literal: "'9999-12-31'"
+          unparsable:
+            bracketed:
+            - start_bracket: (
+            - raw: DATE
+            - raw: FORMAT
+            - raw: "'YYYY-MM-DD'"
+            - end_bracket: )
       - comma: ','
       - select_clause_element:
-          expression:
-            literal: "'100000'"
-            cast_expression:
-              bracketed:
-                start_bracket: (
-                td_internal_data_type:
-                  data_type_identifier: SMALLINT
-                end_bracket: )
+          literal: "'100000'"
+          unparsable:
+            bracketed:
+              start_bracket: (
+              raw: SMALLINT
+              end_bracket: )
       from_clause:
         keyword: from
         from_expression:

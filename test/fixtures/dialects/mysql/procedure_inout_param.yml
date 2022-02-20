@@ -3,26 +3,19 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0dcc669cca11e8400b6914d172b71d1c83a349f2c89a41557cd78df4bb523337
+_hash: 53bd791022fd3147f1ad4a1ca75cc071cf46141d9b377db74c378a0f68aee858
 file:
   statement:
-    create_procedure_statement:
-    - keyword: CREATE
-    - keyword: PROCEDURE
-    - function_name:
-        identifier: '`testprocedure`'
-    - base:
-        bracketed:
-          start_bracket: (
-          parameter_direction: inout
-          parameter: test
-          data_type:
-            data_type_identifier: int
-          end_bracket: )
-    - base:
-        transaction_statement:
-          keyword: BEGIN
-          statement:
-            transaction_statement:
-              keyword: END
+    unparsable:
+    - raw: CREATE
+    - raw: PROCEDURE
+    - raw: '`testprocedure`'
+    - bracketed:
+      - start_bracket: (
+      - raw: inout
+      - raw: test
+      - raw: int
+      - end_bracket: )
+    - raw: BEGIN
+    - raw: END
   statement_terminator: '~'

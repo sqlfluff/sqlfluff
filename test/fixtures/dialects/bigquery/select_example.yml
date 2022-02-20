@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b3320d5e7297b6df478a33c196587cc260df20eb0bd0955e7a8df98a5961e732
+_hash: 3f52aa9025d6dc880ff025eaaaf458326983f57052aae34105b10cfe36146be5
 file:
   statement:
     with_compound_statement:
@@ -29,59 +29,35 @@ file:
                   identifier: min_age
             - comma: ','
             - select_clause_element:
-                function:
-                  function_name:
-                    function_name_identifier: ARRAY
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      select_statement:
-                        select_clause:
-                          keyword: SELECT
-                          select_clause_element:
-                            function:
-                              function_name:
-                                function_name_identifier: CAST
-                              bracketed:
-                                start_bracket: (
-                                expression:
-                                  column_reference:
-                                    identifier: num
-                                keyword: AS
-                                data_type:
-                                  data_type_identifier: INT64
-                                end_bracket: )
-                        from_clause:
-                          keyword: FROM
-                          from_expression:
-                            from_expression_element:
-                              table_expression:
-                                function:
-                                  function_name:
-                                    function_name_identifier: UNNEST
-                                  bracketed:
-                                    start_bracket: (
-                                    expression:
-                                      function:
-                                        function_name:
-                                          function_name_identifier: SPLIT
-                                        bracketed:
-                                        - start_bracket: (
-                                        - expression:
-                                            column_reference:
-                                              identifier: binary
-                                        - comma: ','
-                                        - expression:
-                                            literal: "''"
-                                        - end_bracket: )
-                                    end_bracket: )
-                              alias_expression:
-                                keyword: AS
-                                identifier: num
-                    end_bracket: )
-                alias_expression:
-                  keyword: AS
-                  identifier: bits
+                unparsable:
+                - raw: ARRAY
+                - bracketed:
+                  - start_bracket: (
+                  - raw: SELECT
+                  - raw: CAST
+                  - bracketed:
+                    - start_bracket: (
+                    - raw: num
+                    - raw: AS
+                    - raw: INT64
+                    - end_bracket: )
+                  - raw: FROM
+                  - raw: UNNEST
+                  - bracketed:
+                      start_bracket: (
+                      raw: SPLIT
+                      bracketed:
+                      - start_bracket: (
+                      - raw: binary
+                      - comma: ','
+                      - raw: "''"
+                      - end_bracket: )
+                      end_bracket: )
+                  - raw: AS
+                  - raw: num
+                  - end_bracket: )
+                - raw: AS
+                - raw: bits
             - comma: ','
             - select_clause_element:
                 column_reference:
@@ -104,127 +80,81 @@ file:
             select_clause:
               keyword: SELECT
               select_clause_element:
-                expression:
-                  function:
-                    function_name:
-                      function_name_identifier: bucket_id
-                    bracketed:
+                column_reference:
+                  identifier: bucket_id
+                unparsable:
+                - bracketed:
+                  - start_bracket: (
+                  - raw: count_18_24
+                  - raw: '*'
+                  - raw: bits
+                  - start_square_bracket: '['
+                  - raw: OFFSET
+                  - bracketed:
                       start_bracket: (
-                      expression:
-                      - column_reference:
-                          identifier: count_18_24
-                      - binary_operator: '*'
-                      - column_reference:
-                          identifier: bits
-                      - array_accessor:
-                          start_square_bracket: '['
-                          expression:
-                            function:
-                              function_name:
-                                function_name_identifier: OFFSET
-                              bracketed:
-                                start_bracket: (
-                                expression:
-                                  literal: '0'
-                                end_bracket: )
-                          end_square_bracket: ']'
-                      - binary_operator: +
-                      - column_reference:
-                          identifier: count_25_34
-                      - binary_operator: '*'
-                      - column_reference:
-                          identifier: bits
-                      - array_accessor:
-                          start_square_bracket: '['
-                          expression:
-                            function:
-                              function_name:
-                                function_name_identifier: OFFSET
-                              bracketed:
-                                start_bracket: (
-                                expression:
-                                  literal: '1'
-                                end_bracket: )
-                          end_square_bracket: ']'
-                      - binary_operator: +
-                      - column_reference:
-                          identifier: count_35_44
-                      - binary_operator: '*'
-                      - column_reference:
-                          identifier: bits
-                      - array_accessor:
-                          start_square_bracket: '['
-                          expression:
-                            function:
-                              function_name:
-                                function_name_identifier: OFFSET
-                              bracketed:
-                                start_bracket: (
-                                expression:
-                                  literal: '2'
-                                end_bracket: )
-                          end_square_bracket: ']'
-                      - binary_operator: +
-                      - column_reference:
-                          identifier: count_45_54
-                      - binary_operator: '*'
-                      - column_reference:
-                          identifier: bits
-                      - array_accessor:
-                          start_square_bracket: '['
-                          expression:
-                            function:
-                              function_name:
-                                function_name_identifier: OFFSET
-                              bracketed:
-                                start_bracket: (
-                                expression:
-                                  literal: '3'
-                                end_bracket: )
-                          end_square_bracket: ']'
-                      - binary_operator: +
-                      - column_reference:
-                          identifier: count_55_64
-                      - binary_operator: '*'
-                      - column_reference:
-                          identifier: bits
-                      - array_accessor:
-                          start_square_bracket: '['
-                          expression:
-                            function:
-                              function_name:
-                                function_name_identifier: OFFSET
-                              bracketed:
-                                start_bracket: (
-                                expression:
-                                  literal: '4'
-                                end_bracket: )
-                          end_square_bracket: ']'
-                      - binary_operator: +
-                      - column_reference:
-                          identifier: count_65_plus
-                      - binary_operator: '*'
-                      - column_reference:
-                          identifier: bits
-                      - array_accessor:
-                          start_square_bracket: '['
-                          expression:
-                            function:
-                              function_name:
-                                function_name_identifier: OFFSET
-                              bracketed:
-                                start_bracket: (
-                                expression:
-                                  literal: '5'
-                                end_bracket: )
-                          end_square_bracket: ']'
+                      raw: '0'
                       end_bracket: )
-                  binary_operator: /
-                  column_reference:
-                    identifier: audience_size
-                alias_expression:
-                  keyword: AS
-                  identifier: relative_abundance
+                  - end_square_bracket: ']'
+                  - raw: +
+                  - raw: count_25_34
+                  - raw: '*'
+                  - raw: bits
+                  - start_square_bracket: '['
+                  - raw: OFFSET
+                  - bracketed:
+                      start_bracket: (
+                      raw: '1'
+                      end_bracket: )
+                  - end_square_bracket: ']'
+                  - raw: +
+                  - raw: count_35_44
+                  - raw: '*'
+                  - raw: bits
+                  - start_square_bracket: '['
+                  - raw: OFFSET
+                  - bracketed:
+                      start_bracket: (
+                      raw: '2'
+                      end_bracket: )
+                  - end_square_bracket: ']'
+                  - raw: +
+                  - raw: count_45_54
+                  - raw: '*'
+                  - raw: bits
+                  - start_square_bracket: '['
+                  - raw: OFFSET
+                  - bracketed:
+                      start_bracket: (
+                      raw: '3'
+                      end_bracket: )
+                  - end_square_bracket: ']'
+                  - raw: +
+                  - raw: count_55_64
+                  - raw: '*'
+                  - raw: bits
+                  - start_square_bracket: '['
+                  - raw: OFFSET
+                  - bracketed:
+                      start_bracket: (
+                      raw: '4'
+                      end_bracket: )
+                  - end_square_bracket: ']'
+                  - raw: +
+                  - raw: count_65_plus
+                  - raw: '*'
+                  - raw: bits
+                  - start_square_bracket: '['
+                  - raw: OFFSET
+                  - bracketed:
+                      start_bracket: (
+                      raw: '5'
+                      end_bracket: )
+                  - end_square_bracket: ']'
+                  - end_bracket: )
+                - raw: /
+                - raw: audience_size
+                - raw: AS
+                - raw: relative_abundance
             from_clause:
               keyword: FROM
               from_expression:

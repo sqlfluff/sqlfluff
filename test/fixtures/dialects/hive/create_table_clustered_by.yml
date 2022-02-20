@@ -3,47 +3,39 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bc41056265b7929a28d210f8b050c7d00c9afcfe27905e166edbbf9a5c608899
+_hash: 2043a9709248048b230feb962044e4166433c96e2aa72496a6be0020097a3b2f
 file:
   statement:
     create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - keyword: IF
-    - keyword: NOT
-    - keyword: EXISTS
-    - table_reference:
-        identifier: foo
-    - bracketed:
-      - start_bracket: (
-      - column_definition:
-          identifier: col1
-          data_type:
-            primitive_type:
-              keyword: string
-      - comma: ','
-      - column_definition:
-          identifier: col2
-          data_type:
-            primitive_type:
-              keyword: float
-      - end_bracket: )
-    - keyword: CLUSTERED
-    - keyword: BY
-    - bracketed:
-        start_bracket: (
-        column_reference:
-          identifier: col2
-        end_bracket: )
-    - keyword: SORTED
-    - keyword: BY
-    - bracketed:
-        start_bracket: (
-        column_reference:
-          identifier: col1
-        keyword: DESC
-        end_bracket: )
-    - keyword: INTO
-    - literal: '5'
-    - keyword: BUCKETS
+      unparsable:
+      - keyword: CREATE
+      - keyword: TABLE
+      - raw: IF
+      - raw: NOT
+      - raw: EXISTS
+      - raw: foo
+      - bracketed:
+        - start_bracket: (
+        - raw: col1
+        - raw: string
+        - comma: ','
+        - raw: col2
+        - raw: float
+        - end_bracket: )
+      - raw: CLUSTERED
+      - raw: BY
+      - bracketed:
+          start_bracket: (
+          raw: col2
+          end_bracket: )
+      - raw: SORTED
+      - raw: BY
+      - bracketed:
+        - start_bracket: (
+        - raw: col1
+        - raw: DESC
+        - end_bracket: )
+      - raw: INTO
+      - raw: '5'
+      - raw: BUCKETS
   statement_terminator: ;

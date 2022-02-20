@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c8a15a79e1bb8bad0aef9997dc629b644f18b54cc23ea2e0b9bc1a078e763710
+_hash: 09a0acfd112c8d04993e1411e2497667e7740243975300d08e18dbb8d20ab076
 file:
   statement:
     select_statement:
@@ -23,34 +23,25 @@ file:
             keyword: as
             identifier: price
       from_clause:
-        keyword: from
-        from_expression:
-          from_expression_element:
-            table_expression:
-              bracketed:
-                start_bracket: (
-                values_clause:
-                - keyword: values
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                      literal: "'toffee'"
-                  - comma: ','
-                  - expression:
-                      literal: '5'
-                  - end_bracket: )
-                - comma: ','
-                - bracketed:
-                  - start_bracket: (
-                  - literal: "'starburst'"
-                  - comma: ','
-                  - literal: '8'
-                  - end_bracket: )
-                - comma: ','
-                - bracketed:
-                  - start_bracket: (
-                  - literal: "'flying_saucer'"
-                  - comma: ','
-                  - literal: '1'
-                  - end_bracket: )
-                end_bracket: )
+        unparsable:
+        - keyword: from
+        - raw: (
+        - raw: values
+        - raw: (
+        - raw: "'toffee'"
+        - comma: ','
+        - raw: '5'
+        - raw: )
+        - comma: ','
+        - raw: (
+        - raw: "'starburst'"
+        - comma: ','
+        - raw: '8'
+        - raw: )
+        - comma: ','
+        - raw: (
+        - raw: "'flying_saucer'"
+        - comma: ','
+        - raw: '1'
+        - raw: )
+        - raw: )

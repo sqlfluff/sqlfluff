@@ -3,50 +3,44 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 50f4a458fe74aa2b97d1aedd2b43a067363a4999ae353ef21e183e20618b00b1
+_hash: 6775793d85048dcb5c81ea52e581445f3f5e6a78fd16a4e3fd09281a4bde241c
 file:
 - statement:
     insert_statement:
-    - keyword: INSERT
-    - keyword: INTO
-    - table_reference:
-        identifier: books
-    - bracketed:
-      - start_bracket: (
-      - column_reference:
-          identifier: title
-      - comma: ','
-      - column_reference:
-          identifier: author
-      - end_bracket: )
-    - values_clause:
-        keyword: VALUES
-        bracketed:
+      unparsable:
+      - keyword: INSERT
+      - raw: INTO
+      - raw: books
+      - bracketed:
         - start_bracket: (
-        - literal: "'The Great Gatsby'"
+        - raw: title
         - comma: ','
-        - literal: "'F. Scott Fitzgerald'"
+        - raw: author
+        - end_bracket: )
+      - raw: VALUES
+      - bracketed:
+        - start_bracket: (
+        - raw: "'The Great Gatsby'"
+        - comma: ','
+        - raw: "'F. Scott Fitzgerald'"
         - end_bracket: )
 - statement_terminator: ;
 - statement:
     insert_statement:
-      keyword: INSERT
-      table_reference:
-        identifier: books
-      bracketed:
-      - start_bracket: (
-      - column_reference:
-          identifier: title
-      - comma: ','
-      - column_reference:
-          identifier: author
-      - end_bracket: )
-      values_clause:
-        keyword: VALUES
-        bracketed:
+      unparsable:
+      - keyword: INSERT
+      - raw: books
+      - bracketed:
         - start_bracket: (
-        - literal: "'The Great Gatsby'"
+        - raw: title
         - comma: ','
-        - literal: "'F. Scott Fitzgerald'"
+        - raw: author
+        - end_bracket: )
+      - raw: VALUES
+      - bracketed:
+        - start_bracket: (
+        - raw: "'The Great Gatsby'"
+        - comma: ','
+        - raw: "'F. Scott Fitzgerald'"
         - end_bracket: )
 - statement_terminator: ;

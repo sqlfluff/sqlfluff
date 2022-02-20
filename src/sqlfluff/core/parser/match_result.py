@@ -94,6 +94,8 @@ class MatchResult(
             is_iterable = True
 
         if is_iterable:
+            if isinstance(segs, tuple):
+                return segs
             return tuple(iterator)
         else:  # pragma: no cover TODO?
             # Blindly make into tuple here.

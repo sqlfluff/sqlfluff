@@ -3,36 +3,29 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9000d23493a6d228b7be5a14fa7ae90a9ea4b2d016a34239e494d15a3ef965b2
+_hash: 1eabd8d70da7f4c1dfed822abbdb45dc24f199cac9b1d2e87ddfaf7a55459ded
 file:
   statement:
     select_statement:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: SUM
+          column_reference:
+            identifier: SUM
+          unparsable:
             bracketed:
-              start_bracket: (
-              expression:
-                case_expression:
-                - keyword: CASE
-                - keyword: WHEN
-                - expression:
-                  - column_reference:
-                      identifier: value
-                  - comparison_operator: '!='
-                  - column_reference:
-                      identifier: previous_value
-                - keyword: THEN
-                - expression:
-                    literal: '1.0'
-                - keyword: ELSE
-                - expression:
-                    literal: '0.0'
-                - keyword: END
-              end_bracket: )
+            - start_bracket: (
+            - raw: CASE
+            - raw: WHEN
+            - raw: value
+            - raw: '!='
+            - raw: previous_value
+            - raw: THEN
+            - raw: '1.0'
+            - raw: ELSE
+            - raw: '0.0'
+            - raw: END
+            - end_bracket: )
       from_clause:
         keyword: FROM
         from_expression:
@@ -48,67 +41,45 @@ file:
                         identifier: value
                   - comma: ','
                   - select_clause_element:
-                      expression:
-                        case_expression:
-                        - keyword: CASE
-                        - keyword: WHEN
-                        - expression:
-                            column_reference:
-                              identifier: ix
-                            comparison_operator: '!='
-                            literal: '0'
-                        - keyword: THEN
-                        - expression:
-                            function:
-                              function_name:
-                                function_name_identifier: LAG
-                              bracketed:
-                                start_bracket: (
-                                expression:
-                                  column_reference:
-                                    identifier: value
-                                end_bracket: )
-                              over_clause:
-                                keyword: OVER
-                                bracketed:
-                                  start_bracket: (
-                                  window_specification:
-                                    orderby_clause:
-                                    - keyword: ORDER
-                                    - keyword: BY
-                                    - column_reference:
-                                        identifier: ix
-                                    - keyword: ASC
-                                  end_bracket: )
-                        - keyword: ELSE
-                        - expression:
-                            column_reference:
-                              identifier: value
-                        - keyword: END
-                      alias_expression:
-                        keyword: AS
-                        identifier: previous_value
+                      unparsable:
+                      - raw: CASE
+                      - raw: WHEN
+                      - raw: ix
+                      - raw: '!='
+                      - raw: '0'
+                      - raw: THEN
+                      - raw: LAG
+                      - bracketed:
+                          start_bracket: (
+                          raw: value
+                          end_bracket: )
+                      - raw: OVER
+                      - bracketed:
+                        - start_bracket: (
+                        - raw: ORDER
+                        - raw: BY
+                        - raw: ix
+                        - raw: ASC
+                        - end_bracket: )
+                      - raw: ELSE
+                      - raw: value
+                      - raw: END
+                      - raw: AS
+                      - raw: previous_value
                   from_clause:
-                    keyword: FROM
-                    from_expression:
-                      from_expression_element:
-                      - table_expression:
-                          function:
-                            function_name:
-                              function_name_identifier: UNNEST
-                            bracketed:
-                              start_bracket: (
-                              expression:
-                                column_reference:
-                                - identifier: sequence_validation_and_business_rules
-                                - dot: .
-                                - identifier: sequence_validation_and_business_rules
-                              end_bracket: )
-                      - alias_expression:
-                          keyword: AS
-                          identifier: value
-                      - keyword: WITH
-                      - keyword: OFFSET
-                      - keyword: AS
-                      - identifier: ix
+                    unparsable:
+                    - keyword: FROM
+                    - raw: UNNEST
+                    - bracketed:
+                      - start_bracket: (
+                      - raw: sequence_validation_and_business_rules
+                      - raw: .
+                      - raw: sequence_validation_and_business_rules
+                      - end_bracket: )
+                    - raw: AS
+                    - raw: value
+                    - raw: WITH
+                    - raw: OFFSET
+                    - raw: AS
+                    - raw: ix
                 end_bracket: )

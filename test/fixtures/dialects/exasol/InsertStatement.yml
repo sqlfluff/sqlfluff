@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 831e77ba1399ccc08191952f18fbed0f383609157a4b13c99dde71152b72f371
+_hash: bde229d8ac3fd15c875323f2c7266d590a153685efc1e6b06b684982c409b520
 file:
 - statement:
     insert_statement:
@@ -11,26 +11,23 @@ file:
     - keyword: INTO
     - table_reference:
         identifier: t
-    - bracketed:
-      - start_bracket: (
-      - column_reference:
-          identifier: n1
-      - comma: ','
-      - column_reference:
-          identifier: n2
-      - comma: ','
-      - column_reference:
-          identifier: t1
-      - end_bracket: )
-    - values_insert_clause:
-        keyword: VALUES
-        bracketed:
+    - unparsable:
+      - bracketed:
         - start_bracket: (
-        - literal: '1'
+        - raw: n1
         - comma: ','
-        - literal: '2.34'
+        - raw: n2
         - comma: ','
-        - literal: "'abc'"
+        - raw: t1
+        - end_bracket: )
+      - raw: VALUES
+      - bracketed:
+        - start_bracket: (
+        - raw: '1'
+        - comma: ','
+        - raw: '2.34'
+        - comma: ','
+        - raw: "'abc'"
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -39,24 +36,24 @@ file:
     - keyword: INTO
     - table_reference:
         identifier: t
-    - values_insert_clause:
-      - keyword: VALUES
+    - unparsable:
+      - raw: VALUES
       - bracketed:
         - start_bracket: (
-        - literal: '2'
+        - raw: '2'
         - comma: ','
-        - literal: '1.56'
+        - raw: '1.56'
         - comma: ','
-        - literal: "'ghi'"
+        - raw: "'ghi'"
         - end_bracket: )
       - comma: ','
       - bracketed:
         - start_bracket: (
-        - literal: '3'
+        - raw: '3'
         - comma: ','
-        - literal: '5.92'
+        - raw: '5.92'
         - comma: ','
-        - literal: "'pqr'"
+        - raw: "'pqr'"
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -65,15 +62,15 @@ file:
     - keyword: INTO
     - table_reference:
         identifier: t
-    - values_insert_clause:
-        keyword: VALUES
+    - unparsable:
+        raw: VALUES
         bracketed:
         - start_bracket: (
-        - literal: '4'
+        - raw: '4'
         - comma: ','
-        - keyword: DEFAULT
+        - raw: DEFAULT
         - comma: ','
-        - literal: "'xyz'"
+        - raw: "'xyz'"
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -82,28 +79,17 @@ file:
     - keyword: INTO
     - table_reference:
         identifier: t
-    - bracketed:
-      - start_bracket: (
-      - column_reference:
-          identifier: i
-      - comma: ','
-      - column_reference:
-          identifier: k
-      - end_bracket: )
-    - select_statement:
-        select_clause:
-          keyword: SELECT
-          select_clause_element:
-            wildcard_expression:
-              wildcard_identifier:
-                star: '*'
-        from_clause:
-          keyword: FROM
-          from_expression:
-            from_expression_element:
-              table_expression:
-                table_reference:
-                  identifier: u
+    - unparsable:
+      - bracketed:
+        - start_bracket: (
+        - raw: i
+        - comma: ','
+        - raw: k
+        - end_bracket: )
+      - raw: SELECT
+      - raw: '*'
+      - raw: FROM
+      - raw: u
 - statement_terminator: ;
 - statement:
     insert_statement:
@@ -111,31 +97,19 @@ file:
     - keyword: INTO
     - table_reference:
         identifier: t
-    - bracketed:
-        start_bracket: (
-        column_reference:
-          identifier: i
-        end_bracket: )
-    - select_statement:
-        select_clause:
-          keyword: SELECT
-          select_clause_element:
-            function:
-              function_name:
-                function_name_identifier: max
-              bracketed:
-                start_bracket: (
-                expression:
-                  column_reference:
-                    identifier: j
-                end_bracket: )
-        from_clause:
-          keyword: FROM
-          from_expression:
-            from_expression_element:
-              table_expression:
-                table_reference:
-                  identifier: u
+    - unparsable:
+      - bracketed:
+          start_bracket: (
+          raw: i
+          end_bracket: )
+      - raw: SELECT
+      - raw: max
+      - bracketed:
+          start_bracket: (
+          raw: j
+          end_bracket: )
+      - raw: FROM
+      - raw: u
 - statement_terminator: ;
 - statement:
     insert_statement:
@@ -152,23 +126,14 @@ file:
     - keyword: INTO
     - table_reference:
         identifier: t
-    - bracketed:
-        start_bracket: (
-        select_statement:
-          select_clause:
-            keyword: SELECT
-            select_clause_element:
-              wildcard_expression:
-                wildcard_identifier:
-                  star: '*'
-          from_clause:
-            keyword: FROM
-            from_expression:
-              from_expression_element:
-                table_expression:
-                  table_reference:
-                    identifier: u
-        end_bracket: )
+    - unparsable:
+        bracketed:
+        - start_bracket: (
+        - raw: SELECT
+        - raw: '*'
+        - raw: FROM
+        - raw: u
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
     insert_statement:
@@ -178,41 +143,29 @@ file:
       - identifier: s
       - dot: .
       - identifier: t
-    - bracketed:
-      - start_bracket: (
-      - column_reference:
-          identifier: c1
-      - comma: ','
-      - column_reference:
-          identifier: c2
-      - comma: ','
-      - column_reference:
-          identifier: c3
-      - end_bracket: )
-    - values_insert_clause:
-        keyword: VALUES
-        bracketed:
+    - unparsable:
+      - bracketed:
+        - start_bracket: (
+        - raw: c1
+        - comma: ','
+        - raw: c2
+        - comma: ','
+        - raw: c3
+        - end_bracket: )
+      - raw: VALUES
+      - bracketed:
         - start_bracket: (
         - bracketed:
-            start_bracket: (
-            select_statement:
-              select_clause:
-                keyword: SELECT
-                select_clause_element:
-                  column_reference:
-                    identifier: x
-              from_clause:
-                keyword: FROM
-                from_expression:
-                  from_expression_element:
-                    table_expression:
-                      table_reference:
-                        identifier: y
-            end_bracket: )
+          - start_bracket: (
+          - raw: SELECT
+          - raw: x
+          - raw: FROM
+          - raw: y
+          - end_bracket: )
         - comma: ','
-        - literal: "'val1'"
+        - raw: "'val1'"
         - comma: ','
-        - literal: "'val2'"
+        - raw: "'val2'"
         - end_bracket: )
 - statement_terminator: ;
 - statement:

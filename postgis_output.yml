@@ -1,0 +1,96 @@
+[L:  1, P:  1]      |file:
+[L:  1, P:  1]      |    statement:
+[L:  1, P:  1]      |        create_table_statement:
+[L:  1, P:  1]      |            keyword:                                          'CREATE'
+[L:  1, P:  7]      |            whitespace:                                       ' '
+[L:  1, P:  8]      |            keyword:                                          'TABLE'
+[L:  1, P: 13]      |            whitespace:                                       ' '
+[L:  1, P: 14]      |            table_reference:
+[L:  1, P: 14]      |                identifier:                                   'public'
+[L:  1, P: 20]      |                dot:                                          '.'
+[L:  1, P: 21]      |                identifier:                                   'foo'
+[L:  1, P: 24]      |            newline:                                          '\n'
+[L:  2, P:  1]      |            bracketed:
+[L:  2, P:  1]      |                start_bracket:                                '('
+[L:  2, P:  2]      |                [META] indent:
+[L:  2, P:  2]      |                newline:                                      '\n'
+[L:  3, P:  1]      |                whitespace:                                   '    '
+[L:  3, P:  5]      |                column_definition:
+[L:  3, P:  5]      |                    identifier:                               'quadkey'
+[L:  3, P: 12]      |                    whitespace:                               ' '
+[L:  3, P: 13]      |                    data_type:
+[L:  3, P: 13]      |                        data_type_identifier:                 'TEXT'
+[L:  3, P: 17]      |                comma:                                        ','
+[L:  3, P: 18]      |                newline:                                      '\n'
+[L:  4, P:  1]      |                whitespace:                                   '    '
+[L:  4, P:  5]      |                column_definition:
+[L:  4, P:  5]      |                    identifier:                               'my_geometry_column'
+[L:  4, P: 23]      |                    whitespace:                               ' '
+[L:  4, P: 24]      |                    data_type:
+[L:  4, P: 24]      |                        data_type_identifier:                 'GEOMETRY'
+[L:  4, P: 32]      |                        whitespace:                           ' '
+[L:  4, P: 33]      |                        bracketed:
+[L:  4, P: 33]      |                            start_bracket:                    '('
+[L:  4, P: 34]      |                            [META] indent:
+[L:  4, P: 34]      |                            expression:
+[L:  4, P: 34]      |                                column_reference:
+[L:  4, P: 34]      |                                    identifier:               'GEOMETRY'
+[L:  4, P: 42]      |                            comma:                            ','
+[L:  4, P: 43]      |                            whitespace:                       ' '
+[L:  4, P: 44]      |                            expression:
+[L:  4, P: 44]      |                                literal:                      '4326'
+[L:  4, P: 48]      |                            [META] dedent:
+[L:  4, P: 48]      |                            end_bracket:                      ')'
+[L:  4, P: 49]      |                comma:                                        ','
+[L:  4, P: 50]      |                newline:                                      '\n'
+[L:  5, P:  1]      |                whitespace:                                   '    '
+[L:  5, P:  5]      |                column_definition:
+[L:  5, P:  5]      |                    identifier:                               'my_point'
+[L:  5, P: 13]      |                    whitespace:                               ' '
+[L:  5, P: 14]      |                    data_type:
+[L:  5, P: 14]      |                        data_type_identifier:                 'POINT'
+[L:  5, P: 19]      |                    bracketed:
+[L:  5, P: 19]      |                        start_bracket:                        '('
+[L:  5, P: 20]      |                        [META] indent:
+[L:  5, P: 20]      |                        raw:                                  '0'
+[L:  5, P: 21]      |                        whitespace:                           ' '
+[L:  5, P: 22]      |                        raw:                                  '0'
+[L:  5, P: 23]      |                        [META] dedent:
+[L:  5, P: 23]      |                        end_bracket:                          ')'
+[L:  5, P: 24]      |                comma:                                        ','
+[L:  5, P: 25]      |                newline:                                      '\n'
+[L:  6, P:  1]      |                whitespace:                                   '    '
+[L:  6, P:  5]      |                column_definition:
+[L:  6, P:  5]      |                    identifier:                               'my_linestring'
+[L:  6, P: 18]      |                    whitespace:                               ' '
+[L:  6, P: 19]      |                    data_type:
+[L:  6, P: 19]      |                        data_type_identifier:                 'LINESTRING'
+[L:  6, P: 29]      |                    bracketed:
+[L:  6, P: 29]      |                        start_bracket:                        '('
+[L:  6, P: 30]      |                        [META] indent:
+[L:  6, P: 30]      |                        raw:                                  '0'
+[L:  6, P: 31]      |                        whitespace:                           ' '
+[L:  6, P: 32]      |                        raw:                                  '0'
+[L:  6, P: 33]      |                        comma:                                ','
+[L:  6, P: 34]      |                        whitespace:                           ' '
+[L:  6, P: 35]      |                        raw:                                  '1'
+[L:  6, P: 36]      |                        whitespace:                           ' '
+[L:  6, P: 37]      |                        raw:                                  '1'
+[L:  6, P: 38]      |                        comma:                                ','
+[L:  6, P: 39]      |                        whitespace:                           ' '
+[L:  6, P: 40]      |                        raw:                                  '2'
+[L:  6, P: 41]      |                        whitespace:                           ' '
+[L:  6, P: 42]      |                        raw:                                  '1'
+[L:  6, P: 43]      |                        comma:                                ','
+[L:  6, P: 44]      |                        whitespace:                           ' '
+[L:  6, P: 45]      |                        raw:                                  '2'
+[L:  6, P: 46]      |                        whitespace:                           ' '
+[L:  6, P: 47]      |                        raw:                                  '2'
+[L:  6, P: 48]      |                        [META] dedent:
+[L:  6, P: 48]      |                        end_bracket:                          ')'
+[L:  6, P: 49]      |                newline:                                      '\n'
+[L:  7, P:  1]      |                [META] dedent:
+[L:  7, P:  1]      |                end_bracket:                                  ')'
+[L:  7, P:  2]      |    statement_terminator:                                     ';'
+[L:  7, P:  3]      |    newline:                                                  '\n'
+

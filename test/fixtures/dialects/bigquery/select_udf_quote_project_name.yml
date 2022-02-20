@@ -3,31 +3,28 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0c477a07662dfed013bd126d20e0cadfffc4d46c5d34cccc343f4e58d3470862
+_hash: 7dca5982f43fb0f725e9d2c70a28a640ffda6ced1224d5e8ec4b992b096f17dd
 file:
   statement:
     select_statement:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          function:
-            function_name:
-            - identifier: '`another-gcp-project`'
-            - dot: .
-            - identifier: functions
-            - dot: .
-            - function_name_identifier: timestamp_parsing
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                - identifier: log_tbl
-                - dot: .
-                - identifier: first_move
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            identifier: first_move
+          column_reference:
+          - identifier: '`another-gcp-project`'
+          - dot: .
+          - identifier: functions
+          - dot: .
+          - identifier: timestamp_parsing
+          unparsable:
+          - bracketed:
+            - start_bracket: (
+            - raw: log_tbl
+            - raw: .
+            - raw: first_move
+            - end_bracket: )
+          - raw: AS
+          - raw: first_move
       from_clause:
         keyword: FROM
         from_expression:

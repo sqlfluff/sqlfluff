@@ -3,68 +3,41 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5f0bdf6abac2afed58fb03c667615a345bd0e9eeb99001180b1238f9008c7c57
+_hash: 843d45b7a1c7c802ba499cd03c049e831c9e4c15d6f9dd747ef47f6f31c2da8b
 file:
   statement:
     create_function_statement:
-    - keyword: CREATE
-    - keyword: TEMP
-    - keyword: FUNCTION
-    - function_name:
-        function_name_identifier: URLDECODE
-    - base:
-        bracketed:
-          start_bracket: (
-          parameter: url
-          data_type:
-            data_type_identifier: STRING
-          end_bracket: )
-    - keyword: RETURNS
-    - data_type:
-        data_type_identifier: STRING
-    - base:
-        keyword: AS
-        bracketed:
-          start_bracket: (
-          expression:
-            bracketed:
-              start_bracket: (
-              expression:
-                select_statement:
-                  select_clause:
-                    keyword: SELECT
-                    select_clause_element:
-                      literal: '1'
-                  from_clause:
-                    keyword: FROM
-                    from_expression:
-                      from_expression_element:
-                      - table_expression:
-                          function:
-                            function_name:
-                              function_name_identifier: UNNEST
-                            bracketed:
-                              start_bracket: (
-                              expression:
-                                function:
-                                  function_name:
-                                    function_name_identifier: REGEXP_EXTRACT_ALL
-                                  bracketed:
-                                  - start_bracket: (
-                                  - expression:
-                                      column_reference:
-                                        identifier: url
-                                  - comma: ','
-                                  - expression:
-                                      literal: r"%[0-9a-fA-F]{2}|[^%]+"
-                                  - end_bracket: )
-                              end_bracket: )
-                      - alias_expression:
-                          keyword: AS
-                          identifier: y
-                      - keyword: WITH
-                      - keyword: OFFSET
-                      - keyword: AS
-                      - identifier: i
-              end_bracket: )
-          end_bracket: )
+      unparsable:
+      - keyword: CREATE
+      - keyword: TEMP
+      - keyword: FUNCTION
+      - raw: URLDECODE
+      - raw: (
+      - raw: url
+      - raw: STRING
+      - raw: )
+      - raw: RETURNS
+      - raw: STRING
+      - raw: AS
+      - raw: (
+      - raw: (
+      - raw: SELECT
+      - raw: '1'
+      - raw: FROM
+      - raw: UNNEST
+      - raw: (
+      - raw: REGEXP_EXTRACT_ALL
+      - raw: (
+      - raw: url
+      - comma: ','
+      - raw: r"%[0-9a-fA-F]{2}|[^%]+"
+      - raw: )
+      - raw: )
+      - raw: AS
+      - raw: y
+      - raw: WITH
+      - raw: OFFSET
+      - raw: AS
+      - raw: i
+      - raw: )
+      - raw: )

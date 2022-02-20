@@ -3,63 +3,44 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 58b25106d8887ebd4a10cae8483c0907e6c1a7ed10e9f52812748cd41eb63b04
+_hash: e14edf4abb04f049831157c773f01d5b303a054c8474d787a9141fd288484cce
 file:
 - statement:
     create_view_statement:
-    - keyword: CREATE
-    - keyword: VIEW
-    - view_reference:
-        identifier: my_view
-    - keyword: as
-    - bracketed:
-        start_bracket: (
-        select_statement:
-          select_clause:
-            keyword: select
-            select_clause_element:
-              column_reference:
-                identifier: x
-          from_clause:
-            keyword: from
-            from_expression:
-              from_expression_element:
-                table_expression:
-                  table_reference:
-                    identifier: t
-        end_bracket: )
-    - keyword: COMMENT
-    - keyword: IS
-    - literal: "'nice view'"
+      unparsable:
+      - keyword: CREATE
+      - keyword: VIEW
+      - raw: my_view
+      - raw: as
+      - bracketed:
+        - start_bracket: (
+        - raw: select
+        - raw: x
+        - raw: from
+        - raw: t
+        - end_bracket: )
+      - raw: COMMENT
+      - raw: IS
+      - raw: "'nice view'"
 - statement_terminator: ;
 - statement:
     create_view_statement:
-    - keyword: CREATE
-    - keyword: VIEW
-    - view_reference:
-        identifier: my_view
-    - bracketed:
-        start_bracket: (
-        column_reference:
-          identifier: col1
-        end_bracket: )
-    - keyword: as
-    - bracketed:
-        start_bracket: (
-        select_statement:
-          select_clause:
-            keyword: select
-            select_clause_element:
-              column_reference:
-                identifier: x
-          from_clause:
-            keyword: from
-            from_expression:
-              from_expression_element:
-                table_expression:
-                  table_reference:
-                    identifier: t
-        end_bracket: )
+      unparsable:
+      - keyword: CREATE
+      - keyword: VIEW
+      - raw: my_view
+      - bracketed:
+          start_bracket: (
+          raw: col1
+          end_bracket: )
+      - raw: as
+      - bracketed:
+        - start_bracket: (
+        - raw: select
+        - raw: x
+        - raw: from
+        - raw: t
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_view_statement:
@@ -87,104 +68,70 @@ file:
 - statement_terminator: ;
 - statement:
     create_view_statement:
-    - keyword: CREATE
-    - binary_operator: OR
-    - keyword: REPLACE
-    - keyword: VIEW
-    - view_reference:
-        identifier: my_view
-    - bracketed:
-      - start_bracket: (
-      - column_reference:
-          identifier: col_1
-      - keyword: COMMENT
-      - keyword: IS
-      - literal: "'something important'"
-      - comma: ','
-      - column_reference:
-          identifier: col2
-      - end_bracket: )
-    - keyword: as
-    - select_statement:
-        select_clause:
-          keyword: select
-          select_clause_element:
-            function:
-              function_name:
-                function_name_identifier: max
-              bracketed:
-                start_bracket: (
-                expression:
-                  column_reference:
-                    identifier: y
-                end_bracket: )
-        from_clause:
-          keyword: from
-          from_expression:
-            from_expression_element:
-              table_expression:
-                table_reference:
-                  identifier: t
+      unparsable:
+      - keyword: CREATE
+      - binary_operator: OR
+      - keyword: REPLACE
+      - keyword: VIEW
+      - raw: my_view
+      - bracketed:
+        - start_bracket: (
+        - raw: col_1
+        - raw: COMMENT
+        - raw: IS
+        - raw: "'something important'"
+        - comma: ','
+        - raw: col2
+        - end_bracket: )
+      - raw: as
+      - raw: select
+      - raw: max
+      - bracketed:
+          start_bracket: (
+          raw: y
+          end_bracket: )
+      - raw: from
+      - raw: t
 - statement_terminator: ;
 - statement:
     create_view_statement:
-    - keyword: CREATE
-    - keyword: VIEW
-    - view_reference:
-      - identifier: schem
-      - dot: .
-      - identifier: few
-    - bracketed:
-        start_bracket: (
-        column_reference:
-          identifier: col1
-        end_bracket: )
-    - keyword: as
-    - bracketed:
-        start_bracket: (
-        select_statement:
-          select_clause:
-            keyword: select
-            select_clause_element:
-              column_reference:
-                identifier: x
-          from_clause:
-            keyword: from
-            from_expression:
-              from_expression_element:
-                table_expression:
-                  table_reference:
-                    identifier: t
-        end_bracket: )
+      unparsable:
+      - keyword: CREATE
+      - keyword: VIEW
+      - raw: schem
+      - raw: .
+      - raw: few
+      - bracketed:
+          start_bracket: (
+          raw: col1
+          end_bracket: )
+      - raw: as
+      - bracketed:
+        - start_bracket: (
+        - raw: select
+        - raw: x
+        - raw: from
+        - raw: t
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_view_statement:
-    - keyword: CREATE
-    - keyword: VIEW
-    - view_reference:
-      - identifier: schem
-      - dot: .
-      - identifier: few
-    - bracketed:
-        start_bracket: (
-        column_reference:
-          identifier: col1
-        end_bracket: )
-    - keyword: as
-    - bracketed:
-        start_bracket: (
-        select_statement:
-          select_clause:
-            keyword: select
-            select_clause_element:
-              column_reference:
-                identifier: x
-          from_clause:
-            keyword: from
-            from_expression:
-              from_expression_element:
-                table_expression:
-                  table_reference:
-                    identifier: t
-        end_bracket: )
+      unparsable:
+      - keyword: CREATE
+      - keyword: VIEW
+      - raw: schem
+      - raw: .
+      - raw: few
+      - bracketed:
+          start_bracket: (
+          raw: col1
+          end_bracket: )
+      - raw: as
+      - bracketed:
+        - start_bracket: (
+        - raw: select
+        - raw: x
+        - raw: from
+        - raw: t
+        - end_bracket: )
 - statement_terminator: ;

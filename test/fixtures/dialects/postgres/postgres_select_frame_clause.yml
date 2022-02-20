@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e6e0c2093e5b3fc2b880c6ee1dd1a12ce9f2171e9bd4d63772633233e17987d1
+_hash: d34ffaa060df257cef1f0636b95593fb622738223aa2f99978270aa984adff81
 file:
 - statement:
     select_statement:
@@ -22,46 +22,35 @@ file:
             identifier: venuename
       - comma: ','
       - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: first_value
-            bracketed:
+          column_reference:
+            identifier: first_value
+          unparsable:
+          - bracketed:
             - start_bracket: (
-            - expression:
-                column_reference:
-                  identifier: venuename
-            - keyword: ignore
-            - keyword: nulls
+            - raw: venuename
+            - raw: ignore
+            - raw: nulls
             - end_bracket: )
-            over_clause:
-              keyword: over
-              bracketed:
-                start_bracket: (
-                window_specification:
-                  partitionby_clause:
-                  - keyword: partition
-                  - keyword: by
-                  - expression:
-                      column_reference:
-                        identifier: venuestate
-                  orderby_clause:
-                  - keyword: order
-                  - keyword: by
-                  - column_reference:
-                      identifier: venueseats
-                  - keyword: desc
-                  frame_clause:
-                  - keyword: rows
-                  - keyword: between
-                  - keyword: unbounded
-                  - keyword: preceding
-                  - binary_operator: and
-                  - keyword: unbounded
-                  - keyword: following
-                end_bracket: )
-          alias_expression:
-            keyword: as
-            identifier: col_name
+          - raw: over
+          - bracketed:
+            - start_bracket: (
+            - raw: partition
+            - raw: by
+            - raw: venuestate
+            - raw: order
+            - raw: by
+            - raw: venueseats
+            - raw: desc
+            - raw: rows
+            - raw: between
+            - raw: unbounded
+            - raw: preceding
+            - raw: and
+            - raw: unbounded
+            - raw: following
+            - end_bracket: )
+          - raw: as
+          - raw: col_name
       from_clause:
         keyword: from
         from_expression:
@@ -75,61 +64,51 @@ file:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: rank
-            bracketed:
+          column_reference:
+            identifier: rank
+          unparsable:
+          - bracketed:
               start_bracket: (
               end_bracket: )
-            over_clause:
-              keyword: OVER
-              bracketed:
-                start_bracket: (
-                window_specification:
-                  orderby_clause:
-                  - keyword: ORDER
-                  - keyword: BY
-                  - column_reference:
-                      identifier: my_column
-                  frame_clause:
-                  - keyword: RANGE
-                  - keyword: BETWEEN
-                  - literal: '12'
-                  - keyword: FOLLOWING
-                  - binary_operator: AND
-                  - keyword: CURRENT
-                  - keyword: ROW
-                  - keyword: EXCLUDE
-                  - keyword: 'NO'
-                  - keyword: OTHERS
-                end_bracket: )
+          - raw: OVER
+          - bracketed:
+            - start_bracket: (
+            - raw: ORDER
+            - raw: BY
+            - raw: my_column
+            - raw: RANGE
+            - raw: BETWEEN
+            - raw: '12'
+            - raw: FOLLOWING
+            - raw: AND
+            - raw: CURRENT
+            - raw: ROW
+            - raw: EXCLUDE
+            - raw: 'NO'
+            - raw: OTHERS
+            - end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: rank
-            bracketed:
+          column_reference:
+            identifier: rank
+          unparsable:
+          - bracketed:
               start_bracket: (
               end_bracket: )
-            over_clause:
-              keyword: OVER
-              bracketed:
-                start_bracket: (
-                window_specification:
-                  orderby_clause:
-                  - keyword: ORDER
-                  - keyword: BY
-                  - column_reference:
-                      identifier: my_column
-                  frame_clause:
-                  - keyword: GROUPS
-                  - keyword: UNBOUNDED
-                  - keyword: PRECEDING
-                  - keyword: EXCLUDE
-                  - keyword: GROUP
-                end_bracket: )
+          - raw: OVER
+          - bracketed:
+            - start_bracket: (
+            - raw: ORDER
+            - raw: BY
+            - raw: my_column
+            - raw: GROUPS
+            - raw: UNBOUNDED
+            - raw: PRECEDING
+            - raw: EXCLUDE
+            - raw: GROUP
+            - end_bracket: )
 - statement_terminator: ;

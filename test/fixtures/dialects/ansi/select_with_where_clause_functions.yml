@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: eceb1338124c97da645a1c603a5a361c08a881511cd0411ad4e373044d6ca0ce
+_hash: d64a28fcf812738af3dc5cb677b29b0aae0d8bf636e7b39fee18d0c090f57a1b
 file:
   statement:
     select_statement:
@@ -33,37 +33,28 @@ file:
           - identifier: t
           - dot: .
           - identifier: b_year
-          keyword: in
+        unparsable:
+          raw: in
           bracketed:
           - start_bracket: (
-          - function:
-              function_name:
-                function_name_identifier: year
+          - raw: year
+          - bracketed:
+              start_bracket: (
+              raw: getdate
               bracketed:
                 start_bracket: (
-                expression:
-                  function:
-                    function_name:
-                      function_name_identifier: getdate
-                    bracketed:
-                      start_bracket: (
-                      end_bracket: )
                 end_bracket: )
+              end_bracket: )
           - comma: ','
-          - function:
-              function_name:
-                function_name_identifier: year
+          - raw: year
+          - bracketed:
+              start_bracket: (
+              raw: getdate
               bracketed:
                 start_bracket: (
-                expression:
-                  function:
-                    function_name:
-                      function_name_identifier: getdate
-                    bracketed:
-                      start_bracket: (
-                      end_bracket: )
                 end_bracket: )
-          - binary_operator: '-'
-          - literal: '1'
+              end_bracket: )
+          - raw: '-'
+          - raw: '1'
           - end_bracket: )
   statement_terminator: ;

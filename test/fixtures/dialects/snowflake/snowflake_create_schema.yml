@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8fc249f495a50bbcef86d1ec639688b5323646e0b4873d2ee8f31b28c68c7e4a
+_hash: 943d2b37780e5dbd90f799792257fca7c0e6e94f59f0508e9010e2fd6c8b554d
 file:
 - statement:
     create_clone_statement:
@@ -20,24 +20,20 @@ file:
     - identifier: mytestschema_clone_restore
     - keyword: clone
     - identifier: testschema
-    - from_before_expression:
-        keyword: before
-        bracketed:
-          start_bracket: (
-          keyword: timestamp
-          parameter_assigner: =>
-          expression:
-            function:
-              function_name:
-                function_name_identifier: to_timestamp
-              bracketed:
-                start_bracket: (
-                expression:
-                - literal: '40'
-                - binary_operator: '*'
-                - literal: '365'
-                - binary_operator: '*'
-                - literal: '86400'
-                end_bracket: )
-          end_bracket: )
+    unparsable:
+      raw: before
+      bracketed:
+      - start_bracket: (
+      - raw: timestamp
+      - raw: =>
+      - raw: to_timestamp
+      - bracketed:
+        - start_bracket: (
+        - raw: '40'
+        - raw: '*'
+        - raw: '365'
+        - raw: '*'
+        - raw: '86400'
+        - end_bracket: )
+      - end_bracket: )
 - statement_terminator: ;

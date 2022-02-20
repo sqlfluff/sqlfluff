@@ -3,66 +3,38 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9d82bd5962e867ef50f7c193f3edbc697b84a07f8933ba48562ab3a6a5ded84b
+_hash: 5692c31a83cb76f802e852a90dd2d2f826ddb0024e0aad9dfe4dfed069b44a99
 file:
   statement:
     with_compound_statement:
-    - keyword: WITH
-    - keyword: RECURSIVE
-    - common_table_expression:
-      - identifier: cte
+      unparsable:
+      - keyword: WITH
+      - raw: RECURSIVE
+      - raw: cte
       - bracketed:
           start_bracket: (
-          identifier_list:
-            identifier: a
+          raw: a
           end_bracket: )
-      - keyword: AS
+      - raw: AS
       - bracketed:
-          start_bracket: (
-          set_expression:
-          - select_statement:
-              select_clause:
-                keyword: SELECT
-                select_clause_element:
-                  literal: '1'
-          - set_operator:
-            - keyword: UNION
-            - keyword: ALL
-          - select_statement:
-              select_clause:
-                keyword: SELECT
-                select_clause_element:
-                  expression:
-                    column_reference:
-                      identifier: a
-                    binary_operator: +
-                    literal: '1'
-              from_clause:
-                keyword: FROM
-                from_expression:
-                  from_expression_element:
-                    table_expression:
-                      table_reference:
-                        identifier: cte
-              where_clause:
-                keyword: WHERE
-                expression:
-                  column_reference:
-                    identifier: a
-                  comparison_operator: <
-                  literal: '5'
-          end_bracket: )
-    - select_statement:
-        select_clause:
-          keyword: SELECT
-          select_clause_element:
-            column_reference:
-              identifier: a
-        from_clause:
-          keyword: FROM
-          from_expression:
-            from_expression_element:
-              table_expression:
-                table_reference:
-                  identifier: cte
+        - start_bracket: (
+        - raw: SELECT
+        - raw: '1'
+        - raw: UNION
+        - raw: ALL
+        - raw: SELECT
+        - raw: a
+        - raw: +
+        - raw: '1'
+        - raw: FROM
+        - raw: cte
+        - raw: WHERE
+        - raw: a
+        - raw: <
+        - raw: '5'
+        - end_bracket: )
+      - raw: SELECT
+      - raw: a
+      - raw: FROM
+      - raw: cte
   statement_terminator: ;

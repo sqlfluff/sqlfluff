@@ -3,52 +3,34 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ec91dc8eefe81b8955bcfaa8de056b5c3c6713eeaf9f665115e8c9a679e9be76
+_hash: cd373d847103157d0708a6961b18901c74bcb2419c5490506b436eb9447260a9
 file:
-  batch:
-    statement:
-      create_table_statement:
-      - keyword: CREATE
-      - keyword: TABLE
-      - table_reference:
-        - identifier: '[dbo]'
-        - dot: .
-        - identifier: '[EC DC]'
-      - bracketed:
-        - start_bracket: (
-        - column_definition:
-            identifier: '[Column B]'
-            data_type:
-              identifier: '[varchar]'
-              bracketed:
-                start_bracket: (
-                expression:
-                  literal: '100'
-                end_bracket: )
-        - comma: ','
-        - column_definition:
-            identifier: '[ColumnC]'
-            data_type:
-              identifier: varchar
-              bracketed:
-                start_bracket: (
-                expression:
-                  literal: '100'
-                end_bracket: )
-        - comma: ','
-        - column_definition:
-            identifier: '[ColumnDecimal]'
-            data_type:
-              identifier: decimal
-              bracketed:
-              - start_bracket: (
-              - expression:
-                  literal: '10'
-              - comma: ','
-              - expression:
-                  literal: '3'
-              - end_bracket: )
-        - end_bracket: )
-      - filegroup_clause:
-          keyword: 'ON'
-          identifier: MyFileGroup
+  unparsable:
+  - raw: CREATE
+  - raw: TABLE
+  - raw: '[dbo]'
+  - raw: .
+  - raw: '[EC DC]'
+  - raw: (
+  - raw: '[Column B]'
+  - raw: '[varchar]'
+  - raw: (
+  - raw: '100'
+  - raw: )
+  - comma: ','
+  - raw: '[ColumnC]'
+  - raw: varchar
+  - raw: (
+  - raw: '100'
+  - raw: )
+  - comma: ','
+  - raw: '[ColumnDecimal]'
+  - raw: decimal
+  - raw: (
+  - raw: '10'
+  - comma: ','
+  - raw: '3'
+  - raw: )
+  - raw: )
+  - raw: 'ON'
+  - raw: MyFileGroup

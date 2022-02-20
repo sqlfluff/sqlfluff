@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c66328f005c8141e48502b70887f8ccfcd8deb12d56f963356ef9e29d1f0b08a
+_hash: a48d440fe45b55c4efb4637d1f6d050933e301c2e85186871466fe13f044e99d
 file:
 - statement:
     analyze_statement:
@@ -27,41 +27,41 @@ file:
 - statement:
     analyze_statement:
       keyword: ANALYZE
+    unparsable:
       bracketed:
       - start_bracket: (
-      - keyword: VERBOSE
+      - raw: VERBOSE
       - comma: ','
-      - keyword: SKIP_LOCKED
+      - raw: SKIP_LOCKED
       - end_bracket: )
-      table_reference:
-        identifier: foo
+      raw: foo
 - statement_terminator: ;
 - statement:
     analyze_statement:
       keyword: ANALYZE
+    unparsable:
       bracketed:
       - start_bracket: (
-      - keyword: VERBOSE
-      - literal: 'FALSE'
+      - raw: VERBOSE
+      - raw: 'FALSE'
       - comma: ','
-      - keyword: SKIP_LOCKED
-      - literal: 'TRUE'
+      - raw: SKIP_LOCKED
+      - raw: 'TRUE'
       - end_bracket: )
-      table_reference:
-        identifier: foo
+      raw: foo
 - statement_terminator: ;
 - statement:
     analyze_statement:
       keyword: ANALYZE
+    unparsable:
       bracketed:
       - start_bracket: (
-      - keyword: SKIP_LOCKED
+      - raw: SKIP_LOCKED
       - comma: ','
-      - keyword: VERBOSE
-      - literal: 'FALSE'
+      - raw: VERBOSE
+      - raw: 'FALSE'
       - end_bracket: )
-      table_reference:
-        identifier: foo
+      raw: foo
 - statement_terminator: ;
 - statement:
     analyze_statement:
@@ -69,37 +69,32 @@ file:
     - keyword: VERBOSE
     - table_reference:
         identifier: foo
-    - bracketed:
+    unparsable:
+      bracketed:
       - start_bracket: (
-      - column_reference:
-          identifier: bar
+      - raw: bar
       - comma: ','
-      - column_reference:
-          identifier: bat
+      - raw: bat
       - end_bracket: )
 - statement_terminator: ;
 - statement:
     analyze_statement:
-    - keyword: ANALYZE
-    - table_reference:
+      keyword: ANALYZE
+      table_reference:
         identifier: foo
+    unparsable:
     - bracketed:
       - start_bracket: (
-      - column_reference:
-          identifier: bar
+      - raw: bar
       - comma: ','
-      - column_reference:
-          identifier: bat
+      - raw: bat
       - end_bracket: )
     - comma: ','
-    - table_reference:
-        identifier: foo2
+    - raw: foo2
     - bracketed:
       - start_bracket: (
-      - column_reference:
-          identifier: bar2
+      - raw: bar2
       - comma: ','
-      - column_reference:
-          identifier: bat2
+      - raw: bat2
       - end_bracket: )
 - statement_terminator: ;

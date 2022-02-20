@@ -3,677 +3,613 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: cf422399c294273732c90493883d5657060c0c3e5d028d2a660650d9bbd31509
+_hash: 7c4f9bba48479c2a4bbdc1d8619f1594fb42ef26f58ef0fb1bdf08fcfd0166c3
 file:
   statement:
-    create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-      - identifier: public
-      - dot: .
-      - identifier: foo
+    unparsable:
+    - raw: CREATE
+    - raw: TABLE
+    - raw: public
+    - raw: .
+    - raw: foo
     - bracketed:
       - start_bracket: (
-      - column_reference:
-          identifier: quadkey
-      - data_type:
-          data_type_identifier: TEXT
+      - raw: quadkey
+      - raw: TEXT
       - comma: ','
-      - column_reference:
-          identifier: my_geometry_column
-      - data_type:
-          wkt_geometry_type:
-            keyword: GEOMETRY
-            bracketed:
-              start_bracket: (
-              keyword: GEOMETRY
-              comma: ','
-              literal: '4326'
-              end_bracket: )
+      - raw: my_geometry_column
+      - raw: GEOMETRY
+      - bracketed:
+        - start_bracket: (
+        - raw: GEOMETRY
+        - comma: ','
+        - raw: '4326'
+        - end_bracket: )
       - comma: ','
-      - column_reference:
-          identifier: my_point
-      - data_type:
-          wkt_geometry_type:
-            keyword: POINT
-            bracketed:
-            - start_bracket: (
-            - literal: '0'
-            - literal: '0'
-            - end_bracket: )
+      - raw: my_point
+      - raw: POINT
+      - bracketed:
+        - start_bracket: (
+        - raw: '0'
+        - raw: '0'
+        - end_bracket: )
       - comma: ','
-      - column_reference:
-          identifier: my_linestring
-      - data_type:
-          wkt_geometry_type:
-            keyword: LINESTRING
-            bracketed:
-            - start_bracket: (
-            - literal: '0'
-            - literal: '0'
-            - comma: ','
-            - literal: '1'
-            - literal: '1'
-            - comma: ','
-            - literal: '2'
-            - literal: '1'
-            - comma: ','
-            - literal: '2'
-            - literal: '2'
-            - end_bracket: )
+      - raw: my_linestring
+      - raw: LINESTRING
+      - bracketed:
+        - start_bracket: (
+        - raw: '0'
+        - raw: '0'
+        - comma: ','
+        - raw: '1'
+        - raw: '1'
+        - comma: ','
+        - raw: '2'
+        - raw: '1'
+        - comma: ','
+        - raw: '2'
+        - raw: '2'
+        - end_bracket: )
       - comma: ','
-      - column_reference:
-          identifier: my_simple_polygon
-      - data_type:
-          wkt_geometry_type:
-            keyword: POLYGON
-            bracketed:
-              start_bracket: (
-              bracketed:
-              - start_bracket: (
-              - literal: '0'
-              - literal: '0'
-              - comma: ','
-              - literal: '1'
-              - literal: '0'
-              - comma: ','
-              - literal: '1'
-              - literal: '1'
-              - comma: ','
-              - literal: '0'
-              - literal: '1'
-              - comma: ','
-              - literal: '0'
-              - literal: '0'
-              - end_bracket: )
-              end_bracket: )
+      - raw: my_simple_polygon
+      - raw: POLYGON
+      - bracketed:
+          start_bracket: (
+          bracketed:
+          - start_bracket: (
+          - raw: '0'
+          - raw: '0'
+          - comma: ','
+          - raw: '1'
+          - raw: '0'
+          - comma: ','
+          - raw: '1'
+          - raw: '1'
+          - comma: ','
+          - raw: '0'
+          - raw: '1'
+          - comma: ','
+          - raw: '0'
+          - raw: '0'
+          - end_bracket: )
+          end_bracket: )
       - comma: ','
-      - column_reference:
-          identifier: my_complex_polygon
-      - data_type:
-          wkt_geometry_type:
-            keyword: POLYGON
-            bracketed:
-            - start_bracket: (
-            - bracketed:
-              - start_bracket: (
-              - literal: '0'
-              - literal: '0'
-              - comma: ','
-              - literal: '10'
-              - literal: '0'
-              - comma: ','
-              - literal: '10'
-              - literal: '10'
-              - comma: ','
-              - literal: '0'
-              - literal: '10'
-              - comma: ','
-              - literal: '0'
-              - literal: '0'
-              - end_bracket: )
-            - comma: ','
-            - bracketed:
-              - start_bracket: (
-              - literal: '1'
-              - literal: '1'
-              - comma: ','
-              - literal: '1'
-              - literal: '2'
-              - comma: ','
-              - literal: '2'
-              - literal: '2'
-              - comma: ','
-              - literal: '2'
-              - literal: '1'
-              - comma: ','
-              - literal: '1'
-              - literal: '1'
-              - end_bracket: )
-            - end_bracket: )
+      - raw: my_complex_polygon
+      - raw: POLYGON
+      - bracketed:
+        - start_bracket: (
+        - bracketed:
+          - start_bracket: (
+          - raw: '0'
+          - raw: '0'
+          - comma: ','
+          - raw: '10'
+          - raw: '0'
+          - comma: ','
+          - raw: '10'
+          - raw: '10'
+          - comma: ','
+          - raw: '0'
+          - raw: '10'
+          - comma: ','
+          - raw: '0'
+          - raw: '0'
+          - end_bracket: )
+        - comma: ','
+        - bracketed:
+          - start_bracket: (
+          - raw: '1'
+          - raw: '1'
+          - comma: ','
+          - raw: '1'
+          - raw: '2'
+          - comma: ','
+          - raw: '2'
+          - raw: '2'
+          - comma: ','
+          - raw: '2'
+          - raw: '1'
+          - comma: ','
+          - raw: '1'
+          - raw: '1'
+          - end_bracket: )
+        - end_bracket: )
       - comma: ','
-      - column_reference:
-          identifier: my_geometry_collection
-      - data_type:
-          wkt_geometry_type:
-            keyword: GEOMETRYCOLLECTION
-            bracketed:
-            - start_bracket: (
-            - wkt_geometry_type:
-                keyword: POINT
-                bracketed:
-                - start_bracket: (
-                - literal: '2'
-                - literal: '0'
-                - end_bracket: )
-            - comma: ','
-            - wkt_geometry_type:
-                keyword: POLYGON
-                bracketed:
-                  start_bracket: (
-                  bracketed:
-                  - start_bracket: (
-                  - literal: '0'
-                  - literal: '0'
-                  - comma: ','
-                  - literal: '1'
-                  - literal: '0'
-                  - comma: ','
-                  - literal: '1'
-                  - literal: '1'
-                  - comma: ','
-                  - literal: '0'
-                  - literal: '1'
-                  - comma: ','
-                  - literal: '0'
-                  - literal: '0'
-                  - end_bracket: )
-                  end_bracket: )
-            - end_bracket: )
-      - comma: ','
-      - column_reference:
-          identifier: my_3d_linestring
-      - data_type:
-          wkt_geometry_type:
-            keyword: LINESTRINGZ
-            bracketed:
-            - start_bracket: (
-            - literal: '0'
-            - literal: '0'
-            - literal: '0'
-            - comma: ','
-            - literal: '1'
-            - literal: '0'
-            - literal: '0'
-            - comma: ','
-            - literal: '1'
-            - literal: '1'
-            - literal: '2'
-            - end_bracket: )
-      - comma: ','
-      - column_reference:
-          identifier: my_geography_column
-      - data_type:
-          wkt_geometry_type:
-            keyword: GEOGRAPHY
-            bracketed:
-              start_bracket: (
-              keyword: GEOGRAPHY
-              comma: ','
-              literal: '6679'
-              end_bracket: )
-      - comma: ','
-      - column_reference:
-          identifier: my_4d_point
-      - data_type:
-          wkt_geometry_type:
-            keyword: POINTZM
-            bracketed:
-            - start_bracket: (
-            - literal: '1'
-            - comma: ','
-            - literal: '1'
-            - comma: ','
-            - literal: '1'
-            - comma: ','
-            - literal: '1'
-            - end_bracket: )
-      - comma: ','
-      - column_reference:
-          identifier: my_multicurve
-      - data_type:
-          wkt_geometry_type:
-            keyword: MULTICURVE
-            bracketed:
-              start_bracket: (
-              bracketed:
-              - start_bracket: (
-              - literal: '0'
-              - literal: '0'
-              - comma: ','
-              - literal: '5'
-              - literal: '5'
-              - end_bracket: )
-              comma: ','
-              wkt_geometry_type:
-                keyword: CIRCULARSTRING
-                bracketed:
-                - start_bracket: (
-                - literal: '4'
-                - literal: '0'
-                - comma: ','
-                - literal: '4'
-                - literal: '4'
-                - comma: ','
-                - literal: '8'
-                - literal: '4'
-                - end_bracket: )
-              end_bracket: )
-      - comma: ','
-      - column_reference:
-          identifier: my_tin
-      - data_type:
-          wkt_geometry_type:
-            keyword: TIN
-            bracketed:
-            - start_bracket: (
-            - bracketed:
-                start_bracket: (
-                bracketed:
-                - start_bracket: (
-                - literal: '0'
-                - literal: '0'
-                - literal: '0'
-                - comma: ','
-                - literal: '0'
-                - literal: '0'
-                - literal: '1'
-                - comma: ','
-                - literal: '0'
-                - literal: '1'
-                - literal: '0'
-                - comma: ','
-                - literal: '0'
-                - literal: '0'
-                - literal: '0'
-                - end_bracket: )
-                end_bracket: )
-            - comma: ','
-            - bracketed:
-                start_bracket: (
-                bracketed:
-                - start_bracket: (
-                - literal: '0'
-                - literal: '0'
-                - literal: '0'
-                - comma: ','
-                - literal: '0'
-                - literal: '1'
-                - literal: '0'
-                - comma: ','
-                - literal: '1'
-                - literal: '1'
-                - literal: '0'
-                - comma: ','
-                - literal: '0'
-                - literal: '0'
-                - literal: '0'
-                - end_bracket: )
-                end_bracket: )
-            - end_bracket: )
-      - comma: ','
-      - column_reference:
-          identifier: my_triangle
-      - data_type:
-          wkt_geometry_type:
-            keyword: TRIANGLE
-            bracketed:
-              start_bracket: (
-              bracketed:
-              - start_bracket: (
-              - literal: '0'
-              - literal: '0'
-              - comma: ','
-              - literal: '0'
-              - literal: '9'
-              - comma: ','
-              - literal: '9'
-              - literal: '0'
-              - comma: ','
-              - literal: '0'
-              - literal: '0'
-              - end_bracket: )
-              end_bracket: )
-      - comma: ','
-      - column_reference:
-          identifier: my_polyhedral_surface
-      - data_type:
-          wkt_geometry_type:
-            keyword: POLYHEDRALSURFACE
-            bracketed:
-            - start_bracket: (
-            - bracketed:
-                start_bracket: (
-                bracketed:
-                - start_bracket: (
-                - literal: '0'
-                - literal: '0'
-                - literal: '0'
-                - comma: ','
-                - literal: '0'
-                - literal: '0'
-                - literal: '1'
-                - comma: ','
-                - literal: '0'
-                - literal: '1'
-                - literal: '1'
-                - comma: ','
-                - literal: '0'
-                - literal: '1'
-                - literal: '0'
-                - comma: ','
-                - literal: '0'
-                - literal: '0'
-                - literal: '0'
-                - end_bracket: )
-                end_bracket: )
-            - comma: ','
-            - bracketed:
-                start_bracket: (
-                bracketed:
-                - start_bracket: (
-                - literal: '0'
-                - literal: '0'
-                - literal: '0'
-                - comma: ','
-                - literal: '0'
-                - literal: '1'
-                - literal: '0'
-                - comma: ','
-                - literal: '1'
-                - literal: '1'
-                - literal: '0'
-                - comma: ','
-                - literal: '1'
-                - literal: '0'
-                - literal: '0'
-                - comma: ','
-                - literal: '0'
-                - literal: '0'
-                - literal: '0'
-                - end_bracket: )
-                end_bracket: )
-            - comma: ','
-            - bracketed:
-                start_bracket: (
-                bracketed:
-                - start_bracket: (
-                - literal: '0'
-                - literal: '0'
-                - literal: '0'
-                - comma: ','
-                - literal: '1'
-                - literal: '0'
-                - literal: '0'
-                - comma: ','
-                - literal: '1'
-                - literal: '0'
-                - literal: '1'
-                - comma: ','
-                - literal: '0'
-                - literal: '0'
-                - literal: '1'
-                - comma: ','
-                - literal: '0'
-                - literal: '0'
-                - literal: '0'
-                - end_bracket: )
-                end_bracket: )
-            - comma: ','
-            - bracketed:
-                start_bracket: (
-                bracketed:
-                - start_bracket: (
-                - literal: '1'
-                - literal: '1'
-                - literal: '0'
-                - comma: ','
-                - literal: '1'
-                - literal: '1'
-                - literal: '1'
-                - comma: ','
-                - literal: '1'
-                - literal: '0'
-                - literal: '1'
-                - comma: ','
-                - literal: '1'
-                - literal: '0'
-                - literal: '0'
-                - comma: ','
-                - literal: '1'
-                - literal: '1'
-                - literal: '0'
-                - end_bracket: )
-                end_bracket: )
-            - comma: ','
-            - bracketed:
-                start_bracket: (
-                bracketed:
-                - start_bracket: (
-                - literal: '0'
-                - literal: '1'
-                - literal: '0'
-                - comma: ','
-                - literal: '0'
-                - literal: '1'
-                - literal: '1'
-                - comma: ','
-                - literal: '1'
-                - literal: '1'
-                - literal: '1'
-                - comma: ','
-                - literal: '1'
-                - literal: '1'
-                - literal: '0'
-                - comma: ','
-                - literal: '0'
-                - literal: '1'
-                - literal: '0'
-                - end_bracket: )
-                end_bracket: )
-            - comma: ','
-            - bracketed:
-                start_bracket: (
-                bracketed:
-                - start_bracket: (
-                - literal: '0'
-                - literal: '0'
-                - literal: '1'
-                - comma: ','
-                - literal: '1'
-                - literal: '0'
-                - literal: '1'
-                - comma: ','
-                - literal: '1'
-                - literal: '1'
-                - literal: '1'
-                - comma: ','
-                - literal: '0'
-                - literal: '1'
-                - literal: '1'
-                - comma: ','
-                - literal: '0'
-                - literal: '0'
-                - literal: '1'
-                - end_bracket: )
-                end_bracket: )
-            - end_bracket: )
-      - comma: ','
-      - column_reference:
-          identifier: my_3d_geometry_collection
-      - data_type:
-          wkt_geometry_type:
-            keyword: GEOMETRYCOLLECTIONM
-            bracketed:
-            - start_bracket: (
-            - wkt_geometry_type:
-                keyword: POINTM
-                bracketed:
-                - start_bracket: (
-                - literal: '2'
-                - literal: '3'
-                - literal: '9'
-                - end_bracket: )
-            - comma: ','
-            - wkt_geometry_type:
-                keyword: LINESTRINGM
-                bracketed:
-                - start_bracket: (
-                - literal: '2'
-                - literal: '3'
-                - literal: '4'
-                - comma: ','
-                - literal: '3'
-                - literal: '4'
-                - literal: '5'
-                - end_bracket: )
-            - end_bracket: )
-      - comma: ','
-      - column_reference:
-          identifier: my_curve_polygon
-      - data_type:
-          wkt_geometry_type:
-            keyword: CURVEPOLYGON
-            bracketed:
-              start_bracket: (
-              wkt_geometry_type:
-                keyword: CIRCULARSTRING
-                bracketed:
-                - start_bracket: (
-                - literal: '0'
-                - literal: '0'
-                - comma: ','
-                - literal: '4'
-                - literal: '0'
-                - comma: ','
-                - literal: '4'
-                - literal: '4'
-                - comma: ','
-                - literal: '0'
-                - literal: '4'
-                - comma: ','
-                - literal: '0'
-                - literal: '0'
-                - end_bracket: )
-              comma: ','
-              bracketed:
-              - start_bracket: (
-              - literal: '1'
-              - literal: '1'
-              - comma: ','
-              - literal: '3'
-              - literal: '3'
-              - comma: ','
-              - literal: '3'
-              - literal: '1'
-              - comma: ','
-              - literal: '1'
-              - literal: '1'
-              - end_bracket: )
-              end_bracket: )
-      - comma: ','
-      - column_reference:
-          identifier: my_multisurface
-      - data_type:
-          wkt_geometry_type:
-            keyword: MULTISURFACE
-            bracketed:
-              start_bracket: (
-              wkt_geometry_type:
-                keyword: CURVEPOLYGON
-                bracketed:
-                  start_bracket: (
-                  wkt_geometry_type:
-                    keyword: CIRCULARSTRING
-                    bracketed:
-                    - start_bracket: (
-                    - literal: '0'
-                    - literal: '0'
-                    - comma: ','
-                    - literal: '4'
-                    - literal: '0'
-                    - comma: ','
-                    - literal: '4'
-                    - literal: '4'
-                    - comma: ','
-                    - literal: '0'
-                    - literal: '4'
-                    - comma: ','
-                    - literal: '0'
-                    - literal: '0'
-                    - end_bracket: )
-                  comma: ','
-                  bracketed:
-                  - start_bracket: (
-                  - literal: '1'
-                  - literal: '1'
-                  - comma: ','
-                  - literal: '3'
-                  - literal: '3'
-                  - comma: ','
-                  - literal: '3'
-                  - literal: '1'
-                  - comma: ','
-                  - literal: '1'
-                  - literal: '1'
-                  - end_bracket: )
-                  end_bracket: )
-              comma: ','
-              bracketed:
-              - start_bracket: (
-              - bracketed:
-                - start_bracket: (
-                - literal: '10'
-                - literal: '10'
-                - comma: ','
-                - literal: '14'
-                - literal: '12'
-                - comma: ','
-                - literal: '11'
-                - literal: '10'
-                - comma: ','
-                - literal: '10'
-                - literal: '10'
-                - end_bracket: )
-              - comma: ','
-              - bracketed:
-                - start_bracket: (
-                - literal: '11'
-                - literal: '11'
-                - comma: ','
-                - literal: '11.5'
-                - literal: '11'
-                - comma: ','
-                - literal: '11'
-                - literal: '11.5'
-                - comma: ','
-                - literal: '11'
-                - literal: '11'
-                - end_bracket: )
-              - end_bracket: )
-              end_bracket: )
-      - comma: ','
-      - column_reference:
-          identifier: my_circularstring
-      - data_type:
-          wkt_geometry_type:
-            keyword: CIRCULARSTRING
-            bracketed:
-            - start_bracket: (
-            - literal: '0'
-            - literal: '0'
-            - comma: ','
-            - literal: '4'
-            - literal: '0'
-            - comma: ','
-            - literal: '4'
-            - literal: '4'
-            - comma: ','
-            - literal: '0'
-            - literal: '4'
-            - comma: ','
-            - literal: '0'
-            - literal: '0'
-            - end_bracket: )
-      - comma: ','
-      - table_constraint_segment:
-        - keyword: PRIMARY
-        - keyword: KEY
+      - raw: my_geometry_collection
+      - raw: GEOMETRYCOLLECTION
+      - bracketed:
+        - start_bracket: (
+        - raw: POINT
+        - bracketed:
+          - start_bracket: (
+          - raw: '2'
+          - raw: '0'
+          - end_bracket: )
+        - comma: ','
+        - raw: POLYGON
         - bracketed:
             start_bracket: (
-            column_reference:
-              identifier: quadkey
+            bracketed:
+            - start_bracket: (
+            - raw: '0'
+            - raw: '0'
+            - comma: ','
+            - raw: '1'
+            - raw: '0'
+            - comma: ','
+            - raw: '1'
+            - raw: '1'
+            - comma: ','
+            - raw: '0'
+            - raw: '1'
+            - comma: ','
+            - raw: '0'
+            - raw: '0'
+            - end_bracket: )
             end_bracket: )
+        - end_bracket: )
+      - comma: ','
+      - raw: my_3d_linestring
+      - raw: LINESTRINGZ
+      - bracketed:
+        - start_bracket: (
+        - raw: '0'
+        - raw: '0'
+        - raw: '0'
+        - comma: ','
+        - raw: '1'
+        - raw: '0'
+        - raw: '0'
+        - comma: ','
+        - raw: '1'
+        - raw: '1'
+        - raw: '2'
+        - end_bracket: )
+      - comma: ','
+      - raw: my_geography_column
+      - raw: GEOGRAPHY
+      - bracketed:
+        - start_bracket: (
+        - raw: GEOGRAPHY
+        - comma: ','
+        - raw: '6679'
+        - end_bracket: )
+      - comma: ','
+      - raw: my_4d_point
+      - raw: POINTZM
+      - bracketed:
+        - start_bracket: (
+        - raw: '1'
+        - comma: ','
+        - raw: '1'
+        - comma: ','
+        - raw: '1'
+        - comma: ','
+        - raw: '1'
+        - end_bracket: )
+      - comma: ','
+      - raw: my_multicurve
+      - raw: MULTICURVE
+      - bracketed:
+        - start_bracket: (
+        - bracketed:
+          - start_bracket: (
+          - raw: '0'
+          - raw: '0'
+          - comma: ','
+          - raw: '5'
+          - raw: '5'
+          - end_bracket: )
+        - comma: ','
+        - raw: CIRCULARSTRING
+        - bracketed:
+          - start_bracket: (
+          - raw: '4'
+          - raw: '0'
+          - comma: ','
+          - raw: '4'
+          - raw: '4'
+          - comma: ','
+          - raw: '8'
+          - raw: '4'
+          - end_bracket: )
+        - end_bracket: )
+      - comma: ','
+      - raw: my_tin
+      - raw: TIN
+      - bracketed:
+        - start_bracket: (
+        - bracketed:
+            start_bracket: (
+            bracketed:
+            - start_bracket: (
+            - raw: '0'
+            - raw: '0'
+            - raw: '0'
+            - comma: ','
+            - raw: '0'
+            - raw: '0'
+            - raw: '1'
+            - comma: ','
+            - raw: '0'
+            - raw: '1'
+            - raw: '0'
+            - comma: ','
+            - raw: '0'
+            - raw: '0'
+            - raw: '0'
+            - end_bracket: )
+            end_bracket: )
+        - comma: ','
+        - bracketed:
+            start_bracket: (
+            bracketed:
+            - start_bracket: (
+            - raw: '0'
+            - raw: '0'
+            - raw: '0'
+            - comma: ','
+            - raw: '0'
+            - raw: '1'
+            - raw: '0'
+            - comma: ','
+            - raw: '1'
+            - raw: '1'
+            - raw: '0'
+            - comma: ','
+            - raw: '0'
+            - raw: '0'
+            - raw: '0'
+            - end_bracket: )
+            end_bracket: )
+        - end_bracket: )
+      - comma: ','
+      - raw: my_triangle
+      - raw: TRIANGLE
+      - bracketed:
+          start_bracket: (
+          bracketed:
+          - start_bracket: (
+          - raw: '0'
+          - raw: '0'
+          - comma: ','
+          - raw: '0'
+          - raw: '9'
+          - comma: ','
+          - raw: '9'
+          - raw: '0'
+          - comma: ','
+          - raw: '0'
+          - raw: '0'
+          - end_bracket: )
+          end_bracket: )
+      - comma: ','
+      - raw: my_polyhedral_surface
+      - raw: POLYHEDRALSURFACE
+      - bracketed:
+        - start_bracket: (
+        - bracketed:
+            start_bracket: (
+            bracketed:
+            - start_bracket: (
+            - raw: '0'
+            - raw: '0'
+            - raw: '0'
+            - comma: ','
+            - raw: '0'
+            - raw: '0'
+            - raw: '1'
+            - comma: ','
+            - raw: '0'
+            - raw: '1'
+            - raw: '1'
+            - comma: ','
+            - raw: '0'
+            - raw: '1'
+            - raw: '0'
+            - comma: ','
+            - raw: '0'
+            - raw: '0'
+            - raw: '0'
+            - end_bracket: )
+            end_bracket: )
+        - comma: ','
+        - bracketed:
+            start_bracket: (
+            bracketed:
+            - start_bracket: (
+            - raw: '0'
+            - raw: '0'
+            - raw: '0'
+            - comma: ','
+            - raw: '0'
+            - raw: '1'
+            - raw: '0'
+            - comma: ','
+            - raw: '1'
+            - raw: '1'
+            - raw: '0'
+            - comma: ','
+            - raw: '1'
+            - raw: '0'
+            - raw: '0'
+            - comma: ','
+            - raw: '0'
+            - raw: '0'
+            - raw: '0'
+            - end_bracket: )
+            end_bracket: )
+        - comma: ','
+        - bracketed:
+            start_bracket: (
+            bracketed:
+            - start_bracket: (
+            - raw: '0'
+            - raw: '0'
+            - raw: '0'
+            - comma: ','
+            - raw: '1'
+            - raw: '0'
+            - raw: '0'
+            - comma: ','
+            - raw: '1'
+            - raw: '0'
+            - raw: '1'
+            - comma: ','
+            - raw: '0'
+            - raw: '0'
+            - raw: '1'
+            - comma: ','
+            - raw: '0'
+            - raw: '0'
+            - raw: '0'
+            - end_bracket: )
+            end_bracket: )
+        - comma: ','
+        - bracketed:
+            start_bracket: (
+            bracketed:
+            - start_bracket: (
+            - raw: '1'
+            - raw: '1'
+            - raw: '0'
+            - comma: ','
+            - raw: '1'
+            - raw: '1'
+            - raw: '1'
+            - comma: ','
+            - raw: '1'
+            - raw: '0'
+            - raw: '1'
+            - comma: ','
+            - raw: '1'
+            - raw: '0'
+            - raw: '0'
+            - comma: ','
+            - raw: '1'
+            - raw: '1'
+            - raw: '0'
+            - end_bracket: )
+            end_bracket: )
+        - comma: ','
+        - bracketed:
+            start_bracket: (
+            bracketed:
+            - start_bracket: (
+            - raw: '0'
+            - raw: '1'
+            - raw: '0'
+            - comma: ','
+            - raw: '0'
+            - raw: '1'
+            - raw: '1'
+            - comma: ','
+            - raw: '1'
+            - raw: '1'
+            - raw: '1'
+            - comma: ','
+            - raw: '1'
+            - raw: '1'
+            - raw: '0'
+            - comma: ','
+            - raw: '0'
+            - raw: '1'
+            - raw: '0'
+            - end_bracket: )
+            end_bracket: )
+        - comma: ','
+        - bracketed:
+            start_bracket: (
+            bracketed:
+            - start_bracket: (
+            - raw: '0'
+            - raw: '0'
+            - raw: '1'
+            - comma: ','
+            - raw: '1'
+            - raw: '0'
+            - raw: '1'
+            - comma: ','
+            - raw: '1'
+            - raw: '1'
+            - raw: '1'
+            - comma: ','
+            - raw: '0'
+            - raw: '1'
+            - raw: '1'
+            - comma: ','
+            - raw: '0'
+            - raw: '0'
+            - raw: '1'
+            - end_bracket: )
+            end_bracket: )
+        - end_bracket: )
+      - comma: ','
+      - raw: my_3d_geometry_collection
+      - raw: GEOMETRYCOLLECTIONM
+      - bracketed:
+        - start_bracket: (
+        - raw: POINTM
+        - bracketed:
+          - start_bracket: (
+          - raw: '2'
+          - raw: '3'
+          - raw: '9'
+          - end_bracket: )
+        - comma: ','
+        - raw: LINESTRINGM
+        - bracketed:
+          - start_bracket: (
+          - raw: '2'
+          - raw: '3'
+          - raw: '4'
+          - comma: ','
+          - raw: '3'
+          - raw: '4'
+          - raw: '5'
+          - end_bracket: )
+        - end_bracket: )
+      - comma: ','
+      - raw: my_curve_polygon
+      - raw: CURVEPOLYGON
+      - bracketed:
+        - start_bracket: (
+        - raw: CIRCULARSTRING
+        - bracketed:
+          - start_bracket: (
+          - raw: '0'
+          - raw: '0'
+          - comma: ','
+          - raw: '4'
+          - raw: '0'
+          - comma: ','
+          - raw: '4'
+          - raw: '4'
+          - comma: ','
+          - raw: '0'
+          - raw: '4'
+          - comma: ','
+          - raw: '0'
+          - raw: '0'
+          - end_bracket: )
+        - comma: ','
+        - bracketed:
+          - start_bracket: (
+          - raw: '1'
+          - raw: '1'
+          - comma: ','
+          - raw: '3'
+          - raw: '3'
+          - comma: ','
+          - raw: '3'
+          - raw: '1'
+          - comma: ','
+          - raw: '1'
+          - raw: '1'
+          - end_bracket: )
+        - end_bracket: )
+      - comma: ','
+      - raw: my_multisurface
+      - raw: MULTISURFACE
+      - bracketed:
+        - start_bracket: (
+        - raw: CURVEPOLYGON
+        - bracketed:
+          - start_bracket: (
+          - raw: CIRCULARSTRING
+          - bracketed:
+            - start_bracket: (
+            - raw: '0'
+            - raw: '0'
+            - comma: ','
+            - raw: '4'
+            - raw: '0'
+            - comma: ','
+            - raw: '4'
+            - raw: '4'
+            - comma: ','
+            - raw: '0'
+            - raw: '4'
+            - comma: ','
+            - raw: '0'
+            - raw: '0'
+            - end_bracket: )
+          - comma: ','
+          - bracketed:
+            - start_bracket: (
+            - raw: '1'
+            - raw: '1'
+            - comma: ','
+            - raw: '3'
+            - raw: '3'
+            - comma: ','
+            - raw: '3'
+            - raw: '1'
+            - comma: ','
+            - raw: '1'
+            - raw: '1'
+            - end_bracket: )
+          - end_bracket: )
+        - comma: ','
+        - bracketed:
+          - start_bracket: (
+          - bracketed:
+            - start_bracket: (
+            - raw: '10'
+            - raw: '10'
+            - comma: ','
+            - raw: '14'
+            - raw: '12'
+            - comma: ','
+            - raw: '11'
+            - raw: '10'
+            - comma: ','
+            - raw: '10'
+            - raw: '10'
+            - end_bracket: )
+          - comma: ','
+          - bracketed:
+            - start_bracket: (
+            - raw: '11'
+            - raw: '11'
+            - comma: ','
+            - raw: '11.5'
+            - raw: '11'
+            - comma: ','
+            - raw: '11'
+            - raw: '11.5'
+            - comma: ','
+            - raw: '11'
+            - raw: '11'
+            - end_bracket: )
+          - end_bracket: )
+        - end_bracket: )
+      - comma: ','
+      - raw: my_circularstring
+      - raw: CIRCULARSTRING
+      - bracketed:
+        - start_bracket: (
+        - raw: '0'
+        - raw: '0'
+        - comma: ','
+        - raw: '4'
+        - raw: '0'
+        - comma: ','
+        - raw: '4'
+        - raw: '4'
+        - comma: ','
+        - raw: '0'
+        - raw: '4'
+        - comma: ','
+        - raw: '0'
+        - raw: '0'
+        - end_bracket: )
+      - comma: ','
+      - raw: PRIMARY
+      - raw: KEY
+      - bracketed:
+          start_bracket: (
+          raw: quadkey
+          end_bracket: )
       - end_bracket: )
   statement_terminator: ;

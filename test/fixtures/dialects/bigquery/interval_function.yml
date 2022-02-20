@@ -3,115 +3,84 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a1c897485313021120f6461b6e1d7990e7766b8a1820cde7ab52a595b4affe1b
+_hash: ac52a89acaec9ccc2d886f1d0cc211e6f9bb1f9925e279e6a86b92f215fc5a3c
 file:
   statement:
     select_statement:
       select_clause:
       - keyword: SELECT
       - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: TIMESTAMP_TRUNC
-            bracketed:
-              start_bracket: (
-              expression:
-                function:
-                  function_name:
-                    function_name_identifier: TIMESTAMP_ADD
-                  bracketed:
+          column_reference:
+            identifier: TIMESTAMP_TRUNC
+          unparsable:
+          - bracketed:
+            - start_bracket: (
+            - raw: TIMESTAMP_ADD
+            - bracketed:
+              - start_bracket: (
+              - raw: session_start
+              - raw: .
+              - raw: eventTimestamp
+              - comma: ','
+              - raw: INTERVAL
+              - raw: cast
+              - bracketed:
+                - start_bracket: (
+                - raw: TIMESTAMP_DIFF
+                - bracketed:
                   - start_bracket: (
-                  - expression:
-                      column_reference:
-                      - identifier: session_start
-                      - dot: .
-                      - identifier: eventTimestamp
+                  - raw: session_end
+                  - raw: .
+                  - raw: eventTimestamp
                   - comma: ','
-                  - expression:
-                      interval_expression:
-                        keyword: INTERVAL
-                        expression:
-                          function:
-                            function_name:
-                              function_name_identifier: cast
-                            bracketed:
-                              start_bracket: (
-                              expression:
-                                function:
-                                  function_name:
-                                    function_name_identifier: TIMESTAMP_DIFF
-                                  bracketed:
-                                  - start_bracket: (
-                                  - expression:
-                                      column_reference:
-                                      - identifier: session_end
-                                      - dot: .
-                                      - identifier: eventTimestamp
-                                  - comma: ','
-                                  - expression:
-                                      column_reference:
-                                      - identifier: session_start
-                                      - dot: .
-                                      - identifier: eventTimestamp
-                                  - comma: ','
-                                  - date_part: SECOND
-                                  - end_bracket: )
-                                binary_operator: /
-                                literal: '2'
-                              keyword: AS
-                              data_type:
-                                data_type_identifier: int64
-                              end_bracket: )
-                        date_part: second
+                  - raw: session_start
+                  - raw: .
+                  - raw: eventTimestamp
+                  - comma: ','
+                  - raw: SECOND
                   - end_bracket: )
-              comma: ','
-              date_part: HOUR
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            identifier: avgAtHour
+                - raw: /
+                - raw: '2'
+                - raw: AS
+                - raw: int64
+                - end_bracket: )
+              - raw: second
+              - end_bracket: )
+            - comma: ','
+            - raw: HOUR
+            - end_bracket: )
+          - raw: AS
+          - raw: avgAtHour
       - comma: ','
       - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: TIME_ADD
-            bracketed:
+          column_reference:
+            identifier: TIME_ADD
+          unparsable:
+          - bracketed:
             - start_bracket: (
-            - expression:
-                column_reference:
-                  identifier: time1
+            - raw: time1
             - comma: ','
-            - expression:
-                interval_expression:
-                  keyword: INTERVAL
-                  expression:
-                    literal: '10'
-                  date_part: MINUTE
+            - raw: INTERVAL
+            - raw: '10'
+            - raw: MINUTE
             - end_bracket: )
-          alias_expression:
-            keyword: AS
-            identifier: after
+          - raw: AS
+          - raw: after
       - comma: ','
       - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: DATE_SUB
-            bracketed:
+          column_reference:
+            identifier: DATE_SUB
+          unparsable:
+          - bracketed:
             - start_bracket: (
-            - expression:
-                column_reference:
-                  identifier: time2
+            - raw: time2
             - comma: ','
-            - expression:
-                interval_expression:
-                  keyword: INTERVAL
-                  expression:
-                    literal: '5'
-                  date_part: YEAR
+            - raw: INTERVAL
+            - raw: '5'
+            - raw: YEAR
             - end_bracket: )
-          alias_expression:
-            keyword: AS
-            identifier: before
+          - raw: AS
+          - raw: before
       from_clause:
         keyword: FROM
         from_expression:

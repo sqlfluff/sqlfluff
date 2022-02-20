@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 71c37fda083d9cb57258a02461686c2d84ec45670d26eaadcb91c9850a113ed3
+_hash: 6d0f8a975086b79946d951dfd433a1c85096b6a89f61ca493cb5300f61575e0b
 file:
   batch:
     statement:
@@ -29,35 +29,25 @@ file:
                     identifier: SalesPersonID
               - comma: ','
               - select_clause_element:
-                  function:
-                    function_name:
-                      function_name_identifier: COUNT
-                    bracketed:
-                      start_bracket: (
-                      star: '*'
-                      end_bracket: )
-              from_clause:
-                keyword: FROM
-                from_expression:
-                  from_expression_element:
-                    table_expression:
-                      table_reference:
-                      - identifier: Sales
-                      - dot: .
-                      - identifier: SalesOrderHeader
-              where_clause:
-                keyword: WHERE
-                expression:
-                - column_reference:
-                    identifier: SalesPersonID
-                - keyword: IS
-                - keyword: NOT
-                - keyword: 'NULL'
-              groupby_clause:
-              - keyword: GROUP
-              - keyword: BY
-              - column_reference:
-                  identifier: SalesPersonID
+                  column_reference:
+                    identifier: COUNT
+            unparsable:
+            - bracketed:
+                start_bracket: (
+                raw: '*'
+                end_bracket: )
+            - raw: FROM
+            - raw: Sales
+            - raw: .
+            - raw: SalesOrderHeader
+            - raw: WHERE
+            - raw: SalesPersonID
+            - raw: IS
+            - raw: NOT
+            - raw: 'NULL'
+            - raw: GROUP
+            - raw: BY
+            - raw: SalesPersonID
             end_bracket: )
         select_statement:
           select_clause:

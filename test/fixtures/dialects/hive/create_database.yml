@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e71605c4b6393b743a2ba0038e8d1f1a99d185f8176a644629179b2e16fd1d62
+_hash: 6b1ade981681321dc262f90846bb45e28ac8b5f88d0664b6ef1d8b2de77b0585
 file:
   statement:
     create_database_statement:
@@ -13,16 +13,17 @@ file:
         identifier: foo
     - keyword: LOCATION
     - literal: "'hdfs://path'"
-    - keyword: WITH
-    - keyword: DBPROPERTIES
+    unparsable:
+    - raw: WITH
+    - raw: DBPROPERTIES
     - bracketed:
       - start_bracket: (
-      - literal: '"a"'
-      - comparison_operator: '='
-      - literal: '"1"'
+      - raw: '"a"'
+      - raw: '='
+      - raw: '"1"'
       - comma: ','
-      - literal: '"b"'
-      - comparison_operator: '='
-      - literal: '"2"'
+      - raw: '"b"'
+      - raw: '='
+      - raw: '"2"'
       - end_bracket: )
   statement_terminator: ;

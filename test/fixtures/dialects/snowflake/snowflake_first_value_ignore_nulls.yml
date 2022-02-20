@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ffda7e929e697d8f9ddb7d2f9bb8066c111cc0d4269f515e232f99951930ebea
+_hash: 01556b5f6f5fc194ed3106290859520e0cd5e2fa18445cc40927b39f2aa7c19c
 file:
   statement:
     select_statement:
@@ -14,42 +14,30 @@ file:
             identifier: a
       - comma: ','
       - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: coalesce
-            bracketed:
+          column_reference:
+            identifier: coalesce
+          unparsable:
+          - bracketed:
             - start_bracket: (
-            - expression:
-                function:
-                  function_name:
-                    function_name_identifier: first_value
-                  bracketed:
-                  - start_bracket: (
-                  - expression:
-                      case_expression:
-                      - keyword: case
-                      - keyword: when
-                      - expression:
-                          column_reference:
-                            identifier: a
-                      - keyword: then
-                      - expression:
-                          column_reference:
-                            identifier: b
-                      - keyword: else
-                      - expression:
-                          literal: 'null'
-                      - keyword: end
-                  - keyword: ignore
-                  - keyword: nulls
-                  - end_bracket: )
+            - raw: first_value
+            - bracketed:
+              - start_bracket: (
+              - raw: case
+              - raw: when
+              - raw: a
+              - raw: then
+              - raw: b
+              - raw: else
+              - raw: 'null'
+              - raw: end
+              - raw: ignore
+              - raw: nulls
+              - end_bracket: )
             - comma: ','
-            - expression:
-                literal: 'false'
+            - raw: 'false'
             - end_bracket: )
-          alias_expression:
-            keyword: as
-            identifier: c
+          - raw: as
+          - raw: c
       from_clause:
         keyword: from
         from_expression:

@@ -3,62 +3,43 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3a2d3406d99d525d25feb25e4e8a14675c5f926173be494dbf0b4172b6cd71eb
+_hash: eda0486644bd690a6e792547c915209466cd4a9913beec832d3efb154bdd6a2c
 file:
   statement:
     with_compound_statement:
-      keyword: WITH
-      common_table_expression:
-        identifier: mycte
-        keyword: AS
-        bracketed:
-          start_bracket: (
-          select_statement:
-            select_clause:
-            - keyword: SELECT
-            - select_clause_element:
-                column_reference:
-                  identifier: foo
-            - comma: ','
-            - select_clause_element:
-                column_reference:
-                  identifier: bar
-            - comma: ','
-            - select_clause_element:
-                column_reference:
-                  identifier: baz
-            from_clause:
-              keyword: FROM
-              from_expression:
-                from_expression_element:
-                  table_expression:
-                    table_reference:
-                      identifier: mytable1
-          end_bracket: )
-      insert_statement:
-      - keyword: INSERT
-      - keyword: INTO
-      - table_reference:
-          identifier: table2
+      unparsable:
+      - keyword: WITH
+      - raw: mycte
+      - raw: AS
       - bracketed:
         - start_bracket: (
-        - column_reference:
-            identifier: column1
+        - raw: SELECT
+        - raw: foo
         - comma: ','
-        - column_reference:
-            identifier: column2
+        - raw: bar
         - comma: ','
-        - column_reference:
-            identifier: column3
+        - raw: baz
+        - raw: FROM
+        - raw: mytable1
         - end_bracket: )
-      - values_clause:
-          keyword: VALUES
-          bracketed:
-          - start_bracket: (
-          - literal: "'value1'"
-          - comma: ','
-          - literal: "'value2'"
-          - comma: ','
-          - literal: "'value3'"
-          - end_bracket: )
+      - raw: INSERT
+      - raw: INTO
+      - raw: table2
+      - bracketed:
+        - start_bracket: (
+        - raw: column1
+        - comma: ','
+        - raw: column2
+        - comma: ','
+        - raw: column3
+        - end_bracket: )
+      - raw: VALUES
+      - bracketed:
+        - start_bracket: (
+        - raw: "'value1'"
+        - comma: ','
+        - raw: "'value2'"
+        - comma: ','
+        - raw: "'value3'"
+        - end_bracket: )
   statement_terminator: ;

@@ -3,71 +3,49 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bf0419eb155b4c20542f0e1ab165842230c83141de675fac2adaf76e071c0820
+_hash: 37b7cbf8c32afa8bdbab4837548e258b6e6c6b0c25053a02bf9493415d2e0dba
 file:
 - statement:
     select_statement:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          expression:
+          unparsable:
             bracketed:
-              start_bracket: (
-              expression:
-              - function:
-                  function_name:
-                    function_name_identifier: POW
-                  bracketed:
-                  - start_bracket: (
-                  - expression:
-                      column_reference:
-                        identifier: sd2
-                  - comma: ','
-                  - expression:
-                      literal: '2'
-                  - end_bracket: )
-              - binary_operator: +
-              - function:
-                  function_name:
-                    function_name_identifier: POW
-                  bracketed:
-                  - start_bracket: (
-                  - expression:
-                      column_reference:
-                        identifier: sd3
-                  - comma: ','
-                  - expression:
-                      literal: '2'
-                  - end_bracket: )
-              - binary_operator: +
-              - function:
-                  function_name:
-                    function_name_identifier: POW
-                  bracketed:
-                  - start_bracket: (
-                  - expression:
-                      column_reference:
-                        identifier: sd4
-                  - comma: ','
-                  - expression:
-                      literal: '2'
-                  - end_bracket: )
-              - binary_operator: +
-              - function:
-                  function_name:
-                    function_name_identifier: POW
-                  bracketed:
-                  - start_bracket: (
-                  - expression:
-                      column_reference:
-                        identifier: sd4
-                  - comma: ','
-                  - expression:
-                      literal: '2'
-                  - end_bracket: )
-              end_bracket: )
-          alias_expression:
-            identifier: w1
+            - start_bracket: (
+            - raw: POW
+            - bracketed:
+              - start_bracket: (
+              - raw: sd2
+              - comma: ','
+              - raw: '2'
+              - end_bracket: )
+            - raw: +
+            - raw: POW
+            - bracketed:
+              - start_bracket: (
+              - raw: sd3
+              - comma: ','
+              - raw: '2'
+              - end_bracket: )
+            - raw: +
+            - raw: POW
+            - bracketed:
+              - start_bracket: (
+              - raw: sd4
+              - comma: ','
+              - raw: '2'
+              - end_bracket: )
+            - raw: +
+            - raw: POW
+            - bracketed:
+              - start_bracket: (
+              - raw: sd4
+              - comma: ','
+              - raw: '2'
+              - end_bracket: )
+            - end_bracket: )
+            raw: w1
       from_clause:
         keyword: FROM
         from_expression:

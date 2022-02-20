@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 58b971db8b8f1d1b70f382ec872b8746f9916600e7cab8f137029eeae2139694
+_hash: 8660922eec88f66515ce59b85de4df8f3d5aaebca75c2fb0994e129a129ef7d8
 file:
   statement:
     create_table_statement:
@@ -15,39 +15,21 @@ file:
       - identifier: test
     - keyword: AS
     - with_compound_statement:
-        keyword: WITH
-        common_table_expression:
-          identifier: us_sales
-          keyword: AS
-          bracketed:
-            start_bracket: (
-            select_statement:
-              select_clause:
-                keyword: SELECT
-                select_clause_element:
-                  column_reference:
-                    identifier: rev
-              from_clause:
-                keyword: FROM
-                from_expression:
-                  from_expression_element:
-                    table_expression:
-                      table_reference:
-                      - identifier: masonboro_sales
-                      - dot: .
-                      - identifier: us_2021
-            end_bracket: )
-        select_statement:
-          select_clause:
-            keyword: SELECT
-            select_clause_element:
-              column_reference:
-                identifier: rev
-          from_clause:
-            keyword: FROM
-            from_expression:
-              from_expression_element:
-                table_expression:
-                  table_reference:
-                    identifier: us_sales
+        unparsable:
+        - keyword: WITH
+        - raw: us_sales
+        - raw: AS
+        - bracketed:
+          - start_bracket: (
+          - raw: SELECT
+          - raw: rev
+          - raw: FROM
+          - raw: masonboro_sales
+          - raw: .
+          - raw: us_2021
+          - end_bracket: )
+        - raw: SELECT
+        - raw: rev
+        - raw: FROM
+        - raw: us_sales
   statement_terminator: ;

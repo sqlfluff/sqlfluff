@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 24c483809d03195c08dee59affa00f68e5ca4cd341980be72bf47065b3138d16
+_hash: fd50b96e35fb188f39d9ea4857adefc79c7d20bc38c9cdde4164841dd8a07766
 file:
   batch:
   - statement:
@@ -50,12 +50,11 @@ file:
         - keyword: SELECT
         - select_clause_modifier:
             keyword: TOP
-            expression:
-              bracketed:
-                start_bracket: (
-                expression:
-                  literal: '10'
-                end_bracket: )
+            bracketed:
+              start_bracket: (
+              expression:
+                literal: '10'
+              end_bracket: )
         - select_clause_element:
             column_reference:
               identifier: JobTitle
@@ -79,12 +78,11 @@ file:
         - keyword: SELECT
         - select_clause_modifier:
             keyword: TOP
-            expression:
-              bracketed:
-                start_bracket: (
-                expression:
-                  literal: '10'
-                end_bracket: )
+            bracketed:
+              start_bracket: (
+              expression:
+                literal: '10'
+              end_bracket: )
         - select_clause_element:
             column_reference:
               identifier: JobTitle
@@ -114,12 +112,11 @@ file:
         - keyword: SELECT
         - select_clause_modifier:
           - keyword: TOP
-          - expression:
-              bracketed:
-                start_bracket: (
-                expression:
-                  literal: '5'
-                end_bracket: )
+          - bracketed:
+              start_bracket: (
+              expression:
+                literal: '5'
+              end_bracket: )
           - keyword: PERCENT
         - select_clause_element:
             column_reference:
@@ -150,12 +147,11 @@ file:
         - keyword: SELECT
         - select_clause_modifier:
           - keyword: TOP
-          - expression:
-              bracketed:
-                start_bracket: (
-                expression:
-                  literal: '10'
-                end_bracket: )
+          - bracketed:
+              start_bracket: (
+              expression:
+                literal: '10'
+              end_bracket: )
           - keyword: PERCENT
           - keyword: WITH
           - keyword: TIES

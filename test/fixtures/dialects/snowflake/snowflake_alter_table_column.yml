@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e96e904a863c121e05868d36181faed96219162fc10dfb3432527bac5acd292f
+_hash: 6ab902be4946b0366298f6ef6660994d5eb3780d45bc42a1596d7430fbf1fbca
 file:
 - statement:
     alter_table_column_statement:
@@ -49,16 +49,16 @@ file:
     - keyword: type
     - data_type:
         data_type_identifier: varchar
-        bracketed:
-          start_bracket: (
-          expression:
-            literal: '50'
-          end_bracket: )
+    unparsable:
+    - bracketed:
+        start_bracket: (
+        raw: '50'
+        end_bracket: )
     - comma: ','
-    - keyword: column
-    - identifier: c4
-    - keyword: drop
-    - keyword: default
+    - raw: column
+    - raw: c4
+    - raw: drop
+    - raw: default
 - statement_terminator: ;
 - statement:
     alter_table_column_statement:

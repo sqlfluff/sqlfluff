@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a2a50b71a82690ae3c164a8739b6c202fdbe4411b2a9a05e3b9af1b46b5dc2c5
+_hash: 94103665fc680b0658452a2d3b26ecbc57d6d9f5034ec4849d704e7ea0b9003b
 file:
 - base:
     alter_table_statement:
@@ -17,31 +17,28 @@ file:
         identifier: StudentInfo
 - statement_terminator: ;
 - base:
-    alter_table_statement:
-    - keyword: ALTER
-    - keyword: TABLE
-    - table_reference:
-      - identifier: Default
-      - dot: .
-      - identifier: StudentInfo
-    - keyword: PARTITION
+    unparsable:
+    - raw: ALTER
+    - raw: TABLE
+    - raw: Default
+    - raw: .
+    - raw: StudentInfo
+    - raw: PARTITION
     - bracketed:
-        start_bracket: (
-        column_reference:
-          identifier: Age
-        comparison_operator: '='
-        literal: "'10'"
-        end_bracket: )
-    - keyword: RENAME
-    - keyword: TO
-    - keyword: PARTITION
+      - start_bracket: (
+      - raw: Age
+      - raw: '='
+      - raw: "'10'"
+      - end_bracket: )
+    - raw: RENAME
+    - raw: TO
+    - raw: PARTITION
     - bracketed:
-        start_bracket: (
-        column_reference:
-          identifier: Age
-        comparison_operator: '='
-        literal: "'15'"
-        end_bracket: )
+      - start_bracket: (
+      - raw: Age
+      - raw: '='
+      - raw: "'15'"
+      - end_bracket: )
 - statement_terminator: ;
 - base:
     alter_table_statement:
@@ -50,20 +47,15 @@ file:
     - table_reference:
         identifier: StudentInfo
     - keyword: ADD
-    - keyword: COLUMNS
-    - bracketed:
+    unparsable:
+      raw: COLUMNS
+      bracketed:
       - start_bracket: (
-      - column_definition:
-          identifier: LastName
-          data_type:
-            primitive_type:
-              keyword: STRING
+      - raw: LastName
+      - raw: STRING
       - comma: ','
-      - column_definition:
-          identifier: DOB
-          data_type:
-            primitive_type:
-              keyword: TIMESTAMP
+      - raw: DOB
+      - raw: TIMESTAMP
       - end_bracket: )
 - statement_terminator: ;
 - base:
@@ -102,14 +94,14 @@ file:
     - keyword: IF
     - keyword: NOT
     - keyword: EXISTS
-    - keyword: PARTITION
-    - bracketed:
-        start_bracket: (
-        column_reference:
-          identifier: Age
-        comparison_operator: '='
-        literal: '18'
-        end_bracket: )
+    unparsable:
+      raw: PARTITION
+      bracketed:
+      - start_bracket: (
+      - raw: Age
+      - raw: '='
+      - raw: '18'
+      - end_bracket: )
 - statement_terminator: ;
 - base:
     alter_table_statement:
@@ -121,124 +113,116 @@ file:
     - keyword: IF
     - keyword: NOT
     - keyword: EXISTS
-    - keyword: PARTITION
-    - bracketed:
-        start_bracket: (
-        column_reference:
-          identifier: Age
-        comparison_operator: '='
-        literal: '18'
-        end_bracket: )
-    - keyword: PARTITION
-    - bracketed:
-        start_bracket: (
-        column_reference:
-          identifier: Age
-        comparison_operator: '='
-        literal: '20'
-        end_bracket: )
-- statement_terminator: ;
-- base:
-    alter_table_statement:
-    - keyword: ALTER
-    - keyword: TABLE
-    - table_reference:
-        identifier: StudentInfo
-    - keyword: DROP
-    - keyword: IF
-    - keyword: EXISTS
-    - keyword: PARTITION
-    - bracketed:
-        start_bracket: (
-        column_reference:
-          identifier: Age
-        comparison_operator: '='
-        literal: '18'
-        end_bracket: )
-- statement_terminator: ;
-- base:
-    alter_table_statement:
-    - keyword: ALTER
-    - keyword: TABLE
-    - table_reference:
-      - identifier: Dbx
-      - dot: .
-      - identifier: Tab1
-    - keyword: SET
-    - keyword: TBLPROPERTIES
+    unparsable:
+    - raw: PARTITION
     - bracketed:
       - start_bracket: (
-      - literal: "'winner'"
-      - comparison_operator: '='
-      - literal: "'loser'"
+      - raw: Age
+      - raw: '='
+      - raw: '18'
+      - end_bracket: )
+    - raw: PARTITION
+    - bracketed:
+      - start_bracket: (
+      - raw: Age
+      - raw: '='
+      - raw: '20'
       - end_bracket: )
 - statement_terminator: ;
 - base:
-    alter_table_statement:
-    - keyword: ALTER
-    - keyword: TABLE
-    - table_reference:
-      - identifier: Dbx
-      - dot: .
-      - identifier: Tab1
-    - keyword: SET
-    - keyword: TBLPROPERTIES
+    unparsable:
+    - raw: ALTER
+    - raw: TABLE
+    - raw: StudentInfo
+    - raw: DROP
+    - raw: IF
+    - raw: EXISTS
+    - raw: PARTITION
     - bracketed:
       - start_bracket: (
-      - literal: "'comment'"
-      - comparison_operator: '='
-      - literal: "'A table comment.'"
+      - raw: Age
+      - raw: '='
+      - raw: '18'
       - end_bracket: )
 - statement_terminator: ;
 - base:
-    alter_table_statement:
-    - keyword: ALTER
-    - keyword: TABLE
-    - table_reference:
-      - identifier: Dbx
-      - dot: .
-      - identifier: Tab1
-    - keyword: SET
-    - keyword: TBLPROPERTIES
+    unparsable:
+    - raw: ALTER
+    - raw: TABLE
+    - raw: Dbx
+    - raw: .
+    - raw: Tab1
+    - raw: SET
+    - raw: TBLPROPERTIES
     - bracketed:
       - start_bracket: (
-      - literal: "'comment'"
-      - comparison_operator: '='
-      - literal: "'This is a new comment.'"
+      - raw: "'winner'"
+      - raw: '='
+      - raw: "'loser'"
       - end_bracket: )
 - statement_terminator: ;
 - base:
-    alter_table_statement:
-    - keyword: ALTER
-    - keyword: TABLE
-    - table_reference:
-      - identifier: Dbx
-      - dot: .
-      - identifier: Tab1
-    - keyword: UNSET
-    - keyword: TBLPROPERTIES
+    unparsable:
+    - raw: ALTER
+    - raw: TABLE
+    - raw: Dbx
+    - raw: .
+    - raw: Tab1
+    - raw: SET
+    - raw: TBLPROPERTIES
+    - bracketed:
+      - start_bracket: (
+      - raw: "'comment'"
+      - raw: '='
+      - raw: "'A table comment.'"
+      - end_bracket: )
+- statement_terminator: ;
+- base:
+    unparsable:
+    - raw: ALTER
+    - raw: TABLE
+    - raw: Dbx
+    - raw: .
+    - raw: Tab1
+    - raw: SET
+    - raw: TBLPROPERTIES
+    - bracketed:
+      - start_bracket: (
+      - raw: "'comment'"
+      - raw: '='
+      - raw: "'This is a new comment.'"
+      - end_bracket: )
+- statement_terminator: ;
+- base:
+    unparsable:
+    - raw: ALTER
+    - raw: TABLE
+    - raw: Dbx
+    - raw: .
+    - raw: Tab1
+    - raw: UNSET
+    - raw: TBLPROPERTIES
     - bracketed:
         start_bracket: (
-        literal: "'winner'"
+        raw: "'winner'"
         end_bracket: )
 - statement_terminator: ;
 - base:
-    alter_table_statement:
-    - keyword: ALTER
-    - keyword: TABLE
-    - table_reference:
-        identifier: Table_Identifier
-    - keyword: SET
-    - keyword: SERDEPROPERTIES
+    unparsable:
+    - raw: ALTER
+    - raw: TABLE
+    - raw: Table_Identifier
+    - raw: SET
+    - raw: SERDEPROPERTIES
     - bracketed:
       - start_bracket: (
-      - literal: '"key1"'
-      - comparison_operator: '='
-      - literal: '"val1"'
+      - raw: '"key1"'
+      - raw: '='
+      - raw: '"val1"'
       - comma: ','
-      - literal: '"key2"'
-      - comparison_operator: '='
-      - literal: '"val2"'
+      - raw: '"key2"'
+      - raw: '='
+      - raw: '"val2"'
       - end_bracket: )
 - statement_terminator: ;
 - base:
@@ -262,17 +246,18 @@ file:
     - keyword: SET
     - keyword: SERDE
     - literal: "'org.apache.hadoop'"
-    - keyword: WITH
-    - keyword: SERDEPROPERTIES
+    unparsable:
+    - raw: WITH
+    - raw: SERDEPROPERTIES
     - bracketed:
       - start_bracket: (
-      - literal: "'k'"
-      - comparison_operator: '='
-      - literal: "'v'"
+      - raw: "'k'"
+      - raw: '='
+      - raw: "'v'"
       - comma: ','
-      - literal: "'kay'"
-      - comparison_operator: '='
-      - literal: "'vee'"
+      - raw: "'kay'"
+      - raw: '='
+      - raw: "'vee'"
       - end_bracket: )
 - statement_terminator: ;
 - base:
@@ -286,27 +271,24 @@ file:
     - keyword: ORC
 - statement_terminator: ;
 - base:
-    alter_table_statement:
-    - keyword: ALTER
-    - keyword: TABLE
-    - table_reference:
-        identifier: P1
-    - keyword: PARTITION
+    unparsable:
+    - raw: ALTER
+    - raw: TABLE
+    - raw: P1
+    - raw: PARTITION
     - bracketed:
       - start_bracket: (
-      - column_reference:
-          identifier: Month
-      - comparison_operator: '='
-      - literal: '2'
+      - raw: Month
+      - raw: '='
+      - raw: '2'
       - comma: ','
-      - column_reference:
-          identifier: Day
-      - comparison_operator: '='
-      - literal: '2'
+      - raw: Day
+      - raw: '='
+      - raw: '2'
       - end_bracket: )
-    - keyword: SET
-    - keyword: FILEFORMAT
-    - keyword: PARQUET
+    - raw: SET
+    - raw: FILEFORMAT
+    - raw: PARQUET
 - statement_terminator: ;
 - base:
     alter_table_statement:

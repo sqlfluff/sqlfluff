@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 252a3ff7798b62db9d272e79c7651940dc7c78d01d9b12d4a373791856ce0b7f
+_hash: dd5bcb7979d17293756289a2cd5a9748f10ecd9a9ad0c72d9550a09a376c89d7
 file:
   batch:
     statement:
@@ -46,34 +46,24 @@ file:
               function_name:
                 function_name_identifier: LEFT
               bracketed:
-              - start_bracket: (
-              - expression:
-                  function:
-                    function_name:
-                      function_name_identifier: RIGHT
-                    bracketed:
-                    - start_bracket: (
-                    - expression:
-                        column_reference:
-                          identifier: s
-                    - comma: ','
-                    - expression:
-                        literal: '5'
-                    - end_bracket: )
-              - comma: ','
-              - expression:
-                  function:
-                    function_name:
-                      function_name_identifier: LEN
-                    bracketed:
-                      start_bracket: (
-                      expression:
-                        column_reference:
-                          identifier: s
-                        binary_operator: +
-                        literal: '6'
-                      end_bracket: )
-              - end_bracket: )
+                start_bracket: (
+                unparsable:
+                - raw: RIGHT
+                - bracketed:
+                  - start_bracket: (
+                  - raw: s
+                  - comma: ','
+                  - raw: '5'
+                  - end_bracket: )
+                - comma: ','
+                - raw: LEN
+                - bracketed:
+                  - start_bracket: (
+                  - raw: s
+                  - raw: +
+                  - raw: '6'
+                  - end_bracket: )
+                end_bracket: )
             alias_expression:
               keyword: AS
               identifier: compound
@@ -84,8 +74,9 @@ file:
                 keyword: DATEADD
               bracketed:
               - start_bracket: (
-              - date_part:
-                  keyword: month
+              - expression:
+                  column_reference:
+                    identifier: month
               - comma: ','
               - expression:
                   numeric_literal:
@@ -106,13 +97,15 @@ file:
                 keyword: convert
               bracketed:
               - start_bracket: (
-              - data_type:
-                  identifier: varchar
+              - expression:
+                  column_reference:
+                    identifier: varchar
               - comma: ','
-              - data_type:
-                - identifier: tbl_b
-                - dot: .
-                - identifier: column1
+              - expression:
+                  column_reference:
+                  - identifier: tbl_b
+                  - dot: .
+                  - identifier: column1
               - comma: ','
               - expression:
                   literal: '23'

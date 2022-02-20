@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d768027917ddb54671ce1f032d517ed9e80c5ae07e1a24b3ceed311365541624
+_hash: 7442c6c56f1fe31bc6f61f99f6e21db27849d3d5c9562a2a745b93522d2364c1
 file:
   statement:
     select_statement:
@@ -34,24 +34,19 @@ file:
               table_expression:
                 table_reference:
                   identifier: twotable
-      index_hint_clause:
-      - keyword: FORCE
-      - keyword: INDEX
-      - bracketed:
-          start_bracket: (
-          object_reference:
-            identifier: idx_index
-          end_bracket: )
-      - join_on_condition:
-          keyword: 'on'
-          expression:
-          - column_reference:
-            - identifier: onetable
-            - dot: .
-            - identifier: f1
-          - comparison_operator: '='
-          - column_reference:
-            - identifier: twotable
-            - dot: .
-            - identifier: f1
+        unparsable:
+        - raw: FORCE
+        - raw: INDEX
+        - bracketed:
+            start_bracket: (
+            raw: idx_index
+            end_bracket: )
+        - raw: 'on'
+        - raw: onetable
+        - raw: .
+        - raw: f1
+        - raw: '='
+        - raw: twotable
+        - raw: .
+        - raw: f1
   statement_terminator: ;

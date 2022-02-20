@@ -3,33 +3,30 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a74d9669516c07d9200c29857d78926debde75769a3b67d685d9bf8173b864cd
+_hash: fdf81ad885562eb23fe663c67363de1a4b4a7a6502f96f00bb0e0aff0970e43a
 file:
   statement:
     select_statement:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          function:
-          - function_name:
-              function_name_identifier: COUNT
+          column_reference:
+            identifier: COUNT
+          unparsable:
           - bracketed:
               start_bracket: (
-              star: '*'
+              raw: '*'
               end_bracket: )
-          - keyword: FILTER
+          - raw: FILTER
           - bracketed:
-              start_bracket: (
-              keyword: WHERE
-              expression:
-                column_reference:
-                  identifier: c_expires
-                comparison_operator: '>'
-                bare_function: CURRENT_TIMESTAMP
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            identifier: c_active
+            - start_bracket: (
+            - raw: WHERE
+            - raw: c_expires
+            - raw: '>'
+            - raw: CURRENT_TIMESTAMP
+            - end_bracket: )
+          - raw: AS
+          - raw: c_active
       from_clause:
         keyword: FROM
         from_expression:

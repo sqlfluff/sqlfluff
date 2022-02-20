@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6273430cb0066a1deef4f934cb23e3ea1905f9adb5a4091add5fe1abbd24c1fa
+_hash: 394dda788ee1edd5af3f1ec76ea6246bbd27c7e992b6b7e2bcdbf8a365de644e
 file:
   statement:
     create_table_statement:
@@ -16,11 +16,12 @@ file:
     - keyword: LIKE
     - table_reference:
         identifier: foo
-    - keyword: TBLPROPERTIES
-    - bracketed:
-      - start_bracket: (
-      - literal: '"property_name"'
-      - comparison_operator: '='
-      - literal: '"property_value"'
-      - end_bracket: )
+    - unparsable:
+        raw: TBLPROPERTIES
+        bracketed:
+        - start_bracket: (
+        - raw: '"property_name"'
+        - raw: '='
+        - raw: '"property_value"'
+        - end_bracket: )
   statement_terminator: ;
