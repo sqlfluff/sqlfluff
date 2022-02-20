@@ -1294,7 +1294,7 @@ class SelectClauseElementSegment(BaseSegment):
     """An element in the targets of a select statement."""
 
     type = "select_clause_element"
-    reflow_pre_space = "true"
+    reflow_pre_space = True
     # Important to split elements before parsing, otherwise debugging is really hard.
     match_grammar = GreedyUntil(
         Ref("SelectClauseElementTerminatorGrammar"),
