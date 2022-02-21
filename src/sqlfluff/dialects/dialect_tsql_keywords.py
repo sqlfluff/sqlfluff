@@ -212,6 +212,7 @@ UNRESERVED_KEYWORDS = [
     "COLUMN_ENCRYPTION_KEY",
     "COLUMNSTORE",
     "COLUMNSTORE_ARCHIVE",
+    "COMMITTED",
     "CONCAT",
     "CONCAT_NULL_YIELDS_NULL",
     "COMPRESSION_DELAY",
@@ -388,6 +389,7 @@ UNRESERVED_KEYWORDS = [
     "TYPE",
     "UPDLOCK",
     "UNBOUNDED",
+    "UNCOMMITTED",
     "UNKNOWN",
     "USER_DB",  # Azure Synapse Analytics specific, deprecated
     "USING",
