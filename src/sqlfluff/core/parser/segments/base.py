@@ -815,6 +815,14 @@ class BaseSegment:
             for seg in self.segments:
                 yield from seg.recursive_crawl(*seg_type, recurse_into=recurse_into)
 
+    def recursive_crawl_raw(self):
+        """Recursively crawl all descendant raw segments."""
+        if self.is_raw():
+            yield self
+        # Recurse
+        for seg in self.segments:
+            yield from seg.recursive_crawl_raw()
+
     def path_to(self, other):
         """Given a segment which is assumed within self, get the intermediate segments.
 

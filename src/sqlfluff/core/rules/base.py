@@ -838,6 +838,38 @@ class BaseRule:
         return anchor
 
     @staticmethod
+    def next_raw_segment(
+        context: RuleContext, segment: BaseSegment
+    ) -> Optional[BaseSegment]:
+        """Find the next raw segment after a specified segment."""
+
+        def _next_raw(segment, child_idx):
+            try:
+                for seg in segment.segments[child_idx + 1].recursive_crawl_raw():
+                    return seg
+            except IndexError:
+                pass
+            return None
+
+        # Walk from segment to root.
+        child = segment
+        for seg in context.parent_stack[0].path_to(segment)[:-1][::-1]:
+            # Find the child's index within the parent's children.
+            child_idx = None
+            for idx, s in enumerate(seg.segments):
+                if s is child:
+                    child_idx = idx
+                    break
+            assert child_idx is not None
+            # Is there a raw segment after the child?
+            next_raw = _next_raw(seg, child_idx)
+            if next_raw:
+                # Yes, return it.
+                return next_raw
+            child = seg
+        return None
+
+    @staticmethod
     def split_comma_separated_string(raw_str: str) -> List[str]:
         """Converts comma separated string to List, stripping whitespace."""
         return [s.strip() for s in raw_str.split(",") if s.strip()]

@@ -612,7 +612,7 @@ test_fail_tsql_no_semicolon_after_each_statement_2:
       L052:
         require_final_semicolon: false
 
-test_single_line_comment_tsql:
+test_single_line_comment_tsql_1:
   fail_str: |
     SELECT 1
     from l2
@@ -631,3 +631,27 @@ test_single_line_comment_tsql:
     rules:
       L052:
         require_final_semicolon: true
+
+test_single_line_comment_tsql_2:
+  fail_str: |
+    SELECT 1
+    from l2
+
+    --Main
+    SELECT 2
+    ;
+  fix_str: |
+    SELECT 1
+    from l2
+    --Main
+    ;
+    SELECT 2
+    ;
+
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      L052:
+        require_final_semicolon: true
+        multiline_newline: true
