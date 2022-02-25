@@ -177,28 +177,32 @@ class Rule_L019(BaseRule):
                                 )
                             ]
                         )
-                    # See the long comment later in this file, where we handle
-                    # violations for "leading" commas, for an explanation of
-                    # why we anchor to the last raw segment of the nearby code
-                    # rather than the comma.
-                    return LintResult(
-                        anchor=last_code_seg.raw_segments[-1],
-                        description="Found leading comma. Expected only trailing.",
-                        fixes=[
-                            LintFix.delete(last_leading_comma_seg),
-                            *[
-                                LintFix.delete(d)
-                                for d in memory["whitespace_deletions"]
-                            ],
-                            LintFix.create_before(
-                                anchor_segment=self._get_following_seg(
-                                    context.raw_stack, last_code_seg
+                    # :TRICKY: Ignore violations if the code before the comma is
+                    # templated. We could achieve a similar effect automatically
+                    # if we *anchored* to that code, but since this rule focuses
+                    # on commas, the lint warning (description plus code
+                    # position) is easier to understand if it refers to the
+                    # comma.
+                    if not last_code_seg.raw_segments[-1].is_templated:
+                        return LintResult(
+                            anchor=last_leading_comma_seg,
+                            description="Found leading comma. Expected only trailing.",
+                            fixes=[
+                                LintFix.delete(last_leading_comma_seg),
+                                *[
+                                    LintFix.delete(d)
+                                    for d in memory["whitespace_deletions"]
+                                ],
+                                LintFix.create_before(
+                                    anchor_segment=self._get_following_seg(
+                                        context.raw_stack, last_code_seg
+                                    ),
+                                    edit_segments=[last_leading_comma_seg],
                                 ),
-                                edit_segments=[last_leading_comma_seg],
-                            ),
-                        ],
-                    )
-
+                            ],
+                        )
+                    else:
+                        return LintResult()
         elif self.comma_style == "leading":
             # A new line preceded by a comma == a trailing comma
             if context.segment.is_type("newline"):
@@ -219,34 +223,25 @@ class Rule_L019(BaseRule):
                     last_comma_seg = memory["last_trailing_comma_segment"]
                     # Create whitespace to insert after the new leading comma
                     new_whitespace_seg = WhitespaceSegment()
-                    # :TRICKY:
-                    # 1. Here, we anchor to the first raw code segment after the
-                    # misplaced comma. Originally, we anchored to the comma
-                    # itself, but users complained (issue 2706) that templated
-                    # code that contained newlines triggered "false positives".
-                    # By anchoring to the code rather than the comma, we take
-                    # advantage of the core linter's behavior of automatically
-                    # discarding lint errors for templated code. This results
-                    # in a slightly less readable lint warning, since it
-                    # mentions the comma but references the nearby code. This
-                    # seems like a reasonable tradeoff. If we find that this
-                    # confuses users, perhaps we can reword the description
-                    # field?
-                    # 2. Why do we anchor to the FIRST raw segment, rather than
-                    # the entire segment? By doing so, we avoid potentially
-                    # anchoring to a very long segment containing templated code
-                    # later on. Basically, we think that if the first bit of code
-                    # isn't templated, keep the lint warning.
-                    return LintResult(
-                        anchor=context.segment.raw_segments[0],
-                        description="Found trailing comma. Expected only leading.",
-                        fixes=[
-                            LintFix.delete(last_comma_seg),
-                            LintFix.create_before(
-                                anchor_segment=context.segment,
-                                edit_segments=[last_comma_seg, new_whitespace_seg],
-                            ),
-                        ],
-                    )
+                    # :TRICKY: Ignore violations if the code after the comma is
+                    # templated. We could achieve a similar effect automatically
+                    # if we *anchored* to that code, but since this rule focuses
+                    # on commas, the lint warning (description plus code
+                    # position) is easier to understand if it refers to the
+                    # comma.
+                    if not context.segment.raw_segments[0].is_templated:
+                        return LintResult(
+                            anchor=last_comma_seg,
+                            description="Found trailing comma. Expected only leading.",
+                            fixes=[
+                                LintFix.delete(last_comma_seg),
+                                LintFix.create_before(
+                                    anchor_segment=context.segment,
+                                    edit_segments=[last_comma_seg, new_whitespace_seg],
+                                ),
+                            ],
+                        )
+                    else:
+                        return LintResult()
         # Otherwise, no issue
         return None

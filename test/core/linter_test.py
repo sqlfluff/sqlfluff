@@ -684,14 +684,14 @@ def test_linter_noqa():
         col_o o,
         col_p p, --noqa: enable=all
         col_q q, --Inline comment --noqa: L012
+        col_r r, /* Block comment */ --noqa: L012
+        col_s s # hash comment --noqa: L012
         -- We trigger both L012 (implicit aliasing)
         -- and L019 (leading commas) here to
         -- test glob ignoring of multiple rules.
-        col_r r, /* Block comment */ --noqa: L01[29]
-        col_s s # hash comment --noqa: L01[29]
         , col_t t --noqa: L01*
         , col_u u -- Some comment --noqa: L01*
-        , col_v v -- noqa: L012
+        , col_v v -- We can ignore both L012 and L019 -- noqa: L01[29]
     FROM foo
         """
     result = lntr.lint_string(sql)

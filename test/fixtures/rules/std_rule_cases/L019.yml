@@ -285,3 +285,10 @@ leading_comma_with_templated_column:
     rules:
       L019:
         comma_style: leading
+
+trailing_comma_with_templated_column:
+  pass_str: |
+    SELECT
+        {{ "c1
+    " }}, c2 AS days_since
+    FROM logs
