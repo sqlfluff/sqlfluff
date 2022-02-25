@@ -235,7 +235,6 @@ trailing_comma_move_past_several_comment_lines:
       # line per pass. Too lazy!
       runaway_limit: 2
 
-
 leading_comma_move_past_several_comment_lines:
   fail_str: |
     SELECT
@@ -271,6 +270,18 @@ leading_comma_move_past_several_comment_lines:
       # earlier version for the trailing comma case, commas were being moved
       # "through" comment blocks one line per pass. Too lazy!
       runaway_limit: 2
+    rules:
+      L019:
+        comma_style: leading
+
+leading_comma_with_templated_column:
+  pass_str: |
+    SELECT
+        c1
+        , {{ "
+    c2" }} AS days_since
+    FROM logs
+  configs:
     rules:
       L019:
         comma_style: leading

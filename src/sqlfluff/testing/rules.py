@@ -94,17 +94,18 @@ def assert_rule_fail_in_sql(code, sql, configs=None, line_numbers=None):
 def assert_rule_pass_in_sql(code, sql, configs=None):
     """Assert that a given rule doesn't fail on the given sql."""
     # Configs allows overrides if we want to use them.
+    if configs is None:
+        configs = {}
+    configs["core"] = {"rules": code}
     cfg = FluffConfig(configs=configs)
-    r = get_rule_from_set(code, config=cfg)
     linter = Linter(config=cfg)
     rendered = linter.render_string(sql, fname="<STR>", config=cfg, encoding="utf-8")
     parsed = linter.parse_rendered(rendered, recurse=True)
     if parsed.violations:
         pytest.fail(parsed.violations[0].desc() + "\n" + parsed.tree.stringify())
     print(f"Parsed:\n {parsed.tree.stringify()}")
-    lerrs, _, _, _ = r.crawl(
-        parsed.tree, [], dialect=cfg.get("dialect_obj"), templated_file=rendered[0]
-    )
+    lint_result = linter.lint_string(sql, config=cfg, fname="<STR>")
+    lerrs = lint_result.violations
     print(f"Errors Found: {lerrs}")
     if any(v.rule.code == code for v in lerrs):
         pytest.fail(f"Found {code} failures in query which should pass.", pytrace=False)

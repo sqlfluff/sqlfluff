@@ -178,7 +178,7 @@ class Rule_L019(BaseRule):
                             ]
                         )
                     return LintResult(
-                        anchor=last_leading_comma_seg,
+                        anchor=last_code_seg,
                         description="Found leading comma. Expected only trailing.",
                         fixes=[
                             LintFix.delete(last_leading_comma_seg),
@@ -216,7 +216,7 @@ class Rule_L019(BaseRule):
                     # Create whitespace to insert after the new leading comma
                     new_whitespace_seg = WhitespaceSegment()
                     return LintResult(
-                        anchor=last_comma_seg,
+                        anchor=context.segment,
                         description="Found trailing comma. Expected only leading.",
                         fixes=[
                             LintFix.delete(last_comma_seg),
