@@ -178,7 +178,7 @@ class Rule_L019(BaseRule):
                             ]
                         )
                     return LintResult(
-                        anchor=last_code_seg,
+                        anchor=last_leading_comma_seg,
                         description="Found leading comma. Expected only trailing.",
                         fixes=[
                             LintFix.delete(last_leading_comma_seg),

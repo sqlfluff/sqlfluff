@@ -100,11 +100,18 @@ def assert_rule_pass_in_sql(code, sql, configs=None):
     core["rules"] = code
     cfg = FluffConfig(configs=configs)
     linter = Linter(config=cfg)
+
+    # This section is mainly for aid in debugging.
     rendered = linter.render_string(sql, fname="<STR>", config=cfg, encoding="utf-8")
     parsed = linter.parse_rendered(rendered, recurse=True)
     if parsed.violations:
         pytest.fail(parsed.violations[0].desc() + "\n" + parsed.tree.stringify())
     print(f"Parsed:\n {parsed.tree.stringify()}")
+
+    # Note that lint_string() runs the templater and parser again, in order to
+    # test the whole linting pipeline in the same way that users do. In other
+    # words, the "rendered" and "parsed" variables above are irrelevant to this
+    # line of code.
     lint_result = linter.lint_string(sql, config=cfg, fname="<STR>")
     lerrs = lint_result.violations
     print(f"Errors Found: {lerrs}")
