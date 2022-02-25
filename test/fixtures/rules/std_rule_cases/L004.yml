@@ -27,8 +27,7 @@ spaces_fail_custom_tab_space_size_not_multiple:
   fail_str: "     \nSELECT 1"
 
   violations:
-  - code: L004
-    description: 'Incorrect indentation type found in file. The number of spaces is
+  - description: 'Incorrect indentation type found in file. The number of spaces is
     not a multiple of '
     line_no: 1
     line_pos: 1
@@ -105,13 +104,11 @@ indented_comments_default_config:
   # That is left unfixable for now, as explained in:
   # https://github.com/sqlfluff/sqlfluff/pull/590#issuecomment-739484190
   violations_after_fix:
-    - code: L004
-      description: Incorrect indentation type found in file. The indent occurs after other
+    - description: Incorrect indentation type found in file. The indent occurs after other
         text, so a manual fix is needed.
       line_no: 2
       line_pos: 7
-    - code: L004
-      description: Incorrect indentation type found in file. The indent occurs after other
+    - description: Incorrect indentation type found in file. The indent occurs after other
         text, so a manual fix is needed.
       line_no: 3
       line_pos: 15

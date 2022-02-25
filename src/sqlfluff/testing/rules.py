@@ -120,11 +120,19 @@ def assert_rule_raises_violations_in_file(rule, fpath, violations, fluff_config)
     assert set(lnt.check_tuples()) == {(rule, v[0], v[1]) for v in violations}
 
 
+def prep_violations(rule, violations):
+    """Default to test rule if code is omitted."""
+    for v in violations:
+        if "code" not in v:
+            v["code"] = rule
+    return violations
+
+
 def assert_violations_before_fix(test_case, violations_before_fix):
     """Assert that the given violations are found in the given sql."""
     violation_info = [e.get_info_dict() for e in violations_before_fix]
     try:
-        assert violation_info == test_case.violations
+        assert violation_info == prep_violations(test_case.rule, test_case.violations)
     except AssertionError:
         print("Actual violations:\n" + yaml.dump(violation_info))
         raise
@@ -140,7 +148,9 @@ def assert_violations_after_fix(test_case):
     )
     violation_info = [e.get_info_dict() for e in violations_after_fix]
     try:
-        assert violation_info == test_case.violations_after_fix
+        assert violation_info == prep_violations(
+            test_case.rule, test_case.violations_after_fix
+        )
     except AssertionError:
         print("Actual violations_after_fix:\n" + yaml.dump(violation_info))
         raise
