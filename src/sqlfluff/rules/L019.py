@@ -182,7 +182,7 @@ class Rule_L019(BaseRule):
                     # why we anchor to the last raw segment of the nearby code
                     # rather than the comma.
                     return LintResult(
-                        anchor=context.segment.raw_segments[-1],
+                        anchor=last_code_seg.raw_segments[-1],
                         description="Found leading comma. Expected only trailing.",
                         fixes=[
                             LintFix.delete(last_leading_comma_seg),
