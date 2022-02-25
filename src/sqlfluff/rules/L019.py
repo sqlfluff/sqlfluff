@@ -215,8 +215,25 @@ class Rule_L019(BaseRule):
                     last_comma_seg = memory["last_trailing_comma_segment"]
                     # Create whitespace to insert after the new leading comma
                     new_whitespace_seg = WhitespaceSegment()
+                    # :TRICKY: Here, we anchor to the first raw code segment
+                    # after the misplaced comma. Originally, we anchored to
+                    # the comma itself, but users complained (issue 2706) that
+                    # templated code that contained newlines triggered "false
+                    # positives". By anchoring to the code rather than the
+                    # comma, we take advantage of the core linter's behavior
+                    # of automatically discarding lint errors for templated
+                    # code. This results in a slightly less readable lint
+                    # warning, since it mentions the comma but references the
+                    # nearby code. This seems like a reasonable tradeoff. If
+                    # we find that this confuses users, perhaps we can reword
+                    # the description field?
+                    # :TRICKY: We're anchoring to the first raw segment of the
+                    # code, rather than the entire segment. This avoids
+                    # anchoring to a very long segment containing templated code
+                    # later on. Basically, we think that if the first bit of code
+                    # isn't templated, keep the lint warning.
                     return LintResult(
-                        anchor=context.segment,
+                        anchor=context.segment.raw_segments[0],
                         description="Found trailing comma. Expected only leading.",
                         fixes=[
                             LintFix.delete(last_comma_seg),
