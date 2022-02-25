@@ -26,6 +26,13 @@ spaces_fail_custom_tab_space_size:
 spaces_fail_custom_tab_space_size_not_multiple:
   fail_str: "     \nSELECT 1"
 
+  violations:
+  - code: L004
+    description: 'Incorrect indentation type found in file. The number of spaces is
+    not a multiple of '
+    line_no: 1
+    line_pos: 1
+
   configs:
     rules:
       indent_unit: tab
@@ -78,3 +85,62 @@ indented_comments:
         a,         -- Some comment
         longer_col -- A lined up comment
     FROM spam
+
+indented_comments_default_config:
+  fail_str: |
+    SELECT
+    	a,			-- Some comment
+    	longer_col	-- A lined up comment
+    FROM spam
+
+  # The rule will only fix the indent before the select targets.
+  # Here tab indent is replaced with spaces.
+  fix_str: |
+    SELECT
+        a,			-- Some comment
+        longer_col	-- A lined up comment
+    FROM spam
+
+  # Lint fails after fixing due to the spaces that come before the comments.
+  # That is left unfixable for now, as explained in:
+  # https://github.com/sqlfluff/sqlfluff/pull/590#issuecomment-739484190
+  violations_after_fix:
+    - code: L004
+      description: Incorrect indentation type found in file. The indent occurs after other
+        text, so a manual fix is needed.
+      line_no: 2
+      line_pos: 7
+    - code: L004
+      description: Incorrect indentation type found in file. The indent occurs after other
+        text, so a manual fix is needed.
+      line_no: 3
+      line_pos: 15
+
+indented_comments_tab_config:
+  fail_str: |
+    SELECT
+        a,         -- Some comment
+        longer_col -- A lined up comment
+    FROM spam
+
+  # The rule will only fix the indent before the select targets.
+  # Here spaces indent is replaced with tab.
+  fix_str: |
+    SELECT
+    	a,         -- Some comment
+    	longer_col -- A lined up comment
+    FROM spam
+
+  # Lint fails after fixing due to the spaces that come before the comments.
+  # That is left unfixable for now, as explained in:
+  # https://github.com/sqlfluff/sqlfluff/pull/590#issuecomment-739484190
+  violations_after_fix:
+  - code: L004
+    description: Incorrect indentation type found in file. The indent occurs after other
+      text, so a manual fix is needed.
+    line_no: 2
+    line_pos: 4
+
+  configs:
+    rules:
+      indent_unit: tab
