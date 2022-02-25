@@ -96,7 +96,8 @@ def assert_rule_pass_in_sql(code, sql, configs=None):
     # Configs allows overrides if we want to use them.
     if configs is None:
         configs = {}
-    configs["core"] = {"rules": code}
+    core = configs.setdefault("core", {})
+    core["rules"] = code
     cfg = FluffConfig(configs=configs)
     linter = Linter(config=cfg)
     rendered = linter.render_string(sql, fname="<STR>", config=cfg, encoding="utf-8")
