@@ -2,12 +2,13 @@
 
 from typing import Any, Dict, Optional, Tuple
 
-from sqlfluff.core.parser import RawSegment, WhitespaceSegment
+from sqlfluff.core.parser import BaseSegment, RawSegment, WhitespaceSegment
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.doc_decorators import (
     document_fix_compatible,
     document_configuration,
 )
+from sqlfluff.core.rules.functional import sp, tsp
 
 
 @document_fix_compatible
@@ -87,6 +88,25 @@ class Rule_L019(BaseRule):
         if idx < len(raw_stack):
             return raw_stack[idx + 1]
         raise ValueError("No following segment available")  # pragma: no cover
+
+    @staticmethod
+    def _segment_templated_text(elem: BaseSegment):
+        # Start by assuming the typical case, where we need not consider slices
+        # or templating.
+        templated = ""
+        if elem.is_templated:
+            # Templated case: Find the leading *literal* whitespace.
+            templated_file = elem.pos_marker.templated_file
+            # Extract the leading literal whitespace, slice by slice.
+            for templated_slice in sp.templated_slices(elem, templated_file).select(
+                tsp.is_slice_type("templated")
+            ):
+                # Compute and append raw_slice's contribution.
+                templated += templated_file.templated_str[
+                    templated_slice.templated_slice
+                ]
+            return "".join(templated)
+        return templated
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Enforce comma placement.
@@ -183,7 +203,10 @@ class Rule_L019(BaseRule):
                     # on commas, the lint warning (description plus code
                     # position) is easier to understand if it refers to the
                     # comma.
-                    if not last_code_seg.raw_segments[-1].is_templated:
+                    templated_text = self._segment_templated_text(
+                        last_code_seg.raw_segments[0]
+                    )
+                    if "\n" not in templated_text:
                         return LintResult(
                             anchor=last_leading_comma_seg,
                             description="Found leading comma. Expected only trailing.",
@@ -229,7 +252,10 @@ class Rule_L019(BaseRule):
                     # on commas, the lint warning (description plus code
                     # position) is easier to understand if it refers to the
                     # comma.
-                    if not context.segment.raw_segments[0].is_templated:
+                    templated_text = self._segment_templated_text(
+                        context.segment.raw_segments[0]
+                    )
+                    if "\n" not in templated_text:
                         return LintResult(
                             anchor=last_comma_seg,
                             description="Found trailing comma. Expected only leading.",

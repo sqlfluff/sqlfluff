@@ -274,7 +274,23 @@ leading_comma_move_past_several_comment_lines:
       L019:
         comma_style: leading
 
-leading_comma_with_templated_column:
+leading_comma_with_templated_column_1:
+  fail_str: |
+    SELECT
+        c1,
+        {{ "c2" }} AS days_since
+    FROM logs
+  fix_str: |
+    SELECT
+        c1
+        , {{ "c2" }} AS days_since
+    FROM logs
+  configs:
+    rules:
+      L019:
+        comma_style: leading
+
+leading_comma_with_templated_column_2:
   pass_str: |
     SELECT
         c1
@@ -286,7 +302,19 @@ leading_comma_with_templated_column:
       L019:
         comma_style: leading
 
-trailing_comma_with_templated_column:
+trailing_comma_with_templated_column_1:
+  fail_str: |
+    SELECT
+        {{ "c1" }}
+        , c2 AS days_since
+    FROM logs
+  fix_str: |
+    SELECT
+        {{ "c1" }},
+        c2 AS days_since
+    FROM logs
+
+trailing_comma_with_templated_column_2:
   pass_str: |
     SELECT
         {{ "c1
