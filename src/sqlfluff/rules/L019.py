@@ -2,13 +2,12 @@
 
 from typing import Any, Dict, Optional, Tuple
 
-from sqlfluff.core.parser import BaseSegment, RawSegment, WhitespaceSegment
+from sqlfluff.core.parser import RawSegment, WhitespaceSegment
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.doc_decorators import (
     document_fix_compatible,
     document_configuration,
 )
-from sqlfluff.core.rules.functional import sp, tsp
 
 
 @document_fix_compatible
@@ -89,25 +88,6 @@ class Rule_L019(BaseRule):
             return raw_stack[idx + 1]
         raise ValueError("No following segment available")  # pragma: no cover
 
-    @staticmethod
-    def _segment_templated_text(elem: BaseSegment):
-        # Start by assuming the typical case, where we need not consider slices
-        # or templating.
-        templated = ""
-        if elem.is_templated:
-            # Templated case: Find the leading *literal* whitespace.
-            templated_file = elem.pos_marker.templated_file
-            # Extract the leading literal whitespace, slice by slice.
-            for templated_slice in sp.templated_slices(elem, templated_file).select(
-                tsp.is_slice_type("templated")
-            ):
-                # Compute and append raw_slice's contribution.
-                templated += templated_file.templated_str[
-                    templated_slice.templated_slice
-                ]
-            return "".join(templated)
-        return templated
-
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Enforce comma placement.
 
@@ -154,7 +134,11 @@ class Rule_L019(BaseRule):
             # A comma preceded by a new line == a leading comma
             if context.segment.is_type("comma"):
                 last_seg = self._last_code_seg(context.raw_stack)
-                if last_seg and last_seg.is_type("newline"):
+                if (
+                    last_seg
+                    and last_seg.is_type("newline")
+                    and not last_seg.is_templated
+                ):
                     # Recorded where the fix should be applied
                     memory["last_leading_comma_seg"] = context.segment
                     last_comment_seg = self._last_comment_seg(context.raw_stack)
@@ -197,35 +181,23 @@ class Rule_L019(BaseRule):
                                 )
                             ]
                         )
-                    # :TRICKY: Ignore violations if the code before the comma is
-                    # templated. We could achieve a similar effect automatically
-                    # if we *anchored* to that code, but since this rule focuses
-                    # on commas, the lint warning (description plus code
-                    # position) is easier to understand if it refers to the
-                    # comma.
-                    templated_text = self._segment_templated_text(
-                        last_code_seg.raw_segments[0]
-                    )
-                    if "\n" not in templated_text:
-                        return LintResult(
-                            anchor=last_leading_comma_seg,
-                            description="Found leading comma. Expected only trailing.",
-                            fixes=[
-                                LintFix.delete(last_leading_comma_seg),
-                                *[
-                                    LintFix.delete(d)
-                                    for d in memory["whitespace_deletions"]
-                                ],
-                                LintFix.create_before(
-                                    anchor_segment=self._get_following_seg(
-                                        context.raw_stack, last_code_seg
-                                    ),
-                                    edit_segments=[last_leading_comma_seg],
-                                ),
+                    return LintResult(
+                        anchor=last_leading_comma_seg,
+                        description="Found leading comma. Expected only trailing.",
+                        fixes=[
+                            LintFix.delete(last_leading_comma_seg),
+                            *[
+                                LintFix.delete(d)
+                                for d in memory["whitespace_deletions"]
                             ],
-                        )
-                    else:
-                        return LintResult()
+                            LintFix.create_before(
+                                anchor_segment=self._get_following_seg(
+                                    context.raw_stack, last_code_seg
+                                ),
+                                edit_segments=[last_leading_comma_seg],
+                            ),
+                        ],
+                    )
         elif self.comma_style == "leading":
             # A new line preceded by a comma == a trailing comma
             if context.segment.is_type("newline"):
@@ -233,7 +205,7 @@ class Rule_L019(BaseRule):
                 # no code precedes the current position: no issue
                 if last_seg is None:
                     return None
-                if last_seg.is_type("comma"):
+                if last_seg.is_type("comma") and not context.segment.is_templated:
                     # Trigger fix routine
                     memory["insert_leading_comma"] = True
                     # Record where the fix should be applied
@@ -246,28 +218,16 @@ class Rule_L019(BaseRule):
                     last_comma_seg = memory["last_trailing_comma_segment"]
                     # Create whitespace to insert after the new leading comma
                     new_whitespace_seg = WhitespaceSegment()
-                    # :TRICKY: Ignore violations if the code after the comma is
-                    # templated. We could achieve a similar effect automatically
-                    # if we *anchored* to that code, but since this rule focuses
-                    # on commas, the lint warning (description plus code
-                    # position) is easier to understand if it refers to the
-                    # comma.
-                    templated_text = self._segment_templated_text(
-                        context.segment.raw_segments[0]
+                    return LintResult(
+                        anchor=last_comma_seg,
+                        description="Found trailing comma. Expected only leading.",
+                        fixes=[
+                            LintFix.delete(last_comma_seg),
+                            LintFix.create_before(
+                                anchor_segment=context.segment,
+                                edit_segments=[last_comma_seg, new_whitespace_seg],
+                            ),
+                        ],
                     )
-                    if "\n" not in templated_text:
-                        return LintResult(
-                            anchor=last_comma_seg,
-                            description="Found trailing comma. Expected only leading.",
-                            fixes=[
-                                LintFix.delete(last_comma_seg),
-                                LintFix.create_before(
-                                    anchor_segment=context.segment,
-                                    edit_segments=[last_comma_seg, new_whitespace_seg],
-                                ),
-                            ],
-                        )
-                    else:
-                        return LintResult()
         # Otherwise, no issue
         return None

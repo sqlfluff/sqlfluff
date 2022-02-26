@@ -42,7 +42,7 @@ class TemplatedFileSlices(tuple):
         loop_while: Optional[Callable[[TemplatedFileSlice], bool]] = None,
         start_slice: Optional[TemplatedFileSlice] = None,
         stop_slice: Optional[TemplatedFileSlice] = None,
-    ) -> "TemplatedFileSlices":
+    ) -> "TemplatedFileSlices":  # pragma: no cover
         """Retrieve range/subset.
 
         NOTE: Iterates the slices BETWEEN start_slice and stop_slice, i.e. those
