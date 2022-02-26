@@ -198,6 +198,7 @@ class Rule_L019(BaseRule):
                             ),
                         ],
                     )
+
         elif self.comma_style == "leading":
             # A new line preceded by a comma == a trailing comma
             if context.segment.is_type("newline"):
