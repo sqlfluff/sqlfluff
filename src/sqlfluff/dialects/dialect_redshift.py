@@ -182,6 +182,7 @@ class DatatypeSegment(BaseSegment):
                 optional=True,
             ),
         ),
+        allow_gaps=True
     )
 
 
