@@ -57,13 +57,12 @@ def test_backtick_replace():
     """Test replacing docstring double backticks for lint results."""
     sql = """
     SELECT
-        foo.a,
-        bar.b
+        DISTINCT(a),
+        b
     FROM foo
-    JOIN bar;
     """
-    result = lint(sql, rules=["L051"])
-    # L051 docstring looks like:
-    # ``INNER JOIN`` must be fully qualified.
+    result = lint(sql, rules=["L015"])
+    # L015 docstring looks like:
+    # ``DISTINCT`` used with parentheses.
     # Check the double bacticks (``) get replaced by a single quote (').
-    assert result[0]["description"] == "'INNER JOIN' must be fully qualified."
+    assert result[0]["description"] == "'DISTINCT' used with parentheses."

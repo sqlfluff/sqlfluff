@@ -55,22 +55,23 @@ class Rule_L051(BaseRule):
             return None
 
         join_clause_keywords = [
-            segment
-            for segment in context.segment.segments
-            if segment.is_type("keyword")
+            segment for segment in context.segment.segments if segment.type == "keyword"
         ]
-
+        print(join_clause_keywords)
+        for x in join_clause_keywords:
+            print(x.name)
+        print(self.fully_qualify_join_types)
         # We identify LEFT/RIGHT/OUTER JOINs and if the next keyword is JOIN.
         if self.fully_qualify_join_types in ["outer", "both"] and join_clause_keywords[
             0
         ].name in ["right", "left", "full"]:
-            if join_clause_keywords[1] == "join":
+            if join_clause_keywords[1].name == "join":
                 return LintResult(
                     context.segment.segments[0],
                     fixes=[
                         LintFix.create_after(
                             context.segment.segments[0],
-                            [KeywordSegment("OUTER"), WhitespaceSegment()],
+                            [WhitespaceSegment(), KeywordSegment("OUTER")],
                         )
                     ],
                 )
