@@ -114,74 +114,77 @@ class DatatypeSegment(BaseSegment):
     """
 
     type = "data_type"
-    match_grammar = OneOf(
-        # numeric types
-        "SMALLINT",
-        "INT2",
-        "INTEGER",
-        "INT",
-        "INT4",
-        "BIGINT",
-        "INT8",
-        "REAL",
-        "FLOAT4",
-        Sequence("DOUBLE", "PRECISION"),
-        "FLOAT8",
-        "FLOAT",
-        # numeric types [precision ["," scale])]
-        Sequence(
-            OneOf("DECIMAL", "NUMERIC"),
-            Bracketed(
-                Delimited(Ref("NumericLiteralSegment")),
-                optional=True,
-            ),
-        ),
-        # character types
+    match_grammar = Sequence(
         OneOf(
+            # numeric types
+            "SMALLINT",
+            "INT2",
+            "INTEGER",
+            "INT",
+            "INT4",
+            "BIGINT",
+            "INT8",
+            "REAL",
+            "FLOAT4",
+            Sequence("DOUBLE", "PRECISION"),
+            "FLOAT8",
+            "FLOAT",
+            # numeric types [precision ["," scale])]
             Sequence(
-                OneOf(
-                    "CHAR",
-                    "CHARACTER",
-                    "NCHAR",
-                    "VARCHAR",
-                    Sequence("CHARACTER", "VARYING"),
-                    "NVARCHAR",
-                ),
+                OneOf("DECIMAL", "NUMERIC"),
                 Bracketed(
-                    OneOf(
-                        Ref("NumericLiteralSegment"),
-                        "MAX",
-                    ),
+                    Delimited(Ref("NumericLiteralSegment")),
                     optional=True,
                 ),
             ),
-            "BPCHAR",
-            "TEXT",
-        ),
-        Ref("DateTimeTypeIdentifier"),
-        # INTERVAL is a data type *only* for conversion operations
-        "INTERVAL",
-        # boolean types
-        OneOf("BOOLEAN", "BOOL"),
-        # hllsketch type
-        "HLLSKETCH",
-        # super type
-        "SUPER",
-        # spatial data
-        "GEOMETRY",
-        "GEOGRAPHY",
-        # binary type
-        Sequence(
+            # character types
             OneOf(
-                "VARBYTE",
-                "VARBINARY",
-                Sequence("BINARY", "VARYING"),
+                Sequence(
+                    OneOf(
+                        "CHAR",
+                        "CHARACTER",
+                        "NCHAR",
+                        "VARCHAR",
+                        Sequence("CHARACTER", "VARYING"),
+                        "NVARCHAR",
+                    ),
+                    Bracketed(
+                        OneOf(
+                            Ref("NumericLiteralSegment"),
+                            "MAX",
+                        ),
+                        optional=True,
+                    ),
+                ),
+                "BPCHAR",
+                "TEXT",
             ),
-            Bracketed(
-                Ref("NumericLiteralSegment"),
-                optional=True,
+            Ref("DateTimeTypeIdentifier"),
+            # INTERVAL is a data type *only* for conversion operations
+            "INTERVAL",
+            # boolean types
+            OneOf("BOOLEAN", "BOOL"),
+            # hllsketch type
+            "HLLSKETCH",
+            # super type
+            "SUPER",
+            # spatial data
+            "GEOMETRY",
+            "GEOGRAPHY",
+            # binary type
+            Sequence(
+                OneOf(
+                    "VARBYTE",
+                    "VARBINARY",
+                    Sequence("BINARY", "VARYING"),
+                ),
+                Bracketed(
+                    Ref("NumericLiteralSegment"),
+                    optional=True,
+                ),
             ),
         ),
+        allow_gaps=True,
     )
 
 
