@@ -57,26 +57,25 @@ class Rule_L051(BaseRule):
         join_clause_keywords = [
             segment for segment in context.segment.segments if segment.type == "keyword"
         ]
-        print(join_clause_keywords)
-        for x in join_clause_keywords:
-            print(x.name)
-        print(self.fully_qualify_join_types)
-        # We identify LEFT/RIGHT/OUTER JOINs and if the next keyword is JOIN.
-        if self.fully_qualify_join_types in ["outer", "both"] and join_clause_keywords[
-            0
-        ].name in ["right", "left", "full"]:
-            if join_clause_keywords[1].name == "join":
-                return LintResult(
-                    context.segment.segments[0],
-                    fixes=[
-                        LintFix.create_after(
-                            context.segment.segments[0],
-                            [WhitespaceSegment(), KeywordSegment("OUTER")],
-                        )
-                    ],
-                )
 
-        # We identify non-lone JOIN by looking at first child segment.
+        # We identify LEFT/RIGHT/OUTER JOIN and if the next keyword is JOIN.
+        if (
+            self.fully_qualify_join_types in ["outer", "both"]
+            and join_clause_keywords[0].name in ["right", "left", "full"]
+            and join_clause_keywords[1].name == "join"
+        ):
+            # Insert OUTER after LEFT/RIGHT/OUTER
+            return LintResult(
+                context.segment.segments[0],
+                fixes=[
+                    LintFix.create_after(
+                        context.segment.segments[0],
+                        [WhitespaceSegment(), KeywordSegment("OUTER")],
+                    )
+                ],
+            )
+
+        # We identify lone JOIN by looking at first child segment.
         if (
             self.fully_qualify_join_types in ["inner", "both"]
             and join_clause_keywords[0].name == "join"
