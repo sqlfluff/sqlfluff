@@ -202,6 +202,100 @@ postgres_dialect.add(
 )
 
 postgres_dialect.replace(
+    # Need to replace to support PatternMatchExpressionSegment
+    Expression_A_Grammar=Sequence(
+        OneOf(
+            Ref("Expression_C_Grammar"),
+            Sequence(
+                OneOf(
+                    Ref("PositiveSegment"),
+                    Ref("NegativeSegment"),
+                    # Ref('TildeSegment'),
+                    "NOT",
+                    "PRIOR",
+                    # used in CONNECT BY clauses (EXASOL, Snowflake, Postgres...)
+                ),
+                Ref("Expression_C_Grammar"),
+            ),
+        ),
+        AnyNumberOf(
+            OneOf(
+                Sequence(
+                    OneOf(
+                        Sequence(
+                            Ref.keyword("NOT", optional=True),
+                            Ref("LikeGrammar"),
+                        ),
+                        Sequence(
+                            Ref("BinaryOperatorGrammar"),
+                            Ref.keyword("NOT", optional=True),
+                        ),
+                        # We need to add a lot more here...
+                    ),
+                    Ref("Expression_C_Grammar"),
+                    Sequence(
+                        Ref.keyword("ESCAPE"),
+                        Ref("Expression_C_Grammar"),
+                        optional=True,
+                    ),
+                ),
+                Sequence(
+                    Ref.keyword("NOT", optional=True),
+                    "IN",
+                    Bracketed(
+                        OneOf(
+                            Delimited(
+                                Ref("Expression_A_Grammar"),
+                            ),
+                            Ref("SelectableGrammar"),
+                            ephemeral_name="InExpression",
+                        )
+                    ),
+                ),
+                Sequence(
+                    Ref.keyword("NOT", optional=True),
+                    "IN",
+                    Ref("FunctionSegment"),  # E.g. UNNEST()
+                ),
+                Sequence(
+                    "IS",
+                    Ref.keyword("NOT", optional=True),
+                    Ref("IsClauseGrammar"),
+                ),
+                Ref("IsNullGrammar"),
+                Ref("NotNullGrammar"),
+                Sequence(
+                    # e.g. NOT EXISTS, but other expressions could be met as
+                    # well by inverting the condition with the NOT operator
+                    "NOT",
+                    Ref("Expression_C_Grammar"),
+                ),
+                Sequence(
+                    Ref.keyword("NOT", optional=True),
+                    "BETWEEN",
+                    # In a between expression, we're restricted to arithmetic operations
+                    # because if we look for all binary operators then we would match
+                    # AND as both an operator and also as the delimiter within the
+                    # BETWEEN expression.
+                    Ref("Expression_C_Grammar"),
+                    AnyNumberOf(
+                        Sequence(
+                            Ref("ArithmeticBinaryOperatorGrammar"),
+                            Ref("Expression_C_Grammar"),
+                        )
+                    ),
+                    "AND",
+                    Ref("Expression_C_Grammar"),
+                    AnyNumberOf(
+                        Sequence(
+                            Ref("ArithmeticBinaryOperatorGrammar"),
+                            Ref("Expression_C_Grammar"),
+                        )
+                    ),
+                ),
+            )
+        ),
+    ),
     ComparisonOperatorGrammar=OneOf(
         Ref("EqualsSegment"),
         Ref("GreaterThanSegment"),
