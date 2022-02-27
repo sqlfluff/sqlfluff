@@ -266,7 +266,10 @@ ansi_dialect.add(
         # TODO: this doesn't feel like the like_operator token is actually used
         # in the ANSI language nor its descendents (more represented as a
         # LIKE Pattern Match Operator). Should we delete this segment?
-        "like_operator", SymbolSegment, name="like_operator", type="comparison_operator"
+        "like_operator",
+        SymbolSegment,
+        name="like_operator",
+        type="comparison_operator",
     ),
     RawNotSegment=StringParser(
         "!", SymbolSegment, name="raw_not", type="raw_comparison_operator"

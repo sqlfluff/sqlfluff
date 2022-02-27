@@ -482,12 +482,14 @@ class LikeOperatorSegment(BaseSegment):
     """Like operators (e.g. LIKE, ILIKE).
 
     Need to replace as this is not correctly specified in ANSI.
-    As specified here: https://www.postgresql.org/docs/14/functions-matching.html#FUNCTIONS-LIKE .
+    As specified here:
+    https://www.postgresql.org/docs/14/functions-matching.html#FUNCTIONS-LIKE .
     """
 
     type = "like_operator"
 
     match_grammar = OneOf("LIKE", "ILIKE")
+
 
 @postgres_dialect.segment()
 class EscapeClauseSegment(BaseSegment):
@@ -497,17 +499,19 @@ class EscapeClauseSegment(BaseSegment):
     """
 
     type = "escape_clause"
-    
+
     match_grammar = Sequence(
         Ref.keyword("ESCAPE"),
         Ref("Expression_C_Grammar"),
     )
 
+
 @postgres_dialect.segment()
 class LikeExpressionSegment(BaseSegment):
     """LIKE/ILIKE expression.
 
-    As specified here: https://www.postgresql.org/docs/14/functions-matching.html#FUNCTIONS-LIKE
+    As specified here:
+    https://www.postgresql.org/docs/14/functions-matching.html#FUNCTIONS-LIKE
     """
 
     type = "like_expression"
@@ -519,11 +523,14 @@ class LikeExpressionSegment(BaseSegment):
         Ref("EscapeClauseSegment", optional=True),
     )
 
+
 @postgres_dialect.segment()
 class SimilarToExpressionSegment(BaseSegment):
     """SIMILAR TO expression.
 
-    As specified here: https://www.postgresql.org/docs/14/functions-matching.html#FUNCTIONS-SIMILARTO-REGEXP
+    As specified here:
+    https://www.postgresql.org/docs/14/functions-matching.html \
+        #FUNCTIONS-SIMILARTO-REGEXP
     """
 
     type = "similar_to_expression"
@@ -533,10 +540,13 @@ class SimilarToExpressionSegment(BaseSegment):
         "SIMILAR",
         "TO",
         # TODO: update this to parse the limited set of POSIX supported in the
-        # SIMILAR TO expression: https://www.postgresql.org/docs/14/functions-matching.html#FUNCTIONS-SIMILARTO-REGEXP
+        # SIMILAR TO expression:
+        # https://www.postgresql.org/docs/14/functions-matching.html \
+        #     #FUNCTIONS-SIMILARTO-REGEXP
         Ref("Expression_C_Grammar"),
         Ref("EscapeClauseSegment", optional=True),
     )
+
 
 @postgres_dialect.segment()
 class PatternMatchExpressionSegment(BaseSegment):
@@ -544,15 +554,17 @@ class PatternMatchExpressionSegment(BaseSegment):
 
     As specified here: https://www.postgresql.org/docs/14/functions-matching.html .
     """
-    
+
     type = "pattern_match_expression"
 
     match_grammar = OneOf(
         Ref("LikeExpressionSegment"),
         Ref("SimilarToExpressionSegment"),
         # TODO: support POSIX expression segments as specified here:
-        # https://www.postgresql.org/docs/14/functions-matching.html#FUNCTIONS-POSIX-REGEXP
+        # https://www.postgresql.org/docs/14/functions-matching.html \
+        #     #FUNCTIONS-POSIX-REGEXP
     )
+
 
 @postgres_dialect.segment()
 class PsqlVariableGrammar(BaseSegment):
