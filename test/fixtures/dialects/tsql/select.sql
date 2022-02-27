@@ -90,6 +90,7 @@ SELECT
 
 	ROW_NUMBER() OVER (PARTITION BY COALESCE(NPI1, NPI2) ORDER BY COALESCE(SystemEffectiveDTS1, SystemEffectiveDTS2) DESC) AS Coalesce_Partition,
 
+	ROW_NUMBER() OVER (PARTITION BY (DayInMonth), (DaySuffix) ORDER BY Month ASC),
 
 	[preceding]	= count(*) over(order by object_id ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW ),
 	[central]	= count(*) over(order by object_id ROWS BETWEEN 2 PRECEDING AND 2 FOLLOWING ),
