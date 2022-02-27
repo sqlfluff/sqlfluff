@@ -131,9 +131,11 @@ def prep_violations(rule, violations):
 def assert_violations_before_fix(test_case, violations_before_fix):
     """Assert that the given violations are found in the given sql."""
     violation_info = [e.get_info_dict() for e in violations_before_fix]
-    assert violation_info == prep_violations(
-        test_case.rule, test_case.violations
-    ), "Actual violations:\n" + yaml.dump(violation_info)
+    try:
+        assert violation_info == prep_violations(test_case.rule, test_case.violations)
+    except AssertionError:
+        print("Actual violations:\n" + yaml.dump(violation_info))
+        raise
 
 
 def assert_violations_after_fix(test_case):
@@ -145,9 +147,13 @@ def assert_violations_after_fix(test_case):
         line_numbers=test_case.line_numbers,
     )
     violation_info = [e.get_info_dict() for e in violations_after_fix]
-    assert violation_info == prep_violations(
-        test_case.rule, test_case.violations_after_fix
-    ), "Actual violations_after_fix:\n" + yaml.dump(violation_info)
+    try:
+        assert violation_info == prep_violations(
+            test_case.rule, test_case.violations_after_fix
+        )
+    except AssertionError:
+        print("Actual violations_after_fix:\n" + yaml.dump(violation_info))
+        raise
 
 
 def rules__test_helper(test_case):
