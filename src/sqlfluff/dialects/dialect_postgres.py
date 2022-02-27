@@ -532,10 +532,40 @@ class SimilarToExpressionSegment(BaseSegment):
         Ref.keyword("NOT", optional=True),
         "SIMILAR",
         "TO",
+        # TODO: update this to parse the limited set of POSIX supported in the
+        # SIMILAR TO expression: https://www.postgresql.org/docs/14/functions-matching.html#FUNCTIONS-POSIX-REGEXP
         Ref("Expression_C_Grammar"),
         Ref("EscapeClauseSegment", optional=True),
     )
 
+class POSIXOperatorSegment(BaseSegment):
+    """Operators used for pattern matching strings to POSIX regular expressions.
+
+    As speicifed in 9.16 of https://www.postgresql.org/docs/14/functions-matching.html#FUNCTIONS-POSIX-REGEXP
+    """
+
+    type = "posix_operator"
+
+    match_grammar = Sequence(
+        Ref("RawNotSegment", optional=True),
+        Ref("TildeSegment"),
+        Ref("StarSegment", optional=True),
+    )
+
+class POSIXExpressionSegment(BaseSegment):
+    """Pattern matching using POSIX regular expressions.
+
+    As specified here: https://www.postgresql.org/docs/14/functions-matching.html#FUNCTIONS-POSIX-REGEXP
+    """
+    
+    type = "posix_expression"
+
+    match_grammar = Sequence(
+        Ref("POSIXOperatorSegment"),
+        # TODO: update this to parse only POSIX regular expressions as
+        # specified in 9.7.3.1 of https://www.postgresql.org/docs/14/functions-matching.html#FUNCTIONS-POSIX-REGEXP
+        Ref("Expression_C_Grammar"),
+    )
 @postgres_dialect.segment()
 class PatternMatchExpressionSegment(BaseSegment):
     """Pattern matching expression (e.g. LIKE pattern, NOT ILIKE pattern).
@@ -548,6 +578,7 @@ class PatternMatchExpressionSegment(BaseSegment):
     match_grammar = OneOf(
         Ref("LikeExpressionSegment"),
         Ref("SimilarToExpressionSegment"),
+        Ref("POSIXExpressionSegment"),
     )
 
 @postgres_dialect.segment()
