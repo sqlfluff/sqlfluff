@@ -1,0 +1,61 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: c1b816e2107af6d327250f3dd97ca6d0f54e0d80d5fada0fd553fe8cc3b53249
+file:
+  batch:
+    statement:
+      update_statement:
+        keyword: update
+        table_reference:
+        - identifier: dbo
+        - dot: .
+        - identifier: Cases
+        set_clause_list:
+          keyword: set
+          set_clause:
+            column_reference:
+              identifier: '[Flg]'
+            comparison_operator:
+              raw_comparison_operator: '='
+            expression:
+              literal: '1'
+        where_clause:
+          keyword: where
+          expression:
+            column_reference:
+              identifier: ID
+            keyword: in
+            bracketed:
+              start_bracket: (
+              select_statement:
+                select_clause:
+                  keyword: select
+                  select_clause_modifier:
+                    keyword: distinct
+                  select_clause_element:
+                    column_reference:
+                      identifier: '[ID]'
+                from_clause:
+                  keyword: from
+                  from_expression:
+                    from_expression_element:
+                      table_expression:
+                        table_reference:
+                        - identifier: dbo
+                        - dot: .
+                        - identifier: CX
+              end_bracket: )
+        option_clause:
+          keyword: OPTION
+          bracketed:
+            start_bracket: (
+            query_hint_segment:
+              keyword: Label
+              comparison_operator:
+                raw_comparison_operator: '='
+              literal: "'Cases'"
+            end_bracket: )
+        statement_terminator: ;

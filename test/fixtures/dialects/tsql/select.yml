@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9146fbba160c1289afce1ae81d8f95b6c93c91c2ce97d7979dc5e2dc19e6678f
+_hash: 5c19270d1b32a5b73f5e2a11b3473bd84f93c3372be0659ae9376db37c4a8e17
 file:
   batch:
     statement:
@@ -661,6 +661,38 @@ file:
             alias_expression:
               keyword: AS
               identifier: Coalesce_Partition
+        - comma: ','
+        - select_clause_element:
+            function:
+            - function_name:
+                keyword: ROW_NUMBER
+            - bracketed:
+                start_bracket: (
+                end_bracket: )
+            - keyword: OVER
+            - bracketed:
+                start_bracket: (
+                partitionby_clause:
+                - keyword: PARTITION
+                - keyword: BY
+                - bracketed:
+                    start_bracket: (
+                    column_reference:
+                      identifier: DayInMonth
+                    end_bracket: )
+                - comma: ','
+                - bracketed:
+                    start_bracket: (
+                    column_reference:
+                      identifier: DaySuffix
+                    end_bracket: )
+                orderby_clause:
+                - keyword: ORDER
+                - keyword: BY
+                - column_reference:
+                    identifier: Month
+                - keyword: ASC
+                end_bracket: )
         - comma: ','
         - select_clause_element:
             expression:

@@ -29,3 +29,8 @@ RAISERROR ('Error with lots of arguments %a %b %c %d %e %f %g %h %i %j %k %l %m 
 		18,
 		19,
 		20);
+
+RAISERROR (@ErrorMessage, -- Message text.  
+			@ErrorSeverity, -- Severity.  
+			@ErrorState -- State.  
+			); 
