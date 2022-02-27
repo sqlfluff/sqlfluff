@@ -1186,11 +1186,16 @@ class DeclareStatementSegment(BaseSegment):
         Indent,
         Ref("ParameterNameSegment"),
         Sequence("AS", optional=True),
-        Ref("DatatypeSegment"),
-        Sequence(
-            Ref("EqualsSegment"),
-            Ref("ExpressionSegment"),
-            optional=True,
+        OneOf(
+            Sequence(
+                Ref("DatatypeSegment"),
+                Sequence(
+                    Ref("EqualsSegment"),
+                    Ref("ExpressionSegment"),
+                    optional=True,
+                ),
+            ),
+            Sequence("TABLE", Bracketed(Delimited(Ref("ColumnDefinitionSegment")))),
         ),
         AnyNumberOf(
             Ref("CommaSegment"),
