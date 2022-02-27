@@ -478,7 +478,7 @@ postgres_dialect.replace(
 )
 
 
-@postgres_dialect.segment():
+@postgres_dialect.segment()
 class LikeOperator(BaseSegment):
     """Like operators (e.g. LIKE, ILIKE).
 
