@@ -266,10 +266,7 @@ ansi_dialect.add(
         # TODO: this doesn't feel like the like_operator token is actually used
         # in the ANSI language nor its descendents (more represented as a
         # LIKE Pattern Match Operator). Should we delete this segment?
-        "like_operator",
-        SymbolSegment,
-        name="like_operator",
-        type="comparison_operator",
+        "like_operator", SymbolSegment, name="like_operator", type="comparison_operator"
     ),
     RawNotSegment=StringParser(
         "!", SymbolSegment, name="raw_not", type="raw_comparison_operator"
@@ -1857,7 +1854,21 @@ class ExpressionSegment(BaseSegment):
     type = "expression"
     match_grammar = Ref("Expression_A_Grammar")
 
-
+@ansi_dialect.segment()
+class PatternMatchExpressionSegment(BaseSegment):
+    """An expression for matching to a provided pattern."""
+    type = "pattern_match_expression"
+    match_grammar = Sequence(
+        Ref.keyword("NOT", optional=True),
+        Ref("LikeGrammar"),
+        Ref("Expression_A_Grammar"),
+        Sequence(
+            "ESCAPE",
+            Ref("Expression_A_Grammar"),
+            optional=True,
+        ),
+    )
+            
 @ansi_dialect.segment()
 class EscapeClauseSegment(BaseSegment):
     """Clause for indicating a particular character is an ESCAPE character."""
