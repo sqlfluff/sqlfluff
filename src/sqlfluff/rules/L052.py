@@ -123,6 +123,111 @@ class Rule_L052(BaseRule):
 
         return False
 
+    def _handle_semicolon(self, context: RuleContext) -> Optional[LintResult]:
+        # Locate semicolon and search back over the raw stack
+        # to find the end of the preceding statement.
+        reversed_raw_stack = context.functional.raw_stack.reversed()
+        before_code = reversed_raw_stack.select(loop_while=sp.not_(sp.is_code()))
+        pre_semicolon_segments = before_code.select(sp.not_(sp.is_meta()))
+        anchor_segment = before_code[-1] if before_code else context.segment
+        first_code = reversed_raw_stack.select(sp.is_code()).first()
+        is_one_line = (
+            self._is_one_line_statement(context, first_code[0]) if first_code else False
+        )
+
+        # We can tidy up any whitespace between the semi-colon
+        # and the preceding code/comment segment.
+        # Don't mess with comment spacing/placement.
+        whitespace_deletions = pre_semicolon_segments.select(
+            loop_while=sp.is_whitespace()
+        )
+
+        semicolon_newline = self.multiline_newline if not is_one_line else False
+
+        # Semi-colon on same line.
+        if not semicolon_newline:
+            if len(pre_semicolon_segments) >= 1:
+                # If preceding segments are found then delete the old
+                # semi-colon and its preceding whitespace and then insert
+                # the semi-colon in the correct location.
+                fixes = [
+                    LintFix.replace(
+                        anchor_segment,
+                        [
+                            anchor_segment,
+                            SymbolSegment(raw=";", type="symbol", name="semicolon"),
+                        ],
+                    ),
+                    LintFix.delete(
+                        context.segment,
+                    ),
+                ]
+                fixes.extend(LintFix.delete(d) for d in whitespace_deletions)
+                return LintResult(
+                    anchor=anchor_segment,
+                    fixes=fixes,
+                )
+        # Semi-colon on new line.
+        else:
+            # Adjust pre_semicolon_segments and anchor_segment for preceding inline
+            # comments. Inline comments can contain noqa logic so we need to add the
+            # newline after the inline comment.
+            (
+                pre_semicolon_segments,
+                anchor_segment,
+            ) = self._handle_preceding_inline_comments(
+                pre_semicolon_segments, anchor_segment
+            )
+
+            if not (
+                (len(pre_semicolon_segments) == 1)
+                and all(s.is_type("newline") for s in pre_semicolon_segments)
+            ):
+                # If preceding segment is not a single newline then delete the old
+                # semi-colon/preceding whitespace and then insert the
+                # semi-colon in the correct location.
+
+                # This handles an edge case in which an inline comment comes after
+                # the semi-colon.
+                anchor_segment = self._handle_trailing_inline_comments(
+                    context, anchor_segment
+                )
+                fixes = []
+                if anchor_segment is context.segment:
+                    fixes.append(
+                        LintFix.replace(
+                            anchor_segment,
+                            [
+                                NewlineSegment(),
+                                SymbolSegment(raw=";", type="symbol", name="semicolon"),
+                            ],
+                        )
+                    )
+                else:
+                    fixes.extend(
+                        [
+                            LintFix.replace(
+                                anchor_segment,
+                                [
+                                    anchor_segment,
+                                    NewlineSegment(),
+                                    SymbolSegment(
+                                        raw=";", type="symbol", name="semicolon"
+                                    ),
+                                ],
+                            ),
+                            LintFix.delete(
+                                context.segment,
+                            ),
+                        ]
+                    )
+                    fixes.extend(LintFix.delete(d) for d in whitespace_deletions)
+                return LintResult(
+                    anchor=anchor_segment,
+                    fixes=fixes,
+                )
+        return None
+
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Statements must end with a semi-colon."""
         # Config type hints
@@ -131,113 +236,9 @@ class Rule_L052(BaseRule):
 
         # First we can simply handle the case of existing semi-colon alignment.
         if context.segment.name == "semicolon":
-
-            # Locate semicolon and search back over the raw stack
-            # to find the end of the preceding statement.
-            reversed_raw_stack = context.functional.raw_stack.reversed()
-            before_code = reversed_raw_stack.select(loop_while=sp.not_(sp.is_code()))
-            pre_semicolon_segments = before_code.select(sp.not_(sp.is_meta()))
-            anchor_segment = before_code[-1] if before_code else context.segment
-            first_code = reversed_raw_stack.select(sp.is_code()).first()
-            is_one_line = (
-                self._is_one_line_statement(context, first_code[0])
-                if first_code
-                else False
-            )
-
-            # We can tidy up any whitespace between the semi-colon
-            # and the preceding code/comment segment.
-            # Don't mess with comment spacing/placement.
-            whitespace_deletions = pre_semicolon_segments.select(
-                loop_while=sp.is_whitespace()
-            )
-
-            semicolon_newline = self.multiline_newline if not is_one_line else False
-
-            # Semi-colon on same line.
-            if not semicolon_newline:
-                if len(pre_semicolon_segments) >= 1:
-                    # If preceding segments are found then delete the old
-                    # semi-colon and its preceding whitespace and then insert
-                    # the semi-colon in the correct location.
-                    fixes = [
-                        LintFix.replace(
-                            anchor_segment,
-                            [
-                                anchor_segment,
-                                SymbolSegment(raw=";", type="symbol", name="semicolon"),
-                            ],
-                        ),
-                        LintFix.delete(
-                            context.segment,
-                        ),
-                    ]
-                    fixes.extend(LintFix.delete(d) for d in whitespace_deletions)
-                    return LintResult(
-                        anchor=anchor_segment,
-                        fixes=fixes,
-                    )
-            # Semi-colon on new line.
-            else:
-                # Adjust pre_semicolon_segments and anchor_segment for preceding inline
-                # comments. Inline comments can contain noqa logic so we need to add the
-                # newline after the inline comment.
-                (
-                    pre_semicolon_segments,
-                    anchor_segment,
-                ) = self._handle_preceding_inline_comments(
-                    pre_semicolon_segments, anchor_segment
-                )
-
-                if not (
-                    (len(pre_semicolon_segments) == 1)
-                    and all(s.is_type("newline") for s in pre_semicolon_segments)
-                ):
-                    # If preceding segment is not a single newline then delete the old
-                    # semi-colon/preceding whitespace and then insert the
-                    # semi-colon in the correct location.
-
-                    # This handles an edge case in which an inline comment comes after
-                    # the semi-colon.
-                    anchor_segment = self._handle_trailing_inline_comments(
-                        context, anchor_segment
-                    )
-                    fixes = []
-                    if anchor_segment is context.segment:
-                        fixes.append(
-                            LintFix.replace(
-                                anchor_segment,
-                                [
-                                    NewlineSegment(),
-                                    SymbolSegment(
-                                        raw=";", type="symbol", name="semicolon"
-                                    ),
-                                ],
-                            )
-                        )
-                    else:
-                        fixes.extend(
-                            [
-                                LintFix.replace(
-                                    anchor_segment,
-                                    [
-                                        anchor_segment,
-                                        NewlineSegment(),
-                                        SymbolSegment(
-                                            raw=";", type="symbol", name="semicolon"
-                                        ),
-                                    ],
-                                ),
-                                LintFix.delete(
-                                    context.segment,
-                                ),
-                            ]
-                        )
-                        fixes.extend(LintFix.delete(d) for d in whitespace_deletions)
-                    return LintResult(
-                        anchor=anchor_segment,
-                        fixes=fixes,
-                    )
+            result = self._handle_semicolon(context)
+            if result:
+                return result
 
         # SQL does not require a final trailing semi-colon, however
         # this rule looks to enforce that it is there.
