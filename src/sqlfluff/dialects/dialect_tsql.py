@@ -2810,6 +2810,7 @@ class UpdateStatementSegment(BaseSegment):
         Dedent,
         Ref("FromClauseSegment", optional=True),
         Ref("WhereClauseSegment", optional=True),
+        Ref("OptionClauseSegment", optional=True),
         Ref("DelimiterSegment", optional=True),
     )
 
@@ -3440,12 +3441,17 @@ class RaiserrorStatementSegment(BaseSegment):
                     Ref("NumericLiteralSegment"),
                     Ref("QuotedLiteralSegment"),
                     Ref("QuotedLiteralSegmentWithN"),
+                    Ref("ParameterNameSegment"),
                 ),
                 OneOf(
-                    Ref("NumericLiteralSegment"), Ref("QualifiedNumericLiteralSegment")
+                    Ref("NumericLiteralSegment"),
+                    Ref("QualifiedNumericLiteralSegment"),
+                    Ref("ParameterNameSegment"),
                 ),
                 OneOf(
-                    Ref("NumericLiteralSegment"), Ref("QualifiedNumericLiteralSegment")
+                    Ref("NumericLiteralSegment"),
+                    Ref("QualifiedNumericLiteralSegment"),
+                    Ref("ParameterNameSegment"),
                 ),
                 AnyNumberOf(
                     Ref("LiteralGrammar"),
