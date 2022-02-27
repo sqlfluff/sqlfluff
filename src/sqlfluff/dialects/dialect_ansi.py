@@ -1855,18 +1855,46 @@ class ExpressionSegment(BaseSegment):
     match_grammar = Ref("Expression_A_Grammar")
 
 @ansi_dialect.segment()
-class PatternMatchExpressionSegment(BaseSegment):
-    """An expression for matching to a provided pattern."""
-    type = "pattern_match_expression"
+class EscapeClauseSegment(BaseSegment):
+    """Clause for indicating a particular character is an ESCAPE character."""
+    type = "escape_clause"
+    match_grammar = Sequence(
+        "ESCAPE",
+        Ref("Expression_C_Grammar"),
+    )
+
+@ansi_dialect.segment()
+class LikeExpressionSegment(BaseSegment):
+    """An expression for matching to a provided pattern using LIKE clause."""
+    type = "like_expression"
     match_grammar = Sequence(
         Ref.keyword("NOT", optional=True),
         Ref("LikeGrammar"),
         Ref("Expression_C_Grammar"),
+        Ref("EscapeClauseSegment", optional=True),
+    )
+
+@ansi_dialect.segment()
+class SimilarToExpressionSegment(BaseSegment):
+    """An expression for matching to a provided pattern using SIMILAR TO clause."""
+    type = "similar_to_expression"
+    match_grammar = Sequence(
+        Ref.keyword("NOT", optional=True),
         Sequence(
-            "ESCAPE",
-            Ref("Expression_C_Grammar"),
-            optional=True,
+            "SIMILAR",
+            "TO",
         ),
+        Ref("Expression_C_Grammar"),
+        Ref("EscapeClauseSegment", optional=True),
+    )
+
+@ansi_dialect.segment()
+class PatternMatchExpressionSegment(BaseSegment):
+    """An expression for matching to a provided pattern."""
+    type = "pattern_match_expression"
+    match_grammar = OneOf(
+        Ref("LikeExpressionSegment"),
+        Ref("SimilarToExpressionSegment"),
     )
             
 @ansi_dialect.segment()
