@@ -911,9 +911,7 @@ class ShorthandCastSegment(BaseSegment):
 
     type = "cast_expression"
     match_grammar = Sequence(
-        Ref("CastOperatorSegment"),
-        Ref("DatatypeSegment"),
-        allow_gaps=True
+        Ref("CastOperatorSegment"), Ref("DatatypeSegment"), allow_gaps=True
     )
 
 
