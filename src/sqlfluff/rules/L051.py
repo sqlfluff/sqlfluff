@@ -58,11 +58,11 @@ class Rule_L051(BaseRule):
             segment for segment in context.segment.segments if segment.type == "keyword"
         ]
 
-        # We identify LEFT/RIGHT/OUTER JOIN and if the next keyword is JOIN.
+        # Identify LEFT/RIGHT/OUTER JOIN and if the next keyword is JOIN.
         if (
             self.fully_qualify_join_types in ["outer", "both"]
-            and join_clause_keywords[0].name in ["right", "left", "full"]
-            and join_clause_keywords[1].name == "join"
+            and join_clause_keywords[0].raw_upper in ["RIGHT", "LEFT", "FULL"]
+            and join_clause_keywords[1].raw_upper == "JOIN"
         ):
             # Insert OUTER after LEFT/RIGHT/OUTER
             return LintResult(
@@ -75,10 +75,10 @@ class Rule_L051(BaseRule):
                 ],
             )
 
-        # We identify lone JOIN by looking at first child segment.
+        # Identify lone JOIN by looking at first child segment.
         if (
             self.fully_qualify_join_types in ["inner", "both"]
-            and join_clause_keywords[0].name == "join"
+            and join_clause_keywords[0].raw_upper == "JOIN"
         ):
             # Replace lone JOIN with INNER JOIN.
             return LintResult(

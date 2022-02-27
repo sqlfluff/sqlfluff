@@ -115,7 +115,7 @@ STANDARD_CONFIG_INFO_DICT = {
     },
     "fully_qualify_join_types": {
         "validation": ["inner", "outer", "both"],
-        "definition": ("Which type of JOIN clause should be fully qualified?"),
+        "definition": ("Which types of JOIN clauses should be fully qualified?"),
     },
     "multiline_newline": {
         "validation": [True, False],
