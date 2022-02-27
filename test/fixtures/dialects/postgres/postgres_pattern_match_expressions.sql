@@ -30,3 +30,31 @@ WHERE genus NOT ILIKE '%ursus%' ESCAPE '\\';
 
 SELECT COALESCE(family LIKE '%ursidae%' ESCAPE '\\', FALSE) AS is_bear
 FROM animals;
+
+-- SIMILAR TO expressions supported
+SELECT *
+FROM animals
+WHERE family SIMILAR TO '%ursidae%';
+
+SELECT *
+FROM animals
+WHERE family NOT SIMILAR TO '%ursidae%';
+
+SELECT *
+FROM animals
+WHERE genus SIMILAR TO '%ursus%';
+
+SELECT *
+FROM animals
+WHERE genus NOT SIMILAR TO '%ursus%';
+
+SELECT *
+FROM animals
+WHERE family SIMILAR TO '%ursidae%' ESCAPE '\\';
+
+SELECT *
+FROM animals
+WHERE genus NOT SIMILAR TO '%ursus%' ESCAPE '\\';
+
+SELECT COALESCE(family SIMILAR TO '%ursidae%' ESCAPE '\\', FALSE) AS is_bear
+FROM animals;
