@@ -49,8 +49,3 @@ test_pass_function_emits:
   configs:
     core:
       dialect: exasol
-
-
-# test_fail_trailing_whitespace_on_initial_blank_line:
-#   fail_str: " \nSELECT 1     \n"
-#   fix_str: "\nSELECT 1\n"
