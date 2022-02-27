@@ -221,16 +221,9 @@ postgres_dialect.replace(
         AnyNumberOf(
             OneOf(
                 Sequence(
-                    OneOf(
-                        Sequence(
-                            Ref.keyword("NOT", optional=True),
-                            Ref("LikeGrammar"),
-                        ),
-                        Sequence(
-                            Ref("BinaryOperatorGrammar"),
-                            Ref.keyword("NOT", optional=True),
-                        ),
-                        # We need to add a lot more here...
+                    Sequence(
+                        Ref("BinaryOperatorGrammar"),
+                        Ref.keyword("NOT", optional=True),
                     ),
                     Ref("Expression_C_Grammar"),
                     Sequence(
@@ -239,6 +232,7 @@ postgres_dialect.replace(
                         optional=True,
                     ),
                 ),
+                Ref("PatternMatchExpressionSegment"),
                 Sequence(
                     Ref.keyword("NOT", optional=True),
                     "IN",
@@ -483,6 +477,37 @@ postgres_dialect.replace(
     ),
 )
 
+
+@postgres_dialect.segment():
+class LikeOperator(BaseSegment):
+    """Like operators (e.g. LIKE, ILIKE).
+
+    As specified here: https://www.postgresql.org/docs/14/functions-matching.html#FUNCTIONS-LIKE .
+    """
+
+    type = "like_operator"
+
+    match_grammar = OneOf("LIKE", "ILIKE")
+
+@postgres_dialect.segment()
+class PatternMatchExpressionSegment(BaseSegment):
+    """Pattern matching expression (e.g. LIKE pattern, NOT ILIKE pattern).
+
+    As specified here: https://www.postgresql.org/docs/14/functions-matching.html .
+    """
+    
+    type = "pattern_match_expression"
+
+    match_grammar = Sequence(
+        Ref.keyword("NOT", optional=True),
+        Ref("LikeOperator"),
+        Ref("Expression_C_Grammar"),
+        Sequence(
+            Ref.keyword("ESCAPE"),
+            Ref("Expression_C_Grammar"),
+            optional=True,
+        )
+    )
 
 @postgres_dialect.segment()
 class PsqlVariableGrammar(BaseSegment):
