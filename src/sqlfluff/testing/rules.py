@@ -106,7 +106,7 @@ def assert_rule_pass_in_sql(code, sql, configs=None, msg=None):
     parsed = linter.parse_rendered(rendered, recurse=True)
     if parsed.violations:
         if msg:
-            print(msg)
+            print(msg)  # pragma: no cover
         pytest.fail(parsed.violations[0].desc() + "\n" + parsed.tree.stringify())
     print(f"Parsed:\n {parsed.tree.stringify()}")
 
