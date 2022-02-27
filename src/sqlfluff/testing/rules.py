@@ -119,7 +119,7 @@ def assert_rule_pass_in_sql(code, sql, configs=None, msg=None):
     print(f"Errors Found: {lerrs}")
     if any(v.rule.code == code for v in lerrs):
         if msg:
-            print(msg)
+            print(msg)  # pragma: no cover
         pytest.fail(f"Found {code} failures in query which should pass.", pytrace=False)
 
 
