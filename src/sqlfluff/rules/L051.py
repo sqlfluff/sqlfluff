@@ -64,13 +64,15 @@ class Rule_L051(BaseRule):
             and join_clause_keywords[0].raw_upper in ["RIGHT", "LEFT", "FULL"]
             and join_clause_keywords[1].raw_upper == "JOIN"
         ):
-            # Insert OUTER after LEFT/RIGHT/OUTER
+            # Define basic-level OUTER capitalization based on JOIN
+            outer_kw = ("outer", "OUTER")[join_clause_keywords[1].raw == "JOIN"]
+            # Insert OUTER after LEFT/RIGHT/FULL
             return LintResult(
                 context.segment.segments[0],
                 fixes=[
                     LintFix.create_after(
                         context.segment.segments[0],
-                        [WhitespaceSegment(), KeywordSegment("OUTER")],
+                        [WhitespaceSegment(), KeywordSegment(outer_kw)],
                     )
                 ],
             )
@@ -80,13 +82,15 @@ class Rule_L051(BaseRule):
             self.fully_qualify_join_types in ["inner", "both"]
             and join_clause_keywords[0].raw_upper == "JOIN"
         ):
+            # Define basic-level INNER capitalization based on JOIN
+            inner_kw = ("inner", "INNER")[join_clause_keywords[0].raw == "JOIN"]
             # Replace lone JOIN with INNER JOIN.
             return LintResult(
                 context.segment.segments[0],
                 fixes=[
                     LintFix.create_before(
                         context.segment.segments[0],
-                        [KeywordSegment("INNER"), WhitespaceSegment()],
+                        [KeywordSegment(inner_kw), WhitespaceSegment()],
                     )
                 ],
             )
