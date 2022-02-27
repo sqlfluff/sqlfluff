@@ -3441,12 +3441,17 @@ class RaiserrorStatementSegment(BaseSegment):
                     Ref("NumericLiteralSegment"),
                     Ref("QuotedLiteralSegment"),
                     Ref("QuotedLiteralSegmentWithN"),
+                    Ref("ParameterNameSegment"),
                 ),
                 OneOf(
-                    Ref("NumericLiteralSegment"), Ref("QualifiedNumericLiteralSegment")
+                    Ref("NumericLiteralSegment"),
+                    Ref("QualifiedNumericLiteralSegment"),
+                    Ref("ParameterNameSegment"),
                 ),
                 OneOf(
-                    Ref("NumericLiteralSegment"), Ref("QualifiedNumericLiteralSegment")
+                    Ref("NumericLiteralSegment"),
+                    Ref("QualifiedNumericLiteralSegment"),
+                    Ref("ParameterNameSegment"),
                 ),
                 AnyNumberOf(
                     Ref("LiteralGrammar"),
