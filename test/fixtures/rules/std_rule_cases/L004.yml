@@ -7,7 +7,6 @@ spaces_pass_default:
 spaces_fail:
   fail_str: "    \nSELECT 1"
   fix_str: "\t\nSELECT 1"
-
   configs:
     rules:
       indent_unit: tab
@@ -16,7 +15,6 @@ spaces_fail:
 spaces_fail_custom_tab_space_size:
   fail_str: "    \nSELECT 1"
   fix_str: "\t\t\nSELECT 1"
-
   configs:
     rules:
       indent_unit: tab
@@ -25,13 +23,11 @@ spaces_fail_custom_tab_space_size:
 
 spaces_fail_custom_tab_space_size_not_multiple:
   fail_str: "     \nSELECT 1"
-
   violations:
   - description: 'Incorrect indentation type found in file. The number of spaces is
     not a multiple of '
     line_no: 1
     line_pos: 1
-
   configs:
     rules:
       indent_unit: tab
@@ -46,7 +42,6 @@ tabs_fail_default:
 tabs_fail_default_set_tab_space_size:
   fail_str: "\t\tSELECT 1\n"
   fix_str: "    SELECT 1\n"
-
   configs:
     rules:
       tab_space_size: 2
@@ -54,7 +49,6 @@ tabs_fail_default_set_tab_space_size:
 
 tabs_pass:
   pass_str: "\tSELECT 1"
-
   configs:
     rules:
       indent_unit: tab
@@ -72,7 +66,6 @@ mixed_indent_fail_custom_tab_space_size:
       	 select 1
   fix_str: |2
          select 1
-
   configs:
     rules:
       tab_space_size: 2
@@ -85,13 +78,13 @@ indented_comments:
         longer_col -- A lined up comment
     FROM spam
 
+
 indented_comments_default_config:
   fail_str: |
     SELECT
     	a,			-- Some comment
     	longer_col	-- A lined up comment
     FROM spam
-
   # The rule will only fix the indent before the select targets.
   # Here tab indent is replaced with spaces.
   fix_str: |
@@ -99,7 +92,6 @@ indented_comments_default_config:
         a,			-- Some comment
         longer_col	-- A lined up comment
     FROM spam
-
   # Lint fails after fixing due to the spaces that come before the comments.
   # That is left unfixable for now, as explained in:
   # https://github.com/sqlfluff/sqlfluff/pull/590#issuecomment-739484190
@@ -113,13 +105,13 @@ indented_comments_default_config:
       line_no: 3
       line_pos: 15
 
+
 indented_comments_tab_config:
   fail_str: |
     SELECT
         a,         -- Some comment
         longer_col -- A lined up comment
     FROM spam
-
   # The rule will only fix the indent before the select targets.
   # Here spaces indent is replaced with tab.
   fix_str: |
@@ -127,7 +119,6 @@ indented_comments_tab_config:
     	a,         -- Some comment
     	longer_col -- A lined up comment
     FROM spam
-
   # Lint fails after fixing due to the spaces that come before the comments.
   # That is left unfixable for now, as explained in:
   # https://github.com/sqlfluff/sqlfluff/pull/590#issuecomment-739484190
@@ -137,7 +128,6 @@ indented_comments_tab_config:
       text, so a manual fix is needed.
     line_no: 2
     line_pos: 4
-
   configs:
     rules:
       indent_unit: tab
