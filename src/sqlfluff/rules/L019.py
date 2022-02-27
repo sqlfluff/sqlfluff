@@ -134,7 +134,11 @@ class Rule_L019(BaseRule):
             # A comma preceded by a new line == a leading comma
             if context.segment.is_type("comma"):
                 last_seg = self._last_code_seg(context.raw_stack)
-                if last_seg and last_seg.is_type("newline"):
+                if (
+                    last_seg
+                    and last_seg.is_type("newline")
+                    and not last_seg.is_templated
+                ):
                     # Recorded where the fix should be applied
                     memory["last_leading_comma_seg"] = context.segment
                     last_comment_seg = self._last_comment_seg(context.raw_stack)
@@ -202,7 +206,7 @@ class Rule_L019(BaseRule):
                 # no code precedes the current position: no issue
                 if last_seg is None:
                     return None
-                if last_seg.is_type("comma"):
+                if last_seg.is_type("comma") and not context.segment.is_templated:
                     # Trigger fix routine
                     memory["insert_leading_comma"] = True
                     # Record where the fix should be applied
