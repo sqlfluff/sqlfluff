@@ -496,12 +496,30 @@ class SelectClauseElementSegment(BaseSegment):
         # *, blah.*, blah.blah.*, etc.
         Ref("WildcardExpressionSegment"),
         Sequence(
+            Ref("AltAliasExpressionSegment"),
+            Ref("BaseExpressionElementGrammar"),
+        ),
+        Sequence(
             Ref("BaseExpressionElementGrammar"),
             Ref("AliasExpressionSegment", optional=True),
         ),
     )
 
     get_alias = ansi_dialect.get_segment("SelectClauseElementSegment").get_alias
+
+
+@tsql_dialect.segment()
+class AltAliasExpressionSegment(BaseSegment):
+    """An alternative alias clause as used by tsql using `=`."""
+
+    type = "alias_expression"
+    match_grammar = Sequence(
+        OneOf(
+            Ref("SingleIdentifierGrammar"),
+            Ref("SingleQuotedIdentifierSegment"),
+        ),
+        Ref("RawEqualsSegment"),
+    )
 
 
 @tsql_dialect.segment(replace=True)
@@ -1168,11 +1186,16 @@ class DeclareStatementSegment(BaseSegment):
         Indent,
         Ref("ParameterNameSegment"),
         Sequence("AS", optional=True),
-        Ref("DatatypeSegment"),
-        Sequence(
-            Ref("EqualsSegment"),
-            Ref("ExpressionSegment"),
-            optional=True,
+        OneOf(
+            Sequence(
+                Ref("DatatypeSegment"),
+                Sequence(
+                    Ref("EqualsSegment"),
+                    Ref("ExpressionSegment"),
+                    optional=True,
+                ),
+            ),
+            Sequence("TABLE", Bracketed(Delimited(Ref("ColumnDefinitionSegment")))),
         ),
         AnyNumberOf(
             Ref("CommaSegment"),
