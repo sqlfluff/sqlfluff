@@ -510,7 +510,7 @@ class SelectClauseElementSegment(BaseSegment):
 
 @tsql_dialect.segment()
 class AltAliasExpressionSegment(BaseSegment):
-    """An alternative alias clause as used by tsql using `=`"""
+    """An alternative alias clause as used by tsql using `=`."""
 
     type = "alias_expression"
     match_grammar = Sequence(
