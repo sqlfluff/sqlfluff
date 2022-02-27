@@ -2124,6 +2124,11 @@ class AlterTableStatementSegment(BaseSegment):
                     "ADD",
                     Ref("TableConstraintSegment"),
                 ),
+                Sequence(
+                    "DROP",
+                    "CONSTRAINT",
+                    Ref("ObjectReferenceSegment"),
+                ),
                 # Rename
                 Sequence(
                     "RENAME",
