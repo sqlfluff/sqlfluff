@@ -85,7 +85,6 @@ class ColumnReferenceSegment(ObjectReferenceSegment):  # type: ignore
         allow_gaps=False,
     )
 
-
 @redshift_dialect.segment(replace=True)
 class DateTimeTypeIdentifier(BaseSegment):
     """A Date Time type."""

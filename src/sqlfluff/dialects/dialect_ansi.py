@@ -263,6 +263,9 @@ ansi_dialect.add(
         "^", SymbolSegment, name="binary_xor", type="binary_operator"
     ),
     LikeOperatorSegment=NamedParser(
+        # TODO: this doesn't feel like the like_operator token is actually used
+        # in the ANSI language nor its descendents (more represented as a
+        # LIKE Pattern Match Operator). Should we delete this segment?
         "like_operator", SymbolSegment, name="like_operator", type="comparison_operator"
     ),
     RawNotSegment=StringParser(
@@ -1603,16 +1606,9 @@ ansi_dialect.add(
         AnyNumberOf(
             OneOf(
                 Sequence(
-                    OneOf(
-                        Sequence(
-                            Ref.keyword("NOT", optional=True),
-                            Ref("LikeGrammar"),
-                        ),
-                        Sequence(
-                            Ref("BinaryOperatorGrammar"),
-                            Ref.keyword("NOT", optional=True),
-                        ),
-                        # We need to add a lot more here...
+                    Sequence(
+                        Ref("BinaryOperatorGrammar"),
+                        Ref.keyword("NOT", optional=True),
                     ),
                     Ref("Expression_C_Grammar"),
                     Sequence(
@@ -1621,6 +1617,7 @@ ansi_dialect.add(
                         optional=True,
                     ),
                 ),
+                Ref("PatternMatchExpressionSegment"),
                 Sequence(
                     Ref.keyword("NOT", optional=True),
                     "IN",
@@ -1857,7 +1854,21 @@ class ExpressionSegment(BaseSegment):
     type = "expression"
     match_grammar = Ref("Expression_A_Grammar")
 
-
+@ansi_dialect.segment()
+class PatternMatchExpressionSegment(BaseSegment):
+    """An expression for matching to a provided pattern."""
+    type = "pattern_match_expression"
+    match_grammar = Sequence(
+        Ref.keyword("NOT", optional=True),
+        Ref("LikeGrammar"),
+        Ref("Expression_A_Grammar"),
+        Sequence(
+            "ESCAPE",
+            Ref("Expression_A_Grammar"),
+            optional=True,
+        ),
+    )
+            
 @ansi_dialect.segment()
 class WhereClauseSegment(BaseSegment):
     """A `WHERE` clause like in `SELECT` or `INSERT`."""
