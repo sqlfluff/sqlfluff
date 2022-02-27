@@ -490,6 +490,53 @@ class LikeOperatorSegment(BaseSegment):
     match_grammar = OneOf("LIKE", "ILIKE")
 
 @postgres_dialect.segment()
+class EscapeClauseSegment(BaseSegment):
+    """ESCAPE escape-character clause.
+
+    As specified here: https://www.postgresql.org/docs/14/functions-matching.html
+    """
+
+    type = "escape_clause"
+    
+    match_grammar = Sequence(
+        Ref.keyword("ESCAPE"),
+        Ref("Expression_C_Grammar"),
+    )
+
+@postgres_dialect.segment()
+class LikeExpressionSegment(BaseSegment):
+    """LIKE/ILIKE expression.
+
+    As specified here: https://www.postgresql.org/docs/14/functions-matching.html#FUNCTIONS-LIKE
+    """
+
+    type = "like_expression"
+
+    match_grammar = Sequence(
+        Ref.keyword("NOT", optional=True),
+        Ref("LikeOperatorSegment"),
+        Ref("Expression_C_Grammar"),
+        Ref("EscapeClauseSegment", optional=True),
+    )
+
+@postgres_dialect.segment()
+class SimilarToExpressionSegment(BaseSegment):
+    """SIMILAR TO expression.
+
+    As specified here: https://www.postgresql.org/docs/14/functions-matching.html#FUNCTIONS-SIMILARTO-REGEXP
+    """
+
+    type = "similar_to_expression"
+
+    match_grammar = Sequence(
+        Ref.keyword("NOT", optional=True),
+        "SIMILAR",
+        "TO",
+        Ref("Expression_C_Grammar"),
+        Ref("EscapeClauseSegment", optional=True),
+    )
+
+@postgres_dialect.segment()
 class PatternMatchExpressionSegment(BaseSegment):
     """Pattern matching expression (e.g. LIKE pattern, NOT ILIKE pattern).
 
@@ -498,15 +545,9 @@ class PatternMatchExpressionSegment(BaseSegment):
     
     type = "pattern_match_expression"
 
-    match_grammar = Sequence(
-        Ref.keyword("NOT", optional=True),
-        Ref("LikeOperatorSegment"),
-        Ref("Expression_C_Grammar"),
-        Sequence(
-            Ref.keyword("ESCAPE"),
-            Ref("Expression_C_Grammar"),
-            optional=True,
-        )
+    match_grammar = OneOf(
+        Ref("LikeExpressionSegment"),
+        Ref("SimilarToExpressionSegment"),
     )
 
 @postgres_dialect.segment()
