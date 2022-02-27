@@ -183,7 +183,6 @@ spark3_dialect.replace(
         Sequence("SORT", "BY"),
         # TODO Add PIVOT, and DISTRIBUTE BY clauses
         "HAVING",
-        "WINDOW",
         Ref("SetOperatorSegment"),
         Ref("WithNoSchemaBindingClauseSegment"),
         Ref("WithDataClauseSegment"),
@@ -1545,6 +1544,29 @@ class LateralViewClauseSegment(BaseSegment):
     )
 
 
+@spark3_dialect.segment(replace=True)
+class OverClauseSegment(BaseSegment):
+    """An OVER clause for window functions.
+
+    Enhance from ANSI dialect to allow for specification of
+    [{IGNORE | RESPECT} NULLS]
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-window.html
+    """
+
+    type = "over_clause"
+    match_grammar = Sequence(
+        Sequence(OneOf("IGNORE", "RESPECT"), "NULLS", optional=True),
+        "OVER",
+        OneOf(
+            Ref("SingleIdentifierGrammar"),  # Window name
+            Bracketed(
+                Ref("WindowSpecificationSegment", optional=True),
+            ),
+        ),
+    )
+
+
 # Auxiliary Statements
 @spark3_dialect.segment()
 class AddExecutablePackage(BaseSegment):
@@ -1759,6 +1781,7 @@ class AliasExpressionSegment(BaseSegment):
             exclude=OneOf(
                 "LATERAL",
                 Ref("JoinTypeKeywords"),
+                "WINDOW",
             ),
         ),
     )
@@ -1891,6 +1914,7 @@ class FromExpressionElementSegment(BaseSegment):
         Ref("PreTableFunctionKeywordsGrammar", optional=True),
         OptionallyBracketed(Ref("TableExpressionSegment")),
         AnyNumberOf(Ref("LateralViewClauseSegment")),
+        Ref("NamedWindowSegment", optional=True),
         OneOf(
             Sequence(
                 Ref("AliasExpressionSegment"),
