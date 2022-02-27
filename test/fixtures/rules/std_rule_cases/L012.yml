@@ -27,7 +27,6 @@ test_fail_explicit_column_explicit:
         aliasing: explicit
 
 test_fail_explicit_column_implicit:
-  # TODO partial fix - this requires some more attention
   # Test explicit column alias
   fail_str: select 1 AS bar from table1 b
   fix_str: select 1 bar from table1 b
