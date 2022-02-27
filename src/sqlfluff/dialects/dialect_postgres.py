@@ -202,7 +202,7 @@ postgres_dialect.add(
 )
 
 postgres_dialect.replace(
-    # Need to replace to support PatternMatchExpressionSegment
+    # Need to replace to support PatternMatchExpressionSegment .
     Expression_A_Grammar=Sequence(
         OneOf(
             Ref("Expression_C_Grammar"),
@@ -553,6 +553,8 @@ class PatternMatchExpressionSegment(BaseSegment):
     """Pattern matching expression (e.g. LIKE pattern, NOT ILIKE pattern).
 
     As specified here: https://www.postgresql.org/docs/14/functions-matching.html .
+    TODO: refactor into ansi dialect, since ansi supports pattern match
+    expressions as well.
     """
 
     type = "pattern_match_expression"
