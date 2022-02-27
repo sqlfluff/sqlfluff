@@ -1,5 +1,5 @@
 """Implementation of Rule L052."""
-from typing import List, Optional
+from typing import List, NamedTuple, Optional
 
 from sqlfluff.core.parser import SymbolSegment
 from sqlfluff.core.parser.segments.base import BaseSegment
@@ -10,7 +10,16 @@ from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
 )
-import sqlfluff.core.rules.functional.segment_predicates as sp
+from sqlfluff.core.rules.functional import Segments, sp
+
+
+class SemicolonInfo(NamedTuple):
+    """Context information for tidying up semicolon placement."""
+
+    anchor_segment: BaseSegment
+    is_one_line: bool
+    pre_semicolon_segments: Segments
+    whitespace_deletions: Segments
 
 
 @document_configuration
@@ -123,7 +132,7 @@ class Rule_L052(BaseRule):
 
         return False
 
-    def _handle_semicolon(self, context: RuleContext) -> Optional[LintResult]:
+    def _get_semicolon_info(self, context: RuleContext) -> SemicolonInfo:
         # Locate semicolon and search back over the raw stack
         # to find the end of the preceding statement.
         reversed_raw_stack = context.functional.raw_stack.reversed()
@@ -141,91 +150,106 @@ class Rule_L052(BaseRule):
         whitespace_deletions = pre_semicolon_segments.select(
             loop_while=sp.is_whitespace()
         )
+        return SemicolonInfo(
+            anchor_segment, is_one_line, pre_semicolon_segments, whitespace_deletions
+        )
 
-        semicolon_newline = self.multiline_newline if not is_one_line else False
+    def _handle_semicolon(self, context: RuleContext) -> Optional[LintResult]:
+        info = self._get_semicolon_info(context)
+        semicolon_newline = self.multiline_newline if not info.is_one_line else False
 
         # Semi-colon on same line.
         if not semicolon_newline:
-            if len(pre_semicolon_segments) >= 1:
-                # If preceding segments are found then delete the old
-                # semi-colon and its preceding whitespace and then insert
-                # the semi-colon in the correct location.
-                fixes = [
+            return self._handle_semicolon_same_line(context, info)
+        # Semi-colon on new line.
+        else:
+            return self._handle_semicolon_newline(context, info)
+        return None
+
+    def _handle_semicolon_same_line(
+        self, context: RuleContext, info: SemicolonInfo
+    ) -> Optional[LintResult]:
+        if len(info.pre_semicolon_segments) >= 1:
+            # If preceding segments are found then delete the old
+            # semi-colon and its preceding whitespace and then insert
+            # the semi-colon in the correct location.
+            fixes = [
+                LintFix.replace(
+                    info.anchor_segment,
+                    [
+                        info.anchor_segment,
+                        SymbolSegment(raw=";", type="symbol", name="semicolon"),
+                    ],
+                ),
+                LintFix.delete(
+                    context.segment,
+                ),
+            ]
+            fixes.extend(LintFix.delete(d) for d in info.whitespace_deletions)
+            return LintResult(
+                anchor=info.anchor_segment,
+                fixes=fixes,
+            )
+        return None
+
+    def _handle_semicolon_newline(
+        self, context: RuleContext, info: SemicolonInfo
+    ) -> Optional[LintResult]:
+        # Adjust pre_semicolon_segments and anchor_segment for preceding inline
+        # comments. Inline comments can contain noqa logic so we need to add the
+        # newline after the inline comment.
+        (
+            pre_semicolon_segments,
+            anchor_segment,
+        ) = self._handle_preceding_inline_comments(
+            info.pre_semicolon_segments, info.anchor_segment
+        )
+
+        if not (
+            (len(pre_semicolon_segments) == 1)
+            and all(s.is_type("newline") for s in pre_semicolon_segments)
+        ):
+            # If preceding segment is not a single newline then delete the old
+            # semi-colon/preceding whitespace and then insert the
+            # semi-colon in the correct location.
+
+            # This handles an edge case in which an inline comment comes after
+            # the semi-colon.
+            anchor_segment = self._handle_trailing_inline_comments(
+                context, anchor_segment
+            )
+            fixes = []
+            if anchor_segment is context.segment:
+                fixes.append(
                     LintFix.replace(
                         anchor_segment,
                         [
-                            anchor_segment,
+                            NewlineSegment(),
                             SymbolSegment(raw=";", type="symbol", name="semicolon"),
                         ],
-                    ),
-                    LintFix.delete(
-                        context.segment,
-                    ),
-                ]
-                fixes.extend(LintFix.delete(d) for d in whitespace_deletions)
-                return LintResult(
-                    anchor=anchor_segment,
-                    fixes=fixes,
+                    )
                 )
-        # Semi-colon on new line.
-        else:
-            # Adjust pre_semicolon_segments and anchor_segment for preceding inline
-            # comments. Inline comments can contain noqa logic so we need to add the
-            # newline after the inline comment.
-            (
-                pre_semicolon_segments,
-                anchor_segment,
-            ) = self._handle_preceding_inline_comments(
-                pre_semicolon_segments, anchor_segment
-            )
-
-            if not (
-                (len(pre_semicolon_segments) == 1)
-                and all(s.is_type("newline") for s in pre_semicolon_segments)
-            ):
-                # If preceding segment is not a single newline then delete the old
-                # semi-colon/preceding whitespace and then insert the
-                # semi-colon in the correct location.
-
-                # This handles an edge case in which an inline comment comes after
-                # the semi-colon.
-                anchor_segment = self._handle_trailing_inline_comments(
-                    context, anchor_segment
-                )
-                fixes = []
-                if anchor_segment is context.segment:
-                    fixes.append(
+            else:
+                fixes.extend(
+                    [
                         LintFix.replace(
                             anchor_segment,
                             [
+                                anchor_segment,
                                 NewlineSegment(),
                                 SymbolSegment(raw=";", type="symbol", name="semicolon"),
                             ],
-                        )
-                    )
-                else:
-                    fixes.extend(
-                        [
-                            LintFix.replace(
-                                anchor_segment,
-                                [
-                                    anchor_segment,
-                                    NewlineSegment(),
-                                    SymbolSegment(
-                                        raw=";", type="symbol", name="semicolon"
-                                    ),
-                                ],
-                            ),
-                            LintFix.delete(
-                                context.segment,
-                            ),
-                        ]
-                    )
-                    fixes.extend(LintFix.delete(d) for d in whitespace_deletions)
-                return LintResult(
-                    anchor=anchor_segment,
-                    fixes=fixes,
+                        ),
+                        LintFix.delete(
+                            context.segment,
+                        ),
+                    ]
                 )
+                fixes.extend(LintFix.delete(d) for d in info.whitespace_deletions)
+            return LintResult(
+                anchor=anchor_segment,
+                fixes=fixes,
+            )
         return None
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
