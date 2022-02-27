@@ -1,11 +1,9 @@
 """Testing utils for rule plugins."""
-import textwrap
-
 from sqlfluff.core import Linter
-from sqlfluff.core.errors import SQLParseError, SQLTemplaterError, SQLLintError
+from sqlfluff.core.errors import SQLParseError, SQLTemplaterError
 from sqlfluff.core.rules import get_ruleset
 from sqlfluff.core.config import FluffConfig
-from typing import Tuple, List, NamedTuple, Optional
+from typing import Tuple, List, NamedTuple, Optional, Set
 from glob import glob
 
 import pytest
@@ -19,7 +17,9 @@ class RuleTestCase(NamedTuple):
     desc: Optional[str] = None
     pass_str: Optional[str] = None
     fail_str: Optional[str] = None
+    violations: Optional[Set[dict]] = None
     fix_str: Optional[str] = None
+    violations_after_fix: Optional[Set[dict]] = None
     configs: Optional[dict] = None
     skip: Optional[str] = None
     line_numbers: List[int] = []
@@ -88,23 +88,32 @@ def assert_rule_fail_in_sql(code, sql, configs=None, line_numbers=None):
                 )
             )
     fixed, _ = linted.fix_string()
-    return fixed
+    return fixed, linted.violations
 
 
 def assert_rule_pass_in_sql(code, sql, configs=None):
     """Assert that a given rule doesn't fail on the given sql."""
     # Configs allows overrides if we want to use them.
+    if configs is None:
+        configs = {}
+    core = configs.setdefault("core", {})
+    core["rules"] = code
     cfg = FluffConfig(configs=configs)
-    r = get_rule_from_set(code, config=cfg)
     linter = Linter(config=cfg)
+
+    # This section is mainly for aid in debugging.
     rendered = linter.render_string(sql, fname="<STR>", config=cfg, encoding="utf-8")
     parsed = linter.parse_rendered(rendered, recurse=True)
     if parsed.violations:
         pytest.fail(parsed.violations[0].desc() + "\n" + parsed.tree.stringify())
     print(f"Parsed:\n {parsed.tree.stringify()}")
-    lerrs, _, _, _ = r.crawl(
-        parsed.tree, [], dialect=cfg.get("dialect_obj"), templated_file=rendered[0]
-    )
+
+    # Note that lint_string() runs the templater and parser again, in order to
+    # test the whole linting pipeline in the same way that users do. In other
+    # words, the "rendered" and "parsed" variables above are irrelevant to this
+    # line of code.
+    lint_result = linter.lint_string(sql, config=cfg, fname="<STR>")
+    lerrs = lint_result.violations
     print(f"Errors Found: {lerrs}")
     if any(v.rule.code == code for v in lerrs):
         pytest.fail(f"Found {code} failures in query which should pass.", pytrace=False)
@@ -118,6 +127,42 @@ def assert_rule_raises_violations_in_file(rule, fpath, violations, fluff_config)
     # sets because we really don't care about order and if one is missing,
     # we don't care about the orders of the correct ones.
     assert set(lnt.check_tuples()) == {(rule, v[0], v[1]) for v in violations}
+
+
+def prep_violations(rule, violations):
+    """Default to test rule if code is omitted."""
+    for v in violations:
+        if "code" not in v:
+            v["code"] = rule
+    return violations
+
+
+def assert_violations_before_fix(test_case, violations_before_fix):
+    """Assert that the given violations are found in the given sql."""
+    violation_info = [e.get_info_dict() for e in violations_before_fix]
+    try:
+        assert violation_info == prep_violations(test_case.rule, test_case.violations)
+    except AssertionError:  # pragma: no cover
+        print("Actual violations:\n" + yaml.dump(violation_info))
+        raise
+
+
+def assert_violations_after_fix(test_case):
+    """Assert that the given violations are found in the fixed sql."""
+    _, violations_after_fix = assert_rule_fail_in_sql(
+        test_case.rule,
+        test_case.fix_str,
+        configs=test_case.configs,
+        line_numbers=test_case.line_numbers,
+    )
+    violation_info = [e.get_info_dict() for e in violations_after_fix]
+    try:
+        assert violation_info == prep_violations(
+            test_case.rule, test_case.violations_after_fix
+        )
+    except AssertionError:  # pragma: no cover
+        print("Actual violations_after_fix:\n" + yaml.dump(violation_info))
+        raise
 
 
 def rules__test_helper(test_case):
@@ -135,38 +180,22 @@ def rules__test_helper(test_case):
             configs=test_case.configs,
         )
     if test_case.fail_str:
-        res = assert_rule_fail_in_sql(
+        res, violations_before_fix = assert_rule_fail_in_sql(
             test_case.rule,
             test_case.fail_str,
             configs=test_case.configs,
             line_numbers=test_case.line_numbers,
         )
+        if test_case.violations:
+            assert_violations_before_fix(test_case, violations_before_fix)
         # If a `fixed` value is provided then check it matches
         if test_case.fix_str:
             assert res == test_case.fix_str
+            if test_case.violations_after_fix:
+                assert_violations_after_fix(test_case)
         else:
             # Check that tests without a fix_str do not apply any fixes.
             assert res == test_case.fail_str, (
                 "No fix_str was provided, but the rule modified the SQL. Where a fix "
                 "can be applied by a rule, a fix_str must be supplied in the test."
             )
-
-
-def dedent(sql: str) -> str:
-    """Cleans up the surrounding whitespace."""
-    return textwrap.dedent(sql).lstrip("\n").rstrip() + "\n"
-
-
-def fix(code: str, sql: str, configs: Optional[dict] = None) -> str:
-    """Runs fix and returns the fixed sql."""
-    return assert_rule_fail_in_sql(code, sql, configs)
-
-
-def lint(code: str, sql: str, configs: Optional[dict] = None) -> List[str]:
-    """Runs lint and returns the found violations."""
-    return [
-        v.description if isinstance(v, SQLLintError) else str(v)
-        for v in Linter(FluffConfig(configs=configs, overrides={"rules": code}))
-        .lint_string(sql)
-        .violations
-    ]
