@@ -1,3 +1,5 @@
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+
 -- Single params
 SET @param1 = 1
 ;
