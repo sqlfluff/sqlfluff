@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1069fe3b3596e25ff9c3cf124555a423cbc9b74f2dc739a1d7e7f6332fe98f04
+_hash: 7f2a6825244f19753b04754321ca24fd602b2509cb647cd1f3f23884d2bddc69
 file:
   batch:
   - statement:
@@ -127,5 +127,17 @@ file:
         - literal: '19'
         - comma: ','
         - literal: '20'
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      raiserror_statement:
+        keyword: RAISERROR
+        bracketed:
+        - start_bracket: (
+        - parameter: '@ErrorMessage'
+        - comma: ','
+        - parameter: '@ErrorSeverity'
+        - comma: ','
+        - parameter: '@ErrorState'
         - end_bracket: )
   - statement_terminator: ;

@@ -2144,7 +2144,8 @@ class SelectStatementSegment(BaseSegment):
 ansi_dialect.add(
     # Things that behave like select statements
     SelectableGrammar=OneOf(
-        Ref("WithCompoundStatementSegment"), Ref("NonWithSelectableGrammar")
+        OptionallyBracketed(Ref("WithCompoundStatementSegment")),
+        Ref("NonWithSelectableGrammar"),
     ),
     # Things that behave like select statements, which can form part of with
     # expressions.
