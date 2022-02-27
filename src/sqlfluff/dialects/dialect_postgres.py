@@ -297,7 +297,6 @@ postgres_dialect.replace(
         Ref("GreaterThanOrEqualToSegment"),
         Ref("LessThanOrEqualToSegment"),
         Ref("NotEqualToSegment"),
-        Ref("LikeOperatorSegment"),
         Sequence("IS", "DISTINCT", "FROM"),
         Sequence("IS", "NOT", "DISTINCT", "FROM"),
     ),
@@ -478,10 +477,11 @@ postgres_dialect.replace(
 )
 
 
-@postgres_dialect.segment()
-class LikeOperator(BaseSegment):
+@postgres_dialect.segment(replace=True)
+class LikeOperatorSegment(BaseSegment):
     """Like operators (e.g. LIKE, ILIKE).
 
+    Need to replace as this is not correctly specified in ANSI.
     As specified here: https://www.postgresql.org/docs/14/functions-matching.html#FUNCTIONS-LIKE .
     """
 
@@ -500,7 +500,7 @@ class PatternMatchExpressionSegment(BaseSegment):
 
     match_grammar = Sequence(
         Ref.keyword("NOT", optional=True),
-        Ref("LikeOperator"),
+        Ref("LikeOperatorSegment"),
         Ref("Expression_C_Grammar"),
         Sequence(
             Ref.keyword("ESCAPE"),
