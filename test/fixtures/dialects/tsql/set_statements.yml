@@ -3,9 +3,18 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b3f8500897fc675eb043f00c047ef37c420ca8da76b8ecd9097120379f70d569
+_hash: be9458cab507215616ce34e6f09fe4ce3e75886bbfd9b590323d79dd9cd66f2c
 file:
   batch:
+  - statement:
+      set_segment:
+      - keyword: SET
+      - keyword: TRANSACTION
+      - keyword: ISOLATION
+      - keyword: LEVEL
+      - keyword: READ
+      - keyword: UNCOMMITTED
+      - statement_terminator: ;
   - statement:
       set_segment:
         keyword: SET

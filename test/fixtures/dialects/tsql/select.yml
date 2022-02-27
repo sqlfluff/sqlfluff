@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9146fbba160c1289afce1ae81d8f95b6c93c91c2ce97d7979dc5e2dc19e6678f
+_hash: 67c7d072ec1b8d46101b5506ae2887a234167f679c0e241c76eb32101016d921
 file:
   batch:
     statement:
@@ -663,103 +663,143 @@ file:
               identifier: Coalesce_Partition
         - comma: ','
         - select_clause_element:
-            expression:
-              column_reference:
-                identifier: '[preceding]'
-              comparison_operator:
-                raw_comparison_operator: '='
-              function:
-                function_name:
-                  function_name_identifier: count
-                bracketed:
-                  start_bracket: (
-                  star: '*'
-                  end_bracket: )
-                over_clause:
-                  keyword: over
-                  bracketed:
+            function:
+            - function_name:
+                keyword: ROW_NUMBER
+            - bracketed:
+                start_bracket: (
+                end_bracket: )
+            - keyword: OVER
+            - bracketed:
+                start_bracket: (
+                partitionby_clause:
+                - keyword: PARTITION
+                - keyword: BY
+                - bracketed:
                     start_bracket: (
-                    window_specification:
-                      orderby_clause:
-                      - keyword: order
-                      - keyword: by
-                      - column_reference:
-                          identifier: object_id
-                      frame_clause:
-                      - keyword: ROWS
-                      - keyword: BETWEEN
-                      - keyword: UNBOUNDED
-                      - keyword: PRECEDING
-                      - binary_operator: AND
-                      - keyword: CURRENT
-                      - keyword: ROW
+                    column_reference:
+                      identifier: DayInMonth
                     end_bracket: )
+                - comma: ','
+                - bracketed:
+                    start_bracket: (
+                    column_reference:
+                      identifier: DaySuffix
+                    end_bracket: )
+                orderby_clause:
+                - keyword: ORDER
+                - keyword: BY
+                - column_reference:
+                    identifier: Month
+                - keyword: ASC
+                end_bracket: )
         - comma: ','
         - select_clause_element:
-            expression:
-              column_reference:
-                identifier: '[central]'
-              comparison_operator:
-                raw_comparison_operator: '='
-              function:
-                function_name:
-                  function_name_identifier: count
+            alias_expression:
+              identifier: '[preceding]'
+              raw_comparison_operator: '='
+            function:
+              function_name:
+                function_name_identifier: count
+              bracketed:
+                start_bracket: (
+                star: '*'
+                end_bracket: )
+              over_clause:
+                keyword: over
                 bracketed:
                   start_bracket: (
-                  star: '*'
+                  window_specification:
+                    orderby_clause:
+                    - keyword: order
+                    - keyword: by
+                    - column_reference:
+                        identifier: object_id
+                    frame_clause:
+                    - keyword: ROWS
+                    - keyword: BETWEEN
+                    - keyword: UNBOUNDED
+                    - keyword: PRECEDING
+                    - binary_operator: AND
+                    - keyword: CURRENT
+                    - keyword: ROW
                   end_bracket: )
-                over_clause:
-                  keyword: over
-                  bracketed:
-                    start_bracket: (
-                    window_specification:
-                      orderby_clause:
-                      - keyword: order
-                      - keyword: by
-                      - column_reference:
-                          identifier: object_id
-                      frame_clause:
-                      - keyword: ROWS
-                      - keyword: BETWEEN
-                      - literal: '2'
-                      - keyword: PRECEDING
-                      - binary_operator: AND
-                      - literal: '2'
-                      - keyword: FOLLOWING
-                    end_bracket: )
         - comma: ','
         - select_clause_element:
-            expression:
-              column_reference:
-                identifier: '[following]'
-              comparison_operator:
-                raw_comparison_operator: '='
-              function:
-                function_name:
-                  function_name_identifier: count
+            alias_expression:
+              identifier: '[central]'
+              raw_comparison_operator: '='
+            function:
+              function_name:
+                function_name_identifier: count
+              bracketed:
+                start_bracket: (
+                star: '*'
+                end_bracket: )
+              over_clause:
+                keyword: over
                 bracketed:
                   start_bracket: (
-                  star: '*'
+                  window_specification:
+                    orderby_clause:
+                    - keyword: order
+                    - keyword: by
+                    - column_reference:
+                        identifier: object_id
+                    frame_clause:
+                    - keyword: ROWS
+                    - keyword: BETWEEN
+                    - literal: '2'
+                    - keyword: PRECEDING
+                    - binary_operator: AND
+                    - literal: '2'
+                    - keyword: FOLLOWING
                   end_bracket: )
-                over_clause:
-                  keyword: over
-                  bracketed:
-                    start_bracket: (
-                    window_specification:
-                      orderby_clause:
-                      - keyword: order
-                      - keyword: by
-                      - column_reference:
-                          identifier: object_id
-                      frame_clause:
-                      - keyword: ROWS
-                      - keyword: BETWEEN
-                      - keyword: CURRENT
-                      - keyword: ROW
-                      - binary_operator: AND
-                      - keyword: UNBOUNDED
-                      - keyword: FOLLOWING
-                    end_bracket: )
+        - comma: ','
+        - select_clause_element:
+            alias_expression:
+              identifier: '[following]'
+              raw_comparison_operator: '='
+            function:
+              function_name:
+                function_name_identifier: count
+              bracketed:
+                start_bracket: (
+                star: '*'
+                end_bracket: )
+              over_clause:
+                keyword: over
+                bracketed:
+                  start_bracket: (
+                  window_specification:
+                    orderby_clause:
+                    - keyword: order
+                    - keyword: by
+                    - column_reference:
+                        identifier: object_id
+                    frame_clause:
+                    - keyword: ROWS
+                    - keyword: BETWEEN
+                    - keyword: CURRENT
+                    - keyword: ROW
+                    - binary_operator: AND
+                    - keyword: UNBOUNDED
+                    - keyword: FOLLOWING
+                  end_bracket: )
+        - comma: ','
+        - select_clause_element:
+            alias_expression:
+              identifier: EqualsAlias
+              raw_comparison_operator: '='
+            column_reference:
+              identifier: ColumnName
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: OtherColumnName
+            alias_expression:
+              keyword: AS
+              identifier: AsAlias
         from_clause:
           keyword: FROM
           from_expression:

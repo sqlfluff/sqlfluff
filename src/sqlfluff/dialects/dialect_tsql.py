@@ -496,12 +496,30 @@ class SelectClauseElementSegment(BaseSegment):
         # *, blah.*, blah.blah.*, etc.
         Ref("WildcardExpressionSegment"),
         Sequence(
+            Ref("AltAliasExpressionSegment"),
+            Ref("BaseExpressionElementGrammar"),
+        ),
+        Sequence(
             Ref("BaseExpressionElementGrammar"),
             Ref("AliasExpressionSegment", optional=True),
         ),
     )
 
     get_alias = ansi_dialect.get_segment("SelectClauseElementSegment").get_alias
+
+
+@tsql_dialect.segment()
+class AltAliasExpressionSegment(BaseSegment):
+    """An alternative alias clause as used by tsql using `=`."""
+
+    type = "alias_expression"
+    match_grammar = Sequence(
+        OneOf(
+            Ref("SingleIdentifierGrammar"),
+            Ref("SingleQuotedIdentifierSegment"),
+        ),
+        Ref("RawEqualsSegment"),
+    )
 
 
 @tsql_dialect.segment(replace=True)
@@ -1168,11 +1186,16 @@ class DeclareStatementSegment(BaseSegment):
         Indent,
         Ref("ParameterNameSegment"),
         Sequence("AS", optional=True),
-        Ref("DatatypeSegment"),
-        Sequence(
-            Ref("EqualsSegment"),
-            Ref("ExpressionSegment"),
-            optional=True,
+        OneOf(
+            Sequence(
+                Ref("DatatypeSegment"),
+                Sequence(
+                    Ref("EqualsSegment"),
+                    Ref("ExpressionSegment"),
+                    optional=True,
+                ),
+            ),
+            Sequence("TABLE", Bracketed(Delimited(Ref("ColumnDefinitionSegment")))),
         ),
         AnyNumberOf(
             Ref("CommaSegment"),
@@ -1575,65 +1598,82 @@ class SetStatementSegment(BaseSegment):
         "SET",
         Indent,
         Delimited(
-            Sequence(
-                OneOf(
-                    Ref("ParameterNameSegment"),
-                    "DATEFIRST",
-                    "DATEFORMAT",
-                    "DEADLOCK_PRIORITY",
-                    "LOCK_TIMEOUT",
-                    "CONCAT_NULL_YIELDS_NULL",
-                    "CURSOR_CLOSE_ON_COMMIT",
-                    "FIPS_FLAGGER",
-                    Sequence("IDENTITY_INSERT", Ref("TableReferenceSegment")),
-                    "LANGUAGE",
-                    "OFFSETS",
-                    "QUOTED_IDENTIFIER",
-                    "ARITHABORT",
-                    "ARITHIGNORE",
-                    "FMTONLY",
-                    "NOCOUNT",
-                    "NOEXEC",
-                    "NUMERIC_ROUNDABORT",
-                    "PARSEONLY",
-                    "QUERY_GOVERNOR_COST_LIMIT",
-                    "RESULT_SET_CACHING",  # Azure Synapse Analytics specific
-                    "ROWCOUNT",
-                    "TEXTSIZE",
-                    "ANSI_DEFAULTS",
-                    "ANSI_NULL_DFLT_OFF",
-                    "ANSI_NULL_DFLT_ON",
-                    "ANSI_NULLS",
-                    "ANSI_PADDING",
-                    "ANSI_WARNINGS",
-                    "FORCEPLAN",
-                    "SHOWPLAN_ALL",
-                    "SHOWPLAN_TEXT",
-                    "SHOWPLAN_XML",
-                    Sequence(
-                        "STATISTICS",
-                        OneOf(
-                            "IO",
-                            "PROFILE",
-                            "TIME",
-                            "XML",
+            OneOf(
+                Sequence(
+                    "TRANSACTION",
+                    "ISOLATION",
+                    "LEVEL",
+                    OneOf(
+                        "SNAPSHOT",
+                        "SERIALIZABLE",
+                        Sequence(
+                            "REPEATABLE",
+                            "READ",
+                        ),
+                        Sequence(
+                            "READ",
+                            OneOf(
+                                "COMMITTED",
+                                "UNCOMMITTED",
+                            ),
                         ),
                     ),
-                    "IMPLICIT_TRANSACTIONS",
-                    "REMOTE_PROC_TRANSACTIONS",
-                    Sequence(
-                        "TRANSACTION",
-                        "ISOLATION",
-                        "LEVEL",
-                    ),
-                    "XACT_ABORT",
                 ),
-                OneOf(
-                    "ON",
-                    "OFF",
-                    Sequence(
-                        Ref("EqualsSegment"),
-                        Ref("ExpressionSegment"),
+                Sequence(
+                    OneOf(
+                        Ref("ParameterNameSegment"),
+                        "DATEFIRST",
+                        "DATEFORMAT",
+                        "DEADLOCK_PRIORITY",
+                        "LOCK_TIMEOUT",
+                        "CONCAT_NULL_YIELDS_NULL",
+                        "CURSOR_CLOSE_ON_COMMIT",
+                        "FIPS_FLAGGER",
+                        Sequence("IDENTITY_INSERT", Ref("TableReferenceSegment")),
+                        "LANGUAGE",
+                        "OFFSETS",
+                        "QUOTED_IDENTIFIER",
+                        "ARITHABORT",
+                        "ARITHIGNORE",
+                        "FMTONLY",
+                        "NOCOUNT",
+                        "NOEXEC",
+                        "NUMERIC_ROUNDABORT",
+                        "PARSEONLY",
+                        "QUERY_GOVERNOR_COST_LIMIT",
+                        "RESULT_SET_CACHING",  # Azure Synapse Analytics specific
+                        "ROWCOUNT",
+                        "TEXTSIZE",
+                        "ANSI_DEFAULTS",
+                        "ANSI_NULL_DFLT_OFF",
+                        "ANSI_NULL_DFLT_ON",
+                        "ANSI_NULLS",
+                        "ANSI_PADDING",
+                        "ANSI_WARNINGS",
+                        "FORCEPLAN",
+                        "SHOWPLAN_ALL",
+                        "SHOWPLAN_TEXT",
+                        "SHOWPLAN_XML",
+                        Sequence(
+                            "STATISTICS",
+                            OneOf(
+                                "IO",
+                                "PROFILE",
+                                "TIME",
+                                "XML",
+                            ),
+                        ),
+                        "IMPLICIT_TRANSACTIONS",
+                        "REMOTE_PROC_TRANSACTIONS",
+                        "XACT_ABORT",
+                    ),
+                    OneOf(
+                        "ON",
+                        "OFF",
+                        Sequence(
+                            Ref("EqualsSegment"),
+                            Ref("ExpressionSegment"),
+                        ),
                     ),
                 ),
             ),
@@ -1852,13 +1892,15 @@ class PartitionClauseSegment(BaseSegment):
         "PARTITION",
         "BY",
         Delimited(
-            OneOf(
-                Ref("ColumnReferenceSegment"),
-                Bracketed(
-                    Ref("SelectStatementSegment"),
+            OptionallyBracketed(
+                OneOf(
+                    Ref("ColumnReferenceSegment"),
+                    Bracketed(
+                        Ref("SelectStatementSegment"),
+                    ),
+                    Ref("FunctionSegment"),
+                    Ref("VariableIdentifierSegment"),
                 ),
-                Ref("FunctionSegment"),
-                Ref("VariableIdentifierSegment"),
             ),
         ),
     )
@@ -2104,6 +2146,11 @@ class AlterTableStatementSegment(BaseSegment):
                 Sequence(
                     "ADD",
                     Ref("TableConstraintSegment"),
+                ),
+                Sequence(
+                    "DROP",
+                    "CONSTRAINT",
+                    Ref("ObjectReferenceSegment"),
                 ),
                 # Rename
                 Sequence(
@@ -2791,6 +2838,7 @@ class UpdateStatementSegment(BaseSegment):
         Dedent,
         Ref("FromClauseSegment", optional=True),
         Ref("WhereClauseSegment", optional=True),
+        Ref("OptionClauseSegment", optional=True),
         Ref("DelimiterSegment", optional=True),
     )
 
@@ -3421,12 +3469,17 @@ class RaiserrorStatementSegment(BaseSegment):
                     Ref("NumericLiteralSegment"),
                     Ref("QuotedLiteralSegment"),
                     Ref("QuotedLiteralSegmentWithN"),
+                    Ref("ParameterNameSegment"),
                 ),
                 OneOf(
-                    Ref("NumericLiteralSegment"), Ref("QualifiedNumericLiteralSegment")
+                    Ref("NumericLiteralSegment"),
+                    Ref("QualifiedNumericLiteralSegment"),
+                    Ref("ParameterNameSegment"),
                 ),
                 OneOf(
-                    Ref("NumericLiteralSegment"), Ref("QualifiedNumericLiteralSegment")
+                    Ref("NumericLiteralSegment"),
+                    Ref("QualifiedNumericLiteralSegment"),
+                    Ref("ParameterNameSegment"),
                 ),
                 AnyNumberOf(
                     Ref("LiteralGrammar"),

@@ -1,0 +1,257 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 6a27a31f1008de9b6320ee15729d3d0cc62dfa15cc9b33e80a16e4554147c77d
+file:
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            identifier: name
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: age
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: person
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            identifier: id
+          comparison_operator:
+            raw_comparison_operator: '>'
+          literal: '200'
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          identifier: id
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            identifier: name
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: age
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: person
+      where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+            identifier: id
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - literal: '200'
+        - binary_operator: OR
+        - column_reference:
+            identifier: id
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - literal: '300'
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          identifier: id
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            identifier: name
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: age
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: person
+      where_clause:
+        keyword: WHERE
+        expression:
+          function:
+            function_name:
+              function_name_identifier: length
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  identifier: name
+              end_bracket: )
+          comparison_operator:
+            raw_comparison_operator: '>'
+          literal: '3'
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          identifier: id
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            identifier: name
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: age
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: person
+      where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+            identifier: id
+        - keyword: BETWEEN
+        - literal: '200'
+        - binary_operator: AND
+        - literal: '300'
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          identifier: id
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            identifier: name
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: age
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: person
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            identifier: age
+          comparison_operator:
+            raw_comparison_operator: '>'
+          bracketed:
+            start_bracket: (
+            expression:
+              select_statement:
+                select_clause:
+                  keyword: SELECT
+                  select_clause_element:
+                    function:
+                      function_name:
+                        function_name_identifier: avg
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                            identifier: age
+                        end_bracket: )
+                from_clause:
+                  keyword: FROM
+                  from_expression:
+                    from_expression_element:
+                      table_expression:
+                        table_reference:
+                          identifier: person
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            identifier: name
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: age
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: person
+      where_clause:
+        keyword: WHERE
+        expression:
+          keyword: EXISTS
+          bracketed:
+            start_bracket: (
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  literal: '1'
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        identifier: person
+              where_clause:
+                keyword: WHERE
+                expression:
+                - column_reference:
+                  - identifier: person
+                  - dot: .
+                  - identifier: id
+                - comparison_operator:
+                    raw_comparison_operator: '='
+                - column_reference:
+                  - identifier: person
+                  - dot: .
+                  - identifier: id
+                - binary_operator: AND
+                - column_reference:
+                  - identifier: person
+                  - dot: .
+                  - identifier: age
+                - keyword: IS
+                - keyword: 'NULL'
+            end_bracket: )
+- statement_terminator: ;

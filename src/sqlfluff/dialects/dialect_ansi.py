@@ -911,7 +911,7 @@ class ShorthandCastSegment(BaseSegment):
 
     type = "cast_expression"
     match_grammar = Sequence(
-        Ref("CastOperatorSegment"), Ref("DatatypeSegment"), allow_gaps=False
+        Ref("CastOperatorSegment"), Ref("DatatypeSegment"), allow_gaps=True
     )
 
 
@@ -2144,7 +2144,8 @@ class SelectStatementSegment(BaseSegment):
 ansi_dialect.add(
     # Things that behave like select statements
     SelectableGrammar=OneOf(
-        Ref("WithCompoundStatementSegment"), Ref("NonWithSelectableGrammar")
+        OptionallyBracketed(Ref("WithCompoundStatementSegment")),
+        Ref("NonWithSelectableGrammar"),
     ),
     # Things that behave like select statements, which can form part of with
     # expressions.

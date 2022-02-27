@@ -37,3 +37,6 @@ GO
 ALTER TABLE Production.TransactionHistoryArchive
 ALTER COLUMN rec_number VARCHAR(36)
 GO
+
+ALTER TABLE Production.TransactionHistoryArchive
+DROP CONSTRAINT PK_TransactionHistoryArchive_TransactionID
