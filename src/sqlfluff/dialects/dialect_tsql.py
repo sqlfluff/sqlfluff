@@ -1869,13 +1869,15 @@ class PartitionClauseSegment(BaseSegment):
         "PARTITION",
         "BY",
         Delimited(
-            OneOf(
-                Ref("ColumnReferenceSegment"),
-                Bracketed(
-                    Ref("SelectStatementSegment"),
+            OptionallyBracketed(
+                OneOf(
+                    Ref("ColumnReferenceSegment"),
+                    Bracketed(
+                        Ref("SelectStatementSegment"),
+                    ),
+                    Ref("FunctionSegment"),
+                    Ref("VariableIdentifierSegment"),
                 ),
-                Ref("FunctionSegment"),
-                Ref("VariableIdentifierSegment"),
             ),
         ),
     )
