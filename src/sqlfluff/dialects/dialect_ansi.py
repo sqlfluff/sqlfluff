@@ -1861,10 +1861,10 @@ class PatternMatchExpressionSegment(BaseSegment):
     match_grammar = Sequence(
         Ref.keyword("NOT", optional=True),
         Ref("LikeGrammar"),
-        Ref("Expression_A_Grammar"),
+        Ref("Expression_C_Grammar"),
         Sequence(
             "ESCAPE",
-            Ref("Expression_A_Grammar"),
+            Ref("Expression_C_Grammar"),
             optional=True,
         ),
     )
