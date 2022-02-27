@@ -202,9 +202,9 @@ def rules__test_helper(test_case):
                     test_case.rule,
                     test_case.fix_str,
                     configs=test_case.configs,
-                    msg="No violations_after_fix was provided, but the SQL after fix"
-                    "violates the rule. To accept a partial fix, "
-                    "violations_after_fix must be set.",
+                    msg="The SQL after fix is applied still contains rule violations. "
+                    "To accept a partial fix, violations_after_fix must be set "
+                    "listing the remaining, expected, violations.",
                 )
         else:
             # Check that tests without a fix_str do not apply any fixes.
