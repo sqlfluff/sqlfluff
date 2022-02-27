@@ -164,33 +164,34 @@ class Rule_L052(BaseRule):
         # Semi-colon on new line.
         else:
             return self._handle_semicolon_newline(context, info)
-        return None
 
+    @staticmethod
     def _handle_semicolon_same_line(
-        self, context: RuleContext, info: SemicolonInfo
+        context: RuleContext, info: SemicolonInfo
     ) -> Optional[LintResult]:
-        if len(info.pre_semicolon_segments) >= 1:
-            # If preceding segments are found then delete the old
-            # semi-colon and its preceding whitespace and then insert
-            # the semi-colon in the correct location.
-            fixes = [
-                LintFix.replace(
+        if not info.pre_semicolon_segments:
+            return None
+
+        # If preceding segments are found then delete the old
+        # semi-colon and its preceding whitespace and then insert
+        # the semi-colon in the correct location.
+        fixes = [
+            LintFix.replace(
+                info.anchor_segment,
+                [
                     info.anchor_segment,
-                    [
-                        info.anchor_segment,
-                        SymbolSegment(raw=";", type="symbol", name="semicolon"),
-                    ],
-                ),
-                LintFix.delete(
-                    context.segment,
-                ),
-            ]
-            fixes.extend(LintFix.delete(d) for d in info.whitespace_deletions)
-            return LintResult(
-                anchor=info.anchor_segment,
-                fixes=fixes,
-            )
-        return None
+                    SymbolSegment(raw=";", type="symbol", name="semicolon"),
+                ],
+            ),
+            LintFix.delete(
+                context.segment,
+            ),
+        ]
+        fixes.extend(LintFix.delete(d) for d in info.whitespace_deletions)
+        return LintResult(
+            anchor=info.anchor_segment,
+            fixes=fixes,
+        )
 
     def _handle_semicolon_newline(
         self, context: RuleContext, info: SemicolonInfo
@@ -205,52 +206,50 @@ class Rule_L052(BaseRule):
             info.pre_semicolon_segments, info.anchor_segment
         )
 
-        if not (
-            (len(pre_semicolon_segments) == 1)
-            and all(s.is_type("newline") for s in pre_semicolon_segments)
+        if (len(pre_semicolon_segments) == 1) and all(
+            s.is_type("newline") for s in pre_semicolon_segments
         ):
-            # If preceding segment is not a single newline then delete the old
-            # semi-colon/preceding whitespace and then insert the
-            # semi-colon in the correct location.
+            return None
 
-            # This handles an edge case in which an inline comment comes after
-            # the semi-colon.
-            anchor_segment = self._handle_trailing_inline_comments(
-                context, anchor_segment
+        # If preceding segment is not a single newline then delete the old
+        # semi-colon/preceding whitespace and then insert the
+        # semi-colon in the correct location.
+
+        # This handles an edge case in which an inline comment comes after
+        # the semi-colon.
+        anchor_segment = self._handle_trailing_inline_comments(context, anchor_segment)
+        fixes = []
+        if anchor_segment is context.segment:
+            fixes.append(
+                LintFix.replace(
+                    anchor_segment,
+                    [
+                        NewlineSegment(),
+                        SymbolSegment(raw=";", type="symbol", name="semicolon"),
+                    ],
+                )
             )
-            fixes = []
-            if anchor_segment is context.segment:
-                fixes.append(
+        else:
+            fixes.extend(
+                [
                     LintFix.replace(
                         anchor_segment,
                         [
+                            anchor_segment,
                             NewlineSegment(),
                             SymbolSegment(raw=";", type="symbol", name="semicolon"),
                         ],
-                    )
-                )
-            else:
-                fixes.extend(
-                    [
-                        LintFix.replace(
-                            anchor_segment,
-                            [
-                                anchor_segment,
-                                NewlineSegment(),
-                                SymbolSegment(raw=";", type="symbol", name="semicolon"),
-                            ],
-                        ),
-                        LintFix.delete(
-                            context.segment,
-                        ),
-                    ]
-                )
-                fixes.extend(LintFix.delete(d) for d in info.whitespace_deletions)
-            return LintResult(
-                anchor=anchor_segment,
-                fixes=fixes,
+                    ),
+                    LintFix.delete(
+                        context.segment,
+                    ),
+                ]
             )
-        return None
+            fixes.extend(LintFix.delete(d) for d in info.whitespace_deletions)
+        return LintResult(
+            anchor=anchor_segment,
+            fixes=fixes,
+        )
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Statements must end with a semi-colon."""
