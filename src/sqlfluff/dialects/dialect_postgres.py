@@ -554,7 +554,8 @@ class PatternMatchExpressionSegment(BaseSegment):
 
     As specified here: https://www.postgresql.org/docs/14/functions-matching.html .
     TODO: refactor into ansi dialect, since ansi supports pattern match
-    expressions as well.
+    expressions as well. Will be done in
+    https://github.com/sqlfluff/sqlfluff/issues/2730 .
     """
 
     type = "pattern_match_expression"
@@ -564,7 +565,8 @@ class PatternMatchExpressionSegment(BaseSegment):
         Ref("SimilarToExpressionSegment"),
         # TODO: support POSIX expression segments as specified here:
         # https://www.postgresql.org/docs/14/functions-matching.html \
-        #     #FUNCTIONS-POSIX-REGEXP
+        #     #FUNCTIONS-POSIX-REGEXP .
+        # Will be done in https://github.com/sqlfluff/sqlfluff/issues/2731 .
     )
 
 
