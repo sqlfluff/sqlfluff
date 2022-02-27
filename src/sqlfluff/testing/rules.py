@@ -91,7 +91,7 @@ def assert_rule_fail_in_sql(code, sql, configs=None, line_numbers=None):
     return fixed, linted.violations
 
 
-def assert_rule_pass_in_sql(code, sql, configs=None):
+def assert_rule_pass_in_sql(code, sql, configs=None, msg=None):
     """Assert that a given rule doesn't fail on the given sql."""
     # Configs allows overrides if we want to use them.
     if configs is None:
@@ -105,6 +105,8 @@ def assert_rule_pass_in_sql(code, sql, configs=None):
     rendered = linter.render_string(sql, fname="<STR>", config=cfg, encoding="utf-8")
     parsed = linter.parse_rendered(rendered, recurse=True)
     if parsed.violations:
+        if msg:
+            print(msg)
         pytest.fail(parsed.violations[0].desc() + "\n" + parsed.tree.stringify())
     print(f"Parsed:\n {parsed.tree.stringify()}")
 
@@ -116,6 +118,8 @@ def assert_rule_pass_in_sql(code, sql, configs=None):
     lerrs = lint_result.violations
     print(f"Errors Found: {lerrs}")
     if any(v.rule.code == code for v in lerrs):
+        if msg:
+            print(msg)
         pytest.fail(f"Found {code} failures in query which should pass.", pytrace=False)
 
 
@@ -190,14 +194,18 @@ def rules__test_helper(test_case):
             assert_violations_before_fix(test_case, violations_before_fix)
         # If a `fixed` value is provided then check it matches
         if test_case.fix_str:
-            assert res == test_case.fix_str, "result of fix doesn't match the fix_str"
-            assert_rule_pass_in_sql(
-                test_case.rule,
-                test_case.fix_str,
-                configs=test_case.configs,
-            )
+            assert res == test_case.fix_str
             if test_case.violations_after_fix:
                 assert_violations_after_fix(test_case)
+            else:
+                assert_rule_pass_in_sql(
+                    test_case.rule,
+                    test_case.fix_str,
+                    configs=test_case.configs,
+                    msg="No violations_after_fix was provided, but the SQL after fix"
+                    "violates the rule. To accept a partial fix, "
+                    "violations_after_fix must be set.",
+                )
         else:
             # Check that tests without a fix_str do not apply any fixes.
             assert res == test_case.fail_str, (
