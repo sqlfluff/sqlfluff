@@ -1,7 +1,7 @@
--- postgres_pattern_match_expressions.sql
+-- redshift_pattern_match_expressions.sql
 /* examples of pattern match expressions
-( https://www.postgresql.org/docs/14/functions-matching.html ) that are
-supported in postgres. */
+( https://docs.aws.amazon.com/redshift/latest/dg/pattern-matching-conditions.html )
+that are supported in redshift. */
 
 -- LIKE/ILIKE expressions supported
 SELECT *
