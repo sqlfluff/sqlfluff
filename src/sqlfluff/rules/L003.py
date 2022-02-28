@@ -76,6 +76,7 @@ class Rule_L003(BaseRule):
         # whitespace. Check for this.
         if elem.is_type("whitespace") and elem.is_templated:
             # Templated case: Find the leading *literal* whitespace.
+            assert elem.pos_marker
             templated_file = elem.pos_marker.templated_file
             # Extract the leading literal whitespace, slice by slice.
             raw = ""
@@ -855,6 +856,7 @@ class Rule_L003(BaseRule):
         if elem.is_type("placeholder"):
             if templated_file is None:
                 raise ValueError("Parameter templated_file cannot be: None.")
+            assert elem.pos_marker
             slices = templated_file.raw_slices_spanning_source_slice(
                 elem.pos_marker.source_slice
             )
