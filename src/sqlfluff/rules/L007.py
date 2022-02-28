@@ -141,7 +141,7 @@ def _generate_fixes(
 
     """
     fixes = [LintFix.delete(anchor)]
-    res = _get_surrounding_segments(expr, anchor)
+    res = list(_get_surrounding_segments(expr, anchor))
     if operator_new_lines == "before":
         res = [list(reversed(els)) for els in reversed(res)]
 
@@ -157,7 +157,7 @@ def _generate_fixes(
         # This could be avoided but makes all "changes" relate to "before" config state
         change_list = list(reversed(change_list))
 
-    change_list = map(_copy_el, reversed(change_list))
+    change_list = list(map(_copy_el, reversed(change_list)))
     edit_type = "create_after" if operator_new_lines == "before" else "create_before"
     fixes.append(
         LintFix(
