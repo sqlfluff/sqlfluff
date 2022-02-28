@@ -48,11 +48,11 @@ class Rule_L013(BaseRule):
         """
         segment = context.functional.segment
         children = segment.children()
-        # If we have an alias its all G
+        # If we have an alias its all good
         if children.any(sp.is_type("alias_expression")):
             return None
 
-        # If this isnt a select_clause then this rule doesnt apply
+        # If this is not a select_clause then this rule doesn't apply
         if not segment.all(sp.is_type("select_clause_element")):
             return None
 
@@ -82,7 +82,6 @@ class Rule_L013(BaseRule):
                 return LintResult(anchor=context.segment)
             return None
 
-        # Just error if we don't care.
         return LintResult(anchor=context.segment)
 
 
@@ -99,8 +98,8 @@ def _recursively_check_is_complex(select_clause_or_exp_children: Segments) -> bo
     filtered = select_clause_or_exp_children.select(selector)
     remaining_count = len(filtered)
 
-    # Once we have removed the above if nothing remains this statment/expression
-    # was simple
+    # Once we have removed the above if nothing remains,
+    # then this statement/expression was simple
     if remaining_count == 0:
         return False
 
