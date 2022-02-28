@@ -42,6 +42,10 @@ class Rule_L030(Rule_L010):
         ("type", "function_name_identifier"),
         ("type", "bare_function"),
     ]
+    config_keywords = [
+        "extended_capitalisation_policy",
+        "ignore_words",
+    ]
     _description_elem = "Function names"
 
     def _get_fix(self, segment, fixed_raw):
