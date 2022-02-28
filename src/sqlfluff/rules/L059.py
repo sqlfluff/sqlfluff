@@ -1,6 +1,6 @@
 """Implementation of Rule L059."""
 
-from typing import Optional
+from typing import List, Optional
 
 import regex
 
@@ -10,6 +10,7 @@ from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
 )
+import sqlfluff.core.rules.functional.segment_predicates as sp
 
 
 @document_configuration
@@ -71,8 +72,16 @@ class Rule_L059(BaseRule):
 
     config_keywords = ["prefer_quoted_identifiers"]
 
+    # Ignore "password_auth" type to allow quotes around passwords within
+    # `CREATE USER` statements in Exasol dialect.
+    _ignore_types: List[str] = ["password_auth"]
+
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Unnecessary quoted identifier."""
+        # Ignore some segment types
+        if context.functional.parent_stack.any(sp.is_type(*self._ignore_types)):
+            return None
+
         # Config type hints
         self.prefer_quoted_identifiers: bool
 
@@ -82,14 +91,6 @@ class Rule_L059(BaseRule):
         else:
             context_policy = "quoted_identifier"
             identifier_contents = context.segment.raw[1:-1]
-
-        # Ignore "password_auth" type to allow quotes around passwords within
-        # `CREATE USER` statements in Exasol dialect.
-        # e.g. CREATE USER user_1 IDENTIFIED BY "h12_xhz";
-        if context.segment.is_type("password_auth") or (
-            context.parent_stack and context.parent_stack[-1].is_type("password_auth")
-        ):
-            return None
 
         # Ignore the segments that are not of the same type as the defined policy above.
         # Also TSQL has a keyword called QUOTED_IDENTIFIER which maps to the name so
