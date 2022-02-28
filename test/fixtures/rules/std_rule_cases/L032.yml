@@ -5,6 +5,19 @@ test_pass_specify_join_keys:
 
 test_fail_specify_join_keys_1:
   fail_str: select x.a from x inner join y using (id)
+  fix_str: select x.a from x inner join y ON x.id = y.id
+
+test_fail_specify_join_keys_1_with_alias:
+  fail_str: select x.a from foo_table AS x inner join y using (id)
+  fix_str: select x.a from foo_table AS x inner join y ON x.id = y.id
+
+test_fail_specify_join_keys_1_with_subquery:
+  fail_str: select x.a from (SELECT 1 AS a) AS x inner join y using (id)
+  fix_str: select x.a from (SELECT 1 AS a) AS x inner join y ON x.id = y.id
+
+test_fail_specify_join_keys_1_with_multi_using:
+  fail_str: select x.a from x inner join y using (id, a)
+  fix_str: select x.a from x inner join y ON x.id = y.id AND x.a = y.a
 
 test_fail_specify_join_keys_2:
   desc: Keys were specified for first join but not the second one.

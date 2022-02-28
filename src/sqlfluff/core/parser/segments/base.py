@@ -11,7 +11,7 @@ Here we define:
 from copy import deepcopy
 from dataclasses import replace
 from io import StringIO
-from typing import Any, Callable, Optional, List, Tuple, NamedTuple, Iterator
+from typing import Any, Callable, Optional, List, Tuple, NamedTuple, Iterator, cast
 import logging
 
 from tqdm import tqdm
@@ -84,11 +84,13 @@ class BaseSegment:
     allow_empty = False
     # What other kwargs need to be copied when applying fixes.
     additional_kwargs: List[str] = []
+    # This typing isnt really true as we set the pos_marker to None in places
+    pos_marker: PositionMarker
 
     def __init__(
         self,
         segments,
-        pos_marker=None,
+        pos_marker: PositionMarker = None,
         name: Optional[str] = None,
     ):
         # A cache variable for expandable
@@ -115,14 +117,17 @@ class BaseSegment:
         if not pos_marker:
             # If no pos given, it's the pos of the first segment.
             if isinstance(segments, (tuple, list)):
-                pos_marker = PositionMarker.from_child_markers(
-                    *(seg.pos_marker for seg in segments)
-                )
+                if all(hasattr(seg.pos_marker, "source_slice") for seg in segments):
+                    pos_marker = PositionMarker.from_child_markers(
+                        *(seg.pos_marker for seg in segments)
+                    )
             else:  # pragma: no cover
                 raise TypeError(
                     f"Unexpected type passed to BaseSegment: {type(segments)}"
                 )
-        self.pos_marker: PositionMarker = pos_marker
+
+        # TODO static typing is off for this var throughout the code base
+        self.pos_marker = cast(PositionMarker, pos_marker)
 
         self._recalculate_caches()
 
