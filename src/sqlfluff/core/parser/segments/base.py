@@ -279,15 +279,11 @@ class BaseSegment:
         #   Return False for these.
         # * Source string doesn't match raw segment contents. This can only
         #   happen if templating is involved.
-        if self.pos_marker:
-            return (
-                self.pos_marker.source_slice.start != self.pos_marker.source_slice.stop
-                and self.raw != self.pos_marker.source_str()
-            )
-        else:
-            # If pos_marker is not set, it must be a new segment created by a
-            # fix. Thus, not templated.
-            return False
+        assert self.pos_marker
+        return (
+            self.pos_marker.source_slice.start != self.pos_marker.source_slice.stop
+            and self.raw != self.pos_marker.source_str()
+        )
 
     # ################ STATIC METHODS
 
