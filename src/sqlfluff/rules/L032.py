@@ -106,22 +106,20 @@ class Rule_L032(BaseRule):
         ] + _generate_join_conditions(
             table_a.ref_str,
             table_b.ref_str,
-            select_info.using_cols
+            select_info.using_cols,
         )
 
         fixes = [
             LintFix.create_before(
                 anchor_segment=insert_after_anchor,
-                edit_segments=edit_segments
-            )
-        ] + [
-            LintFix.delete(el) for el in to_delete
+                edit_segments=edit_segments,
+            ),
+            *[LintFix.delete(seg) for seg in to_delete],
         ]
         return LintResult(
-            # Reference the element, not the string.
             anchor=anchor,
             description=description,
-            fixes=fixes
+            fixes=fixes,
         )
 
 
@@ -149,20 +147,26 @@ def _generate_join_conditions(table_a_ref: str, table_b_ref: str, columns: List[
     return edit_segments[:-3]
 
 
+SequenceAndAnchorRes = Tuple[List[BaseSegment], BaseSegment]
+
+
 def _extract_deletion_sequence_and_anchor(
-    join_clause: Segments
-) -> Tuple[List[BaseSegment], BaseSegment]:
+    join_clause: Segments,
+) -> SequenceAndAnchorRes:
     insert_anchor: Optional[BaseSegment] = None
     to_delete: List[BaseSegment] = []
     for seg in join_clause.children():
-        if seg.name == 'using':
+        if seg.name == "using":
+            # Start collecting once we hit USING
             to_delete.append(seg)
             continue
 
         if len(to_delete) == 0:
+            # Skip if we haven't started collecting
             continue
 
-        if to_delete[-1].is_type('bracketed'):
+        if to_delete[-1].is_type("bracketed"):
+            # terminate when we hit the brackets
             insert_anchor = seg
             break
 
