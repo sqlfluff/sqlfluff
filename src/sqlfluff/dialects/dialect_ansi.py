@@ -263,9 +263,6 @@ ansi_dialect.add(
         "^", SymbolSegment, name="binary_xor", type="binary_operator"
     ),
     LikeOperatorSegment=NamedParser(
-        # TODO: this doesn't feel like the like_operator token is actually used
-        # in the ANSI language nor its descendents (more represented as a
-        # LIKE Pattern Match Operator). Should we delete this segment?
         "like_operator",
         SymbolSegment,
         name="like_operator",
