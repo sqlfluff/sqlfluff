@@ -83,6 +83,14 @@ class Rule_L059(BaseRule):
             context_policy = "quoted_identifier"
             identifier_contents = context.segment.raw[1:-1]
 
+        # Ignore "password_auth" type to allow quotes around passwords within
+        # `CREATE USER` statements in Exasol dialect.
+        # e.g. CREATE USER user_1 IDENTIFIED BY "h12_xhz";
+        if context.segment.is_type("password_auth") or (
+            context.parent_stack and context.parent_stack[-1].is_type("password_auth")
+        ):
+            return None
+
         # Ignore the segments that are not of the same type as the defined policy above.
         # Also TSQL has a keyword called QUOTED_IDENTIFIER which maps to the name so
         # need to explicity check for that.
