@@ -14,6 +14,23 @@ test_pass_column_exp_without_alias_allow_scalar_true:
 test_fail_column_exp_without_alias:
   fail_str: SELECT upper(foo), bar from blah
 
+# Casting (via "::TYPE" syntax) has no effect on column output naming
+# and L013 therefore shouldnt be applied
+test_pass_column_exp_without_alias_if_only_cast:
+  pass_str: SELECT foo_col::VARCHAR(28) , bar from blah
+
+test_pass_column_exp_without_alias_if_only_cast_inc_double_cast:
+  pass_str: SELECT foo_col::INT::VARCHAR , bar from blah
+
+# No catch useless brackets
+# output column name is unchanged
+test_pass_column_exp_without_alias_if_bracketed:
+  pass_str: SELECT (foo_col::INT)::VARCHAR , bar from blah
+
+
+test_fail_column_exp_without_alias_and_cast_fn:
+  fail_str: SELECT CAST(foo_col AS INT)::VARCHAR , bar from blah
+
 test_fail_column_exp_without_alias_allow_scalar_false:
   # Expect alias if allow_scalar = False
   fail_str: SELECT 1 from blah

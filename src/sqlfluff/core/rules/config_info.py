@@ -113,6 +113,10 @@ STANDARD_CONFIG_INFO_DICT = {
             "Should alias have an explict AS or is implicit aliasing required?"
         ),
     },
+    "fully_qualify_join_types": {
+        "validation": ["inner", "outer", "both"],
+        "definition": ("Which types of JOIN clauses should be fully qualified?"),
+    },
     "multiline_newline": {
         "validation": [True, False],
         "definition": (
