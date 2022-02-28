@@ -399,6 +399,7 @@ class Rule_L016(Rule_L003):
             # line length, and newlines don't make lines longer.
             return 0
 
+        assert segment.pos_marker
         if "\n" in segment.pos_marker.source_str():
             # Similarly we shouldn't see newlines in source segments
             # However for templated loops it's often not possible to
@@ -430,6 +431,7 @@ class Rule_L016(Rule_L003):
             if self.ignore_comment_clauses and segment in memory["comment_clauses"]:
                 continue
 
+            assert segment.pos_marker
             slice = (
                 segment.pos_marker.source_slice.start,
                 segment.pos_marker.source_slice.stop,
