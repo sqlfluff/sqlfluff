@@ -34,8 +34,7 @@ Notable changes:
   and the official SQLFluff Docker image.
 * **0.10.x** removed support for older dbt versions < 0.20 and stopped ``fix``
   attempting to fix unparsable SQL.
-* **0.11.x** stopped applying fixes if they result in parse errors and changed
-  rule L030 to use ``extended_capitalisation_policy``
+* **0.11.x** rule L030 changed to use ``extended_capitalisation_policy``
 
 
 
