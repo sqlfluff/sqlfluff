@@ -33,3 +33,20 @@ test_fail_with_clause_closing_misaligned_negative_indentation:
         with cte as (
         select 1
         ) select * from cte
+
+test_move_parenthesis_to_next_line:
+  fail_str: |
+    with cte_1 as (
+        select foo
+        from tbl_1) -- Foobar
+
+    select cte_1.foo
+    from cte_1
+  fix_str: |
+    with cte_1 as (
+        select foo
+        from tbl_1
+    ) -- Foobar
+
+    select cte_1.foo
+    from cte_1
