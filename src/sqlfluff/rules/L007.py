@@ -211,4 +211,4 @@ def _get_surrounding_segments(
         if start_code:
             before_list.append(el)
     # This code is unreachable if a valid expr and symbol/operator segment are passed.
-    raise Exception("Ivalid Expr: must contain binary_operator or comparison_operator")
+    raise Exception("Ivalid Expr: must contain binary_operator or comparison_operator")  # pragma: no cover
