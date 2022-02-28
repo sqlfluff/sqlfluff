@@ -15,7 +15,7 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 Major changes include:
 * Changes rule L030 to use `extended_capitalisation_policy` to support Pascal case **BREAKING CHANGE**
-* Fixes that seem to corrupt the parse SQL are reported as may cause incorrect fixes in other rules.
+* Log warnings for fixes that seem to corrupt the parse SQL as may cause incorrect fixes in other rules.
 * Bug fix to rule L011 for `implicit` aliases
 * Bug fix to rule L019 for commas besides templated codes
 * Rule L051 can now optionally be applied to `LEFT`/`RIGHT`/`OUTER JOIN`s
