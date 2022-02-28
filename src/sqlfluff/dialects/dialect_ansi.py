@@ -263,10 +263,7 @@ ansi_dialect.add(
         "^", SymbolSegment, name="binary_xor", type="binary_operator"
     ),
     LikeOperatorSegment=NamedParser(
-        "like_operator",
-        SymbolSegment,
-        name="like_operator",
-        type="comparison_operator",
+        "like_operator", SymbolSegment, name="like_operator", type="comparison_operator"
     ),
     RawNotSegment=StringParser(
         "!", SymbolSegment, name="raw_not", type="raw_comparison_operator"
