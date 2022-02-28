@@ -13,6 +13,39 @@ fails_on_after_default:
         a +
         b
     from foo
+  fix_str: |
+    select
+        a
+        + b
+    from foo
+
+fails_on_after_default_on_and:
+  fail_str: |
+    select
+        a AND
+        b
+    from foo
+  fix_str: |
+    select
+        a
+        AND b
+    from foo
+
+fails_on_after_with_comment_order_preserved:
+  fail_str: |
+    select
+        a AND
+        -- comment1!
+        -- comment2!
+        b
+    from foo
+  fix_str: |
+    select
+        a
+        -- comment1!
+        -- comment2!
+        AND b
+    from foo
 
 passes_on_before_explicit:
   pass_str: |
@@ -32,7 +65,11 @@ fails_on_after_explicit:
         a +
         b
     from foo
-
+  fix_str: |
+    select
+        a
+        + b
+    from foo
   configs: *operator_after
 
 fails_on_before_override:
@@ -41,7 +78,11 @@ fails_on_before_override:
         a
         + b
     from foo
-
+  fix_str: |
+    select
+        a +
+        b
+    from foo
   configs: &operator_before
     rules:
       L007:
@@ -51,6 +92,24 @@ passes_on_after_override:
   pass_str: |
     select
         a +
+        b
+    from foo
+
+  configs: *operator_before
+
+fails_on_before_override_with_comment_order:
+  fail_str: |
+    select
+        a
+        -- comment1!
+        -- comment2!
+        + b
+    from foo
+  fix_str: |
+    select
+        a +
+        -- comment1!
+        -- comment2!
         b
     from foo
 
