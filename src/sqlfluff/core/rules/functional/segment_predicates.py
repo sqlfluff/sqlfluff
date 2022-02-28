@@ -142,6 +142,10 @@ def raw_slices(
         raise ValueError(
             'raw_slices: "templated_file" parameter is required.'
         )  # pragma: no cover
+    if not segment.pos_marker:
+        raise ValueError(
+            'raw_slices: "segment" parameter must have pos_marker set.'
+        )  # pragma: no cover
     return RawFileSlices(
         *templated_file.raw_slices_spanning_source_slice(
             segment.pos_marker.source_slice
@@ -158,6 +162,10 @@ def templated_slices(
     if not templated_file:
         raise ValueError(
             'templated_slices: "templated_file" parameter is required.'
+        )  # pragma: no cover
+    if not segment.pos_marker:
+        raise ValueError(
+            'templated_slices: "segment" parameter must have pos_marker set.'
         )  # pragma: no cover
     # :TRICKY: We don't use _find_slice_indices_of_templated_pos() here because
     # it treats TemplatedFileSlice.templated_slice.stop as inclusive, not
@@ -177,6 +185,10 @@ def templated_slices(
 def raw_slice(segment: BaseSegment, raw_slice_: RawFileSlice) -> str:
     """Return the portion of a segment's source provided by raw_slice."""
     result = ""
+    if not segment.pos_marker:
+        raise ValueError(
+            'raw_slice: "segment" parameter must have pos_marker set.'
+        )  # pragma: no cover
     seg_start = segment.pos_marker.source_slice.start
     seg_stop = segment.pos_marker.source_slice.stop
     if seg_start != seg_stop:

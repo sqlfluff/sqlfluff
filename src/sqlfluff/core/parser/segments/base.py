@@ -84,11 +84,12 @@ class BaseSegment:
     allow_empty = False
     # What other kwargs need to be copied when applying fixes.
     additional_kwargs: List[str] = []
+    pos_marker: Optional[PositionMarker]
 
     def __init__(
         self,
         segments,
-        pos_marker=None,
+        pos_marker: Optional[PositionMarker] = None,
         name: Optional[str] = None,
     ):
         # A cache variable for expandable
@@ -278,10 +279,15 @@ class BaseSegment:
         #   Return False for these.
         # * Source string doesn't match raw segment contents. This can only
         #   happen if templating is involved.
-        return (
-            self.pos_marker.source_slice.start != self.pos_marker.source_slice.stop
-            and self.raw != self.pos_marker.source_str()
-        )
+        if self.pos_marker:
+            return (
+                self.pos_marker.source_slice.start != self.pos_marker.source_slice.stop
+                and self.raw != self.pos_marker.source_str()
+            )
+        else:
+            # If pos_marker is not set, it must be a new segment created by a
+            # fix. Thus, not templated.
+            return False
 
     # ################ STATIC METHODS
 
@@ -1154,6 +1160,7 @@ class BaseSegment:
         return a hint to deal with that.
         """
         # Does it match? If so we can ignore it.
+        assert self.pos_marker
         matches = self.raw == templated_str[self.pos_marker.templated_slice]
         if matches:
             return
