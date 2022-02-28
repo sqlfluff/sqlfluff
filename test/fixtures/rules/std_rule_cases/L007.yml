@@ -53,7 +53,6 @@ passes_on_before_explicit:
         a
         + b
     from foo
-
   configs: &operator_after
     rules:
       L007:
@@ -94,7 +93,6 @@ passes_on_after_override:
         a +
         b
     from foo
-
   configs: *operator_before
 
 fails_on_before_override_with_comment_order:
@@ -112,5 +110,4 @@ fails_on_before_override_with_comment_order:
         -- comment2!
         b
     from foo
-
   configs: *operator_before
