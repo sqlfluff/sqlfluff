@@ -202,6 +202,7 @@ postgres_dialect.add(
 )
 
 postgres_dialect.replace(
+    LikeGrammar=OneOf("LIKE", "ILIKE", Sequence("SIMILAR", "TO")),
     ComparisonOperatorGrammar=OneOf(
         Ref("EqualsSegment"),
         Ref("GreaterThanSegment"),
