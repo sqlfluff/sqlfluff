@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: cc5606abc61fa66e996a75319ac2e96c17b9d0c7db3c9c79890a83c391edb95e
+_hash: 6b32488fcafc0c703a359de7974084a07703203ec8de350ebf16dbe9f85be7c8
 file:
 - statement:
     select_statement:
@@ -25,11 +25,8 @@ file:
         expression:
           column_reference:
             identifier: family
-          pattern_match_expression:
-            like_expression:
-              like_operator:
-                keyword: LIKE
-              literal: "'%ursidae%'"
+          keyword: LIKE
+          literal: "'%ursidae%'"
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -49,14 +46,11 @@ file:
       where_clause:
         keyword: WHERE
         expression:
-          column_reference:
+        - column_reference:
             identifier: family
-          pattern_match_expression:
-            like_expression:
-              keyword: NOT
-              like_operator:
-                keyword: LIKE
-              literal: "'%ursidae%'"
+        - keyword: NOT
+        - keyword: LIKE
+        - literal: "'%ursidae%'"
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -78,11 +72,8 @@ file:
         expression:
           column_reference:
             identifier: genus
-          pattern_match_expression:
-            like_expression:
-              like_operator:
-                keyword: ILIKE
-              literal: "'%ursus%'"
+          keyword: ILIKE
+          literal: "'%ursus%'"
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -102,14 +93,11 @@ file:
       where_clause:
         keyword: WHERE
         expression:
-          column_reference:
+        - column_reference:
             identifier: genus
-          pattern_match_expression:
-            like_expression:
-              keyword: NOT
-              like_operator:
-                keyword: ILIKE
-              literal: "'%ursus%'"
+        - keyword: NOT
+        - keyword: ILIKE
+        - literal: "'%ursus%'"
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -129,16 +117,12 @@ file:
       where_clause:
         keyword: WHERE
         expression:
-          column_reference:
+        - column_reference:
             identifier: family
-          pattern_match_expression:
-            like_expression:
-              like_operator:
-                keyword: LIKE
-              literal: "'%ursidae%'"
-              escape_clause:
-                keyword: ESCAPE
-                literal: "'\\\\'"
+        - keyword: LIKE
+        - literal: "'%ursidae%'"
+        - keyword: ESCAPE
+        - literal: "'\\\\'"
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -158,17 +142,13 @@ file:
       where_clause:
         keyword: WHERE
         expression:
-          column_reference:
+        - column_reference:
             identifier: genus
-          pattern_match_expression:
-            like_expression:
-              keyword: NOT
-              like_operator:
-                keyword: ILIKE
-              literal: "'%ursus%'"
-              escape_clause:
-                keyword: ESCAPE
-                literal: "'\\\\'"
+        - keyword: NOT
+        - keyword: ILIKE
+        - literal: "'%ursus%'"
+        - keyword: ESCAPE
+        - literal: "'\\\\'"
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -181,16 +161,12 @@ file:
             bracketed:
             - start_bracket: (
             - expression:
-                column_reference:
+              - column_reference:
                   identifier: family
-                pattern_match_expression:
-                  like_expression:
-                    like_operator:
-                      keyword: LIKE
-                    literal: "'%ursidae%'"
-                    escape_clause:
-                      keyword: ESCAPE
-                      literal: "'\\\\'"
+              - keyword: LIKE
+              - literal: "'%ursidae%'"
+              - keyword: ESCAPE
+              - literal: "'\\\\'"
             - comma: ','
             - expression:
                 literal: 'FALSE'
@@ -224,13 +200,11 @@ file:
       where_clause:
         keyword: WHERE
         expression:
-          column_reference:
+        - column_reference:
             identifier: family
-          pattern_match_expression:
-            similar_to_expression:
-            - keyword: SIMILAR
-            - keyword: TO
-            - literal: "'%ursidae%'"
+        - keyword: SIMILAR
+        - keyword: TO
+        - literal: "'%ursidae%'"
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -250,14 +224,12 @@ file:
       where_clause:
         keyword: WHERE
         expression:
-          column_reference:
+        - column_reference:
             identifier: family
-          pattern_match_expression:
-            similar_to_expression:
-            - keyword: NOT
-            - keyword: SIMILAR
-            - keyword: TO
-            - literal: "'%ursidae%'"
+        - keyword: NOT
+        - keyword: SIMILAR
+        - keyword: TO
+        - literal: "'%ursidae%'"
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -277,13 +249,11 @@ file:
       where_clause:
         keyword: WHERE
         expression:
-          column_reference:
+        - column_reference:
             identifier: genus
-          pattern_match_expression:
-            similar_to_expression:
-            - keyword: SIMILAR
-            - keyword: TO
-            - literal: "'%ursus%'"
+        - keyword: SIMILAR
+        - keyword: TO
+        - literal: "'%ursus%'"
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -303,14 +273,12 @@ file:
       where_clause:
         keyword: WHERE
         expression:
-          column_reference:
+        - column_reference:
             identifier: genus
-          pattern_match_expression:
-            similar_to_expression:
-            - keyword: NOT
-            - keyword: SIMILAR
-            - keyword: TO
-            - literal: "'%ursus%'"
+        - keyword: NOT
+        - keyword: SIMILAR
+        - keyword: TO
+        - literal: "'%ursus%'"
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -330,16 +298,13 @@ file:
       where_clause:
         keyword: WHERE
         expression:
-          column_reference:
+        - column_reference:
             identifier: family
-          pattern_match_expression:
-            similar_to_expression:
-            - keyword: SIMILAR
-            - keyword: TO
-            - literal: "'%ursidae%'"
-            - escape_clause:
-                keyword: ESCAPE
-                literal: "'\\\\'"
+        - keyword: SIMILAR
+        - keyword: TO
+        - literal: "'%ursidae%'"
+        - keyword: ESCAPE
+        - literal: "'\\\\'"
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -359,17 +324,14 @@ file:
       where_clause:
         keyword: WHERE
         expression:
-          column_reference:
+        - column_reference:
             identifier: genus
-          pattern_match_expression:
-            similar_to_expression:
-            - keyword: NOT
-            - keyword: SIMILAR
-            - keyword: TO
-            - literal: "'%ursus%'"
-            - escape_clause:
-                keyword: ESCAPE
-                literal: "'\\\\'"
+        - keyword: NOT
+        - keyword: SIMILAR
+        - keyword: TO
+        - literal: "'%ursus%'"
+        - keyword: ESCAPE
+        - literal: "'\\\\'"
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -382,16 +344,13 @@ file:
             bracketed:
             - start_bracket: (
             - expression:
-                column_reference:
+              - column_reference:
                   identifier: family
-                pattern_match_expression:
-                  similar_to_expression:
-                  - keyword: SIMILAR
-                  - keyword: TO
-                  - literal: "'%ursidae%'"
-                  - escape_clause:
-                      keyword: ESCAPE
-                      literal: "'\\\\'"
+              - keyword: SIMILAR
+              - keyword: TO
+              - literal: "'%ursidae%'"
+              - keyword: ESCAPE
+              - literal: "'\\\\'"
             - comma: ','
             - expression:
                 literal: 'FALSE'
@@ -434,13 +393,11 @@ file:
                       - when_clause:
                         - keyword: WHEN
                         - expression:
-                            column_reference:
+                          - column_reference:
                               identifier: honey_numerical_code
-                            pattern_match_expression:
-                              similar_to_expression:
-                              - keyword: SIMILAR
-                              - keyword: TO
-                              - literal: "'[0-9]{0,7}.?[0-9]{0,2}'"
+                          - keyword: SIMILAR
+                          - keyword: TO
+                          - literal: "'[0-9]{0,7}.?[0-9]{0,2}'"
                         - keyword: THEN
                         - expression:
                             column_reference:
