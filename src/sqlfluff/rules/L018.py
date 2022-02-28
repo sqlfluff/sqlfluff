@@ -117,10 +117,7 @@ class Rule_L018(BaseRule):
                             # Is it all whitespace before the bracket on this line?
                             prev_segs_on_line = [
                                 elem
-                                for elem in context.segment.iter_segments(
-                                    expanding=["common_table_expression", "bracketed"],
-                                    pass_through=True,
-                                )
+                                for elem in context.segment.raw_segments
                                 if elem.pos_marker.line_no == seg.pos_marker.line_no
                                 and elem.pos_marker.line_pos < seg.pos_marker.line_pos
                             ]
