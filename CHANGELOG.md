@@ -24,6 +24,11 @@ Major changes include:
 
 ## What's Changed
 
+* L059: Exasol: Allow quotes around passwords in CREATE USER [#2744](https://github.com/sqlfluff/sqlfluff/pull/2744) [@sti0](https://github.com/sti0)
+* Improve docs for "load_macros_from_path" [#2743](https://github.com/sqlfluff/sqlfluff/pull/2743) [@barrywhart](https://github.com/barrywhart)
+* Make L045 (Query defines a CTE but does not use it) case insensitive [#2746](https://github.com/sqlfluff/sqlfluff/pull/2746) [@barrywhart](https://github.com/barrywhart)
+* Add L049 test for T-SQL alternate alias syntax (=) [#2745](https://github.com/sqlfluff/sqlfluff/pull/2745) [@barrywhart](https://github.com/barrywhart)
+* BaseSegment.pos_marker is typed as non optional but sometimes set to None [#2741](https://github.com/sqlfluff/sqlfluff/pull/2741) [@barrywhart](https://github.com/barrywhart)
 * Support Pascal case for L030 [#2739](https://github.com/sqlfluff/sqlfluff/pull/2739) [@tunetheweb](https://github.com/tunetheweb)
 * Postgres, Redshift: Support SIMILAR TO pattern matching expressions [#2732](https://github.com/sqlfluff/sqlfluff/pull/2732) [@PLBMR](https://github.com/PLBMR)
 * Forgive Shorthand_CAST only / bracket only expressions from L013 [#2729](https://github.com/sqlfluff/sqlfluff/pull/2729) [@OTooleMichael](https://github.com/OTooleMichael)
