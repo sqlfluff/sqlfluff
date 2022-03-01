@@ -1,7 +1,6 @@
 -- Issue #2299
 -- All these columns are unreserved keywords and should parse.
 SELECT
-    array,
     auto,
     avro,
     backup,
@@ -23,10 +22,8 @@ SELECT
     language,
     lzop,
     offline,
-    oid,
     partitioned,
     sortkey,
-    timestamp,
     wallet,
     zstd
 FROM
