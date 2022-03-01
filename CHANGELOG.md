@@ -15,15 +15,19 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 Major changes include:
 * Changes rule L030 to use `extended_capitalisation_policy` to support Pascal case **BREAKING CHANGE**
+* Fixes dbt error on ephemeral models when linting multiple files
 * Log warnings for fixes that seem to corrupt the parse SQL as may cause incorrect fixes in other rules.
 * Bug fix to rule L011 for `implicit` aliases
-* Bug fix to rule L019 for commas besides templated codes
+* Bug fix to rule L019 for commas besides templated code
 * Rule L051 can now optionally be applied to `LEFT`/`RIGHT`/`OUTER JOIN`s
 * Improvements to Test Suite
 * Many dialect improvements
 
 ## What's Changed
 
+* L007 autofix [#2735](https://github.com/sqlfluff/sqlfluff/pull/2735) [@OTooleMichael](https://github.com/OTooleMichael)
+* L032 fixable in easy cases [#2737](https://github.com/sqlfluff/sqlfluff/pull/2737) [@OTooleMichael](https://github.com/OTooleMichael)
+* Fix dbt templater runtime error in inject_ctes_into_sql() [#2748](https://github.com/sqlfluff/sqlfluff/pull/2748) [@barrywhart](https://github.com/barrywhart)
 * L059: Exasol: Allow quotes around passwords in CREATE USER [#2744](https://github.com/sqlfluff/sqlfluff/pull/2744) [@sti0](https://github.com/sti0)
 * Improve docs for "load_macros_from_path" [#2743](https://github.com/sqlfluff/sqlfluff/pull/2743) [@barrywhart](https://github.com/barrywhart)
 * Make L045 (Query defines a CTE but does not use it) case insensitive [#2746](https://github.com/sqlfluff/sqlfluff/pull/2746) [@barrywhart](https://github.com/barrywhart)
