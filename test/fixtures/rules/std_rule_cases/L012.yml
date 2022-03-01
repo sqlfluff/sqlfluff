@@ -43,11 +43,11 @@ test_pass_tsql_alternative_alias:
       dialect: tsql
 
 test_fail_alias_ending_equals:
-  # Test explicit column alias
+  # Test explicit column alias doesn't catch false positives
   fail_str: select col1 "example="
   fix_str: select col1 AS "example="
 
 test_fail_alias_ending_raw_equals:
-  # Test explicit column alias
+  # Test explicit column alias doesn't catch false positives
   fail_str: select col1 raw_equals
   fix_str: select col1 AS raw_equals
