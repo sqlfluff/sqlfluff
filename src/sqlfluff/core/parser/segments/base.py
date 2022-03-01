@@ -125,7 +125,6 @@ class BaseSegment:
                     f"Unexpected type passed to BaseSegment: {type(segments)}"
                 )
 
-        # TODO static typing is off for this var throughout the code base
         self.pos_marker = pos_marker
 
         self._recalculate_caches()
