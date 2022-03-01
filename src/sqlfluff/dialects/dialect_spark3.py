@@ -1716,8 +1716,6 @@ class StatementSegment(BaseSegment):
             # Data Retrieval Statements
             Ref("ClusterByClauseSegment"),
             Ref("DistributeByClauseSegment"),
-            # Other
-            Ref("DelimitedValues"),
         ],
         remove=[
             Ref("TransactionStatementSegment"),
