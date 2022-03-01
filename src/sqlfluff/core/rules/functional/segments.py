@@ -64,6 +64,8 @@ class Segments(tuple):
             )
         raw_slices = set()
         for s in self:
+            if s.pos_marker is None:
+                raise ValueError("Segments include a positionless segement")
             source_slice = s.pos_marker.source_slice
             raw_slices.update(
                 self.templated_file.raw_slices_spanning_source_slice(source_slice)
@@ -120,7 +122,7 @@ class Segments(tuple):
         # If no segment satisfies "predicates", return empty Segments.
         return Segments(templated_file=self.templated_file)
 
-    @overload
+    @overload  # type: ignore
     def __getitem__(self, item: int) -> BaseSegment:  # pragma: no cover
         pass
 
@@ -129,10 +131,10 @@ class Segments(tuple):
         pass
 
     def __iter__(self) -> Iterator[BaseSegment]:
-        # Loops understand we are looping BaseSegment
+        # Typing understand we are looping BaseSegment
         return super().__iter__()
 
-    def __getitem__(self, item):
+    def __getitem__(self, item):  # type: ignore
         result = super().__getitem__(item)
         if isinstance(result, tuple):
             return Segments(*result, templated_file=self.templated_file)
