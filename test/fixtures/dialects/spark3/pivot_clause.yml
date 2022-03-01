@@ -1,0 +1,581 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 4311848553f9c4cd3c1a4854f1f517e9912fe79c210f32d54cf22ddc2ae316f0
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: person
+            pivot_clause:
+              keyword: PIVOT
+              bracketed:
+              - start_bracket: (
+              - function:
+                  function_name:
+                    function_name_identifier: SUM
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        identifier: age
+                    end_bracket: )
+              - alias_expression:
+                  keyword: AS
+                  identifier: a
+              - keyword: FOR
+              - identifier: name
+              - keyword: IN
+              - bracketed:
+                  start_bracket: (
+                  scalar_value:
+                    literal: "'John'"
+                  alias_expression:
+                    keyword: AS
+                    identifier: john
+                  end_bracket: )
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: person
+            pivot_clause:
+              keyword: PIVOT
+              bracketed:
+              - start_bracket: (
+              - function:
+                  function_name:
+                    function_name_identifier: SUM
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        identifier: age
+                    end_bracket: )
+              - alias_expression:
+                  keyword: AS
+                  identifier: a
+              - keyword: FOR
+              - identifier: name
+              - keyword: IN
+              - bracketed:
+                - start_bracket: (
+                - scalar_value:
+                    literal: "'John'"
+                - alias_expression:
+                    keyword: AS
+                    identifier: john
+                - comma: ','
+                - scalar_value:
+                    literal: "'Mike'"
+                - alias_expression:
+                    keyword: AS
+                    identifier: mike
+                - end_bracket: )
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: person
+            pivot_clause:
+              keyword: PIVOT
+              bracketed:
+              - start_bracket: (
+              - function:
+                  function_name:
+                    function_name_identifier: SUM
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        identifier: age
+                    end_bracket: )
+              - alias_expression:
+                  keyword: AS
+                  identifier: a
+              - keyword: FOR
+              - bracketed:
+                  start_bracket: (
+                  identifier: name
+                  end_bracket: )
+              - keyword: IN
+              - bracketed:
+                - start_bracket: (
+                - scalar_value:
+                    literal: "'John'"
+                - alias_expression:
+                    keyword: AS
+                    identifier: john
+                - comma: ','
+                - scalar_value:
+                    literal: "'Mike'"
+                - alias_expression:
+                    keyword: AS
+                    identifier: mike
+                - end_bracket: )
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: person
+            pivot_clause:
+              keyword: PIVOT
+              bracketed:
+              - start_bracket: (
+              - function:
+                  function_name:
+                    function_name_identifier: SUM
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        identifier: age
+                    end_bracket: )
+              - alias_expression:
+                  keyword: AS
+                  identifier: a
+              - keyword: FOR
+              - identifier: name
+              - keyword: IN
+              - bracketed:
+                - start_bracket: (
+                - scalar_value:
+                    literal: "'John'"
+                - alias_expression:
+                    keyword: AS
+                    identifier: john
+                - comma: ','
+                - scalar_value:
+                    literal: "'Mike'"
+                - alias_expression:
+                    keyword: AS
+                    identifier: mike
+                - end_bracket: )
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            identifier: a
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: c
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: person
+            pivot_clause:
+              keyword: PIVOT
+              bracketed:
+              - start_bracket: (
+              - function:
+                  function_name:
+                    function_name_identifier: SUM
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        identifier: age
+                    end_bracket: )
+              - alias_expression:
+                  keyword: AS
+                  identifier: a
+              - comma: ','
+              - function:
+                  function_name:
+                    function_name_identifier: AVG
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        identifier: class
+                    end_bracket: )
+              - alias_expression:
+                  keyword: AS
+                  identifier: c
+              - keyword: FOR
+              - identifier: name
+              - keyword: IN
+              - bracketed:
+                - start_bracket: (
+                - scalar_value:
+                    literal: "'John'"
+                - alias_expression:
+                    keyword: AS
+                    identifier: john
+                - comma: ','
+                - scalar_value:
+                    literal: "'Mike'"
+                - alias_expression:
+                    keyword: AS
+                    identifier: mike
+                - end_bracket: )
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            identifier: a
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: c
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: person
+            pivot_clause:
+              keyword: PIVOT
+              bracketed:
+              - start_bracket: (
+              - function:
+                  function_name:
+                    function_name_identifier: SUM
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        identifier: age
+                    end_bracket: )
+              - alias_expression:
+                  keyword: AS
+                  identifier: a
+              - comma: ','
+              - function:
+                  function_name:
+                    function_name_identifier: AVG
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        identifier: class
+                    end_bracket: )
+              - alias_expression:
+                  keyword: AS
+                  identifier: c
+              - keyword: FOR
+              - identifier: name
+              - keyword: IN
+              - bracketed:
+                - start_bracket: (
+                - scalar_value:
+                    literal: "'John'"
+                - alias_expression:
+                    keyword: AS
+                    identifier: john
+                - comma: ','
+                - scalar_value:
+                    literal: "'Mike'"
+                - alias_expression:
+                    keyword: AS
+                    identifier: mike
+                - end_bracket: )
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            identifier: a
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: c
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: person
+            pivot_clause:
+              keyword: PIVOT
+              bracketed:
+              - start_bracket: (
+              - function:
+                  function_name:
+                    function_name_identifier: SUM
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        identifier: age
+                    end_bracket: )
+              - alias_expression:
+                  keyword: AS
+                  identifier: a
+              - comma: ','
+              - function:
+                  function_name:
+                    function_name_identifier: AVG
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        identifier: class
+                    end_bracket: )
+              - alias_expression:
+                  keyword: AS
+                  identifier: c
+              - keyword: FOR
+              - identifier: name
+              - comma: ','
+              - identifier: age
+              - keyword: IN
+              - bracketed:
+                - start_bracket: (
+                - tuple_value:
+                    bracketed:
+                    - start_bracket: (
+                    - scalar_value:
+                        literal: "'John'"
+                    - comma: ','
+                    - scalar_value:
+                        literal: '30'
+                    - end_bracket: )
+                - alias_expression:
+                    keyword: AS
+                    identifier: c1
+                - comma: ','
+                - tuple_value:
+                    bracketed:
+                    - start_bracket: (
+                    - scalar_value:
+                        literal: "'Mike'"
+                    - comma: ','
+                    - scalar_value:
+                        literal: '40'
+                    - end_bracket: )
+                - alias_expression:
+                    keyword: AS
+                    identifier: c2
+                - end_bracket: )
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: p
+          - dot: .
+          - identifier: a
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - identifier: p
+          - dot: .
+          - identifier: c
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: person
+            alias_expression:
+              keyword: AS
+              identifier: p
+            pivot_clause:
+              keyword: PIVOT
+              bracketed:
+              - start_bracket: (
+              - function:
+                  function_name:
+                    function_name_identifier: SUM
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        identifier: age
+                    end_bracket: )
+              - alias_expression:
+                  keyword: AS
+                  identifier: a
+              - comma: ','
+              - function:
+                  function_name:
+                    function_name_identifier: AVG
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        identifier: class
+                    end_bracket: )
+              - alias_expression:
+                  keyword: AS
+                  identifier: c
+              - keyword: FOR
+              - identifier: name
+              - comma: ','
+              - identifier: age
+              - keyword: IN
+              - bracketed:
+                - start_bracket: (
+                - tuple_value:
+                    bracketed:
+                    - start_bracket: (
+                    - scalar_value:
+                        literal: "'John'"
+                    - comma: ','
+                    - scalar_value:
+                        literal: '30'
+                    - end_bracket: )
+                - alias_expression:
+                    keyword: AS
+                    identifier: c1
+                - comma: ','
+                - tuple_value:
+                    bracketed:
+                    - start_bracket: (
+                    - scalar_value:
+                        literal: "'Mike'"
+                    - comma: ','
+                    - scalar_value:
+                        literal: '40'
+                    - end_bracket: )
+                - alias_expression:
+                    keyword: AS
+                    identifier: c2
+                - end_bracket: )
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            identifier: a
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: c
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: person
+            pivot_clause:
+              keyword: PIVOT
+              bracketed:
+              - start_bracket: (
+              - function:
+                  function_name:
+                    function_name_identifier: SUM
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        identifier: age
+                    end_bracket: )
+              - alias_expression:
+                  keyword: AS
+                  identifier: a
+              - comma: ','
+              - function:
+                  function_name:
+                    function_name_identifier: AVG
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        identifier: class
+                    end_bracket: )
+              - alias_expression:
+                  keyword: AS
+                  identifier: c
+              - keyword: FOR
+              - bracketed:
+                - start_bracket: (
+                - identifier: name
+                - comma: ','
+                - identifier: age
+                - end_bracket: )
+              - keyword: IN
+              - bracketed:
+                - start_bracket: (
+                - scalar_value:
+                    literal: "'John'"
+                - alias_expression:
+                    keyword: AS
+                    identifier: c1
+                - comma: ','
+                - tuple_value:
+                    bracketed:
+                    - start_bracket: (
+                    - scalar_value:
+                        literal: "'Mike'"
+                    - comma: ','
+                    - scalar_value:
+                        literal: '40'
+                    - end_bracket: )
+                - alias_expression:
+                    keyword: AS
+                    identifier: c2
+                - end_bracket: )
+              - end_bracket: )
+- statement_terminator: ;
