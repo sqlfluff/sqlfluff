@@ -72,14 +72,14 @@ class Rule_L057(BaseRule):
             # very slow.
             ignore_words_list = self._init_ignore_words_list()
 
-        # Skip if in ignore list
-        if ignore_words_list and context.segment.raw.lower() in ignore_words_list:
-            return None
-
         # Assume unquoted (we'll update if quoted)
         policy = self.unquoted_identifiers_policy
 
         identifier = context.segment.raw
+
+        # Skip if in ignore list
+        if ignore_words_list and identifier in ignore_words_list:
+            return None
 
         # Do some extra processing for quoted identifiers.
         if context.segment.name == "quoted_identifier":
@@ -89,6 +89,10 @@ class Rule_L057(BaseRule):
 
             # Strip the quotes first
             identifier = context.segment.raw[1:-1]
+
+            # Skip if in ignore list - repeat check now we've strip the quotes
+            if ignore_words_list and identifier in ignore_words_list:
+                return None
 
             # BigQuery table references are quoted in back ticks so allow dots
             #
