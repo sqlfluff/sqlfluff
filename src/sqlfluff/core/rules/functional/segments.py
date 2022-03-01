@@ -1,5 +1,5 @@
 """Surrogate class for working with Segment collections."""
-from typing import Any, Callable, List, Optional, overload
+from typing import Any, Callable, Iterator, List, Optional, overload
 
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.templaters.base import TemplatedFile
@@ -127,6 +127,10 @@ class Segments(tuple):
     @overload
     def __getitem__(self, item: slice) -> "Segments":  # pragma: no cover
         pass
+
+    def __iter__(self) -> Iterator[BaseSegment]:
+        # Loops understand we are looping BaseSegment
+        return super().__iter__()
 
     def __getitem__(self, item):
         result = super().__getitem__(item)

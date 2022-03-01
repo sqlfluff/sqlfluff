@@ -139,8 +139,8 @@ def _generate_fixes(
 ) -> LintResult:
     # Duplicate the change list and append the operator
     inserts: List[BaseSegment] = [
-        *list(map(copy.deepcopy, change_list)),
-        copy.deepcopy(operator),
+        *change_list,
+        operator,
     ]
 
     if operator_new_lines == "before":
@@ -154,13 +154,13 @@ def _generate_fixes(
         # Insert elements reversed
         LintFix(
             edit_type=edit_type,
-            edit=list(reversed(inserts)),
+            edit=list(map(lambda el: copy.deepcopy(el), reversed(inserts))),
             anchor=insert_anchor,
         ),
         # remove the Op
         LintFix.delete(operator),
         # Delete the original elements (related to insert)
-        *list(map(lambda seg: LintFix.delete(seg), change_list)),
+        *[LintFix.delete(seg) for seg in change_list],
     ]
     desc = before_description if operator_new_lines == "before" else after_description
     return LintResult(
