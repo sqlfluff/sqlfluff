@@ -1568,7 +1568,7 @@ class OverClauseSegment(BaseSegment):
 
 @spark3_dialect.segment()
 class PivotClauseSegment(BaseSegment):
-    """A `PIVOT` clause as using in FROM clause
+    """A `PIVOT` clause as using in FROM clause.
 
     https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-pivot.html
     """
