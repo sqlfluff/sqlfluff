@@ -116,14 +116,16 @@ class BaseSegment:
         if not pos_marker:
             # If no pos given, it's the pos of the first segment.
             if isinstance(segments, (tuple, list)):
-                pos_marker = PositionMarker.from_child_markers(
-                    *(seg.pos_marker for seg in segments)
-                )
+                if all(seg.pos_marker for seg in segments):
+                    pos_marker = PositionMarker.from_child_markers(
+                        *(seg.pos_marker for seg in segments)
+                    )
             else:  # pragma: no cover
                 raise TypeError(
                     f"Unexpected type passed to BaseSegment: {type(segments)}"
                 )
-        self.pos_marker: PositionMarker = pos_marker
+
+        self.pos_marker = pos_marker
 
         self._recalculate_caches()
 
