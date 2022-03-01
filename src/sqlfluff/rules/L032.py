@@ -87,8 +87,7 @@ class Rule_L032(BaseRule):
         if len(tables_in_join) > 2:
             return unfixable_result
 
-        predicate = sp.is_type("select_statement")
-        parent_select = parent_stack.last(predicate).get()
+        parent_select = parent_stack.last(sp.is_type("select_statement")).get()
         if not parent_select:  # pragma: no cover
             return unfixable_result
 
