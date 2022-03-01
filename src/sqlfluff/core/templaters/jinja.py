@@ -249,6 +249,18 @@ class JinjaTemplater(PythonTemplater):
 
         # Load macros from path (if applicable)
         if config:
+            # Get macros from config - useful if we have macros in our macros
+            # models -> macros -> macros
+            macros_from_config = self._extract_macros_from_config(
+                config=config, env=env, ctx=live_context
+            )
+            live_context.update(macros_from_config)
+
+            # Get macros from libraries - useful if we have macros in our macros
+            # models -> macros -> macros
+            libraries_from_config = self._extract_libraries_from_config(config=config)
+            live_context.update(libraries_from_config)
+
             macros_path = self._get_macros_path(config)
             if macros_path:
                 live_context.update(
@@ -258,13 +270,9 @@ class JinjaTemplater(PythonTemplater):
                 )
 
             # Load config macros, these will take precedence over macros from the path
-            live_context.update(
-                self._extract_macros_from_config(
-                    config=config, env=env, ctx=live_context
-                )
-            )
+            live_context.update(macros_from_config)
 
-            live_context.update(self._extract_libraries_from_config(config=config))
+            live_context.update(libraries_from_config)
         return live_context
 
     def template_builder(
