@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2b40cbec8aa6b74c002db500e86cb2328b45922c8825f5cd609ddfe5e9da50b3
+_hash: 92c7629469d93f3cdce9721a92255044be48602d518e04f3795ce44c0248fee1
 file:
 - statement:
     select_statement:
@@ -343,3 +343,69 @@ file:
             table_expression:
               table_reference:
                 identifier: state
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: p
+          - dot: .
+          - identifier: id
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - identifier: exploded_people
+          - dot: .
+          - identifier: name
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - identifier: exploded_people
+          - dot: .
+          - identifier: age
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - identifier: exploded_people
+          - dot: .
+          - identifier: state
+      from_clause:
+      - keyword: FROM
+      - from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: person
+            alias_expression:
+              keyword: AS
+              identifier: p
+            lateral_view_clause:
+            - keyword: LATERAL
+            - keyword: VIEW
+            - function:
+                function_name:
+                  function_name_identifier: INLINE
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      identifier: array_of_structs
+                  end_bracket: )
+            - identifier: exploded_people
+            - keyword: AS
+            - identifier: name
+      - comma: ','
+      - from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: age
+      - comma: ','
+      - from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: state
+- statement_terminator: ;
