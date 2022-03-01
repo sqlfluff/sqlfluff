@@ -82,7 +82,7 @@ class Rule_L032(BaseRule):
             sp.is_type("join_clause", "from_expression_element")
         )
 
-        # If we have more than 2 tables we wont try to fix join.
+        # If we have more than 2 tables we won't try to fix join.
         # TODO: if this is table 2 of 3 it is still fixable
         if len(tables_in_join) > 2:
             return unfixable_result
