@@ -321,7 +321,7 @@ test_pass_alteration_identifier_in_file_reference_spark3:
     core:
       dialect: spark3
 
-test_pass_ignore_lists:
+test_pass_ignore_lists_quoted:
   pass_str:
     SELECT a as 'aliashash#'
   configs:
@@ -329,6 +329,23 @@ test_pass_ignore_lists:
       L057:
         ignore_words: aliashash#
 
-test_pass_ignore_lists_fail:
+test_pass_ignore_lists_quoted_fail:
   fail_str:
     SELECT a as 'aliashash#'
+
+test_pass_ignore_lists_unquoted:
+  pass_str:
+    SELECT a as alias$
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      L057:
+        ignore_words: alias$
+
+test_pass_ignore_lists_unquoted_fail:
+  fail_str:
+    SELECT a as alias$
+  configs:
+    core:
+      dialect: postgres
