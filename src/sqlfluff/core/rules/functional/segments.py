@@ -130,7 +130,7 @@ class Segments(tuple):
     def __getitem__(self, item: slice) -> "Segments":  # pragma: no cover
         pass
 
-    def __iter__(self) -> Iterator[BaseSegment]:
+    def __iter__(self) -> Iterator[BaseSegment]:  # pragma: no cover
         # Typing understand we are looping BaseSegment
         return super().__iter__()
 
