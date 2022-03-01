@@ -61,7 +61,6 @@ class Rule_L011(BaseRule):
         fixes = []
 
         if context.segment.is_type("alias_expression"):
-
             if context.parent_stack[-1].is_type(*self._target_elems):
                 if any(e.name.lower() == "as" for e in context.segment.segments):
                     if self.aliasing == "implicit":
