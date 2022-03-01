@@ -27,6 +27,20 @@ test_pass_cte_defined_and_used_2:
     FROM cte1
     JOIN cte2
 
+test_pass_cte_defined_and_used_case_insensitive:
+  pass_str: |
+    WITH cte1 AS (
+      SELECT a
+      FROM t
+    ),
+    cte2 AS (
+      SELECT b
+      FROM u
+    )
+    SELECT *
+    FROM cte1
+    JOIN Cte2
+
 test_fail_cte_defined_but_unused_1:
   desc: Two CTEs defined but only one used in final query.
   fail_str: |

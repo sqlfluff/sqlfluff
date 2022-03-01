@@ -133,10 +133,10 @@ class Query:
 
     def lookup_cte(self, name: str, pop: bool = True) -> Optional["Query"]:
         """Look up a CTE by name, in the current or any parent scope."""
-        cte = self.ctes.get(name)
+        cte = self.ctes.get(name.upper())
         if cte:
             if pop:
-                del self.ctes[name]
+                del self.ctes[name.upper()]
             return cte
         if self.parent:
             return self.parent.lookup_cte(name, pop)
@@ -291,7 +291,7 @@ class SelectCrawler:
                                 # to the Query later when we encounter those
                                 # child segments.
                                 pass
-                            query_stack[-1].ctes[cte_name_segment.raw] = query
+                            query_stack[-1].ctes[cte_name_segment.raw_upper] = query
                             cte_name_segment = None
                             append_query(query)
                         else:
@@ -319,7 +319,7 @@ class SelectCrawler:
                     # Beginning a "with" statement, i.e. a block of CTEs.
                     query = self.query_class(QueryType.WithCompound, dialect)
                     if cte_name_segment:
-                        query_stack[-1].ctes[cte_name_segment.raw] = query
+                        query_stack[-1].ctes[cte_name_segment.raw_upper] = query
                         cte_name_segment = None
                     append_query(query)
                 elif path[-1].is_type("common_table_expression"):
