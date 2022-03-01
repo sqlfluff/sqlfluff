@@ -131,7 +131,7 @@ class DbtTemplater(JinjaTemplater):
             return x
 
         # Set dbt not to run tracking. We don't load
-        # a dull project and so some tracking routines
+        # a full project and so some tracking routines
         # may fail.
         from dbt.tracking import do_not_track
 
@@ -442,6 +442,12 @@ class DbtTemplater(JinjaTemplater):
 
         node = self._find_node(fname, config)
 
+        save_ephemeral_nodes = dict(
+            (k, v)
+            for k, v in self.dbt_manifest.nodes.items()
+            if v.config.materialized == "ephemeral"
+            and not getattr(v, "compiled", False)
+        )
         with self.connection():
             node = self.dbt_compiler.compile_node(
                 node=node,
@@ -501,6 +507,16 @@ class DbtTemplater(JinjaTemplater):
                 config=config,
                 make_template=make_template,
             )
+        # :HACK: If calling compile_node() compiled any ephemeral nodes,
+        # restore them to their earlier state. This prevents a runtime error
+        # in the dbt "_inject_ctes_into_sql()" function that occurs with
+        # 2nd-level ephemeral model dependencies (e.g. A -> B -> C, where
+        # both B and C are ephemeral). Perhaps there is a better way to do
+        # this, but this seems good enough for now.
+        for k, v in save_ephemeral_nodes.items():
+            if getattr(self.dbt_manifest.nodes[k], "compiled", False):
+                self.dbt_manifest.nodes[k] = v
+
         if make_template and n_trailing_newlines:
             # Update templated_sql as we updated the other strings above. Update
             # sliced_file to reflect the mapping of the added character(s) back
