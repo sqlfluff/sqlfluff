@@ -102,7 +102,7 @@ class Rule_L059(BaseRule):
             ignore_words_list = self._init_ignore_words_list()
 
         # Skip if in ignore list
-        if ignore_words_list and identifier_contents in ignore_words_list:
+        if ignore_words_list and identifier_contents.lower() in ignore_words_list:
             return None
 
         # Ignore the segments that are not of the same type as the defined policy above.

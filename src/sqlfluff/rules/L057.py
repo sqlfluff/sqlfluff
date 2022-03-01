@@ -78,7 +78,7 @@ class Rule_L057(BaseRule):
         identifier = context.segment.raw
 
         # Skip if in ignore list
-        if ignore_words_list and identifier in ignore_words_list:
+        if ignore_words_list and identifier.lower() in ignore_words_list:
             return None
 
         # Do some extra processing for quoted identifiers.
@@ -91,7 +91,7 @@ class Rule_L057(BaseRule):
             identifier = context.segment.raw[1:-1]
 
             # Skip if in ignore list - repeat check now we've strip the quotes
-            if ignore_words_list and identifier in ignore_words_list:
+            if ignore_words_list and identifier.lower() in ignore_words_list:
                 return None
 
             # BigQuery table references are quoted in back ticks so allow dots

@@ -269,3 +269,11 @@ test_pass_ignore_lists:
     rules:
       L059:
         ignore_words: foo
+
+test_pass_ignore_lists_mixed_case:
+  pass_str:
+    SELECT 123 AS "Foo";
+  configs:
+    rules:
+      L059:
+        ignore_words: foo
