@@ -1,6 +1,6 @@
 """Implementation of Rule L059."""
 
-from typing import Optional
+from typing import List, Optional
 
 import regex
 
@@ -10,6 +10,7 @@ from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
 )
+import sqlfluff.core.rules.functional.segment_predicates as sp
 
 
 @document_configuration
@@ -71,8 +72,16 @@ class Rule_L059(BaseRule):
 
     config_keywords = ["prefer_quoted_identifiers"]
 
+    # Ignore "password_auth" type to allow quotes around passwords within
+    # `CREATE USER` statements in Exasol dialect.
+    _ignore_types: List[str] = ["password_auth"]
+
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Unnecessary quoted identifier."""
+        # Ignore some segment types
+        if context.functional.parent_stack.any(sp.is_type(*self._ignore_types)):
+            return None
+
         # Config type hints
         self.prefer_quoted_identifiers: bool
 

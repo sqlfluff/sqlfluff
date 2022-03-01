@@ -1,5 +1,5 @@
 """Surrogate class for working with Segment collections."""
-from typing import Any, Callable, List, Optional, overload
+from typing import Any, Callable, Iterator, List, Optional, overload
 
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.templaters.base import TemplatedFile
@@ -64,6 +64,10 @@ class Segments(tuple):
             )
         raw_slices = set()
         for s in self:
+            if s.pos_marker is None:
+                raise ValueError(
+                    "Segments include a positionless segment"
+                )  # pragma: no cover
             source_slice = s.pos_marker.source_slice
             raw_slices.update(
                 self.templated_file.raw_slices_spanning_source_slice(source_slice)
@@ -120,7 +124,7 @@ class Segments(tuple):
         # If no segment satisfies "predicates", return empty Segments.
         return Segments(templated_file=self.templated_file)
 
-    @overload
+    @overload  # type: ignore
     def __getitem__(self, item: int) -> BaseSegment:  # pragma: no cover
         pass
 
@@ -128,7 +132,11 @@ class Segments(tuple):
     def __getitem__(self, item: slice) -> "Segments":  # pragma: no cover
         pass
 
-    def __getitem__(self, item):
+    def __iter__(self) -> Iterator[BaseSegment]:  # pragma: no cover
+        # Typing understand we are looping BaseSegment
+        return super().__iter__()
+
+    def __getitem__(self, item):  # type: ignore
         result = super().__getitem__(item)
         if isinstance(result, tuple):
             return Segments(*result, templated_file=self.templated_file)
