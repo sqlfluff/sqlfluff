@@ -45,4 +45,12 @@ SELECT
     exploded_people.age,
     exploded_people.state
 FROM person
-    LATERAL VIEW INLINE(array_of_structs) exploded_people AS name, age, state
+    LATERAL VIEW INLINE(array_of_structs) exploded_people AS name, age, state;
+
+SELECT
+    p.id,
+    exploded_people.name,
+    exploded_people.age,
+    exploded_people.state
+FROM person AS p
+    LATERAL VIEW INLINE(array_of_structs) exploded_people AS name, age, state;
