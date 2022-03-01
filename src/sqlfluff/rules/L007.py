@@ -68,18 +68,14 @@ class Rule_L007(BaseRule):
         before the next meaningful code segment.
 
         """
-        segment = context.functional.segment
         relevent_types = ["binary_operator", "comparison_operator"]
+        segment = context.functional.segment
         # bring var to this scope so as to only have one type ignore
         operator_new_lines: str = self.operator_new_lines  # type: ignore
-
         expr = segment.children()
         operator_segments = segment.children(sp.is_type(*relevent_types))
-        # If this is not an expr with Operator, then skip
-        if len(operator_segments) == 0:
-            return None
-
         results: List[LintResult] = []
+        # If len(operator_segments) == 0 this will essentially not run
         for operator in operator_segments:
             start = expr.reversed().first(FirstCodeAfterOperator(operator))
             end = expr.first(FirstCodeAfterOperator(operator))
@@ -135,13 +131,6 @@ class FirstCodeAfterOperator:
         return False
 
 
-def _copy_el(segment: BaseSegment):
-    """Safely duplicate segment without position markers."""
-    el = copy.deepcopy(segment)
-    el.pos_marker = None  # type: ignore
-    return el
-
-
 def _generate_fixes(
     operator_new_lines: str,
     change_list: Segments,
@@ -151,8 +140,8 @@ def _generate_fixes(
     # Duplicate the change list and append the operator
 
     inserts: List[BaseSegment] = [
-        *list(map(_copy_el, change_list)),
-        _copy_el(operator),
+        *list(map(copy.deepcopy, change_list)),
+        copy.deepcopy(operator),
     ]
 
     if operator_new_lines == "before":
