@@ -11,7 +11,7 @@ Here we define:
 from copy import deepcopy
 from dataclasses import replace
 from io import StringIO
-from typing import Any, Callable, Optional, List, Tuple, NamedTuple, Iterator, cast
+from typing import Any, Callable, Optional, List, Tuple, NamedTuple, Iterator
 import logging
 
 from tqdm import tqdm
@@ -126,7 +126,7 @@ class BaseSegment:
                 )
 
         # TODO static typing is off for this var throughout the code base
-        self.pos_marker = cast(PositionMarker, pos_marker)
+        self.pos_marker = pos_marker
 
         self._recalculate_caches()
 
