@@ -65,7 +65,9 @@ class Segments(tuple):
         raw_slices = set()
         for s in self:
             if s.pos_marker is None:
-                raise ValueError("Segments include a positionless segement")  # pragma: no cover
+                raise ValueError(
+                    "Segments include a positionless segment"
+                )  # pragma: no cover
             source_slice = s.pos_marker.source_slice
             raw_slices.update(
                 self.templated_file.raw_slices_spanning_source_slice(source_slice)
