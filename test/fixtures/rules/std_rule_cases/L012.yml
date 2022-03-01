@@ -34,3 +34,10 @@ test_fail_explicit_column_implicit:
     rules:
       L012:
         aliasing: implicit
+
+test_pass_tsql_alternative_alias:
+  # Test explicit column alias
+  pass_str: select alias1 = col1
+  configs:
+    core:
+      dialect: tsql
