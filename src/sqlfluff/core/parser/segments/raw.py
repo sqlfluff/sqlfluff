@@ -40,6 +40,7 @@ class RawSegment(BaseSegment):
             self._raw = raw
         else:
             self._raw = self._default_raw
+        breakpoint()
         self._raw_upper = self._raw.upper()
         # pos marker is required here. We ignore the typing initially
         # because it might *initially* be unset, but it will be reset

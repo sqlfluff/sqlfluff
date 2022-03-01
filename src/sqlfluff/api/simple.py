@@ -9,6 +9,8 @@ from sqlfluff.core import (
     SQLFluffUserError,
 )
 
+from sqlfluff.core.parser.segments.base import BaseSegment
+from sqlfluff.core.parser.segments.raw import WhitespaceSegment, NewlineSegment
 
 def get_simple_config(
     dialect: Optional[str] = None,
@@ -172,6 +174,22 @@ def parse(
         return {}
     return parsed.tree.as_record(show_raw=True)
 
+def reflow_tree(segment: BaseSegment, last_inserted=None):
+    """Reflows the tree into one with consistent formatting."""
+    reflowed_segments = []
+    if segment.segments:
+        for segment in segment.segments:
+            if segment.is_code:
+                if segment.reflow_pre_space and (not last_inserted or last_inserted.type not in (WhitespaceSegment, NewlineSegment)):
+                    reflowed_segments.append(WhitespaceSegment())
+                    last_inserted = reflowed_segments[-1]
+                reflowed_segment, last_inserted = reflow_tree(segment, last_inserted=last_inserted)
+                reflowed_segments.append(reflowed_segment)
+        tuple(reflowed_segments)
+        return segment.__class__(tuple(reflowed_segments)), last_inserted
+    else:
+        return segment, segment
+
 
 def reflow(
     sql: str,
@@ -189,4 +207,6 @@ def reflow(
     # If we encounter any parsing errors, raise them in a combined issue.
     if parsed.violations:
         raise APIParsingError(parsed.violations)
-    return parsed.tree.reflow()
+
+    reflowed = reflow_tree(parsed.tree)
+    return reflowed.raw()

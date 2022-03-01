@@ -84,6 +84,7 @@ class BaseSegment:
     allow_empty = False
     # What other kwargs need to be copied when applying fixes.
     additional_kwargs: List[str] = []
+    reflow_pre_space = True
 
     def __init__(
         self,
@@ -1244,34 +1245,6 @@ class BaseSegment:
     def edit(self, raw):
         """Stub."""
         raise NotImplementedError()
-
-    reflow_pre_space = False
-
-    @property
-    def pre_reflow_strs(self) -> str:
-        """TODO: Add logic for segments which should appear before this segment."""
-        str = ""
-        if self.reflow_pre_space:
-            str += " "
-        return str
-
-    @property
-    def post_reflow_strs(self) -> str:
-        """TODO: Add logic for segments which should appear after this segment."""
-        return ""
-
-    def reflow(self):
-        """Reflows the tree into a consistent string output."""
-        if self.segments:
-            return (
-                self.pre_reflow_strs
-                + "".join(
-                    segment.reflow() for segment in self.segments if segment.is_code
-                )
-                + self.post_reflow_strs
-            )
-        else:
-            return self.raw
 
 
 class BracketedSegment(BaseSegment):
