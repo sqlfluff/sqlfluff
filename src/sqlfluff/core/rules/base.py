@@ -20,14 +20,14 @@ import fnmatch
 import logging
 import pathlib
 import regex
-from typing import Iterable, Optional, List, Set, Tuple, Union, Any
+from typing import cast, Iterable, Optional, List, Set, Tuple, Union, Any
 from collections import namedtuple
 from dataclasses import dataclass
 
 from sqlfluff.core.cached_property import cached_property
 
 from sqlfluff.core.linter import LintedFile
-from sqlfluff.core.parser import BaseSegment, RawSegment
+from sqlfluff.core.parser import BaseSegment, PositionMarker, RawSegment
 from sqlfluff.core.dialects import Dialect
 from sqlfluff.core.errors import SQLLintError
 from sqlfluff.core.rules.functional import Segments
@@ -164,7 +164,7 @@ class LintFix:
                         "Developer Note: Edit segment found with preset position "
                         "marker. These should be unset and calculated later."
                     )
-                    seg.pos_marker = None  # type: ignore
+                    seg.pos_marker = None
             # Once stripped, we shouldn't replace any markers because
             # later code may rely on them being accurate, which we
             # can't guarantee with edits.
@@ -269,6 +269,7 @@ class LintFix:
         #    whole anchor segment, because we're not *touching* the anchor
         #    segment, we're inserting **RELATIVE** to it. If ALL are templated,
         #    discard the fix.
+        assert self.anchor.pos_marker
         anchor_slice = self.anchor.pos_marker.templated_slice
         templated_slices = [anchor_slice]
         check_fn = any
@@ -307,7 +308,10 @@ class LintFix:
             return result
 
         # Fix slices were okay. Now check template safety of the "source" field.
-        templated_slices = [source.pos_marker.templated_slice for source in self.source]
+        templated_slices = [
+            cast(PositionMarker, source.pos_marker).templated_slice
+            for source in self.source
+        ]
         raw_slices = self._raw_slices_from_templated_slices(
             templated_file, templated_slices
         )
@@ -736,6 +740,7 @@ class BaseRule:
         fix_slices: Set[RawFileSlice] = set()
         for fix in lint_result.fixes:
             if fix.anchor:
+                assert fix.anchor.pos_marker
                 fix_slices.update(
                     templated_file.raw_slices_spanning_source_slice(
                         fix.anchor.pos_marker.source_slice

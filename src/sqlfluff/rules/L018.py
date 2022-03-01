@@ -1,6 +1,8 @@
 """Implementation of Rule L018."""
 
-from sqlfluff.core.parser import NewlineSegment, WhitespaceSegment
+from typing import cast
+
+from sqlfluff.core.parser import NewlineSegment, PositionMarker, WhitespaceSegment
 
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.doc_decorators import (
@@ -115,11 +117,14 @@ class Rule_L018(BaseRule):
                             )
                         elif indent_diff > 0:
                             # Is it all whitespace before the bracket on this line?
+                            assert seg.pos_marker
                             prev_segs_on_line = [
                                 elem
                                 for elem in context.segment.raw_segments
-                                if elem.pos_marker.line_no == seg.pos_marker.line_no
-                                and elem.pos_marker.line_pos < seg.pos_marker.line_pos
+                                if cast(PositionMarker, elem.pos_marker).line_no
+                                == seg.pos_marker.line_no
+                                and cast(PositionMarker, elem.pos_marker).line_pos
+                                < seg.pos_marker.line_pos
                             ]
                             if all(
                                 elem.is_type("whitespace") for elem in prev_segs_on_line

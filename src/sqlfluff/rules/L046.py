@@ -53,6 +53,7 @@ class Rule_L046(BaseRule):
 
     def _eval(self, context: RuleContext) -> LintResult:
         """Look for non-literal segments."""
+        assert context.segment.pos_marker
         if context.segment.is_raw() and not context.segment.pos_marker.is_literal():
             # Does it actually look like a tag?
             templated_raw_slices = context.functional.segment.raw_slices.select(
