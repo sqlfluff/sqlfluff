@@ -15,7 +15,7 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 Major changes include:
 * Changes rule L030 to use `extended_capitalisation_policy` to support Pascal case **BREAKING CHANGE**
-* Fixes dbt error on ephemeral models when linting multiple files
+* Fixes dbt error on ephemeral models
 * Log warnings for fixes that seem to corrupt the parse SQL as may cause incorrect fixes in other rules.
 * Bug fix to rule L011 for `implicit` aliases
 * Bug fix to rule L019 for commas besides templated code
@@ -25,6 +25,8 @@ Major changes include:
 
 ## What's Changed
 
+* Spark3: Support for `PIVOT` clause [#2752](https://github.com/sqlfluff/sqlfluff/pull/2752) [@R7L208](https://github.com/R7L208)
+* Update Redshift reserved keywords list [#2751](https://github.com/sqlfluff/sqlfluff/pull/2751) [@rpr-ableton](https://github.com/rpr-ableton)
 * L007 autofix [#2735](https://github.com/sqlfluff/sqlfluff/pull/2735) [@OTooleMichael](https://github.com/OTooleMichael)
 * L032 fixable in easy cases [#2737](https://github.com/sqlfluff/sqlfluff/pull/2737) [@OTooleMichael](https://github.com/OTooleMichael)
 * Fix dbt templater runtime error in inject_ctes_into_sql() [#2748](https://github.com/sqlfluff/sqlfluff/pull/2748) [@barrywhart](https://github.com/barrywhart)
