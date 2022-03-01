@@ -25,6 +25,8 @@ Major changes include:
 
 ## What's Changed
 
+* Add `ignore_words` options to L057 and L059 [#2753](https://github.com/sqlfluff/sqlfluff/pull/2753) [@tunetheweb](https://github.com/tunetheweb)
+* L012 bug fix for TSQL alternative alias types [#2750](https://github.com/sqlfluff/sqlfluff/pull/2750) [@tunetheweb](https://github.com/tunetheweb)
 * Spark3: Support for `PIVOT` clause [#2752](https://github.com/sqlfluff/sqlfluff/pull/2752) [@R7L208](https://github.com/R7L208)
 * Update Redshift reserved keywords list [#2751](https://github.com/sqlfluff/sqlfluff/pull/2751) [@rpr-ableton](https://github.com/rpr-ableton)
 * L007 autofix [#2735](https://github.com/sqlfluff/sqlfluff/pull/2735) [@OTooleMichael](https://github.com/OTooleMichael)
