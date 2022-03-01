@@ -77,8 +77,8 @@ class Rule_L007(BaseRule):
         results: List[LintResult] = []
         # If len(operator_segments) == 0 this will essentially not run
         for operator in operator_segments:
-            start = expr.reversed().first(FirstCodeAfterOperator(operator))
-            end = expr.first(FirstCodeAfterOperator(operator))
+            start = expr.reversed().select(start_seg=operator).first(sp.is_code())
+            end = expr.select(start_seg=operator).first(sp.is_code())
             res = [
                 expr.select(start_seg=start.get(), stop_seg=operator),
                 expr.select(start_seg=operator, stop_seg=end.get()),
@@ -108,29 +108,6 @@ class Rule_L007(BaseRule):
         return results
 
 
-class FirstCodeAfterOperator:
-    """Predicate Fn Class."""
-
-    def __init__(self, operator: BaseSegment) -> None:
-        """Predicate with some memory of what it has seen."""
-        self.has_seen_operator = False
-        self.operator = operator
-
-    def __call__(self, seg: BaseSegment) -> bool:
-        """Call the predicate as per its creation."""
-        if seg == self.operator:
-            self.has_seen_operator = True
-            return False
-
-        if not self.has_seen_operator:
-            return False
-
-        if seg.is_code:
-            return True
-
-        return False
-
-
 def _generate_fixes(
     operator_new_lines: str,
     change_list: Segments,
@@ -146,7 +123,7 @@ def _generate_fixes(
     if operator_new_lines == "before":
         # We do yet another reverse here,
         # This could be avoided but makes all "changes" relate to "before" config state
-        inserts = list(reversed(inserts))
+        inserts = [*reversed(inserts)]
 
     # ensure to insert in the right place
     edit_type = "create_before" if operator_new_lines == "before" else "create_after"
@@ -154,13 +131,13 @@ def _generate_fixes(
         # Insert elements reversed
         LintFix(
             edit_type=edit_type,
-            edit=list(map(lambda el: copy.deepcopy(el), reversed(inserts))),
+            edit=map(lambda el: copy.deepcopy(el), reversed(inserts)),
             anchor=insert_anchor,
         ),
         # remove the Op
         LintFix.delete(operator),
         # Delete the original elements (related to insert)
-        *[LintFix.delete(seg) for seg in change_list],
+        *change_list.apply(LintFix.delete),
     ]
     desc = before_description if operator_new_lines == "before" else after_description
     return LintResult(
