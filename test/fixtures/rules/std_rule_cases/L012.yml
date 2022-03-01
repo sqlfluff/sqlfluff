@@ -41,3 +41,13 @@ test_pass_tsql_alternative_alias:
   configs:
     core:
       dialect: tsql
+
+test_fail_alias_ending_equals:
+  # Test explicit column alias
+  fail_str: select col1 "example="
+  fix_str: select col1 AS "example="
+
+test_fail_alias_ending_raw_equals:
+  # Test explicit column alias
+  fail_str: select col1 raw_equals
+  fix_str: select col1 AS raw_equals
