@@ -67,8 +67,7 @@ class Rule_L011(BaseRule):
             # instead of
             # select value as alias
             # Recognise this and exit early
-            segment = context.functional.segment
-            if segment.children()[-1].name == "raw_equals":
+            if context.functional.segment.children()[-1].name == "raw_equals":
                 return None
 
             if context.parent_stack[-1].is_type(*self._target_elems):
