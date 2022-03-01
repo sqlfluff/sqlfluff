@@ -3,16 +3,12 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a864d509de37f46c1ed0956fad0e25fdc05c89e67d23c7b52e59f1bd19000ac7
+_hash: 2a54e431587b734209fa033f58b03ab2f3dd58aeb0d00c9817a3960592e0e102
 file:
   statement:
     select_statement:
       select_clause:
       - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-            identifier: array
-      - comma: ','
       - select_clause_element:
           column_reference:
             identifier: auto
@@ -99,19 +95,11 @@ file:
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: oid
-      - comma: ','
-      - select_clause_element:
-          column_reference:
             identifier: partitioned
       - comma: ','
       - select_clause_element:
           column_reference:
             identifier: sortkey
-      - comma: ','
-      - select_clause_element:
-          column_reference:
-            identifier: timestamp
       - comma: ','
       - select_clause_element:
           column_reference:
