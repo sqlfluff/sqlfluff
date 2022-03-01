@@ -131,7 +131,7 @@ class DbtTemplater(JinjaTemplater):
             return x
 
         # Set dbt not to run tracking. We don't load
-        # a dull project and so some tracking routines
+        # a full project and so some tracking routines
         # may fail.
         from dbt.tracking import do_not_track
 
@@ -442,12 +442,12 @@ class DbtTemplater(JinjaTemplater):
 
         node = self._find_node(fname, config)
 
+        save_nodes = dict(self.dbt_manifest.nodes)
         with self.connection():
             node = self.dbt_compiler.compile_node(
                 node=node,
                 manifest=self.dbt_manifest,
             )
-
             Environment.from_string = old_from_string
 
             if hasattr(node, "injected_sql"):
@@ -501,6 +501,18 @@ class DbtTemplater(JinjaTemplater):
                 config=config,
                 make_template=make_template,
             )
+        # :HACK: Restore compiled ephemeral nodes back to parsed. This prevents
+        # a runtime error inside dbt with 2nd-level ephemeral model dependencies
+        # after they have been compiled/linted earlier in the same run. Perhaps
+        # there is a cleaner way to do this, but this is reasonably efficient,
+        # and it works.
+        for k, v in save_nodes.items():
+            if v.config.materialized == "ephemeral":
+                if not getattr(v, "compiled", False) and getattr(
+                    self.dbt_manifest.nodes[k], "compiled", False
+                ):
+                    self.dbt_manifest.nodes[k] = v
+
         if make_template and n_trailing_newlines:
             # Update templated_sql as we updated the other strings above. Update
             # sliced_file to reflect the mapping of the added character(s) back
