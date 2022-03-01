@@ -448,6 +448,7 @@ class DbtTemplater(JinjaTemplater):
                 node=node,
                 manifest=self.dbt_manifest,
             )
+
             Environment.from_string = old_from_string
 
             if hasattr(node, "injected_sql"):
