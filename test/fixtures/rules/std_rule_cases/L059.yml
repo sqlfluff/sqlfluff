@@ -261,3 +261,11 @@ test_fail_create_quoted_user_exasol:
   configs:
     core:
       dialect: exasol
+
+test_pass_ignore_lists:
+  pass_str:
+    SELECT 123 AS "foo";
+  configs:
+    rules:
+      L059:
+        ignore_words: foo

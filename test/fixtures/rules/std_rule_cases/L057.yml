@@ -320,3 +320,11 @@ test_pass_alteration_identifier_in_file_reference_spark3:
   configs:
     core:
       dialect: spark3
+
+test_pass_ignore_lists:
+  pass_str:
+    SELECT a as aliashash#
+  configs:
+    rules:
+      L057:
+        ignore_words: aliashash#
