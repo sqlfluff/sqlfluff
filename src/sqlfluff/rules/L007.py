@@ -138,7 +138,6 @@ def _generate_fixes(
     insert_anchor: BaseSegment,
 ) -> LintResult:
     # Duplicate the change list and append the operator
-
     inserts: List[BaseSegment] = [
         *list(map(copy.deepcopy, change_list)),
         copy.deepcopy(operator),
