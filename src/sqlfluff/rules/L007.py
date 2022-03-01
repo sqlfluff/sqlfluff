@@ -1,12 +1,15 @@
 """Implementation of Rule L007."""
 import copy
-from typing import List, Optional, Tuple, cast
+from typing import List, Optional
 from sqlfluff.core.parser.segments.base import BaseSegment
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
+import sqlfluff.core.rules.functional.segment_predicates as sp
+
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
 )
+from sqlfluff.core.rules.functional.segments import Segments
 
 after_description = "Operators near newlines should be after, not before the newline"
 before_description = "Operators near newlines should be before, not after the newline"
@@ -54,7 +57,7 @@ class Rule_L007(BaseRule):
 
     config_keywords = ["operator_new_lines"]
 
-    def _eval(self, context: RuleContext) -> LintResult:
+    def _eval(self, context: RuleContext) -> Optional[List[LintResult]]:
         """Operators should follow a standard for being before/after newlines.
 
         We use the memory to keep track of whitespace up to now, and
@@ -65,108 +68,71 @@ class Rule_L007(BaseRule):
         before the next meaningful code segment.
 
         """
-        anchor = None
-        memory = context.memory
-        parent_stack = context.parent_stack
-        fixes: List[LintFix] = []
+        segment = context.functional.segment
+        relevent_types = ["binary_operator", "comparison_operator"]
         # bring var to this scope so as to only have one type ignore
         operator_new_lines: str = self.operator_new_lines  # type: ignore
-        description = after_description
-        if operator_new_lines == "before":
-            description = before_description
 
-        # The parent stack tells us whether we're in an expression or not.
-        is_relavent_segment = parent_stack and parent_stack[-1].is_type("expression")
-        if not is_relavent_segment:
-            # Reset the memory if we're not in an expression
-            memory = {"last_code": None, "since_code": []}
-            return LintResult(memory=memory)
+        expr = segment.children()
+        operator_segments = segment.children(sp.is_type(*relevent_types))
+        # If this is not an expr with Operator, then skip
+        if len(operator_segments) == 0:
+            return None
 
-        if not context.segment.is_code:
-            # This isn't a code segment...
-            # Prepare memory for later
-            memory["since_code"].append(context.segment)
-            return LintResult(memory=memory)
-
-        # This is code, what kind?
-        if context.segment.is_type("binary_operator", "comparison_operator"):
-            # If it's an operator, then check if in "before" mode
+        results: List[LintResult] = []
+        for operator in operator_segments:
+            start = expr.reversed().first(FirstCodeAfterOperator(operator))
+            end = expr.first(FirstCodeAfterOperator(operator))
+            res = [
+                expr.select(start_seg=start.get(), stop_seg=operator),
+                expr.select(start_seg=operator, stop_seg=end.get()),
+            ]
+            # anchor and change els are reversed in the before case
             if operator_new_lines == "before":
-                # If we're in "before" mode, then check if newline since last
-                # code
-                for s in memory["since_code"]:
-                    if s.name == "newline":
-                        anchor = context.segment
-                        # Had a newline - so mark this operator as a fail
+                res = [els.reversed() for els in reversed(res)]
 
-        elif memory["last_code"] and memory["last_code"].is_type(
-            "binary_operator", "comparison_operator"
-        ):
-            # It's not an operator, but the last code was.
-            if operator_new_lines != "before":
-                # If in "after" mode, then check to see
-                # there is a newline between us and the last operator.
-                for s in memory["since_code"]:
-                    if s.name == "newline":
-                        # Had a newline - so mark last operator as a fail
-                        anchor = memory["last_code"]
+            change_list, anchor_list = res
+            # If the anchor side of the list has no newline
+            # then everything is ok already
+            if not anchor_list.any(sp.is_name("newline")):
+                continue
 
-        # Prepare memory for later
-        memory["last_code"] = context.segment
-        memory["since_code"] = []
+            insert_anchor = anchor_list.last().get()
+            assert insert_anchor, "Insert Anchor must be present"
+            lint_res = _generate_fixes(
+                operator_new_lines,
+                change_list,
+                operator,
+                insert_anchor,
+            )
+            results.append(lint_res)
 
-        # Anchor is our signal as to whether there's a problem
-        if not anchor:
-            return LintResult(memory=memory)
-
-        expr = cast(Tuple[BaseSegment], parent_stack[-1].segments)
-        fixes = _generate_fixes(expr, anchor, operator_new_lines)
-        return LintResult(
-            anchor=anchor,
-            memory=memory,
-            description=description,
-            fixes=fixes,
-        )
+        if len(results) == 0:
+            return None
+        return results
 
 
-def _generate_fixes(
-    expr: Tuple[BaseSegment],
-    anchor: BaseSegment,
-    operator_new_lines: str,
-) -> List[LintFix]:
-    """Generate Fixes.
+class FirstCodeAfterOperator:
+    """Predicate Fn Class."""
 
-    Take operator_new_lines==after as the default case.
-    Consider "before" as a modification on this behaviour.
+    def __init__(self, operator: BaseSegment) -> None:
+        """Predicate with some memory of what it has seen."""
+        self.has_seen_operator = False
+        self.operator = operator
 
-    """
-    fixes = [LintFix.delete(anchor)]
-    res = list(_get_surrounding_segments(expr, anchor))
-    if operator_new_lines == "before":
-        res = [list(reversed(els)) for els in reversed(res)]
+    def __call__(self, seg: BaseSegment) -> bool:
+        """Call the predicate as per its creation."""
+        if seg == self.operator:
+            self.has_seen_operator = True
+            return False
 
-    change_list, anchor_list = res
-    insert_anchor = anchor_list[-1]
-    change_list = change_list[1:]
-    for el in change_list:
-        fixes.append(LintFix.delete(el))
+        if not self.has_seen_operator:
+            return False
 
-    change_list.append(anchor)
-    if operator_new_lines == "before":
-        # We do yet another reverse here,
-        # This could be avoided but makes all "changes" relate to "before" config state
-        change_list = list(reversed(change_list))
+        if seg.is_code:
+            return True
 
-    change_list = list(map(_copy_el, reversed(change_list)))
-    edit_type = "create_after" if operator_new_lines == "before" else "create_before"
-    fixes.append(
-        LintFix(
-            edit_type=edit_type,
-            edit=change_list,
-            anchor=insert_anchor,
-        )
-    )
-    return fixes
+        return False
 
 
 def _copy_el(segment: BaseSegment):
@@ -176,40 +142,41 @@ def _copy_el(segment: BaseSegment):
     return el
 
 
-def _get_surrounding_segments(
-    expr: Tuple[BaseSegment],
-    symbol: BaseSegment,
-) -> Tuple[List[BaseSegment], List[BaseSegment]]:
-    """Create two lists of symbols surrounding operator.
+def _generate_fixes(
+    operator_new_lines: str,
+    change_list: Segments,
+    operator: BaseSegment,
+    insert_anchor: BaseSegment,
+) -> LintResult:
+    # Duplicate the change list and append the operator
 
-    1 from last code to operator/symbol,
-    2 from operator to next code
+    inserts: List[BaseSegment] = [
+        *list(map(_copy_el, change_list)),
+        _copy_el(operator),
+    ]
 
-    """
-    before_list: List[BaseSegment] = []
-    after_list: List[BaseSegment] = []
-    start_code: Optional[BaseSegment] = None
-    symbol_hit = False
-    for el in expr:
-        if el == symbol:
-            symbol_hit = True
-            continue
-        if el.is_code:
-            if symbol_hit:
-                # Exit condition, we have found code on the other side of the operator
-                after_list.append(el)
-                return before_list, after_list
+    if operator_new_lines == "before":
+        # We do yet another reverse here,
+        # This could be avoided but makes all "changes" relate to "before" config state
+        inserts = list(reversed(inserts))
 
-            start_code = el
-            before_list = []
-            after_list = []
-
-        if symbol_hit:
-            after_list.append(el)
-            continue
-
-        if start_code:
-            before_list.append(el)
-    # This code is unreachable if a valid expr and symbol/operator segment are passed.
-    err = "Ivalid Expr: no binary_operator/comparison_operator"  # pragma: no cover
-    raise Exception(err)  # pragma: no cover
+    # ensure to insert in the right place
+    edit_type = "create_before" if operator_new_lines == "before" else "create_after"
+    fixes = [
+        # Insert elements reversed
+        LintFix(
+            edit_type=edit_type,
+            edit=list(reversed(inserts)),
+            anchor=insert_anchor,
+        ),
+        # remove the Op
+        LintFix.delete(operator),
+        # Delete the original elements (related to insert)
+        *list(map(lambda seg: LintFix.delete(seg), change_list)),
+    ]
+    desc = before_description if operator_new_lines == "before" else after_description
+    return LintResult(
+        anchor=operator,
+        description=desc,
+        fixes=fixes,
+    )
