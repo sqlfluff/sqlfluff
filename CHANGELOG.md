@@ -25,6 +25,13 @@ Major changes include:
 
 ## What's Changed
 
+* Bug fix: L036 corrupts `SELECT DISTINCT id` query [#2768](https://github.com/sqlfluff/sqlfluff/pull/2768) [@barrywhart](https://github.com/barrywhart)
+* Snowflake: Add CHANGES clause [#2764](https://github.com/sqlfluff/sqlfluff/pull/2764) [@jpy-git](https://github.com/jpy-git)
+* Spark3: Support for `EXPLAIN` statement [#2767](https://github.com/sqlfluff/sqlfluff/pull/2767) [@R7L208](https://github.com/R7L208)
+* Snowflake: Add CONNECT BY clause [#2763](https://github.com/sqlfluff/sqlfluff/pull/2763) [@jpy-git](https://github.com/jpy-git)
+* Spark3: Support for `TRANSFORM` clause [#2762](https://github.com/sqlfluff/sqlfluff/pull/2762) [@R7L208](https://github.com/R7L208)
+* Snowflake: Fix GROUP BY {CUBE|ROLLUP|GROUPING SETS} parsing [#2759](https://github.com/sqlfluff/sqlfluff/pull/2759) [@jpy-git](https://github.com/jpy-git)
+* BigQuery: allow identifiers starting with dash [#2756](https://github.com/sqlfluff/sqlfluff/pull/2756) [@tunetheweb](https://github.com/tunetheweb)
 * Add `ignore_words` options to L057 and L059 [#2753](https://github.com/sqlfluff/sqlfluff/pull/2753) [@tunetheweb](https://github.com/tunetheweb)
 * L012 bug fix for TSQL alternative alias types [#2750](https://github.com/sqlfluff/sqlfluff/pull/2750) [@tunetheweb](https://github.com/tunetheweb)
 * Spark3: Support for `PIVOT` clause [#2752](https://github.com/sqlfluff/sqlfluff/pull/2752) [@R7L208](https://github.com/R7L208)
