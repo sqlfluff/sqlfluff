@@ -6,6 +6,14 @@ test_is_null:
     FROM foo
     WHERE a IS NULL
 
+test_equal_string:
+  pass_str: |
+    SELECT
+        foo
+    FROM restricted.tble
+    WHERE country = 'DE' AND ip_hash NOT NULL
+    GROUP BY 1, 2
+
 test_is_not_null:
   pass_str: |
     SELECT a
@@ -21,6 +29,16 @@ test_not_equals_null_upper:
     SELECT a
     FROM foo
     WHERE a IS NOT NULL
+
+test_not_equals_null_multi_nulls:
+  fail_str: |
+    SELECT a
+    FROM foo
+    WHERE a <> NULL AND b != NULL AND c = 'foo'
+  fix_str: |
+    SELECT a
+    FROM foo
+    WHERE a IS NOT NULL AND b IS NOT NULL AND c = 'foo'
 
 test_not_equals_null_lower:
   fail_str: |
