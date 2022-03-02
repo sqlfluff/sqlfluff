@@ -3374,9 +3374,7 @@ class ExplainStatementSegment(BaseSegment):
         Ref("DeleteStatementSegment"),
     )
 
-    match_grammar = StartsWith("EXPLAIN")
-
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "EXPLAIN",
         explainable_stmt,
     )

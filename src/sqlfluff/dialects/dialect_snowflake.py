@@ -264,6 +264,7 @@ snowflake_dialect.replace(
     ),
     JoinLikeClauseGrammar=Sequence(
         AnySetOf(
+            Ref("ChangesClauseSegment"),
             Ref("ConnectByClauseSegment"),
             Ref("FromAtExpressionSegment"),
             Ref("FromBeforeExpressionSegment"),
@@ -635,6 +636,51 @@ class TableAliasExpressionSegment(BaseSegment):
         # Optional column aliases too.
         Bracketed(
             Delimited(Ref("SingleIdentifierGrammar"), delimiter=Ref("CommaSegment")),
+            optional=True,
+        ),
+    )
+
+
+@snowflake_dialect.segment()
+class ChangesClauseSegment(BaseSegment):
+    """A `CHANGES` clause.
+
+    https://docs.snowflake.com/en/sql-reference/constructs/changes.html
+    """
+
+    type = "changes_clause"
+    match_grammar = Sequence(
+        "CHANGES",
+        Bracketed(
+            "INFORMATION",
+            Ref("ParameterAssignerSegment"),
+            OneOf("DEFAULT", "APPEND_ONLY"),
+        ),
+        OneOf(
+            Sequence(
+                "AT",
+                Bracketed(
+                    OneOf("TIMESTAMP", "OFFSET", "STATEMENT"),
+                    Ref("ParameterAssignerSegment"),
+                    Ref("ExpressionSegment"),
+                ),
+            ),
+            Sequence(
+                "BEFORE",
+                Bracketed(
+                    "STATEMENT",
+                    Ref("ParameterAssignerSegment"),
+                    Ref("ExpressionSegment"),
+                ),
+            ),
+        ),
+        Sequence(
+            "END",
+            Bracketed(
+                OneOf("TIMESTAMP", "OFFSET", "STATEMENT"),
+                Ref("ParameterAssignerSegment"),
+                Ref("ExpressionSegment"),
+            ),
             optional=True,
         ),
     )
@@ -2938,7 +2984,7 @@ class ExplainStatementSegment(
     https://docs.snowflake.com/en/sql-reference/sql/explain.html
     """
 
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "EXPLAIN",
         Sequence(
             "USING",
