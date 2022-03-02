@@ -177,3 +177,25 @@ test_pass_ignore_templated_code:
     {{ "select" }} a
     FROM foo
     WHERE 1
+
+test_fail_snowflake_group_by_cube:
+  fail_str: |
+    SELECT state, city, sum((s.retail_price - p.wholesale_price) * s.quantity) AS profit
+    FROM products AS p, sales AS s
+    WHERE s.product_id = p.product_id
+    GROUP BY cube (state, city)
+    ORDER BY state, city NULLS LAST
+    ;
+  fix_str: |
+    SELECT state, city, sum((s.retail_price - p.wholesale_price) * s.quantity) AS profit
+    FROM products AS p, sales AS s
+    WHERE s.product_id = p.product_id
+    GROUP BY CUBE (state, city)
+    ORDER BY state, city NULLS LAST
+    ;
+  configs:
+    core:
+      dialect: snowflake
+    rules:
+      L010:
+        capitalisation_policy: upper
