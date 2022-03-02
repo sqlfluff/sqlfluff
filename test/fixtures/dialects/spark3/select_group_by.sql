@@ -93,4 +93,4 @@ SELECT
     age,
     count(*) AS record_count
 FROM people
-GROUP BY cube(name, age);
+GROUP BY rollup(name, age);

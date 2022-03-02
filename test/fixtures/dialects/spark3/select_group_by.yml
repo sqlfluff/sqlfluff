@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 24782fb87d030513344713da29afaa5f3835ab5425a1b9d483095188d783ce5b
+_hash: 1d96fa108bf0a7d4886ca012d15060c783d1454c539ad1b7158b393d61fcc3ad
 file:
 - statement:
     select_statement:
@@ -568,7 +568,7 @@ file:
       - expression:
           function:
             function_name:
-              function_name_identifier: cube
+              function_name_identifier: rollup
             bracketed:
             - start_bracket: (
             - expression:
