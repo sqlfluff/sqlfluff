@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 86e01072588e69d864bfed9ed92966795c09f3e1f3f587b3e85dd41af9fbac18
+_hash: 4b4fa00951bb9d05e3e86c26cf4153dbca449232608916d6a6d5e612abc392d5
 file:
 - statement:
     select_statement:
@@ -11,36 +11,55 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: foo
+            identifier: name
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: bar
+            identifier: age
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: count
+            bracketed:
+              start_bracket: (
+              star: '*'
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: record_count
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: baz
+                identifier: people
       groupby_clause:
       - keyword: GROUP
       - keyword: BY
-      - keyword: GROUPING
-      - keyword: SETS
+      - keyword: CUBE
       - bracketed:
         - start_bracket: (
         - column_reference:
-            identifier: foo
+            identifier: name
         - comma: ','
         - column_reference:
-            identifier: bar
+            identifier: age
         - end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
       select_clause:
-      - keyword: select
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            identifier: name
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: age
+      - comma: ','
       - select_clause_element:
           function:
             function_name:
@@ -49,73 +68,26 @@ file:
               start_bracket: (
               star: '*'
               end_bracket: )
-      - comma: ','
-      - select_clause_element:
-          column_reference:
-            identifier: medical_license
-      - comma: ','
-      - select_clause_element:
-          column_reference:
-            identifier: radio_license
+          alias_expression:
+            keyword: AS
+            identifier: record_count
       from_clause:
-        keyword: from
+        keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: nurses
+                identifier: people
       groupby_clause:
-      - keyword: group
-      - keyword: by
-      - keyword: grouping
-      - keyword: sets
+      - keyword: GROUP
+      - keyword: BY
+      - keyword: ROLLUP
       - bracketed:
         - start_bracket: (
         - column_reference:
-            identifier: medical_license
+            identifier: name
         - comma: ','
         - column_reference:
-            identifier: radio_license
-        - end_bracket: )
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-      - keyword: select
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: count
-            bracketed:
-              start_bracket: (
-              star: '*'
-              end_bracket: )
-      - comma: ','
-      - select_clause_element:
-          column_reference:
-            identifier: medical_license
-      - comma: ','
-      - select_clause_element:
-          column_reference:
-            identifier: radio_license
-      from_clause:
-        keyword: from
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                identifier: nurses
-      groupby_clause:
-      - keyword: group
-      - keyword: by
-      - keyword: grouping
-      - keyword: sets
-      - bracketed:
-        - start_bracket: (
-        - column_reference:
-            identifier: medical_license
-        - comma: ','
-        - column_reference:
-            identifier: radio_license
+            identifier: age
         - end_bracket: )
 - statement_terminator: ;
