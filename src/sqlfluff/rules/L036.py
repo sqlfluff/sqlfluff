@@ -268,9 +268,11 @@ class Rule_L036(BaseRule):
                         these segments may, for example, be *siblings* of
                         select_clause.
                         """
-                        start_seg = select_children[
-                            select_targets_info.first_new_line_idx
-                        ]
+                        start_seg = (
+                            modifier[0]
+                            if modifier
+                            else select_children[select_targets_info.first_new_line_idx]
+                        )
                         move_after_select_clause = select_children.select(
                             start_seg=start_seg,
                             stop_seg=stop_seg,
@@ -352,14 +354,12 @@ class Rule_L036(BaseRule):
                         )
                         fixes += [LintFix.delete(seg) for seg in to_delete]
 
-                        fixes += _fixes_for_move_after_select_clause(
-                            to_delete[-1],
-                            # If we stopped due to something other than a newline,
-                            # we want to include a newline here.
-                            not select_children[
-                                select_clause_idx - len(to_delete) - 2
-                            ].is_type("newline"),
-                        )
+                        if to_delete:
+                            fixes += _fixes_for_move_after_select_clause(
+                                to_delete[-1],
+                                # If we deleted a newline, create a newline.
+                                any(seg for seg in to_delete if seg.is_type("newline")),
+                            )
                     else:
                         fixes += _fixes_for_move_after_select_clause(
                             select_children[
