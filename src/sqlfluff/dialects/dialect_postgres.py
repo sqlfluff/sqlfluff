@@ -1111,7 +1111,9 @@ class ExplainStatementSegment(BaseSegment):
             Bracketed(Delimited(Ref("ExplainOptionSegment"))),
             optional=True,
         ),
-        ansi_dialect.get_segment("ExplainStatementSegment",).explainable_stmt,
+        ansi_dialect.get_segment(
+            "ExplainStatementSegment",
+        ).explainable_stmt,
     )
 
 
