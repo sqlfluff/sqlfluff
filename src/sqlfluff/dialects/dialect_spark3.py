@@ -1692,36 +1692,9 @@ class ExplainStatementSegment(BaseSegment):
 
     type = "explain_statement"
 
-    explainable_stmt = ansi_dialect.get_segment(
-        "ExplainStatementSegment"
-    ).explainable_stmt.copy(
-        insert=[
-            Ref("AlterDatabaseStatementSegment"),
-            Ref("AlterTableStatementSegment"),
-            Ref("AlterViewStatementSegment"),
-            Ref("CreateDatabaseStatementSegment"),
-            Ref("CreateFunctionStatementSegment"),
-            Ref("CreateTableStatementSegment"),
-            Ref("CreateViewStatementSegment"),
-            ansi_dialect.get_segment("DropDatabaseStatementSegment"),
-            Ref("DropFunctionStatementSegment"),
-            ansi_dialect.get_segment(
-                "DropViewStatementSegment",
-            ),
-            Ref("UseDatabaseStatementSegment"),
-            Ref("TruncateStatementSegment"),
-            Ref("MsckRepairTableStatementSegment"),
-            Ref("RefreshTableStatementSegment"),
-            Ref("RefreshFunctionStatementSegment"),
-            Ref("LoadDataSegment"),
-            Ref("InsertOverwriteDirectorySegment"),
-            Ref("InsertOverwriteDirectoryHiveFmtSegment"),
-        ],
-    )
+    explainable_stmt = Ref("StatementSegment")
 
-    match_grammar = StartsWith("EXPLAIN")
-
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "EXPLAIN",
         OneOf(
             "EXTENDED",

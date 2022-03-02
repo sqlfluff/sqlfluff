@@ -1097,9 +1097,7 @@ class ExplainStatementSegment(BaseSegment):
 
     type = "explain_statement"
 
-    match_grammar = ansi_dialect.get_segment("ExplainStatementSegment").match_grammar
-
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "EXPLAIN",
         OneOf(
             Sequence(
@@ -1113,7 +1111,7 @@ class ExplainStatementSegment(BaseSegment):
             Bracketed(Delimited(Ref("ExplainOptionSegment"))),
             optional=True,
         ),
-        ansi_dialect.get_segment("ExplainStatementSegment").explainable_stmt,
+        ansi_dialect.get_segment("ExplainStatementSegment",).explainable_stmt,
     )
 
 
