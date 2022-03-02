@@ -238,8 +238,8 @@ test_select_alias_in_where_clause_4:
       L028:
         single_table_references: qualified
 
-test_select_alias_in_where_clause_4:
-  # This should fail for ansi
+test_fail_select_alias_in_where_clause_5:
+  # This should fail for ansi (and be fixable)
   fail_str: |
     select
         t.col0,
