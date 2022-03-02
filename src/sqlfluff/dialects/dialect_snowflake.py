@@ -427,8 +427,7 @@ class ConnectByClauseSegment(BaseSegment):
     """
 
     type = "connectby_clause"
-    match_grammar = StartsWith(Sequence("START", "WITH"))
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "START",
         "WITH",
         Ref("ExpressionSegment"),
