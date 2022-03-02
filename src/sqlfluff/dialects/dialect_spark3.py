@@ -222,6 +222,26 @@ spark3_dialect.replace(
         "RLIKE",
         "REGEXP",
     ),
+    SelectClauseSegmentGrammar=Sequence(
+        "SELECT",
+        OneOf(
+            Ref("TransformClauseSegment"),
+            Sequence(
+                Ref(
+                    "SelectClauseModifierSegment",
+                    optional=True,
+                ),
+                Indent,
+                Delimited(
+                    Ref("SelectClauseElementSegment"),
+                    allow_trailing=True,
+                ),
+            ),
+        ),
+        # NB: The Dedent for the indent above lives in the
+        # SelectStatementSegment so that it sits in the right
+        # place corresponding to the whitespace.
+    ),
 )
 
 spark3_dialect.add(
@@ -1622,6 +1642,43 @@ class PivotClauseSegment(BaseSegment):
     )
 
 
+@spark3_dialect.segment()
+class TransformClauseSegment(BaseSegment):
+    """A `TRANSFORM` clause like used in `SELECT`.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-transform.html
+    """
+
+    type = "transform_clause"
+
+    match_grammar = Sequence(
+        "TRANSFORM",
+        Bracketed(
+            Delimited(
+                Ref("SingleIdentifierGrammar"),
+                ephemeral_name="TransformClauseContents",
+            ),
+        ),
+        Indent,
+        Ref("RowFormatClauseSegment", optional=True),
+        "USING",
+        Ref("QuotedLiteralSegment"),
+        Sequence(
+            "AS",
+            Bracketed(
+                Delimited(
+                    AnyNumberOf(
+                        Ref("SingleIdentifierGrammar"),
+                        Ref("DatatypeSegment"),
+                    ),
+                ),
+            ),
+            optional=True,
+        ),
+        Ref("RowFormatClauseSegment", optional=True),
+    )
+
+
 # Auxiliary Statements
 @spark3_dialect.segment()
 class AddExecutablePackage(BaseSegment):
@@ -1995,3 +2052,25 @@ class FromExpressionElementSegment(BaseSegment):
     get_eventual_alias = ansi_dialect.get_segment(
         "FromExpressionElementSegment"
     ).get_eventual_alias
+
+
+@spark3_dialect.segment(replace=True)
+class SelectClauseSegment(BaseSegment):
+    """A group of elements in a select target statement."""
+
+    type = "select_clause"
+
+    match_grammar = StartsWith(
+        Sequence("SELECT", Ref("WildcardExpressionSegment", optional=True)),
+        terminator=OneOf(
+            "FROM",
+            "WHERE",
+            Sequence("ORDER", "BY"),
+            "LIMIT",
+            "OVERLAPS",
+            Ref("SetOperatorSegment"),
+        ),
+        enforce_whitespace_preceding_terminator=True,
+    )
+
+    parse_grammar = Ref("SelectClauseSegmentGrammar")
