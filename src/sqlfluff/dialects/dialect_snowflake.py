@@ -264,6 +264,7 @@ snowflake_dialect.replace(
     ),
     JoinLikeClauseGrammar=Sequence(
         AnySetOf(
+            Ref("ConnectByClauseSegment"),
             Ref("FromAtExpressionSegment"),
             Ref("FromBeforeExpressionSegment"),
             Ref("FromPivotExpressionSegment"),
@@ -292,6 +293,17 @@ snowflake_dialect.replace(
         optional=True,
     ),
     TemporaryTransientGrammar=OneOf(Ref("TemporaryGrammar"), "TRANSIENT"),
+    BaseExpressionElementGrammar=OneOf(
+        # Allow use of CONNECT_BY_ROOT pseudo-columns.
+        # https://docs.snowflake.com/en/sql-reference/constructs/connect-by.html#:~:text=Snowflake%20supports%20the%20CONNECT_BY_ROOT,the%20Examples%20section%20below.
+        Sequence("CONNECT_BY_ROOT", Ref("ColumnReferenceSegment")),
+        Ref("LiteralGrammar"),
+        Ref("BareFunctionSegment"),
+        Ref("IntervalExpressionSegment"),
+        Ref("FunctionSegment"),
+        Ref("ColumnReferenceSegment"),
+        Ref("ExpressionSegment"),
+    ),
 )
 
 # Add all Snowflake keywords
@@ -405,6 +417,32 @@ snowflake_dialect.sets("datetime_units").update(
         "TZM",
     ]
 )
+
+
+@snowflake_dialect.segment()
+class ConnectByClauseSegment(BaseSegment):
+    """A `CONNECT BY` clause.
+
+    https://docs.snowflake.com/en/sql-reference/constructs/connect-by.html
+    """
+
+    type = "connectby_clause"
+    match_grammar = Sequence(
+        "START",
+        "WITH",
+        Ref("ExpressionSegment"),
+        "CONNECT",
+        "BY",
+        Delimited(
+            Sequence(
+                Ref.keyword("PRIOR", optional=True),
+                Ref("ColumnReferenceSegment"),
+                Ref("EqualsSegment"),
+                Ref.keyword("PRIOR", optional=True),
+                Ref("ColumnReferenceSegment"),
+            ),
+        ),
+    )
 
 
 @snowflake_dialect.segment(replace=True)
