@@ -244,3 +244,10 @@ test_single_select_with_comment before:
       /* comment before */
     FROM
       my_table
+
+test_distinct_no_table:
+  fail_str: |
+    SELECT
+    DISTINCT id
+  fix_str: |
+    SELECT DISTINCT id
