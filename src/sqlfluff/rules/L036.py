@@ -280,31 +280,18 @@ class Rule_L036(BaseRule):
                         fixes = [
                             LintFix.delete(seg) for seg in move_after_select_clause
                         ]
-                        if move_after_select_clause:
-                            fixes.append(
-                                LintFix.create_after(
-                                    self._choose_anchor_segment(
-                                        context,
-                                        "create_after",
-                                        select_clause[0],
-                                        filter_meta=True,
-                                    ),
-                                    ([NewlineSegment()] if add_newline else [])
-                                    + list(move_after_select_clause),
-                                )
+                        fixes.append(
+                            LintFix.create_after(
+                                self._choose_anchor_segment(
+                                    context,
+                                    "create_after",
+                                    select_clause[0],
+                                    filter_meta=True,
+                                ),
+                                ([NewlineSegment()] if add_newline else [])
+                                + list(move_after_select_clause),
                             )
-                        elif add_newline:
-                            fixes.append(
-                                LintFix.create_after(
-                                    self._choose_anchor_segment(
-                                        context,
-                                        "create_after",
-                                        select_clause[0],
-                                        filter_meta=True,
-                                    ),
-                                    [NewlineSegment()],
-                                )
-                            )
+                        )
                         return fixes
 
                     if select_stmt.segments[after_select_clause_idx].is_type("newline"):
