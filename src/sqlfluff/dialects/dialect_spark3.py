@@ -2052,25 +2052,3 @@ class FromExpressionElementSegment(BaseSegment):
     get_eventual_alias = ansi_dialect.get_segment(
         "FromExpressionElementSegment"
     ).get_eventual_alias
-
-
-@spark3_dialect.segment(replace=True)
-class SelectClauseSegment(BaseSegment):
-    """A group of elements in a select target statement."""
-
-    type = "select_clause"
-
-    match_grammar = StartsWith(
-        Sequence("SELECT", Ref("WildcardExpressionSegment", optional=True)),
-        terminator=OneOf(
-            "FROM",
-            "WHERE",
-            Sequence("ORDER", "BY"),
-            "LIMIT",
-            "OVERLAPS",
-            Ref("SetOperatorSegment"),
-        ),
-        enforce_whitespace_preceding_terminator=True,
-    )
-
-    parse_grammar = Ref("SelectClauseSegmentGrammar")
