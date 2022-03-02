@@ -85,7 +85,7 @@ SELECT
     age,
     count(*) AS record_count
 FROM people
-GROUP BY CUBE (name, age);
+GROUP BY cube(name, age);
 
 -- ROLLUP within GROUP BY clause
 SELECT
@@ -93,4 +93,4 @@ SELECT
     age,
     count(*) AS record_count
 FROM people
-GROUP BY ROLLUP (name, age);
+GROUP BY cube(name, age);
