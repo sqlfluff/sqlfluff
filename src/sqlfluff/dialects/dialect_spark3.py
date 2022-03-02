@@ -1679,6 +1679,34 @@ class TransformClauseSegment(BaseSegment):
     )
 
 
+@spark3_dialect.segment(replace=True)
+class ExplainStatementSegment(BaseSegment):
+    """An `Explain` statement.
+
+    Enhanced from ANSI dialect to allow for additonal parameters.
+
+    EXPLAIN [ EXTENDED | CODEGEN | COST | FORMATTED ] explainable_stmt
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-qry-explain.html
+    """
+
+    type = "explain_statement"
+
+    explainable_stmt = Ref("StatementSegment")
+
+    match_grammar = Sequence(
+        "EXPLAIN",
+        OneOf(
+            "EXTENDED",
+            "CODEGEN",
+            "COST",
+            "FORMATTED",
+            optional=True,
+        ),
+        explainable_stmt,
+    )
+
+
 # Auxiliary Statements
 @spark3_dialect.segment()
 class AddExecutablePackage(BaseSegment):
