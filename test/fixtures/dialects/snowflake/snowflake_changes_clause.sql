@@ -9,7 +9,7 @@ from t1
   at(offset => -60*5);
 
 select c1
-  from t1
+from t1
   changes(information => append_only)
   at(timestamp => 'Fri, 01 May 2015 16:20:00 -0700'::timestamp)
   end(timestamp => 'Fri, 05 May 2015 16:20:00 -0700'::timestamp);
