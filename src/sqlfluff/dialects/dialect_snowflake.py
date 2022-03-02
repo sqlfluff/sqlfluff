@@ -668,7 +668,7 @@ class ChangesClauseSegment(BaseSegment):
             Sequence(
                 "BEFORE",
                 Bracketed(
-                   "STATEMENT",
+                    "STATEMENT",
                     Ref("ParameterAssignerSegment"),
                     Ref("ExpressionSegment"),
                 ),
