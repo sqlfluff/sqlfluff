@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e5c6af33aad2056c610baf7d49cff1e55269c02e352382327d938d2e4baf988f
+_hash: fd2fcab6c53edcf7ddb5ee2a7d6653c7a20848296e6c63f83bbdded165cbd7ed
 file:
 - statement:
     analyze_table_statement:
@@ -13,7 +13,7 @@ file:
         identifier: students
     - keyword: COMPUTE
     - keyword: STATISTICS
-    - noscan_keyword: NOSCAN
+    - keyword: NOSCAN
 - statement_terminator: ;
 - statement:
     analyze_table_statement:
@@ -64,7 +64,7 @@ file:
         identifier: school_db
     - keyword: COMPUTE
     - keyword: STATISTICS
-    - noscan_keyword: NOSCAN
+    - keyword: NOSCAN
 - statement_terminator: ;
 - statement:
     analyze_table_statement:

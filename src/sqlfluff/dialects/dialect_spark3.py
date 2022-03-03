@@ -286,7 +286,7 @@ spark3_dialect.add(
         "JARS?", KeywordSegment, name="jar", type="file_keyword"
     ),
     NoscanKeywordSegment=StringParser(
-        "NOSCAN", SymbolSegment, name="noscan_keyword", type="noscan_keyword"
+        "NOSCAN", SymbolSegment, name="noscan_keyword", type="keyword"
     ),
     WhlKeywordSegment=StringParser(
         "WHL", KeywordSegment, name="whl", type="file_keyword"
