@@ -234,6 +234,22 @@ class CompressionTypeSegment(BaseSegment):
 
 
 @redshift_dialect.segment()
+class ArgModeSegment(BaseSegment):
+    """Argument mode segment.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_PROCEDURE.html
+    """
+
+    type = "arg_mode_segment"
+
+    match_grammar = OneOf(
+        "IN",
+        "OUT",
+        "INOUT",
+    )
+
+
+@redshift_dialect.segment()
 class DataFormatSegment(BaseSegment):
     """DataFormat segment.
 
@@ -1194,6 +1210,106 @@ class CreateSchemaStatementSegment(BaseSegment):
 
 
 @redshift_dialect.segment()
+class ProcedureParameterListSegment(BaseSegment):
+    """The parameters for a procedure.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_PROCEDURE.html
+    """
+
+    type = "procedure_parameter_list"
+    # Odd syntax, but prevents eager parameters being confused for data types
+    match_grammar = Bracketed(
+        Delimited(
+            OneOf(
+                Sequence(
+                    AnySetOf(
+                        Ref("ArgModeSegment", optional=True),
+                        Ref("ParameterNameSegment", optional=True),
+                    ),
+                    OneOf("REFCURSOR", Ref("DatatypeSegment")),
+                ),
+                OneOf("REFCURSOR", Ref("DatatypeSegment")),
+            ),
+            delimiter=Ref("CommaSegment"),
+            optional=True,
+        ),
+    )
+
+
+@redshift_dialect.segment(replace=True)
+class CreateProcedureStatementSegment(BaseSegment):
+    """A `CREATE PROCEDURE` statement.
+
+    https://www.postgresql.org/docs/14/sql-createprocedure.html
+
+    TODO: Just a basic statement for now, without full syntax.
+    based on CreateFunctionStatementSegment without a return type.
+    """
+
+    type = "create_procedure_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Sequence("OR", "REPLACE", optional=True),
+        "PROCEDURE",
+        Ref("FunctionNameSegment"),
+        Ref("ProcedureParameterListSegment"),
+        Ref("FunctionDefinitionGrammar"),
+    )
+
+
+@redshift_dialect.segment()
+class AlterProcedureStatementSegment(BaseSegment):
+    """An `ALTER PROCEDURE` statement.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_ALTER_PROCEDURE.html
+    """
+
+    type = "alter_procedure_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "PROCEDURE",
+        Ref("FunctionNameSegment"),
+        Ref("ProcedureParameterListSegment", optional=True),
+        OneOf(
+            Sequence("RENAME", "TO", Ref("FunctionNameSegment")),
+            Sequence(
+                "OWNER",
+                "TO",
+                OneOf(
+                    OneOf(Ref("ParameterNameSegment"), Ref("QuotedIdentifierSegment")),
+                    "CURRENT_USER",
+                    "SESSION_USER",
+                ),
+            ),
+        ),
+    )
+
+
+@redshift_dialect.segment(replace=True)
+class DropProcedureStatementSegment(BaseSegment):
+    """An `DROP PROCEDURE` statement.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_DROP_PROCEDURE.html
+    """
+
+    type = "drop_procedure_statement"
+
+    match_grammar = Sequence(
+        "DROP",
+        "PROCEDURE",
+        Ref("IfExistsGrammar", optional=True),
+        Delimited(
+            Sequence(
+                Ref("FunctionNameSegment"),
+                Ref("ProcedureParameterListSegment", optional=True),
+            ),
+        ),
+    )
+
+
+@redshift_dialect.segment()
 class DeclareStatementSegment(BaseSegment):
     """A `DECLARE` statement.
 
@@ -1489,6 +1605,7 @@ class StatementSegment(BaseSegment):
             Ref("RowFormatDelimitedSegment"),
             Ref("DataFormatSegment"),
             Ref("CompressionTypeSegment"),
+            Ref("ArgModeSegment"),
             Ref("UnloadStatementSegment"),
             Ref("CopyStatementSegment"),
             Ref("ShowModelSegment"),
@@ -1502,6 +1619,8 @@ class StatementSegment(BaseSegment):
             Ref("CloseStatementSegment"),
             Ref("AnalyzeCompressionStatementSegment"),
             Ref("VacuumStatementSegment"),
+            Ref("ProcedureParameterListSegment"),
+            Ref("AlterProcedureStatementSegment"),
         ],
     )
 

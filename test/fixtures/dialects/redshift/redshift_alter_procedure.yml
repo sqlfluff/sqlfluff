@@ -1,0 +1,80 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 5d1cd349103272866f85b3d6b2b124a6f910251168e70153a58e5fbc66b53c4d
+file:
+- statement:
+    alter_procedure_statement:
+    - keyword: ALTER
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: first_quarter_revenue
+    - procedure_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - parameter: volume
+        - arg_mode_segment:
+            keyword: INOUT
+        - data_type:
+            keyword: bigint
+        - comma: ','
+        - parameter: at_price
+        - arg_mode_segment:
+            keyword: IN
+        - data_type:
+            keyword: numeric
+        - comma: ','
+        - parameter: result
+        - arg_mode_segment:
+            keyword: OUT
+        - data_type:
+            keyword: int
+        - end_bracket: )
+    - keyword: RENAME
+    - keyword: TO
+    - function_name:
+        function_name_identifier: quarterly_revenue
+- statement_terminator: ;
+- statement:
+    alter_procedure_statement:
+    - keyword: ALTER
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: first_quarter_revenue
+    - procedure_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - data_type:
+            keyword: bigint
+        - comma: ','
+        - data_type:
+            keyword: numeric
+        - end_bracket: )
+    - keyword: RENAME
+    - keyword: TO
+    - function_name:
+        function_name_identifier: quarterly_revenue
+- statement_terminator: ;
+- statement:
+    alter_procedure_statement:
+    - keyword: ALTER
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: quarterly_revenue
+    - procedure_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - parameter: volume
+        - data_type:
+            keyword: bigint
+        - comma: ','
+        - parameter: at_price
+        - data_type:
+            keyword: numeric
+        - end_bracket: )
+    - keyword: OWNER
+    - keyword: TO
+    - parameter: etl_user
+- statement_terminator: ;
