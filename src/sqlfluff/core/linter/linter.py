@@ -914,9 +914,11 @@ class Linter:
                 # that the ignore file is processed after the sql file.
 
                 # Scan for remaining files
-                for ext in self.config.get("sql_file_exts", default=".sql").split(","):
+                for ext in (
+                    self.config.get("sql_file_exts", default=".sql").lower().split(",")
+                ):
                     # is it a sql file?
-                    if fname.endswith(ext):
+                    if fname.lower().endswith(ext):
                         buffer.append(fpath)
 
         if not ignore_files:
