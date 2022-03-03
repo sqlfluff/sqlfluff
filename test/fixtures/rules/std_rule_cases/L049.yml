@@ -7,6 +7,9 @@ test_is_null:
     WHERE a IS NULL
 
 test_equal_string:
+  # NOT NULL missing "IS" is/was parsable and was causing issues
+  # It doesnt seem to be valid syntax but its source is unknown
+  # At the time of this fix.
   pass_str: |
     SELECT
         foo

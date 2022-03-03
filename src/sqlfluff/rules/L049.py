@@ -69,14 +69,14 @@ class Rule_L049(Rule_L006):
         results: List[LintResult] = []
         # We may have many operators
         for operator in operators:
-            sub_list = children.select(start_seg=operator)
-            null_literal = sub_list.first(sp.is_code())
+            after_op_list = children.select(start_seg=operator)
+            null_literal = after_op_list.first(sp.is_code())
             # if the next bit of code isnt a NULL then we are good
             if not null_literal.all(sp.is_name("null_literal")):
                 continue
 
             sub_seg = null_literal.get()
-            assert sub_seg, "TypeGaurd: Segement Must exist"
+            assert sub_seg, "TypeGaurd: Segement Must exist Must exist"
             self.logger.debug(
                 "Found NULL literal following equals/not equals @%s: %r",
                 sub_seg.pos_marker,
@@ -86,7 +86,7 @@ class Rule_L049(Rule_L006):
                 is_upper=sub_seg.raw[0] == "N",
                 operator_name=operator.name,
             )
-            prev_seg = sub_list.first().get()
+            prev_seg = after_op_list.first().get()
             next_seg = children.select(stop_seg=operator).last().get()
             if self._missing_whitespace(prev_seg, before=True):
                 whitespace_segment: CorrectionListType = [WhitespaceSegment()]
