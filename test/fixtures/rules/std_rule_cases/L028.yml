@@ -11,6 +11,10 @@ test_pass_single_table_consistent_references_1:
 test_pass_single_table_consistent_references_2:
   pass_str: SELECT my_tbl.bar FROM my_tbl
 
+test_pass_on_tableless_table:
+  # tests particular code branch for coverage
+  pass_str: SELECT (SELECT MAX(bar) FROM tbl) + 1 AS col
+
 test_fail_single_table_mixed_qualification_of_references_subquery:
   fail_str: SELECT * FROM (SELECT my_tbl.bar, baz FROM my_tbl)
   fix_str: SELECT * FROM (SELECT my_tbl.bar, my_tbl.baz FROM my_tbl)
