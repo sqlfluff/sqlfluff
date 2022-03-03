@@ -1,0 +1,38 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: b2703f9527e83c7cb69caac9fdfe16f15000f9ec93ce59c83471d05b24db927c
+file:
+- statement:
+    add_file:
+      keyword: ADD
+      file_keyword: FILE
+      literal: '"/path/to/file/abc.txt"'
+- statement_terminator: ;
+- statement:
+    add_file:
+      keyword: ADD
+      file_keyword: FILE
+      literal: "'/another/test.txt'"
+- statement_terminator: ;
+- statement:
+    add_file:
+      keyword: ADD
+      file_keyword: FILE
+      literal: '"/path with space/abc.txt"'
+- statement_terminator: ;
+- statement:
+    add_file:
+      keyword: ADD
+      file_keyword: FILE
+      literal: '"/path/to/some/directory"'
+- statement_terminator: ;
+- statement:
+    add_file:
+    - keyword: ADD
+    - file_keyword: FILES
+    - literal: '"/path with space/cde.txt"'
+    - literal: "'/path with space/fgh.txt'"
+- statement_terminator: ;
