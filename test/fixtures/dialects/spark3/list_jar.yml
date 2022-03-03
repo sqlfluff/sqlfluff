@@ -1,0 +1,56 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: d853fea25a38e4bb3a0acf3806981a0dd77c43f6c7e00c4a02df58ddfc16b416
+file:
+- statement:
+    list_jar:
+      keyword: LIST
+      file_keyword: JAR
+      literal: '"/path/to/some.jar"'
+- statement_terminator: ;
+- statement:
+    list_jar:
+      keyword: LIST
+      file_keyword: JAR
+      literal: "'/some/other.jar'"
+- statement_terminator: ;
+- statement:
+    list_jar:
+      keyword: LIST
+      file_keyword: JAR
+      literal: '"/path with space/abc.jar"'
+- statement_terminator: ;
+- statement:
+    list_jar:
+    - keyword: LIST
+    - file_keyword: JARS
+    - literal: '"/path with space/def.jar"'
+    - literal: "'/path with space/ghi.jar'"
+- statement_terminator: ;
+- statement:
+    list_jar:
+      keyword: LIST
+      file_keyword: JAR
+      literal: '"ivy://group:module:version"'
+- statement_terminator: ;
+- statement:
+    list_jar:
+      keyword: LIST
+      file_keyword: JAR
+      literal: '"ivy://group:module:version?transitive=false"'
+- statement_terminator: ;
+- statement:
+    list_jar:
+      keyword: LIST
+      file_keyword: JAR
+      literal: '"ivy://group:module:version?transitive=true"'
+- statement_terminator: ;
+- statement:
+    list_jar:
+      keyword: LIST
+      file_keyword: JAR
+      literal: '"ivy://group:module:version?exclude=group:module&transitive=true"'
+- statement_terminator: ;
