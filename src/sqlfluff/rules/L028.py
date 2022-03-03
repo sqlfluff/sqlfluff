@@ -19,9 +19,10 @@ class Rule_L028(Rule_L020):
     """References should be consistent in statements with a single table.
 
     .. note::
-       This rule is disabled by default for BigQuery due to its use of
-       structs which trigger false positives. It can be enabled with the
-       ``force_enable = True`` flag.
+        For BigQuery, Hive and Redshift this rule is disabled by default.
+        This is due to historical false positives assocaited with STRUCT data types.
+        This default behaviour may be changed in the future.
+        The rule can be enabled with the ``force_enable = True`` flag.
 
     "consistent" will be fixed to "qualified" if inconsistency is found.
 

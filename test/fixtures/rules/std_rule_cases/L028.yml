@@ -20,7 +20,7 @@ test_pass_lateral_table_ref_with_qa:
     SELECT
       tbl.a,
       tbl.b,
-      tbl.a + tbl.b AS col_created_right_here, 
+      tbl.a + tbl.b AS col_created_right_here,
       col_created_right_here + 1 AS sub_self_ref -- noqa: disable=L028
     FROM tbl
 
@@ -29,14 +29,14 @@ test_fail_lateral_table_ref_without_qa_help:
     SELECT
       tbl.a,
       tbl.b,
-      tbl.a + tbl.b AS col_created_right_here, 
+      tbl.a + tbl.b AS col_created_right_here,
       col_created_right_here + 1 AS sub_self_ref
     FROM tbl
   fix_str: |
     SELECT
       tbl.a,
       tbl.b,
-      tbl.a + tbl.b AS col_created_right_here, 
+      tbl.a + tbl.b AS col_created_right_here,
       tbl.col_created_right_here + 1 AS sub_self_ref
     FROM tbl
 
