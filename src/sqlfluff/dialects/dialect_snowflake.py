@@ -1049,8 +1049,19 @@ class AlterTableTableColumnActionSegment(BaseSegment):
                         Ref.keyword("WITH", optional=True),
                         "MASKING",
                         "POLICY",
-                        Ref("ObjectReferenceSegment"),
-                        # @TODO: Add support for delimited col/expression list
+                        Ref("FunctionNameSegment"),
+                        Sequence(
+                            "USING",
+                            Bracketed(
+                                Delimited(
+                                    OneOf(
+                                        Ref("ColumnReferenceSegment"),
+                                        Ref("ExpressionSegment"),
+                                    )
+                                ),
+                            ),
+                            optional=True,
+                        ),
                         optional=True,
                     ),
                     Ref("CommentClauseSegment", optional=True),
@@ -1103,10 +1114,29 @@ class AlterTableTableColumnActionSegment(BaseSegment):
                         Sequence(
                             "COLUMN",
                             Ref("ColumnReferenceSegment"),
-                            OneOf("SET", "UNSET"),
+                            "SET",
                             "MASKING",
                             "POLICY",
-                            Ref("FunctionNameIdentifierSegment", optional=True),
+                            Ref("FunctionNameSegment"),
+                            Sequence(
+                                "USING",
+                                Bracketed(
+                                    Delimited(
+                                        OneOf(
+                                            Ref("ColumnReferenceSegment"),
+                                            Ref("ExpressionSegment"),
+                                        )
+                                    ),
+                                ),
+                                optional=True,
+                            ),
+                        ),
+                        Sequence(
+                            "COLUMN",
+                            Ref("ColumnReferenceSegment"),
+                            "UNSET",
+                            "MASKING",
+                            "POLICY",
                         ),
                         # @TODO: Set/Unset TAG support
                     ),
@@ -1638,7 +1668,19 @@ class ColumnConstraintSegment(BaseSegment):
             Sequence("WITH", optional=True),
             "MASKING",
             "POLICY",
-            Ref("QuotedLiteralSegment"),
+            Ref("FunctionNameSegment"),
+            Sequence(
+                "USING",
+                Bracketed(
+                    Delimited(
+                        OneOf(
+                            Ref("ColumnReferenceSegment"),
+                            Ref("ExpressionSegment"),
+                        )
+                    ),
+                ),
+                optional=True,
+            ),
         ),
         Ref("TagBracketedEqualsSegment", optional=True),
         Ref("ConstraintPropertiesSegment"),
