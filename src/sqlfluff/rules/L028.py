@@ -98,7 +98,6 @@ class Rule_L028(Rule_L020):
         """Override base class for dialects that use structs, or SELECT aliases."""
         # Config type hints
         self.force_enable: bool
-        self.dialect: str = context.dialect.name
         # Some dialects use structs (e.g. column.field) which look like
         # table references and so incorrectly trigger this rule.
         if (
