@@ -313,6 +313,13 @@ snowflake_dialect.replace(
             type="literal",
         ),
     ),
+    LikeGrammar=OneOf(
+        # https://docs.snowflake.com/en/sql-reference/functions/like.html
+        Sequence("LIKE", OneOf("ALL", "ANY", optional=True)),
+        "RLIKE",
+        Sequence("ILIKE", Ref.keyword("ANY", optional=True)),
+        "REGEXP",
+    ),
 )
 
 # Add all Snowflake keywords
