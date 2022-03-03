@@ -22,6 +22,16 @@ test_not_equals_null_upper:
     FROM foo
     WHERE a IS NOT NULL
 
+test_not_equals_null_multi_nulls:
+  fail_str: |
+    SELECT a
+    FROM foo
+    WHERE a <> NULL AND b != NULL AND c = 'foo'
+  fix_str: |
+    SELECT a
+    FROM foo
+    WHERE a IS NOT NULL AND b IS NOT NULL AND c = 'foo'
+
 test_not_equals_null_lower:
   fail_str: |
     SELECT a

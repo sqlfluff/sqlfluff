@@ -120,13 +120,6 @@ snowflake_dialect.add(
         name="warehouse_size",
         type="warehouse_size",
     ),
-    DoubleQuotedLiteralSegment=NamedParser(
-        "double_quote",
-        CodeSegment,
-        name="quoted_literal",
-        type="literal",
-        trim_chars=('"',),
-    ),
     ValidationModeOptionSegment=RegexParser(
         r"'?RETURN_(?:\d+_ROWS|ERRORS|ALL_ERRORS)'?",
         CodeSegment,
@@ -304,6 +297,28 @@ snowflake_dialect.replace(
         Ref("FunctionSegment"),
         Ref("ColumnReferenceSegment"),
         Ref("ExpressionSegment"),
+    ),
+    QuotedLiteralSegment=OneOf(
+        # https://docs.snowflake.com/en/sql-reference/data-types-text.html#string-constants
+        NamedParser(
+            "single_quote",
+            CodeSegment,
+            name="quoted_literal",
+            type="literal",
+        ),
+        NamedParser(
+            "dollar_quote",
+            CodeSegment,
+            name="quoted_literal",
+            type="literal",
+        ),
+    ),
+    LikeGrammar=OneOf(
+        # https://docs.snowflake.com/en/sql-reference/functions/like.html
+        Sequence("LIKE", OneOf("ALL", "ANY", optional=True)),
+        "RLIKE",
+        Sequence("ILIKE", Ref.keyword("ANY", optional=True)),
+        "REGEXP",
     ),
 )
 
@@ -505,7 +520,7 @@ class FunctionDefinitionGrammar(BaseSegment):
     type = "function_definition"
     match_grammar = Sequence(
         "AS",
-        OneOf(Ref("QuotedLiteralSegment"), Ref("DollarQuotedLiteralSegment")),
+        Ref("QuotedLiteralSegment"),
         Sequence(
             "LANGUAGE",
             # Not really a parameter, but best fit for now.
@@ -1034,8 +1049,19 @@ class AlterTableTableColumnActionSegment(BaseSegment):
                         Ref.keyword("WITH", optional=True),
                         "MASKING",
                         "POLICY",
-                        Ref("ObjectReferenceSegment"),
-                        # @TODO: Add support for delimited col/expression list
+                        Ref("FunctionNameSegment"),
+                        Sequence(
+                            "USING",
+                            Bracketed(
+                                Delimited(
+                                    OneOf(
+                                        Ref("ColumnReferenceSegment"),
+                                        Ref("ExpressionSegment"),
+                                    )
+                                ),
+                            ),
+                            optional=True,
+                        ),
                         optional=True,
                     ),
                     Ref("CommentClauseSegment", optional=True),
@@ -1088,10 +1114,29 @@ class AlterTableTableColumnActionSegment(BaseSegment):
                         Sequence(
                             "COLUMN",
                             Ref("ColumnReferenceSegment"),
-                            OneOf("SET", "UNSET"),
+                            "SET",
                             "MASKING",
                             "POLICY",
-                            Ref("FunctionNameIdentifierSegment", optional=True),
+                            Ref("FunctionNameSegment"),
+                            Sequence(
+                                "USING",
+                                Bracketed(
+                                    Delimited(
+                                        OneOf(
+                                            Ref("ColumnReferenceSegment"),
+                                            Ref("ExpressionSegment"),
+                                        )
+                                    ),
+                                ),
+                                optional=True,
+                            ),
+                        ),
+                        Sequence(
+                            "COLUMN",
+                            Ref("ColumnReferenceSegment"),
+                            "UNSET",
+                            "MASKING",
+                            "POLICY",
                         ),
                         # @TODO: Set/Unset TAG support
                     ),
@@ -1623,7 +1668,19 @@ class ColumnConstraintSegment(BaseSegment):
             Sequence("WITH", optional=True),
             "MASKING",
             "POLICY",
-            Ref("QuotedLiteralSegment"),
+            Ref("FunctionNameSegment"),
+            Sequence(
+                "USING",
+                Bracketed(
+                    Delimited(
+                        OneOf(
+                            Ref("ColumnReferenceSegment"),
+                            Ref("ExpressionSegment"),
+                        )
+                    ),
+                ),
+                optional=True,
+            ),
         ),
         Ref("TagBracketedEqualsSegment", optional=True),
         Ref("ConstraintPropertiesSegment"),

@@ -31,6 +31,7 @@ from sqlfluff.core.parser import (
     SymbolSegment,
     Anything,
     StartsWith,
+    RegexParser,
 )
 from sqlfluff.core.parser.segments.raw import CodeSegment, KeywordSegment
 from sqlfluff.dialects.dialect_spark3_keywords import (
@@ -279,11 +280,15 @@ spark3_dialect.add(
     EqualsSegment_b=StringParser(
         "<=>", SymbolSegment, name="equals", type="comparison_operator"
     ),
-    FileKeywordSegment=StringParser(
-        "FILE", KeywordSegment, name="file", type="file_type"
+    FileKeywordSegment=RegexParser(
+        "FILES?", KeywordSegment, name="file", type="file_keyword"
     ),
-    JarKeywordSegment=StringParser("JAR", KeywordSegment, name="jar", type="file_type"),
-    WhlKeywordSegment=StringParser("WHL", KeywordSegment, name="whl", type="file_type"),
+    JarKeywordSegment=RegexParser(
+        "JARS?", KeywordSegment, name="jar", type="file_keyword"
+    ),
+    WhlKeywordSegment=StringParser(
+        "WHL", KeywordSegment, name="whl", type="file_keyword"
+    ),
     # Add relevant Hive Grammar
     BracketedPropertyListGrammar=hive_dialect.get_grammar(
         "BracketedPropertyListGrammar"
@@ -1709,18 +1714,66 @@ class ExplainStatementSegment(BaseSegment):
 
 # Auxiliary Statements
 @spark3_dialect.segment()
-class AddExecutablePackage(BaseSegment):
-    """A `ADD JAR` statement.
+class AddFileSegment(BaseSegment):
+    """A `ADD {FILE | FILES}` statement.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-aux-resource-mgmt-add-file.html
+    """
+
+    type = "add_file"
+
+    match_grammar = Sequence(
+        "ADD",
+        Ref("FileKeywordSegment"),
+        AnyNumberOf(Ref("QuotedLiteralSegment")),
+    )
+
+
+@spark3_dialect.segment()
+class AddJarSegment(BaseSegment):
+    """A `ADD {JAR | JARS}` statement.
 
     https://spark.apache.org/docs/latest/sql-ref-syntax-aux-resource-mgmt-add-jar.html
     """
 
-    type = "add_executable_package"
+    type = "add_jar"
 
     match_grammar = Sequence(
         "ADD",
-        Ref("ResourceFileGrammar"),
-        Ref("QuotedLiteralSegment"),
+        Ref("JarKeywordSegment"),
+        AnyNumberOf(Ref("QuotedLiteralSegment")),
+    )
+
+
+@spark3_dialect.segment()
+class ListFileSegment(BaseSegment):
+    """A `LIST {FILE | FILES}` statement.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-aux-resource-mgmt-list-file.html
+    """
+
+    type = "list_file"
+
+    match_grammar = Sequence(
+        "LIST",
+        Ref("FileKeywordSegment"),
+        AnyNumberOf(Ref("QuotedLiteralSegment")),
+    )
+
+
+@spark3_dialect.segment()
+class ListJarSegment(BaseSegment):
+    """A `ADD {JAR | JARS}` statement.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-aux-resource-mgmt-add-jar.html
+    """
+
+    type = "list_jar"
+
+    match_grammar = Sequence(
+        "LIST",
+        Ref("JarKeywordSegment"),
+        AnyNumberOf(Ref("QuotedLiteralSegment")),
     )
 
 
@@ -1790,7 +1843,10 @@ class StatementSegment(BaseSegment):
             Ref("MsckRepairTableStatementSegment"),
             Ref("UseDatabaseStatementSegment"),
             # Auxiliary Statements
-            Ref("AddExecutablePackage"),
+            Ref("AddFileSegment"),
+            Ref("AddJarSegment"),
+            Ref("ListFileSegment"),
+            Ref("ListJarSegment"),
             Ref("RefreshStatementSegment"),
             Ref("RefreshTableStatementSegment"),
             Ref("RefreshFunctionStatementSegment"),
