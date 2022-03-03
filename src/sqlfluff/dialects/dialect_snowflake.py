@@ -120,13 +120,6 @@ snowflake_dialect.add(
         name="warehouse_size",
         type="warehouse_size",
     ),
-    DoubleQuotedLiteralSegment=NamedParser(
-        "double_quote",
-        CodeSegment,
-        name="quoted_literal",
-        type="literal",
-        trim_chars=('"',),
-    ),
     ValidationModeOptionSegment=RegexParser(
         r"'?RETURN_(?:\d+_ROWS|ERRORS|ALL_ERRORS)'?",
         CodeSegment,
@@ -264,6 +257,7 @@ snowflake_dialect.replace(
     ),
     JoinLikeClauseGrammar=Sequence(
         AnySetOf(
+            Ref("ChangesClauseSegment"),
             Ref("ConnectByClauseSegment"),
             Ref("FromAtExpressionSegment"),
             Ref("FromBeforeExpressionSegment"),
@@ -303,6 +297,21 @@ snowflake_dialect.replace(
         Ref("FunctionSegment"),
         Ref("ColumnReferenceSegment"),
         Ref("ExpressionSegment"),
+    ),
+    QuotedLiteralSegment=OneOf(
+        # https://docs.snowflake.com/en/sql-reference/data-types-text.html#string-constants
+        NamedParser(
+            "single_quote",
+            CodeSegment,
+            name="quoted_literal",
+            type="literal",
+        ),
+        NamedParser(
+            "dollar_quote",
+            CodeSegment,
+            name="quoted_literal",
+            type="literal",
+        ),
     ),
 )
 
@@ -504,7 +513,7 @@ class FunctionDefinitionGrammar(BaseSegment):
     type = "function_definition"
     match_grammar = Sequence(
         "AS",
-        OneOf(Ref("QuotedLiteralSegment"), Ref("DollarQuotedLiteralSegment")),
+        Ref("QuotedLiteralSegment"),
         Sequence(
             "LANGUAGE",
             # Not really a parameter, but best fit for now.
@@ -635,6 +644,51 @@ class TableAliasExpressionSegment(BaseSegment):
         # Optional column aliases too.
         Bracketed(
             Delimited(Ref("SingleIdentifierGrammar"), delimiter=Ref("CommaSegment")),
+            optional=True,
+        ),
+    )
+
+
+@snowflake_dialect.segment()
+class ChangesClauseSegment(BaseSegment):
+    """A `CHANGES` clause.
+
+    https://docs.snowflake.com/en/sql-reference/constructs/changes.html
+    """
+
+    type = "changes_clause"
+    match_grammar = Sequence(
+        "CHANGES",
+        Bracketed(
+            "INFORMATION",
+            Ref("ParameterAssignerSegment"),
+            OneOf("DEFAULT", "APPEND_ONLY"),
+        ),
+        OneOf(
+            Sequence(
+                "AT",
+                Bracketed(
+                    OneOf("TIMESTAMP", "OFFSET", "STATEMENT"),
+                    Ref("ParameterAssignerSegment"),
+                    Ref("ExpressionSegment"),
+                ),
+            ),
+            Sequence(
+                "BEFORE",
+                Bracketed(
+                    "STATEMENT",
+                    Ref("ParameterAssignerSegment"),
+                    Ref("ExpressionSegment"),
+                ),
+            ),
+        ),
+        Sequence(
+            "END",
+            Bracketed(
+                OneOf("TIMESTAMP", "OFFSET", "STATEMENT"),
+                Ref("ParameterAssignerSegment"),
+                Ref("ExpressionSegment"),
+            ),
             optional=True,
         ),
     )
@@ -988,8 +1042,19 @@ class AlterTableTableColumnActionSegment(BaseSegment):
                         Ref.keyword("WITH", optional=True),
                         "MASKING",
                         "POLICY",
-                        Ref("ObjectReferenceSegment"),
-                        # @TODO: Add support for delimited col/expression list
+                        Ref("FunctionNameSegment"),
+                        Sequence(
+                            "USING",
+                            Bracketed(
+                                Delimited(
+                                    OneOf(
+                                        Ref("ColumnReferenceSegment"),
+                                        Ref("ExpressionSegment"),
+                                    )
+                                ),
+                            ),
+                            optional=True,
+                        ),
                         optional=True,
                     ),
                     Ref("CommentClauseSegment", optional=True),
@@ -1042,10 +1107,29 @@ class AlterTableTableColumnActionSegment(BaseSegment):
                         Sequence(
                             "COLUMN",
                             Ref("ColumnReferenceSegment"),
-                            OneOf("SET", "UNSET"),
+                            "SET",
                             "MASKING",
                             "POLICY",
-                            Ref("FunctionNameIdentifierSegment", optional=True),
+                            Ref("FunctionNameSegment"),
+                            Sequence(
+                                "USING",
+                                Bracketed(
+                                    Delimited(
+                                        OneOf(
+                                            Ref("ColumnReferenceSegment"),
+                                            Ref("ExpressionSegment"),
+                                        )
+                                    ),
+                                ),
+                                optional=True,
+                            ),
+                        ),
+                        Sequence(
+                            "COLUMN",
+                            Ref("ColumnReferenceSegment"),
+                            "UNSET",
+                            "MASKING",
+                            "POLICY",
                         ),
                         # @TODO: Set/Unset TAG support
                     ),
@@ -1577,7 +1661,19 @@ class ColumnConstraintSegment(BaseSegment):
             Sequence("WITH", optional=True),
             "MASKING",
             "POLICY",
-            Ref("QuotedLiteralSegment"),
+            Ref("FunctionNameSegment"),
+            Sequence(
+                "USING",
+                Bracketed(
+                    Delimited(
+                        OneOf(
+                            Ref("ColumnReferenceSegment"),
+                            Ref("ExpressionSegment"),
+                        )
+                    ),
+                ),
+                optional=True,
+            ),
         ),
         Ref("TagBracketedEqualsSegment", optional=True),
         Ref("ConstraintPropertiesSegment"),

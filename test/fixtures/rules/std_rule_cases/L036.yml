@@ -153,6 +153,20 @@ test_cte:
     SELECT 1
     FROM cte1
 
+test_single_newline_no_from:
+  fail_str: |
+    SELECT
+    id
+  fix_str: |
+    SELECT id
+
+test_single_distinct_no_from:
+  fail_str: |
+    SELECT
+    DISTINCT id
+  fix_str: |
+    SELECT DISTINCT id
+
 test_distinct_many:
   fail_str: |
     SELECT distinct a, b, c
@@ -193,7 +207,7 @@ test_single_select_with_no_from:
 
 test_single_select_with_no_from_previous_comment:
   fail_str: "SELECT\n /* test */  10000000\n"
-  fix_str: "SELECT 10000000\n /* test */\n"
+  fix_str: "SELECT 10000000 /* test */\n"
 
 test_single_select_with_comment_after_column:
   fail_str: |
