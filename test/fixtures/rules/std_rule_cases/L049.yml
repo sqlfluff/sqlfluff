@@ -6,17 +6,6 @@ test_is_null:
     FROM foo
     WHERE a IS NULL
 
-test_equal_string:
-  # NOT NULL missing "IS" is/was parsable and was causing issues
-  # It doesnt seem to be valid syntax but its source is unknown
-  # At the time of this fix.
-  pass_str: |
-    SELECT
-        foo
-    FROM restricted.tble
-    WHERE country = 'DE' AND ip_hash NOT NULL
-    GROUP BY 1, 2
-
 test_is_not_null:
   pass_str: |
     SELECT a
