@@ -315,9 +315,9 @@ snowflake_dialect.replace(
     ),
     LikeGrammar=OneOf(
         # https://docs.snowflake.com/en/sql-reference/functions/like.html
-        Sequence("LIKE", Ref.keyword("ANY", optional=True)),
+        Sequence("LIKE", OneOf("ALL", "ANY", optional=True)),
         "RLIKE",
-        "ILIKE",
+        Sequence("ILIKE", Ref.keyword("ANY", optional=True)),
         "REGEXP",
     ),
 )
