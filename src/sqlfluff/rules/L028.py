@@ -128,10 +128,8 @@ def _generate_fixes(
 ) -> Optional[List[LintResult]]:
     """Iterate through references and check consistency."""
     # How many aliases are there? If more than one then abort.
+    assert len(table_aliases) > 0, "Only Selects with tables should be checked"
     if len(table_aliases) > 1:
-        return None
-
-    if len(table_aliases) == 0:
         return None
 
     # A buffer to keep any violations.
