@@ -10,28 +10,29 @@ import itertools
 
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
+    AnyNumberOf,
     Anything,
     BaseSegment,
-    OneOf,
-    Ref,
-    Sequence,
     Bracketed,
-    Delimited,
-    AnyNumberOf,
-    KeywordSegment,
-    SymbolSegment,
-    RegexLexer,
-    StringLexer,
     CodeSegment,
-    NamedParser,
-    StringParser,
-    RegexParser,
-    Nothing,
-    StartsWith,
-    OptionallyBracketed,
-    Indent,
     Dedent,
+    Delimited,
+    Indent,
+    KeywordSegment,
     Matchable,
+    NamedParser,
+    Nothing,
+    OneOf,
+    OptionallyBracketed,
+    Ref,
+    RegexLexer,
+    RegexParser,
+    SegmentGenerator,
+    Sequence,
+    StartsWith,
+    StringLexer,
+    StringParser,
+    SymbolSegment,
 )
 from sqlfluff.core.parser.segments.base import BracketedSegment
 from sqlfluff.dialects.dialect_bigquery_keywords import (
@@ -132,7 +133,7 @@ bigquery_dialect.add(
     ),
     # Add a Full equivalent which also allow keywords
     NakedIdentifierSegmentFull=RegexParser(
-        r"[A-Z0-9_]*[A-Z][A-Z0-9_]*",
+        r"[A-Z_][A-Z0-9_]*",
         CodeSegment,
         name="naked_identifier_all",
         type="identifier",
@@ -158,6 +159,19 @@ bigquery_dialect.add(
 
 
 bigquery_dialect.replace(
+    # Override to allow _01 type identifiers which are valid in BigQuery
+    # The strange regex here it to make sure we don't accidentally match numeric
+    # literals. We also use a regex to explicitly exclude disallowed keywords.
+    NakedIdentifierSegment=SegmentGenerator(
+        # Generate the anti template from the set of reserved keywords
+        lambda dialect: RegexParser(
+            r"[A-Z_][A-Z0-9_]*",
+            CodeSegment,
+            name="naked_identifier",
+            type="identifier",
+            anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
+        )
+    ),
     FunctionContentsExpressionGrammar=OneOf(
         Sequence(
             Ref("ExpressionSegment"),

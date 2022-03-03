@@ -84,11 +84,12 @@ class BaseSegment:
     allow_empty = False
     # What other kwargs need to be copied when applying fixes.
     additional_kwargs: List[str] = []
+    pos_marker: Optional[PositionMarker]
 
     def __init__(
         self,
         segments,
-        pos_marker=None,
+        pos_marker: Optional[PositionMarker] = None,
         name: Optional[str] = None,
     ):
         # A cache variable for expandable
@@ -115,14 +116,16 @@ class BaseSegment:
         if not pos_marker:
             # If no pos given, it's the pos of the first segment.
             if isinstance(segments, (tuple, list)):
-                pos_marker = PositionMarker.from_child_markers(
-                    *(seg.pos_marker for seg in segments)
-                )
+                if all(seg.pos_marker for seg in segments):
+                    pos_marker = PositionMarker.from_child_markers(
+                        *(seg.pos_marker for seg in segments)
+                    )
             else:  # pragma: no cover
                 raise TypeError(
                     f"Unexpected type passed to BaseSegment: {type(segments)}"
                 )
-        self.pos_marker: PositionMarker = pos_marker
+
+        self.pos_marker = pos_marker
 
         self._recalculate_caches()
 
@@ -278,6 +281,7 @@ class BaseSegment:
         #   Return False for these.
         # * Source string doesn't match raw segment contents. This can only
         #   happen if templating is involved.
+        assert self.pos_marker
         return (
             self.pos_marker.source_slice.start != self.pos_marker.source_slice.stop
             and self.raw != self.pos_marker.source_str()
@@ -1154,6 +1158,7 @@ class BaseSegment:
         return a hint to deal with that.
         """
         # Does it match? If so we can ignore it.
+        assert self.pos_marker
         matches = self.raw == templated_str[self.pos_marker.templated_slice]
         if matches:
             return

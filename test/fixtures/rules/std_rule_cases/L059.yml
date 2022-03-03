@@ -245,3 +245,35 @@ test_pass_quoted_identifier_keyword_tsql:
   configs:
     core:
       dialect: tsql
+
+test_pass_create_user_quoted_password_exasol:
+  pass_str: |
+    CREATE USER user_1 IDENTIFIED BY "h12_xhz";
+  configs:
+    core:
+      dialect: exasol
+
+test_fail_create_quoted_user_exasol:
+  fail_str: |
+    CREATE USER "USER1" IDENTIFIED BY "h12_xhz";
+  fix_str: |
+    CREATE USER USER1 IDENTIFIED BY "h12_xhz";
+  configs:
+    core:
+      dialect: exasol
+
+test_pass_ignore_lists:
+  pass_str:
+    SELECT 123 AS "foo";
+  configs:
+    rules:
+      L059:
+        ignore_words: foo
+
+test_pass_ignore_lists_mixed_case:
+  pass_str:
+    SELECT 123 AS "Foo";
+  configs:
+    rules:
+      L059:
+        ignore_words: foo

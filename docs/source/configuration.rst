@@ -409,21 +409,25 @@ loaded from files or folders. This is specified in the config file:
     [sqlfluff:templater:jinja]
     load_macros_from_path = my_macros
 
-`load_macros_from_path` is a comma-separated list of files or folders. SQLFluff
-will load macros from any :code:`.sql` file found in the specified locations.
-Locations are *relative to the config file*. For example, if the config file
-above was found at :code:`/home/my_project/.sqlfluff` then SQLFluff will look
-for macros in the folder :code:`/home/my_project/my_macros/` (but not
-subfolders). Alternatively, the path can also be a :code:`.sql` itself. Any
-macros defined in the config will always take precedence over a macro defined
-in the path.
+``load_macros_from_path`` is a comma-separated list of :code:`.sql` files or
+folders. Locations are *relative to the config file*. For example, if the
+config file above was found at :code:`/home/my_project/.sqlfluff`, then
+SQLFluff will look for macros in the folder :code:`/home/my_project/my_macros/`
+(but not subfolders). Any macros defined in the config will always take
+precedence over a macro defined in the path.
 
-**Note:** The `load_macros_from_path` also defines the search path for Jinja
-[include](https://jinja.palletsprojects.com/en/3.0.x/templates/#include) or
-[import](https://jinja.palletsprojects.com/en/3.0.x/templates/#import).
+* :code:`.sql` files: Macros in these files are available in every :code:`.sql`
+  file without requiring a Jinja :code:`include` or :code:`import`.
+* Folders: To use macros from the :code:`.sql` files in folders, use Jinja
+  :code:`include` or :code:`import` as explained below.
+
+**Note:** The :code:`load_macros_from_path` setting also defines the search
+path for Jinja
+`include <https://jinja.palletsprojects.com/en/3.0.x/templates/#include>`_ or
+`import <https://jinja.palletsprojects.com/en/3.0.x/templates/#import>`_.
 Unlike with macros (as noted above), subdirectories are supported. For example,
-if `load_macros_from_path` is set to `my_macros`, and there is a file
-`my_macros/subdir/my_file.sql`, you can do:
+if :code:`load_macros_from_path` is set to :code:`my_macros`, and there is a
+file :code:`my_macros/subdir/my_file.sql`, you can do:
 
 .. code-block:: jinja
 

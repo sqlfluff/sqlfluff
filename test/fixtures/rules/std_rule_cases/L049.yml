@@ -67,13 +67,22 @@ test_set_clause:
     UPDATE table1 SET col = NULL
     WHERE col = ""
 
-test_exec_clause:
+test_tsql_exec_clause:
   pass_str: |
     exec something
       @param1 = 'blah',
       @param2 = 'blah',
       @param3 = null,
       @param4 = 'blah';
+  configs:
+    core:
+      dialect: tsql
+
+test_tsql_alternate_alias_syntax:
+  pass_str: |
+    select
+      name = null
+    from t
   configs:
     core:
       dialect: tsql

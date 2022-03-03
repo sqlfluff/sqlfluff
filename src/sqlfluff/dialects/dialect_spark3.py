@@ -181,7 +181,6 @@ spark3_dialect.replace(
         Sequence("CLUSTER", "BY"),
         Sequence("DISTRIBUTE", "BY"),
         Sequence("SORT", "BY"),
-        # TODO Add PIVOT, and DISTRIBUTE BY clauses
         "HAVING",
         Ref("SetOperatorSegment"),
         Ref("WithNoSchemaBindingClauseSegment"),
@@ -222,6 +221,26 @@ spark3_dialect.replace(
         ),
         "RLIKE",
         "REGEXP",
+    ),
+    SelectClauseSegmentGrammar=Sequence(
+        "SELECT",
+        OneOf(
+            Ref("TransformClauseSegment"),
+            Sequence(
+                Ref(
+                    "SelectClauseModifierSegment",
+                    optional=True,
+                ),
+                Indent,
+                Delimited(
+                    Ref("SelectClauseElementSegment"),
+                    allow_trailing=True,
+                ),
+            ),
+        ),
+        # NB: The Dedent for the indent above lives in the
+        # SelectStatementSegment so that it sits in the right
+        # place corresponding to the whitespace.
     ),
 )
 
@@ -1280,7 +1299,6 @@ class UnorderedSelectStatementSegment(BaseSegment):
     parse_grammar = ansi_dialect.get_segment(
         "UnorderedSelectStatementSegment"
     ).parse_grammar.copy(
-        # TODO Insert: PIVOT clause
         # Removing non-valid clauses that exist in ANSI dialect
         remove=[Ref("OverlapsClauseSegment", optional=True)]
     )
@@ -1555,6 +1573,7 @@ class OverClauseSegment(BaseSegment):
     """
 
     type = "over_clause"
+
     match_grammar = Sequence(
         Sequence(OneOf("IGNORE", "RESPECT"), "NULLS", optional=True),
         "OVER",
@@ -1564,6 +1583,127 @@ class OverClauseSegment(BaseSegment):
                 Ref("WindowSpecificationSegment", optional=True),
             ),
         ),
+    )
+
+
+@spark3_dialect.segment()
+class PivotClauseSegment(BaseSegment):
+    """A `PIVOT` clause as using in FROM clause.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-pivot.html
+    """
+
+    type = "pivot_clause"
+
+    match_grammar = Sequence(
+        Indent,
+        "PIVOT",
+        Bracketed(
+            Indent,
+            Delimited(
+                Sequence(
+                    Ref("FunctionSegment"),
+                    Ref("AliasExpressionSegment", optional=True),
+                ),
+            ),
+            "FOR",
+            OptionallyBracketed(
+                OneOf(
+                    Ref("SingleIdentifierGrammar"),
+                    Delimited(
+                        Ref("SingleIdentifierGrammar"),
+                    ),
+                ),
+            ),
+            "IN",
+            Bracketed(
+                OneOf(
+                    Sequence(
+                        OneOf(
+                            Ref("ScalarValue"),
+                            Ref("TupleValue"),
+                        ),
+                        Ref("AliasExpressionSegment", optional=True),
+                    ),
+                    Delimited(
+                        Sequence(
+                            OneOf(
+                                Ref("ScalarValue"),
+                                Ref("TupleValue"),
+                            ),
+                            Ref("AliasExpressionSegment", optional=True),
+                        ),
+                    ),
+                ),
+            ),
+            Dedent,
+        ),
+        Dedent,
+    )
+
+
+@spark3_dialect.segment()
+class TransformClauseSegment(BaseSegment):
+    """A `TRANSFORM` clause like used in `SELECT`.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-transform.html
+    """
+
+    type = "transform_clause"
+
+    match_grammar = Sequence(
+        "TRANSFORM",
+        Bracketed(
+            Delimited(
+                Ref("SingleIdentifierGrammar"),
+                ephemeral_name="TransformClauseContents",
+            ),
+        ),
+        Indent,
+        Ref("RowFormatClauseSegment", optional=True),
+        "USING",
+        Ref("QuotedLiteralSegment"),
+        Sequence(
+            "AS",
+            Bracketed(
+                Delimited(
+                    AnyNumberOf(
+                        Ref("SingleIdentifierGrammar"),
+                        Ref("DatatypeSegment"),
+                    ),
+                ),
+            ),
+            optional=True,
+        ),
+        Ref("RowFormatClauseSegment", optional=True),
+    )
+
+
+@spark3_dialect.segment(replace=True)
+class ExplainStatementSegment(BaseSegment):
+    """An `Explain` statement.
+
+    Enhanced from ANSI dialect to allow for additonal parameters.
+
+    EXPLAIN [ EXTENDED | CODEGEN | COST | FORMATTED ] explainable_stmt
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-qry-explain.html
+    """
+
+    type = "explain_statement"
+
+    explainable_stmt = Ref("StatementSegment")
+
+    match_grammar = Sequence(
+        "EXPLAIN",
+        OneOf(
+            "EXTENDED",
+            "CODEGEN",
+            "COST",
+            "FORMATTED",
+            optional=True,
+        ),
+        explainable_stmt,
     )
 
 
@@ -1782,6 +1922,7 @@ class AliasExpressionSegment(BaseSegment):
                 "LATERAL",
                 Ref("JoinTypeKeywords"),
                 "WINDOW",
+                "PIVOT",
             ),
         ),
     )
@@ -1797,7 +1938,11 @@ class DelimitedValues(BaseSegment):
     """
 
     type = "delimited_values"
-    match_grammar = OneOf(Delimited(Ref("ScalarValue")), Delimited(Ref("TupleValue")))
+
+    match_grammar = OneOf(
+        Delimited(Ref("ScalarValue")),
+        Delimited(Ref("TupleValue")),
+    )
 
 
 @spark3_dialect.segment()
@@ -1809,6 +1954,7 @@ class ScalarValue(BaseSegment):
 
     type = "scalar_value"
     match_grammar = OneOf(
+        Ref("QuotedLiteralSegment"),
         Ref("LiteralGrammar"),
         Ref("BareFunctionSegment"),
         Ref("FunctionSegment"),
@@ -1913,8 +2059,6 @@ class FromExpressionElementSegment(BaseSegment):
     match_grammar = Sequence(
         Ref("PreTableFunctionKeywordsGrammar", optional=True),
         OptionallyBracketed(Ref("TableExpressionSegment")),
-        AnyNumberOf(Ref("LateralViewClauseSegment")),
-        Ref("NamedWindowSegment", optional=True),
         OneOf(
             Sequence(
                 Ref("AliasExpressionSegment"),
@@ -1924,6 +2068,12 @@ class FromExpressionElementSegment(BaseSegment):
             Ref("AliasExpressionSegment"),
             optional=True,
         ),
+        # NB: `LateralViewClauseSegment`, `NamedWindowSegment`,
+        # and `PivotClauseSegment should come after Alias/Sampling
+        # expressions so those are matched before
+        AnyNumberOf(Ref("LateralViewClauseSegment")),
+        Ref("NamedWindowSegment", optional=True),
+        Ref("PivotClauseSegment", optional=True),
         Ref("PostTableExpressionGrammar", optional=True),
     )
 

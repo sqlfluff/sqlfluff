@@ -1,6 +1,6 @@
 """Implementation of Rule L059."""
 
-from typing import Optional
+from typing import List, Optional
 
 import regex
 
@@ -10,6 +10,7 @@ from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
 )
+import sqlfluff.core.rules.functional.segment_predicates as sp
 
 
 @document_configuration
@@ -69,12 +70,21 @@ class Rule_L059(BaseRule):
 
     """
 
-    config_keywords = ["prefer_quoted_identifiers"]
+    config_keywords = ["prefer_quoted_identifiers", "ignore_words"]
+
+    # Ignore "password_auth" type to allow quotes around passwords within
+    # `CREATE USER` statements in Exasol dialect.
+    _ignore_types: List[str] = ["password_auth"]
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Unnecessary quoted identifier."""
         # Config type hints
         self.prefer_quoted_identifiers: bool
+        self.ignore_words: str
+
+        # Ignore some segment types
+        if context.functional.parent_stack.any(sp.is_type(*self._ignore_types)):
+            return None
 
         if self.prefer_quoted_identifiers:
             context_policy = "naked_identifier"
@@ -82,6 +92,18 @@ class Rule_L059(BaseRule):
         else:
             context_policy = "quoted_identifier"
             identifier_contents = context.segment.raw[1:-1]
+
+        # Get the ignore_words_list configuration.
+        try:
+            ignore_words_list = self.ignore_words_list
+        except AttributeError:
+            # First-time only, read the settings from configuration. This is
+            # very slow.
+            ignore_words_list = self._init_ignore_words_list()
+
+        # Skip if in ignore list
+        if ignore_words_list and identifier_contents.lower() in ignore_words_list:
+            return None
 
         # Ignore the segments that are not of the same type as the defined policy above.
         # Also TSQL has a keyword called QUOTED_IDENTIFIER which maps to the name so
@@ -146,3 +168,15 @@ class Rule_L059(BaseRule):
             )
 
         return None
+
+    def _init_ignore_words_list(self):
+        """Called first time rule is evaluated to fetch & cache the policy."""
+        ignore_words_config: str = str(getattr(self, "ignore_words"))
+        if ignore_words_config and ignore_words_config != "None":
+            self.ignore_words_list = self.split_comma_separated_string(
+                ignore_words_config.lower()
+            )
+        else:
+            self.ignore_words_list = []
+
+        return self.ignore_words_list
