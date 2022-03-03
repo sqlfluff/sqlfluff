@@ -67,6 +67,8 @@ class Rule_L028(Rule_L020):
     _dialects_allowing_lateral_reference = ["snowflake", "redshift"]
     _is_struct_dialect = False
     _dialects_with_structs = ["bigquery", "hive", "redshift"]
+    # This could be turned into an option
+    _fix_inconsistent_to = "qualified"
 
     def _lint_references_and_aliases(
         self,
@@ -79,8 +81,7 @@ class Rule_L028(Rule_L020):
     ):
         """Iterate through references and check consistency."""
         self.single_table_references: str
-        # This could be turned into an option
-        fix_inconsistent_to = "qualified"
+
         return _generate_fixes(
             table_aliases,
             standalone_aliases,
@@ -89,7 +90,7 @@ class Rule_L028(Rule_L020):
             self.single_table_references,
             self._allow_lateral_reference,
             self._is_struct_dialect,
-            fix_inconsistent_to,
+            self._fix_inconsistent_to,
         )
 
     def _eval(self, context: RuleContext) -> EvalResultType:
@@ -129,6 +130,10 @@ def _generate_fixes(
     # How many aliases are there? If more than one then abort.
     if len(table_aliases) > 1:
         return None
+
+    if len(table_aliases) == 0:
+        return None
+
     # A buffer to keep any violations.
     violation_buff: List[LintResult] = []
     col_alias_names: List[str] = [c.alias_identifier_name for c in col_aliases]
@@ -165,7 +170,7 @@ def _generate_fixes(
                 standalone_aliases,
                 references,
                 col_aliases,
-                # NB vars are pssed in a different order here
+                # NB vars are passed in a different order here
                 single_table_references=fix_inconsistent_to,
                 allow_select_alias=allow_select_alias,
                 is_struct_dialect=is_struct_dialect,

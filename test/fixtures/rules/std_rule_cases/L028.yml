@@ -15,6 +15,31 @@ test_fail_single_table_mixed_qualification_of_references_subquery:
   fail_str: SELECT * FROM (SELECT my_tbl.bar, baz FROM my_tbl)
   fix_str: SELECT * FROM (SELECT my_tbl.bar, my_tbl.baz FROM my_tbl)
 
+test_pass_lateral_table_ref_with_qa:
+  pass_str: |
+    SELECT
+      tbl.a,
+      tbl.b,
+      tbl.a + tbl.b AS col_created_right_here, 
+      col_created_right_here + 1 AS sub_self_ref -- noqa: disable=L028
+    FROM tbl
+
+test_fail_lateral_table_ref_without_qa_help:
+  fail_str: |
+    SELECT
+      tbl.a,
+      tbl.b,
+      tbl.a + tbl.b AS col_created_right_here, 
+      col_created_right_here + 1 AS sub_self_ref
+    FROM tbl
+  fix_str: |
+    SELECT
+      tbl.a,
+      tbl.b,
+      tbl.a + tbl.b AS col_created_right_here, 
+      tbl.col_created_right_here + 1 AS sub_self_ref
+    FROM tbl
+
 test_pass_single_table_consistent_references_1_subquery:
   pass_str: SELECT * FROM (SELECT bar FROM my_tbl)
 
