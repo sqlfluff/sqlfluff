@@ -1223,8 +1223,9 @@ class ProcedureParameterListSegment(BaseSegment):
             OneOf(
                 Sequence(
                     AnySetOf(
-                        Ref("ArgModeSegment", optional=True),
-                        Ref("ParameterNameSegment", optional=True),
+                        Ref("ArgModeSegment"),
+                        Ref("ParameterNameSegment"),
+                        min_times=1,
                     ),
                     OneOf("REFCURSOR", Ref("DatatypeSegment")),
                 ),
