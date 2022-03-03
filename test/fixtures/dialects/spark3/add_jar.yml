@@ -3,53 +3,53 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8fa0c08d81721ba35840db1f3f45ab22c2ab7e76698ca1ec795e625731132792
+_hash: e2bca627bc23036a9690b9a1c69df4b0a13073696fd565a25169dbd592959660
 file:
 - statement:
-    add_jar:
+    add_jar_statement:
       keyword: ADD
       file_keyword: JAR
       literal: '"/path/to/some.jar"'
 - statement_terminator: ;
 - statement:
-    add_jar:
+    add_jar_statement:
       keyword: ADD
       file_keyword: JAR
       literal: "'/some/other.jar'"
 - statement_terminator: ;
 - statement:
-    add_jar:
+    add_jar_statement:
       keyword: ADD
       file_keyword: JAR
       literal: '"/path with space/abc.jar"'
 - statement_terminator: ;
 - statement:
-    add_jar:
+    add_jar_statement:
     - keyword: ADD
     - file_keyword: JARS
     - literal: '"/path with space/def.jar"'
     - literal: "'/path with space/ghi.jar'"
 - statement_terminator: ;
 - statement:
-    add_jar:
+    add_jar_statement:
       keyword: ADD
       file_keyword: JAR
       literal: '"ivy://group:module:version"'
 - statement_terminator: ;
 - statement:
-    add_jar:
+    add_jar_statement:
       keyword: ADD
       file_keyword: JAR
       literal: '"ivy://group:module:version?transitive=false"'
 - statement_terminator: ;
 - statement:
-    add_jar:
+    add_jar_statement:
       keyword: ADD
       file_keyword: JAR
       literal: '"ivy://group:module:version?transitive=true"'
 - statement_terminator: ;
 - statement:
-    add_jar:
+    add_jar_statement:
       keyword: ADD
       file_keyword: JAR
       literal: '"ivy://group:module:version?exclude=group:module&transitive=true"'
