@@ -1817,7 +1817,7 @@ class ListFileSegment(BaseSegment):
     https://spark.apache.org/docs/latest/sql-ref-syntax-aux-resource-mgmt-list-file.html
     """
 
-    type = "list_file"
+    type = "list_file_statement"
 
     match_grammar = Sequence(
         "LIST",
@@ -1833,7 +1833,7 @@ class ListJarSegment(BaseSegment):
     https://spark.apache.org/docs/latest/sql-ref-syntax-aux-resource-mgmt-add-jar.html
     """
 
-    type = "list_jar"
+    type = "list_jar_statement"
 
     match_grammar = Sequence(
         "LIST",
