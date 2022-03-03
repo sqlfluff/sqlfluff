@@ -42,10 +42,6 @@ STANDARD_CONFIG_INFO_DICT = {
         "validation": ["consistent", "qualified", "unqualified"],
         "definition": "The expectation for references in single-table select.",
     },
-    "fix_inconsistent_to": {
-        "validation": [None, "qualified", "unqualified"],
-        "definition": "Fixing behaviour for inconsistent single-table select.",
-    },
     "force_enable": {
         "validation": [True, False],
         "definition": (

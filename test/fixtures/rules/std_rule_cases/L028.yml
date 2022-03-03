@@ -3,22 +3,7 @@ rule: L028
 # Mixed qualification of references.
 test_fail_single_table_mixed_qualification_of_references:
   fail_str: SELECT my_tbl.bar, baz FROM my_tbl
-
-test_fail_mixed_qualification_fix_to_unqualified:
-  fail_str: SELECT my_tbl.bar, baz FROM my_tbl
-  fix_str: SELECT bar, baz FROM my_tbl
-  configs:
-    rules:
-      L028:
-        fix_inconsistent_to: unqualified
-
-test_fail_mixed_qualification_fix_to_qualified:
-  fail_str: SELECT my_tbl.bar, baz FROM "my_tbl"
-  fix_str: SELECT my_tbl.bar, "my_tbl".baz FROM "my_tbl"
-  configs:
-    rules:
-      L028:
-        fix_inconsistent_to: qualified
+  fix_str: SELECT my_tbl.bar, my_tbl.baz FROM my_tbl
 
 test_pass_single_table_consistent_references_1:
   pass_str: SELECT bar FROM my_tbl
@@ -28,6 +13,7 @@ test_pass_single_table_consistent_references_2:
 
 test_fail_single_table_mixed_qualification_of_references_subquery:
   fail_str: SELECT * FROM (SELECT my_tbl.bar, baz FROM my_tbl)
+  fix_str: SELECT * FROM (SELECT my_tbl.bar, my_tbl.baz FROM my_tbl)
 
 test_pass_single_table_consistent_references_1_subquery:
   pass_str: SELECT * FROM (SELECT bar FROM my_tbl)
@@ -75,7 +61,9 @@ test_value_table_functions_do_not_require_qualification:
 
 test_object_references_1a:
   # This should fail as "a" is an unreference object
+  # We dont try to be smart.
   fail_str: SELECT a.bar, b FROM my_tbl
+  fix_str: SELECT a.bar, my_tbl.b FROM my_tbl
 
 test_object_references_1b:
   # This should not-fail as "a" is potentially a STRUCT
@@ -118,25 +106,13 @@ test_object_references_1e:
 
 test_object_references_struct_inconsistent_fix_a:
   fail_str: SELECT a.bar, my_tbl.b FROM my_tbl
-  fix_str: SELECT a.bar, b FROM my_tbl
+  fix_str: SELECT my_tbl.a.bar, my_tbl.b FROM my_tbl
   configs:
     core:
       dialect: bigquery
     rules:
       L028:
         force_enable: true
-        fix_inconsistent_to: unqualified
-
-test_object_references_struct_inconsistent_fix_b:
-  fail_str: SELECT my_tbl.a.bar, b FROM my_tbl
-  fix_str: SELECT a.bar, b FROM my_tbl
-  configs:
-    core:
-      dialect: bigquery
-    rules:
-      L028:
-        force_enable: true
-        fix_inconsistent_to: unqualified
 
 test_object_references_1f:
   # This should not-fail as "a" is potentially a STRUCT
@@ -218,6 +194,12 @@ test_select_alias_in_where_clause_3:
         t.col1 + 1 as alias_col1
     from table1 as t
     where alias_col1 > 5
+  fix_str: |
+    select
+        t.col0,
+        t.col1 + 1 as alias_col1
+    from table1 as t
+    where t.alias_col1 > 5
 
 test_select_alias_in_where_clause_4:
   # This should fail for ansi
