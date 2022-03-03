@@ -49,6 +49,7 @@ def test__linter__path_from_paths__default():
     lntr = Linter()
     paths = normalise_paths(lntr.paths_from_path("test/fixtures/linter"))
     assert "test.fixtures.linter.passing.sql" in paths
+    assert "test.fixtures.linter.passing_cap_extension.SQL" in paths
     assert "test.fixtures.linter.discovery_file.txt" not in paths
 
 
@@ -57,6 +58,7 @@ def test__linter__path_from_paths__exts():
     lntr = Linter(config=FluffConfig(overrides={"sql_file_exts": ".txt"}))
     paths = normalise_paths(lntr.paths_from_path("test/fixtures/linter"))
     assert "test.fixtures.linter.passing.sql" not in paths
+    assert "test.fixtures.linter.passing_cap_extension.SQL" not in paths
     assert "test.fixtures.linter.discovery_file.txt" in paths
 
 
