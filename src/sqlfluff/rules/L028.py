@@ -43,15 +43,15 @@ class Rule_L028(Rule_L020):
     .. code-block:: sql
 
         SELECT
-            foo.a,
-            foo.b
+            a,
+            b
         FROM foo
 
         -- Also good
 
         SELECT
-            a,
-            b
+            foo.a,
+            foo.b
         FROM foo
 
     """
