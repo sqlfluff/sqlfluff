@@ -1,0 +1,77 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: ca8018c5a2ffeed0b69802d6765871e436128425ebe00598e3ad114e71b9e227
+file:
+- statement:
+    alter_procedure_statement:
+    - keyword: ALTER
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: first_quarter_revenue
+    - procedure_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - parameter: volume
+        - keyword: INOUT
+        - data_type:
+            keyword: bigint
+        - comma: ','
+        - parameter: at_price
+        - keyword: IN
+        - data_type:
+            keyword: numeric
+        - comma: ','
+        - parameter: result
+        - keyword: OUT
+        - data_type:
+            keyword: int
+        - end_bracket: )
+    - keyword: RENAME
+    - keyword: TO
+    - function_name:
+        function_name_identifier: quarterly_revenue
+- statement_terminator: ;
+- statement:
+    alter_procedure_statement:
+    - keyword: ALTER
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: first_quarter_revenue
+    - procedure_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - data_type:
+            keyword: bigint
+        - comma: ','
+        - data_type:
+            keyword: numeric
+        - end_bracket: )
+    - keyword: RENAME
+    - keyword: TO
+    - function_name:
+        function_name_identifier: quarterly_revenue
+- statement_terminator: ;
+- statement:
+    alter_procedure_statement:
+    - keyword: ALTER
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: quarterly_revenue
+    - procedure_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - parameter: volume
+        - data_type:
+            keyword: bigint
+        - comma: ','
+        - parameter: at_price
+        - data_type:
+            keyword: numeric
+        - end_bracket: )
+    - keyword: OWNER
+    - keyword: TO
+    - parameter: etl_user
+- statement_terminator: ;

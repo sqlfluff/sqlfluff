@@ -3,53 +3,53 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d853fea25a38e4bb3a0acf3806981a0dd77c43f6c7e00c4a02df58ddfc16b416
+_hash: 72663107b1aca79e99ef8801226b1da758b3d6dff71b9f6ed412eb65567fefbb
 file:
 - statement:
-    list_jar:
+    list_jar_statement:
       keyword: LIST
       file_keyword: JAR
       literal: '"/path/to/some.jar"'
 - statement_terminator: ;
 - statement:
-    list_jar:
+    list_jar_statement:
       keyword: LIST
       file_keyword: JAR
       literal: "'/some/other.jar'"
 - statement_terminator: ;
 - statement:
-    list_jar:
+    list_jar_statement:
       keyword: LIST
       file_keyword: JAR
       literal: '"/path with space/abc.jar"'
 - statement_terminator: ;
 - statement:
-    list_jar:
+    list_jar_statement:
     - keyword: LIST
     - file_keyword: JARS
     - literal: '"/path with space/def.jar"'
     - literal: "'/path with space/ghi.jar'"
 - statement_terminator: ;
 - statement:
-    list_jar:
+    list_jar_statement:
       keyword: LIST
       file_keyword: JAR
       literal: '"ivy://group:module:version"'
 - statement_terminator: ;
 - statement:
-    list_jar:
+    list_jar_statement:
       keyword: LIST
       file_keyword: JAR
       literal: '"ivy://group:module:version?transitive=false"'
 - statement_terminator: ;
 - statement:
-    list_jar:
+    list_jar_statement:
       keyword: LIST
       file_keyword: JAR
       literal: '"ivy://group:module:version?transitive=true"'
 - statement_terminator: ;
 - statement:
-    list_jar:
+    list_jar_statement:
       keyword: LIST
       file_keyword: JAR
       literal: '"ivy://group:module:version?exclude=group:module&transitive=true"'
