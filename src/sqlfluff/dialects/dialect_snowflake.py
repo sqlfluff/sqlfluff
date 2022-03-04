@@ -3948,19 +3948,9 @@ class SelectClauseSegment(BaseSegment):
     """A group of elements in a select target statement."""
 
     type = "select_clause"
-    match_grammar = StartsWith(
-        Sequence("SELECT", Ref("WildcardExpressionSegment", optional=True)),
-        terminator=OneOf(
-            "FROM",
-            "WHERE",
-            Sequence("ORDER", "BY"),
-            "LIMIT",
-            "FETCH",
-            "OFFSET",
-            "OVERLAPS",
-            Ref("SetOperatorSegment"),
-        ),
-        enforce_whitespace_preceding_terminator=True,
+    match_grammar = ansi_dialect.get_segment("SelectClauseSegment").match_grammar.copy()
+    match_grammar.terminator = match_grammar.terminator.copy(
+        insert=["FETCH", "OFFSET"],
     )
     parse_grammar = ansi_dialect.get_segment("SelectClauseSegment").parse_grammar.copy()
 
@@ -3973,19 +3963,11 @@ class OrderByClauseSegment(BaseSegment):
     """
 
     type = "orderby_clause"
-    match_grammar = StartsWith(
-        Sequence("ORDER", "BY"),
-        terminator=OneOf(
-            "LIMIT",
-            "FETCH",
-            "OFFSET",
-            "HAVING",
-            "QUALIFY",
-            # For window functions
-            "WINDOW",
-            Ref("FrameClauseUnitGrammar"),
-            "SEPARATOR",
-        ),
+    match_grammar = ansi_dialect.get_segment(
+        "OrderByClauseSegment"
+    ).match_grammar.copy()
+    match_grammar.terminator = match_grammar.terminator.copy(
+        insert=["FETCH", "OFFSET"],
     )
     parse_grammar = Sequence(
         "ORDER",
@@ -4014,9 +3996,8 @@ class HavingClauseSegment(BaseSegment):
     """A `HAVING` clause."""
 
     type = "having_clause"
-    match_grammar = StartsWith(
-        "HAVING",
-        terminator=OneOf("ORDER", "LIMIT", "FETCH", "OFFSET", "QUALIFY", "WINDOW"),
-        enforce_whitespace_preceding_terminator=True,
+    match_grammar = ansi_dialect.get_segment("HavingClauseSegment").match_grammar.copy()
+    match_grammar.terminator = match_grammar.terminator.copy(
+        insert=["FETCH", "OFFSET"],
     )
     parse_grammar = ansi_dialect.get_segment("HavingClauseSegment").parse_grammar.copy()
