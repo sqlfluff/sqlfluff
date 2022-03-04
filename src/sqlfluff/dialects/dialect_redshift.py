@@ -1194,6 +1194,7 @@ class ProcedureParameterListSegment(BaseSegment):
                     optional=True,
                 ),
                 Ref("ArgModeGrammar", optional=True),
+                max_times_per_element=1,
             ),
             _param_type,
             AnyNumberOf(
@@ -1206,6 +1207,7 @@ class ProcedureParameterListSegment(BaseSegment):
                             optional=True,
                         ),
                         Ref("ArgModeGrammar", optional=True),
+                        max_times_per_element=1,
                     ),
                     _param_type,
                 ),
