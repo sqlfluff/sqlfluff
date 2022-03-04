@@ -1188,7 +1188,11 @@ class ProcedureParameterListSegment(BaseSegment):
     match_grammar = Bracketed(
         Sequence(
             AnyNumberOf(
-                OneOf(Ref("ParameterNameSegment"), exclude=OneOf(_param_type, Ref("ArgModeGrammar")), optional=True),
+                OneOf(
+                    Ref("ParameterNameSegment"),
+                    exclude=OneOf(_param_type, Ref("ArgModeGrammar")),
+                    optional=True,
+                ),
                 Ref("ArgModeGrammar", optional=True),
             ),
             _param_type,
@@ -1197,7 +1201,9 @@ class ProcedureParameterListSegment(BaseSegment):
                     Ref("CommaSegment"),
                     AnyNumberOf(
                         OneOf(
-                            Ref("ParameterNameSegment"), exclude=OneOf(_param_type, Ref("ArgModeGrammar")), optional=True
+                            Ref("ParameterNameSegment"),
+                            exclude=OneOf(_param_type, Ref("ArgModeGrammar")),
+                            optional=True,
                         ),
                         Ref("ArgModeGrammar", optional=True),
                     ),
