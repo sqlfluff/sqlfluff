@@ -326,9 +326,6 @@ snowflake_dialect.add(
     ),
     PatternGrammar=Sequence(
         # https://docs.snowflake.com/en/sql-reference/constructs/match_recognize.html#pattern-specifying-the-pattern-to-match
-        # This is a simplified version of the full pattern
-        # grammar in the docs to handle basic cases.
-        # TODO: Introduce operators. Will require expression-like grammar.
         Ref("CaretSegment", optional=True),
         OneOf(
             AnyNumberOf(
