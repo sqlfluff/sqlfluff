@@ -219,7 +219,15 @@ snowflake_dialect.add(
             # Can `GROUP BY coalesce(col, 1)`
             Ref("ExpressionSegment"),
         ),
-        terminator=OneOf("ORDER", "LIMIT", "HAVING", "QUALIFY", "WINDOW"),
+        terminator=OneOf(
+            "ORDER", "LIMIT", "FETCH", "OFFSET", "HAVING", "QUALIFY", "WINDOW"
+        ),
+    ),
+    LimitLiteralGrammar=OneOf(
+        Ref("NumericLiteralSegment"),
+        "NULL",
+        # '' and $$$$ are allowed as alternatives to NULL.
+        Ref("QuotedLiteralSegment"),
     ),
 )
 
@@ -319,6 +327,41 @@ snowflake_dialect.replace(
         "RLIKE",
         Sequence("ILIKE", Ref.keyword("ANY", optional=True)),
         "REGEXP",
+    ),
+    SelectClauseElementTerminatorGrammar=OneOf(
+        "FROM",
+        "WHERE",
+        Sequence("ORDER", "BY"),
+        "LIMIT",
+        "FETCH",
+        "OFFSET",
+        Ref("CommaSegment"),
+        Ref("SetOperatorSegment"),
+    ),
+    FromClauseTerminatorGrammar=OneOf(
+        "WHERE",
+        "LIMIT",
+        "FETCH",
+        "OFFSET",
+        Sequence("GROUP", "BY"),
+        Sequence("ORDER", "BY"),
+        "HAVING",
+        "QUALIFY",
+        "WINDOW",
+        Ref("SetOperatorSegment"),
+        Ref("WithNoSchemaBindingClauseSegment"),
+        Ref("WithDataClauseSegment"),
+    ),
+    WhereClauseTerminatorGrammar=OneOf(
+        "LIMIT",
+        "FETCH",
+        "OFFSET",
+        Sequence("GROUP", "BY"),
+        Sequence("ORDER", "BY"),
+        "HAVING",
+        "QUALIFY",
+        "WINDOW",
+        "OVERLAPS",
     ),
 )
 
@@ -473,7 +516,9 @@ class GroupByClauseSegment(BaseSegment):
     type = "groupby_clause"
     match_grammar = StartsWith(
         Sequence("GROUP", "BY"),
-        terminator=OneOf("ORDER", "LIMIT", "HAVING", "QUALIFY", "WINDOW"),
+        terminator=OneOf(
+            "ORDER", "LIMIT", "FETCH", "OFFSET", "HAVING", "QUALIFY", "WINDOW"
+        ),
         enforce_whitespace_preceding_terminator=True,
     )
     parse_grammar = Sequence(
@@ -860,12 +905,14 @@ class QualifyClauseSegment(BaseSegment):
     https://docs.snowflake.com/en/sql-reference/constructs/qualify.html
     """
 
-    type = "having_clause"
+    type = "qualify_clause"
     match_grammar = StartsWith(
         "QUALIFY",
         terminator=OneOf(
             Sequence("ORDER", "BY"),
             "LIMIT",
+            "FETCH",
+            "OFFSET",
         ),
     )
     parse_grammar = Sequence(
@@ -3840,3 +3887,117 @@ class CallStatementSegment(BaseSegment):
             ),
         ),
     )
+
+
+@snowflake_dialect.segment(replace=True)
+class LimitClauseSegment(BaseSegment):
+    """A `LIMIT` clause.
+
+    https://docs.snowflake.com/en/sql-reference/constructs/limit.html
+    """
+
+    type = "limit_clause"
+    match_grammar = OneOf(
+        Sequence(
+            "LIMIT",
+            Indent,
+            Ref("LimitLiteralGrammar"),
+            Dedent,
+            Sequence(
+                "OFFSET",
+                Indent,
+                Ref("LimitLiteralGrammar"),
+                Dedent,
+                optional=True,
+            ),
+        ),
+        Sequence(
+            Sequence(
+                "OFFSET",
+                Indent,
+                Ref("LimitLiteralGrammar"),
+                OneOf(
+                    "ROW",
+                    "ROWS",
+                    optional=True,
+                ),
+                Dedent,
+                optional=True,
+            ),
+            "FETCH",
+            Indent,
+            OneOf(
+                "FIRST",
+                "NEXT",
+                optional=True,
+            ),
+            Ref("LimitLiteralGrammar"),
+            OneOf(
+                "ROW",
+                "ROWS",
+                optional=True,
+            ),
+            Ref.keyword("ONLY", optional=True),
+            Dedent,
+        ),
+    )
+
+
+@snowflake_dialect.segment(replace=True)
+class SelectClauseSegment(BaseSegment):
+    """A group of elements in a select target statement."""
+
+    type = "select_clause"
+    match_grammar = ansi_dialect.get_segment("SelectClauseSegment").match_grammar.copy()
+    match_grammar.terminator = match_grammar.terminator.copy(
+        insert=[Ref.keyword("FETCH"), Ref.keyword("OFFSET")],
+    )
+    parse_grammar = ansi_dialect.get_segment("SelectClauseSegment").parse_grammar.copy()
+
+
+@snowflake_dialect.segment(replace=True)
+class OrderByClauseSegment(BaseSegment):
+    """An `ORDER BY` clause.
+
+    https://docs.snowflake.com/en/sql-reference/constructs/order-by.html
+    """
+
+    type = "orderby_clause"
+    match_grammar = ansi_dialect.get_segment(
+        "OrderByClauseSegment"
+    ).match_grammar.copy()
+    match_grammar.terminator = match_grammar.terminator.copy(
+        insert=[Ref.keyword("FETCH"), Ref.keyword("OFFSET")],
+    )
+    parse_grammar = Sequence(
+        "ORDER",
+        "BY",
+        Indent,
+        Delimited(
+            Sequence(
+                OneOf(
+                    Ref("ColumnReferenceSegment"),
+                    # Can `ORDER BY 1`
+                    Ref("NumericLiteralSegment"),
+                    # Can order by an expression
+                    Ref("ExpressionSegment"),
+                ),
+                OneOf("ASC", "DESC", optional=True),
+                Sequence("NULLS", OneOf("FIRST", "LAST"), optional=True),
+            ),
+            terminator=OneOf("LIMIT", "FETCH", "OFFSET", Ref("FrameClauseUnitGrammar")),
+        ),
+        Dedent,
+    )
+
+
+@snowflake_dialect.segment(replace=True)
+class HavingClauseSegment(BaseSegment):
+    """A `HAVING` clause."""
+
+    type = "having_clause"
+    match_grammar = ansi_dialect.get_segment("HavingClauseSegment").match_grammar.copy()
+    match_grammar.terminator = match_grammar.terminator.copy(
+        insert=[Ref.keyword("FETCH"), Ref.keyword("OFFSET")],
+    )
+    parse_grammar = ansi_dialect.get_segment("HavingClauseSegment").parse_grammar.copy()
