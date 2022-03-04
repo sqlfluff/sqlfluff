@@ -3950,7 +3950,7 @@ class SelectClauseSegment(BaseSegment):
     type = "select_clause"
     match_grammar = ansi_dialect.get_segment("SelectClauseSegment").match_grammar.copy()
     match_grammar.terminator = match_grammar.terminator.copy(
-        insert=["FETCH", "OFFSET"],
+        insert=[Ref.keyword("FETCH"), Ref.keyword("OFFSET")],
     )
     parse_grammar = ansi_dialect.get_segment("SelectClauseSegment").parse_grammar.copy()
 
@@ -3967,7 +3967,7 @@ class OrderByClauseSegment(BaseSegment):
         "OrderByClauseSegment"
     ).match_grammar.copy()
     match_grammar.terminator = match_grammar.terminator.copy(
-        insert=["FETCH", "OFFSET"],
+        insert=[Ref.keyword("FETCH"), Ref.keyword("OFFSET")],
     )
     parse_grammar = Sequence(
         "ORDER",
@@ -3998,6 +3998,6 @@ class HavingClauseSegment(BaseSegment):
     type = "having_clause"
     match_grammar = ansi_dialect.get_segment("HavingClauseSegment").match_grammar.copy()
     match_grammar.terminator = match_grammar.terminator.copy(
-        insert=["FETCH", "OFFSET"],
+        insert=[Ref.keyword("FETCH"), Ref.keyword("OFFSET")],
     )
     parse_grammar = ansi_dialect.get_segment("HavingClauseSegment").parse_grammar.copy()
