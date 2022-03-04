@@ -1795,12 +1795,9 @@ class AnalyzeTableSegment(BaseSegment):
                         "FOR",
                         "COLUMNS",
                         OptionallyBracketed(
-                            OneOf(
-                                Ref("ColumnReferenceSegment"),
-                                Delimited(
-                                    Ref(
-                                        "ColumnReferenceSegment",
-                                    ),
+                            Delimited(
+                                Ref(
+                                    "ColumnReferenceSegment",
                                 ),
                             ),
                         ),
