@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3bee12bfaf3f18f18d67fa11abb49e22092fa8919b2209ca3eab7b042b5ef191
+_hash: cf3bd31e3fc6f6655b428beaa28713dd7ca8caf72d0f0ed27bdf6e21d1178cbd
 file:
 - statement:
     create_function_statement:
@@ -19,7 +19,7 @@ file:
     - keyword: AS
     - literal: '"class_name"'
     - keyword: USING
-    - file_type: FILE
+    - file_keyword: FILE
     - literal: '"resource_locations"'
 - statement_terminator: ;
 - statement:
@@ -30,7 +30,7 @@ file:
     - keyword: AS
     - literal: "'SimpleUdf'"
     - keyword: USING
-    - file_type: JAR
+    - file_keyword: JAR
     - literal: "'/tmp/SimpleUdf.jar'"
 - statement_terminator: ;
 - statement:
@@ -42,7 +42,7 @@ file:
     - keyword: AS
     - literal: "'SimpleUdf'"
     - keyword: USING
-    - file_type: JAR
+    - file_keyword: JAR
     - literal: "'/tmp/SimpleUdf.jar'"
 - statement_terminator: ;
 - statement:
@@ -55,7 +55,7 @@ file:
     - keyword: AS
     - literal: "'SimpleUdfR'"
     - keyword: USING
-    - file_type: JAR
+    - file_keyword: JAR
     - literal: "'/tmp/SimpleUdfR.jar'"
 - statement_terminator: ;
 - statement:

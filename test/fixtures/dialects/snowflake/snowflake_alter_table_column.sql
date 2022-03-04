@@ -16,6 +16,8 @@ ALTER TABLE my_table ADD COLUMN my_column INTEGER IDENTITY START 10000 INCREMENT
 ---- Masking Policy
 ALTER TABLE my_table ADD COLUMN my_column INTEGER MASKING POLICY my_policy;
 ALTER TABLE my_table ADD COLUMN my_column INTEGER WITH MASKING POLICY my_policy;
+ALTER TABLE my_table ADD COLUMN my_column INTEGER WITH MASKING POLICY adatabase.aschema.apolicy;
+ALTER TABLE my_table ADD COLUMN my_column INTEGER WITH MASKING POLICY my_policy USING(my_column, my_column > 10);
 
 -- comment
 ALTER TABLE reporting_tbl ADD COLUMN reporting_group VARCHAR
@@ -38,7 +40,9 @@ alter table t1 alter c4 set data type varchar(50), column c4 drop default;
 ---- Set Masking Policy
 ------ Single column
 ALTER TABLE xxxx.example_table MODIFY COLUMN employeeCode SET MASKING POLICY example_MASKING_POLICY;
+ALTER TABLE aschema.atable MODIFY COLUMN acolumn SET MASKING POLICY adatabase.aschema.apolicy;
 alter table empl_info modify column empl_id set masking policy mask_empl_id;
+alter table empl_info modify column empl_id set masking policy mask_empl_id using(empl_id, empl_id > 10);
 
 ------ Multiple columns
 alter table empl_info modify

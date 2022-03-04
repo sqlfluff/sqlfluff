@@ -1,0 +1,381 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 2f24fa3ad811e6236131f69030a5e57324871a656d1e09f073d9b94400cac12f
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: stock_price_history
+          match_recognize_clause:
+            keyword: match_recognize
+            bracketed:
+            - start_bracket: (
+            - partitionby_clause:
+              - keyword: partition
+              - keyword: by
+              - expression:
+                  column_reference:
+                    identifier: company
+            - orderby_clause:
+              - keyword: order
+              - keyword: by
+              - column_reference:
+                  identifier: price_date
+            - keyword: measures
+            - expression:
+                function:
+                  function_name:
+                    function_name_identifier: match_number
+                  bracketed:
+                    start_bracket: (
+                    end_bracket: )
+            - alias_expression:
+                keyword: as
+                identifier: match_number
+            - comma: ','
+            - expression:
+                function:
+                  function_name:
+                    function_name_identifier: first
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        identifier: price_date
+                    end_bracket: )
+            - alias_expression:
+                keyword: as
+                identifier: start_date
+            - comma: ','
+            - expression:
+                function:
+                  function_name:
+                    function_name_identifier: last
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        identifier: price_date
+                    end_bracket: )
+            - alias_expression:
+                keyword: as
+                identifier: end_date
+            - comma: ','
+            - expression:
+                function:
+                  function_name:
+                    function_name_identifier: count
+                  bracketed:
+                    start_bracket: (
+                    star: '*'
+                    end_bracket: )
+            - alias_expression:
+                keyword: as
+                identifier: rows_in_sequence
+            - comma: ','
+            - expression:
+                function:
+                  function_name:
+                    function_name_identifier: count
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      identifier: row_with_price_decrease
+                      dot: .
+                      star: '*'
+                    end_bracket: )
+            - alias_expression:
+                keyword: as
+                identifier: num_decreases
+            - comma: ','
+            - expression:
+                function:
+                  function_name:
+                    function_name_identifier: count
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      identifier: row_with_price_increase
+                      dot: .
+                      star: '*'
+                    end_bracket: )
+            - alias_expression:
+                keyword: as
+                identifier: num_increases
+            - keyword: one
+            - keyword: row
+            - keyword: per
+            - keyword: match
+            - keyword: after
+            - keyword: match
+            - keyword: skip
+            - keyword: to
+            - keyword: last
+            - identifier: row_with_price_increase
+            - keyword: pattern
+            - bracketed:
+              - start_bracket: (
+              - identifier: row_before_decrease
+              - identifier: row_with_price_decrease
+              - sign_indicator: +
+              - identifier: row_with_price_increase
+              - sign_indicator: +
+              - end_bracket: )
+            - keyword: define
+            - identifier: row_with_price_decrease
+            - keyword: as
+            - expression:
+                column_reference:
+                  identifier: price
+                comparison_operator:
+                  raw_comparison_operator: <
+                function:
+                  function_name:
+                    function_name_identifier: lag
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        identifier: price
+                    end_bracket: )
+            - comma: ','
+            - identifier: row_with_price_increase
+            - keyword: as
+            - expression:
+                column_reference:
+                  identifier: price
+                comparison_operator:
+                  raw_comparison_operator: '>'
+                function:
+                  function_name:
+                    function_name_identifier: lag
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        identifier: price
+                    end_bracket: )
+            - end_bracket: )
+      orderby_clause:
+      - keyword: order
+      - keyword: by
+      - column_reference:
+          identifier: company
+      - comma: ','
+      - column_reference:
+          identifier: match_number
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: stock_price_history
+          match_recognize_clause:
+            keyword: match_recognize
+            bracketed:
+            - start_bracket: (
+            - partitionby_clause:
+              - keyword: partition
+              - keyword: by
+              - expression:
+                  column_reference:
+                    identifier: company
+            - orderby_clause:
+              - keyword: order
+              - keyword: by
+              - column_reference:
+                  identifier: price_date
+            - keyword: measures
+            - expression:
+                function:
+                  function_name:
+                    function_name_identifier: match_number
+                  bracketed:
+                    start_bracket: (
+                    end_bracket: )
+            - alias_expression:
+                keyword: as
+                identifier: match_number
+            - comma: ','
+            - expression:
+                function:
+                  function_name:
+                    function_name_identifier: first
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        identifier: price_date
+                    end_bracket: )
+            - alias_expression:
+                keyword: as
+                identifier: start_date
+            - comma: ','
+            - expression:
+                function:
+                  function_name:
+                    function_name_identifier: last
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        identifier: price_date
+                    end_bracket: )
+            - alias_expression:
+                keyword: as
+                identifier: end_date
+            - comma: ','
+            - expression:
+                function:
+                  function_name:
+                    function_name_identifier: count
+                  bracketed:
+                    start_bracket: (
+                    star: '*'
+                    end_bracket: )
+            - alias_expression:
+                keyword: as
+                identifier: rows_in_sequence
+            - comma: ','
+            - expression:
+                function:
+                  function_name:
+                    function_name_identifier: count
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      identifier: row_with_price_decrease
+                      dot: .
+                      star: '*'
+                    end_bracket: )
+            - alias_expression:
+                keyword: as
+                identifier: num_decreases
+            - comma: ','
+            - expression:
+                function:
+                  function_name:
+                    function_name_identifier: count
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      identifier: row_with_price_increase
+                      dot: .
+                      star: '*'
+                    end_bracket: )
+            - alias_expression:
+                keyword: as
+                identifier: num_increases
+            - keyword: one
+            - keyword: row
+            - keyword: per
+            - keyword: match
+            - keyword: after
+            - keyword: match
+            - keyword: skip
+            - keyword: to
+            - keyword: last
+            - identifier: row_with_price_increase
+            - keyword: pattern
+            - bracketed:
+              - start_bracket: (
+              - caret: ^
+              - identifier: S1
+              - sign_indicator: +
+              - identifier: S2
+              - star: '*'
+              - identifier: S3
+              - question_mark: '?'
+              - identifier: S4
+              - start_curly_bracket: '{'
+              - literal: '1'
+              - end_curly_bracket: '}'
+              - identifier: S5
+              - start_curly_bracket: '{'
+              - literal: '1'
+              - comma: ','
+              - end_curly_bracket: '}'
+              - identifier: S6
+              - start_curly_bracket: '{'
+              - comma: ','
+              - literal: '1'
+              - end_curly_bracket: '}'
+              - identifier: S7
+              - start_curly_bracket: '{'
+              - literal: '1'
+              - comma: ','
+              - literal: '1'
+              - end_curly_bracket: '}'
+              - identifier: S8
+              - star: '*'
+              - question_mark: '?'
+              - dollar: $
+              - end_bracket: )
+            - keyword: define
+            - identifier: row_with_price_decrease
+            - keyword: as
+            - expression:
+                column_reference:
+                  identifier: price
+                comparison_operator:
+                  raw_comparison_operator: <
+                function:
+                  function_name:
+                    function_name_identifier: lag
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        identifier: price
+                    end_bracket: )
+            - comma: ','
+            - identifier: row_with_price_increase
+            - keyword: as
+            - expression:
+                column_reference:
+                  identifier: price
+                comparison_operator:
+                  raw_comparison_operator: '>'
+                function:
+                  function_name:
+                    function_name_identifier: lag
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        identifier: price
+                    end_bracket: )
+            - end_bracket: )
+      orderby_clause:
+      - keyword: order
+      - keyword: by
+      - column_reference:
+          identifier: company
+      - comma: ','
+      - column_reference:
+          identifier: match_number
+- statement_terminator: ;

@@ -65,6 +65,7 @@ snowflake_dialect.insert_lexer_matchers(
             CodeSegment,
         ),
         RegexLexer("inline_dollar_sign", r"[a-zA-Z_][a-zA-Z0-9_$]*", CodeSegment),
+        StringLexer("question_mark", "?", CodeSegment),
     ],
     before="like_operator",
 )
@@ -219,7 +220,65 @@ snowflake_dialect.add(
             # Can `GROUP BY coalesce(col, 1)`
             Ref("ExpressionSegment"),
         ),
-        terminator=OneOf("ORDER", "LIMIT", "HAVING", "QUALIFY", "WINDOW"),
+        terminator=OneOf(
+            "ORDER", "LIMIT", "FETCH", "OFFSET", "HAVING", "QUALIFY", "WINDOW"
+        ),
+    ),
+    LimitLiteralGrammar=OneOf(
+        Ref("NumericLiteralSegment"),
+        "NULL",
+        # '' and $$$$ are allowed as alternatives to NULL.
+        Ref("QuotedLiteralSegment"),
+    ),
+    QuestionMarkSegment=StringParser(
+        "?", SymbolSegment, name="question_mark", type="question_mark"
+    ),
+    CaretSegment=StringParser("^", SymbolSegment, name="caret", type="caret"),
+    DollarSegment=StringParser("$", SymbolSegment, name="dollar", type="dollar"),
+    PatternQuantifierGrammar=Sequence(
+        OneOf(
+            Ref("PositiveSegment"),
+            Ref("StarSegment"),
+            Ref("QuestionMarkSegment"),
+            Bracketed(
+                OneOf(
+                    Ref("NumericLiteralSegment"),
+                    Sequence(
+                        Ref("NumericLiteralSegment"),
+                        Ref("CommaSegment"),
+                    ),
+                    Sequence(
+                        Ref("CommaSegment"),
+                        Ref("NumericLiteralSegment"),
+                    ),
+                    Sequence(
+                        Ref("NumericLiteralSegment"),
+                        Ref("CommaSegment"),
+                        Ref("NumericLiteralSegment"),
+                    ),
+                ),
+                bracket_type="curly",
+                bracket_pairs_set="bracket_pairs",
+            ),
+        ),
+        # To put a quantifier into “reluctant mode”.
+        Ref("QuestionMarkSegment", optional=True),
+        allow_gaps=False,
+    ),
+    PatternGrammar=Sequence(
+        # https://docs.snowflake.com/en/sql-reference/constructs/match_recognize.html#pattern-specifying-the-pattern-to-match
+        # This is a simplified version of the full pattern
+        # grammar in the docs to handle basic cases.
+        # TODO: Introduce operators. Will require expression-like grammar.
+        Ref("CaretSegment", optional=True),
+        AnyNumberOf(
+            Sequence(
+                Ref("SingleIdentifierGrammar"),
+                Ref("PatternQuantifierGrammar", optional=True),
+                allow_gaps=False,
+            ),
+        ),
+        Ref("DollarSegment", optional=True),
     ),
 )
 
@@ -257,6 +316,7 @@ snowflake_dialect.replace(
     ),
     JoinLikeClauseGrammar=Sequence(
         AnySetOf(
+            Ref("MatchRecognizeClauseSegment"),
             Ref("ChangesClauseSegment"),
             Ref("ConnectByClauseSegment"),
             Ref("FromAtExpressionSegment"),
@@ -312,6 +372,48 @@ snowflake_dialect.replace(
             name="quoted_literal",
             type="literal",
         ),
+    ),
+    LikeGrammar=OneOf(
+        # https://docs.snowflake.com/en/sql-reference/functions/like.html
+        Sequence("LIKE", OneOf("ALL", "ANY", optional=True)),
+        "RLIKE",
+        Sequence("ILIKE", Ref.keyword("ANY", optional=True)),
+        "REGEXP",
+    ),
+    SelectClauseElementTerminatorGrammar=OneOf(
+        "FROM",
+        "WHERE",
+        Sequence("ORDER", "BY"),
+        "LIMIT",
+        "FETCH",
+        "OFFSET",
+        Ref("CommaSegment"),
+        Ref("SetOperatorSegment"),
+    ),
+    FromClauseTerminatorGrammar=OneOf(
+        "WHERE",
+        "LIMIT",
+        "FETCH",
+        "OFFSET",
+        Sequence("GROUP", "BY"),
+        Sequence("ORDER", "BY"),
+        "HAVING",
+        "QUALIFY",
+        "WINDOW",
+        Ref("SetOperatorSegment"),
+        Ref("WithNoSchemaBindingClauseSegment"),
+        Ref("WithDataClauseSegment"),
+    ),
+    WhereClauseTerminatorGrammar=OneOf(
+        "LIMIT",
+        "FETCH",
+        "OFFSET",
+        Sequence("GROUP", "BY"),
+        Sequence("ORDER", "BY"),
+        "HAVING",
+        "QUALIFY",
+        "WINDOW",
+        "OVERLAPS",
     ),
 )
 
@@ -466,7 +568,9 @@ class GroupByClauseSegment(BaseSegment):
     type = "groupby_clause"
     match_grammar = StartsWith(
         Sequence("GROUP", "BY"),
-        terminator=OneOf("ORDER", "LIMIT", "HAVING", "QUALIFY", "WINDOW"),
+        terminator=OneOf(
+            "ORDER", "LIMIT", "FETCH", "OFFSET", "HAVING", "QUALIFY", "WINDOW"
+        ),
         enforce_whitespace_preceding_terminator=True,
     )
     parse_grammar = Sequence(
@@ -645,6 +749,101 @@ class TableAliasExpressionSegment(BaseSegment):
         Bracketed(
             Delimited(Ref("SingleIdentifierGrammar"), delimiter=Ref("CommaSegment")),
             optional=True,
+        ),
+    )
+
+
+@snowflake_dialect.segment()
+class MatchRecognizeClauseSegment(BaseSegment):
+    """A `MATCH_RECOGNIZE` clause.
+
+    https://docs.snowflake.com/en/sql-reference/constructs/match_recognize.html
+    """
+
+    type = "match_recognize_clause"
+    match_grammar = Sequence(
+        "MATCH_RECOGNIZE",
+        Bracketed(
+            Ref("PartitionClauseSegment", optional=True),
+            Ref("OrderByClauseSegment", optional=True),
+            Sequence(
+                "MEASURES",
+                Delimited(
+                    Sequence(
+                        Ref("ExpressionSegment"),
+                        Ref("AliasExpressionSegment"),
+                    ),
+                ),
+                optional=True,
+            ),
+            OneOf(
+                Sequence(
+                    "ONE",
+                    "ROW",
+                    "PER",
+                    "MATCH",
+                ),
+                Sequence(
+                    "ALL",
+                    "ROWS",
+                    "PER",
+                    "MATCH",
+                    OneOf(
+                        Sequence(
+                            "SHOW",
+                            "EMPTY",
+                            "MATCHES",
+                        ),
+                        Sequence(
+                            "OMIT",
+                            "EMPTY",
+                            "MATCHES",
+                        ),
+                        Sequence(
+                            "WITH",
+                            "UNMATCHED",
+                            "ROWS",
+                        ),
+                        optional=True,
+                    ),
+                ),
+                optional=True,
+            ),
+            Sequence(
+                "AFTER",
+                "MATCH",
+                "SKIP",
+                OneOf(
+                    Sequence(
+                        "PAST",
+                        "LAST",
+                        "ROW",
+                    ),
+                    Sequence(
+                        "TO",
+                        "NEXT",
+                        "ROW",
+                    ),
+                    Sequence(
+                        "TO",
+                        OneOf("FIRST", "LAST", optional=True),
+                        Ref("SingleIdentifierGrammar"),
+                    ),
+                ),
+                optional=True,
+            ),
+            "PATTERN",
+            Bracketed(
+                Ref("PatternGrammar"),
+            ),
+            "DEFINE",
+            Delimited(
+                Sequence(
+                    Ref("SingleIdentifierGrammar"),
+                    "AS",
+                    Ref("ExpressionSegment"),
+                ),
+            ),
         ),
     )
 
@@ -853,12 +1052,14 @@ class QualifyClauseSegment(BaseSegment):
     https://docs.snowflake.com/en/sql-reference/constructs/qualify.html
     """
 
-    type = "having_clause"
+    type = "qualify_clause"
     match_grammar = StartsWith(
         "QUALIFY",
         terminator=OneOf(
             Sequence("ORDER", "BY"),
             "LIMIT",
+            "FETCH",
+            "OFFSET",
         ),
     )
     parse_grammar = Sequence(
@@ -1042,8 +1243,19 @@ class AlterTableTableColumnActionSegment(BaseSegment):
                         Ref.keyword("WITH", optional=True),
                         "MASKING",
                         "POLICY",
-                        Ref("ObjectReferenceSegment"),
-                        # @TODO: Add support for delimited col/expression list
+                        Ref("FunctionNameSegment"),
+                        Sequence(
+                            "USING",
+                            Bracketed(
+                                Delimited(
+                                    OneOf(
+                                        Ref("ColumnReferenceSegment"),
+                                        Ref("ExpressionSegment"),
+                                    )
+                                ),
+                            ),
+                            optional=True,
+                        ),
                         optional=True,
                     ),
                     Ref("CommentClauseSegment", optional=True),
@@ -1096,10 +1308,29 @@ class AlterTableTableColumnActionSegment(BaseSegment):
                         Sequence(
                             "COLUMN",
                             Ref("ColumnReferenceSegment"),
-                            OneOf("SET", "UNSET"),
+                            "SET",
                             "MASKING",
                             "POLICY",
-                            Ref("FunctionNameIdentifierSegment", optional=True),
+                            Ref("FunctionNameSegment"),
+                            Sequence(
+                                "USING",
+                                Bracketed(
+                                    Delimited(
+                                        OneOf(
+                                            Ref("ColumnReferenceSegment"),
+                                            Ref("ExpressionSegment"),
+                                        )
+                                    ),
+                                ),
+                                optional=True,
+                            ),
+                        ),
+                        Sequence(
+                            "COLUMN",
+                            Ref("ColumnReferenceSegment"),
+                            "UNSET",
+                            "MASKING",
+                            "POLICY",
                         ),
                         # @TODO: Set/Unset TAG support
                     ),
@@ -1631,7 +1862,19 @@ class ColumnConstraintSegment(BaseSegment):
             Sequence("WITH", optional=True),
             "MASKING",
             "POLICY",
-            Ref("QuotedLiteralSegment"),
+            Ref("FunctionNameSegment"),
+            Sequence(
+                "USING",
+                Bracketed(
+                    Delimited(
+                        OneOf(
+                            Ref("ColumnReferenceSegment"),
+                            Ref("ExpressionSegment"),
+                        )
+                    ),
+                ),
+                optional=True,
+            ),
         ),
         Ref("TagBracketedEqualsSegment", optional=True),
         Ref("ConstraintPropertiesSegment"),
@@ -3791,3 +4034,117 @@ class CallStatementSegment(BaseSegment):
             ),
         ),
     )
+
+
+@snowflake_dialect.segment(replace=True)
+class LimitClauseSegment(BaseSegment):
+    """A `LIMIT` clause.
+
+    https://docs.snowflake.com/en/sql-reference/constructs/limit.html
+    """
+
+    type = "limit_clause"
+    match_grammar = OneOf(
+        Sequence(
+            "LIMIT",
+            Indent,
+            Ref("LimitLiteralGrammar"),
+            Dedent,
+            Sequence(
+                "OFFSET",
+                Indent,
+                Ref("LimitLiteralGrammar"),
+                Dedent,
+                optional=True,
+            ),
+        ),
+        Sequence(
+            Sequence(
+                "OFFSET",
+                Indent,
+                Ref("LimitLiteralGrammar"),
+                OneOf(
+                    "ROW",
+                    "ROWS",
+                    optional=True,
+                ),
+                Dedent,
+                optional=True,
+            ),
+            "FETCH",
+            Indent,
+            OneOf(
+                "FIRST",
+                "NEXT",
+                optional=True,
+            ),
+            Ref("LimitLiteralGrammar"),
+            OneOf(
+                "ROW",
+                "ROWS",
+                optional=True,
+            ),
+            Ref.keyword("ONLY", optional=True),
+            Dedent,
+        ),
+    )
+
+
+@snowflake_dialect.segment(replace=True)
+class SelectClauseSegment(BaseSegment):
+    """A group of elements in a select target statement."""
+
+    type = "select_clause"
+    match_grammar = ansi_dialect.get_segment("SelectClauseSegment").match_grammar.copy()
+    match_grammar.terminator = match_grammar.terminator.copy(
+        insert=[Ref.keyword("FETCH"), Ref.keyword("OFFSET")],
+    )
+    parse_grammar = ansi_dialect.get_segment("SelectClauseSegment").parse_grammar.copy()
+
+
+@snowflake_dialect.segment(replace=True)
+class OrderByClauseSegment(BaseSegment):
+    """An `ORDER BY` clause.
+
+    https://docs.snowflake.com/en/sql-reference/constructs/order-by.html
+    """
+
+    type = "orderby_clause"
+    match_grammar = ansi_dialect.get_segment(
+        "OrderByClauseSegment"
+    ).match_grammar.copy()
+    match_grammar.terminator = match_grammar.terminator.copy(
+        insert=[Ref.keyword("FETCH"), Ref.keyword("OFFSET"), Ref.keyword("MEASURES")],
+    )
+    parse_grammar = Sequence(
+        "ORDER",
+        "BY",
+        Indent,
+        Delimited(
+            Sequence(
+                OneOf(
+                    Ref("ColumnReferenceSegment"),
+                    # Can `ORDER BY 1`
+                    Ref("NumericLiteralSegment"),
+                    # Can order by an expression
+                    Ref("ExpressionSegment"),
+                ),
+                OneOf("ASC", "DESC", optional=True),
+                Sequence("NULLS", OneOf("FIRST", "LAST"), optional=True),
+            ),
+            terminator=OneOf("LIMIT", "FETCH", "OFFSET", Ref("FrameClauseUnitGrammar")),
+        ),
+        Dedent,
+    )
+
+
+@snowflake_dialect.segment(replace=True)
+class HavingClauseSegment(BaseSegment):
+    """A `HAVING` clause."""
+
+    type = "having_clause"
+    match_grammar = ansi_dialect.get_segment("HavingClauseSegment").match_grammar.copy()
+    match_grammar.terminator = match_grammar.terminator.copy(
+        insert=[Ref.keyword("FETCH"), Ref.keyword("OFFSET")],
+    )
+    parse_grammar = ansi_dialect.get_segment("HavingClauseSegment").parse_grammar.copy()
