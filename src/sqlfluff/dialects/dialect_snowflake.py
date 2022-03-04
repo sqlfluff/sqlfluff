@@ -222,26 +222,16 @@ snowflake_dialect.add(
         ),
         terminator=OneOf("ORDER", "LIMIT", "HAVING", "QUALIFY", "WINDOW"),
     ),
+    QuestionMarkSegment=StringParser(
+        "?", SymbolSegment, name="question_mark", type="question_mark"
+    ),
+    CaretSegment=StringParser("^", SymbolSegment, name="caret", type="caret"),
+    DollarSegment=StringParser("$", SymbolSegment, name="dollar", type="dollar"),
     PatternQuantifierGrammar=Sequence(
         OneOf(
-            StringParser(
-                "+",
-                SymbolSegment,
-                name="plus",
-                type="plus",
-            ),
-            StringParser(
-                "*",
-                SymbolSegment,
-                name="star",
-                type="star",
-            ),
-            StringParser(
-                "?",
-                SymbolSegment,
-                name="question_mark",
-                type="question_mark",
-            ),
+            Ref("PositiveSegment"),
+            Ref("StarSegment"),
+            Ref("QuestionMarkSegment"),
             Bracketed(
                 OneOf(
                     Ref("NumericLiteralSegment"),
@@ -263,28 +253,16 @@ snowflake_dialect.add(
                 bracket_pairs_set="bracket_pairs",
             ),
         ),
-        # To put a quantifier into “reluctant mode”
-        StringParser(
-            "?",
-            SymbolSegment,
-            name="question_mark",
-            type="question_mark",
-            optional=True,
-        ),
+        # To put a quantifier into “reluctant mode”.
+        Ref("QuestionMarkSegment", optional=True),
         allow_gaps=False,
     ),
     PatternGrammar=Sequence(
         # https://docs.snowflake.com/en/sql-reference/constructs/match_recognize.html#pattern-specifying-the-pattern-to-match
         # This is a simplified version of the full pattern
         # grammar in the docs to handle basic cases.
-        # TODO: Introduce operators.
-        StringParser(
-            "^",
-            SymbolSegment,
-            name="caret",
-            type="caret",
-            optional=True,
-        ),
+        # TODO: Introduce operators. Will require expression-like grammar.
+        Ref("CaretSegment", optional=True),
         AnyNumberOf(
             Sequence(
                 Ref("SingleIdentifierGrammar"),
@@ -292,13 +270,7 @@ snowflake_dialect.add(
                 allow_gaps=False,
             ),
         ),
-        StringParser(
-            "$",
-            SymbolSegment,
-            name="dollar",
-            type="dollar",
-            optional=True,
-        ),
+        Ref("DollarSegment", optional=True),
     ),
 )
 
@@ -4019,21 +3991,17 @@ class CallStatementSegment(BaseSegment):
 
 @snowflake_dialect.segment(replace=True)
 class OrderByClauseSegment(BaseSegment):
-    """A `ORDER BY` clause like in `SELECT`."""
+    """An `ORDER BY` clause.
+
+    https://docs.snowflake.com/en/sql-reference/constructs/order-by.html
+    """
 
     type = "orderby_clause"
-    match_grammar = StartsWith(
-        Sequence("ORDER", "BY"),
-        terminator=OneOf(
-            "LIMIT",
-            "HAVING",
-            "QUALIFY",
-            # For window functions
-            "WINDOW",
-            Ref("FrameClauseUnitGrammar"),
-            "SEPARATOR",
-            "MEASURES",
-        ),
+    match_grammar = ansi_dialect.get_segment(
+        "OrderByClauseSegment"
+    ).match_grammar.copy()
+    match_grammar.terminator = match_grammar.terminator.copy(
+        insert=[Ref.keyword("MEASURES")],
     )
     parse_grammar = Sequence(
         "ORDER",
@@ -4049,12 +4017,9 @@ class OrderByClauseSegment(BaseSegment):
                     Ref("ExpressionSegment"),
                 ),
                 OneOf("ASC", "DESC", optional=True),
-                # NB: This isn't really ANSI, and isn't supported in Mysql, but
-                # is supported in enough other dialects for it to make sense here
-                # for now.
                 Sequence("NULLS", OneOf("FIRST", "LAST"), optional=True),
             ),
-            terminator=OneOf(Ref.keyword("LIMIT"), Ref("FrameClauseUnitGrammar")),
+            terminator=OneOf("LIMIT", Ref("FrameClauseUnitGrammar")),
         ),
         Dedent,
     )
