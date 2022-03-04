@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0fefb5dc8ab8dca1a3c6a8c10e7acec5e4b9c6acb80dc43c8e0d88cb48766013
+_hash: 2f24fa3ad811e6236131f69030a5e57324871a656d1e09f073d9b94400cac12f
 file:
 - statement:
     select_statement:
@@ -131,9 +131,9 @@ file:
               - start_bracket: (
               - identifier: row_before_decrease
               - identifier: row_with_price_decrease
-              - plus: +
+              - sign_indicator: +
               - identifier: row_with_price_increase
-              - plus: +
+              - sign_indicator: +
               - end_bracket: )
             - keyword: define
             - identifier: row_with_price_decrease
@@ -305,7 +305,7 @@ file:
               - start_bracket: (
               - caret: ^
               - identifier: S1
-              - plus: +
+              - sign_indicator: +
               - identifier: S2
               - star: '*'
               - identifier: S3
