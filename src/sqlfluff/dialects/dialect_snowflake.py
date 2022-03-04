@@ -222,45 +222,56 @@ snowflake_dialect.add(
         ),
         terminator=OneOf("ORDER", "LIMIT", "HAVING", "QUALIFY", "WINDOW"),
     ),
-    PatternQuantifierGrammar=OneOf(
-        StringParser(
-            "+",
-            SymbolSegment,
-            name="plus",
-            type="plus",
+    PatternQuantifierGrammar=Sequence(
+        OneOf(
+            StringParser(
+                "+",
+                SymbolSegment,
+                name="plus",
+                type="plus",
+            ),
+            StringParser(
+                "*",
+                SymbolSegment,
+                name="star",
+                type="star",
+            ),
+            StringParser(
+                "?",
+                SymbolSegment,
+                name="question_mark",
+                type="question_mark",
+            ),
+            Bracketed(
+                OneOf(
+                    Ref("NumericLiteralSegment"),
+                    Sequence(
+                        Ref("NumericLiteralSegment"),
+                        Ref("CommaSegment"),
+                    ),
+                    Sequence(
+                        Ref("CommaSegment"),
+                        Ref("NumericLiteralSegment"),
+                    ),
+                    Sequence(
+                        Ref("NumericLiteralSegment"),
+                        Ref("CommaSegment"),
+                        Ref("NumericLiteralSegment"),
+                    ),
+                ),
+                bracket_type="curly",
+                bracket_pairs_set="bracket_pairs",
+            ),
         ),
-        StringParser(
-            "*",
-            SymbolSegment,
-            name="star",
-            type="star",
-        ),
+        # To put a quantifier into “reluctant mode”
         StringParser(
             "?",
             SymbolSegment,
             name="question_mark",
             type="question_mark",
+            optional=True,
         ),
-        Bracketed(
-            OneOf(
-                Ref("NumericLiteralSegment"),
-                Sequence(
-                    Ref("NumericLiteralSegment"),
-                    Ref("CommaSegment"),
-                ),
-                Sequence(
-                    Ref("CommaSegment"),
-                    Ref("NumericLiteralSegment"),
-                ),
-                Sequence(
-                    Ref("NumericLiteralSegment"),
-                    Ref("CommaSegment"),
-                    Ref("NumericLiteralSegment"),
-                ),
-            ),
-            bracket_type="curly",
-            bracket_pairs_set="bracket_pairs",
-        ),
+        allow_gaps=False,
     ),
     PatternGrammar=Sequence(
         # https://docs.snowflake.com/en/sql-reference/constructs/match_recognize.html#pattern-specifying-the-pattern-to-match

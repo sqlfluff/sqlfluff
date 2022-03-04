@@ -32,7 +32,7 @@ select * from stock_price_history
       count(row_with_price_increase.*) as num_increases
     one row per match
     after match skip to last row_with_price_increase
-    pattern(^ S1+ S2* S3? S4{1} S5{1,} S6{,1} S7{1,1} $)
+    pattern(^ S1+ S2* S3? S4{1} S5{1,} S6{,1} S7{1,1} S8*? $)
     define
       row_with_price_decrease as price < lag(price),
       row_with_price_increase as price > lag(price)
