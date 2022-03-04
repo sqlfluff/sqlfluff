@@ -49,6 +49,36 @@ redshift_dialect.replace(WellKnownTextGeometrySegment=Nothing())
 ObjectReferenceSegment = redshift_dialect.get_segment("ObjectReferenceSegment")
 
 
+redshift_dialect.add(
+    CompressionTypeGrammar=OneOf(
+        "BZIP2",
+        "GZIP",
+        "LZOP",
+        "ZSTD",
+    ),
+    ArgModeGrammar=OneOf(
+        "IN",
+        "OUT",
+        "INOUT",
+    ),
+    ColumnEncodingGrammar=OneOf(
+        "RAW",
+        "AZ64",
+        "BYTEDICT",
+        "DELTA",
+        "DELTA32K",
+        "LZO",
+        "MOSTLY8",
+        "MOSTLY16",
+        "MOSTLY32",
+        "RUNLENGTH",
+        "TEXT255",
+        "TEXT32K",
+        "ZSTD",
+    ),
+)
+
+
 # need to ignore type due to mypy rules on type variables
 # see https://mypy.readthedocs.io/en/stable/common_issues.html#variables-vs-type-aliases
 # for details
@@ -186,70 +216,6 @@ class DatatypeSegment(BaseSegment):
 
 
 @redshift_dialect.segment()
-class ColumnEncodingSegment(BaseSegment):
-    """ColumnEncoding segment.
-
-    Indicates column compression encoding.
-
-    As specified by:
-    https://docs.aws.amazon.com/redshift/latest/dg/c_Compression_encodings.html
-    """
-
-    type = "column_encoding_segment"
-
-    match_grammar = OneOf(
-        "RAW",
-        "AZ64",
-        "BYTEDICT",
-        "DELTA",
-        "DELTA32K",
-        "LZO",
-        "MOSTLY8",
-        "MOSTLY16",
-        "MOSTLY32",
-        "RUNLENGTH",
-        "TEXT255",
-        "TEXT32K",
-        "ZSTD",
-    )
-
-
-@redshift_dialect.segment()
-class CompressionTypeSegment(BaseSegment):
-    """Compression type segment.
-
-    Indicates file compression type.
-
-    https://docs.aws.amazon.com/redshift/latest/dg/copy-parameters-file-compression.html # noqa
-    """
-
-    type = "compression_type_segment"
-
-    match_grammar = OneOf(
-        "BZIP2",
-        "GZIP",
-        "LZOP",
-        "ZSTD",
-    )
-
-
-@redshift_dialect.segment()
-class ArgModeSegment(BaseSegment):
-    """Argument mode segment.
-
-    https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_PROCEDURE.html
-    """
-
-    type = "arg_mode_segment"
-
-    match_grammar = OneOf(
-        "IN",
-        "OUT",
-        "INOUT",
-    )
-
-
-@redshift_dialect.segment()
 class DataFormatSegment(BaseSegment):
     """DataFormat segment.
 
@@ -377,7 +343,7 @@ class ColumnAttributeSegment(BaseSegment):
             "IDENTITY",
             Bracketed(Delimited(Ref("NumericLiteralSegment"))),
         ),
-        Sequence("ENCODE", Ref("ColumnEncodingSegment")),
+        Sequence("ENCODE", Ref("ColumnEncodingGrammar")),
         "DISTKEY",
         "SORTKEY",
         Sequence("COLLATE", OneOf("CASE_SENSITIVE", "CASE_INSENSITIVE")),
@@ -683,7 +649,7 @@ class CreateModelStatementSegment(BaseSegment):
 
 
 @redshift_dialect.segment()
-class ShowModelSegment(BaseSegment):
+class ShowModelStatementSegment(BaseSegment):
     """A `SHOW MODEL` statement.
 
     As specified in: https://docs.aws.amazon.com/redshift/latest/dg/r_SHOW_MODEL.html
@@ -894,7 +860,7 @@ class UnloadStatementSegment(BaseSegment):
                 Ref("QuotedLiteralSegment"),
                 optional=True,
             ),
-            Ref("CompressionTypeSegment", optional=True),
+            Ref("CompressionTypeGrammar", optional=True),
             Sequence(
                 Sequence(
                     "FORMAT",
@@ -1008,7 +974,7 @@ class CopyStatementSegment(BaseSegment):
                 Ref("QuotedLiteralSegment"),
                 optional=True,
             ),
-            Ref("CompressionTypeSegment", optional=True),
+            Ref("CompressionTypeGrammar", optional=True),
             Ref("DataFormatSegment", optional=True),
             OneOf(
                 Sequence(
@@ -1223,7 +1189,7 @@ class ProcedureParameterListSegment(BaseSegment):
             OneOf(
                 Sequence(
                     AnySetOf(
-                        Ref("ArgModeSegment"),
+                        Ref("ArgModeGrammar"),
                         Ref("ParameterNameSegment"),
                         min_times=1,
                     ),
@@ -1231,7 +1197,6 @@ class ProcedureParameterListSegment(BaseSegment):
                 ),
                 OneOf("REFCURSOR", Ref("DatatypeSegment")),
             ),
-            delimiter=Ref("CommaSegment"),
             optional=True,
         ),
     )
@@ -1591,25 +1556,17 @@ class StatementSegment(BaseSegment):
 
     parse_grammar = redshift_dialect.get_segment("StatementSegment").parse_grammar.copy(
         insert=[
-            Ref("TableAttributeSegment"),
-            Ref("ColumnAttributeSegment"),
-            Ref("ColumnEncodingSegment"),
-            Ref("AuthorizationSegment"),
             Ref("CreateLibraryStatementSegment"),
-            Ref("CreateUserSegment"),
-            Ref("CreateGroupSegment"),
-            Ref("AlterUserSegment"),
-            Ref("AlterGroupSegment"),
+            Ref("CreateUserStatementSegment"),
+            Ref("CreateGroupStatementSegment"),
+            Ref("AlterUserStatementSegment"),
+            Ref("AlterGroupStatementSegment"),
             Ref("CreateExternalTableAsStatementSegment"),
             Ref("CreateExternalTableStatementSegment"),
-            Ref("PartitionedBySegment"),
-            Ref("RowFormatDelimitedSegment"),
             Ref("DataFormatSegment"),
-            Ref("CompressionTypeSegment"),
-            Ref("ArgModeSegment"),
             Ref("UnloadStatementSegment"),
             Ref("CopyStatementSegment"),
-            Ref("ShowModelSegment"),
+            Ref("ShowModelStatementSegment"),
             Ref("CreateDatashareStatementSegment"),
             Ref("DescDatashareStatementSegment"),
             Ref("DropDatashareStatementSegment"),
@@ -1620,7 +1577,6 @@ class StatementSegment(BaseSegment):
             Ref("CloseStatementSegment"),
             Ref("AnalyzeCompressionStatementSegment"),
             Ref("VacuumStatementSegment"),
-            Ref("ProcedureParameterListSegment"),
             Ref("AlterProcedureStatementSegment"),
         ],
     )
@@ -1682,7 +1638,7 @@ class RowFormatDelimitedSegment(BaseSegment):
 
 
 @redshift_dialect.segment()
-class CreateUserSegment(BaseSegment):
+class CreateUserStatementSegment(BaseSegment):
     """`CREATE USER` statement.
 
     https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_USER.html
@@ -1734,7 +1690,7 @@ class CreateUserSegment(BaseSegment):
 
 
 @redshift_dialect.segment()
-class CreateGroupSegment(BaseSegment):
+class CreateGroupStatementSegment(BaseSegment):
     """`CREATE GROUP` statement.
 
     https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_GROUP.html
@@ -1758,7 +1714,7 @@ class CreateGroupSegment(BaseSegment):
 
 
 @redshift_dialect.segment()
-class AlterUserSegment(BaseSegment):
+class AlterUserStatementSegment(BaseSegment):
     """`ALTER USER` statement.
 
     https://docs.aws.amazon.com/redshift/latest/dg/r_ALTER_USER.html
@@ -1845,7 +1801,7 @@ class AlterUserSegment(BaseSegment):
 
 
 @redshift_dialect.segment()
-class AlterGroupSegment(BaseSegment):
+class AlterGroupStatementSegment(BaseSegment):
     """`ALTER GROUP` statement.
 
     https://docs.aws.amazon.com/redshift/latest/dg/r_ALTER_GROUP.html

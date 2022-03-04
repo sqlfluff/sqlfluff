@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: fa2d8015a7151ea7d4ad7bd600e4899131fc8da399fce245e158e2079f593707
+_hash: a309795717246bc2403f2caec973adeec4d96eb6ff9d3e2b57cc6f45aaf6caf3
 file:
 - statement:
     create_table_statement:
@@ -437,9 +437,8 @@ file:
       - data_type:
           keyword: INTEGER
       - column_attribute_segment:
-          keyword: ENCODE
-          column_encoding_segment:
-            keyword: AZ64
+        - keyword: ENCODE
+        - keyword: AZ64
       - column_constraint_segment:
         - keyword: PRIMARY
         - keyword: KEY
@@ -453,9 +452,8 @@ file:
             literal: '5'
             end_bracket: )
       - column_attribute_segment:
-          keyword: ENCODE
-          column_encoding_segment:
-            keyword: TEXT255
+        - keyword: ENCODE
+        - keyword: TEXT255
       - end_bracket: )
     - table_constraint:
       - keyword: DISTKEY
@@ -484,9 +482,8 @@ file:
       - data_type:
           keyword: INTEGER
       - column_attribute_segment:
-          keyword: ENCODE
-          column_encoding_segment:
-            keyword: AZ64
+        - keyword: ENCODE
+        - keyword: AZ64
       - column_constraint_segment:
         - keyword: PRIMARY
         - keyword: KEY
@@ -500,9 +497,8 @@ file:
             literal: '5'
             end_bracket: )
       - column_attribute_segment:
-          keyword: ENCODE
-          column_encoding_segment:
-            keyword: TEXT255
+        - keyword: ENCODE
+        - keyword: TEXT255
       - comma: ','
       - column_reference:
           identifier: col3

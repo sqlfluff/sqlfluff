@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8d0f69c9bdf0ae007624aad2fa2452edebd8bc9c1b4363010a7727e8693424c7
+_hash: 7ab6533c8e6ad875d468410a3ec892f0d3f49adbabad9a52194178d5898d77e7
 file:
 - statement:
     drop_procedure_statement:
@@ -15,20 +15,17 @@ file:
         bracketed:
         - start_bracket: (
         - parameter: volume
-        - arg_mode_segment:
-            keyword: INOUT
+        - keyword: INOUT
         - data_type:
             keyword: bigint
         - comma: ','
         - parameter: at_price
-        - arg_mode_segment:
-            keyword: IN
+        - keyword: IN
         - data_type:
             keyword: numeric
         - comma: ','
         - parameter: result
-        - arg_mode_segment:
-            keyword: OUT
+        - keyword: OUT
         - data_type:
             keyword: int
         - end_bracket: )
