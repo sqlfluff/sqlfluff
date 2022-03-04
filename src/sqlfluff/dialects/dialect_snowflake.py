@@ -65,6 +65,7 @@ snowflake_dialect.insert_lexer_matchers(
             CodeSegment,
         ),
         RegexLexer("inline_dollar_sign", r"[a-zA-Z_][a-zA-Z0-9_$]*", CodeSegment),
+        StringLexer("question_mark", "?", CodeSegment),
     ],
     before="like_operator",
 )
@@ -221,6 +222,72 @@ snowflake_dialect.add(
         ),
         terminator=OneOf("ORDER", "LIMIT", "HAVING", "QUALIFY", "WINDOW"),
     ),
+    PatternQuantifierGrammar=OneOf(
+        StringParser(
+            "+",
+            SymbolSegment,
+            name="plus",
+            type="plus",
+        ),
+        StringParser(
+            "*",
+            SymbolSegment,
+            name="star",
+            type="star",
+        ),
+        StringParser(
+            "?",
+            SymbolSegment,
+            name="question_mark",
+            type="question_mark",
+        ),
+        Bracketed(
+            OneOf(
+                Ref("NumericLiteralSegment"),
+                Sequence(
+                    Ref("NumericLiteralSegment"),
+                    Ref("CommaSegment"),
+                ),
+                Sequence(
+                    Ref("CommaSegment"),
+                    Ref("NumericLiteralSegment"),
+                ),
+                Sequence(
+                    Ref("NumericLiteralSegment"),
+                    Ref("CommaSegment"),
+                    Ref("NumericLiteralSegment"),
+                ),
+            ),
+            bracket_type="curly",
+            bracket_pairs_set="bracket_pairs",
+        ),
+    ),
+    PatternGrammar=Sequence(
+        # https://docs.snowflake.com/en/sql-reference/constructs/match_recognize.html#pattern-specifying-the-pattern-to-match
+        # This is a simplified version of the full pattern grammar in the docs to handle basic cases.
+        # TODO: Introduce operators.
+        StringParser(
+            "^",
+            SymbolSegment,
+            name="caret",
+            type="caret",
+            optional=True,
+        ),
+        AnyNumberOf(
+            Sequence(
+                Ref("SingleIdentifierGrammar"),
+                Ref("PatternQuantifierGrammar", optional=True),
+                allow_gaps=False,
+            ),
+        ),
+        StringParser(
+            "$",
+            SymbolSegment,
+            name="dollar",
+            type="dollar",
+            optional=True,
+        ),
+    ),
 )
 
 snowflake_dialect.replace(
@@ -257,6 +324,7 @@ snowflake_dialect.replace(
     ),
     JoinLikeClauseGrammar=Sequence(
         AnySetOf(
+            Ref("MatchRecognizeClauseSegment"),
             Ref("ChangesClauseSegment"),
             Ref("ConnectByClauseSegment"),
             Ref("FromAtExpressionSegment"),
@@ -652,6 +720,101 @@ class TableAliasExpressionSegment(BaseSegment):
         Bracketed(
             Delimited(Ref("SingleIdentifierGrammar"), delimiter=Ref("CommaSegment")),
             optional=True,
+        ),
+    )
+
+
+@snowflake_dialect.segment()
+class MatchRecognizeClauseSegment(BaseSegment):
+    """A `MATCH_RECOGNIZE` clause.
+
+    https://docs.snowflake.com/en/sql-reference/constructs/match_recognize.html
+    """
+
+    type = "match_recognize_clause"
+    match_grammar = Sequence(
+        "MATCH_RECOGNIZE",
+        Bracketed(
+            Ref("PartitionClauseSegment", optional=True),
+            Ref("OrderByClauseSegment", optional=True),
+            Sequence(
+                "MEASURES",
+                Delimited(
+                    Sequence(
+                        Ref("ExpressionSegment"),
+                        Ref("AliasExpressionSegment"),
+                    ),
+                ),
+                optional=True,
+            ),
+            OneOf(
+                Sequence(
+                    "ONE",
+                    "ROW",
+                    "PER",
+                    "MATCH",
+                ),
+                Sequence(
+                    "ALL",
+                    "ROWS",
+                    "PER",
+                    "MATCH",
+                    OneOf(
+                        Sequence(
+                            "SHOW",
+                            "EMPTY",
+                            "MATCHES",
+                        ),
+                        Sequence(
+                            "OMIT",
+                            "EMPTY",
+                            "MATCHES",
+                        ),
+                        Sequence(
+                            "WITH",
+                            "UNMATCHED",
+                            "ROWS",
+                        ),
+                        optional=True,
+                    ),
+                ),
+                optional=True,
+            ),
+            Sequence(
+                "AFTER",
+                "MATCH",
+                "SKIP",
+                OneOf(
+                    Sequence(
+                        "PAST",
+                        "LAST",
+                        "ROW",
+                    ),
+                    Sequence(
+                        "TO",
+                        "NEXT",
+                        "ROW",
+                    ),
+                    Sequence(
+                        "TO",
+                        OneOf("FIRST", "LAST", optional=True),
+                        Ref("SingleIdentifierGrammar"),
+                    ),
+                ),
+                optional=True,
+            ),
+            "PATTERN",
+            Bracketed(
+                Ref("PatternGrammar"),
+            ),
+            "DEFINE",
+            Delimited(
+                Sequence(
+                    Ref("SingleIdentifierGrammar"),
+                    "AS",
+                    Ref("ExpressionSegment"),
+                ),
+            ),
         ),
     )
 
@@ -3839,4 +4002,47 @@ class CallStatementSegment(BaseSegment):
                 ),
             ),
         ),
+    )
+
+
+@snowflake_dialect.segment(replace=True)
+class OrderByClauseSegment(BaseSegment):
+    """A `ORDER BY` clause like in `SELECT`."""
+
+    type = "orderby_clause"
+    match_grammar = StartsWith(
+        Sequence("ORDER", "BY"),
+        terminator=OneOf(
+            "LIMIT",
+            "HAVING",
+            "QUALIFY",
+            # For window functions
+            "WINDOW",
+            Ref("FrameClauseUnitGrammar"),
+            "SEPARATOR",
+            "MEASURES",
+        ),
+    )
+    parse_grammar = Sequence(
+        "ORDER",
+        "BY",
+        Indent,
+        Delimited(
+            Sequence(
+                OneOf(
+                    Ref("ColumnReferenceSegment"),
+                    # Can `ORDER BY 1`
+                    Ref("NumericLiteralSegment"),
+                    # Can order by an expression
+                    Ref("ExpressionSegment"),
+                ),
+                OneOf("ASC", "DESC", optional=True),
+                # NB: This isn't really ANSI, and isn't supported in Mysql, but
+                # is supported in enough other dialects for it to make sense here
+                # for now.
+                Sequence("NULLS", OneOf("FIRST", "LAST"), optional=True),
+            ),
+            terminator=OneOf(Ref.keyword("LIMIT"), Ref("FrameClauseUnitGrammar")),
+        ),
+        Dedent,
     )
