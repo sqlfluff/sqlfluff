@@ -65,6 +65,7 @@ snowflake_dialect.insert_lexer_matchers(
             CodeSegment,
         ),
         RegexLexer("inline_dollar_sign", r"[a-zA-Z_][a-zA-Z0-9_$]*", CodeSegment),
+        StringLexer("question_mark", "?", CodeSegment),
     ],
     before="like_operator",
 )
@@ -229,6 +230,56 @@ snowflake_dialect.add(
         # '' and $$$$ are allowed as alternatives to NULL.
         Ref("QuotedLiteralSegment"),
     ),
+    QuestionMarkSegment=StringParser(
+        "?", SymbolSegment, name="question_mark", type="question_mark"
+    ),
+    CaretSegment=StringParser("^", SymbolSegment, name="caret", type="caret"),
+    DollarSegment=StringParser("$", SymbolSegment, name="dollar", type="dollar"),
+    PatternQuantifierGrammar=Sequence(
+        OneOf(
+            Ref("PositiveSegment"),
+            Ref("StarSegment"),
+            Ref("QuestionMarkSegment"),
+            Bracketed(
+                OneOf(
+                    Ref("NumericLiteralSegment"),
+                    Sequence(
+                        Ref("NumericLiteralSegment"),
+                        Ref("CommaSegment"),
+                    ),
+                    Sequence(
+                        Ref("CommaSegment"),
+                        Ref("NumericLiteralSegment"),
+                    ),
+                    Sequence(
+                        Ref("NumericLiteralSegment"),
+                        Ref("CommaSegment"),
+                        Ref("NumericLiteralSegment"),
+                    ),
+                ),
+                bracket_type="curly",
+                bracket_pairs_set="bracket_pairs",
+            ),
+        ),
+        # To put a quantifier into “reluctant mode”.
+        Ref("QuestionMarkSegment", optional=True),
+        allow_gaps=False,
+    ),
+    PatternGrammar=Sequence(
+        # https://docs.snowflake.com/en/sql-reference/constructs/match_recognize.html#pattern-specifying-the-pattern-to-match
+        # This is a simplified version of the full pattern
+        # grammar in the docs to handle basic cases.
+        # TODO: Introduce operators. Will require expression-like grammar.
+        Ref("CaretSegment", optional=True),
+        AnyNumberOf(
+            Sequence(
+                Ref("SingleIdentifierGrammar"),
+                Ref("PatternQuantifierGrammar", optional=True),
+                allow_gaps=False,
+            ),
+        ),
+        Ref("DollarSegment", optional=True),
+    ),
 )
 
 snowflake_dialect.replace(
@@ -265,6 +316,7 @@ snowflake_dialect.replace(
     ),
     JoinLikeClauseGrammar=Sequence(
         AnySetOf(
+            Ref("MatchRecognizeClauseSegment"),
             Ref("ChangesClauseSegment"),
             Ref("ConnectByClauseSegment"),
             Ref("FromAtExpressionSegment"),
@@ -697,6 +749,101 @@ class TableAliasExpressionSegment(BaseSegment):
         Bracketed(
             Delimited(Ref("SingleIdentifierGrammar"), delimiter=Ref("CommaSegment")),
             optional=True,
+        ),
+    )
+
+
+@snowflake_dialect.segment()
+class MatchRecognizeClauseSegment(BaseSegment):
+    """A `MATCH_RECOGNIZE` clause.
+
+    https://docs.snowflake.com/en/sql-reference/constructs/match_recognize.html
+    """
+
+    type = "match_recognize_clause"
+    match_grammar = Sequence(
+        "MATCH_RECOGNIZE",
+        Bracketed(
+            Ref("PartitionClauseSegment", optional=True),
+            Ref("OrderByClauseSegment", optional=True),
+            Sequence(
+                "MEASURES",
+                Delimited(
+                    Sequence(
+                        Ref("ExpressionSegment"),
+                        Ref("AliasExpressionSegment"),
+                    ),
+                ),
+                optional=True,
+            ),
+            OneOf(
+                Sequence(
+                    "ONE",
+                    "ROW",
+                    "PER",
+                    "MATCH",
+                ),
+                Sequence(
+                    "ALL",
+                    "ROWS",
+                    "PER",
+                    "MATCH",
+                    OneOf(
+                        Sequence(
+                            "SHOW",
+                            "EMPTY",
+                            "MATCHES",
+                        ),
+                        Sequence(
+                            "OMIT",
+                            "EMPTY",
+                            "MATCHES",
+                        ),
+                        Sequence(
+                            "WITH",
+                            "UNMATCHED",
+                            "ROWS",
+                        ),
+                        optional=True,
+                    ),
+                ),
+                optional=True,
+            ),
+            Sequence(
+                "AFTER",
+                "MATCH",
+                "SKIP",
+                OneOf(
+                    Sequence(
+                        "PAST",
+                        "LAST",
+                        "ROW",
+                    ),
+                    Sequence(
+                        "TO",
+                        "NEXT",
+                        "ROW",
+                    ),
+                    Sequence(
+                        "TO",
+                        OneOf("FIRST", "LAST", optional=True),
+                        Ref("SingleIdentifierGrammar"),
+                    ),
+                ),
+                optional=True,
+            ),
+            "PATTERN",
+            Bracketed(
+                Ref("PatternGrammar"),
+            ),
+            "DEFINE",
+            Delimited(
+                Sequence(
+                    Ref("SingleIdentifierGrammar"),
+                    "AS",
+                    Ref("ExpressionSegment"),
+                ),
+            ),
         ),
     )
 
@@ -3967,7 +4114,7 @@ class OrderByClauseSegment(BaseSegment):
         "OrderByClauseSegment"
     ).match_grammar.copy()
     match_grammar.terminator = match_grammar.terminator.copy(
-        insert=[Ref.keyword("FETCH"), Ref.keyword("OFFSET")],
+        insert=[Ref.keyword("FETCH"), Ref.keyword("OFFSET"), Ref.keyword("MEASURES")],
     )
     parse_grammar = Sequence(
         "ORDER",
