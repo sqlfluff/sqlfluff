@@ -25,6 +25,10 @@ Major changes include:
 
 ## What's Changed
 
+* Snowflake: Add MATCH_RECOGNIZE clause [#2781](https://github.com/sqlfluff/sqlfluff/pull/2781) [@jpy-git](https://github.com/jpy-git)
+* Snowflake: Complete LIMIT grammar [#2784](https://github.com/sqlfluff/sqlfluff/pull/2784) [@jpy-git](https://github.com/jpy-git)
+* Rough autofix for L028 [#2757](https://github.com/sqlfluff/sqlfluff/pull/2757) [@OTooleMichael](https://github.com/OTooleMichael)
+* Spark3 bug: Create with complex data types (#2761) [#2782](https://github.com/sqlfluff/sqlfluff/pull/2782) [@PhilippLange](https://github.com/PhilippLange)
 * Snowflake: Complete LIKE grammar [#2779](https://github.com/sqlfluff/sqlfluff/pull/2779) [@jpy-git](https://github.com/jpy-git)
 * Spark3: Auxiliary`FILE` and `JAR` statements [#2778](https://github.com/sqlfluff/sqlfluff/pull/2778) [@R7L208](https://github.com/R7L208)
 * Snowflake: Refine SET/UNSET MASKING POLICY grammar [#2775](https://github.com/sqlfluff/sqlfluff/pull/2775) [@jpy-git](https://github.com/jpy-git)
@@ -91,7 +95,7 @@ Major changes include:
 ## New Contributors
 * [@The-Loud](https://github.com/The-Loud) made their first contribution in [#2670](https://github.com/sqlfluff/sqlfluff/pull/2670)
 * [@OTooleMichael](https://github.com/OTooleMichael) made their first contribution in [#2716](https://github.com/sqlfluff/sqlfluff/pull/2716)
-
+* [@PhilippLange](https://github.com/PhilippLange) made their first contribution in [#2782](https://github.com/sqlfluff/sqlfluff/pull/2782)
 
 ## [0.10.1] - 2022-02-15
 
