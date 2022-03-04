@@ -273,7 +273,6 @@ spark3_dialect.add(
     EndAngleBracketSegment=StringParser(
         ">", SymbolSegment, name="end_angle_bracket", type="end_angle_bracket"
     ),
-    # Add Spark Segments
     EqualsSegment_a=StringParser(
         "==", SymbolSegment, name="equals", type="comparison_operator"
     ),
@@ -285,6 +284,9 @@ spark3_dialect.add(
     ),
     JarKeywordSegment=RegexParser(
         "JARS?", KeywordSegment, name="jar", type="file_keyword"
+    ),
+    NoscanKeywordSegment=StringParser(
+        "NOSCAN", SymbolSegment, name="noscan_keyword", type="keyword"
     ),
     WhlKeywordSegment=StringParser(
         "WHL", KeywordSegment, name="whl", type="file_keyword"
@@ -1741,7 +1743,7 @@ class AddFileSegment(BaseSegment):
     https://spark.apache.org/docs/latest/sql-ref-syntax-aux-resource-mgmt-add-file.html
     """
 
-    type = "add_file"
+    type = "add_file_statement"
 
     match_grammar = Sequence(
         "ADD",
@@ -1757,12 +1759,72 @@ class AddJarSegment(BaseSegment):
     https://spark.apache.org/docs/latest/sql-ref-syntax-aux-resource-mgmt-add-jar.html
     """
 
-    type = "add_jar"
+    type = "add_jar_statement"
 
     match_grammar = Sequence(
         "ADD",
         Ref("JarKeywordSegment"),
         AnyNumberOf(Ref("QuotedLiteralSegment")),
+    )
+
+
+@spark3_dialect.segment()
+class AnalyzeTableSegment(BaseSegment):
+    """An `ANALYZE {TABLE | TABLES}` statement.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-aux-analyze-table.html
+    """
+
+    type = "analyze_table_statement"
+
+    match_grammar = Sequence(
+        "ANALYZE",
+        OneOf(
+            Sequence(
+                "TABLE",
+                Ref("TableReferenceSegment"),
+                Ref(
+                    "PartitionSpecGrammar",
+                    optional=True,
+                ),
+                "COMPUTE",
+                "STATISTICS",
+                OneOf(
+                    "NOSCAN",
+                    Sequence(
+                        "FOR",
+                        "COLUMNS",
+                        OptionallyBracketed(
+                            Delimited(
+                                Ref(
+                                    "ColumnReferenceSegment",
+                                ),
+                            ),
+                        ),
+                    ),
+                    optional=True,
+                ),
+            ),
+            Sequence(
+                "TABLES",
+                Sequence(
+                    OneOf(
+                        "FROM",
+                        "IN",
+                    ),
+                    Ref(
+                        "DatabaseReferenceSegment",
+                    ),
+                    optional=True,
+                ),
+                "COMPUTE",
+                "STATISTICS",
+                Ref.keyword(
+                    "NOSCAN",
+                    optional=True,
+                ),
+            ),
+        ),
     )
 
 
@@ -1773,7 +1835,7 @@ class ListFileSegment(BaseSegment):
     https://spark.apache.org/docs/latest/sql-ref-syntax-aux-resource-mgmt-list-file.html
     """
 
-    type = "list_file"
+    type = "list_file_statement"
 
     match_grammar = Sequence(
         "LIST",
@@ -1789,7 +1851,7 @@ class ListJarSegment(BaseSegment):
     https://spark.apache.org/docs/latest/sql-ref-syntax-aux-resource-mgmt-add-jar.html
     """
 
-    type = "list_jar"
+    type = "list_jar_statement"
 
     match_grammar = Sequence(
         "LIST",
@@ -1866,6 +1928,7 @@ class StatementSegment(BaseSegment):
             # Auxiliary Statements
             Ref("AddFileSegment"),
             Ref("AddJarSegment"),
+            Ref("AnalyzeTableSegment"),
             Ref("ListFileSegment"),
             Ref("ListJarSegment"),
             Ref("RefreshStatementSegment"),
