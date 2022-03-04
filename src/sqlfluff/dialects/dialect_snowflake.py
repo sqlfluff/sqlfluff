@@ -3962,13 +3962,15 @@ class SelectClauseSegment(BaseSegment):
         ),
         enforce_whitespace_preceding_terminator=True,
     )
-
-    parse_grammar = Ref("SelectClauseSegmentGrammar")
+    parse_grammar = ansi_dialect.get_segment("SelectClauseSegment").parse_grammar.copy()
 
 
 @snowflake_dialect.segment(replace=True)
 class OrderByClauseSegment(BaseSegment):
-    """An `ORDER BY` clause like in `SELECT`."""
+    """An `ORDER BY` clause.
+    
+    https://docs.snowflake.com/en/sql-reference/constructs/order-by.html
+    """
 
     type = "orderby_clause"
     match_grammar = StartsWith(
@@ -4009,7 +4011,7 @@ class OrderByClauseSegment(BaseSegment):
 
 @snowflake_dialect.segment(replace=True)
 class HavingClauseSegment(BaseSegment):
-    """A `HAVING` clause like in `SELECT`."""
+    """A `HAVING` clause."""
 
     type = "having_clause"
     match_grammar = StartsWith(
@@ -4017,9 +4019,4 @@ class HavingClauseSegment(BaseSegment):
         terminator=OneOf("ORDER", "LIMIT", "FETCH", "OFFSET", "QUALIFY", "WINDOW"),
         enforce_whitespace_preceding_terminator=True,
     )
-    parse_grammar = Sequence(
-        "HAVING",
-        Indent,
-        OptionallyBracketed(Ref("ExpressionSegment")),
-        Dedent,
-    )
+    parse_grammar = ansi_dialect.get_segment("HavingClauseSegment").parse_grammar.copy()
