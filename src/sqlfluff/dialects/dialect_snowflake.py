@@ -3968,7 +3968,7 @@ class SelectClauseSegment(BaseSegment):
 @snowflake_dialect.segment(replace=True)
 class OrderByClauseSegment(BaseSegment):
     """An `ORDER BY` clause.
-    
+
     https://docs.snowflake.com/en/sql-reference/constructs/order-by.html
     """
 
