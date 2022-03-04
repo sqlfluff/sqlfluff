@@ -3968,7 +3968,7 @@ class SelectClauseSegment(BaseSegment):
 
 @snowflake_dialect.segment(replace=True)
 class OrderByClauseSegment(BaseSegment):
-    """A `ORDER BY` clause like in `SELECT`."""
+    """An `ORDER BY` clause like in `SELECT`."""
 
     type = "orderby_clause"
     match_grammar = StartsWith(
