@@ -1187,14 +1187,16 @@ class ProcedureParameterListSegment(BaseSegment):
     _param_type = OneOf("REFCURSOR", Ref("DatatypeSegment"))
     match_grammar = Bracketed(
         Sequence(
-            OneOf(Ref("ParameterNameSegment"),exclude=_param_type,optional=True),
-            Ref("ArgModeSegment",optional=True),
+            OneOf(Ref("ParameterNameSegment"), exclude=_param_type, optional=True),
+            Ref("ArgModeSegment", optional=True),
             _param_type,
             AnyNumberOf(
                 Sequence(
                     Ref("CommaSegment"),
-                    OneOf(Ref("ParameterNameSegment"),exclude=_param_type,optional=True),
-                    Ref("ArgModeSegment",optional=True),
+                    OneOf(
+                        Ref("ParameterNameSegment"), exclude=_param_type, optional=True
+                    ),
+                    Ref("ArgModeSegment", optional=True),
                     _param_type,
                 ),
             ),
