@@ -25,6 +25,8 @@ Major changes include:
 
 ## What's Changed
 
+* Redshift: add [ALTER/CREATE/DROP] PROCEDURE segments [#2774](https://github.com/sqlfluff/sqlfluff/pull/2774) [@rpr-ableton](https://github.com/rpr-ableton)
+* Spark3: Support for `ANALYZE TABLE` statement [#2780](https://github.com/sqlfluff/sqlfluff/pull/2780) [@R7L208](https://github.com/R7L208)
 * Snowflake: Add MATCH_RECOGNIZE clause [#2781](https://github.com/sqlfluff/sqlfluff/pull/2781) [@jpy-git](https://github.com/jpy-git)
 * Snowflake: Complete LIMIT grammar [#2784](https://github.com/sqlfluff/sqlfluff/pull/2784) [@jpy-git](https://github.com/jpy-git)
 * Rough autofix for L028 [#2757](https://github.com/sqlfluff/sqlfluff/pull/2757) [@OTooleMichael](https://github.com/OTooleMichael)
