@@ -1184,18 +1184,19 @@ class ProcedureParameterListSegment(BaseSegment):
 
     type = "procedure_parameter_list"
     # Odd syntax, but prevents eager parameters being confused for data types
+    _param_type = OneOf("REFCURSOR", Ref("DatatypeSegment"))
     match_grammar = Bracketed(
-        Delimited(
-            OneOf(
+        Sequence(
+            OneOf(Ref("ParameterNameSegment"),exclude=_param_type,optional=True),
+            Ref("ArgModeSegment",optional=True),
+            _param_type,
+            AnyNumberOf(
                 Sequence(
-                    AnySetOf(
-                        Ref("ArgModeGrammar"),
-                        Ref("ParameterNameSegment"),
-                        min_times=1,
-                    ),
-                    OneOf("REFCURSOR", Ref("DatatypeSegment")),
+                    Ref("CommaSegment"),
+                    OneOf(Ref("ParameterNameSegment"),exclude=_param_type,optional=True),
+                    Ref("ArgModeSegment",optional=True),
+                    _param_type,
                 ),
-                OneOf("REFCURSOR", Ref("DatatypeSegment")),
             ),
             optional=True,
         ),
