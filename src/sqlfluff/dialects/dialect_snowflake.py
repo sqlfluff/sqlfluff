@@ -3999,9 +3999,6 @@ class OrderByClauseSegment(BaseSegment):
                     Ref("ExpressionSegment"),
                 ),
                 OneOf("ASC", "DESC", optional=True),
-                # NB: This isn't really ANSI, and isn't supported in Mysql, but
-                # is supported in enough other dialects for it to make sense here
-                # for now.
                 Sequence("NULLS", OneOf("FIRST", "LAST"), optional=True),
             ),
             terminator=OneOf("LIMIT", "FETCH", "OFFSET", Ref("FrameClauseUnitGrammar")),
