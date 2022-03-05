@@ -3172,9 +3172,8 @@ class AsAliasExpressionSegment(BaseSegment):
 class InsertStatementSegment(BaseSegment):
     """An `INSERT` statement.
 
-    As Specified in https://www.postgresql.org/docs/14/sql-insert.html
-    N.B. This is not a complete implementation of the documentation above.
-    TODO: Implement complete postgres insert statement structure.
+    https://www.postgresql.org/docs/14/sql-insert.html
+    TODO: Implement ON CONFLICT grammar.
     """
 
     type = "insert_statement"
@@ -3186,7 +3185,24 @@ class InsertStatementSegment(BaseSegment):
         Ref("AsAliasExpressionSegment", optional=True),
         Ref("BracketedColumnReferenceListGrammar", optional=True),
         Sequence("OVERRIDING", OneOf("SYSTEM", "USER"), "VALUE", optional=True),
-        Ref("SelectableGrammar"),
+        OneOf(
+            Sequence("DEFAULT", "VALUES"),
+            Ref("SelectableGrammar"),
+        ),
+        # TODO: Add ON CONFLICT grammar.
+        Sequence(
+            "RETURNING",
+            OneOf(
+                Ref("StarSegment"),
+                Delimited(
+                    Sequence(
+                        Ref("ExpressionSegment"),
+                        Ref("AsAliasExpressionSegment", optional=True),
+                    ),
+                ),
+            ),
+            optional=True,
+        ),
     )
 
 
