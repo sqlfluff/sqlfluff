@@ -3585,6 +3585,24 @@ class MergeInsertClauseSegment(BaseSegment):
     )
 
 
+@snowflake_dialect.segment()
+class AsAliasExpressionSegment(BaseSegment):
+    """A reference to an object with an `AS` clause.
+
+    This is used in `DeleteStatementSegment` in Snowflake
+    since the `AS` is not optional in this context.
+
+    N.B. We keep as a separate segment since the `alias_expression`
+    type is required for rules to interpret the alias.
+    """
+
+    type = "alias_expression"
+    match_grammar = Sequence(
+        "AS",
+        Ref("SingleIdentifierGrammar"),
+    )
+
+
 @snowflake_dialect.segment(replace=True)
 class DeleteStatementSegment(
     ansi_dialect.get_segment("DeleteStatementSegment")  # type: ignore
@@ -3593,41 +3611,22 @@ class DeleteStatementSegment(
 
     parse_grammar = Sequence(
         "DELETE",
-        Ref("FromClauseTerminatingUsingWhereSegment"),
-        Ref("DeleteUsingClauseSegment", optional=True),
-        Ref("WhereClauseSegment", optional=True),
-    )
-
-
-@snowflake_dialect.segment()
-class DeleteUsingClauseSegment(BaseSegment):
-    """`USING` clause within the `DELETE` statement."""
-
-    type = "using_clause"
-    match_grammar = StartsWith(
-        "USING",
-        terminator=Ref.keyword("WHERE"),
-        enforce_whitespace_preceding_terminator=True,
-    )
-    parse_grammar = Sequence(
-        "USING",
-        Delimited(
-            Ref("FromExpressionElementSegment"),
-        ),
-        Ref("AliasExpressionSegment", optional=True),
-    )
-
-
-@snowflake_dialect.segment()
-class FromClauseTerminatingUsingWhereSegment(
-    ansi_dialect.get_segment("FromClauseSegment")  # type: ignore
-):
-    """Copy `FROM` terminator statement to support `USING` in specific circumstances."""
-
-    match_grammar = StartsWith(
         "FROM",
-        terminator=OneOf(Ref.keyword("USING"), Ref.keyword("WHERE")),
-        enforce_whitespace_preceding_terminator=True,
+        Ref("TableReferenceSegment"),
+        Ref("AsAliasExpressionSegment", optional=True),
+        Sequence(
+            "USING",
+            Indent,
+            Delimited(
+                Sequence(
+                    Ref("TableExpressionSegment"),
+                    Ref("AsAliasExpressionSegment", optional=True),
+                ),
+            ),
+            Dedent,
+            optional=True,
+        ),
+        Ref("WhereClauseSegment", optional=True),
     )
 
 
