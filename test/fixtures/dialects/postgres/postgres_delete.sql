@@ -29,3 +29,6 @@ DELETE FROM tasks WHERE status = 'DONE' RETURNING actor_id as a_id;
 DELETE FROM tasks WHERE status = 'DONE' RETURNING actor_id, producer_id;
 
 DELETE FROM tasks WHERE status = 'DONE' RETURNING actor_id as a_id, producer_id as p_id;
+
+WITH test as (select foo from bar)
+DELETE FROM films;

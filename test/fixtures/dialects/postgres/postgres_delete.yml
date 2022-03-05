@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1dfaedfa4b714e44acad984a01832916140539cb350b61afd1b3cc48e5bd01d4
+_hash: 416af50a7c107364b6dfccf60b320429cacfe2763a07cae53ce945679ba46072
 file:
 - statement:
     delete_statement:
@@ -307,4 +307,32 @@ file:
     - alias_expression:
         keyword: as
         identifier: p_id
+- statement_terminator: ;
+- statement:
+    with_compound_statement:
+      keyword: WITH
+      common_table_expression:
+        identifier: test
+        keyword: as
+        bracketed:
+          start_bracket: (
+          select_statement:
+            select_clause:
+              keyword: select
+              select_clause_element:
+                column_reference:
+                  identifier: foo
+            from_clause:
+              keyword: from
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      identifier: bar
+          end_bracket: )
+      delete_statement:
+      - keyword: DELETE
+      - keyword: FROM
+      - table_reference:
+          identifier: films
 - statement_terminator: ;
