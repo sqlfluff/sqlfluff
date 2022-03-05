@@ -32,3 +32,10 @@ DELETE FROM tasks WHERE status = 'DONE' RETURNING actor_id as a_id, producer_id 
 
 WITH test as (select foo from bar)
 DELETE FROM films;
+
+WITH RECURSIVE t(n) AS (
+    VALUES (1)
+  UNION ALL
+    SELECT n+1 FROM t WHERE n < 100
+)
+DELETE FROM films;
