@@ -2091,7 +2091,7 @@ class ValuesClauseSegment(BaseSegment):
             OneOf(
                 Bracketed(
                     Delimited(
-                        # DEFAULT keyword used in
+                        # NULL keyword used in
                         # INSERT INTO statement.
                         "NULL",
                         Ref("ExpressionSegment"),
