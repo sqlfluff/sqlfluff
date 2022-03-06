@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b98050f87e55518596819481d995a96269f9e09d65100f07d3d016c72b247023
+_hash: 2f8de0d1bff7fb37ad25e67d180d5b3c2dafc05998989fc055589927afcd01b0
 file:
 - statement:
     alter_consumer_group_statement:
@@ -35,6 +35,18 @@ file:
         comparison_operator:
           raw_comparison_operator: '='
         literal: "'5G'"
+    - comma: ','
+    - consumer_group_parameter:
+        keyword: QUERY_TIMEOUT
+        comparison_operator:
+          raw_comparison_operator: '='
+        literal: '60'
+    - comma: ','
+    - consumer_group_parameter:
+        keyword: IDLE_TIMEOUT
+        comparison_operator:
+          raw_comparison_operator: '='
+        literal: '3600'
 - statement_terminator: ;
 - statement:
     alter_consumer_group_statement:

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8307066aa523cad636da0cbe4945f97cd1afecf09337e4c698299a6e9889d023
+_hash: e32052a429891f4a268995e42426078f816be852e43b8bbcb0b0e2b49e7e8455
 file:
 - statement:
     select_statement:
@@ -1627,4 +1627,169 @@ file:
           keyword: SELECT
           select_clause_element:
             literal: '0'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          interval_expression:
+          - keyword: INTERVAL
+          - literal: "'5'"
+          - keyword: MONTH
+      - comma: ','
+      - select_clause_element:
+          interval_expression:
+          - keyword: INTERVAL
+          - literal: "'130'"
+          - keyword: MONTH
+          - bracketed:
+              start_bracket: (
+              literal: '3'
+              end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          interval_expression:
+          - keyword: INTERVAL
+          - literal: "'27'"
+          - keyword: YEAR
+      - comma: ','
+      - select_clause_element:
+          interval_expression:
+          - keyword: INTERVAL
+          - literal: "'100-1'"
+          - keyword: YEAR
+          - bracketed:
+              start_bracket: (
+              literal: '3'
+              end_bracket: )
+          - keyword: TO
+          - keyword: MONTH
+      - comma: ','
+      - select_clause_element:
+          interval_expression:
+          - keyword: INTERVAL
+          - literal: "'2-1'"
+          - keyword: YEAR
+          - keyword: TO
+          - keyword: MONTH
+      - comma: ','
+      - select_clause_element:
+          interval_expression:
+          - keyword: INTERVAL
+          - literal: "'10:20'"
+          - keyword: HOUR
+          - keyword: TO
+          - keyword: MINUTE
+      - comma: ','
+      - select_clause_element:
+          interval_expression:
+          - keyword: INTERVAL
+          - literal: "'2 23:10:59'"
+          - keyword: DAY
+          - keyword: TO
+          - keyword: SECOND
+      - comma: ','
+      - select_clause_element:
+          interval_expression:
+          - keyword: INTERVAL
+          - literal: "'6'"
+          - keyword: MINUTE
+      - comma: ','
+      - select_clause_element:
+          interval_expression:
+          - keyword: INTERVAL
+          - literal: "'5'"
+          - keyword: DAY
+      - comma: ','
+      - select_clause_element:
+          interval_expression:
+          - keyword: INTERVAL
+          - literal: "'100'"
+          - keyword: HOUR
+          - bracketed:
+              start_bracket: (
+              literal: '3'
+              end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          interval_expression:
+          - keyword: INTERVAL
+          - literal: "'1.99999'"
+          - keyword: SECOND
+          - bracketed:
+            - start_bracket: (
+            - literal: '2'
+            - comma: ','
+            - literal: '2'
+            - end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          interval_expression:
+          - keyword: INTERVAL
+          - literal: "'23:10:59.123'"
+          - keyword: HOUR
+          - bracketed:
+              start_bracket: (
+              literal: '2'
+              end_bracket: )
+          - keyword: TO
+          - keyword: SECOND
+          - bracketed:
+              start_bracket: (
+              literal: '3'
+              end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            identifier: v
+      - comma: ','
+      - select_clause_element:
+          expression:
+          - keyword: DATE
+          - literal: "'2020-10-26'"
+          - binary_operator: +
+          - column_reference:
+              identifier: v
+          - binary_operator: '*'
+          - interval_expression:
+            - keyword: INTERVAL
+            - literal: "'7'"
+            - keyword: DAY
+          alias_expression:
+            keyword: AS
+            identifier: late_2020_mondays
+      - comma: ','
+      - select_clause_element:
+          expression:
+            literal: '5'
+            binary_operator: '*'
+            column_reference:
+              identifier: v
+          alias_expression:
+            keyword: AS
+            identifier: five_times_table
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              values_range_clause:
+              - keyword: VALUES
+              - keyword: BETWEEN
+              - literal: '1'
+              - binary_operator: AND
+              - literal: '9'
+            alias_expression:
+              keyword: AS
+              identifier: v
+              bracketed:
+                start_bracket: (
+                identifier_list:
+                  identifier: v
+                end_bracket: )
 - statement_terminator: ;
