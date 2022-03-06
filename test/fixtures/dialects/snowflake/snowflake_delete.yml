@@ -3,42 +3,48 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 937141de0046adf7b36e4128faa5ea819443aecf32ac37e57bbc9b172bb661e1
+_hash: db5338428536af6ab1579fba817866b0037eb1d5870980526af5b7a8524a4e59
 file:
 - statement:
     delete_statement:
-      keyword: DELETE
-      from_clause:
-        keyword: FROM
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                identifier: x
-      using_clause:
-      - keyword: USING
-      - from_expression_element:
-          table_expression:
-            table_reference:
-              identifier: y
-      - comma: ','
-      - from_expression_element:
-          table_expression:
-            table_reference:
-              identifier: z
+    - keyword: delete
+    - keyword: from
+    - table_reference:
+        identifier: leased_bicycles
 - statement_terminator: ;
 - statement:
     delete_statement:
-      keyword: DELETE
-      from_clause:
-        keyword: FROM
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                identifier: x
-      where_clause:
-        keyword: WHERE
+    - keyword: delete
+    - keyword: from
+    - table_reference:
+        identifier: leased_bicycles
+    - alias_expression:
+        keyword: as
+        identifier: lb
+- statement_terminator: ;
+- statement:
+    delete_statement:
+    - keyword: delete
+    - keyword: from
+    - table_reference:
+        identifier: x
+    - keyword: using
+    - table_expression:
+        table_reference:
+          identifier: y
+    - comma: ','
+    - table_expression:
+        table_reference:
+          identifier: z
+- statement_terminator: ;
+- statement:
+    delete_statement:
+    - keyword: delete
+    - keyword: from
+    - table_reference:
+        identifier: x
+    - where_clause:
+        keyword: where
         expression:
         - literal: '1'
         - comparison_operator:
@@ -47,21 +53,15 @@ file:
 - statement_terminator: ;
 - statement:
     delete_statement:
-      keyword: delete
-      from_clause:
-        keyword: from
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                identifier: leased_bicycles
-      using_clause:
-        keyword: using
-        from_expression_element:
-          table_expression:
-            table_reference:
-              identifier: returned_bicycles
-      where_clause:
+    - keyword: delete
+    - keyword: from
+    - table_reference:
+        identifier: leased_bicycles
+    - keyword: using
+    - table_expression:
+        table_reference:
+          identifier: returned_bicycles
+    - where_clause:
         keyword: where
         expression:
         - column_reference:
@@ -77,41 +77,225 @@ file:
 - statement_terminator: ;
 - statement:
     delete_statement:
-      keyword: delete
-      from_clause:
-        keyword: from
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                identifier: leased_bicycles
-      using_clause:
-        keyword: using
-        from_expression_element:
-          table_expression:
-            bracketed:
-              start_bracket: (
-              select_statement:
-                select_clause:
-                  keyword: select
-                  select_clause_element:
-                    column_reference:
-                      identifier: bicycle_id
-                    alias_expression:
-                      keyword: as
-                      identifier: bicycle_id
-                from_clause:
-                  keyword: from
-                  from_expression:
-                    from_expression_element:
-                      table_expression:
-                        table_reference:
-                          identifier: returned_bicycles
-              end_bracket: )
-          alias_expression:
-            keyword: as
-            identifier: returned
-      where_clause:
+    - keyword: delete
+    - keyword: from
+    - table_reference:
+        identifier: leased_bicycles
+    - alias_expression:
+        keyword: as
+        identifier: lb
+    - keyword: using
+    - table_expression:
+        table_reference:
+          identifier: returned_bicycles
+    - alias_expression:
+        keyword: as
+        identifier: rb
+    - where_clause:
+        keyword: where
+        expression:
+        - column_reference:
+          - identifier: lb
+          - dot: .
+          - identifier: bicycle_id
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - identifier: rb
+          - dot: .
+          - identifier: bicycle_id
+- statement_terminator: ;
+- statement:
+    delete_statement:
+    - keyword: delete
+    - keyword: from
+    - table_reference:
+        identifier: leased_bicycles
+    - alias_expression:
+        identifier: lb
+    - keyword: using
+    - table_expression:
+        table_reference:
+          identifier: returned_bicycles
+    - alias_expression:
+        identifier: rb
+    - where_clause:
+        keyword: where
+        expression:
+        - column_reference:
+          - identifier: lb
+          - dot: .
+          - identifier: bicycle_id
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - identifier: rb
+          - dot: .
+          - identifier: bicycle_id
+- statement_terminator: ;
+- statement:
+    delete_statement:
+    - keyword: delete
+    - keyword: from
+    - table_reference:
+        identifier: leased_bicycles
+    - keyword: using
+    - table_expression:
+        table_reference:
+          identifier: returned_bicycles
+    - comma: ','
+    - table_expression:
+        table_reference:
+          identifier: broken_bicycles
+    - where_clause:
+        keyword: where
+        expression:
+        - column_reference:
+          - identifier: leased_bicycles
+          - dot: .
+          - identifier: bicycle_id
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - identifier: returned_bicycles
+          - dot: .
+          - identifier: bicycle_id
+        - binary_operator: and
+        - column_reference:
+          - identifier: leased_bicycles
+          - dot: .
+          - identifier: bicycle_id
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - identifier: broken_bicycles
+          - dot: .
+          - identifier: bicycle_id
+- statement_terminator: ;
+- statement:
+    delete_statement:
+    - keyword: delete
+    - keyword: from
+    - table_reference:
+        identifier: leased_bicycles
+    - alias_expression:
+        keyword: as
+        identifier: lb
+    - keyword: using
+    - table_expression:
+        table_reference:
+          identifier: returned_bicycles
+    - alias_expression:
+        keyword: as
+        identifier: rb
+    - comma: ','
+    - table_expression:
+        table_reference:
+          identifier: broken_bicycles
+    - alias_expression:
+        keyword: as
+        identifier: bb
+    - where_clause:
+        keyword: where
+        expression:
+        - column_reference:
+          - identifier: lb
+          - dot: .
+          - identifier: bicycle_id
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - identifier: rb
+          - dot: .
+          - identifier: bicycle_id
+        - binary_operator: and
+        - column_reference:
+          - identifier: lb
+          - dot: .
+          - identifier: bicycle_id
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - identifier: bb
+          - dot: .
+          - identifier: bicycle_id
+- statement_terminator: ;
+- statement:
+    delete_statement:
+    - keyword: delete
+    - keyword: from
+    - table_reference:
+        identifier: leased_bicycles
+    - alias_expression:
+        identifier: lb
+    - keyword: using
+    - table_expression:
+        table_reference:
+          identifier: returned_bicycles
+    - alias_expression:
+        identifier: rb
+    - comma: ','
+    - table_expression:
+        table_reference:
+          identifier: broken_bicycles
+    - alias_expression:
+        identifier: bb
+    - where_clause:
+        keyword: where
+        expression:
+        - column_reference:
+          - identifier: lb
+          - dot: .
+          - identifier: bicycle_id
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - identifier: rb
+          - dot: .
+          - identifier: bicycle_id
+        - binary_operator: and
+        - column_reference:
+          - identifier: lb
+          - dot: .
+          - identifier: bicycle_id
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - identifier: bb
+          - dot: .
+          - identifier: bicycle_id
+- statement_terminator: ;
+- statement:
+    delete_statement:
+    - keyword: delete
+    - keyword: from
+    - table_reference:
+        identifier: leased_bicycles
+    - keyword: using
+    - table_expression:
+        bracketed:
+          start_bracket: (
+          select_statement:
+            select_clause:
+              keyword: select
+              select_clause_element:
+                column_reference:
+                  identifier: bicycle_id
+                alias_expression:
+                  keyword: as
+                  identifier: bicycle_id
+            from_clause:
+              keyword: from
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      identifier: returned_bicycles
+          end_bracket: )
+    - alias_expression:
+        keyword: as
+        identifier: returned
+    - where_clause:
         keyword: where
         expression:
         - column_reference:
@@ -127,48 +311,42 @@ file:
 - statement_terminator: ;
 - statement:
     delete_statement:
-      keyword: delete
-      from_clause:
-        keyword: from
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                identifier: leased_bicycles
-      using_clause:
-        keyword: using
-        from_expression_element:
-          table_expression:
-            bracketed:
-              start_bracket: (
-              select_statement:
-                select_clause:
-                  keyword: select
-                  select_clause_element:
-                    column_reference:
-                      identifier: bicycle_id
-                    alias_expression:
-                      keyword: as
-                      identifier: bicycle_id
-                from_clause:
-                  keyword: from
-                  from_expression:
-                    from_expression_element:
-                      table_expression:
-                        table_reference:
-                          identifier: returned_bicycles
-                where_clause:
-                  keyword: where
-                  expression:
-                  - literal: '1'
-                  - comparison_operator:
-                      raw_comparison_operator: '='
-                  - literal: '2'
-              end_bracket: )
-          alias_expression:
-            keyword: as
-            identifier: returned
-      where_clause:
+    - keyword: delete
+    - keyword: from
+    - table_reference:
+        identifier: leased_bicycles
+    - keyword: using
+    - table_expression:
+        bracketed:
+          start_bracket: (
+          select_statement:
+            select_clause:
+              keyword: select
+              select_clause_element:
+                column_reference:
+                  identifier: bicycle_id
+                alias_expression:
+                  keyword: as
+                  identifier: bicycle_id
+            from_clause:
+              keyword: from
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      identifier: returned_bicycles
+            where_clause:
+              keyword: where
+              expression:
+              - literal: '1'
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - literal: '2'
+          end_bracket: )
+    - alias_expression:
+        keyword: as
+        identifier: returned
+    - where_clause:
         keyword: where
         expression:
         - column_reference:
