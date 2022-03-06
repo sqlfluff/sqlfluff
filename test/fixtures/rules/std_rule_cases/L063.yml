@@ -13,7 +13,7 @@ test_fail_basic:
 test_fail_newlines:
   fail_str: "select foo from bar;\n;"
   fix_str: "select foo from bar;\n"
-    
+
 test_fail_block_comment:
   fail_str: "select foo from bar;/*jpy-git is cool*/\n;"
   fix_str: "select foo from bar;/*jpy-git is cool*/\n"
@@ -59,7 +59,7 @@ test_fail_newlines_go:
   configs:
     core:
       dialect: tsql
-    
+
 test_fail_block_comment_go:
   fail_str: "select foo from bar GO/*jpy-git is cool*/\nGO"
   fix_str: "select foo from bar GO/*jpy-git is cool*/\n"
