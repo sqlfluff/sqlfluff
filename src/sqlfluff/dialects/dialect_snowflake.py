@@ -3652,48 +3652,31 @@ class MergeInsertClauseSegment(BaseSegment):
 
 
 @snowflake_dialect.segment(replace=True)
-class DeleteStatementSegment(
-    ansi_dialect.get_segment("DeleteStatementSegment")  # type: ignore
-):
-    """Update `DELETE` statement to support `USING`."""
+class DeleteStatementSegment(BaseSegment):
+    """A `DELETE` statement.
 
-    parse_grammar = Sequence(
+    https://docs.snowflake.com/en/sql-reference/sql/delete.html
+    """
+
+    type = "delete_statement"
+    match_grammar = Sequence(
         "DELETE",
-        Ref("FromClauseTerminatingUsingWhereSegment"),
-        Ref("DeleteUsingClauseSegment", optional=True),
-        Ref("WhereClauseSegment", optional=True),
-    )
-
-
-@snowflake_dialect.segment()
-class DeleteUsingClauseSegment(BaseSegment):
-    """`USING` clause within the `DELETE` statement."""
-
-    type = "using_clause"
-    match_grammar = StartsWith(
-        "USING",
-        terminator=Ref.keyword("WHERE"),
-        enforce_whitespace_preceding_terminator=True,
-    )
-    parse_grammar = Sequence(
-        "USING",
-        Delimited(
-            Ref("FromExpressionElementSegment"),
-        ),
-        Ref("AliasExpressionSegment", optional=True),
-    )
-
-
-@snowflake_dialect.segment()
-class FromClauseTerminatingUsingWhereSegment(
-    ansi_dialect.get_segment("FromClauseSegment")  # type: ignore
-):
-    """Copy `FROM` terminator statement to support `USING` in specific circumstances."""
-
-    match_grammar = StartsWith(
         "FROM",
-        terminator=OneOf(Ref.keyword("USING"), Ref.keyword("WHERE")),
-        enforce_whitespace_preceding_terminator=True,
+        Ref("TableReferenceSegment"),
+        Ref("AliasExpressionSegment", optional=True),
+        Sequence(
+            "USING",
+            Indent,
+            Delimited(
+                Sequence(
+                    Ref("TableExpressionSegment"),
+                    Ref("AliasExpressionSegment", optional=True),
+                ),
+            ),
+            Dedent,
+            optional=True,
+        ),
+        Ref("WhereClauseSegment", optional=True),
     )
 
 
