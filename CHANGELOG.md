@@ -14,7 +14,7 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 ## Highlights
 
 Major changes include:
-* Changes rule L030 to use `extended_capitalisation_policy` to support Pascal case **BREAKING CHANGE**
+* Changes rule L030 to use `extended_capitalisation_policy` to support PascalCase **BREAKING CHANGE**
 * Fixes dbt error on ephemeral models
 * Log warnings for fixes that seem to corrupt the parse SQL as may cause incorrect fixes in other rules.
 * Bug fix to rule L011 for `implicit` aliases
