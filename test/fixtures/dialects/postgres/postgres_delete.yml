@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5b327c1fe9b60cfcbc55928fe2814e9839fdebf15ec9d1ab1e1340841e4471e0
+_hash: bd9673648f070ecc6cab1e746c4ac3eea2fed0f27e05cc5fe4de8891c61c44f3
 file:
 - statement:
     delete_statement:
@@ -405,6 +405,35 @@ file:
     - expression:
         column_reference:
           identifier: producer_id
+- statement_terminator: ;
+- statement:
+    delete_statement:
+    - keyword: DELETE
+    - keyword: FROM
+    - table_reference:
+        identifier: tasks
+    - where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            identifier: status
+          comparison_operator:
+            raw_comparison_operator: '='
+          literal: "'DONE'"
+    - keyword: RETURNING
+    - expression:
+        column_reference:
+          identifier: actor_id
+    - alias_expression:
+        keyword: as
+        identifier: a_id
+    - comma: ','
+    - expression:
+        column_reference:
+          identifier: producer_id
+    - alias_expression:
+        keyword: as
+        identifier: p_id
 - statement_terminator: ;
 - statement:
     delete_statement:
