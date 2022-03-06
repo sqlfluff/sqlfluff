@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: cfd7da9794f82fa2f5f80e9b507dfe879d16168b2fdad840dc6273790be67660
+_hash: db5338428536af6ab1579fba817866b0037eb1d5870980526af5b7a8524a4e59
 file:
 - statement:
     delete_statement:
@@ -111,6 +111,34 @@ file:
     - keyword: from
     - table_reference:
         identifier: leased_bicycles
+    - alias_expression:
+        identifier: lb
+    - keyword: using
+    - table_expression:
+        table_reference:
+          identifier: returned_bicycles
+    - alias_expression:
+        identifier: rb
+    - where_clause:
+        keyword: where
+        expression:
+        - column_reference:
+          - identifier: lb
+          - dot: .
+          - identifier: bicycle_id
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - identifier: rb
+          - dot: .
+          - identifier: bicycle_id
+- statement_terminator: ;
+- statement:
+    delete_statement:
+    - keyword: delete
+    - keyword: from
+    - table_reference:
+        identifier: leased_bicycles
     - keyword: using
     - table_expression:
         table_reference:
@@ -166,6 +194,51 @@ file:
           identifier: broken_bicycles
     - alias_expression:
         keyword: as
+        identifier: bb
+    - where_clause:
+        keyword: where
+        expression:
+        - column_reference:
+          - identifier: lb
+          - dot: .
+          - identifier: bicycle_id
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - identifier: rb
+          - dot: .
+          - identifier: bicycle_id
+        - binary_operator: and
+        - column_reference:
+          - identifier: lb
+          - dot: .
+          - identifier: bicycle_id
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - identifier: bb
+          - dot: .
+          - identifier: bicycle_id
+- statement_terminator: ;
+- statement:
+    delete_statement:
+    - keyword: delete
+    - keyword: from
+    - table_reference:
+        identifier: leased_bicycles
+    - alias_expression:
+        identifier: lb
+    - keyword: using
+    - table_expression:
+        table_reference:
+          identifier: returned_bicycles
+    - alias_expression:
+        identifier: rb
+    - comma: ','
+    - table_expression:
+        table_reference:
+          identifier: broken_bicycles
+    - alias_expression:
         identifier: bb
     - where_clause:
         keyword: where

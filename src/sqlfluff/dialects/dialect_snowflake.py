@@ -3585,42 +3585,26 @@ class MergeInsertClauseSegment(BaseSegment):
     )
 
 
-@snowflake_dialect.segment()
-class AsAliasExpressionSegment(BaseSegment):
-    """A reference to an object with an `AS` clause.
+@snowflake_dialect.segment(replace=True)
+class DeleteStatementSegment(BaseSegment):
+    """A `DELETE` statement.
 
-    This is used in `DeleteStatementSegment` in Snowflake
-    since the `AS` is not optional in this context.
-
-    N.B. We keep as a separate segment since the `alias_expression`
-    type is required for rules to interpret the alias.
+    https://docs.snowflake.com/en/sql-reference/sql/delete.html
     """
 
-    type = "alias_expression"
+    type = "delete_statement"
     match_grammar = Sequence(
-        "AS",
-        Ref("SingleIdentifierGrammar"),
-    )
-
-
-@snowflake_dialect.segment(replace=True)
-class DeleteStatementSegment(
-    ansi_dialect.get_segment("DeleteStatementSegment")  # type: ignore
-):
-    """Update `DELETE` statement to support `USING`."""
-
-    parse_grammar = Sequence(
         "DELETE",
         "FROM",
         Ref("TableReferenceSegment"),
-        Ref("AsAliasExpressionSegment", optional=True),
+        Ref("AliasExpressionSegment", optional=True),
         Sequence(
             "USING",
             Indent,
             Delimited(
                 Sequence(
                     Ref("TableExpressionSegment"),
-                    Ref("AsAliasExpressionSegment", optional=True),
+                    Ref("AliasExpressionSegment", optional=True),
                 ),
             ),
             Dedent,
