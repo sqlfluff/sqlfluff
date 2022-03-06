@@ -25,6 +25,12 @@ Major changes include:
 
 ## What's Changed
 
+* Exasol: Fix INTERVAL literals / expression [#2804](https://github.com/sqlfluff/sqlfluff/pull/2804) [@sti0](https://github.com/sti0)
+* Exasol: Add IDLE_TIMEOUT and SNAPSHOT_MODE [#2805](https://github.com/sqlfluff/sqlfluff/pull/2805) [@sti0](https://github.com/sti0)
+* Exasol: Support value range clause within INSERT statements (7.1+) [#2802](https://github.com/sqlfluff/sqlfluff/pull/2802) [@sti0](https://github.com/sti0)
+* Exasol: Add lua adapter scripts (7.1+) [#2801](https://github.com/sqlfluff/sqlfluff/pull/2801) [@sti0](https://github.com/sti0)
+* Exasol: Add openid support for create/alter user (7.1+) [#2800](https://github.com/sqlfluff/sqlfluff/pull/2800) [@sti0](https://github.com/sti0)
+* Exasol: New consumer group params and unreserved keywords (7.1+) [#2799](https://github.com/sqlfluff/sqlfluff/pull/2799) [@sti0](https://github.com/sti0)
 * Snowflake: Complete `INSERT` grammar [#2798](https://github.com/sqlfluff/sqlfluff/pull/2798) [@jpy-git](https://github.com/jpy-git)
 * Fix Postgres `VALUES`, make Spark3 `VALUES` consistent [#2797](https://github.com/sqlfluff/sqlfluff/pull/2797) [@jpy-git](https://github.com/jpy-git)
 * Postgres: `INSERT DEFAULT` value [#2796](https://github.com/sqlfluff/sqlfluff/pull/2796) [@jpy-git](https://github.com/jpy-git)
