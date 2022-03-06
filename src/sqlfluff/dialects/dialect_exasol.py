@@ -3657,7 +3657,7 @@ class CreateAdapterScriptStatementSegment(BaseSegment):
         Sequence(
             "CREATE",
             Ref("OrReplaceGrammar", optional=True),
-            OneOf("JAVA", "PYTHON", Ref("SingleIdentifierGrammar"), optional=True),
+            OneOf("JAVA", "PYTHON", "LUA", Ref("SingleIdentifierGrammar")),
             "ADAPTER",
             "SCRIPT",
         )
@@ -3665,7 +3665,7 @@ class CreateAdapterScriptStatementSegment(BaseSegment):
     parse_grammar = Sequence(
         "CREATE",
         Ref("OrReplaceGrammar", optional=True),
-        OneOf("JAVA", "PYTHON", Ref("SingleIdentifierGrammar"), optional=True),
+        OneOf("JAVA", "PYTHON", "LUA", Ref("SingleIdentifierGrammar")),
         "ADAPTER",
         "SCRIPT",
         Ref("ScriptReferenceSegment"),
