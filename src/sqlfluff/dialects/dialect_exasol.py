@@ -2589,6 +2589,8 @@ class ConsumerGroupParameterSegment(BaseSegment):
             "GROUP_TEMP_DB_RAM_LIMIT",
             "USER_TEMP_DB_RAM_LIMIT",
             "SESSION_TEMP_DB_RAM_LIMIT",
+            "QUERY_TIMEOUT",
+            "IDLE_TIMEOUT",
         ),
         Ref("EqualsSegment"),
         OneOf(Ref("QuotedLiteralSegment"), Ref("NumericLiteralSegment")),
