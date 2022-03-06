@@ -2200,14 +2200,11 @@ class FromExpressionElementSegment(BaseSegment):
         Ref("PreTableFunctionKeywordsGrammar", optional=True),
         OptionallyBracketed(Ref("TableExpressionSegment")),
         OneOf(
-            Sequence(
-                Ref("AliasExpressionSegment"),
-                Ref("SamplingExpressionSegment"),
-            ),
-            Ref("SamplingExpressionSegment"),
             Ref("AliasExpressionSegment"),
+            exclude=Ref("SamplingExpressionSegment"),
             optional=True,
         ),
+        Ref("SamplingExpressionSegment", optional=True),
         # NB: `LateralViewClauseSegment`, `NamedWindowSegment`,
         # and `PivotClauseSegment should come after Alias/Sampling
         # expressions so those are matched before
