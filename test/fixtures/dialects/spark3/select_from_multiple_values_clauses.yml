@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8663738dbff79ccc296b32646fde49c6c853b650722ab332e2cfa641a7279124
+_hash: 97c76bc8ec2e59cad0e783f33a41d3021ab5e8f1a304c8a70b8df36037ffde13
 file:
 - statement:
     select_statement:
@@ -20,18 +20,16 @@ file:
             table_expression:
               values_clause:
                 keyword: values
-                delimited_values:
-                  scalar_value:
-                    literal: '1'
+                expression:
+                  literal: '1'
       - comma: ','
       - from_expression:
           from_expression_element:
             table_expression:
               values_clause:
                 keyword: values
-                delimited_values:
-                  scalar_value:
-                    literal: '2'
+                expression:
+                  literal: '2'
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -49,13 +47,12 @@ file:
               start_bracket: (
               table_expression:
                 values_clause:
-                  keyword: values
-                  delimited_values:
-                  - scalar_value:
-                      literal: '1'
-                  - comma: ','
-                  - scalar_value:
-                      literal: '2'
+                - keyword: values
+                - expression:
+                    literal: '1'
+                - comma: ','
+                - expression:
+                    literal: '2'
               end_bracket: )
       - comma: ','
       - from_expression:
@@ -64,12 +61,11 @@ file:
               start_bracket: (
               table_expression:
                 values_clause:
-                  keyword: values
-                  delimited_values:
-                  - scalar_value:
-                      literal: '2'
-                  - comma: ','
-                  - scalar_value:
-                      literal: '3'
+                - keyword: values
+                - expression:
+                    literal: '2'
+                - comma: ','
+                - expression:
+                    literal: '3'
               end_bracket: )
 - statement_terminator: ;

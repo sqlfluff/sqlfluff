@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4311848553f9c4cd3c1a4854f1f517e9912fe79c210f32d54cf22ddc2ae316f0
+_hash: 5f41f160aaf03561963146f4dd64842aeb6173bcd360561fcf7a9fa81f762027
 file:
 - statement:
     select_statement:
@@ -40,7 +40,7 @@ file:
               - keyword: IN
               - bracketed:
                   start_bracket: (
-                  scalar_value:
+                  expression:
                     literal: "'John'"
                   alias_expression:
                     keyword: AS
@@ -83,13 +83,13 @@ file:
               - keyword: IN
               - bracketed:
                 - start_bracket: (
-                - scalar_value:
+                - expression:
                     literal: "'John'"
                 - alias_expression:
                     keyword: AS
                     identifier: john
                 - comma: ','
-                - scalar_value:
+                - expression:
                     literal: "'Mike'"
                 - alias_expression:
                     keyword: AS
@@ -135,13 +135,13 @@ file:
               - keyword: IN
               - bracketed:
                 - start_bracket: (
-                - scalar_value:
+                - expression:
                     literal: "'John'"
                 - alias_expression:
                     keyword: AS
                     identifier: john
                 - comma: ','
-                - scalar_value:
+                - expression:
                     literal: "'Mike'"
                 - alias_expression:
                     keyword: AS
@@ -184,13 +184,13 @@ file:
               - keyword: IN
               - bracketed:
                 - start_bracket: (
-                - scalar_value:
+                - expression:
                     literal: "'John'"
                 - alias_expression:
                     keyword: AS
                     identifier: john
                 - comma: ','
-                - scalar_value:
+                - expression:
                     literal: "'Mike'"
                 - alias_expression:
                     keyword: AS
@@ -250,13 +250,13 @@ file:
               - keyword: IN
               - bracketed:
                 - start_bracket: (
-                - scalar_value:
+                - expression:
                     literal: "'John'"
                 - alias_expression:
                     keyword: AS
                     identifier: john
                 - comma: ','
-                - scalar_value:
+                - expression:
                     literal: "'Mike'"
                 - alias_expression:
                     keyword: AS
@@ -316,13 +316,13 @@ file:
               - keyword: IN
               - bracketed:
                 - start_bracket: (
-                - scalar_value:
+                - expression:
                     literal: "'John'"
                 - alias_expression:
                     keyword: AS
                     identifier: john
                 - comma: ','
-                - scalar_value:
+                - expression:
                     literal: "'Mike'"
                 - alias_expression:
                     keyword: AS
@@ -384,28 +384,26 @@ file:
               - keyword: IN
               - bracketed:
                 - start_bracket: (
-                - tuple_value:
-                    bracketed:
-                    - start_bracket: (
-                    - scalar_value:
-                        literal: "'John'"
-                    - comma: ','
-                    - scalar_value:
-                        literal: '30'
-                    - end_bracket: )
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                      literal: "'John'"
+                  - comma: ','
+                  - expression:
+                      literal: '30'
+                  - end_bracket: )
                 - alias_expression:
                     keyword: AS
                     identifier: c1
                 - comma: ','
-                - tuple_value:
-                    bracketed:
-                    - start_bracket: (
-                    - scalar_value:
-                        literal: "'Mike'"
-                    - comma: ','
-                    - scalar_value:
-                        literal: '40'
-                    - end_bracket: )
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                      literal: "'Mike'"
+                  - comma: ','
+                  - expression:
+                      literal: '40'
+                  - end_bracket: )
                 - alias_expression:
                     keyword: AS
                     identifier: c2
@@ -473,28 +471,26 @@ file:
               - keyword: IN
               - bracketed:
                 - start_bracket: (
-                - tuple_value:
-                    bracketed:
-                    - start_bracket: (
-                    - scalar_value:
-                        literal: "'John'"
-                    - comma: ','
-                    - scalar_value:
-                        literal: '30'
-                    - end_bracket: )
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                      literal: "'John'"
+                  - comma: ','
+                  - expression:
+                      literal: '30'
+                  - end_bracket: )
                 - alias_expression:
                     keyword: AS
                     identifier: c1
                 - comma: ','
-                - tuple_value:
-                    bracketed:
-                    - start_bracket: (
-                    - scalar_value:
-                        literal: "'Mike'"
-                    - comma: ','
-                    - scalar_value:
-                        literal: '40'
-                    - end_bracket: )
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                      literal: "'Mike'"
+                  - comma: ','
+                  - expression:
+                      literal: '40'
+                  - end_bracket: )
                 - alias_expression:
                     keyword: AS
                     identifier: c2
@@ -558,21 +554,20 @@ file:
               - keyword: IN
               - bracketed:
                 - start_bracket: (
-                - scalar_value:
+                - expression:
                     literal: "'John'"
                 - alias_expression:
                     keyword: AS
                     identifier: c1
                 - comma: ','
-                - tuple_value:
-                    bracketed:
-                    - start_bracket: (
-                    - scalar_value:
-                        literal: "'Mike'"
-                    - comma: ','
-                    - scalar_value:
-                        literal: '40'
-                    - end_bracket: )
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                      literal: "'Mike'"
+                  - comma: ','
+                  - expression:
+                      literal: '40'
+                  - end_bracket: )
                 - alias_expression:
                     keyword: AS
                     identifier: c2

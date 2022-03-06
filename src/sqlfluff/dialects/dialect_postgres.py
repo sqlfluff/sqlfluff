@@ -3650,74 +3650,27 @@ class CTEDefinitionSegment(BaseSegment):
     )
 
 
-@postgres_dialect.segment()
-class DelimitedValues(BaseSegment):
-    """A ``VALUES`` clause can be a sequence either of scalar values or tuple values.
-
-    We make no attempt to ensure that all records have the same number of columns
-    besides the distinction between all scalar or all tuple, so for instance
-    ``VALUES (1,2), (3,4,5)`` will parse but is not legal SQL.
-    """
-
-    type = "delimited_values"
-    match_grammar = OneOf(Delimited(Ref("ScalarValue")), Delimited(Ref("TupleValue")))
-
-
-@postgres_dialect.segment()
-class ScalarValue(BaseSegment):
-    """An element of a ``VALUES`` clause that has a single column.
-
-    Ex: ``VALUES 1,2,3``
-    """
-
-    type = "scalar_value"
-    match_grammar = Sequence(
-        OneOf(
-            Ref("LiteralGrammar"),
-            Ref("BareFunctionSegment"),
-            Ref("FunctionSegment"),
-        ),
-        AnyNumberOf(Ref("ShorthandCastSegment")),
-    )
-
-
-@postgres_dialect.segment()
-class TupleValue(BaseSegment):
-    """An element of a ``VALUES`` clause that has multiple columns.
-
-    Ex: ``VALUES (1,2), (3,4)``
-    """
-
-    type = "tuple_value"
-    match_grammar = Bracketed(
-        Delimited(
-            Ref("ScalarValue"),
-        )
-    )
-
-
 @postgres_dialect.segment(replace=True)
 class ValuesClauseSegment(BaseSegment):
-    """A `VALUES` clause, as typically used with `INSERT` or `SELECT`.
-
-    https://www.postgresql.org/docs/13/sql-values.html
-    """
+    """A `VALUES` clause within in `WITH` or `SELECT`."""
 
     type = "values_clause"
-
     match_grammar = Sequence(
         "VALUES",
-        Ref("DelimitedValues"),
-        AnyNumberOf(
-            Ref("AliasExpressionSegment"),
-            min_times=0,
-            max_times=1,
-            exclude=OneOf("LIMIT", "ORDER"),
+        Delimited(
+            Bracketed(
+                Delimited(
+                    Ref("ExpressionSegment"),
+                    # DEFAULT keyword used in
+                    # INSERT INTO statement.
+                    "DEFAULT",
+                    ephemeral_name="ValuesClauseElements",
+                )
+            ),
         ),
+        Ref("AliasExpressionSegment", optional=True),
         Ref("OrderByClauseSegment", optional=True),
         Ref("LimitClauseSegment", optional=True),
-        # TO DO - CHECK OFFSET
-        # TO DO - FETCH
     )
 
 
