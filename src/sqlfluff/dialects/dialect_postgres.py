@@ -25,6 +25,7 @@ from sqlfluff.core.parser import (
 
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser.grammar.anyof import AnySetOf
+from sqlfluff.core.parser.lexer import StringLexer
 from sqlfluff.dialects.dialect_postgres_keywords import (
     postgres_keywords,
     get_keywords,
@@ -92,6 +93,7 @@ postgres_dialect.insert_lexer_matchers(
             r"->>|#>>|->|#>|@>|<@|\?\||\?|\?&|#-",
             CodeSegment,
         ),
+        StringLexer("at", "@", CodeSegment),
     ],
     before="like_operator",
 )
@@ -213,6 +215,10 @@ postgres_dialect.replace(
         Ref("LikeOperatorSegment"),
         Sequence("IS", "DISTINCT", "FROM"),
         Sequence("IS", "NOT", "DISTINCT", "FROM"),
+        Ref("OverlapSegment"),
+        Ref("NotExtendRightSegment"),
+        Ref("NotExtendLeftSegment"),
+        Ref("AdjacentSegment"),
     ),
     NakedIdentifierSegment=SegmentGenerator(
         # Generate the anti template from the set of reserved keywords
@@ -389,6 +395,50 @@ postgres_dialect.replace(
         "RETURNING",
     ),
 )
+
+
+@postgres_dialect.segment()
+class OverlapSegment(BaseSegment):
+    """Overlaps range operator."""
+
+    type = "comparison_operator"
+    name = "overlap"
+    match_grammar = Sequence(
+        Ref("AmpersandSegment"), Ref("AmpersandSegment"), allow_gaps=False
+    )
+
+
+@postgres_dialect.segment()
+class NotExtendRightSegment(BaseSegment):
+    """Not extend right range operator."""
+
+    type = "comparison_operator"
+    name = "not_extend_right"
+    match_grammar = Sequence(
+        Ref("AmpersandSegment"), Ref("RawGreaterThanSegment"), allow_gaps=False
+    )
+
+
+@postgres_dialect.segment()
+class NotExtendLeftSegment(BaseSegment):
+    """Not extend left range operator."""
+
+    type = "comparison_operator"
+    name = "not_extend_left"
+    match_grammar = Sequence(
+        Ref("AmpersandSegment"), Ref("RawLessThanSegment"), allow_gaps=False
+    )
+
+
+@postgres_dialect.segment()
+class AdjacentSegment(BaseSegment):
+    """Adjacent range operator."""
+
+    type = "comparison_operator"
+    name = "adjacent"
+    match_grammar = Sequence(
+        Ref("MinusSegment"), Ref("PipeSegment"), Ref("MinusSegment"), allow_gaps=False
+    )
 
 
 @postgres_dialect.segment()

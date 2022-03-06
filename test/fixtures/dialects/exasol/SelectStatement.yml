@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1208cf90d7540d5d3e7e6f9ecebfc72942c61993e206e64dbd3e20ed02ade181
+_hash: 8307066aa523cad636da0cbe4945f97cd1afecf09337e4c698299a6e9889d023
 file:
 - statement:
     select_statement:
@@ -50,7 +50,9 @@ file:
                 - binary_operator: '-'
                 - literal: '1'
               - end_bracket: )
-          - binary_operator: '||'
+          - binary_operator:
+            - pipe: '|'
+            - pipe: '|'
           - function:
               function_name:
                 function_name_identifier: SYS_CONNECT_BY_PATH
