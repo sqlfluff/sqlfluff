@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1a53ea7cfdc6d98f64d518ee4167659267dec8134d688dfd66cb91dbd6ace494
+_hash: f97e76509bb5093ba779efc9bd0627135e0e79ab2649fef5dbc0896e19769508
 file:
 - statement:
     insert_table_statement:
@@ -14,19 +14,17 @@ file:
         identifier: students
     - values_clause:
         keyword: VALUES
-        delimited_values:
-          tuple_value:
-            bracketed:
-            - start_bracket: (
-            - scalar_value:
-                literal: "'Amy Smith'"
-            - comma: ','
-            - scalar_value:
-                literal: "'123 Park Ave, San Jose'"
-            - comma: ','
-            - scalar_value:
-                literal: '111111'
-            - end_bracket: )
+        bracketed:
+        - start_bracket: (
+        - expression:
+            literal: "'Amy Smith'"
+        - comma: ','
+        - expression:
+            literal: "'123 Park Ave, San Jose'"
+        - comma: ','
+        - expression:
+            literal: '111111'
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
     insert_table_statement:
@@ -36,19 +34,17 @@ file:
         identifier: students
     - values_clause:
         keyword: VALUES
-        delimited_values:
-          tuple_value:
-            bracketed:
-            - start_bracket: (
-            - scalar_value:
-                literal: "'Amy Smith'"
-            - comma: ','
-            - scalar_value:
-                literal: "'123 Park Ave, San Jose'"
-            - comma: ','
-            - scalar_value:
-                literal: '111111'
-            - end_bracket: )
+        bracketed:
+        - start_bracket: (
+        - expression:
+            literal: "'Amy Smith'"
+        - comma: ','
+        - expression:
+            literal: "'123 Park Ave, San Jose'"
+        - comma: ','
+        - expression:
+            literal: '111111'
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
     insert_table_statement:
@@ -58,19 +54,17 @@ file:
         identifier: students
     - values_clause:
         keyword: VALUES
-        delimited_values:
-          tuple_value:
-            bracketed:
-            - start_bracket: (
-            - scalar_value:
-                literal: "'Amy Smith'"
-            - comma: ','
-            - scalar_value:
-                literal: "'123 Park Ave, San Jose'"
-            - comma: ','
-            - scalar_value:
-                literal: '111111'
-            - end_bracket: )
+        bracketed:
+        - start_bracket: (
+        - expression:
+            literal: "'Amy Smith'"
+        - comma: ','
+        - expression:
+            literal: "'123 Park Ave, San Jose'"
+        - comma: ','
+        - expression:
+            literal: '111111'
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
     insert_table_statement:
@@ -79,33 +73,30 @@ file:
     - table_reference:
         identifier: students
     - values_clause:
-        keyword: VALUES
-        delimited_values:
-        - tuple_value:
-            bracketed:
-            - start_bracket: (
-            - scalar_value:
-                literal: "'Bob Brown'"
-            - comma: ','
-            - scalar_value:
-                literal: "'456 Taylor St, Cupertino'"
-            - comma: ','
-            - scalar_value:
-                literal: '222222'
-            - end_bracket: )
+      - keyword: VALUES
+      - bracketed:
+        - start_bracket: (
+        - expression:
+            literal: "'Bob Brown'"
         - comma: ','
-        - tuple_value:
-            bracketed:
-            - start_bracket: (
-            - scalar_value:
-                literal: "'Cathy Johnson'"
-            - comma: ','
-            - scalar_value:
-                literal: "'789 Race Ave, Palo Alto'"
-            - comma: ','
-            - scalar_value:
-                literal: '333333'
-            - end_bracket: )
+        - expression:
+            literal: "'456 Taylor St, Cupertino'"
+        - comma: ','
+        - expression:
+            literal: '222222'
+        - end_bracket: )
+      - comma: ','
+      - bracketed:
+        - start_bracket: (
+        - expression:
+            literal: "'Cathy Johnson'"
+        - comma: ','
+        - expression:
+            literal: "'789 Race Ave, Palo Alto'"
+        - comma: ','
+        - expression:
+            literal: '333333'
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
     insert_table_statement:
@@ -114,33 +105,30 @@ file:
     - table_reference:
         identifier: students
     - values_clause:
-        keyword: VALUES
-        delimited_values:
-        - tuple_value:
-            bracketed:
-            - start_bracket: (
-            - scalar_value:
-                literal: "'Bob Brown'"
-            - comma: ','
-            - scalar_value:
-                literal: "'456 Taylor St, Cupertino'"
-            - comma: ','
-            - scalar_value:
-                literal: '222222'
-            - end_bracket: )
+      - keyword: VALUES
+      - bracketed:
+        - start_bracket: (
+        - expression:
+            literal: "'Bob Brown'"
         - comma: ','
-        - tuple_value:
-            bracketed:
-            - start_bracket: (
-            - scalar_value:
-                literal: "'Cathy Johnson'"
-            - comma: ','
-            - scalar_value:
-                literal: "'789 Race Ave, Palo Alto'"
-            - comma: ','
-            - scalar_value:
-                literal: '333333'
-            - end_bracket: )
+        - expression:
+            literal: "'456 Taylor St, Cupertino'"
+        - comma: ','
+        - expression:
+            literal: '222222'
+        - end_bracket: )
+      - comma: ','
+      - bracketed:
+        - start_bracket: (
+        - expression:
+            literal: "'Cathy Johnson'"
+        - comma: ','
+        - expression:
+            literal: "'789 Race Ave, Palo Alto'"
+        - comma: ','
+        - expression:
+            literal: '333333'
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
     insert_table_statement:
@@ -316,16 +304,14 @@ file:
         end_bracket: )
     - values_clause:
         keyword: VALUES
-        delimited_values:
-          tuple_value:
-            bracketed:
-            - start_bracket: (
-            - scalar_value:
-                literal: "'Amy Smith'"
-            - comma: ','
-            - scalar_value:
-                literal: "'123 Park Ave, San Jose'"
-            - end_bracket: )
+        bracketed:
+        - start_bracket: (
+        - expression:
+            literal: "'Amy Smith'"
+        - comma: ','
+        - expression:
+            literal: "'123 Park Ave, San Jose'"
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
     insert_table_statement:
@@ -345,16 +331,14 @@ file:
         end_bracket: )
     - values_clause:
         keyword: VALUES
-        delimited_values:
-          tuple_value:
-            bracketed:
-            - start_bracket: (
-            - scalar_value:
-                literal: "'Amy Smith'"
-            - comma: ','
-            - scalar_value:
-                literal: "'123 Park Ave, San Jose'"
-            - end_bracket: )
+        bracketed:
+        - start_bracket: (
+        - expression:
+            literal: "'Amy Smith'"
+        - comma: ','
+        - expression:
+            literal: "'123 Park Ave, San Jose'"
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
     insert_table_statement:
@@ -381,16 +365,14 @@ file:
       - end_bracket: )
     - values_clause:
         keyword: VALUES
-        delimited_values:
-          tuple_value:
-            bracketed:
-            - start_bracket: (
-            - scalar_value:
-                literal: "'Hangzhou, China'"
-            - comma: ','
-            - scalar_value:
-                literal: "'Kent Yao Jr.'"
-            - end_bracket: )
+        bracketed:
+        - start_bracket: (
+        - expression:
+            literal: "'Hangzhou, China'"
+        - comma: ','
+        - expression:
+            literal: "'Kent Yao Jr.'"
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
     insert_table_statement:
@@ -417,14 +399,12 @@ file:
       - end_bracket: )
     - values_clause:
         keyword: VALUES
-        delimited_values:
-          tuple_value:
-            bracketed:
-            - start_bracket: (
-            - scalar_value:
-                literal: "'Hangzhou, China'"
-            - comma: ','
-            - scalar_value:
-                literal: "'Kent Yao Jr.'"
-            - end_bracket: )
+        bracketed:
+        - start_bracket: (
+        - expression:
+            literal: "'Hangzhou, China'"
+        - comma: ','
+        - expression:
+            literal: "'Kent Yao Jr.'"
+        - end_bracket: )
 - statement_terminator: ;

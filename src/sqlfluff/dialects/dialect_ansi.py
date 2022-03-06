@@ -2079,7 +2079,7 @@ class ValuesClauseSegment(BaseSegment):
                 Ref.keyword("ROW", optional=True),
                 Bracketed(
                     Delimited(
-                        "DEFAULT",  # not in `FROM` clause, rule?
+                        "DEFAULT",
                         Ref("ExpressionSegment"),
                         ephemeral_name="ValuesClauseElements",
                     )
