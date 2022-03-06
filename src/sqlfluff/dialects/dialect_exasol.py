@@ -1671,6 +1671,7 @@ class InsertStatementSegment(BaseSegment):
         Ref("TableReferenceSegment"),
         AnyNumberOf(
             Ref("ValuesInsertClauseSegment"),
+            Ref("ValuesRangeClauseSegment"),
             Sequence("DEFAULT", "VALUES"),
             Ref("SelectableGrammar"),
             Ref("BracketedColumnReferenceListGrammar", optional=True),
@@ -2420,6 +2421,7 @@ class CreateUserSegment(BaseSegment):
             Ref("UserPasswordAuthSegment"),
             Ref("UserKerberosAuthSegment"),
             Ref("UserLDAPAuthSegment"),
+            Ref("UserOpenIDAuthSegment"),
         ),
     )
 
@@ -2459,6 +2461,7 @@ class AlterUserSegment(BaseSegment):
                     ),
                     Ref("UserLDAPAuthSegment"),
                     Ref("UserKerberosAuthSegment"),
+                    Ref("UserOpenIDAuthSegment"),
                 ),
             ),
             Sequence(
@@ -2516,6 +2519,19 @@ class UserLDAPAuthSegment(BaseSegment):
         "AS",
         Ref("QuotedLiteralSegment"),
         Ref.keyword("FORCE", optional=True),
+    )
+
+
+@exasol_dialect.segment()
+class UserOpenIDAuthSegment(BaseSegment):
+    """User OpenID authentification."""
+
+    type = "openid_auth"
+    match_grammar = Sequence(
+        "BY",
+        "OPENID",
+        "SUBJECT",
+        Ref("QuotedLiteralSegment"),
     )
 
 
@@ -2589,6 +2605,8 @@ class ConsumerGroupParameterSegment(BaseSegment):
             "GROUP_TEMP_DB_RAM_LIMIT",
             "USER_TEMP_DB_RAM_LIMIT",
             "SESSION_TEMP_DB_RAM_LIMIT",
+            "QUERY_TIMEOUT",
+            "IDLE_TIMEOUT",
         ),
         Ref("EqualsSegment"),
         OneOf(Ref("QuotedLiteralSegment"), Ref("NumericLiteralSegment")),
@@ -3651,19 +3669,10 @@ class CreateAdapterScriptStatementSegment(BaseSegment):
     is_dql = False
     is_dcl = False
 
-    match_grammar = StartsWith(
-        Sequence(
-            "CREATE",
-            Ref("OrReplaceGrammar", optional=True),
-            OneOf("JAVA", "PYTHON", Ref("SingleIdentifierGrammar"), optional=True),
-            "ADAPTER",
-            "SCRIPT",
-        )
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "CREATE",
         Ref("OrReplaceGrammar", optional=True),
-        OneOf("JAVA", "PYTHON", Ref("SingleIdentifierGrammar"), optional=True),
+        OneOf("JAVA", "PYTHON", "LUA", Ref("SingleIdentifierGrammar")),
         "ADAPTER",
         "SCRIPT",
         Ref("ScriptReferenceSegment"),
