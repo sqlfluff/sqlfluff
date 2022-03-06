@@ -3691,7 +3691,12 @@ class TupleValue(BaseSegment):
     type = "tuple_value"
     match_grammar = Bracketed(
         Delimited(
-            Ref("ScalarValue"),
+            OneOf(
+                Ref("ScalarValue"),
+                # DEFAULT keyword used in
+                # INSERT INTO statement.
+                "DEFAULT",
+            ),
         )
     )
 
