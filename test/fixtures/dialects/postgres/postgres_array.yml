@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b36104bc24392aeb07f4aa488f27cffcd046e7852b06d04df330144ff1f9a1ad
+_hash: 65ca59f55e555b9131f0e92275b79afcadd0fd874a65d7994442680c9c738c4e
 file:
 - statement:
     select_statement:
@@ -20,7 +20,9 @@ file:
             - expression:
                 literal: '2'
             - end_square_bracket: ']'
-          - binary_operator: '||'
+          - binary_operator:
+            - pipe: '|'
+            - pipe: '|'
           - keyword: ARRAY
           - array_literal:
             - start_square_bracket: '['
@@ -427,7 +429,9 @@ file:
                 - expression:
                     literal: '2'
                 - end_square_bracket: ']'
-              - binary_operator: '||'
+              - binary_operator:
+                - pipe: '|'
+                - pipe: '|'
               - keyword: ARRAY
               - array_literal:
                 - start_square_bracket: '['
@@ -462,7 +466,9 @@ file:
                 - expression:
                     literal: '2'
                 - end_square_bracket: ']'
-              - binary_operator: '||'
+              - binary_operator:
+                - pipe: '|'
+                - pipe: '|'
               - keyword: ARRAY
               - array_literal:
                 - start_square_bracket: '['
@@ -503,7 +509,9 @@ file:
             - expression:
                 literal: '2'
             - end_square_bracket: ']'
-            binary_operator: '||'
+            binary_operator:
+            - pipe: '|'
+            - pipe: '|'
             literal: "'{3, 4}'"
 - statement_terminator: ;
 - statement:

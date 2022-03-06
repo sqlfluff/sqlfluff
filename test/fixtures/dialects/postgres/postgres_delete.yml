@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6f33596d65a52bb5afc936ca0a834076f307b646e39228d695d9f86738df69dd
+_hash: bd9673648f070ecc6cab1e746c4ac3eea2fed0f27e05cc5fe4de8891c61c44f3
 file:
 - statement:
     delete_statement:
@@ -36,6 +36,15 @@ file:
         identifier: films
     - alias_expression:
         keyword: AS
+        identifier: f
+- statement_terminator: ;
+- statement:
+    delete_statement:
+    - keyword: DELETE
+    - keyword: FROM
+    - table_reference:
+        identifier: films
+    - alias_expression:
         identifier: f
 - statement_terminator: ;
 - statement:
@@ -128,6 +137,103 @@ file:
           identifier: actors
     - alias_expression:
         keyword: AS
+        identifier: a
+    - where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+          - identifier: f
+          - dot: .
+          - identifier: producer_id
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - identifier: p
+          - dot: .
+          - identifier: id
+        - binary_operator: AND
+        - column_reference:
+          - identifier: p
+          - dot: .
+          - identifier: name
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - literal: "'foo'"
+        - binary_operator: AND
+        - column_reference:
+          - identifier: f
+          - dot: .
+          - identifier: actor_id
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - identifier: a
+          - dot: .
+          - identifier: id
+        - binary_operator: AND
+        - column_reference:
+          - identifier: a
+          - dot: .
+          - identifier: name
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - literal: "'joe cool'"
+- statement_terminator: ;
+- statement:
+    delete_statement:
+    - keyword: DELETE
+    - keyword: FROM
+    - table_reference:
+        identifier: films
+    - alias_expression:
+        identifier: f
+    - keyword: USING
+    - table_expression:
+        table_reference:
+          identifier: producers
+    - alias_expression:
+        identifier: p
+    - where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+          - identifier: f
+          - dot: .
+          - identifier: producer_id
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - identifier: p
+          - dot: .
+          - identifier: id
+        - binary_operator: AND
+        - column_reference:
+          - identifier: p
+          - dot: .
+          - identifier: name
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - literal: "'foo'"
+- statement_terminator: ;
+- statement:
+    delete_statement:
+    - keyword: DELETE
+    - keyword: FROM
+    - table_reference:
+        identifier: films
+    - alias_expression:
+        identifier: f
+    - keyword: USING
+    - table_expression:
+        table_reference:
+          identifier: producers
+    - alias_expression:
+        identifier: p
+    - comma: ','
+    - table_expression:
+        table_reference:
+          identifier: actors
+    - alias_expression:
         identifier: a
     - where_clause:
         keyword: WHERE
@@ -274,6 +380,27 @@ file:
     - expression:
         column_reference:
           identifier: actor_id
+    - alias_expression:
+        identifier: a_id
+- statement_terminator: ;
+- statement:
+    delete_statement:
+    - keyword: DELETE
+    - keyword: FROM
+    - table_reference:
+        identifier: tasks
+    - where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            identifier: status
+          comparison_operator:
+            raw_comparison_operator: '='
+          literal: "'DONE'"
+    - keyword: RETURNING
+    - expression:
+        column_reference:
+          identifier: actor_id
     - comma: ','
     - expression:
         column_reference:
@@ -306,6 +433,33 @@ file:
           identifier: producer_id
     - alias_expression:
         keyword: as
+        identifier: p_id
+- statement_terminator: ;
+- statement:
+    delete_statement:
+    - keyword: DELETE
+    - keyword: FROM
+    - table_reference:
+        identifier: tasks
+    - where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            identifier: status
+          comparison_operator:
+            raw_comparison_operator: '='
+          literal: "'DONE'"
+    - keyword: RETURNING
+    - expression:
+        column_reference:
+          identifier: actor_id
+    - alias_expression:
+        identifier: a_id
+    - comma: ','
+    - expression:
+        column_reference:
+          identifier: producer_id
+    - alias_expression:
         identifier: p_id
 - statement_terminator: ;
 - statement:
