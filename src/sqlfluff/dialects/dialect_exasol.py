@@ -2420,7 +2420,7 @@ class CreateUserSegment(BaseSegment):
             Ref("UserPasswordAuthSegment"),
             Ref("UserKerberosAuthSegment"),
             Ref("UserLDAPAuthSegment"),
-            Ref("UserOPENIDAuthSegment"),
+            Ref("UserOpenIDAuthSegment"),
         ),
     )
 
@@ -2460,7 +2460,7 @@ class AlterUserSegment(BaseSegment):
                     ),
                     Ref("UserLDAPAuthSegment"),
                     Ref("UserKerberosAuthSegment"),
-                    Ref("UserOPENIDAuthSegment"),
+                    Ref("UserOpenIDAuthSegment"),
                 ),
             ),
             Sequence(
@@ -2522,12 +2522,11 @@ class UserLDAPAuthSegment(BaseSegment):
 
 
 @exasol_dialect.segment()
-class UserOPENIDAuthSegment(BaseSegment):
+class UserOpenIDAuthSegment(BaseSegment):
     """user openid authentification."""
 
     type = "openid_auth"
-    match_grammar = StartsWith(Sequence("BY", "OPENID"))
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "BY",
         "OPENID",
         "SUBJECT",
