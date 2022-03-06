@@ -1,0 +1,584 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 2352a8deaef4398e525cb89729ef76f6b08553cc8b5b90b9abc5d686690bcb76
+file:
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        identifier: foo
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          identifier: bar
+        end_bracket: )
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+          start_bracket: (
+          expression:
+            bare_function: current_timestamp
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: OVERWRITE
+    - keyword: INTO
+    - table_reference:
+        identifier: foo
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          identifier: bar
+        end_bracket: )
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+          start_bracket: (
+          expression:
+            bare_function: current_timestamp
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        identifier: foo
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          identifier: bar
+      - comma: ','
+      - column_reference:
+          identifier: baz
+      - end_bracket: )
+    - values_clause:
+      - keyword: VALUES
+      - bracketed:
+        - start_bracket: (
+        - expression:
+            literal: '1'
+        - comma: ','
+        - expression:
+            literal: '2'
+        - end_bracket: )
+      - comma: ','
+      - bracketed:
+        - start_bracket: (
+        - expression:
+            literal: '3'
+        - comma: ','
+        - expression:
+            literal: '4'
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        identifier: foo
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          identifier: bar
+        end_bracket: )
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+          start_bracket: (
+          keyword: DEFAULT
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        identifier: foo
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          identifier: bar
+        end_bracket: )
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+          start_bracket: (
+          keyword: 'NULL'
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        identifier: films
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: tmp_films
+        where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+              identifier: date_prod
+            comparison_operator:
+              raw_comparison_operator: <
+            literal: "'2004-05-07'"
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: insert
+    - keyword: all
+    - keyword: into
+    - table_reference:
+        identifier: t1
+    - keyword: into
+    - table_reference:
+        identifier: t1
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          identifier: c1
+      - comma: ','
+      - column_reference:
+          identifier: c2
+      - comma: ','
+      - column_reference:
+          identifier: c3
+      - end_bracket: )
+    - values_clause:
+        keyword: values
+        bracketed:
+        - start_bracket: (
+        - expression:
+            column_reference:
+              identifier: n2
+        - comma: ','
+        - expression:
+            column_reference:
+              identifier: n1
+        - comma: ','
+        - keyword: default
+        - end_bracket: )
+    - keyword: into
+    - table_reference:
+        identifier: t2
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          identifier: c1
+      - comma: ','
+      - column_reference:
+          identifier: c2
+      - comma: ','
+      - column_reference:
+          identifier: c3
+      - end_bracket: )
+    - keyword: into
+    - table_reference:
+        identifier: t2
+    - values_clause:
+        keyword: values
+        bracketed:
+        - start_bracket: (
+        - expression:
+            column_reference:
+              identifier: n3
+        - comma: ','
+        - expression:
+            column_reference:
+              identifier: n2
+        - comma: ','
+        - expression:
+            column_reference:
+              identifier: n1
+        - end_bracket: )
+    - select_statement:
+        select_clause:
+        - keyword: select
+        - select_clause_element:
+            column_reference:
+              identifier: n1
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: n2
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: n3
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: src
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: insert
+    - keyword: overwrite
+    - keyword: all
+    - keyword: into
+    - table_reference:
+        identifier: t1
+    - keyword: into
+    - table_reference:
+        identifier: t1
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          identifier: c1
+      - comma: ','
+      - column_reference:
+          identifier: c2
+      - comma: ','
+      - column_reference:
+          identifier: c3
+      - end_bracket: )
+    - values_clause:
+        keyword: values
+        bracketed:
+        - start_bracket: (
+        - expression:
+            column_reference:
+              identifier: n2
+        - comma: ','
+        - expression:
+            column_reference:
+              identifier: n1
+        - comma: ','
+        - keyword: default
+        - end_bracket: )
+    - keyword: into
+    - table_reference:
+        identifier: t2
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          identifier: c1
+      - comma: ','
+      - column_reference:
+          identifier: c2
+      - comma: ','
+      - column_reference:
+          identifier: c3
+      - end_bracket: )
+    - keyword: into
+    - table_reference:
+        identifier: t2
+    - values_clause:
+        keyword: values
+        bracketed:
+        - start_bracket: (
+        - expression:
+            column_reference:
+              identifier: n3
+        - comma: ','
+        - expression:
+            column_reference:
+              identifier: n2
+        - comma: ','
+        - expression:
+            column_reference:
+              identifier: n1
+        - end_bracket: )
+    - select_statement:
+        select_clause:
+        - keyword: select
+        - select_clause_element:
+            column_reference:
+              identifier: n1
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: n2
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: n3
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: src
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: insert
+    - keyword: all
+    - keyword: into
+    - table_reference:
+        identifier: t1
+    - values_clause:
+        keyword: values
+        bracketed:
+        - start_bracket: (
+        - expression:
+            column_reference:
+              identifier: $1
+        - comma: ','
+        - expression:
+            column_reference:
+              identifier: an_alias
+        - comma: ','
+        - expression:
+            column_reference:
+              identifier: '"10 + 20"'
+        - end_bracket: )
+    - select_statement:
+        select_clause:
+        - keyword: select
+        - select_clause_element:
+            literal: '1'
+        - comma: ','
+        - select_clause_element:
+            literal: '50'
+            alias_expression:
+              keyword: as
+              identifier: an_alias
+        - comma: ','
+        - select_clause_element:
+            expression:
+            - literal: '10'
+            - binary_operator: +
+            - literal: '20'
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: insert
+    - keyword: all
+    - keyword: into
+    - table_reference:
+        identifier: t1
+    - values_clause:
+        keyword: values
+        bracketed:
+        - start_bracket: (
+        - expression:
+            column_reference:
+              identifier: key
+        - comma: ','
+        - expression:
+            column_reference:
+              identifier: a
+        - end_bracket: )
+    - select_statement:
+        select_clause:
+        - keyword: select
+        - select_clause_element:
+            column_reference:
+            - identifier: src1
+            - dot: .
+            - identifier: key
+            alias_expression:
+              keyword: as
+              identifier: key
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+            - identifier: src1
+            - dot: .
+            - identifier: a
+            alias_expression:
+              keyword: as
+              identifier: a
+        from_clause:
+        - keyword: from
+        - from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: src1
+        - comma: ','
+        - from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: src2
+        where_clause:
+          keyword: where
+          expression:
+          - column_reference:
+            - identifier: src1
+            - dot: .
+            - identifier: key
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - column_reference:
+            - identifier: src2
+            - dot: .
+            - identifier: key
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: insert
+    - keyword: all
+    - keyword: when
+    - expression:
+        column_reference:
+          identifier: n1
+        comparison_operator:
+          raw_comparison_operator: '>'
+        literal: '100'
+    - keyword: then
+    - keyword: into
+    - table_reference:
+        identifier: t1
+    - keyword: when
+    - expression:
+        column_reference:
+          identifier: n1
+        comparison_operator:
+          raw_comparison_operator: '>'
+        literal: '10'
+    - keyword: then
+    - keyword: into
+    - table_reference:
+        identifier: t1
+    - keyword: into
+    - table_reference:
+        identifier: t2
+    - keyword: else
+    - keyword: into
+    - table_reference:
+        identifier: t2
+    - select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            column_reference:
+              identifier: n1
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: src
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: insert
+    - keyword: first
+    - keyword: when
+    - expression:
+        column_reference:
+          identifier: n1
+        comparison_operator:
+          raw_comparison_operator: '>'
+        literal: '100'
+    - keyword: then
+    - keyword: into
+    - table_reference:
+        identifier: t1
+    - keyword: when
+    - expression:
+        column_reference:
+          identifier: n1
+        comparison_operator:
+          raw_comparison_operator: '>'
+        literal: '10'
+    - keyword: then
+    - keyword: into
+    - table_reference:
+        identifier: t1
+    - keyword: into
+    - table_reference:
+        identifier: t2
+    - keyword: else
+    - keyword: into
+    - table_reference:
+        identifier: t2
+    - select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            column_reference:
+              identifier: n1
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: src
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: insert
+    - keyword: all
+    - keyword: when
+    - expression:
+        column_reference:
+          identifier: c
+        comparison_operator:
+          raw_comparison_operator: '>'
+        literal: '10'
+    - keyword: then
+    - keyword: into
+    - table_reference:
+        identifier: t1
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          identifier: col1
+      - comma: ','
+      - column_reference:
+          identifier: col2
+      - end_bracket: )
+    - values_clause:
+        keyword: values
+        bracketed:
+        - start_bracket: (
+        - expression:
+            column_reference:
+              identifier: a
+        - comma: ','
+        - expression:
+            column_reference:
+              identifier: b
+        - end_bracket: )
+    - select_statement:
+        select_clause:
+        - keyword: select
+        - select_clause_element:
+            column_reference:
+              identifier: a
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: b
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: c
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: src
+- statement_terminator: ;

@@ -654,17 +654,92 @@ class ValuesClauseSegment(BaseSegment):
 
     type = "values_clause"
     match_grammar = Sequence(
-        OneOf("VALUE", "VALUES"),
+        "VALUES",
         Delimited(
             Bracketed(
                 Delimited(
-                    "DEFAULT",  # not in `FROM` clause, rule?
+                    # DEFAULT and NULL keywords used in
+                    # INSERT INTO statement.
+                    "DEFAULT",
+                    "NULL",
                     Ref("ExpressionSegment"),
                     ephemeral_name="ValuesClauseElements",
                 )
             ),
         ),
-        Ref("AliasExpressionSegment", optional=True),
+    )
+
+
+@snowflake_dialect.segment(replace=True)
+class InsertStatementSegment(BaseSegment):
+    """An `INSERT` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/insert.html
+    https://docs.snowflake.com/en/sql-reference/sql/insert-multi-table.html
+    """
+
+    type = "insert_statement"
+    match_grammar = Sequence(
+        "INSERT",
+        Ref.keyword("OVERWRITE", optional=True),
+        OneOf(
+            # Single table INSERT INTO.
+            Sequence(
+                "INTO",
+                Ref("TableReferenceSegment"),
+                Ref("BracketedColumnReferenceListGrammar", optional=True),
+                Ref("SelectableGrammar"),
+            ),
+            # Unconditional multi-table INSERT INTO.
+            Sequence(
+                "ALL",
+                AnyNumberOf(
+                    Sequence(
+                        "INTO",
+                        Ref("TableReferenceSegment"),
+                        Ref("BracketedColumnReferenceListGrammar", optional=True),
+                        Ref("ValuesClauseSegment", optional=True),
+                    ),
+                    min_times=1,
+                ),
+                Ref("SelectStatementSegment"),
+            ),
+            # Conditional multi-table INSERT INTO.
+            Sequence(
+                OneOf(
+                    "FIRST",
+                    "ALL",
+                ),
+                AnyNumberOf(
+                    Sequence(
+                        "WHEN",
+                        Ref("ExpressionSegment"),
+                        "THEN",
+                        AnyNumberOf(
+                            Sequence(
+                                "INTO",
+                                Ref("TableReferenceSegment"),
+                                Ref(
+                                    "BracketedColumnReferenceListGrammar", optional=True
+                                ),
+                                Ref("ValuesClauseSegment", optional=True),
+                            ),
+                            min_times=1,
+                        ),
+                    ),
+                    min_times=1,
+                ),
+                Sequence(
+                    "ELSE",
+                    "INTO",
+                    Ref("TableReferenceSegment"),
+                    Ref("BracketedColumnReferenceListGrammar", optional=True),
+                    Ref("ValuesClauseSegment", optional=True),
+                    optional=True,
+                ),
+                Ref("SelectStatementSegment"),
+            ),
+        ),
     )
 
 
