@@ -25,6 +25,13 @@ Major changes include:
 
 ## What's Changed
 
+* Postgres: Make AS optional in Postgres DELETE [#2794](https://github.com/sqlfluff/sqlfluff/pull/2794) [@jpy-git](https://github.com/jpy-git)
+* BigQuery support UNEST aliases [#2793](https://github.com/sqlfluff/sqlfluff/pull/2793) [@tunetheweb](https://github.com/tunetheweb)
+* Postgres: Add all range operators [#2789](https://github.com/sqlfluff/sqlfluff/pull/2789) [@jpy-git](https://github.com/jpy-git)
+* Snowflake: Complete DELETE FROM grammar [#2792](https://github.com/sqlfluff/sqlfluff/pull/2792) [@jpy-git](https://github.com/jpy-git)
+* Postgres: Complete DELETE FROM grammar [#2791](https://github.com/sqlfluff/sqlfluff/pull/2791) [@jpy-git](https://github.com/jpy-git)
+* Postgres: Add RETURNING grammar to INSERT INTO statement [#2790](https://github.com/sqlfluff/sqlfluff/pull/2790) [@jpy-git](https://github.com/jpy-git)
+* Snowflake: Complete PATTERN grammar [#2788](https://github.com/sqlfluff/sqlfluff/pull/2788) [@jpy-git](https://github.com/jpy-git)
 * Redshift: add [ALTER/CREATE/DROP] PROCEDURE segments [#2774](https://github.com/sqlfluff/sqlfluff/pull/2774) [@rpr-ableton](https://github.com/rpr-ableton)
 * Spark3: Support for `ANALYZE TABLE` statement [#2780](https://github.com/sqlfluff/sqlfluff/pull/2780) [@R7L208](https://github.com/R7L208)
 * Snowflake: Add MATCH_RECOGNIZE clause [#2781](https://github.com/sqlfluff/sqlfluff/pull/2781) [@jpy-git](https://github.com/jpy-git)
