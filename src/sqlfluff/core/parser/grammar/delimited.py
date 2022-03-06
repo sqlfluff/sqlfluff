@@ -57,7 +57,7 @@ class Delimited(OneOf):
         """
         # Have we been passed an empty list?
         if len(segments) == 0:
-            return MatchResult.from_empty()
+            return MatchResult.from_empty()  # pragma: no cover
 
         # Make some buffers
         seg_buff = segments
