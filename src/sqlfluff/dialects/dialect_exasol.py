@@ -3653,16 +3653,7 @@ class CreateAdapterScriptStatementSegment(BaseSegment):
     is_dql = False
     is_dcl = False
 
-    match_grammar = StartsWith(
-        Sequence(
-            "CREATE",
-            Ref("OrReplaceGrammar", optional=True),
-            OneOf("JAVA", "PYTHON", "LUA", Ref("SingleIdentifierGrammar")),
-            "ADAPTER",
-            "SCRIPT",
-        )
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "CREATE",
         Ref("OrReplaceGrammar", optional=True),
         OneOf("JAVA", "PYTHON", "LUA", Ref("SingleIdentifierGrammar")),
