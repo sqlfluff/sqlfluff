@@ -1144,7 +1144,10 @@ class DatatypeSegment(BaseSegment):
 
 @exasol_dialect.segment(replace=True)
 class IntervalExpressionSegment(BaseSegment):
-    """An interval expression segment."""
+    """An interval expression segment.
+
+    https://docs.exasol.com/db/latest/sql_references/literals.htm
+    """
 
     type = "interval_expression"
     match_grammar = Sequence(
