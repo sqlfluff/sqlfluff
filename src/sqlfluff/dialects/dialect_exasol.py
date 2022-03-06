@@ -1143,6 +1143,63 @@ class DatatypeSegment(BaseSegment):
 
 
 @exasol_dialect.segment(replace=True)
+class IntervalExpressionSegment(BaseSegment):
+    """An interval expression segment."""
+
+    type = "interval_expression"
+    match_grammar = Sequence(
+        "INTERVAL",
+        Ref("QuotedLiteralSegment"),
+        OneOf(
+            # INTERVAL '5' MONTH
+            # INTERVAL '130' MONTH (3)
+            Sequence(
+                "MONTH",
+                Bracketed(Ref("NumericLiteralSegment"), optional=True),
+            ),
+            # INTERVAL '27' YEAR
+            # INTERVAL '100-1' YEAR(3) TO MONTH
+            Sequence(
+                "YEAR",
+                Bracketed(Ref("NumericLiteralSegment"), optional=True),
+                Sequence("TO", "MONTH", optional=True),
+            ),
+            # INTERVAL '5' DAY
+            # INTERVAL '100' HOUR(3)
+            # INTERVAL '1.99999' SECOND(2,2)
+            # INTERVAL '23:10:59.123' HOUR(2) TO SECOND(3)
+            Sequence(
+                OneOf(
+                    Sequence(
+                        OneOf("DAY", "HOUR", "MINUTE"),
+                        Bracketed(Ref("NumericLiteralSegment"), optional=True),
+                    ),
+                    Sequence(
+                        "SECOND",
+                        Bracketed(
+                            Delimited(Ref("NumericLiteralSegment")),
+                            optional=True,
+                        ),
+                    ),
+                ),
+                Sequence(
+                    "TO",
+                    OneOf(
+                        "HOUR",
+                        "MINUTE",
+                        Sequence(
+                            "SECOND",
+                            Bracketed(Ref("NumericLiteralSegment"), optional=True),
+                        ),
+                    ),
+                    optional=True,
+                ),
+            ),
+        ),
+    )
+
+
+@exasol_dialect.segment(replace=True)
 class ColumnDefinitionSegment(BaseSegment):
     """Column definition within a `CREATE / ALTER TABLE` statement."""
 
