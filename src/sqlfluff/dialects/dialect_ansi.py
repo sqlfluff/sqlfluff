@@ -2159,6 +2159,7 @@ ansi_dialect.add(
     NonWithNonSelectableGrammar=OneOf(
         Ref("UpdateStatementSegment"),
         Ref("InsertStatementSegment"),
+        Ref("DeleteStatementSegment"),
     ),
     # Things that behave like select statements, which can form part of set expressions.
     NonSetSelectableGrammar=OneOf(

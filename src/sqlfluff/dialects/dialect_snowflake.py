@@ -66,8 +66,14 @@ snowflake_dialect.insert_lexer_matchers(
         ),
         RegexLexer("inline_dollar_sign", r"[a-zA-Z_][a-zA-Z0-9_$]*", CodeSegment),
         StringLexer("question_mark", "?", CodeSegment),
+        StringLexer("exclude_bracket_open", "{-", CodeSegment),
+        StringLexer("exclude_bracket_close", "-}", CodeSegment),
     ],
     before="like_operator",
+)
+
+snowflake_dialect.sets("bracket_pairs").add(
+    ("exclude", "StartExcludeBracketSegment", "EndExcludeBracketSegment", True)
 )
 
 snowflake_dialect.add(
@@ -230,6 +236,12 @@ snowflake_dialect.add(
         # '' and $$$$ are allowed as alternatives to NULL.
         Ref("QuotedLiteralSegment"),
     ),
+    StartExcludeBracketSegment=StringParser(
+        "{-", SymbolSegment, name="start_exclude_bracket", type="start_exclude_bracket"
+    ),
+    EndExcludeBracketSegment=StringParser(
+        "-}", SymbolSegment, name="end_exclude_bracket", type="end_exclude_bracket"
+    ),
     QuestionMarkSegment=StringParser(
         "?", SymbolSegment, name="question_mark", type="question_mark"
     ),
@@ -265,17 +277,63 @@ snowflake_dialect.add(
         Ref("QuestionMarkSegment", optional=True),
         allow_gaps=False,
     ),
+    PatternSymbolGrammar=Sequence(
+        Ref("SingleIdentifierGrammar"),
+        Ref("PatternQuantifierGrammar", optional=True),
+        allow_gaps=False,
+    ),
+    PatternOperatorGrammar=OneOf(
+        Ref("PatternSymbolGrammar"),
+        Sequence(
+            OneOf(
+                Bracketed(
+                    OneOf(
+                        AnyNumberOf(
+                            Ref("PatternOperatorGrammar"),
+                        ),
+                        Delimited(
+                            Ref("PatternOperatorGrammar"),
+                            delimiter=Ref("BitwiseOrSegment"),
+                        ),
+                    ),
+                    bracket_type="exclude",
+                    bracket_pairs_set="bracket_pairs",
+                ),
+                Bracketed(
+                    OneOf(
+                        AnyNumberOf(
+                            Ref("PatternOperatorGrammar"),
+                        ),
+                        Delimited(
+                            Ref("PatternOperatorGrammar"),
+                            delimiter=Ref("BitwiseOrSegment"),
+                        ),
+                    ),
+                ),
+                Sequence(
+                    "PERMUTE",
+                    Bracketed(
+                        Delimited(
+                            Ref("PatternSymbolGrammar"),
+                        ),
+                    ),
+                ),
+            ),
+            # Operators can also be followed by a quantifier.
+            Ref("PatternQuantifierGrammar", optional=True),
+            allow_gaps=False,
+        ),
+    ),
     PatternGrammar=Sequence(
         # https://docs.snowflake.com/en/sql-reference/constructs/match_recognize.html#pattern-specifying-the-pattern-to-match
-        # This is a simplified version of the full pattern
-        # grammar in the docs to handle basic cases.
-        # TODO: Introduce operators. Will require expression-like grammar.
         Ref("CaretSegment", optional=True),
-        AnyNumberOf(
-            Sequence(
-                Ref("SingleIdentifierGrammar"),
-                Ref("PatternQuantifierGrammar", optional=True),
-                allow_gaps=False,
+        OneOf(
+            AnyNumberOf(
+                Ref("PatternOperatorGrammar"),
+            ),
+            Delimited(
+                Ref("PatternOperatorGrammar"),
+                delimiter=Ref("BitwiseOrSegment"),
             ),
         ),
         Ref("DollarSegment", optional=True),
@@ -770,6 +828,14 @@ class MatchRecognizeClauseSegment(BaseSegment):
                 "MEASURES",
                 Delimited(
                     Sequence(
+                        # The edges of the window frame can be specified
+                        # by using either RUNNING or FINAL semantics.
+                        # https://docs.snowflake.com/en/sql-reference/constructs/match_recognize.html#expressions-in-define-and-measures-clauses
+                        OneOf(
+                            "FINAL",
+                            "RUNNING",
+                            optional=True,
+                        ),
                         Ref("ExpressionSegment"),
                         Ref("AliasExpressionSegment"),
                     ),
