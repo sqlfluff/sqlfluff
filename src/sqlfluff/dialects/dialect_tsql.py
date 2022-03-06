@@ -1754,6 +1754,7 @@ class ProcedureDefinitionGrammar(BaseSegment):
 
     match_grammar = AnyNumberOf(
         Sequence(
+            Ref("DelimiterSegment", optional=True),
             Ref("StatementSegment"),
             Ref("DelimiterSegment", optional=True),
         ),
@@ -2568,6 +2569,7 @@ class BatchSegment(BaseSegment):
         # Things that can be bundled
         AnyNumberOf(
             Sequence(
+                Ref("DelimiterSegment", optional=True),
                 Ref("StatementSegment"),
                 Ref("DelimiterSegment", optional=True),
             ),
@@ -2593,11 +2595,14 @@ class FileSegment(BaseFileSegment):
 
     # NB: We don't need a match_grammar here because we're
     # going straight into instantiating it directly usually.
-    parse_grammar = Delimited(
-        Ref("BatchSegment"),
-        delimiter=AnyNumberOf(Ref("BatchDelimiterSegment"), min_times=1),
-        allow_gaps=True,
-        allow_trailing=True,
+    parse_grammar = Sequence(
+        AnyNumberOf(Ref("BatchDelimiterSegment")),
+        Delimited(
+            Ref("BatchSegment"),
+            delimiter=AnyNumberOf(Ref("BatchDelimiterSegment"), min_times=1),
+            allow_gaps=True,
+            allow_trailing=True,
+        ),
     )
 
 

@@ -3796,11 +3796,14 @@ class FileSegment(BaseFileSegment):
             allow_gaps=True,
             allow_trailing=True,
         ),
-        Delimited(
-            Ref("StatementSegment"),
-            delimiter=Ref("DelimiterSegment"),
-            allow_gaps=True,
-            allow_trailing=True,
+        Sequence(
+            AnyNumberOf(Ref("DelimiterSegment")),
+            Delimited(
+                Ref("StatementSegment"),
+                delimiter=AnyNumberOf(Ref("DelimiterSegment"), min_times=1),
+                allow_gaps=True,
+                allow_trailing=True,
+            ),
         ),
     )
 

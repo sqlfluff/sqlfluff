@@ -120,11 +120,14 @@ class FileSegment(BaseFileSegment):
     # going straight into instantiating it directly usually.
     parse_grammar = AnyNumberOf(
         Ref("ExecuteFileSegment"),
-        Delimited(
-            Ref("StatementSegment"),
-            delimiter=AnyNumberOf(Ref("DelimiterSegment"), min_times=1),
-            allow_gaps=True,
-            allow_trailing=True,
+        Sequence(
+            AnyNumberOf(Ref("DelimiterSegment")),
+            Delimited(
+                Ref("StatementSegment"),
+                delimiter=AnyNumberOf(Ref("DelimiterSegment"), min_times=1),
+                allow_gaps=True,
+                allow_trailing=True,
+            ),
         ),
     )
 

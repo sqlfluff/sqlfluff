@@ -570,11 +570,14 @@ class FileSegment(BaseFileSegment):
 
     # NB: We don't need a match_grammar here because we're
     # going straight into instantiating it directly usually.
-    parse_grammar = Delimited(
-        Ref("StatementSegment"),
-        delimiter=AnyNumberOf(Ref("DelimiterSegment"), min_times=1),
-        allow_gaps=True,
-        allow_trailing=True,
+    parse_grammar = Sequence(
+        AnyNumberOf(Ref("DelimiterSegment")),
+        Delimited(
+            Ref("StatementSegment"),
+            delimiter=AnyNumberOf(Ref("DelimiterSegment"), min_times=1),
+            allow_gaps=True,
+            allow_trailing=True,
+        ),
     )
 
 

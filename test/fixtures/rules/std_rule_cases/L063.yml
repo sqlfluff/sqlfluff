@@ -1,0 +1,111 @@
+rule: L063
+
+test_pass_basic:
+  pass_str: |
+    select foo from bar;
+
+test_fail_basic:
+  fail_str: |
+    select foo from bar;;
+  fix_str: |
+    select foo from bar;
+
+test_fail_newlines:
+  fail_str: "select foo from bar;\n;"
+  fix_str: "select foo from bar;\n"
+    
+test_fail_block_comment:
+  fail_str: "select foo from bar;/*jpy-git is cool*/\n;"
+  fix_str: "select foo from bar;/*jpy-git is cool*/\n"
+
+test_fail_inline_comment:
+  fail_str: "select foo from bar;-- some comment\n;"
+  fix_str: "select foo from bar;-- some comment\n"
+
+test_pass_multiple_statements:
+  pass_str: |
+    select foo from bar;
+    select foo from bar;
+
+test_fail_multiple_statements:
+  fail_str: "select foo from bar;\n;;\nselect foo from bar;;\n\n;"
+  fix_str: "select foo from bar;\n\nselect foo from bar;\n\n"
+
+test_fail_leading_semicolon:
+  fail_str: ";select foo from bar;"
+  fix_str: "select foo from bar;"
+
+test_fail_multiple_leading_semicolons:
+  fail_str: ";;-- some comment\n;\nselect foo from bar;"
+  fix_str: "-- some comment\n\nselect foo from bar;"
+
+test_pass_basic_go:
+  pass_str: |
+    select foo from bar GO
+  configs:
+    core:
+      dialect: tsql
+
+test_fail_basic_go:
+  fail_str: "select foo from bar GO GO"
+  fix_str: "select foo from bar GO "
+  configs:
+    core:
+      dialect: tsql
+
+test_fail_newlines_go:
+  fail_str: "select foo from bar GO\nGO"
+  fix_str: "select foo from bar GO\n"
+  configs:
+    core:
+      dialect: tsql
+    
+test_fail_block_comment_go:
+  fail_str: "select foo from bar GO/*jpy-git is cool*/\nGO"
+  fix_str: "select foo from bar GO/*jpy-git is cool*/\n"
+  configs:
+    core:
+      dialect: tsql
+
+test_fail_inline_comment_go:
+  fail_str: "select foo from bar GO -- some comment\nGO"
+  fix_str: "select foo from bar GO -- some comment\n"
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_multiple_statements_go:
+  pass_str: |
+    select foo from bar GO
+    select foo from bar GO
+  configs:
+    core:
+      dialect: tsql
+
+test_fail_multiple_statements_go:
+  fail_str: "select foo from bar GO\nGO GO\nselect foo from bar GO GO\n\nGO"
+  fix_str: "select foo from bar GO\n \nselect foo from bar GO \n\n"
+  configs:
+    core:
+      dialect: tsql
+
+test_fail_leading_semicolon_go:
+  fail_str: "GO select foo from bar GO"
+  fix_str: " select foo from bar GO"
+  configs:
+    core:
+      dialect: tsql
+
+test_fail_multiple_leading_semicolons_go:
+  fail_str: "GO GO -- some comment\nGO\nselect foo from bar GO"
+  fix_str: "  -- some comment\n\nselect foo from bar GO"
+  configs:
+    core:
+      dialect: tsql
+
+test_fail_semicolon_and_go:
+  fail_str: "GO ;select foo from bar;;; GO"
+  fix_str: " select foo from bar; GO"
+  configs:
+    core:
+      dialect: tsql
