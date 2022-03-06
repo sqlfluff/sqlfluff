@@ -1671,6 +1671,7 @@ class InsertStatementSegment(BaseSegment):
         Ref("TableReferenceSegment"),
         AnyNumberOf(
             Ref("ValuesInsertClauseSegment"),
+            Ref("ValuesRangeClauseSegment"),
             Sequence("DEFAULT", "VALUES"),
             Ref("SelectableGrammar"),
             Ref("BracketedColumnReferenceListGrammar", optional=True),
