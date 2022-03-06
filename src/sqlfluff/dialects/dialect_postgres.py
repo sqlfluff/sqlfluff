@@ -3686,14 +3686,14 @@ class DeleteStatementSegment(BaseSegment):
         Ref.keyword("ONLY", optional=True),
         Ref("TableReferenceSegment"),
         Ref("StarSegment", optional=True),
-        Ref("AsAliasExpressionSegment", optional=True),
+        Ref("AliasExpressionSegment", optional=True),
         Sequence(
             "USING",
             Indent,
             Delimited(
                 Sequence(
                     Ref("TableExpressionSegment"),
-                    Ref("AsAliasExpressionSegment", optional=True),
+                    Ref("AliasExpressionSegment", optional=True),
                 ),
             ),
             Dedent,
@@ -3711,7 +3711,7 @@ class DeleteStatementSegment(BaseSegment):
                 Delimited(
                     Sequence(
                         Ref("ExpressionSegment"),
-                        Ref("AsAliasExpressionSegment", optional=True),
+                        Ref("AliasExpressionSegment", optional=True),
                     ),
                 ),
             ),
