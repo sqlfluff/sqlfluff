@@ -2523,7 +2523,7 @@ class UserLDAPAuthSegment(BaseSegment):
 
 @exasol_dialect.segment()
 class UserOpenIDAuthSegment(BaseSegment):
-    """user openid authentification."""
+    """user OpenID authentification."""
 
     type = "openid_auth"
     match_grammar = Sequence(
