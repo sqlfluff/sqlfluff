@@ -25,6 +25,8 @@ Major changes include:
 
 ## What's Changed
 
+* Fix Postgres `VALUES`, make Spark3 `VALUES` consistent [#2797](https://github.com/sqlfluff/sqlfluff/pull/2797) [@jpy-git](https://github.com/jpy-git)
+* Postgres: `INSERT DEFAULT` value [#2796](https://github.com/sqlfluff/sqlfluff/pull/2796) [@jpy-git](https://github.com/jpy-git)
 * Postgres: Make `AS` optional in Postgres `DELETE` [#2794](https://github.com/sqlfluff/sqlfluff/pull/2794) [@jpy-git](https://github.com/jpy-git)
 * BigQuery support `UNEST` aliases [#2793](https://github.com/sqlfluff/sqlfluff/pull/2793) [@tunetheweb](https://github.com/tunetheweb)
 * Postgres: Add all range operators [#2789](https://github.com/sqlfluff/sqlfluff/pull/2789) [@jpy-git](https://github.com/jpy-git)
