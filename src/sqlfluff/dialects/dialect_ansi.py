@@ -1155,14 +1155,14 @@ class FromExpressionElementSegment(BaseSegment):
     match_grammar = Sequence(
         Ref("PreTableFunctionKeywordsGrammar", optional=True),
         OptionallyBracketed(Ref("TableExpressionSegment")),
-        # https://cloud.google.com/bigquery/docs/reference/standard-sql/arrays#flattening_arrays
-        Sequence("WITH", "OFFSET", optional=True),
         OneOf(
-            Sequence(Ref("AliasExpressionSegment"), Ref("SamplingExpressionSegment")),
-            Ref("SamplingExpressionSegment"),
             Ref("AliasExpressionSegment"),
+            exclude=Ref("SamplingExpressionSegment"),
             optional=True,
         ),
+        # https://cloud.google.com/bigquery/docs/reference/standard-sql/arrays#flattening_arrays
+        Sequence("WITH", "OFFSET", Ref("AliasExpressionSegment"), optional=True),
+        Ref("SamplingExpressionSegment", optional=True),
         Ref("PostTableExpressionGrammar", optional=True),
     )
 
