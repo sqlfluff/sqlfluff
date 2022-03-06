@@ -478,13 +478,13 @@ class ValuesClauseSegment(BaseSegment):
             OneOf(
                 Bracketed(
                     Delimited(
-                        "DEFAULT",  # not in `FROM` clause, rule?
+                        "DEFAULT",
                         Ref("ExpressionSegment"),
                         ephemeral_name="ValuesClauseElements",
                     )
                 ),
                 Delimited(
-                    "DEFAULT",  # not in `FROM` clause, rule?
+                    "DEFAULT",
                     Ref("ExpressionSegment"),
                 ),
             ),

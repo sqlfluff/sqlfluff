@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1f3b55183ecaefae04fc7379f0752d3c2a7f3fe5b62cd35225267b827bbd6d66
+_hash: 4a784a8f57c80a0859cc7cfb0cc2831d0058888b0dc7073b2e87f6b31411d359
 file:
 - statement:
     insert_statement:
@@ -18,13 +18,11 @@ file:
         end_bracket: )
     - values_clause:
         keyword: VALUES
-        delimited_values:
-          tuple_value:
-            bracketed:
-              start_bracket: (
-              scalar_value:
-                bare_function: current_timestamp
-              end_bracket: )
+        bracketed:
+          start_bracket: (
+          expression:
+            bare_function: current_timestamp
+          end_bracket: )
 - statement_terminator: ;
 - statement:
     insert_statement:
@@ -41,27 +39,60 @@ file:
           identifier: baz
       - end_bracket: )
     - values_clause:
-        keyword: VALUES
-        delimited_values:
-        - tuple_value:
-            bracketed:
-            - start_bracket: (
-            - scalar_value:
-                literal: '1'
-            - comma: ','
-            - scalar_value:
-                literal: '2'
-            - end_bracket: )
+      - keyword: VALUES
+      - bracketed:
+        - start_bracket: (
+        - expression:
+            literal: '1'
         - comma: ','
-        - tuple_value:
-            bracketed:
-            - start_bracket: (
-            - scalar_value:
-                literal: '3'
-            - comma: ','
-            - scalar_value:
-                literal: '4'
-            - end_bracket: )
+        - expression:
+            literal: '2'
+        - end_bracket: )
+      - comma: ','
+      - bracketed:
+        - start_bracket: (
+        - expression:
+            literal: '3'
+        - comma: ','
+        - expression:
+            literal: '4'
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        identifier: foo
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          identifier: bar
+      - comma: ','
+      - column_reference:
+          identifier: baz
+      - end_bracket: )
+    - values_clause:
+      - keyword: VALUES
+      - bracketed:
+        - start_bracket: (
+        - expression:
+          - literal: '1'
+          - binary_operator: +
+          - literal: '1'
+        - comma: ','
+        - expression:
+            literal: '2'
+        - end_bracket: )
+      - comma: ','
+      - bracketed:
+        - start_bracket: (
+        - expression:
+            literal: '3'
+        - comma: ','
+        - expression:
+            literal: '4'
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
     insert_statement:
@@ -76,12 +107,10 @@ file:
         end_bracket: )
     - values_clause:
         keyword: VALUES
-        delimited_values:
-          tuple_value:
-            bracketed:
-              start_bracket: (
-              keyword: DEFAULT
-              end_bracket: )
+        bracketed:
+          start_bracket: (
+          keyword: DEFAULT
+          end_bracket: )
 - statement_terminator: ;
 - statement:
     insert_statement:
@@ -102,16 +131,14 @@ file:
       - end_bracket: )
     - values_clause:
         keyword: VALUES
-        delimited_values:
-          tuple_value:
-            bracketed:
-            - start_bracket: (
-            - scalar_value:
-                literal: '8'
-            - comma: ','
-            - scalar_value:
-                literal: "'Anvil Distribution'"
-            - end_bracket: )
+        bracketed:
+        - start_bracket: (
+        - expression:
+            literal: '8'
+        - comma: ','
+        - expression:
+            literal: "'Anvil Distribution'"
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
     insert_statement:
@@ -132,16 +159,14 @@ file:
     - keyword: VALUE
     - values_clause:
         keyword: VALUES
-        delimited_values:
-          tuple_value:
-            bracketed:
-            - start_bracket: (
-            - scalar_value:
-                literal: '1'
-            - comma: ','
-            - scalar_value:
-                literal: "'val'"
-            - end_bracket: )
+        bracketed:
+        - start_bracket: (
+        - expression:
+            literal: '1'
+        - comma: ','
+        - expression:
+            literal: "'val'"
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
     insert_statement:
@@ -162,16 +187,14 @@ file:
     - keyword: VALUE
     - values_clause:
         keyword: VALUES
-        delimited_values:
-          tuple_value:
-            bracketed:
-            - start_bracket: (
-            - scalar_value:
-                literal: '1'
-            - comma: ','
-            - scalar_value:
-                literal: "'val'"
-            - end_bracket: )
+        bracketed:
+        - start_bracket: (
+        - expression:
+            literal: '1'
+        - comma: ','
+        - expression:
+            literal: "'val'"
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
     insert_statement:
@@ -229,13 +252,11 @@ file:
         end_bracket: )
     - values_clause:
         keyword: VALUES
-        delimited_values:
-          tuple_value:
-            bracketed:
-              start_bracket: (
-              scalar_value:
-                bare_function: current_timestamp
-              end_bracket: )
+        bracketed:
+          start_bracket: (
+          expression:
+            bare_function: current_timestamp
+          end_bracket: )
     - keyword: RETURNING
     - star: '*'
 - statement_terminator: ;
@@ -252,13 +273,11 @@ file:
         end_bracket: )
     - values_clause:
         keyword: VALUES
-        delimited_values:
-          tuple_value:
-            bracketed:
-              start_bracket: (
-              scalar_value:
-                bare_function: current_timestamp
-              end_bracket: )
+        bracketed:
+          start_bracket: (
+          expression:
+            bare_function: current_timestamp
+          end_bracket: )
     - keyword: RETURNING
     - expression:
         column_reference:
@@ -277,13 +296,11 @@ file:
         end_bracket: )
     - values_clause:
         keyword: VALUES
-        delimited_values:
-          tuple_value:
-            bracketed:
-              start_bracket: (
-              scalar_value:
-                bare_function: current_timestamp
-              end_bracket: )
+        bracketed:
+          start_bracket: (
+          expression:
+            bare_function: current_timestamp
+          end_bracket: )
     - keyword: RETURNING
     - expression:
         column_reference:
@@ -308,16 +325,14 @@ file:
       - end_bracket: )
     - values_clause:
         keyword: VALUES
-        delimited_values:
-          tuple_value:
-            bracketed:
-            - start_bracket: (
-            - scalar_value:
-                literal: '1'
-            - comma: ','
-            - scalar_value:
-                literal: '2'
-            - end_bracket: )
+        bracketed:
+        - start_bracket: (
+        - expression:
+            literal: '1'
+        - comma: ','
+        - expression:
+            literal: '2'
+        - end_bracket: )
     - keyword: RETURNING
     - expression:
         column_reference:
@@ -343,16 +358,14 @@ file:
       - end_bracket: )
     - values_clause:
         keyword: VALUES
-        delimited_values:
-          tuple_value:
-            bracketed:
-            - start_bracket: (
-            - scalar_value:
-                literal: '1'
-            - comma: ','
-            - scalar_value:
-                literal: '2'
-            - end_bracket: )
+        bracketed:
+        - start_bracket: (
+        - expression:
+            literal: '1'
+        - comma: ','
+        - expression:
+            literal: '2'
+        - end_bracket: )
     - keyword: RETURNING
     - expression:
         column_reference:

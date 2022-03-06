@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 75a855a4e5e9da38ec7c9e10a2e9a841ba415c0a8a25c12f756f8825696678d1
+_hash: 2c9a593bedcfd33aba499ae3e443c3b7a9514b2a4d53673a5a918f9d61b1ea91
 file:
 - statement:
     explain_statement:
@@ -396,19 +396,17 @@ file:
             identifier: students
         - values_clause:
             keyword: VALUES
-            delimited_values:
-              tuple_value:
-                bracketed:
-                - start_bracket: (
-                - scalar_value:
-                    literal: "'Amy Smith'"
-                - comma: ','
-                - scalar_value:
-                    literal: "'123 Park Ave, San Jose'"
-                - comma: ','
-                - scalar_value:
-                    literal: '111111'
-                - end_bracket: )
+            bracketed:
+            - start_bracket: (
+            - expression:
+                literal: "'Amy Smith'"
+            - comma: ','
+            - expression:
+                literal: "'123 Park Ave, San Jose'"
+            - comma: ','
+            - expression:
+                literal: '111111'
+            - end_bracket: )
 - statement_terminator: ;
 - statement:
     explain_statement:

@@ -2,6 +2,8 @@ INSERT INTO foo (bar) VALUES(current_timestamp);
 
 INSERT INTO foo (bar, baz) VALUES(1, 2), (3, 4);
 
+INSERT INTO foo (bar, baz) VALUES(1 + 1, 2), (3, 4);
+
 INSERT INTO foo (bar) VALUES(DEFAULT);
 
 INSERT INTO distributors AS d (did, dname) VALUES (8, 'Anvil Distribution');

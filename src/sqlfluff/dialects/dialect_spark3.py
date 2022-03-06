@@ -1645,22 +1645,20 @@ class PivotClauseSegment(BaseSegment):
             ),
             "IN",
             Bracketed(
-                OneOf(
+                Delimited(
                     Sequence(
                         OneOf(
-                            Ref("ScalarValue"),
-                            Ref("TupleValue"),
+                            Bracketed(
+                                Delimited(
+                                    Ref("ExpressionSegment"),
+                                    ephemeral_name="ValuesClauseElements",
+                                )
+                            ),
+                            Delimited(
+                                Ref("ExpressionSegment"),
+                            ),
                         ),
                         Ref("AliasExpressionSegment", optional=True),
-                    ),
-                    Delimited(
-                        Sequence(
-                            OneOf(
-                                Ref("ScalarValue"),
-                                Ref("TupleValue"),
-                            ),
-                            Ref("AliasExpressionSegment", optional=True),
-                        ),
                     ),
                 ),
             ),
@@ -2068,61 +2066,13 @@ class AliasExpressionSegment(BaseSegment):
     )
 
 
-@spark3_dialect.segment()
-class DelimitedValues(BaseSegment):
-    """A ``VALUES`` clause can be a sequence either of scalar values or tuple values.
-
-    We make no attempt to ensure that all records have the same number of columns
-    besides the distinction between all scalar or all tuple, so for instance
-    ``VALUES (1,2), (3,4,5)`` will parse but is not legal SQL.
-    """
-
-    type = "delimited_values"
-
-    match_grammar = OneOf(
-        Delimited(Ref("ScalarValue")),
-        Delimited(Ref("TupleValue")),
-    )
-
-
-@spark3_dialect.segment()
-class ScalarValue(BaseSegment):
-    """An element of a ``VALUES`` clause that has a single column.
-
-    Ex: ``VALUES 1,2,3``
-    """
-
-    type = "scalar_value"
-    match_grammar = OneOf(
-        Ref("QuotedLiteralSegment"),
-        Ref("LiteralGrammar"),
-        Ref("BareFunctionSegment"),
-        Ref("FunctionSegment"),
-    )
-
-
-@spark3_dialect.segment()
-class TupleValue(BaseSegment):
-    """An element of a ``VALUES`` clause that has multiple columns.
-
-    Ex: ``VALUES (1,2), (3,4)``
-    """
-
-    type = "tuple_value"
-    match_grammar = Bracketed(
-        Delimited(
-            Ref("ScalarValue"),
-        )
-    )
-
-
 @spark3_dialect.segment(replace=True)
 class ValuesClauseSegment(BaseSegment):
     """A `VALUES` clause, as typically used with `INSERT` or `SELECT`.
 
     The Spark SQL reference does not mention `VALUES` clauses except in the context
     of `INSERT` statements. However, they appear to behave much the same as in
-    `postgres <https://www.postgresql.org/docs/13/sql-values.html>`.
+    `postgres <https://www.postgresql.org/docs/14/sql-values.html>`.
 
     In short, they can appear anywhere a `SELECT` can, and also as bare `VALUES`
     statements. Here are some examples:
@@ -2132,14 +2082,31 @@ class ValuesClauseSegment(BaseSegment):
         SELECT * FROM VALUES (1,2) as t (a,b);
         SELECT * FROM (VALUES (1,2) as t (a,b));
         WITH a AS (VALUES 1,2) SELECT * FROM a;
-
     """
 
     type = "values_clause"
-
     match_grammar = Sequence(
         "VALUES",
-        Ref("DelimitedValues"),
+        Delimited(
+            OneOf(
+                Bracketed(
+                    Delimited(
+                        # DEFAULT keyword used in
+                        # INSERT INTO statement.
+                        "NULL",
+                        Ref("ExpressionSegment"),
+                        ephemeral_name="ValuesClauseElements",
+                    )
+                ),
+                Delimited(
+                    # NULL keyword used in
+                    # INSERT INTO statement.
+                    "NULL",
+                    Ref("ExpressionSegment"),
+                ),
+            ),
+        ),
+        # LIMIT/ORDER are unreserved in Spark3.
         AnyNumberOf(
             Ref("AliasExpressionSegment"),
             min_times=0,

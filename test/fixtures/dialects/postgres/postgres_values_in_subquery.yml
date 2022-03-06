@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8f78ff77ce8210cb0bb643a4cc034986d2843c5b147492872df6f2f57edf0034
+_hash: cfb0b25673569ea5fca5640575508daa191b21b282d81cbad46654f4f2a3b362
 file:
 - statement:
     with_compound_statement:
@@ -22,26 +22,24 @@ file:
           start_bracket: (
           values_clause:
             keyword: VALUES
-            delimited_values:
-              tuple_value:
-                bracketed:
-                - start_bracket: (
-                - scalar_value:
-                    literal: "'08RIX0'"
-                - comma: ','
-                - scalar_value:
-                    literal: '0.435'
-                    cast_expression:
-                      casting_operator: '::'
-                      data_type:
-                        keyword: NUMERIC
-                        bracketed:
-                        - start_bracket: (
-                        - literal: '4'
-                        - comma: ','
-                        - literal: '3'
-                        - end_bracket: )
-                - end_bracket: )
+            bracketed:
+            - start_bracket: (
+            - expression:
+                literal: "'08RIX0'"
+            - comma: ','
+            - expression:
+                literal: '0.435'
+                cast_expression:
+                  casting_operator: '::'
+                  data_type:
+                    keyword: NUMERIC
+                    bracketed:
+                    - start_bracket: (
+                    - literal: '4'
+                    - comma: ','
+                    - literal: '3'
+                    - end_bracket: )
+            - end_bracket: )
           end_bracket: )
       select_statement:
         select_clause:
@@ -75,13 +73,11 @@ file:
               table_expression:
                 values_clause:
                   keyword: VALUES
-                  delimited_values:
-                    tuple_value:
-                      bracketed:
-                        start_bracket: (
-                        scalar_value:
-                          literal: '1'
-                        end_bracket: )
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      literal: '1'
+                    end_bracket: )
               end_bracket: )
             alias_expression:
               keyword: AS
@@ -108,27 +104,24 @@ file:
               start_bracket: (
               table_expression:
                 values_clause:
-                  keyword: VALUES
-                  delimited_values:
-                  - tuple_value:
-                      bracketed:
-                      - start_bracket: (
-                      - scalar_value:
-                          literal: '1'
-                      - comma: ','
-                      - scalar_value:
-                          literal: '2'
-                      - end_bracket: )
+                - keyword: VALUES
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                      literal: '1'
                   - comma: ','
-                  - tuple_value:
-                      bracketed:
-                      - start_bracket: (
-                      - scalar_value:
-                          literal: '3'
-                      - comma: ','
-                      - scalar_value:
-                          literal: '4'
-                      - end_bracket: )
+                  - expression:
+                      literal: '2'
+                  - end_bracket: )
+                - comma: ','
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                      literal: '3'
+                  - comma: ','
+                  - expression:
+                      literal: '4'
+                  - end_bracket: )
               end_bracket: )
             alias_expression:
               keyword: AS
