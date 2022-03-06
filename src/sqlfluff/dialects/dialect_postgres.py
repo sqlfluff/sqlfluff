@@ -3222,9 +3222,8 @@ class AsAliasExpressionSegment(BaseSegment):
 class InsertStatementSegment(BaseSegment):
     """An `INSERT` statement.
 
-    As Specified in https://www.postgresql.org/docs/14/sql-insert.html
-    N.B. This is not a complete implementation of the documentation above.
-    TODO: Implement complete postgres insert statement structure.
+    https://www.postgresql.org/docs/14/sql-insert.html
+    TODO: Implement ON CONFLICT grammar.
     """
 
     type = "insert_statement"
@@ -3236,7 +3235,24 @@ class InsertStatementSegment(BaseSegment):
         Ref("AsAliasExpressionSegment", optional=True),
         Ref("BracketedColumnReferenceListGrammar", optional=True),
         Sequence("OVERRIDING", OneOf("SYSTEM", "USER"), "VALUE", optional=True),
-        Ref("SelectableGrammar"),
+        OneOf(
+            Sequence("DEFAULT", "VALUES"),
+            Ref("SelectableGrammar"),
+        ),
+        # TODO: Add ON CONFLICT grammar.
+        Sequence(
+            "RETURNING",
+            OneOf(
+                Ref("StarSegment"),
+                Delimited(
+                    Sequence(
+                        Ref("ExpressionSegment"),
+                        Ref("AsAliasExpressionSegment", optional=True),
+                    ),
+                ),
+            ),
+            optional=True,
+        ),
     )
 
 
@@ -3705,40 +3721,6 @@ class ValuesClauseSegment(BaseSegment):
     )
 
 
-@postgres_dialect.segment()
-class DeleteUsingClauseSegment(BaseSegment):
-    """USING clause."""
-
-    type = "using_clause"
-    match_grammar = StartsWith(
-        "USING",
-        terminator="WHERE",
-        enforce_whitespace_preceding_terminator=True,
-    )
-
-    parse_grammar = Sequence(
-        "USING",
-        Indent,
-        Delimited(
-            Ref("TableExpressionSegment"),
-        ),
-        Dedent,
-    )
-
-
-@postgres_dialect.segment()
-class FromClauseTerminatingUsingWhereSegment(
-    ansi_dialect.get_segment("FromClauseSegment")  # type: ignore
-):
-    """Copy `FROM` terminator statement to support `USING` in specific circumstances."""
-
-    match_grammar = StartsWith(
-        "FROM",
-        terminator=OneOf(Ref.keyword("USING"), Ref.keyword("WHERE")),
-        enforce_whitespace_preceding_terminator=True,
-    )
-
-
 @postgres_dialect.segment(replace=True)
 class DeleteStatementSegment(BaseSegment):
     """A `DELETE` statement.
@@ -3747,14 +3729,26 @@ class DeleteStatementSegment(BaseSegment):
     """
 
     type = "delete_statement"
-    # TODO Implement WITH RECURSIVE
     match_grammar = StartsWith("DELETE")
     parse_grammar = Sequence(
         "DELETE",
+        "FROM",
         Ref.keyword("ONLY", optional=True),
-        Ref("FromClauseTerminatingUsingWhereSegment"),
-        # TODO Implement Star and As Alias
-        Ref("DeleteUsingClauseSegment", optional=True),
+        Ref("TableReferenceSegment"),
+        Ref("StarSegment", optional=True),
+        Ref("AsAliasExpressionSegment", optional=True),
+        Sequence(
+            "USING",
+            Indent,
+            Delimited(
+                Sequence(
+                    Ref("TableExpressionSegment"),
+                    Ref("AsAliasExpressionSegment", optional=True),
+                ),
+            ),
+            Dedent,
+            optional=True,
+        ),
         OneOf(
             Sequence("WHERE", "CURRENT", "OF", Ref("ObjectReferenceSegment")),
             Ref("WhereClauseSegment"),
@@ -3764,11 +3758,12 @@ class DeleteStatementSegment(BaseSegment):
             "RETURNING",
             OneOf(
                 Ref("StarSegment"),
-                Sequence(
-                    Ref("ExpressionSegment"),
-                    Ref("AliasSegment", optional=True),
+                Delimited(
+                    Sequence(
+                        Ref("ExpressionSegment"),
+                        Ref("AsAliasExpressionSegment", optional=True),
+                    ),
                 ),
-                optional=True,
             ),
             optional=True,
         ),
