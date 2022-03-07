@@ -236,7 +236,7 @@ def fail_on_parse_error_after_fix(monkeypatch):
 
     @staticmethod
     def raise_error_apply_fixes_check_issue(message, *args):  # pragma: no cover
-        raise ValueError(message.format(*args))
+        raise ValueError(message % args)
 
     monkeypatch.setattr(
         BaseSegment, "_log_apply_fixes_check_issue", raise_error_apply_fixes_check_issue
