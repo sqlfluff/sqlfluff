@@ -982,7 +982,7 @@ class BaseSegment:
 
         return self
 
-    def apply_fixes(self, dialect, fixes):
+    def apply_fixes(self, dialect, rule_code, fixes):
         """Apply an iterable of fixes to this segment.
 
         Used in applying fixes if we're fixing linting errors.
@@ -1070,7 +1070,7 @@ class BaseSegment:
             seg_queue = seg_buffer
             seg_buffer = []
             for seg in seg_queue:
-                s, fixes = seg.apply_fixes(dialect, fixes)
+                s, fixes = seg.apply_fixes(dialect, rule_code, fixes)
                 seg_buffer.append(s)
 
             # Reform into a new segment
@@ -1084,13 +1084,13 @@ class BaseSegment:
                 **{k: getattr(self, k) for k in self.additional_kwargs},
             )
             if fixes_applied:
-                self._validate_segment_after_fixes(dialect, fixes_applied, r)
+                self._validate_segment_after_fixes(rule_code, dialect, fixes_applied, r)
             # Return the new segment with any unused fixes.
             return r, fixes
         else:
             return self, fixes
 
-    def _validate_segment_after_fixes(self, dialect, fixes_applied, segment):
+    def _validate_segment_after_fixes(self, rule_code, dialect, fixes_applied, segment):
         """Checks correctness of new segment against match or parse grammar."""
         found_error = False
         root_parse_context = RootParseContext(dialect=dialect)
@@ -1111,8 +1111,9 @@ class BaseSegment:
                 except ValueError:  # pragma: no cover
                     found_error = True
                     self._log_apply_fixes_check_issue(
-                        "After fixes were applied, segment %r failed the "
+                        "After %s fixes were applied, segment %r failed the "
                         "match() parser check. Fixes: %r",
+                        rule_code,
                         segment,
                         fixes_applied,
                     )
@@ -1120,8 +1121,9 @@ class BaseSegment:
                     if not match_result.is_complete():  # pragma: no cover
                         found_error = True
                         self._log_apply_fixes_check_issue(
-                            "After fixes were applied, segment %r failed the "
+                            "After %s fixes were applied, segment %r failed the "
                             "match() parser check. Result: %r Fixes: %r",
+                            rule_code,
                             segment,
                             match_result,
                             fixes_applied,
@@ -1141,8 +1143,9 @@ class BaseSegment:
                     r_copy.parse(parse_context)
                 except ValueError:  # pragma: no cover
                     self._log_apply_fixes_check_issue(
-                        "After fixes were applied, segment %r failed the "
+                        "After %s fixes were applied, segment %r failed the "
                         "parse() check. Fixes: %r",
+                        rule_code,
                         r_copy,
                         fixes_applied,
                     )
