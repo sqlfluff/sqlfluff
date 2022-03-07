@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1db7dac12484ee7d94193cf04926145a524f69310ac7b210b2c23c7a7022751e
+_hash: 748b1a9979fe697d4eed3c3c35640a4134b00fa44dfdb71640ab8c28fc2793b8
 file:
 - statement:
     merge_statement:
@@ -31,74 +31,75 @@ file:
           - identifier: U
           - dot: .
           - identifier: name
-    - merge_when_matched_clause:
-      - keyword: WHEN
-      - keyword: MATCHED
-      - keyword: THEN
-      - merge_update_clause:
-          keyword: UPDATE
-          set_clause_list:
-          - keyword: SET
-          - set_clause:
-              column_reference:
-              - identifier: T
-              - dot: .
-              - identifier: salary
-              comparison_operator:
-                raw_comparison_operator: '='
+    - merge_match:
+        merge_when_matched_clause:
+        - keyword: WHEN
+        - keyword: MATCHED
+        - keyword: THEN
+        - merge_update_clause:
+            keyword: UPDATE
+            set_clause_list:
+            - keyword: SET
+            - set_clause:
+                column_reference:
+                - identifier: T
+                - dot: .
+                - identifier: salary
+                comparison_operator:
+                  raw_comparison_operator: '='
+                expression:
+                  column_reference:
+                  - identifier: U
+                  - dot: .
+                  - identifier: salary
+            - comma: ','
+            - set_clause:
+                column_reference:
+                - identifier: T
+                - dot: .
+                - identifier: lastChange
+                comparison_operator:
+                  raw_comparison_operator: '='
+                expression:
+                  bare_function: CURRENT_DATE
+            where_clause:
+              keyword: WHERE
               expression:
+              - column_reference:
+                - identifier: T
+                - dot: .
+                - identifier: salary
+              - comparison_operator:
+                  raw_comparison_operator: <
+              - column_reference:
+                - identifier: U
+                - dot: .
+                - identifier: salary
+        merge_when_not_matched_clause:
+        - keyword: WHEN
+        - keyword: NOT
+        - keyword: MATCHED
+        - keyword: THEN
+        - merge_insert_clause:
+          - keyword: INSERT
+          - keyword: VALUES
+          - bracketed:
+            - start_bracket: (
+            - expression:
+                column_reference:
+                - identifier: U
+                - dot: .
+                - identifier: name
+            - comma: ','
+            - expression:
                 column_reference:
                 - identifier: U
                 - dot: .
                 - identifier: salary
-          - comma: ','
-          - set_clause:
-              column_reference:
-              - identifier: T
-              - dot: .
-              - identifier: lastChange
-              comparison_operator:
-                raw_comparison_operator: '='
-              expression:
+            - comma: ','
+            - expression:
                 bare_function: CURRENT_DATE
-          where_clause:
-            keyword: WHERE
-            expression:
-            - column_reference:
-              - identifier: T
-              - dot: .
-              - identifier: salary
-            - comparison_operator:
-                raw_comparison_operator: <
-            - column_reference:
-              - identifier: U
-              - dot: .
-              - identifier: salary
-    - merge_when_not_matched_clause:
-      - keyword: WHEN
-      - keyword: NOT
-      - keyword: MATCHED
-      - keyword: THEN
-      - merge_insert_clause:
-        - keyword: INSERT
-        - keyword: VALUES
-        - bracketed:
-          - start_bracket: (
-          - expression:
-              column_reference:
-              - identifier: U
-              - dot: .
-              - identifier: name
-          - comma: ','
-          - expression:
-              column_reference:
-              - identifier: U
-              - dot: .
-              - identifier: salary
-          - comma: ','
-          - expression:
-              bare_function: CURRENT_DATE
-          - end_bracket: )
+            - end_bracket: )
 - statement_terminator: ;
 - statement:
     merge_statement:
@@ -140,12 +141,13 @@ file:
           - identifier: U
           - dot: .
           - identifier: name
-    - merge_when_matched_clause:
-      - keyword: WHEN
-      - keyword: MATCHED
-      - keyword: THEN
-      - merge_delete_clause:
-          keyword: DELETE
+    - merge_match:
+        merge_when_matched_clause:
+        - keyword: WHEN
+        - keyword: MATCHED
+        - keyword: THEN
+        - merge_delete_clause:
+            keyword: DELETE
 - statement_terminator: ;
 - statement:
     merge_statement:
@@ -187,29 +189,30 @@ file:
           - identifier: U
           - dot: .
           - identifier: name
-    - merge_when_not_matched_clause:
-      - keyword: WHEN
-      - keyword: NOT
-      - keyword: MATCHED
-      - keyword: THEN
-      - merge_insert_clause:
-        - keyword: INSERT
-        - keyword: VALUES
-        - bracketed:
-          - start_bracket: (
-          - expression:
-              literal: '1'
-          - comma: ','
-          - expression:
-              literal: '2'
-          - comma: ','
-          - expression:
-              literal: '3'
-          - end_bracket: )
-    - merge_when_matched_clause:
-      - keyword: WHEN
-      - keyword: MATCHED
-      - keyword: THEN
-      - merge_delete_clause:
-          keyword: DELETE
+    - merge_match:
+        merge_when_not_matched_clause:
+        - keyword: WHEN
+        - keyword: NOT
+        - keyword: MATCHED
+        - keyword: THEN
+        - merge_insert_clause:
+          - keyword: INSERT
+          - keyword: VALUES
+          - bracketed:
+            - start_bracket: (
+            - expression:
+                literal: '1'
+            - comma: ','
+            - expression:
+                literal: '2'
+            - comma: ','
+            - expression:
+                literal: '3'
+            - end_bracket: )
+        merge_when_matched_clause:
+        - keyword: WHEN
+        - keyword: MATCHED
+        - keyword: THEN
+        - merge_delete_clause:
+            keyword: DELETE
 - statement_terminator: ;

@@ -3212,7 +3212,7 @@ class CreateSchemaStatementSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment()
+@tsql_dialect.segment(replace=True)
 class MergeStatementSegment(BaseSegment):
     """`MERGE` statement.
 
@@ -3258,18 +3258,26 @@ class MergeStatementSegment(BaseSegment):
         ),
         Dedent,
         Ref("JoinOnConditionSegment"),
-        AnyNumberOf(
-            Ref("MergeMatchedClauseSegment"),
-            Ref("MergeNotMatchedClauseSegment"),
-            min_times=1,
-        ),
+        Ref("MergeMatchSegment"),
         Ref("OutputClauseSegment", optional=True),
         Ref("OptionClauseSegment", optional=True),
         AnyNumberOf(Ref("DelimiterSegment"), optional=True),
     )
 
 
-@tsql_dialect.segment()
+@tsql_dialect.segment(replace=True)
+class MergeMatchSegment(BaseSegment):
+    """Contains dialect specific merge operations."""
+
+    type = "merge_match"
+    match_grammar = AnyNumberOf(
+        Ref("MergeMatchedClauseSegment"),
+        Ref("MergeNotMatchedClauseSegment"),
+        min_times=1,
+    )
+
+
+@tsql_dialect.segment(replace=True)
 class MergeMatchedClauseSegment(BaseSegment):
     """The `WHEN MATCHED` clause within a `MERGE` statement."""
 
@@ -3293,7 +3301,7 @@ class MergeMatchedClauseSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment()
+@tsql_dialect.segment(replace=True)
 class MergeNotMatchedClauseSegment(BaseSegment):
     """The `WHEN NOT MATCHED` clause within a `MERGE` statement."""
 
@@ -3329,7 +3337,7 @@ class MergeNotMatchedClauseSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment()
+@tsql_dialect.segment(replace=True)
 class MergeUpdateClauseSegment(BaseSegment):
     """`UPDATE` clause within the `MERGE` statement."""
 
@@ -3350,7 +3358,7 @@ class MergeDeleteClauseSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment()
+@tsql_dialect.segment(replace=True)
 class MergeInsertClauseSegment(BaseSegment):
     """`INSERT` clause within the `MERGE` statement."""
 

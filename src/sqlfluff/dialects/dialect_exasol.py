@@ -1772,50 +1772,24 @@ class SetClauseSegment(BaseSegment):
 ############################
 # MERGE
 ############################
-@exasol_dialect.segment()
-class MergeStatementSegment(BaseSegment):
-    """`MERGE` statement.
+@exasol_dialect.segment(replace=True)
+class MergeMatchSegment(BaseSegment):
+    """Contains dialect specific merge operations."""
 
-    https://docs.exasol.com/sql/merge.htm
-    """
-
-    type = "merge_statement"
-
-    is_ddl = False
-    is_dml = True
-    is_dql = False
-    is_dcl = False
-
-    match_grammar = StartsWith(
-        Sequence("MERGE", "INTO"),
-    )
-    parse_grammar = Sequence(
-        "MERGE",
-        "INTO",
-        OneOf(Ref("TableReferenceSegment"), Ref("AliasedTableReferenceGrammar")),
-        "USING",
-        OneOf(
-            Ref("TableReferenceSegment"),  # tables/views
-            Bracketed(
-                Ref("SelectableGrammar"),
-            ),  # subquery
+    type = "merge_match"
+    match_grammar = OneOf(
+        Sequence(
+            Ref("MergeMatchedClauseSegment"),
+            Ref("MergeNotMatchedClauseSegment", optional=True),
         ),
-        Ref("AliasExpressionSegment", optional=True),
-        Ref("JoinOnConditionSegment"),
-        OneOf(
-            Sequence(
-                Ref("MergeMatchedClauseSegment"),
-                Ref("MergeNotMatchedClauseSegment", optional=True),
-            ),
-            Sequence(
-                Ref("MergeNotMatchedClauseSegment"),
-                Ref("MergeMatchedClauseSegment", optional=True),
-            ),
+        Sequence(
+            Ref("MergeNotMatchedClauseSegment"),
+            Ref("MergeMatchedClauseSegment", optional=True),
         ),
     )
 
 
-@exasol_dialect.segment()
+@exasol_dialect.segment(replace=True)
 class MergeMatchedClauseSegment(BaseSegment):
     """The `WHEN MATCHED` clause within a `MERGE` statement."""
 
@@ -1835,7 +1809,7 @@ class MergeMatchedClauseSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
+@exasol_dialect.segment(replace=True)
 class MergeNotMatchedClauseSegment(BaseSegment):
     """The `WHEN NOT MATCHED` clause within a `MERGE` statement."""
 
@@ -1858,7 +1832,7 @@ class MergeNotMatchedClauseSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
+@exasol_dialect.segment(replace=True)
 class MergeUpdateClauseSegment(BaseSegment):
     """`UPDATE` clause within the `MERGE` statement."""
 
@@ -1881,7 +1855,7 @@ class MergeDeleteClauseSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
+@exasol_dialect.segment(replace=True)
 class MergeInsertClauseSegment(BaseSegment):
     """`INSERT` clause within the `MERGE` statement."""
 

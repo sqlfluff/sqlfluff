@@ -3263,42 +3263,18 @@ class AlterTaskUnsetClauseSegment(BaseSegment):
 ############################
 # MERGE
 ############################
-@snowflake_dialect.segment()
-class MergeStatementSegment(BaseSegment):
-    """`MERGE` statement.
+@snowflake_dialect.segment(replace=True)
+class MergeMatchSegment(BaseSegment):
+    """Contains dialect specific merge operations."""
 
-    https://docs.snowflake.com/en/sql-reference/sql/merge.html
-    """
-
-    type = "merge_statement"
-
-    is_ddl = False
-    is_dml = True
-    is_dql = False
-    is_dcl = False
-
-    match_grammar = StartsWith(
-        Sequence("MERGE", "INTO"),
-    )
-    parse_grammar = Sequence(
-        "MERGE",
-        "INTO",
-        OneOf(Ref("TableReferenceSegment"), Ref("AliasedTableReferenceGrammar")),
-        "USING",
-        OneOf(
-            Ref("TableReferenceSegment"),  # tables/views
-            Bracketed(
-                Ref("SelectableGrammar"),
-            ),  # subquery
-        ),
-        Ref("AliasExpressionSegment", optional=True),
-        Ref("JoinOnConditionSegment"),
+    type = "merge_match"
+    match_grammar = Sequence(
         Ref("MergeMatchedClauseSegment", optional=True),
         Ref("MergeNotMatchedClauseSegment", optional=True),
     )
 
 
-@snowflake_dialect.segment()
+@snowflake_dialect.segment(replace=True)
 class MergeMatchedClauseSegment(BaseSegment):
     """The `WHEN MATCHED` clause within a `MERGE` statement."""
 
@@ -3325,7 +3301,7 @@ class MergeMatchedClauseSegment(BaseSegment):
     )
 
 
-@snowflake_dialect.segment()
+@snowflake_dialect.segment(replace=True)
 class MergeNotMatchedClauseSegment(BaseSegment):
     """The `WHEN NOT MATCHED` clause within a `MERGE` statement."""
 
@@ -3347,7 +3323,7 @@ class MergeNotMatchedClauseSegment(BaseSegment):
     )
 
 
-@snowflake_dialect.segment()
+@snowflake_dialect.segment(replace=True)
 class MergeUpdateClauseSegment(BaseSegment):
     """`UPDATE` clause within the `MERGE` statement."""
 
@@ -3370,7 +3346,7 @@ class MergeDeleteClauseSegment(BaseSegment):
     )
 
 
-@snowflake_dialect.segment()
+@snowflake_dialect.segment(replace=True)
 class MergeInsertClauseSegment(BaseSegment):
     """`INSERT` clause within the `MERGE` statement."""
 

@@ -1,0 +1,141 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 33e3cb6a8de250ede5fbb592509e2c992afc94ddc60ec0c3164fbe56be3e7e81
+file:
+- statement:
+    merge_statement:
+    - keyword: MERGE
+    - keyword: INTO
+    - table_reference:
+        identifier: t
+    - keyword: USING
+    - table_reference:
+        identifier: u
+    - join_on_condition:
+        keyword: 'ON'
+        bracketed:
+          start_bracket: (
+          expression:
+          - column_reference:
+              identifier: a
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - column_reference:
+              identifier: b
+          end_bracket: )
+    - merge_match:
+        merge_when_matched_clause:
+        - keyword: WHEN
+        - keyword: MATCHED
+        - keyword: THEN
+        - merge_update_clause:
+            keyword: UPDATE
+            set_clause_list:
+              keyword: SET
+              set_clause:
+              - column_reference:
+                  identifier: a
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                  identifier: b
+        merge_when_not_matched_clause:
+        - keyword: WHEN
+        - keyword: NOT
+        - keyword: MATCHED
+        - keyword: THEN
+        - merge_insert_clause:
+            keyword: INSERT
+            bracketed:
+              start_bracket: (
+              column_reference:
+                identifier: b
+              end_bracket: )
+            values_clause:
+              keyword: VALUES
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    identifier: c
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    merge_statement:
+    - keyword: MERGE
+    - keyword: INTO
+    - table_reference:
+        identifier: t
+    - keyword: USING
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    identifier: u
+        end_bracket: )
+    - alias_expression:
+        keyword: AS
+        identifier: u
+    - join_on_condition:
+        keyword: 'ON'
+        bracketed:
+          start_bracket: (
+          expression:
+          - column_reference:
+              identifier: a
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - column_reference:
+              identifier: b
+          end_bracket: )
+    - merge_match:
+        merge_when_matched_clause:
+        - keyword: WHEN
+        - keyword: MATCHED
+        - keyword: THEN
+        - merge_update_clause:
+            keyword: UPDATE
+            set_clause_list:
+              keyword: SET
+              set_clause:
+              - column_reference:
+                  identifier: a
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                  identifier: b
+        merge_when_not_matched_clause:
+        - keyword: WHEN
+        - keyword: NOT
+        - keyword: MATCHED
+        - keyword: THEN
+        - merge_insert_clause:
+            keyword: INSERT
+            bracketed:
+              start_bracket: (
+              column_reference:
+                identifier: b
+              end_bracket: )
+            values_clause:
+              keyword: VALUES
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    identifier: c
+                end_bracket: )
+- statement_terminator: ;
