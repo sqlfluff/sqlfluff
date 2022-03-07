@@ -25,6 +25,7 @@ from sqlfluff.core.parser import (
 
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser.grammar.anyof import AnySetOf
+from sqlfluff.core.parser.lexer import StringLexer
 from sqlfluff.dialects.dialect_postgres_keywords import (
     postgres_keywords,
     get_keywords,
@@ -92,6 +93,7 @@ postgres_dialect.insert_lexer_matchers(
             r"->>|#>>|->|#>|@>|<@|\?\||\?|\?&|#-",
             CodeSegment,
         ),
+        StringLexer("at", "@", CodeSegment),
     ],
     before="like_operator",
 )
@@ -213,6 +215,10 @@ postgres_dialect.replace(
         Ref("LikeOperatorSegment"),
         Sequence("IS", "DISTINCT", "FROM"),
         Sequence("IS", "NOT", "DISTINCT", "FROM"),
+        Ref("OverlapSegment"),
+        Ref("NotExtendRightSegment"),
+        Ref("NotExtendLeftSegment"),
+        Ref("AdjacentSegment"),
     ),
     NakedIdentifierSegment=SegmentGenerator(
         # Generate the anti template from the set of reserved keywords
@@ -389,6 +395,50 @@ postgres_dialect.replace(
         "RETURNING",
     ),
 )
+
+
+@postgres_dialect.segment()
+class OverlapSegment(BaseSegment):
+    """Overlaps range operator."""
+
+    type = "comparison_operator"
+    name = "overlap"
+    match_grammar = Sequence(
+        Ref("AmpersandSegment"), Ref("AmpersandSegment"), allow_gaps=False
+    )
+
+
+@postgres_dialect.segment()
+class NotExtendRightSegment(BaseSegment):
+    """Not extend right range operator."""
+
+    type = "comparison_operator"
+    name = "not_extend_right"
+    match_grammar = Sequence(
+        Ref("AmpersandSegment"), Ref("RawGreaterThanSegment"), allow_gaps=False
+    )
+
+
+@postgres_dialect.segment()
+class NotExtendLeftSegment(BaseSegment):
+    """Not extend left range operator."""
+
+    type = "comparison_operator"
+    name = "not_extend_left"
+    match_grammar = Sequence(
+        Ref("AmpersandSegment"), Ref("RawLessThanSegment"), allow_gaps=False
+    )
+
+
+@postgres_dialect.segment()
+class AdjacentSegment(BaseSegment):
+    """Adjacent range operator."""
+
+    type = "comparison_operator"
+    name = "adjacent"
+    match_grammar = Sequence(
+        Ref("MinusSegment"), Ref("PipeSegment"), Ref("MinusSegment"), allow_gaps=False
+    )
 
 
 @postgres_dialect.segment()
@@ -3172,9 +3222,8 @@ class AsAliasExpressionSegment(BaseSegment):
 class InsertStatementSegment(BaseSegment):
     """An `INSERT` statement.
 
-    As Specified in https://www.postgresql.org/docs/14/sql-insert.html
-    N.B. This is not a complete implementation of the documentation above.
-    TODO: Implement complete postgres insert statement structure.
+    https://www.postgresql.org/docs/14/sql-insert.html
+    TODO: Implement ON CONFLICT grammar.
     """
 
     type = "insert_statement"
@@ -3186,7 +3235,24 @@ class InsertStatementSegment(BaseSegment):
         Ref("AsAliasExpressionSegment", optional=True),
         Ref("BracketedColumnReferenceListGrammar", optional=True),
         Sequence("OVERRIDING", OneOf("SYSTEM", "USER"), "VALUE", optional=True),
-        Ref("SelectableGrammar"),
+        OneOf(
+            Sequence("DEFAULT", "VALUES"),
+            Ref("SelectableGrammar"),
+        ),
+        # TODO: Add ON CONFLICT grammar.
+        Sequence(
+            "RETURNING",
+            OneOf(
+                Ref("StarSegment"),
+                Delimited(
+                    Sequence(
+                        Ref("ExpressionSegment"),
+                        Ref("AsAliasExpressionSegment", optional=True),
+                    ),
+                ),
+            ),
+            optional=True,
+        ),
     )
 
 
@@ -3584,108 +3650,27 @@ class CTEDefinitionSegment(BaseSegment):
     )
 
 
-@postgres_dialect.segment()
-class DelimitedValues(BaseSegment):
-    """A ``VALUES`` clause can be a sequence either of scalar values or tuple values.
-
-    We make no attempt to ensure that all records have the same number of columns
-    besides the distinction between all scalar or all tuple, so for instance
-    ``VALUES (1,2), (3,4,5)`` will parse but is not legal SQL.
-    """
-
-    type = "delimited_values"
-    match_grammar = OneOf(Delimited(Ref("ScalarValue")), Delimited(Ref("TupleValue")))
-
-
-@postgres_dialect.segment()
-class ScalarValue(BaseSegment):
-    """An element of a ``VALUES`` clause that has a single column.
-
-    Ex: ``VALUES 1,2,3``
-    """
-
-    type = "scalar_value"
-    match_grammar = Sequence(
-        OneOf(
-            Ref("LiteralGrammar"),
-            Ref("BareFunctionSegment"),
-            Ref("FunctionSegment"),
-        ),
-        AnyNumberOf(Ref("ShorthandCastSegment")),
-    )
-
-
-@postgres_dialect.segment()
-class TupleValue(BaseSegment):
-    """An element of a ``VALUES`` clause that has multiple columns.
-
-    Ex: ``VALUES (1,2), (3,4)``
-    """
-
-    type = "tuple_value"
-    match_grammar = Bracketed(
-        Delimited(
-            Ref("ScalarValue"),
-        )
-    )
-
-
 @postgres_dialect.segment(replace=True)
 class ValuesClauseSegment(BaseSegment):
-    """A `VALUES` clause, as typically used with `INSERT` or `SELECT`.
-
-    https://www.postgresql.org/docs/13/sql-values.html
-    """
+    """A `VALUES` clause within in `WITH` or `SELECT`."""
 
     type = "values_clause"
-
     match_grammar = Sequence(
         "VALUES",
-        Ref("DelimitedValues"),
-        AnyNumberOf(
-            Ref("AliasExpressionSegment"),
-            min_times=0,
-            max_times=1,
-            exclude=OneOf("LIMIT", "ORDER"),
+        Delimited(
+            Bracketed(
+                Delimited(
+                    Ref("ExpressionSegment"),
+                    # DEFAULT keyword used in
+                    # INSERT INTO statement.
+                    "DEFAULT",
+                    ephemeral_name="ValuesClauseElements",
+                )
+            ),
         ),
+        Ref("AliasExpressionSegment", optional=True),
         Ref("OrderByClauseSegment", optional=True),
         Ref("LimitClauseSegment", optional=True),
-        # TO DO - CHECK OFFSET
-        # TO DO - FETCH
-    )
-
-
-@postgres_dialect.segment()
-class DeleteUsingClauseSegment(BaseSegment):
-    """USING clause."""
-
-    type = "using_clause"
-    match_grammar = StartsWith(
-        "USING",
-        terminator="WHERE",
-        enforce_whitespace_preceding_terminator=True,
-    )
-
-    parse_grammar = Sequence(
-        "USING",
-        Indent,
-        Delimited(
-            Ref("TableExpressionSegment"),
-        ),
-        Dedent,
-    )
-
-
-@postgres_dialect.segment()
-class FromClauseTerminatingUsingWhereSegment(
-    ansi_dialect.get_segment("FromClauseSegment")  # type: ignore
-):
-    """Copy `FROM` terminator statement to support `USING` in specific circumstances."""
-
-    match_grammar = StartsWith(
-        "FROM",
-        terminator=OneOf(Ref.keyword("USING"), Ref.keyword("WHERE")),
-        enforce_whitespace_preceding_terminator=True,
     )
 
 
@@ -3697,14 +3682,26 @@ class DeleteStatementSegment(BaseSegment):
     """
 
     type = "delete_statement"
-    # TODO Implement WITH RECURSIVE
     match_grammar = StartsWith("DELETE")
     parse_grammar = Sequence(
         "DELETE",
+        "FROM",
         Ref.keyword("ONLY", optional=True),
-        Ref("FromClauseTerminatingUsingWhereSegment"),
-        # TODO Implement Star and As Alias
-        Ref("DeleteUsingClauseSegment", optional=True),
+        Ref("TableReferenceSegment"),
+        Ref("StarSegment", optional=True),
+        Ref("AliasExpressionSegment", optional=True),
+        Sequence(
+            "USING",
+            Indent,
+            Delimited(
+                Sequence(
+                    Ref("TableExpressionSegment"),
+                    Ref("AliasExpressionSegment", optional=True),
+                ),
+            ),
+            Dedent,
+            optional=True,
+        ),
         OneOf(
             Sequence("WHERE", "CURRENT", "OF", Ref("ObjectReferenceSegment")),
             Ref("WhereClauseSegment"),
@@ -3714,11 +3711,12 @@ class DeleteStatementSegment(BaseSegment):
             "RETURNING",
             OneOf(
                 Ref("StarSegment"),
-                Sequence(
-                    Ref("ExpressionSegment"),
-                    Ref("AliasSegment", optional=True),
+                Delimited(
+                    Sequence(
+                        Ref("ExpressionSegment"),
+                        Ref("AliasExpressionSegment", optional=True),
+                    ),
                 ),
-                optional=True,
             ),
             optional=True,
         ),

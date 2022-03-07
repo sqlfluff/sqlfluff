@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: be6fcbdb0c8f079b0065571b9358cacd070d8c3db2ddc64d74fd94c49b411684
+_hash: aa773f461bcb691c377e29c744af7bb7c003f82e0c6ce375421802122c35aa6c
 file:
 - statement:
     copy_statement:
@@ -41,8 +41,7 @@ file:
         literal: "'arn:aws:iam::0123456789012:role/MyRedshiftRole'"
     - keyword: delimiter
     - literal: "'\\t'"
-    - compression_type_segment:
-        keyword: lzop
+    - keyword: lzop
 - statement_terminator: ;
 - statement:
     copy_statement:
@@ -180,8 +179,7 @@ file:
     - authorization_segment:
         keyword: iam_role
         literal: "'arn:aws:iam::0123456789012:role/MyRedshiftRole'"
-    - compression_type_segment:
-        keyword: gzip
+    - keyword: gzip
     - keyword: delimiter
     - literal: "'|'"
 - statement_terminator: ;

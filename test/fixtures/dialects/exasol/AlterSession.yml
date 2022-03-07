@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0176d330d41a71ee6123e9254338d307154a4aef45328154afb2d9fcba1d0870
+_hash: f0c4780473d22d641ba9e547d428918e7e0e1a7ce3e3cca405fd81a83d392035
 file:
 - statement:
     alter_session_statement:
@@ -44,4 +44,34 @@ file:
     - comparison_operator:
         raw_comparison_operator: '='
     - literal: "'10240M'"
+- statement_terminator: ;
+- statement:
+    alter_session_statement:
+    - keyword: ALTER
+    - keyword: SESSION
+    - keyword: SET
+    - session_parameter: SNAPSHOT_MODE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - literal: "'OFF'"
+- statement_terminator: ;
+- statement:
+    alter_session_statement:
+    - keyword: ALTER
+    - keyword: SESSION
+    - keyword: SET
+    - session_parameter: SNAPSHOT_MODE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - literal: "'SYSTEM TABLES'"
+- statement_terminator: ;
+- statement:
+    alter_session_statement:
+    - keyword: ALTER
+    - keyword: SESSION
+    - keyword: SET
+    - session_parameter: IDLE_TIMEOUT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - literal: '2400'
 - statement_terminator: ;

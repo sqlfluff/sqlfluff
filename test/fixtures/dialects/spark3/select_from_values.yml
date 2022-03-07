@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4e7a97cdc6ec29644c755516e6f89f66998a87aefeb8c8a4f58ff1fd161e240c
+_hash: 46f24fca3fa4fd6a2ea62ee21448e93e801ea77cf49b21b89723e4347dbe6e15
 file:
 - statement:
     select_statement:
@@ -20,9 +20,29 @@ file:
             table_expression:
               values_clause:
                 keyword: values
-                delimited_values:
-                  scalar_value:
+                expression:
+                  literal: '1'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              values_clause:
+                keyword: values
+                bracketed:
+                  start_bracket: (
+                  expression:
                     literal: '1'
+                  end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -39,174 +59,139 @@ file:
             table_expression:
               values_clause:
                 keyword: values
-                delimited_values:
-                  tuple_value:
-                    bracketed:
-                      start_bracket: (
-                      scalar_value:
-                        literal: '1'
-                      end_bracket: )
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-        keyword: select
-        select_clause_element:
-          wildcard_expression:
-            wildcard_identifier:
-              star: '*'
-      from_clause:
-        keyword: from
-        from_expression:
-          from_expression_element:
-            table_expression:
-              values_clause:
-                keyword: values
-                delimited_values:
-                  tuple_value:
-                    bracketed:
-                    - start_bracket: (
-                    - scalar_value:
-                        literal: '1'
-                    - comma: ','
-                    - scalar_value:
-                        literal: '2'
-                    - end_bracket: )
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-        keyword: select
-        select_clause_element:
-          wildcard_expression:
-            wildcard_identifier:
-              star: '*'
-      from_clause:
-        keyword: from
-        from_expression:
-          from_expression_element:
-            bracketed:
-              start_bracket: (
-              table_expression:
-                values_clause:
-                  keyword: values
-                  delimited_values:
-                  - scalar_value:
-                      literal: '1'
-                  - comma: ','
-                  - scalar_value:
-                      literal: '2'
-                  - comma: ','
-                  - scalar_value:
-                      literal: '3'
-              end_bracket: )
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-        keyword: select
-        select_clause_element:
-          wildcard_expression:
-            wildcard_identifier:
-              star: '*'
-      from_clause:
-        keyword: from
-        from_expression:
-          from_expression_element:
-            bracketed:
-              start_bracket: (
-              table_expression:
-                values_clause:
-                  keyword: values
-                  delimited_values:
-                  - tuple_value:
-                      bracketed:
-                        start_bracket: (
-                        scalar_value:
-                          literal: '1'
-                        end_bracket: )
-                  - comma: ','
-                  - tuple_value:
-                      bracketed:
-                        start_bracket: (
-                        scalar_value:
-                          literal: '2'
-                        end_bracket: )
-                  - comma: ','
-                  - tuple_value:
-                      bracketed:
-                        start_bracket: (
-                        scalar_value:
-                          literal: '3'
-                        end_bracket: )
-              end_bracket: )
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-        keyword: select
-        select_clause_element:
-          wildcard_expression:
-            wildcard_identifier:
-              star: '*'
-      from_clause:
-        keyword: from
-        from_expression:
-          from_expression_element:
-            bracketed:
-              start_bracket: (
-              table_expression:
-                values_clause:
-                  keyword: values
-                  delimited_values:
-                  - tuple_value:
-                      bracketed:
-                      - start_bracket: (
-                      - scalar_value:
-                          literal: '1'
-                      - comma: ','
-                      - scalar_value:
-                          literal: '2'
-                      - end_bracket: )
-                  - comma: ','
-                  - tuple_value:
-                      bracketed:
-                      - start_bracket: (
-                      - scalar_value:
-                          literal: '3'
-                      - comma: ','
-                      - scalar_value:
-                          literal: '4'
-                      - end_bracket: )
-              end_bracket: )
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-        keyword: select
-        select_clause_element:
-          wildcard_expression:
-            wildcard_identifier:
-              star: '*'
-      from_clause:
-      - keyword: from
-      - from_expression:
-          from_expression_element:
-            table_expression:
-              values_clause:
-                keyword: values
-                delimited_values:
-                  scalar_value:
+                bracketed:
+                - start_bracket: (
+                - expression:
                     literal: '1'
-      - comma: ','
-      - from_expression:
-          from_expression_element:
-            table_expression:
-              values_clause:
-                keyword: values
-                delimited_values:
-                  scalar_value:
+                - comma: ','
+                - expression:
                     literal: '2'
+                - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            bracketed:
+              start_bracket: (
+              table_expression:
+                values_clause:
+                - keyword: values
+                - expression:
+                    literal: '1'
+                - comma: ','
+                - expression:
+                    literal: '2'
+                - comma: ','
+                - expression:
+                    literal: '3'
+              end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            bracketed:
+              start_bracket: (
+              table_expression:
+                values_clause:
+                - keyword: values
+                - bracketed:
+                    start_bracket: (
+                    expression:
+                      literal: '1'
+                    end_bracket: )
+                - comma: ','
+                - bracketed:
+                    start_bracket: (
+                    expression:
+                      literal: '2'
+                    end_bracket: )
+                - comma: ','
+                - bracketed:
+                    start_bracket: (
+                    expression:
+                      literal: '3'
+                    end_bracket: )
+              end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            bracketed:
+              start_bracket: (
+              table_expression:
+                values_clause:
+                - keyword: values
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                      literal: '1'
+                  - comma: ','
+                  - expression:
+                      literal: '2'
+                  - end_bracket: )
+                - comma: ','
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                      literal: '3'
+                  - comma: ','
+                  - expression:
+                      literal: '4'
+                  - end_bracket: )
+              end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+      - keyword: from
+      - from_expression:
+          from_expression_element:
+            table_expression:
+              values_clause:
+                keyword: values
+                expression:
+                  literal: '1'
+      - comma: ','
+      - from_expression:
+          from_expression_element:
+            table_expression:
+              values_clause:
+                keyword: values
+                expression:
+                  literal: '2'
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -224,27 +209,24 @@ file:
               start_bracket: (
               table_expression:
                 values_clause:
-                  keyword: values
-                  delimited_values:
-                  - tuple_value:
-                      bracketed:
-                      - start_bracket: (
-                      - scalar_value:
-                          literal: '1'
-                      - comma: ','
-                      - scalar_value:
-                          literal: '2'
-                      - end_bracket: )
+                - keyword: values
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                      literal: '1'
                   - comma: ','
-                  - tuple_value:
-                      bracketed:
-                      - start_bracket: (
-                      - scalar_value:
-                          literal: '3'
-                      - comma: ','
-                      - scalar_value:
-                          literal: '4'
-                      - end_bracket: )
+                  - expression:
+                      literal: '2'
+                  - end_bracket: )
+                - comma: ','
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                      literal: '3'
+                  - comma: ','
+                  - expression:
+                      literal: '4'
+                  - end_bracket: )
               end_bracket: )
       - comma: ','
       - from_expression:
@@ -253,75 +235,71 @@ file:
               start_bracket: (
               table_expression:
                 values_clause:
-                  keyword: values
-                  delimited_values:
-                  - tuple_value:
-                      bracketed:
-                      - start_bracket: (
-                      - scalar_value:
-                          literal: '1'
-                      - comma: ','
-                      - scalar_value:
-                          literal: '2'
-                      - end_bracket: )
-                  - comma: ','
-                  - tuple_value:
-                      bracketed:
-                      - start_bracket: (
-                      - scalar_value:
-                          literal: '3'
-                      - comma: ','
-                      - scalar_value:
-                          literal: '4'
-                      - end_bracket: )
-              end_bracket: )
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-        keyword: select
-        select_clause_element:
-          wildcard_expression:
-            wildcard_identifier:
-              star: '*'
-      from_clause:
-        keyword: from
-        from_expression:
-          from_expression_element:
-            bracketed:
-              start_bracket: (
-              table_expression:
-                values_clause:
-                  keyword: values
-                  delimited_values:
-                  - scalar_value:
+                - keyword: values
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
                       literal: '1'
                   - comma: ','
-                  - scalar_value:
-                      function:
-                        function_name:
-                          function_name_identifier: least
-                        bracketed:
-                        - start_bracket: (
-                        - expression:
-                            literal: '2'
-                        - comma: ','
-                        - expression:
-                            literal: '3'
-                        - end_bracket: )
+                  - expression:
+                      literal: '2'
+                  - end_bracket: )
+                - comma: ','
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                      literal: '3'
                   - comma: ','
-                  - scalar_value:
-                      function:
-                        function_name:
-                          function_name_identifier: greatest
-                        bracketed:
-                        - start_bracket: (
-                        - expression:
-                            literal: '4'
-                        - comma: ','
-                        - expression:
-                            literal: '5'
-                        - end_bracket: )
+                  - expression:
+                      literal: '4'
+                  - end_bracket: )
+              end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            bracketed:
+              start_bracket: (
+              table_expression:
+                values_clause:
+                - keyword: values
+                - expression:
+                    literal: '1'
+                - comma: ','
+                - expression:
+                    function:
+                      function_name:
+                        function_name_identifier: least
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          literal: '2'
+                      - comma: ','
+                      - expression:
+                          literal: '3'
+                      - end_bracket: )
+                - comma: ','
+                - expression:
+                    function:
+                      function_name:
+                        function_name_identifier: greatest
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          literal: '4'
+                      - comma: ','
+                      - expression:
+                          literal: '5'
+                      - end_bracket: )
               end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -339,9 +317,8 @@ file:
             table_expression:
               values_clause:
                 keyword: values
-                delimited_values:
-                  scalar_value:
-                    literal: '1'
+                expression:
+                  literal: '1'
                 alias_expression:
                   keyword: as
                   identifier: t
@@ -361,16 +338,14 @@ file:
             table_expression:
               values_clause:
                 keyword: values
-                delimited_values:
-                  tuple_value:
-                    bracketed:
-                    - start_bracket: (
-                    - scalar_value:
-                        literal: '1'
-                    - comma: ','
-                    - scalar_value:
-                        literal: '2'
-                    - end_bracket: )
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    literal: '1'
+                - comma: ','
+                - expression:
+                    literal: '2'
+                - end_bracket: )
                 alias_expression:
                   keyword: as
                   identifier: t
@@ -398,27 +373,24 @@ file:
               start_bracket: (
               table_expression:
                 values_clause:
-                  keyword: values
-                  delimited_values:
-                  - tuple_value:
-                      bracketed:
-                      - start_bracket: (
-                      - scalar_value:
-                          literal: '1'
-                      - comma: ','
-                      - scalar_value:
-                          literal: '2'
-                      - end_bracket: )
+                - keyword: values
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                      literal: '1'
                   - comma: ','
-                  - tuple_value:
-                      bracketed:
-                      - start_bracket: (
-                      - scalar_value:
-                          literal: '3'
-                      - comma: ','
-                      - scalar_value:
-                          literal: '4'
-                      - end_bracket: )
+                  - expression:
+                      literal: '2'
+                  - end_bracket: )
+                - comma: ','
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                      literal: '3'
+                  - comma: ','
+                  - expression:
+                      literal: '4'
+                  - end_bracket: )
               end_bracket: )
             alias_expression:
               keyword: as
@@ -447,27 +419,24 @@ file:
               start_bracket: (
               table_expression:
                 values_clause:
-                  keyword: values
-                  delimited_values:
-                  - tuple_value:
-                      bracketed:
-                      - start_bracket: (
-                      - scalar_value:
-                          literal: '1'
-                      - comma: ','
-                      - scalar_value:
-                          literal: '2'
-                      - end_bracket: )
+                - keyword: values
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                      literal: '1'
                   - comma: ','
-                  - tuple_value:
-                      bracketed:
-                      - start_bracket: (
-                      - scalar_value:
-                          literal: '3'
-                      - comma: ','
-                      - scalar_value:
-                          literal: '4'
-                      - end_bracket: )
+                  - expression:
+                      literal: '2'
+                  - end_bracket: )
+                - comma: ','
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                      literal: '3'
+                  - comma: ','
+                  - expression:
+                      literal: '4'
+                  - end_bracket: )
               end_bracket: )
             alias_expression:
               keyword: as
@@ -494,9 +463,8 @@ file:
             table_expression:
               values_clause:
                 keyword: values
-                delimited_values:
-                  scalar_value:
-                    literal: '1'
+                expression:
+                  literal: '1'
                 alias_expression:
                   identifier: t
 - statement_terminator: ;
@@ -515,16 +483,14 @@ file:
             table_expression:
               values_clause:
                 keyword: values
-                delimited_values:
-                  tuple_value:
-                    bracketed:
-                    - start_bracket: (
-                    - scalar_value:
-                        literal: '1'
-                    - comma: ','
-                    - scalar_value:
-                        literal: '2'
-                    - end_bracket: )
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    literal: '1'
+                - comma: ','
+                - expression:
+                    literal: '2'
+                - end_bracket: )
                 alias_expression:
                   identifier: t
                   bracketed:
@@ -551,27 +517,24 @@ file:
               start_bracket: (
               table_expression:
                 values_clause:
-                  keyword: values
-                  delimited_values:
-                  - tuple_value:
-                      bracketed:
-                      - start_bracket: (
-                      - scalar_value:
-                          literal: '1'
-                      - comma: ','
-                      - scalar_value:
-                          literal: '2'
-                      - end_bracket: )
+                - keyword: values
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                      literal: '1'
                   - comma: ','
-                  - tuple_value:
-                      bracketed:
-                      - start_bracket: (
-                      - scalar_value:
-                          literal: '3'
-                      - comma: ','
-                      - scalar_value:
-                          literal: '4'
-                      - end_bracket: )
+                  - expression:
+                      literal: '2'
+                  - end_bracket: )
+                - comma: ','
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                      literal: '3'
+                  - comma: ','
+                  - expression:
+                      literal: '4'
+                  - end_bracket: )
               end_bracket: )
             alias_expression:
               identifier: t
@@ -599,27 +562,24 @@ file:
               start_bracket: (
               table_expression:
                 values_clause:
-                  keyword: values
-                  delimited_values:
-                  - tuple_value:
-                      bracketed:
-                      - start_bracket: (
-                      - scalar_value:
-                          literal: '1'
-                      - comma: ','
-                      - scalar_value:
-                          literal: '2'
-                      - end_bracket: )
+                - keyword: values
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                      literal: '1'
                   - comma: ','
-                  - tuple_value:
-                      bracketed:
-                      - start_bracket: (
-                      - scalar_value:
-                          literal: '3'
-                      - comma: ','
-                      - scalar_value:
-                          literal: '4'
-                      - end_bracket: )
+                  - expression:
+                      literal: '2'
+                  - end_bracket: )
+                - comma: ','
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                      literal: '3'
+                  - comma: ','
+                  - expression:
+                      literal: '4'
+                  - end_bracket: )
               end_bracket: )
             alias_expression:
               bracketed:

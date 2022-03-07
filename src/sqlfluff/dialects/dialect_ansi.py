@@ -115,7 +115,6 @@ ansi_dialect.set_lexer_matchers(
         RegexLexer("like_operator", r"!?~~?\*?", CodeSegment),
         RegexLexer("newline", r"\r\n|\n", NewlineSegment),
         StringLexer("casting_operator", "::", CodeSegment),
-        StringLexer("concat_operator", "||", CodeSegment),
         StringLexer("equals", "=", CodeSegment),
         StringLexer("greater_than", ">", CodeSegment),
         StringLexer("less_than", "<", CodeSegment),
@@ -250,15 +249,10 @@ ansi_dialect.add(
         "%", SymbolSegment, name="modulo", type="binary_operator"
     ),
     SlashSegment=StringParser("/", SymbolSegment, name="slash", type="slash"),
-    ConcatSegment=StringParser(
-        "||", SymbolSegment, name="concatenate", type="binary_operator"
+    AmpersandSegment=StringParser(
+        "&", SymbolSegment, name="ampersand", type="ampersand"
     ),
-    BitwiseAndSegment=StringParser(
-        "&", SymbolSegment, name="binary_and", type="binary_operator"
-    ),
-    BitwiseOrSegment=StringParser(
-        "|", SymbolSegment, name="binary_or", type="binary_operator"
-    ),
+    PipeSegment=StringParser("|", SymbolSegment, name="pipe", type="pipe"),
     BitwiseXorSegment=StringParser(
         "^", SymbolSegment, name="binary_xor", type="binary_operator"
     ),
@@ -1155,14 +1149,14 @@ class FromExpressionElementSegment(BaseSegment):
     match_grammar = Sequence(
         Ref("PreTableFunctionKeywordsGrammar", optional=True),
         OptionallyBracketed(Ref("TableExpressionSegment")),
-        # https://cloud.google.com/bigquery/docs/reference/standard-sql/arrays#flattening_arrays
-        Sequence("WITH", "OFFSET", optional=True),
         OneOf(
-            Sequence(Ref("AliasExpressionSegment"), Ref("SamplingExpressionSegment")),
-            Ref("SamplingExpressionSegment"),
             Ref("AliasExpressionSegment"),
+            exclude=Ref("SamplingExpressionSegment"),
             optional=True,
         ),
+        # https://cloud.google.com/bigquery/docs/reference/standard-sql/arrays#flattening_arrays
+        Sequence("WITH", "OFFSET", Ref("AliasExpressionSegment"), optional=True),
+        Ref("SamplingExpressionSegment", optional=True),
         Ref("PostTableExpressionGrammar", optional=True),
     )
 
@@ -1818,6 +1812,33 @@ class NotEqualToSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
+class ConcatSegment(BaseSegment):
+    """Concat operator."""
+
+    type = "binary_operator"
+    name = "concatenate"
+    match_grammar = Sequence(Ref("PipeSegment"), Ref("PipeSegment"), allow_gaps=False)
+
+
+@ansi_dialect.segment()
+class BitwiseAndSegment(BaseSegment):
+    """Bitwise and operator."""
+
+    type = "binary_operator"
+    name = "binary_and"
+    match_grammar = Ref("AmpersandSegment")
+
+
+@ansi_dialect.segment()
+class BitwiseOrSegment(BaseSegment):
+    """Bitwise or operator."""
+
+    type = "binary_operator"
+    name = "binary_or"
+    match_grammar = Ref("PipeSegment")
+
+
+@ansi_dialect.segment()
 class BitwiseLShiftSegment(BaseSegment):
     """Bitwise left-shift operator."""
 
@@ -2058,7 +2079,7 @@ class ValuesClauseSegment(BaseSegment):
                 Ref.keyword("ROW", optional=True),
                 Bracketed(
                     Delimited(
-                        "DEFAULT",  # not in `FROM` clause, rule?
+                        "DEFAULT",
                         Ref("ExpressionSegment"),
                         ephemeral_name="ValuesClauseElements",
                     )
@@ -2159,6 +2180,7 @@ ansi_dialect.add(
     NonWithNonSelectableGrammar=OneOf(
         Ref("UpdateStatementSegment"),
         Ref("InsertStatementSegment"),
+        Ref("DeleteStatementSegment"),
     ),
     # Things that behave like select statements, which can form part of set expressions.
     NonSetSelectableGrammar=OneOf(

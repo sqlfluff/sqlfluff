@@ -273,7 +273,6 @@ spark3_dialect.add(
     EndAngleBracketSegment=StringParser(
         ">", SymbolSegment, name="end_angle_bracket", type="end_angle_bracket"
     ),
-    # Add Spark Segments
     EqualsSegment_a=StringParser(
         "==", SymbolSegment, name="equals", type="comparison_operator"
     ),
@@ -285,6 +284,9 @@ spark3_dialect.add(
     ),
     JarKeywordSegment=RegexParser(
         "JARS?", KeywordSegment, name="jar", type="file_keyword"
+    ),
+    NoscanKeywordSegment=StringParser(
+        "NOSCAN", SymbolSegment, name="noscan_keyword", type="keyword"
     ),
     WhlKeywordSegment=StringParser(
         "WHL", KeywordSegment, name="whl", type="file_keyword"
@@ -554,8 +556,21 @@ class DatatypeSegment(PrimitiveTypeSegment):
         Sequence(
             "STRUCT",
             Bracketed(
-                Delimited(
+                # Manually rebuild Delimited.
+                # Delimited breaks futher nesting (MAP, STRUCT, ARRAY)
+                # of complex datatypes (Comma splits angle bracket blocks)
+                #
+                # CommentGrammar here is valid Spark SQL
+                # even though its not stored in Sparks Catalog
+                Sequence(
+                    Ref("NakedIdentifierSegment"),
+                    Ref("ColonSegment"),
+                    Ref("DatatypeSegment"),
+                    Ref("CommentGrammar", optional=True),
+                ),
+                AnyNumberOf(
                     Sequence(
+                        Ref("CommaSegment"),
                         Ref("NakedIdentifierSegment"),
                         Ref("ColonSegment"),
                         Ref("DatatypeSegment"),
@@ -791,8 +806,16 @@ class CreateTableStatementSegment(BaseSegment):
             # Columns and comment syntax:
             Sequence(
                 Bracketed(
-                    Delimited(
+                    # Manually rebuild Delimited.
+                    # Delimited breaks complex (MAP, STRUCT) datatypes
+                    # (Comma splits angle bracket blocks)
+                    Sequence(
+                        Ref("ColumnDefinitionSegment"),
+                        Ref("CommentGrammar", optional=True),
+                    ),
+                    AnyNumberOf(
                         Sequence(
+                            Ref("CommaSegment"),
                             Ref("ColumnDefinitionSegment"),
                             Ref("CommentGrammar", optional=True),
                         ),
@@ -1622,22 +1645,20 @@ class PivotClauseSegment(BaseSegment):
             ),
             "IN",
             Bracketed(
-                OneOf(
+                Delimited(
                     Sequence(
                         OneOf(
-                            Ref("ScalarValue"),
-                            Ref("TupleValue"),
+                            Bracketed(
+                                Delimited(
+                                    Ref("ExpressionSegment"),
+                                    ephemeral_name="ValuesClauseElements",
+                                )
+                            ),
+                            Delimited(
+                                Ref("ExpressionSegment"),
+                            ),
                         ),
                         Ref("AliasExpressionSegment", optional=True),
-                    ),
-                    Delimited(
-                        Sequence(
-                            OneOf(
-                                Ref("ScalarValue"),
-                                Ref("TupleValue"),
-                            ),
-                            Ref("AliasExpressionSegment", optional=True),
-                        ),
                     ),
                 ),
             ),
@@ -1720,7 +1741,7 @@ class AddFileSegment(BaseSegment):
     https://spark.apache.org/docs/latest/sql-ref-syntax-aux-resource-mgmt-add-file.html
     """
 
-    type = "add_file"
+    type = "add_file_statement"
 
     match_grammar = Sequence(
         "ADD",
@@ -1736,12 +1757,72 @@ class AddJarSegment(BaseSegment):
     https://spark.apache.org/docs/latest/sql-ref-syntax-aux-resource-mgmt-add-jar.html
     """
 
-    type = "add_jar"
+    type = "add_jar_statement"
 
     match_grammar = Sequence(
         "ADD",
         Ref("JarKeywordSegment"),
         AnyNumberOf(Ref("QuotedLiteralSegment")),
+    )
+
+
+@spark3_dialect.segment()
+class AnalyzeTableSegment(BaseSegment):
+    """An `ANALYZE {TABLE | TABLES}` statement.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-aux-analyze-table.html
+    """
+
+    type = "analyze_table_statement"
+
+    match_grammar = Sequence(
+        "ANALYZE",
+        OneOf(
+            Sequence(
+                "TABLE",
+                Ref("TableReferenceSegment"),
+                Ref(
+                    "PartitionSpecGrammar",
+                    optional=True,
+                ),
+                "COMPUTE",
+                "STATISTICS",
+                OneOf(
+                    "NOSCAN",
+                    Sequence(
+                        "FOR",
+                        "COLUMNS",
+                        OptionallyBracketed(
+                            Delimited(
+                                Ref(
+                                    "ColumnReferenceSegment",
+                                ),
+                            ),
+                        ),
+                    ),
+                    optional=True,
+                ),
+            ),
+            Sequence(
+                "TABLES",
+                Sequence(
+                    OneOf(
+                        "FROM",
+                        "IN",
+                    ),
+                    Ref(
+                        "DatabaseReferenceSegment",
+                    ),
+                    optional=True,
+                ),
+                "COMPUTE",
+                "STATISTICS",
+                Ref.keyword(
+                    "NOSCAN",
+                    optional=True,
+                ),
+            ),
+        ),
     )
 
 
@@ -1752,7 +1833,7 @@ class ListFileSegment(BaseSegment):
     https://spark.apache.org/docs/latest/sql-ref-syntax-aux-resource-mgmt-list-file.html
     """
 
-    type = "list_file"
+    type = "list_file_statement"
 
     match_grammar = Sequence(
         "LIST",
@@ -1768,7 +1849,7 @@ class ListJarSegment(BaseSegment):
     https://spark.apache.org/docs/latest/sql-ref-syntax-aux-resource-mgmt-add-jar.html
     """
 
-    type = "list_jar"
+    type = "list_jar_statement"
 
     match_grammar = Sequence(
         "LIST",
@@ -1845,6 +1926,7 @@ class StatementSegment(BaseSegment):
             # Auxiliary Statements
             Ref("AddFileSegment"),
             Ref("AddJarSegment"),
+            Ref("AnalyzeTableSegment"),
             Ref("ListFileSegment"),
             Ref("ListJarSegment"),
             Ref("RefreshStatementSegment"),
@@ -1984,61 +2066,13 @@ class AliasExpressionSegment(BaseSegment):
     )
 
 
-@spark3_dialect.segment()
-class DelimitedValues(BaseSegment):
-    """A ``VALUES`` clause can be a sequence either of scalar values or tuple values.
-
-    We make no attempt to ensure that all records have the same number of columns
-    besides the distinction between all scalar or all tuple, so for instance
-    ``VALUES (1,2), (3,4,5)`` will parse but is not legal SQL.
-    """
-
-    type = "delimited_values"
-
-    match_grammar = OneOf(
-        Delimited(Ref("ScalarValue")),
-        Delimited(Ref("TupleValue")),
-    )
-
-
-@spark3_dialect.segment()
-class ScalarValue(BaseSegment):
-    """An element of a ``VALUES`` clause that has a single column.
-
-    Ex: ``VALUES 1,2,3``
-    """
-
-    type = "scalar_value"
-    match_grammar = OneOf(
-        Ref("QuotedLiteralSegment"),
-        Ref("LiteralGrammar"),
-        Ref("BareFunctionSegment"),
-        Ref("FunctionSegment"),
-    )
-
-
-@spark3_dialect.segment()
-class TupleValue(BaseSegment):
-    """An element of a ``VALUES`` clause that has multiple columns.
-
-    Ex: ``VALUES (1,2), (3,4)``
-    """
-
-    type = "tuple_value"
-    match_grammar = Bracketed(
-        Delimited(
-            Ref("ScalarValue"),
-        )
-    )
-
-
 @spark3_dialect.segment(replace=True)
 class ValuesClauseSegment(BaseSegment):
     """A `VALUES` clause, as typically used with `INSERT` or `SELECT`.
 
     The Spark SQL reference does not mention `VALUES` clauses except in the context
     of `INSERT` statements. However, they appear to behave much the same as in
-    `postgres <https://www.postgresql.org/docs/13/sql-values.html>`.
+    `postgres <https://www.postgresql.org/docs/14/sql-values.html>`.
 
     In short, they can appear anywhere a `SELECT` can, and also as bare `VALUES`
     statements. Here are some examples:
@@ -2048,14 +2082,31 @@ class ValuesClauseSegment(BaseSegment):
         SELECT * FROM VALUES (1,2) as t (a,b);
         SELECT * FROM (VALUES (1,2) as t (a,b));
         WITH a AS (VALUES 1,2) SELECT * FROM a;
-
     """
 
     type = "values_clause"
-
     match_grammar = Sequence(
         "VALUES",
-        Ref("DelimitedValues"),
+        Delimited(
+            OneOf(
+                Bracketed(
+                    Delimited(
+                        # NULL keyword used in
+                        # INSERT INTO statement.
+                        "NULL",
+                        Ref("ExpressionSegment"),
+                        ephemeral_name="ValuesClauseElements",
+                    )
+                ),
+                Delimited(
+                    # NULL keyword used in
+                    # INSERT INTO statement.
+                    "NULL",
+                    Ref("ExpressionSegment"),
+                ),
+            ),
+        ),
+        # LIMIT/ORDER are unreserved in Spark3.
         AnyNumberOf(
             Ref("AliasExpressionSegment"),
             min_times=0,
@@ -2116,14 +2167,11 @@ class FromExpressionElementSegment(BaseSegment):
         Ref("PreTableFunctionKeywordsGrammar", optional=True),
         OptionallyBracketed(Ref("TableExpressionSegment")),
         OneOf(
-            Sequence(
-                Ref("AliasExpressionSegment"),
-                Ref("SamplingExpressionSegment"),
-            ),
-            Ref("SamplingExpressionSegment"),
             Ref("AliasExpressionSegment"),
+            exclude=Ref("SamplingExpressionSegment"),
             optional=True,
         ),
+        Ref("SamplingExpressionSegment", optional=True),
         # NB: `LateralViewClauseSegment`, `NamedWindowSegment`,
         # and `PivotClauseSegment should come after Alias/Sampling
         # expressions so those are matched before

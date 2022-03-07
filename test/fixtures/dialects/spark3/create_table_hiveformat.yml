@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f75c8976e83dd9f1911b0ed97169b53302402d55e118739f13ba3d117ca0fe90
+_hash: 9c017690fc3e758e281636004e4ba9136f3800284969a406cb8f033d7f7d0a79
 file:
 - statement:
     create_table_statement:
@@ -469,7 +469,7 @@ file:
       - end_bracket: )
 - statement_terminator: ;
 - statement:
-    add_jar:
+    add_jar_statement:
       keyword: ADD
       file_keyword: JAR
       literal: "'/tmp/hive_serde_example.jar'"
