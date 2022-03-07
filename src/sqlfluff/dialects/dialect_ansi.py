@@ -393,6 +393,9 @@ ansi_dialect.add(
     DateTimeLiteralGrammar=Sequence(
         OneOf("DATE", "TIME", "TIMESTAMP", "INTERVAL"), Ref("QuotedLiteralSegment")
     ),
+    # hookpoint for other dialects
+    # e.g. BIGQUERY INTO is optional
+    MergeIntoLiteralGrammar=Sequence("MERGE", "INTO"),
     LiteralGrammar=OneOf(
         Ref("QuotedLiteralSegment"),
         Ref("NumericLiteralSegment"),
@@ -2310,15 +2313,17 @@ class MergeStatementSegment(BaseSegment):
 
     type = "merge_statement"
     match_grammar = StartsWith(
-        Sequence("MERGE", "INTO"),
+        Ref("MergeIntoLiteralGrammar"),
     )
+    # Note separate `match_grammar` as overridden in other dialects.
     parse_grammar = Sequence(
-        "MERGE",
-        "INTO",
+        Ref("MergeIntoLiteralGrammar"),
+        Indent,
         OneOf(
             Ref("TableReferenceSegment"),
             Ref("AliasedTableReferenceGrammar"),
         ),
+        Dedent,
         "USING",
         Indent,
         OneOf(
@@ -2341,7 +2346,7 @@ class MergeStatementSegment(BaseSegment):
 class MergeMatchSegment(BaseSegment):
     """Contains dialect specific merge operations.
 
-    hookpoint for dialect specific behavior
+    Hookpoint for dialect specific behavior
     e.g. UpdateClause / DeleteClause, multiple MergeMatchedClauses
     """
 
@@ -2404,7 +2409,9 @@ class MergeInsertClauseSegment(BaseSegment):
         Indent,
         Ref("BracketedColumnReferenceListGrammar", optional=True),
         Dedent,
+        Indent,
         Ref("ValuesClauseSegment", optional=True),
+        Dedent,
     )
 
 

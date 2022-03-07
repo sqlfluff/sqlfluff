@@ -478,7 +478,7 @@ postgres_docs_keywords = [
     ("MAXVALUE", "non-reserved"),
     ("MEASURES", "not-keyword"),
     ("MEMBER", "not-keyword"),
-    ("MERGE", "reserved"),
+    ("MERGE", "non-reserved"),
     ("MESSAGE_LENGTH", "not-keyword"),
     ("MESSAGE_OCTET_LENGTH", "not-keyword"),
     ("MESSAGE_TEXT", "not-keyword"),
