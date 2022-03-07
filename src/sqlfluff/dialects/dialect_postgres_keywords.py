@@ -469,7 +469,7 @@ postgres_docs_keywords = [
     ("MAP", "not-keyword"),
     ("MAPPING", "non-reserved"),
     ("MATCH", "non-reserved"),
-    ("MATCHED", "not-keyword"),
+    ("MATCHED", "non-reserved"),
     ("MATCHES", "not-keyword"),
     ("MATCH_NUMBER", "not-keyword"),
     ("MATCH_RECOGNIZE", "not-keyword"),
