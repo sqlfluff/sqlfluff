@@ -1110,7 +1110,7 @@ class BaseSegment:
                     )
                 except ValueError:  # pragma: no cover
                     found_error = True
-                    linter_logger.warning(
+                    self._log_apply_fixes_check_issue(
                         "After fixes were applied, segment %r failed the "
                         "match() parser check. Fixes: %r",
                         segment,
@@ -1119,7 +1119,7 @@ class BaseSegment:
                 else:
                     if not match_result.is_complete():  # pragma: no cover
                         found_error = True
-                        linter_logger.warning(
+                        self._log_apply_fixes_check_issue(
                             "After fixes were applied, segment %r failed the "
                             "match() parser check. Result: %r Fixes: %r",
                             segment,
@@ -1140,12 +1140,16 @@ class BaseSegment:
                         )
                     r_copy.parse(parse_context)
                 except ValueError:  # pragma: no cover
-                    linter_logger.warning(
+                    self._log_apply_fixes_check_issue(
                         "After fixes were applied, segment %r failed the "
                         "parse() check. Fixes: %r",
                         r_copy,
                         fixes_applied,
                     )
+
+    @staticmethod
+    def _log_apply_fixes_check_issue(message, *args):
+        linter_logger.warning(message, *args)
 
     def iter_patches(self, templated_str: str) -> Iterator[FixPatch]:
         """Iterate through the segments generating fix patches.
