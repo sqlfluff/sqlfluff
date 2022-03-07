@@ -225,10 +225,11 @@ class Rule_L052(BaseRule):
         else:
             fixes.extend(
                 [
-                    LintFix.replace(
-                        anchor_segment,
+                    LintFix.create_after(
+                        self._choose_anchor_segment(
+                            context, "create_after", anchor_segment
+                        ),
                         [
-                            anchor_segment,
                             NewlineSegment(),
                             SymbolSegment(raw=";", type="symbol", name="semicolon"),
                         ],
@@ -277,10 +278,11 @@ class Rule_L052(BaseRule):
             # Semi-colon on same line.
             if not semicolon_newline:
                 fixes = [
-                    LintFix.replace(
-                        anchor_segment,
+                    LintFix.create_after(
+                        self._choose_anchor_segment(
+                            context, "create_after", anchor_segment
+                        ),
                         [
-                            anchor_segment,
                             SymbolSegment(raw=";", type="symbol", name="semicolon"),
                         ],
                     )
@@ -296,10 +298,11 @@ class Rule_L052(BaseRule):
                     before_segment, anchor_segment
                 )
                 fixes = [
-                    LintFix.replace(
-                        anchor_segment,
+                    LintFix.create_after(
+                        self._choose_anchor_segment(
+                            context, "create_after", anchor_segment
+                        ),
                         [
-                            anchor_segment,
                             NewlineSegment(),
                             SymbolSegment(raw=";", type="symbol", name="semicolon"),
                         ],
