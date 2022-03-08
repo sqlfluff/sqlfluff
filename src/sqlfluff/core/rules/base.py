@@ -797,7 +797,11 @@ class BaseRule:
 
         anchor = segment
         child = segment
-        if context.parent_stack[0] and context.parent_stack[0].path_to(segment)[1:-1]:
+        if (
+            context.parent_stack[0]
+            and context.parent_stack[0].path_to(segment)
+            and context.parent_stack[0].path_to(segment)[1:-1]
+        ):
             for seg in context.parent_stack[0].path_to(segment)[1:-1][::-1]:
                 children = (
                     seg.segments
