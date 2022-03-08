@@ -382,6 +382,16 @@ tsql_dialect.replace(
         Ref("Accessor_Grammar", optional=True),
         allow_gaps=True,
     ),
+    MergeIntoLiteralGrammar=Sequence(
+        "MERGE",
+        Sequence(
+            "TOP",
+            OptionallyBracketed(Ref("ExpressionSegment")),
+            Ref.keyword("PERCENT", optional=True),
+            optional=True,
+        ),
+        Ref.keyword("INTO", optional=True),
+    ),
 )
 
 
@@ -3212,52 +3222,12 @@ class CreateSchemaStatementSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment()
-class MergeStatementSegment(BaseSegment):
-    """`MERGE` statement.
+@tsql_dialect.segment(replace=True)
+class MergeMatchSegment(BaseSegment):
+    """Contains dialect specific merge operations."""
 
-    https://docs.microsoft.com/en-us/sql/t-sql/statements/merge-transact-sql?view=sql-server-ver15
-    """
-
-    type = "merge_statement"
-
+    type = "merge_match"
     match_grammar = Sequence(
-        "MERGE",
-        Sequence(
-            "TOP",
-            OptionallyBracketed(Ref("ExpressionSegment")),
-            Sequence("PERCENT", optional=True),
-            optional=True,
-        ),
-        Sequence("INTO", optional=True),
-        Indent,
-        OneOf(
-            Ref("TableReferenceSegment"),
-            Ref("AliasedTableReferenceGrammar"),
-            Sequence(
-                Ref("TableReferenceSegment"),
-                Ref("PostTableExpressionGrammar", optional=True),
-                Ref("AliasExpressionSegment", optional=True),
-            ),
-        ),
-        Dedent,
-        "USING",
-        Indent,
-        OneOf(
-            Sequence(
-                Ref("TableReferenceSegment"),
-                Ref("AliasExpressionSegment", optional=True),
-            ),
-            Sequence(
-                OptionallyBracketed(
-                    Ref("UnorderedSelectStatementSegment"),
-                ),
-                Ref("AliasExpressionSegment", optional=True),
-                Ref("BracketedColumnReferenceListGrammar", optional=True),
-            ),
-        ),
-        Dedent,
-        Ref("JoinOnConditionSegment"),
         AnyNumberOf(
             Ref("MergeMatchedClauseSegment"),
             Ref("MergeNotMatchedClauseSegment"),
@@ -3269,7 +3239,7 @@ class MergeStatementSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment()
+@tsql_dialect.segment(replace=True)
 class MergeMatchedClauseSegment(BaseSegment):
     """The `WHEN MATCHED` clause within a `MERGE` statement."""
 
@@ -3293,7 +3263,7 @@ class MergeMatchedClauseSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment()
+@tsql_dialect.segment(replace=True)
 class MergeNotMatchedClauseSegment(BaseSegment):
     """The `WHEN NOT MATCHED` clause within a `MERGE` statement."""
 
@@ -3329,28 +3299,7 @@ class MergeNotMatchedClauseSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment()
-class MergeUpdateClauseSegment(BaseSegment):
-    """`UPDATE` clause within the `MERGE` statement."""
-
-    type = "merge_update_clause"
-    match_grammar = Sequence(
-        "UPDATE",
-        Ref("SetClauseListSegment"),
-    )
-
-
-@tsql_dialect.segment()
-class MergeDeleteClauseSegment(BaseSegment):
-    """`DELETE` clause within the `MERGE` statement."""
-
-    type = "merge_delete_clause"
-    match_grammar = Sequence(
-        "DELETE",
-    )
-
-
-@tsql_dialect.segment()
+@tsql_dialect.segment(replace=True)
 class MergeInsertClauseSegment(BaseSegment):
     """`INSERT` clause within the `MERGE` statement."""
 

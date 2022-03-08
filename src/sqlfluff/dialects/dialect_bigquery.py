@@ -205,6 +205,7 @@ bigquery_dialect.replace(
         Ref("TableAliasExpressionSegment", optional=True),
     ),
     NaturalJoinKeywords=Nothing(),
+    MergeIntoLiteralGrammar=Sequence("MERGE", Ref.keyword("INTO", optional=True)),
 )
 
 

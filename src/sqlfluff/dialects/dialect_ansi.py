@@ -393,6 +393,9 @@ ansi_dialect.add(
     DateTimeLiteralGrammar=Sequence(
         OneOf("DATE", "TIME", "TIMESTAMP", "INTERVAL"), Ref("QuotedLiteralSegment")
     ),
+    # Hookpoint for other dialects
+    # e.g. INTO is optional in BIGQUERY
+    MergeIntoLiteralGrammar=Sequence("MERGE", "INTO"),
     LiteralGrammar=OneOf(
         Ref("QuotedLiteralSegment"),
         Ref("NumericLiteralSegment"),
@@ -2305,6 +2308,130 @@ class InsertStatementSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
+class MergeStatementSegment(BaseSegment):
+    """A `MERGE` statement."""
+
+    type = "merge_statement"
+    match_grammar = StartsWith(
+        Ref("MergeIntoLiteralGrammar"),
+    )
+    # Note separate `match_grammar` as overridden in other dialects.
+    parse_grammar = Sequence(
+        Ref("MergeIntoLiteralGrammar"),
+        Indent,
+        OneOf(
+            Ref("TableReferenceSegment"),
+            Ref("AliasedTableReferenceGrammar"),
+        ),
+        Dedent,
+        "USING",
+        Indent,
+        OneOf(
+            Ref("TableReferenceSegment"),
+            Ref("AliasedTableReferenceGrammar"),
+            Sequence(
+                Bracketed(
+                    Ref("SelectableGrammar"),
+                ),
+                Ref("AliasExpressionSegment"),
+            ),
+        ),
+        Dedent,
+        Ref("JoinOnConditionSegment"),
+        Ref("MergeMatchSegment"),
+    )
+
+
+@ansi_dialect.segment()
+class MergeMatchSegment(BaseSegment):
+    """Contains dialect specific merge operations.
+
+    Hookpoint for dialect specific behavior
+    e.g. UpdateClause / DeleteClause, multiple MergeMatchedClauses
+    """
+
+    type = "merge_match"
+    match_grammar = AnyNumberOf(
+        Ref("MergeMatchedClauseSegment"),
+        Ref("MergeNotMatchedClauseSegment"),
+        min_times=1,
+    )
+
+
+@ansi_dialect.segment()
+class MergeMatchedClauseSegment(BaseSegment):
+    """The `WHEN MATCHED` clause within a `MERGE` statement."""
+
+    type = "merge_when_matched_clause"
+    match_grammar = Sequence(
+        "WHEN",
+        "MATCHED",
+        Sequence("AND", Ref("ExpressionSegment"), optional=True),
+        "THEN",
+        Indent,
+        OneOf(
+            Ref("MergeUpdateClauseSegment"),
+            Ref("MergeDeleteClauseSegment"),
+        ),
+        Dedent,
+    )
+
+
+@ansi_dialect.segment()
+class MergeNotMatchedClauseSegment(BaseSegment):
+    """The `WHEN NOT MATCHED` clause within a `MERGE` statement."""
+
+    type = "merge_when_not_matched_clause"
+    match_grammar = Sequence(
+        "WHEN",
+        "NOT",
+        "MATCHED",
+        Sequence("AND", Ref("ExpressionSegment"), optional=True),
+        "THEN",
+        Indent,
+        Ref("MergeInsertClauseSegment"),
+        Dedent,
+    )
+
+
+@ansi_dialect.segment()
+class MergeUpdateClauseSegment(BaseSegment):
+    """`UPDATE` clause within the `MERGE` statement."""
+
+    type = "merge_update_clause"
+    match_grammar = Sequence(
+        "UPDATE",
+        Indent,
+        Ref("SetClauseListSegment"),
+        Dedent,
+    )
+
+
+@ansi_dialect.segment()
+class MergeInsertClauseSegment(BaseSegment):
+    """`INSERT` clause within the `MERGE` statement."""
+
+    type = "merge_insert_clause"
+    match_grammar = Sequence(
+        "INSERT",
+        Indent,
+        Ref("BracketedColumnReferenceListGrammar", optional=True),
+        Dedent,
+        Indent,
+        Ref("ValuesClauseSegment", optional=True),
+        Dedent,
+    )
+
+
+@ansi_dialect.segment()
+class MergeDeleteClauseSegment(BaseSegment):
+    """`DELETE` clause within the `MERGE` statement."""
+
+    type = "merge_delete_clause"
+    match_grammar = Ref.keyword("DELETE")
+
+
+@ansi_dialect.segment()
 class TransactionStatementSegment(BaseSegment):
     """A `COMMIT`, `ROLLBACK` or `TRANSACTION` statement."""
 
@@ -3275,6 +3402,7 @@ class StatementSegment(BaseSegment):
 
     parse_grammar = OneOf(
         Ref("SelectableGrammar"),
+        Ref("MergeStatementSegment"),
         Ref("InsertStatementSegment"),
         Ref("TransactionStatementSegment"),
         Ref("DropTableStatementSegment"),
