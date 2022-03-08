@@ -18,6 +18,7 @@ from sqlfluff.core.parser.segments import (
     SymbolSegment,
     CommentSegment,
     CodeSegment,
+    BaseSegment,
 )
 from sqlfluff.core.templaters import TemplatedFile
 
@@ -221,3 +222,22 @@ def generate_test_segments():
 
     # Return the function
     return generate_test_segments_func
+
+
+@pytest.fixture(autouse=True)
+def fail_on_parse_error_after_fix(monkeypatch):
+    """Cause tests to fail if a lint fix introduces a parse error.
+
+    In production, the function _log_apply_fixes_check_issue() just logs a
+    warning. To catch bugs in new or modified rules, We want to be more strict
+    during dev and CI/CD testing. Here, we patch in a different function which
+    raises a runtime error, causing tests to fail if this happens.
+    """
+
+    @staticmethod
+    def raise_error_apply_fixes_check_issue(message, *args):  # pragma: no cover
+        raise ValueError(message % args)
+
+    monkeypatch.setattr(
+        BaseSegment, "_log_apply_fixes_check_issue", raise_error_apply_fixes_check_issue
+    )
