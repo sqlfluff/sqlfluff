@@ -518,7 +518,9 @@ class Linter:
                         cls._warn_unfixable(crawler.code)
                     else:
                         last_fixes = fixes
-                        new_tree, _ = tree.apply_fixes(config.get("dialect_obj"), fixes)
+                        new_tree, _ = tree.apply_fixes(
+                            config.get("dialect_obj"), crawler.code, fixes
+                        )
                         # Check for infinite loops
                         if new_tree.raw not in previous_versions:
                             # We've not seen this version of the file so far. Continue.
