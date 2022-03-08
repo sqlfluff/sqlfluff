@@ -150,6 +150,8 @@ class Rule_L026(BaseRule):
         #   clause.
         if ref_path:
             return any(seg.is_type("into_table_clause") for seg in ref_path)
+        else:
+            return False
 
     @staticmethod
     def _get_table_refs(ref, dialect):

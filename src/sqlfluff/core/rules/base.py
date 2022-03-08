@@ -802,12 +802,11 @@ class BaseRule:
 
         anchor: BaseSegment = segment
         child: BaseSegment = segment
-        if (
-            context.parent_stack[0]
-            and context.parent_stack[0].path_to(segment)
-            and context.parent_stack[0].path_to(segment)[1:-1]
-        ):
-            for seg in context.parent_stack[0].path_to(segment)[1:-1][::-1]:
+        parent: BaseSegment = context.parent_stack[0]
+        path = parent.path_to(segment) if parent else None
+        inner_path = path[1:-1] if path else None
+        if inner_path:
+            for seg in inner_path[::-1]:
                 # Which lists of children to check against.
                 children_lists: List[List[BaseSegment]] = []
                 if filter_meta:
