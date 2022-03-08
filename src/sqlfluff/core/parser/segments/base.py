@@ -1094,60 +1094,26 @@ class BaseSegment:
         """Checks correctness of new segment against match or parse grammar."""
         root_parse_context = RootParseContext(dialect=dialect)
         with root_parse_context as parse_context:
-            # Check for parse_grammar first. If both are present, it is more
-            # thorough and complete.
-            if getattr(segment, "parse_grammar", None):
-                try:
-                    # :HACK: Calling parse() corrupts the segment 'r'
-                    # in some cases, e.g. adding additional Dedent child
-                    # segments. Here, we work around this by calling
-                    # parse() on a "backup copy" of the segment.
-                    r_copy = deepcopy(segment)
-                    for seg in r_copy.segments:
-                        seg.pos_marker = replace(
-                            seg.pos_marker,
-                            templated_file=self.pos_marker.templated_file,
-                        )
-                    r_copy.parse(parse_context)
-                except ValueError:  # pragma: no cover
-                    self._log_apply_fixes_check_issue(
-                        "After %s fixes were applied, segment %r failed the "
-                        "parse() check. Fixes: %r",
-                        rule_code,
-                        r_copy,
-                        fixes_applied,
+            try:
+                # :HACK: Calling parse() corrupts the segment 'r'
+                # in some cases, e.g. adding additional Dedent child
+                # segments. Here, we work around this by calling
+                # parse() on a "backup copy" of the segment.
+                r_copy = deepcopy(segment)
+                for seg in r_copy.segments:
+                    seg.pos_marker = replace(
+                        seg.pos_marker,
+                        templated_file=self.pos_marker.templated_file,
                     )
-            elif getattr(segment, "match_grammar", None):
-                try:
-                    for seg in segment.segments:
-                        seg.pos_marker = replace(
-                            seg.pos_marker,
-                            templated_file=self.pos_marker.templated_file,
-                        )
-                    match_result = segment.match(
-                        deepcopy(
-                            tuple([seg for seg in segment.segments if not seg.is_meta])
-                        ),
-                        parse_context,
-                    )
-                except ValueError:  # pragma: no cover
-                    self._log_apply_fixes_check_issue(
-                        "After %s fixes were applied, segment %r failed the "
-                        "match() parser check. Fixes: %r",
-                        rule_code,
-                        segment,
-                        fixes_applied,
-                    )
-                else:
-                    if not match_result.is_complete():  # pragma: no cover
-                        self._log_apply_fixes_check_issue(
-                            "After %s fixes were applied, segment %r failed the "
-                            "match() parser check. Result: %r Fixes: %r",
-                            rule_code,
-                            segment,
-                            match_result,
-                            fixes_applied,
-                        )
+                r_copy.parse(parse_context)
+            except ValueError:  # pragma: no cover
+                self._log_apply_fixes_check_issue(
+                    "After %s fixes were applied, segment %r failed the "
+                    "parse() check. Fixes: %r",
+                    rule_code,
+                    r_copy,
+                    fixes_applied,
+                )
 
     @staticmethod
     def _log_apply_fixes_check_issue(message, *args):  # pragma: no cover
