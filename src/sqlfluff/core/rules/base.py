@@ -798,20 +798,23 @@ class BaseRule:
         anchor = segment
         child = segment
         for seg in context.parent_stack[0].path_to(segment)[1:-1][::-1]:
-            children = (
-                seg.segments
-                if not filter_meta
-                else [child for child in seg.segments if not child.is_meta]
-            )
-            if edit_type == "create_before" and children[0] is child:
-                anchor = seg
-                assert anchor.raw.startswith(segment.raw)
-            elif edit_type == "create_after" and children[-1] is child:
-                anchor = seg
-                assert anchor.raw.endswith(segment.raw)
-            else:
-                break
-            child = seg
+            childrenses = []
+            if filter_meta:
+                childrenses.append(
+                    [child for child in seg.segments if not child.is_meta]
+                )
+            childrenses.append(seg.segments)
+            for children in childrenses:
+                if edit_type == "create_before" and children[0] is child:
+                    anchor = seg
+                    assert anchor.raw.startswith(segment.raw)
+                    child = seg
+                    break
+                elif edit_type == "create_after" and children[-1] is child:
+                    anchor = seg
+                    assert anchor.raw.endswith(segment.raw)
+                    child = seg
+                    break
         return anchor
 
     @staticmethod

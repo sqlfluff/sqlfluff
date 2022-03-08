@@ -173,7 +173,7 @@ class Rule_L052(BaseRule):
         fixes = [
             LintFix.create_after(
                 self._choose_anchor_segment(
-                    context, "create_after", info.anchor_segment
+                    context, "create_after", info.anchor_segment, filter_meta=True
                 ),
                 [
                     SymbolSegment(raw=";", type="symbol", name="semicolon"),
@@ -227,7 +227,7 @@ class Rule_L052(BaseRule):
                 [
                     LintFix.create_after(
                         self._choose_anchor_segment(
-                            context, "create_after", anchor_segment
+                            context, "create_after", anchor_segment, filter_meta=True
                         ),
                         [
                             NewlineSegment(),
@@ -280,7 +280,7 @@ class Rule_L052(BaseRule):
                 fixes = [
                     LintFix.create_after(
                         self._choose_anchor_segment(
-                            context, "create_after", anchor_segment
+                            context, "create_after", anchor_segment, filter_meta=True
                         ),
                         [
                             SymbolSegment(raw=";", type="symbol", name="semicolon"),
@@ -300,7 +300,7 @@ class Rule_L052(BaseRule):
                 fixes = [
                     LintFix.create_after(
                         self._choose_anchor_segment(
-                            context, "create_after", anchor_segment
+                            context, "create_after", anchor_segment, filter_meta=True
                         ),
                         [
                             NewlineSegment(),
@@ -308,7 +308,6 @@ class Rule_L052(BaseRule):
                         ],
                     )
                 ]
-
             return LintResult(
                 anchor=anchor_segment,
                 fixes=fixes,
