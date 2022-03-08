@@ -1094,8 +1094,8 @@ class BaseSegment:
         """Checks correctness of new segment against match or parse grammar."""
         root_parse_context = RootParseContext(dialect=dialect)
         with root_parse_context as parse_context:
-            # Check for parse_grammar first. If both are present, it is more
-            # thorough and complete.
+            # Check for parse_grammar first. If both are present, it is the
+            # parse_grammar which is actually used for parsing.
             if getattr(segment, "parse_grammar", None):
                 try:
                     # :HACK: Calling parse() corrupts the segment 'r'
