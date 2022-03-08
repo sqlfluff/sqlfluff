@@ -306,25 +306,27 @@ class Rule_L036(BaseRule):
                         )
                         fixes += [LintFix.delete(seg) for seg in to_delete]
 
-                        # The select_clause is immediately followed by a
-                        # newline. Delete the newline in order to avoid leaving
-                        # behind an empty line after fix, *unless* we stopped
-                        # due to something other than a newline.
-                        delete_last_newline = select_children[
-                            start_idx - len(to_delete) - 1
-                        ].is_type("newline")
+                        if to_delete:
 
-                        # Delete the newline if we decided to.
-                        if delete_last_newline:
-                            fixes.append(
-                                LintFix.delete(
-                                    select_stmt.segments[after_select_clause_idx],
+                            # The select_clause is immediately followed by a
+                            # newline. Delete the newline in order to avoid leaving
+                            # behind an empty line after fix, *unless* we stopped
+                            # due to something other than a newline.
+                            delete_last_newline = select_children[
+                                start_idx - len(to_delete) - 1
+                            ].is_type("newline")
+
+                            # Delete the newline if we decided to.
+                            if delete_last_newline:
+                                fixes.append(
+                                    LintFix.delete(
+                                        select_stmt.segments[after_select_clause_idx],
+                                    )
                                 )
-                            )
 
-                        fixes += _fixes_for_move_after_select_clause(
-                            to_delete[-1],
-                        )
+                            fixes += _fixes_for_move_after_select_clause(
+                                to_delete[-1],
+                            )
                     elif select_stmt.segments[after_select_clause_idx].is_type(
                         "whitespace"
                     ):
