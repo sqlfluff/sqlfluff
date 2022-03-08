@@ -1905,7 +1905,7 @@ class MergeUpdateClauseSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
+@exasol_dialect.segment(replace=True)
 class MergeDeleteClauseSegment(BaseSegment):
     """`DELETE` clause within the `MERGE` statement."""
 

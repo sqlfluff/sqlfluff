@@ -387,7 +387,7 @@ tsql_dialect.replace(
         Sequence(
             "TOP",
             OptionallyBracketed(Ref("ExpressionSegment")),
-            Sequence("PERCENT", optional=True),
+            Ref.keyword("PERCENT", optional=True),
             optional=True,
         ),
         Ref.keyword("INTO", optional=True),
@@ -3296,27 +3296,6 @@ class MergeNotMatchedClauseSegment(BaseSegment):
             ),
             Dedent,
         ),
-    )
-
-
-@tsql_dialect.segment(replace=True)
-class MergeUpdateClauseSegment(BaseSegment):
-    """`UPDATE` clause within the `MERGE` statement."""
-
-    type = "merge_update_clause"
-    match_grammar = Sequence(
-        "UPDATE",
-        Ref("SetClauseListSegment"),
-    )
-
-
-@tsql_dialect.segment()
-class MergeDeleteClauseSegment(BaseSegment):
-    """`DELETE` clause within the `MERGE` statement."""
-
-    type = "merge_delete_clause"
-    match_grammar = Sequence(
-        "DELETE",
     )
 
 

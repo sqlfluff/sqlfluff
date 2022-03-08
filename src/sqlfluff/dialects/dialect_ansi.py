@@ -393,8 +393,8 @@ ansi_dialect.add(
     DateTimeLiteralGrammar=Sequence(
         OneOf("DATE", "TIME", "TIMESTAMP", "INTERVAL"), Ref("QuotedLiteralSegment")
     ),
-    # hookpoint for other dialects
-    # e.g. BIGQUERY INTO is optional
+    # Hookpoint for other dialects
+    # e.g. INTO is optional in BIGQUERY
     MergeIntoLiteralGrammar=Sequence("MERGE", "INTO"),
     LiteralGrammar=OneOf(
         Ref("QuotedLiteralSegment"),
@@ -2351,9 +2351,10 @@ class MergeMatchSegment(BaseSegment):
     """
 
     type = "merge_match"
-    match_grammar = Sequence(
+    match_grammar = AnyNumberOf(
         Ref("MergeMatchedClauseSegment"),
         Ref("MergeNotMatchedClauseSegment"),
+        min_times=1,
     )
 
 
@@ -2365,9 +2366,13 @@ class MergeMatchedClauseSegment(BaseSegment):
     match_grammar = Sequence(
         "WHEN",
         "MATCHED",
-        Indent,
+        Sequence("AND", Ref("ExpressionSegment"), optional=True),
         "THEN",
-        Ref("MergeUpdateClauseSegment"),
+        Indent,
+        OneOf(
+            Ref("MergeUpdateClauseSegment"),
+            Ref("MergeDeleteClauseSegment"),
+        ),
         Dedent,
     )
 
@@ -2381,6 +2386,7 @@ class MergeNotMatchedClauseSegment(BaseSegment):
         "WHEN",
         "NOT",
         "MATCHED",
+        Sequence("AND", Ref("ExpressionSegment"), optional=True),
         "THEN",
         Indent,
         Ref("MergeInsertClauseSegment"),
@@ -2395,7 +2401,9 @@ class MergeUpdateClauseSegment(BaseSegment):
     type = "merge_update_clause"
     match_grammar = Sequence(
         "UPDATE",
+        Indent,
         Ref("SetClauseListSegment"),
+        Dedent,
     )
 
 
@@ -2413,6 +2421,14 @@ class MergeInsertClauseSegment(BaseSegment):
         Ref("ValuesClauseSegment", optional=True),
         Dedent,
     )
+
+
+@ansi_dialect.segment()
+class MergeDeleteClauseSegment(BaseSegment):
+    """`DELETE` clause within the `MERGE` statement."""
+
+    type = "merge_delete_clause"
+    match_grammar = Ref.keyword("DELETE")
 
 
 @ansi_dialect.segment()

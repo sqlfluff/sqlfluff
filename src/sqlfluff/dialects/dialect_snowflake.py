@@ -3599,66 +3599,6 @@ class AlterTaskUnsetClauseSegment(BaseSegment):
 # MERGE
 ############################
 @snowflake_dialect.segment(replace=True)
-class MergeMatchSegment(BaseSegment):
-    """Contains dialect specific merge operations."""
-
-    type = "merge_match"
-    match_grammar = Sequence(
-        Ref("MergeMatchedClauseSegment", optional=True),
-        Ref("MergeNotMatchedClauseSegment", optional=True),
-    )
-
-
-@snowflake_dialect.segment(replace=True)
-class MergeMatchedClauseSegment(BaseSegment):
-    """The `WHEN MATCHED` clause within a `MERGE` statement."""
-
-    type = "merge_when_matched_clause"
-    match_grammar = StartsWith(
-        Sequence(
-            "WHEN",
-            "MATCHED",
-            Sequence("AND", Ref("ExpressionSegment"), optional=True),
-            "THEN",
-            OneOf("UPDATE", "DELETE"),
-        ),
-        terminator=Ref("MergeNotMatchedClauseSegment"),
-    )
-    parse_grammar = Sequence(
-        "WHEN",
-        "MATCHED",
-        Sequence("AND", Ref("ExpressionSegment"), optional=True),
-        "THEN",
-        OneOf(
-            Ref("MergeUpdateClauseSegment"),
-            Ref("MergeDeleteClauseSegment"),
-        ),
-    )
-
-
-@snowflake_dialect.segment(replace=True)
-class MergeNotMatchedClauseSegment(BaseSegment):
-    """The `WHEN NOT MATCHED` clause within a `MERGE` statement."""
-
-    type = "merge_when_not_matched_clause"
-    match_grammar = StartsWith(
-        Sequence(
-            "WHEN",
-            "NOT",
-            "MATCHED",
-        ),
-    )
-    parse_grammar = Sequence(
-        "WHEN",
-        "NOT",
-        "MATCHED",
-        Sequence("AND", Ref("ExpressionSegment"), optional=True),
-        "THEN",
-        Ref("MergeInsertClauseSegment"),
-    )
-
-
-@snowflake_dialect.segment(replace=True)
 class MergeUpdateClauseSegment(BaseSegment):
     """`UPDATE` clause within the `MERGE` statement."""
 
@@ -3670,7 +3610,7 @@ class MergeUpdateClauseSegment(BaseSegment):
     )
 
 
-@snowflake_dialect.segment()
+@snowflake_dialect.segment(replace=True)
 class MergeDeleteClauseSegment(BaseSegment):
     """`DELETE` clause within the `MERGE` statement."""
 
