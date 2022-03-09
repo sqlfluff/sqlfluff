@@ -524,7 +524,7 @@ class Linter:
                     if len(unique_anchors) < len(fixes):  # pragma: no cover
                         message = (
                             f"Rule {crawler.code} returned multiple fixes with "
-                            f"the same anchors. This is not supported, so the "
+                            f"the same anchor. This is not supported, so the "
                             f"fixes will not be applied. {fixes!r}"
                         )
                         cls._warn_duplicate_anchors(message)
