@@ -170,11 +170,21 @@ class Rule_L052(BaseRule):
         # If preceding segments are found then delete the old
         # semi-colon and its preceding whitespace and then insert
         # the semi-colon in the correct location.
+        anchor_segment = self._choose_anchor_segment(
+            context, "create_after", info.anchor_segment, filter_meta=True
+        )
+        whitespace_deletions = info.whitespace_deletions
+        lintfix_fn = LintFix.create_after
+        if anchor_segment in info.whitespace_deletions:
+            # Can't delete() and create_after() the same segment. Use replace()
+            # instead.
+            lintfix_fn = LintFix.replace
+            whitespace_deletions = info.whitespace_deletions.select(
+                lambda seg: seg is not anchor_segment
+            )
         fixes = [
-            LintFix.create_after(
-                self._choose_anchor_segment(
-                    context, "create_after", info.anchor_segment, filter_meta=True
-                ),
+            lintfix_fn(
+                anchor_segment,
                 [
                     SymbolSegment(raw=";", type="symbol", name="semicolon"),
                 ],
@@ -183,7 +193,7 @@ class Rule_L052(BaseRule):
                 context.segment,
             ),
         ]
-        fixes.extend(LintFix.delete(d) for d in info.whitespace_deletions)
+        fixes.extend(LintFix.delete(d) for d in whitespace_deletions)
         return LintResult(
             anchor=info.anchor_segment,
             fixes=fixes,

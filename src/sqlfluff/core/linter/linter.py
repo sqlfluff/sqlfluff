@@ -1,5 +1,6 @@
 """Defines the linter class."""
 
+from collections import Counter
 import fnmatch
 import os
 import time
@@ -514,7 +515,16 @@ class Linter:
                 if fix and fixes:
                     linter_logger.info(f"Applying Fixes [{crawler.code}]: {fixes}")
                     # Do some sanity checks on the fixes before applying.
-                    if fixes == last_fixes:  # pragma: no cover
+                    anchor_usage = Counter(fix.anchor for fix in fixes)
+                    duplicate_anchors = [k for k, v in anchor_usage.items() if v > 1]
+                    if duplicate_anchors:
+                        linter_logger.warning(
+                            f"Rule {crawler.code} returned multiple fixes with "
+                            f"the same anchors. This is not supported, so the "
+                            f"fixes will not be applied. %r",
+                            fixes,
+                        )  # pragma: no cover
+                    elif fixes == last_fixes:  # pragma: no cover
                         cls._warn_unfixable(crawler.code)
                     else:
                         last_fixes = fixes

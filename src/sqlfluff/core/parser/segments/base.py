@@ -1053,7 +1053,6 @@ class BaseSegment:
                                 )
                             # We've applied a fix here. Move on, this also consumes the
                             # fix
-                            # TODO: Maybe deal with overlapping fixes later.
                             break
                         else:
                             # We've not used the fix so we should keep it in the list
