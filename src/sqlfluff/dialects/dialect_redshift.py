@@ -42,7 +42,112 @@ redshift_dialect.sets("reserved_keywords").update(
 redshift_dialect.sets("bare_functions").clear()
 redshift_dialect.sets("bare_functions").update(["current_date", "sysdate"])
 
-redshift_dialect.sets("date_part_function_name").update(["DATEADD", "DATEDIFF"])
+redshift_dialect.sets("date_part_function_name").update(
+    ["DATEADD", "DATEDIFF", "EXTRACT", "DATE_PART"]
+)
+
+# Add datetime units
+# https://docs.aws.amazon.com/redshift/latest/dg/r_Dateparts_for_datetime_functions.html
+redshift_dialect.sets("datetime_units").update(
+    [
+        # millenium
+        "MILLENNIUM",
+        "MILLENNIA",
+        "MIL",
+        "MILS",
+        # century
+        "CENTURY",
+        "CENTURIES",
+        "C",
+        "CENT",
+        "CENTS",
+        # decade
+        "DECADE",
+        "DECADES",
+        "DEC",
+        "DECS",
+        # epoch
+        "EPOCH",
+        # year
+        "YEAR",
+        "YEARS",
+        "Y",
+        "YR",
+        "YRS",
+        # quarter
+        "QUARTER",
+        "QUARTERS",
+        "QTR",
+        "QTRS",
+        # month
+        "MONTH",
+        "MONTHS",
+        "MON",
+        "MONS",
+        # week
+        "WEEK",
+        "WEEKS",
+        "W",
+        # day of week
+        "DAYOFWEEK",
+        "DOW",
+        "DW",
+        "WEEKDAY",
+        # day of year
+        "DAYOFYEAR",
+        "DOY",
+        "DY",
+        "YEARDAY",
+        # day
+        "DAY",
+        "DAYS",
+        "D",
+        # hour
+        "HOUR",
+        "HOURS",
+        "H",
+        "HR",
+        "HRS",
+        # minute
+        "MINUTE",
+        "MINUTES",
+        "M",
+        "MIN",
+        "MINS",
+        # second
+        "SECOND",
+        "SECONDS",
+        "S",
+        "SEC",
+        "SECS",
+        # millisec
+        "MILLISECOND",
+        "MILLISECONDS",
+        "MS",
+        "MSEC",
+        "MSECS",
+        "MSECOND",
+        "MSECONDS",
+        "MILLISEC",
+        "MILLISECS",
+        "MILLISECON",
+        # microsec
+        "MICROSECOND",
+        "MICROSECONDS",
+        "MICROSEC",
+        "MICROSECS",
+        "MICROSECOND",
+        "USECOND",
+        "USECONDS",
+        "US",
+        "USEC",
+        "USECS",
+        # timezone
+        "TIMEZONE",
+        "TIMEZONE_HOUR",
+        "TIMEZONE_MINUTE",
+    ]
+)
 
 redshift_dialect.replace(WellKnownTextGeometrySegment=Nothing())
 

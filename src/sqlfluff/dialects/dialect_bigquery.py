@@ -221,9 +221,24 @@ bigquery_dialect.sets("reserved_keywords").update(
 )
 
 # Add additional datetime units
-# https://cloud.google.com/bigquery/docs/reference/standard-sql/date_functions#extract
+# https://cloud.google.com/bigquery/docs/reference/standard-sql/timestamp_functions#extract
 bigquery_dialect.sets("datetime_units").update(
-    ["MICROSECOND", "DAYOFWEEK", "ISOWEEK", "ISOYEAR"]
+    [
+        "MICROSECOND",
+        "MILLISECOND",
+        "SECOND",
+        "MINUTE",
+        "HOUR",
+        "DAY",
+        "DAYOFWEEK",
+        "DAYOFYEAR",
+        "WEEK",
+        "ISOWEEK",
+        "MONTH",
+        "QUARTER",
+        "YEAR",
+        "ISOYEAR",
+    ]
 )
 
 bigquery_dialect.sets("date_part_function_name").clear()
