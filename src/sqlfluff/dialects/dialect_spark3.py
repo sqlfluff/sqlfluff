@@ -292,18 +292,27 @@ spark3_dialect.add(
         "WHL", KeywordSegment, name="whl", type="file_keyword"
     ),
     # Add relevant Hive Grammar
-    BracketedPropertyListGrammar=hive_dialect.get_grammar(
-        "BracketedPropertyListGrammar"
-    ),
     CommentGrammar=hive_dialect.get_grammar("CommentGrammar"),
     LocationGrammar=hive_dialect.get_grammar("LocationGrammar"),
-    PropertyGrammar=hive_dialect.get_grammar("PropertyGrammar"),
     SerdePropertiesGrammar=hive_dialect.get_grammar("SerdePropertiesGrammar"),
     StoredAsGrammar=hive_dialect.get_grammar("StoredAsGrammar"),
     StoredByGrammar=hive_dialect.get_grammar("StoredByGrammar"),
     StorageFormatGrammar=hive_dialect.get_grammar("StorageFormatGrammar"),
     TerminatedByGrammar=hive_dialect.get_grammar("TerminatedByGrammar"),
     # Add Spark Grammar
+    PropertyGrammar=Sequence(
+        OneOf(
+            Ref("LiteralGrammar"),
+            Ref("SingleIdentifierGrammar"),
+        ),
+        Ref("EqualsSegment", optional=True),
+        OneOf(
+            Ref("LiteralGrammar"),
+            Ref("SingleIdentifierGrammar"),
+        ),
+    ),
+    BracketedPropertyListGrammar=Bracketed(Delimited(Ref("PropertyGrammar"))),
+    OptionsGrammar=Sequence("OPTIONS", Ref("BracketedPropertyListGrammar")),
     BucketSpecGrammar=Sequence(
         Ref("ClusteredBySpecGrammar"),
         Ref("SortedBySpecGrammar", optional=True),
@@ -832,7 +841,7 @@ class CreateTableStatementSegment(BaseSegment):
         Sequence("USING", Ref("DataSourceFormatGrammar"), optional=True),
         Ref("RowFormatClauseSegment", optional=True),
         Ref("StoredAsGrammar", optional=True),
-        Sequence("OPTIONS", Ref("BracketedPropertyListGrammar"), optional=True),
+        Ref("OptionsGrammar", optional=True),
         Ref("PartitionSpecGrammar", optional=True),
         Ref("BucketSpecGrammar", optional=True),
         AnyNumberOf(
@@ -1023,7 +1032,7 @@ class InsertOverwriteDirectorySegment(BaseSegment):
         Ref("QuotedLiteralSegment", optional=True),
         "USING",
         Ref("DataSourceFormatGrammar"),
-        Sequence("OPTIONS", Ref("BracketedPropertyListGrammar"), optional=True),
+        Ref("OptionsGrammar", optional=True),
         OneOf(
             AnyNumberOf(
                 Ref("ValuesClauseSegment"),
@@ -1827,6 +1836,41 @@ class AnalyzeTableSegment(BaseSegment):
 
 
 @spark3_dialect.segment()
+class CacheTableSegment(BaseSegment):
+    """A `CACHE TABLE` statement.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-aux-cache-cache-table.html
+    """
+
+    type = "cache_table"
+
+    match_grammar = Sequence(
+        "CACHE",
+        Ref.keyword("LAZY", optional=True),
+        "TABLE",
+        Ref("TableReferenceSegment"),
+        Ref("OptionsGrammar", optional=True),
+        Ref.keyword("AS", optional=True),
+        Ref("SelectableGrammar"),
+    )
+
+
+@spark3_dialect.segment()
+class ClearCacheSegment(BaseSegment):
+    """A `CLEAR CACHE` statement.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-aux-cache-clear-cache.html
+    """
+
+    type = "clear_cache"
+
+    match_grammar = Sequence(
+        "CLEAR",
+        "CACHE",
+    )
+
+
+@spark3_dialect.segment()
 class ListFileSegment(BaseSegment):
     """A `LIST {FILE | FILES}` statement.
 
@@ -1905,6 +1949,23 @@ class RefreshFunctionStatementSegment(BaseSegment):
     )
 
 
+@spark3_dialect.segment()
+class UncacheTableSegment(BaseSegment):
+    """AN `UNCACHE TABLE` statement.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-aux-cache-uncache-table.html
+    """
+
+    type = "uncache_table"
+
+    match_grammar = Sequence(
+        "UNCACHE",
+        "TABLE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+    )
+
+
 @spark3_dialect.segment(replace=True)
 class StatementSegment(BaseSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
@@ -1927,11 +1988,14 @@ class StatementSegment(BaseSegment):
             Ref("AddFileSegment"),
             Ref("AddJarSegment"),
             Ref("AnalyzeTableSegment"),
+            Ref("CacheTableSegment"),
+            Ref("ClearCacheSegment"),
             Ref("ListFileSegment"),
             Ref("ListJarSegment"),
             Ref("RefreshStatementSegment"),
             Ref("RefreshTableStatementSegment"),
             Ref("RefreshFunctionStatementSegment"),
+            Ref("UncacheTableSegment"),
             # Data Manipulation Statements
             Ref("InsertOverwriteDirectorySegment"),
             Ref("InsertOverwriteDirectoryHiveFmtSegment"),
@@ -2126,6 +2190,7 @@ class TableExpressionSegment(BaseSegment):
     """
 
     type = "table_expression"
+
     match_grammar = OneOf(
         Ref("ValuesClauseSegment"),
         Ref("BareFunctionSegment"),
