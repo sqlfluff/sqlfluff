@@ -470,7 +470,6 @@ test_fail_whitespace_after_simple_select:
     SELECT 1 ;
   fix_str: |
     SELECT 1;
- 
 test_fail_whitespace_after_snowflake_set:
   fail_str: |
     SET foo = (SELECT foo FROM foo.foo) ;
