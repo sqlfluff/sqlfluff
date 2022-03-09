@@ -5,6 +5,7 @@ from typing import List, NamedTuple, Optional
 from sqlfluff.core.parser import WhitespaceSegment
 
 from sqlfluff.core.parser import BaseSegment, NewlineSegment
+from sqlfluff.core.parser.segments.base import IdentitySet
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 from sqlfluff.core.rules.functional import Segments
@@ -281,21 +282,18 @@ class Rule_L036(BaseRule):
                         # :TRICKY: Below, we have a couple places where we
                         # filter to guard against deleting the same segment
                         # multiple times -- this is illegal.
-                        all_deletes = [
+                        all_deletes = IdentitySet(
                             fix.anchor for fix in fixes if fix.edit_type == "delete"
-                        ]
+                        )
                         fixes_ = []
-                        if delete_segments:
-                            fixes_ += [
-                                LintFix.delete(seg)
-                                for seg in delete_segments
-                                if seg not in all_deletes
-                            ]
+                        for seg in delete_segments or []:
+                            if seg not in all_deletes:
+                                fixes.append(LintFix.delete(seg))
+                                all_deletes.add(seg)
                         fixes_ += [
                             LintFix.delete(seg)
                             for seg in move_after_select_clause
                             if seg not in all_deletes
-                            and seg not in (delete_segments or [])
                         ]
                         fixes_.append(
                             LintFix.create_after(

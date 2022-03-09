@@ -1,6 +1,5 @@
 """Defines the linter class."""
 
-from collections import Counter
 import fnmatch
 import os
 import time
@@ -34,7 +33,7 @@ from sqlfluff.core.rules import get_ruleset
 from sqlfluff.core.config import FluffConfig, ConfigLoader, progress_bar_configuration
 
 # Classes needed only for type checking
-from sqlfluff.core.parser.segments.base import BaseSegment
+from sqlfluff.core.parser.segments.base import BaseSegment, IdentitySet
 from sqlfluff.core.parser.segments.meta import MetaSegment
 from sqlfluff.core.parser.segments.raw import RawSegment
 from sqlfluff.core.rules.base import BaseRule
@@ -519,9 +518,8 @@ class Linter:
                 if fix and fixes:
                     linter_logger.info(f"Applying Fixes [{crawler.code}]: {fixes}")
                     # Do some sanity checks on the fixes before applying.
-                    anchor_usage = Counter(fix.anchor for fix in fixes)
-                    duplicate_anchors = [k for k, v in anchor_usage.items() if v > 1]
-                    if duplicate_anchors:
+                    unique_anchors = IdentitySet(fix.anchor for fix in fixes)
+                    if len(unique_anchors) < len(fixes):
                         message = (
                             f"Rule {crawler.code} returned multiple fixes with "
                             f"the same anchors. This is not supported, so the "

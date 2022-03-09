@@ -8,6 +8,7 @@ Here we define:
   analysis.
 """
 
+from collections.abc import MutableSet
 from copy import deepcopy
 from dataclasses import replace
 from io import StringIO
@@ -1335,3 +1336,40 @@ class BaseFileSegment(BaseSegment):
         for stmt in self.get_children("statement"):
             references |= stmt.get_table_references()
         return references
+
+
+class IdentitySet(MutableSet):
+    """Similar to built-in set(), but based on object IDENTITY.
+
+    This is often important when working with BaseSegment and other types.
+
+    Copied from: https://stackoverflow.com/questions/16994307/identityset-in-python
+    """
+
+    key = id  # should return a hashable object
+
+    def __init__(self, iterable=()):
+        self.map = {}  # id -> object
+        self |= iterable  # add elements from iterable to the set (union)
+
+    def __len__(self):  # Sized
+        return len(self.map)
+
+    def __iter__(self):  # Iterable
+        return self.map.itervalues()
+
+    def __contains__(self, x):  # Container
+        return self.key(x) in self.map
+
+    def add(self, value):  # MutableSet
+        """Add an element."""
+        self.map[self.key(value)] = value
+
+    def discard(self, value):  # MutableSet
+        """Remove an element.  Do not raise an exception if absent."""
+        self.map.pop(self.key(value), None)
+
+    def __repr__(self):
+        if not self:
+            return "%s()" % (self.__class__.__name__,)
+        return "%s(%r)" % (self.__class__.__name__, list(self))
