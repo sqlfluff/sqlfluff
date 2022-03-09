@@ -331,6 +331,10 @@ class Linter:
         return result
 
     @staticmethod
+    def _warn_duplicate_anchors(message: str):  # pragma: no cover
+        linter_logger.warning(message)
+
+    @staticmethod
     def _warn_unfixable(code: str):
         linter_logger.warning(
             f"One fix for {code} not applied, it would re-cause the same error."
@@ -518,12 +522,12 @@ class Linter:
                     anchor_usage = Counter(fix.anchor for fix in fixes)
                     duplicate_anchors = [k for k, v in anchor_usage.items() if v > 1]
                     if duplicate_anchors:
-                        linter_logger.warning(
+                        message = (
                             f"Rule {crawler.code} returned multiple fixes with "
                             f"the same anchors. This is not supported, so the "
-                            f"fixes will not be applied. %r",
-                            fixes,
-                        )  # pragma: no cover
+                            f"fixes will not be applied. {fixes!r}"
+                        )
+                        cls._warn_duplicate_anchors(message)
                     elif fixes == last_fixes:  # pragma: no cover
                         cls._warn_unfixable(crawler.code)
                     else:
