@@ -802,28 +802,32 @@ class BaseRule:
 
         anchor: BaseSegment = segment
         child: BaseSegment = segment
-        for seg in context.parent_stack[0].path_to(segment)[1:-1][::-1]:
-            # Which lists of children to check against.
-            children_lists: List[List[BaseSegment]] = []
-            if filter_meta:
-                # Optionally check against filtered (non-meta only) children.
-                children_lists.append(
-                    [child for child in seg.segments if not child.is_meta]
-                )
-            # Always check against the full set of children.
-            children_lists.append(seg.segments)
-            children: List[BaseSegment]
-            for children in children_lists:
-                if edit_type == "create_before" and children[0] is child:
-                    anchor = seg
-                    assert anchor.raw.startswith(segment.raw)
-                    child = seg
-                    break
-                elif edit_type == "create_after" and children[-1] is child:
-                    anchor = seg
-                    assert anchor.raw.endswith(segment.raw)
-                    child = seg
-                    break
+        parent: BaseSegment = context.parent_stack[0]
+        path: Optional[List[BaseSegment]] = parent.path_to(segment) if parent else None
+        inner_path: Optional[List[BaseSegment]] = path[1:-1] if path else None
+        if inner_path:
+            for seg in inner_path[::-1]:
+                # Which lists of children to check against.
+                children_lists: List[List[BaseSegment]] = []
+                if filter_meta:
+                    # Optionally check against filtered (non-meta only) children.
+                    children_lists.append(
+                        [child for child in seg.segments if not child.is_meta]
+                    )
+                # Always check against the full set of children.
+                children_lists.append(seg.segments)
+                children: List[BaseSegment]
+                for children in children_lists:
+                    if edit_type == "create_before" and children[0] is child:
+                        anchor = seg
+                        assert anchor.raw.startswith(segment.raw)
+                        child = seg
+                        break
+                    elif edit_type == "create_after" and children[-1] is child:
+                        anchor = seg
+                        assert anchor.raw.endswith(segment.raw)
+                        child = seg
+                        break
         return anchor
 
     @staticmethod

@@ -33,3 +33,13 @@ test_pass_subquery:
         from table_1 as a
         join table_2 as b on a.pk = b.pk
     ) AS a
+
+test_pass_bigquery_function:
+  pass_str: |
+    SELECT
+        gcpproject.functions.timestamp_parsing(log_tbl.orderdate) AS orderdate
+    FROM
+        `gcp-project.data.year_2021` AS log_tbl
+  configs:
+    core:
+      dialect: bigquery

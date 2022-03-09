@@ -200,3 +200,10 @@ test_tsql_select_system_as_identifier:
   configs:
     core:
       dialect: tsql
+
+test_mysql_select_no_from_should_not_except:
+  pass_str: |
+    SELECT DATE_SUB('1992-12-31 23:59:59.000002', INTERVAL '1.999999' SECOND_MICROSECOND);
+  configs:
+    core:
+      dialect: mysql
