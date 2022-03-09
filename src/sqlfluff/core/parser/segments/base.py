@@ -1117,7 +1117,7 @@ class BaseSegment:
 
     @staticmethod
     def _log_apply_fixes_check_issue(message, *args):  # pragma: no cover
-        linter_logger.warning(message, *args)
+        linter_logger.critical(message, *args)
 
     def iter_patches(self, templated_str: str) -> Iterator[FixPatch]:
         """Iterate through the segments generating fix patches.

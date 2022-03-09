@@ -331,7 +331,7 @@ class Linter:
 
     @staticmethod
     def _warn_duplicate_anchors(message: str):  # pragma: no cover
-        linter_logger.warning(message)
+        linter_logger.critical(message)
 
     @staticmethod
     def _warn_unfixable(code: str):
