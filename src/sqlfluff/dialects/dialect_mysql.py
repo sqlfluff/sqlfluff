@@ -89,6 +89,7 @@ mysql_dialect.sets("unreserved_keywords").update(
         "USE_FRM",
         "REPAIR",
         "DUPLICATE",
+        "NOW",
     ]
 )
 mysql_dialect.sets("reserved_keywords").update(
@@ -254,7 +255,7 @@ class ColumnDefinitionSegment(BaseSegment):
                 Sequence("DEFAULT", optional=True),
                 OneOf(
                     Sequence(
-                        "CURRENT_TIMESTAMP",
+                        OneOf("CURRENT_TIMESTAMP", "NOW"),
                         Bracketed(
                             Ref("NumericLiteralSegment", optional=True), optional=True
                         ),
