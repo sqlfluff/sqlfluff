@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: aa1167d7941c122f0338319a714f752ee649d9c99d2f856dc896f573be65e755
+_hash: b36104bc24392aeb07f4aa488f27cffcd046e7852b06d04df330144ff1f9a1ad
 file:
 - statement:
     select_statement:
@@ -20,9 +20,7 @@ file:
             - expression:
                 literal: '2'
             - end_square_bracket: ']'
-          - binary_operator:
-            - pipe: '|'
-            - pipe: '|'
+          - binary_operator: '||'
           - keyword: ARRAY
           - array_literal:
             - start_square_bracket: '['
@@ -180,53 +178,55 @@ file:
         identifier: sal_emp
     - values_clause:
         keyword: VALUES
-        bracketed:
-        - start_bracket: (
-        - expression:
-            literal: "'Bill'"
-        - comma: ','
-        - expression:
-            keyword: ARRAY
-            array_literal:
-            - start_square_bracket: '['
-            - expression:
-                literal: '10000'
+        delimited_values:
+          tuple_value:
+            bracketed:
+            - start_bracket: (
+            - scalar_value:
+                literal: "'Bill'"
             - comma: ','
-            - expression:
-                literal: '10000'
-            - comma: ','
-            - expression:
-                literal: '10000'
-            - comma: ','
-            - expression:
-                literal: '10000'
-            - end_square_bracket: ']'
-        - comma: ','
-        - expression:
-            keyword: ARRAY
-            array_literal:
-            - start_square_bracket: '['
-            - expression:
+            - scalar_value:
+                keyword: ARRAY
                 array_literal:
                 - start_square_bracket: '['
                 - expression:
-                    literal: "'meeting'"
+                    literal: '10000'
                 - comma: ','
                 - expression:
-                    literal: "'lunch'"
+                    literal: '10000'
+                - comma: ','
+                - expression:
+                    literal: '10000'
+                - comma: ','
+                - expression:
+                    literal: '10000'
                 - end_square_bracket: ']'
             - comma: ','
-            - expression:
+            - scalar_value:
+                keyword: ARRAY
                 array_literal:
                 - start_square_bracket: '['
                 - expression:
-                    literal: "'training'"
+                    array_literal:
+                    - start_square_bracket: '['
+                    - expression:
+                        literal: "'meeting'"
+                    - comma: ','
+                    - expression:
+                        literal: "'lunch'"
+                    - end_square_bracket: ']'
                 - comma: ','
                 - expression:
-                    literal: "'presentation'"
+                    array_literal:
+                    - start_square_bracket: '['
+                    - expression:
+                        literal: "'training'"
+                    - comma: ','
+                    - expression:
+                        literal: "'presentation'"
+                    - end_square_bracket: ']'
                 - end_square_bracket: ']'
-            - end_square_bracket: ']'
-        - end_bracket: )
+            - end_bracket: )
 - statement_terminator: ;
 - statement:
     insert_statement:
@@ -236,53 +236,55 @@ file:
         identifier: sal_emp
     - values_clause:
         keyword: VALUES
-        bracketed:
-        - start_bracket: (
-        - expression:
-            literal: "'Carol'"
-        - comma: ','
-        - expression:
-            keyword: ARRAY
-            array_literal:
-            - start_square_bracket: '['
-            - expression:
-                literal: '20000'
+        delimited_values:
+          tuple_value:
+            bracketed:
+            - start_bracket: (
+            - scalar_value:
+                literal: "'Carol'"
             - comma: ','
-            - expression:
-                literal: '25000'
-            - comma: ','
-            - expression:
-                literal: '25000'
-            - comma: ','
-            - expression:
-                literal: '25000'
-            - end_square_bracket: ']'
-        - comma: ','
-        - expression:
-            keyword: ARRAY
-            array_literal:
-            - start_square_bracket: '['
-            - expression:
+            - scalar_value:
+                keyword: ARRAY
                 array_literal:
                 - start_square_bracket: '['
                 - expression:
-                    literal: "'breakfast'"
+                    literal: '20000'
                 - comma: ','
                 - expression:
-                    literal: "'consulting'"
+                    literal: '25000'
+                - comma: ','
+                - expression:
+                    literal: '25000'
+                - comma: ','
+                - expression:
+                    literal: '25000'
                 - end_square_bracket: ']'
             - comma: ','
-            - expression:
+            - scalar_value:
+                keyword: ARRAY
                 array_literal:
                 - start_square_bracket: '['
                 - expression:
-                    literal: "'meeting'"
+                    array_literal:
+                    - start_square_bracket: '['
+                    - expression:
+                        literal: "'breakfast'"
+                    - comma: ','
+                    - expression:
+                        literal: "'consulting'"
+                    - end_square_bracket: ']'
                 - comma: ','
                 - expression:
-                    literal: "'lunch'"
+                    array_literal:
+                    - start_square_bracket: '['
+                    - expression:
+                        literal: "'meeting'"
+                    - comma: ','
+                    - expression:
+                        literal: "'lunch'"
+                    - end_square_bracket: ']'
                 - end_square_bracket: ']'
-            - end_square_bracket: ']'
-        - end_bracket: )
+            - end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -425,9 +427,7 @@ file:
                 - expression:
                     literal: '2'
                 - end_square_bracket: ']'
-              - binary_operator:
-                - pipe: '|'
-                - pipe: '|'
+              - binary_operator: '||'
               - keyword: ARRAY
               - array_literal:
                 - start_square_bracket: '['
@@ -462,9 +462,7 @@ file:
                 - expression:
                     literal: '2'
                 - end_square_bracket: ']'
-              - binary_operator:
-                - pipe: '|'
-                - pipe: '|'
+              - binary_operator: '||'
               - keyword: ARRAY
               - array_literal:
                 - start_square_bracket: '['
@@ -505,9 +503,7 @@ file:
             - expression:
                 literal: '2'
             - end_square_bracket: ']'
-            binary_operator:
-            - pipe: '|'
-            - pipe: '|'
+            binary_operator: '||'
             literal: "'{3, 4}'"
 - statement_terminator: ;
 - statement:

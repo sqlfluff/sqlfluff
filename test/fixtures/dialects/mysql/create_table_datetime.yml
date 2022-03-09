@@ -3,190 +3,166 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bfdca649a237349a55e8915062675688d0d019bbb510fd6f75b8bf4b736fb80e
+_hash: 8ed0169bcb4c0fed605a0c915e74f34eacfd7f5466c8d1aa0bae061dd351a2ff
 file:
   statement:
-    create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: '`foo`'
+    unparsable:
+    - raw: CREATE
+    - raw: TABLE
+    - raw: '`foo`'
     - bracketed:
       - start_bracket: (
-      - column_definition:
-        - identifier: created_date
-        - keyword: DATETIME
-        - keyword: DEFAULT
-        - keyword: CURRENT_TIMESTAMP
-        - column_constraint_segment:
-          - keyword: NOT
-          - keyword: 'NULL'
+      - raw: created_date
+      - raw: DATETIME
+      - raw: DEFAULT
+      - raw: CURRENT_TIMESTAMP
+      - raw: NOT
+      - raw: 'NULL'
       - comma: ','
-      - column_definition:
-        - identifier: ts1
-        - keyword: TIMESTAMP
-        - keyword: DEFAULT
-        - keyword: CURRENT_TIMESTAMP
-        - keyword: 'ON'
-        - keyword: UPDATE
-        - keyword: CURRENT_TIMESTAMP
+      - raw: ts1
+      - raw: TIMESTAMP
+      - raw: DEFAULT
+      - raw: CURRENT_TIMESTAMP
+      - raw: 'ON'
+      - raw: UPDATE
+      - raw: CURRENT_TIMESTAMP
       - comma: ','
-      - column_definition:
-        - identifier: dt1
-        - keyword: DATETIME
-        - keyword: DEFAULT
-        - keyword: CURRENT_TIMESTAMP
-        - keyword: 'ON'
-        - keyword: UPDATE
-        - keyword: CURRENT_TIMESTAMP
+      - raw: dt1
+      - raw: DATETIME
+      - raw: DEFAULT
+      - raw: CURRENT_TIMESTAMP
+      - raw: 'ON'
+      - raw: UPDATE
+      - raw: CURRENT_TIMESTAMP
       - comma: ','
-      - column_definition:
-        - identifier: ts2
-        - keyword: TIMESTAMP
-        - keyword: DEFAULT
-        - keyword: CURRENT_TIMESTAMP
+      - raw: ts2
+      - raw: TIMESTAMP
+      - raw: DEFAULT
+      - raw: CURRENT_TIMESTAMP
       - comma: ','
-      - column_definition:
-        - identifier: dt2
-        - keyword: DATETIME
-        - keyword: DEFAULT
-        - keyword: CURRENT_TIMESTAMP
+      - raw: dt2
+      - raw: DATETIME
+      - raw: DEFAULT
+      - raw: CURRENT_TIMESTAMP
       - comma: ','
-      - column_definition:
-        - identifier: ts3
-        - keyword: TIMESTAMP
-        - keyword: DEFAULT
-        - literal: '0'
+      - raw: ts3
+      - raw: TIMESTAMP
+      - raw: DEFAULT
+      - raw: '0'
       - comma: ','
-      - column_definition:
-        - identifier: dt3
-        - keyword: DATETIME
-        - keyword: DEFAULT
-        - literal: '0'
+      - raw: dt3
+      - raw: DATETIME
+      - raw: DEFAULT
+      - raw: '0'
       - comma: ','
-      - column_definition:
-        - identifier: ts4
-        - keyword: TIMESTAMP
-        - keyword: DEFAULT
-        - literal: '0'
-        - keyword: 'ON'
-        - keyword: UPDATE
-        - keyword: CURRENT_TIMESTAMP
+      - raw: ts4
+      - raw: TIMESTAMP
+      - raw: DEFAULT
+      - raw: '0'
+      - raw: 'ON'
+      - raw: UPDATE
+      - raw: CURRENT_TIMESTAMP
       - comma: ','
-      - column_definition:
-        - identifier: dt4
-        - keyword: DATETIME
-        - keyword: DEFAULT
-        - literal: '0'
-        - keyword: 'ON'
-        - keyword: UPDATE
-        - keyword: CURRENT_TIMESTAMP
+      - raw: dt4
+      - raw: DATETIME
+      - raw: DEFAULT
+      - raw: '0'
+      - raw: 'ON'
+      - raw: UPDATE
+      - raw: CURRENT_TIMESTAMP
       - comma: ','
-      - column_definition:
-        - identifier: ts5
-        - keyword: TIMESTAMP
-        - keyword: 'ON'
-        - keyword: UPDATE
-        - keyword: CURRENT_TIMESTAMP
+      - raw: ts5
+      - raw: TIMESTAMP
+      - raw: 'ON'
+      - raw: UPDATE
+      - raw: CURRENT_TIMESTAMP
       - comma: ','
-      - column_definition:
-        - identifier: ts6
-        - keyword: TIMESTAMP
-        - keyword: 'NULL'
-        - keyword: 'ON'
-        - keyword: UPDATE
-        - keyword: CURRENT_TIMESTAMP
+      - raw: ts6
+      - raw: TIMESTAMP
+      - raw: 'NULL'
+      - raw: 'ON'
+      - raw: UPDATE
+      - raw: CURRENT_TIMESTAMP
       - comma: ','
-      - column_definition:
-        - identifier: dt5
-        - keyword: DATETIME
-        - keyword: 'ON'
-        - keyword: UPDATE
-        - keyword: CURRENT_TIMESTAMP
+      - raw: dt5
+      - raw: DATETIME
+      - raw: 'ON'
+      - raw: UPDATE
+      - raw: CURRENT_TIMESTAMP
       - comma: ','
-      - column_definition:
-        - identifier: dt6
-        - keyword: DATETIME
-        - keyword: NOT
-        - keyword: 'NULL'
-        - keyword: 'ON'
-        - keyword: UPDATE
-        - keyword: CURRENT_TIMESTAMP
+      - raw: dt6
+      - raw: DATETIME
+      - raw: NOT
+      - raw: 'NULL'
+      - raw: 'ON'
+      - raw: UPDATE
+      - raw: CURRENT_TIMESTAMP
       - comma: ','
-      - column_definition:
-        - identifier: ts7
-        - keyword: TIMESTAMP
-        - bracketed:
-            start_bracket: (
-            literal: '6'
-            end_bracket: )
-        - keyword: DEFAULT
-        - keyword: CURRENT_TIMESTAMP
-        - bracketed:
-            start_bracket: (
-            literal: '6'
-            end_bracket: )
-        - keyword: 'ON'
-        - keyword: UPDATE
-        - keyword: CURRENT_TIMESTAMP
-        - bracketed:
-            start_bracket: (
-            literal: '6'
-            end_bracket: )
+      - raw: ts7
+      - raw: TIMESTAMP
+      - bracketed:
+          start_bracket: (
+          literal: '6'
+          end_bracket: )
+      - raw: DEFAULT
+      - raw: CURRENT_TIMESTAMP
+      - bracketed:
+          start_bracket: (
+          literal: '6'
+          end_bracket: )
+      - raw: 'ON'
+      - raw: UPDATE
+      - raw: CURRENT_TIMESTAMP
+      - bracketed:
+          start_bracket: (
+          literal: '6'
+          end_bracket: )
       - comma: ','
-      - column_definition:
-        - identifier: ts8
-        - keyword: TIMESTAMP
-        - keyword: 'NULL'
-        - keyword: DEFAULT
-        - column_constraint_segment:
-            keyword: 'NULL'
+      - raw: ts8
+      - raw: TIMESTAMP
+      - raw: 'NULL'
+      - raw: DEFAULT
+      - raw: 'NULL'
       - comma: ','
-      - column_definition:
-        - identifier: ts9
-        - keyword: TIMESTAMP
-        - keyword: 'NULL'
-        - keyword: DEFAULT
-        - literal: '0'
+      - raw: ts9
+      - raw: TIMESTAMP
+      - raw: 'NULL'
+      - raw: DEFAULT
+      - raw: '0'
       - comma: ','
-      - column_definition:
-        - identifier: ts10
-        - keyword: TIMESTAMP
-        - keyword: 'NULL'
-        - keyword: DEFAULT
-        - keyword: CURRENT_TIMESTAMP
+      - raw: ts10
+      - raw: TIMESTAMP
+      - raw: 'NULL'
+      - raw: DEFAULT
+      - raw: CURRENT_TIMESTAMP
       - comma: ','
-      - column_definition:
-        - identifier: ts11
-        - keyword: TIMESTAMP
-        - keyword: 'NULL'
-        - keyword: DEFAULT
-        - keyword: CURRENT_TIMESTAMP
-        - bracketed:
-            start_bracket: (
-            end_bracket: )
+      - raw: ts11
+      - raw: TIMESTAMP
+      - raw: 'NULL'
+      - raw: DEFAULT
+      - raw: CURRENT_TIMESTAMP
+      - bracketed:
+          start_bracket: (
+          end_bracket: )
       - comma: ','
-      - column_definition:
-        - identifier: ts12
-        - keyword: TIMESTAMP
-        - keyword: 'NULL'
-        - keyword: DEFAULT
-        - literal: "'0000-00-00 00:00:00'"
+      - raw: ts12
+      - raw: TIMESTAMP
+      - raw: 'NULL'
+      - raw: DEFAULT
+      - raw: "'0000-00-00 00:00:00'"
       - comma: ','
-      - column_definition:
-        - identifier: ts13
-        - keyword: TIMESTAMP
-        - keyword: 'NULL'
-        - keyword: DEFAULT
-        - keyword: NOW
+      - raw: ts13
+      - raw: TIMESTAMP
+      - raw: 'NULL'
+      - raw: DEFAULT
+      - raw: NOW
       - comma: ','
-      - column_definition:
-        - identifier: ts14
-        - keyword: TIMESTAMP
-        - keyword: 'NULL'
-        - keyword: DEFAULT
-        - keyword: NOW
-        - bracketed:
-            start_bracket: (
-            end_bracket: )
+      - raw: ts14
+      - raw: TIMESTAMP
+      - raw: 'NULL'
+      - raw: DEFAULT
+      - raw: NOW
+      - bracketed:
+          start_bracket: (
+          end_bracket: )
       - end_bracket: )

@@ -1293,7 +1293,7 @@ class SelectClauseElementSegment(BaseSegment):
     # Important to split elements before parsing, otherwise debugging is really hard.
     match_grammar = GreedyUntil(
         Ref("SelectClauseElementTerminatorGrammar"),
-        enforce_whitespace_preceding_terminator=True,
+        enforce_whitespace_preceding_terminator=False,
     )
 
     parse_grammar = OneOf(

@@ -3,452 +3,288 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 27c72b3038304130f55124641298b8e14061aeafbf6be16f31f6daf6c40fca08
+_hash: 66a5045342117a5f28b517758a12f6fb6761199ca07db84c5b49ac799b1b28cb
 file:
 - statement:
-    merge_statement:
-    - keyword: MERGE
-    - table_reference:
-      - identifier: dataset
-      - dot: .
-      - identifier: detailedinventory
-    - alias_expression:
-        identifier: t
-    - keyword: USING
-    - table_reference:
-      - identifier: dataset
-      - dot: .
-      - identifier: inventory
-    - alias_expression:
-        identifier: s
-    - join_on_condition:
-        keyword: 'ON'
-        expression:
-        - column_reference:
-          - identifier: t
-          - dot: .
-          - identifier: product
-        - comparison_operator:
-            raw_comparison_operator: '='
-        - column_reference:
-          - identifier: s
-          - dot: .
-          - identifier: product
-    - merge_match:
-      - merge_when_not_matched_clause:
-        - keyword: WHEN
-        - keyword: NOT
-        - keyword: MATCHED
-        - binary_operator: AND
-        - expression:
-            column_reference:
-              identifier: quantity
-            comparison_operator:
-              raw_comparison_operator: <
-            literal: '20'
-        - keyword: THEN
-        - merge_insert_clause:
-            keyword: INSERT
-            bracketed:
-            - start_bracket: (
-            - column_reference:
-                identifier: product
-            - comma: ','
-            - column_reference:
-                identifier: quantity
-            - comma: ','
-            - column_reference:
-                identifier: supply_constrained
-            - comma: ','
-            - column_reference:
-                identifier: comments
-            - end_bracket: )
-            values_clause:
-              keyword: VALUES
-              bracketed:
-              - start_bracket: (
-              - expression:
-                  column_reference:
-                    identifier: product
-              - comma: ','
-              - expression:
-                  column_reference:
-                    identifier: quantity
-              - comma: ','
-              - expression:
-                  literal: 'TRUE'
-              - end_bracket: )
-      - merge_when_not_matched_clause:
-        - keyword: WHEN
-        - keyword: NOT
-        - keyword: MATCHED
-        - keyword: THEN
-        - merge_insert_clause:
-            keyword: INSERT
-            bracketed:
-            - start_bracket: (
-            - column_reference:
-                identifier: product
-            - comma: ','
-            - column_reference:
-                identifier: quantity
-            - comma: ','
-            - column_reference:
-                identifier: supply_constrained
-            - end_bracket: )
-            values_clause:
-              keyword: VALUES
-              bracketed:
-              - start_bracket: (
-              - expression:
-                  column_reference:
-                    identifier: product
-              - comma: ','
-              - expression:
-                  column_reference:
-                    identifier: quantity
-              - comma: ','
-              - expression:
-                  literal: 'FALSE'
-              - end_bracket: )
-- statement_terminator: ;
-- statement:
-    merge_statement:
-    - keyword: MERGE
-    - table_reference:
-      - identifier: dataset
-      - dot: .
-      - identifier: inventory
-    - alias_expression:
-        identifier: t
-    - keyword: USING
-    - table_reference:
-      - identifier: dataset
-      - dot: .
-      - identifier: newarrivals
-    - alias_expression:
-        identifier: s
-    - join_on_condition:
-        keyword: 'ON'
-        expression:
-        - column_reference:
-          - identifier: t
-          - dot: .
-          - identifier: product
-        - comparison_operator:
-            raw_comparison_operator: '='
-        - column_reference:
-          - identifier: s
-          - dot: .
-          - identifier: product
-    - merge_match:
-        merge_when_matched_clause:
-        - keyword: WHEN
-        - keyword: MATCHED
-        - keyword: THEN
-        - merge_update_clause:
-            keyword: UPDATE
-            set_clause_list:
-              keyword: SET
-              set_clause:
-                column_reference:
-                  identifier: quantity
-                comparison_operator:
-                  raw_comparison_operator: '='
-                expression:
-                - column_reference:
-                  - identifier: t
-                  - dot: .
-                  - identifier: quantity
-                - binary_operator: +
-                - column_reference:
-                  - identifier: s
-                  - dot: .
-                  - identifier: quantity
-        merge_when_not_matched_clause:
-        - keyword: WHEN
-        - keyword: NOT
-        - keyword: MATCHED
-        - keyword: THEN
-        - merge_insert_clause:
-            keyword: INSERT
-            bracketed:
-            - start_bracket: (
-            - column_reference:
-                identifier: product
-            - comma: ','
-            - column_reference:
-                identifier: quantity
-            - end_bracket: )
-            values_clause:
-              keyword: VALUES
-              bracketed:
-              - start_bracket: (
-              - expression:
-                  column_reference:
-                    identifier: product
-              - comma: ','
-              - expression:
-                  column_reference:
-                    identifier: quantity
-              - end_bracket: )
-- statement_terminator: ;
-- statement:
-    merge_statement:
-    - keyword: MERGE
-    - table_reference:
-      - identifier: dataset
-      - dot: .
-      - identifier: newarrivals
-    - alias_expression:
-        identifier: t
-    - keyword: USING
+    unparsable:
+    - raw: MERGE
+    - raw: dataset
+    - raw: .
+    - raw: detailedinventory
+    - raw: t
+    - raw: USING
+    - raw: dataset
+    - raw: .
+    - raw: inventory
+    - raw: s
+    - raw: 'ON'
+    - raw: t
+    - raw: .
+    - raw: product
+    - raw: '='
+    - raw: s
+    - raw: .
+    - raw: product
+    - raw: WHEN
+    - raw: NOT
+    - raw: MATCHED
+    - raw: AND
+    - raw: quantity
+    - raw: <
+    - raw: '20'
+    - raw: THEN
+    - raw: INSERT
     - bracketed:
-        start_bracket: (
-        select_statement:
-          select_clause:
-            keyword: SELECT
-            select_clause_element:
-              wildcard_expression:
-                wildcard_identifier:
-                  star: '*'
-          from_clause:
-            keyword: FROM
-            from_expression:
-              from_expression_element:
-                table_expression:
-                  table_reference:
-                  - identifier: dataset
-                  - dot: .
-                  - identifier: newarrivals
-          where_clause:
-            keyword: WHERE
-            expression:
-              column_reference:
-                identifier: warehouse
-              comparison_operator:
-              - raw_comparison_operator: '!'
-              - raw_comparison_operator: '='
-              literal: "'warehouse #2'"
-        end_bracket: )
-    - alias_expression:
-        identifier: s
-    - join_on_condition:
-        keyword: 'ON'
-        expression:
-        - column_reference:
-          - identifier: t
-          - dot: .
-          - identifier: product
-        - comparison_operator:
-            raw_comparison_operator: '='
-        - column_reference:
-          - identifier: s
-          - dot: .
-          - identifier: product
-    - merge_match:
-      - merge_when_matched_clause:
-        - keyword: WHEN
-        - keyword: MATCHED
-        - binary_operator: AND
-        - expression:
-            column_reference:
-            - identifier: t
-            - dot: .
-            - identifier: warehouse
-            comparison_operator:
-              raw_comparison_operator: '='
-            literal: "'warehouse #1'"
-        - keyword: THEN
-        - merge_update_clause:
-            keyword: UPDATE
-            set_clause_list:
-              keyword: SET
-              set_clause:
-                column_reference:
-                  identifier: quantity
-                comparison_operator:
-                  raw_comparison_operator: '='
-                expression:
-                  column_reference:
-                  - identifier: t
-                  - dot: .
-                  - identifier: quantity
-                  binary_operator: +
-                  literal: '20'
-      - merge_when_matched_clause:
-        - keyword: WHEN
-        - keyword: MATCHED
-        - keyword: THEN
-        - merge_delete_clause:
-            keyword: DELETE
-- statement_terminator: ;
-- statement:
-    merge_statement:
-    - keyword: MERGE
-    - table_reference:
-      - identifier: dataset
-      - dot: .
-      - identifier: inventory
-    - alias_expression:
-        identifier: t
-    - keyword: USING
+      - start_bracket: (
+      - raw: product
+      - comma: ','
+      - raw: quantity
+      - comma: ','
+      - raw: supply_constrained
+      - comma: ','
+      - raw: comments
+      - end_bracket: )
+    - raw: VALUES
     - bracketed:
-        start_bracket: (
-        select_statement:
-          select_clause:
-          - keyword: SELECT
-          - select_clause_element:
-              column_reference:
-                identifier: product
-          - comma: ','
-          - select_clause_element:
-              column_reference:
-                identifier: quantity
-          - comma: ','
-          - select_clause_element:
-              column_reference:
-                identifier: state
-          from_clause:
-            keyword: FROM
-            from_expression:
-              from_expression_element:
-                table_expression:
-                  table_reference:
-                  - identifier: dataset
-                  - dot: .
-                  - identifier: newarrivals
-              join_clause:
-              - keyword: INNER
-              - keyword: JOIN
-              - from_expression_element:
-                  table_expression:
-                    table_reference:
-                    - identifier: dataset
-                    - dot: .
-                    - identifier: warehouse
-              - join_on_condition:
-                  keyword: 'ON'
-                  expression:
-                  - column_reference:
-                    - identifier: dataset
-                    - dot: .
-                    - identifier: newarrivals
-                    - dot: .
-                    - identifier: warehouse
-                  - comparison_operator:
-                      raw_comparison_operator: '='
-                  - column_reference:
-                    - identifier: dataset
-                    - dot: .
-                    - identifier: warehouse
-                    - dot: .
-                    - identifier: warehouse
-        end_bracket: )
-    - alias_expression:
-        identifier: s
-    - join_on_condition:
-        keyword: 'ON'
-        expression:
-        - column_reference:
-          - identifier: t
-          - dot: .
-          - identifier: product
-        - comparison_operator:
-            raw_comparison_operator: '='
-        - column_reference:
-          - identifier: s
-          - dot: .
-          - identifier: product
-    - merge_match:
-      - merge_when_matched_clause:
-        - keyword: WHEN
-        - keyword: MATCHED
-        - binary_operator: AND
-        - expression:
-            column_reference:
-              identifier: state
-            comparison_operator:
-              raw_comparison_operator: '='
-            literal: "'CA'"
-        - keyword: THEN
-        - merge_update_clause:
-            keyword: UPDATE
-            set_clause_list:
-              keyword: SET
-              set_clause:
-                column_reference:
-                  identifier: quantity
-                comparison_operator:
-                  raw_comparison_operator: '='
-                expression:
-                - column_reference:
-                  - identifier: t
-                  - dot: .
-                  - identifier: quantity
-                - binary_operator: +
-                - column_reference:
-                  - identifier: s
-                  - dot: .
-                  - identifier: quantity
-      - merge_when_matched_clause:
-        - keyword: WHEN
-        - keyword: MATCHED
-        - keyword: THEN
-        - merge_delete_clause:
-            keyword: DELETE
+      - start_bracket: (
+      - raw: product
+      - comma: ','
+      - raw: quantity
+      - comma: ','
+      - raw: 'TRUE'
+      - end_bracket: )
+    - raw: WHEN
+    - raw: NOT
+    - raw: MATCHED
+    - raw: THEN
+    - raw: INSERT
+    - bracketed:
+      - start_bracket: (
+      - raw: product
+      - comma: ','
+      - raw: quantity
+      - comma: ','
+      - raw: supply_constrained
+      - end_bracket: )
+    - raw: VALUES
+    - bracketed:
+      - start_bracket: (
+      - raw: product
+      - comma: ','
+      - raw: quantity
+      - comma: ','
+      - raw: 'FALSE'
+      - end_bracket: )
 - statement_terminator: ;
 - statement:
-    merge_statement:
-    - keyword: MERGE
-    - table_reference:
-      - identifier: dataset
-      - dot: .
-      - identifier: inventory
-    - alias_expression:
-        identifier: t
-    - keyword: USING
-    - table_reference:
-      - identifier: dataset
-      - dot: .
-      - identifier: newarrivals
-    - alias_expression:
-        identifier: s
-    - join_on_condition:
-        keyword: 'ON'
-        expression:
-        - column_reference:
-          - identifier: t
-          - dot: .
-          - identifier: product
-        - comparison_operator:
-            raw_comparison_operator: '='
-        - column_reference:
-          - identifier: s
-          - dot: .
-          - identifier: product
-    - merge_match:
-        merge_when_matched_clause:
-        - keyword: WHEN
-        - keyword: MATCHED
-        - keyword: THEN
-        - merge_update_clause:
-            keyword: UPDATE
-            set_clause_list:
-              keyword: SET
-              set_clause:
-                column_reference:
-                  identifier: quantity
-                comparison_operator:
-                  raw_comparison_operator: '='
-                expression:
-                - column_reference:
-                  - identifier: t
-                  - dot: .
-                  - identifier: quantity
-                - binary_operator: +
-                - column_reference:
-                  - identifier: s
-                  - dot: .
-                  - identifier: quantity
+    unparsable:
+    - raw: MERGE
+    - raw: dataset
+    - raw: .
+    - raw: inventory
+    - raw: t
+    - raw: USING
+    - raw: dataset
+    - raw: .
+    - raw: newarrivals
+    - raw: s
+    - raw: 'ON'
+    - raw: t
+    - raw: .
+    - raw: product
+    - raw: '='
+    - raw: s
+    - raw: .
+    - raw: product
+    - raw: WHEN
+    - raw: MATCHED
+    - raw: THEN
+    - raw: UPDATE
+    - raw: SET
+    - raw: quantity
+    - raw: '='
+    - raw: t
+    - raw: .
+    - raw: quantity
+    - raw: +
+    - raw: s
+    - raw: .
+    - raw: quantity
+    - raw: WHEN
+    - raw: NOT
+    - raw: MATCHED
+    - raw: THEN
+    - raw: INSERT
+    - bracketed:
+      - start_bracket: (
+      - raw: product
+      - comma: ','
+      - raw: quantity
+      - end_bracket: )
+    - raw: VALUES
+    - bracketed:
+      - start_bracket: (
+      - raw: product
+      - comma: ','
+      - raw: quantity
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    unparsable:
+    - raw: MERGE
+    - raw: dataset
+    - raw: .
+    - raw: newarrivals
+    - raw: t
+    - raw: USING
+    - bracketed:
+      - start_bracket: (
+      - raw: SELECT
+      - raw: '*'
+      - raw: FROM
+      - raw: dataset
+      - raw: .
+      - raw: newarrivals
+      - raw: WHERE
+      - raw: warehouse
+      - raw: '!'
+      - raw: '='
+      - raw: "'warehouse #2'"
+      - end_bracket: )
+    - raw: s
+    - raw: 'ON'
+    - raw: t
+    - raw: .
+    - raw: product
+    - raw: '='
+    - raw: s
+    - raw: .
+    - raw: product
+    - raw: WHEN
+    - raw: MATCHED
+    - raw: AND
+    - raw: t
+    - raw: .
+    - raw: warehouse
+    - raw: '='
+    - raw: "'warehouse #1'"
+    - raw: THEN
+    - raw: UPDATE
+    - raw: SET
+    - raw: quantity
+    - raw: '='
+    - raw: t
+    - raw: .
+    - raw: quantity
+    - raw: +
+    - raw: '20'
+    - raw: WHEN
+    - raw: MATCHED
+    - raw: THEN
+    - raw: DELETE
+- statement_terminator: ;
+- statement:
+    unparsable:
+    - raw: MERGE
+    - raw: dataset
+    - raw: .
+    - raw: inventory
+    - raw: t
+    - raw: USING
+    - bracketed:
+      - start_bracket: (
+      - raw: SELECT
+      - raw: product
+      - comma: ','
+      - raw: quantity
+      - comma: ','
+      - raw: state
+      - raw: FROM
+      - raw: dataset
+      - raw: .
+      - raw: newarrivals
+      - raw: INNER
+      - raw: JOIN
+      - raw: dataset
+      - raw: .
+      - raw: warehouse
+      - raw: 'ON'
+      - raw: dataset
+      - raw: .
+      - raw: newarrivals
+      - raw: .
+      - raw: warehouse
+      - raw: '='
+      - raw: dataset
+      - raw: .
+      - raw: warehouse
+      - raw: .
+      - raw: warehouse
+      - end_bracket: )
+    - raw: s
+    - raw: 'ON'
+    - raw: t
+    - raw: .
+    - raw: product
+    - raw: '='
+    - raw: s
+    - raw: .
+    - raw: product
+    - raw: WHEN
+    - raw: MATCHED
+    - raw: AND
+    - raw: state
+    - raw: '='
+    - raw: "'CA'"
+    - raw: THEN
+    - raw: UPDATE
+    - raw: SET
+    - raw: quantity
+    - raw: '='
+    - raw: t
+    - raw: .
+    - raw: quantity
+    - raw: +
+    - raw: s
+    - raw: .
+    - raw: quantity
+    - raw: WHEN
+    - raw: MATCHED
+    - raw: THEN
+    - raw: DELETE
+- statement_terminator: ;
+- statement:
+    unparsable:
+    - raw: MERGE
+    - raw: dataset
+    - raw: .
+    - raw: inventory
+    - raw: t
+    - raw: USING
+    - raw: dataset
+    - raw: .
+    - raw: newarrivals
+    - raw: s
+    - raw: 'ON'
+    - raw: t
+    - raw: .
+    - raw: product
+    - raw: '='
+    - raw: s
+    - raw: .
+    - raw: product
+    - raw: WHEN
+    - raw: MATCHED
+    - raw: THEN
+    - raw: UPDATE
+    - raw: SET
+    - raw: quantity
+    - raw: '='
+    - raw: t
+    - raw: .
+    - raw: quantity
+    - raw: +
+    - raw: s
+    - raw: .
+    - raw: quantity
 - statement_terminator: ;

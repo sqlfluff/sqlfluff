@@ -3,89 +3,47 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e4a6730939a776c743b33d30f789f1f3319174c36de5865e1ef6db6144319557
+_hash: d0ce2ddccfeeecce48db90f3caa3afd004d0de8c2cfd016362d8178ea47233d3
 file:
   statement:
-    bracketed:
-      start_bracket: (
-      with_compound_statement:
-        keyword: WITH
-        common_table_expression:
-          identifier: mycte2
-          keyword: AS
-          bracketed:
-            start_bracket: (
-            with_compound_statement:
-              keyword: WITH
-              common_table_expression:
-                identifier: mycte1
-                keyword: AS
-                bracketed:
-                  start_bracket: (
-                  select_statement:
-                    select_clause:
-                    - keyword: SELECT
-                    - select_clause_element:
-                        column_reference:
-                          identifier: foo
-                    - comma: ','
-                    - select_clause_element:
-                        column_reference:
-                          identifier: bar
-                    - comma: ','
-                    - select_clause_element:
-                        column_reference:
-                          identifier: baz
-                    from_clause:
-                      keyword: FROM
-                      from_expression:
-                        from_expression_element:
-                          table_expression:
-                            table_reference:
-                              identifier: mytable
-                  end_bracket: )
-              select_statement:
-                select_clause:
-                - keyword: SELECT
-                - select_clause_element:
-                    column_reference:
-                      identifier: foo
-                - comma: ','
-                - select_clause_element:
-                    column_reference:
-                      identifier: bar
-                - comma: ','
-                - select_clause_element:
-                    column_reference:
-                      identifier: baz
-                from_clause:
-                  keyword: FROM
-                  from_expression:
-                    from_expression_element:
-                      table_expression:
-                        table_reference:
-                          identifier: mycte1
-            end_bracket: )
-        select_statement:
-          select_clause:
-          - keyword: SELECT
-          - select_clause_element:
-              column_reference:
-                identifier: foo
+    unparsable:
+      bracketed:
+      - start_bracket: (
+      - raw: WITH
+      - raw: mycte2
+      - raw: AS
+      - bracketed:
+        - start_bracket: (
+        - raw: WITH
+        - raw: mycte1
+        - raw: AS
+        - bracketed:
+          - start_bracket: (
+          - raw: SELECT
+          - raw: foo
           - comma: ','
-          - select_clause_element:
-              column_reference:
-                identifier: bar
+          - raw: bar
           - comma: ','
-          - select_clause_element:
-              column_reference:
-                identifier: baz
-          from_clause:
-            keyword: FROM
-            from_expression:
-              from_expression_element:
-                table_expression:
-                  table_reference:
-                    identifier: mycte2
-      end_bracket: )
+          - raw: baz
+          - raw: FROM
+          - raw: mytable
+          - end_bracket: )
+        - raw: SELECT
+        - raw: foo
+        - comma: ','
+        - raw: bar
+        - comma: ','
+        - raw: baz
+        - raw: FROM
+        - raw: mycte1
+        - end_bracket: )
+      - raw: SELECT
+      - raw: foo
+      - comma: ','
+      - raw: bar
+      - comma: ','
+      - raw: baz
+      - raw: FROM
+      - raw: mycte2
+      - end_bracket: )
   statement_terminator: ;

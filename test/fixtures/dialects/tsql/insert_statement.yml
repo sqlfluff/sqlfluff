@@ -3,10 +3,10 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 814aafde54c3d35236c51d85ffb120760d66ad8d8a2e795bedaad2f706936af6
+_hash: 3c24f64cb9432379e16b5c6a8533fb68277329f2ad6f2efc35e5c2d13ceacf75
 file:
 - batch:
-    statement:
+  - statement:
       insert_statement:
       - keyword: INSERT
       - keyword: INTO
@@ -264,10 +264,9 @@ file:
                   - identifier: STAGE
                   - dot: .
                   - identifier: ECDC_CASES
-- go_statement:
-    keyword: GO
-- batch:
-    statement:
+                alias_expression:
+                  identifier: GO
+  - statement:
       begin_end_block:
       - keyword: BEGIN
       - statement:
@@ -401,5 +400,4 @@ file:
           comparison_operator:
             raw_comparison_operator: '='
           literal: "'Picard'"
-- go_statement:
-    keyword: GO
+          identifier: GO

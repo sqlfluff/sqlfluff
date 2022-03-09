@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e32052a429891f4a268995e42426078f816be852e43b8bbcb0b0e2b49e7e8455
+_hash: 9c2ee6ff229cee07fc7dd9025769f83d372886d66cc1119f4945def27277e228
 file:
 - statement:
     select_statement:
@@ -50,9 +50,7 @@ file:
                 - binary_operator: '-'
                 - literal: '1'
               - end_bracket: )
-          - binary_operator:
-            - pipe: '|'
-            - pipe: '|'
+          - binary_operator: '||'
           - function:
               function_name:
                 function_name_identifier: SYS_CONNECT_BY_PATH
@@ -1634,110 +1632,122 @@ file:
       - keyword: SELECT
       - select_clause_element:
           interval_expression:
-          - keyword: INTERVAL
-          - literal: "'5'"
-          - keyword: MONTH
+            keyword: INTERVAL
+            literal: "'5'"
+          unparsable:
+            raw: MONTH
       - comma: ','
       - select_clause_element:
           interval_expression:
-          - keyword: INTERVAL
-          - literal: "'130'"
-          - keyword: MONTH
-          - bracketed:
+            keyword: INTERVAL
+            literal: "'130'"
+          unparsable:
+            raw: MONTH
+            bracketed:
               start_bracket: (
-              literal: '3'
+              raw: '3'
               end_bracket: )
       - comma: ','
       - select_clause_element:
           interval_expression:
-          - keyword: INTERVAL
-          - literal: "'27'"
-          - keyword: YEAR
+            keyword: INTERVAL
+            literal: "'27'"
+          unparsable:
+            raw: YEAR
       - comma: ','
       - select_clause_element:
           interval_expression:
-          - keyword: INTERVAL
-          - literal: "'100-1'"
-          - keyword: YEAR
+            keyword: INTERVAL
+            literal: "'100-1'"
+          unparsable:
+          - raw: YEAR
           - bracketed:
               start_bracket: (
-              literal: '3'
+              raw: '3'
               end_bracket: )
-          - keyword: TO
-          - keyword: MONTH
+          - raw: TO
+          - raw: MONTH
       - comma: ','
       - select_clause_element:
           interval_expression:
-          - keyword: INTERVAL
-          - literal: "'2-1'"
-          - keyword: YEAR
-          - keyword: TO
-          - keyword: MONTH
+            keyword: INTERVAL
+            literal: "'2-1'"
+          unparsable:
+          - raw: YEAR
+          - raw: TO
+          - raw: MONTH
       - comma: ','
       - select_clause_element:
           interval_expression:
-          - keyword: INTERVAL
-          - literal: "'10:20'"
-          - keyword: HOUR
-          - keyword: TO
-          - keyword: MINUTE
+            keyword: INTERVAL
+            literal: "'10:20'"
+          unparsable:
+          - raw: HOUR
+          - raw: TO
+          - raw: MINUTE
       - comma: ','
       - select_clause_element:
           interval_expression:
-          - keyword: INTERVAL
-          - literal: "'2 23:10:59'"
-          - keyword: DAY
-          - keyword: TO
-          - keyword: SECOND
+            keyword: INTERVAL
+            literal: "'2 23:10:59'"
+          unparsable:
+          - raw: DAY
+          - raw: TO
+          - raw: SECOND
       - comma: ','
       - select_clause_element:
           interval_expression:
-          - keyword: INTERVAL
-          - literal: "'6'"
-          - keyword: MINUTE
+            keyword: INTERVAL
+            literal: "'6'"
+          unparsable:
+            raw: MINUTE
       - comma: ','
       - select_clause_element:
           interval_expression:
-          - keyword: INTERVAL
-          - literal: "'5'"
-          - keyword: DAY
+            keyword: INTERVAL
+            literal: "'5'"
+          unparsable:
+            raw: DAY
       - comma: ','
       - select_clause_element:
           interval_expression:
-          - keyword: INTERVAL
-          - literal: "'100'"
-          - keyword: HOUR
-          - bracketed:
+            keyword: INTERVAL
+            literal: "'100'"
+          unparsable:
+            raw: HOUR
+            bracketed:
               start_bracket: (
-              literal: '3'
+              raw: '3'
               end_bracket: )
       - comma: ','
       - select_clause_element:
           interval_expression:
-          - keyword: INTERVAL
-          - literal: "'1.99999'"
-          - keyword: SECOND
-          - bracketed:
+            keyword: INTERVAL
+            literal: "'1.99999'"
+          unparsable:
+            raw: SECOND
+            bracketed:
             - start_bracket: (
-            - literal: '2'
+            - raw: '2'
             - comma: ','
-            - literal: '2'
+            - raw: '2'
             - end_bracket: )
       - comma: ','
       - select_clause_element:
           interval_expression:
-          - keyword: INTERVAL
-          - literal: "'23:10:59.123'"
-          - keyword: HOUR
+            keyword: INTERVAL
+            literal: "'23:10:59.123'"
+          unparsable:
+          - raw: HOUR
           - bracketed:
               start_bracket: (
-              literal: '2'
+              raw: '2'
               end_bracket: )
-          - keyword: TO
-          - keyword: SECOND
+          - raw: TO
+          - raw: SECOND
           - bracketed:
               start_bracket: (
-              literal: '3'
+              raw: '3'
               end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -1757,12 +1767,12 @@ file:
               identifier: v
           - binary_operator: '*'
           - interval_expression:
-            - keyword: INTERVAL
-            - literal: "'7'"
-            - keyword: DAY
-          alias_expression:
-            keyword: AS
-            identifier: late_2020_mondays
+              keyword: INTERVAL
+              literal: "'7'"
+          unparsable:
+          - raw: DAY
+          - raw: AS
+          - raw: late_2020_mondays
       - comma: ','
       - select_clause_element:
           expression:

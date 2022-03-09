@@ -3,10 +3,10 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7fe5e4b983011fd90f3ccda59abb9331f668758dd7ab8a6deecd9ba91864c854
+_hash: b29ae00e871974f41a53ec83d2e6df279c8fdf6be6afbf572b454550e49770be
 file:
 - batch:
-    statement:
+  - statement:
       select_statement:
         select_clause:
         - keyword: SELECT
@@ -84,7 +84,9 @@ file:
                 function_name_identifier: DATEADD
               bracketed:
               - start_bracket: (
-              - date_part: month
+              - expression:
+                  column_reference:
+                    identifier: month
               - comma: ','
               - expression:
                   numeric_literal:
@@ -105,13 +107,15 @@ file:
                 keyword: convert
               bracketed:
               - start_bracket: (
-              - data_type:
-                  identifier: varchar
+              - expression:
+                  column_reference:
+                    identifier: varchar
               - comma: ','
-              - data_type:
-                - identifier: tbl_b
-                - dot: .
-                - identifier: column1
+              - expression:
+                  column_reference:
+                  - identifier: tbl_b
+                  - dot: .
+                  - identifier: column1
               - comma: ','
               - expression:
                   literal: '23'
@@ -126,10 +130,9 @@ file:
               table_expression:
                 table_reference:
                   identifier: tbl_b
-- go_statement:
-    keyword: GO
-- batch:
-    statement:
+              alias_expression:
+                identifier: GO
+  - statement:
       create_function_statement:
       - keyword: CREATE
       - keyword: FUNCTION

@@ -3,7 +3,11 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
+<<<<<<< Updated upstream
 _hash: 86e01072588e69d864bfed9ed92966795c09f3e1f3f587b3e85dd41af9fbac18
+=======
+_hash: 2913941a44608e0de79949944c94ae86828bfd1856ccc8345859accce5910205
+>>>>>>> Stashed changes
 file:
 - statement:
     select_statement:
@@ -26,6 +30,7 @@ file:
       groupby_clause:
       - keyword: GROUP
       - keyword: BY
+<<<<<<< Updated upstream
       - keyword: GROUPING
       - keyword: SETS
       - bracketed:
@@ -36,6 +41,22 @@ file:
         - column_reference:
             identifier: bar
         - end_bracket: )
+=======
+      - grouping_sets_clause:
+        - keyword: GROUPING
+        - keyword: SETS
+        - bracketed:
+            start_bracket: (
+            grouping_expression_list:
+            - expression:
+                column_reference:
+                  identifier: foo
+            - comma: ','
+            - expression:
+                column_reference:
+                  identifier: bar
+            end_bracket: )
+>>>>>>> Stashed changes
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -67,6 +88,7 @@ file:
       groupby_clause:
       - keyword: group
       - keyword: by
+<<<<<<< Updated upstream
       - keyword: grouping
       - keyword: sets
       - bracketed:
@@ -77,6 +99,22 @@ file:
         - column_reference:
             identifier: radio_license
         - end_bracket: )
+=======
+      - grouping_sets_clause:
+        - keyword: grouping
+        - keyword: sets
+        - bracketed:
+            start_bracket: (
+            grouping_expression_list:
+            - expression:
+                column_reference:
+                  identifier: medical_license
+            - comma: ','
+            - expression:
+                column_reference:
+                  identifier: radio_license
+            end_bracket: )
+>>>>>>> Stashed changes
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -108,6 +146,7 @@ file:
       groupby_clause:
       - keyword: group
       - keyword: by
+<<<<<<< Updated upstream
       - keyword: grouping
       - keyword: sets
       - bracketed:
@@ -118,4 +157,20 @@ file:
         - column_reference:
             identifier: radio_license
         - end_bracket: )
+=======
+      - grouping_sets_clause:
+        - keyword: grouping
+        - keyword: sets
+        - bracketed:
+            start_bracket: (
+            grouping_expression_list:
+            - expression:
+                column_reference:
+                  identifier: medical_license
+            - comma: ','
+            - expression:
+                column_reference:
+                  identifier: radio_license
+            end_bracket: )
+>>>>>>> Stashed changes
 - statement_terminator: ;

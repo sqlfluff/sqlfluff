@@ -3,7 +3,11 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
+<<<<<<< Updated upstream
 _hash: 92c7629469d93f3cdce9721a92255044be48602d518e04f3795ce44c0248fee1
+=======
+_hash: a01f076164b9da0cbd6169e6e5228cbff173bd1edec3be17f5bc102e71243b66
+>>>>>>> Stashed changes
 file:
 - statement:
     select_statement:
@@ -310,8 +314,8 @@ file:
           - dot: .
           - identifier: state
       from_clause:
-      - keyword: FROM
-      - from_expression:
+        keyword: FROM
+        from_expression:
           from_expression_element:
             table_expression:
               table_reference:
@@ -331,6 +335,7 @@ file:
             - identifier: exploded_people
             - keyword: AS
             - identifier: name
+<<<<<<< Updated upstream
       - comma: ','
       - from_expression:
           from_expression_element:
@@ -409,3 +414,9 @@ file:
               table_reference:
                 identifier: state
 - statement_terminator: ;
+=======
+            - comma: ','
+            - identifier: age
+            - comma: ','
+            - identifier: state
+>>>>>>> Stashed changes

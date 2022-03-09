@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5e591ff62620fab82564e0d081e7651aa37f62907abe67c65dc61399b9f5ca92
+_hash: 19ab0b5dc237e58df14d877fba3e66305f3d2804ae44cfeb0211b45041055ed6
 file:
 - statement:
     create_table_as_statement:
@@ -454,30 +454,33 @@ file:
       - end_bracket: )
     - keyword: AS
     - values_clause:
-      - keyword: VALUES
-      - bracketed:
-        - start_bracket: (
-        - expression:
-            literal: "'val1'"
+        keyword: VALUES
+        delimited_values:
+        - tuple_value:
+            bracketed:
+            - start_bracket: (
+            - scalar_value:
+                literal: "'val1'"
+            - comma: ','
+            - scalar_value:
+                literal: "'val2'"
+            - comma: ','
+            - scalar_value:
+                literal: "'val3'"
+            - end_bracket: )
         - comma: ','
-        - expression:
-            literal: "'val2'"
-        - comma: ','
-        - expression:
-            literal: "'val3'"
-        - end_bracket: )
-      - comma: ','
-      - bracketed:
-        - start_bracket: (
-        - expression:
-            literal: "'val4'"
-        - comma: ','
-        - expression:
-            literal: "'val5'"
-        - comma: ','
-        - expression:
-            literal: "'val6'"
-        - end_bracket: )
+        - tuple_value:
+            bracketed:
+            - start_bracket: (
+            - scalar_value:
+                literal: "'val4'"
+            - comma: ','
+            - scalar_value:
+                literal: "'val5'"
+            - comma: ','
+            - scalar_value:
+                literal: "'val6'"
+            - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_as_statement:

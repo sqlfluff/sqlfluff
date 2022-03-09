@@ -115,7 +115,6 @@ class Delimited(OneOf):
 
         delimiter_matchers = [self.delimiter]
         terminator_matchers = []
-        print('TERM: ', self.terminator)
         if self.terminator:
             terminator_matchers.append(self.terminator)
         # If gaps aren't allowed, a gap (or non-code segment), acts like a terminator.
