@@ -282,3 +282,21 @@ test_pass_tsql_parameter:
   configs:
     core:
       dialect: tsql
+
+test_pass_tsql_pivot:
+  # This should pass for certain dialects
+  pass_str: |
+    SELECT 1
+    FROM
+    (
+      SELECT DaysToManufacture, StandardCost
+      FROM Production.Product
+    ) AS SourceTable
+    PIVOT
+    (
+      AVG(StandardCost)
+      FOR DaysToManufacture IN ([0], [1], [2], [3], [4])
+    ) AS PivotTable;
+  configs:
+    core:
+      dialect: tsql
