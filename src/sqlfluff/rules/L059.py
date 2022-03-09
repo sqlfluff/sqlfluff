@@ -108,9 +108,10 @@ class Rule_L059(BaseRule):
         # Ignore the segments that are not of the same type as the defined policy above.
         # Also TSQL has a keyword called QUOTED_IDENTIFIER which maps to the name so
         # need to explicity check for that.
-        if (
-            context.segment.name not in context_policy
-            or context.segment.raw.lower() in ("quoted_identifier", "naked_identifier")
+        # print("BARRY:%s:%s:" % (context.segment, context.segment.name))
+        if context.segment.name != context_policy or context.segment.raw.lower() in (
+            "quoted_identifier",
+            "naked_identifier",
         ):
             return None
 
