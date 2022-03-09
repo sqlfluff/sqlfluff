@@ -2,7 +2,7 @@
 from typing import List, NamedTuple, Optional
 
 from sqlfluff.core.parser import SymbolSegment
-from sqlfluff.core.parser.segments.base import BaseSegment
+from sqlfluff.core.parser.segments.base import BaseSegment, IdentitySet
 from sqlfluff.core.parser.segments.raw import NewlineSegment
 
 from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix, RuleContext
@@ -244,7 +244,10 @@ class Rule_L052(BaseRule):
             context, "create_after", anchor_segment, filter_meta=True
         )
         lintfix_fn = LintFix.create_after
-        if anchor_segment in whitespace_deletions:
+        # :TRICKY: Use IdentitySet rather than set() since
+        # different segments may compare as equal.
+        whitespace_deletion_set = IdentitySet(whitespace_deletions)
+        if anchor_segment in whitespace_deletion_set:
             # Can't delete() and create_after() the same segment. Use replace()
             # instead.
             lintfix_fn = LintFix.replace
