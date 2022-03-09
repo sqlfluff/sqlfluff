@@ -148,7 +148,10 @@ class Rule_L026(BaseRule):
         # - They are the target table, similar to an INSERT or UPDATE
         #   statement, thus not expected to match a table in the FROM
         #   clause.
-        return any(seg.is_type("into_table_clause") for seg in ref_path)
+        if ref_path:
+            return any(seg.is_type("into_table_clause") for seg in ref_path)
+        else:
+            return False  # pragma: no cover
 
     @staticmethod
     def _get_table_refs(ref, dialect):
