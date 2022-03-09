@@ -1357,7 +1357,7 @@ class IdentitySet(MutableSet):
         return len(self.map)
 
     def __iter__(self):  # Iterable
-        return self.map.itervalues()
+        return self.map.itervalues()  # pragma: no cover
 
     def __contains__(self, x):  # Container
         return self.key(x) in self.map
@@ -1368,9 +1368,9 @@ class IdentitySet(MutableSet):
 
     def discard(self, value):  # MutableSet
         """Remove an element.  Do not raise an exception if absent."""
-        self.map.pop(self.key(value), None)
+        self.map.pop(self.key(value), None)  # pragma: no cover
 
-    def __repr__(self):
+    def __repr__(self):  # pragma: no cover
         if not self:
             return "%s()" % (self.__class__.__name__,)
         return "%s(%r)" % (self.__class__.__name__, list(self))

@@ -521,7 +521,7 @@ class Linter:
                     # :TRICKY: Use IdentitySet rather than set() since
                     # different segments may compare as equal.
                     unique_anchors = IdentitySet(fix.anchor for fix in fixes)
-                    if len(unique_anchors) < len(fixes):
+                    if len(unique_anchors) < len(fixes):  # pragma: no cover
                         message = (
                             f"Rule {crawler.code} returned multiple fixes with "
                             f"the same anchors. This is not supported, so the "
