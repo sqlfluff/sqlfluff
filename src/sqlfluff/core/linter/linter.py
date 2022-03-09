@@ -331,6 +331,8 @@ class Linter:
 
     @staticmethod
     def _warn_duplicate_anchors(message: str):  # pragma: no cover
+        # This function exists primarily in order to let us monkeypatch it at
+        # runtime (replacing it with a function that raises an exception).
         linter_logger.critical(message)
 
     @staticmethod
