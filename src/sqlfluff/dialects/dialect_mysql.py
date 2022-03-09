@@ -15,6 +15,7 @@ from sqlfluff.core.parser import (
     CommentSegment,
     NamedParser,
     CodeSegment,
+    StartsWith,
     StringParser,
     SymbolSegment,
     Delimited,
@@ -384,6 +385,65 @@ class InsertStatementSegment(BaseSegment):
             ),
             Ref("InsertRowAliasSegment", optional=True),
             Ref("UpsertClauseListSegment", optional=True),
+        ),
+    )
+
+
+@mysql_dialect.segment()
+class DeleteUsingClauseSegment(BaseSegment):
+    """A `USING` clause froma `DELETE` Statement`."""
+
+    type = "using_clause"
+    match_grammar = StartsWith(
+        "USING",
+        terminator=Ref("FromClauseTerminatorGrammar"),
+        enforce_whitespace_preceding_terminator=True,
+    )
+    parse_grammar = Sequence(
+        "USING",
+        Delimited(
+            Ref("FromExpressionSegment"),
+        ),
+    )
+
+
+@mysql_dialect.segment(replace=True)
+class DeleteStatementSegment(BaseSegment):
+    """A `DELETE` statement.
+
+    https://dev.mysql.com/doc/refman/8.0/en/delete.html
+    """
+
+    type = "delete_statement"
+    match_grammar = Sequence(
+        "DELETE",
+        AnyNumberOf(
+            "LOW_PRIORITY",
+            "QUICK",
+            "IGNORE",
+            optional=True,
+        ),
+        OneOf(
+            Sequence(
+                "FROM",
+                Delimited(
+                    Ref("TableReferenceSegment"), terminator=Ref.keyword("USING")
+                ),
+                Ref("DeleteUsingClauseSegment"),
+                Ref("WhereClauseSegment", optional=True),
+            ),
+            Sequence(
+                Delimited(Ref("TableReferenceSegment"), terminator=Ref.keyword("FROM")),
+                Ref("FromClauseSegment"),
+                Ref("WhereClauseSegment", optional=True),
+            ),
+            Sequence(
+                Ref("FromClauseSegment"),
+                Ref("SelectPartitionClauseSegment", optional=True),
+                Ref("WhereClauseSegment", optional=True),
+                Ref("OrderByClauseSegment", optional=True),
+                Ref("LimitClauseSegment", optional=True),
+            ),
         ),
     )
 
