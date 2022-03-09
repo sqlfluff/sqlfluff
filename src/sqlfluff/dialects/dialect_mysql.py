@@ -417,12 +417,9 @@ class DeleteStatementSegment(BaseSegment):
     type = "delete_statement"
     match_grammar = Sequence(
         "DELETE",
-        AnyNumberOf(
-            "LOW_PRIORITY",
-            "QUICK",
-            "IGNORE",
-            optional=True,
-        ),
+        Ref.keyword("LOW_PRIORITY", optional=True),
+        Ref.keyword("QUICK", optional=True),
+        Ref.keyword("IGNORE", optional=True),
         OneOf(
             Sequence(
                 "FROM",
