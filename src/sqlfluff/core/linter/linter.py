@@ -518,6 +518,8 @@ class Linter:
                 if fix and fixes:
                     linter_logger.info(f"Applying Fixes [{crawler.code}]: {fixes}")
                     # Do some sanity checks on the fixes before applying.
+                    # :TRICKY: Use IdentitySet rather than set() since
+                    # different segments may compare as equal.
                     unique_anchors = IdentitySet(fix.anchor for fix in fixes)
                     if len(unique_anchors) < len(fixes):
                         message = (

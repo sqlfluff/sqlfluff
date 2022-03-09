@@ -282,6 +282,8 @@ class Rule_L036(BaseRule):
                         # :TRICKY: Below, we have a couple places where we
                         # filter to guard against deleting the same segment
                         # multiple times -- this is illegal.
+                        # :TRICKY: Use IdentitySet rather than set() since
+                        # different segments may compare as equal.
                         all_deletes = IdentitySet(
                             fix.anchor for fix in fixes if fix.edit_type == "delete"
                         )

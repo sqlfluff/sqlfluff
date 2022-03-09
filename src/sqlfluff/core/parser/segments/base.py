@@ -1341,7 +1341,8 @@ class BaseFileSegment(BaseSegment):
 class IdentitySet(MutableSet):
     """Similar to built-in set(), but based on object IDENTITY.
 
-    This is often important when working with BaseSegment and other types.
+    This is often important when working with BaseSegment and other types,
+    where different object instances may compare as equal.
 
     Copied from: https://stackoverflow.com/questions/16994307/identityset-in-python
     """
