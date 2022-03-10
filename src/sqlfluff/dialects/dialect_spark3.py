@@ -291,6 +291,12 @@ spark3_dialect.add(
     WhlKeywordSegment=StringParser(
         "WHL", KeywordSegment, name="whl", type="file_keyword"
     ),
+    SQLConfPropertiesSegment=StringParser(
+        "-v",
+        SymbolSegment,
+        name="sql_conf_properties_parameter",
+        type="sql_conf_properties",
+    ),
     # Add relevant Hive Grammar
     CommentGrammar=hive_dialect.get_grammar("CommentGrammar"),
     LocationGrammar=hive_dialect.get_grammar("LocationGrammar"),
@@ -1969,6 +1975,29 @@ class ResetStatementSegment(BaseSegment):
 
 
 @spark3_dialect.segment()
+class SetStatementSegment(BaseSegment):
+    """A `SET` statement used to set runtime properties.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-aux-conf-mgmt-set.html
+    """
+
+    type = "set_statement"
+
+    match_grammar = Sequence(
+        "SET",
+        Ref("SQLConfPropertiesSegment", optional=True),
+        Sequence(
+            Delimited(
+                Ref("SingleIdentifierGrammar"),
+                delimiter=Ref("DotSegment"),
+            ),
+            Sequence(Ref("EqualsSegment"), Ref("LiteralGrammar"), optional=True),
+            optional=True,
+        ),
+    )
+
+
+@spark3_dialect.segment()
 class UncacheTableSegment(BaseSegment):
     """AN `UNCACHE TABLE` statement.
 
@@ -2015,6 +2044,7 @@ class StatementSegment(BaseSegment):
             Ref("RefreshTableStatementSegment"),
             Ref("RefreshFunctionStatementSegment"),
             Ref("ResetStatementSegment"),
+            Ref("SetStatementSegment"),
             Ref("UncacheTableSegment"),
             # Data Manipulation Statements
             Ref("InsertOverwriteDirectorySegment"),
