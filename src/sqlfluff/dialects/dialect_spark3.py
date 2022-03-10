@@ -286,7 +286,7 @@ spark3_dialect.add(
         "JARS?", KeywordSegment, name="jar", type="file_keyword"
     ),
     NoscanKeywordSegment=StringParser(
-        "NOSCAN", SymbolSegment, name="noscan_keyword", type="keyword"
+        "NOSCAN", KeywordSegment, name="noscan_keyword", type="keyword"
     ),
     WhlKeywordSegment=StringParser(
         "WHL", KeywordSegment, name="whl", type="file_keyword"
@@ -1950,6 +1950,25 @@ class RefreshFunctionStatementSegment(BaseSegment):
 
 
 @spark3_dialect.segment()
+class ResetStatementSegment(BaseSegment):
+    """A `RESET` statement used to reset runtime configurations.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-aux-conf-mgmt-reset.html
+    """
+
+    type = "reset_statement"
+
+    match_grammar = Sequence(
+        "RESET",
+        Delimited(
+            Ref("SingleIdentifierGrammar"),
+            delimiter=Ref("DotSegment"),
+            optional=True,
+        ),
+    )
+
+
+@spark3_dialect.segment()
 class UncacheTableSegment(BaseSegment):
     """AN `UNCACHE TABLE` statement.
 
@@ -1995,6 +2014,7 @@ class StatementSegment(BaseSegment):
             Ref("RefreshStatementSegment"),
             Ref("RefreshTableStatementSegment"),
             Ref("RefreshFunctionStatementSegment"),
+            Ref("ResetStatementSegment"),
             Ref("UncacheTableSegment"),
             # Data Manipulation Statements
             Ref("InsertOverwriteDirectorySegment"),
