@@ -149,19 +149,6 @@ class Segments(tuple):
         else:
             return result
 
-    def dive_last(self, max_depth=1):
-        """Move down to the last child repeatedly."""
-        # Continue moving down directly to the last element
-
-        if max_depth == 0:
-            return self
-        max_depth = max_depth - 1
-        last_child = self.children().last()
-        if not last_child:
-            return self
-
-        return last_child.dive_last(max_depth=max_depth)
-
     def get(self, index: int = 0, *, default: Any = None) -> Optional[BaseSegment]:
         """Return specified item. Returns default if index out of range."""
         try:
