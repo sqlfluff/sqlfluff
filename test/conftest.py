@@ -20,6 +20,7 @@ from sqlfluff.core.parser.segments import (
     CodeSegment,
     BaseSegment,
 )
+from sqlfluff.core.rules.base import BaseRule
 from sqlfluff.core.templaters import TemplatedFile
 
 # When writing YAML files, double quotes string values needing escapes.
@@ -238,6 +239,14 @@ def fail_on_parse_error_after_fix(monkeypatch):
     def raise_error_apply_fixes_check_issue(message, *args):  # pragma: no cover
         raise ValueError(message % args)
 
+    @staticmethod
+    def _log_critical_errors(error: Exception, code: str, exception_line: str):
+        print(code, exception_line)
+        raise error
+
+    monkeypatch.setattr(
+        BaseRule, "_log_critical_errors", _log_critical_errors
+    )
     monkeypatch.setattr(
         BaseSegment, "_log_apply_fixes_check_issue", raise_error_apply_fixes_check_issue
     )

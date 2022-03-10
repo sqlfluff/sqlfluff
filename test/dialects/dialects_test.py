@@ -7,7 +7,7 @@ and automatically tested against the appropriate dialect.
 import pytest
 
 from sqlfluff.core.parser import Parser, Lexer
-from sqlfluff.core import FluffConfig
+from sqlfluff.core import FluffConfig, Linter
 
 from ..conftest import (
     compute_parse_tree_hash,
@@ -46,6 +46,15 @@ def test__dialect__base_file_parse(dialect, file):
         # Check that there's nothing unparsable
         typs = parsed.type_set()
         assert "unparsable" not in typs
+
+
+@pytest.mark.parametrize("dialect,file", parse_success_examples)
+def test__dialect__base_broad_fix(dialect, file, fail_on_parse_error_after_fix):
+    """For given test examples, check successful parsing."""
+    raw = load_file(dialect, file)
+    # Load the right dialect
+    config = FluffConfig(overrides=dict(dialect=dialect))
+    Linter(config=config).lint_string_wrapped(raw, fix=True)
 
 
 @pytest.mark.parametrize("dialect,sqlfile,code_only,yamlfile", parse_structure_examples)
