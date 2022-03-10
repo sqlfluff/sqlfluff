@@ -263,12 +263,11 @@ class _CTEChecker:
     """Buffer CTE movements, so they can be applied in bulk without a recrawl."""
 
     def __init__(self) -> None:
-        self.used_names = []
+        self.used_names: List[str] = []
         self.ctes: List[BaseSegment] = []
         self.name_idx = 0
 
     def has_duplicates(self) -> bool:
-        print(self.used_names)
         return len(set(self.used_names)) != len(self.used_names)
 
     def insert_cte(self, cte: BaseSegment):
@@ -304,7 +303,7 @@ class _CTEChecker:
 
     def get_segements(self) -> List[BaseSegment]:
         """Return a valid list of CTES with required padding Segements."""
-        cte_segments = []
+        cte_segments: List[BaseSegment] = []
         for cte in self.ctes:
             cte_segments = cte_segments + [
                 cte,
