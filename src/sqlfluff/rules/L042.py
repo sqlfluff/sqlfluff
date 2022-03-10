@@ -1,8 +1,6 @@
 """Implementation of Rule L042."""
 from functools import partial
-from multiprocessing.sharedctypes import Value
-from typing import Generator, List, Literal, Optional, Tuple, Union, cast
-from sqlfluff.core.dialects.base import Dialect
+from typing import Generator, List, Literal, Optional, Tuple, Union
 
 from sqlfluff.core.parser.segments.base import BaseSegment
 from sqlfluff.core.parser.segments.raw import (
@@ -12,7 +10,6 @@ from sqlfluff.core.parser.segments.raw import (
     SymbolSegment,
     WhitespaceSegment,
 )
-from sqlfluff.core.rules.analysis.select_crawler import SelectCrawler
 
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.doc_decorators import (
@@ -112,7 +109,6 @@ def _calculate_fixes(
     nested_subqueries: List[Tuple[str, Segments, Segments, BaseSegment]],
 ):
     """Given the Root select and the offending subqueries calculate fixes."""
-
     ctes = _CTEChecker()
     is_with = root_select.all(is_type("with_compound_statement"))
     # TODO: consider if we can fix recursive CTEs
