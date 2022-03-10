@@ -186,10 +186,10 @@ class Segments(tuple):
         self,
         predicate: Optional[PredicateType] = None,
     ) -> Iterable["Segments"]:
-        """Loop over eaach element as a fresh segment."""
+        """Loop over eaach element as a fresh Segments."""
         # Looping over Segments returns BaseEls
         # which is sometime what we want and sometimes not
         for base_el in self:
-            if predicate and not predicate(base_el):
+            if predicate and not predicate(base_el):  # pragma: no cover
                 continue
             yield Segments(base_el, templated_file=self.templated_file)
