@@ -91,6 +91,24 @@ double_nested_unfixable_cte_clash:
       L042:
         forbid_subquery_in: both
 
+unfixable_cte_clash:
+  fail_str: |
+    with "b" as (
+      select x, z from p_cte
+    )
+    select
+        a.x, a.y, b.z
+    from a
+    join (
+      select x, z from (
+        select 1
+      ) as b
+    ) as c on (a.x = b.x)
+  configs:
+    rules:
+      L042:
+        forbid_subquery_in: both
+
 with_recursive_fail_no_fix:
   fail_str: |
     with recursive p_cte as (

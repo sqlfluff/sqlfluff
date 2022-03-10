@@ -1,7 +1,7 @@
 """Implementation of Rule L042."""
 from functools import partial
 from multiprocessing.sharedctypes import Value
-from typing import Generator, List, Literal, Optional, Tuple, Union
+from typing import Generator, List, Literal, Optional, Tuple, Union, cast
 from sqlfluff.core.dialects.base import Dialect
 
 from sqlfluff.core.parser.segments.base import BaseSegment
@@ -117,9 +117,13 @@ def _calculate_fixes(
     is_with = root_select.all(is_type("with_compound_statement"))
     # TODO: consider if we can fix recursive CTEs
     is_recursive = is_with and len(root_select.children(is_name("recursive"))) > 0
+    segmentify = partial(
+        _segmentify,
+        casing=_get_casing_preference(root_select),
+    )
+    # Init the output/final select &
+    # populate existing CTEs
     output_select = root_select
-    casing_prefrence = _get_casing_preference(root_select)
-    segmentify = partial(_segmentify, casing=casing_prefrence)
     if is_with:
         output_select = root_select.children(
             is_type(
@@ -128,6 +132,7 @@ def _calculate_fixes(
             )
         )
         for cte in root_select.children(is_type("common_table_expression")):
+            assert isinstance(cte, CTEDefinitionSegment), "TypeGaurd"
             ctes.insert_cte(cte)
 
     lint_results: List[LintResult] = []
@@ -270,9 +275,16 @@ class _CTEChecker:
     def has_duplicates(self) -> bool:
         return len(set(self.used_names)) != len(self.used_names)
 
-    def insert_cte(self, cte: BaseSegment):
+    def insert_cte(self, cte: CTEDefinitionSegment):
         """Add a new CTE to the list as late as possible but before all its parents."""
         output: List[BaseSegment] = []
+        id_seg = cte.get_identifier()
+        print(id_seg, id_seg.raw, id_seg.name)
+        cte_name = id_seg.raw
+        if id_seg.is_name("quoted_identifier"):
+            cte_name = cte_name[1:-1]
+
+        self.used_names.append(cte_name)
         # This should still have the position markers of its true position
         inbound_subquery = Segments(cte).children().last()
         for el in self.ctes:
@@ -293,12 +305,10 @@ class _CTEChecker:
         """Find or create the name for the next CTE."""
         if alias_segment:
             name = alias_segment.children().last()[0].raw
-            self.used_names.append(name)
             return name
 
         self.name_idx = self.name_idx + 1
         name = f"prep_{self.name_idx}"
-        self.used_names.append(name)
         return name
 
     def get_segements(self) -> List[BaseSegment]:
