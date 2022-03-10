@@ -1,6 +1,7 @@
 """Implementation of Rule L042."""
 from functools import partial
-from typing import Generator, List, Optional, Tuple
+from typing import Generator, List, Optional, Tuple, Type, TypeVar, cast
+from sqlfluff.core.dialects.base import Dialect
 
 from sqlfluff.core.parser.segments.base import BaseSegment
 from sqlfluff.core.parser.segments.raw import (
@@ -103,14 +104,23 @@ class Rule_L042(BaseRule):
         if not nested_subqueries:
             return None
 
-        return _calculate_fixes(root_select, nested_subqueries)
+        return _calculate_fixes(context.dialect, root_select, nested_subqueries)
+
+
+S = TypeVar("S", bound=Type[BaseSegment])
+
+
+def _get_seg(class_def: S, dialect: Dialect) -> S:
+    return cast(S, dialect.get_segment(class_def.__name__))
 
 
 def _calculate_fixes(
+    dialect: Dialect,
     root_select: Segments,
     nested_subqueries: List[Tuple[str, Segments, Segments, BaseSegment]],
 ):
     """Given the Root select and the offending subqueries calculate fixes."""
+    Seg = partial(_get_seg, dialect=dialect)
     ctes = _CTEChecker()
     is_with = root_select.all(is_type("with_compound_statement"))
     # TODO: consider if we can fix recursive CTEs
@@ -134,10 +144,13 @@ def _calculate_fixes(
             ctes.insert_cte(cte)
 
     lint_results: List[LintResult] = []
+    CTESegment = Seg(CTEDefinitionSegment)
+    TableExpressionSeg = Seg(TableExpressionSegment)
+    TableReferenceSeg = Seg(TableReferenceSegment)
     for parent_type, _, this_seg, subquery in nested_subqueries:
         alias_name = ctes.get_name(this_seg.children(is_type("alias_expression")))
         ctes.insert_cte(
-            CTEDefinitionSegment(
+            CTESegment(
                 segments=(
                     CodeSegment(
                         raw=alias_name,
@@ -154,9 +167,9 @@ def _calculate_fixes(
         # TODO: Create non-mutative helper function.
         # We will replace the whole tree, mutate the table expression.
         this_seg[0].segments = (
-            TableExpressionSegment(
+            TableExpressionSeg(
                 segments=(
-                    TableReferenceSegment(
+                    TableReferenceSeg(
                         segments=(
                             CodeSegment(
                                 raw=alias_name,
