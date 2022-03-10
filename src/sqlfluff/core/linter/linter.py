@@ -530,6 +530,8 @@ class Linter:
                             f"create_after, so the fixes will not be applied. {fixes!r}"
                         )
                         cls._report_conflicting_fixes_same_anchor(message)
+                        for lint_result in linting_errors:
+                            lint_result.fixes = []
                     elif fixes == last_fixes:  # pragma: no cover
                         # If we generate the same fixes two times in a row,
                         # that means we're in a loop, and we want to stop.
