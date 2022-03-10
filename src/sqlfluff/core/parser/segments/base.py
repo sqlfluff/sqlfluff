@@ -1050,7 +1050,7 @@ class BaseSegment:
 
                     # Look for identity not just equality.
                     # This handles potential positioning ambiguity.
-                    anchor_info: AnchorEditInfo = fixes.pop(id(seg), None)
+                    anchor_info: Optional[AnchorEditInfo] = fixes.pop(id(seg), None)
                     if anchor_info is not None:
                         seg_fixes = anchor_info.fixes
                         if (
