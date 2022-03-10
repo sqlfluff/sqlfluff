@@ -190,19 +190,18 @@ def _calculate_fixes(
 
 def _is_child(maybe_parent: Segments, maybe_child: Segments) -> bool:
     """Is the child actually between the start and end markers of the parent."""
-    if len(maybe_child) > 1:
-        raise ValueError("Cannot assess Childness of multiple Segments")
+    assert len(maybe_child) == 1, "Cannot assess Childness of multiple Segments"
 
     child_markers = maybe_child[0].pos_marker
     if not child_markers:
-        return False
+        return False  # pragma: no cover
     for segement in maybe_parent:
         parent_pos = segement.pos_marker
         if not parent_pos:
-            continue
+            continue  # pragma: no cover
 
         if child_markers < parent_pos.start_point_marker():
-            continue
+            continue  # pragma: no cover
 
         if child_markers > parent_pos.end_point_marker():
             continue
@@ -284,7 +283,7 @@ class _CTEChecker:
         # This should still have the position markers of its true position
         inbound_subquery = Segments(cte).children().last()
         for el in self.ctes:
-            if cte in output:
+            if cte in output:  # pragma: no cover
                 output.append(el)
                 continue
             if _is_child(Segments(el).children().last(), inbound_subquery):
@@ -320,14 +319,9 @@ class _CTEChecker:
 
 
 def _segmentify(
-    input_el: Union[str, BaseSegment], casing: str
+    input_el: str, casing: str
 ) -> BaseSegment:
-    """Apply casing an convert strings to Keywords or Whitespace."""
-    if isinstance(input_el, BaseSegment):
-        return input_el
-
-    if input_el[0] == " ":
-        return WhitespaceSegment(raw=input_el)
+    """Apply casing an convert strings to Keywords."""
 
     input_el = input_el.lower()
     if casing == "UPPER":
