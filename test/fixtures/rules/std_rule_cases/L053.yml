@@ -65,3 +65,23 @@ test_pass_begin_end_statement_brackets_tsql:
   configs:
     core:
       dialect: tsql
+
+test_fail_leading_trailing_whitespace:
+  # This previously caused the post-fix parse check to fail.
+  fail_str: |
+    (
+        SELECT
+            foo,
+            bar,
+            baz
+        FROM mycte2
+    );
+  # Yes, the formatting looks bad, but L053 simply removes leading and trailing
+  # whitespace to avoid a post-fix parse error. In the real world, other rules
+  # will tidy up the formatting.
+  fix_str: |
+    SELECT
+            foo,
+            bar,
+            baz
+        FROM mycte2;
