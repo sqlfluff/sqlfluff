@@ -1357,7 +1357,7 @@ class IdentitySet(MutableSet):
         return len(self.map)
 
     def __iter__(self):  # Iterable
-        return self.map.itervalues()  # pragma: no cover
+        return self.map.values().__iter__()  # pragma: no cover
 
     def __contains__(self, x):  # Container
         return self.key(x) in self.map
