@@ -320,7 +320,6 @@ class _CTEChecker:
 
 def _segmentify(input_el: str, casing: str) -> BaseSegment:
     """Apply casing an convert strings to Keywords."""
-
     input_el = input_el.lower()
     if casing == "UPPER":
         input_el = input_el.upper()
