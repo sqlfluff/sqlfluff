@@ -125,12 +125,31 @@ class Rule_L039(BaseRule):
                 )
 
         final_violations = []
+        # Here, handle a special case where this rule works in two steps to
+        # remove unnecessary white space. Example query:
+        #
+        #     select
+        #         '1'    ::   INT as id1,
+        #         '2'::int as id2
+        #     from table_a
+        #
+        # There are two fixes for line 2:
+        # - Replace long runs of whitespace with a single whitespace
+        # - Delete single whitespace if needed (e.g. adjacent to "::")
+        #
+        # As currently designed, L039 would try and "replace" and "delete" the
+        # same whitespace segment, causing the linter to complain about
+        # conflicting fixes to the same segment. As a simple workaround, L039
+        # remembers previously returned fixes and avoids returning a second
+        # fix with the same anchor. The other fix (if needed) will be applied
+        # on the next linter pass.
         if violations:
-            # Check each violation. If any of its fixes uses the same anchor
-            # as a previously returned fix, discard it. The linter can't handle
-            # applying fixes like this. Skipping this issue is okay because it
-            # will be detected and fixed during the next linter pass.
+            # If a violation contains fixes using the same anchor as an earlier
+            # fix, skip this violation. If it's still an issue, it will again be
+            # detected (and fixed) during the next linter pass.
             for violation in violations:
+                # Do any of these fixes use the same anchor as a previously
+                # returned fix?
                 if not any(
                     [
                         fix
@@ -138,7 +157,9 @@ class Rule_L039(BaseRule):
                         if fix.anchor in memory["fix_anchors"]
                     ]
                 ):
+                    # No, thus we can safely return this fix.
                     final_violations.append(violation)
+                    # Update our memory of previously used anchors.
                     for fix in violation.fixes:
                         memory["fix_anchors"].add(fix.anchor)
         if not final_violations:
