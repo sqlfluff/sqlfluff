@@ -1929,8 +1929,8 @@ class RefreshStatementSegment(BaseSegment):
             Sequence(
                 "FUNCTION",
                 Ref("FunctionNameSegment"),
-            )
-        )
+            ),
+        ),
     )
 
 
