@@ -248,5 +248,5 @@ def fail_on_parse_error_after_fix(monkeypatch):
         BaseSegment, "_log_apply_fixes_check_issue", raise_error_apply_fixes_check_issue
     )
     monkeypatch.setattr(
-        Linter, "_warn_duplicate_anchors", raise_error_duplicate_anchors
+        Linter, "_report_duplicate_anchors_error", raise_error_duplicate_anchors
     )

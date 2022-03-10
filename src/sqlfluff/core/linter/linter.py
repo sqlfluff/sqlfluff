@@ -330,7 +330,7 @@ class Linter:
         return result
 
     @staticmethod
-    def _warn_duplicate_anchors(message: str):  # pragma: no cover
+    def _report_duplicate_anchors_error(message: str):  # pragma: no cover
         # This function exists primarily in order to let us monkeypatch it at
         # runtime (replacing it with a function that raises an exception).
         linter_logger.critical(message)
@@ -529,7 +529,7 @@ class Linter:
                             f"the same anchor. This is not supported, so the "
                             f"fixes will not be applied. {fixes!r}"
                         )
-                        cls._warn_duplicate_anchors(message)
+                        cls._report_duplicate_anchors_error(message)
                     elif fixes == last_fixes:  # pragma: no cover
                         cls._warn_unfixable(crawler.code)
                     else:
