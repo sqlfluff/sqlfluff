@@ -83,7 +83,7 @@ class AnchorEditInfo:
         if self.total <= 1:
             # Definitely no duplicates if <= 1.
             return True
-        if self.total != 2:
+        if self.total != 2:  # pragma: no cover
             # Definitely duplicates if > 2.
             return False
         # Special case: Ok to create before and after same segment.
