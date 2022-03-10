@@ -2,7 +2,7 @@
 from typing import List, Optional
 
 from sqlfluff.core.parser import WhitespaceSegment
-
+from sqlfluff.core.parser.segments.base import IdentitySet
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 from sqlfluff.core.rules.functional import sp
@@ -38,6 +38,11 @@ class Rule_L039(BaseRule):
         prev_newline = True
         prev_whitespace = None
         violations = []
+        memory = context.memory
+        if not memory:
+            # Use memory to avoid returning multiple fixes with the same anchor.
+            # (This is illegal.)
+            memory = dict(fix_anchors=IdentitySet())
         for seg in context.segment.segments:
             if seg.is_meta:
                 continue
@@ -119,4 +124,22 @@ class Rule_L039(BaseRule):
                     )
                 )
 
-        return violations or None
+        final_violations = []
+        if violations:
+            # Check each violation. If any of its fixes reuses a past anchor,
+            # discard it.
+            for violation in violations:
+                if not any(
+                    [
+                        fix
+                        for fix in violation.fixes
+                        if fix.anchor in memory["fix_anchors"]
+                    ]
+                ):
+                    final_violations.append(violation)
+                    for fix in violation.fixes:
+                        memory["fix_anchors"].add(fix.anchor)
+        if not final_violations:
+            final_violations.append(LintResult())
+        final_violations[-1].memory = memory
+        return final_violations
