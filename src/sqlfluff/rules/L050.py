@@ -69,6 +69,12 @@ class Rule_L050(BaseRule):
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Files must not begin with newlines or whitespace."""
+        # Only check raw segments. This ensures we don't try and delete the same
+        # whitespace multiple times (i.e. for non-raw segments higher in the
+        # tree).
+        if not context.segment.is_raw():
+            return None
+
         # If parent_stack is empty we are currently at FileSegment.
         if len(context.parent_stack) == 0:
             return None
