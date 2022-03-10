@@ -126,8 +126,10 @@ class Rule_L039(BaseRule):
 
         final_violations = []
         if violations:
-            # Check each violation. If any of its fixes reuses a past anchor,
-            # discard it.
+            # Check each violation. If any of its fixes uses the same anchor
+            # as a previously returned fix, discard it. The linter can't handle
+            # applying fixes like this. Skipping this issue is okay because it
+            # will be detected and fixed during the next linter pass.
             for violation in violations:
                 if not any(
                     [

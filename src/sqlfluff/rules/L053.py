@@ -73,14 +73,16 @@ class Rule_L053(BaseRule):
             ]
         )
 
-        # Lift leading/trailing whitespace to the top segment.
+        # Lift leading/trailing whitespace and inline comments to the
+        # segment above. This avoids introducing a parse error (ANSI and other
+        # dialects generally don't allow this at lower levels of the parse
+        # tree).
         to_lift_predicate = sp.or_(sp.is_whitespace(), sp.is_name("inline_comment"))
         leading = filtered_children.select(loop_while=to_lift_predicate)
         trailing = (
             filtered_children.reversed().select(loop_while=to_lift_predicate).reversed()
         )
         lift_nodes = IdentitySet(leading + trailing)
-
         fixes = []
         if lift_nodes:
             parent = filtered_parent_stack[-1]
