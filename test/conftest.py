@@ -241,12 +241,14 @@ def fail_on_parse_error_after_fix(monkeypatch):
         raise ValueError(message % args)
 
     @staticmethod
-    def raise_error_duplicate_anchors(message: str):  # pragma: no cover
+    def raise_error_conflicting_fixes_same_anchor(message: str):  # pragma: no cover
         raise ValueError(message)
 
     monkeypatch.setattr(
         BaseSegment, "_log_apply_fixes_check_issue", raise_error_apply_fixes_check_issue
     )
     monkeypatch.setattr(
-        Linter, "_report_duplicate_anchors_error", raise_error_duplicate_anchors
+        Linter,
+        "_report_conflicting_fixes_same_anchor",
+        raise_error_conflicting_fixes_same_anchor,
     )

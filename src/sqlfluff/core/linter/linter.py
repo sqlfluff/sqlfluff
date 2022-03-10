@@ -330,7 +330,7 @@ class Linter:
         return result
 
     @staticmethod
-    def _report_duplicate_anchors_error(message: str):  # pragma: no cover
+    def _report_conflicting_fixes_same_anchor(message: str):  # pragma: no cover
         # This function exists primarily in order to let us monkeypatch it at
         # runtime (replacing it with a function that raises an exception).
         linter_logger.critical(message)
@@ -525,14 +525,20 @@ class Linter:
                         not info.is_valid for info in anchor_info.values()
                     ):  # pragma: no cover
                         message = (
-                            f"Rule {crawler.code} returned multiple fixes with the "
+                            f"Rule {crawler.code} returned conflicting fixes with the "
                             f"same anchor. This is only supported for create_before+"
                             f"create_after, so the fixes will not be applied. {fixes!r}"
                         )
-                        cls._report_duplicate_anchors_error(message)
+                        cls._report_conflicting_fixes_same_anchor(message)
                     elif fixes == last_fixes:  # pragma: no cover
+                        # If we generate the same fixes two times in a row,
+                        # that means we're in a loop, and we want to stop.
+                        # (Fixes should address issues, hence different
+                        # and/or fewer fixes next time.)
                         cls._warn_unfixable(crawler.code)
                     else:
+                        # This is the happy path. We have fixes, now we want to
+                        # apply them.
                         last_fixes = fixes
                         new_tree, _ = tree.apply_fixes(
                             config.get("dialect_obj"), crawler.code, anchor_info
@@ -546,7 +552,7 @@ class Linter:
                             continue
                         else:
                             # Applying these fixes took us back to a state which we've
-                            # seen before. Abort.
+                            # seen before. We're in a loop, so we want to stop.
                             cls._warn_unfixable(crawler.code)
 
             if loop == 0:

@@ -77,17 +77,21 @@ class AnchorEditInfo:
         """Returns True if valid combination of fixes for anchor.
 
         Cases:
-        * 1 fix of any type: Valid
+        * 0-1 fixes of any type: Valid
         * 2 fixes: Valid if and only if types are create_before and create_after
         """
         if self.total <= 1:
-            # Definitely no duplicates if <= 1.
+            # Definitely valid (i.e. no conflict) if 0 or 1. In practice, this
+            # function probably won't be called if there are 0 fixes, but 0 is
+            # valid; it simply means "no fixes to apply".
             return True
-        if self.total != 2:  # pragma: no cover
-            # Definitely duplicates if > 2.
-            return False
-        # Special case: Ok to create before and after same segment.
-        return self.create_before == 1 and self.create_after == 1
+        if self.total == 2:
+            # This is only OK for this special case. We allow this because
+            # the intent is clear (i.e. no conflict): Insert something *before*
+            # the segment and something else *after* the segment.
+            return self.create_before == 1 and self.create_after == 1
+        # Definitely bad if > 2.
+        return False  # pragma: no cover
 
 
 class BaseSegment:
