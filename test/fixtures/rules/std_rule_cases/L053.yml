@@ -76,12 +76,19 @@ test_fail_leading_trailing_whitespace:
             baz
         FROM mycte2
     );
-  # Yes, the formatting looks bad, but L053 simply removes leading and trailing
-  # whitespace to avoid a post-fix parse error. In the real world, other rules
-  # will tidy up the formatting.
-  fix_str: |
-    SELECT
+  # Yes, the formatting looks bad, but that's because we're only running L053
+  # here. In the real world, other rules will tidy up the formatting.
+  fix_str: "\n    SELECT\n        foo,\n        bar,\n        baz\n    FROM mycte2\n;\n"
+
+test_fail_leading_whitespace_and_comment:
+  fail_str: |
+    ( -- This
+        SELECT
             foo,
             bar,
             baz
-        FROM mycte2;
+        FROM mycte2
+    )
+  # Yes, the formatting looks bad, but that's because we're only running L053
+  # here. In the real world, other rules will tidy up the formatting.
+  fix_str: " -- This\n    SELECT\n        foo,\n        bar,\n        baz\n    FROM mycte2\n\n"

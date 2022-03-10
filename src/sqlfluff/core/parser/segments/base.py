@@ -8,11 +8,12 @@ Here we define:
   analysis.
 """
 
+from collections import defaultdict
 from collections.abc import MutableSet
 from copy import deepcopy
-from dataclasses import replace
+from dataclasses import dataclass, field, replace
 from io import StringIO
-from typing import Any, Callable, Optional, List, Tuple, NamedTuple, Iterator
+from typing import Any, Callable, Dict, Optional, List, Tuple, NamedTuple, Iterator
 import logging
 
 from tqdm import tqdm
@@ -49,6 +50,44 @@ class FixPatch(NamedTuple):
     # than for function. It allows traceability of *why* this patch was
     # generated. It has no siginificance for processing.
     patch_category: str
+
+
+@dataclass
+class AnchorEditInfo:
+    """For a given fix anchor, count of the fix edit types and fixes for it."""
+
+    delete: int = field(default=0)
+    replace: int = field(default=0)
+    create_before: int = field(default=0)
+    create_after: int = field(default=0)
+    fixes: List = field(default_factory=list)
+
+    def add(self, fix):
+        """Adds the fix and updates stats."""
+        self.fixes.append(fix)
+        setattr(self, fix.edit_type, getattr(self, fix.edit_type) + 1)
+
+    @property
+    def total(self):
+        """Returns total count of fixes."""
+        return len(self.fixes)
+
+    @property
+    def is_valid(self):
+        """Returns True if valid combination of fixes for anchor.
+
+        Cases:
+        * 1 fix of any type: Valid
+        * 2 fixes: Valid if and only if types are create_before and create_after
+        """
+        if self.total <= 1:
+            # Definitely no duplicates if <= 1.
+            return True
+        if self.total != 2:
+            # Definitely duplicates if > 2.
+            return False
+        # Special case: Ok to create before and after same segment.
+        return self.create_before == 1 and self.create_after == 1
 
 
 class BaseSegment:
@@ -1009,13 +1048,22 @@ class BaseSegment:
                 else:
                     seg = todo_buffer.pop(0)
 
-                    fix_buff = fixes.copy()
-                    unused_fixes = []
-                    while fix_buff:
-                        f = fix_buff.pop()
-                        # Look for identity not just equality.
-                        # This handles potential positioning ambiguity.
-                        if f.anchor is seg:
+                    # Look for identity not just equality.
+                    # This handles potential positioning ambiguity.
+                    if id(seg) in fixes:
+                        anchor_info: AnchorEditInfo
+                        anchor_info = fixes.pop(id(seg))
+                        seg_fixes = anchor_info.fixes
+                        if (
+                            len(seg_fixes) == 2
+                            and seg_fixes[0].edit_type == "create_after"
+                        ):  # pragma: no cover
+                            # Must be create_before & create_after. Swap so the
+                            # "before" comes first.
+                            seg_fixes.reverse()
+
+                        for f in anchor_info.fixes:
+                            assert f.anchor is seg
                             fixes_applied.append(f)
                             linter_logger.debug(
                                 "Matched fix against segment: %s -> %s", f, seg
@@ -1028,9 +1076,13 @@ class BaseSegment:
                                 "create_before",
                                 "create_after",
                             ):
-                                if f.edit_type == "create_after":
-                                    # in the case of a creation after, also add this
-                                    # segment before the edit.
+                                if (
+                                    f.edit_type == "create_after"
+                                    and len(anchor_info.fixes) == 1
+                                ):
+                                    # in the case of a creation after that is not part
+                                    # of a create_before/create_after pair, also add
+                                    # this segment before the edit.
                                     seg_buffer.append(seg)
 
                                 # We're doing a replacement (it could be a single
@@ -1052,17 +1104,8 @@ class BaseSegment:
                                         f.edit_type, f
                                     )
                                 )
-                            # We've applied a fix here. Move on, this also consumes the
-                            # fix
-                            break
-                        else:
-                            # We've not used the fix so we should keep it in the list
-                            # for later.
-                            unused_fixes.append(f)
                     else:
                         seg_buffer.append(seg)
-                # Switch over the the unused list
-                fixes = unused_fixes + fix_buff
                 # Invalidate any caches
                 self.invalidate_caches()
 
@@ -1089,6 +1132,17 @@ class BaseSegment:
             return r, fixes
         else:
             return self, fixes
+
+    @classmethod
+    def compute_anchor_edit_info(cls, fixes) -> Dict[int, AnchorEditInfo]:
+        """Group and count fixes by anchor, return dictionary."""
+        anchor_info = defaultdict(AnchorEditInfo)  # type: ignore
+        for fix in fixes:
+            # :TRICKY: Use segment id() as the dictionary key since
+            # different segments may compare as equal.
+            anchor_id = id(fix.anchor)
+            anchor_info[anchor_id].add(fix)
+        return dict(anchor_info)
 
     def _validate_segment_after_fixes(self, rule_code, dialect, fixes_applied, segment):
         """Checks correctness of new segment against match or parse grammar."""

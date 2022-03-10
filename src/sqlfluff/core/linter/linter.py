@@ -33,7 +33,7 @@ from sqlfluff.core.rules import get_ruleset
 from sqlfluff.core.config import FluffConfig, ConfigLoader, progress_bar_configuration
 
 # Classes needed only for type checking
-from sqlfluff.core.parser.segments.base import BaseSegment, IdentitySet
+from sqlfluff.core.parser.segments.base import BaseSegment
 from sqlfluff.core.parser.segments.meta import MetaSegment
 from sqlfluff.core.parser.segments.raw import RawSegment
 from sqlfluff.core.rules.base import BaseRule
@@ -520,10 +520,10 @@ class Linter:
                 if fix and fixes:
                     linter_logger.info(f"Applying Fixes [{crawler.code}]: {fixes}")
                     # Do some sanity checks on the fixes before applying.
-                    # :TRICKY: Use IdentitySet rather than set() since
-                    # different segments may compare as equal.
-                    unique_anchors = IdentitySet(fix.anchor for fix in fixes)
-                    if len(unique_anchors) < len(fixes):  # pragma: no cover
+                    anchor_info = BaseSegment.compute_anchor_edit_info(fixes)
+                    if any(
+                        not info.is_valid for info in anchor_info.values()
+                    ):  # pragma: no cover
                         message = (
                             f"Rule {crawler.code} returned multiple fixes with "
                             f"the same anchor. This is not supported, so the "
@@ -535,7 +535,7 @@ class Linter:
                     else:
                         last_fixes = fixes
                         new_tree, _ = tree.apply_fixes(
-                            config.get("dialect_obj"), crawler.code, fixes
+                            config.get("dialect_obj"), crawler.code, anchor_info
                         )
                         # Check for infinite loops
                         if new_tree.raw not in previous_versions:

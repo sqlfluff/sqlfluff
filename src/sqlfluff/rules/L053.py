@@ -74,16 +74,18 @@ class Rule_L053(BaseRule):
         )
 
         # Lift leading/trailing whitespace to the top segment.
-        leading = filtered_children.select(loop_while=sp.is_whitespace())
+        to_lift_predicate = sp.or_(sp.is_whitespace(), sp.is_name("inline_comment"))
+        leading = filtered_children.select(loop_while=to_lift_predicate)
         trailing = (
-            filtered_children.reversed()
-            .select(loop_while=sp.is_whitespace())
-            .reversed()
+            filtered_children.reversed().select(loop_while=to_lift_predicate).reversed()
         )
         lift_nodes = IdentitySet(leading + trailing)
 
         fixes = []
         if lift_nodes:
+            parent = filtered_parent_stack[-1]
+            fixes.append(LintFix.create_before(parent, list(leading)))
+            fixes.append(LintFix.create_after(parent, list(trailing)))
             fixes.extend([LintFix.delete(segment) for segment in lift_nodes])
             filtered_children = filtered_children[len(leading) : -len(trailing)]
 
