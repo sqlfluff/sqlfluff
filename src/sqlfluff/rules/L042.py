@@ -1,6 +1,6 @@
 """Implementation of Rule L042."""
 from functools import partial
-from typing import Generator, List, Optional, Tuple, Union
+from typing import Generator, List, Optional, Tuple
 
 from sqlfluff.core.parser.segments.base import BaseSegment
 from sqlfluff.core.parser.segments.raw import (
@@ -318,9 +318,7 @@ class _CTEChecker:
         return cte_segments[:-2]
 
 
-def _segmentify(
-    input_el: str, casing: str
-) -> BaseSegment:
+def _segmentify(input_el: str, casing: str) -> BaseSegment:
     """Apply casing an convert strings to Keywords."""
 
     input_el = input_el.lower()
