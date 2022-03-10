@@ -166,7 +166,7 @@ def _calculate_fixes(
                         )
                     ),
                 )
-            ), 
+            ),
         )
         res = LintResult(
             anchor=subquery,
