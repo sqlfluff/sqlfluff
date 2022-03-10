@@ -626,7 +626,7 @@ class BaseRule:
     # HELPER METHODS --------
     @staticmethod
     def _log_critical_errors(error: Exception):  # pragma: no cover
-        """This method is monkey patched into a "raise" for certain tests"""
+        """This method is monkey patched into a "raise" for certain tests."""
         pass
 
     def _process_lint_result(

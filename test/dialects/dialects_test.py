@@ -49,7 +49,7 @@ def test__dialect__base_file_parse(dialect, file):
 
 
 @pytest.mark.parametrize("dialect,file", parse_success_examples)
-def test__dialect__base_broad_fix(dialect, file, fail_on_parse_error_after_fix):
+def test__dialect__base_broad_fix(dialect, file, raise_critical_errors_after_fix):
     """For given test examples, check successful parsing."""
     raw = load_file(dialect, file)
     # Load the right dialect

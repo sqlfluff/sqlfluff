@@ -225,6 +225,21 @@ def generate_test_segments():
     return generate_test_segments_func
 
 
+@pytest.fixture
+def raise_critical_errors_after_fix(monkeypatch):
+    """Raises errors that break the Fix process.
+
+    These errors are otherwise swallowed to allow the lint messages to reach
+    the end user.
+    """
+
+    @staticmethod
+    def _log_critical_errors(error: Exception):
+        raise error
+
+    monkeypatch.setattr(BaseRule, "_log_critical_errors", _log_critical_errors)
+
+
 @pytest.fixture(autouse=True)
 def fail_on_parse_error_after_fix(monkeypatch):
     """Cause tests to fail if a lint fix introduces a parse error.
@@ -239,14 +254,6 @@ def fail_on_parse_error_after_fix(monkeypatch):
     def raise_error_apply_fixes_check_issue(message, *args):  # pragma: no cover
         raise ValueError(message % args)
 
-    @staticmethod
-    def _log_critical_errors(error: Exception, code: str, exception_line: str):
-        print(code, exception_line)
-        raise error
-
-    monkeypatch.setattr(
-        BaseRule, "_log_critical_errors", _log_critical_errors
-    )
     monkeypatch.setattr(
         BaseSegment, "_log_apply_fixes_check_issue", raise_error_apply_fixes_check_issue
     )
