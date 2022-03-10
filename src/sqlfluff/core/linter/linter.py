@@ -525,9 +525,9 @@ class Linter:
                         not info.is_valid for info in anchor_info.values()
                     ):  # pragma: no cover
                         message = (
-                            f"Rule {crawler.code} returned multiple fixes with "
-                            f"the same anchor. This is not supported, so the "
-                            f"fixes will not be applied. {fixes!r}"
+                            f"Rule {crawler.code} returned multiple fixes with the same"
+                            f"anchor. This is only supported for create_before+"
+                            f"create_after, so the fixes will not be applied. {fixes!r}"
                         )
                         cls._report_duplicate_anchors_error(message)
                     elif fixes == last_fixes:  # pragma: no cover
