@@ -54,7 +54,7 @@ jobs:
         pip install .
     - name: Run the tests
       run: |
-        tox -e ruleslinting
+        tox -e ruleslinting -- -n 4 test
   python-version-tests:
     runs-on: ubuntu-latest
     strategy:
