@@ -3,7 +3,6 @@
 Any files in the test/fixtures/dialects/ directory will be picked up
 and automatically tested against the appropriate dialect.
 """
-import json
 from typing import Any, Dict, Optional
 import pytest
 
