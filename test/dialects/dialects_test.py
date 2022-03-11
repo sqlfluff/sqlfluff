@@ -16,6 +16,7 @@ from ..conftest import (
     compute_parse_tree_hash,
     load_file,
     make_dialect_path,
+    parse_example_file,
     get_parse_fixtures,
 )
 
@@ -80,6 +81,7 @@ def test__dialect__base_file_parse(dialect, file, cached_parser):
     typs = parsed.type_set()
     assert "unparsable" not in typs
 
+
 @pytest.mark.integration_test
 @pytest.mark.parametrize("dialect,file", parse_success_examples)
 def test__dialect__base_broad_fix(
@@ -116,10 +118,10 @@ def test__dialect__base_broad_fix(
 
 @pytest.mark.parametrize("dialect,sqlfile,code_only,yamlfile", parse_structure_examples)
 def test__dialect__base_parse_struct(
-    dialect, sqlfile, code_only, yamlfile, yaml_loader, cached_parser
+    dialect, sqlfile, code_only, yamlfile, yaml_loader
 ):
     """For given test examples, check parsed structure against yaml."""
-    parsed: Optional[BaseSegment] = cached_parser(dict(dialect=dialect), sqlfile)
+    parsed: Optional[BaseSegment] = parse_example_file(dict(dialect=dialect), sqlfile)
     actual_hash = compute_parse_tree_hash(parsed)
     # Load the YAML
     expected_hash, res = yaml_loader(make_dialect_path(dialect, yamlfile))
