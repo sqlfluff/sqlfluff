@@ -1915,10 +1915,13 @@ class DescribeStatementSegment(BaseSegment):
                         Sequence(
                             Ref("DotSegment"),
                             Ref("SingleIdentifierGrammar"),
+                            allow_gaps=False,
                         ),
                         max_times=2,
+                        allow_gaps=False,
                     ),
                     optional=True,
+                    allow_gaps=False,
                 ),
             ),
             Sequence(
