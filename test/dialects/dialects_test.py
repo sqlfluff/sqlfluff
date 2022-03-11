@@ -24,7 +24,8 @@ parse_success_examples, parse_structure_examples = get_parse_fixtures(
     fail_on_missing_yml=True
 )
 
-def _lex_and_parse(config_overrides: str, raw:str) -> Optional[BaseSegment]:
+
+def _lex_and_parse(config_overrides: str, raw: str) -> Optional[BaseSegment]:
     """Performs a Lex and Parse, best cached within fixture."""
     # Load the right dialect
     config = FluffConfig(overrides=json.loads(config_overrides))
@@ -45,14 +46,16 @@ def _lex_and_parse(config_overrides: str, raw:str) -> Optional[BaseSegment]:
 @pytest.fixture(scope="session")
 def cached_parser():
     """Creates a cached version of the Lex and Parse.
-    
-    This halfs execution time while allowing nice test naming.
+
+    This drastically reduces execution time while allowing nicbe test naming.
     """
     # Manually apply decorator to allow the use of _lex_and_parse
     # ouside this fixture.
     cached_parse_fn = lru_cache(maxsize=None)(_lex_and_parse)
 
-    def lex_and_parse(config_overrides: Dict[str, Any], raw:str) -> Optional[BaseSegment]:
+    def lex_and_parse(
+        config_overrides: Dict[str, Any], raw: str
+    ) -> Optional[BaseSegment]:
         """Sets up cache parsable inputs from normal inpurts."""
         cachable_str = json.dumps(config_overrides, sort_keys=True)
         return cached_parse_fn(cachable_str, raw)
@@ -80,7 +83,9 @@ def test__dialect__base_file_parse(dialect, file, cached_parser):
 
 
 @pytest.mark.parametrize("dialect,file", parse_success_examples)
-def test__dialect__base_broad_fix(dialect, file, raise_critical_errors_after_fix, cached_parser):
+def test__dialect__base_broad_fix(
+    dialect, file, raise_critical_errors_after_fix, cached_parser
+):
     """Run a full fix with all rules, in search of critical errors."""
     raw = load_file(dialect, file)
     config_overides = dict(dialect=dialect)
@@ -89,11 +94,14 @@ def test__dialect__base_broad_fix(dialect, file, raise_critical_errors_after_fix
     if not parsed:
         return
 
-    config = FluffConfig(overrides=dict(config_overides))
+    config = FluffConfig(overrides=config_overides)
     # Linter is setup manually to take advantage of parser caching
     linter = Linter(config=config)
     templated_file, _ = linter.templater.process(
-        in_str=raw, fname="<string>", config=config, formatter=linter.formatter,
+        in_str=raw,
+        fname="<string>",
+        config=config,
+        formatter=linter.formatter,
     )
 
     # Due to "raise_critical_errors_after_fix" fixure "fix",
@@ -105,7 +113,6 @@ def test__dialect__base_broad_fix(dialect, file, raise_critical_errors_after_fix
         rule_set=linter.get_ruleset(),
         templated_file=templated_file,
     )
-    raise ValueError()
 
 
 @pytest.mark.parametrize("dialect,sqlfile,code_only,yamlfile", parse_structure_examples)

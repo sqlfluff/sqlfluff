@@ -229,6 +229,7 @@ def generate_test_segments():
 @pytest.fixture
 def raise_critical_errors_after_fix(monkeypatch):
     """Raises errors that break the Fix process.
+
     These errors are otherwise swallowed to allow the lint messages to reach
     the end user.
     """
