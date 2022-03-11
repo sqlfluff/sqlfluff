@@ -149,21 +149,21 @@ def _calculate_fixes(
     TableReferenceSeg = Seg(TableReferenceSegment)
     for parent_type, _, this_seg, subquery in nested_subqueries:
         alias_name = ctes.get_name(this_seg.children(is_type("alias_expression")))
-        ctes.insert_cte(
-            CTESegment(
-                segments=(
-                    CodeSegment(
-                        raw=alias_name,
-                        name="naked_identifier",
-                        type="identifier",
-                    ),
-                    WhitespaceSegment(),
-                    segmentify("AS"),
-                    WhitespaceSegment(),
-                    subquery,
-                )
+        new_cte = CTESegment(
+            segments=(
+                CodeSegment(
+                    raw=alias_name,
+                    name="naked_identifier",
+                    type="identifier",
+                ),
+                WhitespaceSegment(),
+                segmentify("AS"),
+                WhitespaceSegment(),
+                subquery,
             )
         )
+        # (mypy is not understanding the generic)
+        ctes.insert_cte(new_cte)  # type: ignore
         # TODO: Create non-mutative helper function.
         # We will replace the whole tree, mutate the table expression.
         this_seg[0].segments = (
