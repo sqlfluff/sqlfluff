@@ -1251,7 +1251,9 @@ class DatatypeSegment(BaseSegment):
             optional=True,
         ),
         OneOf(
-            Ref("DatatypeIdentifierSegment"),
+            OneOf(
+                Ref("DatatypeIdentifierSegment"), exclude=Ref("DatePartFunctionName")
+            ),
             Bracketed(Ref("DatatypeIdentifierSegment"), bracket_type="square"),
         ),
         Bracketed(
