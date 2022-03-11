@@ -464,3 +464,17 @@ test_fail_newline_create_table_inline_comment:
     rules:
       L052:
         multiline_newline: true
+
+test_fail_whitespace_after_simple_select:
+  fail_str: |
+    SELECT 1 ;
+  fix_str: |
+    SELECT 1;
+test_fail_whitespace_after_snowflake_set:
+  fail_str: |
+    SET foo = (SELECT foo FROM foo.foo) ;
+  fix_str: |
+    SET foo = (SELECT foo FROM foo.foo);
+  configs:
+    core:
+      dialect: snowflake
