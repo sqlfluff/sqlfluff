@@ -2039,8 +2039,6 @@ class StatementSegment(BaseSegment):
             Ref("ListFileSegment"),
             Ref("ListJarSegment"),
             Ref("RefreshStatementSegment"),
-            Ref("RefreshTableStatementSegment"),
-            Ref("RefreshFunctionStatementSegment"),
             Ref("ResetStatementSegment"),
             Ref("SetStatementSegment"),
             Ref("UncacheTableSegment"),
