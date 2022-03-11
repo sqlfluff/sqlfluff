@@ -57,3 +57,11 @@ fail_simple:
 dont_fail_on_too_much_whitespace:
   # Too much whitespace should be caught by L039
   pass_str: "SELECT 1   +   2"
+
+
+pass_bigquery_hyphen:
+  # hypenated table reference should not fail
+  pass_str: SELECT col_foo FROM foo-bar.foo.bar
+  configs:
+    core:
+      dialect: bigquery

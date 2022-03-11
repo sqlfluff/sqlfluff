@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 103b85caea8316516741519b191e16afa6a3241cd0c0e716e98862e2bf66accf
+_hash: 988e9594c851997adb0722cc892d1e3670f696e151a8817c7934652d6bcab118
 file:
   statement:
     select_statement:
@@ -20,15 +20,15 @@ file:
             table_expression:
               hyphenated_object_reference:
               - identifier: project
-              - binary_operator: '-'
+              - dash: '-'
               - identifier: a
               - dot: .
               - identifier: dataset
-              - binary_operator: '-'
+              - dash: '-'
               - identifier: b
               - dot: .
               - identifier: table
-              - binary_operator: '-'
+              - dash: '-'
               - identifier: c
           join_clause:
           - keyword: JOIN
@@ -36,11 +36,11 @@ file:
               table_expression:
                 hyphenated_object_reference:
                 - identifier: dataset
-                - binary_operator: '-'
+                - dash: '-'
                 - identifier: c
                 - dot: .
                 - identifier: table
-                - binary_operator: '-'
+                - dash: '-'
                 - identifier: d
           - keyword: USING
           - bracketed:
