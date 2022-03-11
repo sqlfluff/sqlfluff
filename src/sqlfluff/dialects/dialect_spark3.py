@@ -32,7 +32,6 @@ from sqlfluff.core.parser import (
     Anything,
     StartsWith,
     RegexParser,
-    StringLexer,
 )
 from sqlfluff.core.parser.segments.raw import CodeSegment, KeywordSegment
 from sqlfluff.dialects.dialect_spark3_keywords import (
@@ -292,11 +291,12 @@ spark3_dialect.add(
     WhlKeywordSegment=StringParser(
         "WHL", KeywordSegment, name="whl", type="file_keyword"
     ),
-    SQLConfPropertiesSegment=StringParser(
-        "-v",
-        SymbolSegment,
-        name="sql_conf_option_set",
-        type="sql_conf_option",
+    SQLConfPropertiesSegment=Sequence(
+        StringParser("-", SymbolSegment, name="dash", type="dash"),
+        StringParser(
+            "v", SymbolSegment, name="sql_conf_option_set", type="sql_conf_option"
+        ),
+        allow_gaps=False,
     ),
     # Add relevant Hive Grammar
     CommentGrammar=hive_dialect.get_grammar("CommentGrammar"),
@@ -474,13 +474,6 @@ spark3_dialect.insert_lexer_matchers(
         RegexLexer("end_hint", r"\*\/", CodeSegment),
     ],
     before="single_quote",
-)
-
-spark3_dialect.insert_lexer_matchers(
-    [
-        StringLexer("sql_conf_option_set", "-v", SymbolSegment),
-    ],
-    before="minus",
 )
 
 
