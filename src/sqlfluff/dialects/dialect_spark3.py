@@ -1884,6 +1884,86 @@ class ClearCacheSegment(BaseSegment):
     )
 
 
+@spark3_dialect.segment(replace=True)
+class DescribeStatementSegment(BaseSegment):
+    """A `DESCRIBE` statement.
+
+    This class provides coverage for databases, tables, functions, and queries.
+
+    NB: These are similar enough that it makes sense to include them in a
+    common class, especially since there wouldn't be any specific rules that
+    would apply to one describe vs another, but they could be broken out to
+    one class per describe statement type.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-aux-describe-database.html
+    https://spark.apache.org/docs/latest/sql-ref-syntax-aux-describe-function.html
+    https://spark.apache.org/docs/latest/sql-ref-syntax-aux-describe-query.html
+    https://spark.apache.org/docs/latest/sql-ref-syntax-aux-describe-table.html
+    """
+
+    type = "describe_statement"
+
+    match_grammar = Sequence(
+        OneOf("DESCRIBE", "DESC"),
+        OneOf(
+            Sequence(
+                "DATABASE",
+                Ref.keyword("EXTENDED", optional=True),
+                Ref("DatabaseReferenceSegment"),
+            ),
+            Sequence(
+                "FUNCTION",
+                Ref.keyword("EXTENDED", optional=True),
+                Ref("FunctionNameSegment"),
+            ),
+            Sequence(
+                Ref.keyword("TABLE", optional=True),
+                Ref.keyword("EXTENDED", optional=True),
+                Ref("TableReferenceSegment"),
+                Ref("PartitionSpecGrammar", optional=True),
+                # can be fully qualified column after table is listed
+                # [database.][table.][column]
+                Sequence(
+                    Ref("SingleIdentifierGrammar"),
+                    AnyNumberOf(
+                        Sequence(
+                            Ref("DotSegment"),
+                            Ref("SingleIdentifierGrammar"),
+                            allow_gaps=False,
+                        ),
+                        max_times=2,
+                        allow_gaps=False,
+                    ),
+                    optional=True,
+                    allow_gaps=False,
+                ),
+            ),
+            Sequence(
+                Ref.keyword("QUERY", optional=True),
+                OneOf(
+                    Sequence(
+                        "TABLE",
+                        Ref("TableReferenceSegment"),
+                    ),
+                    Sequence(
+                        "FROM",
+                        Ref("TableReferenceSegment"),
+                        "SELECT",
+                        Delimited(
+                            Ref("ColumnReferenceSegment"),
+                        ),
+                        Ref("WhereClauseSegment", optional=True),
+                        Ref("GroupByClauseSegment", optional=True),
+                        Ref("OrderByClauseSegment", optional=True),
+                        Ref("LimitClauseSegment", optional=True),
+                    ),
+                    Ref("StatementSegment"),
+                ),
+            ),
+        ),
+    )
+
+
 @spark3_dialect.segment()
 class ListFileSegment(BaseSegment):
     """A `LIST {FILE | FILES}` statement.

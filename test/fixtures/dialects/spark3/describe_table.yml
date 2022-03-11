@@ -1,0 +1,95 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 20e12303c1aae1aea1783caaa7c290708676455b78149cb19c213c5de90b4cc7
+file:
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: TABLE
+    - table_reference:
+        identifier: customer
+- statement_terminator: ;
+- statement:
+    describe_statement:
+      keyword: DESCRIBE
+      table_reference:
+        identifier: customer
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: TABLE
+    - table_reference:
+      - identifier: salesdb
+      - dot: .
+      - identifier: customer
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: TABLE
+    - keyword: EXTENDED
+    - table_reference:
+        identifier: customer
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: TABLE
+    - keyword: EXTENDED
+    - table_reference:
+        identifier: customer
+    - keyword: PARTITION
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          identifier: state
+        comparison_operator:
+          raw_comparison_operator: '='
+        literal: "'AR'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - table_reference:
+        identifier: customer
+    - identifier: salesdb
+    - dot: .
+    - identifier: customer
+    - dot: .
+    - identifier: name
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: TABLE
+    - table_reference:
+        identifier: customer
+    - identifier: salesdb
+    - dot: .
+    - identifier: customer
+    - dot: .
+    - identifier: name
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: TABLE
+    - table_reference:
+        identifier: customer
+    - identifier: customer
+    - dot: .
+    - identifier: name
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: TABLE
+    - table_reference:
+        identifier: customer
+    - identifier: name
+- statement_terminator: ;
