@@ -1920,46 +1920,31 @@ class ListJarSegment(BaseSegment):
 class RefreshStatementSegment(BaseSegment):
     """A `REFRESH` statement for given data source path.
 
+    NB: These are similar enough that it makes sense to include them in a
+    common class, especially since there wouldn't be any specific rules that
+    would apply to one refresh vs another, but they could be broken out to
+    one class per refresh statement type.
+
     https://spark.apache.org/docs/latest/sql-ref-syntax-aux-cache-refresh.html
+    https://spark.apache.org/docs/latest/sql-ref-syntax-aux-cache-refresh-table.html
+    https://spark.apache.org/docs/latest/sql-ref-syntax-aux-cache-refresh-function.html
     """
 
     type = "refresh_statement"
 
     match_grammar = Sequence(
         "REFRESH",
-        Ref("QuotedLiteralSegment"),
-    )
-
-
-@spark3_dialect.segment()
-class RefreshTableStatementSegment(BaseSegment):
-    """A `REFRESH TABLE` statement.
-
-    https://spark.apache.org/docs/latest/sql-ref-syntax-aux-cache-refresh-table.html
-    """
-
-    type = "refresh_table_statement"
-
-    match_grammar = Sequence(
-        "REFRESH",
-        Ref.keyword("TABLE", optional=True),
-        Ref("TableReferenceSegment"),
-    )
-
-
-@spark3_dialect.segment()
-class RefreshFunctionStatementSegment(BaseSegment):
-    """A `REFRESH FUNCTION` statement.
-
-    https://spark.apache.org/docs/latest/sql-ref-syntax-aux-cache-refresh-function.html
-    """
-
-    type = "refresh_function_statement"
-
-    match_grammar = Sequence(
-        "REFRESH",
-        "FUNCTION",
-        Ref("FunctionNameSegment"),
+        OneOf(
+            Ref("QuotedLiteralSegment"),
+            Sequence(
+                Ref.keyword("TABLE", optional=True),
+                Ref("TableReferenceSegment"),
+            ),
+            Sequence(
+                "FUNCTION",
+                Ref("FunctionNameSegment"),
+            ),
+        ),
     )
 
 

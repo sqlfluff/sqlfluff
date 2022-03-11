@@ -3,23 +3,23 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e67f6762a3441e4f33ac76ac6e4ba1fde9080771bb0645cfcb7050176b414a75
+_hash: cd04fcecc0e40a2526dc60b1be6a2b71cb38ddfc29bbdba5501e556f427f5416
 file:
 - statement:
-    refresh_table_statement:
+    refresh_statement:
     - keyword: REFRESH
     - keyword: TABLE
     - table_reference:
         identifier: tbl1
 - statement_terminator: ;
 - statement:
-    refresh_table_statement:
+    refresh_statement:
       keyword: REFRESH
       table_reference:
         identifier: tbl1
 - statement_terminator: ;
 - statement:
-    refresh_table_statement:
+    refresh_statement:
     - keyword: REFRESH
     - keyword: TABLE
     - table_reference:
@@ -28,7 +28,7 @@ file:
       - identifier: view1
 - statement_terminator: ;
 - statement:
-    refresh_table_statement:
+    refresh_statement:
       keyword: REFRESH
       table_reference:
       - identifier: tempdb

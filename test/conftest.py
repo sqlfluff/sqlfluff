@@ -8,6 +8,7 @@ import yaml
 
 from sqlfluff.cli.commands import quoted_presenter
 from sqlfluff.core import FluffConfig
+from sqlfluff.core.linter import Linter
 from sqlfluff.core.parser import Parser, Lexer
 from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.parser.segments import (
@@ -228,16 +229,26 @@ def generate_test_segments():
 def fail_on_parse_error_after_fix(monkeypatch):
     """Cause tests to fail if a lint fix introduces a parse error.
 
-    In production, the function _log_apply_fixes_check_issue() just logs a
-    warning. To catch bugs in new or modified rules, We want to be more strict
-    during dev and CI/CD testing. Here, we patch in a different function which
-    raises a runtime error, causing tests to fail if this happens.
+    In production, we have a couple of functions that, upon detecting a bug in
+    a lint rule, just log a warning. To catch bugs in new or modified rules, we
+    want to be more strict during dev and CI/CD testing. Here, we patch in
+    different functions which raise runtime errors, causing tests to fail if
+    this happens.
     """
 
     @staticmethod
     def raise_error_apply_fixes_check_issue(message, *args):  # pragma: no cover
         raise ValueError(message % args)
 
+    @staticmethod
+    def raise_error_conflicting_fixes_same_anchor(message: str):  # pragma: no cover
+        raise ValueError(message)
+
     monkeypatch.setattr(
         BaseSegment, "_log_apply_fixes_check_issue", raise_error_apply_fixes_check_issue
+    )
+    monkeypatch.setattr(
+        Linter,
+        "_report_conflicting_fixes_same_anchor",
+        raise_error_conflicting_fixes_same_anchor,
     )
