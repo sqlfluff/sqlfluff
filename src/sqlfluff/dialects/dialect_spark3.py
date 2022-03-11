@@ -32,6 +32,7 @@ from sqlfluff.core.parser import (
     Anything,
     StartsWith,
     RegexParser,
+    StringLexer,
 )
 from sqlfluff.core.parser.segments.raw import CodeSegment, KeywordSegment
 from sqlfluff.dialects.dialect_spark3_keywords import (
@@ -294,8 +295,8 @@ spark3_dialect.add(
     SQLConfPropertiesSegment=StringParser(
         "-v",
         SymbolSegment,
-        name="sql_conf_properties_parameter",
-        type="sql_conf_properties",
+        name="sql_conf_option_set",
+        type="sql_conf_option",
     ),
     # Add relevant Hive Grammar
     CommentGrammar=hive_dialect.get_grammar("CommentGrammar"),
@@ -473,6 +474,13 @@ spark3_dialect.insert_lexer_matchers(
         RegexLexer("end_hint", r"\*\/", CodeSegment),
     ],
     before="single_quote",
+)
+
+spark3_dialect.insert_lexer_matchers(
+    [
+        StringLexer("sql_conf_option_set", "-v", SymbolSegment),
+    ],
+    before="minus",
 )
 
 
@@ -1990,8 +1998,13 @@ class SetStatementSegment(BaseSegment):
             Delimited(
                 Ref("SingleIdentifierGrammar"),
                 delimiter=Ref("DotSegment"),
+                allow_gaps=False,
             ),
-            Sequence(Ref("EqualsSegment"), Ref("LiteralGrammar"), optional=True),
+            Sequence(
+                Ref("EqualsSegment"),
+                Ref("LiteralGrammar"),
+                optional=True,
+            ),
             optional=True,
         ),
     )
