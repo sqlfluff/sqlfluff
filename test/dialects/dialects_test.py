@@ -24,28 +24,23 @@ parse_success_examples, parse_structure_examples = get_parse_fixtures(
 )
 
 
-def _lex_and_parse(config_overrides: str, raw: str) -> Optional[BaseSegment]:
+def lex_and_parse(config_overrides: Dict[str, Any], raw: str) -> Optional[BaseSegment]:
     """Performs a Lex and Parse, with cachable inputs within fixture."""
     # Load the right dialect
-    config = FluffConfig(overrides=json.loads(config_overrides))
+    config = FluffConfig(overrides=config_overrides)
     tokens, lex_vs = Lexer(config=config).lex(raw)
     # From just the initial parse, check we're all there
     assert "".join(token.raw for token in tokens) == raw
     # Check we don't have lexing issues
     assert not lex_vs
-    # Do the parse WITHOUT lots of logging
-    # The logs get too long here to be useful. We should use
-    # specific segment tests if we want to debug logs.
+    # TODO: Handle extremely verbose logging
+    # temp - use negative grep: | grep -v "INFO\|DEBUG\|\[L\|#\|Initial\|^$"
+    # better maybe - https://docs.pytest.org/en/6.2.x/logging.html#caplog-fixture
+
     if not raw:
         return None
 
     return Parser(config=config).parse(tokens)
-
-
-def lex_and_parse(config_overrides: Dict[str, Any], raw: str) -> Optional[BaseSegment]:
-    """Sets up cache parsable inputs from normal inpurts."""
-    cachable_str = json.dumps(config_overrides, sort_keys=True)
-    return _lex_and_parse(cachable_str, raw)
 
 
 @pytest.mark.parametrize("dialect,file", parse_success_examples)
@@ -79,24 +74,9 @@ def test__dialect__base_broad_fix(dialect, file, raise_critical_errors_after_fix
         return
 
     config = FluffConfig(overrides=config_overides)
-    # Linter is setup manually to take advantage of parser caching
-    linter = Linter(config=config)
-    templated_file, _ = linter.templater.process(
-        in_str=raw,
-        fname="<string>",
-        config=config,
-        formatter=linter.formatter,
-    )
-
     # Due to "raise_critical_errors_after_fix" fixure "fix",
     # will now throw.
-    linter.lint_fix_parsed(
-        parsed,
-        fix=True,
-        config=config,
-        rule_set=linter.get_ruleset(),
-        templated_file=templated_file,
-    )
+    Linter(config=config).lint_string(raw, fix=True)
 
 
 @pytest.mark.parametrize("dialect,sqlfile,code_only,yamlfile", parse_structure_examples)
@@ -118,13 +98,13 @@ def test__dialect__base_parse_struct(
 
     # Verify the current parse tree matches the historic parse tree.
     parsed_tree = parsed.to_tuple(code_only=code_only, show_raw=True)
-    # The prased tree consists of a tuple of "File:", followed by the
+    # The parsed tree consists of a tuple of "File:", followed by the
     # statements. So only compare when there is at least one statement.
     if parsed_tree[1] or res[1]:
         assert parsed_tree == res
     # Verify the current hash matches the historic hash. The main purpose of
     # this check is to force contributors to use the generator script to
-    # to create these files. New contributors have sometimes been unaware of
+    # create these files. New contributors have sometimes been unaware of
     # this tool and have attempted to craft the YAML files manually. This
     # can lead to slight differences, confusion, and errors.
     assert expected_hash == actual_hash, (
