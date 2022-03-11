@@ -121,7 +121,7 @@ def test__dialect__base_parse_struct(
     dialect, sqlfile, code_only, yamlfile, yaml_loader
 ):
     """For given test examples, check parsed structure against yaml."""
-    parsed: Optional[BaseSegment] = parse_example_file(dict(dialect=dialect), sqlfile)
+    parsed: Optional[BaseSegment] = parse_example_file(dialect, sqlfile)
     actual_hash = compute_parse_tree_hash(parsed)
     # Load the YAML
     expected_hash, res = yaml_loader(make_dialect_path(dialect, yamlfile))

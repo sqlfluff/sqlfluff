@@ -98,7 +98,7 @@ def process_struct(obj):
         raise TypeError(f"Not sure how to deal with type {type(obj)}: {obj!r}")
 
 
-def parse_example_file(dialect, sqlfile):
+def parse_example_file(dialect: str, sqlfile: str):
     """Parse example SQL file, return parse tree."""
     config = FluffConfig(overrides=dict(dialect=dialect))
     # Load the SQL
