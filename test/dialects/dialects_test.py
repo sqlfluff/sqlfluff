@@ -81,7 +81,7 @@ def test__dialect__base_file_parse(dialect, file, cached_parser):
 
 @pytest.mark.parametrize("dialect,file", parse_success_examples)
 def test__dialect__base_broad_fix(dialect, file, raise_critical_errors_after_fix, cached_parser):
-    """For given test examples, check successful parsing."""
+    """Run a full fix with all rules, in search of critical errors."""
     raw = load_file(dialect, file)
     config_overides = dict(dialect=dialect)
     # Lean on the cached result of the above test if possible
