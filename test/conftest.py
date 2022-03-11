@@ -21,6 +21,7 @@ from sqlfluff.core.parser.segments import (
     CodeSegment,
     BaseSegment,
 )
+from sqlfluff.core.rules.base import BaseRule
 from sqlfluff.core.templaters import TemplatedFile
 
 # When writing YAML files, double quotes string values needing escapes.
@@ -97,7 +98,7 @@ def process_struct(obj):
         raise TypeError(f"Not sure how to deal with type {type(obj)}: {obj!r}")
 
 
-def parse_example_file(dialect, sqlfile):
+def parse_example_file(dialect: str, sqlfile: str):
     """Parse example SQL file, return parse tree."""
     config = FluffConfig(overrides=dict(dialect=dialect))
     # Load the SQL
@@ -223,6 +224,21 @@ def generate_test_segments():
 
     # Return the function
     return generate_test_segments_func
+
+
+@pytest.fixture
+def raise_critical_errors_after_fix(monkeypatch):
+    """Raises errors that break the Fix process.
+
+    These errors are otherwise swallowed to allow the lint messages to reach
+    the end user.
+    """
+
+    @staticmethod
+    def _log_critical_errors(error: Exception):
+        raise error
+
+    monkeypatch.setattr(BaseRule, "_log_critical_errors", _log_critical_errors)
 
 
 @pytest.fixture(autouse=True)

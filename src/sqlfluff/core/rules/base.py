@@ -542,6 +542,7 @@ class BaseRule:
                 f"Applying rule {self.code} threw an Exception: {e}", exc_info=True
             )
             exception_line, _ = segment.pos_marker.source_position()
+            self._log_critical_errors(e)
             vs.append(
                 SQLLintError(
                     rule=self,
@@ -623,6 +624,10 @@ class BaseRule:
         return vs, raw_stack, fixes, memory
 
     # HELPER METHODS --------
+    @staticmethod
+    def _log_critical_errors(error: Exception):  # pragma: no cover
+        """This method is monkey patched into a "raise" for certain tests."""
+        pass
 
     def _process_lint_result(
         self, res, templated_file, ignore_mask, new_lerrs, new_fixes
