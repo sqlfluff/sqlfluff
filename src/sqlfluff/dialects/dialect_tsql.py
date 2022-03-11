@@ -1251,9 +1251,7 @@ class DatatypeSegment(BaseSegment):
             optional=True,
         ),
         OneOf(
-            OneOf(
-                Ref("DatatypeIdentifierSegment"), exclude=Ref("DatePartFunctionName")
-            ),
+            Ref("DatatypeIdentifierSegment"),
             Bracketed(Ref("DatatypeIdentifierSegment"), bracket_type="square"),
         ),
         Bracketed(
@@ -2006,20 +2004,20 @@ class FunctionSegment(BaseSegment):
             ),
         ),
         Sequence(
+            # https://docs.microsoft.com/en-us/sql/t-sql/functions/cast-and-convert-transact-sql?view=sql-server-ver15
             Ref("ConvertFunctionNameSegment"),
             Bracketed(
-                Delimited(
-                    Ref("DatatypeSegment"),
-                    Ref(
-                        "FunctionContentsGrammar",
-                        # The brackets might be empty for some functions...
-                        optional=True,
-                        ephemeral_name="FunctionContentsGrammar",
-                    ),
-                )
+                Ref("DatatypeSegment"),
+                Bracketed(Ref("NumericLiteralSegment"), optional=True),
+                Ref("CommaSegment"),
+                Ref("ExpressionSegment"),
+                Sequence(
+                    Ref("CommaSegment"), Ref("NumericLiteralSegment"), optional=True
+                ),
             ),
         ),
         Sequence(
+            # https://docs.microsoft.com/en-us/sql/t-sql/functions/cast-and-convert-transact-sql?view=sql-server-ver15
             Ref("CastFunctionNameSegment"),
             Bracketed(
                 Ref("ExpressionSegment"),
