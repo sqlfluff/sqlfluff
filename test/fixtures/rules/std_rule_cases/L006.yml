@@ -60,7 +60,7 @@ dont_fail_on_too_much_whitespace:
 
 
 pass_bigquery_hyphen:
-  # hypenated table reference should not fail
+  # hyphenated table reference should not fail
   pass_str: SELECT col_foo FROM foo-bar.foo.bar
   configs:
     core:
