@@ -185,6 +185,23 @@ class JinjaTracer:
         self.slice_id += 1
         return result
 
+    def slice_info_for_literal(self, length, prefix="") -> RawSliceInfo:
+        """Returns a RawSliceInfo for a literal.
+
+        In the alternate template, literals are replaced with a uniquely
+        numbered, easily-to-parse literal. JinjaTracer uses this output as
+        a "breadcrumb trail" to deduce the execution path through the template.
+
+        This is important even if the original literal (i.e. in the raw SQL
+        file) was empty, as is the case when Jinja whitespace control is used
+        (e.g. "{%- endif -%}"), because fewer breadcrumbs means JinjaTracer has
+        to *guess* the path, in which case it assumes simple, straight-line
+        execution, which can easily be wrong with loops and conditionals.
+        """
+        unique_alternate_id = self.next_slice_id()
+        alternate_code = f"\0{prefix}{unique_alternate_id}_{length}"
+        return RawSliceInfo(unique_alternate_id, alternate_code, [])
+
     def _slice_template(self) -> List[RawFileSlice]:
         """Slice template in jinja.
 
@@ -217,12 +234,6 @@ class JinjaTracer:
         for _, elem_type, raw in self.env.lex(self.raw_str):
             # Replace literal text with a unique ID.
             if elem_type == "data":
-                if set_idx is None:
-                    unique_alternate_id = self.next_slice_id()
-                    alternate_code = f"\0{unique_alternate_id}_{len(raw)}"
-                else:
-                    unique_alternate_id = self.next_slice_id()
-                    alternate_code = f"\0set{unique_alternate_id}_{len(raw)}"
                 result.append(
                     RawFileSlice(
                         raw,
@@ -230,8 +241,8 @@ class JinjaTracer:
                         idx,
                     )
                 )
-                self.raw_slice_info[result[-1]] = RawSliceInfo(
-                    unique_alternate_id, alternate_code, []
+                self.raw_slice_info[result[-1]] = self.slice_info_for_literal(
+                    len(raw), "" if set_idx is None else "set"
                 )
                 idx += len(raw)
                 continue
@@ -274,11 +285,7 @@ class JinjaTracer:
                         )
                     # Treat the skipped whitespace as a literal.
                     result.append(RawFileSlice(skipped_str, "literal", idx))
-                    unique_alternate_id = self.next_slice_id()
-                    alternate_code = f"\0{unique_alternate_id}_0"
-                    self.raw_slice_info[result[-1]] = RawSliceInfo(
-                        unique_alternate_id, alternate_code, []
-                    )
+                    self.raw_slice_info[result[-1]] = self.slice_info_for_literal(0)
                     idx += num_chars_skipped
 
             # raw_end and raw_begin behave a little differently in
@@ -382,11 +389,7 @@ class JinjaTracer:
                             idx,
                         )
                     )
-                    unique_alternate_id = self.next_slice_id()
-                    alternate_code = f"\0{unique_alternate_id}_0"
-                    self.raw_slice_info[result[-1]] = RawSliceInfo(
-                        unique_alternate_id, alternate_code, []
-                    )
+                    self.raw_slice_info[result[-1]] = self.slice_info_for_literal(0)
                     idx += trailing_chars
                 else:
                     if block_type.startswith("block_"):

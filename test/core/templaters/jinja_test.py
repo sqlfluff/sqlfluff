@@ -756,7 +756,6 @@ SELECT
                 ("block_start", slice(0, 25, None), slice(0, 0, None)),
                 ("literal", slice(25, 30, None), slice(0, 5, None)),
                 ("block_start", slice(30, 47, None), slice(5, 5, None)),
-                ("literal", slice(47, 67, None), slice(5, 5, None)),
                 ("block_end", slice(67, 78, None), slice(5, 5, None)),
                 ("literal", slice(78, 79, None), slice(5, 5, None)),
                 ("block_end", slice(79, 92, None), slice(5, 5, None)),
