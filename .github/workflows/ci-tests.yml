@@ -52,9 +52,6 @@ jobs:
       run: |
         pip install tox
         pip install .
-    - name: Run the tests
-      run: |
-        tox -e ruleslinting
   python-version-tests:
     runs-on: ubuntu-latest
     strategy:
