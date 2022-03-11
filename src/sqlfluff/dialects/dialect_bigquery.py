@@ -817,7 +817,9 @@ class HyphenatedObjectReferenceSegment(ObjectReferenceSegment):  # type: ignore
     match_grammar.delimiter = OneOf(
         Ref("DotSegment"),
         Sequence(Ref("DotSegment"), Ref("DotSegment")),
-        Sequence(Ref("MinusSegment")),
+        Sequence(
+            StringParser("-", SymbolSegment, name="dash", type="dash"),
+        ),
     )
 
     def iter_raw_references(self):
