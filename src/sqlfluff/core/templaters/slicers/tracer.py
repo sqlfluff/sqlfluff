@@ -274,7 +274,11 @@ class JinjaTracer:
                         )
                     # Treat the skipped whitespace as a literal.
                     result.append(RawFileSlice(skipped_str, "literal", idx))
-                    self.raw_slice_info[result[-1]] = RawSliceInfo("", "", [])
+                    unique_alternate_id = self.next_slice_id()
+                    alternate_code = f"\0{unique_alternate_id}_0"
+                    self.raw_slice_info[result[-1]] = RawSliceInfo(
+                        unique_alternate_id, alternate_code, []
+                    )
                     idx += num_chars_skipped
 
             # raw_end and raw_begin behave a little differently in
@@ -378,7 +382,11 @@ class JinjaTracer:
                             idx,
                         )
                     )
-                    self.raw_slice_info[result[-1]] = RawSliceInfo("", "", [])
+                    unique_alternate_id = self.next_slice_id()
+                    alternate_code = f"\0{unique_alternate_id}_0"
+                    self.raw_slice_info[result[-1]] = RawSliceInfo(
+                        unique_alternate_id, alternate_code, []
+                    )
                     idx += trailing_chars
                 else:
                     if block_type.startswith("block_"):
