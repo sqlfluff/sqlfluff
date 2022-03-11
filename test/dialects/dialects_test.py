@@ -14,7 +14,6 @@ from sqlfluff.core.parser.segments.base import BaseSegment
 
 from ..conftest import (
     compute_parse_tree_hash,
-    parse_example_file,
     load_file,
     make_dialect_path,
     get_parse_fixtures,
@@ -69,7 +68,7 @@ def test__dialect__base_file_parse(dialect, file, cached_parser):
     raw = load_file(dialect, file)
     config_overides = dict(dialect=dialect)
     # Use the helper function to avoid parsing twice
-    parsed = cached_parser(config_overides, raw)
+    parsed: Optional[BaseSegment] = cached_parser(config_overides, raw)
     if not parsed:
         return
 
@@ -81,7 +80,7 @@ def test__dialect__base_file_parse(dialect, file, cached_parser):
     typs = parsed.type_set()
     assert "unparsable" not in typs
 
-
+@pytest.mark.integration_test
 @pytest.mark.parametrize("dialect,file", parse_success_examples)
 def test__dialect__base_broad_fix(
     dialect, file, raise_critical_errors_after_fix, cached_parser
@@ -90,7 +89,7 @@ def test__dialect__base_broad_fix(
     raw = load_file(dialect, file)
     config_overides = dict(dialect=dialect)
     # Lean on the cached result of the above test if possible
-    parsed = cached_parser(config_overides, raw)
+    parsed: Optional[BaseSegment] = cached_parser(config_overides, raw)
     if not parsed:
         return
 
@@ -117,29 +116,30 @@ def test__dialect__base_broad_fix(
 
 @pytest.mark.parametrize("dialect,sqlfile,code_only,yamlfile", parse_structure_examples)
 def test__dialect__base_parse_struct(
-    dialect, sqlfile, code_only, yamlfile, yaml_loader
+    dialect, sqlfile, code_only, yamlfile, yaml_loader, cached_parser
 ):
     """For given test examples, check parsed structure against yaml."""
-    parsed = parse_example_file(dialect, sqlfile)
+    parsed: Optional[BaseSegment] = cached_parser(dict(dialect=dialect), sqlfile)
     actual_hash = compute_parse_tree_hash(parsed)
     # Load the YAML
     expected_hash, res = yaml_loader(make_dialect_path(dialect, yamlfile))
-    if parsed:
-        # Verify the current parse tree matches the historic parse tree.
-        parsed_tree = parsed.to_tuple(code_only=code_only, show_raw=True)
-        # The prased tree consists of a tuple of "File:", followed by the
-        # statements. So only compare when there is at least one statement.
-        if parsed_tree[1] or res[1]:
-            assert parsed_tree == res
-        # Verify the current hash matches the historic hash. The main purpose of
-        # this check is to force contributors to use the generator script to
-        # to create these files. New contributors have sometimes been unaware of
-        # this tool and have attempted to craft the YAML files manually. This
-        # can lead to slight differences, confusion, and errors.
-        assert expected_hash == actual_hash, (
-            "Parse tree hash does not match. Please run "
-            "'python test/generate_parse_fixture_yml.py' to create YAML files "
-            "in test/fixtures/dialects."
-        )
-    else:
+    if not parsed:
         assert parsed == res
+        return
+
+    # Verify the current parse tree matches the historic parse tree.
+    parsed_tree = parsed.to_tuple(code_only=code_only, show_raw=True)
+    # The prased tree consists of a tuple of "File:", followed by the
+    # statements. So only compare when there is at least one statement.
+    if parsed_tree[1] or res[1]:
+        assert parsed_tree == res
+    # Verify the current hash matches the historic hash. The main purpose of
+    # this check is to force contributors to use the generator script to
+    # to create these files. New contributors have sometimes been unaware of
+    # this tool and have attempted to craft the YAML files manually. This
+    # can lead to slight differences, confusion, and errors.
+    assert expected_hash == actual_hash, (
+        "Parse tree hash does not match. Please run "
+        "'python test/generate_parse_fixture_yml.py' to create YAML files "
+        "in test/fixtures/dialects."
+    )
