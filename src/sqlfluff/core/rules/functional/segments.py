@@ -186,7 +186,7 @@ class Segments(tuple):
         self,
         predicate: Optional[PredicateType] = None,
     ) -> Iterable["Segments"]:
-        """Loop over eaach element as a fresh Segments."""
+        """Loop over each element as a fresh Segments."""
         # Looping over Segments returns BaseEls
         # which is sometime what we want and sometimes not
         for base_el in self:
