@@ -77,9 +77,6 @@ class JinjaTracer:
             except IndexError:
                 pos2 = len(trace_template_output)
             p = trace_template_output[pos1 + 1 : pos2]
-            is_set_or_macro = p[:3] == "set"
-            if is_set_or_macro:
-                p = p[3:]
             m_id = regex.match(r"^([0-9a-f]+)(_(\d+))?", p)
             if not m_id:
                 raise ValueError(  # pragma: no cover
@@ -98,21 +95,30 @@ class JinjaTracer:
             alt_id, content_info, literal = value
             target_slice_idx = self.find_slice_index(alt_id)
             slice_length = content_info if literal else len(str(content_info))
-            if not is_set_or_macro:
-                self.move_to_slice(target_slice_idx, slice_length)
+            self.move_to_slice(target_slice_idx, slice_length)
+
+        # Sanity check raw string and slices.
+        pos = 0
+        rfs: RawFileSlice
+        for idx, rfs in enumerate(self.raw_sliced):
+            assert rfs.source_idx == pos
+            pos += len(rfs.raw)
+        assert pos == len(self.raw_str)
+
+        # Sanity check templated string and slices.
+        templated_str = self.make_template(self.raw_str).render()
+        previous_slice = None
+        tfs: TemplatedFileSlice
+        for idx, tfs in enumerate(self.sliced_file):
+            print(f"tfs[{idx}] = {repr(templated_str[tfs.templated_slice])}")
+            if previous_slice:
+                assert tfs.templated_slice.start == previous_slice.templated_slice.stop
             else:
-                # If we find output from a {% set %} directive or a macro,
-                # record a trace without reading or updating the program
-                # counter. Such slices are always treated as "templated"
-                # because they are inserted during expansion of templated
-                # code (i.e. {% set %} variable or macro defined within the
-                # file).
-                self.record_trace(
-                    slice_length, target_slice_idx, slice_type="templated"
-                )
-        return JinjaTrace(
-            self.make_template(self.raw_str).render(), self.raw_sliced, self.sliced_file
-        )
+                assert tfs.templated_slice.start == 0
+            previous_slice = tfs
+        assert not self.sliced_file or tfs.templated_slice.stop == len(templated_str)
+
+        return JinjaTrace(templated_str, self.raw_sliced, self.sliced_file)
 
     def find_slice_index(self, slice_identifier) -> int:
         """Given a slice identifier, return its index.
@@ -234,6 +240,14 @@ class JinjaTracer:
         for _, elem_type, raw in self.env.lex(self.raw_str):
             # Replace literal text with a unique ID.
             if elem_type == "data":
+                if set_idx is None:
+                    rsi = self.slice_info_for_literal(
+                        len(raw), "" if set_idx is None else "set"
+                    )
+                else:
+                    unique_alternate_id = None
+                    alternate_code = None
+                    rsi = RawSliceInfo(None, None, [])
                 result.append(
                     RawFileSlice(
                         raw,
@@ -241,9 +255,7 @@ class JinjaTracer:
                         idx,
                     )
                 )
-                self.raw_slice_info[result[-1]] = self.slice_info_for_literal(
-                    len(raw), "" if set_idx is None else "set"
-                )
+                self.raw_slice_info[result[-1]] = rsi
                 idx += len(raw)
                 continue
             str_buff += raw
@@ -326,15 +338,15 @@ class JinjaTracer:
                         # effects, but return a unique slice ID.
                         if trimmed_content:
                             assert m_open and m_close
-                            unique_id = self.next_slice_id()
-                            unique_alternate_id = unique_id
-                            prefix = "set" if set_idx is not None else ""
-                            open_ = m_open.group(1)
-                            close_ = m_close.group(1)
-                            alternate_code = (
-                                f"\0{prefix}{unique_alternate_id} {open_} "
-                                f"{trimmed_content} {close_}"
-                            )
+                            if set_idx is None:
+                                unique_id = self.next_slice_id()
+                                unique_alternate_id = unique_id
+                                open_ = m_open.group(1)
+                                close_ = m_close.group(1)
+                                alternate_code = (
+                                    f"\0{unique_alternate_id} {open_} "
+                                    f"{trimmed_content} {close_}"
+                                )
                 if block_type == "block_start" and trimmed_content.split()[0] in (
                     "macro",
                     "set",
@@ -343,7 +355,7 @@ class JinjaTracer:
                     # - {% set variable = value %}
                     # - {% set variable %}value{% endset %}
                     # https://jinja.palletsprojects.com/en/2.10.x/templates/#block-assignments
-                    # When the second format is used, set the variable 'is_set'
+                    # When the second format is used, set the variable 'set_idx'
                     # to a non-None value. This info is used elsewhere, as
                     # literals inside a {% set %} block require special handling
                     # during the trace.
