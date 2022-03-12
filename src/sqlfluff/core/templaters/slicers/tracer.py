@@ -244,8 +244,10 @@ class JinjaTracer:
                         len(raw), "" if set_idx is None else "set"
                     )
                 else:
-                    unique_alternate_id = None
-                    alternate_code = None
+                    # For "set" blocks, don't generate alternate ID or code.
+                    # Sometimes, dbt users use {% set %} blocks to generate
+                    # queries that get sent to actual databases, thus causing
+                    # errors if we tamper with it.
                     rsi = RawSliceInfo(None, None, [])
                 result.append(
                     RawFileSlice(
@@ -337,6 +339,11 @@ class JinjaTracer:
                         # effects, but return a unique slice ID.
                         if trimmed_content:
                             assert m_open and m_close
+                            # For "set" blocks, don't generate alternate ID or
+                            # code. Sometimes, dbt users use {% set %} blocks to
+                            # generate queries that get sent to actual
+                            # databases, thus causing errors if we tamper with
+                            # it.
                             if set_idx is None:
                                 unique_id = self.next_slice_id()
                                 unique_alternate_id = unique_id
