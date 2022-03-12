@@ -379,7 +379,7 @@ def _create_table_ref(table_name: str, dialect: Dialect) -> TableExpressionSegme
             ),
         )
     )
-    return table_seg
+    return table_seg  # type: ignore
 
 
 def _get_case_preference(root_select: Segments):
