@@ -110,7 +110,6 @@ class JinjaTracer:
         previous_slice = None
         tfs: TemplatedFileSlice
         for idx, tfs in enumerate(self.sliced_file):
-            print(f"tfs[{idx}] = {repr(templated_str[tfs.templated_slice])}")
             if previous_slice:
                 assert tfs.templated_slice.start == previous_slice.templated_slice.stop
             else:
