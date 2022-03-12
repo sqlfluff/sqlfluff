@@ -362,7 +362,7 @@ def _create_cte_seg(
     return element
 
 
-def _create_table_ref(table_name: str, dialect: Dialect):
+def _create_table_ref(table_name: str, dialect: Dialect) -> TableExpressionSegment:
     Seg = partial(_get_seg, dialect=dialect)
     TableExpressionSeg = Seg(TableExpressionSegment)
     TableReferenceSeg = Seg(TableReferenceSegment)
@@ -394,7 +394,7 @@ def _get_case_preference(root_select: Segments):
 
 
 def _segmentify(input_el: str, casing: str) -> BaseSegment:
-    """Apply casing an convert strings to Keywords."""
+    """Apply casing and convert strings to Keywords."""
     input_el = input_el.lower()
     if casing == "UPPER":
         input_el = input_el.upper()
