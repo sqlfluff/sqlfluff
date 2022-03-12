@@ -286,10 +286,17 @@ spark3_dialect.add(
         "JARS?", KeywordSegment, name="jar", type="file_keyword"
     ),
     NoscanKeywordSegment=StringParser(
-        "NOSCAN", SymbolSegment, name="noscan_keyword", type="keyword"
+        "NOSCAN", KeywordSegment, name="noscan_keyword", type="keyword"
     ),
     WhlKeywordSegment=StringParser(
         "WHL", KeywordSegment, name="whl", type="file_keyword"
+    ),
+    SQLConfPropertiesSegment=Sequence(
+        StringParser("-", SymbolSegment, name="dash", type="dash"),
+        StringParser(
+            "v", SymbolSegment, name="sql_conf_option_set", type="sql_conf_option"
+        ),
+        allow_gaps=False,
     ),
     # Add relevant Hive Grammar
     CommentGrammar=hive_dialect.get_grammar("CommentGrammar"),
@@ -2015,6 +2022,53 @@ class RefreshStatementSegment(BaseSegment):
 
 
 @spark3_dialect.segment()
+class ResetStatementSegment(BaseSegment):
+    """A `RESET` statement used to reset runtime configurations.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-aux-conf-mgmt-reset.html
+    """
+
+    type = "reset_statement"
+
+    match_grammar = Sequence(
+        "RESET",
+        Delimited(
+            Ref("SingleIdentifierGrammar"),
+            delimiter=Ref("DotSegment"),
+            optional=True,
+        ),
+    )
+
+
+@spark3_dialect.segment()
+class SetStatementSegment(BaseSegment):
+    """A `SET` statement used to set runtime properties.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-aux-conf-mgmt-set.html
+    """
+
+    type = "set_statement"
+
+    match_grammar = Sequence(
+        "SET",
+        Ref("SQLConfPropertiesSegment", optional=True),
+        Sequence(
+            Delimited(
+                Ref("SingleIdentifierGrammar"),
+                delimiter=Ref("DotSegment"),
+                allow_gaps=False,
+            ),
+            Sequence(
+                Ref("EqualsSegment"),
+                Ref("LiteralGrammar"),
+                optional=True,
+            ),
+            optional=True,
+        ),
+    )
+
+
+@spark3_dialect.segment()
 class UncacheTableSegment(BaseSegment):
     """AN `UNCACHE TABLE` statement.
 
@@ -2058,6 +2112,8 @@ class StatementSegment(BaseSegment):
             Ref("ListFileSegment"),
             Ref("ListJarSegment"),
             Ref("RefreshStatementSegment"),
+            Ref("ResetStatementSegment"),
+            Ref("SetStatementSegment"),
             Ref("UncacheTableSegment"),
             # Data Manipulation Statements
             Ref("InsertOverwriteDirectorySegment"),
