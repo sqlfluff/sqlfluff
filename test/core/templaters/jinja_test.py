@@ -795,6 +795,57 @@ SELECT
                 ("literal", slice(46, 57, None), slice(11, 22, None)),
             ],
         ),
+        (
+            # Test for issue 2786. Also lots of whitespace control. In this
+            # case, removing whitespace control alone wasn't enough. In order
+            # to get a good trace, JinjaTracer had to be updated so the
+            # alternate template included output for the discarded whitespace.
+            """select
+    id,
+    {%- for features in ["value4", "value5"] %}
+        {%- if features in ["value7"] %}
+            {{features}}
+            {%- if not loop.last -%},{% endif %}
+        {%- else -%}
+            {{features}}
+            {%- if not loop.last -%},{% endif %}
+        {%- endif -%}
+    {%- endfor %}
+from my_table
+""",
+            None,
+            [
+                ("literal", slice(0, 14, None), slice(0, 14, None)),
+                ("literal", slice(14, 19, None), slice(14, 14, None)),
+                ("block_start", slice(19, 62, None), slice(14, 14, None)),
+                ("literal", slice(62, 71, None), slice(14, 14, None)),
+                ("block_start", slice(71, 103, None), slice(14, 14, None)),
+                ("block_mid", slice(186, 198, None), slice(14, 14, None)),
+                ("literal", slice(198, 211, None), slice(14, 14, None)),
+                ("templated", slice(211, 223, None), slice(14, 20, None)),
+                ("literal", slice(223, 236, None), slice(20, 20, None)),
+                ("block_start", slice(236, 260, None), slice(20, 20, None)),
+                ("literal", slice(260, 261, None), slice(20, 21, None)),
+                ("block_end", slice(261, 272, None), slice(21, 21, None)),
+                ("literal", slice(272, 281, None), slice(21, 21, None)),
+                ("block_end", slice(281, 294, None), slice(21, 21, None)),
+                ("literal", slice(294, 299, None), slice(21, 21, None)),
+                ("block_end", slice(299, 312, None), slice(21, 21, None)),
+                ("literal", slice(62, 71, None), slice(21, 21, None)),
+                ("block_start", slice(71, 103, None), slice(21, 21, None)),
+                ("block_mid", slice(186, 198, None), slice(21, 21, None)),
+                ("literal", slice(198, 211, None), slice(21, 21, None)),
+                ("templated", slice(211, 223, None), slice(21, 27, None)),
+                ("literal", slice(223, 236, None), slice(27, 27, None)),
+                ("block_start", slice(236, 260, None), slice(27, 27, None)),
+                ("block_end", slice(261, 272, None), slice(27, 27, None)),
+                ("literal", slice(272, 281, None), slice(27, 27, None)),
+                ("block_end", slice(281, 294, None), slice(27, 27, None)),
+                ("literal", slice(294, 299, None), slice(27, 27, None)),
+                ("block_end", slice(299, 312, None), slice(27, 27, None)),
+                ("literal", slice(312, 327, None), slice(27, 42, None)),
+            ],
+        ),
     ],
 )
 def test__templater_jinja_slice_file(raw_file, override_context, result, caplog):
