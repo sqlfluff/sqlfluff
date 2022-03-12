@@ -42,23 +42,26 @@ def lex_and_parse(config_overrides: Dict[str, Any], raw: str) -> Optional[BaseSe
     return Parser(config=config).parse(tokens)
 
 
-@pytest.mark.integration_test
 @pytest.mark.parametrize("dialect,file", parse_success_examples)
-def test__dialect__base_broad_fix(dialect, file, raise_critical_errors_after_fix):
-    """Run a full fix with all rules, in search of critical errors."""
+def test__dialect__base_file_parse(dialect, file):
+    """For given test examples, check successful parsing."""
     raw = load_file(dialect, file)
     config_overides = dict(dialect=dialect)
-    # Lean on the cached result of the above test if possible
+    # Use the helper function to avoid parsing twice
     parsed: Optional[BaseSegment] = lex_and_parse(config_overides, raw)
     if not parsed:
         return
 
-    config = FluffConfig(overrides=config_overides)
-    # Due to "raise_critical_errors_after_fix" fixure "fix",
-    # will now throw.
-    Linter(config=config).lint_string(raw, fix=True)
+    print(f"Post-parse structure: {parsed.to_tuple(show_raw=True)}")
+    print(f"Post-parse structure: {parsed.stringify()}")
+    # Check we're all there.
+    assert parsed.raw == raw
+    # Check that there's nothing unparsable
+    typs = parsed.type_set()
+    assert "unparsable" not in typs
 
 
+@pytest.mark.integration_test
 @pytest.mark.parametrize("dialect,file", parse_success_examples)
 def test__dialect__base_broad_fix(dialect, file, raise_critical_errors_after_fix):
     """For given test examples, check successful parsing."""
