@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 69f2edb341a502903b3fe5048ff31230bf0dc98540a0c9127048de1a7e56332d
+_hash: 68ab90694accab824df1c63fcb2da4a06c8bfe821cbebc61e4a6a6199f2f82fe
 file:
   batch:
   - statement:
@@ -72,8 +72,7 @@ file:
                 - expression:
                     literal: "'20001231'"
                 - comma: ','
-                - expression:
-                    literal: '101'
+                - literal: '101'
                 - end_bracket: )
           groupby_clause:
           - keyword: GROUP
@@ -147,8 +146,7 @@ file:
                 - expression:
                     literal: "'20001231'"
                 - comma: ','
-                - expression:
-                    literal: '101'
+                - literal: '101'
                 - end_bracket: )
           groupby_clause:
           - keyword: GROUP
@@ -232,8 +230,7 @@ file:
                 - expression:
                     literal: "'20010630'"
                 - comma: ','
-                - expression:
-                    literal: '101'
+                - literal: '101'
                 - end_bracket: )
           statement_terminator: ;
   - statement:

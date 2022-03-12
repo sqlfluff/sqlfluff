@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2c9a593bedcfd33aba499ae3e443c3b7a9514b2a4d53673a5a918f9d61b1ea91
+_hash: dd2b822a76422d42cf6051e1bd61c54576b89c003716d7140a8e3b335a24b2d7
 file:
 - statement:
     explain_statement:
@@ -352,7 +352,7 @@ file:
     explain_statement:
       keyword: EXPLAIN
       statement:
-        refresh_table_statement:
+        refresh_statement:
         - keyword: REFRESH
         - keyword: TABLE
         - table_reference:
@@ -362,7 +362,7 @@ file:
     explain_statement:
       keyword: EXPLAIN
       statement:
-        refresh_function_statement:
+        refresh_statement:
         - keyword: REFRESH
         - keyword: FUNCTION
         - function_name:
