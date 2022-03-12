@@ -40,6 +40,29 @@ cte_select_fail:
     from a
     join b on (a.x = b.x)
 
+cte_with_clashing_name:
+  fail_str: |
+    with prep_1 as (
+      select 1 as x, 2 as z
+    )
+    select
+        a.x, a.y, z
+    from a
+    join (
+        select x, z from b
+    ) on a.x = z
+  fix_str: |
+    with prep_1 as (
+      select 1 as x, 2 as z
+    ),
+    prep_2 as (
+        select x, z from b
+    )
+    select
+        a.x, a.y, z
+    from a
+    join prep_2 on a.x = z
+
 double_nested_fail:
   fail_str: |
     with p_cte as (

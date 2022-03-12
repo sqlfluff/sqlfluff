@@ -42,25 +42,6 @@ def lex_and_parse(config_overrides: Dict[str, Any], raw: str) -> Optional[BaseSe
     return Parser(config=config).parse(tokens)
 
 
-@pytest.mark.parametrize("dialect,file", parse_success_examples)
-def test__dialect__base_file_parse(dialect, file):
-    """For given test examples, check successful parsing."""
-    raw = load_file(dialect, file)
-    config_overides = dict(dialect=dialect)
-    # Use the helper function to avoid parsing twice
-    parsed: Optional[BaseSegment] = lex_and_parse(config_overides, raw)
-    if not parsed:
-        return
-
-    print(f"Post-parse structure: {parsed.to_tuple(show_raw=True)}")
-    print(f"Post-parse structure: {parsed.stringify()}")
-    # Check we're all there.
-    assert parsed.raw == raw
-    # Check that there's nothing unparsable
-    typs = parsed.type_set()
-    assert "unparsable" not in typs
-
-
 @pytest.mark.integration_test
 @pytest.mark.parametrize("dialect,file", parse_success_examples)
 def test__dialect__base_broad_fix(dialect, file, raise_critical_errors_after_fix):
