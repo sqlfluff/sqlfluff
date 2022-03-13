@@ -105,6 +105,13 @@ class TemplatedFile:
         self._source_newlines = list(iter_indices_of_newlines(self.source_str))
         self._templated_newlines = list(iter_indices_of_newlines(self.templated_str))
 
+        # NOTE: The "check_consistency" flag should always be True when using
+        # SQLFluff in real life. This flag was only added because some legacy
+        # templater tests in test/core/templaters/jinja_test.py use hardcoded
+        # test data with issues that will trigger errors here. It would be cool
+        # to fix that data someday. I (Barry H.) started looking into it, but
+        # it was much trickier than I expected, because bits of the same data
+        # are shared across multiple tests.
         if check_consistency:
             # Sanity check raw string and slices.
             pos = 0
