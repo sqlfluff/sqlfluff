@@ -1,4 +1,5 @@
-(WITH mycte2 AS (
+(
+    WITH mycte2 AS (
         WITH mycte1 AS (
             SELECT
                 foo,
@@ -16,4 +17,5 @@
         foo,
         bar,
         baz
-    FROM mycte2);
+    FROM mycte2
+);
