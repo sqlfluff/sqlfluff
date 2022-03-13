@@ -77,9 +77,6 @@ class JinjaTracer:
             except IndexError:
                 pos2 = len(trace_template_output)
             p = trace_template_output[pos1 + 1 : pos2]
-            is_set_or_macro = p[:3] == "set"
-            if is_set_or_macro:
-                p = p[3:]
             m_id = regex.match(r"^([0-9a-f]+)(_(\d+))?", p)
             if not m_id:
                 raise ValueError(  # pragma: no cover
@@ -98,18 +95,7 @@ class JinjaTracer:
             alt_id, content_info, literal = value
             target_slice_idx = self.find_slice_index(alt_id)
             slice_length = content_info if literal else len(str(content_info))
-            if not is_set_or_macro:
-                self.move_to_slice(target_slice_idx, slice_length)
-            else:
-                # If we find output from a {% set %} directive or a macro,
-                # record a trace without reading or updating the program
-                # counter. Such slices are always treated as "templated"
-                # because they are inserted during expansion of templated
-                # code (i.e. {% set %} variable or macro defined within the
-                # file).
-                self.record_trace(
-                    slice_length, target_slice_idx, slice_type="templated"
-                )
+            self.move_to_slice(target_slice_idx, slice_length)
         return JinjaTrace(
             self.make_template(self.raw_str).render(), self.raw_sliced, self.sliced_file
         )
@@ -241,9 +227,17 @@ class JinjaTracer:
                         idx,
                     )
                 )
-                self.raw_slice_info[result[-1]] = self.slice_info_for_literal(
-                    len(raw), "" if set_idx is None else "set"
-                )
+                if set_idx is None:
+                    rsi = self.slice_info_for_literal(
+                        len(raw), "" if set_idx is None else "set"
+                    )
+                else:
+                    # For "set" blocks, don't generate alternate ID or code.
+                    # Sometimes, dbt users use {% set %} blocks to generate
+                    # queries that get sent to actual databases, thus causing
+                    # errors if we tamper with it.
+                    rsi = RawSliceInfo(None, None, [])
+                self.raw_slice_info[result[-1]] = rsi
                 idx += len(raw)
                 continue
             str_buff += raw
@@ -326,15 +320,20 @@ class JinjaTracer:
                         # effects, but return a unique slice ID.
                         if trimmed_content:
                             assert m_open and m_close
-                            unique_id = self.next_slice_id()
-                            unique_alternate_id = unique_id
-                            prefix = "set" if set_idx is not None else ""
-                            open_ = m_open.group(1)
-                            close_ = m_close.group(1)
-                            alternate_code = (
-                                f"\0{prefix}{unique_alternate_id} {open_} "
-                                f"{trimmed_content} {close_}"
-                            )
+                            # For "set" blocks, don't generate alternate ID or
+                            # code. Sometimes, dbt users use {% set %} blocks to
+                            # generate queries that get sent to actual
+                            # databases, thus causing errors if we tamper with
+                            # it.
+                            if set_idx is None:
+                                unique_id = self.next_slice_id()
+                                unique_alternate_id = unique_id
+                                open_ = m_open.group(1)
+                                close_ = m_close.group(1)
+                                alternate_code = (
+                                    f"\0{unique_alternate_id} {open_} "
+                                    f"{trimmed_content} {close_}"
+                                )
                 if block_type == "block_start" and trimmed_content.split()[0] in (
                     "macro",
                     "set",
@@ -343,16 +342,24 @@ class JinjaTracer:
                     # - {% set variable = value %}
                     # - {% set variable %}value{% endset %}
                     # https://jinja.palletsprojects.com/en/2.10.x/templates/#block-assignments
-                    # When the second format is used, set the variable 'is_set'
+                    # When the second format is used, set the variable 'set_idx'
                     # to a non-None value. This info is used elsewhere, as
                     # literals inside a {% set %} block require special handling
                     # during the trace.
                     trimmed_content_parts = trimmed_content.split(maxsplit=2)
-                    if len(trimmed_content_parts) <= 2 or not trimmed_content_parts[
-                        2
-                    ].startswith("="):
+                    if len(trimmed_content_parts) <= 2 or (
+                        not trimmed_content_parts[1].endswith("=")
+                        and not trimmed_content_parts[2].startswith("=")
+                    ):
                         set_idx = len(result)
-                elif block_type == "block_end" and set_idx is not None:
+                elif (
+                    block_type == "block_end"
+                    and set_idx is not None
+                    and (
+                        trimmed_content.startswith("endset")
+                        or trimmed_content.startswith("endmacro")
+                    )
+                ):
                     # Exiting a {% set %} block. Clear the indicator variable.
                     set_idx = None
                 m = regex.search(r"\s+$", raw, regex.MULTILINE | regex.DOTALL)
