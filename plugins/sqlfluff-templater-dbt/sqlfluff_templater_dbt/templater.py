@@ -535,7 +535,6 @@ class DbtTemplater(JinjaTemplater):
                         ),
                     )
                 )
-
         return (
             TemplatedFile(
                 source_str=source_dbt_sql,
