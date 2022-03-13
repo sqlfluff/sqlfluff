@@ -377,6 +377,10 @@ def test_templater_set_block_handling():
     """
 
     def run_query(sql):
+        # Prior to the bug fix, this failed. This was bad because, inside
+        # JinjaTracer, dbt templates similar to the one in this test would call
+        # the database with funky SQL (including weird strings it uses
+        # internally like: 00000000000000000000000000000002.
         assert sql == "\n\nselect 1 from foobarfoobarfoobarfoobar_dev\n\n"
         return sql
 
