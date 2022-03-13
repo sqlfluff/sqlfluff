@@ -29,6 +29,7 @@ from sqlfluff.core.templaters.base import (
     TemplatedFile,
     TemplatedFileSlice,
 )
+
 from sqlfluff.core.templaters.jinja import JinjaTemplater
 
 # Instantiate the templater logger
@@ -506,7 +507,6 @@ class DbtTemplater(JinjaTemplater):
                 config=config,
                 make_template=make_template,
             )
-
         # :HACK: If calling compile_node() compiled any ephemeral nodes,
         # restore them to their earlier state. This prevents a runtime error
         # in the dbt "_inject_ctes_into_sql()" function that occurs with

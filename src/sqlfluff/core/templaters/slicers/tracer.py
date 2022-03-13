@@ -221,6 +221,13 @@ class JinjaTracer:
         for _, elem_type, raw in self.env.lex(self.raw_str):
             # Replace literal text with a unique ID.
             if elem_type == "data":
+                result.append(
+                    RawFileSlice(
+                        raw,
+                        "literal",
+                        idx,
+                    )
+                )
                 if set_idx is None:
                     rsi = self.slice_info_for_literal(
                         len(raw), "" if set_idx is None else "set"
@@ -231,13 +238,6 @@ class JinjaTracer:
                     # queries that get sent to actual databases, thus causing
                     # errors if we tamper with it.
                     rsi = RawSliceInfo(None, None, [])
-                result.append(
-                    RawFileSlice(
-                        raw,
-                        "literal",
-                        idx,
-                    )
-                )
                 self.raw_slice_info[result[-1]] = rsi
                 idx += len(raw)
                 continue
