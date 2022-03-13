@@ -355,7 +355,10 @@ class JinjaTracer:
                 elif (
                     block_type == "block_end"
                     and set_idx is not None
-                    and trimmed_content.startswith("endset")
+                    and (
+                        trimmed_content.startswith("endset")
+                        or trimmed_content.startswith("endmacro")
+                    )
                 ):
                     # Exiting a {% set %} block. Clear the indicator variable.
                     set_idx = None
