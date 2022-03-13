@@ -1948,3 +1948,33 @@ class AlterGroupStatementSegment(BaseSegment):
             ),
         ),
     )
+
+
+@redshift_dialect.segment(replace=True)
+class TransactionStatementSegment(BaseSegment):
+    """A `BEGIN|START`, `COMMIT|END` or `ROLLBACK|ABORT` transaction statement.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_BEGIN.html
+    """
+
+    type = "transaction_statement"
+    match_grammar = Sequence(
+        OneOf("BEGIN", "START", "COMMIT", "END", "ROLLBACK", "ABORT"),
+        OneOf("TRANSACTION", "WORK", optional=True),
+        Sequence(
+            "ISOLATION",
+            "LEVEL",
+            OneOf(
+                "SERIALIZABLE",
+                Sequence("READ", "COMMITTED"),
+                Sequence("READ", "UNCOMMITTED"),
+                Sequence("REPEATABLE", "READ"),
+            ),
+            optional=True,
+        ),
+        OneOf(
+            Sequence("READ", "ONLY"),
+            Sequence("READ", "WRITE"),
+            optional=True,
+        ),
+    )
