@@ -7,166 +7,17 @@ select_fail:
     from a
     join (
         select x, z from b
-    ) as b on (a.x = b.x)
-  fix_str: |
-    with b as (
-        select x, z from b
-    )
-    select
-        a.x, a.y, b.z
-    from a
-    join b on (a.x = b.x)
-
-cte_select_fail:
-  fail_str: |
-    with prep as (
-      select 1 as x, 2 as z
-    )
-    select
-        a.x, a.y, b.z
-    from a
-    join (
-        select x, z from b
-    ) as b on (a.x = b.x)
-  fix_str: |
-    with prep as (
-      select 1 as x, 2 as z
-    ),
-    b as (
-        select x, z from b
-    )
-    select
-        a.x, a.y, b.z
-    from a
-    join b on (a.x = b.x)
-
-cte_with_clashing_name:
-  fail_str: |
-    with prep_1 as (
-      select 1 as x, 2 as z
-    )
-    select
-        a.x, a.y, z
-    from a
-    join (
-        select x, z from b
-    ) on a.x = z
-  fix_str: |
-    with prep_1 as (
-      select 1 as x, 2 as z
-    ),
-    prep_2 as (
-        select x, z from b
-    )
-    select
-        a.x, a.y, z
-    from a
-    join prep_2 on a.x = z
-
-double_nested_fail:
-  fail_str: |
-    with p_cte as (
-      select 1 as x, 2 as z
-      UNION ALL
-      select 1 as x, 2 as z
-    )
-    select
-        a.x, a.y, b.z
-    from a
-    join (
-      select x, z from (
-        select x, z from p_cte
-      ) as c
-    ) as b on (a.x = b.x)
-  fix_str: |
-    with p_cte as (
-      select 1 as x, 2 as z
-      UNION ALL
-      select 1 as x, 2 as z
-    ),
-    c as (
-        select x, z from p_cte
-      ),
-    b as (
-      select x, z from c
-    )
-    select
-        a.x, a.y, b.z
-    from a
-    join b on (a.x = b.x)
-  configs:
-    rules:
-      L042:
-        forbid_subquery_in: both
-
-double_nested_unfixable_cte_clash:
-  fail_str: |
-    select
-        a.x, a.y, b.z
-    from a
-    join (
-      select x, z from (
-        select x, z from p_cte
-      ) as b
-    ) as b on (a.x = b.x)
-  configs:
-    rules:
-      L042:
-        forbid_subquery_in: both
-
-unfixable_cte_clash:
-  fail_str: |
-    with "b" as (
-      select x, z from p_cte
-    )
-    select
-        a.x, a.y, b.z
-    from a
-    join (
-      select x, z from (
-        select 1
-      ) as b
-    ) as c on (a.x = b.x)
-  configs:
-    rules:
-      L042:
-        forbid_subquery_in: both
-
-with_recursive_fail_no_fix:
-  fail_str: |
-    with recursive p_cte as (
-      select 1 from tbl_foo
-    )
-    select
-        a.x, a.y, b.z
-    from a
-    join (
-      select x, z from p_cte
-    ) as b on a.x = b.x
+    ) on (a.x = b.x)
 
 select_multijoin_fail:
   fail_str: |
     select
         a.x, d.x as foo, a.y, b.z
-    from (select a, x from foo) a
+    from a
     join d using(x)
     join (
         select x, z from b
-    ) as b using (x)
-  fix_str: |
-    with a as (select a, x from foo),
-    b as (
-        select x, z from b
-    )
-    select
-        a.x, d.x as foo, a.y, b.z
-    from a
-    join d using(x)
-    join b using (x)
-  configs:
-    rules:
-      L042:
-        forbid_subquery_in: both
+    ) using (x)
 
 with_fail:
   fail_str: |
@@ -179,38 +30,17 @@ with_fail:
         )
         select * from d
     ) using (x)
-  fix_str: |
-    with prep_1 as (
-        with d as (
-            select x, z from b
-        )
-        select * from d
-    )
-    select
-        a.x, a.y, b.z
-    from a
-    join prep_1 using (x)
 
 set_fail:
   fail_str: |
-    SELECT
+    select
         a.x, a.y, b.z
-    FROM a
-    JOIN (
+    from a
+    join (
         select x, z from b
         union
         select x, z from d
-    ) USING (x)
-  fix_str: |
-    WITH prep_1 AS (
-        select x, z from b
-        union
-        select x, z from d
-    )
-    SELECT
-        a.x, a.y, b.z
-    FROM a
-    JOIN prep_1 USING (x)
+    ) using (x)
 
 simple_pass:
   pass_str: |
@@ -241,13 +71,6 @@ from_clause_fail:
     from (
         select * from b
     ) as a
-  fix_str: |
-    with a as (
-        select * from b
-    )
-    select
-        a.x, a.y
-    from a
   configs:
     rules:
       L042:
@@ -260,13 +83,6 @@ both_clause_fail:
     from (
         select * from b
     ) as a
-  fix_str: |
-    with a as (
-        select * from b
-    )
-    select
-        a.x, a.y
-    from a
   configs:
     rules:
       L042:
