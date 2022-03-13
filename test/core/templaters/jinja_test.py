@@ -370,6 +370,31 @@ def test__templater_jinja_slices(case: RawTemplatedTestCase):
     assert actual_rs_source_list == case.expected_raw_sliced__source_list
 
 
+def test_templater_set_block_handling():
+    """Test handling of literals in {% set %} blocks.
+
+    Specifically, verify they are not modified in the alternate template.
+    """
+
+    def run_query(sql):
+        assert sql == "\n\nselect 1 from foobarfoobarfoobarfoobar_dev\n\n"
+        return sql
+
+    t = JinjaTemplater(override_context=dict(run_query=run_query))
+    instr = """{% set my_query1 %}
+select 1 from foobarfoobarfoobarfoobar_{{ "dev" }}
+{% endset %}
+{% set my_query2 %}
+{{ my_query1 }}
+{% endset %}
+
+{{ run_query(my_query2) }}
+"""
+    outstr, vs = t.process(in_str=instr, fname="test", config=FluffConfig())
+    assert str(outstr) == "\n\n\n\n\nselect 1 from foobarfoobarfoobarfoobar_dev\n\n\n"
+    assert len(vs) == 0
+
+
 def test__templater_jinja_error_variable():
     """Test missing variable error handling in the jinja templater."""
     t = JinjaTemplater(override_context=dict(blah="foo"))
