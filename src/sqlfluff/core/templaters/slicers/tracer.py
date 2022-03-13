@@ -347,11 +347,16 @@ class JinjaTracer:
                     # literals inside a {% set %} block require special handling
                     # during the trace.
                     trimmed_content_parts = trimmed_content.split(maxsplit=2)
-                    if len(trimmed_content_parts) <= 2 or not trimmed_content_parts[
-                        2
-                    ].startswith("="):
+                    if len(trimmed_content_parts) <= 2 or (
+                        not trimmed_content_parts[1].endswith("=")
+                        and not trimmed_content_parts[2].startswith("=")
+                    ):
                         set_idx = len(result)
-                elif block_type == "block_end" and set_idx is not None:
+                elif (
+                    block_type == "block_end"
+                    and set_idx is not None
+                    and trimmed_content.startswith("endset")
+                ):
                     # Exiting a {% set %} block. Clear the indicator variable.
                     set_idx = None
                 m = regex.search(r"\s+$", raw, regex.MULTILINE | regex.DOTALL)

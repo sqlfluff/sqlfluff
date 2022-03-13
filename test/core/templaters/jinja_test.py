@@ -875,6 +875,45 @@ from my_table
                 ("literal", slice(312, 327, None), slice(27, 42, None)),
             ],
         ),
+        (
+            # Test for issue 2835. There's no space between "col" and "="
+            """{% set col= "col1" %}
+SELECT {{ col }}
+""",
+            None,
+            [
+                ("block_start", slice(0, 21, None), slice(0, 0, None)),
+                ("literal", slice(21, 29, None), slice(0, 8, None)),
+                ("templated", slice(29, 38, None), slice(8, 12, None)),
+                ("literal", slice(38, 39, None), slice(12, 13, None)),
+            ],
+        ),
+        (
+            # Another test for issue 2835. The {% for %} loop inside the
+            # {% set %} caused JinjaTracer to think the {% set %} ended
+            # at the {% endfor %}
+            """{% set some_part_of_the_query %}
+    {% for col in ["col1"] %}
+    {{col}}
+    {% endfor %}
+{% endset %}
+
+SELECT {{some_part_of_the_query}}
+FROM SOME_TABLE
+""",
+            None,
+            [
+                ("block_start", slice(0, 32, None), slice(0, 0, None)),
+                ("literal", slice(32, 37, None), slice(0, 0, None)),
+                ("block_start", slice(37, 62, None), slice(0, 0, None)),
+                ("block_end", slice(79, 91, None), slice(0, 0, None)),
+                ("literal", slice(91, 92, None), slice(0, 0, None)),
+                ("block_end", slice(92, 104, None), slice(0, 0, None)),
+                ("literal", slice(104, 113, None), slice(0, 9, None)),
+                ("templated", slice(113, 139, None), slice(9, 29, None)),
+                ("literal", slice(139, 156, None), slice(29, 46, None)),
+            ],
+        ),
     ],
 )
 def test__templater_jinja_slice_file(raw_file, override_context, result, caplog):
