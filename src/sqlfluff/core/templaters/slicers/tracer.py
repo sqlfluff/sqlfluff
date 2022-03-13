@@ -97,27 +97,9 @@ class JinjaTracer:
             slice_length = content_info if literal else len(str(content_info))
             self.move_to_slice(target_slice_idx, slice_length)
 
-        # Sanity check raw string and slices.
-        pos = 0
-        rfs: RawFileSlice
-        for idx, rfs in enumerate(self.raw_sliced):
-            assert rfs.source_idx == pos
-            pos += len(rfs.raw)
-        assert pos == len(self.raw_str)
-
-        # Sanity check templated string and slices.
-        templated_str = self.make_template(self.raw_str).render()
-        previous_slice = None
-        tfs: TemplatedFileSlice
-        for idx, tfs in enumerate(self.sliced_file):
-            if previous_slice:
-                assert tfs.templated_slice.start == previous_slice.templated_slice.stop
-            else:
-                assert tfs.templated_slice.start == 0
-            previous_slice = tfs
-        assert not self.sliced_file or tfs.templated_slice.stop == len(templated_str)
-
-        return JinjaTrace(templated_str, self.raw_sliced, self.sliced_file)
+        return JinjaTrace(
+            self.make_template(self.raw_str).render(), self.raw_sliced, self.sliced_file
+        )
 
     def find_slice_index(self, slice_identifier) -> int:
         """Given a slice identifier, return its index.

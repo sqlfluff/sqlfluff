@@ -25,11 +25,7 @@ from jinja2_simple_tags import StandaloneTag
 from sqlfluff.core.cached_property import cached_property
 from sqlfluff.core.errors import SQLTemplaterError, SQLTemplaterSkipFile
 
-from sqlfluff.core.templaters.base import (
-    TemplatedFile,
-    TemplatedFileSlice,
-)
-
+from sqlfluff.core.templaters.base import TemplatedFile
 from sqlfluff.core.templaters.jinja import JinjaTemplater
 
 # Instantiate the templater logger
@@ -507,6 +503,9 @@ class DbtTemplater(JinjaTemplater):
                 config=config,
                 make_template=make_template,
             )
+            # Update templated_sql as we updated the other strings above.
+            templated_sql = templated_sql + "\n" * n_trailing_newlines
+
         # :HACK: If calling compile_node() compiled any ephemeral nodes,
         # restore them to their earlier state. This prevents a runtime error
         # in the dbt "_inject_ctes_into_sql()" function that occurs with
@@ -517,22 +516,6 @@ class DbtTemplater(JinjaTemplater):
             if getattr(self.dbt_manifest.nodes[k], "compiled", False):
                 self.dbt_manifest.nodes[k] = v
 
-        if make_template and n_trailing_newlines:
-            # Update templated_sql as we updated the other strings above. Update
-            # sliced_file to reflect the mapping of the added character(s) back
-            # to the raw SQL.
-            templated_sql = templated_sql + "\n" * n_trailing_newlines
-            sliced_file.append(
-                TemplatedFileSlice(
-                    slice_type="literal",
-                    source_slice=slice(
-                        len(source_dbt_sql) - n_trailing_newlines, len(source_dbt_sql)
-                    ),
-                    templated_slice=slice(
-                        len(templated_sql) - n_trailing_newlines, len(templated_sql)
-                    ),
-                )
-            )
         return (
             TemplatedFile(
                 source_str=source_dbt_sql,

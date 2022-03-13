@@ -104,6 +104,26 @@ class TemplatedFile:
         self._source_newlines = list(iter_indices_of_newlines(self.source_str))
         self._templated_newlines = list(iter_indices_of_newlines(self.templated_str))
 
+        # Sanity check raw string and slices.
+        pos = 0
+        rfs: RawFileSlice
+        for idx, rfs in enumerate(self.raw_sliced):
+            assert rfs.source_idx == pos
+            pos += len(rfs.raw)
+        assert pos == len(self.source_str)
+
+        # Sanity check templated string and slices.
+        previous_slice = None
+        tfs: Optional[TemplatedFileSlice] = None
+        for idx, tfs in enumerate(self.sliced_file):
+            if previous_slice:
+                assert tfs.templated_slice.start == previous_slice.templated_slice.stop
+            else:
+                assert tfs.templated_slice.start == 0
+            previous_slice = tfs
+        if self.sliced_file and templated_str is not None:
+            assert tfs.templated_slice.stop == len(templated_str)
+
     @classmethod
     def from_string(cls, raw):
         """Create TemplatedFile from a string."""
