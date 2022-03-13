@@ -43,7 +43,7 @@ SIMPLE_SLICED_FILE = [
     for args in [
         ("literal", slice(0, 10, None), slice(0, 10, None)),
         ("templated", slice(10, 17, None), slice(10, 12, None)),
-        ("literal", slice(17, 25, None), slice(12, 20, None)),
+        ("literal", slice(17, 25, None), slice(12, 21, None)),
     ]
 ]
 SIMPLE_RAW_SLICED_FILE = [
