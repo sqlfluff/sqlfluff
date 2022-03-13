@@ -64,18 +64,11 @@ def test__dialect__base_file_parse(dialect, file):
 @pytest.mark.integration_test
 @pytest.mark.parametrize("dialect,file", parse_success_examples)
 def test__dialect__base_broad_fix(dialect, file, raise_critical_errors_after_fix):
-    """Run a full fix with all rules, in search of critical errors."""
+    """For given test examples, check successful parsing."""
     raw = load_file(dialect, file)
-    config_overides = dict(dialect=dialect)
-    # Lean on the cached result of the above test if possible
-    parsed: Optional[BaseSegment] = lex_and_parse(config_overides, raw)
-    if not parsed:
-        return
-
-    config = FluffConfig(overrides=config_overides)
-    # Due to "raise_critical_errors_after_fix" fixure "fix",
-    # will now throw.
-    Linter(config=config).lint_string(raw, fix=True)
+    # Load the right dialect
+    config = FluffConfig(overrides=dict(dialect=dialect))
+    Linter(config=config).lint_string_wrapped(raw, fix=True)
 
 
 @pytest.mark.parametrize("dialect,sqlfile,code_only,yamlfile", parse_structure_examples)
