@@ -28,14 +28,20 @@ class _ParseExample(NamedTuple):
     sqlfile: str
 
 
+def _create_yaml_path(example: _ParseExample) -> str:
+    dialect, sqlfile = example
+    root = sqlfile[:-4]
+    path = os.path.join("test", "fixtures", "dialects", dialect, root + ".yml")
+    return path
+
+
 def generate_one_parse_fixture(example: _ParseExample) -> None:
     """Parse example SQL file, write parse tree to YAML file."""
     dialect, sqlfile = example
     tree = parse_example_file(dialect, sqlfile)
     _hash = compute_parse_tree_hash(tree)
     # Remove the .sql file extension
-    root = sqlfile[:-4]
-    path = os.path.join("test", "fixtures", "dialects", dialect, root + ".yml")
+    path = _create_yaml_path(example)
     with open(path, "w", newline="\n") as f:
         r: Optional[Dict[str, Optional[str]]] = None
 
@@ -70,10 +76,19 @@ def generate_one_parse_fixture(example: _ParseExample) -> None:
 
 
 def gather_file_list(
-    dialect: Optional[str] = None, glob_match_pattern: Optional[str] = None
+    dialect: Optional[str] = None,
+    glob_match_pattern: Optional[str] = None,
+    new_only: bool = False,
 ) -> List[_ParseExample]:
     """Gather the list of files to generate fixtures for. Apply filters as required."""
     parse_success_examples, _ = get_parse_fixtures()
+    if new_only:
+        parse_success_examples = [
+            example
+            for example in parse_success_examples
+            if not os.path.exists(_create_yaml_path(example))
+        ]
+
     if dialect:
         dialect = dialect.lower()
         parse_success_examples = [
@@ -98,15 +113,25 @@ def gather_file_list(
     "--filter", "-f", default=None, help="A glob filter to apply to file names."
 )
 @click.option("--dialect", "-d", default=None, help="Filter to a given dialect.")
-def generate_parse_fixtures(filter: Optional[str], dialect: Optional[str]):
+@click.option(
+    "--new-only",
+    "new_only",
+    is_flag=True,
+    default=False,
+    help="Only create missing fixtures.",
+)
+def generate_parse_fixtures(
+    filter: Optional[str], dialect: Optional[str], new_only: bool
+):
     """Generate fixture or a subset based on dialect or filename glob match."""
     filter_str = filter or "*"
     dialect_str = dialect or "all"
-    print(f"Match Pattern Recieved: filter={filter_str} dialect={dialect_str}")
-    parse_success_examples = gather_file_list(dialect, filter)
-    print(f"Found {len(parse_success_examples)} files to generate")
+    print("Match Pattern Recieved:")
+    print(f"\tfilter={filter_str} dialect={dialect_str} new-only={new_only}")
+    parse_success_examples = gather_file_list(dialect, filter, new_only)
+    print(f"Found {len(parse_success_examples)} file(s) to generate")
     distribute_work(parse_success_examples, generate_one_parse_fixture)
-    print(f"Fixture rebuilt: {len(parse_success_examples)}")
+    print(f"Fixture built: {len(parse_success_examples)}")
 
 
 def main():
