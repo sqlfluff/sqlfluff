@@ -194,6 +194,7 @@ class JinjaTracer:
         NB: Starts and ends of blocks are not distinguished.
         """
         str_buff = ""
+        str_parts = []
         idx = 0
         # We decide the "kind" of element we're dealing with
         # using it's _closing_ tag rather than it's opening
@@ -241,6 +242,7 @@ class JinjaTracer:
                 idx += len(raw)
                 continue
             str_buff += raw
+            str_parts.append(raw)
 
             if elem_type.endswith("_begin"):
                 # When a "begin" tag (whether block, comment, or data) uses
@@ -294,31 +296,42 @@ class JinjaTracer:
                 # Handle starts and ends of blocks
                 if block_type in ("block", "templated"):
                     # Trim off the brackets and then the whitespace
-                    m_open = self.re_open_tag.search(str_buff)
-                    m_close = self.re_close_tag.search(str_buff)
+                    m_open = self.re_open_tag.search(str_parts[0])
+                    m_close = self.re_close_tag.search(str_parts[-1])
                     if m_open and m_close:
-                        trimmed_content = str_buff[
-                            len(m_open.group(0)) : -len(m_close.group(0))
-                        ]
+                        if len(str_parts) >= 3:
+                            # Handle a tag received as individual parts.
+                            trimmed_parts = str_parts[1:-1]
+                            if trimmed_parts[0].isspace():
+                                del trimmed_parts[0]
+                            if trimmed_parts[-1].isspace():
+                                del trimmed_parts[-1]
+                        else:
+                            # Handle a tag received in one go.
+                            trimmed_content = str_buff[
+                                len(m_open.group(0)) : -len(m_close.group(0))
+                            ]
+                            trimmed_parts = trimmed_content.split()
+
                     # :TRICKY: Syntactically, the Jinja {% include %} directive looks
                     # like a block, but its behavior is basically syntactic sugar for
                     # {{ open("somefile).read() }}. Thus, treat it as templated code.
-                    if block_type == "block" and trimmed_content.startswith("include "):
+                    if block_type == "block" and trimmed_parts[0] == "include":
                         block_type = "templated"
                     if block_type == "block":
-                        if trimmed_content.startswith("end"):
+                        if trimmed_parts[0].startswith("end"):
                             block_type = "block_end"
-                        elif trimmed_content.startswith("el"):
+                        elif trimmed_parts[0].startswith("el"):
                             # else, elif
                             block_type = "block_mid"
                         else:
                             block_type = "block_start"
-                            if trimmed_content.split()[0] == "for":
+                            if trimmed_parts[0] == "for":
                                 block_subtype = "loop"
                     else:
                         # For "templated", evaluate the content in case of side
                         # effects, but return a unique slice ID.
-                        if trimmed_content:
+                        if trimmed_parts:
                             assert m_open and m_close
                             # For "set" blocks, don't generate alternate ID or
                             # code. Sometimes, dbt users use {% set %} blocks to
@@ -332,9 +345,9 @@ class JinjaTracer:
                                 close_ = m_close.group(1)
                                 alternate_code = (
                                     f"\0{unique_alternate_id} {open_} "
-                                    f"{trimmed_content} {close_}"
+                                    f"{''.join(trimmed_parts)} {close_}"
                                 )
-                if block_type == "block_start" and trimmed_content.split()[0] in (
+                if block_type == "block_start" and trimmed_parts[0] in (
                     "macro",
                     "set",
                 ):
@@ -346,19 +359,18 @@ class JinjaTracer:
                     # to a non-None value. This info is used elsewhere, as
                     # literals inside a {% set %} block require special handling
                     # during the trace.
-                    trimmed_content_parts = trimmed_content.split(maxsplit=2)
-                    if len(trimmed_content_parts) <= 2 or (
-                        not trimmed_content_parts[1].endswith("=")
-                        and not trimmed_content_parts[2].startswith("=")
+                    filtered_trimmed_parts = [
+                        p for p in trimmed_parts if not p.isspace()
+                    ]
+                    if (
+                        len(filtered_trimmed_parts) < 3
+                        or filtered_trimmed_parts[2] != "="
                     ):
                         set_idx = len(result)
                 elif (
                     block_type == "block_end"
                     and set_idx is not None
-                    and (
-                        trimmed_content.startswith("endset")
-                        or trimmed_content.startswith("endmacro")
-                    )
+                    and (trimmed_parts[0] in ("endmacro", "endset"))
                 ):
                     # Exiting a {% set %} block. Clear the indicator variable.
                     set_idx = None
@@ -408,7 +420,7 @@ class JinjaTracer:
                     )
                     block_idx = len(result) - 1
                     idx += len(str_buff)
-                if block_type == "block_start" and trimmed_content.split()[0] in (
+                if block_type == "block_start" and trimmed_parts[0] in (
                     "for",
                     "if",
                 ):
@@ -420,7 +432,7 @@ class JinjaTracer:
                     )
                     stack.pop()
                     stack.append(block_idx)
-                elif block_type == "block_end" and trimmed_content.split()[0] in (
+                elif block_type == "block_end" and trimmed_parts[0] in (
                     "endfor",
                     "endif",
                 ):
@@ -435,4 +447,5 @@ class JinjaTracer:
                         ].next_slice_indices.append(stack[-1] + 1)
                     stack.pop()
                 str_buff = ""
+                str_parts = []
         return result
