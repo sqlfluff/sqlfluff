@@ -822,6 +822,10 @@ SELECT
                 ("block_end", slice(113, 127, None), slice(11, 11, None)),
                 ("block_start", slice(27, 46, None), slice(11, 11, None)),
                 ("literal", slice(46, 57, None), slice(11, 22, None)),
+                ("block_end", slice(57, 70, None), slice(22, 22, None)),
+                ("block_start", slice(70, 89, None), slice(22, 22, None)),
+                ("block_end", slice(100, 113, None), slice(22, 22, None)),
+                ("block_end", slice(113, 127, None), slice(22, 22, None)),
             ],
         ),
         (
@@ -910,8 +914,20 @@ FROM SOME_TABLE
                 ("literal", slice(91, 92, None), slice(0, 0, None)),
                 ("block_end", slice(92, 104, None), slice(0, 0, None)),
                 ("literal", slice(104, 113, None), slice(0, 9, None)),
-                ("templated", slice(113, 139, None), slice(9, 29, None)),
-                ("literal", slice(139, 156, None), slice(29, 46, None)),
+                ("templated", slice(113, 139, None), slice(9, 28, None)),
+                ("literal", slice(139, 156, None), slice(28, 28, None)),
+            ],
+        ),
+        (
+            # Test for issue 2822: Handle slicing when there's no newline after
+            # the Jinja block end.
+            "{% if true %}\nSELECT 1 + 1\n{%- endif %}",
+            None,
+            [
+                ("block_start", slice(0, 13, None), slice(0, 0, None)),
+                ("literal", slice(13, 26, None), slice(0, 13, None)),
+                ("literal", slice(26, 27, None), slice(13, 13, None)),
+                ("block_end", slice(27, 39, None), slice(13, 13, None)),
             ],
         ),
     ],
