@@ -22,7 +22,8 @@ class _DictLikeDataCls:
 
     def items(self):
         for field_el in fields(self):
-            yield field_el.name, getattr(self, field.field_el)
+            key = field_el.name
+            yield key, getattr(self, key)
 
 
 @dataclass
@@ -291,6 +292,7 @@ class Rule_L003(BaseRule):
     ) -> List[LintFix]:
         """Generate fixes to make an indent a certain size."""
         # In all cases we empty the existing buffer
+        # except for our indent markers
         fixes = [
             LintFix.delete(elem)
             for elem in current_indent_buffer
@@ -603,7 +605,7 @@ class Rule_L003(BaseRule):
                         for seg in res[k]["line_buffer"]
                     ),
                 )
-                for k in res
+                for k in lines_before
                 if self._is_template_block_end_line(
                     res[k]["line_buffer"], context.templated_file
                 )
@@ -651,7 +653,11 @@ class Rule_L003(BaseRule):
                 fixes = self._coerce_indent_to(
                     desired_indent=desired_indent,
                     current_indent_buffer=this_line["indent_buffer"],
-                    current_anchor=this_line["line_buffer"][0],
+                    current_anchor=[
+                        el
+                        for el in this_line["line_buffer"]
+                        if el not in this_line["indent_buffer"]
+                    ][0],
                 )
                 self.logger.debug(
                     "    !! Indentation does not match #%s. Fixes: %s", k, fixes
