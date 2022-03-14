@@ -20,6 +20,8 @@ from sqlfluff.core.rules.functional.segment_predicates import is_name, is_type
 from sqlfluff.core.rules.functional.segments import Segments
 from sqlfluff.dialects.dialect_ansi import (
     CTEDefinitionSegment,
+    TableExpressionSegment,
+    TableReferenceSegment,
     WithCompoundStatementSegment,
 )
 
@@ -152,11 +154,19 @@ def _calculate_fixes(
         # TODO: Create non-mutative helper function.
         # We will replace the whole tree, mutate the table expression.
         this_seg[0].segments = (
-            CodeSegment(
-                raw=alias_name,
-                name="naked_identifier",
-                type="identifier",
-            ),
+            TableExpressionSegment(
+                segments=(
+                    TableReferenceSegment(
+                        segments=(
+                            CodeSegment(
+                                raw=alias_name,
+                                name="naked_identifier",
+                                type="identifier",
+                            ),
+                        )
+                    ),
+                )
+            ), 
         )
         res = LintResult(
             anchor=subquery,
