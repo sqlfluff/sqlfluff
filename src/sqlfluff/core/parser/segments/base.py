@@ -1250,6 +1250,7 @@ class BaseSegment:
             templated_idx = self.pos_marker.templated_slice.start
             insert_buff = ""
             for seg_idx, segment in enumerate(self.segments):
+
                 # First check for insertions.
                 # We know it's an insertion if it has length but not in the templated
                 # file.
