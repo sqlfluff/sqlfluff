@@ -25,13 +25,13 @@ test_fail_specify_join_keys_2:
 
 test_partial_fixed_up_to_2nd_join:
   fail_str: |
-    select x.a 
-    from x 
+    select x.a
+    from x
     inner join y using(id, foo)
     inner join z using(id)
   fix_str: |
-    select x.a 
-    from x 
+    select x.a
+    from x
     inner join y ON x.id = y.id AND x.foo = y.foo
     inner join z using(id)
   violations_after_fix:
