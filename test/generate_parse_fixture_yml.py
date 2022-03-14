@@ -30,9 +30,25 @@ class _ParseExample(NamedTuple):
 
 def _create_yaml_path(example: _ParseExample) -> str:
     dialect, sqlfile = example
-    root = sqlfile[:-4]
+    root, _ = os.path.splitext(sqlfile)
     path = os.path.join("test", "fixtures", "dialects", dialect, root + ".yml")
     return path
+
+
+def _is_matching_new_criteria(example: _ParseExample):
+    """Is the Yaml doesnt exist or is older than the SQL."""
+    yaml_path = _create_yaml_path(example)
+    if not os.path.exists(yaml_path):
+        return True
+
+    sql_path = os.path.join(
+        "test",
+        "fixtures",
+        "dialects",
+        example.dialect,
+        example.sqlfile,
+    )
+    return os.path.getmtime(yaml_path) < os.path.getmtime(sql_path)
 
 
 def generate_one_parse_fixture(example: _ParseExample) -> None:
@@ -86,7 +102,7 @@ def gather_file_list(
         parse_success_examples = [
             example
             for example in parse_success_examples
-            if not os.path.exists(_create_yaml_path(example))
+            if _is_matching_new_criteria(example)
         ]
 
     if dialect:
@@ -126,7 +142,7 @@ def generate_parse_fixtures(
     """Generate fixture or a subset based on dialect or filename glob match."""
     filter_str = filter or "*"
     dialect_str = dialect or "all"
-    print("Match Pattern Recieved:")
+    print("Match Pattern Received:")
     print(f"\tfilter={filter_str} dialect={dialect_str} new-only={new_only}")
     parse_success_examples = gather_file_list(dialect, filter, new_only)
     print(f"Found {len(parse_success_examples)} file(s) to generate")
