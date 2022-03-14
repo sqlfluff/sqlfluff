@@ -1301,6 +1301,10 @@ class BaseSegment:
                     self.pos_marker.templated_slice.stop - end_diff,
                     self.pos_marker.templated_slice.stop,
                 )
+                # By returning an EnrichedFixPatch (rather than FixPatch), which
+                # includes a source_slice field, we ensure that fixes adjacent
+                # to source-only slices (e.g. {% endif %}) are placed
+                # appropriately relative to source-only slices..
                 yield EnrichedFixPatch(
                     source_slice=source_slice,
                     templated_slice=templated_slice,

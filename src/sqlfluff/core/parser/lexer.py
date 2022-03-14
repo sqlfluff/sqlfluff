@@ -535,9 +535,9 @@ class Lexer:
                 )
             )
 
-            # Handle any source-only slices that follow the last element. This can
-            # happen, for example, if a Jinja templated file ends with "{% endif %}",
-            # and there's no trailing newline.
+            # Generate placeholders for any source-only slices that *follow*
+            # the last element. This happens, for example, if a Jinja templated
+            # file ends with "{% endif %}", and there's no trailing newline.
             if idx == len(elements) - 1:
                 so_slices = [
                     so

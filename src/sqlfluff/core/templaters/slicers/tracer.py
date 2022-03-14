@@ -436,7 +436,10 @@ class JinjaTracer:
                     "endif",
                 ):
                     # Replace RawSliceInfo for this slice with one that has
-                    # alternate ID and code for tracking.
+                    # alternate ID and code for tracking. This ensures, for
+                    # instance, that if a file ends with "{% endif %} (with
+                    # no newline following), that we still generate a
+                    # TemplateSliceInfo for it.
                     unique_alternate_id = self.next_slice_id()
                     alternate_code = f"{result[-1].raw}\0{unique_alternate_id}_0"
                     self.raw_slice_info[result[-1]] = RawSliceInfo(

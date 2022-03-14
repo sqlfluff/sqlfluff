@@ -656,7 +656,7 @@ class BaseRule:
         space = " "
         return space * self.tab_space_size if self.indent_unit == "space" else tab
 
-    def is_final_segment(self, context: RuleContext, filter_meta=True) -> bool:
+    def is_final_segment(self, context: RuleContext, filter_meta: bool = True) -> bool:
         """Is the current segment the final segment in the parse tree."""
         siblings_post = context.siblings_post
         if filter_meta:

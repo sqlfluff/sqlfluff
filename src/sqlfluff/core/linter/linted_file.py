@@ -286,7 +286,8 @@ class LintedFile(NamedTuple):
             linter_logger.debug("  %s Yielded patch: %s", idx, patch)
             self._log_hints(patch, self.templated_file)
 
-            # Attempt to convert to source space.
+            # Get source_slice if provided. Otherise, Attempt to convert from
+            # templated to source space.
             source_slice = getattr(patch, "source_slice", None)
             if source_slice is None:
                 try:
