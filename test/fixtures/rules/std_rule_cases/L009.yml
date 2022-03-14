@@ -33,3 +33,9 @@ test_pass_templated_macro_newlines:
       {{ columns }}
     {% endmacro %}
     SELECT {{ get_keyed_nulls("other_id") }}
+
+test_fail_templated_no_newline:
+  # Tricky because there's no newline at the end of the file (following the
+  # templated code).
+  fail_str: "{% if true %}\nSELECT 1 + 1\n{%- endif %}"
+  fix_str: "{% if true %}\nSELECT 1 + 1\n{%- endif %}\n"

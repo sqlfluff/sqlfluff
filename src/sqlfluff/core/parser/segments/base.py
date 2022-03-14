@@ -13,7 +13,17 @@ from collections.abc import MutableSet
 from copy import deepcopy
 from dataclasses import dataclass, field, replace
 from io import StringIO
-from typing import Any, Callable, Dict, Optional, List, Tuple, NamedTuple, Iterator
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Optional,
+    List,
+    Tuple,
+    NamedTuple,
+    Iterator,
+    Union,
+)
 import logging
 
 from tqdm import tqdm
@@ -48,8 +58,26 @@ class FixPatch(NamedTuple):
     fixed_raw: str
     # The patch category, functions mostly for debugging and explanation
     # than for function. It allows traceability of *why* this patch was
-    # generated. It has no siginificance for processing.
+    # generated. It has no significance for processing.
     patch_category: str
+
+
+class EnrichedFixPatch(NamedTuple):
+    """An edit patch for a source file."""
+
+    source_slice: slice
+    templated_slice: slice
+    fixed_raw: str
+    # The patch category, functions mostly for debugging and explanation
+    # than for function. It allows traceability of *why* this patch was
+    # generated.
+    patch_category: str
+    templated_str: str
+    source_str: str
+
+    def dedupe_tuple(self):
+        """Generate a tuple of this fix for deduping."""
+        return (self.source_slice, self.fixed_raw)
 
 
 @dataclass
@@ -1176,7 +1204,9 @@ class BaseSegment:
     def _log_apply_fixes_check_issue(message, *args):  # pragma: no cover
         linter_logger.critical(message, *args)
 
-    def iter_patches(self, templated_str: str) -> Iterator[FixPatch]:
+    def iter_patches(
+        self, templated_str: str
+    ) -> Iterator[Union[EnrichedFixPatch, FixPatch]]:
         """Iterate through the segments generating fix patches.
 
         The patches are generated in TEMPLATED space. This is important
@@ -1220,7 +1250,6 @@ class BaseSegment:
             templated_idx = self.pos_marker.templated_slice.start
             insert_buff = ""
             for seg_idx, segment in enumerate(self.segments):
-
                 # First check for insertions.
                 # We know it's an insertion if it has length but not in the templated
                 # file.
@@ -1266,13 +1295,21 @@ class BaseSegment:
             # or insert. Also valid if we still have an insertion buffer here.
             end_diff = self.pos_marker.templated_slice.stop - templated_idx
             if end_diff or insert_buff:
-                yield FixPatch(
-                    slice(
-                        self.pos_marker.templated_slice.stop - end_diff,
-                        self.pos_marker.templated_slice.stop,
-                    ),
-                    insert_buff,
+                source_slice = segment.pos_marker.source_slice
+                templated_slice = slice(
+                    self.pos_marker.templated_slice.stop - end_diff,
+                    self.pos_marker.templated_slice.stop,
+                )
+                yield EnrichedFixPatch(
+                    source_slice=source_slice,
+                    templated_slice=templated_slice,
                     patch_category="end_point",
+                    fixed_raw=insert_buff,
+                    # TODO: We could provide templated_str and source_str if we
+                    # had access to the TemplatedFile -- just use the slices
+                    # above.
+                    templated_str="",
+                    source_str="",
                 )
 
     def edit(self, raw):

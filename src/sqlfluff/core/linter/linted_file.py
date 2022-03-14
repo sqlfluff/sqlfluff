@@ -30,9 +30,9 @@ from sqlfluff.core.string_helpers import findall
 from sqlfluff.core.templaters import TemplatedFile
 
 # Classes needed only for type checking
-from sqlfluff.core.parser.segments.base import BaseSegment, FixPatch
+from sqlfluff.core.parser.segments.base import BaseSegment, FixPatch, EnrichedFixPatch
 
-from sqlfluff.core.linter.common import NoQaDirective, EnrichedFixPatch
+from sqlfluff.core.linter.common import NoQaDirective
 
 # Instantiate the linter logger
 linter_logger: logging.Logger = logging.getLogger("sqlfluff.linter")
@@ -287,18 +287,20 @@ class LintedFile(NamedTuple):
             self._log_hints(patch, self.templated_file)
 
             # Attempt to convert to source space.
-            try:
-                source_slice = self.templated_file.templated_slice_to_source_slice(
-                    patch.templated_slice,
-                )
-            except ValueError:  # pragma: no cover
-                linter_logger.info(
-                    "      - Skipping. Source space Value Error. i.e. attempted "
-                    "insertion within templated section."
-                )
-                # If we try and slice within a templated section, then we may fail
-                # in which case, we should skip this patch.
-                continue
+            source_slice = getattr(patch, "source_slice", None)
+            if source_slice is None:
+                try:
+                    source_slice = self.templated_file.templated_slice_to_source_slice(
+                        patch.templated_slice,
+                    )
+                except ValueError:  # pragma: no cover
+                    linter_logger.info(
+                        "      - Skipping. Source space Value Error. i.e. attempted "
+                        "insertion within templated section."
+                    )
+                    # If we try and slice within a templated section, then we may fail
+                    # in which case, we should skip this patch.
+                    continue
 
             # Check for duplicates
             dedupe_tuple = (source_slice, patch.fixed_raw)
