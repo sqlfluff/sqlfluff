@@ -1,5 +1,6 @@
 """Implementation of Rule L003."""
-from typing import Dict, List, Optional, Sequence, Set, Tuple, TypedDict
+from dataclasses import dataclass, field, fields
+from typing import Dict, List, Optional, Sequence, Set, Tuple
 
 from sqlfluff.core.parser import WhitespaceSegment
 from sqlfluff.core.parser.segments import BaseSegment
@@ -12,26 +13,48 @@ from sqlfluff.core.rules.doc_decorators import (
 from sqlfluff.core.templaters import TemplatedFile
 
 
-class _LineSummary(TypedDict):
-    line_no: int
-    templated_line: Optional[int]
-    line_buffer: List[BaseSegment]
-    indent_buffer: List[BaseSegment]
-    indent_size: int
-    indent_balance: int
-    indent_balance_marker: int
-    hanging_indent: Optional[int]
-    clean_indent: bool
+class _DictLikeDataCls:
+    def __getitem__(self, item):
+        return getattr(self, item)
+
+    def __setitem__(self, key, item):
+        return setattr(self, key, item)
+
+    def items(self):
+        for field_el in fields(self):
+            yield field_el.name, getattr(self, field.field_el)
 
 
-class _MemoryDict(TypedDict):
-    in_indent: bool
-    problem_lines: List[int]
-    hanging_lines: List[int]
-    comment_lines: List[int]
-    finished: Set[BaseSegment]
-    trigger: Optional[BaseSegment]
-    line_summaries: Dict[int, _LineSummary]
+@dataclass
+class _LineSummary(_DictLikeDataCls):
+    line_no: int = 0
+    templated_line: Optional[int] = None
+    line_buffer: List[BaseSegment] = field(default_factory=list)
+    indent_buffer: List[BaseSegment] = field(default_factory=list)
+    indent_size: int = 1
+    indent_balance: int = 0
+    indent_balance_marker: int = 0
+    hanging_indent: Optional[int] = None
+    clean_indent: bool = True
+
+
+@dataclass
+class _MemoryDict(_DictLikeDataCls):
+    # in_indent keeps track of whether we're in an indent right now
+    in_indent: bool = True
+    # problem_lines keeps track of lines with problems so that we
+    # don't compare to them.
+    problem_lines: List[int] = field(default_factory=list)
+    # hanging_lines keeps track of hanging lines so that we don't
+    # compare to them when assessing indent.
+    hanging_lines: List[int] = field(default_factory=list)
+    # comment_lines keeps track of lines which are all comment.
+    comment_lines: List[int] = field(default_factory=list)
+    # segments we've seen the last child of
+    finished: Set[BaseSegment] = field(default_factory=set)
+    # First non-whitespace node on a line.
+    trigger: Optional[BaseSegment] = None
+    line_summaries: Dict[int, _LineSummary] = field(default_factory=dict)
 
 
 @document_fix_compatible
@@ -134,8 +157,8 @@ class Rule_L003(BaseRule):
         """Take the raw stack, split into lines and evaluate some stats."""
         result_buffer: Dict[int, _LineSummary] = memory["line_summaries"]
         memo_line = next(reversed(result_buffer.values())) if result_buffer else None
-        indent_balance = memo_line["indent_balance_marker"] if memo_line else 0
-        this_indent_balance = memo_line["indent_balance"] if memo_line else 0
+        indent_balance = memo_line.indent_balance_marker if memo_line else 0
+        this_indent_balance = memo_line.indent_balance if memo_line else 0
         line_no = 1
         templated_line = False
         in_indent = True
@@ -161,21 +184,23 @@ class Rule_L003(BaseRule):
                 indent_balance = 0
 
             if elem.is_type("newline"):
-                result_buffer[line_no] = {
-                    "line_no": line_no,
-                    "templated_line": templated_line,
-                    # Using slicing to copy line_buffer here to be py2 compliant
-                    "line_buffer": line_buffer[:],
-                    "indent_buffer": indent_buffer,
-                    "indent_size": indent_size,
-                    # Indent balance is the indent at the start of the first content
-                    "indent_balance": this_indent_balance,
-                    "indent_balance_marker": indent_balance,
-                    "hanging_indent": hanger_pos if line_indent_stack else None,
-                    # Clean indent is true if the line *ends* with an indent
-                    # or has an indent in the initial whitespace.
-                    "clean_indent": clean_indent,
-                }
+                result_buffer[line_no] = _LineSummary(
+                    **{  # type: ignore
+                        "line_no": line_no,
+                        "templated_line": templated_line,
+                        # Using slicing to copy line_buffer here to be py2 compliant
+                        "line_buffer": line_buffer[:],
+                        "indent_buffer": indent_buffer,
+                        "indent_size": indent_size,
+                        # Indent balance is the indent at the start of the first content
+                        "indent_balance": this_indent_balance,
+                        "indent_balance_marker": indent_balance,
+                        "hanging_indent": hanger_pos if line_indent_stack else None,
+                        # Clean indent is true if the line *ends* with an indent
+                        # or has an indent in the initial whitespace.
+                        "clean_indent": clean_indent,
+                    }
+                )
                 line_no += 1
                 # Set the "templated_line" flag for the *next* line if the
                 # newline that ended the *current* line was in templated space.
@@ -196,7 +221,7 @@ class Rule_L003(BaseRule):
                     is_meta = search_elem.is_meta
                     if not search_elem.is_code and not is_meta:
                         continue
-                    elif is_meta and search_elem.indent_val > 0:  # type: ignore
+                    elif is_meta and search_elem.indent_val > 0:
                         clean_indent = True
                     break
             elif in_indent:
@@ -240,19 +265,21 @@ class Rule_L003(BaseRule):
 
         # If we get to the end, and still have a buffer, add it on
         if line_buffer:
-            result_buffer[line_no] = {
-                "line_no": line_no,
-                "templated_line": templated_line,
-                "line_buffer": line_buffer,
-                "indent_buffer": indent_buffer,
-                "indent_size": indent_size,
-                "indent_balance": this_indent_balance,
-                "hanging_indent": line_indent_stack.pop()
-                if line_indent_stack
-                else None,
-                "clean_indent": clean_indent,
-                "indent_balance_marker": indent_balance,
-            }
+            result_buffer[line_no] = _LineSummary(
+                **{  # type: ignore
+                    "line_no": line_no,
+                    "templated_line": templated_line,
+                    "line_buffer": line_buffer,
+                    "indent_buffer": indent_buffer,
+                    "indent_size": indent_size,
+                    "indent_balance": this_indent_balance,
+                    "hanging_indent": line_indent_stack.pop()
+                    if line_indent_stack
+                    else None,
+                    "clean_indent": clean_indent,
+                    "indent_balance_marker": indent_balance,
+                }
+            )
 
         return result_buffer
 
@@ -328,25 +355,7 @@ class Rule_L003(BaseRule):
         self.indent_unit: str
         raw_stack: Tuple[BaseSegment, ...] = context.raw_stack
         # Memory keeps track of what we've seen
-        memory: Optional[_MemoryDict] = context.memory
-        if not memory:
-            memory = {
-                # in_indent keeps track of whether we're in an indent right now
-                "in_indent": True,
-                # problem_lines keeps track of lines with problems so that we
-                # don't compare to them.
-                "problem_lines": [],
-                # hanging_lines keeps track of hanging lines so that we don't
-                # compare to them when assessing indent.
-                "hanging_lines": [],
-                # comment_lines keeps track of lines which are all comment.
-                "comment_lines": [],
-                # segments we've seen the last child of
-                "finished": set(),
-                # First non-whitespace node on a line.
-                "trigger": None,
-                "line_summaries": {},
-            }
+        memory: _MemoryDict = context.memory or _MemoryDict()
         is_last = self._is_last_segment(
             context.segment, memory, context.parent_stack, context.siblings_post
         )
@@ -428,26 +437,7 @@ class Rule_L003(BaseRule):
                 return LintResult()
 
         # Memory keeps track of what we've seen
-        memory: Optional[_MemoryDict] = context.memory
-        if not memory:
-            memory = {
-                # in_indent keeps track of whether we're in an indent right now
-                "in_indent": True,
-                # problem_lines keeps track of lines with problems so that we
-                # don't compare to them.
-                "problem_lines": [],
-                # hanging_lines keeps track of hanging lines so that we don't
-                # compare to them when assessing indent.
-                "hanging_lines": [],
-                # comment_lines keeps track of lines which are all comment.
-                "comment_lines": [],
-                # segments we've seen the last child of
-                "finished": set(),
-                # First non-whitespace node on a line.
-                "trigger": None,
-                "line_summaries": {},
-            }
-            self.logger.debug("Create Memory")
+        memory: _MemoryDict = context.memory or _MemoryDict()
 
         if context.segment.is_type("newline"):
             memory["in_indent"] = True

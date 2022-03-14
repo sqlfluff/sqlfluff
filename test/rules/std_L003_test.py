@@ -1,4 +1,5 @@
 """Tests the python routines within L003."""
+from dataclasses import asdict
 from unittest.mock import Mock
 
 import pytest
@@ -114,10 +115,9 @@ def test__rules__std_L003_process_raw_stack(generate_test_segments, test_elems, 
     # Verify structure
     assert isinstance(res, dict)
     assert all(isinstance(k, int) for k in res.keys())
-    assert all(isinstance(v, dict) for v in res.values())
     # Check keys are all present
     assert all(
-        v.keys()
+        asdict(v).keys()
         == {
             "line_no",
             "templated_line",
@@ -132,6 +132,7 @@ def test__rules__std_L003_process_raw_stack(generate_test_segments, test_elems, 
         for v in res.values()
     )
     for k in res:
+        res[k] = asdict(res[k])
         # For testing purposes, we won't be checking the buffer fields. They're
         # just too hard to create in the test cases and aren't critical in
         # determining what course of action to take. Most of the logic uses the
@@ -142,6 +143,7 @@ def test__rules__std_L003_process_raw_stack(generate_test_segments, test_elems, 
         # We also don't check the "templated_file" flag. These tests don't
         # exercise that code.
         del res[k]["templated_line"]
+
     assert res == result
 
 
