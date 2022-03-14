@@ -31,3 +31,13 @@ FROM a;
 SELECT
     b::TIMESTAMPTZ
 FROM a;
+
+--- AT TIME ZONE
+SELECT
+    raw_data.status::VARCHAR AS status,
+    raw_data.start::TIMESTAMPTZ AT TIME ZONE 'UTC' AS started_at,
+    raw_data."end"::TIMESTAMPTZ AT TIME ZONE 'UTC' AS ended_at,
+    raw_data.created::TIMESTAMPTZ AT TIME ZONE 'UTC' AS created_at,
+    raw_data.identifier[0].value::VARCHAR AS communication_request_fhir_reference_origin,
+    extension_extraction.database_reference
+FROM raw_data
