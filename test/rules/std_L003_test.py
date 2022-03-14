@@ -106,9 +106,10 @@ def test__rules__std_L003_process_raw_stack(generate_test_segments, test_elems, 
 
     """
     cfg = FluffConfig()
+    memory = {"trigger": None, "line_summaries": {}}
     r = get_rule_from_set("L003", config=cfg)
     test_stack = generate_test_segments(test_elems)
-    res = r._process_raw_stack(test_stack, {})
+    res = r._process_raw_stack(test_stack, memory)
     print(res)
     # Verify structure
     assert isinstance(res, dict)
@@ -126,6 +127,7 @@ def test__rules__std_L003_process_raw_stack(generate_test_segments, test_elems, 
             "indent_balance",
             "hanging_indent",
             "clean_indent",
+            "indent_balance_marker",
         }
         for v in res.values()
     )
@@ -136,6 +138,7 @@ def test__rules__std_L003_process_raw_stack(generate_test_segments, test_elems, 
         # values which we *are* still testing.
         del res[k]["line_buffer"]
         del res[k]["indent_buffer"]
+        del res[k]["indent_balance_marker"]
         # We also don't check the "templated_file" flag. These tests don't
         # exercise that code.
         del res[k]["templated_line"]

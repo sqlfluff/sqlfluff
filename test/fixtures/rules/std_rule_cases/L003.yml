@@ -9,6 +9,10 @@ test_fail_reindent_first_line_2:
   fail_str: '  select 1 from tbl;'
   fix_str: select 1 from tbl;
 
+test_fail_reindent_first_line_if_multiline:
+  fail_str: "  select 1\nfrom tbl;"
+  fix_str: "select 1\nfrom tbl;"
+
 test_pass_indentation_of_comments_1:
   # Github Bug #203
   # Comments should be aligned to the following line.
@@ -51,27 +55,43 @@ test_fail_tab_indentation:
     rules:
       indent_unit: tab
 
-test_case_in_fn:
+# test_case_in_fn:
+#   fail_str: |
+#     SELECT
+#         MIN(MAX(COALESCE(
+#             a
+#         ))) AS c,
+#     MAX(CASE
+#             WHEN b THEN 1
+#             WHEN c THEN 1
+#         END) as agg
+#     FROM my_tbl
+#   fix_str: |
+#     SELECT
+#         MIN(MAX(COALESCE(
+#             a
+#         ))) AS c,
+#         MAX(CASE
+#             WHEN b THEN 1
+#             WHEN c THEN 1
+#         END) as agg
+#     FROM my_tbl
+
+test_fix_progressive_indentation_errors:
   # Using tabs as indents works
   fail_str: |
     SELECT
-        MIN(MAX(COALESCE(
-            a
-        ))) AS c,
-        MAX(CASE
-            WHEN b THEN 1
-            WHEN c THEN 1
-        END) as agg
+        a
+            c,
+                b,
+        d
     FROM my_tbl
   fix_str: |
     SELECT
-        MIN((
-            a
-        )) AS c,
-        MAX(CASE
-            WHEN b THEN 1
-            WHEN c THEN 1
-        END) as agg
+        a
+        c,
+        b,
+        d
     FROM my_tbl
 
 test_pass_indented_joins_default:
