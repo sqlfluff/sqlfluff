@@ -2517,23 +2517,3 @@ class FromExpressionElementSegment(BaseSegment):
         "FromExpressionElementSegment"
     ).get_eventual_alias
 
-
-# @spark3_dialect.segment()
-# class PropertyKeySegment(BaseSegment):
-#     """A key used to set properties or retrieve property values."""
-#
-#     type = "property_key"
-#
-#     match_grammar = Sequence(
-#         OneOf(
-#             Delimited(
-#                 Ref("PropertiesNakedIdentifierSegment"),
-#                 delimiter=Ref("DotSegment"),
-#                 allow_gaps=False,
-#             ),
-#             OneOf(
-#                 Ref("QuotedIdentifierSegment"),
-#                 Ref("SingleQuotedIdentifierSegment"),
-#             ),
-#         ),
-#     ),
