@@ -111,9 +111,7 @@ def auto_fix_test(dialect, folder, caplog):
         violations = None
 
     # Run the fix command
-    overides = {
-        "dialect": dialect
-    }
+    overides = {"dialect": dialect}
     if rules:
         overides["rules"] = rules
     cfg = FluffConfig.from_root(overrides=overides)
