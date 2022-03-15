@@ -244,10 +244,7 @@ class JinjaTracer:
     }
 
     def _slice_template(self) -> None:
-        """Slice template in jinja.
-
-        NB: Starts and ends of blocks are not distinguished.
-        """
+        """Slice template in jinja."""
         str_buff = ""
         str_parts = []
         idx = 0
@@ -274,7 +271,6 @@ class JinjaTracer:
                 block_subtype = None
                 # Handle starts and ends of blocks
                 if block_type in ("block", "templated"):
-                    # Trim off the brackets and then the whitespace
                     m_open = self.re_open_tag.search(str_parts[0])
                     m_close = self.re_close_tag.search(str_parts[-1])
                     if m_open and m_close:
@@ -292,16 +288,17 @@ class JinjaTracer:
                             m_open, m_close, tag_contents
                         )
                 self.update_inside_set_or_macro(block_type, tag_contents)
-                m = regex.search(r"\s+$", raw, regex.MULTILINE | regex.DOTALL)
-                if raw.startswith("-") and m:
+                m_strip_right = regex.search(
+                    r"\s+$", raw, regex.MULTILINE | regex.DOTALL
+                )
+                if raw.startswith("-") and m_strip_right:
                     # Right whitespace was stripped. Split off the trailing
                     # whitespace into a separate slice. The desired behavior is
-                    # to behave similarly as the left stripping case above.
-                    # Note that the stakes are a bit different, because lex()
-                    # hasn't *omitted* any characters from the strings it
-                    # returns, it has simply grouped them differently than we
-                    # want.
-                    trailing_chars = len(m.group(0))
+                    # to behave similarly as the left stripping case. Note that
+                    # the stakes are a bit lower here, because lex() hasn't
+                    # *omitted* any characters from the strings it returns,
+                    # it has simply grouped them differently than we want.
+                    trailing_chars = len(m_strip_right.group(0))
                     self.raw_sliced.append(
                         RawFileSlice(
                             str_buff[:-trailing_chars],
@@ -406,7 +403,10 @@ class JinjaTracer:
         m_open: regex.Match,
         str_buff: str,
     ) -> List[str]:
-        """Given Jinja tag info, return the stuff inside the braces."""
+        """Given Jinja tag info, return the stuff inside the braces.
+
+        I.e. Trim off the brackets and the whitespace.
+        """
         if len(str_parts) >= 3:
             # Handle a tag received as individual parts.
             trimmed_parts = str_parts[1:-1]
@@ -420,7 +420,7 @@ class JinjaTracer:
             trimmed_parts = trimmed_content.split()
         return trimmed_parts
 
-    def track_block_end(self, block_type: str, tag_name) -> None:
+    def track_block_end(self, block_type: str, tag_name: str) -> None:
         """On ending a 'for' or 'if' block, set up tracking."""
         if block_type == "block_end" and tag_name in (
             "endfor",
