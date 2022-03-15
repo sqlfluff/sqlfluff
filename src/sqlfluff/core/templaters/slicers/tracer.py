@@ -272,7 +272,7 @@ class JinjaTracer:
 
             unique_alternate_id = None
             alternate_code = None
-            trimmed_parts = []
+            tag_contents = []
             # raw_end and raw_begin behave a little differently in
             # that the whole tag shows up in one go rather than getting
             # parts of the tag at a time.
@@ -285,39 +285,18 @@ class JinjaTracer:
                     m_open = self.re_open_tag.search(str_parts[0])
                     m_close = self.re_close_tag.search(str_parts[-1])
                     if m_open and m_close:
-                        if len(str_parts) >= 3:
-                            # Handle a tag received as individual parts.
-                            trimmed_parts = str_parts[1:-1]
-                            if trimmed_parts[0].isspace():
-                                del trimmed_parts[0]
-                            if trimmed_parts[-1].isspace():
-                                del trimmed_parts[-1]
-                        else:
-                            # Handle a tag received in one go.
-                            trimmed_content = str_buff[
-                                len(m_open.group(0)) : -len(m_close.group(0))
-                            ]
-                            trimmed_parts = trimmed_content.split()
+                        tag_contents = self.extract_tag_contents(
+                            str_parts, m_close, m_open, str_buff
+                        )
 
-                    # :TRICKY: Syntactically, the Jinja {% include %} directive looks
-                    # like a block, but its behavior is basically syntactic sugar for
-                    # {{ open("somefile).read() }}. Thus, treat it as templated code.
-                    if block_type == "block" and trimmed_parts[0] == "include":
-                        block_type = "templated"
                     if block_type == "block":
-                        if trimmed_parts[0].startswith("end"):
-                            block_type = "block_end"
-                        elif trimmed_parts[0].startswith("el"):
-                            # else, elif
-                            block_type = "block_mid"
-                        else:
-                            block_type = "block_start"
-                            if trimmed_parts[0] == "for":
-                                block_subtype = "loop"
-                    else:
+                        block_type, block_subtype = self.extract_block_type(
+                            tag_contents, block_subtype
+                        )
+                    if block_type == "templated":
                         # For "templated", evaluate the content in case of side
                         # effects, but return a unique slice ID.
-                        if trimmed_parts:
+                        if tag_contents:
                             assert m_open and m_close
                             unique_id = self.next_slice_id()
                             unique_alternate_id = unique_id
@@ -325,9 +304,9 @@ class JinjaTracer:
                             close_ = m_close.group(1)
                             alternate_code = (
                                 f"\0{unique_alternate_id} {open_} "
-                                f"{''.join(trimmed_parts)} {close_}"
+                                f"{''.join(tag_contents)} {close_}"
                             )
-                self.update_inside_set_or_macro(block_type, trimmed_parts)
+                self.update_inside_set_or_macro(block_type, tag_contents)
                 m = regex.search(r"\s+$", raw, regex.MULTILINE | regex.DOTALL)
                 if raw.startswith("-") and m:
                     # Right whitespace was stripped. Split off the trailing
@@ -376,9 +355,45 @@ class JinjaTracer:
                     )
                     block_idx = len(self.raw_sliced) - 1
                     idx += len(str_buff)
-                self.update_next_slice_indices(block_idx, block_type, trimmed_parts)
+                self.update_next_slice_indices(block_idx, block_type, tag_contents)
                 str_buff = ""
                 str_parts = []
+
+    def extract_block_type(self, tag_contents, block_subtype):
+        """Determine block type."""
+        # :TRICKY: Syntactically, the Jinja {% include %}
+        # directive looks like a block, but its behavior is
+        # basically syntactic sugar for
+        # {{ open("somefile).read() }}. Thus, treat it as
+        # templated code.
+        tag_name = tag_contents[0]
+        if tag_name == "include":
+            block_type = "templated"
+        elif tag_name.startswith("end"):
+            block_type = "block_end"
+        elif tag_name.startswith("el"):
+            # else, elif
+            block_type = "block_mid"
+        else:
+            block_type = "block_start"
+            if tag_name == "for":
+                block_subtype = "loop"
+        return block_type, block_subtype
+
+    def extract_tag_contents(self, str_parts, m_close, m_open, str_buff):
+        """Given Jinja tag info, return the stuff inside the braces."""
+        if len(str_parts) >= 3:
+            # Handle a tag received as individual parts.
+            trimmed_parts = str_parts[1:-1]
+            if trimmed_parts[0].isspace():
+                del trimmed_parts[0]
+            if trimmed_parts[-1].isspace():
+                del trimmed_parts[-1]
+        else:
+            # Handle a tag received in one go.
+            trimmed_content = str_buff[len(m_open.group(0)) : -len(m_close.group(0))]
+            trimmed_parts = trimmed_content.split()
+        return trimmed_parts
 
     def update_next_slice_indices(self, block_idx, block_type, trimmed_parts):
         """Based on block, update conditional jump info."""
