@@ -374,7 +374,7 @@ def _create_table_ref(
     # The mutative change needs a position_marker
     position_marker = PositionMarker.from_point(
         position_marker.source_slice.start,
-        position_marker.templated_position()[0],
+        position_marker.templated_slice.start,
         position_marker.templated_file,
     )
     Seg = partial(_get_seg, dialect=dialect)
