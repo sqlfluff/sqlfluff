@@ -161,12 +161,12 @@ def _calculate_fixes(
         # We are preping a mutative change
         # I gather this is bad. We must provide a position marker
         # TODO: alternative to mutative change, Dummy pos markers
-        original_pos = this_seg[0].pos_marker
-        assert original_pos, "TypeGuard"
+
+        assert this_seg[0].pos_marker, "TypeGuard"
         mutations_buffer.append(
             (
                 this_seg[0],
-                _create_table_ref(alias_name, dialect, original_pos),
+                _create_table_ref(alias_name, dialect, this_seg[0].pos_marker),
             )
         )
         res = LintResult(
@@ -372,6 +372,11 @@ def _create_table_ref(
     table_name: str, dialect: Dialect, position_marker: PositionMarker
 ) -> TableExpressionSegment:
     # The mutative change needs a position_marker
+    position_marker = PositionMarker.from_point(
+        position_marker.source_slice.start,
+        position_marker.templated_position()[0],
+        position_marker.templated_file,
+    )
     Seg = partial(_get_seg, dialect=dialect)
     TableExpressionSeg = Seg(TableExpressionSegment)
     TableReferenceSeg = Seg(TableReferenceSegment)
