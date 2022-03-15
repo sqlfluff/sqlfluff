@@ -228,6 +228,21 @@ class JinjaTracer:
         else:
             return RawSliceInfo(None, None, [])
 
+    # We decide the "kind" of element we're dealing with using its _closing_
+    # tag rather than its opening tag. The types here map back to similar types
+    # of sections in the python slicer.
+    block_types = {
+        "variable_end": "templated",
+        "block_end": "block",
+        "comment_end": "comment",
+        # Raw tags should behave like blocks. Note that
+        # raw_end and raw_begin are whole tags rather
+        # than blocks and comments where we get partial
+        # tags.
+        "raw_end": "block",
+        "raw_begin": "block",
+    }
+
     def _slice_template(self) -> None:
         """Slice template in jinja.
 
@@ -236,39 +251,11 @@ class JinjaTracer:
         str_buff = ""
         str_parts = []
         idx = 0
-        # We decide the "kind" of element we're dealing with
-        # using it's _closing_ tag rather than it's opening
-        # tag. The types here map back to similar types of
-        # sections in the python slicer.
-        block_types = {
-            "variable_end": "templated",
-            "block_end": "block",
-            "comment_end": "comment",
-            # Raw tags should behave like blocks. Note that
-            # raw_end and raw_begin are whole tags rather
-            # than blocks and comments where we get partial
-            # tags.
-            "raw_end": "block",
-            "raw_begin": "block",
-        }
 
         # https://jinja.palletsprojects.com/en/2.11.x/api/#jinja2.Environment.lex
-        unique_alternate_id: Optional[str]
-        alternate_code: Optional[str]
         for _, elem_type, raw in self.env.lex(self.raw_str):
-            # Replace literal text with a unique ID.
             if elem_type == "data":
-                self.raw_sliced.append(
-                    RawFileSlice(
-                        raw,
-                        "literal",
-                        idx,
-                    )
-                )
-                self.raw_slice_info[self.raw_sliced[-1]] = self.slice_info_for_literal(
-                    len(raw), ""
-                )
-                idx += len(raw)
+                idx = self.track_literal(raw, idx)
                 continue
             str_buff += raw
             str_parts.append(raw)
@@ -276,14 +263,14 @@ class JinjaTracer:
             if elem_type.endswith("_begin"):
                 idx = self.handle_left_whitespace_stripping(idx, raw)
 
-            unique_alternate_id = None
-            alternate_code = None
+            unique_alternate_id: Optional[str] = None
+            alternate_code: Optional[str] = None
             tag_contents = []
             # raw_end and raw_begin behave a little differently in
             # that the whole tag shows up in one go rather than getting
             # parts of the tag at a time.
             if elem_type.endswith("_end") or elem_type == "raw_begin":
-                block_type = block_types[elem_type]
+                block_type = self.block_types[elem_type]
                 block_subtype = None
                 # Handle starts and ends of blocks
                 if block_type in ("block", "templated"):
@@ -299,19 +286,11 @@ class JinjaTracer:
                         block_type, block_subtype = self.extract_block_type(
                             tag_contents, block_subtype
                         )
-                    if block_type == "templated":
-                        # For "templated", evaluate the content in case of side
-                        # effects, but return a unique slice ID.
-                        if tag_contents:
-                            assert m_open and m_close
-                            unique_id = self.next_slice_id()
-                            unique_alternate_id = unique_id
-                            open_ = m_open.group(1)
-                            close_ = m_close.group(1)
-                            alternate_code = (
-                                f"\0{unique_alternate_id} {open_} "
-                                f"{''.join(tag_contents)} {close_}"
-                            )
+                    if block_type == "templated" and tag_contents:
+                        assert m_open and m_close
+                        unique_alternate_id, alternate_code = self.track_templated(
+                            m_open, m_close, tag_contents
+                        )
                 self.update_inside_set_or_macro(block_type, tag_contents)
                 m = regex.search(r"\s+$", raw, regex.MULTILINE | regex.DOTALL)
                 if raw.startswith("-") and m:
@@ -368,6 +347,37 @@ class JinjaTracer:
                     )
                 str_buff = ""
                 str_parts = []
+
+    def track_templated(
+        self, m_open: regex.Match, m_close: regex.Match, tag_contents: List[str]
+    ):
+        """Compute tracking info for Jinja templated region, e.g. {{ foo }}."""
+        unique_alternate_id = self.next_slice_id()
+        open_ = m_open.group(1)
+        close_ = m_close.group(1)
+        # Here, we still need to evaluate the original tag contents, e.g. in
+        # case it has intentional side effects, but also return a slice ID
+        # for tracking.
+        alternate_code = (
+            f"\0{unique_alternate_id} {open_} " f"{''.join(tag_contents)} {close_}"
+        )
+        return unique_alternate_id, alternate_code
+
+    def track_literal(self, raw: str, idx: int) -> int:
+        """Set up tracking for a Jinja literal."""
+        self.raw_sliced.append(
+            RawFileSlice(
+                raw,
+                "literal",
+                idx,
+            )
+        )
+        # Replace literal text with a unique ID.
+        self.raw_slice_info[self.raw_sliced[-1]] = self.slice_info_for_literal(
+            len(raw), ""
+        )
+        idx += len(raw)
+        return idx
 
     @staticmethod
     def extract_block_type(tag_contents, block_subtype):
