@@ -62,10 +62,18 @@ class FixPatch:
     # generated. It has no significance for processing.
     patch_category: str
 
-    def get_source_slice(self, templated_file: TemplatedFile):
-        """Attempt to convert from templated to source space."""
-        return templated_file.templated_slice_to_source_slice(
+    def enrich(self, templated_file: TemplatedFile) -> "EnrichedFixPatch":
+        """Convert patch to source space."""
+        source_slice = templated_file.templated_slice_to_source_slice(
             self.templated_slice,
+        )
+        return EnrichedFixPatch(
+            source_slice=source_slice,
+            templated_slice=self.templated_slice,
+            patch_category=self.patch_category,
+            fixed_raw=self.fixed_raw,
+            templated_str=templated_file.templated_str[self.templated_slice],
+            source_str=templated_file.source_str[source_slice],
         )
 
 
@@ -77,9 +85,9 @@ class EnrichedFixPatch(FixPatch):
     templated_str: str
     source_str: str
 
-    def get_source_slice(self, templated_file: TemplatedFile):
-        """Return source_slice. Base function for subclasses to override."""
-        return self.source_slice
+    def enrich(self, templated_file: TemplatedFile) -> "EnrichedFixPatch":
+        """No-op override of base class function."""
+        return self
 
     def dedupe_tuple(self):
         """Generate a tuple of this fix for deduping."""

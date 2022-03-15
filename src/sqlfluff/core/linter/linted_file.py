@@ -286,7 +286,7 @@ class LintedFile(NamedTuple):
 
             # Get source_slice.
             try:
-                source_slice = patch.get_source_slice(self.templated_file)
+                enriched_patch = patch.enrich(self.templated_file)
             except ValueError:  # pragma: no cover
                 linter_logger.info(
                     "      - Skipping. Source space Value Error. i.e. attempted "
@@ -297,10 +297,10 @@ class LintedFile(NamedTuple):
                 continue
 
             # Check for duplicates
-            dedupe_tuple = (source_slice, patch.fixed_raw)
-            if dedupe_tuple in dedupe_buffer:
+            if enriched_patch.dedupe_tuple() in dedupe_buffer:
                 linter_logger.info(
-                    "      - Skipping. Source space Duplicate: %s", dedupe_tuple
+                    "      - Skipping. Source space Duplicate: %s",
+                    enriched_patch.dedupe_tuple(),
                 )
                 continue
 
@@ -314,24 +314,9 @@ class LintedFile(NamedTuple):
 
             # Get the affected raw slices.
             local_raw_slices = self.templated_file.raw_slices_spanning_source_slice(
-                source_slice
+                enriched_patch.source_slice
             )
             local_type_list = [slc.slice_type for slc in local_raw_slices]
-
-            enriched_patch: EnrichedFixPatch
-            if isinstance(patch, EnrichedFixPatch):
-                enriched_patch = patch
-            else:
-                enriched_patch = EnrichedFixPatch(
-                    source_slice=source_slice,
-                    templated_slice=patch.templated_slice,
-                    patch_category=patch.patch_category,
-                    fixed_raw=patch.fixed_raw,
-                    templated_str=self.templated_file.templated_str[
-                        patch.templated_slice
-                    ],
-                    source_str=self.templated_file.source_str[source_slice],
-                )
 
             # Deal with the easy cases of 1) New code at end 2) only literals
             if not local_type_list or set(local_type_list) == {"literal"}:
