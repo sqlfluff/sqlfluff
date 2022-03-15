@@ -31,7 +31,8 @@ from sqlfluff.core.parser import (
     SymbolSegment,
     Anything,
     StartsWith,
-    RegexParser, SegmentGenerator,
+    RegexParser,
+    SegmentGenerator,
 )
 from sqlfluff.core.parser.segments.raw import CodeSegment, KeywordSegment
 from sqlfluff.dialects.dialect_spark3_keywords import (
