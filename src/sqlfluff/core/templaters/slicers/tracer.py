@@ -84,7 +84,7 @@ class JinjaTracer:
                     "format."
                 )
             if m_id.group(3):
-                # E.g. "2e8577c1d045439ba8d3b9bf47561de3_83". The number after
+                # E.g. "00000000000000000000000000000001_83". The number after
                 # "_" is the length (in characters) of a corresponding literal
                 # in raw_str.
                 value = [m_id.group(1), int(m_id.group(3)), True]
@@ -215,7 +215,7 @@ class JinjaTracer:
         # https://jinja.palletsprojects.com/en/2.11.x/api/#jinja2.Environment.lex
         stack = []
         result = []
-        set_idx = None
+        inside_set_or_macro: bool = False
         unique_alternate_id: Optional[str]
         alternate_code: Optional[str]
         for _, elem_type, raw in self.env.lex(self.raw_str):
@@ -228,10 +228,8 @@ class JinjaTracer:
                         idx,
                     )
                 )
-                if set_idx is None:
-                    rsi = self.slice_info_for_literal(
-                        len(raw), "" if set_idx is None else "set"
-                    )
+                if not inside_set_or_macro:
+                    rsi = self.slice_info_for_literal(len(raw), "")
                 else:
                     # For "set" blocks, don't generate alternate ID or code.
                     # Sometimes, dbt users use {% set %} blocks to generate
@@ -337,7 +335,7 @@ class JinjaTracer:
                             # generate queries that get sent to actual
                             # databases, thus causing errors if we tamper with
                             # it.
-                            if set_idx is None:
+                            if not inside_set_or_macro:
                                 unique_id = self.next_slice_id()
                                 unique_alternate_id = unique_id
                                 open_ = m_open.group(1)
@@ -354,10 +352,10 @@ class JinjaTracer:
                     # - {% set variable = value %}
                     # - {% set variable %}value{% endset %}
                     # https://jinja.palletsprojects.com/en/2.10.x/templates/#block-assignments
-                    # When the second format is used, set the variable 'set_idx'
-                    # to a non-None value. This info is used elsewhere, as
-                    # literals inside a {% set %} block require special handling
-                    # during the trace.
+                    # When the second format is used, set the variable
+                    # 'inside_set_or_macro' to True. This info is used
+                    # elsewhere, as literals inside a {% set %} block require
+                    # special handling during the trace.
                     filtered_trimmed_parts = [
                         p for p in trimmed_parts if not p.isspace()
                     ]
@@ -365,14 +363,14 @@ class JinjaTracer:
                         len(filtered_trimmed_parts) < 3
                         or filtered_trimmed_parts[2] != "="
                     ):
-                        set_idx = len(result)
+                        inside_set_or_macro = True
                 elif (
                     block_type == "block_end"
-                    and set_idx is not None
+                    and inside_set_or_macro
                     and (trimmed_parts[0] in ("endmacro", "endset"))
                 ):
                     # Exiting a {% set %} block. Clear the indicator variable.
-                    set_idx = None
+                    inside_set_or_macro = False
                 m = regex.search(r"\s+$", raw, regex.MULTILINE | regex.DOTALL)
                 if raw.startswith("-") and m:
                     # Right whitespace was stripped. Split off the trailing
@@ -433,7 +431,7 @@ class JinjaTracer:
                     stack.append(block_idx)
                 elif (
                     block_type == "block_end"
-                    and set_idx is None
+                    and not inside_set_or_macro
                     and trimmed_parts[0]
                     in (
                         "endfor",
