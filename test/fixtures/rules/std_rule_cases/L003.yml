@@ -663,6 +663,30 @@ test_tsql_function:
     core:
       dialect: tsql
 
+test_stable_jinja_loop:
+  fail_str: |
+    {% for t in ['table_a', 'table_b'] %}
+        SELECT
+            column_a,
+            column_b
+        FROM {{ t }}
+            {% if not loop.last %} 
+                UNION ALL
+            {% endif %}
+    {% endfor %}
+    ;
+  fix_str: |
+    {% for t in ['table_a', 'table_b'] %}
+        SELECT
+            column_a,
+            column_b
+        FROM {{ t }}
+        {% if not loop.last %} 
+            UNION ALL
+        {% endif %}
+    {% endfor %}
+    ;
+
 test_pass_ignore_templated_whitespace:
   pass_str: |
     SELECT
