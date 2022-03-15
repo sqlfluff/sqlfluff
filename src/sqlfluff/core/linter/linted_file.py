@@ -203,9 +203,7 @@ class LintedFile(NamedTuple):
         return not any(self.get_violations(filter_ignore=True))
 
     @staticmethod
-    def _log_hints(
-        patch: Union[EnrichedFixPatch, FixPatch], templated_file: TemplatedFile
-    ):
+    def _log_hints(patch: FixPatch, templated_file: TemplatedFile):
         """Log hints for debugging during patch generation."""
         # This next bit is ALL FOR LOGGING AND DEBUGGING
         max_log_length = 10
@@ -279,29 +277,24 @@ class LintedFile(NamedTuple):
         dedupe_buffer = []
         # We use enumerate so that we get an index for each patch. This is entirely
         # so when debugging logs we can find a given patch again!
-        patch: Union[EnrichedFixPatch, FixPatch]
+        patch: FixPatch  # Could be FixPatch or its subclass, EnrichedFixPatch
         for idx, patch in enumerate(
-            self.tree.iter_patches(templated_str=self.templated_file.templated_str)
+            self.tree.iter_patches(templated_file=self.templated_file)
         ):
             linter_logger.debug("  %s Yielded patch: %s", idx, patch)
             self._log_hints(patch, self.templated_file)
 
-            # Get source_slice if provided. Otherise, Attempt to convert from
-            # templated to source space.
-            source_slice = getattr(patch, "source_slice", None)
-            if source_slice is None:
-                try:
-                    source_slice = self.templated_file.templated_slice_to_source_slice(
-                        patch.templated_slice,
-                    )
-                except ValueError:  # pragma: no cover
-                    linter_logger.info(
-                        "      - Skipping. Source space Value Error. i.e. attempted "
-                        "insertion within templated section."
-                    )
-                    # If we try and slice within a templated section, then we may fail
-                    # in which case, we should skip this patch.
-                    continue
+            # Get source_slice.
+            try:
+                source_slice = patch.get_source_slice(self.templated_file)
+            except ValueError:  # pragma: no cover
+                linter_logger.info(
+                    "      - Skipping. Source space Value Error. i.e. attempted "
+                    "insertion within templated section."
+                )
+                # If we try and slice within a templated section, then we may fail
+                # in which case, we should skip this patch.
+                continue
 
             # Check for duplicates
             dedupe_tuple = (source_slice, patch.fixed_raw)
@@ -325,14 +318,20 @@ class LintedFile(NamedTuple):
             )
             local_type_list = [slc.slice_type for slc in local_raw_slices]
 
-            enriched_patch = EnrichedFixPatch(
-                source_slice=source_slice,
-                templated_slice=patch.templated_slice,
-                patch_category=patch.patch_category,
-                fixed_raw=patch.fixed_raw,
-                templated_str=self.templated_file.templated_str[patch.templated_slice],
-                source_str=self.templated_file.source_str[source_slice],
-            )
+            enriched_patch: EnrichedFixPatch
+            if isinstance(patch, EnrichedFixPatch):
+                enriched_patch = patch
+            else:
+                enriched_patch = EnrichedFixPatch(
+                    source_slice=source_slice,
+                    templated_slice=patch.templated_slice,
+                    patch_category=patch.patch_category,
+                    fixed_raw=patch.fixed_raw,
+                    templated_str=self.templated_file.templated_str[
+                        patch.templated_slice
+                    ],
+                    source_str=self.templated_file.source_str[source_slice],
+                )
 
             # Deal with the easy cases of 1) New code at end 2) only literals
             if not local_type_list or set(local_type_list) == {"literal"}:

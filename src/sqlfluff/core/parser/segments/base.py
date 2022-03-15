@@ -20,7 +20,6 @@ from typing import (
     Optional,
     List,
     Tuple,
-    NamedTuple,
     Iterator,
     Union,
 )
@@ -46,12 +45,14 @@ from sqlfluff.core.parser.helpers import (
 from sqlfluff.core.parser.matchable import Matchable
 from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.parser.context import ParseContext
+from sqlfluff.core.templaters.base import TemplatedFile
 
 # Instantiate the linter logger (only for use in methods involved with fixing.)
 linter_logger = logging.getLogger("sqlfluff.linter")
 
 
-class FixPatch(NamedTuple):
+@dataclass
+class FixPatch:
     """An edit patch for a templated file."""
 
     templated_slice: slice
@@ -61,19 +62,24 @@ class FixPatch(NamedTuple):
     # generated. It has no significance for processing.
     patch_category: str
 
+    def get_source_slice(self, templated_file: TemplatedFile):
+        """Attempt to convert from templated to source space."""
+        return templated_file.templated_slice_to_source_slice(
+            self.templated_slice,
+        )
 
-class EnrichedFixPatch(NamedTuple):
+
+@dataclass
+class EnrichedFixPatch(FixPatch):
     """An edit patch for a source file."""
 
     source_slice: slice
-    templated_slice: slice
-    fixed_raw: str
-    # The patch category, functions mostly for debugging and explanation
-    # than for function. It allows traceability of *why* this patch was
-    # generated.
-    patch_category: str
     templated_str: str
     source_str: str
+
+    def get_source_slice(self, templated_file: TemplatedFile):
+        """Return source_slice. Base function for subclasses to override."""
+        return self.source_slice
 
     def dedupe_tuple(self):
         """Generate a tuple of this fix for deduping."""
@@ -1205,7 +1211,7 @@ class BaseSegment:
         linter_logger.critical(message, *args)
 
     def iter_patches(
-        self, templated_str: str
+        self, templated_file: TemplatedFile
     ) -> Iterator[Union[EnrichedFixPatch, FixPatch]]:
         """Iterate through the segments generating fix patches.
 
@@ -1218,6 +1224,7 @@ class BaseSegment:
         """
         # Does it match? If so we can ignore it.
         assert self.pos_marker
+        templated_str = templated_file.templated_str
         matches = self.raw == templated_str[self.pos_marker.templated_slice]
         if matches:
             return
@@ -1286,7 +1293,7 @@ class BaseSegment:
                     insert_buff = ""
 
                 # Now we deal with any changes *within* the segment itself.
-                yield from segment.iter_patches(templated_str=templated_str)
+                yield from segment.iter_patches(templated_file=templated_file)
 
                 # Once we've dealt with any patches from the segment, update
                 # our position markers.
@@ -1304,17 +1311,14 @@ class BaseSegment:
                 # By returning an EnrichedFixPatch (rather than FixPatch), which
                 # includes a source_slice field, we ensure that fixes adjacent
                 # to source-only slices (e.g. {% endif %}) are placed
-                # appropriately relative to source-only slices..
+                # appropriately relative to source-only slices.
                 yield EnrichedFixPatch(
                     source_slice=source_slice,
                     templated_slice=templated_slice,
                     patch_category="end_point",
                     fixed_raw=insert_buff,
-                    # TODO: We could provide templated_str and source_str if we
-                    # had access to the TemplatedFile -- just use the slices
-                    # above.
-                    templated_str="",
-                    source_str="",
+                    templated_str=templated_file.templated_str[templated_slice],
+                    source_str=templated_file.source_str[source_slice],
                 )
 
     def edit(self, raw):
