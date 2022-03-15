@@ -222,7 +222,7 @@ class JinjaTracer:
         alternate_code: Optional[str],
         next_slice_indices: List[int],
     ) -> RawSliceInfo:
-        """Factory function. Returns "empty" info when in set/macro block."""
+        """Create RawSliceInfo as given, or "empty" if in set/macro block."""
         if not self.inside_set_or_macro:
             return RawSliceInfo(unique_alternate_id, alternate_code, next_slice_indices)
         else:
@@ -255,7 +255,6 @@ class JinjaTracer:
         # https://jinja.palletsprojects.com/en/2.11.x/api/#jinja2.Environment.lex
         unique_alternate_id: Optional[str]
         alternate_code: Optional[str]
-
         for _, elem_type, raw in self.env.lex(self.raw_str):
             # Replace literal text with a unique ID.
             if elem_type == "data":
@@ -362,17 +361,19 @@ class JinjaTracer:
                     )
                     block_idx = len(self.raw_sliced) - 1
                     idx += len(str_buff)
-                self.update_next_slice_indices(block_idx, block_type, tag_contents)
+                if block_type.startswith("block"):
+                    self.track_block_end(block_type, tag_contents[0])
+                    self.update_next_slice_indices(
+                        block_idx, block_type, tag_contents[0]
+                    )
                 str_buff = ""
                 str_parts = []
 
     def extract_block_type(self, tag_contents, block_subtype):
         """Determine block type."""
-        # :TRICKY: Syntactically, the Jinja {% include %}
-        # directive looks like a block, but its behavior is
-        # basically syntactic sugar for
-        # {{ open("somefile).read() }}. Thus, treat it as
-        # templated code.
+        # :TRICKY: Syntactically, the Jinja {% include %} directive looks like
+        # a block, but its behavior is basically syntactic sugar for
+        # {{ open("somefile).read() }}. Thus, treat it as templated code.
         tag_name = tag_contents[0]
         if tag_name == "include":
             block_type = "templated"
@@ -408,23 +409,9 @@ class JinjaTracer:
             trimmed_parts = trimmed_content.split()
         return trimmed_parts
 
-    def update_next_slice_indices(
-        self, block_idx: int, block_type: str, trimmed_parts: List[str]
-    ) -> None:
-        """Based on block, update conditional jump info."""
-        if block_type == "block_start" and trimmed_parts[0] in (
-            "for",
-            "if",
-        ):
-            self.stack.append(block_idx)
-        elif block_type == "block_mid":
-            # Record potential forward jump over this block.
-            self.raw_slice_info[
-                self.raw_sliced[self.stack[-1]]
-            ].next_slice_indices.append(block_idx)
-            self.stack.pop()
-            self.stack.append(block_idx)
-        elif block_type == "block_end" and trimmed_parts[0] in (
+    def track_block_end(self, block_type: str, tag_name) -> None:
+        """On ending a 'for' or 'if' block, set up tracking."""
+        if block_type == "block_end" and tag_name in (
             "endfor",
             "endif",
         ):
@@ -438,6 +425,27 @@ class JinjaTracer:
             self.raw_slice_info[self.raw_sliced[-1]] = self.make_raw_slice_info(
                 unique_alternate_id, alternate_code, []
             )
+
+    def update_next_slice_indices(
+        self, block_idx: int, block_type: str, tag_name: str
+    ) -> None:
+        """Based on block, update conditional jump info."""
+        if block_type == "block_start" and tag_name in (
+            "for",
+            "if",
+        ):
+            self.stack.append(block_idx)
+        elif block_type == "block_mid":
+            # Record potential forward jump over this block.
+            self.raw_slice_info[
+                self.raw_sliced[self.stack[-1]]
+            ].next_slice_indices.append(block_idx)
+            self.stack.pop()
+            self.stack.append(block_idx)
+        elif block_type == "block_end" and tag_name in (
+            "endfor",
+            "endif",
+        ):
             if not self.inside_set_or_macro:
                 # Record potential forward jump over this block.
                 self.raw_slice_info[
