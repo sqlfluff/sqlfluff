@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: db2d3263e557aa79b15730dbff10eca20415dd10963a31c5940cdd6f6ed2f749
+_hash: 974e2e6b6a373b52501a90129dbc0866997f2ae51fbf8e6a9691f15d0002a820
 file:
   statement:
     create_scripting_lua_script:
@@ -22,10 +22,9 @@ file:
     - keyword: AS
     - script_content:
       - raw: import
-      - bracketed:
-          start_bracket: (
-          raw: "'function_lib'"
-          end_bracket: )
+      - raw: (
+      - raw: "'function_lib'"
+      - raw: )
       - raw: lowest
       - comma: ','
       - raw: highest
@@ -33,27 +32,25 @@ file:
       - raw: function_lib
       - raw: .
       - raw: min_max
-      - bracketed:
-        - start_bracket: (
-        - raw: param1
-        - comma: ','
-        - raw: param2
-        - comma: ','
-        - raw: param3
-        - end_bracket: )
+      - raw: (
+      - raw: param1
+      - comma: ','
+      - raw: param2
+      - comma: ','
+      - raw: param3
+      - raw: )
       - raw: query
-      - bracketed:
-        - start_bracket: (
-        - raw: '[[INSERT INTO t VALUES (:x, :y)]]'
-        - comma: ','
-        - start_curly_bracket: '{'
-        - raw: x
-        - raw: '='
-        - raw: lowest
-        - comma: ','
-        - raw: y
-        - raw: '='
-        - raw: highest
-        - end_curly_bracket: '}'
-        - end_bracket: )
-  function_script_terminator: /
+      - raw: (
+      - raw: '[[INSERT INTO t VALUES (:x, :y)]]'
+      - comma: ','
+      - raw: '{'
+      - raw: x
+      - raw: '='
+      - raw: lowest
+      - comma: ','
+      - raw: y
+      - raw: '='
+      - raw: highest
+      - raw: '}'
+      - raw: )
+      - function_script_terminator: /

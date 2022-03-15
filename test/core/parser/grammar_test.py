@@ -576,7 +576,7 @@ def test__parser__grammar_sequence_indent_conditional(seg_list, caplog):
         (["bar", " \t ", ".", "    ", "bar", "    "], None, True, False, 6),
         # Testing allow_trailing
         (["bar", " \t ", ".", "   "], None, True, False, 0),
-        (["bar", " \t ", ".", "   "], None, True, True, 3),
+        (["bar", " \t ", ".", "   "], None, True, True, 4),
         # Testing the implications of allow_gaps
         (["bar", " \t ", ".", "    ", "bar"], 0, True, False, 5),
         (["bar", " \t ", ".", "    ", "bar"], 0, False, False, 1),

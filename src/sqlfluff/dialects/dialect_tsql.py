@@ -1231,7 +1231,7 @@ class GoStatementSegment(BaseSegment):
     """
 
     type = "go_statement"
-    match_grammar = Sequence("GO")
+    match_grammar = Ref.keyword("GO")
 
 
 @tsql_dialect.segment(replace=True)
@@ -3235,7 +3235,6 @@ class MergeMatchSegment(BaseSegment):
         ),
         Ref("OutputClauseSegment", optional=True),
         Ref("OptionClauseSegment", optional=True),
-        AnyNumberOf(Ref("DelimiterSegment"), optional=True),
     )
 
 

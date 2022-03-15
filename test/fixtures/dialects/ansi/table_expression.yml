@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d96f910a3e8d6927bd4824a617c9715e42dc1b9d22aba73274bce738dea8cf2e
+_hash: 65dd770b0d99c89c8bbbf0f377159e6cabc5a3e81052f840a68b2a53280bdc80
 file:
 - statement:
     select_statement:
@@ -54,10 +54,10 @@ file:
           column_reference:
             identifier: name
       from_clause:
-        keyword: FROM
-        from_expression:
+      - keyword: FROM
+      - from_expression:
           from_expression_element:
-            table_expression:
+          - table_expression:
               function:
                 function_name:
                   function_name_identifier: UNNEST
@@ -76,28 +76,40 @@ file:
                         literal: '3'
                     - end_square_bracket: ']'
                   end_bracket: )
-            alias_expression:
+          - alias_expression:
               identifier: id
-        unparsable:
-        - raw: WITH
-        - raw: OFFSET
-        - raw: pos1
-        - comma: ','
-        - raw: UNNEST
-        - bracketed:
-          - start_bracket: (
-          - start_square_bracket: '['
-          - raw: "'a'"
-          - comma: ','
-          - raw: "'b'"
-          - comma: ','
-          - raw: "'c'"
-          - end_square_bracket: ']'
-          - end_bracket: )
-        - raw: name
-        - raw: WITH
-        - raw: OFFSET
-        - raw: pos2
+          - keyword: WITH
+          - keyword: OFFSET
+          - alias_expression:
+              identifier: pos1
+      - comma: ','
+      - from_expression:
+          from_expression_element:
+          - table_expression:
+              function:
+                function_name:
+                  function_name_identifier: UNNEST
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    array_literal:
+                    - start_square_bracket: '['
+                    - expression:
+                        literal: "'a'"
+                    - comma: ','
+                    - expression:
+                        literal: "'b'"
+                    - comma: ','
+                    - expression:
+                        literal: "'c'"
+                    - end_square_bracket: ']'
+                  end_bracket: )
+          - alias_expression:
+              identifier: name
+          - keyword: WITH
+          - keyword: OFFSET
+          - alias_expression:
+              identifier: pos2
       where_clause:
         keyword: WHERE
         expression:

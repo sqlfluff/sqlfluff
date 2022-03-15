@@ -75,6 +75,7 @@ RESERVED_KEYWORDS = [
     "FROM",
     "FULL",
     "FUNCTION",
+    "GO",
     "GOTO",
     "GRANT",
     "GROUP",
@@ -247,7 +248,6 @@ UNRESERVED_KEYWORDS = [
     "FORCEPLAN",
     "FORCESCAN",
     "FORCESEEK",
-    "GO",
     "HASH",
     "HEAP",  # Azure Synapse Analytics specific
     "HIDDEN",

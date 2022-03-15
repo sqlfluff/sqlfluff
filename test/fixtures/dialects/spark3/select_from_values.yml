@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 46f24fca3fa4fd6a2ea62ee21448e93e801ea77cf49b21b89723e4347dbe6e15
+_hash: 9540caee0a335cf8be43a620fb888f899cc0d22c4cb4b96c3b96c5aeb46b8be5
 file:
 - statement:
     select_statement:
@@ -176,19 +176,16 @@ file:
             wildcard_identifier:
               star: '*'
       from_clause:
-      - keyword: from
-      - from_expression:
+        keyword: from
+        from_expression:
           from_expression_element:
             table_expression:
-              values_clause:
+            - values_clause:
                 keyword: values
                 expression:
                   literal: '1'
-      - comma: ','
-      - from_expression:
-          from_expression_element:
-            table_expression:
-              values_clause:
+            - comma: ','
+            - values_clause:
                 keyword: values
                 expression:
                   literal: '2'
@@ -589,4 +586,143 @@ file:
                 - comma: ','
                 - identifier: b
                 end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              values_clause:
+              - keyword: values
+              - expression:
+                  literal: '1'
+              - comma: ','
+              - expression:
+                  literal: '2'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              values_clause:
+              - keyword: values
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                    literal: '1'
+                - comma: ','
+                - expression:
+                    literal: '2'
+                - end_bracket: )
+              - comma: ','
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                    literal: '3'
+                - comma: ','
+                - expression:
+                    literal: '4'
+                - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+            - values_clause:
+              - keyword: values
+              - expression:
+                  literal: '1'
+              - comma: ','
+              - expression:
+                  literal: '2'
+            - comma: ','
+            - values_clause:
+              - keyword: values
+              - expression:
+                  literal: '3'
+              - comma: ','
+              - expression:
+                  literal: '4'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              values_clause:
+              - keyword: values
+              - bracketed:
+                  start_bracket: (
+                  expression:
+                    literal: '1'
+                  end_bracket: )
+              - comma: ','
+              - bracketed:
+                  start_bracket: (
+                  expression:
+                    literal: '2'
+                  end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+            - values_clause:
+              - keyword: values
+              - expression:
+                  literal: '1'
+              - comma: ','
+              - expression:
+                  literal: '2'
+            - comma: ','
+            - values_clause:
+              - keyword: values
+              - expression:
+                  literal: '3'
+              - comma: ','
+              - expression:
+                  literal: '4'
 - statement_terminator: ;

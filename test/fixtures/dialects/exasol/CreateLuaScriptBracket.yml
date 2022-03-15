@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 67d918930d504d591c4aa1f56f6644788a35303a8e42c7b66b33cdd3d24cb272
+_hash: 9171076faff80dca1f300705480856c8cb4840f393068efbedcff39eaf47f3f3
 file:
   statement:
     create_scripting_lua_script:
@@ -39,4 +39,4 @@ file:
       - raw: '[=[one ([[two]] one]=]'
       - raw: return
       - raw: '1'
-  function_script_terminator: /
+      - function_script_terminator: /

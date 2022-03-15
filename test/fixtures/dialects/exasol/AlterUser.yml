@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 09cac24d838ff2e01aa0de058add62e06e435169f48a6ff35717d4e22fe40612
+_hash: 1f3cf9cfc7ce37a8561888aa40b051445962db12465583b07db1b53f2376e831
 file:
 - statement:
     alter_user:
@@ -124,13 +124,13 @@ file:
 - statement_terminator: ;
 - statement:
     alter_user:
-      unparsable:
-      - keyword: ALTER
-      - keyword: USER
-      - raw: oidctestuser
-      - raw: IDENTIFIED
-      - raw: BY
-      - raw: OPENID
-      - raw: SUBJECT
-      - raw: "'database-user@exasol.example'"
+    - keyword: ALTER
+    - keyword: USER
+    - identifier: oidctestuser
+    - keyword: IDENTIFIED
+    - openid_auth:
+      - keyword: BY
+      - keyword: OPENID
+      - keyword: SUBJECT
+      - literal: "'database-user@exasol.example'"
 - statement_terminator: ;

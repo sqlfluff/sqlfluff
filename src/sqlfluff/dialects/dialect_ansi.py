@@ -452,7 +452,7 @@ ansi_dialect.add(
         "WHERE",
         Sequence("ORDER", "BY"),
         "LIMIT",
-        Ref("CommaSegment"),
+        "OVERLAPS",
         Ref("SetOperatorSegment"),
     ),
     # Define these as grammars to allow child dialects to enable them (since they are
@@ -1291,12 +1291,7 @@ class SelectClauseElementSegment(BaseSegment):
 
     type = "select_clause_element"
     # Important to split elements before parsing, otherwise debugging is really hard.
-    match_grammar = GreedyUntil(
-        Ref("SelectClauseElementTerminatorGrammar"),
-        enforce_whitespace_preceding_terminator=False,
-    )
-
-    parse_grammar = OneOf(
+    match_grammar = OneOf(
         # *, blah.*, blah.blah.*, etc.
         Ref("WildcardExpressionSegment"),
         Sequence(
@@ -2312,11 +2307,7 @@ class MergeStatementSegment(BaseSegment):
     """A `MERGE` statement."""
 
     type = "merge_statement"
-    match_grammar = StartsWith(
-        Ref("MergeIntoLiteralGrammar"),
-    )
-    # Note separate `match_grammar` as overridden in other dialects.
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         Ref("MergeIntoLiteralGrammar"),
         Indent,
         OneOf(

@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b47e36674469544370e91ea0fe771fe20ce431b2c08794420b35919addfaaa34
+_hash: 480f7a534e32f2afab3e0fd3fa08a27c8379344bf2943bda29de37bda383342e
 file:
-- statement:
+  statement:
     create_udf_script:
     - keyword: CREATE
     - keyword: LUA
@@ -37,10 +37,9 @@ file:
     - script_content:
       - raw: function
       - raw: run
-      - bracketed:
-          start_bracket: (
-          raw: ctx
-          end_bracket: )
+      - raw: (
+      - raw: ctx
+      - raw: )
       - raw: if
       - raw: ctx
       - raw: .
@@ -60,56 +59,43 @@ file:
       - raw: 'NULL'
       - raw: end
       - raw: return
-      - bracketed:
-        - start_bracket: (
-        - raw: ctx
-        - raw: .
-        - raw: a
-        - raw: +
-        - raw: ctx
-        - raw: .
-        - raw: b
-        - end_bracket: )
+      - raw: (
+      - raw: ctx
+      - raw: .
+      - raw: a
+      - raw: +
+      - raw: ctx
+      - raw: .
+      - raw: b
+      - raw: )
       - raw: /
       - raw: '2'
       - raw: end
-- function_script_terminator: /
-- statement:
-    create_udf_script:
-    - keyword: CREATE
-    - keyword: LUA
-    - keyword: SCALAR
-    - keyword: SCRIPT
-    - script_reference:
-        identifier: my_average
-    - bracketed:
-      - start_bracket: (
-      - column_datatype_definition:
-          identifier: a
-          data_type:
-            keyword: DOUBLE
+      - function_script_terminator: /
+      - raw: CREATE
+      - raw: LUA
+      - raw: SCALAR
+      - raw: SCRIPT
+      - raw: my_average
+      - raw: (
+      - raw: a
+      - raw: DOUBLE
       - comma: ','
-      - column_datatype_definition:
-          identifier: b
-          data_type:
-            keyword: DOUBLE
-      - orderby_clause:
-        - keyword: ORDER
-        - keyword: BY
-        - literal: '1'
-        - keyword: desc
-      - end_bracket: )
-    - keyword: RETURNS
-    - data_type:
-        keyword: DOUBLE
-    - keyword: AS
-    - script_content:
+      - raw: b
+      - raw: DOUBLE
+      - raw: ORDER
+      - raw: BY
+      - raw: '1'
+      - raw: desc
+      - raw: )
+      - raw: RETURNS
+      - raw: DOUBLE
+      - raw: AS
       - raw: function
       - raw: run
-      - bracketed:
-          start_bracket: (
-          raw: ctx
-          end_bracket: )
+      - raw: (
+      - raw: ctx
+      - raw: )
       - raw: if
       - raw: ctx
       - raw: .
@@ -134,17 +120,16 @@ file:
       - raw: /
       - raw: '2'
       - raw: return
-      - bracketed:
-        - start_bracket: (
-        - raw: ctx
-        - raw: .
-        - raw: a
-        - raw: +
-        - raw: ctx
-        - raw: .
-        - raw: b
-        - end_bracket: )
+      - raw: (
+      - raw: ctx
+      - raw: .
+      - raw: a
+      - raw: +
+      - raw: ctx
+      - raw: .
+      - raw: b
+      - raw: )
       - raw: /
       - raw: '2'
       - raw: end
-- function_script_terminator: /
+      - function_script_terminator: /

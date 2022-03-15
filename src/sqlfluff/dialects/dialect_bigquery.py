@@ -49,6 +49,9 @@ bigquery_dialect.insert_lexer_matchers(
         StringLexer("right_arrow", "=>", CodeSegment),
         StringLexer("question_mark", "?", CodeSegment),
         RegexLexer("atsign_literal", r"@[a-zA-Z_][\w]*", CodeSegment),
+        RegexLexer(
+            "hyphenated_identifier", r"[a-zA-Z_]+[-][a-zA-Z_0-9-]*", CodeSegment
+        ),
     ],
     before="equals",
 )
@@ -154,6 +157,12 @@ bigquery_dialect.add(
             Ref("TupleSegment"),
             Ref("BaseExpressionElementGrammar"),
         ),
+    ),
+    HyphenatedIdentifierGrammar=NamedParser(
+        "hyphenated_identifier",
+        CodeSegment,
+        name="hyphenated_identifier",
+        type="identifier",
     ),
 )
 
@@ -811,13 +820,27 @@ class HyphenatedObjectReferenceSegment(ObjectReferenceSegment):  # type: ignore
     """A reference to an object that may contain embedded hyphens."""
 
     type = "hyphenated_object_reference"
-    match_grammar = ansi_dialect.get_segment(
-        "ObjectReferenceSegment"
-    ).match_grammar.copy()
-    match_grammar.delimiter = OneOf(
-        Ref("DotSegment"),
-        Sequence(Ref("DotSegment"), Ref("DotSegment")),
-        Sequence(Ref("MinusSegment")),
+    match_grammar: Matchable = Delimited(
+        Ref("SingleIdentifierGrammar"),
+        Ref("HyphenatedIdentifierGrammar"),
+        delimiter=OneOf(
+            Ref("DotSegment"), Sequence(Ref("DotSegment"), Ref("DotSegment"))
+        ),
+        terminator=OneOf(
+            "ON",
+            "AS",
+            "USING",
+            Ref("CommaSegment"),
+            Ref("CastOperatorSegment"),
+            Ref("StartSquareBracketSegment"),
+            Ref("StartBracketSegment"),
+            Ref("BinaryOperatorGrammar"),
+            Ref("ColonSegment"),
+            Ref("DelimiterSegment"),
+            Ref("JoinLikeClauseGrammar"),
+            BracketedSegment,
+        ),
+        allow_gaps=False,
     )
 
     def iter_raw_references(self):

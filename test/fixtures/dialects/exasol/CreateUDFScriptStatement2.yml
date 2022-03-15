@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 691a4bce277985d5f68eb69206b809d489196422676a365a3738fc706a447d56
+_hash: 0c739ce9bb9d8e4e0dd97e1fdbb2f00fd18174080ebec4527338c3de156dc407
 file:
   statement:
     create_udf_script:
@@ -41,10 +41,9 @@ file:
     - script_content:
       - raw: function
       - raw: run
-      - bracketed:
-          start_bracket: (
-          raw: ctx
-          end_bracket: )
+      - raw: (
+      - raw: ctx
+      - raw: )
       - raw: local
       - raw: word
       - raw: '='
@@ -52,13 +51,12 @@ file:
       - raw: .
       - raw: w
       - raw: if
-      - bracketed:
-        - start_bracket: (
-        - raw: word
-        - raw: '~'
-        - raw: '='
-        - raw: 'null'
-        - end_bracket: )
+      - raw: (
+      - raw: word
+      - raw: '~'
+      - raw: '='
+      - raw: 'null'
+      - raw: )
       - raw: then
       - raw: for
       - raw: i
@@ -68,21 +66,19 @@ file:
       - raw: utf8
       - raw: .
       - raw: gmatch
-      - bracketed:
-        - start_bracket: (
-        - raw: word
-        - comma: ','
-        - raw: "'([%w%p]+)'"
-        - end_bracket: )
+      - raw: (
+      - raw: word
+      - comma: ','
+      - raw: "'([%w%p]+)'"
+      - raw: )
       - raw: do
       - raw: ctx
       - raw: .
       - raw: emit
-      - bracketed:
-          start_bracket: (
-          raw: i
-          end_bracket: )
+      - raw: (
+      - raw: i
+      - raw: )
       - raw: end
       - raw: end
       - raw: end
-  function_script_terminator: /
+      - function_script_terminator: /

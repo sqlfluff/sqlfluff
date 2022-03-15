@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5f41f160aaf03561963146f4dd64842aeb6173bcd360561fcf7a9fa81f762027
+_hash: b76d0ef057a225499d915ef0ccb1f56c0bc65679589b07ee1ded678b6db6bebd
 file:
 - statement:
     select_statement:
@@ -384,26 +384,28 @@ file:
               - keyword: IN
               - bracketed:
                 - start_bracket: (
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                      literal: "'John'"
-                  - comma: ','
-                  - expression:
-                      literal: '30'
-                  - end_bracket: )
+                - expression:
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        literal: "'John'"
+                    - comma: ','
+                    - expression:
+                        literal: '30'
+                    - end_bracket: )
                 - alias_expression:
                     keyword: AS
                     identifier: c1
                 - comma: ','
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                      literal: "'Mike'"
-                  - comma: ','
-                  - expression:
-                      literal: '40'
-                  - end_bracket: )
+                - expression:
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        literal: "'Mike'"
+                    - comma: ','
+                    - expression:
+                        literal: '40'
+                    - end_bracket: )
                 - alias_expression:
                     keyword: AS
                     identifier: c2
@@ -471,26 +473,28 @@ file:
               - keyword: IN
               - bracketed:
                 - start_bracket: (
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                      literal: "'John'"
-                  - comma: ','
-                  - expression:
-                      literal: '30'
-                  - end_bracket: )
+                - expression:
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        literal: "'John'"
+                    - comma: ','
+                    - expression:
+                        literal: '30'
+                    - end_bracket: )
                 - alias_expression:
                     keyword: AS
                     identifier: c1
                 - comma: ','
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                      literal: "'Mike'"
-                  - comma: ','
-                  - expression:
-                      literal: '40'
-                  - end_bracket: )
+                - expression:
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        literal: "'Mike'"
+                    - comma: ','
+                    - expression:
+                        literal: '40'
+                    - end_bracket: )
                 - alias_expression:
                     keyword: AS
                     identifier: c2
@@ -560,14 +564,15 @@ file:
                     keyword: AS
                     identifier: c1
                 - comma: ','
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                      literal: "'Mike'"
-                  - comma: ','
-                  - expression:
-                      literal: '40'
-                  - end_bracket: )
+                - expression:
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        literal: "'Mike'"
+                    - comma: ','
+                    - expression:
+                        literal: '40'
+                    - end_bracket: )
                 - alias_expression:
                     keyword: AS
                     identifier: c2

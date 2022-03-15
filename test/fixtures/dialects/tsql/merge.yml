@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a27d388a1f7466c2c0cd31c2b09974f840b3fab7d28991616b1700b24205c1e1
+_hash: 498f2a8187c0f749269fc7d82a44cd559b4f7b609e0cfa55e84fb46416b6086e
 file:
 - batch:
     statement:
@@ -239,7 +239,7 @@ file:
                     column_reference:
                       identifier: cc_description
                 - end_bracket: )
-            statement_terminator: ;
+    statement_terminator: ;
 - go_statement:
     keyword: go
 - batch:
@@ -461,7 +461,7 @@ file:
                   expression:
                     column_reference:
                       identifier: col2
-        - statement_terminator: ;
+    statement_terminator: ;
 - go_statement:
     keyword: go
 - batch:
@@ -581,7 +581,7 @@ file:
           - keyword: INTO
           - table_reference:
               identifier: '#MyTempTable'
-          statement_terminator: ;
+    statement_terminator: ;
 - go_statement:
     keyword: GO
 - batch:
@@ -787,7 +787,7 @@ file:
             - identifier: Deleted
             - dot: .
             - identifier: ModifiedDate
-        - statement_terminator: ;
+    statement_terminator: ;
 - go_statement:
     keyword: GO
 - batch:
@@ -987,4 +987,4 @@ file:
           - alias_expression:
               keyword: AS
               identifier: PreviousQty
-        - statement_terminator: ;
+    statement_terminator: ;

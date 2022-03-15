@@ -1161,10 +1161,6 @@ class SelectClauseElementSegment(BaseSegment):
         "SelectClauseElementSegment"
     ).match_grammar.copy()
 
-    parse_grammar = ansi_dialect.get_segment(
-        "SelectClauseElementSegment"
-    ).parse_grammar.copy()
-
     get_alias = ansi_dialect.get_segment("SelectClauseElementSegment").get_alias
 
 

@@ -6,6 +6,7 @@ Based on https://docs.snowflake.com/en/sql-reference-commands.html
 """
 
 from sqlfluff.core.dialects import load_raw_dialect
+from sqlfluff.core.dialects.common import AliasInfo
 from sqlfluff.core.parser import (
     AnyNumberOf,
     AnySetOf,
@@ -33,6 +34,8 @@ from sqlfluff.dialects.dialect_snowflake_keywords import (
     snowflake_reserved_keywords,
     snowflake_unreserved_keywords,
 )
+from typing import Optional
+
 
 ansi_dialect = load_raw_dialect("ansi")
 snowflake_dialect = ansi_dialect.copy_as("snowflake")
@@ -377,7 +380,6 @@ snowflake_dialect.replace(
             Ref("MatchRecognizeClauseSegment"),
             Ref("ChangesClauseSegment"),
             Ref("ConnectByClauseSegment"),
-            Ref("FromAtExpressionSegment"),
             Ref("FromBeforeExpressionSegment"),
             Ref("FromPivotExpressionSegment"),
             Ref("FromUnpivotExpressionSegment"),
@@ -869,6 +871,70 @@ class WithinGroupClauseSegment(BaseSegment):
         "GROUP",
         Bracketed(Ref("OrderByClauseSegment", optional=True)),
     )
+
+
+@snowflake_dialect.segment(replace=True)
+class FromExpressionElementSegment(BaseSegment):
+    """A table expression."""
+
+    type = "from_expression_element"
+    match_grammar = StartsWith(
+        Sequence(
+            Ref("PreTableFunctionKeywordsGrammar", optional=True),
+            OptionallyBracketed(Ref("TableExpressionSegment")),
+            OneOf(
+                Ref("AliasExpressionSegment"),
+                exclude=OneOf(
+                    Ref("SamplingExpressionSegment"), Ref("ChangesClauseSegment")
+                ),
+                optional=True,
+            ),
+            # https://cloud.google.com/bigquery/docs/reference/standard-sql/arrays#flattening_arrays
+            Sequence("WITH", "OFFSET", Ref("AliasExpressionSegment"), optional=True),
+            Ref("SamplingExpressionSegment", optional=True),
+            Ref("PostTableExpressionGrammar", optional=True),
+        ),
+        terminator=OneOf(Ref("JoinClauseSegment"), Ref("JoinLikeClauseGrammar")),
+    )
+
+    def get_eventual_alias(self) -> Optional[AliasInfo]:
+        """Return the eventual table name referred to by this table expression.
+
+        Returns:
+            :obj:`tuple` of (:obj:`str`, :obj:`BaseSegment`, :obj:`bool`) containing
+                a string representation of the alias, a reference to the
+                segment containing it, and whether it's an alias.
+
+        """
+        alias_expression = self.get_child("alias_expression")
+        tbl_expression = self.get_child("table_expression")
+        if not tbl_expression:  # pragma: no cover
+            tbl_expression = self.get_child("bracketed").get_child("table_expression")
+        ref = tbl_expression.get_child("object_reference")
+        if alias_expression:
+            # If it has an alias, return that
+            segment = alias_expression.get_child("identifier")
+            if segment:
+                return AliasInfo(
+                    segment.raw, segment, True, self, alias_expression, ref
+                )
+
+        # If not return the object name (or None if there isn't one)
+        if ref:
+            # Return the last element of the reference.
+            penultimate_ref: ansi_dialect.get_segment(
+                "ObjectReferenceSegment"  # noqa: F821
+            ).ObjectReferencePart = list(ref.iter_raw_references())[-1]
+            return AliasInfo(
+                penultimate_ref.part,
+                penultimate_ref.segments[0],
+                False,
+                self,
+                None,
+                ref,
+            )
+        # No references or alias, return None
+        return None
 
 
 @snowflake_dialect.segment()

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: dce084b3775abcb45ff313fde2c2cb9eef9bf072b7a3a1ff4d01cdc9b4359ec1
+_hash: b6df671d25ee182ba32097a8ce9ff6c8fced228896a2d3f172f00b3ffff52639
 file:
 - statement:
     select_statement:
@@ -14,13 +14,15 @@ file:
             function_name:
               function_name_identifier: date_part
             bracketed:
-              start_bracket: (
-              date_part: millennium
-              comma: ','
-              expression:
+            - start_bracket: (
+            - expression:
+                column_reference:
+                  identifier: millennium
+            - comma: ','
+            - expression:
                 column_reference:
                   identifier: foo
-              end_bracket: )
+            - end_bracket: )
       from_clause:
         keyword: from
         from_expression:
@@ -38,13 +40,15 @@ file:
             function_name:
               function_name_identifier: date_part
             bracketed:
-              start_bracket: (
-              date_part: millennia
-              comma: ','
-              expression:
+            - start_bracket: (
+            - expression:
+                column_reference:
+                  identifier: millennia
+            - comma: ','
+            - expression:
                 column_reference:
                   identifier: foo
-              end_bracket: )
+            - end_bracket: )
       from_clause:
         keyword: from
         from_expression:
@@ -62,13 +66,15 @@ file:
             function_name:
               function_name_identifier: date_part
             bracketed:
-              start_bracket: (
-              date_part: mil
-              comma: ','
-              expression:
+            - start_bracket: (
+            - expression:
+                column_reference:
+                  identifier: mil
+            - comma: ','
+            - expression:
                 column_reference:
                   identifier: foo
-              end_bracket: )
+            - end_bracket: )
       from_clause:
         keyword: from
         from_expression:
@@ -86,13 +92,15 @@ file:
             function_name:
               function_name_identifier: date_part
             bracketed:
-              start_bracket: (
-              date_part: mils
-              comma: ','
-              expression:
+            - start_bracket: (
+            - expression:
+                column_reference:
+                  identifier: mils
+            - comma: ','
+            - expression:
                 column_reference:
                   identifier: foo
-              end_bracket: )
+            - end_bracket: )
       from_clause:
         keyword: from
         from_expression:
@@ -110,13 +118,15 @@ file:
             function_name:
               function_name_identifier: date_part
             bracketed:
-              start_bracket: (
-              date_part: century
-              comma: ','
-              expression:
+            - start_bracket: (
+            - expression:
+                column_reference:
+                  identifier: century
+            - comma: ','
+            - expression:
                 column_reference:
                   identifier: foo
-              end_bracket: )
+            - end_bracket: )
       from_clause:
         keyword: from
         from_expression:
@@ -134,13 +144,15 @@ file:
             function_name:
               function_name_identifier: date_part
             bracketed:
-              start_bracket: (
-              date_part: centuries
-              comma: ','
-              expression:
+            - start_bracket: (
+            - expression:
+                column_reference:
+                  identifier: centuries
+            - comma: ','
+            - expression:
                 column_reference:
                   identifier: foo
-              end_bracket: )
+            - end_bracket: )
       from_clause:
         keyword: from
         from_expression:
@@ -158,13 +170,15 @@ file:
             function_name:
               function_name_identifier: date_part
             bracketed:
-              start_bracket: (
-              date_part: c
-              comma: ','
-              expression:
+            - start_bracket: (
+            - expression:
+                column_reference:
+                  identifier: c
+            - comma: ','
+            - expression:
                 column_reference:
                   identifier: foo
-              end_bracket: )
+            - end_bracket: )
       from_clause:
         keyword: from
         from_expression:
@@ -182,13 +196,15 @@ file:
             function_name:
               function_name_identifier: date_part
             bracketed:
-              start_bracket: (
-              date_part: cent
-              comma: ','
-              expression:
+            - start_bracket: (
+            - expression:
+                column_reference:
+                  identifier: cent
+            - comma: ','
+            - expression:
                 column_reference:
                   identifier: foo
-              end_bracket: )
+            - end_bracket: )
       from_clause:
         keyword: from
         from_expression:
@@ -206,13 +222,15 @@ file:
             function_name:
               function_name_identifier: date_part
             bracketed:
-              start_bracket: (
-              date_part: cents
-              comma: ','
-              expression:
+            - start_bracket: (
+            - expression:
+                column_reference:
+                  identifier: cents
+            - comma: ','
+            - expression:
                 column_reference:
                   identifier: foo
-              end_bracket: )
+            - end_bracket: )
       from_clause:
         keyword: from
         from_expression:
@@ -230,13 +248,15 @@ file:
             function_name:
               function_name_identifier: date_part
             bracketed:
-              start_bracket: (
-              date_part: decade
-              comma: ','
-              expression:
+            - start_bracket: (
+            - expression:
+                column_reference:
+                  identifier: decade
+            - comma: ','
+            - expression:
                 column_reference:
                   identifier: foo
-              end_bracket: )
+            - end_bracket: )
       from_clause:
         keyword: from
         from_expression:
@@ -254,13 +274,15 @@ file:
             function_name:
               function_name_identifier: date_part
             bracketed:
-              start_bracket: (
-              date_part: decades
-              comma: ','
-              expression:
+            - start_bracket: (
+            - expression:
+                column_reference:
+                  identifier: decades
+            - comma: ','
+            - expression:
                 column_reference:
                   identifier: foo
-              end_bracket: )
+            - end_bracket: )
       from_clause:
         keyword: from
         from_expression:
@@ -278,13 +300,15 @@ file:
             function_name:
               function_name_identifier: date_part
             bracketed:
-              start_bracket: (
-              date_part: dec
-              comma: ','
-              expression:
+            - start_bracket: (
+            - expression:
+                column_reference:
+                  identifier: dec
+            - comma: ','
+            - expression:
                 column_reference:
                   identifier: foo
-              end_bracket: )
+            - end_bracket: )
       from_clause:
         keyword: from
         from_expression:
@@ -302,13 +326,15 @@ file:
             function_name:
               function_name_identifier: date_part
             bracketed:
-              start_bracket: (
-              date_part: decs
-              comma: ','
-              expression:
+            - start_bracket: (
+            - expression:
+                column_reference:
+                  identifier: decs
+            - comma: ','
+            - expression:
                 column_reference:
                   identifier: foo
-              end_bracket: )
+            - end_bracket: )
       from_clause:
         keyword: from
         from_expression:
@@ -1287,7 +1313,9 @@ file:
               function_name_identifier: dateadd
             bracketed:
             - start_bracket: (
-            - date_part: s
+            - expression:
+                column_reference:
+                  identifier: s
             - comma: ','
             - expression:
                 literal: '123'
@@ -1314,7 +1342,9 @@ file:
               function_name_identifier: dateadd
             bracketed:
             - start_bracket: (
-            - date_part: sec
+            - expression:
+                column_reference:
+                  identifier: sec
             - comma: ','
             - expression:
                 literal: '123'
@@ -1341,7 +1371,9 @@ file:
               function_name_identifier: dateadd
             bracketed:
             - start_bracket: (
-            - date_part: secs
+            - expression:
+                column_reference:
+                  identifier: secs
             - comma: ','
             - expression:
                 literal: '123'
@@ -1368,7 +1400,9 @@ file:
               function_name_identifier: dateadd
             bracketed:
             - start_bracket: (
-            - date_part: millisecond
+            - expression:
+                column_reference:
+                  identifier: millisecond
             - comma: ','
             - expression:
                 literal: '123'
@@ -1395,7 +1429,9 @@ file:
               function_name_identifier: dateadd
             bracketed:
             - start_bracket: (
-            - date_part: milliseconds
+            - expression:
+                column_reference:
+                  identifier: milliseconds
             - comma: ','
             - expression:
                 literal: '123'
@@ -1422,7 +1458,9 @@ file:
               function_name_identifier: dateadd
             bracketed:
             - start_bracket: (
-            - date_part: ms
+            - expression:
+                column_reference:
+                  identifier: ms
             - comma: ','
             - expression:
                 literal: '123'
@@ -1449,7 +1487,9 @@ file:
               function_name_identifier: dateadd
             bracketed:
             - start_bracket: (
-            - date_part: msec
+            - expression:
+                column_reference:
+                  identifier: msec
             - comma: ','
             - expression:
                 literal: '123'
@@ -1476,7 +1516,9 @@ file:
               function_name_identifier: dateadd
             bracketed:
             - start_bracket: (
-            - date_part: msecs
+            - expression:
+                column_reference:
+                  identifier: msecs
             - comma: ','
             - expression:
                 literal: '123'
@@ -1503,7 +1545,9 @@ file:
               function_name_identifier: dateadd
             bracketed:
             - start_bracket: (
-            - date_part: msecond
+            - expression:
+                column_reference:
+                  identifier: msecond
             - comma: ','
             - expression:
                 literal: '123'
@@ -1530,7 +1574,9 @@ file:
               function_name_identifier: dateadd
             bracketed:
             - start_bracket: (
-            - date_part: mseconds
+            - expression:
+                column_reference:
+                  identifier: mseconds
             - comma: ','
             - expression:
                 literal: '123'
@@ -1557,7 +1603,9 @@ file:
               function_name_identifier: dateadd
             bracketed:
             - start_bracket: (
-            - date_part: millisec
+            - expression:
+                column_reference:
+                  identifier: millisec
             - comma: ','
             - expression:
                 literal: '123'
@@ -1584,7 +1632,9 @@ file:
               function_name_identifier: dateadd
             bracketed:
             - start_bracket: (
-            - date_part: millisecs
+            - expression:
+                column_reference:
+                  identifier: millisecs
             - comma: ','
             - expression:
                 literal: '123'
@@ -1611,7 +1661,9 @@ file:
               function_name_identifier: dateadd
             bracketed:
             - start_bracket: (
-            - date_part: millisecon
+            - expression:
+                column_reference:
+                  identifier: millisecon
             - comma: ','
             - expression:
                 literal: '123'
@@ -1638,7 +1690,9 @@ file:
               function_name_identifier: dateadd
             bracketed:
             - start_bracket: (
-            - date_part: microsecond
+            - expression:
+                column_reference:
+                  identifier: microsecond
             - comma: ','
             - expression:
                 literal: '123'
@@ -1665,7 +1719,9 @@ file:
               function_name_identifier: dateadd
             bracketed:
             - start_bracket: (
-            - date_part: microseconds
+            - expression:
+                column_reference:
+                  identifier: microseconds
             - comma: ','
             - expression:
                 literal: '123'
@@ -1692,7 +1748,9 @@ file:
               function_name_identifier: datediff
             bracketed:
             - start_bracket: (
-            - date_part: microsec
+            - expression:
+                column_reference:
+                  identifier: microsec
             - comma: ','
             - expression:
                 column_reference:
@@ -1720,7 +1778,9 @@ file:
               function_name_identifier: datediff
             bracketed:
             - start_bracket: (
-            - date_part: microsecs
+            - expression:
+                column_reference:
+                  identifier: microsecs
             - comma: ','
             - expression:
                 column_reference:
@@ -1748,7 +1808,9 @@ file:
               function_name_identifier: datediff
             bracketed:
             - start_bracket: (
-            - date_part: microsecond
+            - expression:
+                column_reference:
+                  identifier: microsecond
             - comma: ','
             - expression:
                 column_reference:
@@ -1776,7 +1838,9 @@ file:
               function_name_identifier: datediff
             bracketed:
             - start_bracket: (
-            - date_part: usecond
+            - expression:
+                column_reference:
+                  identifier: usecond
             - comma: ','
             - expression:
                 column_reference:
@@ -1804,7 +1868,9 @@ file:
               function_name_identifier: datediff
             bracketed:
             - start_bracket: (
-            - date_part: useconds
+            - expression:
+                column_reference:
+                  identifier: useconds
             - comma: ','
             - expression:
                 column_reference:
@@ -1832,7 +1898,9 @@ file:
               function_name_identifier: datediff
             bracketed:
             - start_bracket: (
-            - date_part: us
+            - expression:
+                column_reference:
+                  identifier: us
             - comma: ','
             - expression:
                 column_reference:
@@ -1860,7 +1928,9 @@ file:
               function_name_identifier: datediff
             bracketed:
             - start_bracket: (
-            - date_part: usec
+            - expression:
+                column_reference:
+                  identifier: usec
             - comma: ','
             - expression:
                 column_reference:
@@ -1888,7 +1958,9 @@ file:
               function_name_identifier: datediff
             bracketed:
             - start_bracket: (
-            - date_part: usecs
+            - expression:
+                column_reference:
+                  identifier: usecs
             - comma: ','
             - expression:
                 column_reference:
@@ -1916,7 +1988,9 @@ file:
               function_name_identifier: datediff
             bracketed:
             - start_bracket: (
-            - date_part: timezone
+            - expression:
+                column_reference:
+                  identifier: timezone
             - comma: ','
             - expression:
                 column_reference:
@@ -1944,7 +2018,9 @@ file:
               function_name_identifier: datediff
             bracketed:
             - start_bracket: (
-            - date_part: timezone_hour
+            - expression:
+                column_reference:
+                  identifier: timezone_hour
             - comma: ','
             - expression:
                 column_reference:
@@ -1972,7 +2048,9 @@ file:
               function_name_identifier: datediff
             bracketed:
             - start_bracket: (
-            - date_part: timezone_minute
+            - expression:
+                column_reference:
+                  identifier: timezone_minute
             - comma: ','
             - expression:
                 column_reference:

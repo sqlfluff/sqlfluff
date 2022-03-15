@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: cbc2b9d173121cb109d52912e9f116f6d6e5fb22d54b53755c2be442fd2d184b
+_hash: 14ca664cb371701cc2efe0579a85efa07d8851be58f963496b28b6a1250c5973
 file:
-- statement:
+  statement:
     create_adapter_script:
     - keyword: CREATE
     - keyword: JAVA
@@ -21,52 +21,42 @@ file:
       - raw: .
       - raw: jar
       - raw: ;
-- function_script_terminator: /
-- statement:
-    create_adapter_script:
-    - keyword: CREATE
-    - binary_operator: OR
-    - keyword: REPLACE
-    - keyword: PYTHON
-    - keyword: ADAPTER
-    - keyword: SCRIPT
-    - script_reference:
-      - identifier: test
-      - dot: .
-      - identifier: adapter_dummy
-    - keyword: AS
-    - script_content:
+      - function_script_terminator: /
+      - raw: CREATE
+      - raw: OR
+      - raw: REPLACE
+      - raw: PYTHON
+      - raw: ADAPTER
+      - raw: SCRIPT
+      - raw: test
+      - raw: .
+      - raw: adapter_dummy
+      - raw: AS
       - raw: def
       - raw: adapter_call
-      - bracketed:
-          start_bracket: (
-          raw: in_json
-          end_bracket: )
+      - raw: (
+      - raw: in_json
+      - raw: )
       - raw: ':'
       - raw: return
       - raw: '"BLABLA"'
-- function_script_terminator: /
-- statement:
-    create_adapter_script:
-    - keyword: CREATE
-    - binary_operator: OR
-    - keyword: REPLACE
-    - identifier: LUA
-    - keyword: ADAPTER
-    - keyword: SCRIPT
-    - script_reference:
-      - identifier: test
-      - dot: .
-      - identifier: adapter_dummy
-    - keyword: AS
-    - script_content:
+      - function_script_terminator: /
+      - raw: CREATE
+      - raw: OR
+      - raw: REPLACE
+      - raw: LUA
+      - raw: ADAPTER
+      - raw: SCRIPT
+      - raw: test
+      - raw: .
+      - raw: adapter_dummy
+      - raw: AS
       - raw: function
       - raw: adapter_call
-      - bracketed:
-          start_bracket: (
-          raw: in_json
-          end_bracket: )
+      - raw: (
+      - raw: in_json
+      - raw: )
       - raw: ':'
       - raw: return
       - raw: "'BLABLA'"
-- function_script_terminator: /
+      - function_script_terminator: /

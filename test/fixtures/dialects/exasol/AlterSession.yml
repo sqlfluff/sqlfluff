@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b247c4ad31af49f5dabe081e815eea94bf2d0a8fe5cc21efd050e7bf9063a133
+_hash: f0c4780473d22d641ba9e547d428918e7e0e1a7ce3e3cca405fd81a83d392035
 file:
 - statement:
     alter_session_statement:
@@ -46,29 +46,32 @@ file:
     - literal: "'10240M'"
 - statement_terminator: ;
 - statement:
-    unparsable:
-    - raw: ALTER
-    - raw: SESSION
-    - raw: SET
-    - raw: SNAPSHOT_MODE
-    - raw: '='
-    - raw: "'OFF'"
+    alter_session_statement:
+    - keyword: ALTER
+    - keyword: SESSION
+    - keyword: SET
+    - session_parameter: SNAPSHOT_MODE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - literal: "'OFF'"
 - statement_terminator: ;
 - statement:
-    unparsable:
-    - raw: ALTER
-    - raw: SESSION
-    - raw: SET
-    - raw: SNAPSHOT_MODE
-    - raw: '='
-    - raw: "'SYSTEM TABLES'"
+    alter_session_statement:
+    - keyword: ALTER
+    - keyword: SESSION
+    - keyword: SET
+    - session_parameter: SNAPSHOT_MODE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - literal: "'SYSTEM TABLES'"
 - statement_terminator: ;
 - statement:
-    unparsable:
-    - raw: ALTER
-    - raw: SESSION
-    - raw: SET
-    - raw: IDLE_TIMEOUT
-    - raw: '='
-    - raw: '2400'
+    alter_session_statement:
+    - keyword: ALTER
+    - keyword: SESSION
+    - keyword: SET
+    - session_parameter: IDLE_TIMEOUT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - literal: '2400'
 - statement_terminator: ;

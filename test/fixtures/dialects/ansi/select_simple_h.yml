@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 14e310ccc1dc5d6db25e47b23071fdeac75eb56caefa5919f14f40b925bf02e3
+_hash: dde815e8a64482c4bfcd1cd76057d6558cc43074cd60155110b4428e025cd300
 file:
   statement:
     select_statement:
@@ -15,7 +15,9 @@ file:
               function_name_identifier: DATEADD
             bracketed:
             - start_bracket: (
-            - date_part: DAY
+            - expression:
+                column_reference:
+                  identifier: DAY
             - comma: ','
             - expression:
                 function:

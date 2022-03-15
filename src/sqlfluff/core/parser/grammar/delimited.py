@@ -1,6 +1,6 @@
 """Definitions for Grammar."""
 
-from typing import Tuple, List
+from typing import Tuple
 
 from tqdm import tqdm
 
@@ -55,30 +55,6 @@ class Delimited(OneOf):
         Note that if there are multiple elements passed in that they will be treated
         as different options of what can be delimited, rather than a sequence.
         """
-
-        # def justify_match(matched_segments, unmatched_segments, has_matched_segs, seeking_delimiter, terminated):
-        #
-        #     print(matched_segments.matched_segments)
-        #     if terminated:
-        #         if has_matched_segs:
-        #             return MatchResult(matched_segments, unmatched_segments)
-        #         else:
-        #             return MatchResult.from_unmatched(matched_segments + unmatched_segments)
-        #
-        #     if seeking_delimiter:
-        #
-        #         if not unmatched_segments and not self.allow_trailing:
-        #             return MatchResult.from_unmatched(matched_segments + unmatched_segments)
-        #
-        #     if not has_matched_segs:
-        #         return MatchResult.from_unmatched(matched_segments + unmatched_segments)
-        #
-        #     if not unmatched_segments:
-        #         print("here")
-        #         return MatchResult.from_matched(matched_segments)
-        #
-        #     return MatchResult(matched_segments, unmatched_segments)
-
         # Have we been passed an empty list?
         if len(segments) == 0:
             return MatchResult.from_empty()
@@ -87,7 +63,9 @@ class Delimited(OneOf):
         seg_buff = segments
         matched_segments = ()
         unmatched_segments = ()
-        # delimiters is a list of tuples containing delimiter segments as we find them.
+        cached_matched_segments = ()
+        cached_unmatched_segments = ()
+
         delimiters = 0
         matched_delimiter = False
 
@@ -115,19 +93,12 @@ class Delimited(OneOf):
 
         delimiter_matchers = [self.delimiter]
         terminator_matchers = []
-        print('TERM: ', self.terminator)
+
         if self.terminator:
             terminator_matchers.append(self.terminator)
         # If gaps aren't allowed, a gap (or non-code segment), acts like a terminator.
         if not self.allow_gaps:
             terminator_matchers.append(NonCodeMatcher())
-
-        # First iterate through all the segments, looking for the delimiter.
-        # Second, split the list on each of the delimiters, and ensure that
-        # each sublist in turn matches one of the elements.
-
-        # In more detail, match against delimiter, if we match, put a slice
-        # up to that point onto a list of slices. Carry on.
 
         while True:
             progressbar_matching.update(n=1)
@@ -165,10 +136,10 @@ class Delimited(OneOf):
 
                     if match:
                         terminated = True
-                        print('yikes')
-                        unmatched_segments = pre_non_code + match.all_segments() + post_non_code
+                        unmatched_segments = (
+                            pre_non_code + match.all_segments() + post_non_code
+                        )
                         break
-                        # res = justify_match(matched_segments, pre_non_code + match.all_segments() + post_non_code, has_matched_segs, seeking_delimiter, True)
 
                 with parse_context.deeper_match() as ctx:
                     match, _ = self._longest_trimmed_match(
@@ -195,43 +166,25 @@ class Delimited(OneOf):
                     unmatched_segments = match.unmatched_segments
 
                     if match.is_complete():
-                        # print("COMPLETE")
-                        # print('##########')
-                        # print(match.unmatched_segments)
-                        # print('##########')
-                        # # print(len(match.matched_segments))
-                        # for i, e in enumerate(match.matched_segments):
-                        #     print(f"{i}: {e}")
-                        matched_segments += pre_non_code + match.matched_segments + post_non_code
-                        # print('PNC: ', post_non_code)
-                        # for i, e in enumerate(match.matched_segments):
-                        #     print(f"{i}: {e}")
+
+                        matched_segments += (
+                            pre_non_code + match.matched_segments + post_non_code
+                        )
+
                         unmatched_segments = match.unmatched_segments
                         break
-                        # return justify_match(matched_segments, match.unmatched_segments, has_matched_segs, seeking_delimiter, False)
 
-                    # print("PARTIAL")
-                    # for i, e in enumerate(match.matched_segments):
-                    #     print(f"{i}: {e}")
-                    # print(seg_buff)
-                    matched_segments += (pre_non_code + match.matched_segments)
-                    # print(matched_segments)
+                    matched_segments += pre_non_code + match.matched_segments
                     seeking_delimiter = not seeking_delimiter
-                    # print('SD: ', seeking_delimiter)
-                else:
 
+                else:
                     matched_segments += pre_non_code
-                    # print("INCOMPLETE")
                     unmatched_segments = match.unmatched_segments + post_non_code
                     break
-                    # return justify_match(matched_segments, match.unmatched_segments + post_non_code, has_matched_segs, seeking_delimiter, False)
+
             else:
-                print('hmmm')
                 break
-        print('#####################')
-        print("matched ", matched_segments)
-        print("unmatched ", unmatched_segments)
-        print("matchers: ", self._elements)
+
         if self.min_delimiters:
             if delimiters < self.min_delimiters:
                 return MatchResult.from_unmatched(matched_segments + unmatched_segments)
@@ -248,12 +201,9 @@ class Delimited(OneOf):
                 return MatchResult.from_unmatched(matched_segments + unmatched_segments)
             else:
                 return MatchResult(cached_matched_segments, cached_unmatched_segments)
-        print(elements)
-        if not has_matched_segs:
-            print('X')
 
-            print(matched_segments)
-            print(unmatched_segments)
+        if not has_matched_segs:
+
             return MatchResult.from_unmatched(matched_segments + unmatched_segments)
 
         if not unmatched_segments:

@@ -2162,12 +2162,9 @@ class ValuesClauseSegment(BaseSegment):
                         ephemeral_name="ValuesClauseElements",
                     )
                 ),
-                Delimited(
-                    # NULL keyword used in
-                    # INSERT INTO statement.
-                    "NULL",
-                    Ref("ExpressionSegment"),
-                ),
+                "NULL",
+                Ref("ExpressionSegment"),
+                exclude=OneOf("VALUES"),
             ),
         ),
         # LIMIT/ORDER are unreserved in Spark3.
@@ -2191,7 +2188,7 @@ class TableExpressionSegment(BaseSegment):
 
     type = "table_expression"
 
-    match_grammar = OneOf(
+    match_grammar = Delimited(
         Ref("ValuesClauseSegment"),
         Ref("BareFunctionSegment"),
         Ref("FunctionSegment"),

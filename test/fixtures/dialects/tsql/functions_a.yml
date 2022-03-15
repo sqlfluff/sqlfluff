@@ -3,10 +3,10 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b29ae00e871974f41a53ec83d2e6df279c8fdf6be6afbf572b454550e49770be
+_hash: 0068f902c636d63685e3095c2b87762e1277a7dd0f353d12e192520a5659ec5c
 file:
 - batch:
-  - statement:
+    statement:
       select_statement:
         select_clause:
         - keyword: SELECT
@@ -130,9 +130,10 @@ file:
               table_expression:
                 table_reference:
                   identifier: tbl_b
-              alias_expression:
-                identifier: GO
-  - statement:
+- go_statement:
+    keyword: GO
+- batch:
+    statement:
       create_function_statement:
       - keyword: CREATE
       - keyword: FUNCTION

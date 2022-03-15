@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a1c897485313021120f6461b6e1d7990e7766b8a1820cde7ab52a595b4affe1b
+_hash: 923ab3bea85bff1e8eceb366e7a1cf49af9c54628a875560e597cc96d61f95b5
 file:
   statement:
     select_statement:
@@ -14,8 +14,8 @@ file:
             function_name:
               function_name_identifier: TIMESTAMP_TRUNC
             bracketed:
-              start_bracket: (
-              expression:
+            - start_bracket: (
+            - expression:
                 function:
                   function_name:
                     function_name_identifier: TIMESTAMP_ADD
@@ -54,7 +54,9 @@ file:
                                       - dot: .
                                       - identifier: eventTimestamp
                                   - comma: ','
-                                  - date_part: SECOND
+                                  - expression:
+                                      column_reference:
+                                        identifier: SECOND
                                   - end_bracket: )
                                 binary_operator: /
                                 literal: '2'
@@ -64,9 +66,11 @@ file:
                               end_bracket: )
                         date_part: second
                   - end_bracket: )
-              comma: ','
-              date_part: HOUR
-              end_bracket: )
+            - comma: ','
+            - expression:
+                column_reference:
+                  identifier: HOUR
+            - end_bracket: )
           alias_expression:
             keyword: AS
             identifier: avgAtHour

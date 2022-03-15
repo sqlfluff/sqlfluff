@@ -3,38 +3,50 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 31b50949a60453a25e884e89bd2b4275b39a2a843f3d12b4aa6e550277215e7f
+_hash: 2f8de0d1bff7fb37ad25e67d180d5b3c2dafc05998989fc055589927afcd01b0
 file:
 - statement:
-    unparsable:
-    - raw: ALTER
-    - raw: CONSUMER
-    - raw: GROUP
-    - raw: TEST_TEAM
-    - raw: SET
-    - raw: PRECEDENCE
-    - raw: '='
-    - raw: "'800'"
+    alter_consumer_group_statement:
+    - keyword: ALTER
+    - keyword: CONSUMER
+    - keyword: GROUP
+    - identifier: TEST_TEAM
+    - keyword: SET
+    - consumer_group_parameter:
+        keyword: PRECEDENCE
+        comparison_operator:
+          raw_comparison_operator: '='
+        literal: "'800'"
     - comma: ','
-    - raw: CPU_WEIGHT
-    - raw: '='
-    - raw: "'150'"
+    - consumer_group_parameter:
+        keyword: CPU_WEIGHT
+        comparison_operator:
+          raw_comparison_operator: '='
+        literal: "'150'"
     - comma: ','
-    - raw: GROUP_TEMP_DB_RAM_LIMIT
-    - raw: '='
-    - raw: "'10G'"
+    - consumer_group_parameter:
+        keyword: GROUP_TEMP_DB_RAM_LIMIT
+        comparison_operator:
+          raw_comparison_operator: '='
+        literal: "'10G'"
     - comma: ','
-    - raw: SESSION_TEMP_DB_RAM_LIMIT
-    - raw: '='
-    - raw: "'5G'"
+    - consumer_group_parameter:
+        keyword: SESSION_TEMP_DB_RAM_LIMIT
+        comparison_operator:
+          raw_comparison_operator: '='
+        literal: "'5G'"
     - comma: ','
-    - raw: QUERY_TIMEOUT
-    - raw: '='
-    - raw: '60'
+    - consumer_group_parameter:
+        keyword: QUERY_TIMEOUT
+        comparison_operator:
+          raw_comparison_operator: '='
+        literal: '60'
     - comma: ','
-    - raw: IDLE_TIMEOUT
-    - raw: '='
-    - raw: '3600'
+    - consumer_group_parameter:
+        keyword: IDLE_TIMEOUT
+        comparison_operator:
+          raw_comparison_operator: '='
+        literal: '3600'
 - statement_terminator: ;
 - statement:
     alter_consumer_group_statement:

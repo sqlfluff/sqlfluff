@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 47e7bd71927bd39e788dc8d33f1efa86390563e095b2e3d3898cf396cd50c956
+_hash: 6a9504bc8ef7d1f4cbe1a841e692858c0bee0819189fc1e45afe97c8c4279c5a
 file:
   statement:
     select_statement:
@@ -31,16 +31,17 @@ file:
             column_reference:
               identifier: value
             snowflake_semi_structured_expression:
-              colon: ':'
-              semi_structured_element: data
-          unparsable:
-            raw: ':'
-      - unparsable:
-        - keyword: from
-        - raw: '::'
-        - raw: string
-        - raw: AS
-        - raw: FROM_PHONE_NUMBER
+            - colon: ':'
+            - semi_structured_element: data
+            - colon: ':'
+            - semi_structured_element: from
+            cast_expression:
+              casting_operator: '::'
+              data_type:
+                data_type_identifier: string
+          alias_expression:
+            keyword: AS
+            identifier: FROM_PHONE_NUMBER
       from_clause:
         keyword: FROM
         from_expression:

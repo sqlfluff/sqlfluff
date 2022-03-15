@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ad945086fa6197691cb043860c01534e7f560d83add9e5a6aecaadc2df59e9f8
+_hash: c7bb7a69d2731d76beb2f211b7c2a169dcf3906c505eba0bfb4c7cd27fe6fe52
 file:
 - statement:
     create_view_statement:
@@ -347,22 +347,17 @@ file:
               - keyword: INNER
               - keyword: JOIN
               - from_expression_element:
-                  table_expression:
+                - table_expression:
                     table_reference:
                       identifier: my_cte
-              - join_on_condition:
-                  keyword: 'ON'
-                  expression:
-                  - column_reference:
-                    - identifier: table_1
-                    - dot: .
-                    - identifier: pk
-                  - comparison_operator:
-                      raw_comparison_operator: '='
-                  - column_reference:
-                    - identifier: table_2
-                    - dot: .
-                    - identifier: pk
+                - raw: 'ON'
+                - raw: table_1
+                - raw: .
+                - raw: pk
+                - raw: '='
+                - raw: table_2
+                - raw: .
+                - raw: pk
 - statement_terminator: ;
 - statement:
     create_view_statement:

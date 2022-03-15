@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 47f85f38f4412c7eb3e83a8c3d798c3ebef172b75e44c4e354ec00a09323b5d6
+_hash: bb84ff38d649298761a2732029334e2b1b7d9493d71b86a5f5c3f5368fa03c44
 file:
 - statement:
     create_consumer_group_statement:
@@ -56,35 +56,47 @@ file:
         literal: "'100G'"
 - statement_terminator: ;
 - statement:
-    unparsable:
-    - raw: CREATE
-    - raw: CONSUMER
-    - raw: GROUP
-    - raw: TEST_TEAM
-    - raw: WITH
-    - raw: PRECEDENCE
-    - raw: '='
-    - raw: "'800'"
+    create_consumer_group_statement:
+    - keyword: CREATE
+    - keyword: CONSUMER
+    - keyword: GROUP
+    - identifier: TEST_TEAM
+    - keyword: WITH
+    - consumer_group_parameter:
+        keyword: PRECEDENCE
+        comparison_operator:
+          raw_comparison_operator: '='
+        literal: "'800'"
     - comma: ','
-    - raw: CPU_WEIGHT
-    - raw: '='
-    - raw: "'100'"
+    - consumer_group_parameter:
+        keyword: CPU_WEIGHT
+        comparison_operator:
+          raw_comparison_operator: '='
+        literal: "'100'"
     - comma: ','
-    - raw: GROUP_TEMP_DB_RAM_LIMIT
-    - raw: '='
-    - raw: "'10G'"
+    - consumer_group_parameter:
+        keyword: GROUP_TEMP_DB_RAM_LIMIT
+        comparison_operator:
+          raw_comparison_operator: '='
+        literal: "'10G'"
     - comma: ','
-    - raw: SESSION_TEMP_DB_RAM_LIMIT
-    - raw: '='
-    - raw: "'5G'"
+    - consumer_group_parameter:
+        keyword: SESSION_TEMP_DB_RAM_LIMIT
+        comparison_operator:
+          raw_comparison_operator: '='
+        literal: "'5G'"
     - comma: ','
-    - raw: QUERY_TIMEOUT
-    - raw: '='
-    - raw: '60'
+    - consumer_group_parameter:
+        keyword: QUERY_TIMEOUT
+        comparison_operator:
+          raw_comparison_operator: '='
+        literal: '60'
     - comma: ','
-    - raw: IDLE_TIMEOUT
-    - raw: '='
-    - raw: '3600'
+    - consumer_group_parameter:
+        keyword: IDLE_TIMEOUT
+        comparison_operator:
+          raw_comparison_operator: '='
+        literal: '3600'
 - statement_terminator: ;
 - statement:
     create_consumer_group_statement:

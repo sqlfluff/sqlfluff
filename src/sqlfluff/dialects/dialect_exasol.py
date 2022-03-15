@@ -40,6 +40,8 @@ from sqlfluff.dialects.dialect_exasol_keywords import (
     SYSTEM_PARAMETERS,
     UNRESERVED_KEYWORDS,
 )
+from typing import Optional
+from sqlfluff.core.dialects.common import ColumnAliasInfo
 
 ansi_dialect = load_raw_dialect("ansi")
 exasol_dialect = ansi_dialect.copy_as("exasol")
@@ -3377,15 +3379,7 @@ class CreateFunctionStatementSegment(BaseSegment):
     is_dql = False
     is_dcl = False
 
-    match_grammar = StartsWith(
-        Sequence(
-            "CREATE",
-            Ref("OrReplaceGrammar", optional=True),
-            "FUNCTION",
-        ),
-        terminator=Ref("FunctionScriptTerminatorSegment"),
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "CREATE",
         Ref("OrReplaceGrammar", optional=True),
         "FUNCTION",
@@ -3586,7 +3580,7 @@ class ScriptContentSegment(BaseSegment):
     """
 
     type = "script_content"
-    match_grammar = Anything()
+    match_grammar = OneOf(Anything(), exclude=Ref("FunctionScriptTerminatorSegment"))
 
 
 @exasol_dialect.segment()
@@ -3603,16 +3597,7 @@ class CreateScriptingLuaScriptStatementSegment(BaseSegment):
     is_dql = False
     is_dcl = False
 
-    match_grammar = StartsWith(
-        Sequence(
-            "CREATE",
-            Ref("OrReplaceGrammar", optional=True),
-            Ref.keyword("LUA", optional=True),
-            "SCRIPT",
-        ),
-        terminator=Ref("FunctionScriptTerminatorSegment"),
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "CREATE",
         Ref("OrReplaceGrammar", optional=True),
         Ref.keyword("LUA", optional=True),
@@ -3750,11 +3735,13 @@ class FunctionScriptStatementSegment(BaseSegment):
     """A generic segment, to any of its child subsegments."""
 
     type = "statement"
+
     match_grammar = OneOf(
         Ref("CreateFunctionStatementSegment"),
         Ref("CreateScriptingLuaScriptStatementSegment"),
         Ref("CreateUDFScriptStatementSegment"),
         Ref("CreateAdapterScriptStatementSegment"),
+        exclude=Ref("FunctionScriptTerminatorSegment"),
     )
 
 
@@ -3763,7 +3750,10 @@ class StatementSegment(BaseSegment):
     """A generic segment, to any of its child subsegments."""
 
     type = "statement"
-    match_grammar = GreedyUntil(Ref("SemicolonSegment"))
+
+    match_grammar = GreedyUntil(
+        OneOf(Ref("DelimiterSegment"), Ref("FunctionScriptTerminatorSegment"))
+    )
 
     parse_grammar = OneOf(
         # Data Query Language (DQL)
@@ -3820,6 +3810,7 @@ class StatementSegment(BaseSegment):
         # Others
         Ref("TransactionStatementSegment"),
         Ref("ExecuteScriptSegment"),
+        exclude=OneOf(Ref("DelimiterSegment"), Ref("FunctionScriptTerminatorSegment")),
     )
 
 
@@ -3832,19 +3823,13 @@ class FileSegment(BaseFileSegment):
     A semicolon is the terminator of the statement within the function / script
     """
 
-    parse_grammar = AnyNumberOf(
-        Delimited(
+    parse_grammar = Sequence(
+        AnyNumberOf(
             Ref("FunctionScriptStatementSegment"),
-            delimiter=Ref("FunctionScriptTerminatorSegment"),
-            allow_gaps=True,
-            allow_trailing=True,
+            Sequence(Ref("StatementSegment"), Ref("DelimiterSegment")),
+            Ref("FunctionScriptTerminatorSegment"),
         ),
-        Delimited(
-            Ref("StatementSegment"),
-            delimiter=Ref("DelimiterSegment"),
-            allow_gaps=True,
-            allow_trailing=True,
-        ),
+        Ref("StatementSegment", optional=True),
     )
 
 
@@ -3860,3 +3845,63 @@ class EmitsSegment(BaseSegment):
         "EMITS",
         Bracketed(Ref("UDFParameterGrammar")),
     )
+
+
+@exasol_dialect.segment(replace=True)
+class SelectClauseElementSegment(BaseSegment):
+    """An element in the targets of a select statement."""
+
+    type = "select_clause_element"
+    # Important to split elements before parsing, otherwise debugging is really hard.
+    match_grammar = GreedyUntil(
+        Ref("SelectClauseElementTerminatorGrammar"),
+        enforce_whitespace_preceding_terminator=False,
+    )
+
+    parse_grammar = OneOf(
+        # *, blah.*, blah.blah.*, etc.
+        Ref("WildcardExpressionSegment"),
+        Sequence(
+            Ref("BaseExpressionElementGrammar"),
+            Ref("AliasExpressionSegment", optional=True),
+        ),
+    )
+
+    def get_alias(self) -> Optional[ColumnAliasInfo]:
+        """Get info on alias within SELECT clause element."""
+        alias_expression_segment = next(self.recursive_crawl("alias_expression"), None)
+        if alias_expression_segment is None:
+            # Return None if no alias expression is found.
+            return None
+
+        alias_identifier_segment = next(
+            (s for s in alias_expression_segment.segments if s.is_type("identifier")),
+            None,
+        )
+
+        if alias_identifier_segment is None:
+            # Return None if no alias identifier expression is found.
+            # Happened in the past due to bad syntax
+            return None  # pragma: no cover
+
+        # Get segment being aliased.
+        aliased_segment = next(
+            s
+            for s in self.segments
+            if not s.is_whitespace and not s.is_meta and s != alias_expression_segment
+        )
+
+        # Find all the columns being aliased.
+        column_reference_segments = []
+        if aliased_segment.is_type("column_reference"):
+            column_reference_segments.append(aliased_segment)
+        else:
+            column_reference_segments.extend(
+                aliased_segment.recursive_crawl("column_reference")
+            )
+
+        return ColumnAliasInfo(
+            alias_identifier_name=alias_identifier_segment.raw,
+            aliased_segment=aliased_segment,
+            column_reference_segments=column_reference_segments,
+        )

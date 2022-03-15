@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9c2ee6ff229cee07fc7dd9025769f83d372886d66cc1119f4945def27277e228
+_hash: 5e138282ebab5e6f9d9dc9386266c0a17cac7e67eb6f1ab5ae4535410c29cb8b
 file:
 - statement:
     select_statement:
@@ -50,7 +50,9 @@ file:
                 - binary_operator: '-'
                 - literal: '1'
               - end_bracket: )
-          - binary_operator: '||'
+          - binary_operator:
+            - pipe: '|'
+            - pipe: '|'
           - function:
               function_name:
                 function_name_identifier: SYS_CONNECT_BY_PATH
@@ -83,8 +85,7 @@ file:
             raw_comparison_operator: '='
         - column_reference:
             identifier: manager_id
-      - binary_operator: AND
-      - expression:
+        - binary_operator: AND
         - column_reference:
             identifier: dept_no
         - comparison_operator:
@@ -282,23 +283,21 @@ file:
           - keyword: GROUPING
           - keyword: SETS
           - bracketed:
-            - start_bracket: (
-            - grouping_expression_list:
-                expression:
+              start_bracket: (
+              grouping_expression_list:
+              - expression:
                   column_reference:
                     identifier: name
-            - comma: ','
-            - grouping_expression_list:
-                expression:
+              - comma: ','
+              - expression:
                   column_reference:
                     identifier: store
-            - comma: ','
-            - grouping_expression_list:
-                expression:
+              - comma: ','
+              - expression:
                   array_literal:
                     start_bracket: (
                     end_bracket: )
-            - end_bracket: )
+              end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -435,34 +434,33 @@ file:
           start_bracket: (
           values_clause:
           - keyword: VALUES
-          - bracketed:
-            - start_bracket: (
-            - expression:
-                literal: "'a'"
-            - comma: ','
-            - expression:
-                literal: "'b'"
-            - comma: ','
-            - expression:
-                literal: "'c'"
-            - end_bracket: )
+          - expression:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  literal: "'a'"
+              - comma: ','
+              - expression:
+                  literal: "'b'"
+              - comma: ','
+              - expression:
+                  literal: "'c'"
+              - end_bracket: )
           - comma: ','
-          - bracketed:
-            - start_bracket: (
-            - expression:
-                literal: "'d'"
-            - comma: ','
-            - expression:
-                literal: "'e'"
-            - comma: ','
-            - expression:
-                literal: "'f'"
-            - end_bracket: )
+          - expression:
+              bracketed:
+              - start_bracket: (
+              - literal: "'d'"
+              - comma: ','
+              - literal: "'e'"
+              - comma: ','
+              - literal: "'f'"
+              - end_bracket: )
           - comma: ','
-          - bracketed:
-            - start_bracket: (
-            - expression:
-                function:
+          - expression:
+              bracketed:
+              - start_bracket: (
+              - function:
                   function_name:
                     function_name_identifier: f1
                   bracketed:
@@ -470,13 +468,11 @@ file:
                     expression:
                       literal: "'a'"
                     end_bracket: )
-            - comma: ','
-            - expression:
-                literal: "'b'"
-            - comma: ','
-            - expression:
-                literal: "'d'"
-            - end_bracket: )
+              - comma: ','
+              - literal: "'b'"
+              - comma: ','
+              - literal: "'d'"
+              - end_bracket: )
           - alias_expression:
               keyword: AS
               identifier: mylist
@@ -656,14 +652,15 @@ file:
             table_expression:
               values_clause:
                 keyword: values
-                bracketed:
-                - start_bracket: (
-                - expression:
-                    literal: "'x'"
-                - comma: ','
-                - expression:
-                    literal: "'y'"
-                - end_bracket: )
+                expression:
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      literal: "'x'"
+                  - comma: ','
+                  - expression:
+                      literal: "'y'"
+                  - end_bracket: )
                 alias_expression:
                   keyword: AS
                   identifier: x
@@ -690,24 +687,25 @@ file:
             table_expression:
               values_clause:
                 keyword: values
-                bracketed:
-                - start_bracket: (
-                - expression:
-                    bracketed:
-                    - start_bracket: (
-                    - literal: "'x'"
-                    - comma: ','
-                    - literal: "'2'"
-                    - end_bracket: )
-                - comma: ','
-                - expression:
-                    bracketed:
-                    - start_bracket: (
-                    - literal: "'y'"
-                    - comma: ','
-                    - literal: "'2'"
-                    - end_bracket: )
-                - end_bracket: )
+                expression:
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      bracketed:
+                      - start_bracket: (
+                      - literal: "'x'"
+                      - comma: ','
+                      - literal: "'2'"
+                      - end_bracket: )
+                  - comma: ','
+                  - expression:
+                      bracketed:
+                      - start_bracket: (
+                      - literal: "'y'"
+                      - comma: ','
+                      - literal: "'2'"
+                      - end_bracket: )
+                  - end_bracket: )
                 alias_expression:
                   keyword: AS
                   identifier: x
@@ -1631,130 +1629,6 @@ file:
       select_clause:
       - keyword: SELECT
       - select_clause_element:
-          interval_expression:
-            keyword: INTERVAL
-            literal: "'5'"
-          unparsable:
-            raw: MONTH
-      - comma: ','
-      - select_clause_element:
-          interval_expression:
-            keyword: INTERVAL
-            literal: "'130'"
-          unparsable:
-            raw: MONTH
-            bracketed:
-              start_bracket: (
-              raw: '3'
-              end_bracket: )
-      - comma: ','
-      - select_clause_element:
-          interval_expression:
-            keyword: INTERVAL
-            literal: "'27'"
-          unparsable:
-            raw: YEAR
-      - comma: ','
-      - select_clause_element:
-          interval_expression:
-            keyword: INTERVAL
-            literal: "'100-1'"
-          unparsable:
-          - raw: YEAR
-          - bracketed:
-              start_bracket: (
-              raw: '3'
-              end_bracket: )
-          - raw: TO
-          - raw: MONTH
-      - comma: ','
-      - select_clause_element:
-          interval_expression:
-            keyword: INTERVAL
-            literal: "'2-1'"
-          unparsable:
-          - raw: YEAR
-          - raw: TO
-          - raw: MONTH
-      - comma: ','
-      - select_clause_element:
-          interval_expression:
-            keyword: INTERVAL
-            literal: "'10:20'"
-          unparsable:
-          - raw: HOUR
-          - raw: TO
-          - raw: MINUTE
-      - comma: ','
-      - select_clause_element:
-          interval_expression:
-            keyword: INTERVAL
-            literal: "'2 23:10:59'"
-          unparsable:
-          - raw: DAY
-          - raw: TO
-          - raw: SECOND
-      - comma: ','
-      - select_clause_element:
-          interval_expression:
-            keyword: INTERVAL
-            literal: "'6'"
-          unparsable:
-            raw: MINUTE
-      - comma: ','
-      - select_clause_element:
-          interval_expression:
-            keyword: INTERVAL
-            literal: "'5'"
-          unparsable:
-            raw: DAY
-      - comma: ','
-      - select_clause_element:
-          interval_expression:
-            keyword: INTERVAL
-            literal: "'100'"
-          unparsable:
-            raw: HOUR
-            bracketed:
-              start_bracket: (
-              raw: '3'
-              end_bracket: )
-      - comma: ','
-      - select_clause_element:
-          interval_expression:
-            keyword: INTERVAL
-            literal: "'1.99999'"
-          unparsable:
-            raw: SECOND
-            bracketed:
-            - start_bracket: (
-            - raw: '2'
-            - comma: ','
-            - raw: '2'
-            - end_bracket: )
-      - comma: ','
-      - select_clause_element:
-          interval_expression:
-            keyword: INTERVAL
-            literal: "'23:10:59.123'"
-          unparsable:
-          - raw: HOUR
-          - bracketed:
-              start_bracket: (
-              raw: '2'
-              end_bracket: )
-          - raw: TO
-          - raw: SECOND
-          - bracketed:
-              start_bracket: (
-              raw: '3'
-              end_bracket: )
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-      - keyword: SELECT
-      - select_clause_element:
           column_reference:
             identifier: v
       - comma: ','
@@ -1767,12 +1641,12 @@ file:
               identifier: v
           - binary_operator: '*'
           - interval_expression:
-              keyword: INTERVAL
-              literal: "'7'"
-          unparsable:
-          - raw: DAY
-          - raw: AS
-          - raw: late_2020_mondays
+            - keyword: INTERVAL
+            - literal: "'7'"
+            - keyword: DAY
+          alias_expression:
+            keyword: AS
+            identifier: late_2020_mondays
       - comma: ','
       - select_clause_element:
           expression:
