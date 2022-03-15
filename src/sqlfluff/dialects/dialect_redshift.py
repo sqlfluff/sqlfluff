@@ -202,6 +202,7 @@ class ColumnReferenceSegment(ObjectReferenceSegment):  # type: ignore
         Sequence(
             Ref("SingleIdentifierGrammar"),
             AnyNumberOf(Ref("ArrayAccessorSegment")),
+            Ref("TimeZoneGrammar", optional=True),
         ),
         delimiter=OneOf(
             Ref("DotSegment"), Sequence(Ref("DotSegment"), Ref("DotSegment"))
@@ -293,7 +294,10 @@ class DatatypeSegment(BaseSegment):
             "BPCHAR",
             "TEXT",
         ),
-        Ref("DateTimeTypeIdentifier"),
+        Sequence(
+            Ref("DateTimeTypeIdentifier"),
+            Ref("TimeZoneGrammar", optional=True),
+        ),
         # INTERVAL is a data type *only* for conversion operations
         "INTERVAL",
         # boolean types

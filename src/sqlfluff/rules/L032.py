@@ -82,9 +82,8 @@ class Rule_L032(BaseRule):
             sp.is_type("join_clause", "from_expression_element")
         )
 
-        # If we have more than 2 tables we won't try to fix join.
-        # TODO: if this is table 2 of 3 it is still fixable
-        if len(tables_in_join) > 2:
+        # We can only safely fix the first join clause
+        if segment.get(0) != tables_in_join.get(1):
             return unfixable_result
 
         parent_select = parent_stack.last(sp.is_type("select_statement")).get()
@@ -92,20 +91,19 @@ class Rule_L032(BaseRule):
             return unfixable_result
 
         select_info = get_select_statement_info(parent_select, context.dialect)
-        if not select_info:  # pragma: no cover
+        if not select_info or len(select_info.table_aliases) < 2:  # pragma: no cover
             return unfixable_result
 
-        to_delete, insert_after_anchor = _extract_deletion_sequence_and_anchor(
-            tables_in_join.last()
-        )
-        table_a, table_b = select_info.table_aliases
+        to_delete, insert_after_anchor = _extract_deletion_sequence_and_anchor(segment)
+
+        table_a, table_b = select_info.table_aliases[:2]
         edit_segments = [
             KeywordSegment(raw="ON"),
             WhitespaceSegment(raw=" "),
         ] + _generate_join_conditions(
             table_a.ref_str,
             table_b.ref_str,
-            select_info.using_cols,
+            _extract_cols_from_using(segment, using_anchor),
         )
 
         fixes = [
@@ -120,6 +118,18 @@ class Rule_L032(BaseRule):
             description=description,
             fixes=fixes,
         )
+
+
+def _extract_cols_from_using(join_clause: Segments, using_segs: Segments) -> List[str]:
+    # First bracket after the USING keyword, then find ids
+    using_cols: List[str] = (
+        join_clause.children()
+        .select(start_seg=using_segs[0], select_if=sp.is_type("bracketed"))
+        .first()
+        .children(sp.is_type("identifier"))
+        .apply(lambda el: el.raw)
+    )
+    return using_cols
 
 
 def _generate_join_conditions(table_a_ref: str, table_b_ref: str, columns: List[str]):
