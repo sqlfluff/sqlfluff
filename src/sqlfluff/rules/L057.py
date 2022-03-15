@@ -121,9 +121,12 @@ class Rule_L057(BaseRule):
             if (
                 context.dialect.name in ["spark3"]
                 and context.parent_stack
-                and context.parent_stack[-1].name == "FileReferenceSegment"
             ):
-                return None
+                if context.parent_stack[-1].name == "FileReferenceSegment":
+                    return None
+
+                if context.parent_stack[-1].name == "PropertyKeySegment":
+                    identifier = identifier.replace(".", "")
 
             # Strip spaces if allowed (note a separate config as only valid for quoted
             # identifiers)

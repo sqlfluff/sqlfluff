@@ -192,13 +192,6 @@ spark3_dialect.replace(
         Sequence("GLOBAL", optional=True),
         OneOf("TEMP", "TEMPORARY"),
     ),
-    QuotedIdentifierSegment=NamedParser(
-        "back_quote",
-        CodeSegment,
-        name="quoted_identifier",
-        type="identifier",
-        trim_chars=("`",),
-    ),
     QuotedLiteralSegment=hive_dialect.get_grammar("QuotedLiteralSegment"),
     LiteralGrammar=ansi_dialect.get_grammar("LiteralGrammar").copy(
         insert=[
@@ -247,6 +240,13 @@ spark3_dialect.replace(
 )
 
 spark3_dialect.add(
+    BackQuotedIdentifierSegment=NamedParser(
+        "back_quote",
+        CodeSegment,
+        name="quoted_identifier",
+        type="identifier",
+        trim_chars=("`",),
+    ),
     BinaryfileKeywordSegment=StringParser(
         "BINARYFILE",
         KeywordSegment,
@@ -299,6 +299,19 @@ spark3_dialect.add(
         ),
         allow_gaps=False,
     ),
+    PropertyKeySegment=Sequence(
+        OneOf(
+            Delimited(
+                Ref("PropertiesNakedIdentifierSegment"),
+                delimiter=Ref("DotSegment"),
+                allow_gaps=False,
+            ),
+            OneOf(
+                Ref("QuotedIdentifierSegment"),
+                Ref("SingleQuotedIdentifierSegment"),
+            ),
+        ),
+    ),
     # Add relevant Hive Grammar
     CommentGrammar=hive_dialect.get_grammar("CommentGrammar"),
     LocationGrammar=hive_dialect.get_grammar("LocationGrammar"),
@@ -308,25 +321,7 @@ spark3_dialect.add(
     StorageFormatGrammar=hive_dialect.get_grammar("StorageFormatGrammar"),
     TerminatedByGrammar=hive_dialect.get_grammar("TerminatedByGrammar"),
     # Add Spark Grammar
-    PropertyKeyGrammar=Sequence(
-        OneOf(
-            Delimited(
-                Ref("PropertiesNakedIdentifierSegment"),
-                delimiter=Ref("DotSegment"),
-                allow_gaps=False,
-            ),
-            Ref("QuotedLiteralSegment"),
-        ),
-    ),
-    PropertyGrammar=Sequence(
-        Ref("PropertyKeyGrammar"),
-        Ref("EqualsSegment", optional=True),
-        OneOf(
-            Ref("LiteralGrammar"),
-            Ref("SingleIdentifierGrammar"),
-        ),
-    ),
-    PropertyKeyListGrammar=Delimited(Ref("PropertyKeyGrammar")),
+    PropertyKeyListGrammar=Delimited(Ref("PropertyKeySegment")),
     BracketedPropertyKeyListGrammar=Bracketed(Ref("PropertyKeyListGrammar")),
     PropertyListGrammar=Delimited(Ref("PropertyGrammar")),
     BracketedPropertyListGrammar=Bracketed(Ref("PropertyListGrammar")),
@@ -2079,7 +2074,7 @@ class SetStatementSegment(BaseSegment):
         Ref("SQLConfPropertiesSegment", optional=True),
         OneOf(
             Ref("PropertyListGrammar"),
-            Ref("PropertyKeyGrammar"),
+            Ref("PropertyKeySegment"),
             optional=True,
         ),
     )
@@ -2488,7 +2483,7 @@ class FileReferenceSegment(BaseSegment):
         Ref("DotSegment"),
         # NB: Using `QuotedLiteralSegment` here causes `FileReferenceSegment`
         # to match as a `TableReferenceSegment`
-        Ref("QuotedIdentifierSegment"),
+        Ref("BackQuotedIdentifierSegment"),
     )
 
 
@@ -2521,3 +2516,24 @@ class FromExpressionElementSegment(BaseSegment):
     get_eventual_alias = ansi_dialect.get_segment(
         "FromExpressionElementSegment"
     ).get_eventual_alias
+
+
+# @spark3_dialect.segment()
+# class PropertyKeySegment(BaseSegment):
+#     """A key used to set properties or retrieve property values."""
+#
+#     type = "property_key"
+#
+#     match_grammar = Sequence(
+#         OneOf(
+#             Delimited(
+#                 Ref("PropertiesNakedIdentifierSegment"),
+#                 delimiter=Ref("DotSegment"),
+#                 allow_gaps=False,
+#             ),
+#             OneOf(
+#                 Ref("QuotedIdentifierSegment"),
+#                 Ref("SingleQuotedIdentifierSegment"),
+#             ),
+#         ),
+#     ),
