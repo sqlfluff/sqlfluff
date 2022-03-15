@@ -409,7 +409,7 @@ spark3_dialect.add(
     PropertiesNakedIdentifierSegment=SegmentGenerator(
         # Generate the anti template from the set of reserved keywords
         lambda dialect: RegexParser(
-            r"[A-Z0-9_]*[A-Z][A-Z0-9_]*",
+            r"[A-Z0-9]*[A-Z][A-Z0-9]*",
             CodeSegment,
             name="properties_naked_identifier",
             type="identifier",

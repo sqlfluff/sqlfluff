@@ -217,3 +217,15 @@ test_pass_ignore_word:
       L014:
         capitalisation_policy: upper
         ignore_words: b
+
+test_pass_consistent_capitalisation_properties_naked_identifier:
+  pass_str: SHOW TBLPROPERTIES customer (created.by.user)
+
+test_fail_inconsistent_capitalisation_properties_naked_identifier:
+  # Test that fixes are consistent
+  fail_str: SHOW TBLPROPERTIES customer (created.BY.user)
+  fix_str: SHOW TBLPROPERTIES customer (created.by.user)
+
+test_fail_inconsistent_capitalisation_properties_naked_identifier_2:
+  fail_str: SHOW TBLPROPERTIES customer (Created.By.User)
+  fix_str: SHOW TBLPROPERTIES customer (created.by.user)
