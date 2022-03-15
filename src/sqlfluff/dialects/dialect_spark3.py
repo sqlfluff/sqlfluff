@@ -192,7 +192,10 @@ spark3_dialect.replace(
         Sequence("GLOBAL", optional=True),
         OneOf("TEMP", "TEMPORARY"),
     ),
-    QuotedLiteralSegment=hive_dialect.get_grammar("QuotedLiteralSegment"),
+    QuotedLiteralSegment=OneOf(
+        NamedParser("single_quote", CodeSegment, name="quoted_literal", type="literal"),
+        NamedParser("double_quote", CodeSegment, name="quoted_literal", type="literal"),
+    ),
     LiteralGrammar=ansi_dialect.get_grammar("LiteralGrammar").copy(
         insert=[
             Ref("BytesQuotedLiteralSegment"),
@@ -236,6 +239,12 @@ spark3_dialect.replace(
         # NB: The Dedent for the indent above lives in the
         # SelectStatementSegment so that it sits in the right
         # place corresponding to the whitespace.
+    ),
+    SingleIdentifierGrammar=OneOf(
+        Ref("NakedIdentifierSegment"),
+        Ref("QuotedIdentifierSegment"),
+        Ref("SingleQuotedIdentifierSegment"),
+        Ref("BackQuotedIdentifierSegment"),
     ),
 )
 
@@ -2411,6 +2420,7 @@ class ValuesClauseSegment(BaseSegment):
     """
 
     type = "values_clause"
+
     match_grammar = Sequence(
         "VALUES",
         Delimited(
@@ -2527,9 +2537,6 @@ class PropertyKeySegment(BaseSegment):
                 delimiter=Ref("DotSegment"),
                 allow_gaps=False,
             ),
-            OneOf(
-                Ref("QuotedIdentifierSegment"),
-                Ref("SingleQuotedIdentifierSegment"),
-            ),
+            Ref("SingleIdentifierGrammar"),
         ),
     )
