@@ -1,3 +1,4 @@
 test-config:
   rules:
-    - ALL
+    - L042
+    - L046

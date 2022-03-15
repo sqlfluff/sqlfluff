@@ -2,6 +2,7 @@
 from functools import partial
 from typing import Generator, List, NamedTuple, Optional, Tuple, Type, TypeVar, cast
 from sqlfluff.core.dialects.base import Dialect
+from sqlfluff.core.parser.markers import PositionMarker
 
 from sqlfluff.core.parser.segments.base import BaseSegment
 from sqlfluff.core.parser.segments.raw import (
@@ -157,10 +158,15 @@ def _calculate_fixes(
             dialect=dialect,
         )
         ctes.insert_cte(new_cte)
+        # We are preping a mutative change
+        # I gather this is bad. We must provide a position marker
+        # TODO: alternative to mutative change, Dummy pos markers
+        original_pos = this_seg[0].pos_marker
+        assert original_pos, "TypeGuard"
         mutations_buffer.append(
             (
                 this_seg[0],
-                _create_table_ref(alias_name, dialect),
+                _create_table_ref(alias_name, dialect, original_pos),
             )
         )
         res = LintResult(
@@ -362,7 +368,10 @@ def _create_cte_seg(
     return element
 
 
-def _create_table_ref(table_name: str, dialect: Dialect) -> TableExpressionSegment:
+def _create_table_ref(
+    table_name: str, dialect: Dialect, position_marker: PositionMarker
+) -> TableExpressionSegment:
+    # The mutative change needs a position_marker
     Seg = partial(_get_seg, dialect=dialect)
     TableExpressionSeg = Seg(TableExpressionSegment)
     TableReferenceSeg = Seg(TableReferenceSegment)
@@ -374,10 +383,13 @@ def _create_table_ref(table_name: str, dialect: Dialect) -> TableExpressionSegme
                         raw=table_name,
                         name="naked_identifier",
                         type="identifier",
+                        pos_marker=position_marker,
                     ),
-                )
+                ),
+                pos_marker=position_marker,
             ),
-        )
+        ),
+        pos_marker=position_marker,
     )
     return table_seg  # type: ignore
 

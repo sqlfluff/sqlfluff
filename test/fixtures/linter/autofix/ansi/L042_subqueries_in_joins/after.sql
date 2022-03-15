@@ -1,9 +1,9 @@
-WITH prep_1 AS (
-    SELECT
-        *,
-        margin
-    FROM b_table
-)
+{% set x = "col" %}
+-- We find the error with the subquery and then have to dump it again
+-- due to the template
 SELECT *
-FROM a_table
-INNER JOIN prep_1 ON a_table.some_column = prep_1.some_column
+FROM A_TABLE
+INNER JOIN (
+    SELECT *, {{ x }}
+    FROM B_TABLE
+) USING (SOME_COLUMN)
