@@ -191,7 +191,9 @@ class JinjaTracer:
         alternate_code = f"\0{prefix}{unique_alternate_id}_{length}"
         return self.make_raw_slice_info(unique_alternate_id, alternate_code, [])
 
-    def update_inside_set_or_macro(self, block_type, trimmed_parts):
+    def update_inside_set_or_macro(
+        self, block_type: str, trimmed_parts: List[str]
+    ) -> None:
         """Based on block tag, update whether we're in a set/macro section."""
         if block_type == "block_start" and trimmed_parts[0] in (
             "macro",
@@ -214,14 +216,19 @@ class JinjaTracer:
             # Exiting a set/macro block.
             self.inside_set_or_macro = False
 
-    def make_raw_slice_info(self, *args, **kwargs) -> RawSliceInfo:
+    def make_raw_slice_info(
+        self,
+        unique_alternate_id: Optional[str],
+        alternate_code: Optional[str],
+        next_slice_indices: List[int],
+    ) -> RawSliceInfo:
         """Factory function. Returns "empty" info when in set/macro block."""
         if not self.inside_set_or_macro:
-            return RawSliceInfo(*args, **kwargs)
+            return RawSliceInfo(unique_alternate_id, alternate_code, next_slice_indices)
         else:
             return RawSliceInfo(None, None, [])
 
-    def _slice_template(self):
+    def _slice_template(self) -> None:
         """Slice template in jinja.
 
         NB: Starts and ends of blocks are not distinguished.
@@ -380,7 +387,13 @@ class JinjaTracer:
                 block_subtype = "loop"
         return block_type, block_subtype
 
-    def extract_tag_contents(self, str_parts, m_close, m_open, str_buff):
+    def extract_tag_contents(
+        self,
+        str_parts: List[str],
+        m_close: regex.Match,
+        m_open: regex.Match,
+        str_buff: str,
+    ) -> List[str]:
         """Given Jinja tag info, return the stuff inside the braces."""
         if len(str_parts) >= 3:
             # Handle a tag received as individual parts.
@@ -395,7 +408,9 @@ class JinjaTracer:
             trimmed_parts = trimmed_content.split()
         return trimmed_parts
 
-    def update_next_slice_indices(self, block_idx, block_type, trimmed_parts):
+    def update_next_slice_indices(
+        self, block_idx: int, block_type: str, trimmed_parts: List[str]
+    ) -> None:
         """Based on block, update conditional jump info."""
         if block_type == "block_start" and trimmed_parts[0] in (
             "for",
@@ -435,7 +450,7 @@ class JinjaTracer:
                     ].next_slice_indices.append(self.stack[-1] + 1)
                 self.stack.pop()
 
-    def handle_left_whitespace_stripping(self, idx, raw):
+    def handle_left_whitespace_stripping(self, idx: int, raw: str) -> int:
         """If block open uses whitespace stripping, record it."""
         # When a "begin" tag (whether block, comment, or data) uses
         # whitespace stripping (
