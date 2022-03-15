@@ -54,6 +54,8 @@ class JinjaTracer:
         self.program_counter: int = 0
         self.slice_id: int = 0
         self.raw_slice_info: Dict[RawFileSlice, RawSliceInfo] = {}
+        # Used *only* during object initialization, not trace()
+        self.inside_set_or_macro: bool = False
         self.raw_sliced: List[RawFileSlice] = self._slice_template()
         self.sliced_file: List[TemplatedFileSlice] = []
         self.source_idx: int = 0
@@ -186,7 +188,37 @@ class JinjaTracer:
         """
         unique_alternate_id = self.next_slice_id()
         alternate_code = f"\0{prefix}{unique_alternate_id}_{length}"
-        return RawSliceInfo(unique_alternate_id, alternate_code, [])
+        return self.make_raw_slice_info(unique_alternate_id, alternate_code, [])
+
+    def update_inside_set_or_macro(self, block_type, trimmed_parts):
+        """Based on block tag, update whether we're in a set/macro section."""
+        if block_type == "block_start" and trimmed_parts[0] in (
+            "macro",
+            "set",
+        ):
+            # Jinja supports two forms of {% set %}:
+            # - {% set variable = value %}
+            # - {% set variable %}value{% endset %}
+            # https://jinja.palletsprojects.com/en/2.10.x/templates/#block-assignments
+            # When the second format is used, set the field
+            # 'inside_set_or_macro' to True. This info is used elsewhere,
+            # as other code inside these regions require special handling.
+            # (Generally speaking, JinjaTracer ignores the contents of these
+            # blocks, treating them like opaque templated regions.)
+            filtered_trimmed_parts = [p for p in trimmed_parts if not p.isspace()]
+            if len(filtered_trimmed_parts) < 3 or filtered_trimmed_parts[2] != "=":
+                # Entering a set/macro block.
+                self.inside_set_or_macro = True
+        elif block_type == "block_end" and (trimmed_parts[0] in ("endmacro", "endset")):
+            # Exiting a set/macro block.
+            self.inside_set_or_macro = False
+
+    def make_raw_slice_info(self, *args, **kwargs) -> RawSliceInfo:
+        """Factory function. Returns "empty" info when in set/macro block."""
+        if not self.inside_set_or_macro:
+            return RawSliceInfo(*args, **kwargs)
+        else:
+            return RawSliceInfo(None, None, [])
 
     def _slice_template(self) -> List[RawFileSlice]:
         """Slice template in jinja.
@@ -215,9 +247,9 @@ class JinjaTracer:
         # https://jinja.palletsprojects.com/en/2.11.x/api/#jinja2.Environment.lex
         stack = []
         result = []
-        inside_set_or_macro: bool = False
         unique_alternate_id: Optional[str]
         alternate_code: Optional[str]
+
         for _, elem_type, raw in self.env.lex(self.raw_str):
             # Replace literal text with a unique ID.
             if elem_type == "data":
@@ -228,15 +260,9 @@ class JinjaTracer:
                         idx,
                     )
                 )
-                if not inside_set_or_macro:
-                    rsi = self.slice_info_for_literal(len(raw), "")
-                else:
-                    # For "set" blocks, don't generate alternate ID or code.
-                    # Sometimes, dbt users use {% set %} blocks to generate
-                    # queries that get sent to actual databases, thus causing
-                    # errors if we tamper with it.
-                    rsi = RawSliceInfo(None, None, [])
-                self.raw_slice_info[result[-1]] = rsi
+                self.raw_slice_info[result[-1]] = self.slice_info_for_literal(
+                    len(raw), ""
+                )
                 idx += len(raw)
                 continue
             str_buff += raw
@@ -287,6 +313,7 @@ class JinjaTracer:
             # parts of the tag at a time.
             unique_alternate_id = None
             alternate_code = None
+            trimmed_parts = []
             if elem_type.endswith("_end") or elem_type == "raw_begin":
                 block_type = block_types[elem_type]
                 block_subtype = None
@@ -330,47 +357,15 @@ class JinjaTracer:
                         # effects, but return a unique slice ID.
                         if trimmed_parts:
                             assert m_open and m_close
-                            # For "set" blocks, don't generate alternate ID or
-                            # code. Sometimes, dbt users use {% set %} blocks to
-                            # generate queries that get sent to actual
-                            # databases, thus causing errors if we tamper with
-                            # it.
-                            if not inside_set_or_macro:
-                                unique_id = self.next_slice_id()
-                                unique_alternate_id = unique_id
-                                open_ = m_open.group(1)
-                                close_ = m_close.group(1)
-                                alternate_code = (
-                                    f"\0{unique_alternate_id} {open_} "
-                                    f"{''.join(trimmed_parts)} {close_}"
-                                )
-                if block_type == "block_start" and trimmed_parts[0] in (
-                    "macro",
-                    "set",
-                ):
-                    # Jinja supports two forms of {% set %}:
-                    # - {% set variable = value %}
-                    # - {% set variable %}value{% endset %}
-                    # https://jinja.palletsprojects.com/en/2.10.x/templates/#block-assignments
-                    # When the second format is used, set the variable
-                    # 'inside_set_or_macro' to True. This info is used
-                    # elsewhere, as literals inside a {% set %} block require
-                    # special handling during the trace.
-                    filtered_trimmed_parts = [
-                        p for p in trimmed_parts if not p.isspace()
-                    ]
-                    if (
-                        len(filtered_trimmed_parts) < 3
-                        or filtered_trimmed_parts[2] != "="
-                    ):
-                        inside_set_or_macro = True
-                elif (
-                    block_type == "block_end"
-                    and inside_set_or_macro
-                    and (trimmed_parts[0] in ("endmacro", "endset"))
-                ):
-                    # Exiting a {% set %} block. Clear the indicator variable.
-                    inside_set_or_macro = False
+                            unique_id = self.next_slice_id()
+                            unique_alternate_id = unique_id
+                            open_ = m_open.group(1)
+                            close_ = m_close.group(1)
+                            alternate_code = (
+                                f"\0{unique_alternate_id} {open_} "
+                                f"{''.join(trimmed_parts)} {close_}"
+                            )
+                self.update_inside_set_or_macro(block_type, trimmed_parts)
                 m = regex.search(r"\s+$", raw, regex.MULTILINE | regex.DOTALL)
                 if raw.startswith("-") and m:
                     # Right whitespace was stripped. Split off the trailing
@@ -389,7 +384,7 @@ class JinjaTracer:
                             block_subtype,
                         )
                     )
-                    self.raw_slice_info[result[-1]] = RawSliceInfo(
+                    self.raw_slice_info[result[-1]] = self.make_raw_slice_info(
                         unique_alternate_id, alternate_code, []
                     )
                     block_idx = len(result) - 1
@@ -412,7 +407,7 @@ class JinjaTracer:
                             block_subtype,
                         )
                     )
-                    self.raw_slice_info[result[-1]] = RawSliceInfo(
+                    self.raw_slice_info[result[-1]] = self.make_raw_slice_info(
                         unique_alternate_id, alternate_code, []
                     )
                     block_idx = len(result) - 1
@@ -429,14 +424,9 @@ class JinjaTracer:
                     )
                     stack.pop()
                     stack.append(block_idx)
-                elif (
-                    block_type == "block_end"
-                    and not inside_set_or_macro
-                    and trimmed_parts[0]
-                    in (
-                        "endfor",
-                        "endif",
-                    )
+                elif block_type == "block_end" and trimmed_parts[0] in (
+                    "endfor",
+                    "endif",
                 ):
                     # Replace RawSliceInfo for this slice with one that has
                     # alternate ID and code for tracking. This ensures, for
@@ -445,19 +435,20 @@ class JinjaTracer:
                     # TemplateSliceInfo for it.
                     unique_alternate_id = self.next_slice_id()
                     alternate_code = f"{result[-1].raw}\0{unique_alternate_id}_0"
-                    self.raw_slice_info[result[-1]] = RawSliceInfo(
+                    self.raw_slice_info[result[-1]] = self.make_raw_slice_info(
                         unique_alternate_id, alternate_code, []
                     )
-                    # Record potential forward jump over this block.
-                    self.raw_slice_info[result[stack[-1]]].next_slice_indices.append(
-                        block_idx
-                    )
-                    if result[stack[-1]].slice_subtype == "loop":
-                        # Record potential backward jump to the loop beginning.
+                    if not self.inside_set_or_macro:
+                        # Record potential forward jump over this block.
                         self.raw_slice_info[
-                            result[block_idx]
-                        ].next_slice_indices.append(stack[-1] + 1)
-                    stack.pop()
+                            result[stack[-1]]
+                        ].next_slice_indices.append(block_idx)
+                        if result[stack[-1]].slice_subtype == "loop":
+                            # Record potential backward jump to the loop beginning.
+                            self.raw_slice_info[
+                                result[block_idx]
+                            ].next_slice_indices.append(stack[-1] + 1)
+                        stack.pop()
                 str_buff = ""
                 str_parts = []
         return result
