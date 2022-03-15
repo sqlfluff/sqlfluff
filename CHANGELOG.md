@@ -18,7 +18,7 @@ Major changes include:
 * Improvements to templating blocks
 * `generate_parse_fixture_yml` options to allow quicker, partial regeneration of YML files
 * Numerous rule fixes
-* Numerous grammer changes
+* Numerous grammar changes
 
 ## What's Changed
 
