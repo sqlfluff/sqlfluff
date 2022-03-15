@@ -54,9 +54,10 @@ class JinjaTracer:
         self.program_counter: int = 0
         self.slice_id: int = 0
         self.raw_slice_info: Dict[RawFileSlice, RawSliceInfo] = {}
-        # Used *only* during object initialization, not trace()
         self.inside_set_or_macro: bool = False
-        self.raw_sliced: List[RawFileSlice] = self._slice_template()
+        self.raw_sliced: List[RawFileSlice] = []
+        self.stack: List[int] = []
+        self._slice_template()
         self.sliced_file: List[TemplatedFileSlice] = []
         self.source_idx: int = 0
 
@@ -220,7 +221,7 @@ class JinjaTracer:
         else:
             return RawSliceInfo(None, None, [])
 
-    def _slice_template(self) -> List[RawFileSlice]:
+    def _slice_template(self):
         """Slice template in jinja.
 
         NB: Starts and ends of blocks are not distinguished.
@@ -245,22 +246,20 @@ class JinjaTracer:
         }
 
         # https://jinja.palletsprojects.com/en/2.11.x/api/#jinja2.Environment.lex
-        stack = []
-        result = []
         unique_alternate_id: Optional[str]
         alternate_code: Optional[str]
 
         for _, elem_type, raw in self.env.lex(self.raw_str):
             # Replace literal text with a unique ID.
             if elem_type == "data":
-                result.append(
+                self.raw_sliced.append(
                     RawFileSlice(
                         raw,
                         "literal",
                         idx,
                     )
                 )
-                self.raw_slice_info[result[-1]] = self.slice_info_for_literal(
+                self.raw_slice_info[self.raw_sliced[-1]] = self.slice_info_for_literal(
                     len(raw), ""
                 )
                 idx += len(raw)
@@ -269,51 +268,14 @@ class JinjaTracer:
             str_parts.append(raw)
 
             if elem_type.endswith("_begin"):
-                # When a "begin" tag (whether block, comment, or data) uses
-                # whitespace stripping (
-                # https://jinja.palletsprojects.com/en/3.0.x/templates/#whitespace-control
-                # ), the Jinja lex() function handles this by discarding adjacent
-                # whitespace from in_str. For more insight, see the tokeniter()
-                # function in this file:
-                # https://github.com/pallets/jinja/blob/main/src/jinja2/lexer.py
-                # We want to detect and correct for this in order to:
-                # - Correctly update "idx" (if this is wrong, that's a
-                #   potential DISASTER because lint fixes use this info to
-                #   update the source file, and incorrect values often result in
-                #   CORRUPTING the user's file so it's no longer valid SQL. :-O
-                # - Guarantee that the slices we return fully "cover" the
-                #   contents of in_str.
-                #
-                # We detect skipped characters by looking ahead in in_str for
-                # the token just returned from lex(). The token text will either
-                # be at the current 'idx' position (if whitespace stripping did
-                # not occur) OR it'll be farther along in in_str, but we're
-                # GUARANTEED that lex() only skips over WHITESPACE; nothing else.
+                idx = self.handle_left_whitespace_stripping(idx, raw)
 
-                # Find the token returned. Did lex() skip over any characters?
-                num_chars_skipped = self.raw_str.index(raw, idx) - idx
-                if num_chars_skipped:
-                    # Yes. It skipped over some characters. Compute a string
-                    # containing the skipped characters.
-                    skipped_str = self.raw_str[idx : idx + num_chars_skipped]
-
-                    # Sanity check: Verify that Jinja only skips over
-                    # WHITESPACE, never anything else.
-                    if not skipped_str.isspace():  # pragma: no cover
-                        templater_logger.warning(
-                            "Jinja lex() skipped non-whitespace: %s", skipped_str
-                        )
-                    # Treat the skipped whitespace as a literal.
-                    result.append(RawFileSlice(skipped_str, "literal", idx))
-                    self.raw_slice_info[result[-1]] = self.slice_info_for_literal(0)
-                    idx += num_chars_skipped
-
-            # raw_end and raw_begin behave a little differently in
-            # that the whole tag shows up in one go rather than getting
-            # parts of the tag at a time.
             unique_alternate_id = None
             alternate_code = None
             trimmed_parts = []
+            # raw_end and raw_begin behave a little differently in
+            # that the whole tag shows up in one go rather than getting
+            # parts of the tag at a time.
             if elem_type.endswith("_end") or elem_type == "raw_begin":
                 block_type = block_types[elem_type]
                 block_subtype = None
@@ -376,7 +338,7 @@ class JinjaTracer:
                     # returns, it has simply grouped them differently than we
                     # want.
                     trailing_chars = len(m.group(0))
-                    result.append(
+                    self.raw_sliced.append(
                         RawFileSlice(
                             str_buff[:-trailing_chars],
                             block_type,
@@ -384,22 +346,24 @@ class JinjaTracer:
                             block_subtype,
                         )
                     )
-                    self.raw_slice_info[result[-1]] = self.make_raw_slice_info(
+                    self.raw_slice_info[self.raw_sliced[-1]] = self.make_raw_slice_info(
                         unique_alternate_id, alternate_code, []
                     )
-                    block_idx = len(result) - 1
+                    block_idx = len(self.raw_sliced) - 1
                     idx += len(str_buff) - trailing_chars
-                    result.append(
+                    self.raw_sliced.append(
                         RawFileSlice(
                             str_buff[-trailing_chars:],
                             "literal",
                             idx,
                         )
                     )
-                    self.raw_slice_info[result[-1]] = self.slice_info_for_literal(0)
+                    self.raw_slice_info[
+                        self.raw_sliced[-1]
+                    ] = self.slice_info_for_literal(0)
                     idx += trailing_chars
                 else:
-                    result.append(
+                    self.raw_sliced.append(
                         RawFileSlice(
                             str_buff,
                             block_type,
@@ -407,48 +371,92 @@ class JinjaTracer:
                             block_subtype,
                         )
                     )
-                    self.raw_slice_info[result[-1]] = self.make_raw_slice_info(
+                    self.raw_slice_info[self.raw_sliced[-1]] = self.make_raw_slice_info(
                         unique_alternate_id, alternate_code, []
                     )
-                    block_idx = len(result) - 1
+                    block_idx = len(self.raw_sliced) - 1
                     idx += len(str_buff)
-                if block_type == "block_start" and trimmed_parts[0] in (
-                    "for",
-                    "if",
-                ):
-                    stack.append(block_idx)
-                elif block_type == "block_mid":
-                    # Record potential forward jump over this block.
-                    self.raw_slice_info[result[stack[-1]]].next_slice_indices.append(
-                        block_idx
-                    )
-                    stack.pop()
-                    stack.append(block_idx)
-                elif block_type == "block_end" and trimmed_parts[0] in (
-                    "endfor",
-                    "endif",
-                ):
-                    # Replace RawSliceInfo for this slice with one that has
-                    # alternate ID and code for tracking. This ensures, for
-                    # instance, that if a file ends with "{% endif %} (with
-                    # no newline following), that we still generate a
-                    # TemplateSliceInfo for it.
-                    unique_alternate_id = self.next_slice_id()
-                    alternate_code = f"{result[-1].raw}\0{unique_alternate_id}_0"
-                    self.raw_slice_info[result[-1]] = self.make_raw_slice_info(
-                        unique_alternate_id, alternate_code, []
-                    )
-                    if not self.inside_set_or_macro:
-                        # Record potential forward jump over this block.
-                        self.raw_slice_info[
-                            result[stack[-1]]
-                        ].next_slice_indices.append(block_idx)
-                        if result[stack[-1]].slice_subtype == "loop":
-                            # Record potential backward jump to the loop beginning.
-                            self.raw_slice_info[
-                                result[block_idx]
-                            ].next_slice_indices.append(stack[-1] + 1)
-                        stack.pop()
+                self.update_next_slice_indices(block_idx, block_type, trimmed_parts)
                 str_buff = ""
                 str_parts = []
-        return result
+
+    def update_next_slice_indices(self, block_idx, block_type, trimmed_parts):
+        """Based on block, update conditional jump info."""
+        if block_type == "block_start" and trimmed_parts[0] in (
+            "for",
+            "if",
+        ):
+            self.stack.append(block_idx)
+        elif block_type == "block_mid":
+            # Record potential forward jump over this block.
+            self.raw_slice_info[
+                self.raw_sliced[self.stack[-1]]
+            ].next_slice_indices.append(block_idx)
+            self.stack.pop()
+            self.stack.append(block_idx)
+        elif block_type == "block_end" and trimmed_parts[0] in (
+            "endfor",
+            "endif",
+        ):
+            # Replace RawSliceInfo for this slice with one that has
+            # alternate ID and code for tracking. This ensures, for
+            # instance, that if a file ends with "{% endif %} (with
+            # no newline following), that we still generate a
+            # TemplateSliceInfo for it.
+            unique_alternate_id = self.next_slice_id()
+            alternate_code = f"{self.raw_sliced[-1].raw}\0{unique_alternate_id}_0"
+            self.raw_slice_info[self.raw_sliced[-1]] = self.make_raw_slice_info(
+                unique_alternate_id, alternate_code, []
+            )
+            if not self.inside_set_or_macro:
+                # Record potential forward jump over this block.
+                self.raw_slice_info[
+                    self.raw_sliced[self.stack[-1]]
+                ].next_slice_indices.append(block_idx)
+                if self.raw_sliced[self.stack[-1]].slice_subtype == "loop":
+                    # Record potential backward jump to the loop beginning.
+                    self.raw_slice_info[
+                        self.raw_sliced[block_idx]
+                    ].next_slice_indices.append(self.stack[-1] + 1)
+                self.stack.pop()
+
+    def handle_left_whitespace_stripping(self, idx, raw):
+        """If block open uses whitespace stripping, record it."""
+        # When a "begin" tag (whether block, comment, or data) uses
+        # whitespace stripping (
+        # https://jinja.palletsprojects.com/en/3.0.x/templates/#whitespace-control
+        # ), the Jinja lex() function handles this by discarding adjacent
+        # whitespace from in_str. For more insight, see the tokeniter()
+        # function in this file:
+        # https://github.com/pallets/jinja/blob/main/src/jinja2/lexer.py
+        # We want to detect and correct for this in order to:
+        # - Correctly update "idx" (if this is wrong, that's a
+        #   potential DISASTER because lint fixes use this info to
+        #   update the source file, and incorrect values often result in
+        #   CORRUPTING the user's file so it's no longer valid SQL. :-O
+        # - Guarantee that the slices we return fully "cover" the
+        #   contents of in_str.
+        #
+        # We detect skipped characters by looking ahead in in_str for
+        # the token just returned from lex(). The token text will either
+        # be at the current 'idx' position (if whitespace stripping did
+        # not occur) OR it'll be farther along in in_str, but we're
+        # GUARANTEED that lex() only skips over WHITESPACE; nothing else.
+        # Find the token returned. Did lex() skip over any characters?
+        num_chars_skipped = self.raw_str.index(raw, idx) - idx
+        if num_chars_skipped:
+            # Yes. It skipped over some characters. Compute a string
+            # containing the skipped characters.
+            skipped_str = self.raw_str[idx : idx + num_chars_skipped]
+
+            # Sanity check: Verify that Jinja only skips over
+            # WHITESPACE, never anything else.
+            if not skipped_str.isspace():  # pragma: no cover
+                templater_logger.warning(
+                    "Jinja lex() skipped non-whitespace: %s", skipped_str
+                )
+            # Treat the skipped whitespace as a literal.
+            self.raw_sliced.append(RawFileSlice(skipped_str, "literal", idx))
+            self.raw_slice_info[self.raw_sliced[-1]] = self.slice_info_for_literal(0)
+            idx += num_chars_skipped
+        return idx

@@ -588,7 +588,7 @@ def test__templater_jinja_slice_template(test, result):
     templater = JinjaTemplater()
     env, live_context, make_template = templater.template_builder()
     tracer = JinjaTracer(test, env, make_template)
-    resp = list(tracer._slice_template())
+    resp = tracer.raw_sliced
     # check contiguous (unless there's a comment in it)
     if "{#" not in test:
         assert "".join(elem.raw for elem in resp) == test
