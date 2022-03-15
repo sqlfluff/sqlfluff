@@ -369,7 +369,8 @@ class JinjaTracer:
                 str_buff = ""
                 str_parts = []
 
-    def extract_block_type(self, tag_contents, block_subtype):
+    @staticmethod
+    def extract_block_type(tag_contents, block_subtype):
         """Determine block type."""
         # :TRICKY: Syntactically, the Jinja {% include %} directive looks like
         # a block, but its behavior is basically syntactic sugar for
@@ -388,8 +389,8 @@ class JinjaTracer:
                 block_subtype = "loop"
         return block_type, block_subtype
 
+    @staticmethod
     def extract_tag_contents(
-        self,
         str_parts: List[str],
         m_close: regex.Match,
         m_open: regex.Match,
