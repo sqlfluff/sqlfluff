@@ -431,9 +431,14 @@ class JinjaTracer:
                     )
                     stack.pop()
                     stack.append(block_idx)
-                elif block_type == "block_end" and trimmed_parts[0] in (
-                    "endfor",
-                    "endif",
+                elif (
+                    block_type == "block_end"
+                    and set_idx is None
+                    and trimmed_parts[0]
+                    in (
+                        "endfor",
+                        "endif",
+                    )
                 ):
                     # Replace RawSliceInfo for this slice with one that has
                     # alternate ID and code for tracking. This ensures, for
