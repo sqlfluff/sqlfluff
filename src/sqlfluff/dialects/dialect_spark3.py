@@ -31,7 +31,7 @@ from sqlfluff.core.parser import (
     SymbolSegment,
     Anything,
     StartsWith,
-    RegexParser,
+    RegexParser, SegmentGenerator,
 )
 from sqlfluff.core.parser.segments.raw import CodeSegment, KeywordSegment
 from sqlfluff.dialects.dialect_spark3_keywords import (
@@ -307,18 +307,28 @@ spark3_dialect.add(
     StorageFormatGrammar=hive_dialect.get_grammar("StorageFormatGrammar"),
     TerminatedByGrammar=hive_dialect.get_grammar("TerminatedByGrammar"),
     # Add Spark Grammar
-    PropertyGrammar=Sequence(
+    PropertyKeyGrammar=Sequence(
         OneOf(
-            Ref("LiteralGrammar"),
-            Ref("SingleIdentifierGrammar"),
+            Delimited(
+                Ref("PropertiesNakedIdentifierSegment"),
+                delimiter=Ref("DotSegment"),
+                allow_gaps=False,
+            ),
+            Ref("QuotedLiteralSegment"),
         ),
+    ),
+    PropertyGrammar=Sequence(
+        Ref("PropertyKeyGrammar"),
         Ref("EqualsSegment", optional=True),
         OneOf(
             Ref("LiteralGrammar"),
             Ref("SingleIdentifierGrammar"),
         ),
     ),
-    BracketedPropertyListGrammar=Bracketed(Delimited(Ref("PropertyGrammar"))),
+    PropertyKeyListGrammar=Delimited(Ref("PropertyKeyGrammar")),
+    BracketedPropertyKeyListGrammar=Bracketed(Ref("PropertyKeyListGrammar")),
+    PropertyListGrammar=Delimited(Ref("PropertyGrammar")),
+    BracketedPropertyListGrammar=Bracketed(Ref("PropertyListGrammar")),
     OptionsGrammar=Sequence("OPTIONS", Ref("BracketedPropertyListGrammar")),
     BucketSpecGrammar=Sequence(
         Ref("ClusteredBySpecGrammar"),
@@ -390,6 +400,20 @@ spark3_dialect.add(
             ),
         ),
     ),
+    # The strange regex here it to make sure we don't accidentally match numeric
+    # literals. We also use a regex to explicitly exclude disallowed keywords.
+    # NB: Redefined from `NakedIdentifierSegment` which uses an anti-template to
+    # not match keywords; however, SparkSQL allows keywords to be used in table
+    # and runtime properties.
+    PropertiesNakedIdentifierSegment=SegmentGenerator(
+        # Generate the anti template from the set of reserved keywords
+        lambda dialect: RegexParser(
+            r"[A-Z0-9_]*[A-Z][A-Z0-9_]*",
+            CodeSegment,
+            name="properties_naked_identifier",
+            type="identifier",
+        )
+    ),
     ResourceFileGrammar=OneOf(
         Ref("JarKeywordSegment"),
         Ref("WhlKeywordSegment"),
@@ -417,7 +441,7 @@ spark3_dialect.add(
         "UNSET",
         "TBLPROPERTIES",
         Ref("IfExistsGrammar", optional=True),
-        Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
+        Ref("BracketedPropertyKeyListGrammar"),
     ),
     TablePropertiesGrammar=Sequence(
         "TBLPROPERTIES", Ref("BracketedPropertyListGrammar")
@@ -2052,18 +2076,145 @@ class SetStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "SET",
         Ref("SQLConfPropertiesSegment", optional=True),
-        Sequence(
-            Delimited(
-                Ref("SingleIdentifierGrammar"),
-                delimiter=Ref("DotSegment"),
-                allow_gaps=False,
-            ),
-            Sequence(
-                Ref("EqualsSegment"),
-                Ref("LiteralGrammar"),
-                optional=True,
-            ),
+        OneOf(
+            Ref("PropertyListGrammar"),
+            Ref("PropertyKeyGrammar"),
             optional=True,
+        ),
+    )
+
+
+@spark3_dialect.segment()
+class ShowStatement(BaseSegment):
+    """Common class for `SHOW` statements.
+
+    NB: These are similar enough that it makes sense to include them in a
+    common class, especially since there wouldn't be any specific rules that
+    would apply to one show vs another, but they could be broken out to
+    one class per show statement type.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-aux-show-columns.html
+    https://spark.apache.org/docs/latest/sql-ref-syntax-aux-show-create-table.html
+    https://spark.apache.org/docs/latest/sql-ref-syntax-aux-show-databases.html
+    https://spark.apache.org/docs/latest/sql-ref-syntax-aux-show-functions.html
+    https://spark.apache.org/docs/latest/sql-ref-syntax-aux-show-partitions.html
+    https://spark.apache.org/docs/latest/sql-ref-syntax-aux-show-table.html
+    https://spark.apache.org/docs/latest/sql-ref-syntax-aux-show-tables.html
+    https://spark.apache.org/docs/latest/sql-ref-syntax-aux-show-tblproperties.html
+    https://spark.apache.org/docs/latest/sql-ref-syntax-aux-show-views.html
+    """
+
+    type = "show_statement"
+
+    match_grammar = Sequence(
+        "SHOW",
+        OneOf(
+            # SHOW CREATE TABLE
+            Sequence(
+                "CREATE",
+                "TABLE",
+                Ref("TableExpressionSegment"),
+                Sequence(
+                    "AS",
+                    "SERDE",
+                    optional=True,
+                ),
+            ),
+            # SHOW COLUMNS
+            Sequence(
+                "COLUMNS",
+                "IN",
+                Ref("TableExpressionSegment"),
+                Sequence(
+                    "IN",
+                    Ref("DatabaseReferenceSegment"),
+                    optional=True,
+                ),
+            ),
+            # SHOW { DATABASES | SCHEMAS }
+            Sequence(
+                OneOf("DATABASES", "SCHEMAS"),
+                Sequence(
+                    "LIKE",
+                    Ref("QuotedLiteralSegment"),
+                    optional=True,
+                ),
+            ),
+            # SHOW FUNCTIONS
+            Sequence(
+                OneOf("USER", "SYSTEM", "ALL", optional=True),
+                "FUNCTIONS",
+                OneOf(
+                    # qualified function from a database
+                    Sequence(
+                        Ref("DatabaseReferenceSegment"),
+                        Ref("DotSegment"),
+                        Ref("FunctionNameSegment"),
+                        allow_gaps=False,
+                        optional=True,
+                    ),
+                    # non-qualified function
+                    Ref("FunctionNameSegment", optional=True),
+                    Sequence(
+                        "LIKE",
+                        Ref("QuotedLiteralSegment"),
+                        optional=True,
+                    ),
+                ),
+            ),
+            # SHOW PARTITIONS
+            Sequence(
+                "PARTITIONS",
+                Ref("TableReferenceSegment"),
+                Ref("PartitionSpecGrammar", optional=True),
+            ),
+            # SHOW TABLE
+            Sequence(
+                "TABLE",
+                "EXTENDED",
+                Sequence(
+                    OneOf("IN", "FROM"),
+                    Ref("DatabaseReferenceSegment"),
+                    optional=True,
+                ),
+                "LIKE",
+                Ref("QuotedLiteralSegment"),
+                Ref("PartitionSpecGrammar", optional=True),
+            ),
+            # SHOW TABLES
+            Sequence(
+                "TABLES",
+                Sequence(
+                    OneOf("FROM", "IN"),
+                    Ref("DatabaseReferenceSegment"),
+                    optional=True,
+                ),
+                Sequence(
+                    "LIKE",
+                    Ref("QuotedLiteralSegment"),
+                    optional=True,
+                ),
+            ),
+            # SHOW TBLPROPERTIES
+            Sequence(
+                "TBLPROPERTIES",
+                Ref("TableReferenceSegment"),
+                Ref("BracketedPropertyKeyListGrammar", optional=True),
+            ),
+            # SHOW VIEWS
+            Sequence(
+                "VIEWS",
+                Sequence(
+                    OneOf("FROM", "IN"),
+                    Ref("DatabaseReferenceSegment"),
+                    optional=True,
+                ),
+                Sequence(
+                    "LIKE",
+                    Ref("QuotedLiteralSegment"),
+                    optional=True,
+                ),
+            ),
         ),
     )
 
@@ -2114,6 +2265,7 @@ class StatementSegment(BaseSegment):
             Ref("RefreshStatementSegment"),
             Ref("ResetStatementSegment"),
             Ref("SetStatementSegment"),
+            Ref("ShowStatement"),
             Ref("UncacheTableSegment"),
             # Data Manipulation Statements
             Ref("InsertOverwriteDirectorySegment"),
