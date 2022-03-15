@@ -299,19 +299,6 @@ spark3_dialect.add(
         ),
         allow_gaps=False,
     ),
-    PropertyKeySegment=Sequence(
-        OneOf(
-            Delimited(
-                Ref("PropertiesNakedIdentifierSegment"),
-                delimiter=Ref("DotSegment"),
-                allow_gaps=False,
-            ),
-            OneOf(
-                Ref("QuotedIdentifierSegment"),
-                Ref("SingleQuotedIdentifierSegment"),
-            ),
-        ),
-    ),
     # Add relevant Hive Grammar
     CommentGrammar=hive_dialect.get_grammar("CommentGrammar"),
     LocationGrammar=hive_dialect.get_grammar("LocationGrammar"),
@@ -321,6 +308,14 @@ spark3_dialect.add(
     StorageFormatGrammar=hive_dialect.get_grammar("StorageFormatGrammar"),
     TerminatedByGrammar=hive_dialect.get_grammar("TerminatedByGrammar"),
     # Add Spark Grammar
+    PropertyGrammar=Sequence(
+        Ref("PropertyKeySegment"),
+        Ref("EqualsSegment", optional=True),
+        OneOf(
+            Ref("LiteralGrammar"),
+            Ref("SingleIdentifierGrammar"),
+        ),
+    ),
     PropertyKeyListGrammar=Delimited(Ref("PropertyKeySegment")),
     BracketedPropertyKeyListGrammar=Bracketed(Ref("PropertyKeyListGrammar")),
     PropertyListGrammar=Delimited(Ref("PropertyGrammar")),
@@ -2495,6 +2490,7 @@ class FromExpressionElementSegment(BaseSegment):
     """
 
     type = "from_expression_element"
+
     match_grammar = Sequence(
         Ref("PreTableFunctionKeywordsGrammar", optional=True),
         OptionallyBracketed(Ref("TableExpressionSegment")),
@@ -2517,3 +2513,23 @@ class FromExpressionElementSegment(BaseSegment):
         "FromExpressionElementSegment"
     ).get_eventual_alias
 
+
+@spark3_dialect.segment()
+class PropertyKeySegment(BaseSegment):
+    """A segment for key to set and retrieve table and runtime properties."""
+
+    type = "property_key_identifier"
+
+    match_grammar = Sequence(
+        OneOf(
+            Delimited(
+                Ref("PropertiesNakedIdentifierSegment"),
+                delimiter=Ref("DotSegment"),
+                allow_gaps=False,
+            ),
+            OneOf(
+                Ref("QuotedIdentifierSegment"),
+                Ref("SingleQuotedIdentifierSegment"),
+            ),
+        ),
+    )
