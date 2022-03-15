@@ -3,21 +3,22 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3574b02e3a356f593922757541a1ca43440604bd63ad288f71907937cc4d018e
+_hash: aadd44f86998f5137c63f64e176269806ae7635df9cbc77d647d0aa4c3d30a5e
 file:
 - statement:
     set_statement:
-    - keyword: SET
-    - identifier: spark
-    - dot: .
-    - identifier: sql
-    - dot: .
-    - identifier: variable
-    - dot: .
-    - identifier: substitute
-    - comparison_operator:
+      keyword: SET
+      property_key_identifier:
+      - identifier: spark
+      - dot: .
+      - identifier: sql
+      - dot: .
+      - identifier: variable
+      - dot: .
+      - identifier: substitute
+      comparison_operator:
         raw_comparison_operator: '='
-    - literal: 'FALSE'
+      literal: 'FALSE'
 - statement_terminator: ;
 - statement:
     set_statement:
@@ -31,12 +32,13 @@ file:
 - statement_terminator: ;
 - statement:
     set_statement:
-    - keyword: SET
-    - identifier: spark
-    - dot: .
-    - identifier: sql
-    - dot: .
-    - identifier: variable
-    - dot: .
-    - identifier: substitute
+      keyword: SET
+      property_key_identifier:
+      - identifier: spark
+      - dot: .
+      - identifier: sql
+      - dot: .
+      - identifier: variable
+      - dot: .
+      - identifier: substitute
 - statement_terminator: ;

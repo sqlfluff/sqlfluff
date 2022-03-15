@@ -118,10 +118,7 @@ class Rule_L057(BaseRule):
             # https://spark.apache.org/docs/latest/sql-data-sources-generic-options.html#path-global-filter
             #
 
-            if (
-                context.dialect.name in ["spark3"]
-                and context.parent_stack
-            ):
+            if context.dialect.name in ["spark3"] and context.parent_stack:
                 if context.parent_stack[-1].name == "FileReferenceSegment":
                     return None
 

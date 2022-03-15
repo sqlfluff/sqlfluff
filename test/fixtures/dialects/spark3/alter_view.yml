@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3680be501a0452b4a75ecd1c80abc7e9651bb296531c962bedcd0ca221f6f5b2
+_hash: da98d318eaab487a3b19c59712f11cd5dc2777f399af0d5eb9e7018bca767690
 file:
 - statement:
     alter_view_statement:
@@ -40,12 +40,13 @@ file:
     - keyword: SET
     - keyword: TBLPROPERTIES
     - bracketed:
-      - start_bracket: (
-      - literal: '"property_key"'
-      - comparison_operator:
+        start_bracket: (
+        property_key_identifier:
+          identifier: '"property_key"'
+        comparison_operator:
           raw_comparison_operator: '='
-      - literal: '"property_val"'
-      - end_bracket: )
+        literal: '"property_val"'
+        end_bracket: )
 - statement_terminator: ;
 - statement:
     alter_view_statement:
@@ -59,12 +60,14 @@ file:
     - keyword: TBLPROPERTIES
     - bracketed:
       - start_bracket: (
-      - literal: "'created.by.user'"
+      - property_key_identifier:
+          identifier: "'created.by.user'"
       - comparison_operator:
           raw_comparison_operator: '='
       - literal: '"John"'
       - comma: ','
-      - literal: "'created.date'"
+      - property_key_identifier:
+          identifier: "'created.date'"
       - comparison_operator:
           raw_comparison_operator: '='
       - literal: "'01-01-2001'"
@@ -80,7 +83,8 @@ file:
     - keyword: TBLPROPERTIES
     - bracketed:
         start_bracket: (
-        literal: '"property_key"'
+        property_key_identifier:
+          identifier: '"property_key"'
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -95,7 +99,8 @@ file:
     - keyword: EXISTS
     - bracketed:
         start_bracket: (
-        literal: '"property_key"'
+        property_key_identifier:
+          identifier: '"property_key"'
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -110,9 +115,11 @@ file:
     - keyword: TBLPROPERTIES
     - bracketed:
       - start_bracket: (
-      - literal: "'created.by.user'"
+      - property_key_identifier:
+          identifier: "'created.by.user'"
       - comma: ','
-      - literal: "'created.date'"
+      - property_key_identifier:
+          identifier: "'created.date'"
       - end_bracket: )
 - statement_terminator: ;
 - statement:

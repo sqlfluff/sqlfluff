@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4848665263f4e39b2b5c6a8ff55b1a3c1932b74f83786b954c1511c0b82f90e3
+_hash: 2fa39a5ac00526f7dfef9d88eb778778681062dafd69079607374c1d377159da
 file:
 - statement:
     insert_overwrite_directory_statement:
@@ -16,17 +16,74 @@ file:
     - keyword: OPTIONS
     - bracketed:
       - start_bracket: (
-      - literal: '"col1"'
+      - property_key_identifier:
+          identifier: col1
       - comparison_operator:
           raw_comparison_operator: '='
       - literal: '"1"'
       - comma: ','
-      - literal: '"col2"'
+      - property_key_identifier:
+          identifier: col2
       - comparison_operator:
           raw_comparison_operator: '='
       - literal: '"2"'
       - comma: ','
-      - literal: '"col3"'
+      - property_key_identifier:
+          identifier: col3
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - literal: "'test'"
+      - comma: ','
+      - property_key_identifier:
+          identifier: '"user"'
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - literal: '"a person"'
+      - end_bracket: )
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              identifier: a
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: test_table
+- statement_terminator: ;
+- statement:
+    insert_overwrite_directory_statement:
+    - keyword: INSERT
+    - keyword: OVERWRITE
+    - keyword: DIRECTORY
+    - keyword: USING
+    - keyword: PARQUET
+    - keyword: OPTIONS
+    - bracketed:
+      - start_bracket: (
+      - property_key_identifier:
+          identifier: path
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - literal: "'/tmp/destination'"
+      - comma: ','
+      - property_key_identifier:
+          identifier: col1
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - literal: '"1"'
+      - comma: ','
+      - property_key_identifier:
+          identifier: col2
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - literal: '"2"'
+      - comma: ','
+      - property_key_identifier:
+          identifier: col3
       - comparison_operator:
           raw_comparison_operator: '='
       - literal: "'test'"
@@ -55,60 +112,20 @@ file:
     - keyword: OPTIONS
     - bracketed:
       - start_bracket: (
-      - literal: "'path'"
-      - comparison_operator:
-          raw_comparison_operator: '='
+      - property_key_identifier:
+          identifier: path
       - literal: "'/tmp/destination'"
       - comma: ','
-      - literal: '"col1"'
-      - comparison_operator:
-          raw_comparison_operator: '='
-      - literal: '"1"'
-      - comma: ','
-      - literal: '"col2"'
-      - comparison_operator:
-          raw_comparison_operator: '='
-      - literal: '"2"'
-      - comma: ','
-      - literal: '"col3"'
-      - comparison_operator:
-          raw_comparison_operator: '='
-      - literal: "'test'"
-      - end_bracket: )
-    - select_statement:
-        select_clause:
-          keyword: SELECT
-          select_clause_element:
-            column_reference:
-              identifier: a
-        from_clause:
-          keyword: FROM
-          from_expression:
-            from_expression_element:
-              table_expression:
-                table_reference:
-                  identifier: test_table
-- statement_terminator: ;
-- statement:
-    insert_overwrite_directory_statement:
-    - keyword: INSERT
-    - keyword: OVERWRITE
-    - keyword: DIRECTORY
-    - keyword: USING
-    - keyword: PARQUET
-    - keyword: OPTIONS
-    - bracketed:
-      - start_bracket: (
-      - literal: "'path'"
-      - literal: "'/tmp/destination'"
-      - comma: ','
-      - identifier: col1
+      - property_key_identifier:
+          identifier: col1
       - literal: '1'
       - comma: ','
-      - identifier: col2
+      - property_key_identifier:
+          identifier: col2
       - literal: '2'
       - comma: ','
-      - identifier: col3
+      - property_key_identifier:
+          identifier: col3
       - literal: "'test'"
       - end_bracket: )
     - select_statement:
@@ -136,13 +153,16 @@ file:
     - keyword: OPTIONS
     - bracketed:
       - start_bracket: (
-      - identifier: col1
+      - property_key_identifier:
+          identifier: col1
       - literal: '1'
       - comma: ','
-      - identifier: col2
+      - property_key_identifier:
+          identifier: col2
       - literal: '2'
       - comma: ','
-      - identifier: col3
+      - property_key_identifier:
+          identifier: col3
       - literal: "'test'"
       - end_bracket: )
     - select_statement:

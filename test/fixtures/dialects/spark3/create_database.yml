@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ccc912fda0cab18eeb10459e3b5298c0a930e0c9cc8b83941d602d6894799990
+_hash: ba71045999a012973edf433e0dcf1144950450714bf4a4789ad97888d37734e5
 file:
 - statement:
     create_database_statement:
@@ -21,12 +21,13 @@ file:
     - keyword: WITH
     - keyword: DBPROPERTIES
     - bracketed:
-      - start_bracket: (
-      - literal: '"property_name"'
-      - comparison_operator:
+        start_bracket: (
+        property_key_identifier:
+          identifier: '"property_name"'
+        comparison_operator:
           raw_comparison_operator: '='
-      - literal: '"property_value"'
-      - end_bracket: )
+        literal: '"property_value"'
+        end_bracket: )
 - statement_terminator: ;
 - statement:
     create_database_statement:
@@ -44,12 +45,13 @@ file:
     - keyword: WITH
     - keyword: DBPROPERTIES
     - bracketed:
-      - start_bracket: (
-      - literal: '"property_name"'
-      - comparison_operator:
+        start_bracket: (
+        property_key_identifier:
+          identifier: '"property_name"'
+        comparison_operator:
           raw_comparison_operator: '='
-      - literal: '"property_value"'
-      - end_bracket: )
+        literal: '"property_value"'
+        end_bracket: )
 - statement_terminator: ;
 - statement:
     create_database_statement:
@@ -85,12 +87,14 @@ file:
     - keyword: DBPROPERTIES
     - bracketed:
       - start_bracket: (
-      - literal: '"ID"'
+      - property_key_identifier:
+          identifier: '"ID"'
       - comparison_operator:
           raw_comparison_operator: '='
       - literal: '"001"'
       - comma: ','
-      - literal: '"Name"'
+      - property_key_identifier:
+          identifier: '"Name"'
       - comparison_operator:
           raw_comparison_operator: '='
       - literal: "'John'"
