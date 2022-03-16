@@ -91,7 +91,7 @@ class Rule_L009(BaseRule):
 
         """
         # We only care about the final segment of the parse tree.
-        if not self.is_final_segment(context):
+        if not self.is_final_segment(context, filter_meta=False):
             return None
 
         # Include current segment for complete stack and reverse.
