@@ -58,9 +58,9 @@ test_fail_tab_indentation:
 # test_case_in_fn:
 #   fail_str: |
 #     SELECT
-#         MIN(MAX(COALESCE(
+#         NLV(MIN(MAX(COALESCE(
 #             a
-#         ))) AS c,
+#         )))) AS c,
 #     MAX(CASE
 #             WHEN b THEN 1
 #             WHEN c THEN 1
@@ -68,9 +68,9 @@ test_fail_tab_indentation:
 #     FROM my_tbl
 #   fix_str: |
 #     SELECT
-#         MIN(MAX(COALESCE(
+#         NLV(MIN(MAX(COALESCE(
 #             a
-#         ))) AS c,
+#         )))) AS c,
 #         MAX(CASE
 #             WHEN b THEN 1
 #             WHEN c THEN 1
