@@ -6,7 +6,7 @@ from typing import List, NamedTuple
 import pytest
 
 from sqlfluff.core.templaters import JinjaTemplater
-from sqlfluff.core.templaters.base import RawFileSlice
+from sqlfluff.core.templaters.base import RawFileSlice, TemplatedFile
 from sqlfluff.core.templaters.jinja import JinjaTracer
 from sqlfluff.core import Linter, FluffConfig
 
@@ -822,6 +822,10 @@ SELECT
                 ("block_end", slice(113, 127, None), slice(11, 11, None)),
                 ("block_start", slice(27, 46, None), slice(11, 11, None)),
                 ("literal", slice(46, 57, None), slice(11, 22, None)),
+                ("block_end", slice(57, 70, None), slice(22, 22, None)),
+                ("block_start", slice(70, 89, None), slice(22, 22, None)),
+                ("block_end", slice(100, 113, None), slice(22, 22, None)),
+                ("block_end", slice(113, 127, None), slice(22, 22, None)),
             ],
         ),
         (
@@ -906,12 +910,64 @@ FROM SOME_TABLE
                 ("block_start", slice(0, 32, None), slice(0, 0, None)),
                 ("literal", slice(32, 37, None), slice(0, 0, None)),
                 ("block_start", slice(37, 62, None), slice(0, 0, None)),
+                ("literal", slice(62, 67, None), slice(0, 0, None)),
+                ("templated", slice(67, 74, None), slice(0, 0, None)),
+                ("literal", slice(74, 79, None), slice(0, 0, None)),
                 ("block_end", slice(79, 91, None), slice(0, 0, None)),
                 ("literal", slice(91, 92, None), slice(0, 0, None)),
                 ("block_end", slice(92, 104, None), slice(0, 0, None)),
                 ("literal", slice(104, 113, None), slice(0, 9, None)),
                 ("templated", slice(113, 139, None), slice(9, 29, None)),
                 ("literal", slice(139, 156, None), slice(29, 46, None)),
+            ],
+        ),
+        (
+            # Third test for issue 2835. This was the original SQL provided in
+            # the issue report.
+            """{% set whitelisted= [
+    {'name': 'COL_1'},
+    {'name': 'COL_2'},
+    {'name': 'COL_3'}
+] %}
+
+{% set some_part_of_the_query %}
+    {% for col in whitelisted %}
+    {{col.name}}{{ ", " if not loop.last }}
+    {% endfor %}
+{% endset %}
+
+SELECT {{some_part_of_the_query}}
+FROM SOME_TABLE
+""",
+            None,
+            [
+                ("block_start", slice(0, 94, None), slice(0, 0, None)),
+                ("literal", slice(94, 96, None), slice(0, 2, None)),
+                ("block_start", slice(96, 128, None), slice(2, 2, None)),
+                ("literal", slice(128, 133, None), slice(2, 2, None)),
+                ("block_start", slice(133, 161, None), slice(2, 2, None)),
+                ("literal", slice(161, 166, None), slice(2, 2, None)),
+                ("templated", slice(166, 178, None), slice(2, 2, None)),
+                ("templated", slice(178, 205, None), slice(2, 2, None)),
+                ("literal", slice(205, 210, None), slice(2, 2, None)),
+                ("block_end", slice(210, 222, None), slice(2, 2, None)),
+                ("literal", slice(222, 223, None), slice(2, 2, None)),
+                ("block_end", slice(223, 235, None), slice(2, 2, None)),
+                ("literal", slice(235, 244, None), slice(2, 11, None)),
+                ("templated", slice(244, 270, None), slice(11, 66, None)),
+                ("literal", slice(270, 287, None), slice(66, 83, None)),
+            ],
+        ),
+        (
+            # Test for issue 2822: Handle slicing when there's no newline after
+            # the Jinja block end.
+            "{% if true %}\nSELECT 1 + 1\n{%- endif %}",
+            None,
+            [
+                ("block_start", slice(0, 13, None), slice(0, 0, None)),
+                ("literal", slice(13, 26, None), slice(0, 13, None)),
+                ("literal", slice(26, 27, None), slice(13, 13, None)),
+                ("block_end", slice(27, 39, None), slice(13, 13, None)),
             ],
         ),
     ],
@@ -927,19 +983,22 @@ def test__templater_jinja_slice_file(raw_file, override_context, result, caplog)
 
     templated_file = make_template(raw_file).render()
     with caplog.at_level(logging.DEBUG, logger="sqlfluff.templater"):
-        _, resp, _ = templater.slice_file(
+        raw_sliced, sliced_file, templated_str = templater.slice_file(
             raw_file, templated_file, make_template=make_template
         )
+    # Create a TemplatedFile from the results. This runs some useful sanity
+    # checks.
+    _ = TemplatedFile(raw_file, "<<DUMMY>>", templated_str, sliced_file, raw_sliced)
     # Check contiguous on the TEMPLATED VERSION
-    print(resp)
+    print(sliced_file)
     prev_slice = None
-    for elem in resp:
+    for elem in sliced_file:
         print(elem)
         if prev_slice:
             assert elem[2].start == prev_slice.stop
         prev_slice = elem[2]
     # Check that all literal segments have a raw slice
-    for elem in resp:
+    for elem in sliced_file:
         if elem[0] == "literal":
             assert elem[1] is not None
     # check result
@@ -949,6 +1008,6 @@ def test__templater_jinja_slice_file(raw_file, override_context, result, caplog)
             templated_file_slice.source_slice,
             templated_file_slice.templated_slice,
         )
-        for templated_file_slice in resp
+        for templated_file_slice in sliced_file
     ]
     assert actual == result

@@ -72,16 +72,16 @@ lint_result = [
         "description": "Keywords must be consistently upper case.",
     },
     {
-        "code": "L009",
-        "line_no": 1,
-        "line_pos": 34,
-        "description": "Files must end with a single trailing newline.",
-    },
-    {
         "code": "L014",
         "line_no": 1,
         "line_pos": 34,
         "description": "Unquoted identifiers must be consistently lower case.",
+    },
+    {
+        "code": "L009",
+        "line_no": 1,
+        "line_pos": 41,
+        "description": "Files must end with a single trailing newline.",
     },
 ]
 

@@ -289,7 +289,6 @@ class JinjaTracer:
             # parts of the tag at a time.
             unique_alternate_id = None
             alternate_code = None
-            trimmed_content = ""
             if elem_type.endswith("_end") or elem_type == "raw_begin":
                 block_type = block_types[elem_type]
                 block_subtype = None
@@ -432,10 +431,25 @@ class JinjaTracer:
                     )
                     stack.pop()
                     stack.append(block_idx)
-                elif block_type == "block_end" and trimmed_parts[0] in (
-                    "endfor",
-                    "endif",
+                elif (
+                    block_type == "block_end"
+                    and set_idx is None
+                    and trimmed_parts[0]
+                    in (
+                        "endfor",
+                        "endif",
+                    )
                 ):
+                    # Replace RawSliceInfo for this slice with one that has
+                    # alternate ID and code for tracking. This ensures, for
+                    # instance, that if a file ends with "{% endif %} (with
+                    # no newline following), that we still generate a
+                    # TemplateSliceInfo for it.
+                    unique_alternate_id = self.next_slice_id()
+                    alternate_code = f"{result[-1].raw}\0{unique_alternate_id}_0"
+                    self.raw_slice_info[result[-1]] = RawSliceInfo(
+                        unique_alternate_id, alternate_code, []
+                    )
                     # Record potential forward jump over this block.
                     self.raw_slice_info[result[stack[-1]]].next_slice_indices.append(
                         block_idx
