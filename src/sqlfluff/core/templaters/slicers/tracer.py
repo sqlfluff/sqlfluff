@@ -298,9 +298,9 @@ class JinjaAnalyzer:
                             str_parts, m_close, m_open, str_buff
                         )
 
-                    if block_type == "block":
+                    if block_type == "block" and tag_contents:
                         block_type, block_subtype = self.extract_block_type(
-                            tag_contents, block_subtype
+                            tag_contents[0], block_subtype
                         )
                     if block_type == "templated" and tag_contents:
                         assert m_open and m_close
@@ -399,12 +399,11 @@ class JinjaAnalyzer:
         self.idx_raw += len(raw)
 
     @staticmethod
-    def extract_block_type(tag_contents, block_subtype):
+    def extract_block_type(tag_name, block_subtype):
         """Determine block type."""
         # :TRICKY: Syntactically, the Jinja {% include %} directive looks like
         # a block, but its behavior is basically syntactic sugar for
         # {{ open("somefile).read() }}. Thus, treat it as templated code.
-        tag_name = tag_contents[0]
         if tag_name == "include":
             block_type = "templated"
         elif tag_name.startswith("end"):
@@ -448,11 +447,10 @@ class JinjaAnalyzer:
             "endfor",
             "endif",
         ):
-            # Replace RawSliceInfo for this slice with one that has
-            # alternate ID and code for tracking. This ensures, for
-            # instance, that if a file ends with "{% endif %} (with
-            # no newline following), that we still generate a
-            # TemplateSliceInfo for it.
+            # Replace RawSliceInfo for this slice with one that has alternate ID
+            # and code for tracking. This ensures, for instance, that if a file
+            # ends with "{% endif %} (with no newline following), that we still
+            # generate a TemplateSliceInfo for it.
             unique_alternate_id = self.next_slice_id()
             alternate_code = f"{self.raw_sliced[-1].raw}\0{unique_alternate_id}_0"
             self.raw_slice_info[self.raw_sliced[-1]] = self.make_raw_slice_info(
@@ -491,30 +489,32 @@ class JinjaAnalyzer:
                     ].next_slice_indices.append(self.stack[-1] + 1)
                 self.stack.pop()
 
-    def handle_left_whitespace_stripping(self, raw: str) -> None:
-        """If block open uses whitespace stripping, record it."""
-        # When a "begin" tag (whether block, comment, or data) uses
-        # whitespace stripping (
-        # https://jinja.palletsprojects.com/en/3.0.x/templates/#whitespace-control
-        # ), the Jinja lex() function handles this by discarding adjacent
-        # whitespace from in_str. For more insight, see the tokeniter()
-        # function in this file:
-        # https://github.com/pallets/jinja/blob/main/src/jinja2/lexer.py
-        # We want to detect and correct for this in order to:
-        # - Correctly update "idx" (if this is wrong, that's a
-        #   potential DISASTER because lint fixes use this info to
-        #   update the source file, and incorrect values often result in
-        #   CORRUPTING the user's file so it's no longer valid SQL. :-O
-        # - Guarantee that the slices we return fully "cover" the
-        #   contents of in_str.
-        #
-        # We detect skipped characters by looking ahead in in_str for
-        # the token just returned from lex(). The token text will either
-        # be at the current 'idx' position (if whitespace stripping did
-        # not occur) OR it'll be farther along in in_str, but we're
-        # GUARANTEED that lex() only skips over WHITESPACE; nothing else.
+    def handle_left_whitespace_stripping(self, token: str) -> None:
+        """If block open uses whitespace stripping, record it.
+
+        When a "begin" tag (whether block, comment, or data) uses whitespace
+        stripping
+        (https://jinja.palletsprojects.com/en/3.0.x/templates/#whitespace-control)
+        the Jinja lex() function handles this by discarding adjacent whitespace
+        from 'raw_str'. For more insight, see the tokeniter() function in this file:
+        https://github.com/pallets/jinja/blob/main/src/jinja2/lexer.py
+
+        We want to detect and correct for this in order to:
+        - Correctly update "idx" (if this is wrong, that's a potential
+          DISASTER because lint fixes use this info to update the source file,
+          and incorrect values often result in CORRUPTING the user's file so
+          it's no longer valid SQL. :-O
+        - Guarantee that the slices we return fully "cover" the contents of
+          'in_str'.
+
+        We detect skipped characters by looking ahead in in_str for the token
+        just returned from lex(). The token text will either be at the current
+        'idx_raw' position (if whitespace stripping did not occur) OR it'll be
+        farther along in 'raw_str', but we're GUARANTEED that lex() only skips
+        over WHITESPACE; nothing else.
+        """
         # Find the token returned. Did lex() skip over any characters?
-        num_chars_skipped = self.raw_str.index(raw, self.idx_raw) - self.idx_raw
+        num_chars_skipped = self.raw_str.index(token, self.idx_raw) - self.idx_raw
         if num_chars_skipped:
             # Yes. It skipped over some characters. Compute a string
             # containing the skipped characters.
