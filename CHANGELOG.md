@@ -17,11 +17,16 @@ Major changes include:
 * A number of changes to `fix` code to make these more robust
 * Improvements to templating blocks
 * `generate_parse_fixture_yml` options to allow quicker, partial regeneration of YML files
-* Numerous rule fixes
+* Numerous rule fixes including adding auto fix to L042
 * Numerous grammar changes
 
 ## What's Changed
 
+* BigQuery: support Parameterized Numeric Literals [#2872](https://github.com/sqlfluff/sqlfluff/pull/2872) [@tunetheweb](https://github.com/tunetheweb)
+* L042 autofix [#2860](https://github.com/sqlfluff/sqlfluff/pull/2860) [@OTooleMichael](https://github.com/OTooleMichael)
+* Redshift: transaction statement [#2852](https://github.com/sqlfluff/sqlfluff/pull/2852) [@rpr-ableton](https://github.com/rpr-ableton)
+* JinjaTracer fix for endif/endfor inside "set" or "macro" blocks [#2868](https://github.com/sqlfluff/sqlfluff/pull/2868) [@barrywhart](https://github.com/barrywhart)
+* L009: Handle adding newline after `{% endif %}` at end of file [#2862](https://github.com/sqlfluff/sqlfluff/pull/2862) [@barrywhart](https://github.com/barrywhart)
 * Redshift: Add support for `AT TIME ZONE` [#2863](https://github.com/sqlfluff/sqlfluff/pull/2863) [@tunetheweb](https://github.com/tunetheweb)
 * L032 bug fix and fix improvement [#2859](https://github.com/sqlfluff/sqlfluff/pull/2859) [@OTooleMichael](https://github.com/OTooleMichael)
 * Refactor JinjaTracer; store lex output as individual strings where possible [#2856](https://github.com/sqlfluff/sqlfluff/pull/2856) [@barrywhart](https://github.com/barrywhart)
