@@ -318,15 +318,15 @@ spark3_dialect.add(
     TerminatedByGrammar=hive_dialect.get_grammar("TerminatedByGrammar"),
     # Add Spark Grammar
     PropertyGrammar=Sequence(
-        Ref("PropertyKeySegment"),
+        Ref("PropertyNameSegment"),
         Ref("EqualsSegment", optional=True),
         OneOf(
             Ref("LiteralGrammar"),
             Ref("SingleIdentifierGrammar"),
         ),
     ),
-    PropertyKeyListGrammar=Delimited(Ref("PropertyKeySegment")),
-    BracketedPropertyKeyListGrammar=Bracketed(Ref("PropertyKeyListGrammar")),
+    PropertyNameListGrammar=Delimited(Ref("PropertyNameSegment")),
+    BracketedPropertyNameListGrammar=Bracketed(Ref("PropertyNameListGrammar")),
     PropertyListGrammar=Delimited(Ref("PropertyGrammar")),
     BracketedPropertyListGrammar=Bracketed(Ref("PropertyListGrammar")),
     OptionsGrammar=Sequence("OPTIONS", Ref("BracketedPropertyListGrammar")),
@@ -403,14 +403,11 @@ spark3_dialect.add(
     # NB: Redefined from `NakedIdentifierSegment` which uses an anti-template to
     # not match keywords; however, SparkSQL allows keywords to be used in table
     # and runtime properties.
-    PropertiesNakedIdentifierSegment=SegmentGenerator(
-        # Generate the anti template from the set of reserved keywords
-        RegexParser(
-            r"[A-Z0-9]*[A-Z][A-Z0-9]*",
-            CodeSegment,
-            name="properties_naked_identifier",
-            type="identifier",
-        )
+    PropertiesNakedIdentifierSegment=RegexParser(
+        r"[A-Z0-9]*[A-Z][A-Z0-9]*",
+        CodeSegment,
+        name="properties_naked_identifier",
+        type="identifier",
     ),
     ResourceFileGrammar=OneOf(
         Ref("JarKeywordSegment"),
@@ -439,7 +436,7 @@ spark3_dialect.add(
         "UNSET",
         "TBLPROPERTIES",
         Ref("IfExistsGrammar", optional=True),
-        Ref("BracketedPropertyKeyListGrammar"),
+        Ref("BracketedPropertyNameListGrammar"),
     ),
     TablePropertiesGrammar=Sequence(
         "TBLPROPERTIES", Ref("BracketedPropertyListGrammar")
@@ -2076,7 +2073,7 @@ class SetStatementSegment(BaseSegment):
         Ref("SQLConfPropertiesSegment", optional=True),
         OneOf(
             Ref("PropertyListGrammar"),
-            Ref("PropertyKeySegment"),
+            Ref("PropertyNameSegment"),
             optional=True,
         ),
     )
@@ -2197,7 +2194,7 @@ class ShowStatement(BaseSegment):
             Sequence(
                 "TBLPROPERTIES",
                 Ref("TableReferenceSegment"),
-                Ref("BracketedPropertyKeyListGrammar", optional=True),
+                Ref("BracketedPropertyNameListGrammar", optional=True),
             ),
             # SHOW VIEWS
             Sequence(
@@ -2523,10 +2520,13 @@ class FromExpressionElementSegment(BaseSegment):
 
 
 @spark3_dialect.segment()
-class PropertyKeySegment(BaseSegment):
-    """A segment for key to set and retrieve table and runtime properties."""
+class PropertyNameSegment(BaseSegment):
+    """A segment for a property name to set and retrieve table and runtime properties.
+    
+    https://spark.apache.org/docs/latest/configuration.html#application-properties
+    """
 
-    type = "property_key_identifier"
+    type = "property_name_identifier"
 
     match_grammar = Sequence(
         OneOf(
