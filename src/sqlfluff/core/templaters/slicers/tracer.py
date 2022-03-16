@@ -259,8 +259,7 @@ class JinjaTracer:
             if elem_type.endswith("_begin"):
                 idx = self.handle_left_whitespace_stripping(idx, raw)
 
-            unique_alternate_id: Optional[str] = None
-            alternate_code: Optional[str] = None
+            raw_slice_info: RawSliceInfo = self.make_raw_slice_info(None, None)
             tag_contents = []
             # raw_end and raw_begin behave a little differently in
             # that the whole tag shows up in one go rather than getting
@@ -283,7 +282,7 @@ class JinjaTracer:
                         )
                     if block_type == "templated" and tag_contents:
                         assert m_open and m_close
-                        unique_alternate_id, alternate_code = self.track_templated(
+                        raw_slice_info = self.track_templated(
                             m_open, m_close, tag_contents
                         )
                 self.update_inside_set_or_macro(block_type, tag_contents)
@@ -306,9 +305,7 @@ class JinjaTracer:
                             block_subtype,
                         )
                     )
-                    self.raw_slice_info[self.raw_sliced[-1]] = self.make_raw_slice_info(
-                        unique_alternate_id, alternate_code
-                    )
+                    self.raw_slice_info[self.raw_sliced[-1]] = raw_slice_info
                     block_idx = len(self.raw_sliced) - 1
                     idx += len(str_buff) - trailing_chars
                     self.raw_sliced.append(
@@ -331,9 +328,7 @@ class JinjaTracer:
                             block_subtype,
                         )
                     )
-                    self.raw_slice_info[self.raw_sliced[-1]] = self.make_raw_slice_info(
-                        unique_alternate_id, alternate_code
-                    )
+                    self.raw_slice_info[self.raw_sliced[-1]] = raw_slice_info
                     block_idx = len(self.raw_sliced) - 1
                     idx += len(str_buff)
                 if block_type.startswith("block"):
@@ -346,7 +341,7 @@ class JinjaTracer:
 
     def track_templated(
         self, m_open: regex.Match, m_close: regex.Match, tag_contents: List[str]
-    ):
+    ) -> RawSliceInfo:
         """Compute tracking info for Jinja templated region, e.g. {{ foo }}."""
         unique_alternate_id = self.next_slice_id()
         open_ = m_open.group(1)
@@ -357,7 +352,7 @@ class JinjaTracer:
         alternate_code = (
             f"\0{unique_alternate_id} {open_} " f"{''.join(tag_contents)} {close_}"
         )
-        return unique_alternate_id, alternate_code
+        return self.make_raw_slice_info(unique_alternate_id, alternate_code)
 
     def track_literal(self, raw: str, idx: int) -> int:
         """Set up tracking for a Jinja literal."""
