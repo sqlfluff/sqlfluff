@@ -663,7 +663,7 @@ test_tsql_function:
     core:
       dialect: tsql
 
-test_stable_jinja_loop:
+test_stable_jinja_loop_fix:
   fail_str: |
     {% for t in ['table_a', 'table_b'] %}
         SELECT
@@ -687,7 +687,7 @@ test_stable_jinja_loop:
     {% endfor %}
     ;
 
-test_stable_jinja_loop:
+test_stable_jinja_loop_stable:
   # Matches the fix output from above
   pass_str: |
     {% for t in ['table_a', 'table_b'] %}

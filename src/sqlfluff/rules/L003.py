@@ -112,7 +112,7 @@ class _LineSummary(_DictLikeDataCls):
         template_info = _TemplateLineInterpreter(copied_line_buffer, templated_file)
         # Generate our line summaary based on the current state of the MemoLine
         output = self.__class__(
-            **{  # type: ignore
+            **{
                 "line_no": line_no,
                 "templated_line": self.templated_line,
                 # Using slicing to copy line_buffer here to be py2 compliant
@@ -255,7 +255,7 @@ class Rule_L003(BaseRule):
         # Create a memo line which will hold state during this loop
         # Use the last processed line if possible
         memo_line = dataclasses.replace(
-            next(reversed(result_buffer.values())) if result_buffer else _LineSummary()
+            next(reversed(list(result_buffer.values()))) if result_buffer else _LineSummary()
         )
         memo_line.memo_line_reset()
         # True lines invert the balance and the balance marker.
