@@ -267,6 +267,22 @@ class JinjaAnalyzer:
 
     def analyze(self, make_template: Callable[[str], Template]) -> JinjaTracer:
         """Slice template in jinja."""
+        # str_buff and str_parts are two ways we keep track of tokens received
+        # from Jinja. str_buff concatenates them together, while str_parts
+        # accumulates the individual strings. We generally prefer using
+        # str_parts. That's because Jinja doesn't just split on whitespace, so
+        # by keeping tokens as Jinja returns them, the code is more robust.
+        # Consider the following:
+        #   {% set col= "col1" %}
+        # Note there's no space after col. Jinja splits this up for us. If we
+        # simply concatenated the parts together and later split on whitespace,
+        # we'd need some ugly, fragile logic to handle various whitespace
+        # possibilities:
+        #   {% set col= "col1" %}
+        #   {% set col = "col1" %}
+        #   {% set col ="col1" %}
+        # By using str_parts and letting Jinja handle this, it just works.
+
         str_buff = ""
         str_parts = []
 
