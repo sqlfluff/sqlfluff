@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5205c91839b6898aa282fd1946aa2cb8c539707096d88f34ca546868d858524d
+_hash: 9c8afe3bea7deebe4d9ac56572152ca17c5bfc5a1614da015242322be263d6c8
 file:
 - statement:
     alter_database_statement:
@@ -14,12 +14,13 @@ file:
     - keyword: SET
     - keyword: DBPROPERTIES
     - bracketed:
-      - start_bracket: (
-      - literal: "'Edited-by'"
-      - comparison_operator:
+        start_bracket: (
+        property_name_identifier:
+          identifier: "'Edited-by'"
+        comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'John'"
-      - end_bracket: )
+        literal: "'John'"
+        end_bracket: )
 - statement_terminator: ;
 - statement:
     alter_database_statement:
@@ -31,12 +32,14 @@ file:
     - keyword: DBPROPERTIES
     - bracketed:
       - start_bracket: (
-      - literal: "'Edited-by'"
+      - property_name_identifier:
+          identifier: "'Edited-by'"
       - comparison_operator:
           raw_comparison_operator: '='
       - literal: "'John'"
       - comma: ','
-      - literal: "'Edit-date'"
+      - property_name_identifier:
+          identifier: "'Edit-date'"
       - comparison_operator:
           raw_comparison_operator: '='
       - literal: "'01/01/2001'"
@@ -51,12 +54,13 @@ file:
     - keyword: SET
     - keyword: DBPROPERTIES
     - bracketed:
-      - start_bracket: (
-      - literal: "'Edited-by'"
-      - comparison_operator:
+        start_bracket: (
+        property_name_identifier:
+          identifier: "'Edited-by'"
+        comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'John'"
-      - end_bracket: )
+        literal: "'John'"
+        end_bracket: )
 - statement_terminator: ;
 - statement:
     alter_database_statement:
@@ -68,12 +72,14 @@ file:
     - keyword: DBPROPERTIES
     - bracketed:
       - start_bracket: (
-      - literal: "'Edited-by'"
+      - property_name_identifier:
+          identifier: "'Edited-by'"
       - comparison_operator:
           raw_comparison_operator: '='
       - literal: "'John'"
       - comma: ','
-      - literal: "'Edit-date'"
+      - property_name_identifier:
+          identifier: "'Edit-date'"
       - comparison_operator:
           raw_comparison_operator: '='
       - literal: "'01/01/2001'"

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9c017690fc3e758e281636004e4ba9136f3800284969a406cb8f033d7f7d0a79
+_hash: f93d282168797a55676db42bea1d05f55a7db5c4375d7a97b8f87853771302d0
 file:
 - statement:
     create_table_statement:
@@ -84,12 +84,14 @@ file:
     - keyword: TBLPROPERTIES
     - bracketed:
       - start_bracket: (
-      - literal: '"key1"'
+      - property_name_identifier:
+          identifier: '"key1"'
       - comparison_operator:
           raw_comparison_operator: '='
       - literal: '"val1"'
       - comma: ','
-      - literal: '"key2"'
+      - property_name_identifier:
+          identifier: '"key2"'
       - comparison_operator:
           raw_comparison_operator: '='
       - literal: '"val2"'
@@ -201,12 +203,13 @@ file:
     - keyword: ORC
     - keyword: TBLPROPERTIES
     - bracketed:
-      - start_bracket: (
-      - literal: "'foo'"
-      - comparison_operator:
+        start_bracket: (
+        property_name_identifier:
+          identifier: "'foo'"
+        comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'bar'"
-      - end_bracket: )
+        literal: "'bar'"
+        end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:
@@ -239,12 +242,13 @@ file:
     - keyword: ORC
     - keyword: TBLPROPERTIES
     - bracketed:
-      - start_bracket: (
-      - literal: "'foo'"
-      - comparison_operator:
+        start_bracket: (
+        property_name_identifier:
+          identifier: "'foo'"
+        comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'bar'"
-      - end_bracket: )
+        literal: "'bar'"
+        end_bracket: )
     - keyword: COMMENT
     - literal: "'this is a comment'"
 - statement_terminator: ;
@@ -458,15 +462,16 @@ file:
     - literal: "'org.apache.hadoop.hive.ql.io.avro.AvroContainerOutputFormat'"
     - keyword: TBLPROPERTIES
     - bracketed:
-      - start_bracket: (
-      - literal: "'avro.schema.literal'"
-      - comparison_operator:
+        start_bracket: (
+        property_name_identifier:
+          identifier: "'avro.schema.literal'"
+        comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'{\n        \"namespace\": \"org.apache.hive\",\n        \"name\"\
+        literal: "'{\n        \"namespace\": \"org.apache.hive\",\n        \"name\"\
           : \"first_schema\",\n        \"type\": \"record\",\n        \"fields\":\
           \ [ { \"name\":\"string1\", \"type\":\"string\" }, { \"name\":\"string2\"\
           , \"type\":\"string\" }]\n    }'"
-      - end_bracket: )
+        end_bracket: )
 - statement_terminator: ;
 - statement:
     add_jar_statement:
