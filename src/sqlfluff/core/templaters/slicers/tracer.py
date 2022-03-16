@@ -22,7 +22,7 @@ templater_logger = logging.getLogger("sqlfluff.templater")
 
 
 class JinjaTrace(NamedTuple):
-    """Returned by JinjaTracer.process()."""
+    """Returned by JinjaTracer.trace()."""
 
     # Template output
     templated_str: str
@@ -42,25 +42,25 @@ class RawSliceInfo:
 
 
 class JinjaTracer:
-    """Deduces and records execution path of a Jinja template."""
-
-    re_open_tag = regex.compile(r"^\s*({[{%])[\+\-]?\s*")
-    re_close_tag = regex.compile(r"\s*[\+\-]?([}%]})\s*$")
+    """Records execution path of a Jinja template."""
 
     def __init__(
-        self, raw_str: str, env: Environment, make_template: Callable[[str], Template]
+        self,
+        raw_str: str,
+        raw_sliced: List[RawFileSlice],
+        raw_slice_info: Dict[RawFileSlice, RawSliceInfo],
+        sliced_file: List[TemplatedFileSlice],
+        make_template: Callable[[str], Template],
     ):
-        self.raw_str: str = raw_str
-        self.env = env
-        self.make_template: Callable[[str], Template] = make_template
+        # Input
+        self.raw_str = raw_str
+        self.raw_sliced = raw_sliced
+        self.raw_slice_info = raw_slice_info
+        self.sliced_file = sliced_file
+        self.make_template = make_template
+
+        # Internal bookkeeping
         self.program_counter: int = 0
-        self.slice_id: int = 0
-        self.raw_slice_info: Dict[RawFileSlice, RawSliceInfo] = {}
-        self.inside_set_or_macro: bool = False
-        self.raw_sliced: List[RawFileSlice] = []
-        self.stack: List[int] = []
-        self._slice_template()
-        self.sliced_file: List[TemplatedFileSlice] = []
         self.source_idx: int = 0
 
     def trace(self) -> JinjaTrace:
@@ -170,6 +170,28 @@ class JinjaTracer:
         if slice_type in ("literal", "templated"):
             self.source_idx += target_slice_length
 
+
+class JinjaAnalyzer:
+    """Analyzes a Jinja template to prepare for tracing."""
+
+    re_open_tag = regex.compile(r"^\s*({[{%])[\+\-]?\s*")
+    re_close_tag = regex.compile(r"\s*[\+\-]?([}%]})\s*$")
+
+    def __init__(self, raw_str: str, env: Environment):
+        # Input
+        self.raw_str: str = raw_str
+        self.env = env
+
+        # Output
+        self.raw_sliced: List[RawFileSlice] = []
+        self.raw_slice_info: Dict[RawFileSlice, RawSliceInfo] = {}
+        self.sliced_file: List[TemplatedFileSlice] = []
+
+        # Internal bookkeeping
+        self.slice_id: int = 0
+        self.inside_set_or_macro: bool = False
+        self.stack: List[int] = []
+
     def next_slice_id(self) -> str:
         """Returns a new, unique slice ID."""
         result = "{0:#0{1}x}".format(self.slice_id, 34)[2:]
@@ -242,7 +264,7 @@ class JinjaTracer:
         "raw_begin": "block",
     }
 
-    def _slice_template(self) -> None:
+    def analyze(self, make_template: Callable[[str], Template]) -> JinjaTracer:
         """Slice template in jinja."""
         str_buff = ""
         str_parts = []
@@ -338,6 +360,13 @@ class JinjaTracer:
                     )
                 str_buff = ""
                 str_parts = []
+        return JinjaTracer(
+            self.raw_str,
+            self.raw_sliced,
+            self.raw_slice_info,
+            self.sliced_file,
+            make_template,
+        )
 
     def track_templated(
         self, m_open: regex.Match, m_close: regex.Match, tag_contents: List[str]
