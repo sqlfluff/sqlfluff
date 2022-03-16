@@ -22,6 +22,9 @@ Major changes include:
 
 ## What's Changed
 
+* Spark3: Support for `SHOW` statements [#2864](https://github.com/sqlfluff/sqlfluff/pull/2864) [@R7L208](https://github.com/R7L208)
+* Add Markerr to list of organizations using SQLFluff in the wild  [#2874](https://github.com/sqlfluff/sqlfluff/pull/2874) [@kdw2126](https://github.com/kdw2126)
+* Refactor JinjaTracer: Split into two classes, break up `_slice_template()` function [#2870](https://github.com/sqlfluff/sqlfluff/pull/2870) [@barrywhart](https://github.com/barrywhart)
 * BigQuery: support Parameterized Numeric Literals [#2872](https://github.com/sqlfluff/sqlfluff/pull/2872) [@tunetheweb](https://github.com/tunetheweb)
 * L042 autofix [#2860](https://github.com/sqlfluff/sqlfluff/pull/2860) [@OTooleMichael](https://github.com/OTooleMichael)
 * Redshift: transaction statement [#2852](https://github.com/sqlfluff/sqlfluff/pull/2852) [@rpr-ableton](https://github.com/rpr-ableton)
@@ -51,6 +54,9 @@ Major changes include:
 * Fixes for the new post-fix parse check [#2813](https://github.com/sqlfluff/sqlfluff/pull/2813) [@barrywhart](https://github.com/barrywhart)
 * Add initial `MERGE` syntax to most dialects [#2807](https://github.com/sqlfluff/sqlfluff/pull/2807) [@PhilippLange](https://github.com/PhilippLange)
 * Automated tests should fail if a lint fix introduces a parse error [#2809](https://github.com/sqlfluff/sqlfluff/pull/2809) [@barrywhart](https://github.com/barrywhart)
+
+## New Contributors
+* [@kdw2126](https://github.com/kdw2126) made their first contribution in [#2874](https://github.com/sqlfluff/sqlfluff/pull/2874)
 
 ## [0.11.0] - 2022-03-07
 
