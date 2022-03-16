@@ -311,13 +311,14 @@ class JinjaAnalyzer:
                 m_strip_right = regex.search(
                     r"\s+$", raw, regex.MULTILINE | regex.DOTALL
                 )
-                if raw.startswith("-") and m_strip_right:
-                    # Right whitespace was stripped. Split off the trailing
-                    # whitespace into a separate slice. The desired behavior is
-                    # to behave similarly as the left stripping case. Note that
-                    # the stakes are a bit lower here, because lex() hasn't
-                    # *omitted* any characters from the strings it returns,
-                    # it has simply grouped them differently than we want.
+                if elem_type.endswith("_end") and raw.startswith("-") and m_strip_right:
+                    # Right whitespace was stripped after closing block. Split
+                    # off the trailing whitespace into a separate slice. The
+                    # desired behavior is to behave similarly as the left
+                    # stripping case. Note that the stakes are a bit lower here,
+                    # because lex() hasn't *omitted* any characters from the
+                    # strings it returns, it has simply grouped them differently
+                    # than we want.
                     trailing_chars = len(m_strip_right.group(0))
                     self.raw_sliced.append(
                         RawFileSlice(
