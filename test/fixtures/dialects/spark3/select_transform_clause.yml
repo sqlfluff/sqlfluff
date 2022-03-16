@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 568a17234f8cb0d40b3840accc71b24e36ac61ba2c15fe0df013a5ea6b8a564f
+_hash: 2b499665e3c3cfcf1a697be257cde6a15933c45248ad1c170bd55dff9f4b2a31
 file:
 - statement:
     select_statement:
@@ -173,7 +173,7 @@ file:
           - keyword: SERDEPROPERTIES
           - bracketed:
               start_bracket: (
-              property_key_identifier:
+              property_name_identifier:
                 identifier: "'field.delim'"
               comparison_operator:
                 raw_comparison_operator: '='
@@ -202,7 +202,7 @@ file:
           - keyword: SERDEPROPERTIES
           - bracketed:
               start_bracket: (
-              property_key_identifier:
+              property_name_identifier:
                 identifier: "'field.delim'"
               comparison_operator:
                 raw_comparison_operator: '='

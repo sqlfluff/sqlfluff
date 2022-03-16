@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8b29d340058b52dac202eaf0ac399e6398951d594df5ffd4c8af4de553164103
+_hash: 44bba83bd3e0c4e9694030be6d8978344d1460504a92b3eca845cc439fd8a060
 file:
 - statement:
     explain_statement:
@@ -84,7 +84,7 @@ file:
         - keyword: DBPROPERTIES
         - bracketed:
             start_bracket: (
-            property_key_identifier:
+            property_name_identifier:
               identifier: "'Edited-by'"
             comparison_operator:
               raw_comparison_operator: '='
@@ -139,7 +139,7 @@ file:
         - keyword: DBPROPERTIES
         - bracketed:
             start_bracket: (
-            property_key_identifier:
+            property_name_identifier:
               identifier: '"property_name"'
             comparison_operator:
               raw_comparison_operator: '='
@@ -257,7 +257,7 @@ file:
         - keyword: TBLPROPERTIES
         - bracketed:
             start_bracket: (
-            property_key_identifier:
+            property_name_identifier:
               identifier: "'owner'"
             comparison_operator:
               raw_comparison_operator: '='

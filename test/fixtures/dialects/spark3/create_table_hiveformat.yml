@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f87d1f4df3ba812dd2c6532121d5f444a8e9f9f74b49868d3e7b69cfd95041c2
+_hash: f93d282168797a55676db42bea1d05f55a7db5c4375d7a97b8f87853771302d0
 file:
 - statement:
     create_table_statement:
@@ -84,13 +84,13 @@ file:
     - keyword: TBLPROPERTIES
     - bracketed:
       - start_bracket: (
-      - property_key_identifier:
+      - property_name_identifier:
           identifier: '"key1"'
       - comparison_operator:
           raw_comparison_operator: '='
       - literal: '"val1"'
       - comma: ','
-      - property_key_identifier:
+      - property_name_identifier:
           identifier: '"key2"'
       - comparison_operator:
           raw_comparison_operator: '='
@@ -204,7 +204,7 @@ file:
     - keyword: TBLPROPERTIES
     - bracketed:
         start_bracket: (
-        property_key_identifier:
+        property_name_identifier:
           identifier: "'foo'"
         comparison_operator:
           raw_comparison_operator: '='
@@ -243,7 +243,7 @@ file:
     - keyword: TBLPROPERTIES
     - bracketed:
         start_bracket: (
-        property_key_identifier:
+        property_name_identifier:
           identifier: "'foo'"
         comparison_operator:
           raw_comparison_operator: '='
@@ -463,7 +463,7 @@ file:
     - keyword: TBLPROPERTIES
     - bracketed:
         start_bracket: (
-        property_key_identifier:
+        property_name_identifier:
           identifier: "'avro.schema.literal'"
         comparison_operator:
           raw_comparison_operator: '='

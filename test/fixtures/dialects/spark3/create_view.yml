@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 68ce4658e52631f5527ab50b177b05489d49f70468f4ffd13489ab407976c1f0
+_hash: 5bd38185b1c394d84fea7a1d8893319e558eafc3ba28de7b9dda3883b226af63
 file:
 - statement:
     create_view_statement:
@@ -55,13 +55,13 @@ file:
     - keyword: TBLPROPERTIES
     - bracketed:
       - start_bracket: (
-      - property_key_identifier:
+      - property_name_identifier:
           identifier: '"key1"'
       - comparison_operator:
           raw_comparison_operator: '='
       - literal: '"val1"'
       - comma: ','
-      - property_key_identifier:
+      - property_name_identifier:
           identifier: '"key2"'
       - comparison_operator:
           raw_comparison_operator: '='

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d5ec4308a08c7ec40e0e0964da631f2c935d7f965277a778d2445e283d13f0f9
+_hash: a940d38e12fcc659904cee7eb28d019e78514f448767bf022a1152257a7a9ca1
 file:
 - statement:
     alter_table_statement:
@@ -174,7 +174,7 @@ file:
     - keyword: TBLPROPERTIES
     - bracketed:
         start_bracket: (
-        property_key_identifier:
+        property_name_identifier:
           identifier: "'winner'"
         comparison_operator:
           raw_comparison_operator: '='
@@ -193,7 +193,7 @@ file:
     - keyword: TBLPROPERTIES
     - bracketed:
         start_bracket: (
-        property_key_identifier:
+        property_name_identifier:
           identifier: "'comment'"
         comparison_operator:
           raw_comparison_operator: '='
@@ -212,7 +212,7 @@ file:
     - keyword: TBLPROPERTIES
     - bracketed:
         start_bracket: (
-        property_key_identifier:
+        property_name_identifier:
           identifier: "'comment'"
         comparison_operator:
           raw_comparison_operator: '='
@@ -231,7 +231,7 @@ file:
     - keyword: TBLPROPERTIES
     - bracketed:
         start_bracket: (
-        property_key_identifier:
+        property_name_identifier:
           identifier: "'winner'"
         end_bracket: )
 - statement_terminator: ;
@@ -245,13 +245,13 @@ file:
     - keyword: SERDEPROPERTIES
     - bracketed:
       - start_bracket: (
-      - property_key_identifier:
+      - property_name_identifier:
           identifier: '"key1"'
       - comparison_operator:
           raw_comparison_operator: '='
       - literal: '"val1"'
       - comma: ','
-      - property_key_identifier:
+      - property_name_identifier:
           identifier: '"key2"'
       - comparison_operator:
           raw_comparison_operator: '='
@@ -283,13 +283,13 @@ file:
     - keyword: SERDEPROPERTIES
     - bracketed:
       - start_bracket: (
-      - property_key_identifier:
+      - property_name_identifier:
           identifier: "'k'"
       - comparison_operator:
           raw_comparison_operator: '='
       - literal: "'v'"
       - comma: ','
-      - property_key_identifier:
+      - property_name_identifier:
           identifier: "'kay'"
       - comparison_operator:
           raw_comparison_operator: '='

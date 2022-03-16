@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 76563dcd98bae5cd037a471e06b46be12378a2aa4f38267162d02d54b8915073
+_hash: 373f120bf8a323bc11d69c929b0cd7c3c11ebf37c03cf03092ecf5b714759d8e
 file:
 - statement:
     show_statement:
@@ -29,7 +29,7 @@ file:
         identifier: customer
     - bracketed:
         start_bracket: (
-        property_key_identifier:
+        property_name_identifier:
         - identifier: created
         - dot: .
         - identifier: by
@@ -45,7 +45,7 @@ file:
         identifier: customer
     - bracketed:
         start_bracket: (
-        property_key_identifier:
+        property_name_identifier:
           identifier: "'created.date'"
         end_bracket: )
 - statement_terminator: ;
