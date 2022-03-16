@@ -515,18 +515,20 @@ class JinjaAnalyzer:
         """
         # Find the token returned. Did lex() skip over any characters?
         num_chars_skipped = self.raw_str.index(token, self.idx_raw) - self.idx_raw
-        if num_chars_skipped:
-            # Yes. It skipped over some characters. Compute a string
-            # containing the skipped characters.
-            skipped_str = self.raw_str[self.idx_raw : self.idx_raw + num_chars_skipped]
+        if not num_chars_skipped:
+            return
 
-            # Sanity check: Verify that Jinja only skips over
-            # WHITESPACE, never anything else.
-            if not skipped_str.isspace():  # pragma: no cover
-                templater_logger.warning(
-                    "Jinja lex() skipped non-whitespace: %s", skipped_str
-                )
-            # Treat the skipped whitespace as a literal.
-            self.raw_sliced.append(RawFileSlice(skipped_str, "literal", self.idx_raw))
-            self.raw_slice_info[self.raw_sliced[-1]] = self.slice_info_for_literal(0)
-            self.idx_raw += num_chars_skipped
+        # Yes. It skipped over some characters. Compute a string
+        # containing the skipped characters.
+        skipped_str = self.raw_str[self.idx_raw : self.idx_raw + num_chars_skipped]
+
+        # Sanity check: Verify that Jinja only skips over
+        # WHITESPACE, never anything else.
+        if not skipped_str.isspace():  # pragma: no cover
+            templater_logger.warning(
+                "Jinja lex() skipped non-whitespace: %s", skipped_str
+            )
+        # Treat the skipped whitespace as a literal.
+        self.raw_sliced.append(RawFileSlice(skipped_str, "literal", self.idx_raw))
+        self.raw_slice_info[self.raw_sliced[-1]] = self.slice_info_for_literal(0)
+        self.idx_raw += num_chars_skipped
