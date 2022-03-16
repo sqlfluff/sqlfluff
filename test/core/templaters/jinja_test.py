@@ -7,7 +7,7 @@ import pytest
 
 from sqlfluff.core.templaters import JinjaTemplater
 from sqlfluff.core.templaters.base import RawFileSlice, TemplatedFile
-from sqlfluff.core.templaters.jinja import JinjaTracer
+from sqlfluff.core.templaters.jinja import JinjaAnalyzer
 from sqlfluff.core import Linter, FluffConfig
 
 
@@ -587,8 +587,9 @@ def test__templater_jinja_slice_template(test, result):
     """Test _slice_template."""
     templater = JinjaTemplater()
     env, live_context, make_template = templater.template_builder()
-    tracer = JinjaTracer(test, env, make_template)
-    resp = list(tracer._slice_template())
+    analyzer = JinjaAnalyzer(test, env)
+    analyzer.analyze(make_template)
+    resp = analyzer.raw_sliced
     # check contiguous (unless there's a comment in it)
     if "{#" not in test:
         assert "".join(elem.raw for elem in resp) == test

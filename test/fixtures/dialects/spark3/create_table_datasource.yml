@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2395ceec8c8a9a4173f7c2ba1681cb9c49e39b40d277c2df5f62195ba5e05d96
+_hash: 30d616fcd2e8bda74b27ea72f5ae33956fd65294c28b281d5c5ae20274f1464a
 file:
 - statement:
     create_table_statement:
@@ -31,12 +31,14 @@ file:
     - keyword: OPTIONS
     - bracketed:
       - start_bracket: (
-      - literal: '"key1"'
+      - property_name_identifier:
+          identifier: '"key1"'
       - comparison_operator:
           raw_comparison_operator: '='
       - literal: '"val1"'
       - comma: ','
-      - literal: '"key2"'
+      - property_name_identifier:
+          identifier: '"key2"'
       - comparison_operator:
           raw_comparison_operator: '='
       - literal: '"val2"'
@@ -83,12 +85,14 @@ file:
     - keyword: TBLPROPERTIES
     - bracketed:
       - start_bracket: (
-      - literal: '"key1"'
+      - property_name_identifier:
+          identifier: '"key1"'
       - comparison_operator:
           raw_comparison_operator: '='
       - literal: '"val1"'
       - comma: ','
-      - literal: '"key2"'
+      - property_name_identifier:
+          identifier: '"key2"'
       - comparison_operator:
           raw_comparison_operator: '='
       - literal: '"val2"'
@@ -96,11 +100,14 @@ file:
     - keyword: AS
     - select_statement:
         select_clause:
-          keyword: SELECT
-          select_clause_element:
-            wildcard_expression:
-              wildcard_identifier:
-                star: '*'
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              identifier: id
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: name
         from_clause:
           keyword: FROM
           from_expression:
@@ -149,11 +156,14 @@ file:
     - keyword: AS
     - select_statement:
         select_clause:
-          keyword: SELECT
-          select_clause_element:
-            wildcard_expression:
-              wildcard_identifier:
-                star: '*'
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              identifier: id
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: name
         from_clause:
           keyword: FROM
           from_expression:
@@ -221,12 +231,13 @@ file:
     - literal: "'this is a comment'"
     - keyword: TBLPROPERTIES
     - bracketed:
-      - start_bracket: (
-      - literal: "'foo'"
-      - comparison_operator:
+        start_bracket: (
+        property_name_identifier:
+          identifier: "'foo'"
+        comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'bar'"
-      - end_bracket: )
+        literal: "'bar'"
+        end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:

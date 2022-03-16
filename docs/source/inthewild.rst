@@ -54,3 +54,8 @@ Just add a section below by raising a PR on GitHub by
   contributed by Greg Clunies, with annotations on pull requests to make it
   easy for contributors to see where their SQL has failed any rules. See an
   `example pull request with SQLFluff annotations <https://github.com/brooklyn-data/dbt_artifacts/pull/74/files>`_.
+- `Markerr <https://www.markerr.com>`_ has tightly integrated SQLFluff into our
+  CI/CD process for data model changes and process improvements. Since adopting
+  SQLFluff across the organization, the clarity of our SQL code has risen
+  dramatically, freeing up review time to focus on deeper data and
+  process-specific questions.

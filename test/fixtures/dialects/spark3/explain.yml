@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: dd2b822a76422d42cf6051e1bd61c54576b89c003716d7140a8e3b335a24b2d7
+_hash: 44bba83bd3e0c4e9694030be6d8978344d1460504a92b3eca845cc439fd8a060
 file:
 - statement:
     explain_statement:
@@ -83,12 +83,13 @@ file:
         - keyword: SET
         - keyword: DBPROPERTIES
         - bracketed:
-          - start_bracket: (
-          - literal: "'Edited-by'"
-          - comparison_operator:
+            start_bracket: (
+            property_name_identifier:
+              identifier: "'Edited-by'"
+            comparison_operator:
               raw_comparison_operator: '='
-          - literal: "'John'"
-          - end_bracket: )
+            literal: "'John'"
+            end_bracket: )
 - statement_terminator: ;
 - statement:
     explain_statement:
@@ -137,12 +138,13 @@ file:
         - keyword: WITH
         - keyword: DBPROPERTIES
         - bracketed:
-          - start_bracket: (
-          - literal: '"property_name"'
-          - comparison_operator:
+            start_bracket: (
+            property_name_identifier:
+              identifier: '"property_name"'
+            comparison_operator:
               raw_comparison_operator: '='
-          - literal: '"property_value"'
-          - end_bracket: )
+            literal: '"property_value"'
+            end_bracket: )
 - statement_terminator: ;
 - statement:
     explain_statement:
@@ -254,12 +256,13 @@ file:
         - file_format: TEXTFILE
         - keyword: TBLPROPERTIES
         - bracketed:
-          - start_bracket: (
-          - literal: "'owner'"
-          - comparison_operator:
+            start_bracket: (
+            property_name_identifier:
+              identifier: "'owner'"
+            comparison_operator:
               raw_comparison_operator: '='
-          - literal: "'xxxx'"
-          - end_bracket: )
+            literal: "'xxxx'"
+            end_bracket: )
 - statement_terminator: ;
 - statement:
     explain_statement:

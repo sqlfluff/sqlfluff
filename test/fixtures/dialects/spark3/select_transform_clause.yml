@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0ecdc88e97e1c6ebbb9dedf9a7b0a5726283d5afe8a54f9c318f661dcca7b121
+_hash: 2b499665e3c3cfcf1a697be257cde6a15933c45248ad1c170bd55dff9f4b2a31
 file:
 - statement:
     select_statement:
@@ -172,12 +172,13 @@ file:
           - keyword: WITH
           - keyword: SERDEPROPERTIES
           - bracketed:
-            - start_bracket: (
-            - literal: "'field.delim'"
-            - comparison_operator:
+              start_bracket: (
+              property_name_identifier:
+                identifier: "'field.delim'"
+              comparison_operator:
                 raw_comparison_operator: '='
-            - literal: "'\\t'"
-            - end_bracket: )
+              literal: "'\\t'"
+              end_bracket: )
         - keyword: USING
         - literal: "'cat'"
         - keyword: AS
@@ -200,12 +201,13 @@ file:
           - keyword: WITH
           - keyword: SERDEPROPERTIES
           - bracketed:
-            - start_bracket: (
-            - literal: "'field.delim'"
-            - comparison_operator:
+              start_bracket: (
+              property_name_identifier:
+                identifier: "'field.delim'"
+              comparison_operator:
                 raw_comparison_operator: '='
-            - literal: "'\\t'"
-            - end_bracket: )
+              literal: "'\\t'"
+              end_bracket: )
       from_clause:
         keyword: FROM
         from_expression:

@@ -10,14 +10,20 @@ INTO 4 BUCKETS
 LOCATION 'root/database/table'
 COMMENT 'this is a comment'
 TBLPROPERTIES ( "key1" = "val1", "key2" = "val2" )
-AS SELECT * FROM student;
+AS SELECT
+    id,
+    name
+FROM student;
 
 --Use data source
 CREATE TABLE student (id INT, student_name STRING, age INT) USING CSV;
 
 --Use data from another table
 CREATE TABLE student_copy USING CSV
-AS SELECT * FROM student;
+AS SELECT
+    id,
+    name
+FROM student;
 
 --Omit the USING clause
 --uses the default data source (parquet by default)
