@@ -3,6 +3,7 @@
 This is a newer slicing algorithm that handles cases heuristic.py does not.
 """
 
+from dataclasses import dataclass, field
 import logging
 import regex
 from typing import Callable, cast, Dict, List, NamedTuple, Optional
@@ -31,12 +32,13 @@ class JinjaTrace(NamedTuple):
     sliced_file: List[TemplatedFileSlice]
 
 
-class RawSliceInfo(NamedTuple):
+@dataclass
+class RawSliceInfo:
     """JinjaTracer-specific info about each RawFileSlice."""
 
     unique_alternate_id: Optional[str]
     alternate_code: Optional[str]
-    next_slice_indices: List[int]
+    next_slice_indices: List[int] = field(default_factory=list)
 
 
 class JinjaTracer:
@@ -189,7 +191,7 @@ class JinjaTracer:
         """
         unique_alternate_id = self.next_slice_id()
         alternate_code = f"\0{prefix}{unique_alternate_id}_{length}"
-        return self.make_raw_slice_info(unique_alternate_id, alternate_code, [])
+        return self.make_raw_slice_info(unique_alternate_id, alternate_code)
 
     def update_inside_set_or_macro(
         self, block_type: str, trimmed_parts: List[str]
@@ -217,14 +219,11 @@ class JinjaTracer:
             self.inside_set_or_macro = False
 
     def make_raw_slice_info(
-        self,
-        unique_alternate_id: Optional[str],
-        alternate_code: Optional[str],
-        next_slice_indices: List[int],
+        self, unique_alternate_id: Optional[str], alternate_code: Optional[str]
     ) -> RawSliceInfo:
         """Create RawSliceInfo as given, or "empty" if in set/macro block."""
         if not self.inside_set_or_macro:
-            return RawSliceInfo(unique_alternate_id, alternate_code, next_slice_indices)
+            return RawSliceInfo(unique_alternate_id, alternate_code, [])
         else:
             return RawSliceInfo(None, None, [])
 
@@ -308,7 +307,7 @@ class JinjaTracer:
                         )
                     )
                     self.raw_slice_info[self.raw_sliced[-1]] = self.make_raw_slice_info(
-                        unique_alternate_id, alternate_code, []
+                        unique_alternate_id, alternate_code
                     )
                     block_idx = len(self.raw_sliced) - 1
                     idx += len(str_buff) - trailing_chars
@@ -333,7 +332,7 @@ class JinjaTracer:
                         )
                     )
                     self.raw_slice_info[self.raw_sliced[-1]] = self.make_raw_slice_info(
-                        unique_alternate_id, alternate_code, []
+                        unique_alternate_id, alternate_code
                     )
                     block_idx = len(self.raw_sliced) - 1
                     idx += len(str_buff)
@@ -434,7 +433,7 @@ class JinjaTracer:
             unique_alternate_id = self.next_slice_id()
             alternate_code = f"{self.raw_sliced[-1].raw}\0{unique_alternate_id}_0"
             self.raw_slice_info[self.raw_sliced[-1]] = self.make_raw_slice_info(
-                unique_alternate_id, alternate_code, []
+                unique_alternate_id, alternate_code
             )
 
     def update_next_slice_indices(
