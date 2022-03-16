@@ -2522,7 +2522,7 @@ class FromExpressionElementSegment(BaseSegment):
 @spark3_dialect.segment()
 class PropertyNameSegment(BaseSegment):
     """A segment for a property name to set and retrieve table and runtime properties.
-    
+
     https://spark.apache.org/docs/latest/configuration.html#application-properties
     """
 
