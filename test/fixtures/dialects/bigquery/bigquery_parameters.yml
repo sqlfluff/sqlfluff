@@ -144,3 +144,80 @@ file:
                   question_mark: '?'
             - end_bracket: )
 - statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: select
+      - select_clause_element:
+          column_reference:
+            identifier: id
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: datetime_trunc
+            bracketed:
+              start_bracket: (
+              expression:
+                parameterized_expression:
+                  literal: '@z2'
+              comma: ','
+              date_part: week
+              end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: sum
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  identifier: something
+              end_bracket: )
+            over_clause:
+              keyword: over
+              bracketed:
+                start_bracket: (
+                window_specification:
+                  partitionby_clause:
+                  - keyword: partition
+                  - keyword: by
+                  - expression:
+                      column_reference:
+                        identifier: some_id
+                  orderby_clause:
+                  - keyword: order
+                  - keyword: by
+                  - column_reference:
+                      identifier: some_date
+                  frame_clause:
+                  - keyword: rows
+                  - keyword: BETWEEN
+                  - parameterized_expression:
+                      literal: '@query_parameter'
+                  - keyword: PRECEDING
+                  - binary_operator: AND
+                  - keyword: CURRENT
+                  - keyword: ROW
+                end_bracket: )
+          alias_expression:
+            keyword: as
+            identifier: some_sum
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: some_table
+      where_clause:
+        keyword: where
+        expression:
+          column_reference:
+            identifier: some_column
+          comparison_operator:
+            raw_comparison_operator: '='
+          parameterized_expression:
+            literal: '@query_parameter2'
+- statement_terminator: ;

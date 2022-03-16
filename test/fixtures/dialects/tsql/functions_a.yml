@@ -118,7 +118,12 @@ file:
                   - identifier: column1
               - comma: ','
               - expression:
-                  literal: '23'
+                  column_reference:
+                  - identifier: tbl_b
+                  - dot: .
+                  - identifier: column1
+              - comma: ','
+              - literal: '23'
               - end_bracket: )
             alias_expression:
               keyword: AS

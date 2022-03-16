@@ -522,17 +522,21 @@ class DbtTemplater(JinjaTemplater):
             # sliced_file to reflect the mapping of the added character(s) back
             # to the raw SQL.
             templated_sql = templated_sql + "\n" * n_trailing_newlines
-            sliced_file.append(
-                TemplatedFileSlice(
-                    slice_type="literal",
-                    source_slice=slice(
-                        len(source_dbt_sql) - n_trailing_newlines, len(source_dbt_sql)
-                    ),
-                    templated_slice=slice(
-                        len(templated_sql) - n_trailing_newlines, len(templated_sql)
-                    ),
+            if sliced_file and sliced_file[-1].templated_slice.stop != len(
+                templated_sql
+            ):
+                sliced_file.append(
+                    TemplatedFileSlice(
+                        slice_type="literal",
+                        source_slice=slice(
+                            len(source_dbt_sql) - n_trailing_newlines,
+                            len(source_dbt_sql),
+                        ),
+                        templated_slice=slice(
+                            len(templated_sql) - n_trailing_newlines, len(templated_sql)
+                        ),
+                    )
                 )
-            )
         return (
             TemplatedFile(
                 source_str=source_dbt_sql,

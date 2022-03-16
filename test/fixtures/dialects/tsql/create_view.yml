@@ -72,8 +72,7 @@ file:
                 - expression:
                     literal: "'20001231'"
                 - comma: ','
-                - expression:
-                    literal: '101'
+                - literal: '101'
                 - end_bracket: )
           groupby_clause:
           - keyword: GROUP
@@ -147,8 +146,7 @@ file:
                 - expression:
                     literal: "'20001231'"
                 - comma: ','
-                - expression:
-                    literal: '101'
+                - literal: '101'
                 - end_bracket: )
           groupby_clause:
           - keyword: GROUP
@@ -233,8 +231,7 @@ file:
                 - expression:
                     literal: "'20010630'"
                 - comma: ','
-                - expression:
-                    literal: '101'
+                - literal: '101'
                 - end_bracket: )
           statement_terminator: ;
   - statement:

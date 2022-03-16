@@ -134,6 +134,7 @@ def test__templated_file_get_line_pos_of_char_pos(
         templated_str=templated_str,
         sliced_file=file_slices,
         fname="test",
+        check_consistency=False,
     )
     res_line_no, res_line_pos = file.get_line_pos_of_char_pos(in_charpos)
     assert res_line_no == out_line_no
@@ -287,6 +288,7 @@ def test__templated_file_templated_slice_to_source_slice(
             for rs in raw_slices
         ],
         fname="test",
+        check_consistency=False,
     )
     source_slice = file.templated_slice_to_source_slice(in_slice)
     literal_test = file.is_source_slice_literal(source_slice)
@@ -303,5 +305,6 @@ def test__templated_file_source_only_slices():
             RawFileSlice("b" * 7, "comment", 10),
             RawFileSlice("a" * 10, "literal", 17),
         ],
+        check_consistency=False,
     )
     assert file.source_only_slices() == [RawFileSlice("b" * 7, "comment", 10)]
