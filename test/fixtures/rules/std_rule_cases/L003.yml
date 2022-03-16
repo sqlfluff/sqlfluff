@@ -670,7 +670,7 @@ test_stable_jinja_loop:
             column_a,
             column_b
         FROM {{ t }}
-            {% if not loop.last %} 
+            {% if not loop.last %}
                 UNION ALL
             {% endif %}
     {% endfor %}
@@ -681,7 +681,21 @@ test_stable_jinja_loop:
             column_a,
             column_b
         FROM {{ t }}
-        {% if not loop.last %} 
+        {% if not loop.last %}
+            UNION ALL
+        {% endif %}
+    {% endfor %}
+    ;
+
+test_stable_jinja_loop:
+  # Matches the fix output from above
+  pass_str: |
+    {% for t in ['table_a', 'table_b'] %}
+        SELECT
+            column_a,
+            column_b
+        FROM {{ t }}
+        {% if not loop.last %}
             UNION ALL
         {% endif %}
     {% endfor %}
