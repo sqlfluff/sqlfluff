@@ -400,8 +400,6 @@ spark3_dialect.add(
             ),
         ),
     ),
-    # The strange regex here it to make sure we don't accidentally match numeric
-    # literals. We also use a regex to explicitly exclude disallowed keywords.
     # NB: Redefined from `NakedIdentifierSegment` which uses an anti-template to
     # not match keywords; however, SparkSQL allows keywords to be used in table
     # and runtime properties.
