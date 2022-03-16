@@ -24,7 +24,7 @@ from sqlfluff.core.templaters.base import (
     TemplatedFileSlice,
 )
 from sqlfluff.core.templaters.python import PythonTemplater
-from sqlfluff.core.templaters.slicers.tracer import JinjaTracer
+from sqlfluff.core.templaters.slicers.tracer import JinjaAnalyzer
 
 
 # Instantiate the templater logger
@@ -413,6 +413,7 @@ class JinjaTemplater(PythonTemplater):
         templater_logger.info("Slicing File Template")
         templater_logger.debug("    Raw String: %r", raw_str)
         templater_logger.debug("    Templated String: %r", templated_str)
-        tracer = JinjaTracer(raw_str, self._get_jinja_env(), make_template)
+        analyzer = JinjaAnalyzer(raw_str, self._get_jinja_env())
+        tracer = analyzer.analyze(make_template)
         trace = tracer.trace()
         return trace.raw_sliced, trace.sliced_file, trace.templated_str
