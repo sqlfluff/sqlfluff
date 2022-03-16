@@ -1,9 +1,12 @@
 """Surrogate class for working with Segment collections."""
-from typing import Any, Callable, Iterator, List, Optional, overload
+from typing import Any, Callable, Iterable, Iterator, List, Optional, overload
 
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.templaters.base import TemplatedFile
 from sqlfluff.core.rules.functional.raw_file_slices import RawFileSlices
+
+
+PredicateType = Callable[[BaseSegment], bool]
 
 
 class Segments(tuple):
@@ -37,14 +40,14 @@ class Segments(tuple):
         except ValueError:
             return -1
 
-    def all(self, predicate: Optional[Callable[[BaseSegment], bool]] = None) -> bool:
+    def all(self, predicate: Optional[PredicateType] = None) -> bool:
         """Do all the segments match?"""
         for s in self:
             if predicate is not None and not predicate(s):
                 return False
         return True
 
-    def any(self, predicate: Optional[Callable[[BaseSegment], bool]] = None) -> bool:
+    def any(self, predicate: Optional[PredicateType] = None) -> bool:
         """Do any of the segments match?"""
         for s in self:
             if predicate is None or predicate(s):
@@ -94,7 +97,8 @@ class Segments(tuple):
         return Segments(*segments, templated_file=self.templated_file)
 
     def children(
-        self, predicate: Optional[Callable[[BaseSegment], bool]] = None
+        self,
+        predicate: Optional[PredicateType] = None,
     ) -> "Segments":
         """Returns an object with children of the segments in this object."""
         child_segments: List[BaseSegment] = []
@@ -105,7 +109,8 @@ class Segments(tuple):
         return Segments(*child_segments, templated_file=self.templated_file)
 
     def first(
-        self, predicate: Optional[Callable[[BaseSegment], bool]] = None
+        self,
+        predicate: Optional[PredicateType] = None,
     ) -> "Segments":
         """Returns the first segment (if any) that satisfies the predicates."""
         for s in self:
@@ -115,7 +120,8 @@ class Segments(tuple):
         return Segments(templated_file=self.templated_file)
 
     def last(
-        self, predicate: Optional[Callable[[BaseSegment], bool]] = None
+        self,
+        predicate: Optional[PredicateType] = None,
     ) -> "Segments":
         """Returns the last segment (if any) that satisfies the predicates."""
         for s in reversed(self):
@@ -156,8 +162,8 @@ class Segments(tuple):
 
     def select(
         self,
-        select_if: Optional[Callable[[BaseSegment], bool]] = None,
-        loop_while: Optional[Callable[[BaseSegment], bool]] = None,
+        select_if: Optional[PredicateType] = None,
+        loop_while: Optional[PredicateType] = None,
         start_seg: Optional[BaseSegment] = None,
         stop_seg: Optional[BaseSegment] = None,
     ) -> "Segments":
@@ -175,3 +181,15 @@ class Segments(tuple):
             if select_if is None or select_if(seg):
                 buff.append(seg)
         return Segments(*buff, templated_file=self.templated_file)
+
+    def iterate_segments(
+        self,
+        predicate: Optional[PredicateType] = None,
+    ) -> Iterable["Segments"]:
+        """Loop over each element as a fresh Segments."""
+        # Looping over Segments returns BaseEls
+        # which is sometime what we want and sometimes not
+        for base_el in self:
+            if predicate and not predicate(base_el):  # pragma: no cover
+                continue
+            yield Segments(base_el, templated_file=self.templated_file)

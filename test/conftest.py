@@ -263,6 +263,7 @@ def fail_on_parse_error_after_fix(monkeypatch):
     monkeypatch.setattr(
         BaseSegment, "_log_apply_fixes_check_issue", raise_error_apply_fixes_check_issue
     )
+
     monkeypatch.setattr(
         Linter,
         "_report_conflicting_fixes_same_anchor",
