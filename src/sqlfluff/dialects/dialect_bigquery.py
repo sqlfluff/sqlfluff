@@ -369,6 +369,13 @@ bigquery_dialect.replace(
         type="identifier",
         trim_chars=("`",),
     ),
+    # Add ParameterizedSegment to the ansi NumericLiteralSegment
+    NumericLiteralSegment=OneOf(
+        NamedParser(
+            "numeric_literal", CodeSegment, name="numeric_literal", type="literal"
+        ),
+        Ref("ParameterizedSegment"),
+    ),
     # Add three elements to the ansi LiteralGrammar
     LiteralGrammar=ansi_dialect.get_grammar("LiteralGrammar").copy(
         insert=[
