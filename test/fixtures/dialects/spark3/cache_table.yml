@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9893a5321046754c08de6b201414c0d15e03c66e2cfca6e0e0de7a4b46403e32
+_hash: ede960aab17cc878d945721a6215513a34b967f834ffab1867550ee28ae1efbe
 file:
 - statement:
     cache_table:
@@ -13,10 +13,11 @@ file:
         identifier: TESTCACHE
     - keyword: OPTIONS
     - bracketed:
-      - start_bracket: (
-      - literal: "'storageLevel'"
-      - literal: "'DISK_ONLY'"
-      - end_bracket: )
+        start_bracket: (
+        property_name_identifier:
+          identifier: "'storageLevel'"
+        literal: "'DISK_ONLY'"
+        end_bracket: )
     - select_statement:
         select_clause:
         - keyword: SELECT
@@ -44,10 +45,11 @@ file:
         identifier: TESTCACHE
     - keyword: OPTIONS
     - bracketed:
-      - start_bracket: (
-      - literal: "'storageLevel'"
-      - literal: "'DISK_ONLY'"
-      - end_bracket: )
+        start_bracket: (
+        property_name_identifier:
+          identifier: "'storageLevel'"
+        literal: "'DISK_ONLY'"
+        end_bracket: )
     - select_statement:
         select_clause:
           keyword: SELECT
@@ -70,10 +72,11 @@ file:
         identifier: TESTCACHE
     - keyword: OPTIONS
     - bracketed:
-      - start_bracket: (
-      - literal: "'storageLevel'"
-      - literal: "'DISK_ONLY'"
-      - end_bracket: )
+        start_bracket: (
+        property_name_identifier:
+          identifier: "'storageLevel'"
+        literal: "'DISK_ONLY'"
+        end_bracket: )
     - keyword: AS
     - select_statement:
         select_clause:
@@ -97,12 +100,13 @@ file:
         identifier: TESTCACHE
     - keyword: OPTIONS
     - bracketed:
-      - start_bracket: (
-      - literal: "'storageLevel'"
-      - comparison_operator:
+        start_bracket: (
+        property_name_identifier:
+          identifier: "'storageLevel'"
+        comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'DISK_ONLY'"
-      - end_bracket: )
+        literal: "'DISK_ONLY'"
+        end_bracket: )
     - keyword: AS
     - select_statement:
         select_clause:

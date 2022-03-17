@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 562476d80501c42f792c4e0ee9fdd5f971d20f6e18b471590800782f0bb67ccb
+_hash: 3ef55d95beb25753b338ed213ee514c7af7de6ccc6d27a4837d5d5e465ad8884
 file:
 - statement:
     alter_view_statement:
@@ -40,12 +40,13 @@ file:
     - keyword: SET
     - keyword: TBLPROPERTIES
     - bracketed:
-      - start_bracket: (
-      - literal: '"property_key"'
-      - comparison_operator:
+        start_bracket: (
+        property_name_identifier:
+          identifier: '"property_key"'
+        comparison_operator:
           raw_comparison_operator: '='
-      - literal: '"property_val"'
-      - end_bracket: )
+        literal: '"property_val"'
+        end_bracket: )
 - statement_terminator: ;
 - statement:
     alter_view_statement:
@@ -59,12 +60,14 @@ file:
     - keyword: TBLPROPERTIES
     - bracketed:
       - start_bracket: (
-      - literal: "'created.by.user'"
+      - property_name_identifier:
+          identifier: "'created.by.user'"
       - comparison_operator:
           raw_comparison_operator: '='
       - literal: '"John"'
       - comma: ','
-      - literal: "'created.date'"
+      - property_name_identifier:
+          identifier: "'created.date'"
       - comparison_operator:
           raw_comparison_operator: '='
       - literal: "'01-01-2001'"
@@ -80,7 +83,8 @@ file:
     - keyword: TBLPROPERTIES
     - bracketed:
         start_bracket: (
-        literal: '"property_key"'
+        property_name_identifier:
+          identifier: '"property_key"'
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -95,7 +99,8 @@ file:
     - keyword: EXISTS
     - bracketed:
         start_bracket: (
-        literal: '"property_key"'
+        property_name_identifier:
+          identifier: '"property_key"'
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -110,9 +115,11 @@ file:
     - keyword: TBLPROPERTIES
     - bracketed:
       - start_bracket: (
-      - literal: "'created.by.user'"
+      - property_name_identifier:
+          identifier: "'created.by.user'"
       - comma: ','
-      - literal: "'created.date'"
+      - property_name_identifier:
+          identifier: "'created.date'"
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -126,11 +133,14 @@ file:
         start_bracket: (
         select_statement:
           select_clause:
-            keyword: SELECT
-            select_clause_element:
-              wildcard_expression:
-                wildcard_identifier:
-                  star: '*'
+          - keyword: SELECT
+          - select_clause_element:
+              column_reference:
+                identifier: a
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                identifier: b
           from_clause:
             keyword: FROM
             from_expression:
@@ -153,11 +163,14 @@ file:
     - keyword: AS
     - select_statement:
         select_clause:
-          keyword: SELECT
-          select_clause_element:
-            wildcard_expression:
-              wildcard_identifier:
-                star: '*'
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              identifier: a
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: b
         from_clause:
           keyword: FROM
           from_expression:

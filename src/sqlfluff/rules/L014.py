@@ -67,7 +67,10 @@ class Rule_L014(Rule_L010):
 
     """
 
-    _target_elems: List[Tuple[str, str]] = [("name", "naked_identifier")]
+    _target_elems: List[Tuple[str, str]] = [
+        ("name", "naked_identifier"),
+        ("name", "properties_naked_identifier"),
+    ]
     config_keywords = [
         "extended_capitalisation_policy",
         "unquoted_identifiers_policy",

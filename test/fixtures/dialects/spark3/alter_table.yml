@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5d6c3e2e8f14dedf4ce5a212eee1d0fdffeb31f4a71f71838f55cef3f378595e
+_hash: a940d38e12fcc659904cee7eb28d019e78514f448767bf022a1152257a7a9ca1
 file:
 - statement:
     alter_table_statement:
@@ -173,12 +173,13 @@ file:
     - keyword: SET
     - keyword: TBLPROPERTIES
     - bracketed:
-      - start_bracket: (
-      - literal: "'winner'"
-      - comparison_operator:
+        start_bracket: (
+        property_name_identifier:
+          identifier: "'winner'"
+        comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'loser'"
-      - end_bracket: )
+        literal: "'loser'"
+        end_bracket: )
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -191,12 +192,13 @@ file:
     - keyword: SET
     - keyword: TBLPROPERTIES
     - bracketed:
-      - start_bracket: (
-      - literal: "'comment'"
-      - comparison_operator:
+        start_bracket: (
+        property_name_identifier:
+          identifier: "'comment'"
+        comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'A table comment.'"
-      - end_bracket: )
+        literal: "'A table comment.'"
+        end_bracket: )
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -209,12 +211,13 @@ file:
     - keyword: SET
     - keyword: TBLPROPERTIES
     - bracketed:
-      - start_bracket: (
-      - literal: "'comment'"
-      - comparison_operator:
+        start_bracket: (
+        property_name_identifier:
+          identifier: "'comment'"
+        comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'This is a new comment.'"
-      - end_bracket: )
+        literal: "'This is a new comment.'"
+        end_bracket: )
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -228,7 +231,8 @@ file:
     - keyword: TBLPROPERTIES
     - bracketed:
         start_bracket: (
-        literal: "'winner'"
+        property_name_identifier:
+          identifier: "'winner'"
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -241,12 +245,14 @@ file:
     - keyword: SERDEPROPERTIES
     - bracketed:
       - start_bracket: (
-      - literal: '"key1"'
+      - property_name_identifier:
+          identifier: '"key1"'
       - comparison_operator:
           raw_comparison_operator: '='
       - literal: '"val1"'
       - comma: ','
-      - literal: '"key2"'
+      - property_name_identifier:
+          identifier: '"key2"'
       - comparison_operator:
           raw_comparison_operator: '='
       - literal: '"val2"'
@@ -277,12 +283,14 @@ file:
     - keyword: SERDEPROPERTIES
     - bracketed:
       - start_bracket: (
-      - literal: "'k'"
+      - property_name_identifier:
+          identifier: "'k'"
       - comparison_operator:
           raw_comparison_operator: '='
       - literal: "'v'"
       - comma: ','
-      - literal: "'kay'"
+      - property_name_identifier:
+          identifier: "'kay'"
       - comparison_operator:
           raw_comparison_operator: '='
       - literal: "'vee'"

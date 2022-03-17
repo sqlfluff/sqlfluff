@@ -367,3 +367,17 @@ test_pass_ignore_lists_unquoted_mixed_case:
     rules:
       L057:
         ignore_words: alias$
+
+test_pass_special_chars_show_tblproperties:
+  pass_str:
+    SHOW TBLPROPERTIES customer ('created.date');
+  configs:
+    core:
+      dialect: spark3
+
+test_fail_special_chars_show_tblproperties:
+  fail_str:
+    SHOW TBLPROPERTIES customer ('created.*');
+  configs:
+    core:
+      dialect: spark3

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 29ffbaedfc4df2f64c3a8d41a08a1517b0e49af81a5d1e149d2b86c03e6e1f57
+_hash: ec5138282259b7187521f7283018e83a9c7d53d9dbf4d7c3a0ad146a45a1ac6a
 file:
 - statement:
     select_statement:
@@ -217,9 +217,11 @@ file:
         - keyword: ALL
         - bracketed:
           - start_bracket: (
-          - literal: "'%an%'"
+          - column_reference:
+              identifier: "'%an%'"
           - comma: ','
-          - literal: "'%an'"
+          - column_reference:
+              identifier: "'%an'"
           - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -249,9 +251,11 @@ file:
         - keyword: ANY
         - bracketed:
           - start_bracket: (
-          - literal: "'%an%'"
+          - column_reference:
+              identifier: "'%an%'"
           - comma: ','
-          - literal: "'%an'"
+          - column_reference:
+              identifier: "'%an'"
           - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -281,9 +285,11 @@ file:
         - keyword: SOME
         - bracketed:
           - start_bracket: (
-          - literal: "'%an%'"
+          - column_reference:
+              identifier: "'%an%'"
           - comma: ','
-          - literal: "'%an'"
+          - column_reference:
+              identifier: "'%an'"
           - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -314,9 +320,11 @@ file:
         - keyword: ALL
         - bracketed:
           - start_bracket: (
-          - literal: "'%an%'"
+          - column_reference:
+              identifier: "'%an%'"
           - comma: ','
-          - literal: "'%an'"
+          - column_reference:
+              identifier: "'%an'"
           - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -347,9 +355,11 @@ file:
         - keyword: ANY
         - bracketed:
           - start_bracket: (
-          - literal: "'%an%'"
+          - column_reference:
+              identifier: "'%an%'"
           - comma: ','
-          - literal: "'%an'"
+          - column_reference:
+              identifier: "'%an'"
           - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -380,8 +390,10 @@ file:
         - keyword: SOME
         - bracketed:
           - start_bracket: (
-          - literal: "'%an%'"
+          - column_reference:
+              identifier: "'%an%'"
           - comma: ','
-          - literal: "'%an'"
+          - column_reference:
+              identifier: "'%an'"
           - end_bracket: )
 - statement_terminator: ;

@@ -14,5 +14,15 @@ ALTER VIEW view_identifier UNSET TBLPROPERTIES IF EXISTS ( "property_key");
 ALTER VIEW tempdb1.v2 UNSET TBLPROPERTIES ('created.by.user', 'created.date');
 
 --ALTER View AS SELECT
-ALTER VIEW view_identifier AS (SELECT * FROM tempdb1.v1);
-ALTER VIEW tempdb1.v2 AS SELECT * FROM tempdb1.v1;
+ALTER VIEW view_identifier AS (
+    SELECT
+        a,
+        b
+    FROM tempdb1.v1
+);
+
+ALTER VIEW tempdb1.v2 AS
+SELECT
+    a,
+    b
+FROM tempdb1.v1;
