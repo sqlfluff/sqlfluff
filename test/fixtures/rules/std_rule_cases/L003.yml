@@ -55,30 +55,29 @@ test_fail_tab_indentation:
     rules:
       indent_unit: tab
 
-# test_case_in_fn:
-#   fail_str: |
-#     SELECT
-#         NLV(MIN(MAX(COALESCE(
-#             a
-#         )))) AS c,
-#     MAX(CASE
-#             WHEN b THEN 1
-#             WHEN c THEN 1
-#         END) as agg
-#     FROM my_tbl
-#   fix_str: |
-#     SELECT
-#         NLV(MIN(MAX(COALESCE(
-#             a
-#         )))) AS c,
-#         MAX(CASE
-#             WHEN b THEN 1
-#             WHEN c THEN 1
-#         END) as agg
-#     FROM my_tbl
+test_case_in_fn:
+  fail_str: |
+    SELECT
+        NLV(MIN(MAX(COALESCE(
+            a
+        )))) AS c,
+    MAX(CASE
+            WHEN b THEN 1
+            WHEN c THEN 1
+        END) as agg
+    FROM my_tbl
+  fix_str: |
+    SELECT
+        NLV(MIN(MAX(COALESCE(
+            a
+        )))) AS c,
+        MAX(CASE
+            WHEN b THEN 1
+            WHEN c THEN 1
+        END) as agg
+    FROM my_tbl
 
 test_fix_progressive_indentation_errors:
-  # Using tabs as indents works
   fail_str: |
     SELECT
         a
@@ -633,7 +632,7 @@ test_tsql_function:
             ) + '12' + CAST(24 + DATEPART(day, @DATE) AS char(2))) + 1;
     --Special case Dec 29-31 may belong to the next year
         IF ((DATEPART(mm, @DATE) = 12)
-        AND ((DATEPART(dd, @DATE) - DATEPART(dw, @DATE)) >= 28))
+            AND ((DATEPART(dd, @DATE) - DATEPART(dw, @DATE)) >= 28))
         SET @ISOweek = 1;
         RETURN(@ISOweek);
     END;
@@ -651,7 +650,7 @@ test_tsql_function:
         IF (@ISOweek = 0)
             SET @ISOweek = dbo.ISOWEEK(CAST(DATEPART(yy, @DATE) - 1
                 AS char(4)
-                ) + '12' + CAST(24 + DATEPART(day, @DATE) AS char(2))) + 1;
+            ) + '12' + CAST(24 + DATEPART(day, @DATE) AS char(2))) + 1;
         --Special case Dec 29-31 may belong to the next year
         IF ((DATEPART(mm, @DATE) = 12)
             AND ((DATEPART(dd, @DATE) - DATEPART(dw, @DATE)) >= 28))
