@@ -276,3 +276,16 @@ no_inner_from_pass:
   pass_str: |
     select a
     from (select 1 as a)
+
+uses_templating:
+  fail_str: |
+    SELECT
+        a_table.id,
+        b_table.id
+    FROM a_table
+    INNER JOIN (
+        SELECT
+            id,
+            {{"mrgn"}} AS margin
+        FROM b_tbl
+    ) AS b_table ON a_table.some_column = b_table.some_column
