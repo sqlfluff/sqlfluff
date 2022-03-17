@@ -1671,7 +1671,7 @@ ansi_dialect.add(
                     Ref("NegativeSegment"),
                 ),
                 Ref("Expression_B_Grammar"),
-            )
+            ),
         ),
         AnyNumberOf(
             Sequence(
