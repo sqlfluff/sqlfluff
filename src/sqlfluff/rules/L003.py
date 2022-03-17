@@ -1,6 +1,6 @@
 """Implementation of Rule L003."""
 import dataclasses
-from functools import cached_property
+import functools
 import itertools
 from typing import Dict, Iterable, List, Optional, Sequence, Tuple
 
@@ -988,7 +988,8 @@ class _TemplateLineInterpreter:
         next(b, None)
         return zip(a, b)
 
-    @cached_property
+    @property
+    @functools.lru_cache()
     def valid_start_combos(self):
         start_blocks = (
             ("placeholder", "block_start"),
@@ -1014,7 +1015,8 @@ class _TemplateLineInterpreter:
             for pair in self.iterate_adjacent_type_pairs()
         )
 
-    @cached_property
+    @property
+    @functools.lru_cache()
     def valid_end_combos(self):
         dedent_types = (("dedent", None),)
         end_block = (
