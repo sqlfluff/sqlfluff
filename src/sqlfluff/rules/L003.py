@@ -988,7 +988,6 @@ class _TemplateLineInterpreter:
         next(b, None)
         return zip(a, b)
 
-    @property
     @functools.lru_cache()
     def valid_start_combos(self):
         start_blocks = (
@@ -1011,11 +1010,10 @@ class _TemplateLineInterpreter:
 
     def is_block_start(self):
         return any(
-            pair in self.valid_start_combos
+            pair in self.valid_start_combos()
             for pair in self.iterate_adjacent_type_pairs()
         )
 
-    @property
     @functools.lru_cache()
     def valid_end_combos(self):
         dedent_types = (("dedent", None),)
@@ -1034,7 +1032,8 @@ class _TemplateLineInterpreter:
 
     def is_block_end(self):
         return any(
-            pair in self.valid_end_combos for pair in self.iterate_adjacent_type_pairs()
+            pair in self.valid_end_combos()
+            for pair in self.iterate_adjacent_type_pairs()
         )
 
     def block_type(self) -> Optional[str]:
