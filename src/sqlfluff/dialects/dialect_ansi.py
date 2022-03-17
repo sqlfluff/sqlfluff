@@ -1652,34 +1652,38 @@ ansi_dialect.add(
                 Sequence(
                     Ref.keyword("NOT", optional=True),
                     "BETWEEN",
-                    # In a between expression, we're restricted to arithmetic operations
-                    # because if we look for all binary operators then we would match
-                    # AND as both an operator and also as the delimiter within the
-                    # BETWEEN expression.
-                    Ref("Expression_C_Grammar"),
-                    AnyNumberOf(
-                        Sequence(
-                            Ref("ArithmeticBinaryOperatorGrammar"),
-                            Ref("Expression_C_Grammar"),
-                        )
-                    ),
+                    Ref("Expression_B_Grammar"),
                     "AND",
-                    Ref("Expression_C_Grammar"),
-                    AnyNumberOf(
-                        Sequence(
-                            Ref("ArithmeticBinaryOperatorGrammar"),
-                            Ref("Expression_C_Grammar"),
-                        )
-                    ),
+                    Ref("Expression_A_Grammar"),
                 ),
             )
         ),
     ),
-    # CockroachDB defines Expression_B_Grammar. The SQLFluff implementation of
-    # expression parsing pulls that logic into Expression_A_Grammar and so there's
-    # currently no need to define Expression_B.
+    # Expression_B_Grammar: Does not directly feed into Expression_A_Grammar
+    # but is used for a BETWEEN statement within Expression_A_Grammar.
     # https://www.cockroachlabs.com/docs/v20.2/sql-grammar.htm#b_expr
-    #
+    Expression_B_Grammar=Sequence(
+        OneOf(
+            Ref("Expression_C_Grammar"),
+            Sequence(
+                OneOf(
+                    Ref("PositiveSegment"),
+                    Ref("NegativeSegment"),
+                ),
+                Ref("Expression_B_Grammar"),
+            )
+        ),
+        AnyNumberOf(
+            Sequence(
+                OneOf(
+                    Ref("ArithmeticBinaryOperatorGrammar"),
+                    Ref("StringBinaryOperatorGrammar"),
+                    Ref("ComparisonOperatorGrammar"),
+                ),
+                Ref("Expression_C_Grammar"),
+            ),
+        ),
+    ),
     # Expression_C_Grammar
     # https://www.cockroachlabs.com/docs/v20.2/sql-grammar.htm#c_expr
     Expression_C_Grammar=OneOf(
