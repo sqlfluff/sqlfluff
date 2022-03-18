@@ -33,6 +33,12 @@ class Rule_L031(BaseRule):
        This rule is controversial and for many larger databases avoiding alias is
        neither realistic nor desirable. In this case this rule should be disabled.
 
+    .. note::
+       This rule is disabled by default for BigQuery due to the complexity of
+       backtick requirements and determining whether a name refers to a project
+       or dataset, and automated fixes can potentially break working SQL code..
+       It can be enabled with the ``force_enable = True`` flag.
+
     **Anti-pattern**
 
     In this example, alias ``o`` is used for the orders table, and ``c`` is used for
@@ -71,6 +77,8 @@ class Rule_L031(BaseRule):
 
     """
 
+    config_keywords = ["force_enable"]
+
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Identify aliases in from clause and join conditions.
 
@@ -86,7 +94,10 @@ class Rule_L031(BaseRule):
         # to BigQuery when it is looking at the query, it would be complex for
         # this rule to do the right thing. For now, the rule simply disables
         # itself.
-        if context.dialect.name == "bigquery":
+        # Config type hints
+        self.force_enable: bool
+
+        if context.dialect.name in ["bigquery"] and not self.force_enable:
             return LintResult()
 
         if context.segment.is_type("select_statement"):
