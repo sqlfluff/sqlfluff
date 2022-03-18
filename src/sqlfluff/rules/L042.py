@@ -169,8 +169,15 @@ def _calculate_fixes(
                 _create_table_ref(alias_name, dialect, this_seg[0].pos_marker),
             )
         )
+        anchor = subquery
+        # Grab the first keyword or symbol in the subquery to use as the
+        # anchor. This makes the lint warning less likely to be filtered out
+        # if a bit of the subquery happens to be templated.
+        for seg in subquery.recursive_crawl("keyword", "symbol"):
+            anchor = seg
+            break
         res = LintResult(
-            anchor=subquery,
+            anchor=anchor,
             description=f"{parent_type} clauses should not contain "
             "subqueries. Use CTEs instead",
             fixes=[],
