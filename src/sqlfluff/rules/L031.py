@@ -77,6 +77,7 @@ class Rule_L031(BaseRule):
     """
 
     config_keywords = ["force_enable"]
+    _dialects_disabled_by_default = ["bigquery"]
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Identify aliases in from clause and join conditions.
@@ -96,7 +97,7 @@ class Rule_L031(BaseRule):
         # Config type hints
         self.force_enable: bool
 
-        if context.dialect.name in ["bigquery"] and not self.force_enable:
+        if context.dialect.name in self. _dialects_disabled_by_default  and not self.force_enable:
             return LintResult()
 
         if context.segment.is_type("select_statement"):
