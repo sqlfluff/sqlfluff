@@ -388,18 +388,18 @@ class DbtTemplater(JinjaTemplater):
 
     def _find_skip_reason(self, fname) -> Optional[str]:
         """Return string reason if model okay to skip, otherwise None."""
+        # Scan macros.
+        abspath = os.path.abspath(fname)
+        for macro in self.dbt_manifest.macros.values():
+            if os.path.abspath(macro.original_file_path) == abspath:
+                return "a macro"
+
         if DBT_VERSION_TUPLE >= (1, 0):
-            abspath = os.path.abspath(fname)
             # Scan disabled nodes.
             for nodes in self.dbt_manifest.disabled.values():
                 for node in nodes:
                     if os.path.abspath(node.original_file_path) == abspath:
                         return "disabled"
-
-            # Scan macros.
-            for macro in self.dbt_manifest.macros.values():
-                if os.path.abspath(macro.original_file_path) == abspath:
-                    return "a macro"
         else:
             model_name = os.path.splitext(os.path.basename(fname))[0]
             if self.dbt_manifest.find_disabled_by_name(name=model_name):
