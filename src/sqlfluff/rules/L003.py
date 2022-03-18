@@ -1,4 +1,6 @@
 """Implementation of Rule L003."""
+import functools
+import itertools
 from typing import List, Optional, Sequence, Tuple
 
 from sqlfluff.core.parser import WhitespaceSegment
@@ -10,6 +12,7 @@ from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
 )
 from sqlfluff.core.templaters import TemplatedFile
+from sqlfluff.core.templaters.base import RawFileSlice
 
 
 @document_fix_compatible
@@ -126,6 +129,7 @@ class Rule_L003(BaseRule):
                 indent_balance = 0
 
             if elem.is_type("newline"):
+                template_info = _TemplateLineInterpreter(line_buffer, templated_file)
                 result_buffer[line_no] = {
                     "line_no": line_no,
                     "templated_line": templated_line,
@@ -139,6 +143,8 @@ class Rule_L003(BaseRule):
                     # Clean indent is true if the line *ends* with an indent
                     # or has an indent in the initial whitespace.
                     "clean_indent": clean_indent,
+                    "template_content": template_info.template_content,
+                    "templated_line_type": template_info.block_type()
                 }
                 line_no += 1
                 # Set the "templated_line" flag for the *next* line if the
@@ -205,6 +211,7 @@ class Rule_L003(BaseRule):
 
         # If we get to the end, and still have a buffer, add it on
         if line_buffer:
+            template_info = _TemplateLineInterpreter(line_buffer, templated_file)
             result_buffer[line_no] = {
                 "line_no": line_no,
                 "templated_line": templated_line,
@@ -216,6 +223,8 @@ class Rule_L003(BaseRule):
                 if line_indent_stack
                 else None,
                 "clean_indent": clean_indent,
+                "template_content": template_info.template_content,
+                "templated_line_type": template_info.block_type()
             }
         return result_buffer
 
@@ -488,31 +497,7 @@ class Rule_L003(BaseRule):
                 )
 
         # Special handling for template end blocks on a line by themselves.
-        if self._is_template_block_end_line(
-            this_line["line_buffer"], context.templated_file
-        ):
-            block_lines = {
-                k: (
-                    "end"
-                    if self._is_template_block_end_line(
-                        res[k]["line_buffer"], context.templated_file
-                    )
-                    else "start",
-                    res[k]["indent_balance"],
-                    "".join(
-                        seg.raw or getattr(seg, "source_str", "")
-                        for seg in res[k]["line_buffer"]
-                    ),
-                )
-                for k in res
-                if self._is_template_block_end_line(
-                    res[k]["line_buffer"], context.templated_file
-                )
-                or self._is_template_block_start_line(
-                    res[k]["line_buffer"], context.templated_file
-                )
-            }
-
+        if this_line["templated_line_type"] == "end":
             # For a template block end on a line by itself, search for a
             # matching block start on a line by itself. If there is one, match
             # its indentation. Question: Could we avoid treating this as a
@@ -521,8 +506,11 @@ class Rule_L003(BaseRule):
             # both have lines where indent_balance drops 2 levels from one line
             # to the next, making it a bit unclear how to indent that line.
             template_block_level = -1
-            for k in sorted(block_lines.keys(), reverse=True):
-                if block_lines[k][0] == "end":
+            for k in sorted(res.keys(), reverse=True):
+                template_line = res[k]
+                if not template_line["templated_line_type"]:
+                    continue
+                if template_line["templated_line_type"] == "end":
                     template_block_level -= 1
                 else:
                     template_block_level += 1
@@ -538,7 +526,7 @@ class Rule_L003(BaseRule):
                     return LintResult(memory=memory)
 
                 self.logger.debug("    [template block end] Comparing to #%s", k)
-                if this_line["indent_size"] == res[k]["indent_size"]:
+                if this_line["indent_size"] == template_line["indent_size"]:
                     # All good.
                     return LintResult(memory=memory)
 
@@ -546,7 +534,7 @@ class Rule_L003(BaseRule):
                 memory["problem_lines"].append(this_line_no)
 
                 # The previous indent.
-                desired_indent = "".join(elem.raw for elem in res[k]["indent_buffer"])
+                desired_indent = "".join(elem.raw for elem in template_line["indent_buffer"])
 
                 # Make fixes
                 fixes = self._coerce_indent_to(
@@ -807,29 +795,28 @@ class Rule_L003(BaseRule):
             # comments. If they are, lint the indentation of the comment(s).
             fixes = []
             for n in range(this_line_no - 1, -1, -1):
-                if n in memory["comment_lines"]:
-                    # The previous line WAS a comment.
-                    prev_line = res[n]
-                    if this_line["indent_size"] != prev_line["indent_size"]:
-                        # It's not aligned.
-                        # Find the anchor first.
-                        anchor: BaseSegment = None  # type: ignore
-                        for seg in prev_line["line_buffer"]:
-                            if seg.is_type("comment"):
-                                anchor = seg
-                                break
-                        # Make fixes.
-                        fixes += self._coerce_indent_to(
-                            desired_indent="".join(
-                                elem.raw for elem in this_line["indent_buffer"]
-                            ),
-                            current_indent_buffer=prev_line["indent_buffer"],
-                            current_anchor=anchor,
-                        )
-
-                        memory["problem_lines"].append(n)
-                else:
+                if n not in memory["comment_lines"]:
                     break
+                # The previous line WAS a comment.
+                prev_line = res[n]
+                if this_line["indent_size"] != prev_line["indent_size"]:
+                    # It's not aligned.
+                    # Find the anchor first.
+                    anchor: BaseSegment = None  # type: ignore
+                    for seg in prev_line["line_buffer"]:
+                        if seg.is_type("comment"):
+                            anchor = seg
+                            break
+                    # Make fixes.
+                    fixes += self._coerce_indent_to(
+                        desired_indent="".join(
+                            elem.raw for elem in this_line["indent_buffer"]
+                        ),
+                        current_indent_buffer=prev_line["indent_buffer"],
+                        current_anchor=anchor,
+                    )
+
+                    memory["problem_lines"].append(n)
 
             if fixes:
                 return LintResult(
@@ -849,63 +836,118 @@ class Rule_L003(BaseRule):
         # If we get to here, then we're all good for now.
         return LintResult(memory=memory)
 
-    @classmethod
-    def _get_element_template_info(
-        cls, elem: BaseSegment, templated_file: Optional[TemplatedFile]
-    ) -> Optional[str]:
-        if elem.is_type("placeholder"):
-            if templated_file is None:
-                raise ValueError("Parameter templated_file cannot be: None.")
-            assert elem.pos_marker
-            slices = templated_file.raw_slices_spanning_source_slice(
-                elem.pos_marker.source_slice
-            )
-            if slices:
-                return slices[0].slice_type
-        return None
 
-    @classmethod
-    def _single_placeholder_line(cls, current_line):
+class _TemplateLineInterpreter:
+    def __init__(
+        self,
+        current_line: List[BaseSegment],
+        templated_file: Optional[TemplatedFile],
+    ) -> None:
+        self.current_line = [el for el in current_line if not el.is_whitespace]
+        self.templated_file = templated_file
+
+    @property
+    def template_content(self):
+        return "".join(
+            seg.raw or getattr(seg, "source_str", "") for seg in self.current_line
+        )
+
+    def is_single_placeholder_line(self):
         count_placeholder = 0
-        for seg in current_line:
+        for seg in self.current_line:
             if seg.is_code:
                 return False
             elif seg.is_type("placeholder"):
                 count_placeholder += 1
         return count_placeholder == 1
 
-    @classmethod
-    def _is_template_block_start_line(cls, current_line, templated_file):
-        def segment_info(idx: int) -> Tuple[str, Optional[str]]:
-            """Helper function."""
-            seg = current_line[idx]
-            return seg.type, cls._get_element_template_info(seg, templated_file)
+    def list_segement_and_raw_segement_types(self):
+        """Yields the tuple of seg type and underlying type were applicable."""
+        for seg in self.current_line:
+            raw_seg = self.get_raw_slices(seg)
+            yield (seg.type, raw_seg[0].slice_type if raw_seg else None)
 
-        if not cls._single_placeholder_line(current_line):
-            return False
-        for idx in range(1, len(current_line)):
-            if segment_info(idx - 1) in (
-                ("placeholder", "block_start"),
-                ("placeholder", "compound"),
-                ("placeholder", "block_mid"),
-            ) and segment_info(idx) == ("indent", None):
-                return True
-        return False
+    def iterate_adjacent_type_pairs(self):
+        """Produce a list of pairs of each sequenctial combo of two."""
+        iterable = self.list_segement_and_raw_segement_types()
+        a, b = itertools.tee(iterable)
+        # consume the first item in b
+        next(b, None)
+        return zip(a, b)
 
-    @classmethod
-    def _is_template_block_end_line(cls, current_line, templated_file):
-        def segment_info(idx: int) -> Tuple[str, Optional[str]]:
-            """Helper function."""
-            seg = current_line[idx]
-            return seg.type, cls._get_element_template_info(seg, templated_file)
+    @functools.lru_cache()
+    def valid_start_combos(self):
+        start_blocks = (
+            ("placeholder", "block_start"),
+            ("placeholder", "compound"),
+            ("placeholder", "literal"),
+            ("placeholder", "block_mid"),
+        )
+        indent_types = (
+            ("indent", None),
+            ("newline", None),
+        )
+        valid_combos = list(
+            itertools.product(
+                start_blocks,
+                indent_types,
+            )
+        )
+        return valid_combos
 
-        if not cls._single_placeholder_line(current_line):
-            return False
-        for idx in range(1, len(current_line)):
-            if segment_info(idx - 1) == ("dedent", None) and segment_info(idx) in (
-                ("placeholder", "block_end"),
-                ("placeholder", "compound"),
-                ("placeholder", "block_mid"),
-            ):
-                return True
-        return False
+    def is_block_start(self):
+        return any(
+            pair in self.valid_start_combos()
+            for pair in self.iterate_adjacent_type_pairs()
+        )
+
+    @functools.lru_cache()
+    def valid_end_combos(self):
+        dedent_types = (("dedent", None),)
+        end_block = (
+            ("placeholder", "block_end"),
+            ("placeholder", "compound"),
+            ("placeholder", "block_mid"),
+        )
+        valid_combos = list(
+            itertools.product(
+                dedent_types,
+                end_block,
+            )
+        )
+        return valid_combos
+
+    def is_block_end(self):
+        return any(
+            pair in self.valid_end_combos()
+            for pair in self.iterate_adjacent_type_pairs()
+        )
+
+    def block_type(self) -> Optional[str]:
+        """Return a block_type enum."""
+        if not self.templated_file:
+            return None
+
+        if not self.is_single_placeholder_line():
+            return None
+
+        if self.is_block_end():
+            return "end"
+
+        if self.is_block_start():
+            return "start"
+
+        return None
+
+    def get_raw_slices(self, elem: BaseSegment) -> Optional[List[RawFileSlice]]:
+        if not self.templated_file:
+            return None
+
+        if not elem.is_type("placeholder"):
+            return None
+
+        assert elem.pos_marker, "TypeGuard"
+        slices = self.templated_file.raw_slices_spanning_source_slice(
+            elem.pos_marker.source_slice
+        )
+        return slices or None
