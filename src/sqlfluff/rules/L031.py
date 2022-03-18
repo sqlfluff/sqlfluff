@@ -97,7 +97,10 @@ class Rule_L031(BaseRule):
         # Config type hints
         self.force_enable: bool
 
-        if context.dialect.name in self. _dialects_disabled_by_default  and not self.force_enable:
+        if (
+            context.dialect.name in self._dialects_disabled_by_default
+            and not self.force_enable
+        ):
             return LintResult()
 
         if context.segment.is_type("select_statement"):
