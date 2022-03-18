@@ -206,6 +206,11 @@ bigquery_dialect.replace(
     ),
     NaturalJoinKeywords=Nothing(),
     MergeIntoLiteralGrammar=Sequence("MERGE", Ref.keyword("INTO", optional=True)),
+    Accessor_Grammar=AnyNumberOf(
+        Ref("ArrayAccessorSegment"),
+        # Add in semi structured expressions
+        Ref("SemiStructuredAccessorSegment"),
+    ),
 )
 
 
@@ -463,21 +468,9 @@ class FunctionSegment(BaseSegment):
                     )
                 ),
             ),
-            # Functions returning ARRYS in BigQuery can have optional
-            # OFFSET or ORDINAL clauses
-            Sequence(
-                Bracketed(
-                    OneOf(
-                        "OFFSET",
-                        "ORDINAL",
-                    ),
-                    Bracketed(
-                        Ref("NumericLiteralSegment"),
-                    ),
-                    bracket_type="square",
-                ),
-                optional=True,
-            ),
+            # Functions returning ARRAYS in BigQuery can have optional
+            # Array Accessor clauses
+            Ref("ArrayAccessorSegment", optional=True),
             # Functions returning STRUCTs in BigQuery can have the fields
             # elements referenced (e.g. ".a"), including wildcards (e.g. ".*")
             # or multiple nested fields (e.g. ".a.b", or ".a.b.c")
@@ -721,6 +714,28 @@ class LiteralCoercionSegment(BaseSegment):
 # get a reference to the ANSI ObjectReferenceSegment this way so we can inherit
 # from it.
 ObjectReferenceSegment = ansi_dialect.get_segment("ObjectReferenceSegment")
+
+
+@bigquery_dialect.segment()
+class SemiStructuredAccessorSegment(BaseSegment):
+    """A semi-structured data accessor segment."""
+
+    type = "semi_structured_expression"
+    match_grammar = Sequence(
+        Ref("DotSegment"),
+        Ref("SingleIdentifierGrammar"),
+        Ref("ArrayAccessorSegment", optional=True),
+        AnyNumberOf(
+            Sequence(
+                Ref("DotSegment"),
+                Ref("SingleIdentifierGrammar"),
+                allow_gaps=True,
+            ),
+            Ref("ArrayAccessorSegment", optional=True),
+            allow_gaps=True,
+        ),
+        allow_gaps=True,
+    )
 
 
 @bigquery_dialect.segment(replace=True)
