@@ -206,3 +206,11 @@ test_fail_no_copy_code_out_of_template:
       jinja:
         context:
           source_table: foobar
+
+test_bigquery_skip_multipart_names:
+  pass_str: |
+    SELECT t.col1
+    FROM shema1.table1 AS t
+  configs:
+    core:
+      dialect: bigquery

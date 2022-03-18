@@ -77,6 +77,18 @@ class Rule_L031(BaseRule):
         Find base table, table expressions in join, and other expressions in select
         clause and decide if it's needed to report them.
         """
+        # Issue 2810: BigQuery has some tricky expectations (apparently not
+        # documented, but subject to change, e.g.:
+        # https://www.reddit.com/r/bigquery/comments/fgk31y/new_in_bigquery_no_more_backticks_around_table/)
+        # about whether backticks are required (and whether the query is valid
+        # or not, even with them), depending on whether the GCP project name is
+        # present, or just the dataset name. Since SQLFluff doesn't have access
+        # to BigQuery when it is looking at the query, it would be complex for
+        # this rule to do the right thing. For now, the rule simply disables
+        # itself.
+        if context.dialect.name == "bigquery":
+            return LintResult()
+
         if context.segment.is_type("select_statement"):
             children = context.functional.segment.children()
             from_clause_segment = children.select(sp.is_type("from_clause")).first()
