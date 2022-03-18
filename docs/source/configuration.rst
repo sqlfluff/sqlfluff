@@ -549,10 +549,11 @@ dbt Project Configuration
     is still in very active development! If you encounter an issue, please
     let us know in a GitHub issue or on the SQLFluff slack workspace.
 
-`dbt` is not the default templater for *SQLFluff* (it is `jinja`). Choosing the
-templater for your project involves tradeoffs, and the best answer often
-depends on the specifics of your project. At this stage, users may need to try
-both approaches and choose according to how they intend to use *SQLFluff*.
+:code:`dbt` is not the default templater for *SQLFluff* (it is :code:`jinja`).
+:code:`dbt` is a complex tool, so using the default :code:`jinja` templater
+will be simpler. You should be aware when using the :code:`dbt` templater that
+you will be exposed to some of the complexity of :code:`dbt`. Users may wish to
+try both templaters and choose according to how they intend to use *SQLFluff*.
 
 A simple rule of thumb might be:
 
@@ -563,38 +564,25 @@ A simple rule of thumb might be:
   of response may be more important, then the `jinja` templater may
   be more appropriate.
 
-Below is some more detail about each templater and the pros and cons of each.
-
-`jinja` Templater
-^^^^^^^^^^^^^^^^^
-Pros:
-
-* Faster
-* More stable
-
-Cons:
-
-* Does not support the full spectrum of `dbt` macros
-
-`dbt` Templater
-^^^^^^^^^^^^^^^
 Pros:
 
 * Most (potentially all) macros will work
 
 Cons:
 
-* Less mature than `jinja` templater
-* Best practices are not yet established or documented
-* Often requires giving SQLFluff access to an actual database
+* More complex, e.g. using it successfully may require deeper
+  understanding of your models and/or macros (including third-party macros)
 
-  * Not necessarily the production database, perhaps a test database with the
-    same schema (or a subset)
+  * More configuration decisions to make
+  * Best practices are not yet established or documented
 
-* More complex to set up; using it successfully may require deeper
-  understanding, even some debugging, of your models and/or macros (including
-  third-party code such as `dbt`, `dbt-utils`, or other dbt-related macro
-  packages)
+* If your :code:`dbt` model files access a database at compile time, using
+  SQLFluff with the :code:`dbt` templater will **also** require access to a
+  database.
+
+  * Note that you can often point SQLFluff and the :code:`dbt` templater at a
+    test database (i.e. it doesn't have to be the production database).
+
 * Runs slower
 
 Installation & Configuration
