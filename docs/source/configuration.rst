@@ -549,14 +549,10 @@ dbt Project Configuration
     is still in very active development! If you encounter an issue, please
     let us know in a GitHub issue or on the SQLFluff slack workspace.
 
-dbt is not the default templater for *SQLFluff* (it is Jinja). For using
-*SQLFluff* with a dbt project, users can either use the `jinja` templater
-(which may be slightly faster, but will not support the full spectrum of
-macros) or the `dbt` templater, which uses dbt itself to render the
-sql (meaning that there is a much more reliable representation of macros,
-but a potential performance hit accordingly). At this stage we recommend
-that users try both approaches and choose according to the method that
-they intend to use *SQLFluff*.
+`dbt` is not the default templater for *SQLFluff* (it is `jinja`). Choosing the
+templater for your project involves tradeoffs, and the best answer often
+depends on the specifics of your project. At this stage, users may need to try
+both approaches and choose according to how they intend to use *SQLFluff*.
 
 A simple rule of thumb might be:
 
@@ -566,6 +562,37 @@ A simple rule of thumb might be:
 - If you are using *SQLFluff* in an IDE or on a git hook, where speed
   of response may be more important, then the `jinja` templater may
   be more appropriate.
+
+Below is some more detail about each templater and the pros and cons of each.
+
+`jinja` Templater
+^^^^^^^^^^^^^^^^^
+Pros:
+
+* Faster
+* More stable
+
+Cons:
+
+* Does not support the full spectrum of `dbt` macros
+
+`dbt` Templater
+^^^^^^^^^^^^^^^
+Pros:
+
+* Most (potentially all) macros will work
+
+Cons:
+
+* Less mature than `jinja` templater
+* Best practices are not yet established or documented
+* Often requires giving SQLFluff access to an actual database
+
+  * Not necessarily the production database, perhaps a test database with the
+    same schema (or a subset)
+
+* More complex to set up
+* Runs slower
 
 Installation & Configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
