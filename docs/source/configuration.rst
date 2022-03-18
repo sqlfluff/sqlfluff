@@ -549,14 +549,11 @@ dbt Project Configuration
     is still in very active development! If you encounter an issue, please
     let us know in a GitHub issue or on the SQLFluff slack workspace.
 
-dbt is not the default templater for *SQLFluff* (it is Jinja). For using
-*SQLFluff* with a dbt project, users can either use the `jinja` templater
-(which may be slightly faster, but will not support the full spectrum of
-macros) or the `dbt` templater, which uses dbt itself to render the
-sql (meaning that there is a much more reliable representation of macros,
-but a potential performance hit accordingly). At this stage we recommend
-that users try both approaches and choose according to the method that
-they intend to use *SQLFluff*.
+:code:`dbt` is not the default templater for *SQLFluff* (it is :code:`jinja`).
+:code:`dbt` is a complex tool, so using the default :code:`jinja` templater
+will be simpler. You should be aware when using the :code:`dbt` templater that
+you will be exposed to some of the complexity of :code:`dbt`. Users may wish to
+try both templaters and choose according to how they intend to use *SQLFluff*.
 
 A simple rule of thumb might be:
 
@@ -566,6 +563,27 @@ A simple rule of thumb might be:
 - If you are using *SQLFluff* in an IDE or on a git hook, where speed
   of response may be more important, then the `jinja` templater may
   be more appropriate.
+
+Pros:
+
+* Most (potentially all) macros will work
+
+Cons:
+
+* More complex, e.g. using it successfully may require deeper
+  understanding of your models and/or macros (including third-party macros)
+
+  * More configuration decisions to make
+  * Best practices are not yet established or documented
+
+* If your :code:`dbt` model files access a database at compile time, using
+  SQLFluff with the :code:`dbt` templater will **also** require access to a
+  database.
+
+  * Note that you can often point SQLFluff and the :code:`dbt` templater at a
+    test database (i.e. it doesn't have to be the production database).
+
+* Runs slower
 
 Installation & Configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
