@@ -85,6 +85,9 @@ class Rule_L031(BaseRule):
         Find base table, table expressions in join, and other expressions in select
         clause and decide if it's needed to report them.
         """
+        # Config type hints
+        self.force_enable: bool
+
         # Issue 2810: BigQuery has some tricky expectations (apparently not
         # documented, but subject to change, e.g.:
         # https://www.reddit.com/r/bigquery/comments/fgk31y/new_in_bigquery_no_more_backticks_around_table/)
@@ -94,9 +97,6 @@ class Rule_L031(BaseRule):
         # to BigQuery when it is looking at the query, it would be complex for
         # this rule to do the right thing. For now, the rule simply disables
         # itself.
-        # Config type hints
-        self.force_enable: bool
-
         if (
             context.dialect.name in self._dialects_disabled_by_default
             and not self.force_enable
