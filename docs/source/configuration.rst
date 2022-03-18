@@ -591,7 +591,10 @@ Cons:
   * Not necessarily the production database, perhaps a test database with the
     same schema (or a subset)
 
-* More complex to set up
+* More complex to set up; using it successfully may require deeper
+  understanding, even some debugging, of your models and/or macros (including
+  third-party code such as `dbt`, `dbt-utils`, or other dbt-related macro
+  packages)
 * Runs slower
 
 Installation & Configuration
