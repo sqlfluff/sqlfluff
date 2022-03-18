@@ -33,7 +33,6 @@ class Rule_L031(BaseRule):
        This rule is controversial and for many larger databases avoiding alias is
        neither realistic nor desirable. In this case this rule should be disabled.
 
-    .. note::
        This rule is disabled by default for BigQuery due to the complexity of
        backtick requirements and determining whether a name refers to a project
        or dataset, and automated fixes can potentially break working SQL code..
