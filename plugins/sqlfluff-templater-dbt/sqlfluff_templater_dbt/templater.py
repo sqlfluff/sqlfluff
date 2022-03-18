@@ -376,29 +376,35 @@ class DbtTemplater(JinjaTemplater):
         results = [self.dbt_manifest.expect(uid) for uid in selected]
 
         if not results:
-            model_name = os.path.splitext(os.path.basename(fname))[0]
-            if DBT_VERSION_TUPLE >= (1, 0):
-                disabled_model = None
-                for key, disabled_model_nodes in self.dbt_manifest.disabled.items():
-                    for disabled_model_node in disabled_model_nodes:
-                        if os.path.abspath(
-                            disabled_model_node.original_file_path
-                        ) == os.path.abspath(fname):
-                            disabled_model = disabled_model_node
-            else:
-                disabled_model = self.dbt_manifest.find_disabled_by_name(
-                    name=model_name
-                )
-            if disabled_model and os.path.abspath(
-                disabled_model.original_file_path
-            ) == os.path.abspath(fname):
+            skip_reason = self._find_skip_reason(fname)
+            if skip_reason:
                 raise SQLTemplaterSkipFile(
-                    f"Skipped file {fname} because the model was disabled"
+                    f"Skipped file {fname} because it is {skip_reason}"
                 )
             raise RuntimeError(
                 "File %s was not found in dbt project" % fname
             )  # pragma: no cover
         return results[0]
+
+    def _find_skip_reason(self, fname) -> Optional[str]:
+        """Return string reason if model okay to skip, otherwise None."""
+        if DBT_VERSION_TUPLE >= (1, 0):
+            abspath = os.path.abspath(fname)
+            # Scan disabled nodes.
+            for nodes in self.dbt_manifest.disabled.values():
+                for node in nodes:
+                    if os.path.abspath(node.original_file_path) == abspath:
+                        return "disabled"
+
+            # Scan macros.
+            for macro in self.dbt_manifest.macros.values():
+                if os.path.abspath(macro.original_file_path) == abspath:
+                    return "a macro"
+        else:
+            model_name = os.path.splitext(os.path.basename(fname))[0]
+            if self.dbt_manifest.find_disabled_by_name(name=model_name):
+                return "disabled"
+        return None
 
     def _unsafe_process(self, fname, in_str=None, config=None):
         original_file_path = os.path.relpath(fname, start=os.getcwd())
