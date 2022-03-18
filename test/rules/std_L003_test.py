@@ -1,11 +1,7 @@
 """Tests the python routines within L003."""
-from unittest.mock import Mock
-
 import pytest
 
-from sqlfluff.core.config import FluffConfig
 from sqlfluff.rules.L003 import Rule_L003
-from sqlfluff.testing.rules import get_rule_from_set
 
 
 @pytest.mark.parametrize(
