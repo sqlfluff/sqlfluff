@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e4872819f4496700ebf62bc64b47b59e830babca72c7aa52784af771269fffda
+_hash: c794445a9e51a1199cf64f44c88ee5f4949803a0d1a5bc4913c64518c4614b4c
 file:
 - statement:
     select_statement:
@@ -25,46 +25,43 @@ file:
                   - keyword: SELECT
                   - select_clause_element:
                       column_reference:
-                        identifier: partname
+                        identifier: red
                   - comma: ','
                   - select_clause_element:
                       column_reference:
-                        identifier: price
+                        identifier: green
+                  - comma: ','
+                  - select_clause_element:
+                      column_reference:
+                        identifier: blue
                   from_clause:
                     keyword: FROM
                     from_expression:
                       from_expression_element:
                         table_expression:
                           table_reference:
-                            identifier: part
+                            identifier: count_by_color
                 end_bracket: )
-          from_pivot_expression:
-            keyword: PIVOT
+          from_unpivot_expression:
+            keyword: UNPIVOT
             bracketed:
             - start_bracket: (
-            - function:
-                function_name:
-                  function_name_identifier: AVG
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    column_reference:
-                      identifier: price
-                  end_bracket: )
+            - column_reference:
+                identifier: cnt
             - keyword: FOR
             - column_reference:
-                identifier: partname
+                identifier: color
             - keyword: IN
             - bracketed:
               - start_bracket: (
-              - expression:
-                  literal: "'P1'"
+              - column_reference:
+                  identifier: red
               - comma: ','
-              - expression:
-                  literal: "'P2'"
+              - column_reference:
+                  identifier: green
               - comma: ','
-              - expression:
-                  literal: "'P3'"
+              - column_reference:
+                  identifier: blue
               - end_bracket: )
             - end_bracket: )
 - statement_terminator: ;
@@ -88,44 +85,130 @@ file:
                   - keyword: SELECT
                   - select_clause_element:
                       column_reference:
-                        identifier: quality
+                        identifier: red
                   - comma: ','
                   - select_clause_element:
                       column_reference:
-                        identifier: manufacturer
+                        identifier: green
+                  - comma: ','
+                  - select_clause_element:
+                      column_reference:
+                        identifier: blue
                   from_clause:
                     keyword: FROM
                     from_expression:
                       from_expression_element:
                         table_expression:
                           table_reference:
-                            identifier: part
+                            identifier: count_by_color
                 end_bracket: )
-          from_pivot_expression:
-            keyword: PIVOT
-            bracketed:
+          from_unpivot_expression:
+          - keyword: UNPIVOT
+          - keyword: INCLUDE
+          - keyword: NULLS
+          - bracketed:
             - start_bracket: (
-            - function:
-                function_name:
-                  function_name_identifier: COUNT
-                bracketed:
-                  start_bracket: (
-                  star: '*'
-                  end_bracket: )
+            - column_reference:
+                identifier: cnt
             - keyword: FOR
             - column_reference:
-                identifier: quality
+                identifier: color
             - keyword: IN
             - bracketed:
               - start_bracket: (
-              - expression:
-                  literal: '1'
+              - column_reference:
+                  identifier: red
               - comma: ','
-              - expression:
-                  literal: '2'
+              - column_reference:
+                  identifier: green
               - comma: ','
-              - expression:
-                  literal: 'NULL'
+              - column_reference:
+                  identifier: blue
+              - end_bracket: )
+            - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: count_by_color
+          from_unpivot_expression:
+            keyword: UNPIVOT
+            bracketed:
+            - start_bracket: (
+            - column_reference:
+                identifier: cnt
+            - keyword: FOR
+            - column_reference:
+                identifier: color
+            - keyword: IN
+            - bracketed:
+              - start_bracket: (
+              - column_reference:
+                  identifier: red
+              - comma: ','
+              - column_reference:
+                  identifier: green
+              - comma: ','
+              - column_reference:
+                  identifier: blue
+              - end_bracket: )
+            - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: count_by_color
+          from_unpivot_expression:
+            keyword: UNPIVOT
+            bracketed:
+            - start_bracket: (
+            - column_reference:
+                identifier: cnt
+            - keyword: FOR
+            - column_reference:
+                identifier: color
+            - keyword: IN
+            - bracketed:
+              - start_bracket: (
+              - column_reference:
+                  identifier: red
+              - alias_expression:
+                  keyword: AS
+                  identifier: r
+              - comma: ','
+              - column_reference:
+                  identifier: green
+              - alias_expression:
+                  keyword: AS
+                  identifier: g
+              - comma: ','
+              - column_reference:
+                  identifier: blue
+              - alias_expression:
+                  keyword: AS
+                  identifier: b
               - end_bracket: )
             - end_bracket: )
 - statement_terminator: ;
@@ -149,56 +232,45 @@ file:
                   - keyword: SELECT
                   - select_clause_element:
                       column_reference:
-                        identifier: quality
+                        identifier: red
                   - comma: ','
                   - select_clause_element:
                       column_reference:
-                        identifier: manufacturer
+                        identifier: green
+                  - comma: ','
+                  - select_clause_element:
+                      column_reference:
+                        identifier: blue
                   from_clause:
                     keyword: FROM
                     from_expression:
                       from_expression_element:
                         table_expression:
                           table_reference:
-                            identifier: part
+                            identifier: count_by_color
                 end_bracket: )
-          from_pivot_expression:
-            keyword: PIVOT
-            bracketed:
+          from_unpivot_expression:
+          - keyword: UNPIVOT
+          - keyword: EXCLUDE
+          - keyword: NULLS
+          - bracketed:
             - start_bracket: (
-            - function:
-                function_name:
-                  function_name_identifier: COUNT
-                bracketed:
-                  start_bracket: (
-                  star: '*'
-                  end_bracket: )
-            - alias_expression:
-                keyword: AS
-                identifier: count
+            - column_reference:
+                identifier: cnt
             - keyword: FOR
             - column_reference:
-                identifier: quality
+                identifier: color
             - keyword: IN
             - bracketed:
               - start_bracket: (
-              - expression:
-                  literal: '1'
-              - alias_expression:
-                  keyword: AS
-                  identifier: high
+              - column_reference:
+                  identifier: red
               - comma: ','
-              - expression:
-                  literal: '2'
-              - alias_expression:
-                  keyword: AS
-                  identifier: low
+              - column_reference:
+                  identifier: green
               - comma: ','
-              - expression:
-                  literal: 'NULL'
-              - alias_expression:
-                  keyword: AS
-                  identifier: na
+              - column_reference:
+                  identifier: blue
               - end_bracket: )
             - end_bracket: )
 - statement_terminator: ;
@@ -206,7 +278,7 @@ file:
     with_compound_statement:
       keyword: WITH
       common_table_expression:
-        identifier: bear_diet
+        identifier: subset_color_counts
         keyword: AS
         bracketed:
           start_bracket: (
@@ -215,22 +287,22 @@ file:
             - keyword: SELECT
             - select_clause_element:
                 column_reference:
-                  identifier: bear_id
+                  identifier: red
             - comma: ','
             - select_clause_element:
                 column_reference:
-                  identifier: bear_species
+                  identifier: green
             - comma: ','
             - select_clause_element:
                 column_reference:
-                  identifier: food_eaten
+                  identifier: blue
             from_clause:
               keyword: FROM
               from_expression:
                 from_expression_element:
                   table_expression:
                     table_reference:
-                      identifier: bear_facts
+                      identifier: count_by_color
           end_bracket: )
       select_statement:
         select_clause:
@@ -245,50 +317,27 @@ file:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: bear_diet
-            from_pivot_expression:
-              keyword: PIVOT
+                  identifier: subset_color_counts
+            from_unpivot_expression:
+              keyword: UNPIVOT
               bracketed:
               - start_bracket: (
-              - function:
-                  function_name:
-                    function_name_identifier: COUNT
-                  bracketed:
-                    start_bracket: (
-                    star: '*'
-                    end_bracket: )
-              - alias_expression:
-                  keyword: AS
-                  identifier: num_ate_food
+              - column_reference:
+                  identifier: cnt
               - keyword: FOR
               - column_reference:
-                  identifier: bear_species
+                  identifier: color
               - keyword: IN
               - bracketed:
                 - start_bracket: (
-                - expression:
-                    literal: "'polar bear'"
+                - column_reference:
+                    identifier: red
                 - comma: ','
-                - expression:
-                    literal: "'brown bear'"
+                - column_reference:
+                    identifier: green
                 - comma: ','
-                - expression:
-                    literal: "'american black bear'"
-                - comma: ','
-                - expression:
-                    literal: "'asian black bear'"
-                - comma: ','
-                - expression:
-                    literal: "'giant panda'"
-                - comma: ','
-                - expression:
-                    literal: "'spectacled bear'"
-                - comma: ','
-                - expression:
-                    literal: "'sloth bear'"
-                - comma: ','
-                - expression:
-                    literal: "'sun bear'"
+                - column_reference:
+                    identifier: blue
                 - end_bracket: )
               - end_bracket: )
 - statement_terminator: ;
@@ -306,29 +355,27 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: orders
-          from_pivot_expression:
-            keyword: PIVOT
+                identifier: count_by_color
+          from_unpivot_expression:
+            keyword: UNPIVOT
             bracketed:
             - start_bracket: (
-            - function:
-                function_name:
-                  function_name_identifier: COUNT
-                bracketed:
-                  start_bracket: (
-                  star: '*'
-                  end_bracket: )
+            - column_reference:
+                identifier: cnt
             - keyword: FOR
             - column_reference:
                 identifier: color
             - keyword: IN
             - bracketed:
               - start_bracket: (
-              - expression:
-                  literal: "'red'"
+              - column_reference:
+                  identifier: red
               - comma: ','
-              - expression:
-                  literal: "'blue'"
+              - column_reference:
+                  identifier: green
+              - comma: ','
+              - column_reference:
+                  identifier: blue
               - end_bracket: )
             - end_bracket: )
 - statement_terminator: ;
@@ -345,54 +392,28 @@ file:
         from_expression:
           from_expression_element:
             table_expression:
-              bracketed:
-                start_bracket: (
-                select_statement:
-                  select_clause:
-                  - keyword: SELECT
-                  - select_clause_element:
-                      column_reference:
-                        identifier: quality
-                  - comma: ','
-                  - select_clause_element:
-                      column_reference:
-                        identifier: manufacturer
-                  from_clause:
-                    keyword: FROM
-                    from_expression:
-                      from_expression_element:
-                        table_expression:
-                          table_reference:
-                            identifier: part
-                end_bracket: )
-          from_pivot_expression:
-            keyword: PIVOT
+              table_reference:
+                identifier: count_of_bears
+          from_unpivot_expression:
+            keyword: UNPIVOT
             bracketed:
             - start_bracket: (
-            - function:
-                function_name:
-                  function_name_identifier: COUNT
-                bracketed:
-                  start_bracket: (
-                  star: '*'
-                  end_bracket: )
+            - column_reference:
+                identifier: cnt
             - keyword: FOR
             - column_reference:
-                identifier: quality
+                identifier: species
             - keyword: IN
             - bracketed:
               - start_bracket: (
-              - expression:
-                  literal: '1'
+              - column_reference:
+                  identifier: giant_panda
               - comma: ','
-              - expression:
-                  literal: '2'
-              - comma: ','
-              - expression:
-                  literal: 'NULL'
+              - column_reference:
+                  identifier: moon_bear
               - end_bracket: )
             - end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: quality_matrix
+            identifier: floofy_bears
 - statement_terminator: ;

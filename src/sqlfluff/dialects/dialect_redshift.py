@@ -26,7 +26,6 @@ from sqlfluff.dialects.dialect_redshift_keywords import (
 
 postgres_dialect = load_raw_dialect("postgres")
 ansi_dialect = load_raw_dialect("ansi")
-tsql_dialect = load_raw_dialect("tsql")
 redshift_dialect = postgres_dialect.copy_as("redshift")
 
 # Set Keywords
@@ -155,6 +154,7 @@ redshift_dialect.replace(
     JoinLikeClauseGrammar=Sequence(
         AnySetOf(
             Ref("FromPivotExpressionSegment"),
+            Ref("FromUnpivotExpressionSegment"),
             min_times=1,
         ),
         Ref("AliasExpressionSegment", optional=True),
@@ -255,17 +255,52 @@ class UnorderedSelectStatementSegment(BaseSegment):
         Ref("OverlapsClauseSegment", optional=True),
     )
 
+@redshift_dialect.segment()
+class FromUnpivotExpressionSegment(BaseSegment):
+    """An UNPIVOT expression.
+
+    See https://docs.aws.amazon.com/redshift/latest/dg/r_FROM_clause-pivot-unpivot-examples.html
+    for details.
+    """
+
+    type = "from_unpivot_expression"
+    match_grammar = Sequence(
+        "UNPIVOT",
+        Sequence(
+            OneOf("INCLUDE", "EXCLUDE"),
+            "NULLS",
+            optional=True,
+        ),
+        Bracketed(
+            Sequence(
+                Ref("ColumnReferenceSegment"),
+                "FOR",
+                Ref("ColumnReferenceSegment"),
+                "IN",
+                Bracketed(
+                    Delimited(
+                        Sequence(
+                            Ref("ColumnReferenceSegment"),
+                            Ref("AliasExpressionSegment", optional=True),
+                        )
+                    ),
+                ),
+            ),
+        ),
+    )
 
 @redshift_dialect.segment()
 class FromPivotExpressionSegment(BaseSegment):
-    """Pivoting of a table on a column.
+    """A PIVOT expression.
 
     See https://docs.aws.amazon.com/redshift/latest/dg/r_FROM_clause-pivot-unpivot-examples.html
     for details.
     """
 
     type = "from_pivot_expression"
-    match_grammar = Sequence(
+    match_grammar = Sequence("PIVOT", Bracketed(Anything()))
+
+    parse_grammar = Sequence(
         "PIVOT",
         Bracketed(
             Sequence(
