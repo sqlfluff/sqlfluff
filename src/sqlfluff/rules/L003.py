@@ -288,11 +288,10 @@ class Rule_L003(BaseRule):
         started = line_no == (memo_size + 1)
         for elem in raw_stack:
             is_newline = elem.is_type("newline")
-            # Check if we have a completed version of this line and skip
+            # the below line act to reduce recalculation
             if not started:
                 if is_newline:
                     line_no += 1
-
                 started = line_no == (memo_size + 1)
                 continue
 
@@ -314,26 +313,22 @@ class Rule_L003(BaseRule):
                 continue
 
             if memo_line.line_anchor is None:
-                memo_line, anchor = cls._process_pre_anchor(elem, memo_line)
-                if anchor:
-                    memo_line.set_state_as_of_anchor(
-                        anchor, templated_file, tab_space_size
-                    )
+                memo_line = cls._process_pre_anchor(
+                    elem, memo_line, tab_space_size, templated_file
+                )
+                # If we hit the trigger element, stop processing.
+                if elem is memory.trigger:
+                    break
                 continue
 
             if elem.is_meta and elem.indent_val != 0:  # type: ignore
                 memo_line = cls._process_line_indents(elem, memo_line, tab_space_size)
                 continue
 
-            if elem.is_code and memo_line.hanger_pos is None:
+            elif elem.is_code and memo_line.hanger_pos is None:
                 memo_line.hanger_pos = cls._indent_size(
                     memo_line.line_buffer[:-1], tab_space_size=tab_space_size
                 )
-                continue
-
-            # If we hit the trigger element, stop processing.
-            if elem is memory.trigger:
-                break
 
         # If we get to the end, and still have a buffer, add it on
         if memo_line.line_buffer:
@@ -341,13 +336,15 @@ class Rule_L003(BaseRule):
                 line_no,
                 templated_file,
             )
-
         return result_buffer
 
     @classmethod
     def _process_line_indents(
-        cls, elem: BaseSegment, memo_line: _LineSummary, tab_space_size: int
-    ):
+        cls,
+        elem: BaseSegment,
+        memo_line: _LineSummary,
+        tab_space_size: int,
+    ) -> _LineSummary:
         memo_line.indent_balance += elem.indent_val  # type: ignore
         if elem.indent_val > 0:  # type: ignore
             # Keep track of the indent at the last ... indent
@@ -363,10 +360,16 @@ class Rule_L003(BaseRule):
         return memo_line
 
     @classmethod
-    def _process_pre_anchor(cls, elem: BaseSegment, memo_line: _LineSummary):
-        if elem.is_type("whitespace"):
+    def _process_pre_anchor(
+        cls,
+        elem: BaseSegment,
+        memo_line: _LineSummary,
+        tab_space_size: int,
+        templated_file: Optional[TemplatedFile],
+    ) -> _LineSummary:
+        if elem.is_whitespace:
             memo_line.indent_buffer.append(elem)
-            return memo_line, None
+            return memo_line
         if elem.is_meta and elem.indent_val != 0:  # type: ignore
             memo_line.indent_balance += elem.indent_val  # type: ignore
             if elem.indent_val > 0:  # type: ignore
@@ -374,10 +377,10 @@ class Rule_L003(BaseRule):
                 # an increase in indentation? Can't quite
                 # remember the logic here. Let's go with that.
                 memo_line.clean_indent = True
+            return memo_line
 
-            return memo_line, None
-
-        return memo_line, elem
+        memo_line.set_state_as_of_anchor(elem, templated_file, tab_space_size)
+        return memo_line
 
     def _coerce_indent_to(
         self,
@@ -451,10 +454,9 @@ class Rule_L003(BaseRule):
         if segment.is_type("newline"):
             memory.in_indent = True
         elif memory.in_indent:
-            is_ws = segment.is_type("whitespace")
             is_non_raw_segment = bool(segment.segments)
             is_placeholder = segment.is_meta and segment.indent_val != 0  # type: ignore
-            if not (is_ws or is_non_raw_segment or is_placeholder):
+            if not (segment.is_whitespace or is_non_raw_segment or is_placeholder):
                 memory.in_indent = False
                 # First non-whitespace element is our trigger
                 memory.trigger = segment
@@ -502,6 +504,7 @@ class Rule_L003(BaseRule):
         self.logger.debug(
             "Evaluating line #%s. %s",
             this_line_no,
+            # Don't log the line or indent buffer, it's too noisy.
             this_line,
         )
 
@@ -778,12 +781,16 @@ class Rule_L003(BaseRule):
                             " #{}".format(k),
                             # Add in an extra bit of whitespace for the indent
                             fixes=[
-                                _create_whitespace_before(
+                                LintFix.create_before(
                                     trigger_segment,
-                                    raw=self._make_indent(
-                                        indent_unit=self.indent_unit,
-                                        tab_space_size=self.tab_space_size,
-                                    ),
+                                    [
+                                        WhitespaceSegment(
+                                            raw=self._make_indent(
+                                                indent_unit=self.indent_unit,
+                                                tab_space_size=self.tab_space_size,
+                                            ),
+                                        ),
+                                    ],
                                 ),
                             ],
                         )
@@ -796,14 +803,19 @@ class Rule_L003(BaseRule):
                             k
                         ),
                         fixes=[
-                            _create_whitespace_before(
+                            LintFix.create_before(
                                 trigger_segment,
-                                raw=self._make_indent(
-                                    num=comp_indent_num - this_indent_num,
-                                    indent_unit=self.indent_unit,
-                                    tab_space_size=self.tab_space_size,
-                                ),
-                            )
+                                [
+                                    WhitespaceSegment(
+                                        # Make the minimum indent for it to be ok.
+                                        raw=self._make_indent(
+                                            num=comp_indent_num - this_indent_num,
+                                            indent_unit=self.indent_unit,
+                                            tab_space_size=self.tab_space_size,
+                                        ),
+                                    ),
+                                ],
+                            ),
                         ],
                     )
                 elif this_indent_num > comp_indent_num + indent_diff:
@@ -846,7 +858,8 @@ class Rule_L003(BaseRule):
     def _calculate_comment_fixes(
         self, memory: _Memory, previous_line_numbers: List[int], this_line: _LineSummary
     ) -> Optional[LintResult]:
-        """Given a correct current line, attempt to fix previous comments lines."""
+        # Given that this line is ok, consider if the preceding lines are
+        # comments. If they are, lint the indentation of the comment(s).
         fixes: List[LintFix] = []
         anchor: Optional[BaseSegment] = None
         for n in previous_line_numbers:
@@ -1040,14 +1053,3 @@ def _find_last_meaningful_line(
             return line
 
     return None
-
-
-def _create_whitespace_before(anchor: BaseSegment, raw: str):
-    return LintFix.create_before(
-        anchor,
-        [
-            WhitespaceSegment(
-                raw=raw,
-            ),
-        ],
-    )
