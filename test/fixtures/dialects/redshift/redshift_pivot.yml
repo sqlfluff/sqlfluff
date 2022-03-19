@@ -67,6 +67,7 @@ file:
                   literal: "'P3'"
               - end_bracket: )
             - end_bracket: )
+<<<<<<< HEAD
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -396,3 +397,6 @@ file:
               keyword: AS
               identifier: quality_matrix
 - statement_terminator: ;
+=======
+  statement_terminator: ;
+>>>>>>> dabb121a35b0231d1cfd2657f7561001bf97e650

@@ -42,4 +42,3 @@ SELECT *
 FROM (SELECT quality, manufacturer FROM part) PIVOT (
         count(*) FOR quality IN (1, 2, NULL)
 ) AS quality_matrix;
-

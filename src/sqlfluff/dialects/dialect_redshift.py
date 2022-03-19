@@ -284,7 +284,6 @@ class FromPivotExpressionSegment(BaseSegment):
                 ),
             ),
         ),
-        Ref("AliasExpressionSegment", optional=True),
     )
 
 
