@@ -266,7 +266,7 @@ class DbtTemplater(JinjaTemplater):
                     node.depends_on.nodes,
                 )
 
-        # Yield ephemeral nodes first. We use a Deque for efficient requeing.
+        # Yield ephemeral nodes first. We use a deque for efficient re-queuing.
         # We iterate through the deque, yielding any nodes without dependents,
         # or where those dependents have already yielded, first. The original
         # mapping is still used to hold the metadata on each key.
@@ -488,22 +488,24 @@ class DbtTemplater(JinjaTemplater):
 
             # When using dbt-templater, trailing newlines are ALWAYS REMOVED during
             # compiling. Unless fixed (like below), this will cause:
-            #    1. L009 linting errors when running "sqlfluff lint foo_bar.sql"
+            #    1. Assertion errors in TemplatedFile, when it sanity checks the
+            #       contents of the sliced_file array.
+            #    2. L009 linting errors when running "sqlfluff lint foo_bar.sql"
             #       since the linter will use the compiled code with the newlines
             #       removed.
-            #    2. "No newline at end of file" warnings in Git/GitHub since
+            #    3. "No newline at end of file" warnings in Git/GitHub since
             #       sqlfluff uses the compiled SQL to write fixes back to the
             #       source SQL in the dbt model.
-            # The solution is:
+            #
+            # The solution is (note that both the raw and compiled files have
+            # had trailing newline(s) removed by the dbt-templater.
             #    1. Check for trailing newlines before compiling by looking at the
-            #       raw SQL in the source dbt file, store the count of trailing
+            #       raw SQL in the source dbt file. Remember the count of trailing
             #       newlines.
-            #    2. Append the count from #1 above to the node.raw_sql and
-            #       compiled_sql objects, both of which have had the trailing
-            #       newlines removed by the dbt-templater.
+            #    2. Set node.raw_sql to the original source file contents.
+            #    3. If there was at least one trailing newline, have
+            #      slice_file() append a newline after rendering the template.
             node.raw_sql = source_dbt_sql
-            compiled_sql = compiled_sql + "\n" * n_trailing_newlines
-
             raw_sliced, sliced_file, templated_sql = self.slice_file(
                 source_dbt_sql,
                 compiled_sql,
