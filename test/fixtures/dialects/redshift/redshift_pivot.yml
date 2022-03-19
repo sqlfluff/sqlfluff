@@ -1,0 +1,70 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 5dd506643fae43679519bfcf4351b5658c4871ad5381221c0593b4ee6ca6745b
+file:
+  statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              bracketed:
+                start_bracket: (
+                select_statement:
+                  select_clause:
+                  - keyword: SELECT
+                  - select_clause_element:
+                      column_reference:
+                        identifier: partname
+                  - comma: ','
+                  - select_clause_element:
+                      column_reference:
+                        identifier: price
+                  from_clause:
+                    keyword: FROM
+                    from_expression:
+                      from_expression_element:
+                        table_expression:
+                          table_reference:
+                            identifier: part
+                end_bracket: )
+          from_pivot_expression:
+            keyword: PIVOT
+            bracketed:
+            - start_bracket: (
+            - function:
+                function_name:
+                  function_name_identifier: AVG
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      identifier: price
+                  end_bracket: )
+            - keyword: FOR
+            - column_reference:
+                identifier: partname
+            - keyword: IN
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                  literal: "'P1'"
+              - comma: ','
+              - expression:
+                  literal: "'P2'"
+              - comma: ','
+              - expression:
+                  literal: "'P3'"
+              - end_bracket: )
+            - end_bracket: )
+  statement_terminator: ;
