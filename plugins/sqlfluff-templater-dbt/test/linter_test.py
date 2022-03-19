@@ -3,17 +3,20 @@
 import os
 import os.path
 
+import pytest
+
 from sqlfluff.core import Linter, FluffConfig
 from test.fixtures.dbt.templater import DBT_FLUFF_CONFIG, project_dir  # noqa: F401
 
 
-def test__linter__skip_dbt_model_disabled(project_dir):  # noqa
-    """Test that the linter skips disabled dbt models."""
+@pytest.mark.parametrize(
+    "path", ["models/my_new_project/disabled_model.sql", "macros/echo.sql"]
+)
+def test__linter__skip_file(path, project_dir):  # noqa
+    """Test that the linter skips disabled dbt models and macros."""
     conf = FluffConfig(configs=DBT_FLUFF_CONFIG)
     lntr = Linter(config=conf)
-    model_file_path = os.path.join(
-        project_dir, "models/my_new_project/disabled_model.sql"
-    )
+    model_file_path = os.path.join(project_dir, path)
     linted_path = lntr.lint_path(path=model_file_path)
     # Check that the file is still there
     assert len(linted_path.files) == 1
