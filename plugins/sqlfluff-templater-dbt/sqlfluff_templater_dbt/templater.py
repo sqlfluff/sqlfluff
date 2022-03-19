@@ -501,8 +501,7 @@ class DbtTemplater(JinjaTemplater):
             #    2. Append the count from #1 above to the node.raw_sql and
             #       compiled_sql objects, both of which have had the trailing
             #       newlines removed by the dbt-templater.
-            node.raw_sql = node.raw_sql + "\n" * n_trailing_newlines
-            assert node.raw_sql == source_dbt_sql
+            node.raw_sql = source_dbt_sql
             compiled_sql = compiled_sql + "\n" * n_trailing_newlines
 
             raw_sliced, sliced_file, templated_sql = self.slice_file(
