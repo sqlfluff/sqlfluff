@@ -12,6 +12,7 @@ from sqlfluff.core.parser import (
     Sequence,
     Bracketed,
     BaseSegment,
+    Dedent,
     Delimited,
     Nothing,
     OptionallyBracketed,
@@ -25,7 +26,7 @@ from sqlfluff.dialects.dialect_redshift_keywords import (
 
 postgres_dialect = load_raw_dialect("postgres")
 ansi_dialect = load_raw_dialect("ansi")
-
+tsql_dialect = load_raw_dialect("tsql")
 redshift_dialect = postgres_dialect.copy_as("redshift")
 
 # Set Keywords
@@ -149,7 +150,16 @@ redshift_dialect.sets("datetime_units").update(
     ]
 )
 
-redshift_dialect.replace(WellKnownTextGeometrySegment=Nothing())
+redshift_dialect.replace(
+    WellKnownTextGeometrySegment=Nothing(),
+    JoinLikeClauseGrammar=Sequence(
+        AnySetOf(
+            Ref("FromPivotExpressionSegment"),
+            min_times=1,
+        ),
+        Ref("TableAliasExpressionSegment", optional=True),
+    ),
+)
 
 ObjectReferenceSegment = redshift_dialect.get_segment("ObjectReferenceSegment")
 
@@ -219,6 +229,61 @@ class ColumnReferenceSegment(ObjectReferenceSegment):  # type: ignore
             Ref("JoinLikeClauseGrammar"),
         ),
         allow_gaps=False,
+    )
+
+
+@redshift_dialect.segment(replace=True)
+class UnorderedSelectStatementSegment(BaseSegment):
+    """Overrides Postgres Statement to allow for PIVOT and UNPIVOT clauses."""
+
+    type = "select_statement"
+
+    match_grammar = postgres_dialect.get_segment(
+        "UnorderedSelectStatementSegment"
+    ).match_grammar.copy()
+
+    parse_grammar = Sequence(
+        Ref("SelectClauseSegment"),
+        # Dedent for the indent in the select clause.
+        # It's here so that it can come AFTER any whitespace.
+        Dedent,
+        Ref("IntoClauseSegment", optional=True),
+        Ref("FromClauseSegment", optional=True),
+        Ref("WhereClauseSegment", optional=True),
+        Ref("GroupByClauseSegment", optional=True),
+        Ref("HavingClauseSegment", optional=True),
+        Ref("OverlapsClauseSegment", optional=True),
+    )
+
+
+@redshift_dialect.segment()
+class FromPivotExpressionSegment(BaseSegment):
+    """Pivoting of a table on a column.
+
+    See https://docs.aws.amazon.com/redshift/latest/dg/r_FROM_clause-pivot-unpivot-examples.html
+    for details.
+    """
+
+    type = "from_pivot_expression"
+    match_grammar = Sequence(
+        "PIVOT",
+        Bracketed(
+            Sequence(
+                OptionallyBracketed(Ref("FunctionSegment")),
+                Ref("AliasExpressionSegment", optional=True),
+                "FOR",
+                Ref("ColumnReferenceSegment"),
+                "IN",
+                Bracketed(
+                    Delimited(
+                        Ref("ExpressionSegment"),
+                        Ref("AliasExpressionSegment", optional=True),
+                    )
+                ),
+            ),
+        ),
+        # TODO: complete this
+        Ref("AliasExpressionSegment", optional=True),
     )
 
 
