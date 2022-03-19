@@ -415,5 +415,5 @@ class JinjaTemplater(PythonTemplater):
         templater_logger.debug("    Templated String: %r", templated_str)
         analyzer = JinjaAnalyzer(raw_str, self._get_jinja_env())
         tracer = analyzer.analyze(make_template)
-        trace = tracer.trace()
+        trace = tracer.trace(append_to_templated=kwargs.pop("append_to_templated", ""))
         return trace.raw_sliced, trace.sliced_file, trace.templated_str
