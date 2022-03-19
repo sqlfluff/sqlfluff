@@ -4,6 +4,7 @@ https://docs.microsoft.com/en-us/sql/t-sql/language-elements/language-elements-t
 """
 
 from sqlfluff.core.parser import (
+    AnySetOf,
     BaseSegment,
     Sequence,
     OneOf,
@@ -392,6 +393,14 @@ tsql_dialect.replace(
         ),
         Ref.keyword("INTO", optional=True),
     ),
+    JoinLikeClauseGrammar=Sequence(
+        AnySetOf(
+            Ref("FromPivotExpressionSegment"),
+            Ref("FromUnpivotExpressionSegment"),
+            min_times=1,
+        ),
+        Ref("AliasExpressionSegment", optional=True),
+    ),
 )
 
 
@@ -582,7 +591,6 @@ class UnorderedSelectStatementSegment(BaseSegment):
         Dedent,
         Ref("IntoTableSegment", optional=True),
         Ref("FromClauseSegment", optional=True),
-        Ref("PivotUnpivotStatementSegment", optional=True),
         Ref("WhereClauseSegment", optional=True),
         Ref("GroupByClauseSegment", optional=True),
         Ref("HavingClauseSegment", optional=True),
@@ -1142,6 +1150,48 @@ class PivotColumnReferenceSegment(ObjectReferenceSegment):
 
     type = "pivot_column_reference"
 
+
+@tsql_dialect.segment()
+class FromPivotExpressionSegment(BaseSegment):
+    """A PIVOT expression.
+
+    See https://docs.microsoft.com/en-us/sql/t-sql/queries/from-using-pivot-and-unpivot?view=sql-server-ver15
+    for details.
+    """
+    type = "from_pivot_expression"
+    match_grammar = Sequence(
+        "PIVOT",
+        OptionallyBracketed(
+            Sequence(
+                OptionallyBracketed(Ref("FunctionSegment")),
+                "FOR",
+                Ref("ColumnReferenceSegment"),
+                "IN",
+                Bracketed(Delimited(Ref("PivotColumnReferenceSegment"))),
+            ),
+        ),
+    )
+
+@tsql_dialect.segment()
+class FromUnpivotExpressionSegment(BaseSegment):
+    """An UNPIVOT expression.
+
+    See https://docs.microsoft.com/en-us/sql/t-sql/queries/from-using-pivot-and-unpivot?view=sql-server-ver15
+    for details.
+    """
+    type = "from_unpivot_expression"
+    match_grammar = Sequence(
+        "UNPIVOT",
+        OptionallyBracketed(
+            Sequence(
+                OptionallyBracketed(Ref("ColumnReferenceSegment")),
+                "FOR",
+                Ref("ColumnReferenceSegment"),
+                "IN",
+                Bracketed(Delimited(Ref("PivotColumnReferenceSegment"))),
+            )
+        ),
+    )
 
 @tsql_dialect.segment()
 class PivotUnpivotStatementSegment(BaseSegment):
