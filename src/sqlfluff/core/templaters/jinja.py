@@ -409,6 +409,7 @@ class JinjaTemplater(PythonTemplater):
             # make_template() was not provided. Use the base class
             # implementation instead.
             return super().slice_file(raw_str, templated_str, config, **kwargs)
+
         templater_logger.info("Slicing File Template")
         templater_logger.debug("    Raw String: %r", raw_str)
         templater_logger.debug("    Templated String: %r", templated_str)

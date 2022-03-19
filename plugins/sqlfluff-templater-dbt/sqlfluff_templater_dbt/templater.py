@@ -512,6 +512,7 @@ class DbtTemplater(JinjaTemplater):
             #       rather than using compiled_sql).
             node.raw_sql = source_dbt_sql
             compiled_sql = compiled_sql + "\n" * n_trailing_newlines
+
             raw_sliced, sliced_file, templated_sql = self.slice_file(
                 source_dbt_sql,
                 compiled_sql,
