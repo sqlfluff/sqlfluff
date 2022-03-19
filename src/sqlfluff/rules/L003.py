@@ -875,7 +875,7 @@ class Rule_L003(BaseRule):
                         anchor = seg
                         break
 
-                if not anchor:
+                if not anchor:  # pragma: no cover
                     continue
                 # Make fixes.
                 fixes += self._coerce_indent_to(
@@ -999,7 +999,7 @@ class _TemplateLineInterpreter:
         return None
 
     def get_raw_slices(self, elem: BaseSegment) -> Optional[List[RawFileSlice]]:
-        if not self.templated_file:
+        if not self.templated_file:   # pragma: no cover
             return None
 
         if not elem.is_type("placeholder"):
