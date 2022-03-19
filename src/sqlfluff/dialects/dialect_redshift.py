@@ -255,6 +255,7 @@ class UnorderedSelectStatementSegment(BaseSegment):
         Ref("OverlapsClauseSegment", optional=True),
     )
 
+
 @redshift_dialect.segment()
 class FromUnpivotExpressionSegment(BaseSegment):
     """An UNPIVOT expression.
@@ -288,6 +289,7 @@ class FromUnpivotExpressionSegment(BaseSegment):
             ),
         ),
     )
+
 
 @redshift_dialect.segment()
 class FromPivotExpressionSegment(BaseSegment):

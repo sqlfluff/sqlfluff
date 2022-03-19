@@ -1158,6 +1158,7 @@ class FromPivotExpressionSegment(BaseSegment):
     See https://docs.microsoft.com/en-us/sql/t-sql/queries/from-using-pivot-and-unpivot?view=sql-server-ver15
     for details.
     """
+
     type = "from_pivot_expression"
     match_grammar = Sequence(
         "PIVOT",
@@ -1172,6 +1173,7 @@ class FromPivotExpressionSegment(BaseSegment):
         ),
     )
 
+
 @tsql_dialect.segment()
 class FromUnpivotExpressionSegment(BaseSegment):
     """An UNPIVOT expression.
@@ -1179,6 +1181,7 @@ class FromUnpivotExpressionSegment(BaseSegment):
     See https://docs.microsoft.com/en-us/sql/t-sql/queries/from-using-pivot-and-unpivot?view=sql-server-ver15
     for details.
     """
+
     type = "from_unpivot_expression"
     match_grammar = Sequence(
         "UNPIVOT",
@@ -1192,6 +1195,7 @@ class FromUnpivotExpressionSegment(BaseSegment):
             )
         ),
     )
+
 
 @tsql_dialect.segment()
 class PivotUnpivotStatementSegment(BaseSegment):
