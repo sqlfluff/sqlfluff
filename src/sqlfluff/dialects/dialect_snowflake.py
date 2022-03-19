@@ -874,6 +874,8 @@ class WithinGroupClauseSegment(BaseSegment):
 @snowflake_dialect.segment()
 class TableAliasExpressionSegment(BaseSegment):
     """A reference to an object with an `AS` clause, optionally with column aliasing."""
+    # TODO: I think this is a redundant implementation of
+    # AliasExpressionSegment. If we confirm, this, should we get rid of it?
 
     type = "table_alias_expression"
     match_grammar = Sequence(

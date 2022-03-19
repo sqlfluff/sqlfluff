@@ -157,7 +157,7 @@ redshift_dialect.replace(
             Ref("FromPivotExpressionSegment"),
             min_times=1,
         ),
-        Ref("TableAliasExpressionSegment", optional=True),
+        Ref("AliasExpressionSegment", optional=True),
     ),
 )
 
@@ -276,13 +276,14 @@ class FromPivotExpressionSegment(BaseSegment):
                 "IN",
                 Bracketed(
                     Delimited(
-                        Ref("ExpressionSegment"),
-                        Ref("AliasExpressionSegment", optional=True),
-                    )
+                        Sequence(
+                            Ref("ExpressionSegment"),
+                            Ref("AliasExpressionSegment", optional=True),
+                        ),
+                    ),
                 ),
             ),
         ),
-        # TODO: complete this
         Ref("AliasExpressionSegment", optional=True),
     )
 
