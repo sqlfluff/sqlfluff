@@ -260,7 +260,8 @@ class UnorderedSelectStatementSegment(BaseSegment):
 class FromUnpivotExpressionSegment(BaseSegment):
     """An UNPIVOT expression.
 
-    See https://docs.aws.amazon.com/redshift/latest/dg/r_FROM_clause-pivot-unpivot-examples.html
+    See
+    https://docs.aws.amazon.com/redshift/latest/dg/r_FROM_clause-pivot-unpivot-examples.html
     for details.
     """
 
@@ -295,7 +296,8 @@ class FromUnpivotExpressionSegment(BaseSegment):
 class FromPivotExpressionSegment(BaseSegment):
     """A PIVOT expression.
 
-    See https://docs.aws.amazon.com/redshift/latest/dg/r_FROM_clause-pivot-unpivot-examples.html
+    See
+    https://docs.aws.amazon.com/redshift/latest/dg/r_FROM_clause-pivot-unpivot-examples.html
     for details.
     """
 

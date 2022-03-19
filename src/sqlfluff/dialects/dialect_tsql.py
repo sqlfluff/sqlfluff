@@ -1155,7 +1155,8 @@ class PivotColumnReferenceSegment(ObjectReferenceSegment):
 class FromPivotExpressionSegment(BaseSegment):
     """A PIVOT expression.
 
-    See https://docs.microsoft.com/en-us/sql/t-sql/queries/from-using-pivot-and-unpivot?view=sql-server-ver15
+    See
+    https://docs.microsoft.com/en-us/sql/t-sql/queries/from-using-pivot-and-unpivot?view=sql-server-ver15
     for details.
     """
 
@@ -1178,7 +1179,8 @@ class FromPivotExpressionSegment(BaseSegment):
 class FromUnpivotExpressionSegment(BaseSegment):
     """An UNPIVOT expression.
 
-    See https://docs.microsoft.com/en-us/sql/t-sql/queries/from-using-pivot-and-unpivot?view=sql-server-ver15
+    See
+    https://docs.microsoft.com/en-us/sql/t-sql/queries/from-using-pivot-and-unpivot?view=sql-server-ver15
     for details.
     """
 
