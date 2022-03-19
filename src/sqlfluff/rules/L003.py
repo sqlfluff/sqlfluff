@@ -999,7 +999,7 @@ class _TemplateLineInterpreter:
         return None
 
     def get_raw_slices(self, elem: BaseSegment) -> Optional[List[RawFileSlice]]:
-        if not self.templated_file:   # pragma: no cover
+        if not self.templated_file:  # pragma: no cover
             return None
 
         if not elem.is_type("placeholder"):
