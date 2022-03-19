@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7df4c602bf7ccf219083a94f30e77b8cd2814f5f7af586642658292e382a3eee
+_hash: 8d3d73e16dbaad8f56f91700adb49ee982e3eba0db666149af8a2fa5d50afd2f
 file:
   batch:
   - statement:
@@ -31,39 +31,39 @@ file:
               alias_expression:
                 keyword: as
                 identifier: t1
-            from_pivot_expression:
-              keyword: pivot
+        from_pivot_expression:
+        - keyword: pivot
+        - bracketed:
+          - start_bracket: (
+          - function:
+              function_name:
+                function_name_identifier: max
               bracketed:
-              - start_bracket: (
-              - function:
-                  function_name:
-                    function_name_identifier: max
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                        identifier: value
-                    end_bracket: )
-              - keyword: for
-              - column_reference:
-                  identifier: rn
-              - keyword: in
-              - bracketed:
-                - start_bracket: (
-                - pivot_column_reference:
-                    identifier: '[1]'
-                - comma: ','
-                - pivot_column_reference:
-                    identifier: '[2]'
-                - comma: ','
-                - pivot_column_reference:
-                    identifier: '[3]'
-                - end_bracket: )
-              - end_bracket: )
-            alias_expression:
-              keyword: as
-              identifier: pvt
-          statement_terminator: ;
+                start_bracket: (
+                expression:
+                  column_reference:
+                    identifier: value
+                end_bracket: )
+          - keyword: for
+          - column_reference:
+              identifier: rn
+          - keyword: in
+          - bracketed:
+            - start_bracket: (
+            - pivot_column_reference:
+                identifier: '[1]'
+            - comma: ','
+            - pivot_column_reference:
+                identifier: '[2]'
+            - comma: ','
+            - pivot_column_reference:
+                identifier: '[3]'
+            - end_bracket: )
+          - end_bracket: )
+        - keyword: as
+        - table_reference:
+            identifier: pvt
+        statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -89,35 +89,35 @@ file:
               alias_expression:
                 keyword: as
                 identifier: t1
-            from_pivot_expression:
-              keyword: pivot
+        from_pivot_expression:
+          keyword: pivot
+          bracketed:
+          - start_bracket: (
+          - function:
+              function_name:
+                function_name_identifier: max
               bracketed:
-              - start_bracket: (
-              - function:
-                  function_name:
-                    function_name_identifier: max
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                        identifier: value
-                    end_bracket: )
-              - keyword: for
-              - column_reference:
-                  identifier: rn
-              - keyword: in
-              - bracketed:
-                - start_bracket: (
-                - pivot_column_reference:
-                    identifier: '[1]'
-                - comma: ','
-                - pivot_column_reference:
-                    identifier: '[2]'
-                - comma: ','
-                - pivot_column_reference:
-                    identifier: '[3]'
-                - end_bracket: )
-              - end_bracket: )
-            alias_expression:
-              identifier: pvt
-          statement_terminator: ;
+                start_bracket: (
+                expression:
+                  column_reference:
+                    identifier: value
+                end_bracket: )
+          - keyword: for
+          - column_reference:
+              identifier: rn
+          - keyword: in
+          - bracketed:
+            - start_bracket: (
+            - pivot_column_reference:
+                identifier: '[1]'
+            - comma: ','
+            - pivot_column_reference:
+                identifier: '[2]'
+            - comma: ','
+            - pivot_column_reference:
+                identifier: '[3]'
+            - end_bracket: )
+          - end_bracket: )
+          table_reference:
+            identifier: pvt
+        statement_terminator: ;

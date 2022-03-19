@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9ae7aa62f8f85ce403697faf5c62763887c90443ff71ba9ac3873d7fa0579d5d
+_hash: 484b70bfb2806f0ad9abded5077f111aeb6484ed8c1c40b9ac6d99aaadb8fce9
 file:
   batch:
     statement:
@@ -70,35 +70,35 @@ file:
                     end_bracket: )
                 alias_expression:
                   identifier: p
-              from_unpivot_expression:
-                keyword: UNPIVOT
-                bracketed:
-                - start_bracket: (
-                - column_reference:
-                    identifier: Orders
-                - keyword: FOR
-                - column_reference:
-                    identifier: Employee
-                - keyword: IN
-                - bracketed:
-                  - start_bracket: (
-                  - pivot_column_reference:
-                      identifier: Emp1
-                  - comma: ','
-                  - pivot_column_reference:
-                      identifier: Emp2
-                  - comma: ','
-                  - pivot_column_reference:
-                      identifier: Emp3
-                  - comma: ','
-                  - pivot_column_reference:
-                      identifier: Emp4
-                  - comma: ','
-                  - pivot_column_reference:
-                      identifier: Emp5
-                  - end_bracket: )
-                - end_bracket: )
-              alias_expression:
-                keyword: AS
-                identifier: unpvt
-            statement_terminator: ;
+          from_pivot_expression:
+          - keyword: UNPIVOT
+          - bracketed:
+            - start_bracket: (
+            - column_reference:
+                identifier: Orders
+            - keyword: FOR
+            - column_reference:
+                identifier: Employee
+            - keyword: IN
+            - bracketed:
+              - start_bracket: (
+              - pivot_column_reference:
+                  identifier: Emp1
+              - comma: ','
+              - pivot_column_reference:
+                  identifier: Emp2
+              - comma: ','
+              - pivot_column_reference:
+                  identifier: Emp3
+              - comma: ','
+              - pivot_column_reference:
+                  identifier: Emp4
+              - comma: ','
+              - pivot_column_reference:
+                  identifier: Emp5
+              - end_bracket: )
+            - end_bracket: )
+          - keyword: AS
+          - table_reference:
+              identifier: unpvt
+          statement_terminator: ;
