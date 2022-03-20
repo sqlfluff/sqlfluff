@@ -22,3 +22,28 @@ test_fail_specify_join_keys_1_with_multi_using:
 test_fail_specify_join_keys_2:
   desc: Keys were specified for first join but not the second one.
   fail_str: select x.a from x inner join y on x.id = y.id inner join z using (id)
+
+test_partial_fixed_up_to_2nd_join:
+  fail_str: |
+    select x.a
+    from x
+    inner join y using(id, foo)
+    inner join z using(id)
+  fix_str: |
+    select x.a
+    from x
+    inner join y ON x.id = y.id AND x.foo = y.foo
+    inner join z using(id)
+  violations_after_fix:
+    - description: Found USING statement. Expected only ON statements.
+      line_no: 4
+      line_pos: 14
+
+select_using_fail:
+  fail_str: |
+    SELECT *
+    FROM A_TABLE
+    INNER JOIN (
+        SELECT margin
+        FROM B_TABLE
+    ) USING (SOME_COLUMN)

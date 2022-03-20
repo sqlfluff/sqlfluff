@@ -65,3 +65,16 @@ test_pass_begin_end_statement_brackets_tsql:
   configs:
     core:
       dialect: tsql
+
+test_fail_leading_trailing_whitespace:
+  # This previously caused the post-fix parse check to fail.
+  fail_str: "(\n    SELECT\n        foo,\n        bar,\n        baz\n    FROM mycte2\n);\n"
+  # Yes, the formatting looks bad, but that's because we're only running L053
+  # here. In the real world, other rules will tidy up the formatting.
+  fix_str: "\n    SELECT\n        foo,\n        bar,\n        baz\n    FROM mycte2\n;\n"
+
+test_fail_leading_whitespace_and_comment:
+  fail_str: "( -- This\n    SELECT\n        foo,\n        bar,\n        baz\n    FROM mycte2\n)\n"
+  # Yes, the formatting looks bad, but that's because we're only running L053
+  # here. In the real world, other rules will tidy up the formatting.
+  fix_str: " -- This\n    SELECT\n        foo,\n        bar,\n        baz\n    FROM mycte2\n\n"

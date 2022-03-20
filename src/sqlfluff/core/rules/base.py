@@ -542,6 +542,7 @@ class BaseRule:
                 f"Applying rule {self.code} threw an Exception: {e}", exc_info=True
             )
             exception_line, _ = segment.pos_marker.source_position()
+            self._log_critical_errors(e)
             vs.append(
                 SQLLintError(
                     rule=self,
@@ -623,6 +624,10 @@ class BaseRule:
         return vs, raw_stack, fixes, memory
 
     # HELPER METHODS --------
+    @staticmethod
+    def _log_critical_errors(error: Exception):  # pragma: no cover
+        """This method is monkey patched into a "raise" for certain tests."""
+        pass
 
     def _process_lint_result(
         self, res, templated_file, ignore_mask, new_lerrs, new_fixes
@@ -651,16 +656,18 @@ class BaseRule:
         space = " "
         return space * self.tab_space_size if self.indent_unit == "space" else tab
 
-    def is_final_segment(self, context: RuleContext) -> bool:
+    def is_final_segment(self, context: RuleContext, filter_meta: bool = True) -> bool:
         """Is the current segment the final segment in the parse tree."""
-        if len(self.filter_meta(context.siblings_post)) > 0:
+        siblings_post = context.siblings_post
+        if filter_meta:
+            siblings_post = self.filter_meta(siblings_post)
+        if len(siblings_post) > 0:
             # This can only fail on the last segment
             return False
         elif len(context.segment.segments) > 0:
             # This can only fail on the last base segment
             return False
-        elif context.segment.is_meta:
-            # We can't fail on a meta segment
+        elif filter_meta and context.segment.is_meta:
             return False
         else:
             # We know we are at a leaf of the tree but not necessarily at the end of the
@@ -669,9 +676,9 @@ class BaseRule:
             # one.
             child_segment = context.segment
             for parent_segment in context.parent_stack[::-1]:
-                possible_children = [
-                    s for s in parent_segment.segments if not s.is_meta
-                ]
+                possible_children = parent_segment.segments
+                if filter_meta:
+                    possible_children = [s for s in possible_children if not s.is_meta]
                 if len(possible_children) > possible_children.index(child_segment) + 1:
                     return False
                 child_segment = parent_segment
