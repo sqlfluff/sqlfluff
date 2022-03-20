@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 26ac3adb69fdac899e8984f2bdc1eb72fbabf68a969312b68fc1e651fe106e0c
+_hash: 5edf576bf2b089e36689be217a273c1e9ce34b374a32e4b5357c38640ab70eb8
 file:
   statement:
     select_statement:
@@ -115,17 +115,25 @@ file:
             keyword: as
             identifier: test_array_access
       from_clause:
-        keyword: FROM
-        from_expression:
+      - keyword: FROM
+      - from_expression:
           from_expression_element:
-          - table_expression:
+            table_expression:
               table_reference:
                 identifier: raw_tickets
-          - comma: ','
-          - raw: lateral
-          - raw: flatten
-          - raw: (
-          - raw: INPUT
-          - raw: =>
-          - raw: custom_fields
-          - raw: )
+      - comma: ','
+      - from_expression:
+          from_expression_element:
+            keyword: lateral
+            table_expression:
+              function:
+                function_name:
+                  function_name_identifier: flatten
+                bracketed:
+                  start_bracket: (
+                  snowflake_keyword_expression:
+                    parameter: INPUT
+                    parameter_assigner: =>
+                    column_reference:
+                      identifier: custom_fields
+                  end_bracket: )
