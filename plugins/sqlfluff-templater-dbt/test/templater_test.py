@@ -74,6 +74,8 @@ def test__templater_dbt_profiles_dir_expanded(dbt_templater):  # noqa: F811
         "templated_inside_comment.sql",
         # {{ dbt_utils.last_day(
         "last_day.sql",
+        # Many newlines at end, tests templater newline handling
+        "trailing_newlines.sql",
     ],
 )
 def test__templater_dbt_templating_result(
