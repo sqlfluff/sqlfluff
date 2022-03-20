@@ -413,7 +413,9 @@ class JinjaTemplater(PythonTemplater):
         templater_logger.info("Slicing File Template")
         templater_logger.debug("    Raw String: %r", raw_str)
         templater_logger.debug("    Templated String: %r", templated_str)
+        # TRICKY: Note that the templated_str parameter is not used. JinjaTracer
+        # uses make_template() to build and render the template itself.
         analyzer = JinjaAnalyzer(raw_str, self._get_jinja_env())
         tracer = analyzer.analyze(make_template)
-        trace = tracer.trace()
+        trace = tracer.trace(append_to_templated=kwargs.pop("append_to_templated", ""))
         return trace.raw_sliced, trace.sliced_file, trace.templated_str
