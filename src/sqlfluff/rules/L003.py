@@ -284,9 +284,7 @@ class Rule_L003(BaseRule):
                 continue
 
             if memo_line.line_anchor is None:
-                memo_line = cls._process_pre_anchor(
-                    elem, memo_line, tab_space_size
-                )
+                memo_line = cls._process_pre_anchor(elem, memo_line, tab_space_size)
                 # If we hit the trigger element, stop processing.
                 if elem is memory.trigger:
                     break
