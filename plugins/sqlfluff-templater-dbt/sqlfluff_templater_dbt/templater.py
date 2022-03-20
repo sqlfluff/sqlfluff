@@ -506,13 +506,16 @@ class DbtTemplater(JinjaTemplater):
             #    3. Append the count from #1 above to compiled_sql. (In
             #       production, slice_file() does not usually use this string,
             #       but some test scenarios do.
-            #    4. If there was at least one trailing newline, have
-            #       slice_file() append a newline after rendering the template.
-            #       (Note that slice_file() usually renders the template itself,
-            #       rather than using compiled_sql).
             node.raw_sql = source_dbt_sql
             compiled_sql = compiled_sql + "\n" * n_trailing_newlines
 
+            # TRICKY: dbt configures Jinja2 with keep_trailing_newline=False.
+            # As documented (https://jinja.palletsprojects.com/en/3.0.x/api/),
+            # this flag's behavior is: "Preserve the trailing newline when
+            # rendering templates. The default is False, which causes a single
+            # newline, if present, to be stripped from the end of the template."
+            #
+            # Below, we use "append_to_templated" to effectively "undo" this.
             raw_sliced, sliced_file, templated_sql = self.slice_file(
                 source_dbt_sql,
                 compiled_sql,
