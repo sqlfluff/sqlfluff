@@ -667,7 +667,6 @@ class FunctionSegment(BaseSegment):
                     ),
                 ),
             ),
-            ),
             "AS",
             "ROW",
             Bracketed(
