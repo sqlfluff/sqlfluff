@@ -656,16 +656,17 @@ class FunctionSegment(BaseSegment):
             ),
         ),
         Sequence(
-            Sequence(
-                "ROW",
-                Bracketed(
-                    Delimited(
-                        Sequence(
-                            Ref("BaseExpressionElementGrammar"),
-                            Ref("DatatypeIdentifierSegment", optional=True),
-                        ),
+            # This unusual syntax is used to cast the Keyword ROW to
+            # to the function_name to avoid rule linting exceptions
+            StringParser("ROW", KeywordSegment, type="function_name"),
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        Ref("BaseExpressionElementGrammar"),
+                        Ref("DatatypeIdentifierSegment", optional=True),
                     ),
                 ),
+            ),
             ),
             "AS",
             "ROW",
