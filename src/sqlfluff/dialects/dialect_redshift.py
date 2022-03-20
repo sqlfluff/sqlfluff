@@ -12,7 +12,6 @@ from sqlfluff.core.parser import (
     Sequence,
     Bracketed,
     BaseSegment,
-    Dedent,
     Delimited,
     Nothing,
     OptionallyBracketed,
