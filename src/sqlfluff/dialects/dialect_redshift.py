@@ -232,30 +232,6 @@ class ColumnReferenceSegment(ObjectReferenceSegment):  # type: ignore
     )
 
 
-@redshift_dialect.segment(replace=True)
-class UnorderedSelectStatementSegment(BaseSegment):
-    """Overrides Postgres Statement to allow for PIVOT and UNPIVOT clauses."""
-
-    type = "select_statement"
-
-    match_grammar = postgres_dialect.get_segment(
-        "UnorderedSelectStatementSegment"
-    ).match_grammar.copy()
-
-    parse_grammar = Sequence(
-        Ref("SelectClauseSegment"),
-        # Dedent for the indent in the select clause.
-        # It's here so that it can come AFTER any whitespace.
-        Dedent,
-        Ref("IntoClauseSegment", optional=True),
-        Ref("FromClauseSegment", optional=True),
-        Ref("WhereClauseSegment", optional=True),
-        Ref("GroupByClauseSegment", optional=True),
-        Ref("HavingClauseSegment", optional=True),
-        Ref("OverlapsClauseSegment", optional=True),
-    )
-
-
 @redshift_dialect.segment()
 class FromUnpivotExpressionSegment(BaseSegment):
     """An UNPIVOT expression.
