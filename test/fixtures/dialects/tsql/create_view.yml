@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: aa144506866ac89cc27aa53a418f6402dbedd17a61603388043ce7d6403927f3
+_hash: 7e3b6984b2ba24d0456c315670557e14ddf12fa4625e6ced37ede624f240896b
 file:
   batch:
   - statement:
@@ -65,9 +65,8 @@ file:
                   keyword: CONVERT
                 bracketed:
                 - start_bracket: (
-                - expression:
-                    column_reference:
-                      identifier: DATETIME
+                - data_type:
+                    identifier: DATETIME
                 - comma: ','
                 - expression:
                     literal: "'20001231'"
@@ -139,9 +138,8 @@ file:
                   keyword: CONVERT
                 bracketed:
                 - start_bracket: (
-                - expression:
-                    column_reference:
-                      identifier: DATETIME
+                - data_type:
+                    identifier: DATETIME
                 - comma: ','
                 - expression:
                     literal: "'20001231'"
@@ -224,9 +222,8 @@ file:
                   keyword: CONVERT
                 bracketed:
                 - start_bracket: (
-                - expression:
-                    column_reference:
-                      identifier: DATETIME
+                - data_type:
+                    identifier: DATETIME
                 - comma: ','
                 - expression:
                     literal: "'20010630'"

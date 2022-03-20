@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2a5018dee953bff5a1e09ae65df88882f7c24b992493fdda373360531278ab49
+_hash: e595e0e7b018b17388c84bca8946e8adb1a1b1e954836a237ab92cc38f64fb9e
 file:
 - statement:
     create_task_statement:
@@ -11,7 +11,7 @@ file:
     - keyword: TASK
     - object_reference:
         identifier: t1
-    - parameter: SCHEDULE
+    - keyword: SCHEDULE
     - comparison_operator:
         raw_comparison_operator: '='
     - literal: "'USING CRON 0 9-17 * * SUN America/Los_Angeles'"
@@ -19,10 +19,10 @@ file:
     - comparison_operator:
         raw_comparison_operator: '='
     - literal: "'YYYY-MM-DD HH24'"
-    - parameter: USER_TASK_MANAGED_INITIAL_WAREHOUSE_SIZE
+    - keyword: USER_TASK_MANAGED_INITIAL_WAREHOUSE_SIZE
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: "'XSMALL'"
+    - warehouse_size: "'XSMALL'"
     - keyword: AS
     - statement:
         insert_statement:
@@ -54,7 +54,7 @@ file:
         raw_comparison_operator: '='
     - object_reference:
         identifier: mywh
-    - parameter: SCHEDULE
+    - keyword: SCHEDULE
     - comparison_operator:
         raw_comparison_operator: '='
     - literal: "'USING CRON 0 9-17 * * SUN America/Los_Angeles'"
@@ -99,11 +99,11 @@ file:
     - keyword: EXISTS
     - object_reference:
         identifier: t1
-    - parameter: SCHEDULE
+    - keyword: SCHEDULE
     - comparison_operator:
         raw_comparison_operator: '='
     - literal: "'USING CRON 0 9-17 * * SUN America/Los_Angeles'"
-    - parameter: ALLOW_OVERLAPPING_EXECUTION
+    - keyword: ALLOW_OVERLAPPING_EXECUTION
     - comparison_operator:
         raw_comparison_operator: '='
     - literal: 'TRUE'
@@ -111,14 +111,14 @@ file:
     - comparison_operator:
         raw_comparison_operator: '='
     - literal: "'YYYY-MM-DD HH24'"
-    - parameter: USER_TASK_TIMEOUT_MS
+    - keyword: USER_TASK_TIMEOUT_MS
     - comparison_operator:
         raw_comparison_operator: '='
     - literal: '25'
-    - parameter: USER_TASK_MANAGED_INITIAL_WAREHOUSE_SIZE
+    - keyword: USER_TASK_MANAGED_INITIAL_WAREHOUSE_SIZE
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: "'XSMALL'"
+    - warehouse_size: "'XSMALL'"
     - keyword: COPY
     - keyword: GRANTS
     - parameter: COMMENT
@@ -187,7 +187,7 @@ file:
         raw_comparison_operator: '='
     - object_reference:
         identifier: eng_wh
-    - parameter: SCHEDULE
+    - keyword: SCHEDULE
     - comparison_operator:
         raw_comparison_operator: '='
     - literal: "'USING CRON 45 6 * * * UTC'"
@@ -452,7 +452,7 @@ file:
         raw_comparison_operator: '='
     - object_reference:
         identifier: eng_wh
-    - parameter: SCHEDULE
+    - keyword: SCHEDULE
     - comparison_operator:
         raw_comparison_operator: '='
     - literal: "'USING CRON 15 7 2 * * UTC'"

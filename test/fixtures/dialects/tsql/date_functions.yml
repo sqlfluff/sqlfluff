@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 40f29d7194a7ef8826f20fb21230deceda1301d6e26e7ee6299e08313ca7a65a
+_hash: f4c0c852c5b462331a4171e054f64f6bc68e87005f05b27494692816f09ef252
 file:
   batch:
     statement:
@@ -25,7 +25,9 @@ file:
                       function_name_identifier: dateadd
                     bracketed:
                     - start_bracket: (
-                    - date_part: month
+                    - expression:
+                        column_reference:
+                          identifier: month
                     - comma: ','
                     - expression:
                         function:
@@ -33,7 +35,9 @@ file:
                             function_name_identifier: datediff
                           bracketed:
                           - start_bracket: (
-                          - date_part: month
+                          - expression:
+                              column_reference:
+                                identifier: month
                           - comma: ','
                           - expression:
                               literal: '0'
@@ -86,7 +90,9 @@ file:
                       function_name_identifier: dateadd
                     bracketed:
                     - start_bracket: (
-                    - date_part: yy
+                    - expression:
+                        column_reference:
+                          identifier: yy
                     - comma: ','
                     - expression:
                         function:
@@ -94,7 +100,9 @@ file:
                             function_name_identifier: datediff
                           bracketed:
                           - start_bracket: (
-                          - date_part: yy
+                          - expression:
+                              column_reference:
+                                identifier: yy
                           - comma: ','
                           - expression:
                               literal: '0'

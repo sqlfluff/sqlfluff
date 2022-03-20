@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0068f902c636d63685e3095c2b87762e1277a7dd0f353d12e192520a5659ec5c
+_hash: 5d74c51980c6d8daccab11100b42521c25eda22b53452dd1f1ec4d1306e856ae
 file:
 - batch:
     statement:
@@ -107,15 +107,8 @@ file:
                 keyword: convert
               bracketed:
               - start_bracket: (
-              - expression:
-                  column_reference:
-                    identifier: varchar
-              - comma: ','
-              - expression:
-                  column_reference:
-                  - identifier: tbl_b
-                  - dot: .
-                  - identifier: column1
+              - data_type:
+                  identifier: varchar
               - comma: ','
               - expression:
                   column_reference:

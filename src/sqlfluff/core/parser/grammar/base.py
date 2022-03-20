@@ -224,7 +224,7 @@ class BaseGrammar(Matchable):
                     return res_match, matcher
             elif res_match:
                 # We've got an incomplete match, if it's the best so far keep it.
-                if res_match.matched_length > best_match_length:
+                if res_match.trimmed_matched_length > best_match_length:
                     best_match = res_match, matcher
                     best_match_length = res_match.matched_length
             # We could stash segments here, but given we might have some successful

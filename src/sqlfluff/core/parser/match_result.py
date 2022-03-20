@@ -6,7 +6,7 @@ This should be the default response from any `match` method.
 from typing import Tuple, TYPE_CHECKING
 from collections import namedtuple
 
-from sqlfluff.core.parser.helpers import join_segments_raw
+from sqlfluff.core.parser.helpers import join_segments_raw, trim_non_code_segments
 
 if TYPE_CHECKING:
     from sqlfluff.core.parser.segments import BaseSegment  # pragma: no cover
@@ -24,6 +24,12 @@ class MatchResult(
             the `matched_segments` which could not be matched.
 
     """
+
+    @property
+    def trimmed_matched_length(self) -> int:
+        """Return the length of the match in characters, ignoring surrounding whitespace."""
+        _, segs, _ = trim_non_code_segments(self.matched_segments)
+        return sum(seg.matched_length for seg in segs)
 
     @property
     def matched_length(self) -> int:
