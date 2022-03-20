@@ -148,6 +148,7 @@ class Delimited(OneOf):
                         parse_context=ctx,
                         # We've already trimmed
                         trim_noncode=False,
+                        terminators=delimiter_matchers if elements != delimiter_matchers else None
                     )
 
                 if match:

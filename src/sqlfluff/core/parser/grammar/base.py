@@ -182,9 +182,10 @@ class BaseGrammar(Matchable):
     def _longest_trimmed_match(
         cls,
         segments: Tuple["BaseSegment", ...],
-        matchers: List["MatchableType"],
+        matchers,
         parse_context: ParseContext,
         trim_noncode=True,
+        terminators: List["MatchableType"]=None,
     ) -> Tuple[MatchResult, Optional["MatchableType"]]:
         """Return longest match from a selection of matchers.
 
@@ -196,6 +197,9 @@ class BaseGrammar(Matchable):
             `tuple` of (match_object, matcher).
 
         """
+
+        terminated = False
+
         # Have we been passed an empty list?
         if len(segments) == 0:
             return MatchResult.from_empty(), None
@@ -227,6 +231,22 @@ class BaseGrammar(Matchable):
                 if res_match.trimmed_matched_length > best_match_length:
                     best_match = res_match, matcher
                     best_match_length = res_match.matched_length
+
+                    if terminators:
+
+                        _, segs, _ = trim_non_code_segments(best_match[0].unmatched_segments)
+                        for terminator in terminators:
+                            terminator_match: MatchResult = terminator.match(
+                                segs, parse_context=parse_context
+                            )
+
+                            if terminator_match.matched_segments:
+                                terminated = True
+                                break
+
+            if terminated:
+                break
+
             # We could stash segments here, but given we might have some successful
             # matches here, we shouldn't, because they'll be mutated in the wrong way.
             # Eventually there might be a performance gain from doing that sensibly
