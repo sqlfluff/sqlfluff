@@ -26,33 +26,28 @@ class _LineSummary:
     line_no: int = 0
     templated_line: Optional[int] = None
     line_buffer: List[BaseSegment] = dataclasses.field(default_factory=list)
-    ignoreable_reference: List[bool] = dataclasses.field(default_factory=list)
     indent_buffer: List[BaseSegment] = dataclasses.field(default_factory=list)
     indent_size: int = 1
 
     # The final balance of a line once fully considered
     indent_balance: int = 0
-
     # The indent as it was once we say this lines "Anchor"
     anchor_indent_balance: int = 0
-
     hanging_indent: Optional[int] = None
     clean_indent: bool = True
-    template_content: str = ""
     templated_line_type: Optional[str] = None
     is_comment_line: bool = False
+    is_empty_line: bool = False
     line_anchor: Optional[BaseSegment] = None
-    as_of_anchor: Optional["_LineSummary"] = None
     # These are only required for carrying state between lines
     line_indent_stack: List[int] = dataclasses.field(default_factory=list)
     hanger_pos: Optional[int] = None
 
-    def strip_buffers(self) -> dict:
-        """Strip a line dict of buffers for logging."""
+    def __repr__(self) -> str:
+        """Printable Summary without Segments."""
         keys_to_strip = (
             "line_buffer",
             "indent_buffer",
-            "ignoreable_reference",
             "as_of_anchor",
         )
         print_dict: Dict = {
@@ -60,11 +55,14 @@ class _LineSummary:
             for key, value in self.__dict__.copy().items()
             if key not in keys_to_strip
         }
-        print_dict["raw"] = "".join(el.raw for el in self.line_buffer)
-        return print_dict
 
-    def __repr__(self) -> str:
-        return self.strip_buffers().__repr__()
+        return print_dict.__repr__()
+
+    @property
+    def template_content(self):
+        return "".join(
+            seg.raw or getattr(seg, "source_str", "") for seg in self.line_buffer
+        )
 
     def memory_line_reset(self):
         """When acting like a MemoryLine this resets state."""
@@ -74,83 +72,61 @@ class _LineSummary:
         self.clean_indent = _is_clean_indent(self.line_buffer)
         self.line_buffer = []
         self.line_indent_stack = []
-        self.ignoreable_reference = []
         self.indent_size = 0
         self.hanger_pos = None
         self.line_anchor = None
-        self.as_of_anchor = None
-        self.template_content = ""
         self.templated_line_type = None
         return self
 
     def from_memo_line(self, line_no: int, templated_file: Optional[TemplatedFile]):
-        """Create a final summary from a memo line."""
+        """Create a final summary from a memo/marker line."""
         copied_line_buffer = self.line_buffer[:]
-        template_info = _TemplateLineInterpreter(copied_line_buffer, templated_file)
         # Generate our line summary based on the current state of the MemoLine
-
-        # The anchor we created needs its line number corrected
-        if self.as_of_anchor:
-            self.as_of_anchor.line_no = line_no
-
         is_comment_line = all(
             seg.is_type(
                 "whitespace", "comment", "indent"  # dedent is a subtype of indent
             )
             for seg in copied_line_buffer
         )
-        output = self.__class__(
+        is_empty_line = not any(
+            elem.is_code or elem.is_type("placeholder") for elem in copied_line_buffer
+        )
+        line_summary = self.__class__(
             line_no=line_no,
             templated_line=self.templated_line,
             # Using slicing to copy line_buffer here to be py2 compliant
             line_buffer=copied_line_buffer,
-            ignoreable_reference=self.ignoreable_reference,
             indent_buffer=self.indent_buffer,
             indent_size=self.indent_size,
             indent_balance=self.indent_balance,
             anchor_indent_balance=self.anchor_indent_balance,
-            as_of_anchor=self.as_of_anchor,
             hanging_indent=self.hanger_pos if self.line_indent_stack else None,
             # Clean indent is true if the line *ends* with an indent
             # or has an indent in the initial whitespace.
             clean_indent=self.clean_indent,
-            template_content=template_info.template_content,
-            templated_line_type=template_info.block_type(),
+            # Solidify expensive immutable characteristics
+            templated_line_type=_get_template_block_type(
+                copied_line_buffer, templated_file
+            ),
             is_comment_line=is_comment_line,
+            is_empty_line=is_empty_line,
         )
+        # Rest this object so it can continue to be used to track current state
         self.memory_line_reset()
-        return output
+        return line_summary
 
     def set_state_as_of_anchor(
         self,
         anchor: Optional[BaseSegment],
-        templated_file: Optional[TemplatedFile],
         tab_space_size: int,
     ):
         """Create a Line state of this line upon reaching the anchor."""
-        # This pattern allow us to avoid changing the algo completely.
-        # in the future we should /
-        # can just have different fields instead of a nested duplicate.
-
-        # 1. Set somethings that we now know
         self.anchor_indent_balance = self.indent_balance
         self.indent_size = _indent_size(
             self.indent_buffer,
             tab_space_size=tab_space_size,
         )
         self.line_anchor = anchor
-        self.as_of_anchor = None
-
-        # Replicate the current state
-        # + dont forget about lists needing duplicatation
-
-        as_of_anchor = _copy_line_summary(self)
-        as_of_anchor.line_anchor = anchor
-        copied_line_buffer = self.line_buffer[:]
-        template_info = _TemplateLineInterpreter(copied_line_buffer, templated_file)
-        as_of_anchor.template_content = template_info.template_content
-        as_of_anchor.templated_line_type = template_info.block_type()
-        self.as_of_anchor = as_of_anchor
 
         return self
 
@@ -159,7 +135,6 @@ def _copy_line_summary(line: _LineSummary) -> _LineSummary:
     new_line = _LineSummary(**line.__dict__.copy())
     list_keys = [
         "line_buffer",
-        "ignoreable_reference",
         "indent_buffer",
         "line_indent_stack",
     ]
@@ -197,8 +172,6 @@ class _Memory:
     comment_lines: List[int] = dataclasses.field(default_factory=list)
     # Dict of processed lines
     line_summaries: Dict[int, _LineSummary] = dataclasses.field(default_factory=dict)
-    # Raw elements seen
-    raw_stack: List[Tuple[BaseSegment, bool]] = dataclasses.field(default_factory=list)
 
     in_indent: bool = True
     trigger: Optional[BaseSegment] = None
@@ -242,8 +215,6 @@ class Rule_L003(BaseRule):
     _adjust_anchors = True
     _ignore_types: List[str] = ["script_content"]
     config_keywords = ["tab_space_size", "indent_unit"]
-
-    memory = _Memory
 
     @staticmethod
     def _make_indent(
@@ -314,7 +285,7 @@ class Rule_L003(BaseRule):
 
             if memo_line.line_anchor is None:
                 memo_line = cls._process_pre_anchor(
-                    elem, memo_line, tab_space_size, templated_file
+                    elem, memo_line, tab_space_size
                 )
                 # If we hit the trigger element, stop processing.
                 if elem is memory.trigger:
@@ -365,7 +336,6 @@ class Rule_L003(BaseRule):
         elem: BaseSegment,
         memo_line: _LineSummary,
         tab_space_size: int,
-        templated_file: Optional[TemplatedFile],
     ) -> _LineSummary:
         if elem.is_whitespace:
             memo_line.indent_buffer.append(elem)
@@ -379,7 +349,7 @@ class Rule_L003(BaseRule):
                 memo_line.clean_indent = True
             return memo_line
 
-        memo_line.set_state_as_of_anchor(elem, templated_file, tab_space_size)
+        memo_line.set_state_as_of_anchor(elem, tab_space_size)
         return memo_line
 
     def _coerce_indent_to(
@@ -624,10 +594,7 @@ class Rule_L003(BaseRule):
                 continue
 
             # Is this an empty line?
-            if not any(
-                elem.is_code or elem.is_type("placeholder")
-                for elem in prev_line.line_buffer
-            ):
+            if prev_line.is_empty_line:
                 # Skip if it is
                 continue
 
@@ -1010,6 +977,15 @@ class _TemplateLineInterpreter:
             elem.pos_marker.source_slice
         )
         return slices or None
+
+
+def _get_template_block_type(
+    line_buffer: List[BaseSegment],
+    templated_file: Optional[TemplatedFile] = None,
+):
+    """Convience fn for getting 'start', 'end' etc of a placeholder line."""
+    template_info = _TemplateLineInterpreter(line_buffer, templated_file)
+    return template_info.block_type()
 
 
 def _segment_length(elem: BaseSegment, tab_space_size: int):
