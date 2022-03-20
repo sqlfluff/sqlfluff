@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9540caee0a335cf8be43a620fb888f899cc0d22c4cb4b96c3b96c5aeb46b8be5
+_hash: b0363ad09c5aed1c2dd95dd68f6dd459407e26901945a4fc565755309429905e
 file:
 - statement:
     select_statement:
@@ -176,16 +176,19 @@ file:
             wildcard_identifier:
               star: '*'
       from_clause:
-        keyword: from
-        from_expression:
+      - keyword: from
+      - from_expression:
           from_expression_element:
             table_expression:
-            - values_clause:
+              values_clause:
                 keyword: values
                 expression:
                   literal: '1'
-            - comma: ','
-            - values_clause:
+      - comma: ','
+      - from_expression:
+          from_expression_element:
+            table_expression:
+              values_clause:
                 keyword: values
                 expression:
                   literal: '2'
@@ -650,19 +653,22 @@ file:
             wildcard_identifier:
               star: '*'
       from_clause:
-        keyword: from
-        from_expression:
+      - keyword: from
+      - from_expression:
           from_expression_element:
             table_expression:
-            - values_clause:
+              values_clause:
               - keyword: values
               - expression:
                   literal: '1'
               - comma: ','
               - expression:
                   literal: '2'
-            - comma: ','
-            - values_clause:
+      - comma: ','
+      - from_expression:
+          from_expression_element:
+            table_expression:
+              values_clause:
               - keyword: values
               - expression:
                   literal: '3'
@@ -706,19 +712,22 @@ file:
             wildcard_identifier:
               star: '*'
       from_clause:
-        keyword: from
-        from_expression:
+      - keyword: from
+      - from_expression:
           from_expression_element:
             table_expression:
-            - values_clause:
+              values_clause:
               - keyword: values
               - expression:
                   literal: '1'
               - comma: ','
               - expression:
                   literal: '2'
-            - comma: ','
-            - values_clause:
+      - comma: ','
+      - from_expression:
+          from_expression_element:
+            table_expression:
+              values_clause:
               - keyword: values
               - expression:
                   literal: '3'

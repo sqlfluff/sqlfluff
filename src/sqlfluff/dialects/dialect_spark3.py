@@ -2454,7 +2454,7 @@ class TableExpressionSegment(BaseSegment):
 
     type = "table_expression"
 
-    match_grammar = Delimited(
+    match_grammar = OneOf(
         Ref("ValuesClauseSegment"),
         Ref("BareFunctionSegment"),
         Ref("FunctionSegment"),
