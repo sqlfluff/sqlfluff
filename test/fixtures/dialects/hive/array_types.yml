@@ -1,0 +1,138 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 41263a394fb57089fcf845d78a88764f24b2cb5c562d805222afd45808ca973d
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          keyword: array
+          array_literal:
+          - start_square_bracket: '['
+          - expression:
+              column_reference:
+                identifier: a
+          - comma: ','
+          - expression:
+              column_reference:
+                identifier: b
+          - comma: ','
+          - expression:
+              column_reference:
+                identifier: c
+          - end_square_bracket: ']'
+          alias_expression:
+            keyword: as
+            identifier: arr
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - identifier: sch
+              - dot: .
+              - identifier: tbl
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          column_reference:
+          - identifier: t
+          - dot: .
+          - identifier: a
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              function:
+                function_name:
+                  function_name_identifier: unnest
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    keyword: array
+                    array_literal:
+                    - start_square_bracket: '['
+                    - expression:
+                        literal: '1'
+                    - comma: ','
+                    - expression:
+                        literal: '3'
+                    - comma: ','
+                    - expression:
+                        literal: '6'
+                    - comma: ','
+                    - expression:
+                        literal: '12'
+                    - end_square_bracket: ']'
+                  end_bracket: )
+            alias_expression:
+              keyword: as
+              identifier: t
+              bracketed:
+                start_bracket: (
+                identifier_list:
+                  identifier: f
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: map_from_entries
+            bracketed:
+              start_bracket: (
+              expression:
+                keyword: array
+                array_literal:
+                - start_square_bracket: '['
+                - expression:
+                    function:
+                      function_name:
+                        function_name_identifier: row
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          literal: "'pending.freebet'"
+                      - comma: ','
+                      - expression:
+                          column_reference:
+                            identifier: pending_fb
+                      - end_bracket: )
+                - comma: ','
+                - expression:
+                    function:
+                      function_name:
+                        function_name_identifier: row
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          literal: "'bonus.balance'"
+                      - comma: ','
+                      - expression:
+                          column_reference:
+                            identifier: bonus
+                      - end_bracket: )
+                - end_square_bracket: ']'
+              end_bracket: )
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - identifier: sch
+              - dot: .
+              - identifier: tbl
+- statement_terminator: ;
