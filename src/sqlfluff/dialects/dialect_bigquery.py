@@ -202,7 +202,7 @@ bigquery_dialect.replace(
             Ref("FromUnpivotExpressionSegment"),
             min_times=1,
         ),
-        Ref("TableAliasExpressionSegment", optional=True),
+        Ref("AliasExpressionSegment", optional=True),
     ),
     NaturalJoinKeywords=Nothing(),
     MergeIntoLiteralGrammar=Sequence("MERGE", Ref.keyword("INTO", optional=True)),
@@ -1163,21 +1163,6 @@ class FromUnpivotExpressionSegment(BaseSegment):
                     ),
                 ),
             ),
-        ),
-    )
-
-
-@bigquery_dialect.segment()
-class TableAliasExpressionSegment(BaseSegment):
-    """A reference to an object with an `AS` clause, optionally with column aliasing."""
-
-    type = "table_alias_expression"
-    match_grammar = Sequence(
-        Ref("AliasExpressionSegment"),
-        # Optional column aliases too.
-        Bracketed(
-            Delimited(Ref("SingleIdentifierGrammar"), delimiter=Ref("CommaSegment")),
-            optional=True,
         ),
     )
 
