@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: df03b8df0f299cc91c3c77702151611d8060a88043ceb0b4d1da19c62185218d
+_hash: 19fbec07f08aad273d0e46f92f426e3d90cd51654588e1747070639a26787256
 file:
   statement:
     select_statement:
@@ -127,3 +127,28 @@ file:
           alias_expression:
             keyword: AS
             identifier: struct1
+      - comma: ','
+      - select_clause_element:
+          expression:
+            column_reference:
+            - identifier: col1
+            - dot: .
+            - identifier: obj1
+            array_accessor:
+              start_square_bracket: '['
+              expression:
+                function:
+                  function_name:
+                    function_name_identifier: safe_offset
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      literal: '1'
+                    end_bracket: )
+              end_square_bracket: ']'
+            semi_structured_expression:
+              dot: .
+              identifier: a
+          alias_expression:
+            keyword: AS
+            identifier: struct_safe_offset

@@ -191,14 +191,10 @@ spark3_dialect.replace(
         Sequence("GLOBAL", optional=True),
         OneOf("TEMP", "TEMPORARY"),
     ),
-    QuotedIdentifierSegment=NamedParser(
-        "back_quote",
-        CodeSegment,
-        name="quoted_identifier",
-        type="identifier",
-        trim_chars=("`",),
+    QuotedLiteralSegment=OneOf(
+        NamedParser("single_quote", CodeSegment, name="quoted_literal", type="literal"),
+        NamedParser("double_quote", CodeSegment, name="quoted_literal", type="literal"),
     ),
-    QuotedLiteralSegment=hive_dialect.get_grammar("QuotedLiteralSegment"),
     LiteralGrammar=ansi_dialect.get_grammar("LiteralGrammar").copy(
         insert=[
             Ref("BytesQuotedLiteralSegment"),
@@ -243,9 +239,22 @@ spark3_dialect.replace(
         # SelectStatementSegment so that it sits in the right
         # place corresponding to the whitespace.
     ),
+    SingleIdentifierGrammar=OneOf(
+        Ref("NakedIdentifierSegment"),
+        Ref("QuotedIdentifierSegment"),
+        Ref("SingleQuotedIdentifierSegment"),
+        Ref("BackQuotedIdentifierSegment"),
+    ),
 )
 
 spark3_dialect.add(
+    BackQuotedIdentifierSegment=NamedParser(
+        "back_quote",
+        CodeSegment,
+        name="quoted_identifier",
+        type="identifier",
+        trim_chars=("`",),
+    ),
     BinaryfileKeywordSegment=StringParser(
         "BINARYFILE",
         KeywordSegment,
@@ -308,17 +317,17 @@ spark3_dialect.add(
     TerminatedByGrammar=hive_dialect.get_grammar("TerminatedByGrammar"),
     # Add Spark Grammar
     PropertyGrammar=Sequence(
-        OneOf(
-            Ref("LiteralGrammar"),
-            Ref("SingleIdentifierGrammar"),
-        ),
+        Ref("PropertyNameSegment"),
         Ref("EqualsSegment", optional=True),
         OneOf(
             Ref("LiteralGrammar"),
             Ref("SingleIdentifierGrammar"),
         ),
     ),
-    BracketedPropertyListGrammar=Bracketed(Delimited(Ref("PropertyGrammar"))),
+    PropertyNameListGrammar=Delimited(Ref("PropertyNameSegment")),
+    BracketedPropertyNameListGrammar=Bracketed(Ref("PropertyNameListGrammar")),
+    PropertyListGrammar=Delimited(Ref("PropertyGrammar")),
+    BracketedPropertyListGrammar=Bracketed(Ref("PropertyListGrammar")),
     OptionsGrammar=Sequence("OPTIONS", Ref("BracketedPropertyListGrammar")),
     BucketSpecGrammar=Sequence(
         Ref("ClusteredBySpecGrammar"),
@@ -390,6 +399,15 @@ spark3_dialect.add(
             ),
         ),
     ),
+    # NB: Redefined from `NakedIdentifierSegment` which uses an anti-template to
+    # not match keywords; however, SparkSQL allows keywords to be used in table
+    # and runtime properties.
+    PropertiesNakedIdentifierSegment=RegexParser(
+        r"[A-Z0-9]*[A-Z][A-Z0-9]*",
+        CodeSegment,
+        name="properties_naked_identifier",
+        type="identifier",
+    ),
     ResourceFileGrammar=OneOf(
         Ref("JarKeywordSegment"),
         Ref("WhlKeywordSegment"),
@@ -417,7 +435,7 @@ spark3_dialect.add(
         "UNSET",
         "TBLPROPERTIES",
         Ref("IfExistsGrammar", optional=True),
-        Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
+        Ref("BracketedPropertyNameListGrammar"),
     ),
     TablePropertiesGrammar=Sequence(
         "TBLPROPERTIES", Ref("BracketedPropertyListGrammar")
@@ -2052,18 +2070,145 @@ class SetStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "SET",
         Ref("SQLConfPropertiesSegment", optional=True),
-        Sequence(
-            Delimited(
-                Ref("SingleIdentifierGrammar"),
-                delimiter=Ref("DotSegment"),
-                allow_gaps=False,
-            ),
-            Sequence(
-                Ref("EqualsSegment"),
-                Ref("LiteralGrammar"),
-                optional=True,
-            ),
+        OneOf(
+            Ref("PropertyListGrammar"),
+            Ref("PropertyNameSegment"),
             optional=True,
+        ),
+    )
+
+
+@spark3_dialect.segment()
+class ShowStatement(BaseSegment):
+    """Common class for `SHOW` statements.
+
+    NB: These are similar enough that it makes sense to include them in a
+    common class, especially since there wouldn't be any specific rules that
+    would apply to one show vs another, but they could be broken out to
+    one class per show statement type.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-aux-show-columns.html
+    https://spark.apache.org/docs/latest/sql-ref-syntax-aux-show-create-table.html
+    https://spark.apache.org/docs/latest/sql-ref-syntax-aux-show-databases.html
+    https://spark.apache.org/docs/latest/sql-ref-syntax-aux-show-functions.html
+    https://spark.apache.org/docs/latest/sql-ref-syntax-aux-show-partitions.html
+    https://spark.apache.org/docs/latest/sql-ref-syntax-aux-show-table.html
+    https://spark.apache.org/docs/latest/sql-ref-syntax-aux-show-tables.html
+    https://spark.apache.org/docs/latest/sql-ref-syntax-aux-show-tblproperties.html
+    https://spark.apache.org/docs/latest/sql-ref-syntax-aux-show-views.html
+    """
+
+    type = "show_statement"
+
+    match_grammar = Sequence(
+        "SHOW",
+        OneOf(
+            # SHOW CREATE TABLE
+            Sequence(
+                "CREATE",
+                "TABLE",
+                Ref("TableExpressionSegment"),
+                Sequence(
+                    "AS",
+                    "SERDE",
+                    optional=True,
+                ),
+            ),
+            # SHOW COLUMNS
+            Sequence(
+                "COLUMNS",
+                "IN",
+                Ref("TableExpressionSegment"),
+                Sequence(
+                    "IN",
+                    Ref("DatabaseReferenceSegment"),
+                    optional=True,
+                ),
+            ),
+            # SHOW { DATABASES | SCHEMAS }
+            Sequence(
+                OneOf("DATABASES", "SCHEMAS"),
+                Sequence(
+                    "LIKE",
+                    Ref("QuotedLiteralSegment"),
+                    optional=True,
+                ),
+            ),
+            # SHOW FUNCTIONS
+            Sequence(
+                OneOf("USER", "SYSTEM", "ALL", optional=True),
+                "FUNCTIONS",
+                OneOf(
+                    # qualified function from a database
+                    Sequence(
+                        Ref("DatabaseReferenceSegment"),
+                        Ref("DotSegment"),
+                        Ref("FunctionNameSegment"),
+                        allow_gaps=False,
+                        optional=True,
+                    ),
+                    # non-qualified function
+                    Ref("FunctionNameSegment", optional=True),
+                    Sequence(
+                        "LIKE",
+                        Ref("QuotedLiteralSegment"),
+                        optional=True,
+                    ),
+                ),
+            ),
+            # SHOW PARTITIONS
+            Sequence(
+                "PARTITIONS",
+                Ref("TableReferenceSegment"),
+                Ref("PartitionSpecGrammar", optional=True),
+            ),
+            # SHOW TABLE
+            Sequence(
+                "TABLE",
+                "EXTENDED",
+                Sequence(
+                    OneOf("IN", "FROM"),
+                    Ref("DatabaseReferenceSegment"),
+                    optional=True,
+                ),
+                "LIKE",
+                Ref("QuotedLiteralSegment"),
+                Ref("PartitionSpecGrammar", optional=True),
+            ),
+            # SHOW TABLES
+            Sequence(
+                "TABLES",
+                Sequence(
+                    OneOf("FROM", "IN"),
+                    Ref("DatabaseReferenceSegment"),
+                    optional=True,
+                ),
+                Sequence(
+                    "LIKE",
+                    Ref("QuotedLiteralSegment"),
+                    optional=True,
+                ),
+            ),
+            # SHOW TBLPROPERTIES
+            Sequence(
+                "TBLPROPERTIES",
+                Ref("TableReferenceSegment"),
+                Ref("BracketedPropertyNameListGrammar", optional=True),
+            ),
+            # SHOW VIEWS
+            Sequence(
+                "VIEWS",
+                Sequence(
+                    OneOf("FROM", "IN"),
+                    Ref("DatabaseReferenceSegment"),
+                    optional=True,
+                ),
+                Sequence(
+                    "LIKE",
+                    Ref("QuotedLiteralSegment"),
+                    optional=True,
+                ),
+            ),
         ),
     )
 
@@ -2114,6 +2259,7 @@ class StatementSegment(BaseSegment):
             Ref("RefreshStatementSegment"),
             Ref("ResetStatementSegment"),
             Ref("SetStatementSegment"),
+            Ref("ShowStatement"),
             Ref("UncacheTableSegment"),
             # Data Manipulation Statements
             Ref("InsertOverwriteDirectorySegment"),
@@ -2268,6 +2414,7 @@ class ValuesClauseSegment(BaseSegment):
     """
 
     type = "values_clause"
+
     match_grammar = Sequence(
         "VALUES",
         Delimited(
@@ -2332,7 +2479,7 @@ class FileReferenceSegment(BaseSegment):
         Ref("DotSegment"),
         # NB: Using `QuotedLiteralSegment` here causes `FileReferenceSegment`
         # to match as a `TableReferenceSegment`
-        Ref("QuotedIdentifierSegment"),
+        Ref("BackQuotedIdentifierSegment"),
     )
 
 
@@ -2344,6 +2491,7 @@ class FromExpressionElementSegment(BaseSegment):
     """
 
     type = "from_expression_element"
+
     match_grammar = Sequence(
         Ref("PreTableFunctionKeywordsGrammar", optional=True),
         OptionallyBracketed(Ref("TableExpressionSegment")),
@@ -2365,3 +2513,24 @@ class FromExpressionElementSegment(BaseSegment):
     get_eventual_alias = ansi_dialect.get_segment(
         "FromExpressionElementSegment"
     ).get_eventual_alias
+
+
+@spark3_dialect.segment()
+class PropertyNameSegment(BaseSegment):
+    """A segment for a property name to set and retrieve table and runtime properties.
+
+    https://spark.apache.org/docs/latest/configuration.html#application-properties
+    """
+
+    type = "property_name_identifier"
+
+    match_grammar = Sequence(
+        OneOf(
+            Delimited(
+                Ref("PropertiesNakedIdentifierSegment"),
+                delimiter=Ref("DotSegment"),
+                allow_gaps=False,
+            ),
+            Ref("SingleIdentifierGrammar"),
+        ),
+    )

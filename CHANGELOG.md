@@ -9,6 +9,55 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfluff/sqlfluff/releases) and will be copied in here on each release (please remember to update the issues and contributors to links!). There is no need to manually edit this file going forward.
 -->
 
+## [0.11.1] - 2022-03-18
+
+## Highlights
+
+Major changes include:
+* A number of changes to `fix` code to make these more robust
+* Improvements to templating blocks
+* `generate_parse_fixture_yml` options to allow quicker, partial regeneration of YML files
+* Numerous rule fixes including adding auto fix to L042
+* Numerous grammar changes
+
+## What's Changed
+
+* Spark3: Support for `SHOW` statements [#2864](https://github.com/sqlfluff/sqlfluff/pull/2864) [@R7L208](https://github.com/R7L208)
+* Add Markerr to list of organizations using SQLFluff in the wild  [#2874](https://github.com/sqlfluff/sqlfluff/pull/2874) [@kdw2126](https://github.com/kdw2126)
+* Refactor JinjaTracer: Split into two classes, break up `_slice_template()` function [#2870](https://github.com/sqlfluff/sqlfluff/pull/2870) [@barrywhart](https://github.com/barrywhart)
+* BigQuery: support Parameterized Numeric Literals [#2872](https://github.com/sqlfluff/sqlfluff/pull/2872) [@tunetheweb](https://github.com/tunetheweb)
+* L042 autofix [#2860](https://github.com/sqlfluff/sqlfluff/pull/2860) [@OTooleMichael](https://github.com/OTooleMichael)
+* Redshift: transaction statement [#2852](https://github.com/sqlfluff/sqlfluff/pull/2852) [@rpr-ableton](https://github.com/rpr-ableton)
+* JinjaTracer fix for endif/endfor inside "set" or "macro" blocks [#2868](https://github.com/sqlfluff/sqlfluff/pull/2868) [@barrywhart](https://github.com/barrywhart)
+* L009: Handle adding newline after `{% endif %}` at end of file [#2862](https://github.com/sqlfluff/sqlfluff/pull/2862) [@barrywhart](https://github.com/barrywhart)
+* Redshift: Add support for `AT TIME ZONE` [#2863](https://github.com/sqlfluff/sqlfluff/pull/2863) [@tunetheweb](https://github.com/tunetheweb)
+* L032 bug fix and fix improvement [#2859](https://github.com/sqlfluff/sqlfluff/pull/2859) [@OTooleMichael](https://github.com/OTooleMichael)
+* Refactor JinjaTracer; store lex output as individual strings where possible [#2856](https://github.com/sqlfluff/sqlfluff/pull/2856) [@barrywhart](https://github.com/barrywhart)
+* Add ability to regenerate subsets of fixture YAMLs (by dialect, or new only) [#2850](https://github.com/sqlfluff/sqlfluff/pull/2850) [@OTooleMichael](https://github.com/OTooleMichael)
+* Fix bug with Jinja and dbt `{% set %}` blocks [#2849](https://github.com/sqlfluff/sqlfluff/pull/2849) [@barrywhart](https://github.com/barrywhart)
+* Bug fix: `ValueError: Position Not Found for lint/parse/fix` in JinjaTracer [#2846](https://github.com/sqlfluff/sqlfluff/pull/2846) [@barrywhart](https://github.com/barrywhart)
+* Reduce unnecessary setting run ci [#2847](https://github.com/sqlfluff/sqlfluff/pull/2847) [@zhongjiajie](https://github.com/zhongjiajie)
+* Spark3: statements to `SET` and `RESET` spark runtime configurations [#2839](https://github.com/sqlfluff/sqlfluff/pull/2839) [@R7L208](https://github.com/R7L208)
+* BigQuery - prevent L006 flagging hyphenated table references [#2842](https://github.com/sqlfluff/sqlfluff/pull/2842) [@tunetheweb](https://github.com/tunetheweb)
+* TSQL fix `CONVERT` function definition [#2843](https://github.com/sqlfluff/sqlfluff/pull/2843) [@tunetheweb](https://github.com/tunetheweb)
+* Change rule test script from bash to python [#2840](https://github.com/sqlfluff/sqlfluff/pull/2840) [@OTooleMichael](https://github.com/OTooleMichael)
+* Spark3: Support `DESCRIBE` statement [#2837](https://github.com/sqlfluff/sqlfluff/pull/2837) [@R7L208](https://github.com/R7L208)
+* Spark3: Refactor `REFRESH` statements into one class [#2838](https://github.com/sqlfluff/sqlfluff/pull/2838) [@R7L208](https://github.com/R7L208)
+* Prevent rules incorrectly returning conflicting fixes to same position [#2830](https://github.com/sqlfluff/sqlfluff/pull/2830) [@barrywhart](https://github.com/barrywhart)
+* Redshift and BigQuery: Update dateparts values and functions  [#2829](https://github.com/sqlfluff/sqlfluff/pull/2829) [@rpr-ableton](https://github.com/rpr-ableton)
+* MySQL add `NOW` support [#2825](https://github.com/sqlfluff/sqlfluff/pull/2825) [@tunetheweb](https://github.com/tunetheweb)
+* MySQL `DELETE FROM` support [#2823](https://github.com/sqlfluff/sqlfluff/pull/2823) [@tunetheweb](https://github.com/tunetheweb)
+* Rule L059 bug with `IF` [#2824](https://github.com/sqlfluff/sqlfluff/pull/2824) [@tunetheweb](https://github.com/tunetheweb)
+* Prevent exceptions when running `fix` on dialect fixtures [#2818](https://github.com/sqlfluff/sqlfluff/pull/2818) [@tunetheweb](https://github.com/tunetheweb)
+* Spark3: Support to handle `CACHE` AND `UNCACHE` auxiliary statements [#2814](https://github.com/sqlfluff/sqlfluff/pull/2814) [@R7L208](https://github.com/R7L208)
+* Fix L036 error on `CREATE VIEW AS SELECT` [#2816](https://github.com/sqlfluff/sqlfluff/pull/2816) [@tunetheweb](https://github.com/tunetheweb)
+* Fixes for the new post-fix parse check [#2813](https://github.com/sqlfluff/sqlfluff/pull/2813) [@barrywhart](https://github.com/barrywhart)
+* Add initial `MERGE` syntax to most dialects [#2807](https://github.com/sqlfluff/sqlfluff/pull/2807) [@PhilippLange](https://github.com/PhilippLange)
+* Automated tests should fail if a lint fix introduces a parse error [#2809](https://github.com/sqlfluff/sqlfluff/pull/2809) [@barrywhart](https://github.com/barrywhart)
+
+## New Contributors
+* [@kdw2126](https://github.com/kdw2126) made their first contribution in [#2874](https://github.com/sqlfluff/sqlfluff/pull/2874)
+
 ## [0.11.0] - 2022-03-07
 
 ## Highlights
