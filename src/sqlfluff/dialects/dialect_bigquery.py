@@ -182,6 +182,7 @@ bigquery_dialect.replace(
         )
     ),
     FunctionContentsExpressionGrammar=OneOf(
+        Ref("DatetimeUnitSegment"),
         Sequence(
             Ref("ExpressionSegment"),
             Sequence(OneOf("IGNORE", "RESPECT"), "NULLS", optional=True),

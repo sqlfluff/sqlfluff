@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: de867ec9c915e51e80e883cd6499c2481b137775f0be393742051f272df3976c
+_hash: 24baf43f68e7873ea339d2129fa2b79a5f3d3c6fcd7fd9e419828d2691835b5e
 file:
 - statement:
     select_statement:
@@ -37,15 +37,13 @@ file:
             function_name:
               function_name_identifier: datetime_trunc
             bracketed:
-            - start_bracket: (
-            - expression:
+              start_bracket: (
+              expression:
                 parameterized_expression:
                   literal: '@z2'
-            - comma: ','
-            - expression:
-                column_reference:
-                  identifier: week
-            - end_bracket: )
+              comma: ','
+              date_part: week
+              end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -56,15 +54,13 @@ file:
             function_name:
               function_name_identifier: datetime_trunc
             bracketed:
-            - start_bracket: (
-            - expression:
+              start_bracket: (
+              expression:
                 parameterized_expression:
                   literal: '@_ab'
-            - comma: ','
-            - expression:
-                column_reference:
-                  identifier: week
-            - end_bracket: )
+              comma: ','
+              date_part: week
+              end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -75,15 +71,13 @@ file:
             function_name:
               function_name_identifier: datetime_trunc
             bracketed:
-            - start_bracket: (
-            - expression:
+              start_bracket: (
+              expression:
                 parameterized_expression:
                   literal: '@a'
-            - comma: ','
-            - expression:
-                column_reference:
-                  identifier: week
-            - end_bracket: )
+              comma: ','
+              date_part: week
+              end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -94,14 +88,12 @@ file:
             function_name:
               function_name_identifier: parse_date
             bracketed:
-            - start_bracket: (
-            - expression:
+              start_bracket: (
+              expression:
                 literal: '"%Y%m"'
-            - comma: ','
-            - expression:
-                column_reference:
-                  identifier: year
-            - end_bracket: )
+              comma: ','
+              date_part: year
+              end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
