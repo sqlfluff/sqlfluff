@@ -59,7 +59,7 @@ class _LineSummary:
         return print_dict.__repr__()
 
     @property
-    def template_content(self):
+    def template_content(self):  # pragma: no cover
         return "".join(
             seg.raw or getattr(seg, "source_str", "") for seg in self.line_buffer
         )
@@ -906,12 +906,6 @@ class _TemplateLineInterpreter:
         self._adjacent_pairs: Optional[
             List[Tuple[Tuple[str, Optional[str]], Tuple[str, Optional[str]]]]
         ] = None
-
-    @property
-    def template_content(self):
-        return "".join(
-            seg.raw or getattr(seg, "source_str", "") for seg in self.current_line
-        )
 
     def is_single_placeholder_line(self):
         count_placeholder = 0
