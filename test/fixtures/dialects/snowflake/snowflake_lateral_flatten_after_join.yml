@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9363770df8b86e6223858437a50bfbd22eb04c36ccfdba31aed022951b1748c2
+_hash: 79264f049d00560ba0c811a69559ecf50c43b13137ea7f799999084f75752964
 file:
   statement:
     select_statement:
@@ -65,8 +65,8 @@ file:
             keyword: as
             identifier: most_recent
       from_clause:
-        keyword: from
-        from_expression:
+      - keyword: from
+      - from_expression:
           from_expression_element:
             table_expression:
               table_reference:
@@ -75,26 +75,40 @@ file:
           - keyword: inner
           - keyword: join
           - from_expression_element:
-            - table_expression:
+              table_expression:
                 table_reference:
                   identifier: b
-            - raw: 'on'
-            - raw: (
-            - raw: b
-            - raw: .
-            - raw: c_id
-            - raw: '='
-            - raw: a
-            - raw: .
-            - raw: c_id
-            - raw: )
-            - comma: ','
-            - raw: lateral
-            - raw: flatten
-            - raw: (
-            - raw: input
-            - raw: =>
-            - raw: b
-            - raw: .
-            - raw: cool_ids
-            - raw: )
+          - join_on_condition:
+              keyword: 'on'
+              bracketed:
+                start_bracket: (
+                expression:
+                - column_reference:
+                  - identifier: b
+                  - dot: .
+                  - identifier: c_id
+                - comparison_operator:
+                    raw_comparison_operator: '='
+                - column_reference:
+                  - identifier: a
+                  - dot: .
+                  - identifier: c_id
+                end_bracket: )
+      - comma: ','
+      - from_expression:
+          from_expression_element:
+            keyword: lateral
+            table_expression:
+              function:
+                function_name:
+                  function_name_identifier: flatten
+                bracketed:
+                  start_bracket: (
+                  snowflake_keyword_expression:
+                    parameter: input
+                    parameter_assigner: =>
+                    column_reference:
+                    - identifier: b
+                    - dot: .
+                    - identifier: cool_ids
+                  end_bracket: )

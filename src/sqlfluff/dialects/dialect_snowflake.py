@@ -885,7 +885,7 @@ class FromExpressionElementSegment(BaseSegment):
             OneOf(
                 Ref("AliasExpressionSegment"),
                 exclude=OneOf(
-                    Ref("SamplingExpressionSegment"), Ref("ChangesClauseSegment")
+                    Ref("SamplingExpressionSegment"), Ref("ChangesClauseSegment"), Ref("JoinLikeClauseGrammar")
                 ),
                 optional=True,
             ),
@@ -894,7 +894,7 @@ class FromExpressionElementSegment(BaseSegment):
             Ref("SamplingExpressionSegment", optional=True),
             Ref("PostTableExpressionGrammar", optional=True),
         ),
-        terminator=OneOf(Ref("JoinClauseSegment"), Ref("JoinLikeClauseGrammar")),
+        terminator=OneOf(Ref("JoinClauseSegment"), Ref("JoinLikeClauseGrammar"), Ref("JoinOnConditionSegment")),
     )
 
     def get_eventual_alias(self) -> Optional[AliasInfo]:

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3e7fae5e271cc61d3da2d92068d5f7ca7383318088f3fecd5d64b678f55fae18
+_hash: 0a53b2cd033461a0d01c39c4b100a3d8dbb033a360a61d1fcd28d8b178c47f82
 file:
 - statement:
     select_statement:
@@ -41,7 +41,7 @@ file:
     with_compound_statement:
       keyword: with
       common_table_expression:
-        identifier: pvt
+        identifier: pivot
         keyword: as
         bracketed:
           start_bracket: (
@@ -64,5 +64,5 @@ file:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: pvt
+                  identifier: pivot
 - statement_terminator: ;
