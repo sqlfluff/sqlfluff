@@ -12,3 +12,11 @@ select map_from_entries(array[
     row('bonus.balance', bonus)
 ])
 from sch.tbl;
+
+-- string consts
+select array['a', 'b', 'c'] as arr
+from sch.tbl;
+
+-- null
+select array['a', null] as arr
+from sch.tbl;

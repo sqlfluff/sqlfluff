@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 41263a394fb57089fcf845d78a88764f24b2cb5c562d805222afd45808ca973d
+_hash: 8413177959f7eb2be0161034dae7f8930613be870a4c87d0339bece17e0756b6
 file:
 - statement:
     select_statement:
@@ -126,6 +126,63 @@ file:
                       - end_bracket: )
                 - end_square_bracket: ']'
               end_bracket: )
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - identifier: sch
+              - dot: .
+              - identifier: tbl
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          keyword: array
+          array_literal:
+          - start_square_bracket: '['
+          - expression:
+              literal: "'a'"
+          - comma: ','
+          - expression:
+              literal: "'b'"
+          - comma: ','
+          - expression:
+              literal: "'c'"
+          - end_square_bracket: ']'
+          alias_expression:
+            keyword: as
+            identifier: arr
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - identifier: sch
+              - dot: .
+              - identifier: tbl
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          keyword: array
+          array_literal:
+          - start_square_bracket: '['
+          - expression:
+              literal: "'a'"
+          - comma: ','
+          - expression:
+              literal: 'null'
+          - end_square_bracket: ']'
+          alias_expression:
+            keyword: as
+            identifier: arr
       from_clause:
         keyword: from
         from_expression:
