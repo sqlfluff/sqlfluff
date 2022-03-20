@@ -466,24 +466,22 @@ class Rule_L003(BaseRule):
         - When passed the *final* segment in the entire parse tree (which may
           not be a newline)
         """
-        res = memory.line_summaries
-        this_line_no = max(res.keys())
-        this_line: _LineSummary = res.pop(this_line_no)
+        line_summaries = memory.line_summaries
+        this_line_no = max(line_summaries.keys())
+        this_line: _LineSummary = line_summaries.pop(this_line_no)
         self.logger.debug(
-            "Evaluating line #%s. %s",
-            this_line_no,
-            # Don't log the line or indent buffer, it's too noisy.
+            "Evaluating line #{this_line_no:02}. %s",
             this_line,
         )
 
         if this_line.is_comment_line:
             # Comment line, deal with it later.
             memory.comment_lines.append(this_line_no)
-            self.logger.debug("    Comment Line. #%s", this_line_no)
+            self.logger.debug(f"    Comment Line. #{this_line_no:02}")
             return LintResult(memory=memory)
 
-        last_line = _find_last_meaningful_line(res)
-        if len(res) > 0 and last_line:
+        last_line = _find_last_meaningful_line(line_summaries)
+        if len(line_summaries) > 0 and last_line:
             # Let's just deal with hanging indents here.
             if (
                 # NB: Hangers are only allowed if there was content after the last
@@ -510,7 +508,7 @@ class Rule_L003(BaseRule):
                 return LintResult(memory=memory)
 
         # Is this an indented first line?
-        elif len(res) == 0:
+        elif len(line_summaries) == 0:
             if this_line.indent_size > 0:
                 self.logger.debug("    Indented First Line. #%s", this_line_no)
                 return LintResult(
@@ -520,261 +518,200 @@ class Rule_L003(BaseRule):
                     fixes=[LintFix.delete(elem) for elem in this_line.indent_buffer],
                 )
 
-        previous_line_numbers = sorted(res.keys(), reverse=True)
+        previous_line_numbers = sorted(line_summaries.keys(), reverse=True)
+        # we will iterate this more than once
+        previous_lines = list(map(lambda k: line_summaries[k], previous_line_numbers))
         # Special handling for template end blocks on a line by themselves.
         if this_line.templated_line_type == "end":
-            # For a template block end on a line by itself, search for a
-            # matching block start on a line by itself. If there is one, match
-            # its indentation. Question: Could we avoid treating this as a
-            # special case? It has some similarities to the non-templated test
-            # case test/fixtures/linter/indentation_error_contained.sql, in tha
-            # both have lines where anchor_indent_balance drops 2 levels from one line
-            # to the next, making it a bit unclear how to indent that line.
-            template_block_level = -1
-            for k in previous_line_numbers:
-                template_line: _LineSummary = res[k]
-                if not template_line.templated_line_type:
+            return self._handle_template_blocks(
+                this_line=this_line,
+                trigger_segment=trigger_segment,
+                previous_lines=previous_lines,
+                memory=memory,
+            )
+        # Assuming it's not a hanger, let's compare it to the other previous
+        # lines. We do it in reverse so that closer lines are more relevant.
+
+        def _find_previous_line(
+            this_line: _LineSummary,
+            previous_lines: List[_LineSummary],
+            ignoreable_lines: List[int],
+        ) -> Optional[_LineSummary]:
+            for prev_line in previous_lines:
+                should_ignore = prev_line.line_no in ignoreable_lines
+                if should_ignore or prev_line.is_empty_line:
                     continue
-                if template_line.templated_line_type == "end":
-                    template_block_level -= 1
-                else:
-                    template_block_level += 1
 
-                if template_block_level != 0:
+                # Work out the difference in indent
+                indent_diff = (
+                    this_line.anchor_indent_balance - prev_line.anchor_indent_balance
+                )
+                # If we're comparing to a previous, more deeply indented line,
+                # then skip and keep looking.
+                if indent_diff < 0:
                     continue
+                return prev_line
+            return None
 
-                # Found prior template block line with the same indent balance.
+        prev_line = _find_previous_line(
+            this_line,
+            previous_lines,
+            memory.problem_lines + memory.hanging_lines,
+        )
 
-                # Is this a problem line?
-                if k in memory.problem_lines + memory.hanging_lines:
-                    # Skip it if it is
-                    return LintResult(memory=memory)
-
-                self.logger.debug("    [template block end] Comparing to #%s", k)
-                if this_line.indent_size == template_line.indent_size:
-                    # All good.
-                    return LintResult(memory=memory)
-
+        if not prev_line:
+            return LintResult(memory=memory)
+        prev_line_no = prev_line.line_no
+        indent_diff = this_line.anchor_indent_balance - prev_line.anchor_indent_balance
+        # Is the indent balance the same?
+        if indent_diff == 0:
+            self.logger.debug(
+                f"    [same indent balance] Comparing to #{prev_line_no:02}"
+            )
+            if this_line.indent_size != prev_line.indent_size:
                 # Indents don't match even though balance is the same...
                 memory.problem_lines.append(this_line_no)
 
-                # The previous indent.
-                desired_indent = "".join(
-                    elem.raw for elem in template_line.indent_buffer
-                )
+                # Work out desired indent
+                if prev_line.indent_size == 0:
+                    desired_indent = ""
+                elif this_line.indent_size == 0:
+                    desired_indent = self._make_indent(
+                        indent_unit=self.indent_unit,
+                        tab_space_size=self.tab_space_size,
+                    )
+                else:
+                    # The previous indent.
+                    desired_indent = "".join(
+                        elem.raw for elem in prev_line.indent_buffer
+                    )
 
-                # Make fixes
-                first_non_indent_i = len(this_line.indent_buffer)
-                current_anchor = this_line.line_buffer[first_non_indent_i]
                 fixes = self._coerce_indent_to(
                     desired_indent=desired_indent,
                     current_indent_buffer=this_line.indent_buffer,
-                    current_anchor=current_anchor,
+                    current_anchor=trigger_segment,
                 )
                 self.logger.debug(
-                    "    !! Indentation does not match #%s. Fixes: %s", k, fixes
+                    f"    !! Indentation does not match #{prev_line_no:02}. Fixes: %s",
+                    fixes,
                 )
                 return LintResult(
                     anchor=trigger_segment,
                     memory=memory,
-                    description="Indentation not consistent with line #{}".format(k),
-                    # See above for logic
+                    description=f"Indentation not consistent with #{this_line_no:02}",
+                    fixes=fixes,
+                )
+        # Are we at a deeper indent?
+        elif indent_diff > 0:
+            self.logger.debug(
+                f"    [deeper indent balance] Comparing to #{prev_line_no:02}"
+            )
+            # NB: We shouldn't need to deal with correct hanging indents
+            # here, they should already have been dealt with before. We
+            # may still need to deal with *creating* hanging indents if
+            # appropriate.
+            self.logger.debug("    Comparison Line: %s", prev_line)
+
+            # Check to see if we've got a whole number of multiples. If
+            # we do then record the number for later, otherwise raise
+            # an error. We do the comparison here so we have a reference
+            # point to do the repairs. We need a sensible previous line
+            # to base the repairs off. If there's no indent at all, then
+            # we should also take this route because there SHOULD be one.
+            if this_line.indent_size % self.tab_space_size != 0:
+                memory.problem_lines.append(this_line_no)
+
+                # The default indent is the one just reconstructs it from
+                # the indent size.
+                default_indent = "".join(
+                    elem.raw for elem in prev_line.indent_buffer
+                ) + self._make_indent(
+                    indent_unit=self.indent_unit,
+                    tab_space_size=self.tab_space_size,
+                    num=indent_diff,
+                )
+                # If we have a clean indent, we can just add steps in line
+                # with the difference in the indent buffers. simples.
+                if this_line.clean_indent:
+                    self.logger.debug("        Use clean indent.")
+                    desired_indent = default_indent
+                # If we have the option of a hanging indent then use it.
+                elif prev_line.hanging_indent:
+                    self.logger.debug("        Use hanging indent.")
+                    desired_indent = " " * prev_line.hanging_indent
+                else:  # pragma: no cover
+                    self.logger.debug("        Use default indent.")
+                    desired_indent = default_indent
+
+                fixes = self._coerce_indent_to(
+                    desired_indent=desired_indent,
+                    current_indent_buffer=this_line.indent_buffer,
+                    current_anchor=trigger_segment,
+                )
+                return LintResult(
+                    anchor=trigger_segment,
+                    memory=memory,
+                    description=(
+                        "Indentation not hanging or a multiple of {} spaces"
+                    ).format(self.tab_space_size),
                     fixes=fixes,
                 )
 
-        # Assuming it's not a hanger, let's compare it to the other previous
-        # lines. We do it in reverse so that closer lines are more relevant.
-        for k in previous_line_numbers:
-            prev_line: _LineSummary = res[k]
-            # Is this a problem line?
-            if k in memory.problem_lines + memory.hanging_lines:
-                # Skip it if it is
-                continue
+            this_indent_num = this_line.indent_size // self.tab_space_size
+            # We know that the indent balance is higher, what actually is
+            # the difference in indent counts? It should be a whole number
+            # if we're still here.
+            comp_indent_num = prev_line.indent_size // self.tab_space_size
 
-            # Is this an empty line?
-            if prev_line.is_empty_line:
-                # Skip if it is
-                continue
+            # The indent number should be at least 1, and can be UP TO
+            # and including the difference in the indent balance.
+            if comp_indent_num == this_indent_num:
+                # We have two lines indented the same, but with a different starting
+                # indent balance. This is either a problem OR a sign that one of the
+                # opening indents wasn't used. We account for the latter and then
+                # have a violation if that wasn't the case.
 
-            # Work out the difference in indent
-            indent_diff = (
-                this_line.anchor_indent_balance - prev_line.anchor_indent_balance
-            )
-            # If we're comparing to a previous, more deeply indented line, then skip and
-            # keep looking.
-            if indent_diff < 0:
-                continue
+                # Does the comparison line have enough unused indent to get us back
+                # to where we need to be? NB: This should only be applied if this is
+                # a CLOSING bracket.
 
-            # Is the indent balance the same?
-            if indent_diff == 0:
-                self.logger.debug("    [same indent balance] Comparing to #%s", k)
-                if this_line.indent_size != prev_line.indent_size:
-                    # Indents don't match even though balance is the same...
-                    memory.problem_lines.append(this_line_no)
+                # First work out if we have some closing brackets, and if so, how
+                # many.
+                b_idx = 0
+                b_num = 0
+                while True:
+                    if len(this_line.line_buffer[b_idx:]) == 0:
+                        break
 
-                    # Work out desired indent
-                    if prev_line.indent_size == 0:
-                        desired_indent = ""
-                    elif this_line.indent_size == 0:
-                        desired_indent = self._make_indent(
-                            indent_unit=self.indent_unit,
-                            tab_space_size=self.tab_space_size,
-                        )
+                    elem = this_line.line_buffer[b_idx]
+                    if not elem.is_code:
+                        b_idx += 1
+                        continue
                     else:
-                        # The previous indent.
-                        desired_indent = "".join(
-                            elem.raw for elem in prev_line.indent_buffer
-                        )
-
-                    # Make fixes
-                    fixes = self._coerce_indent_to(
-                        desired_indent=desired_indent,
-                        current_indent_buffer=this_line.indent_buffer,
-                        current_anchor=trigger_segment,
-                    )
-                    self.logger.debug(
-                        "    !! Indentation does not match #%s. Fixes: %s", k, fixes
-                    )
-                    return LintResult(
-                        anchor=trigger_segment,
-                        memory=memory,
-                        description="Indentation not consistent with line #{}".format(
-                            k
-                        ),
-                        # See above for logic
-                        fixes=fixes,
-                    )
-            # Are we at a deeper indent?
-            elif indent_diff > 0:
-                self.logger.debug("    [deeper indent balance] Comparing to #%s", k)
-                # NB: We shouldn't need to deal with correct hanging indents
-                # here, they should already have been dealt with before. We
-                # may still need to deal with *creating* hanging indents if
-                # appropriate.
-                self.logger.debug("    Comparison Line: %s", prev_line)
-
-                # Check to see if we've got a whole number of multiples. If
-                # we do then record the number for later, otherwise raise
-                # an error. We do the comparison here so we have a reference
-                # point to do the repairs. We need a sensible previous line
-                # to base the repairs off. If there's no indent at all, then
-                # we should also take this route because there SHOULD be one.
-                if this_line.indent_size % self.tab_space_size != 0:
-                    memory.problem_lines.append(this_line_no)
-
-                    # The default indent is the one just reconstructs it from
-                    # the indent size.
-                    default_indent = "".join(
-                        elem.raw for elem in prev_line.indent_buffer
-                    ) + self._make_indent(
-                        indent_unit=self.indent_unit,
-                        tab_space_size=self.tab_space_size,
-                        num=indent_diff,
-                    )
-                    # If we have a clean indent, we can just add steps in line
-                    # with the difference in the indent buffers. simples.
-                    if this_line.clean_indent:
-                        self.logger.debug("        Use clean indent.")
-                        desired_indent = default_indent
-                    # If we have the option of a hanging indent then use it.
-                    elif prev_line.hanging_indent:
-                        self.logger.debug("        Use hanging indent.")
-                        desired_indent = " " * prev_line.hanging_indent
-                    else:  # pragma: no cover
-                        self.logger.debug("        Use default indent.")
-                        desired_indent = default_indent
-
-                    fixes = self._coerce_indent_to(
-                        desired_indent=desired_indent,
-                        current_indent_buffer=this_line.indent_buffer,
-                        current_anchor=trigger_segment,
-                    )
-                    return LintResult(
-                        anchor=trigger_segment,
-                        memory=memory,
-                        description=(
-                            "Indentation not hanging or a multiple of {} spaces"
-                        ).format(self.tab_space_size),
-                        fixes=fixes,
-                    )
-
-                this_indent_num = this_line.indent_size // self.tab_space_size
-                # We know that the indent balance is higher, what actually is
-                # the difference in indent counts? It should be a whole number
-                # if we're still here.
-                comp_indent_num = prev_line.indent_size // self.tab_space_size
-
-                # The indent number should be at least 1, and can be UP TO
-                # and including the difference in the indent balance.
-                if comp_indent_num == this_indent_num:
-                    # We have two lines indented the same, but with a different starting
-                    # indent balance. This is either a problem OR a sign that one of the
-                    # opening indents wasn't used. We account for the latter and then
-                    # have a violation if that wasn't the case.
-
-                    # Does the comparison line have enough unused indent to get us back
-                    # to where we need to be? NB: This should only be applied if this is
-                    # a CLOSING bracket.
-
-                    # First work out if we have some closing brackets, and if so, how
-                    # many.
-                    b_idx = 0
-                    b_num = 0
-                    while True:
-                        if len(this_line.line_buffer[b_idx:]) == 0:
-                            break
-
-                        elem = this_line.line_buffer[b_idx]
-                        if not elem.is_code:
+                        if elem.is_type("end_bracket", "end_square_bracket"):
                             b_idx += 1
+                            b_num += 1
                             continue
-                        else:
-                            if elem.is_type("end_bracket", "end_square_bracket"):
-                                b_idx += 1
-                                b_num += 1
-                                continue
-                            break  # pragma: no cover
+                        break  # pragma: no cover
 
-                    if b_num < indent_diff:
-                        # It doesn't. That means we *should* have an indent when
-                        # compared to this line and we DON'T.
-                        memory.problem_lines.append(this_line_no)
-                        return LintResult(
-                            anchor=trigger_segment,
-                            memory=memory,
-                            description="Indent expected and not found compared to line"
-                            " #{}".format(k),
-                            # Add in an extra bit of whitespace for the indent
-                            fixes=[
-                                LintFix.create_before(
-                                    trigger_segment,
-                                    [
-                                        WhitespaceSegment(
-                                            raw=self._make_indent(
-                                                indent_unit=self.indent_unit,
-                                                tab_space_size=self.tab_space_size,
-                                            ),
-                                        ),
-                                    ],
-                                ),
-                            ],
-                        )
-                elif this_indent_num < comp_indent_num:
+                if b_num < indent_diff:
+                    # It doesn't. That means we *should* have an indent when
+                    # compared to this line and we DON'T.
                     memory.problem_lines.append(this_line_no)
+                    description = (
+                        f"Indent expected and not found compared to #{prev_line_no:02}"
+                    )
                     return LintResult(
                         anchor=trigger_segment,
                         memory=memory,
-                        description="Line under-indented compared to line #{}".format(
-                            k
-                        ),
+                        description=description,
+                        # Add in an extra bit of whitespace for the indent
                         fixes=[
                             LintFix.create_before(
                                 trigger_segment,
                                 [
                                     WhitespaceSegment(
-                                        # Make the minimum indent for it to be ok.
                                         raw=self._make_indent(
-                                            num=comp_indent_num - this_indent_num,
                                             indent_unit=self.indent_unit,
                                             tab_space_size=self.tab_space_size,
                                         ),
@@ -783,42 +720,57 @@ class Rule_L003(BaseRule):
                             ),
                         ],
                     )
-                elif this_indent_num > comp_indent_num + indent_diff:
-                    memory.problem_lines.append(this_line_no)
-                    # Calculate the lowest ok indent:
-                    desired_indent = self._make_indent(
-                        num=comp_indent_num - this_indent_num,
-                        indent_unit=self.indent_unit,
-                        tab_space_size=self.tab_space_size,
-                    )
+            elif this_indent_num < comp_indent_num:
+                memory.problem_lines.append(this_line_no)
+                return LintResult(
+                    anchor=trigger_segment,
+                    memory=memory,
+                    description=f"Line under-indented compared to #{prev_line_no:02}",
+                    fixes=[
+                        LintFix.create_before(
+                            trigger_segment,
+                            [
+                                WhitespaceSegment(
+                                    # Make the minimum indent for it to be ok.
+                                    raw=self._make_indent(
+                                        num=comp_indent_num - this_indent_num,
+                                        indent_unit=self.indent_unit,
+                                        tab_space_size=self.tab_space_size,
+                                    ),
+                                ),
+                            ],
+                        ),
+                    ],
+                )
+            elif this_indent_num > comp_indent_num + indent_diff:
+                memory.problem_lines.append(this_line_no)
+                # Calculate the lowest ok indent:
+                desired_indent = self._make_indent(
+                    num=comp_indent_num - this_indent_num,
+                    indent_unit=self.indent_unit,
+                    tab_space_size=self.tab_space_size,
+                )
 
-                    fixes = self._coerce_indent_to(
-                        desired_indent=desired_indent,
-                        current_indent_buffer=this_line.indent_buffer,
-                        current_anchor=trigger_segment,
-                    )
+                fixes = self._coerce_indent_to(
+                    desired_indent=desired_indent,
+                    current_indent_buffer=this_line.indent_buffer,
+                    current_anchor=trigger_segment,
+                )
 
-                    return LintResult(
-                        anchor=trigger_segment,
-                        memory=memory,
-                        description="Line over-indented compared to line #{}".format(k),
-                        fixes=fixes,
-                    )
+                return LintResult(
+                    anchor=trigger_segment,
+                    memory=memory,
+                    description=f"Line over-indented compared to #{prev_line_no:02}",
+                    fixes=fixes,
+                )
 
-            # This was a valid comparison, so if it doesn't flag then
-            # we can assume that we're ok.
-            self.logger.debug("    Indent deemed ok comparing to #%s", k)
-            comment_fix = self._calculate_comment_fixes(
-                memory, previous_line_numbers, this_line
-            )
-            return comment_fix or LintResult(memory=memory)
-
-            # NB: At shallower indents, we don't check, we just check the
-            # previous lines with the same balance. Deeper indents can check
-            # themselves.
-
-        # If we get to here, then we're all good for now.
-        return LintResult(memory=memory)
+        # This was a valid comparison, so if it doesn't flag then
+        # we can assume that we're ok.
+        self.logger.debug(f"    Indent deemed ok comparing to #{prev_line_no:02}")
+        comment_fix = self._calculate_comment_fixes(
+            memory, previous_line_numbers, this_line
+        )
+        return comment_fix or LintResult(memory=memory)
 
     def _calculate_comment_fixes(
         self, memory: _Memory, previous_line_numbers: List[int], this_line: _LineSummary
@@ -860,6 +812,84 @@ class Rule_L003(BaseRule):
             anchor=anchor,
             memory=memory,
             description="Comment not aligned with following line.",
+            fixes=fixes,
+        )
+
+    def _handle_template_blocks(
+        self,
+        this_line: _LineSummary,
+        trigger_segment: BaseSegment,
+        previous_lines: List[_LineSummary],
+        memory: _Memory,
+    ):
+        # For a template block end on a line by itself, search for a
+        # matching block start on a line by itself. If there is one, match
+        # its indentation. Question: Could we avoid treating this as a
+        # special case? It has some similarities to the non-templated test
+        # case test/fixtures/linter/indentation_error_contained.sql, in tha
+        # both have lines where anchor_indent_balance drops 2 levels from one line
+        # to the next, making it a bit unclear how to indent that line.
+        def _find_matching_start_line(
+            previous_lines: List[_LineSummary],
+        ) -> Optional[_LineSummary]:
+            template_block_level = -1
+            for template_line in previous_lines:
+                if not template_line.templated_line_type:
+                    continue
+                if template_line.templated_line_type == "end":
+                    template_block_level -= 1
+                else:
+                    template_block_level += 1
+
+                if template_block_level != 0:
+                    continue
+
+                return template_line
+            return None
+
+        template_line = _find_matching_start_line(previous_lines)
+        # This Cant occur in valid code
+        assert template_line, "TypeGuard"
+
+        # Is this a problem line?
+        if template_line.line_no in memory.problem_lines + memory.hanging_lines:
+            # Skip it if it is
+            return LintResult(memory=memory)
+
+        self.logger.debug(
+            f"    [template block end] Comparing to #{template_line.line_no:02}"
+        )
+        if this_line.indent_size == template_line.indent_size:
+            # All good.
+            return LintResult(memory=memory)
+
+        # Indents don't match even though balance is the same...
+        memory.problem_lines.append(this_line.line_no)
+
+        # The previous indent.
+        desired_indent = "".join(elem.raw for elem in template_line.indent_buffer)
+
+        # Make fixes
+        first_non_indent_i = len(this_line.indent_buffer)
+        current_anchor = this_line.line_buffer[first_non_indent_i]
+        fixes = self._coerce_indent_to(
+            desired_indent=desired_indent,
+            current_indent_buffer=this_line.indent_buffer,
+            current_anchor=current_anchor,
+        )
+        self.logger.debug(
+            f"    !! Indentation does not match #{template_line.line_no:02}."
+            " Fixes: %s",
+            fixes,
+        )
+        description = (
+            f"Indentation not consistent with line #{template_line.line_no:02}"
+        )
+        return LintResult(
+            anchor=trigger_segment,
+            memory=memory,
+            description=description,
+            # See above for logic
             fixes=fixes,
         )
 
