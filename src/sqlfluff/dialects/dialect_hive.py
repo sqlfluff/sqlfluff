@@ -307,6 +307,7 @@ class PrimitiveTypeSegment(BaseSegment):
         "DATE",
         "VARCHAR",
         "CHAR",
+        "JSON",
     )
 
 
