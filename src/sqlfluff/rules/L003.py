@@ -480,43 +480,19 @@ class Rule_L003(BaseRule):
             self.logger.debug(f"    Comment Line. #{this_line_no:02}")
             return LintResult(memory=memory)
 
-        last_line = _find_last_meaningful_line(line_summaries)
-        if len(line_summaries) > 0 and last_line:
-            # Let's just deal with hanging indents here.
-            if (
-                # NB: Hangers are only allowed if there was content after the last
-                # indent on the previous line. Otherwise it's just an indent.
-                this_line.indent_size == last_line.hanging_indent
-                # Or they're if the indent balance is the same and the indent is the
-                # same AND the previous line was a hanger
-                or (
-                    this_line.indent_size == last_line.indent_size
-                    and this_line.anchor_indent_balance
-                    == last_line.anchor_indent_balance
-                    and last_line.line_no in memory.hanging_lines
-                )
-            ) and (
-                # There MUST also be a non-zero indent. Otherwise we're just on the
-                # baseline.
-                this_line.indent_size
-                > 0
-            ):
-                # This is a HANGER
-                memory.hanging_lines.append(this_line_no)
-                self.logger.debug("    Hanger Line. #%s", this_line_no)
-                self.logger.debug("    Last Line: %s", last_line)
-                return LintResult(memory=memory)
+        hanger_res = self._handle_hanging_indents(this_line, line_summaries, memory)
+        if hanger_res:
+            return hanger_res
 
         # Is this an indented first line?
-        elif len(line_summaries) == 0:
-            if this_line.indent_size > 0:
-                self.logger.debug("    Indented First Line. #%s", this_line_no)
-                return LintResult(
-                    anchor=trigger_segment,
-                    memory=memory,
-                    description="First line has unexpected indent",
-                    fixes=[LintFix.delete(elem) for elem in this_line.indent_buffer],
-                )
+        if this_line.line_no == 1 and this_line.indent_size > 0:
+            self.logger.debug("    Indented First Line. #%s", this_line_no)
+            return LintResult(
+                anchor=trigger_segment,
+                memory=memory,
+                description="First line has unexpected indent",
+                fixes=[LintFix.delete(elem) for elem in this_line.indent_buffer],
+            )
 
         previous_line_numbers = sorted(line_summaries.keys(), reverse=True)
         # we will iterate this more than once
@@ -623,25 +599,17 @@ class Rule_L003(BaseRule):
 
                 # The default indent is the one just reconstructs it from
                 # the indent size.
-                default_indent = "".join(
+                desired_indent = "".join(
                     elem.raw for elem in prev_line.indent_buffer
                 ) + self._make_indent(
                     indent_unit=self.indent_unit,
                     tab_space_size=self.tab_space_size,
                     num=indent_diff,
                 )
-                # If we have a clean indent, we can just add steps in line
-                # with the difference in the indent buffers. simples.
-                if this_line.clean_indent:
-                    self.logger.debug("        Use clean indent.")
-                    desired_indent = default_indent
                 # If we have the option of a hanging indent then use it.
-                elif prev_line.hanging_indent:
+                if prev_line.hanging_indent:
                     self.logger.debug("        Use hanging indent.")
                     desired_indent = " " * prev_line.hanging_indent
-                else:  # pragma: no cover
-                    self.logger.debug("        Use default indent.")
-                    desired_indent = default_indent
 
                 fixes = self._coerce_indent_to(
                     desired_indent=desired_indent,
@@ -794,7 +762,7 @@ class Rule_L003(BaseRule):
 
                 if not anchor:  # pragma: no cover
                     continue
-                # Make fixes.
+
                 fixes += self._coerce_indent_to(
                     desired_indent="".join(
                         elem.raw for elem in this_line.indent_buffer
@@ -814,6 +782,44 @@ class Rule_L003(BaseRule):
             description="Comment not aligned with following line.",
             fixes=fixes,
         )
+
+    def _handle_hanging_indents(
+        self,
+        this_line: _LineSummary,
+        line_summaries: Dict[int, _LineSummary],
+        memory: _Memory,
+    ) -> Optional[LintResult]:
+        if len(line_summaries) == 0:
+            return None
+
+        last_line = _find_last_meaningful_line(line_summaries)
+        if not last_line:
+            return None
+        # Handle Hanging Indents
+        is_anchor_indent_match = (
+            this_line.anchor_indent_balance == last_line.anchor_indent_balance
+        )
+        is_end_indent_match = this_line.indent_size == last_line.indent_size
+        is_known_hanging_line = last_line.line_no in memory.hanging_lines
+        # There MUST also be a non-zero indent. Otherwise we're just on the
+        # baseline.
+        if not this_line.indent_size > 0:
+            return None
+
+        # NB: Hangers are only allowed if there was content after the last
+        # indent on the previous line. Otherwise it's just an indent.
+        is_hanging_match = this_line.indent_size == last_line.hanging_indent
+        # Or they're if the indent balance is the same and the indent is the
+        # same AND the previous line was a hanger
+        is_matching_previous = (
+            is_anchor_indent_match and is_end_indent_match and is_known_hanging_line
+        )
+        if not is_matching_previous and not is_hanging_match:
+            return None
+        memory.hanging_lines.append(this_line.line_no)
+        self.logger.debug(f"    Hanger Line. #{this_line.line_no:02}")
+        self.logger.debug("    Last Line: %s", last_line)
+        return LintResult(memory=memory)
 
     def _handle_template_blocks(
         self,
@@ -845,7 +851,7 @@ class Rule_L003(BaseRule):
                     continue
 
                 return template_line
-            return None
+            return None  # pragma: no cover
 
         template_line = _find_matching_start_line(previous_lines)
         # This Cant occur in valid code
@@ -860,7 +866,6 @@ class Rule_L003(BaseRule):
             f"    [template block end] Comparing to #{template_line.line_no:02}"
         )
         if this_line.indent_size == template_line.indent_size:
-            # All good.
             return LintResult(memory=memory)
 
         # Indents don't match even though balance is the same...
@@ -869,7 +874,6 @@ class Rule_L003(BaseRule):
         # The previous indent.
         desired_indent = "".join(elem.raw for elem in template_line.indent_buffer)
 
-        # Make fixes
         first_non_indent_i = len(this_line.indent_buffer)
         current_anchor = this_line.line_buffer[first_non_indent_i]
         fixes = self._coerce_indent_to(
@@ -889,7 +893,6 @@ class Rule_L003(BaseRule):
             anchor=trigger_segment,
             memory=memory,
             description=description,
-            # See above for logic
             fixes=fixes,
         )
 
