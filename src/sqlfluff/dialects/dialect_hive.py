@@ -139,6 +139,18 @@ hive_dialect.replace(
         NamedParser("single_quote", CodeSegment, name="quoted_literal", type="literal"),
         NamedParser("double_quote", CodeSegment, name="quoted_literal", type="literal"),
     ),
+    LiteralGrammar=OneOf(
+        Ref("QuotedLiteralSegment"),
+        Ref("NumericLiteralSegment"),
+        Ref("BooleanLiteralGrammar"),
+        Ref("QualifiedNumericLiteralSegment"),
+        # NB: Null is included in the literals, because it is a keyword which
+        # can otherwise be easily mistaken for an identifier.
+        Ref("NullLiteralSegment"),
+        Ref("DateTimeLiteralGrammar"),
+        Sequence(Ref("SimpleArrayTypeGrammar"), Ref("ArrayLiteralSegment")),
+    ),
+    SimpleArrayTypeGrammar=Ref.keyword("ARRAY"),
 )
 
 
@@ -350,6 +362,17 @@ class DatatypeSegment(BaseSegment):
                 bracket_pairs_set="angle_bracket_pairs",
                 bracket_type="angle",
             ),
+        ),
+        # array types
+        OneOf(
+            AnyNumberOf(
+                Bracketed(
+                    Ref("ExpressionSegment", optional=True), bracket_type="square"
+                )
+            ),
+            Ref("SimpleArrayTypeGrammar"),
+            Sequence(Ref("SimpleArrayTypeGrammar"), Ref("ArrayLiteralSegment")),
+            optional=True,
         ),
     )
 
