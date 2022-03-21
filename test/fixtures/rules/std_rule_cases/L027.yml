@@ -208,3 +208,15 @@ test_pass_column_and_alias_same_name_2_tsql:
   configs:
     core:
       dialect: tsql
+
+test_pass_rowtype_with_join:
+  # Wrongly interpret rowtype attributes as field alias
+  # when more than one tables in join
+  pass_str: |
+    select
+        cast(row(t1.attr, t2.attr) as row(fld1 double, fld2 double)) as flds
+    from sch.tab1 as t1
+    join sch.tab2 as t2 on t2.id = t1.id
+  configs:
+    core:
+      dialect: hive
