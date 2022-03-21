@@ -695,7 +695,7 @@ class FunctionSegment(BaseSegment):
             Bracketed(
                 Delimited(
                     Sequence(
-                        Ref("BaseExpressionElementGrammar"),
+                        Ref("SingleIdentifierGrammar"),
                         Ref("DatatypeIdentifierSegment", optional=True),
                     ),
                 ),
