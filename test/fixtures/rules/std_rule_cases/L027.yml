@@ -210,8 +210,8 @@ test_pass_column_and_alias_same_name_2_tsql:
       dialect: tsql
 
 test_pass_rowtype_with_join:
-  # Wrongly interpret rowtype attributes as field alias
-  # when more than one tables in join
+  # Check we don't wrongly interpret rowtype attributes
+  # as field alias when more than one tables in join
   pass_str: |
     select
         cast(row(t1.attr, t2.attr) as row(fld1 double, fld2 double)) as flds
