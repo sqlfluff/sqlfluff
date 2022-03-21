@@ -20,3 +20,7 @@ from sch.tbl;
 -- null
 select array['a', null] as arr
 from sch.tbl;
+
+-- empty array
+select array[] as arr
+from sch.tbl;
