@@ -197,7 +197,6 @@ class BaseGrammar(Matchable):
             `tuple` of (match_object, matcher).
 
         """
-
         terminated = False
 
         # Have we been passed an empty list?

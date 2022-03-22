@@ -6,11 +6,9 @@ https://docs.exasol.com/sql_references/sqlstandardcompliance.htm
 
 from sqlfluff.core.parser import (
     AnyNumberOf,
-    Anything,
     BaseSegment,
     Bracketed,
     OptionallyBracketed,
-    BaseFileSegment,
     Dedent,
     Delimited,
     GreedyUntil,
@@ -29,7 +27,6 @@ from sqlfluff.core.parser import (
     SymbolSegment,
     StringParser,
     RegexParser,
-    NewlineSegment,
 )
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser.segments.generator import SegmentGenerator
@@ -94,7 +91,8 @@ exasol_dialect.insert_lexer_matchers(
             # them. In future we may want to enhance this to actually parse them to
             # ensure they are valid meta commands.
             "meta_command",
-            r"(?s)(CREATE)[^;]*?(SCRIPT|FUNCTION|ADAPTER)[^;]*?((A|I)S).*?((\n/\n)|(\n/$))",
+            r"(?s)(CREATE)[^;]*?(SCRIPT|FUNCTION|ADAPTER)[^;]*?((A|I)S).*?",
+            r"((\n/\n)|(\n/$))",
             CommentSegment,
         ),
     ],

@@ -27,7 +27,7 @@ class MatchResult(
 
     @property
     def trimmed_matched_length(self) -> int:
-        """Return the length of the match in characters, ignoring surrounding whitespace."""
+        """Return the length of the match in characters, trimming whitespace."""
         _, segs, _ = trim_non_code_segments(self.matched_segments)
         return sum(seg.matched_length for seg in segs)
 
