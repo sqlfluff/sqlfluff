@@ -660,33 +660,10 @@ class Rule_L003(BaseRule):
                             ),
                         ],
                     )
-            elif this_indent_num < comp_indent_num:
-                memory.problem_lines.add(this_line_no)
-                return LintResult(
-                    anchor=trigger_segment,
-                    memory=memory,
-                    description=_Desc(
-                        expected=this_indent_num + 1,
-                        found=this_indent_num,
-                        compared_to=prev_line.line_no,
-                    ),
-                    fixes=[
-                        LintFix.create_before(
-                            trigger_segment,
-                            [
-                                WhitespaceSegment(
-                                    # Make the minimum indent for it to be ok.
-                                    raw=self._make_indent(
-                                        num=comp_indent_num - this_indent_num,
-                                        indent_unit=self.indent_unit,
-                                        tab_space_size=self.tab_space_size,
-                                    ),
-                                ),
-                            ],
-                        ),
-                    ],
-                )
-            elif this_indent_num > comp_indent_num + indent_diff:
+            elif (
+                this_indent_num < comp_indent_num
+                or this_indent_num > comp_indent_num + indent_diff
+            ):
                 memory.problem_lines.add(this_line_no)
                 desired_indent = self._make_indent(
                     num=comp_indent_num,
