@@ -249,17 +249,15 @@ class Rule_L003(BaseRule):
                 result_buffer[line_no] = current_line.from_current_line(
                     line_no, templated_file
                 )
+                # Set the "templated_line" if the newline that ended the *current* line
+                # was in templated space. Reason: We want to ignore indentation of lines
+                # not present in the raw (pre-templated) code.
                 current_line = _LineSummary(
                     indent_balance=current_line.indent_balance,
                     clean_indent=_is_clean_indent(current_line.line_buffer),
                     templated_line=elem.is_templated,
                 )
                 line_no += 1
-                # Set the "templated_line" flag for the *next* line if the
-                # newline that ended the *current* line was in templated space.
-                # Reason: We want to ignore indentation of lines that are not
-                # present in the raw (pre-templated) code.
-                current_line.templated_line = elem.is_templated
                 continue
 
             if current_line.line_anchor is None:
@@ -525,28 +523,32 @@ class Rule_L003(BaseRule):
             return LintResult(memory=memory)
         prev_line_no = prev_line.line_no
         indent_diff = this_line.anchor_indent_balance - prev_line.anchor_indent_balance
+        this_indent_num = this_line.indent_size // self.tab_space_size
+        comp_indent_num = prev_line.indent_size // self.tab_space_size
         # Is the indent balance the same?
         if indent_diff == 0:
             self.logger.debug(
-                f"    [same indent balance] Comparing to #{prev_line_no:02}"
+                "    [same indent balance] Comparing to #%s",
+                prev_line_no,
             )
             if this_line.indent_size != prev_line.indent_size:
                 # Indents don't match even though balance is the same...
                 memory.problem_lines.add(this_line_no)
 
                 # Work out desired indent
-                if prev_line.indent_size == 0:
-                    desired_indent = ""
-                elif this_line.indent_size == 0:
-                    desired_indent = self._make_indent(
-                        indent_unit=self.indent_unit,
-                        tab_space_size=self.tab_space_size,
-                    )
-                else:
-                    # The previous indent.
-                    desired_indent = "".join(
-                        elem.raw for elem in prev_line.indent_buffer
-                    )
+                desired_indent = self._make_indent(
+                    indent_unit=self.indent_unit,
+                    tab_space_size=self.tab_space_size,
+                    num=comp_indent_num,
+                )
+                # if prev_line.indent_size == 0:
+                #     desired_indent = ""
+                # elif this_line.indent_size == 0:
+                # else:
+                #     # The previous indent.
+                #     desired_indent = "".join(
+                #         elem.raw for elem in prev_line.indent_buffer
+                #     )
 
                 fixes = self._coerce_indent_to(
                     desired_indent=desired_indent,
@@ -554,19 +556,25 @@ class Rule_L003(BaseRule):
                     current_anchor=trigger_segment,
                 )
                 self.logger.debug(
-                    f"    !! Indentation does not match #{prev_line_no:02}. Fixes: %s",
+                    "    !! Indentation does not match #%s. Fixes: %s",
+                    prev_line_no,
                     fixes,
                 )
                 return LintResult(
                     anchor=trigger_segment,
                     memory=memory,
-                    description=f"Indentation not consistent with #{this_line_no:02}",
+                    description=_Desc(
+                        expected=comp_indent_num,
+                        found=this_indent_num,
+                        compared_to=prev_line.line_no,
+                    ),
                     fixes=fixes,
                 )
         # Are we at a deeper indent?
         elif indent_diff > 0:
             self.logger.debug(
-                f"    [deeper indent balance] Comparing to #{prev_line_no:02}"
+                "    [deeper indent balance] Comparing to #%s",
+                prev_line_no,
             )
             # NB: We shouldn't need to deal with correct hanging indents
             # here, they should already have been dealt with before. We
@@ -585,12 +593,10 @@ class Rule_L003(BaseRule):
 
                 # The default indent is the one just reconstructs it from
                 # the indent size.
-                desired_indent = "".join(
-                    elem.raw for elem in prev_line.indent_buffer
-                ) + self._make_indent(
+                desired_indent = self._make_indent(
                     indent_unit=self.indent_unit,
                     tab_space_size=self.tab_space_size,
-                    num=indent_diff,
+                    num=indent_diff + this_indent_num,
                 )
                 # If we have the option of a hanging indent then use it.
                 if prev_line.hanging_indent:
@@ -607,17 +613,11 @@ class Rule_L003(BaseRule):
                     memory=memory,
                     description=_Desc(
                         expected=len(desired_indent) // self.tab_space_size,
-                        found=this_line.indent_size // self.tab_space_size,
+                        found=this_indent_num,
                         compared_to=prev_line.line_no,
                     ),
                     fixes=fixes,
                 )
-
-            this_indent_num = this_line.indent_size // self.tab_space_size
-            # We know that the indent balance is higher, what actually is
-            # the difference in indent counts? It should be a whole number
-            # if we're still here.
-            comp_indent_num = prev_line.indent_size // self.tab_space_size
 
             # The indent number should be at least 1, and can be UP TO
             # and including the difference in the indent balance.
