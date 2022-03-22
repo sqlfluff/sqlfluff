@@ -50,7 +50,6 @@ class Rule_L033(BaseRule):
         """
         if context.dialect.name not in [
             "ansi",
-            "bigquery",
             "hive",
             "mysql",
             "redshift",
