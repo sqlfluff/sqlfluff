@@ -182,7 +182,7 @@ class BaseGrammar(Matchable):
     def _longest_trimmed_match(
         cls,
         segments: Tuple["BaseSegment", ...],
-        matchers,
+        matchers: List["MatchableType"],
         parse_context: ParseContext,
         trim_noncode=True,
         terminators: List["MatchableType"] = None,
