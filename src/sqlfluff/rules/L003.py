@@ -19,28 +19,31 @@ from sqlfluff.core.templaters.base import RawFileSlice
 class _LineSummary:
     """A dataobject to represent a line.
 
-    Doubles as a memory object (holding state)
-    that can be converted to a fresh summary instance
+    A _LineSummary is created and then filled with elements,
+    before calling self.from_current_line to generate a final
+    representation.
     """
 
     line_no: int = 0
-    templated_line: Optional[int] = None
     line_buffer: List[BaseSegment] = dataclasses.field(default_factory=list)
     indent_buffer: List[BaseSegment] = dataclasses.field(default_factory=list)
-    indent_size: int = 1
-
-    # The final balance of a line once fully considered
+    # As of end of line
     indent_balance: int = 0
-    # The indent as it was once we see this lines "Anchor"
+    # As it was as of the "Anchor" / first code elem
     anchor_indent_balance: int = 0
+    line_anchor: Optional[BaseSegment] = None
+
+    # Fixed calculated values
+    templated_line: Optional[int] = None
     hanging_indent: Optional[int] = None
+    indent_size: int = 1
     clean_indent: bool = True
     templated_line_type: Optional[str] = None
     is_comment_line: bool = False
     is_empty_line: bool = False
     has_code_segment: bool = False
-    line_anchor: Optional[BaseSegment] = None
-    # These are only required for carrying state between lines
+
+
     line_indent_stack: List[int] = dataclasses.field(default_factory=list)
     hanger_pos: Optional[int] = None
 
@@ -56,7 +59,7 @@ class _LineSummary:
             for key, value in self.__dict__.copy().items()
             if key not in keys_to_strip
         }
-
+        print_dict["raw_line"] = self.template_content
         return print_dict.__repr__()
 
     @property
@@ -68,7 +71,7 @@ class _LineSummary:
     def from_current_line(self, line_no: int, templated_file: Optional[TemplatedFile]):
         """Create a final summary from a memo/marker line."""
         copied_line_buffer = self.line_buffer[:]
-        # Generate our line summary based on the current state of the MemoLine
+        # Generate our final line summary based on the current state
         is_comment_line = all(
             seg.is_type(
                 "whitespace", "comment", "indent"  # dedent is a subtype of indent
@@ -137,19 +140,19 @@ def _is_clean_indent(prev_line_buffer: List[BaseSegment]):
 
 @dataclasses.dataclass
 class _Memory:
-    # problem_lines keeps track of lines with problems so that we
-    # don't compare to them.
     problem_lines: Set[int] = dataclasses.field(default_factory=set)
     # hanging_lines keeps track of hanging lines so that we don't
     # compare to them when assessing indent.
     hanging_lines: Set[int] = dataclasses.field(default_factory=set)
-    # comment_lines keeps track of lines which are all comment.
     comment_lines: Set[int] = dataclasses.field(default_factory=set)
-    # Dict of processed lines
     line_summaries: Dict[int, _LineSummary] = dataclasses.field(default_factory=dict)
 
     in_indent: bool = True
     trigger: Optional[BaseSegment] = None
+
+    @property
+    def noncomparable_lines(self):
+        return self.hanging_lines.union(self.problem_lines)
 
 
 @document_fix_compatible
@@ -453,14 +456,15 @@ class Rule_L003(BaseRule):
         this_line_no = max(line_summaries.keys())
         this_line: _LineSummary = line_summaries.pop(this_line_no)
         self.logger.debug(
-            "Evaluating line #{this_line_no:02}. %s",
+            "Evaluating line #%s. %s",
+            this_line_no,
             this_line,
         )
 
         if this_line.is_comment_line:
             # Comment line, deal with it later.
             memory.comment_lines.add(this_line_no)
-            self.logger.debug(f"    Comment Line. #{this_line_no:02}")
+            self.logger.debug("    Comment Line. #%s", this_line_no)
             return LintResult(memory=memory)
 
         previous_line_numbers = sorted(line_summaries.keys(), reverse=True)
@@ -516,7 +520,7 @@ class Rule_L003(BaseRule):
         prev_line = _find_previous_line(
             this_line,
             previous_lines,
-            memory.problem_lines.union(memory.hanging_lines),
+            memory.noncomparable_lines,
         )
 
         if not prev_line:
@@ -541,14 +545,6 @@ class Rule_L003(BaseRule):
                     tab_space_size=self.tab_space_size,
                     num=comp_indent_num,
                 )
-                # if prev_line.indent_size == 0:
-                #     desired_indent = ""
-                # elif this_line.indent_size == 0:
-                # else:
-                #     # The previous indent.
-                #     desired_indent = "".join(
-                #         elem.raw for elem in prev_line.indent_buffer
-                #     )
 
                 fixes = self._coerce_indent_to(
                     desired_indent=desired_indent,
@@ -803,7 +799,7 @@ class Rule_L003(BaseRule):
         if not is_matching_previous and not is_hanging_match:
             return None
         memory.hanging_lines.add(this_line.line_no)
-        self.logger.debug(f"    Hanger Line. #{this_line.line_no:02}")
+        self.logger.debug("    Hanger Line. #%s", this_line.line_no)
         self.logger.debug("    Last Line: %s", last_line)
         return LintResult(memory=memory)
 
@@ -843,23 +839,19 @@ class Rule_L003(BaseRule):
         # This Cant occur in valid code
         assert template_line, "TypeGuard"
 
-        # Is this a problem line?
-        if template_line.line_no in memory.problem_lines.union(memory.hanging_lines):
-            # Skip it if it is
+        if template_line.line_no in memory.noncomparable_lines:
             return LintResult(memory=memory)
 
         self.logger.debug(
-            f"    [template block end] Comparing to #{template_line.line_no:02}"
+            "    [template block end] Comparing to #%s", template_line.line_no
         )
         if this_line.indent_size == template_line.indent_size:
             return LintResult(memory=memory)
 
-        # Indents don't match even though balance is the same...
         memory.problem_lines.add(this_line.line_no)
 
         # The previous indent.
         desired_indent = "".join(elem.raw for elem in template_line.indent_buffer)
-
         first_non_indent_i = len(this_line.indent_buffer)
         current_anchor = this_line.line_buffer[first_non_indent_i]
         fixes = self._coerce_indent_to(
@@ -872,13 +864,14 @@ class Rule_L003(BaseRule):
             template_line.line_no,
             fixes,
         )
-        description = (
-            f"Indentation not consistent with line #{template_line.line_no:02}"
-        )
         return LintResult(
             anchor=trigger_segment,
             memory=memory,
-            description=description,
+            description=_Desc(
+                len(desired_indent) // self.tab_space_size,
+                this_line.indent_size,
+                template_line.line_no
+            ),
             fixes=fixes,
         )
 
