@@ -262,23 +262,13 @@ class _CTEBuilder:
         """Check CTEs and return used aliases."""
         used_names: List[str] = []
         for cte in self.ctes:
-            id_seg = self.get_identifier(cte)
+            id_seg = cte.get_identifier()
             cte_name = id_seg.raw
             if id_seg.is_name("quoted_identifier"):
                 cte_name = cte_name[1:-1]
 
             used_names.append(cte_name)
         return used_names
-
-    @staticmethod
-    def get_identifier(cte: BaseSegment) -> BaseSegment:
-        """Gets the identifier of this CTE.
-
-        Note: it blindly get the first identifier it finds
-        which given the structure of a CTE definition is
-        usually the right one.
-        """
-        return cte.get_child("identifier")
 
     def has_duplicate_aliases(self) -> bool:
         used_names = self.list_used_names()

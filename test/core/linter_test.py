@@ -926,6 +926,10 @@ def test_advanced_api_methods():
     linter = Linter()
     parsed = linter.parse_string(sql)
 
+    # CTEDefinitionSegment.get_identifier
+    cte_segment = next(parsed.tree.recursive_crawl("common_table_expression"))
+    assert cte_segment.get_identifier().raw == "cte"
+
     # BaseFileSegment.get_table_references & StatementSegment.get_table_references
     assert parsed.tree.get_table_references() == {"tab_a", "tab_b"}
 

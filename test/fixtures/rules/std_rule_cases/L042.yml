@@ -312,4 +312,4 @@ issue_2898_redshift_attribute_error:
     ON table1.join_column = temp3.join_column
   configs:
     core:
-      dialect: redshift
+      dialect: postgres
