@@ -687,7 +687,6 @@ class FunctionSegment(BaseSegment):
                 Delimited(
                     Sequence(
                         Ref("BaseExpressionElementGrammar"),
-                        Ref("DatatypeIdentifierSegment", optional=True),
                     ),
                 ),
             ),
@@ -697,7 +696,7 @@ class FunctionSegment(BaseSegment):
                 Delimited(
                     Sequence(
                         Ref("SingleIdentifierGrammar"),
-                        Ref("DatatypeIdentifierSegment", optional=True),
+                        Ref("DatatypeSegment", optional=True),
                     ),
                 ),
             ),
