@@ -87,19 +87,16 @@ exasol_dialect.insert_lexer_matchers(
             CodeSegment,
             segment_kwargs={"type": "walrus_operator"},
         ),
-        RegexLexer(
-            "function_script_terminator",
-            r"\n/\n|\n/$",
-            CodeSegment,
-            segment_kwargs={"type": "function_script_terminator"},
-            subdivider=RegexLexer(
-                "newline",
-                r"(\n|\r\n)+",
-                NewlineSegment,
-            ),
-        ),
         RegexLexer("atsign_literal", r"@[a-zA-Z_][\w]*", CodeSegment),
         RegexLexer("dollar_literal", r"[$][a-zA-Z0-9_.]*", CodeSegment),
+        RegexLexer(
+            # For now we'll just treat function syntax like comments and so just ignore
+            # them. In future we may want to enhance this to actually parse them to
+            # ensure they are valid meta commands.
+            "meta_command",
+            r"(?s)(CREATE)[^;]*?(SCRIPT|FUNCTION|ADAPTER)[^;]*?((A|I)S).*?((\n/\n)|(\n/$))",
+            CommentSegment,
+        )
     ],
     before="like_operator",
 )
@@ -203,9 +200,14 @@ exasol_dialect.add(
         Delimited(Ref("ColumnDatatypeSegment")),
         Ref("UDFParameterDotSyntaxSegment"),
     ),
-    FunctionScriptTerminatorSegment=NamedParser(
-        "function_script_terminator", CodeSegment, type="function_script_terminator"
-    ),
+    # FunctionScriptTerminatorSegment=SegmentGenerator(
+    #     lambda dialect: RegexParser(
+    #         r"\n/\n|\n/$",
+    #         SymbolSegment,
+    #         name="function_script_terminator",
+    #         type="function_script_terminator",
+    #     )
+    # ),
     WalrusOperatorSegment=NamedParser(
         "walrus_operator", SymbolSegment, type="assignment_operator"
     ),
@@ -3572,137 +3574,6 @@ class ScriptReferenceSegment(
 
 
 @exasol_dialect.segment()
-class ScriptContentSegment(BaseSegment):
-    """This represents the script content.
-
-    Because the script content could be written in
-    LUA, PYTHON, JAVA or R there is no further verification.
-    """
-
-    type = "script_content"
-    match_grammar = OneOf(Anything(), exclude=Ref("FunctionScriptTerminatorSegment"))
-
-
-@exasol_dialect.segment()
-class CreateScriptingLuaScriptStatementSegment(BaseSegment):
-    """`CREATE SCRIPT` statement to create a Lua scripting script.
-
-    https://docs.exasol.com/sql/create_script.htm
-    """
-
-    type = "create_scripting_lua_script"
-
-    is_ddl = True
-    is_dml = False
-    is_dql = False
-    is_dcl = False
-
-    match_grammar = Sequence(
-        "CREATE",
-        Ref("OrReplaceGrammar", optional=True),
-        Ref.keyword("LUA", optional=True),
-        "SCRIPT",
-        Ref("ScriptReferenceSegment"),
-        Bracketed(
-            Delimited(
-                Sequence(
-                    Ref.keyword("ARRAY", optional=True), Ref("SingleIdentifierGrammar")
-                ),
-                optional=True,
-            ),
-            optional=True,
-        ),
-        Sequence(Ref.keyword("RETURNS"), OneOf("TABLE", "ROWCOUNT"), optional=True),
-        "AS",
-        Indent,
-        Ref("ScriptContentSegment"),
-        Dedent,
-    )
-
-
-@exasol_dialect.segment()
-class CreateUDFScriptStatementSegment(BaseSegment):
-    """`CREATE SCRIPT` statement create a UDF script.
-
-    https://docs.exasol.com/sql/create_script.htm
-    """
-
-    type = "create_udf_script"
-
-    is_ddl = True
-    is_dml = False
-    is_dql = False
-    is_dcl = False
-
-    match_grammar = StartsWith(
-        Sequence(
-            "CREATE",
-            Ref("OrReplaceGrammar", optional=True),
-            OneOf(
-                "JAVA",
-                "PYTHON",
-                "LUA",
-                "R",
-                Ref("SingleIdentifierGrammar"),
-                optional=True,
-            ),
-            OneOf("SCALAR", "SET"),
-            "SCRIPT",
-        )
-    )
-    parse_grammar = Sequence(
-        "CREATE",
-        Ref("OrReplaceGrammar", optional=True),
-        OneOf(
-            "JAVA", "PYTHON", "LUA", "R", Ref("SingleIdentifierGrammar"), optional=True
-        ),
-        OneOf("SCALAR", "SET"),
-        "SCRIPT",
-        Ref("ScriptReferenceSegment"),
-        Bracketed(
-            Sequence(
-                Ref("UDFParameterGrammar"),
-                Ref("OrderByClauseSegment", optional=True),
-                optional=True,
-            ),
-        ),
-        OneOf(Sequence("RETURNS", Ref("DatatypeSegment")), Ref("EmitsSegment")),
-        "AS",
-        Indent,
-        Ref("ScriptContentSegment"),
-        Dedent,
-    )
-
-
-@exasol_dialect.segment()
-class CreateAdapterScriptStatementSegment(BaseSegment):
-    """`CREATE SCRIPT` statement create a adapter script.
-
-    https://docs.exasol.com/sql/create_script.htm
-    """
-
-    type = "create_adapter_script"
-
-    is_ddl = True
-    is_dml = False
-    is_dql = False
-    is_dcl = False
-
-    match_grammar = Sequence(
-        "CREATE",
-        Ref("OrReplaceGrammar", optional=True),
-        OneOf("JAVA", "PYTHON", "LUA", Ref("SingleIdentifierGrammar")),
-        "ADAPTER",
-        "SCRIPT",
-        Ref("ScriptReferenceSegment"),
-        "AS",
-        Indent,
-        Ref("ScriptContentSegment"),
-        Dedent,
-    )
-
-
-@exasol_dialect.segment()
 class DropScriptStatementSegment(BaseSegment):
     """A `DROP SCRIPT` statement.
 
@@ -3730,20 +3601,6 @@ class DropScriptStatementSegment(BaseSegment):
 ############################
 # DIALECT
 ############################
-@exasol_dialect.segment()
-class FunctionScriptStatementSegment(BaseSegment):
-    """A generic segment, to any of its child subsegments."""
-
-    type = "statement"
-
-    match_grammar = OneOf(
-        Ref("CreateFunctionStatementSegment"),
-        Ref("CreateScriptingLuaScriptStatementSegment"),
-        Ref("CreateUDFScriptStatementSegment"),
-        Ref("CreateAdapterScriptStatementSegment"),
-        exclude=Ref("FunctionScriptTerminatorSegment"),
-    )
-
 
 @exasol_dialect.segment(replace=True)
 class StatementSegment(BaseSegment):
@@ -3751,9 +3608,7 @@ class StatementSegment(BaseSegment):
 
     type = "statement"
 
-    match_grammar = GreedyUntil(
-        OneOf(Ref("DelimiterSegment"), Ref("FunctionScriptTerminatorSegment"))
-    )
+    match_grammar = GreedyUntil(Ref("DelimiterSegment"))
 
     parse_grammar = OneOf(
         # Data Query Language (DQL)
@@ -3810,26 +3665,6 @@ class StatementSegment(BaseSegment):
         # Others
         Ref("TransactionStatementSegment"),
         Ref("ExecuteScriptSegment"),
-        exclude=OneOf(Ref("DelimiterSegment"), Ref("FunctionScriptTerminatorSegment")),
-    )
-
-
-@exasol_dialect.segment(replace=True)
-class FileSegment(BaseFileSegment):
-    """This overwrites the FileSegment from ANSI.
-
-    The reason is because SCRIPT and FUNCTION statements
-    are terminated by a trailing / at the end.
-    A semicolon is the terminator of the statement within the function / script
-    """
-
-    parse_grammar = Sequence(
-        AnyNumberOf(
-            Ref("FunctionScriptStatementSegment"),
-            Sequence(Ref("StatementSegment"), Ref("DelimiterSegment")),
-            Ref("FunctionScriptTerminatorSegment"),
-        ),
-        Ref("StatementSegment", optional=True),
     )
 
 

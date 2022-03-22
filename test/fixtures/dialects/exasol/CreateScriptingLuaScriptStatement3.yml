@@ -3,54 +3,5 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 974e2e6b6a373b52501a90129dbc0866997f2ae51fbf8e6a9691f15d0002a820
-file:
-  statement:
-    create_scripting_lua_script:
-    - keyword: CREATE
-    - keyword: SCRIPT
-    - script_reference:
-        identifier: insert_low_high
-    - bracketed:
-      - start_bracket: (
-      - identifier: param1
-      - comma: ','
-      - identifier: param2
-      - comma: ','
-      - identifier: param3
-      - end_bracket: )
-    - keyword: AS
-    - script_content:
-      - raw: import
-      - raw: (
-      - raw: "'function_lib'"
-      - raw: )
-      - raw: lowest
-      - comma: ','
-      - raw: highest
-      - raw: '='
-      - raw: function_lib
-      - raw: .
-      - raw: min_max
-      - raw: (
-      - raw: param1
-      - comma: ','
-      - raw: param2
-      - comma: ','
-      - raw: param3
-      - raw: )
-      - raw: query
-      - raw: (
-      - raw: '[[INSERT INTO t VALUES (:x, :y)]]'
-      - comma: ','
-      - raw: '{'
-      - raw: x
-      - raw: '='
-      - raw: lowest
-      - comma: ','
-      - raw: y
-      - raw: '='
-      - raw: highest
-      - raw: '}'
-      - raw: )
-      - function_script_terminator: /
+_hash: fdda373cd9cd649f82a9c5cf7ba9e290375c0ceae29477b0bad5a25f24a52ae3
+file: null

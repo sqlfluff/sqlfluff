@@ -3,44 +3,5 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ff76c11ade3b23b10fecdf943d3e6b4946917a29108104dfccf9b79476f60ba3
-file:
-  statement:
-    create_udf_script:
-    - keyword: CREATE
-    - binary_operator: OR
-    - keyword: REPLACE
-    - keyword: JAVA
-    - keyword: SCALAR
-    - keyword: SCRIPT
-    - script_reference:
-      - identifier: LIB
-      - dot: .
-      - identifier: MYLIB
-    - bracketed:
-        start_bracket: (
-        end_bracket: )
-    - keyword: RETURNS
-    - data_type:
-        keyword: VARCHAR
-        bracketed:
-          start_bracket: (
-          literal: '2000'
-          end_bracket: )
-    - keyword: AS
-    - script_content:
-      - raw: class
-      - raw: MYLIB
-      - raw: '{'
-      - raw: static
-      - raw: String
-      - raw: helloWorld
-      - raw: (
-      - raw: )
-      - raw: '{'
-      - raw: return
-      - raw: '"Hello Java World!"'
-      - raw: ;
-      - raw: '}'
-      - raw: '}'
-      - function_script_terminator: /
+_hash: fdda373cd9cd649f82a9c5cf7ba9e290375c0ceae29477b0bad5a25f24a52ae3
+file: null

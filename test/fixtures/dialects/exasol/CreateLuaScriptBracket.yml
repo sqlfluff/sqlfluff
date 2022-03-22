@@ -3,40 +3,5 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9171076faff80dca1f300705480856c8cb4840f393068efbedcff39eaf47f3f3
-file:
-  statement:
-    create_scripting_lua_script:
-    - keyword: CREATE
-    - binary_operator: OR
-    - keyword: REPLACE
-    - keyword: LUA
-    - keyword: SCRIPT
-    - script_reference:
-      - identifier: BRACKET
-      - dot: .
-      - identifier: SCRIPT_EXAMPLE
-    - keyword: RETURNS
-    - keyword: ROWCOUNT
-    - keyword: AS
-    - script_content:
-      - raw: local
-      - raw: _stmt
-      - raw: '='
-      - raw: '[[SOME ASSIGNMENT WITH OPEN BRACKET ( ]]'
-      - raw: x
-      - raw: '='
-      - raw: '1'
-      - raw: local
-      - raw: _stmt
-      - raw: '='
-      - raw: _stmt
-      - raw: ..
-      - raw: '[[ ) ]]'
-      - raw: local
-      - raw: _nsted
-      - raw: '='
-      - raw: '[=[one ([[two]] one]=]'
-      - raw: return
-      - raw: '1'
-      - function_script_terminator: /
+_hash: fdda373cd9cd649f82a9c5cf7ba9e290375c0ceae29477b0bad5a25f24a52ae3
+file: null

@@ -3,33 +3,5 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f0540463bbb729c56ae9cccc6a9fb48370c47d31cadbda47006bdea6f0b91887
-file:
-  statement:
-    create_udf_script:
-    - keyword: CREATE
-    - binary_operator: OR
-    - keyword: REPLACE
-    - identifier: PYTHON3
-    - keyword: SCALAR
-    - keyword: SCRIPT
-    - script_reference:
-      - identifier: LIB
-      - dot: .
-      - identifier: MYLIB
-    - bracketed:
-        start_bracket: (
-        end_bracket: )
-    - keyword: RETURNS
-    - data_type:
-        keyword: INT
-    - keyword: AS
-    - script_content:
-      - raw: def
-      - raw: helloWorld
-      - raw: (
-      - raw: )
-      - raw: ':'
-      - raw: return
-      - raw: '"Hello Python3 World!"'
-      - function_script_terminator: /
+_hash: fdda373cd9cd649f82a9c5cf7ba9e290375c0ceae29477b0bad5a25f24a52ae3
+file: null
