@@ -299,6 +299,18 @@ class QualifyClauseSegment(BaseSegment):
 
 
 @bigquery_dialect.segment(replace=True)
+class SetOperatorSegment(BaseSegment):
+    """A set operator such as Union, Minus, Except or Intersect."""
+
+    type = "set_operator"
+    match_grammar = OneOf(
+        Sequence("UNION", OneOf("DISTINCT", "ALL", optional=True)),
+        Sequence("INTERSECT", "DISTINCT"),
+        Sequence("EXCEPT", "DISTINCT"),
+    )
+
+
+@bigquery_dialect.segment(replace=True)
 class SelectStatementSegment(BaseSegment):
     """Enhance `SELECT` statement to include QUALIFY."""
 
