@@ -300,11 +300,14 @@ class QualifyClauseSegment(BaseSegment):
 
 @bigquery_dialect.segment(replace=True)
 class SetOperatorSegment(BaseSegment):
-    """A set operator such as Union, Minus, Except or Intersect."""
+    """A set operator UNION, INTERSECT or EXCEPT.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax#set_operators
+    """
 
     type = "set_operator"
     match_grammar = OneOf(
-        Sequence("UNION", OneOf("DISTINCT", "ALL", optional=True)),
+        Sequence("UNION", OneOf("DISTINCT", "ALL")),
         Sequence("INTERSECT", "DISTINCT"),
         Sequence("EXCEPT", "DISTINCT"),
     )
