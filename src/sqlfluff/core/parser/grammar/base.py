@@ -185,7 +185,7 @@ class BaseGrammar(Matchable):
         matchers,
         parse_context: ParseContext,
         trim_noncode=True,
-        terminators: List["MatchableType"]=None,
+        terminators: List["MatchableType"] = None,
     ) -> Tuple[MatchResult, Optional["MatchableType"]]:
         """Return longest match from a selection of matchers.
 
@@ -234,7 +234,9 @@ class BaseGrammar(Matchable):
 
                     if terminators:
 
-                        _, segs, _ = trim_non_code_segments(best_match[0].unmatched_segments)
+                        _, segs, _ = trim_non_code_segments(
+                            best_match[0].unmatched_segments
+                        )
                         for terminator in terminators:
                             terminator_match: MatchResult = terminator.match(
                                 segs, parse_context=parse_context

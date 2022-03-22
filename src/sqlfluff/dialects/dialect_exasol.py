@@ -96,7 +96,7 @@ exasol_dialect.insert_lexer_matchers(
             "meta_command",
             r"(?s)(CREATE)[^;]*?(SCRIPT|FUNCTION|ADAPTER)[^;]*?((A|I)S).*?((\n/\n)|(\n/$))",
             CommentSegment,
-        )
+        ),
     ],
     before="like_operator",
 )
@@ -3601,6 +3601,7 @@ class DropScriptStatementSegment(BaseSegment):
 ############################
 # DIALECT
 ############################
+
 
 @exasol_dialect.segment(replace=True)
 class StatementSegment(BaseSegment):
