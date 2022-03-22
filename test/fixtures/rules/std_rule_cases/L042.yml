@@ -289,3 +289,27 @@ uses_templating:
             {{"mrgn"}} AS margin
         FROM b_tbl
     ) AS b_table ON a_table.some_column = b_table.some_column
+
+issue_2898_redshift_attribute_error:
+  fail_str: |
+    INSERT INTO target_table (target_column)
+    SELECT table1.column1
+    FROM table1
+    INNER JOIN (
+        SELECT table2.join_column
+        FROM table2
+    ) AS temp3
+    ON table1.join_column = temp3.join_column
+  fix_str: |
+    INSERT INTO target_table (target_column)
+    WITH temp3 AS (
+        SELECT table2.join_column
+        FROM table2
+    )
+    SELECT table1.column1
+    FROM table1
+    INNER JOIN temp3
+    ON table1.join_column = temp3.join_column
+  configs:
+    core:
+      dialect: redshift
