@@ -5,8 +5,7 @@ select
 from foo.bar
 where
 split(foo, '|')[2] REGEXP '^\\d+\\-\\d+\\-\\d+ \\d+\\:\\d+$'
-OR
-foo IN ('BAR','FOO')
+OR foo IN ('BAR','FOO')
 ) as src
 on
   src.foo = tgt.foo

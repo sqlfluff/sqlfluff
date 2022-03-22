@@ -53,7 +53,7 @@ def invoke_assert_code(
 
 
 expected_output = """== [test/fixtures/linter/indentation_error_simple.sql] FAIL
-L:   2 | P:   4 | L003 | Indentation not hanging or a multiple of 4 spaces
+L:   2 | P:   4 | L003 | Expected 1 indentations, found 0 [compared to L#01]
 L:   5 | P:  10 | L010 | Keywords must be consistently upper case.
 L:   5 | P:  13 | L031 | Avoid aliases in from clauses and join conditions.
 """
@@ -74,7 +74,7 @@ def test__cli__command_directed():
     # We should get a readout of what the error was
     check_a = "L:   2 | P:   4 | L003"
     # NB: Skip the number at the end because it's configurable
-    check_b = "Indentation"
+    check_b = "ndentation"
     assert check_a in result.output
     assert check_b in result.output
     # Finally check the WHOLE output to make sure that unexpected newlines are not
