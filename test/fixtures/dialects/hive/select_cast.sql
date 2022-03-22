@@ -1,4 +1,5 @@
-select cast(row(val1, val2) as row(a bigint, b varchar))
+select
+    cast(row(col1, col2) as row(a bigint, b decimal(23, 2)))
 from sch.tbl;
 
 select cast(a as json)
