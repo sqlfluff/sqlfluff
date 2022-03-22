@@ -208,10 +208,6 @@ class Rule_L003(BaseRule):
         )
 
     @staticmethod
-    def _segment_length(elem: BaseSegment, tab_space_size: int):
-        return _segment_length(elem, tab_space_size)
-
-    @staticmethod
     def _indent_size(segments: Sequence[BaseSegment], tab_space_size: int = 4) -> int:
         return _indent_size(segments, tab_space_size)
 
