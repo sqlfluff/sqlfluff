@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 02cfdfc467bb4931a53608c39e14474cf8ea8f9e432a1bb4a2e7b1baa7a32f7f
+_hash: 07e39498149b03b49c1e841d2d8cb9e6b756c751ca37624e08aa0f0f9c696241
 file:
 - statement:
     create_table_statement:
@@ -186,10 +186,12 @@ file:
         - keyword: KEY
         - bracketed:
             start_bracket: (
-            column_reference:
-              identifier: 'no'
+            expression:
+              column_reference:
+                identifier: 'no'
             end_bracket: )
-        - comma: ','
+      - comma: ','
+      - table_constraint:
         - keyword: FOREIGN
         - keyword: KEY
         - bracketed:
@@ -217,7 +219,8 @@ file:
         - keyword: 'ON'
         - keyword: DELETE
         - keyword: RESTRICT
-        - comma: ','
+      - comma: ','
+      - table_constraint:
         - keyword: FOREIGN
         - keyword: KEY
         - bracketed:
@@ -274,13 +277,15 @@ file:
           - column_reference:
               identifier: tag_id
           - end_bracket: )
-        - comma: ','
+      - comma: ','
+      - table_constraint:
         - keyword: FOREIGN
         - keyword: KEY
         - bracketed:
             start_bracket: (
-            column_reference:
-              identifier: source_id
+            expression:
+              column_reference:
+                identifier: source_id
             end_bracket: )
         - keyword: REFERENCES
         - column_reference:
@@ -293,7 +298,8 @@ file:
         - keyword: 'ON'
         - keyword: DELETE
         - keyword: CASCADE
-        - comma: ','
+      - comma: ','
+      - table_constraint:
         - keyword: FOREIGN
         - keyword: KEY
         - bracketed:

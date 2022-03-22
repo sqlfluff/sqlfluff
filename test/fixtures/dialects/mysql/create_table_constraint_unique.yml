@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ffca7e21bc04955a91d509db3d3eb4b14130c474887ce6006406c407a032995e
+_hash: 2a461692811ad1b011d37d3a66002a6b1993994fea82550bf86b35ed37834118
 file:
   statement:
     create_table_statement:
@@ -12,40 +12,45 @@ file:
     - table_reference:
         identifier: a
     - bracketed:
-        start_bracket: (
-        column_definition:
+      - start_bracket: (
+      - column_definition:
           identifier: a
           data_type:
             data_type_identifier: INT
           column_constraint_segment:
           - keyword: NOT
           - keyword: 'NULL'
-        comma: ','
-        table_constraint:
-        - keyword: UNIQUE
-        - bracketed:
+      - comma: ','
+      - table_constraint:
+          keyword: UNIQUE
+          bracketed:
             start_bracket: (
             column_reference:
               identifier: a
             end_bracket: )
-        - comma: ','
-        - keyword: UNIQUE
-        - object_reference:
+      - comma: ','
+      - table_constraint:
+          keyword: UNIQUE
+          object_reference:
             identifier: idx_c
-        - bracketed:
+          bracketed:
             start_bracket: (
-            column_reference:
-              identifier: a
+            expression:
+              column_reference:
+                identifier: a
             end_bracket: )
-        - comma: ','
+      - comma: ','
+      - table_constraint:
         - keyword: UNIQUE
         - keyword: KEY
         - bracketed:
             start_bracket: (
-            column_reference:
-              identifier: a
+            expression:
+              column_reference:
+                identifier: a
             end_bracket: )
-        - comma: ','
+      - comma: ','
+      - table_constraint:
         - keyword: UNIQUE
         - keyword: KEY
         - object_reference:
@@ -55,15 +60,18 @@ file:
             column_reference:
               identifier: a
             end_bracket: )
-        - comma: ','
+      - comma: ','
+      - table_constraint:
         - keyword: UNIQUE
         - keyword: INDEX
         - bracketed:
             start_bracket: (
-            column_reference:
-              identifier: a
+            expression:
+              column_reference:
+                identifier: a
             end_bracket: )
-        - comma: ','
+      - comma: ','
+      - table_constraint:
         - keyword: UNIQUE
         - keyword: INDEX
         - object_reference:
@@ -73,4 +81,4 @@ file:
             column_reference:
               identifier: a
             end_bracket: )
-        end_bracket: )
+      - end_bracket: )

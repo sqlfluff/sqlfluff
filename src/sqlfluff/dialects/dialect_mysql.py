@@ -457,7 +457,7 @@ class TableConstraintSegment(BaseSegment):
         Sequence(  # [ CONSTRAINT <Constraint name> ]
             "CONSTRAINT", Ref("ObjectReferenceSegment"), optional=True
         ),
-        Delimited(
+        OneOf(
             Sequence(  # UNIQUE [INDEX | KEY] [index_name] ( column_name [, ... ] )
                 "UNIQUE",
                 OneOf("INDEX", "KEY", optional=True),
