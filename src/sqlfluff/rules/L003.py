@@ -43,7 +43,6 @@ class _LineSummary:
     is_empty_line: bool = False
     has_code_segment: bool = False
 
-
     line_indent_stack: List[int] = dataclasses.field(default_factory=list)
     hanger_pos: Optional[int] = None
 
@@ -870,7 +869,7 @@ class Rule_L003(BaseRule):
             description=_Desc(
                 len(desired_indent) // self.tab_space_size,
                 this_line.indent_size,
-                template_line.line_no
+                template_line.line_no,
             ),
             fixes=fixes,
         )
