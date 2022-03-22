@@ -1,7 +1,7 @@
 """Implementation of Rule L003."""
 import dataclasses
 import itertools
-from typing import Dict, List, Optional, Sequence, Tuple
+from typing import Dict, List, Optional, Sequence, Set, Tuple
 
 from sqlfluff.core.parser import WhitespaceSegment
 from sqlfluff.core.parser.segments import BaseSegment
@@ -38,6 +38,7 @@ class _LineSummary:
     templated_line_type: Optional[str] = None
     is_comment_line: bool = False
     is_empty_line: bool = False
+    has_code_segment: bool = False
     line_anchor: Optional[BaseSegment] = None
     # These are only required for carrying state between lines
     line_indent_stack: List[int] = dataclasses.field(default_factory=list)
@@ -64,21 +65,7 @@ class _LineSummary:
             seg.raw or getattr(seg, "source_str", "") for seg in self.line_buffer
         )
 
-    def memory_line_reset(self):
-        """When acting like a MemoryLine this resets state."""
-        self.templated_line = False
-        self.indent_buffer = []
-        # N.B the clean indent depends on the buffer of the line just pased
-        self.clean_indent = _is_clean_indent(self.line_buffer)
-        self.line_buffer = []
-        self.line_indent_stack = []
-        self.indent_size = 0
-        self.hanger_pos = None
-        self.line_anchor = None
-        self.templated_line_type = None
-        return self
-
-    def from_memo_line(self, line_no: int, templated_file: Optional[TemplatedFile]):
+    def from_current_line(self, line_no: int, templated_file: Optional[TemplatedFile]):
         """Create a final summary from a memo/marker line."""
         copied_line_buffer = self.line_buffer[:]
         # Generate our line summary based on the current state of the MemoLine
@@ -88,13 +75,15 @@ class _LineSummary:
             )
             for seg in copied_line_buffer
         )
-        is_empty_line = not any(
-            elem.is_code or elem.is_type("placeholder") for elem in copied_line_buffer
+        has_code_segment = any(elem.is_code for elem in copied_line_buffer)
+        has_placeholder = any(
+            elem.is_type("placeholder") for elem in copied_line_buffer
         )
+        is_empty_line = not has_code_segment and not has_placeholder
+
         line_summary = self.__class__(
             line_no=line_no,
             templated_line=self.templated_line,
-            # Using slicing to copy line_buffer here to be py2 compliant
             line_buffer=copied_line_buffer,
             indent_buffer=self.indent_buffer,
             indent_size=self.indent_size,
@@ -110,9 +99,8 @@ class _LineSummary:
             ),
             is_comment_line=is_comment_line,
             is_empty_line=is_empty_line,
+            has_code_segment=has_code_segment,
         )
-        # Rest this object so it can continue to be used to track current state
-        self.memory_line_reset()
         return line_summary
 
     def set_state_as_of_anchor(
@@ -129,19 +117,6 @@ class _LineSummary:
         self.line_anchor = anchor
 
         return self
-
-
-def _copy_line_summary(line: _LineSummary) -> _LineSummary:
-    new_line = _LineSummary(**line.__dict__.copy())
-    list_keys = [
-        "line_buffer",
-        "indent_buffer",
-        "line_indent_stack",
-    ]
-    for key in list_keys:
-        el = new_line.__getattribute__(key)
-        new_line.__setattr__(key, el[:])
-    return new_line
 
 
 def _is_clean_indent(prev_line_buffer: List[BaseSegment]):
@@ -164,12 +139,12 @@ def _is_clean_indent(prev_line_buffer: List[BaseSegment]):
 class _Memory:
     # problem_lines keeps track of lines with problems so that we
     # don't compare to them.
-    problem_lines: List[int] = dataclasses.field(default_factory=list)
+    problem_lines: Set[int] = dataclasses.field(default_factory=set)
     # hanging_lines keeps track of hanging lines so that we don't
     # compare to them when assessing indent.
-    hanging_lines: List[int] = dataclasses.field(default_factory=list)
+    hanging_lines: Set[int] = dataclasses.field(default_factory=set)
     # comment_lines keeps track of lines which are all comment.
-    comment_lines: List[int] = dataclasses.field(default_factory=list)
+    comment_lines: Set[int] = dataclasses.field(default_factory=set)
     # Dict of processed lines
     line_summaries: Dict[int, _LineSummary] = dataclasses.field(default_factory=dict)
 
@@ -248,60 +223,68 @@ class Rule_L003(BaseRule):
     ) -> Dict[int, _LineSummary]:
         """Take the raw stack, split into lines and evaluate some stats."""
         result_buffer: Dict[int, _LineSummary] = memory.line_summaries
-        memo_size = len(result_buffer)
-        memo_line = (
-            _copy_line_summary(result_buffer[memo_size])
-            if memo_size
-            else _LineSummary()
-        )
-        memo_line.memory_line_reset()
+        cached_line_count = len(result_buffer)
+        starting_indent_balance = 0
+        if cached_line_count:
+            starting_indent_balance = result_buffer[cached_line_count].indent_balance
+
+        current_line = _LineSummary(indent_balance=starting_indent_balance)
         line_no = 1
-        started = line_no == (memo_size + 1)
+        started = line_no == (cached_line_count + 1)
         for elem in raw_stack:
             is_newline = elem.is_type("newline")
             # the below line act to reduce recalculation
             if not started:
                 if is_newline:
                     line_no += 1
-                started = line_no == (memo_size + 1)
+                started = line_no == (cached_line_count + 1)
                 continue
 
-            memo_line.line_buffer.append(elem)
+            current_line.line_buffer.append(elem)
             # Pin indent_balance to above zero
-            if memo_line.indent_balance < 0:
-                memo_line.indent_balance = 0
+            if current_line.indent_balance < 0:
+                current_line.indent_balance = 0
 
             if is_newline:
-                result_buffer[line_no] = memo_line.from_memo_line(
+                result_buffer[line_no] = current_line.from_current_line(
                     line_no, templated_file
+                )
+                current_line = _LineSummary(
+                    indent_balance=current_line.indent_balance,
+                    clean_indent=_is_clean_indent(current_line.line_buffer),
+                    templated_line=elem.is_templated,
                 )
                 line_no += 1
                 # Set the "templated_line" flag for the *next* line if the
                 # newline that ended the *current* line was in templated space.
                 # Reason: We want to ignore indentation of lines that are not
                 # present in the raw (pre-templated) code.
-                memo_line.templated_line = elem.is_templated
+                current_line.templated_line = elem.is_templated
                 continue
 
-            if memo_line.line_anchor is None:
-                memo_line = cls._process_pre_anchor(elem, memo_line, tab_space_size)
+            if current_line.line_anchor is None:
+                current_line = cls._process_pre_anchor(
+                    elem, current_line, tab_space_size
+                )
                 # If we hit the trigger element, stop processing.
                 if elem is memory.trigger:
                     break
                 continue
 
             if elem.is_meta and elem.indent_val != 0:  # type: ignore
-                memo_line = cls._process_line_indents(elem, memo_line, tab_space_size)
+                current_line = cls._process_line_indents(
+                    elem, current_line, tab_space_size
+                )
                 continue
 
-            elif elem.is_code and memo_line.hanger_pos is None:
-                memo_line.hanger_pos = cls._indent_size(
-                    memo_line.line_buffer[:-1], tab_space_size=tab_space_size
+            elif elem.is_code and current_line.hanger_pos is None:
+                current_line.hanger_pos = cls._indent_size(
+                    current_line.line_buffer[:-1], tab_space_size=tab_space_size
                 )
 
         # If we get to the end, and still have a buffer, add it on
-        if memo_line.line_buffer:
-            result_buffer[line_no] = memo_line.from_memo_line(
+        if current_line.line_buffer:
+            result_buffer[line_no] = current_line.from_current_line(
                 line_no,
                 templated_file,
             )
@@ -311,44 +294,46 @@ class Rule_L003(BaseRule):
     def _process_line_indents(
         cls,
         elem: BaseSegment,
-        memo_line: _LineSummary,
+        current_line: _LineSummary,
         tab_space_size: int,
     ) -> _LineSummary:
-        memo_line.indent_balance += elem.indent_val  # type: ignore
+        current_line.indent_balance += elem.indent_val  # type: ignore
         if elem.indent_val > 0:  # type: ignore
             # Keep track of the indent at the last ... indent
-            memo_line.line_indent_stack.append(
-                cls._indent_size(memo_line.line_buffer, tab_space_size=tab_space_size)
+            current_line.line_indent_stack.append(
+                cls._indent_size(
+                    current_line.line_buffer, tab_space_size=tab_space_size
+                )
             )
-            memo_line.hanger_pos = None
-            return memo_line
+            current_line.hanger_pos = None
+            return current_line
         # this is a dedent, we could still have a hanging indent,
         # but only if there's enough on the stack
-        if memo_line.line_indent_stack:
-            memo_line.line_indent_stack.pop()
-        return memo_line
+        if current_line.line_indent_stack:
+            current_line.line_indent_stack.pop()
+        return current_line
 
     @classmethod
     def _process_pre_anchor(
         cls,
         elem: BaseSegment,
-        memo_line: _LineSummary,
+        current_line: _LineSummary,
         tab_space_size: int,
     ) -> _LineSummary:
         if elem.is_whitespace:
-            memo_line.indent_buffer.append(elem)
-            return memo_line
+            current_line.indent_buffer.append(elem)
+            return current_line
         if elem.is_meta and elem.indent_val != 0:  # type: ignore
-            memo_line.indent_balance += elem.indent_val  # type: ignore
+            current_line.indent_balance += elem.indent_val  # type: ignore
             if elem.indent_val > 0:  # type: ignore
                 # a "clean" indent is one where it contains
                 # an increase in indentation? Can't quite
                 # remember the logic here. Let's go with that.
-                memo_line.clean_indent = True
-            return memo_line
+                current_line.clean_indent = True
+            return current_line
 
-        memo_line.set_state_as_of_anchor(elem, tab_space_size)
-        return memo_line
+        current_line.set_state_as_of_anchor(elem, tab_space_size)
+        return current_line
 
     def _coerce_indent_to(
         self,
@@ -476,11 +461,15 @@ class Rule_L003(BaseRule):
 
         if this_line.is_comment_line:
             # Comment line, deal with it later.
-            memory.comment_lines.append(this_line_no)
+            memory.comment_lines.add(this_line_no)
             self.logger.debug(f"    Comment Line. #{this_line_no:02}")
             return LintResult(memory=memory)
 
-        hanger_res = self._handle_hanging_indents(this_line, line_summaries, memory)
+        previous_line_numbers = sorted(line_summaries.keys(), reverse=True)
+        # we will iterate this more than once
+        previous_lines = list(map(lambda k: line_summaries[k], previous_line_numbers))
+
+        hanger_res = self._handle_hanging_indents(this_line, previous_lines, memory)
         if hanger_res:
             return hanger_res
 
@@ -494,9 +483,6 @@ class Rule_L003(BaseRule):
                 fixes=[LintFix.delete(elem) for elem in this_line.indent_buffer],
             )
 
-        previous_line_numbers = sorted(line_summaries.keys(), reverse=True)
-        # we will iterate this more than once
-        previous_lines = list(map(lambda k: line_summaries[k], previous_line_numbers))
         # Special handling for template end blocks on a line by themselves.
         if this_line.templated_line_type == "end":
             return self._handle_template_blocks(
@@ -511,7 +497,7 @@ class Rule_L003(BaseRule):
         def _find_previous_line(
             this_line: _LineSummary,
             previous_lines: List[_LineSummary],
-            ignoreable_lines: List[int],
+            ignoreable_lines: Set[int],
         ) -> Optional[_LineSummary]:
             for prev_line in previous_lines:
                 should_ignore = prev_line.line_no in ignoreable_lines
@@ -532,7 +518,7 @@ class Rule_L003(BaseRule):
         prev_line = _find_previous_line(
             this_line,
             previous_lines,
-            memory.problem_lines + memory.hanging_lines,
+            memory.problem_lines.union(memory.hanging_lines),
         )
 
         if not prev_line:
@@ -546,7 +532,7 @@ class Rule_L003(BaseRule):
             )
             if this_line.indent_size != prev_line.indent_size:
                 # Indents don't match even though balance is the same...
-                memory.problem_lines.append(this_line_no)
+                memory.problem_lines.add(this_line_no)
 
                 # Work out desired indent
                 if prev_line.indent_size == 0:
@@ -595,7 +581,7 @@ class Rule_L003(BaseRule):
             # to base the repairs off. If there's no indent at all, then
             # we should also take this route because there SHOULD be one.
             if this_line.indent_size % self.tab_space_size != 0:
-                memory.problem_lines.append(this_line_no)
+                memory.problem_lines.add(this_line_no)
 
                 # The default indent is the one just reconstructs it from
                 # the indent size.
@@ -619,9 +605,11 @@ class Rule_L003(BaseRule):
                 return LintResult(
                     anchor=trigger_segment,
                     memory=memory,
-                    description=(
-                        "Indentation not hanging or a multiple of {} spaces"
-                    ).format(self.tab_space_size),
+                    description=_Desc(
+                        expected=len(desired_indent) // self.tab_space_size,
+                        found=this_line.indent_size // self.tab_space_size,
+                        compared_to=prev_line.line_no,
+                    ),
                     fixes=fixes,
                 )
 
@@ -645,34 +633,27 @@ class Rule_L003(BaseRule):
 
                 # First work out if we have some closing brackets, and if so, how
                 # many.
-                b_idx = 0
                 b_num = 0
-                while True:
-                    if len(this_line.line_buffer[b_idx:]) == 0:
-                        break
-
-                    elem = this_line.line_buffer[b_idx]
+                for elem in this_line.line_buffer:
                     if not elem.is_code:
-                        b_idx += 1
                         continue
-                    else:
-                        if elem.is_type("end_bracket", "end_square_bracket"):
-                            b_idx += 1
-                            b_num += 1
-                            continue
-                        break  # pragma: no cover
+                    if elem.is_type("end_bracket", "end_square_bracket"):
+                        b_num += 1
+                        continue
+                    break  # pragma: no cover
 
                 if b_num < indent_diff:
                     # It doesn't. That means we *should* have an indent when
                     # compared to this line and we DON'T.
-                    memory.problem_lines.append(this_line_no)
-                    description = (
-                        f"Indent expected and not found compared to #{prev_line_no:02}"
-                    )
+                    memory.problem_lines.add(this_line_no)
                     return LintResult(
                         anchor=trigger_segment,
                         memory=memory,
-                        description=description,
+                        description=_Desc(
+                            expected=this_indent_num + 1,
+                            found=this_indent_num,
+                            compared_to=prev_line.line_no,
+                        ),
                         # Add in an extra bit of whitespace for the indent
                         fixes=[
                             LintFix.create_before(
@@ -689,11 +670,15 @@ class Rule_L003(BaseRule):
                         ],
                     )
             elif this_indent_num < comp_indent_num:
-                memory.problem_lines.append(this_line_no)
+                memory.problem_lines.add(this_line_no)
                 return LintResult(
                     anchor=trigger_segment,
                     memory=memory,
-                    description=f"Line under-indented compared to #{prev_line_no:02}",
+                    description=_Desc(
+                        expected=this_indent_num + 1,
+                        found=this_indent_num,
+                        compared_to=prev_line.line_no,
+                    ),
                     fixes=[
                         LintFix.create_before(
                             trigger_segment,
@@ -711,30 +696,31 @@ class Rule_L003(BaseRule):
                     ],
                 )
             elif this_indent_num > comp_indent_num + indent_diff:
-                memory.problem_lines.append(this_line_no)
-                # Calculate the lowest ok indent:
+                memory.problem_lines.add(this_line_no)
                 desired_indent = self._make_indent(
-                    num=comp_indent_num - this_indent_num,
+                    num=comp_indent_num,
                     indent_unit=self.indent_unit,
                     tab_space_size=self.tab_space_size,
                 )
-
                 fixes = self._coerce_indent_to(
                     desired_indent=desired_indent,
                     current_indent_buffer=this_line.indent_buffer,
                     current_anchor=trigger_segment,
                 )
-
                 return LintResult(
                     anchor=trigger_segment,
                     memory=memory,
-                    description=f"Line over-indented compared to #{prev_line_no:02}",
+                    description=_Desc(
+                        expected=comp_indent_num,
+                        found=this_indent_num,
+                        compared_to=prev_line.line_no,
+                    ),
                     fixes=fixes,
                 )
 
         # This was a valid comparison, so if it doesn't flag then
         # we can assume that we're ok.
-        self.logger.debug(f"    Indent deemed ok comparing to #{prev_line_no:02}")
+        self.logger.debug("    Indent deemed ok comparing to #%s", prev_line_no)
         comment_fix = self._calculate_comment_fixes(
             memory, previous_line_numbers, this_line
         )
@@ -771,7 +757,7 @@ class Rule_L003(BaseRule):
                     current_anchor=anchor,
                 )
 
-                memory.problem_lines.append(n)
+                memory.problem_lines.add(n)
 
         if not fixes:
             return None
@@ -786,13 +772,13 @@ class Rule_L003(BaseRule):
     def _handle_hanging_indents(
         self,
         this_line: _LineSummary,
-        line_summaries: Dict[int, _LineSummary],
+        previous_lines: List[_LineSummary],
         memory: _Memory,
     ) -> Optional[LintResult]:
-        if len(line_summaries) == 0:
+        if len(previous_lines) == 0:
             return None
 
-        last_line = _find_last_meaningful_line(line_summaries)
+        last_line = _find_last_meaningful_line(previous_lines)
         if not last_line:
             return None
         # Handle Hanging Indents
@@ -816,7 +802,7 @@ class Rule_L003(BaseRule):
         )
         if not is_matching_previous and not is_hanging_match:
             return None
-        memory.hanging_lines.append(this_line.line_no)
+        memory.hanging_lines.add(this_line.line_no)
         self.logger.debug(f"    Hanger Line. #{this_line.line_no:02}")
         self.logger.debug("    Last Line: %s", last_line)
         return LintResult(memory=memory)
@@ -858,7 +844,7 @@ class Rule_L003(BaseRule):
         assert template_line, "TypeGuard"
 
         # Is this a problem line?
-        if template_line.line_no in memory.problem_lines + memory.hanging_lines:
+        if template_line.line_no in memory.problem_lines.union(memory.hanging_lines):
             # Skip it if it is
             return LintResult(memory=memory)
 
@@ -869,7 +855,7 @@ class Rule_L003(BaseRule):
             return LintResult(memory=memory)
 
         # Indents don't match even though balance is the same...
-        memory.problem_lines.append(this_line.line_no)
+        memory.problem_lines.add(this_line.line_no)
 
         # The previous indent.
         desired_indent = "".join(elem.raw for elem in template_line.indent_buffer)
@@ -882,8 +868,8 @@ class Rule_L003(BaseRule):
             current_anchor=current_anchor,
         )
         self.logger.debug(
-            f"    !! Indentation does not match #{template_line.line_no:02}."
-            " Fixes: %s",
+            "    !! Indentation does not match #%s." " Fixes: %s",
+            template_line.line_no,
             fixes,
         )
         description = (
@@ -1039,18 +1025,28 @@ def _segment_length(elem: BaseSegment, tab_space_size: int):
 def _indent_size(segments: Sequence[BaseSegment], tab_space_size: int = 4) -> int:
     indent_size = 0
     for elem in segments:
-        raw = Rule_L003._segment_length(elem, tab_space_size)
+        raw = _segment_length(elem, tab_space_size)
         indent_size += len(raw)
     return indent_size
 
 
 def _find_last_meaningful_line(
-    line_summaries: Dict[int, _LineSummary]
+    previous_lines: List[_LineSummary],
 ) -> Optional[_LineSummary]:
     # Find last meaningful line indent.
-    for k in sorted(line_summaries.keys(), reverse=True):
-        line: _LineSummary = line_summaries[k]
-        if any(seg.is_code for seg in line.line_buffer):
+    for line in previous_lines:
+        if line.has_code_segment:
             return line
 
     return None
+
+
+def _Desc(
+    expected: int,
+    found: int,
+    compared_to: int,
+) -> str:
+    return (
+        f"Expected {expected} indentations,"
+        f" found {found} [compared to L#{compared_to:02}]"
+    )
