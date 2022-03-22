@@ -31,7 +31,7 @@ class _LineSummary:
 
     # The final balance of a line once fully considered
     indent_balance: int = 0
-    # The indent as it was once we say this lines "Anchor"
+    # The indent as it was once we see this lines "Anchor"
     anchor_indent_balance: int = 0
     hanging_indent: Optional[int] = None
     clean_indent: bool = True
@@ -994,7 +994,7 @@ def _get_template_block_type(
     line_buffer: List[BaseSegment],
     templated_file: Optional[TemplatedFile] = None,
 ):
-    """Convience fn for getting 'start', 'end' etc of a placeholder line."""
+    """Convenience fn for getting 'start', 'end' etc of a placeholder line."""
     template_info = _TemplateLineInterpreter(line_buffer, templated_file)
     return template_info.block_type()
 
