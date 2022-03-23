@@ -361,6 +361,10 @@ class JinjaTemplater(PythonTemplater):
                 really_undefined.add(self.name)
                 return ""
 
+            def __getattr__(self, item):
+                really_undefined.add(self.name)
+                return Undefined(f"{self.name}.{item}")
+
         for val in maybe_undefined:
             if val not in live_context:
                 live_context[val] = Undefined(name=val)
