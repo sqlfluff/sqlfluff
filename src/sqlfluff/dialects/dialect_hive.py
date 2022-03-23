@@ -1,6 +1,7 @@
 """The Hive dialect."""
 
 from sqlfluff.core.parser import (
+    AnyNumberOf,
     BaseSegment,
     Sequence,
     Ref,
@@ -138,6 +139,18 @@ hive_dialect.replace(
         NamedParser("single_quote", CodeSegment, name="quoted_literal", type="literal"),
         NamedParser("double_quote", CodeSegment, name="quoted_literal", type="literal"),
     ),
+    LiteralGrammar=OneOf(
+        Ref("QuotedLiteralSegment"),
+        Ref("NumericLiteralSegment"),
+        Ref("BooleanLiteralGrammar"),
+        Ref("QualifiedNumericLiteralSegment"),
+        # NB: Null is included in the literals, because it is a keyword which
+        # can otherwise be easily mistaken for an identifier.
+        Ref("NullLiteralSegment"),
+        Ref("DateTimeLiteralGrammar"),
+        Sequence(Ref("SimpleArrayTypeGrammar"), Ref("ArrayLiteralSegment")),
+    ),
+    SimpleArrayTypeGrammar=Ref.keyword("ARRAY"),
 )
 
 
@@ -294,6 +307,7 @@ class PrimitiveTypeSegment(BaseSegment):
         "DATE",
         "VARCHAR",
         "CHAR",
+        "JSON",
     )
 
 
@@ -349,6 +363,17 @@ class DatatypeSegment(BaseSegment):
                 bracket_pairs_set="angle_bracket_pairs",
                 bracket_type="angle",
             ),
+        ),
+        # array types
+        OneOf(
+            AnyNumberOf(
+                Bracketed(
+                    Ref("ExpressionSegment", optional=True), bracket_type="square"
+                )
+            ),
+            Ref("SimpleArrayTypeGrammar"),
+            Sequence(Ref("SimpleArrayTypeGrammar"), Ref("ArrayLiteralSegment")),
+            optional=True,
         ),
     )
 
@@ -618,5 +643,84 @@ class MsckTableStatementSegment(BaseSegment):
             ),
             "PARTITIONS",
             optional=True,
+        ),
+    )
+
+
+@hive_dialect.segment(replace=True)
+class FunctionSegment(BaseSegment):
+    """A scalar or aggregate function.
+
+    Extended version of `ansi` to add support of row typecasting
+    https://prestodb.io/docs/current/language/types.html#row
+    ```
+    cast(row(val1, val2) as row(a integer, b integer))
+    ```
+    """
+
+    type = "function"
+    match_grammar = OneOf(
+        Sequence(
+            # Treat functions which take date parts separately
+            # So those functions parse date parts as DatetimeUnitSegment
+            # rather than identifiers.
+            Sequence(
+                Ref("DatePartFunctionNameSegment"),
+                Bracketed(
+                    Delimited(
+                        Ref("DatetimeUnitSegment"),
+                        Ref(
+                            "FunctionContentsGrammar",
+                            # The brackets might be empty for some functions...
+                            optional=True,
+                            ephemeral_name="FunctionContentsGrammar",
+                        ),
+                    )
+                ),
+            ),
+        ),
+        Sequence(
+            # This unusual syntax is used to cast the Keyword ROW to
+            # to the function_name to avoid rule linting exceptions
+            StringParser("ROW", KeywordSegment, type="function_name"),
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        Ref("BaseExpressionElementGrammar"),
+                    ),
+                ),
+            ),
+            "AS",
+            "ROW",
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        Ref("SingleIdentifierGrammar"),
+                        Ref("DatatypeSegment", optional=True),
+                    ),
+                ),
+            ),
+        ),
+        Sequence(
+            Sequence(
+                AnyNumberOf(
+                    Ref("FunctionNameSegment"),
+                    max_times=1,
+                    min_times=1,
+                    exclude=OneOf(
+                        Ref("DatePartFunctionNameSegment"),
+                        Ref("ValuesClauseSegment"),
+                    ),
+                ),
+                Bracketed(
+                    Ref(
+                        "FunctionContentsGrammar",
+                        # The brackets might be empty for some functions...
+                        optional=True,
+                        ephemeral_name="FunctionContentsGrammar",
+                    )
+                ),
+            ),
+            Ref("PostFunctionGrammar", optional=True),
         ),
     )

@@ -3603,7 +3603,9 @@ class DoStatementSegment(BaseSegment):
 
 
 @postgres_dialect.segment(replace=True)
-class CTEDefinitionSegment(BaseSegment):
+class CTEDefinitionSegment(
+    ansi_dialect.get_segment("CTEDefinitionSegment")  # type: ignore
+):
     """A CTE Definition from a WITH statement.
 
     https://www.postgresql.org/docs/14/queries-with.html

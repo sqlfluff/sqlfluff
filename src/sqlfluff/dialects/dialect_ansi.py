@@ -1154,7 +1154,10 @@ class FromExpressionElementSegment(BaseSegment):
         OptionallyBracketed(Ref("TableExpressionSegment")),
         OneOf(
             Ref("AliasExpressionSegment"),
-            exclude=Ref("SamplingExpressionSegment"),
+            exclude=OneOf(
+                Ref("SamplingExpressionSegment"),
+                Ref("JoinLikeClauseGrammar"),
+            ),
             optional=True,
         ),
         # https://cloud.google.com/bigquery/docs/reference/standard-sql/arrays#flattening_arrays

@@ -11,8 +11,8 @@ class Rule_L033(BaseRule):
     """``UNION [DISTINCT|ALL]`` is preferred over just ``UNION``.
 
     .. note::
-       This rule is only enabled for dialects that support ``UNION DISTINCT``
-       (``ansi``, ``bigquery``, ``hive``, ``mysql``, and ``redshift``).
+       This rule is only enabled for dialects that support ``UNION`` and
+       ``UNION DISTINCT`` (``ansi``, ``hive``, ``mysql``, and ``redshift``).
 
     **Anti-pattern**
 
@@ -50,7 +50,6 @@ class Rule_L033(BaseRule):
         """
         if context.dialect.name not in [
             "ansi",
-            "bigquery",
             "hive",
             "mysql",
             "redshift",

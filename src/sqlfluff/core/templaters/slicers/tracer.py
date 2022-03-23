@@ -63,7 +63,7 @@ class JinjaTracer:
         self.program_counter: int = 0
         self.source_idx: int = 0
 
-    def trace(self) -> JinjaTrace:
+    def trace(self, append_to_templated: str = "") -> JinjaTrace:
         """Executes raw_str. Returns template output and trace."""
         trace_template_str = "".join(
             cast(str, self.raw_slice_info[rs].alternate_code)
@@ -101,9 +101,16 @@ class JinjaTracer:
             target_slice_idx = self.find_slice_index(alt_id)
             slice_length = content_info if literal else len(str(content_info))
             self.move_to_slice(target_slice_idx, slice_length)
-        return JinjaTrace(
-            self.make_template(self.raw_str).render(), self.raw_sliced, self.sliced_file
-        )
+
+        # TRICKY: The 'append_to_templated' parameter is only used by the dbt
+        # templater, passing "\n" for this parameter if we need to add one back.
+        # (The Jinja templater does not pass this parameter, so
+        # 'append_to_templated' gets the default value of "", empty string.)
+        # we receive the default value of "".) The dbt templater will
+        # For more detail, see the comments near the call to slice_file() in
+        # plugins/sqlfluff-templater-dbt/sqlfluff_templater_dbt/templater.py.
+        templated_str = self.make_template(self.raw_str).render() + append_to_templated
+        return JinjaTrace(templated_str, self.raw_sliced, self.sliced_file)
 
     def find_slice_index(self, slice_identifier) -> int:
         """Given a slice identifier, return its index.

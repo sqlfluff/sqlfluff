@@ -384,7 +384,7 @@ snowflake_dialect.replace(
             Ref("SamplingExpressionSegment"),
             min_times=1,
         ),
-        Ref("TableAliasExpressionSegment", optional=True),
+        Ref("AliasExpressionSegment", optional=True),
     ),
     SingleIdentifierGrammar=OneOf(
         Ref("NakedIdentifierSegment"),
@@ -872,21 +872,6 @@ class WithinGroupClauseSegment(BaseSegment):
 
 
 @snowflake_dialect.segment()
-class TableAliasExpressionSegment(BaseSegment):
-    """A reference to an object with an `AS` clause, optionally with column aliasing."""
-
-    type = "table_alias_expression"
-    match_grammar = Sequence(
-        Ref("AliasExpressionSegment"),
-        # Optional column aliases too.
-        Bracketed(
-            Delimited(Ref("SingleIdentifierGrammar"), delimiter=Ref("CommaSegment")),
-            optional=True,
-        ),
-    )
-
-
-@snowflake_dialect.segment()
 class MatchRecognizeClauseSegment(BaseSegment):
     """A `MATCH_RECOGNIZE` clause.
 
@@ -1073,9 +1058,7 @@ class FromPivotExpressionSegment(BaseSegment):
     """A PIVOT expression."""
 
     type = "from_pivot_expression"
-    match_grammar = Sequence("PIVOT", Bracketed(Anything()))
-
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "PIVOT",
         Bracketed(
             Ref("FunctionSegment"),
@@ -1092,9 +1075,7 @@ class FromUnpivotExpressionSegment(BaseSegment):
     """An UNPIVOT expression."""
 
     type = "from_unpivot_expression"
-    match_grammar = Sequence("UNPIVOT", Bracketed(Anything()))
-
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "UNPIVOT",
         Bracketed(
             Ref("SingleIdentifierGrammar"),

@@ -25,7 +25,6 @@ from sqlfluff.dialects.dialect_redshift_keywords import (
 
 postgres_dialect = load_raw_dialect("postgres")
 ansi_dialect = load_raw_dialect("ansi")
-
 redshift_dialect = postgres_dialect.copy_as("redshift")
 
 # Set Keywords
@@ -149,7 +148,17 @@ redshift_dialect.sets("datetime_units").update(
     ]
 )
 
-redshift_dialect.replace(WellKnownTextGeometrySegment=Nothing())
+redshift_dialect.replace(
+    WellKnownTextGeometrySegment=Nothing(),
+    JoinLikeClauseGrammar=Sequence(
+        AnySetOf(
+            Ref("FromPivotExpressionSegment"),
+            Ref("FromUnpivotExpressionSegment"),
+            min_times=1,
+        ),
+        Ref("AliasExpressionSegment", optional=True),
+    ),
+)
 
 ObjectReferenceSegment = redshift_dialect.get_segment("ObjectReferenceSegment")
 
@@ -219,6 +228,74 @@ class ColumnReferenceSegment(ObjectReferenceSegment):  # type: ignore
             Ref("JoinLikeClauseGrammar"),
         ),
         allow_gaps=False,
+    )
+
+
+@redshift_dialect.segment()
+class FromUnpivotExpressionSegment(BaseSegment):
+    """An UNPIVOT expression.
+
+    See
+    https://docs.aws.amazon.com/redshift/latest/dg/r_FROM_clause-pivot-unpivot-examples.html
+    for details.
+    """
+
+    type = "from_unpivot_expression"
+    match_grammar = Sequence(
+        "UNPIVOT",
+        Sequence(
+            OneOf("INCLUDE", "EXCLUDE"),
+            "NULLS",
+            optional=True,
+        ),
+        Bracketed(
+            Sequence(
+                Ref("ColumnReferenceSegment"),
+                "FOR",
+                Ref("ColumnReferenceSegment"),
+                "IN",
+                Bracketed(
+                    Delimited(
+                        Sequence(
+                            Ref("ColumnReferenceSegment"),
+                            Ref("AliasExpressionSegment", optional=True),
+                        )
+                    ),
+                ),
+            ),
+        ),
+    )
+
+
+@redshift_dialect.segment()
+class FromPivotExpressionSegment(BaseSegment):
+    """A PIVOT expression.
+
+    See
+    https://docs.aws.amazon.com/redshift/latest/dg/r_FROM_clause-pivot-unpivot-examples.html
+    for details.
+    """
+
+    type = "from_pivot_expression"
+    match_grammar = Sequence(
+        "PIVOT",
+        Bracketed(
+            Sequence(
+                OptionallyBracketed(Ref("FunctionSegment")),
+                Ref("AliasExpressionSegment", optional=True),
+                "FOR",
+                Ref("ColumnReferenceSegment"),
+                "IN",
+                Bracketed(
+                    Delimited(
+                        Sequence(
+                            Ref("ExpressionSegment"),
+                            Ref("AliasExpressionSegment", optional=True),
+                        ),
+                    ),
+                ),
+            ),
+        ),
     )
 
 

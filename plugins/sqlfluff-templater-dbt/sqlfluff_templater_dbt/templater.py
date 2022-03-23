@@ -25,10 +25,7 @@ from jinja2_simple_tags import StandaloneTag
 from sqlfluff.core.cached_property import cached_property
 from sqlfluff.core.errors import SQLTemplaterError, SQLTemplaterSkipFile
 
-from sqlfluff.core.templaters.base import (
-    TemplatedFile,
-    TemplatedFileSlice,
-)
+from sqlfluff.core.templaters.base import TemplatedFile
 
 from sqlfluff.core.templaters.jinja import JinjaTemplater
 
@@ -269,7 +266,7 @@ class DbtTemplater(JinjaTemplater):
                     node.depends_on.nodes,
                 )
 
-        # Yield ephemeral nodes first. We use a Deque for efficient requeing.
+        # Yield ephemeral nodes first. We use a deque for efficient re-queuing.
         # We iterate through the deque, yielding any nodes without dependents,
         # or where those dependents have already yielded, first. The original
         # mapping is still used to hold the metadata on each key.
@@ -376,29 +373,35 @@ class DbtTemplater(JinjaTemplater):
         results = [self.dbt_manifest.expect(uid) for uid in selected]
 
         if not results:
-            model_name = os.path.splitext(os.path.basename(fname))[0]
-            if DBT_VERSION_TUPLE >= (1, 0):
-                disabled_model = None
-                for key, disabled_model_nodes in self.dbt_manifest.disabled.items():
-                    for disabled_model_node in disabled_model_nodes:
-                        if os.path.abspath(
-                            disabled_model_node.original_file_path
-                        ) == os.path.abspath(fname):
-                            disabled_model = disabled_model_node
-            else:
-                disabled_model = self.dbt_manifest.find_disabled_by_name(
-                    name=model_name
-                )
-            if disabled_model and os.path.abspath(
-                disabled_model.original_file_path
-            ) == os.path.abspath(fname):
+            skip_reason = self._find_skip_reason(fname)
+            if skip_reason:
                 raise SQLTemplaterSkipFile(
-                    f"Skipped file {fname} because the model was disabled"
+                    f"Skipped file {fname} because it is {skip_reason}"
                 )
             raise RuntimeError(
                 "File %s was not found in dbt project" % fname
             )  # pragma: no cover
         return results[0]
+
+    def _find_skip_reason(self, fname) -> Optional[str]:
+        """Return string reason if model okay to skip, otherwise None."""
+        # Scan macros.
+        abspath = os.path.abspath(fname)
+        for macro in self.dbt_manifest.macros.values():
+            if os.path.abspath(macro.original_file_path) == abspath:
+                return "a macro"
+
+        if DBT_VERSION_TUPLE >= (1, 0):
+            # Scan disabled nodes.
+            for nodes in self.dbt_manifest.disabled.values():
+                for node in nodes:
+                    if os.path.abspath(node.original_file_path) == abspath:
+                        return "disabled"
+        else:
+            model_name = os.path.splitext(os.path.basename(fname))[0]
+            if self.dbt_manifest.find_disabled_by_name(name=model_name):
+                return "disabled"
+        return None
 
     def _unsafe_process(self, fname, in_str=None, config=None):
         original_file_path = os.path.relpath(fname, start=os.getcwd())
@@ -485,27 +488,40 @@ class DbtTemplater(JinjaTemplater):
 
             # When using dbt-templater, trailing newlines are ALWAYS REMOVED during
             # compiling. Unless fixed (like below), this will cause:
-            #    1. L009 linting errors when running "sqlfluff lint foo_bar.sql"
+            #    1. Assertion errors in TemplatedFile, when it sanity checks the
+            #       contents of the sliced_file array.
+            #    2. L009 linting errors when running "sqlfluff lint foo_bar.sql"
             #       since the linter will use the compiled code with the newlines
             #       removed.
-            #    2. "No newline at end of file" warnings in Git/GitHub since
+            #    3. "No newline at end of file" warnings in Git/GitHub since
             #       sqlfluff uses the compiled SQL to write fixes back to the
             #       source SQL in the dbt model.
-            # The solution is:
+            #
+            # The solution is (note that both the raw and compiled files have
+            # had trailing newline(s) removed by the dbt-templater.
             #    1. Check for trailing newlines before compiling by looking at the
-            #       raw SQL in the source dbt file, store the count of trailing
+            #       raw SQL in the source dbt file. Remember the count of trailing
             #       newlines.
-            #    2. Append the count from #1 above to the node.raw_sql and
-            #       compiled_sql objects, both of which have had the trailing
-            #       newlines removed by the dbt-templater.
-            node.raw_sql = node.raw_sql + "\n" * n_trailing_newlines
+            #    2. Set node.raw_sql to the original source file contents.
+            #    3. Append the count from #1 above to compiled_sql. (In
+            #       production, slice_file() does not usually use this string,
+            #       but some test scenarios do.
+            node.raw_sql = source_dbt_sql
             compiled_sql = compiled_sql + "\n" * n_trailing_newlines
 
+            # TRICKY: dbt configures Jinja2 with keep_trailing_newline=False.
+            # As documented (https://jinja.palletsprojects.com/en/3.0.x/api/),
+            # this flag's behavior is: "Preserve the trailing newline when
+            # rendering templates. The default is False, which causes a single
+            # newline, if present, to be stripped from the end of the template."
+            #
+            # Below, we use "append_to_templated" to effectively "undo" this.
             raw_sliced, sliced_file, templated_sql = self.slice_file(
                 source_dbt_sql,
                 compiled_sql,
                 config=config,
                 make_template=make_template,
+                append_to_templated="\n" if n_trailing_newlines else "",
             )
         # :HACK: If calling compile_node() compiled any ephemeral nodes,
         # restore them to their earlier state. This prevents a runtime error
@@ -516,27 +532,6 @@ class DbtTemplater(JinjaTemplater):
         for k, v in save_ephemeral_nodes.items():
             if getattr(self.dbt_manifest.nodes[k], "compiled", False):
                 self.dbt_manifest.nodes[k] = v
-
-        if make_template and n_trailing_newlines:
-            # Update templated_sql as we updated the other strings above. Update
-            # sliced_file to reflect the mapping of the added character(s) back
-            # to the raw SQL.
-            templated_sql = templated_sql + "\n" * n_trailing_newlines
-            if sliced_file and sliced_file[-1].templated_slice.stop != len(
-                templated_sql
-            ):
-                sliced_file.append(
-                    TemplatedFileSlice(
-                        slice_type="literal",
-                        source_slice=slice(
-                            len(source_dbt_sql) - n_trailing_newlines,
-                            len(source_dbt_sql),
-                        ),
-                        templated_slice=slice(
-                            len(templated_sql) - n_trailing_newlines, len(templated_sql)
-                        ),
-                    )
-                )
         return (
             TemplatedFile(
                 source_str=source_dbt_sql,
