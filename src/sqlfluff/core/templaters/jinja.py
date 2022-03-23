@@ -343,12 +343,14 @@ class JinjaTemplater(PythonTemplater):
         # first Exception which serves only to catch catastrophic errors.
         try:
             syntax_tree = env.parse(in_str)
-            maybe_undefined = meta.find_undeclared_variables(syntax_tree)
+            potentially_undefined_variables = meta.find_undeclared_variables(
+                syntax_tree
+            )
         except Exception as err:  # pragma: no cover
             # TODO: Add a url here so people can get more help.
             raise SQLTemplaterError(f"Failure in identifying Jinja variables: {err}.")
 
-        really_undefined = set()
+        undefined_variables = set()
 
         class Undefined:
             """Similar to jinja2.StrictUndefined, but remembers, not fails."""
@@ -358,14 +360,14 @@ class JinjaTemplater(PythonTemplater):
 
             def __str__(self):
                 """Treat undefined vars as empty, but remember for later."""
-                really_undefined.add(self.name)
+                undefined_variables.add(self.name)
                 return ""
 
             def __getattr__(self, item):
-                really_undefined.add(self.name)
+                undefined_variables.add(self.name)
                 return Undefined(f"{self.name}.{item}")
 
-        for val in maybe_undefined:
+        for val in potentially_undefined_variables:
             if val not in live_context:
                 live_context[val] = Undefined(name=val)
 
@@ -379,9 +381,9 @@ class JinjaTemplater(PythonTemplater):
                 config=config,
                 make_template=make_template,
             )
-            if really_undefined:
+            if undefined_variables:
                 # Lets go through and find out where they are:
-                for val in self._crawl_tree(syntax_tree, really_undefined, in_str):
+                for val in self._crawl_tree(syntax_tree, undefined_variables, in_str):
                     violations.append(val)
             return (
                 TemplatedFile(

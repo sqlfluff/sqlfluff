@@ -421,8 +421,8 @@ def test__templater_jinja_dynamic_variable_no_violations():
 """
     outstr, vs = t.process(in_str=instr, fname="test", config=FluffConfig())
     assert str(outstr) == "\n    \n    SELECT 1\n\n"
-    # Check we have violations.
-    assert not len(vs) > 0
+    # Check we have no violations.
+    assert len(vs) == 0
 
 
 def test__templater_jinja_error_syntax():
