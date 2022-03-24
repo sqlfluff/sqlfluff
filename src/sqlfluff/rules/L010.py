@@ -65,6 +65,10 @@ class Rule_L010(BaseRule):
         if not self.matches_target_tuples(context.segment, self._target_elems):
             return LintResult(memory=context.memory)
 
+        # Skip boolean and null literals as they have their own rule (L040)
+        if context.segment.name in ["null_literal", "boolean_literal"]:
+            return LintResult(memory=context.memory)
+
         # Get the capitalisation policy configuration.
         try:
             cap_policy = self.cap_policy

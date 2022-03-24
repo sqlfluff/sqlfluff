@@ -199,3 +199,21 @@ test_fail_snowflake_group_by_cube:
     rules:
       L010:
         capitalisation_policy: upper
+
+test_pass_ignore_null:
+  pass_str: |
+    SELECT null
+    FROM foo
+    WHERE 1
+
+test_pass_ignore_true:
+  pass_str: |
+    SELECT true
+    FROM foo
+    WHERE 1
+
+test_pass_ignore_false:
+  pass_str: |
+    SELECT false
+    FROM foo
+    WHERE 1
