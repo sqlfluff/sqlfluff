@@ -343,7 +343,7 @@ class BaseSegment:
         return self.get_raw_segments()
 
     @cached_property
-    def raw_segments_upper(self) -> Optional[str]:
+    def first_non_whitespace_raw_segments_upper(self) -> Optional[str]:
         """Returns the first non-whitespace subsegment of this segment."""
         for seg in self.raw_segments:
             if seg.raw_upper.strip():
