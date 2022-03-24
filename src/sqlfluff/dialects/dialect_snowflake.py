@@ -2507,15 +2507,8 @@ class AlterViewStatementSegment(BaseSegment):
                 OneOf("SET", "UNSET"),
                 "SECURE",
             ),
-            Sequence(
-                "SET",
-                Ref("TagEqualsSegment")
-            ),
-            Sequence(
-                "UNSET",
-                "TAG",
-                Delimited(Ref("NakedIdentifierSegment"))
-            ),
+            Sequence("SET", Ref("TagEqualsSegment")),
+            Sequence("UNSET", "TAG", Delimited(Ref("NakedIdentifierSegment"))),
             Delimited(
                 Sequence(
                     "ADD",
@@ -2524,9 +2517,7 @@ class AlterViewStatementSegment(BaseSegment):
                     "POLICY",
                     Ref("FunctionNameSegment"),
                     "ON",
-                    Bracketed(
-                        Delimited(Ref("ColumnReferenceSegment"))
-                    )
+                    Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
                 ),
                 Sequence(
                     "DROP",
@@ -2554,31 +2545,24 @@ class AlterViewStatementSegment(BaseSegment):
                                         Bracketed(
                                             Delimited(Ref("ColumnReferenceSegment"))
                                         ),
-                                        optional=True
-                                    )
+                                        optional=True,
+                                    ),
                                 ),
-                                Sequence(
-                                    "UNSET",
-                                    "MASKING",
-                                    "POLICY"
-                                ),
-                                Sequence(
-                                    "SET",
-                                    Ref("TagEqualsSegment")
-                                )
-                            )
+                                Sequence("UNSET", "MASKING", "POLICY"),
+                                Sequence("SET", Ref("TagEqualsSegment")),
+                            ),
                         ),
                         Sequence(
                             "COLUMN",
                             Ref("ColumnReferenceSegment"),
                             "UNSET",
                             "TAG",
-                            Delimited(Ref("NakedIdentifierSegment"))
-                        )
+                            Delimited(Ref("NakedIdentifierSegment")),
+                        ),
                     ),
-                )
-            )
-        )
+                ),
+            ),
+        ),
     )
 
 
