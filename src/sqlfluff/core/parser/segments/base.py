@@ -663,7 +663,7 @@ class BaseSegment:
             "raw_upper",
             "matched_length",
             "raw_segments",
-            "raw_segments_upper",
+            "first_non_whitespace_segment_raw_upper",
         ]:
             self.__dict__.pop(key, None)
 
