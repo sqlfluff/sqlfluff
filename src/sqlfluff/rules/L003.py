@@ -1,7 +1,7 @@
 """Implementation of Rule L003."""
 import dataclasses
 import itertools
-from typing import Dict, List, Optional, Sequence, Set, Tuple
+from typing import Dict, Iterable, List, Optional, Sequence, Set, Tuple
 
 from sqlfluff.core.parser import WhitespaceSegment
 from sqlfluff.core.parser.segments import BaseSegment
@@ -105,20 +105,21 @@ class _LineSummary:
         )
         return line_summary
 
-    def set_state_as_of_anchor(
-        self,
-        anchor: Optional[BaseSegment],
-        tab_space_size: int,
-    ):
-        """Create a Line state of this line upon reaching the anchor."""
-        self.anchor_indent_balance = self.indent_balance
-        self.indent_size = _indent_size(
-            self.indent_buffer,
-            tab_space_size=tab_space_size,
-        )
-        self.line_anchor = anchor
 
-        return self
+def _set_line_anchor(
+    line: _LineSummary,
+    anchor: Optional[BaseSegment],
+    tab_space_size: int,
+):
+    """Create a Line state of this line upon reaching the anchor."""
+    line.anchor_indent_balance = line.indent_balance
+    line.indent_size = _indent_size(
+        line.indent_buffer,
+        tab_space_size=tab_space_size,
+    )
+    line.line_anchor = anchor
+
+    return line
 
 
 def _is_clean_indent(prev_line_buffer: List[BaseSegment]):
@@ -328,8 +329,7 @@ class Rule_L003(BaseRule):
                 current_line.clean_indent = True
             return current_line
 
-        current_line.set_state_as_of_anchor(elem, tab_space_size)
-        return current_line
+        return _set_line_anchor(current_line, elem, tab_space_size)
 
     def _coerce_indent_to(
         self,
@@ -757,7 +757,7 @@ class Rule_L003(BaseRule):
         is_known_hanging_line = last_line.line_no in memory.hanging_lines
         # There MUST also be a non-zero indent. Otherwise we're just on the
         # baseline.
-        if not this_line.indent_size > 0:
+        if this_line.indent_size <= 0:
             return None
 
         # NB: Hangers are only allowed if there was content after the last
@@ -808,7 +808,7 @@ class Rule_L003(BaseRule):
             return None  # pragma: no cover
 
         template_line = _find_matching_start_line(previous_lines)
-        # This Cant occur in valid code
+        # This cant occur in valid code
         assert template_line, "TypeGuard"
 
         if template_line.line_no in memory.noncomparable_lines:
@@ -898,17 +898,18 @@ class _TemplateLineInterpreter:
                 count_placeholder += 1
         return count_placeholder == 1
 
-    def list_segement_and_raw_segement_types(self):
+    def list_segment_and_raw_segment_types(self) -> Iterable[Tuple[str, Optional[str]]]:
         """Yields the tuple of seg type and underlying type were applicable."""
         for seg in self.current_line:
             raw_seg = self.get_raw_slices(seg)
-            yield (seg.type, raw_seg[0].slice_type if raw_seg else None)
+            raw_str = raw_seg[0].slice_type if raw_seg else None
+            yield (seg.type, raw_str)
 
     def get_adjacent_type_pairs(self):
         """Produce a list of pairs of each sequenctial combo of two."""
         if self._adjacent_pairs:
             return self._adjacent_pairs
-        iterable = self.list_segement_and_raw_segement_types()
+        iterable = self.list_segment_and_raw_segment_types()
         a, b = itertools.tee(iterable)
         # consume the first item in b
         next(b, None)
