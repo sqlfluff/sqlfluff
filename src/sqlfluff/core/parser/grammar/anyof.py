@@ -53,8 +53,8 @@ class AnyNumberOf(BaseGrammar):
     def _first_non_whitespace(segments) -> Optional[str]:
         """Return the upper first non-whitespace segment in the iterable."""
         for segment in segments:
-            if segment.raw_segments_upper:
-                return segment.raw_segments_upper
+            if segment.first_non_whitespace_segment_raw_upper:
+                return segment.first_non_whitespace_segment_raw_upper
         return None
 
     def _prune_options(

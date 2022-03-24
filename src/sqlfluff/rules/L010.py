@@ -49,6 +49,12 @@ class Rule_L010(BaseRule):
         ("type", "date_part"),
         ("type", "data_type_identifier"),
     ]
+    # Skip boolean and null literals (which are also keywords)
+    # as they have their own rule (L040)
+    _exclude_elements: List[Tuple[str, str]] = [
+        ("name", "null_literal"),
+        ("name", "boolean_literal"),
+    ]
     config_keywords = ["capitalisation_policy", "ignore_words"]
     # Human readable target elem for description
     _description_elem = "Keywords"
@@ -62,7 +68,9 @@ class Rule_L010(BaseRule):
 
         """
         # Skip if not an element of the specified type/name
-        if not self.matches_target_tuples(context.segment, self._target_elems):
+        if not self.matches_target_tuples(
+            context.segment, self._target_elems
+        ) or self.matches_target_tuples(context.segment, self._exclude_elements):
             return LintResult(memory=context.memory)
 
         # Get the capitalisation policy configuration.
