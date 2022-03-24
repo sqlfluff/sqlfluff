@@ -13,6 +13,7 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 ## What’s Changed
 
+* Adjust L010 to ignore nulls and booleans covered by L040 [#2913](https://github.com/sqlfluff/sqlfluff/pull/2913) [@tunetheweb](https://github.com/tunetheweb)
 * Fix bug where L043 corrupts SQL [#2908](https://github.com/sqlfluff/sqlfluff/pull/2908) [@barrywhart](https://github.com/barrywhart)
 * Jinja: Add support for Block Assignments [#2907](https://github.com/sqlfluff/sqlfluff/pull/2907) [@barrywhart](https://github.com/barrywhart)
 * L042 fix fails with missing function `get_identifier()` on Postgres, Redshift dialects [#2899](https://github.com/sqlfluff/sqlfluff/pull/2899) [@barrywhart](https://github.com/barrywhart)
