@@ -9,6 +9,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfluff/sqlfluff/releases) and will be copied in here on each release (please remember to update the issues and contributors to links!). There is no need to manually edit this file going forward.
 -->
 
+## [0.11.2] - 2022-03-24
+
+## What’s Changed
+
+* Fix bug where L043 corrupts SQL [#2908](https://github.com/sqlfluff/sqlfluff/pull/2908) [@barrywhart](https://github.com/barrywhart)
+* Jinja: Add support for Block Assignments [#2907](https://github.com/sqlfluff/sqlfluff/pull/2907) [@barrywhart](https://github.com/barrywhart)
+* L042 fix fails with missing function `get_identifier()` on Postgres, Redshift dialects [#2899](https://github.com/sqlfluff/sqlfluff/pull/2899) [@barrywhart](https://github.com/barrywhart)
+* BigQuery: Better Set Operators support [#2901](https://github.com/sqlfluff/sqlfluff/pull/2901) [@tunetheweb](https://github.com/tunetheweb)
+* Hive: support for complex types in `cast` `rowtype` definition [#2896](https://github.com/sqlfluff/sqlfluff/pull/2896) [@KulykDmytro](https://github.com/KulykDmytro)
+* Hive: added `json` type support [#2894](https://github.com/sqlfluff/sqlfluff/pull/2894) [@KulykDmytro](https://github.com/KulykDmytro)
+* Hive: fix incorrect L027 error for rowtype attribute name [#2893](https://github.com/sqlfluff/sqlfluff/pull/2893) [@KulykDmytro](https://github.com/KulykDmytro)
+* Hive: Add `ARRAY` support [#2891](https://github.com/sqlfluff/sqlfluff/pull/2891) [@tunetheweb](https://github.com/tunetheweb)
+* Implemented `PIVOT`/`UNPIVOT` Redshift + Fixed Snowflake Bug + Standardized `PIVOT`/`UNPIVOT` Parsing [#2888](https://github.com/sqlfluff/sqlfluff/pull/2888) [@PLBMR](https://github.com/PLBMR)
+* Fix AssertionError in dbt templater when file ends with multiple newlines [#2887](https://github.com/sqlfluff/sqlfluff/pull/2887) [@barrywhart](https://github.com/barrywhart)
+* Hive: Row typecasting in `cast` function [#2889](https://github.com/sqlfluff/sqlfluff/pull/2889) [@KulykDmytro](https://github.com/KulykDmytro)
+* dbt templater should gracefully skip macro files [#2886](https://github.com/sqlfluff/sqlfluff/pull/2886) [@barrywhart](https://github.com/barrywhart)
+* Disable L031 on BigQuery due to complex backtick / project name behavior [#2882](https://github.com/sqlfluff/sqlfluff/pull/2882) [@barrywhart](https://github.com/barrywhart)
+* Documentation: Update dbt templater docs with more detail about pros and cons [#2885](https://github.com/sqlfluff/sqlfluff/pull/2885) [@barrywhart](https://github.com/barrywhart)
+* BigQuery: Better `STRUCT` Array Support [#2881](https://github.com/sqlfluff/sqlfluff/pull/2881) [@tunetheweb](https://github.com/tunetheweb)
+* L042: Detect violations when column is templated [#2879](https://github.com/sqlfluff/sqlfluff/pull/2879) [@barrywhart](https://github.com/barrywhart)
+* Improve parsing of `BETWEEN` statements [#2878](https://github.com/sqlfluff/sqlfluff/pull/2878) [@MarcAntoineSchmidtQC](https://github.com/MarcAntoineSchmidtQC)
+
 ## [0.11.1] - 2022-03-18
 
 ## Highlights
