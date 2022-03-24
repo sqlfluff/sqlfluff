@@ -1013,5 +1013,5 @@ def _Desc(
 ) -> str:
     return (
         f"Expected {expected} indentations,"
-        f" found {found} [compared to L#{compared_to:02}]"
+        f" found {found} [compared to line {compared_to:02}]"
     )
