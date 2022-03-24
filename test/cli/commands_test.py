@@ -53,7 +53,7 @@ def invoke_assert_code(
 
 
 expected_output = """== [test/fixtures/linter/indentation_error_simple.sql] FAIL
-L:   2 | P:   4 | L003 | Expected 1 indentations, found 0 [compared to L#01]
+L:   2 | P:   4 | L003 | Expected 1 indentations, found 0 [compared to line 01]
 L:   5 | P:  10 | L010 | Keywords must be consistently upper case.
 L:   5 | P:  13 | L031 | Avoid aliases in from clauses and join conditions.
 """
