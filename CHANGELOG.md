@@ -13,6 +13,9 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 ## What’s Changed
 
+* Added Support For Snowflake Inline Comments [#2919](https://github.com/sqlfluff/sqlfluff/pull/2919) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* Spark3: Fix bug which did not allow multiple joins [#2917](https://github.com/sqlfluff/sqlfluff/pull/2917) [@tunetheweb](https://github.com/tunetheweb)
+* Added Snowflake Alter View Support [#2915](https://github.com/sqlfluff/sqlfluff/pull/2915) [@WittierDinosaur](https://github.com/WittierDinosaur)
 * Adjust L010 to ignore nulls and booleans covered by L040 [#2913](https://github.com/sqlfluff/sqlfluff/pull/2913) [@tunetheweb](https://github.com/tunetheweb)
 * Fix bug where L043 corrupts SQL [#2908](https://github.com/sqlfluff/sqlfluff/pull/2908) [@barrywhart](https://github.com/barrywhart)
 * Jinja: Add support for Block Assignments [#2907](https://github.com/sqlfluff/sqlfluff/pull/2907) [@barrywhart](https://github.com/barrywhart)
