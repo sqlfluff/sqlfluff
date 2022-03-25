@@ -13,6 +13,7 @@ from sqlfluff.core.parser import (
     BaseSegment,
     Bracketed,
     CodeSegment,
+    CommentSegment,
     Dedent,
     Delimited,
     Indent,
@@ -42,6 +43,12 @@ snowflake_dialect.patch_lexer_matchers(
         # In snowflake, a double single quote resolves as a single quote in the string.
         # https://docs.snowflake.com/en/sql-reference/data-types-text.html#single-quoted-string-constants
         RegexLexer("single_quote", r"'([^'\\]|\\.|'')*'", CodeSegment),
+        RegexLexer(
+            "inline_comment",
+            r"(--|#|//)[^\n]*",
+            CommentSegment,
+            segment_kwargs={"trim_start": ("--", "#", "//")},
+        ),
     ]
 )
 
@@ -790,6 +797,7 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             Ref("UndropStatementSegment"),
             Ref("CommentStatementSegment"),
             Ref("CallStatementSegment"),
+            Ref("AlterViewStatementSegment"),
         ],
         remove=[
             Ref("CreateTypeStatementSegment"),
@@ -2470,6 +2478,98 @@ class CreateViewStatementSegment(BaseSegment):
         ),
         "AS",
         OptionallyBracketed(Ref("SelectableGrammar")),
+    )
+
+
+@snowflake_dialect.segment()
+class AlterViewStatementSegment(BaseSegment):
+    """An `ALTER VIEW` statement, specifically for Snowflake's dialect.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-view.html
+    """
+
+    type = "alter_view_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "VIEW",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        OneOf(
+            Sequence(
+                "RENAME",
+                "TO",
+                Ref("TableReferenceSegment"),
+            ),
+            Sequence(
+                "COMMENT",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
+            Sequence(
+                "UNSET",
+                "COMMENT",
+            ),
+            Sequence(
+                OneOf("SET", "UNSET"),
+                "SECURE",
+            ),
+            Sequence("SET", Ref("TagEqualsSegment")),
+            Sequence("UNSET", "TAG", Delimited(Ref("NakedIdentifierSegment"))),
+            Delimited(
+                Sequence(
+                    "ADD",
+                    "ROW",
+                    "ACCESS",
+                    "POLICY",
+                    Ref("FunctionNameSegment"),
+                    "ON",
+                    Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+                ),
+                Sequence(
+                    "DROP",
+                    "ROW",
+                    "ACCESS",
+                    "POLICY",
+                    Ref("FunctionNameSegment"),
+                ),
+            ),
+            Sequence(
+                OneOf("ALTER", "MODIFY"),
+                OneOf(
+                    Delimited(
+                        Sequence(
+                            Ref.keyword("COLUMN", optional=True),
+                            Ref("ColumnReferenceSegment"),
+                            OneOf(
+                                Sequence(
+                                    "SET",
+                                    "MASKING",
+                                    "POLICY",
+                                    Ref("FunctionNameSegment"),
+                                    Sequence(
+                                        "USING",
+                                        Bracketed(
+                                            Delimited(Ref("ColumnReferenceSegment"))
+                                        ),
+                                        optional=True,
+                                    ),
+                                ),
+                                Sequence("UNSET", "MASKING", "POLICY"),
+                                Sequence("SET", Ref("TagEqualsSegment")),
+                            ),
+                        ),
+                        Sequence(
+                            "COLUMN",
+                            Ref("ColumnReferenceSegment"),
+                            "UNSET",
+                            "TAG",
+                            Delimited(Ref("NakedIdentifierSegment")),
+                        ),
+                    ),
+                ),
+            ),
+        ),
     )
 
 
