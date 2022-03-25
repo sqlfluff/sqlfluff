@@ -131,20 +131,20 @@ inherited from :ref:`postgres_dialect_ref`.
 .. _sparksql_dialect_ref:
 
 SparkSQL
-------
+--------
 
 The dialect for `SparkSQL`_. It inherits from :ref:`ansi_dialect_ref` and
 includes relevant syntax from :ref:`hive_dialect_ref` for commands that
 permit Hive Format.
 
-This implementation focuses on the `ANSI Compliant dialect`_ introduced in
+This implementation focuses on the `Ansi Compliant Mode`_ introduced in
 Spark3, instead of being Hive Compliant. The introduction of ANSI Compliance
 provides better data quality and easier migration from traditional DBMS.
 
 Versions of Spark prior to 3.x will only support the Hive dialect.
 
 .. _`SparkSQL`: https://spark.apache.org/docs/latest/sql-ref.html
-.. _`SparkSQL Ansi Compliance`: https://spark.apache.org/docs/latest/sql-ref-ansi-compliance.html
+.. _`Ansi Compliant Mode`: https://spark.apache.org/docs/latest/sql-ref-ansi-compliance.html
 
 .. _sqlite_dialect_ref:
 
