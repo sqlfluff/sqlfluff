@@ -3,7 +3,7 @@ default:
   outputs:
     dev:
       type: postgres
-      host: localhost
+      host: "{{ env_var('POSTGRES_HOST', 'postgres') }}"
       user: postgres
       pass: password
       port: 5432

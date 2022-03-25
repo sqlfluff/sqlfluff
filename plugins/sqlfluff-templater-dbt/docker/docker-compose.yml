@@ -1,4 +1,4 @@
-version: "2"
+version: "2.4"
 
 services:
   app:
@@ -18,6 +18,7 @@ services:
     image: postgres:14-bullseye
     environment:
       - POSTGRES_PASSWORD=password
+      - POSTGRES_HOST=postgres
     ports:
       # NOTE: "5432:5432" makes the Postgres server accessible to both the host
       # developer machine *and* the "app" container in Docker. If you don't want
