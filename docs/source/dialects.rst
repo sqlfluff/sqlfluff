@@ -128,12 +128,12 @@ inherited from :ref:`postgres_dialect_ref`.
 
 .. _`Snowflake`: https://docs.snowflake.com/en/sql-reference.html
 
-.. _spark3_dialect_ref:
+.. _sparksql_dialect_ref:
 
-Spark3
+SparkSQL
 ------
 
-The dialect for `Spark3`_. It inherits from :ref:`ansi_dialect_ref` and
+The dialect for `SparkSQL`_. It inherits from :ref:`ansi_dialect_ref` and
 includes relevant syntax from :ref:`hive_dialect_ref` for commands that
 permit Hive Format.
 
@@ -143,8 +143,8 @@ provides better data quality and easier migration from traditional DBMS.
 
 Versions of Spark prior to 3.x will only support the Hive dialect.
 
-.. _`Spark3`: https://spark.apache.org/docs/latest/sql-ref.html
-.. _`Ansi Compliant dialect`: https://spark.apache.org/docs/latest/sql-ref-ansi-compliance.html
+.. _`SparkSQL`: https://spark.apache.org/docs/latest/sql-ref.html
+.. _`SparkSQL Ansi Compliance`: https://spark.apache.org/docs/latest/sql-ref-ansi-compliance.html
 
 .. _sqlite_dialect_ref:
 

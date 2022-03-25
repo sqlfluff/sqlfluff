@@ -299,7 +299,7 @@ test_fail_insert_overwrite_directory:
     SELECT a FROM test_table;
   configs:
     core:
-      dialect: spark3
+      dialect: sparksql
 
 test_pass_insert_overwrite_directory:
   pass_str: |
@@ -309,4 +309,4 @@ test_pass_insert_overwrite_directory:
     SELECT a FROM test_table;
   configs:
     core:
-      dialect: spark3
+      dialect: sparksql

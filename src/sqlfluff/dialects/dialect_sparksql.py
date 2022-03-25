@@ -1,4 +1,4 @@
-"""The Spark SQL dialect for ANSI Compliant Spark3.
+"""The ANSI Compliant SparkSQL dialect.
 
 Inherits from ANSI.
 Spark SQL ANSI Mode is more restrictive regarding
@@ -34,16 +34,16 @@ from sqlfluff.core.parser import (
     RegexParser,
 )
 from sqlfluff.core.parser.segments.raw import CodeSegment, KeywordSegment
-from sqlfluff.dialects.dialect_spark3_keywords import (
+from sqlfluff.dialects.dialect_sparksql_keywords import (
     RESERVED_KEYWORDS,
     UNRESERVED_KEYWORDS,
 )
 
 ansi_dialect = load_raw_dialect("ansi")
 hive_dialect = load_raw_dialect("hive")
-spark3_dialect = ansi_dialect.copy_as("spark3")
+sparksql_dialect = ansi_dialect.copy_as("sparksql")
 
-spark3_dialect.patch_lexer_matchers(
+sparksql_dialect.patch_lexer_matchers(
     [
         # Spark SQL, only -- is used for single-line comment
         RegexLexer(
@@ -109,7 +109,7 @@ spark3_dialect.patch_lexer_matchers(
     ]
 )
 
-spark3_dialect.insert_lexer_matchers(
+sparksql_dialect.insert_lexer_matchers(
     [
         RegexLexer("bytes_single_quote", r"X'([^'\\]|\\.)*'", CodeSegment),
         RegexLexer("bytes_double_quote", r'X"([^"\\]|\\.)*"', CodeSegment),
@@ -118,8 +118,8 @@ spark3_dialect.insert_lexer_matchers(
 )
 
 # Set the bare functions
-spark3_dialect.sets("bare_functions").clear()
-spark3_dialect.sets("bare_functions").update(
+sparksql_dialect.sets("bare_functions").clear()
+sparksql_dialect.sets("bare_functions").update(
     [
         "CURRENT_DATE",
         "CURRENT_TIMESTAMP",
@@ -128,8 +128,8 @@ spark3_dialect.sets("bare_functions").update(
 )
 
 # Set the datetime units
-spark3_dialect.sets("datetime_units").clear()
-spark3_dialect.sets("datetime_units").update(
+sparksql_dialect.sets("datetime_units").clear()
+sparksql_dialect.sets("datetime_units").update(
     [
         "YEAR",
         # Alternate syntax for YEAR
@@ -151,18 +151,18 @@ spark3_dialect.sets("datetime_units").update(
 )
 
 # Set Keywords
-spark3_dialect.sets("unreserved_keywords").update(UNRESERVED_KEYWORDS)
-spark3_dialect.sets("reserved_keywords").update(RESERVED_KEYWORDS)
+sparksql_dialect.sets("unreserved_keywords").update(UNRESERVED_KEYWORDS)
+sparksql_dialect.sets("reserved_keywords").update(RESERVED_KEYWORDS)
 
 # Set Angle Bracket Pairs
-spark3_dialect.sets("angle_bracket_pairs").update(
+sparksql_dialect.sets("angle_bracket_pairs").update(
     [
         ("angle", "StartAngleBracketSegment", "EndAngleBracketSegment", False),
     ]
 )
 
 # Real Segments
-spark3_dialect.replace(
+sparksql_dialect.replace(
     ComparisonOperatorGrammar=OneOf(
         Ref("EqualsSegment"),
         Ref("EqualsSegment_a"),
@@ -247,7 +247,7 @@ spark3_dialect.replace(
     ),
 )
 
-spark3_dialect.add(
+sparksql_dialect.add(
     BackQuotedIdentifierSegment=NamedParser(
         "back_quote",
         CodeSegment,
@@ -480,14 +480,14 @@ spark3_dialect.add(
 # `single_quote` so they are applied before comment lexer so
 # hints are treated as such instead of comments when parsing.
 # https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-hints.html
-spark3_dialect.insert_lexer_matchers(
+sparksql_dialect.insert_lexer_matchers(
     [
         RegexLexer("start_hint", r"\/\*\+", CodeSegment),
     ],
     before="block_comment",
 )
 
-spark3_dialect.insert_lexer_matchers(
+sparksql_dialect.insert_lexer_matchers(
     [
         RegexLexer("end_hint", r"\*\/", CodeSegment),
     ],
@@ -496,7 +496,7 @@ spark3_dialect.insert_lexer_matchers(
 
 
 # Hive Segments
-@spark3_dialect.segment()
+@sparksql_dialect.segment()
 class RowFormatClauseSegment(
     hive_dialect.get_segment("RowFormatClauseSegment")  # type: ignore
 ):
@@ -505,7 +505,7 @@ class RowFormatClauseSegment(
     type = "row_format_clause"
 
 
-@spark3_dialect.segment()
+@sparksql_dialect.segment()
 class SkewedByClauseSegment(
     hive_dialect.get_segment("SkewedByClauseSegment")  # type: ignore
 ):
@@ -515,7 +515,7 @@ class SkewedByClauseSegment(
 
 
 # Primitive Data Types
-@spark3_dialect.segment()
+@sparksql_dialect.segment()
 class PrimitiveTypeSegment(BaseSegment):
     """Spark SQL Primitive data types.
 
@@ -557,7 +557,7 @@ class PrimitiveTypeSegment(BaseSegment):
     )
 
 
-@spark3_dialect.segment(replace=True)
+@sparksql_dialect.segment(replace=True)
 class DatatypeSegment(PrimitiveTypeSegment):
     """Spark SQL Data types.
 
@@ -620,7 +620,7 @@ class DatatypeSegment(PrimitiveTypeSegment):
 
 # Data Definition Statements
 # http://spark.apache.org/docs/latest/sql-ref-syntax-ddl.html
-@spark3_dialect.segment()
+@sparksql_dialect.segment()
 class AlterDatabaseStatementSegment(BaseSegment):
     """An `ALTER DATABASE/SCHEMA` statement.
 
@@ -638,7 +638,7 @@ class AlterDatabaseStatementSegment(BaseSegment):
     )
 
 
-@spark3_dialect.segment(replace=True)
+@sparksql_dialect.segment(replace=True)
 class AlterTableStatementSegment(BaseSegment):
     """A `ALTER TABLE` statement to change the table schema or properties.
 
@@ -741,7 +741,7 @@ class AlterTableStatementSegment(BaseSegment):
     )
 
 
-@spark3_dialect.segment()
+@sparksql_dialect.segment()
 class AlterViewStatementSegment(BaseSegment):
     """A `ALTER VIEW` statement to change the view schema or properties.
 
@@ -770,7 +770,7 @@ class AlterViewStatementSegment(BaseSegment):
     )
 
 
-@spark3_dialect.segment(replace=True)
+@sparksql_dialect.segment(replace=True)
 class CreateDatabaseStatementSegment(BaseSegment):
     """A `CREATE DATABASE` statement.
 
@@ -791,7 +791,7 @@ class CreateDatabaseStatementSegment(BaseSegment):
     )
 
 
-@spark3_dialect.segment(replace=True)
+@sparksql_dialect.segment(replace=True)
 class CreateFunctionStatementSegment(BaseSegment):
     """A `CREATE FUNCTION` statement.
 
@@ -821,7 +821,7 @@ class CreateFunctionStatementSegment(BaseSegment):
     )
 
 
-@spark3_dialect.segment(replace=True)
+@sparksql_dialect.segment(replace=True)
 class CreateTableStatementSegment(BaseSegment):
     """A `CREATE TABLE` statement using a Data Source or Like.
 
@@ -883,7 +883,7 @@ class CreateTableStatementSegment(BaseSegment):
     )
 
 
-@spark3_dialect.segment()
+@sparksql_dialect.segment()
 class CreateHiveFormatTableStatementSegment(
     hive_dialect.get_segment("CreateTableStatementSegment")  # type: ignore
 ):
@@ -895,7 +895,7 @@ class CreateHiveFormatTableStatementSegment(
     type = "create_table_statement"
 
 
-@spark3_dialect.segment(replace=True)
+@sparksql_dialect.segment(replace=True)
 class CreateViewStatementSegment(BaseSegment):
     """A `CREATE VIEW` statement.
 
@@ -931,7 +931,7 @@ class CreateViewStatementSegment(BaseSegment):
     )
 
 
-@spark3_dialect.segment()
+@sparksql_dialect.segment()
 class DropFunctionStatementSegment(BaseSegment):
     """A `DROP FUNCTION` STATEMENT.
 
@@ -949,7 +949,7 @@ class DropFunctionStatementSegment(BaseSegment):
     )
 
 
-@spark3_dialect.segment()
+@sparksql_dialect.segment()
 class MsckRepairTableStatementSegment(
     hive_dialect.get_segment("MsckRepairTableStatementSegment")  # type: ignore
 ):
@@ -964,7 +964,7 @@ class MsckRepairTableStatementSegment(
     type = "msck_repair_table_statement"
 
 
-@spark3_dialect.segment(replace=True)
+@sparksql_dialect.segment(replace=True)
 class TruncateStatementSegment(BaseSegment):
     """A `TRUNCATE TABLE` statement.
 
@@ -981,7 +981,7 @@ class TruncateStatementSegment(BaseSegment):
     )
 
 
-@spark3_dialect.segment()
+@sparksql_dialect.segment()
 class UseDatabaseStatementSegment(BaseSegment):
     """A `USE DATABASE` statement.
 
@@ -997,7 +997,7 @@ class UseDatabaseStatementSegment(BaseSegment):
 
 
 # Data Manipulation Statements
-@spark3_dialect.segment(replace=True)
+@sparksql_dialect.segment(replace=True)
 class InsertStatementSegment(BaseSegment):
     """A `INSERT [TABLE]` statement to insert or overwrite new rows into a table.
 
@@ -1040,7 +1040,7 @@ class InsertStatementSegment(BaseSegment):
     )
 
 
-@spark3_dialect.segment()
+@sparksql_dialect.segment()
 class InsertOverwriteDirectorySegment(BaseSegment):
     """An `INSERT OVERWRITE [LOCAL] DIRECTORY` statement.
 
@@ -1068,7 +1068,7 @@ class InsertOverwriteDirectorySegment(BaseSegment):
     )
 
 
-@spark3_dialect.segment()
+@sparksql_dialect.segment()
 class InsertOverwriteDirectoryHiveFmtSegment(BaseSegment):
     """An `INSERT OVERWRITE [LOCAL] DIRECTORY` statement in Hive format.
 
@@ -1095,7 +1095,7 @@ class InsertOverwriteDirectoryHiveFmtSegment(BaseSegment):
     )
 
 
-@spark3_dialect.segment()
+@sparksql_dialect.segment()
 class LoadDataSegment(BaseSegment):
     """A `LOAD DATA` statement.
 
@@ -1119,7 +1119,7 @@ class LoadDataSegment(BaseSegment):
 
 
 # Data Retrieval Statements
-@spark3_dialect.segment()
+@sparksql_dialect.segment()
 class ClusterByClauseSegment(BaseSegment):
     """A `CLUSTER BY` clause from `SELECT` statement.
 
@@ -1166,7 +1166,7 @@ class ClusterByClauseSegment(BaseSegment):
     )
 
 
-@spark3_dialect.segment()
+@sparksql_dialect.segment()
 class DistributeByClauseSegment(BaseSegment):
     """A `DISTRIBUTE BY` clause from `SELECT` statement.
 
@@ -1212,7 +1212,7 @@ class DistributeByClauseSegment(BaseSegment):
     )
 
 
-@spark3_dialect.segment()
+@sparksql_dialect.segment()
 class HintFunctionSegment(BaseSegment):
     """A Function within a SparkSQL Hint.
 
@@ -1237,7 +1237,7 @@ class HintFunctionSegment(BaseSegment):
     )
 
 
-@spark3_dialect.segment()
+@sparksql_dialect.segment()
 class SelectHintSegment(BaseSegment):
     """Spark Select Hints.
 
@@ -1262,7 +1262,7 @@ class SelectHintSegment(BaseSegment):
     )
 
 
-@spark3_dialect.segment(replace=True)
+@sparksql_dialect.segment(replace=True)
 class LimitClauseSegment(BaseSegment):
     """A `LIMIT` clause like in `SELECT`.
 
@@ -1287,7 +1287,7 @@ class LimitClauseSegment(BaseSegment):
     )
 
 
-@spark3_dialect.segment(replace=True)
+@sparksql_dialect.segment(replace=True)
 class SetOperatorSegment(BaseSegment):
     """A set operator such as Union, Minus, Except or Intersect.
 
@@ -1312,7 +1312,7 @@ class SetOperatorSegment(BaseSegment):
     )
 
 
-@spark3_dialect.segment(replace=True)
+@sparksql_dialect.segment(replace=True)
 class SelectClauseModifierSegment(BaseSegment):
     """Things that come after SELECT but before the columns.
 
@@ -1343,7 +1343,7 @@ class SelectClauseModifierSegment(BaseSegment):
     )
 
 
-@spark3_dialect.segment(replace=True)
+@sparksql_dialect.segment(replace=True)
 class UnorderedSelectStatementSegment(BaseSegment):
     """Enhance unordered `SELECT` statement for valid SparkSQL clauses.
 
@@ -1366,7 +1366,7 @@ class UnorderedSelectStatementSegment(BaseSegment):
     )
 
 
-@spark3_dialect.segment(replace=True)
+@sparksql_dialect.segment(replace=True)
 class SelectStatementSegment(BaseSegment):
     """Enhance `SELECT` statement for valid SparkSQL clauses."""
 
@@ -1390,7 +1390,7 @@ class SelectStatementSegment(BaseSegment):
     )
 
 
-@spark3_dialect.segment(replace=True)
+@sparksql_dialect.segment(replace=True)
 class GroupByClauseSegment(BaseSegment):
     """Enhance `GROUP BY` clause like in `SELECT` for 'CUBE' and 'ROLLUP`.
 
@@ -1429,7 +1429,7 @@ class GroupByClauseSegment(BaseSegment):
     )
 
 
-@spark3_dialect.segment()
+@sparksql_dialect.segment()
 class WithCubeRollupClauseSegment(BaseSegment):
     """A `[WITH CUBE | WITH ROLLUP]` clause after the `GROUP BY` clause.
 
@@ -1444,7 +1444,7 @@ class WithCubeRollupClauseSegment(BaseSegment):
     )
 
 
-@spark3_dialect.segment()
+@sparksql_dialect.segment()
 class CubeRollupClauseSegment(BaseSegment):
     """`[CUBE | ROLLUP]` clause within the `GROUP BY` clause.
 
@@ -1471,7 +1471,7 @@ class CubeRollupClauseSegment(BaseSegment):
     )
 
 
-@spark3_dialect.segment()
+@sparksql_dialect.segment()
 class GroupingSetsClauseSegment(BaseSegment):
     """`GROUPING SETS` clause within the `GROUP BY` clause."""
 
@@ -1500,7 +1500,7 @@ class GroupingSetsClauseSegment(BaseSegment):
     )
 
 
-@spark3_dialect.segment()
+@sparksql_dialect.segment()
 class GroupingExpressionList(BaseSegment):
     """Grouping expression list within `CUBE` / `ROLLUP` `GROUPING SETS`."""
 
@@ -1514,7 +1514,7 @@ class GroupingExpressionList(BaseSegment):
     )
 
 
-@spark3_dialect.segment()
+@sparksql_dialect.segment()
 class SortByClauseSegment(BaseSegment):
     """A `SORT BY` clause like in `SELECT`.
 
@@ -1564,7 +1564,7 @@ class SortByClauseSegment(BaseSegment):
     )
 
 
-@spark3_dialect.segment(replace=True)
+@sparksql_dialect.segment(replace=True)
 class SamplingExpressionSegment(BaseSegment):
     """A `TABLESAMPLE` clause following a table identifier.
 
@@ -1594,7 +1594,7 @@ class SamplingExpressionSegment(BaseSegment):
     )
 
 
-@spark3_dialect.segment()
+@sparksql_dialect.segment()
 class LateralViewClauseSegment(BaseSegment):
     """A `LATERAL VIEW` like in a `FROM` clause.
 
@@ -1624,7 +1624,7 @@ class LateralViewClauseSegment(BaseSegment):
     )
 
 
-@spark3_dialect.segment(replace=True)
+@sparksql_dialect.segment(replace=True)
 class OverClauseSegment(BaseSegment):
     """An OVER clause for window functions.
 
@@ -1648,7 +1648,7 @@ class OverClauseSegment(BaseSegment):
     )
 
 
-@spark3_dialect.segment()
+@sparksql_dialect.segment()
 class PivotClauseSegment(BaseSegment):
     """A `PIVOT` clause as using in FROM clause.
 
@@ -1702,7 +1702,7 @@ class PivotClauseSegment(BaseSegment):
     )
 
 
-@spark3_dialect.segment()
+@sparksql_dialect.segment()
 class TransformClauseSegment(BaseSegment):
     """A `TRANSFORM` clause like used in `SELECT`.
 
@@ -1739,7 +1739,7 @@ class TransformClauseSegment(BaseSegment):
     )
 
 
-@spark3_dialect.segment(replace=True)
+@sparksql_dialect.segment(replace=True)
 class ExplainStatementSegment(BaseSegment):
     """An `Explain` statement.
 
@@ -1768,7 +1768,7 @@ class ExplainStatementSegment(BaseSegment):
 
 
 # Auxiliary Statements
-@spark3_dialect.segment()
+@sparksql_dialect.segment()
 class AddFileSegment(BaseSegment):
     """A `ADD {FILE | FILES}` statement.
 
@@ -1784,7 +1784,7 @@ class AddFileSegment(BaseSegment):
     )
 
 
-@spark3_dialect.segment()
+@sparksql_dialect.segment()
 class AddJarSegment(BaseSegment):
     """A `ADD {JAR | JARS}` statement.
 
@@ -1800,7 +1800,7 @@ class AddJarSegment(BaseSegment):
     )
 
 
-@spark3_dialect.segment()
+@sparksql_dialect.segment()
 class AnalyzeTableSegment(BaseSegment):
     """An `ANALYZE {TABLE | TABLES}` statement.
 
@@ -1860,7 +1860,7 @@ class AnalyzeTableSegment(BaseSegment):
     )
 
 
-@spark3_dialect.segment()
+@sparksql_dialect.segment()
 class CacheTableSegment(BaseSegment):
     """A `CACHE TABLE` statement.
 
@@ -1880,7 +1880,7 @@ class CacheTableSegment(BaseSegment):
     )
 
 
-@spark3_dialect.segment()
+@sparksql_dialect.segment()
 class ClearCacheSegment(BaseSegment):
     """A `CLEAR CACHE` statement.
 
@@ -1895,7 +1895,7 @@ class ClearCacheSegment(BaseSegment):
     )
 
 
-@spark3_dialect.segment(replace=True)
+@sparksql_dialect.segment(replace=True)
 class DescribeStatementSegment(BaseSegment):
     """A `DESCRIBE` statement.
 
@@ -1975,7 +1975,7 @@ class DescribeStatementSegment(BaseSegment):
     )
 
 
-@spark3_dialect.segment()
+@sparksql_dialect.segment()
 class ListFileSegment(BaseSegment):
     """A `LIST {FILE | FILES}` statement.
 
@@ -1991,7 +1991,7 @@ class ListFileSegment(BaseSegment):
     )
 
 
-@spark3_dialect.segment()
+@sparksql_dialect.segment()
 class ListJarSegment(BaseSegment):
     """A `ADD {JAR | JARS}` statement.
 
@@ -2007,7 +2007,7 @@ class ListJarSegment(BaseSegment):
     )
 
 
-@spark3_dialect.segment()
+@sparksql_dialect.segment()
 class RefreshStatementSegment(BaseSegment):
     """A `REFRESH` statement for given data source path.
 
@@ -2039,7 +2039,7 @@ class RefreshStatementSegment(BaseSegment):
     )
 
 
-@spark3_dialect.segment()
+@sparksql_dialect.segment()
 class ResetStatementSegment(BaseSegment):
     """A `RESET` statement used to reset runtime configurations.
 
@@ -2058,7 +2058,7 @@ class ResetStatementSegment(BaseSegment):
     )
 
 
-@spark3_dialect.segment()
+@sparksql_dialect.segment()
 class SetStatementSegment(BaseSegment):
     """A `SET` statement used to set runtime properties.
 
@@ -2078,7 +2078,7 @@ class SetStatementSegment(BaseSegment):
     )
 
 
-@spark3_dialect.segment()
+@sparksql_dialect.segment()
 class ShowStatement(BaseSegment):
     """Common class for `SHOW` statements.
 
@@ -2213,7 +2213,7 @@ class ShowStatement(BaseSegment):
     )
 
 
-@spark3_dialect.segment()
+@sparksql_dialect.segment()
 class UncacheTableSegment(BaseSegment):
     """AN `UNCACHE TABLE` statement.
 
@@ -2230,7 +2230,7 @@ class UncacheTableSegment(BaseSegment):
     )
 
 
-@spark3_dialect.segment(replace=True)
+@sparksql_dialect.segment(replace=True)
 class StatementSegment(BaseSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
 
@@ -2238,7 +2238,7 @@ class StatementSegment(BaseSegment):
     match_grammar = ansi_dialect.get_segment("StatementSegment").match_grammar.copy()
 
     parse_grammar = ansi_dialect.get_segment("StatementSegment").parse_grammar.copy(
-        # Segments defined in Spark3 dialect
+        # Segments defined in SparkSQL dialect
         insert=[
             # Data Definition Statements
             Ref("AlterDatabaseStatementSegment"),
@@ -2280,7 +2280,7 @@ class StatementSegment(BaseSegment):
     )
 
 
-@spark3_dialect.segment(replace=True)
+@sparksql_dialect.segment(replace=True)
 class JoinClauseSegment(BaseSegment):
     """Any number of join clauses, including the `JOIN` keyword.
 
@@ -2346,7 +2346,7 @@ class JoinClauseSegment(BaseSegment):
     ).get_eventual_alias
 
 
-@spark3_dialect.segment(replace=True)
+@sparksql_dialect.segment(replace=True)
 class AliasExpressionSegment(BaseSegment):
     """A reference to an object with an `AS` clause.
 
@@ -2387,7 +2387,7 @@ class AliasExpressionSegment(BaseSegment):
     )
 
 
-@spark3_dialect.segment(replace=True)
+@sparksql_dialect.segment(replace=True)
 class ValuesClauseSegment(BaseSegment):
     """A `VALUES` clause, as typically used with `INSERT` or `SELECT`.
 
@@ -2428,7 +2428,7 @@ class ValuesClauseSegment(BaseSegment):
                 ),
             ),
         ),
-        # LIMIT/ORDER are unreserved in Spark3.
+        # LIMIT/ORDER are unreserved in sparksql.
         AnyNumberOf(
             Ref("AliasExpressionSegment"),
             min_times=0,
@@ -2440,7 +2440,7 @@ class ValuesClauseSegment(BaseSegment):
     )
 
 
-@spark3_dialect.segment(replace=True)
+@sparksql_dialect.segment(replace=True)
 class TableExpressionSegment(BaseSegment):
     """The main table expression e.g. within a FROM clause.
 
@@ -2460,7 +2460,7 @@ class TableExpressionSegment(BaseSegment):
     )
 
 
-@spark3_dialect.segment()
+@sparksql_dialect.segment()
 class FileReferenceSegment(BaseSegment):
     """A reference to a file for direct query.
 
@@ -2478,7 +2478,7 @@ class FileReferenceSegment(BaseSegment):
     )
 
 
-@spark3_dialect.segment(replace=True)
+@sparksql_dialect.segment(replace=True)
 class FromExpressionElementSegment(BaseSegment):
     """A table expression.
 
@@ -2510,7 +2510,7 @@ class FromExpressionElementSegment(BaseSegment):
     ).get_eventual_alias
 
 
-@spark3_dialect.segment()
+@sparksql_dialect.segment()
 class PropertyNameSegment(BaseSegment):
     """A segment for a property name to set and retrieve table and runtime properties.
 

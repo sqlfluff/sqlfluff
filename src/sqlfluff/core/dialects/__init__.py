@@ -33,7 +33,7 @@ _dialect_lookup = {
     "sqlite": ("dialect_sqlite", "sqlite_dialect"),
     "teradata": ("dialect_teradata", "teradata_dialect"),
     "tsql": ("dialect_tsql", "tsql_dialect"),
-    "spark3": ("dialect_spark3", "spark3_dialect"),
+    "sparksql": ("dialect_sparksql", "sparksql_dialect"),
 }
 
 _legacy_dialects = {
@@ -41,7 +41,11 @@ _legacy_dialects = {
         "As of 0.7.0 the 'exasol_fs' dialect has been combined with "
         "the 'exasol' dialect, and is no longer a standalone dialect. "
         "Please use the 'exasol' dialect instead."
-    )
+    ),
+    "spark3": (
+        "The 'spark3' dialect has been renamed to sparksql."
+        "Please use the 'sparksql' dialect instead."
+    ),
 }
 
 

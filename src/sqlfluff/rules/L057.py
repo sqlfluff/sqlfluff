@@ -118,7 +118,7 @@ class Rule_L057(BaseRule):
             # https://spark.apache.org/docs/latest/sql-data-sources-generic-options.html#path-global-filter
             #
 
-            if context.dialect.name in ["spark3"] and context.parent_stack:
+            if context.dialect.name in ["sparksql"] and context.parent_stack:
 
                 # Spark3 file references for direct file query
                 # are quoted in back ticks to allow for identfiers common
