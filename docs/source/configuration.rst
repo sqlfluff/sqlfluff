@@ -633,6 +633,19 @@ You can set the dbt project directory, profiles directory and profile with:
     `~/.dbt/`. On Windows, you can determine your default profile directory by
     running `dbt debug --config-dir`.
 
+If your project requires that you pass variables to dbt through command line,
+you can specify them in `template:dbt:contex` section of `.sqlfluff`.
+See below configuration and its equivalend dbt command:
+
+.. code-block:: cfg
+
+    [sqlfluff:templater:dbt:context]
+    my_variable = 1
+
+.. code-block:: text
+
+    dbt run --vars '{"my_variable": 1}'
+
 Known Caveats
 ^^^^^^^^^^^^^
 
