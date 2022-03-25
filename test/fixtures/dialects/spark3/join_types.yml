@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5f560dfbb9dfb1bc61fcc2c5b299666c504b14c7a2cd38480f04aa0c00f95840
+_hash: 4a32b09acee1d2459b9555b31ebdc2ac1fb1bc8dc2a7953e28c90c6cb372b2e4
 file:
 - statement:
     select_statement:
@@ -834,3 +834,71 @@ file:
                 table_reference:
                   identifier: department
 - statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: table1
+          - dot: .
+          - identifier: a
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - identifier: table2
+          - dot: .
+          - identifier: b
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - identifier: table3
+          - dot: .
+          - identifier: c
+      from_clause:
+        keyword: FROM
+        from_expression:
+        - from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: table1
+        - join_clause:
+          - keyword: INNER
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: table2
+          - join_on_condition:
+              keyword: 'ON'
+              expression:
+              - column_reference:
+                - identifier: table1
+                - dot: .
+                - identifier: a
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                - identifier: table2
+                - dot: .
+                - identifier: a
+        - join_clause:
+          - keyword: INNER
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: table3
+          - join_on_condition:
+              keyword: 'ON'
+              expression:
+              - column_reference:
+                - identifier: table1
+                - dot: .
+                - identifier: a
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                - identifier: table3
+                - dot: .
+                - identifier: a

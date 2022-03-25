@@ -127,3 +127,15 @@ SELECT employee.id FROM employee NATURAL LEFT SEMI JOIN department;
 SELECT employee.id FROM employee NATURAL ANTI JOIN department;
 
 SELECT employee.id FROM employee NATURAL LEFT ANTI JOIN department;
+
+-- Multiple join
+SELECT
+    table1.a,
+    table2.b,
+    table3.c
+FROM table1
+INNER JOIN table2
+    ON table1.a = table2.a
+INNER JOIN table3
+    ON table1.a = table3.a
+
