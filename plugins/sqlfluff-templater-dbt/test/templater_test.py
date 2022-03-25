@@ -431,3 +431,27 @@ def test__project_dir_does_not_exist_error(dbt_templater, caplog):  # noqa: F811
         ) in caplog.text
     finally:
         logger.propagate = original_propagate_value
+
+
+def test__context_in_config_is_loaded(project_dir, dbt_templater):  # noqa: F811
+    """Test that variables inside .sqlfluff are passed to dbt."""
+    config = FluffConfig(
+        configs={
+            "templater": {
+                "dbt": {
+                    "context": {"passed_through_cli": "expected_value"},
+                    "profiles_dir": "~/.dbt",
+                    "project_dir": project_dir,
+                    "profile": "default",
+                    "target": "dev",
+                }
+            }
+        }
+    )
+    fname = os.path.abspath(os.path.join(project_dir, "models/vars_from_cli.sql"))
+
+    dbt_templater.cli_vars = "passed_through_cli: expected_value"
+    processed, violations = dbt_templater.process(in_str="", fname=fname, config=config)
+
+    assert violations == []
+    assert "expected_value" in processed.templated_str
