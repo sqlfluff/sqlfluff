@@ -55,11 +55,16 @@ class Rule_L063(Rule_L010):
 
     _target_elems: List[Tuple[str, str]] = [
         ("parenttype", "data_type"),
+        ("parenttype", "datetime_type_identifier"),
+        ("parenttype", "primitive_type"),
         ("type", "data_type_identifier"),
+    ]
+    _exclude_elements: List[Tuple[str, str]] = [
+        ("type", "identifier"),
+        ("type", "literal"),
     ]
     config_keywords = [
         "extended_capitalisation_policy",
         "ignore_words",
     ]
-    _exclude_elements: List[Tuple[str, str]] = []
     _description_elem = "Datatypes"

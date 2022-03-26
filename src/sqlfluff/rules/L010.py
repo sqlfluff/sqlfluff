@@ -55,6 +55,8 @@ class Rule_L010(BaseRule):
         ("name", "null_literal"),
         ("name", "boolean_literal"),
         ("parenttype", "data_type"),
+        ("parenttype", "datetime_type_identifier"),
+        ("parenttype", "primitive_type"),
     ]
     config_keywords = ["capitalisation_policy", "ignore_words"]
     # Human readable target elem for description

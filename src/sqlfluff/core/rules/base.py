@@ -736,6 +736,7 @@ class BaseRule:
         # At the moment we only check the immeadiate parent and only for RawSegments
         elif (
             isinstance(seg, RawSegment)
+            and len(seg.raw) > 0
             and parent
             and parent.is_type(
                 *[elem[1] for elem in target_tuples if elem[0] == "parenttype"]

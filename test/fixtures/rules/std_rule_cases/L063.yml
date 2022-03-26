@@ -18,6 +18,23 @@ test_pass_default_consistent_upper:
         ts TIME WITH TIME ZONE
     );
 
+test_pass_default_consistent_capitalised:
+  # Test that we don't have the "inconsistent" bug
+  pass_str: |
+    CREATE TABLE distributors (
+        did Integer,
+        name Varchar(40),
+        ts Time With Time Zone
+    );
+
+test_pass_default_consistent_pascal:
+  # Test that we don't have the "inconsistent" bug
+  pass_str: |
+    CREATE TABLE distributors (
+        did Integer,
+        name VarChar(40),
+        ts Time With Time Zone
+    );
 
 test_fail_data_type_inconsistent_capitalisation_1:
   # Test that we don't have the "inconsistent" bug
@@ -99,6 +116,21 @@ test_fail_data_type_capitalisation_policy_keywords_2:
   fail_str: CREATE TABLE table1 (account_id BIGINT, column_two timestamp with time zone);
   fix_str: CREATE TABLE table1 (account_id BIGINT, column_two TIMESTAMP WITH TIME ZONE);
   configs:
+    rules:
+      L063:
+        extended_capitalisation_policy: upper
+
+
+test_pass_spark3_complex_data_types:
+  pass_str: |
+    CREATE TABLE table_identifier(
+      a STRUCT<b: STRING COMMENT 'struct_comment', c: BOOLEAN> COMMENT 'col_comment',
+      d MAP<STRING, BOOLEAN> COMMENT 'col_comment',
+      e ARRAY<STRING> COMMENT 'col_comment'
+    );
+  configs:
+    core:
+      dialect: spark3
     rules:
       L063:
         extended_capitalisation_policy: upper
