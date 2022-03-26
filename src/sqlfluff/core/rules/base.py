@@ -733,9 +733,12 @@ class BaseRule:
             return True
         elif seg.is_type(*[elem[1] for elem in target_tuples if elem[0] == "type"]):
             return True
-        # At the moment we only check the immeadiate parent and only for RawSegments
+        # For parent type checks, there's a higher risk of getting an incorrect
+        # segment, so we add some additional guards
         elif (
-            isinstance(seg, RawSegment)
+            not seg.is_meta
+            and not seg.is_templated
+            and isinstance(seg, RawSegment)
             and len(seg.raw) > 0
             and parent
             and parent.is_type(
