@@ -1463,8 +1463,8 @@ class JoinClauseSegment(BaseSegment):
         join_clauses = self.get_children("join_clause")
 
         # Iterate through the potential sources of aliases
-        if from_expression:
-            alias: AliasInfo = from_expression.get_eventual_alias()
+        alias: AliasInfo = from_expression.get_eventual_alias()
+        if alias:
             buff.append((from_expression, alias))
         for clause in join_clauses:
             aliases: List[Tuple[BaseSegment, AliasInfo]] = clause.get_eventual_aliases()
