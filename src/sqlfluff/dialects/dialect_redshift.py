@@ -1136,7 +1136,9 @@ class UnloadStatementSegment(BaseSegment):
 
 
 @redshift_dialect.segment(replace=True)
-class CopyStatementSegment(BaseSegment):
+class CopyStatementSegment(
+    postgres_dialect.get_segment("CopyStatementSegment")  # type: ignore
+):
     """A `COPY` statement.
 
     :
@@ -1750,7 +1752,9 @@ class VacuumStatementSegment(BaseSegment):
 
 # Adding Redshift specific statements
 @redshift_dialect.segment(replace=True)
-class StatementSegment(BaseSegment):
+class StatementSegment(
+    postgres_dialect.get_segment("StatementSegment")  # type: ignore
+):
     """A generic segment, to any of its child subsegments."""
 
     type = "statement"
