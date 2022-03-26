@@ -1116,7 +1116,7 @@ class FromPivotExpressionSegment(BaseSegment):
 
 @bigquery_dialect.segment()
 class UnpivotAliasExpressionSegment(BaseSegment):
-    """In BigQuery UNPIVOT alias's can be single or double quoted."""
+    """In BigQuery UNPIVOT alias's can be single or double quoted or numeric."""
 
     type = "alias_expression"
     match_grammar = Sequence(
@@ -1124,6 +1124,7 @@ class UnpivotAliasExpressionSegment(BaseSegment):
         OneOf(
             Ref("SingleQuotedLiteralSegment"),
             Ref("DoubleQuotedLiteralSegment"),
+            Ref("NumericLiteralSegment"),
         ),
     )
 
