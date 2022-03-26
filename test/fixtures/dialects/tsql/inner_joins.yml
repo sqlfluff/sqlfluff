@@ -1,0 +1,66 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 1f8b7e378b1ee858340c7a0e8d5c4a09f0a07661eb45899a5a04067a81349c9e
+file:
+  batch:
+    statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            literal: '1'
+            alias_expression:
+              keyword: AS
+              identifier: RegionCode
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: BA
+            join_clause:
+            - keyword: LEFT
+            - keyword: OUTER
+            - keyword: JOIN
+            - from_expression_element:
+                table_expression:
+                  table_reference:
+                    identifier: I
+            - join_clause:
+              - keyword: LEFT
+              - keyword: OUTER
+              - keyword: JOIN
+              - from_expression_element:
+                  table_expression:
+                    table_reference:
+                      identifier: P
+              - join_on_condition:
+                  keyword: 'ON'
+                  expression:
+                  - column_reference:
+                    - identifier: I
+                    - dot: .
+                    - identifier: Pcd
+                  - comparison_operator:
+                      raw_comparison_operator: '='
+                  - column_reference:
+                    - identifier: P
+                    - dot: .
+                    - identifier: Iid
+            - join_on_condition:
+                keyword: 'ON'
+                expression:
+                - column_reference:
+                  - identifier: BA
+                  - dot: .
+                  - identifier: Iid
+                - comparison_operator:
+                    raw_comparison_operator: '='
+                - column_reference:
+                  - identifier: I
+                  - dot: .
+                  - identifier: Bcd

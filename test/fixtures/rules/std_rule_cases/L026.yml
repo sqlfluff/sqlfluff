@@ -207,3 +207,16 @@ test_mysql_select_no_from_should_not_except:
   configs:
     core:
       dialect: mysql
+
+test_inner_join_clauses_does_not_flag:
+  pass_str: |
+    SELECT
+        1 AS RegionCode
+    FROM BA
+    LEFT OUTER JOIN I
+      LEFT OUTER JOIN P
+        ON I.Pcd = P.Iid
+      ON BA.Iid = I.Bcd
+  configs:
+    core:
+      dialect: tsql

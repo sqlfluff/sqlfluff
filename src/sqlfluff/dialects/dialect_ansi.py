@@ -522,6 +522,7 @@ ansi_dialect.add(
             optional=True,
         ),
     ),
+    NestedJoinSegment=Nothing(),
     ReferentialActionGrammar=OneOf(
         "RESTRICT",
         "CASCADE",
@@ -1408,6 +1409,7 @@ class JoinClauseSegment(BaseSegment):
             Indent,
             Sequence(
                 Ref("FromExpressionElementSegment"),
+                Ref("NestedJoinSegment", optional=True),
                 Conditional(Dedent, indented_using_on=False),
                 # NB: this is optional
                 OneOf(
@@ -1450,10 +1452,26 @@ class JoinClauseSegment(BaseSegment):
         ),
     )
 
-    def get_eventual_alias(self) -> AliasInfo:
+    def get_eventual_aliases(self) -> List[Tuple[BaseSegment, AliasInfo]]:
         """Return the eventual table name referred to by this join clause."""
-        from_expression_element = self.get_child("from_expression_element")
-        return from_expression_element.get_eventual_alias()
+        buff = []
+        join_clauses = []
+
+        from_expression = self.get_child("from_expression_element")
+        # In some dialects, like TSQL, join clauses can have nested join clauses
+        join_clauses = self.get_children("join_clause")
+
+        # Iterate through the potential sources of aliases
+        if from_expression:
+            alias: AliasInfo = from_expression.get_eventual_alias()
+            buff.append((from_expression, alias))
+        for clause in join_clauses:
+            aliases: List[Tuple[BaseSegment, AliasInfo]] = clause.get_eventual_aliases()
+            # Only append if non null. A None reference, may
+            # indicate a generator expression or similar.
+            if aliases:
+                buff = buff + aliases
+        return buff
 
 
 @ansi_dialect.segment()
@@ -1519,8 +1537,8 @@ class FromClauseSegment(BaseSegment):
             join_clauses += from_expression.get_children("join_clause")
 
         # Iterate through the potential sources of aliases
-        for clause in (*direct_table_children, *join_clauses):
-            ref: AliasInfo = clause.get_eventual_alias()
+        for clause in direct_table_children:
+            alias: AliasInfo = clause.get_eventual_alias()
             # Only append if non null. A None reference, may
             # indicate a generator expression or similar.
             table_expr = (
@@ -1528,8 +1546,14 @@ class FromClauseSegment(BaseSegment):
                 if clause in direct_table_children
                 else clause.get_child("from_expression_element")
             )
-            if ref:
-                buff.append((table_expr, ref))
+            if alias:
+                buff.append((table_expr, alias))
+        for clause in join_clauses:
+            aliases: List[Tuple[BaseSegment, AliasInfo]] = clause.get_eventual_aliases()
+            # Only append if non null. A None reference, may
+            # indicate a generator expression or similar.
+            if aliases:
+                buff = buff + aliases
         return buff
 
 
