@@ -3197,8 +3197,20 @@ class AliasExpressionSegment(BaseSegment):
     type = "alias_expression"
     match_grammar = Sequence(
         Ref.keyword("AS", optional=True),
-        Ref("SingleIdentifierGrammar"),
-        Bracketed(Ref("SingleIdentifierListSegment"), optional=True),
+        OneOf(
+            Sequence(
+                Ref("SingleIdentifierGrammar"),
+                Bracketed(Ref("SingleIdentifierListSegment"), optional=True),
+            ),
+            Sequence(
+                Ref("SingleIdentifierGrammar", optional=True),
+                Bracketed(
+                    Delimited(
+                        Sequence(Ref("ParameterNameSegment"), Ref("DatatypeSegment"))
+                    )
+                ),
+            ),
+        ),
     )
 
 
