@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9c194c3f6c0f3c93a3f931e8028512183a6f489feeb1c7d3d27fdce925cf4f97
+_hash: 8f58eb5f482b7b93ccc202bc3fe82114e4ea87c66c867f5abc0562415f140015
 file:
 - statement:
     select_statement:
@@ -376,4 +376,61 @@ file:
             table_expression:
               table_reference:
                 identifier: my_table
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: schema1
+          - dot: .
+          - identifier: table1
+          - dot: .
+          - identifier: columna
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - identifier: t
+          - dot: .
+          - identifier: col2
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - identifier: schema1
+              - dot: .
+              - identifier: table1
+          join_clause:
+          - keyword: CROSS
+          - keyword: JOIN
+          - keyword: LATERAL
+          - from_expression_element:
+              table_expression:
+                function:
+                  function_name:
+                    function_name_identifier: somefunc
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                      - identifier: tb
+                      - dot: .
+                      - identifier: columnb
+                    end_bracket: )
+              alias_expression:
+                keyword: as
+                identifier: t
+                bracketed:
+                - start_bracket: (
+                - parameter: col1
+                - data_type:
+                    keyword: text
+                - comma: ','
+                - parameter: col2
+                - data_type:
+                    keyword: bool
+                - end_bracket: )
 - statement_terminator: ;
