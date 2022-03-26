@@ -143,6 +143,17 @@ class Dialect:
             if replace:
                 if n not in self._library:  # pragma: no cover
                     raise ValueError(f"{n!r} is not already registered in {self!r}")
+                elif isinstance(self._library[n], type) and not issubclass(
+                    cls, self._library[n]
+                ):
+                    base_dir = set(dir(self._library[n]))
+                    cls_dir = set(dir(cls))
+                    missing = base_dir.difference(cls_dir)
+                    if missing:
+                        raise ValueError(
+                            f"Cannot replace {n!r} because it's not a subclass and "
+                            f"is missing these from base: {', '.join(missing)}"
+                        )
             else:
                 if n in self._library:  # pragma: no cover
                     raise ValueError(f"{n!r} is already registered in {self!r}")

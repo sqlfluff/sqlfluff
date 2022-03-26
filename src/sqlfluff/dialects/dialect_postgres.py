@@ -1136,7 +1136,9 @@ class CreateRoleStatementSegment(BaseSegment):
 
 
 @postgres_dialect.segment(replace=True)
-class ExplainStatementSegment(BaseSegment):
+class ExplainStatementSegment(
+    ansi_dialect.get_segment("ExplainStatementSegment")  # type: ignore
+):
     """An `Explain` statement.
 
     EXPLAIN [ ( option [, ...] ) ] statement
@@ -3010,7 +3012,7 @@ class AnalyzeStatementSegment(BaseSegment):
 
 # Adding PostgreSQL specific statements
 @postgres_dialect.segment(replace=True)
-class StatementSegment(BaseSegment):
+class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: ignore
     """A generic segment, to any of its child subsegments."""
 
     type = "statement"
