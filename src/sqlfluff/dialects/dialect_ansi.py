@@ -1456,18 +1456,20 @@ class JoinClauseSegment(BaseSegment):
     def get_eventual_aliases(self) -> List[Tuple[BaseSegment, AliasInfo]]:
         """Return the eventual table name referred to by this join clause."""
         buff = []
-        join_clauses = []
 
         from_expression = self.get_child("from_expression_element")
-        # In some dialects, like TSQL, join clauses can have nested join clauses
-        join_clauses = self.get_children("join_clause")
-
-        # Iterate through the potential sources of aliases
         alias: AliasInfo = from_expression.get_eventual_alias()
+        # Only append if non null. A None reference, may
+        # indicate a generator expression or similar.
         if alias:
             buff.append((from_expression, alias))
-        for clause in join_clauses:
-            aliases: List[Tuple[BaseSegment, AliasInfo]] = clause.get_eventual_aliases()
+
+        # In some dialects, like TSQL, join clauses can have nested join clauses
+        join_clause = self.get_child("join_clause")
+        if join_clause:
+            aliases: List[
+                Tuple[BaseSegment, AliasInfo]
+            ] = join_clause.get_eventual_aliases()
             # Only append if non null. A None reference, may
             # indicate a generator expression or similar.
             if aliases:
