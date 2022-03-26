@@ -18,7 +18,7 @@ from (
 		punter_id,
 		credit_amount,
 		promo_punter_reward_id,
-		NULLIF(SUBSTRING(regexp_substr(cr.description,'Ticket ref: [0-9]*'), 13), '') ::int as ticket_id,
+		NULLIF(SUBSTRING(regexp_substr(cr.description,'Ticket ref: [0-9]*'), 13), '') ::INT as ticket_id,
 		case when cr.description like 'Requesting Punter: %'
 			then left(
 				SUBSTRING(regexp_substr(cr.description,'Requesting Punter: [^/]*'), 18),
