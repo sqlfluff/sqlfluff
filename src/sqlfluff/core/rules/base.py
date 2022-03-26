@@ -738,6 +738,7 @@ class BaseRule:
         elif (
             not seg.is_meta
             and not seg.is_templated
+            and not seg.is_whitespace
             and isinstance(seg, RawSegment)
             and len(seg.raw) > 0
             and parent
