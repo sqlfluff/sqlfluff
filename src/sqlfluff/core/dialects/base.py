@@ -146,6 +146,9 @@ class Dialect:
                 elif isinstance(self._library[n], type) and not issubclass(
                     cls, self._library[n]
                 ):
+                    # To replace a segment, the replacement must either be a
+                    # subclass of the original, *or* it must have the same
+                    # public methods and/or fields as it.
                     base_dir = set(dir(self._library[n]))
                     cls_dir = set(dir(cls))
                     missing = set(
