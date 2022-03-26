@@ -148,7 +148,9 @@ class Dialect:
                 ):
                     base_dir = set(dir(self._library[n]))
                     cls_dir = set(dir(cls))
-                    missing = base_dir.difference(cls_dir)
+                    missing = set(
+                        n for n in base_dir.difference(cls_dir) if not n.startswith("_")
+                    )
                     if missing:
                         raise ValueError(
                             f"Cannot replace {n!r} because it's not a subclass and "
