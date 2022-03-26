@@ -155,7 +155,7 @@ class Dialect:
                         n for n in base_dir.difference(cls_dir) if not n.startswith("_")
                     )
                     if missing:
-                        raise ValueError(
+                        raise ValueError(  # pragma: no cover
                             f"Cannot replace {n!r} because it's not a subclass and "
                             f"is missing these from base: {', '.join(missing)}"
                         )
