@@ -1240,6 +1240,7 @@ class TableExpressionSegment(BaseSegment):
         Ref("TableReferenceSegment"),
         # Nested Selects
         Bracketed(Ref("SelectableGrammar")),
+        Bracketed(Ref("MergeStatementSegment")),
     )
 
 
