@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a27d388a1f7466c2c0cd31c2b09974f840b3fab7d28991616b1700b24205c1e1
+_hash: b44bb98f6ef893ab71874b887dce37a6f4260d0ba7725c4fc83c0d30d038155a
 file:
 - batch:
     statement:
@@ -988,3 +988,113 @@ file:
               keyword: AS
               identifier: PreviousQty
         - statement_terminator: ;
+- go_statement:
+    keyword: GO
+- batch:
+    statement:
+      insert_statement:
+      - keyword: insert
+      - keyword: into
+      - table_reference:
+        - identifier: sch1
+        - dot: .
+        - identifier: table1
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            identifier: columnC
+          end_bracket: )
+      - select_statement:
+          select_clause:
+            keyword: select
+            select_clause_element:
+              column_reference:
+              - identifier: upd
+              - dot: .
+              - identifier: columnC
+          from_clause:
+            keyword: from
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  bracketed:
+                    start_bracket: (
+                    merge_statement:
+                    - keyword: merge
+                    - table_reference:
+                      - identifier: sch1
+                      - dot: .
+                      - identifier: table1
+                    - alias_expression:
+                        identifier: trg
+                    - keyword: using
+                    - bracketed:
+                        start_bracket: (
+                        select_statement:
+                          select_clause:
+                            keyword: select
+                            select_clause_element:
+                              column_reference:
+                              - identifier: gr
+                              - dot: .
+                              - identifier: columnC
+                          from_clause:
+                            keyword: from
+                            from_expression:
+                              from_expression_element:
+                                table_expression:
+                                  table_reference:
+                                  - identifier: sch2
+                                  - dot: .
+                                  - identifier: table2
+                                alias_expression:
+                                  keyword: as
+                                  identifier: gr
+                        end_bracket: )
+                    - alias_expression:
+                        identifier: src
+                    - join_on_condition:
+                        keyword: 'on'
+                        expression:
+                        - column_reference:
+                          - identifier: trg
+                          - dot: .
+                          - identifier: columnC
+                        - comparison_operator:
+                            raw_comparison_operator: '='
+                        - column_reference:
+                          - identifier: src
+                          - dot: .
+                          - identifier: columnC
+                    - merge_match:
+                        merge_when_matched_clause:
+                        - keyword: when
+                        - keyword: matched
+                        - keyword: then
+                        - merge_update_clause:
+                            keyword: update
+                            set_clause_list:
+                              keyword: set
+                              set_clause:
+                                column_reference:
+                                  identifier: columnC
+                                comparison_operator:
+                                  raw_comparison_operator: '='
+                                expression:
+                                  column_reference:
+                                  - identifier: src
+                                  - dot: .
+                                  - identifier: columnC
+                        output_clause:
+                          keyword: output
+                          column_reference:
+                          - identifier: inserted
+                          - dot: .
+                          - identifier: columnC
+                    end_bracket: )
+                alias_expression:
+                  keyword: as
+                  identifier: upd
+            statement_terminator: ;
+- go_statement:
+    keyword: GO

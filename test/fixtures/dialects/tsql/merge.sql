@@ -137,6 +137,33 @@ MERGE Production.ProductInventory AS pi
         THEN DELETE
     OUTPUT $action, Inserted.ProductID, Inserted.LocationID,
         Inserted.Quantity AS NewQty, Deleted.Quantity AS PreviousQty;
+GO
 
-
-
+insert into sch1.table1
+(
+	columnC
+)
+select
+	upd.columnC
+from
+(
+	merge
+		sch1.table1 trg
+	using
+		(
+			select
+				gr.columnC
+			from
+				sch2.table2 as gr
+		) src
+	on
+		trg.columnC = src.columnC
+	when matched
+		then update
+		set
+			columnC = src.columnC
+		output
+			inserted.columnC
+) as upd
+;
+GO
