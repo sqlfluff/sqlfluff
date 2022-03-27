@@ -61,10 +61,10 @@ class Delimited(OneOf):
 
         # Make some buffers
         seg_buff = segments
-        matched_segments = ()
-        unmatched_segments = ()
-        cached_matched_segments = ()
-        cached_unmatched_segments = ()
+        matched_segments: Tuple[BaseSegment, ...] = ()
+        unmatched_segments: Tuple[BaseSegment, ...] = ()
+        cached_matched_segments: Tuple[BaseSegment, ...] = ()
+        cached_unmatched_segments: Tuple[BaseSegment, ...] = ()
 
         delimiters = 0
         matched_delimiter = False

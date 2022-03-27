@@ -35,6 +35,7 @@ from sqlfluff.dialects.dialect_snowflake_keywords import (
     snowflake_reserved_keywords,
     snowflake_unreserved_keywords,
 )
+from sqlfluff.dialects.dialect_ansi import ObjectReferenceSegment
 from typing import Optional
 
 
@@ -937,9 +938,9 @@ class FromExpressionElementSegment(BaseSegment):
         # If not return the object name (or None if there isn't one)
         if ref:
             # Return the last element of the reference.
-            penultimate_ref: ansi_dialect.get_segment(
-                "ObjectReferenceSegment"  # noqa: F821
-            ).ObjectReferencePart = list(ref.iter_raw_references())[-1]
+            penultimate_ref: ObjectReferenceSegment.ObjectReferencePart = list(
+                ref.iter_raw_references()
+            )[-1]
             return AliasInfo(
                 penultimate_ref.part,
                 penultimate_ref.segments[0],
