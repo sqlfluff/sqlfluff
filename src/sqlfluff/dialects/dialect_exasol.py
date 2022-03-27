@@ -3701,41 +3701,6 @@ class SelectClauseElementSegment(BaseSegment):
         ),
     )
 
-    def get_alias(self) -> Optional[ColumnAliasInfo]:
-        """Get info on alias within SELECT clause element."""
-        alias_expression_segment = next(self.recursive_crawl("alias_expression"), None)
-        if alias_expression_segment is None:
-            # Return None if no alias expression is found.
-            return None
-
-        alias_identifier_segment = next(
-            (s for s in alias_expression_segment.segments if s.is_type("identifier")),
-            None,
-        )
-
-        if alias_identifier_segment is None:
-            # Return None if no alias identifier expression is found.
-            # Happened in the past due to bad syntax
-            return None  # pragma: no cover
-
-        # Get segment being aliased.
-        aliased_segment = next(
-            s
-            for s in self.segments
-            if not s.is_whitespace and not s.is_meta and s != alias_expression_segment
-        )
-
-        # Find all the columns being aliased.
-        column_reference_segments = []
-        if aliased_segment.is_type("column_reference"):
-            column_reference_segments.append(aliased_segment)
-        else:
-            column_reference_segments.extend(
-                aliased_segment.recursive_crawl("column_reference")
-            )
-
-        return ColumnAliasInfo(
-            alias_identifier_name=alias_identifier_segment.raw,
-            aliased_segment=aliased_segment,
-            column_reference_segments=column_reference_segments,
-        )
+    get_alias = ansi_dialect.get_segment(
+        "SelectClauseElementSegment"
+    ).get_alias

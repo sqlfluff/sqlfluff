@@ -120,7 +120,7 @@ class Delimited(OneOf):
                     unmatched_segments = seg_buff
                     break
 
-                if not seg_content:
+                if not seg_content:  # pragma: no cover
                     matched_segments += pre_non_code
                     break
 
@@ -186,7 +186,7 @@ class Delimited(OneOf):
                     break
 
             else:
-                break
+                break  # pragma: no cover
 
         if self.min_delimiters:
             if delimiters < self.min_delimiters:
