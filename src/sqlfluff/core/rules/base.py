@@ -723,11 +723,29 @@ class BaseRule:
         return None
 
     @staticmethod
-    def matches_target_tuples(seg: BaseSegment, target_tuples: List[Tuple[str, str]]):
+    def matches_target_tuples(
+        seg: BaseSegment,
+        target_tuples: List[Tuple[str, str]],
+        parent: Optional[BaseSegment] = None,
+    ):
         """Does the given segment match any of the given type tuples."""
         if seg.name in [elem[1] for elem in target_tuples if elem[0] == "name"]:
             return True
         elif seg.is_type(*[elem[1] for elem in target_tuples if elem[0] == "type"]):
+            return True
+        # For parent type checks, there's a higher risk of getting an incorrect
+        # segment, so we add some additional guards
+        elif (
+            not seg.is_meta
+            and not seg.is_templated
+            and not seg.is_whitespace
+            and isinstance(seg, RawSegment)
+            and len(seg.raw) > 0
+            and parent
+            and parent.is_type(
+                *[elem[1] for elem in target_tuples if elem[0] == "parenttype"]
+            )
+        ):
             return True
         return False
 

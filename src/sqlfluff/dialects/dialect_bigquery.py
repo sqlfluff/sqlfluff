@@ -309,6 +309,21 @@ class QualifyClauseSegment(BaseSegment):
 
 
 @bigquery_dialect.segment(replace=True)
+class SetOperatorSegment(BaseSegment):
+    """A set operator UNION, INTERSECT or EXCEPT.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax#set_operators
+    """
+
+    type = "set_operator"
+    match_grammar = OneOf(
+        Sequence("UNION", OneOf("DISTINCT", "ALL")),
+        Sequence("INTERSECT", "DISTINCT"),
+        Sequence("EXCEPT", "DISTINCT"),
+    )
+
+
+@bigquery_dialect.segment(replace=True)
 class SelectStatementSegment(BaseSegment):
     """Enhance `SELECT` statement to include QUALIFY."""
 
@@ -1124,7 +1139,7 @@ class FromPivotExpressionSegment(BaseSegment):
 
 @bigquery_dialect.segment()
 class UnpivotAliasExpressionSegment(BaseSegment):
-    """In BigQuery UNPIVOT alias's can be single or double quoted."""
+    """In BigQuery UNPIVOT alias's can be single or double quoted or numeric."""
 
     type = "alias_expression"
     match_grammar = Sequence(
@@ -1132,6 +1147,7 @@ class UnpivotAliasExpressionSegment(BaseSegment):
         OneOf(
             Ref("SingleQuotedLiteralSegment"),
             Ref("DoubleQuotedLiteralSegment"),
+            Ref("NumericLiteralSegment"),
         ),
     )
 

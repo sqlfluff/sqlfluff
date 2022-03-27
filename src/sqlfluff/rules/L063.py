@@ -1,4 +1,4 @@
-"""Implementation of Rule L040."""
+"""Implementation of Rule L063."""
 
 from typing import Tuple, List
 
@@ -11,8 +11,8 @@ from sqlfluff.rules.L010 import Rule_L010
 
 @document_configuration
 @document_fix_compatible
-class Rule_L040(Rule_L010):
-    """Inconsistent capitalisation of boolean/null literal.
+class Rule_L063(Rule_L010):
+    """Inconsistent capitalisation of datatypes.
 
     **Anti-pattern**
 
@@ -54,8 +54,17 @@ class Rule_L040(Rule_L010):
     """
 
     _target_elems: List[Tuple[str, str]] = [
-        ("name", "null_literal"),
-        ("name", "boolean_literal"),
+        ("parenttype", "data_type"),
+        ("parenttype", "datetime_type_identifier"),
+        ("parenttype", "primitive_type"),
+        ("type", "data_type_identifier"),
     ]
-    _exclude_elements: List[Tuple[str, str]] = []
-    _description_elem = "Boolean/null literals"
+    _exclude_elements: List[Tuple[str, str]] = [
+        ("type", "identifier"),
+        ("type", "literal"),
+    ]
+    config_keywords = [
+        "extended_capitalisation_policy",
+        "ignore_words",
+    ]
+    _description_elem = "Datatypes"

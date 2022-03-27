@@ -343,20 +343,33 @@ class JinjaTemplater(PythonTemplater):
         # first Exception which serves only to catch catastrophic errors.
         try:
             syntax_tree = env.parse(in_str)
-            undefined_variables = meta.find_undeclared_variables(syntax_tree)
+            potentially_undefined_variables = meta.find_undeclared_variables(
+                syntax_tree
+            )
         except Exception as err:  # pragma: no cover
             # TODO: Add a url here so people can get more help.
             raise SQLTemplaterError(f"Failure in identifying Jinja variables: {err}.")
 
-        # Get rid of any that *are* actually defined.
-        for val in live_context:
-            if val in undefined_variables:
-                undefined_variables.remove(val)
+        undefined_variables = set()
 
-        if undefined_variables:
-            # Lets go through and find out where they are:
-            for val in self._crawl_tree(syntax_tree, undefined_variables, in_str):
-                violations.append(val)
+        class Undefined:
+            """Similar to jinja2.StrictUndefined, but remembers, not fails."""
+
+            def __init__(self, name):
+                self.name = name
+
+            def __str__(self):
+                """Treat undefined vars as empty, but remember for later."""
+                undefined_variables.add(self.name)
+                return ""
+
+            def __getattr__(self, item):
+                undefined_variables.add(self.name)
+                return Undefined(f"{self.name}.{item}")
+
+        for val in potentially_undefined_variables:
+            if val not in live_context:
+                live_context[val] = Undefined(name=val)
 
         try:
             # NB: Passing no context. Everything is loaded when the template is loaded.
@@ -368,6 +381,10 @@ class JinjaTemplater(PythonTemplater):
                 config=config,
                 make_template=make_template,
             )
+            if undefined_variables:
+                # Lets go through and find out where they are:
+                for val in self._crawl_tree(syntax_tree, undefined_variables, in_str):
+                    violations.append(val)
             return (
                 TemplatedFile(
                     source_str=in_str,
