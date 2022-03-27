@@ -404,11 +404,11 @@ class BaseGrammar(Matchable):
                 return ((), MatchResult.from_unmatched(segments), None)
 
         # Make some buffers
-        seg_buff = segments
-        pre_seg_buff = ()  # NB: Tuple
+        seg_buff = segments  # pragma: no cover
+        pre_seg_buff = ()  # pragma: no cover
 
         # Loop
-        while True:
+        while True:  # pragma: no cover
             # Do we have anything left to match on?
             if seg_buff:
                 # Great, carry on.
