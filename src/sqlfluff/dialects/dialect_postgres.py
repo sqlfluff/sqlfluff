@@ -32,6 +32,8 @@ from sqlfluff.dialects.dialect_postgres_keywords import (
     postgres_postgis_datatype_keywords,
 )
 
+from sqlfluff.dialects import dialect_ansi as ansi
+
 ansi_dialect = load_raw_dialect("ansi")
 
 postgres_dialect = ansi_dialect.copy_as("postgres")
@@ -353,7 +355,7 @@ postgres_dialect.replace(
     # For more information, see
     # https://www.postgresql.org/docs/11/functions-datetime.html
     ColumnReferenceSegment=Sequence(
-        ansi_dialect.get_segment("ColumnReferenceSegment"),
+        ansi_dialect.segments.ColumnReferenceSegment,
         Ref("ArrayAccessorSegment", optional=True),
         Ref("TimeZoneGrammar", optional=True),
     ),
@@ -1001,14 +1003,8 @@ class IntoClauseSegment(BaseSegment):
 
 
 @postgres_dialect.segment(replace=True)
-class UnorderedSelectStatementSegment(BaseSegment):
+class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     """Overrides ANSI Statement, to allow for SELECT INTO statements."""
-
-    type = "select_statement"
-
-    match_grammar = ansi_dialect.get_segment(
-        "UnorderedSelectStatementSegment"
-    ).match_grammar.copy()
 
     parse_grammar = Sequence(
         Ref("SelectClauseSegment"),
@@ -1025,23 +1021,17 @@ class UnorderedSelectStatementSegment(BaseSegment):
 
 
 @postgres_dialect.segment(replace=True)
-class SelectStatementSegment(BaseSegment):
+class SelectStatementSegment(ansi.SelectStatementSegment):
     """Overrides ANSI as the parse grammar copy needs to be reapplied."""
 
-    type = "select_statement"
-
-    match_grammar = ansi_dialect.get_segment(
-        "SelectStatementSegment"
-    ).match_grammar.copy()
-
-    parse_grammar = postgres_dialect.get_segment(
-        "UnorderedSelectStatementSegment"
-    ).parse_grammar.copy(
-        insert=[
-            Ref("OrderByClauseSegment", optional=True),
-            Ref("LimitClauseSegment", optional=True),
-            Ref("NamedWindowSegment", optional=True),
-        ]
+    parse_grammar = (
+        postgres_dialect.segments.UnorderedSelectStatementSegment.parse_grammar.copy(
+            insert=[
+                Ref("OrderByClauseSegment", optional=True),
+                Ref("LimitClauseSegment", optional=True),
+                Ref("NamedWindowSegment", optional=True),
+            ]
+        )
     )
 
 
@@ -1114,17 +1104,14 @@ class WithinGroupClauseSegment(BaseSegment):
 
 
 @postgres_dialect.segment(replace=True)
-class CreateRoleStatementSegment(BaseSegment):
+class CreateRoleStatementSegment(ansi.CreateRoleStatementSegment):
     """A `CREATE ROLE` statement.
 
     As per:
     https://www.postgresql.org/docs/current/sql-createrole.html
     """
 
-    type = "create_role_statement"
-    match_grammar = ansi_dialect.get_segment(
-        "CreateRoleStatementSegment"
-    ).match_grammar.copy(
+    match_grammar = ansi.CreateRoleStatementSegment.match_grammar.copy(
         insert=[
             Sequence(
                 Ref.keyword("WITH", optional=True),
@@ -1136,9 +1123,7 @@ class CreateRoleStatementSegment(BaseSegment):
 
 
 @postgres_dialect.segment(replace=True)
-class ExplainStatementSegment(
-    ansi_dialect.get_segment("ExplainStatementSegment")  # type: ignore
-):
+class ExplainStatementSegment(ansi.ExplainStatementSegment):
     """An `Explain` statement.
 
     EXPLAIN [ ( option [, ...] ) ] statement
@@ -1146,8 +1131,6 @@ class ExplainStatementSegment(
 
     https://www.postgresql.org/docs/14/sql-explain.html
     """
-
-    type = "explain_statement"
 
     match_grammar = Sequence(
         "EXPLAIN",
@@ -1163,9 +1146,7 @@ class ExplainStatementSegment(
             Bracketed(Delimited(Ref("ExplainOptionSegment"))),
             optional=True,
         ),
-        ansi_dialect.get_segment(
-            "ExplainStatementSegment",
-        ).explainable_stmt,
+        ansi.ExplainStatementSegment.explainable_stmt,
     )
 
 
@@ -3012,12 +2993,10 @@ class AnalyzeStatementSegment(BaseSegment):
 
 # Adding PostgreSQL specific statements
 @postgres_dialect.segment(replace=True)
-class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: ignore
+class StatementSegment(ansi.StatementSegment):
     """A generic segment, to any of its child subsegments."""
 
-    type = "statement"
-
-    parse_grammar = ansi_dialect.get_segment("StatementSegment").parse_grammar.copy(
+    parse_grammar = ansi.StatementSegment.parse_grammar.copy(
         insert=[
             Ref("AlterDefaultPrivilegesStatementSegment"),
             Ref("CommentOnStatementSegment"),
@@ -3048,8 +3027,6 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             Ref("DoStatementSegment"),
         ],
     )
-
-    match_grammar = ansi_dialect.get_segment("StatementSegment").match_grammar.copy()
 
 
 @postgres_dialect.segment(replace=True)
@@ -3617,9 +3594,7 @@ class DoStatementSegment(BaseSegment):
 
 
 @postgres_dialect.segment(replace=True)
-class CTEDefinitionSegment(
-    ansi_dialect.get_segment("CTEDefinitionSegment")  # type: ignore
-):
+class CTEDefinitionSegment(ansi.CTEDefinitionSegment):
     """A CTE Definition from a WITH statement.
 
     https://www.postgresql.org/docs/14/queries-with.html
@@ -3627,7 +3602,6 @@ class CTEDefinitionSegment(
     TODO: Data-Modifying Statements (INSERT, UPDATE, DELETE) in WITH
     """
 
-    type = "common_table_expression"
     match_grammar = Sequence(
         Ref("SingleIdentifierGrammar"),
         Bracketed(

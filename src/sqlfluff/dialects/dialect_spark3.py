@@ -39,6 +39,9 @@ from sqlfluff.dialects.dialect_spark3_keywords import (
     UNRESERVED_KEYWORDS,
 )
 
+from . import dialect_ansi as ansi
+from . import dialect_hive as hive
+
 ansi_dialect = load_raw_dialect("ansi")
 hive_dialect = load_raw_dialect("hive")
 spark3_dialect = ansi_dialect.copy_as("spark3")
@@ -497,21 +500,17 @@ spark3_dialect.insert_lexer_matchers(
 
 # Hive Segments
 @spark3_dialect.segment()
-class RowFormatClauseSegment(
-    hive_dialect.get_segment("RowFormatClauseSegment")  # type: ignore
-):
+class RowFormatClauseSegment(hive.RowFormatClauseSegment):
     """`ROW FORMAT` clause in a CREATE HIVEFORMAT TABLE statement."""
 
-    type = "row_format_clause"
+    pass
 
 
 @spark3_dialect.segment()
-class SkewedByClauseSegment(
-    hive_dialect.get_segment("SkewedByClauseSegment")  # type: ignore
-):
+class SkewedByClauseSegment(hive.SkewedByClauseSegment):
     """`SKEWED BY` clause in a CREATE HIVEFORMAT TABLE statement."""
 
-    type = "skewed_by_clause"
+    pass
 
 
 # Primitive Data Types
@@ -884,25 +883,21 @@ class CreateTableStatementSegment(BaseSegment):
 
 
 @spark3_dialect.segment()
-class CreateHiveFormatTableStatementSegment(
-    hive_dialect.get_segment("CreateTableStatementSegment")  # type: ignore
-):
+class CreateHiveFormatTableStatementSegment(hive.CreateTableStatementSegment):
     """A `CREATE TABLE` statement using Hive format.
 
     https://spark.apache.org/docs/latest/sql-ref-syntax-ddl-create-table-hiveformat.html
     """
 
-    type = "create_table_statement"
+    pass
 
 
 @spark3_dialect.segment(replace=True)
-class CreateViewStatementSegment(BaseSegment):
+class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
     """A `CREATE VIEW` statement.
 
     https://spark.apache.org/docs/3.0.0/sql-ref-syntax-ddl-create-view.html#syntax
     """
-
-    type = "create_view_statement"
 
     match_grammar = Sequence(
         "CREATE",
@@ -950,9 +945,7 @@ class DropFunctionStatementSegment(BaseSegment):
 
 
 @spark3_dialect.segment()
-class MsckRepairTableStatementSegment(
-    hive_dialect.get_segment("MsckRepairTableStatementSegment")  # type: ignore
-):
+class MsckRepairTableStatementSegment(hive.MsckRepairTableStatementSegment):
     """A `REPAIR TABLE` statement using Hive MSCK (Metastore Check) format.
 
     This class inherits from Hive since Spark leverages Hive format for this command and
@@ -961,7 +954,7 @@ class MsckRepairTableStatementSegment(
     https://spark.apache.org/docs/latest/sql-ref-syntax-ddl-repair-table.html
     """
 
-    type = "msck_repair_table_statement"
+    pass
 
 
 @spark3_dialect.segment(replace=True)
@@ -1344,7 +1337,7 @@ class SelectClauseModifierSegment(BaseSegment):
 
 
 @spark3_dialect.segment(replace=True)
-class UnorderedSelectStatementSegment(BaseSegment):
+class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     """Enhance unordered `SELECT` statement for valid SparkSQL clauses.
 
     This is designed for use in the context of set operations,
@@ -1352,33 +1345,17 @@ class UnorderedSelectStatementSegment(BaseSegment):
     SelectStatementSegment.
     """
 
-    type = "select_statement"
-
-    match_grammar = ansi_dialect.get_segment(
-        "UnorderedSelectStatementSegment"
-    ).match_grammar.copy()
-
-    parse_grammar = ansi_dialect.get_segment(
-        "UnorderedSelectStatementSegment"
-    ).parse_grammar.copy(
+    parse_grammar = ansi.UnorderedSelectStatementSegment.parse_grammar.copy(
         # Removing non-valid clauses that exist in ANSI dialect
         remove=[Ref("OverlapsClauseSegment", optional=True)]
     )
 
 
 @spark3_dialect.segment(replace=True)
-class SelectStatementSegment(BaseSegment):
+class SelectStatementSegment(ansi.SelectStatementSegment):
     """Enhance `SELECT` statement for valid SparkSQL clauses."""
 
-    type = "select_statement"
-
-    match_grammar = ansi_dialect.get_segment(
-        "SelectStatementSegment"
-    ).match_grammar.copy()
-
-    parse_grammar = ansi_dialect.get_segment(
-        "SelectStatementSegment"
-    ).parse_grammar.copy(
+    parse_grammar = ansi.SelectStatementSegment.parse_grammar.copy(
         # TODO New Rule: Warn of mutual exclusion of following clauses
         #  DISTRIBUTE, SORT, CLUSTER and ORDER BY if multiple specified
         insert=[
@@ -2231,13 +2208,10 @@ class UncacheTableSegment(BaseSegment):
 
 
 @spark3_dialect.segment(replace=True)
-class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: ignore
+class StatementSegment(ansi.StatementSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
 
-    type = "statement"
-    match_grammar = ansi_dialect.get_segment("StatementSegment").match_grammar.copy()
-
-    parse_grammar = ansi_dialect.get_segment("StatementSegment").parse_grammar.copy(
+    parse_grammar = ansi.StatementSegment.parse_grammar.copy(
         # Segments defined in Spark3 dialect
         insert=[
             # Data Definition Statements
@@ -2281,13 +2255,11 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
 
 
 @spark3_dialect.segment(replace=True)
-class JoinClauseSegment(BaseSegment):
+class JoinClauseSegment(ansi.JoinClauseSegment):
     """Any number of join clauses, including the `JOIN` keyword.
 
     https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-join.html
     """
-
-    type = "join_clause"
 
     match_grammar = OneOf(
         # NB These qualifiers are optional
@@ -2340,10 +2312,6 @@ class JoinClauseSegment(BaseSegment):
             Dedent,
         ),
     )
-
-    get_eventual_alias = ansi_dialect.get_segment(
-        "JoinClauseSegment"
-    ).get_eventual_alias
 
 
 @spark3_dialect.segment(replace=True)
@@ -2479,13 +2447,11 @@ class FileReferenceSegment(BaseSegment):
 
 
 @spark3_dialect.segment(replace=True)
-class FromExpressionElementSegment(BaseSegment):
+class FromExpressionElementSegment(ansi.FromExpressionElementSegment):
     """A table expression.
 
     Enhanced from ANSI to allow for `LATERAL VIEW` clause
     """
-
-    type = "from_expression_element"
 
     match_grammar = Sequence(
         Ref("PreTableFunctionKeywordsGrammar", optional=True),
@@ -2504,10 +2470,6 @@ class FromExpressionElementSegment(BaseSegment):
         Ref("PivotClauseSegment", optional=True),
         Ref("PostTableExpressionGrammar", optional=True),
     )
-
-    get_eventual_alias = ansi_dialect.get_segment(
-        "FromExpressionElementSegment"
-    ).get_eventual_alias
 
 
 @spark3_dialect.segment()
