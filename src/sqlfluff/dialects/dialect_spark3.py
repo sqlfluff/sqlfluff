@@ -2231,7 +2231,7 @@ class UncacheTableSegment(BaseSegment):
 
 
 @spark3_dialect.segment(replace=True)
-class StatementSegment(BaseSegment):
+class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: ignore
     """Overriding StatementSegment to allow for additional segment parsing."""
 
     type = "statement"
