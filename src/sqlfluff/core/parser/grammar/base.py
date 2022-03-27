@@ -200,7 +200,7 @@ class BaseGrammar(Matchable):
         terminated = False
 
         # Have we been passed an empty list?
-        if len(segments) == 0:
+        if len(segments) == 0:  # pragma: no cover
             return MatchResult.from_empty(), None
 
         # If gaps are allowed, trim the ends.
