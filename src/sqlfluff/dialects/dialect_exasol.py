@@ -3759,7 +3759,7 @@ class FunctionScriptStatementSegment(BaseSegment):
 
 
 @exasol_dialect.segment(replace=True)
-class StatementSegment(BaseSegment):
+class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: ignore
     """A generic segment, to any of its child subsegments."""
 
     type = "statement"
