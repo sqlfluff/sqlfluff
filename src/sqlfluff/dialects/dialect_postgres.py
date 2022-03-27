@@ -355,7 +355,7 @@ postgres_dialect.replace(
     # For more information, see
     # https://www.postgresql.org/docs/11/functions-datetime.html
     ColumnReferenceSegment=Sequence(
-        ansi_dialect.segments.ColumnReferenceSegment,
+        ansi.ColumnReferenceSegment,
         Ref("ArrayAccessorSegment", optional=True),
         Ref("TimeZoneGrammar", optional=True),
     ),
