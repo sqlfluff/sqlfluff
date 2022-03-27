@@ -37,8 +37,6 @@ from sqlfluff.dialects.dialect_exasol_keywords import (
     SYSTEM_PARAMETERS,
     UNRESERVED_KEYWORDS,
 )
-from typing import Optional
-from sqlfluff.core.dialects.common import ColumnAliasInfo
 
 ansi_dialect = load_raw_dialect("ansi")
 exasol_dialect = ansi_dialect.copy_as("exasol")
@@ -3701,6 +3699,4 @@ class SelectClauseElementSegment(BaseSegment):
         ),
     )
 
-    get_alias = ansi_dialect.get_segment(
-        "SelectClauseElementSegment"
-    ).get_alias
+    get_alias = ansi_dialect.get_segment("SelectClauseElementSegment").get_alias
