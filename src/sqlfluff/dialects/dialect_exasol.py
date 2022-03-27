@@ -91,7 +91,7 @@ exasol_dialect.insert_lexer_matchers(
             # them. In future we may want to enhance this to actually parse them to
             # ensure they are valid meta commands.
             "meta_command",
-            r"(?s)(CREATE)[^;]*?(SCRIPT|FUNCTION|ADAPTER)[^;]*?((A|I)S).*?",
+            r"(?s)(CREATE)[^;]*?(SCRIPT|FUNCTION|ADAPTER)[^;]*?((A|I)S).*?"
             r"((\n/\n)|(\n/$))",
             CommentSegment,
         ),
