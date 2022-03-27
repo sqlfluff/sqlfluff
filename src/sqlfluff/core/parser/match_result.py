@@ -31,11 +31,6 @@ class MatchResult(
         _, segs, _ = trim_non_code_segments(self.matched_segments)
         return sum(seg.matched_length for seg in segs)
 
-    @property
-    def matched_length(self) -> int:
-        """Return the length of the match in characters."""
-        return sum(seg.matched_length for seg in self.matched_segments)
-
     def all_segments(self) -> Tuple["BaseSegment", ...]:
         """Return a tuple of all the segments, matched or otherwise."""
         return self.matched_segments + self.unmatched_segments

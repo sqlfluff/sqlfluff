@@ -677,6 +677,8 @@ def test__parser__grammar_noncode(seg_list, fresh_ansi_dialect):
     """Test the NonCodeMatcher."""
     with RootParseContext(dialect=fresh_ansi_dialect) as ctx:
         m = NonCodeMatcher().match(seg_list[1:], parse_context=ctx)
+        # NonCode Matcher doesn't work with simple
+        assert NonCodeMatcher().simple(ctx) is None
     # We should match one and only one segment
     assert len(m) == 1
 
