@@ -2341,9 +2341,9 @@ class JoinClauseSegment(BaseSegment):
         ),
     )
 
-    get_eventual_alias = ansi_dialect.get_segment(
+    get_eventual_aliases = ansi_dialect.get_segment(
         "JoinClauseSegment"
-    ).get_eventual_alias
+    ).get_eventual_aliases
 
 
 @spark3_dialect.segment(replace=True)
