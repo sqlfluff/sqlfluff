@@ -1,0 +1,7 @@
+SELECT
+    1 AS RegionCode
+FROM BA 
+LEFT OUTER JOIN I 
+	LEFT OUTER JOIN P 
+		ON I.Pcd = P.Iid 
+	ON BA.Iid = I.Bcd 

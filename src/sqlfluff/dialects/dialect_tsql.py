@@ -348,6 +348,11 @@ tsql_dialect.replace(
     ),
     JoinKeywords=OneOf("JOIN", "APPLY", Sequence("OUTER", "APPLY")),
     NaturalJoinKeywords=Nothing(),
+    NestedJoinSegment=Sequence(
+        Indent,
+        Ref("JoinClauseSegment"),
+        Dedent,
+    ),
     # Replace Expression_D_Grammar to remove casting syntax invalid in TSQL
     Expression_D_Grammar=Sequence(
         OneOf(
