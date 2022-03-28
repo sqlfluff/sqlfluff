@@ -483,7 +483,7 @@ class TruncateStatementSegment(BaseSegment):
 class StatementSegment(ansi.StatementSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
 
-    parse_grammar = ansi_dialect.get_segment("StatementSegment").parse_grammar.copy(
+    parse_grammar = ansi.StatementSegment.parse_grammar.copy(
         insert=[
             Ref("AlterDatabaseStatementSegment"),
             Ref("MsckRepairTableStatementSegment"),
@@ -710,6 +710,3 @@ class FunctionSegment(BaseSegment):
             Ref("PostFunctionGrammar", optional=True),
         ),
     )
-
-
-hive_dialect.add_update_segments(globals())

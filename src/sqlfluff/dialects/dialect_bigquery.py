@@ -312,17 +312,10 @@ class SetOperatorSegment(BaseSegment):
     )
 
 
-class SelectStatementSegment(BaseSegment):
+class SelectStatementSegment(ansi.SelectStatementSegment):
     """Enhance `SELECT` statement to include QUALIFY."""
 
-    type = "select_statement"
-    match_grammar = ansi_dialect.get_segment(
-        "SelectStatementSegment"
-    ).match_grammar.copy()
-
-    parse_grammar = ansi_dialect.get_segment(
-        "SelectStatementSegment"
-    ).parse_grammar.copy(
+    parse_grammar = ansi.SelectStatementSegment.parse_grammar.copy(
         insert=[Ref("QualifyClauseSegment", optional=True)],
         before=Ref("OrderByClauseSegment", optional=True),
     )
@@ -336,9 +329,7 @@ class UnorderedSelectStatementSegment(BaseSegment):
         "UnorderedSelectStatementSegment"
     ).match_grammar.copy()
 
-    parse_grammar = ansi_dialect.get_segment(
-        "UnorderedSelectStatementSegment"
-    ).parse_grammar.copy(
+    parse_grammar = ansi.UnorderedSelectStatementSegment.parse_grammar.copy(
         insert=[Ref("QualifyClauseSegment", optional=True)],
         before=Ref("OverlapsClauseSegment", optional=True),
     )
@@ -347,7 +338,7 @@ class UnorderedSelectStatementSegment(BaseSegment):
 class StatementSegment(ansi.StatementSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
 
-    parse_grammar = ansi_dialect.get_segment("StatementSegment").parse_grammar.copy(
+    parse_grammar = ansi.StatementSegment.parse_grammar.copy(
         insert=[Ref("DeclareStatementSegment"), Ref("SetStatementSegment")],
     )
 
@@ -830,10 +821,8 @@ class HyphenatedObjectReferenceSegment(ObjectReferenceSegment):
     """A reference to an object that may contain embedded hyphens."""
 
     type = "hyphenated_object_reference"
-    match_grammar = ansi_dialect.get_segment(
-        "ObjectReferenceSegment"
-    ).match_grammar.copy()
-    match_grammar.delimiter = OneOf(
+    match_grammar = ansi.ObjectReferenceSegment.match_grammar.copy()
+    match_grammar.delimiter = OneOf(  # type: ignore
         Ref("DotSegment"),
         Sequence(Ref("DotSegment"), Ref("DotSegment")),
         Sequence(
@@ -1180,6 +1169,3 @@ class SamplingExpressionSegment(BaseSegment):
     match_grammar = Sequence(
         "TABLESAMPLE", "SYSTEM", Bracketed(Ref("NumericLiteralSegment"), "PERCENT")
     )
-
-
-bigquery_dialect.add_update_segments(globals())

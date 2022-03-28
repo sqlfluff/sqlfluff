@@ -287,9 +287,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
     https://dev.mysql.com/doc/refman/8.0/en/create-table.html
     """
 
-    match_grammar = ansi_dialect.get_segment(
-        "CreateTableStatementSegment"
-    ).match_grammar.copy(
+    match_grammar = ansi.CreateTableStatementSegment.match_grammar.copy(
         insert=[
             AnyNumberOf(
                 Sequence(
@@ -659,7 +657,7 @@ class DeclareStatement(BaseSegment):
 class StatementSegment(ansi.StatementSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
 
-    parse_grammar = ansi_dialect.get_segment("StatementSegment").parse_grammar.copy(
+    parse_grammar = ansi.StatementSegment.parse_grammar.copy(
         insert=[
             Ref("DelimiterStatement"),
             Ref("CreateProcedureStatementSegment"),
@@ -1083,7 +1081,7 @@ class IntoClauseSegment(BaseSegment):
     )
 
 
-class UnorderedSelectStatementSegment(BaseSegment):
+class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     """A `SELECT` statement without any ORDER clauses or later.
 
     This is designed for use in the context of set operations,
@@ -1092,9 +1090,7 @@ class UnorderedSelectStatementSegment(BaseSegment):
     """
 
     type = "select_statement"
-    match_grammar = ansi_dialect.get_segment(
-        "UnorderedSelectStatementSegment"
-    ).match_grammar.copy()
+    match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar.copy()
     match_grammar.terminator = (
         match_grammar.terminator.copy(
             insert=[Ref("IntoClauseSegment")],
@@ -1107,8 +1103,7 @@ class UnorderedSelectStatementSegment(BaseSegment):
     )
 
     parse_grammar = (
-        ansi_dialect.get_segment("UnorderedSelectStatementSegment")
-        .parse_grammar.copy(
+        ansi.UnorderedSelectStatementSegment.parse_grammar.copy(
             insert=[Ref("IntoClauseSegment", optional=True)],
             before=Ref("FromClauseSegment", optional=True),
         )
@@ -1124,31 +1119,19 @@ class UnorderedSelectStatementSegment(BaseSegment):
     )
 
 
-class SelectClauseElementSegment(BaseSegment):
+class SelectClauseElementSegment(ansi.SelectClauseElementSegment):
     """An element in the targets of a select statement."""
 
-    type = "select_clause_element"
-
-    match_grammar = ansi_dialect.get_segment(
-        "SelectClauseElementSegment"
-    ).match_grammar.copy()
-
-    parse_grammar = ansi_dialect.get_segment(
-        "SelectClauseElementSegment"
-    ).parse_grammar.copy()
-
-    get_alias = ansi_dialect.get_segment("SelectClauseElementSegment").get_alias
+    pass
 
 
-class SelectClauseSegment(BaseSegment):
+class SelectClauseSegment(ansi.SelectClauseSegment):
     """A group of elements in a select target statement."""
 
-    type = "select_clause"
-    match_grammar = ansi_dialect.get_segment("SelectClauseSegment").match_grammar.copy()
+    match_grammar = ansi.SelectClauseSegment.match_grammar.copy()
     match_grammar.terminator = match_grammar.terminator.copy(
         insert=[Ref("IntoKeywordSegment")]
     )
-    parse_grammar = ansi_dialect.get_segment("SelectClauseSegment").parse_grammar.copy()
 
 
 class SelectStatementSegment(BaseSegment):
@@ -1161,7 +1144,7 @@ class SelectStatementSegment(BaseSegment):
     match_grammar = ansi_dialect.get_segment(
         "SelectStatementSegment"
     ).match_grammar.copy()
-    match_grammar.terminator = match_grammar.terminator.copy(
+    match_grammar.terminator = match_grammar.terminator.copy(  # type: ignore
         insert=[Ref("UpsertClauseListSegment")]
     )
 
@@ -1828,6 +1811,3 @@ class OptimizeTableStatementSegment(BaseSegment):
             Ref("TableReferenceSegment"),
         ),
     )
-
-
-mysql_dialect.add_update_segments(globals())

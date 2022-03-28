@@ -3717,6 +3717,3 @@ class EmitsSegment(BaseSegment):
         "EMITS",
         Bracketed(Ref("UDFParameterGrammar")),
     )
-
-
-exasol_dialect.add_update_segments(globals())

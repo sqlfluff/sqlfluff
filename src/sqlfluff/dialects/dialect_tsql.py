@@ -404,7 +404,7 @@ tsql_dialect.replace(
 class StatementSegment(ansi.StatementSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
 
-    match_grammar = ansi_dialect.get_segment("StatementSegment").parse_grammar.copy(
+    match_grammar = ansi.StatementSegment.parse_grammar.copy(
         insert=[
             Ref("IfExpressionStatement"),
             Ref("DeclareStatementSegment"),
@@ -494,7 +494,7 @@ class NotEqualToSegment(BaseSegment):
     )
 
 
-class SelectClauseElementSegment(BaseSegment):
+class SelectClauseElementSegment(ansi.SelectClauseElementSegment):
     """An element in the targets of a select statement.
 
     Overriding ANSI to remove GreedyUntil logic which assumes statements have been
@@ -503,7 +503,7 @@ class SelectClauseElementSegment(BaseSegment):
 
     type = "select_clause_element"
     # Important to split elements before parsing, otherwise debugging is really hard.
-    match_grammar = OneOf(
+    match_grammar = OneOf(  # type: ignore
         # *, blah.*, blah.blah.*, etc.
         Ref("WildcardExpressionSegment"),
         Sequence(
@@ -515,8 +515,6 @@ class SelectClauseElementSegment(BaseSegment):
             Ref("AliasExpressionSegment", optional=True),
         ),
     )
-
-    get_alias = ansi_dialect.get_segment("SelectClauseElementSegment").get_alias
 
 
 class AltAliasExpressionSegment(BaseSegment):
@@ -1010,37 +1008,27 @@ class ObjectReferenceSegment(BaseSegment):
         ),
     )
 
-    ObjectReferencePart = ansi_dialect.get_segment(
-        "ObjectReferenceSegment"
-    ).ObjectReferencePart
+    ObjectReferencePart = ansi.ObjectReferenceSegment.ObjectReferencePart
 
-    _iter_reference_parts = ansi_dialect.get_segment(
-        "ObjectReferenceSegment"
-    )._iter_reference_parts
+    _iter_reference_parts = ansi.ObjectReferenceSegment._iter_reference_parts
 
-    iter_raw_references = ansi_dialect.get_segment(
-        "ObjectReferenceSegment"
-    ).iter_raw_references
+    iter_raw_references = ansi.ObjectReferenceSegment.iter_raw_references
 
-    is_qualified = ansi_dialect.get_segment("ObjectReferenceSegment").is_qualified
+    is_qualified = ansi.ObjectReferenceSegment.is_qualified
 
-    qualification = ansi_dialect.get_segment("ObjectReferenceSegment").qualification
+    qualification = ansi.ObjectReferenceSegment.qualification
 
-    ObjectReferenceLevel = ansi_dialect.get_segment(
-        "ObjectReferenceSegment"
-    ).ObjectReferenceLevel
+    ObjectReferenceLevel = ansi.ObjectReferenceSegment.ObjectReferenceLevel
 
-    extract_possible_references = ansi_dialect.get_segment(
-        "ObjectReferenceSegment"
-    ).extract_possible_references
-
-    extract_possible_multipart_references = ansi_dialect.get_segment(
-        "ObjectReferenceSegment"
-    ).extract_possible_multipart_references
-
-    _level_to_int = staticmethod(
-        ansi_dialect.get_segment("ObjectReferenceSegment")._level_to_int
+    extract_possible_references = (
+        ansi.ObjectReferenceSegment.extract_possible_references
     )
+
+    extract_possible_multipart_references = (
+        ansi.ObjectReferenceSegment.extract_possible_multipart_references
+    )
+
+    _level_to_int = ansi.ObjectReferenceSegment._level_to_int
 
 
 class TableReferenceSegment(ObjectReferenceSegment):
@@ -2581,9 +2569,7 @@ class FromClauseSegment(BaseSegment):
         Ref("DelimiterSegment", optional=True),
     )
 
-    get_eventual_aliases = ansi_dialect.get_segment(
-        "FromClauseSegment"
-    ).get_eventual_aliases
+    get_eventual_aliases = ansi.FromClauseSegment.get_eventual_aliases
 
 
 class GroupByClauseSegment(BaseSegment):
@@ -3356,6 +3342,3 @@ class WindowSpecificationSegment(BaseSegment):
         optional=True,
         ephemeral_name="OverClauseContent",
     )
-
-
-tsql_dialect.add_update_segments(globals())

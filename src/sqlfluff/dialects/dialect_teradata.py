@@ -672,7 +672,7 @@ class StatementSegment(ansi.StatementSegment):
 
     type = "statement"
 
-    parse_grammar = ansi_dialect.get_segment("StatementSegment").parse_grammar.copy(
+    parse_grammar = ansi.StatementSegment.parse_grammar.copy(
         insert=[
             Ref("TdCollectStatisticsStatementSegment"),
             Ref("BteqStatementSegment"),
@@ -682,7 +682,7 @@ class StatementSegment(ansi.StatementSegment):
         ],
     )
 
-    match_grammar = ansi_dialect.get_segment("StatementSegment").match_grammar.copy()
+    match_grammar = ansi.StatementSegment.match_grammar.copy()
 
 
 teradata_dialect.add(
@@ -726,39 +726,25 @@ class QualifyClauseSegment(BaseSegment):
     )
 
 
-class SelectStatementSegment(BaseSegment):
+class SelectStatementSegment(ansi.SelectStatementSegment):
     """A `SELECT` statement.
 
     https://dev.mysql.com/doc/refman/5.7/en/select.html
     """
 
-    type = "select_statement"
-    match_grammar = ansi_dialect.get_segment(
-        "SelectStatementSegment"
-    ).match_grammar.copy()
-
-    parse_grammar = ansi_dialect.get_segment(
-        "SelectStatementSegment"
-    ).parse_grammar.copy(
+    parse_grammar = ansi.SelectStatementSegment.parse_grammar.copy(
         insert=[Ref("QualifyClauseSegment", optional=True)],
         before=Ref("OrderByClauseSegment", optional=True),
     )
 
 
-class UnorderedSelectStatementSegment(BaseSegment):
+class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     """An unordered `SELECT` statement.
 
     https://dev.mysql.com/doc/refman/5.7/en/select.html
     """
 
-    type = "select_statement"
-    match_grammar = ansi_dialect.get_segment(
-        "UnorderedSelectStatementSegment"
-    ).match_grammar.copy()
-
-    parse_grammar = ansi_dialect.get_segment(
-        "UnorderedSelectStatementSegment"
-    ).parse_grammar.copy(
+    parse_grammar = ansi.UnorderedSelectStatementSegment.parse_grammar.copy(
         insert=[Ref("QualifyClauseSegment", optional=True)],
         before=Ref("OverlapsClauseSegment", optional=True),
     )
@@ -800,13 +786,12 @@ class SelectClauseModifierSegment(BaseSegment):
     )
 
 
-class SelectClauseSegment(BaseSegment):
+class SelectClauseSegment(ansi.SelectClauseSegment):
     """A group of elements in a select target statement.
 
     Remove OVERLAPS as a terminator as this can be part of SelectClauseModifierSegment
     """
 
-    type = "select_clause"
     match_grammar = StartsWith(
         Sequence(
             OneOf("SELECT", "SEL"), Ref("WildcardExpressionSegment", optional=True)
@@ -820,8 +805,3 @@ class SelectClauseSegment(BaseSegment):
         ),
         enforce_whitespace_preceding_terminator=True,
     )
-
-    parse_grammar = ansi_dialect.get_segment("SelectClauseSegment").parse_grammar.copy()
-
-
-teradata_dialect.add_update_segments(globals())

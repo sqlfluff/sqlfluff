@@ -95,7 +95,7 @@ class StatementSegment(ansi.StatementSegment):
     match_grammar = OneOf(  # type: ignore
         GreedyUntil(Ref("DelimiterSegment")), exclude=Ref("ExecuteFileSegment")
     )
-    parse_grammar = ansi_dialect.get_segment("StatementSegment").parse_grammar.copy(
+    parse_grammar = ansi.StatementSegment.parse_grammar.copy(
         insert=[
             Ref("CommentStatementSegment"),
         ],
@@ -210,6 +210,3 @@ class TableReferenceSegment(ObjectReferenceSegment):
         ),
         allow_gaps=False,
     )
-
-
-oracle_dialect.add_update_segments(globals())

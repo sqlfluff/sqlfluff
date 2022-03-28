@@ -31,6 +31,3 @@ class TableEndClauseSegment(BaseSegment):
 
     type = "table_end_clause_segment"
     match_grammar = Sequence("WITHOUT", "ROWID")
-
-
-sqlite_dialect.add_update_segments(globals())

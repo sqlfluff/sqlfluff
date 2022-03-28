@@ -2429,6 +2429,3 @@ class PropertyNameSegment(BaseSegment):
             Ref("SingleIdentifierGrammar"),
         ),
     )
-
-
-spark3_dialect.add_update_segments(globals())

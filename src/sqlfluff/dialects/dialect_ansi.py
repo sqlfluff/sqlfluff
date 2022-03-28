@@ -3658,6 +3658,3 @@ class LocalAliasSegment(BaseSegment):
 
     type = "local_alias_segment"
     match_grammar = Nothing()
-
-
-ansi_dialect.add_update_segments(globals())

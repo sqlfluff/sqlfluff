@@ -2021,6 +2021,3 @@ class TransactionStatementSegment(BaseSegment):
             optional=True,
         ),
     )
-
-
-redshift_dialect.add_update_segments(globals())

@@ -766,7 +766,7 @@ class FunctionDefinitionGrammar(BaseSegment):
 class StatementSegment(ansi.StatementSegment):
     """A generic segment, to any of its child subsegments."""
 
-    parse_grammar = ansi_dialect.get_segment("StatementSegment").parse_grammar.copy(
+    parse_grammar = ansi.StatementSegment.parse_grammar.copy(
         insert=[
             Ref("CreateStatementSegment"),
             Ref("CreateTaskSegment"),
@@ -1204,9 +1204,7 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
         terminator=Ref("SetOperatorSegment"),
     )
 
-    parse_grammar = ansi_dialect.get_segment(
-        "SelectStatementSegment"
-    ).parse_grammar.copy(
+    parse_grammar = ansi.SelectStatementSegment.parse_grammar.copy(
         insert=[Ref("QualifyClauseSegment", optional=True)],
         before=Ref("OrderByClauseSegment", optional=True),
     )
@@ -1640,13 +1638,9 @@ class UnorderedSelectStatementSegment(ansi.SelectStatementSegment):
     """
 
     type = "select_statement"
-    match_grammar = ansi_dialect.get_segment(
-        "UnorderedSelectStatementSegment"
-    ).match_grammar.copy()
+    match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar.copy()
 
-    parse_grammar = ansi_dialect.get_segment(
-        "UnorderedSelectStatementSegment"
-    ).parse_grammar.copy(
+    parse_grammar = ansi.UnorderedSelectStatementSegment.parse_grammar.copy(
         insert=[Ref("QualifyClauseSegment", optional=True)],
         before=Ref("OverlapsClauseSegment", optional=True),
     )
@@ -3396,7 +3390,7 @@ class ExplainStatementSegment(ansi.ExplainStatementSegment):
             OneOf("TABULAR", "JSON", "TEXT"),
             optional=True,
         ),
-        ansi_dialect.get_segment("ExplainStatementSegment").explainable_stmt,
+        ansi.ExplainStatementSegment.explainable_stmt,
     )
 
 
@@ -3505,7 +3499,7 @@ class AlterTaskStatementSegment(BaseSegment):
             Sequence(
                 "MODIFY",
                 "AS",
-                ansi_dialect.get_segment("ExplainStatementSegment").explainable_stmt,
+                ansi.ExplainStatementSegment.explainable_stmt,
             ),
             Sequence("MODIFY", "WHEN", Ref("BooleanLiteralGrammar")),
         ),
@@ -4123,15 +4117,14 @@ class LimitClauseSegment(BaseSegment):
     )
 
 
-class SelectClauseSegment(BaseSegment):
+class SelectClauseSegment(ansi.SelectClauseSegment):
     """A group of elements in a select target statement."""
 
-    type = "select_clause"
-    match_grammar = ansi_dialect.get_segment("SelectClauseSegment").match_grammar.copy()
+    match_grammar = ansi.SelectClauseSegment.match_grammar.copy()
     match_grammar.terminator = match_grammar.terminator.copy(
         insert=[Ref.keyword("FETCH"), Ref.keyword("OFFSET")],
     )
-    parse_grammar = ansi_dialect.get_segment("SelectClauseSegment").parse_grammar.copy()
+    parse_grammar = ansi.SelectClauseSegment.parse_grammar.copy()
 
 
 class OrderByClauseSegment(BaseSegment):
@@ -4144,7 +4137,7 @@ class OrderByClauseSegment(BaseSegment):
     match_grammar = ansi_dialect.get_segment(
         "OrderByClauseSegment"
     ).match_grammar.copy()
-    match_grammar.terminator = match_grammar.terminator.copy(
+    match_grammar.terminator = match_grammar.terminator.copy(  # type: ignore
         insert=[Ref.keyword("FETCH"), Ref.keyword("OFFSET"), Ref.keyword("MEASURES")],
     )
     parse_grammar = Sequence(
@@ -4174,10 +4167,9 @@ class HavingClauseSegment(BaseSegment):
 
     type = "having_clause"
     match_grammar = ansi_dialect.get_segment("HavingClauseSegment").match_grammar.copy()
-    match_grammar.terminator = match_grammar.terminator.copy(
+    match_grammar.terminator = match_grammar.terminator.copy(  # type: ignore
         insert=[Ref.keyword("FETCH"), Ref.keyword("OFFSET")],
     )
-    parse_grammar = ansi_dialect.get_segment("HavingClauseSegment").parse_grammar.copy()
-
-
-snowflake_dialect.add_update_segments(globals())
+    parse_grammar = ansi_dialect.get_segment(
+        "HavingClauseSegment"
+    ).parse_grammar.copy()  # type: ignore
