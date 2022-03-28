@@ -59,3 +59,7 @@ Just add a section below by raising a PR on GitHub by
   SQLFluff across the organization, the clarity of our SQL code has risen
   dramatically, freeing up review time to focus on deeper data and
   process-specific questions.
+- `Symend <https://www.symend.com>`_ uses SQLFLuff in Analytics microservices CI/CD process
+  (a few of many microservices that make up the platform of our SaaS product). 
+  We use it to validate our DCM scripts, deployed using `schemachange <https://github.com/Snowflake-Labs/schemachange>`_ 
+  and we have near-term plans to implement it for our `dbt <http://www.getdbt.com>`_ project.
