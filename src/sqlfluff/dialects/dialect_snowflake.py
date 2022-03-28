@@ -788,6 +788,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterFunctionStatementSegment"),
             Ref("CreateStageSegment"),
             Ref("AlterStageSegment"),
+            Ref("CreateStreamStatementSegment"),
             Ref("UnsetStatementSegment"),
             Ref("UndropStatementSegment"),
             Ref("CommentStatementSegment"),
@@ -2316,7 +2317,6 @@ class CreateStatementSegment(BaseSegment):
             "DATABASE",
             "SEQUENCE",
             Sequence("FILE", "FORMAT"),
-            "STREAM",
         ),
         Ref("IfNotExistsGrammar", optional=True),
         Ref("ObjectReferenceSegment"),
@@ -3179,6 +3179,69 @@ class AlterStageSegment(BaseSegment):
                 ),
             ),
         ),
+    )
+
+
+class CreateStreamStatementSegment(BaseSegment):
+    """A Snowflake `CREATE STREAM` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-stream.html
+    """
+
+    type = "create_stream_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        "STREAM",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        Sequence("COPY", "GRANTS", optional=True),
+        "ON",
+        OneOf(
+            Sequence(
+                OneOf("TABLE", "VIEW"),
+                Ref("ObjectReferenceSegment"),
+                OneOf(
+                    Ref("FromAtExpressionSegment"),
+                    Ref("FromBeforeExpressionSegment"),
+                    optional=True,
+                ),
+                Sequence(
+                    "APPEND_ONLY",
+                    Ref("EqualsSegment"),
+                    Ref("BooleanLiteralGrammar"),
+                    optional=True,
+                ),
+                Sequence(
+                    "SHOW_INITIAL_ROWS",
+                    Ref("EqualsSegment"),
+                    Ref("BooleanLiteralGrammar"),
+                    optional=True,
+                ),
+            ),
+            Sequence(
+                "EXTERNAL",
+                "TABLE",
+                Ref("ObjectReferenceSegment"),
+                OneOf(
+                    Ref("FromAtExpressionSegment"),
+                    Ref("FromBeforeExpressionSegment"),
+                    optional=True,
+                ),
+                Sequence(
+                    "INSERT_ONLY",
+                    Ref("EqualsSegment"),
+                    Ref("TrueSegment"),
+                    optional=True,
+                ),
+            ),
+            Sequence(
+                "STAGE",
+                Ref("ObjectReferenceSegment"),
+            ),
+        ),
+        Ref("CommentEqualsClauseSegment", optional=True),
     )
 
 
