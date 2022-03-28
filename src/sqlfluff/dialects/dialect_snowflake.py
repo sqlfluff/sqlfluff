@@ -3255,9 +3255,8 @@ class AppendOnlyExpressionSegment(BaseSegment):
     """An APPEND_ONLY = TRUE | FALSE expression."""
 
     type = "append_only_expression"
-    match_grammar = "APPEND_ONLY"
-
-    parse_grammar = Sequence(
+    
+    match_grammar = Sequence(
         "APPEND_ONLY",
         Ref("EqualsSegment"),
         OneOf(Ref("TrueSegment"), Ref("FalseSegment"))
@@ -3269,9 +3268,8 @@ class ShowInitialRowsExpressionSegment(BaseSegment):
     """A SHOW_INITIAL_ROWS = TRUE | FALSE expression."""
 
     type = "show_initial_rows_expression"
-    match_grammar = "SHOW_INITIAL_ROWS"
 
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "SHOW_INITIAL_ROWS",
         Ref("EqualsSegment"),
         OneOf(Ref("TrueSegment"), Ref("FalseSegment"))
@@ -3283,9 +3281,8 @@ class InsertOnlyExpressionSegment(BaseSegment):
     """A INSERT_ONLY = TRUE expression."""
 
     type = "insert_only_expression"
-    match_grammar = "INSERT_ONLY"
 
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "INSERT_ONLY",
         Ref("EqualsSegment"),
         Ref("TrueSegment")
@@ -3302,10 +3299,6 @@ class CreateStreamStatementSegment(BaseSegment):
     type = "create_stream_statement"
 
     match_grammar = Sequence(
-        "CREATE", "STREAM"
-    )
-
-    parse_grammar = Sequence(
         "CREATE",
         Ref("OrReplaceGrammar", optional=True),
         "STREAM",
