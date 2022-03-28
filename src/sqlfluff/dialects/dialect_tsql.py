@@ -988,14 +988,13 @@ class UpdateStatisticsStatementSegment(BaseSegment):
     )
 
 
-class ObjectReferenceSegment(BaseSegment):
+class ObjectReferenceSegment(ansi.ObjectReferenceSegment):
     """A reference to an object.
 
     Update ObjectReferenceSegment to only allow dot separated SingleIdentifierGrammar
     So Square Bracketed identifiers can be matched.
     """
 
-    type = "object_reference"
     # match grammar (allow whitespace)
     match_grammar: Matchable = Sequence(
         Ref("SingleIdentifierGrammar"),
@@ -1008,28 +1007,6 @@ class ObjectReferenceSegment(BaseSegment):
             max_times=3,
         ),
     )
-
-    ObjectReferencePart = ansi.ObjectReferenceSegment.ObjectReferencePart
-
-    _iter_reference_parts = ansi.ObjectReferenceSegment._iter_reference_parts
-
-    iter_raw_references = ansi.ObjectReferenceSegment.iter_raw_references
-
-    is_qualified = ansi.ObjectReferenceSegment.is_qualified
-
-    qualification = ansi.ObjectReferenceSegment.qualification
-
-    ObjectReferenceLevel = ansi.ObjectReferenceSegment.ObjectReferenceLevel
-
-    extract_possible_references = (
-        ansi.ObjectReferenceSegment.extract_possible_references
-    )
-
-    extract_possible_multipart_references = (
-        ansi.ObjectReferenceSegment.extract_possible_multipart_references
-    )
-
-    _level_to_int = staticmethod(ansi.ObjectReferenceSegment._level_to_int)
 
 
 class TableReferenceSegment(ObjectReferenceSegment):
