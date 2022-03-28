@@ -563,7 +563,6 @@ ansi_dialect.add(
 )
 
 
-@ansi_dialect.segment()
 class FileSegment(BaseFileSegment):
     """A segment representing a whole file or script.
 
@@ -582,7 +581,6 @@ class FileSegment(BaseFileSegment):
     )
 
 
-@ansi_dialect.segment()
 class IntervalExpressionSegment(BaseSegment):
     """An interval expression segment."""
 
@@ -601,7 +599,6 @@ class IntervalExpressionSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class ArrayLiteralSegment(BaseSegment):
     """An array literal segment."""
 
@@ -612,7 +609,6 @@ class ArrayLiteralSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class DatatypeSegment(BaseSegment):
     """A data type segment.
 
@@ -667,7 +663,6 @@ class DatatypeSegment(BaseSegment):
 ansi_dialect.add(CharCharacterSetSegment=Nothing())
 
 
-@ansi_dialect.segment()
 class ObjectReferenceSegment(BaseSegment):
     """A reference to an object."""
 
@@ -785,63 +780,54 @@ class ObjectReferenceSegment(BaseSegment):
         return level
 
 
-@ansi_dialect.segment()
 class TableReferenceSegment(ObjectReferenceSegment):
     """A reference to an table, CTE, subquery or alias."""
 
     type = "table_reference"
 
 
-@ansi_dialect.segment()
 class SchemaReferenceSegment(ObjectReferenceSegment):
     """A reference to a schema."""
 
     type = "schema_reference"
 
 
-@ansi_dialect.segment()
 class DatabaseReferenceSegment(ObjectReferenceSegment):
     """A reference to a database."""
 
     type = "database_reference"
 
 
-@ansi_dialect.segment()
 class IndexReferenceSegment(ObjectReferenceSegment):
     """A reference to an index."""
 
     type = "index_reference"
 
 
-@ansi_dialect.segment()
 class ExtensionReferenceSegment(ObjectReferenceSegment):
     """A reference to an extension."""
 
     type = "extension_reference"
 
 
-@ansi_dialect.segment()
 class ColumnReferenceSegment(ObjectReferenceSegment):
     """A reference to column, field or alias."""
 
     type = "column_reference"
 
 
-@ansi_dialect.segment()
 class SequenceReferenceSegment(ObjectReferenceSegment):
     """A reference to a sequence."""
 
     type = "sequence_reference"
 
 
-@ansi_dialect.segment()
 class TriggerReferenceSegment(ObjectReferenceSegment):
     """A reference to a trigger."""
 
     type = "trigger_reference"
 
 
-@ansi_dialect.segment()
 class SingleIdentifierListSegment(BaseSegment):
     """A comma delimited list of identifiers."""
 
@@ -849,7 +835,6 @@ class SingleIdentifierListSegment(BaseSegment):
     match_grammar = Delimited(Ref("SingleIdentifierGrammar"))
 
 
-@ansi_dialect.segment()
 class ArrayAccessorSegment(BaseSegment):
     """An array accessor e.g. [3:4]."""
 
@@ -864,7 +849,6 @@ class ArrayAccessorSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class AliasedObjectReferenceSegment(BaseSegment):
     """A reference to an object with an `AS` clause."""
 
@@ -882,7 +866,6 @@ ansi_dialect.add(
 )
 
 
-@ansi_dialect.segment()
 class AliasExpressionSegment(BaseSegment):
     """A reference to an object with an `AS` clause.
 
@@ -903,7 +886,6 @@ class AliasExpressionSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class ShorthandCastSegment(BaseSegment):
     """A casting operation using '::'."""
 
@@ -913,7 +895,6 @@ class ShorthandCastSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class QualifiedNumericLiteralSegment(BaseSegment):
     """A numeric literal with a + or - sign preceding.
 
@@ -987,7 +968,6 @@ ansi_dialect.add(
 )
 
 
-@ansi_dialect.segment()
 class OverClauseSegment(BaseSegment):
     """An OVER clause for window functions."""
 
@@ -1003,7 +983,6 @@ class OverClauseSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class WindowSpecificationSegment(BaseSegment):
     """Window specification within OVER(...)."""
 
@@ -1018,7 +997,6 @@ class WindowSpecificationSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class FunctionNameSegment(BaseSegment):
     """Function name, including any prefix bits, e.g. project or schema."""
 
@@ -1040,7 +1018,6 @@ class FunctionNameSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class FunctionSegment(BaseSegment):
     """A scalar or aggregate function.
 
@@ -1096,7 +1073,6 @@ class FunctionSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class PartitionClauseSegment(BaseSegment):
     """A `PARTITION BY` for window functions."""
 
@@ -1116,7 +1092,6 @@ class PartitionClauseSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class FrameClauseSegment(BaseSegment):
     """A frame clause for window functions.
 
@@ -1145,7 +1120,6 @@ ansi_dialect.add(
 )
 
 
-@ansi_dialect.segment()
 class FromExpressionElementSegment(BaseSegment):
     """A table expression."""
 
@@ -1207,7 +1181,6 @@ class FromExpressionElementSegment(BaseSegment):
         return None
 
 
-@ansi_dialect.segment()
 class FromExpressionSegment(BaseSegment):
     """A from expression segment."""
 
@@ -1228,7 +1201,6 @@ class FromExpressionSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class TableExpressionSegment(BaseSegment):
     """The main table expression e.g. within a FROM clause."""
 
@@ -1244,7 +1216,6 @@ class TableExpressionSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class WildcardIdentifierSegment(ObjectReferenceSegment):
     """Any identifier of the form a.b.*.
 
@@ -1274,7 +1245,6 @@ class WildcardIdentifierSegment(ObjectReferenceSegment):
             yield from self._iter_reference_parts(elem)
 
 
-@ansi_dialect.segment()
 class WildcardExpressionSegment(BaseSegment):
     """A star (*) expression for a SELECT clause.
 
@@ -1290,7 +1260,6 @@ class WildcardExpressionSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class SelectClauseElementSegment(BaseSegment):
     """An element in the targets of a select statement."""
 
@@ -1350,7 +1319,6 @@ class SelectClauseElementSegment(BaseSegment):
         )
 
 
-@ansi_dialect.segment()
 class SelectClauseModifierSegment(BaseSegment):
     """Things that come after SELECT but before the columns."""
 
@@ -1361,7 +1329,6 @@ class SelectClauseModifierSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class SelectClauseSegment(BaseSegment):
     """A group of elements in a select target statement."""
 
@@ -1382,7 +1349,6 @@ class SelectClauseSegment(BaseSegment):
     parse_grammar = Ref("SelectClauseSegmentGrammar")
 
 
-@ansi_dialect.segment()
 class JoinClauseSegment(BaseSegment):
     """Any number of join clauses, including the `JOIN` keyword."""
 
@@ -1476,7 +1442,6 @@ class JoinClauseSegment(BaseSegment):
         return buff
 
 
-@ansi_dialect.segment()
 class JoinOnConditionSegment(BaseSegment):
     """The `ON` condition within a `JOIN` clause."""
 
@@ -1495,7 +1460,6 @@ ansi_dialect.add(
 )
 
 
-@ansi_dialect.segment()
 class FromClauseSegment(BaseSegment):
     """A `FROM` clause like in `SELECT`.
 
@@ -1559,7 +1523,6 @@ class FromClauseSegment(BaseSegment):
         return buff
 
 
-@ansi_dialect.segment()
 class WhenClauseSegment(BaseSegment):
     """A 'WHEN' clause for a 'CASE' statement."""
 
@@ -1574,7 +1537,6 @@ class WhenClauseSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class ElseClauseSegment(BaseSegment):
     """An 'ELSE' clause for a 'CASE' statement."""
 
@@ -1582,7 +1544,6 @@ class ElseClauseSegment(BaseSegment):
     match_grammar = Sequence("ELSE", Indent, Ref("ExpressionSegment"), Dedent)
 
 
-@ansi_dialect.segment()
 class CaseExpressionSegment(BaseSegment):
     """A `CASE WHEN` clause."""
 
@@ -1784,7 +1745,6 @@ ansi_dialect.add(
 )
 
 
-@ansi_dialect.segment()
 class EqualsSegment(BaseSegment):
     """Equals operator."""
 
@@ -1793,7 +1753,6 @@ class EqualsSegment(BaseSegment):
     match_grammar = Ref("RawEqualsSegment")
 
 
-@ansi_dialect.segment()
 class GreaterThanSegment(BaseSegment):
     """Greater than operator."""
 
@@ -1802,7 +1761,6 @@ class GreaterThanSegment(BaseSegment):
     match_grammar = Ref("RawGreaterThanSegment")
 
 
-@ansi_dialect.segment()
 class LessThanSegment(BaseSegment):
     """Less than operator."""
 
@@ -1811,7 +1769,6 @@ class LessThanSegment(BaseSegment):
     match_grammar = Ref("RawLessThanSegment")
 
 
-@ansi_dialect.segment()
 class GreaterThanOrEqualToSegment(BaseSegment):
     """Greater than or equal to operator."""
 
@@ -1822,7 +1779,6 @@ class GreaterThanOrEqualToSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class LessThanOrEqualToSegment(BaseSegment):
     """Less than or equal to operator."""
 
@@ -1833,7 +1789,6 @@ class LessThanOrEqualToSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class NotEqualToSegment(BaseSegment):
     """Not equal to operator."""
 
@@ -1847,7 +1802,6 @@ class NotEqualToSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class ConcatSegment(BaseSegment):
     """Concat operator."""
 
@@ -1856,7 +1810,6 @@ class ConcatSegment(BaseSegment):
     match_grammar = Sequence(Ref("PipeSegment"), Ref("PipeSegment"), allow_gaps=False)
 
 
-@ansi_dialect.segment()
 class BitwiseAndSegment(BaseSegment):
     """Bitwise and operator."""
 
@@ -1865,7 +1818,6 @@ class BitwiseAndSegment(BaseSegment):
     match_grammar = Ref("AmpersandSegment")
 
 
-@ansi_dialect.segment()
 class BitwiseOrSegment(BaseSegment):
     """Bitwise or operator."""
 
@@ -1874,7 +1826,6 @@ class BitwiseOrSegment(BaseSegment):
     match_grammar = Ref("PipeSegment")
 
 
-@ansi_dialect.segment()
 class BitwiseLShiftSegment(BaseSegment):
     """Bitwise left-shift operator."""
 
@@ -1884,7 +1835,6 @@ class BitwiseLShiftSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class BitwiseRShiftSegment(BaseSegment):
     """Bitwise right-shift operator."""
 
@@ -1894,7 +1844,6 @@ class BitwiseRShiftSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class ExpressionSegment(BaseSegment):
     """A expression, either arithmetic or boolean.
 
@@ -1915,7 +1864,6 @@ class ExpressionSegment(BaseSegment):
     match_grammar = Ref("Expression_A_Grammar")
 
 
-@ansi_dialect.segment()
 class WhereClauseSegment(BaseSegment):
     """A `WHERE` clause like in `SELECT` or `INSERT`."""
 
@@ -1933,7 +1881,6 @@ class WhereClauseSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class OrderByClauseSegment(BaseSegment):
     """A `ORDER BY` clause like in `SELECT`."""
 
@@ -1975,7 +1922,6 @@ class OrderByClauseSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class GroupByClauseSegment(BaseSegment):
     """A `GROUP BY` clause like in `SELECT`."""
 
@@ -2003,7 +1949,6 @@ class GroupByClauseSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class HavingClauseSegment(BaseSegment):
     """A `HAVING` clause like in `SELECT`."""
 
@@ -2021,7 +1966,6 @@ class HavingClauseSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class LimitClauseSegment(BaseSegment):
     """A `LIMIT` clause like in `SELECT`."""
 
@@ -2044,7 +1988,6 @@ class LimitClauseSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class OverlapsClauseSegment(BaseSegment):
     """An `OVERLAPS` clause like in `SELECT."""
 
@@ -2067,7 +2010,6 @@ class OverlapsClauseSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class NamedWindowSegment(BaseSegment):
     """A WINDOW clause."""
 
@@ -2082,7 +2024,6 @@ class NamedWindowSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class NamedWindowExpressionSegment(BaseSegment):
     """Named window expression."""
 
@@ -2096,7 +2037,6 @@ class NamedWindowExpressionSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class ValuesClauseSegment(BaseSegment):
     """A `VALUES` clause like in `INSERT`."""
 
@@ -2125,7 +2065,6 @@ class ValuesClauseSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class UnorderedSelectStatementSegment(BaseSegment):
     """A `SELECT` statement without any ORDER clauses or later.
 
@@ -2167,7 +2106,6 @@ class UnorderedSelectStatementSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class SelectStatementSegment(BaseSegment):
     """A `SELECT` statement."""
 
@@ -2230,7 +2168,6 @@ ansi_dialect.add(
 )
 
 
-@ansi_dialect.segment()
 class CTEDefinitionSegment(BaseSegment):
     """A CTE Definition from a WITH statement.
 
@@ -2261,7 +2198,6 @@ class CTEDefinitionSegment(BaseSegment):
         return self.get_child("identifier")
 
 
-@ansi_dialect.segment()
 class WithCompoundStatementSegment(BaseSegment):
     """A `SELECT` statement preceded by a selection of `WITH` clauses.
 
@@ -2287,7 +2223,6 @@ class WithCompoundStatementSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class SetOperatorSegment(BaseSegment):
     """A set operator such as Union, Minus, Except or Intersect."""
 
@@ -2301,7 +2236,6 @@ class SetOperatorSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class SetExpressionSegment(BaseSegment):
     """A set expression with either Union, Minus, Except or Intersect."""
 
@@ -2322,7 +2256,6 @@ class SetExpressionSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class InsertStatementSegment(BaseSegment):
     """An `INSERT` statement."""
 
@@ -2340,7 +2273,6 @@ class InsertStatementSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class MergeStatementSegment(BaseSegment):
     """A `MERGE` statement."""
 
@@ -2375,7 +2307,6 @@ class MergeStatementSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class MergeMatchSegment(BaseSegment):
     """Contains dialect specific merge operations.
 
@@ -2391,7 +2322,6 @@ class MergeMatchSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class MergeMatchedClauseSegment(BaseSegment):
     """The `WHEN MATCHED` clause within a `MERGE` statement."""
 
@@ -2410,7 +2340,6 @@ class MergeMatchedClauseSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class MergeNotMatchedClauseSegment(BaseSegment):
     """The `WHEN NOT MATCHED` clause within a `MERGE` statement."""
 
@@ -2427,7 +2356,6 @@ class MergeNotMatchedClauseSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class MergeUpdateClauseSegment(BaseSegment):
     """`UPDATE` clause within the `MERGE` statement."""
 
@@ -2440,7 +2368,6 @@ class MergeUpdateClauseSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class MergeInsertClauseSegment(BaseSegment):
     """`INSERT` clause within the `MERGE` statement."""
 
@@ -2456,7 +2383,6 @@ class MergeInsertClauseSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class MergeDeleteClauseSegment(BaseSegment):
     """`DELETE` clause within the `MERGE` statement."""
 
@@ -2464,7 +2390,6 @@ class MergeDeleteClauseSegment(BaseSegment):
     match_grammar = Ref.keyword("DELETE")
 
 
-@ansi_dialect.segment()
 class TransactionStatementSegment(BaseSegment):
     """A `COMMIT`, `ROLLBACK` or `TRANSACTION` statement."""
 
@@ -2483,7 +2408,6 @@ class TransactionStatementSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class ColumnConstraintSegment(BaseSegment):
     """A column option; each CREATE TABLE column can have 0 or more."""
 
@@ -2517,7 +2441,6 @@ class ColumnConstraintSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class ColumnDefinitionSegment(BaseSegment):
     """A column definition, e.g. for CREATE TABLE or ALTER TABLE."""
 
@@ -2532,7 +2455,6 @@ class ColumnDefinitionSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class IndexColumnDefinitionSegment(BaseSegment):
     """A column definition for CREATE INDEX."""
 
@@ -2543,7 +2465,6 @@ class IndexColumnDefinitionSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class TableConstraintSegment(BaseSegment):
     """A table constraint, e.g. for CREATE TABLE."""
 
@@ -2580,7 +2501,6 @@ class TableConstraintSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class TableEndClauseSegment(BaseSegment):
     """Allow for additional table endings.
 
@@ -2591,7 +2511,6 @@ class TableEndClauseSegment(BaseSegment):
     match_grammar = Nothing()
 
 
-@ansi_dialect.segment()
 class TypelessStructSegment(BaseSegment):
     """Expression to construct a STRUCT with implicit types.
 
@@ -2602,7 +2521,6 @@ class TypelessStructSegment(BaseSegment):
     match_grammar = Nothing()
 
 
-@ansi_dialect.segment()
 class CreateTableStatementSegment(BaseSegment):
     """A `CREATE TABLE` statement."""
 
@@ -2641,7 +2559,6 @@ class CreateTableStatementSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class CommentClauseSegment(BaseSegment):
     """A comment clause.
 
@@ -2652,7 +2569,6 @@ class CommentClauseSegment(BaseSegment):
     match_grammar = Sequence("COMMENT", Ref("QuotedLiteralSegment"))
 
 
-@ansi_dialect.segment()
 class CreateSchemaStatementSegment(BaseSegment):
     """A `CREATE SCHEMA` statement."""
 
@@ -2665,7 +2581,6 @@ class CreateSchemaStatementSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class SetSchemaStatementSegment(BaseSegment):
     """A `SET SCHEMA` statement."""
 
@@ -2678,7 +2593,6 @@ class SetSchemaStatementSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class DropSchemaStatementSegment(BaseSegment):
     """A `DROP SCHEMA` statement."""
 
@@ -2692,7 +2606,6 @@ class DropSchemaStatementSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class DropTypeStatementSegment(BaseSegment):
     """A `DROP TYPE` statement."""
 
@@ -2706,7 +2619,6 @@ class DropTypeStatementSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class CreateDatabaseStatementSegment(BaseSegment):
     """A `CREATE DATABASE` statement."""
 
@@ -2719,7 +2631,6 @@ class CreateDatabaseStatementSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class DropDatabaseStatementSegment(BaseSegment):
     """A `DROP DATABASE` statement."""
 
@@ -2733,7 +2644,6 @@ class DropDatabaseStatementSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class CreateExtensionStatementSegment(BaseSegment):
     """A `CREATE EXTENSION` statement.
 
@@ -2753,7 +2663,6 @@ class CreateExtensionStatementSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class CreateIndexStatementSegment(BaseSegment):
     """A `CREATE INDEX` statement."""
 
@@ -2777,7 +2686,6 @@ class CreateIndexStatementSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class AlterTableStatementSegment(BaseSegment):
     """An `ALTER TABLE` statement."""
 
@@ -2822,7 +2730,6 @@ class AlterTableStatementSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class CreateViewStatementSegment(BaseSegment):
     """A `CREATE VIEW` statement."""
 
@@ -2844,7 +2751,6 @@ class CreateViewStatementSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class DropTableStatementSegment(BaseSegment):
     """A `DROP TABLE` statement."""
 
@@ -2859,7 +2765,6 @@ class DropTableStatementSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class DropViewStatementSegment(BaseSegment):
     """A `DROP VIEW` statement."""
 
@@ -2874,7 +2779,6 @@ class DropViewStatementSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class DropUserStatementSegment(BaseSegment):
     """A `DROP USER` statement."""
 
@@ -2888,7 +2792,6 @@ class DropUserStatementSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class TruncateStatementSegment(BaseSegment):
     """`TRUNCATE TABLE` statement."""
 
@@ -2901,7 +2804,6 @@ class TruncateStatementSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class DropIndexStatementSegment(BaseSegment):
     """A `DROP INDEX` statement."""
 
@@ -2917,7 +2819,6 @@ class DropIndexStatementSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class AccessStatementSegment(BaseSegment):
     """A `GRANT` or `REVOKE` statement.
 
@@ -3133,7 +3034,6 @@ class AccessStatementSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class DeleteStatementSegment(BaseSegment):
     """A `DELETE` statement.
 
@@ -3151,7 +3051,6 @@ class DeleteStatementSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class UpdateStatementSegment(BaseSegment):
     """An `Update` statement.
 
@@ -3172,7 +3071,6 @@ class UpdateStatementSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class SetClauseListSegment(BaseSegment):
     """SQL 1992 set clause list.
 
@@ -3205,7 +3103,6 @@ class SetClauseListSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class SetClauseSegment(BaseSegment):
     """SQL 1992 set clause.
 
@@ -3237,7 +3134,6 @@ class SetClauseSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class FunctionDefinitionGrammar(BaseSegment):
     """This is the body of a `CREATE FUNCTION AS` statement."""
 
@@ -3254,7 +3150,6 @@ class FunctionDefinitionGrammar(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class CreateFunctionStatementSegment(BaseSegment):
     """A `CREATE FUNCTION` statement.
 
@@ -3293,7 +3188,6 @@ class CreateFunctionStatementSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class FunctionParameterListGrammar(BaseSegment):
     """The parameters for a function ie. `(string, number)`."""
 
@@ -3308,7 +3202,6 @@ class FunctionParameterListGrammar(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class CreateModelStatementSegment(BaseSegment):
     """A BigQuery `CREATE MODEL` statement."""
 
@@ -3348,7 +3241,6 @@ class CreateModelStatementSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class CreateTypeStatementSegment(BaseSegment):
     """A `CREATE TYPE` statement.
 
@@ -3370,7 +3262,6 @@ class CreateTypeStatementSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class CreateRoleStatementSegment(BaseSegment):
     """A `CREATE ROLE` statement.
 
@@ -3386,7 +3277,6 @@ class CreateRoleStatementSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class DropModelStatementSegment(BaseSegment):
     """A `DROP MODEL` statement."""
 
@@ -3401,7 +3291,6 @@ class DropModelStatementSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class MLTableExpressionSegment(BaseSegment):
     """An ML table expression."""
 
@@ -3426,7 +3315,6 @@ class MLTableExpressionSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class StatementSegment(BaseSegment):
     """A generic segment, to any of its child subsegments."""
 
@@ -3486,7 +3374,6 @@ class StatementSegment(BaseSegment):
         return table_refs - cte_refs
 
 
-@ansi_dialect.segment()
 class WithNoSchemaBindingClauseSegment(BaseSegment):
     """WITH NO SCHEMA BINDING clause for Redshift's Late Binding Views.
 
@@ -3502,7 +3389,6 @@ class WithNoSchemaBindingClauseSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class WithDataClauseSegment(BaseSegment):
     """WITH [NO] DATA clause for Postgres' MATERIALIZED VIEWS.
 
@@ -3513,7 +3399,6 @@ class WithDataClauseSegment(BaseSegment):
     match_grammar = Sequence("WITH", Sequence("NO", optional=True), "DATA")
 
 
-@ansi_dialect.segment()
 class DescribeStatementSegment(BaseSegment):
     """A `Describe` statement.
 
@@ -3530,7 +3415,6 @@ class DescribeStatementSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class UseStatementSegment(BaseSegment):
     """A `USE` statement."""
 
@@ -3541,7 +3425,6 @@ class UseStatementSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class ExplainStatementSegment(BaseSegment):
     """An `Explain` statement.
 
@@ -3563,7 +3446,6 @@ class ExplainStatementSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class CreateSequenceOptionsSegment(BaseSegment):
     """Options for Create Sequence statement.
 
@@ -3591,7 +3473,6 @@ class CreateSequenceOptionsSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class CreateSequenceStatementSegment(BaseSegment):
     """Create Sequence statement.
 
@@ -3608,7 +3489,6 @@ class CreateSequenceStatementSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class AlterSequenceOptionsSegment(BaseSegment):
     """Options for Alter Sequence statement.
 
@@ -3633,7 +3513,6 @@ class AlterSequenceOptionsSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class AlterSequenceStatementSegment(BaseSegment):
     """Alter Sequence Statement.
 
@@ -3650,7 +3529,6 @@ class AlterSequenceStatementSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class DropSequenceStatementSegment(BaseSegment):
     """Drop Sequence Statement.
 
@@ -3662,7 +3540,6 @@ class DropSequenceStatementSegment(BaseSegment):
     match_grammar = Sequence("DROP", "SEQUENCE", Ref("SequenceReferenceSegment"))
 
 
-@ansi_dialect.segment()
 class DatePartFunctionNameSegment(BaseSegment):
     """DATEADD function name segment.
 
@@ -3674,7 +3551,6 @@ class DatePartFunctionNameSegment(BaseSegment):
     match_grammar = Ref("DatePartFunctionName")
 
 
-@ansi_dialect.segment()
 class CreateTriggerStatementSegment(BaseSegment):
     """Create Trigger Statement.
 
@@ -3745,7 +3621,6 @@ class CreateTriggerStatementSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class DropTriggerStatementSegment(BaseSegment):
     """Drop Trigger Statement.
 
@@ -3758,7 +3633,6 @@ class DropTriggerStatementSegment(BaseSegment):
     match_grammar = Sequence("DROP", "TRIGGER", Ref("TriggerReferenceSegment"))
 
 
-@ansi_dialect.segment()
 class SamplingExpressionSegment(BaseSegment):
     """A sampling expression."""
 
@@ -3775,7 +3649,6 @@ class SamplingExpressionSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class LocalAliasSegment(BaseSegment):
     """The `LOCAL.ALIAS` syntax allows to use a alias name of a column within clauses.
 

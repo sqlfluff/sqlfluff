@@ -34,6 +34,7 @@ from sqlfluff.dialects.dialect_tsql_keywords import (
 )
 
 from sqlfluff.core.parser.segments.raw import NewlineSegment, WhitespaceSegment
+from sqlfluff.dialects import dialect_ansi as ansi
 
 ansi_dialect = load_raw_dialect("ansi")
 tsql_dialect = ansi_dialect.copy_as("tsql")
@@ -400,11 +401,10 @@ tsql_dialect.replace(
 )
 
 
-@tsql_dialect.segment(replace=True)
-class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: ignore
+class StatementSegment(ansi.StatementSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
 
-    match_grammar = ansi_dialect.get_segment("StatementSegment").parse_grammar.copy(
+    match_grammar = ansi.StatementSegment.parse_grammar.copy(
         insert=[
             Ref("IfExpressionStatement"),
             Ref("DeclareStatementSegment"),
@@ -438,7 +438,6 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
     parse_grammar = match_grammar
 
 
-@tsql_dialect.segment(replace=True)
 class GreaterThanOrEqualToSegment(BaseSegment):
     """Greater than or equal to operator.
 
@@ -460,7 +459,6 @@ class GreaterThanOrEqualToSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment(replace=True)
 class LessThanOrEqualToSegment(BaseSegment):
     """Greater than or equal to operator.
 
@@ -482,7 +480,6 @@ class LessThanOrEqualToSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment(replace=True)
 class NotEqualToSegment(BaseSegment):
     """Not equal to operator.
 
@@ -497,17 +494,15 @@ class NotEqualToSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment(replace=True)
-class SelectClauseElementSegment(BaseSegment):
+class SelectClauseElementSegment(ansi.SelectClauseElementSegment):
     """An element in the targets of a select statement.
 
     Overriding ANSI to remove GreedyUntil logic which assumes statements have been
     delimited
     """
 
-    type = "select_clause_element"
     # Important to split elements before parsing, otherwise debugging is really hard.
-    match_grammar = OneOf(
+    match_grammar = OneOf(  # type: ignore
         # *, blah.*, blah.blah.*, etc.
         Ref("WildcardExpressionSegment"),
         Sequence(
@@ -520,10 +515,9 @@ class SelectClauseElementSegment(BaseSegment):
         ),
     )
 
-    get_alias = ansi_dialect.get_segment("SelectClauseElementSegment").get_alias
+    parse_grammar = None  # type: ignore
 
 
-@tsql_dialect.segment()
 class AltAliasExpressionSegment(BaseSegment):
     """An alternative alias clause as used by tsql using `=`."""
 
@@ -537,7 +531,6 @@ class AltAliasExpressionSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment(replace=True)
 class SelectClauseModifierSegment(BaseSegment):
     """Things that come after SELECT but before the columns."""
 
@@ -555,7 +548,6 @@ class SelectClauseModifierSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment(replace=True)
 class SelectClauseSegment(BaseSegment):
     """A group of elements in a select target statement.
 
@@ -567,7 +559,6 @@ class SelectClauseSegment(BaseSegment):
     match_grammar = Ref("SelectClauseSegmentGrammar")
 
 
-@tsql_dialect.segment(replace=True)
 class UnorderedSelectStatementSegment(BaseSegment):
     """A `SELECT` statement without any ORDER clauses or later.
 
@@ -594,7 +585,6 @@ class UnorderedSelectStatementSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment(replace=True)
 class InsertStatementSegment(BaseSegment):
     """An `INSERT` statement.
 
@@ -612,7 +602,6 @@ class InsertStatementSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment(replace=True)
 class WithCompoundStatementSegment(BaseSegment):
     """A `SELECT` statement preceded by a selection of `WITH` clauses.
 
@@ -640,7 +629,6 @@ class WithCompoundStatementSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment(replace=True)
 class SelectStatementSegment(BaseSegment):
     """A `SELECT` statement.
 
@@ -663,7 +651,6 @@ class SelectStatementSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment()
 class IntoTableSegment(BaseSegment):
     """`INTO` clause within `SELECT`.
 
@@ -674,7 +661,6 @@ class IntoTableSegment(BaseSegment):
     match_grammar = Sequence("INTO", Ref("ObjectReferenceSegment"))
 
 
-@tsql_dialect.segment(replace=True)
 class WhereClauseSegment(BaseSegment):
     """A `WHERE` clause like in `SELECT` or `INSERT`.
 
@@ -692,7 +678,6 @@ class WhereClauseSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment(replace=True)
 class CreateIndexStatementSegment(BaseSegment):
     """A `CREATE INDEX` or `CREATE STATISTICS` statement.
 
@@ -727,7 +712,6 @@ class CreateIndexStatementSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment()
 class OnPartitionOrFilegroupOptionSegment(BaseSegment):
     """ON partition scheme or filegroup option.
 
@@ -743,7 +727,6 @@ class OnPartitionOrFilegroupOptionSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment()
 class FilestreamOnOptionSegment(BaseSegment):
     """FILESTREAM_ON index option in `CREATE INDEX` and 'CREATE TABLE' statements.
 
@@ -765,7 +748,6 @@ class FilestreamOnOptionSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment()
 class TextimageOnOptionSegment(BaseSegment):
     """TEXTIMAGE ON option in `CREATE TABLE` statement.
 
@@ -782,7 +764,6 @@ class TextimageOnOptionSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment()
 class ReferencesConstraintGrammar(BaseSegment):
     """REFERENCES constraint option in `CREATE TABLE` statement.
 
@@ -822,7 +803,6 @@ class ReferencesConstraintGrammar(BaseSegment):
     )
 
 
-@tsql_dialect.segment()
 class CheckConstraintGrammar(BaseSegment):
     """CHECK constraint option in `CREATE TABLE` statement.
 
@@ -839,7 +819,6 @@ class CheckConstraintGrammar(BaseSegment):
     )
 
 
-@tsql_dialect.segment()
 class RelationalIndexOptionsSegment(BaseSegment):
     """A relational index options in `CREATE INDEX` statement.
 
@@ -936,7 +915,6 @@ class RelationalIndexOptionsSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment()
 class MaxDurationSegment(BaseSegment):
     """A `MAX DURATION` clause.
 
@@ -955,7 +933,6 @@ class MaxDurationSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment(replace=True)
 class DropIndexStatementSegment(BaseSegment):
     """A `DROP INDEX` statement.
 
@@ -974,7 +951,6 @@ class DropIndexStatementSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment()
 class DropStatisticsStatementSegment(BaseSegment):
     """A `DROP STATISTICS` statement."""
 
@@ -988,7 +964,6 @@ class DropStatisticsStatementSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment()
 class UpdateStatisticsStatementSegment(BaseSegment):
     """An `UPDATE STATISTICS` statement.
 
@@ -1013,15 +988,13 @@ class UpdateStatisticsStatementSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment(replace=True)
-class ObjectReferenceSegment(BaseSegment):
+class ObjectReferenceSegment(ansi.ObjectReferenceSegment):
     """A reference to an object.
 
     Update ObjectReferenceSegment to only allow dot separated SingleIdentifierGrammar
     So Square Bracketed identifiers can be matched.
     """
 
-    type = "object_reference"
     # match grammar (allow whitespace)
     match_grammar: Matchable = Sequence(
         Ref("SingleIdentifierGrammar"),
@@ -1035,40 +1008,7 @@ class ObjectReferenceSegment(BaseSegment):
         ),
     )
 
-    ObjectReferencePart = ansi_dialect.get_segment(
-        "ObjectReferenceSegment"
-    ).ObjectReferencePart
 
-    _iter_reference_parts = ansi_dialect.get_segment(
-        "ObjectReferenceSegment"
-    )._iter_reference_parts
-
-    iter_raw_references = ansi_dialect.get_segment(
-        "ObjectReferenceSegment"
-    ).iter_raw_references
-
-    is_qualified = ansi_dialect.get_segment("ObjectReferenceSegment").is_qualified
-
-    qualification = ansi_dialect.get_segment("ObjectReferenceSegment").qualification
-
-    ObjectReferenceLevel = ansi_dialect.get_segment(
-        "ObjectReferenceSegment"
-    ).ObjectReferenceLevel
-
-    extract_possible_references = ansi_dialect.get_segment(
-        "ObjectReferenceSegment"
-    ).extract_possible_references
-
-    extract_possible_multipart_references = ansi_dialect.get_segment(
-        "ObjectReferenceSegment"
-    ).extract_possible_multipart_references
-
-    _level_to_int = staticmethod(
-        ansi_dialect.get_segment("ObjectReferenceSegment")._level_to_int
-    )
-
-
-@tsql_dialect.segment(replace=True)
 class TableReferenceSegment(ObjectReferenceSegment):
     """A reference to an table, CTE, subquery or alias.
 
@@ -1078,7 +1018,6 @@ class TableReferenceSegment(ObjectReferenceSegment):
     type = "table_reference"
 
 
-@tsql_dialect.segment(replace=True)
 class SchemaReferenceSegment(ObjectReferenceSegment):
     """A reference to a schema.
 
@@ -1088,7 +1027,6 @@ class SchemaReferenceSegment(ObjectReferenceSegment):
     type = "schema_reference"
 
 
-@tsql_dialect.segment(replace=True)
 class DatabaseReferenceSegment(ObjectReferenceSegment):
     """A reference to a database.
 
@@ -1098,7 +1036,6 @@ class DatabaseReferenceSegment(ObjectReferenceSegment):
     type = "database_reference"
 
 
-@tsql_dialect.segment(replace=True)
 class IndexReferenceSegment(ObjectReferenceSegment):
     """A reference to an index.
 
@@ -1108,7 +1045,6 @@ class IndexReferenceSegment(ObjectReferenceSegment):
     type = "index_reference"
 
 
-@tsql_dialect.segment(replace=True)
 class ExtensionReferenceSegment(ObjectReferenceSegment):
     """A reference to an extension.
 
@@ -1118,7 +1054,6 @@ class ExtensionReferenceSegment(ObjectReferenceSegment):
     type = "extension_reference"
 
 
-@tsql_dialect.segment(replace=True)
 class ColumnReferenceSegment(ObjectReferenceSegment):
     """A reference to column, field or alias.
 
@@ -1128,7 +1063,6 @@ class ColumnReferenceSegment(ObjectReferenceSegment):
     type = "column_reference"
 
 
-@tsql_dialect.segment(replace=True)
 class SequenceReferenceSegment(ObjectReferenceSegment):
     """A reference to a sequence.
 
@@ -1138,7 +1072,6 @@ class SequenceReferenceSegment(ObjectReferenceSegment):
     type = "sequence_reference"
 
 
-@tsql_dialect.segment()
 class PivotColumnReferenceSegment(ObjectReferenceSegment):
     """A reference to a PIVOT column.
 
@@ -1148,7 +1081,6 @@ class PivotColumnReferenceSegment(ObjectReferenceSegment):
     type = "pivot_column_reference"
 
 
-@tsql_dialect.segment()
 class PivotUnpivotStatementSegment(BaseSegment):
     """Declaration of a variable.
 
@@ -1188,7 +1120,6 @@ class PivotUnpivotStatementSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment()
 class DeclareStatementSegment(BaseSegment):
     """Declaration of a variable.
 
@@ -1227,7 +1158,6 @@ class DeclareStatementSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment()
 class GoStatementSegment(BaseSegment):
     """GO signals the end of a batch of Transact-SQL statements.
 
@@ -1239,7 +1169,6 @@ class GoStatementSegment(BaseSegment):
     match_grammar = Sequence("GO")
 
 
-@tsql_dialect.segment(replace=True)
 class DatatypeSegment(BaseSegment):
     """A data type segment.
 
@@ -1272,7 +1201,6 @@ class DatatypeSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment(replace=True)
 class CreateSequenceOptionsSegment(BaseSegment):
     """Options for Create Sequence statement.
 
@@ -1307,7 +1235,6 @@ class CreateSequenceOptionsSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment()
 class NextValueSequenceSegment(BaseSegment):
     """Segment to get next value from a sequence."""
 
@@ -1320,7 +1247,6 @@ class NextValueSequenceSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment()
 class IfExpressionStatement(BaseSegment):
     """IF-ELSE statement.
 
@@ -1363,7 +1289,6 @@ class IfExpressionStatement(BaseSegment):
     )
 
 
-@tsql_dialect.segment()
 class IfClauseSegment(BaseSegment):
     """IF clause."""
 
@@ -1377,7 +1302,6 @@ class IfClauseSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment(replace=True)
 class ColumnConstraintSegment(BaseSegment):
     """A column option; each CREATE TABLE column can have 0 or more."""
 
@@ -1454,7 +1378,6 @@ class ColumnConstraintSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment(replace=True)
 class FunctionParameterListGrammar(BaseSegment):
     """The parameters for a function ie.
 
@@ -1477,7 +1400,6 @@ class FunctionParameterListGrammar(BaseSegment):
     )
 
 
-@tsql_dialect.segment(replace=True)
 class CreateFunctionStatementSegment(BaseSegment):
     """A `CREATE FUNCTION` statement.
 
@@ -1512,7 +1434,6 @@ class CreateFunctionStatementSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment()
 class FunctionOptionSegment(BaseSegment):
     """A function option segment."""
 
@@ -1548,7 +1469,6 @@ class FunctionOptionSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment()
 class DropFunctionStatementSegment(BaseSegment):
     """A `DROP FUNCTION` statement.
 
@@ -1566,7 +1486,6 @@ class DropFunctionStatementSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment()
 class ReturnStatementSegment(BaseSegment):
     """A RETURN statement."""
 
@@ -1578,7 +1497,6 @@ class ReturnStatementSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment()
 class ExecuteAsClauseSegment(BaseSegment):
     """An EXECUTE AS clause.
 
@@ -1598,7 +1516,6 @@ class ExecuteAsClauseSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment()
 class SetStatementSegment(BaseSegment):
     """A Set statement.
 
@@ -1698,7 +1615,6 @@ class SetStatementSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment()
 class ProcedureParameterListGrammar(BaseSegment):
     """The parameters for a procedure ie.
 
@@ -1719,7 +1635,6 @@ class ProcedureParameterListGrammar(BaseSegment):
     )
 
 
-@tsql_dialect.segment()
 class CreateProcedureStatementSegment(BaseSegment):
     """A `CREATE OR ALTER PROCEDURE` statement.
 
@@ -1739,7 +1654,6 @@ class CreateProcedureStatementSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment()
 class DropProcedureStatementSegment(BaseSegment):
     """A `DROP PROCEDURE` statement.
 
@@ -1757,7 +1671,6 @@ class DropProcedureStatementSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment()
 class ProcedureDefinitionGrammar(BaseSegment):
     """This is the body of a `CREATE OR ALTER PROCEDURE AS` statement.
 
@@ -1776,7 +1689,6 @@ class ProcedureDefinitionGrammar(BaseSegment):
     )
 
 
-@tsql_dialect.segment(replace=True)
 class CreateViewStatementSegment(BaseSegment):
     """A `CREATE VIEW` statement.
 
@@ -1802,7 +1714,6 @@ class CreateViewStatementSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment(replace=True)
 class MLTableExpressionSegment(BaseSegment):
     """An ML table expression.
 
@@ -1814,7 +1725,6 @@ class MLTableExpressionSegment(BaseSegment):
     match_grammar = Nothing()
 
 
-@tsql_dialect.segment()
 class ConvertFunctionNameSegment(BaseSegment):
     """CONVERT function name segment.
 
@@ -1826,7 +1736,6 @@ class ConvertFunctionNameSegment(BaseSegment):
     match_grammar = Sequence("CONVERT")
 
 
-@tsql_dialect.segment()
 class CastFunctionNameSegment(BaseSegment):
     """CAST function name segment.
 
@@ -1838,7 +1747,6 @@ class CastFunctionNameSegment(BaseSegment):
     match_grammar = Sequence("CAST")
 
 
-@tsql_dialect.segment()
 class RankFunctionNameSegment(BaseSegment):
     """Rank function name segment.
 
@@ -1850,7 +1758,6 @@ class RankFunctionNameSegment(BaseSegment):
     match_grammar = OneOf("DENSE_RANK", "NTILE", "RANK", "ROW_NUMBER")
 
 
-@tsql_dialect.segment()
 class WithinGroupFunctionNameSegment(BaseSegment):
     """WITHIN GROUP function name segment.
 
@@ -1871,7 +1778,6 @@ class WithinGroupFunctionNameSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment()
 class WithinGroupClause(BaseSegment):
     """WITHIN GROUP clause.
 
@@ -1895,7 +1801,6 @@ class WithinGroupClause(BaseSegment):
     )
 
 
-@tsql_dialect.segment(replace=True)
 class PartitionClauseSegment(BaseSegment):
     """PARTITION BY clause.
 
@@ -1921,7 +1826,6 @@ class PartitionClauseSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment()
 class OnPartitionsSegment(BaseSegment):
     """ON PARTITIONS clause.
 
@@ -1945,7 +1849,6 @@ class OnPartitionsSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment()
 class PartitionSchemeNameSegment(BaseSegment):
     """Partition Scheme Name."""
 
@@ -1953,7 +1856,6 @@ class PartitionSchemeNameSegment(BaseSegment):
     match_grammar = Ref("SingleIdentifierGrammar")
 
 
-@tsql_dialect.segment()
 class PartitionSchemeClause(BaseSegment):
     """Partition Scheme Clause segment.
 
@@ -1968,7 +1870,6 @@ class PartitionSchemeClause(BaseSegment):
     )
 
 
-@tsql_dialect.segment(replace=True)
 class FunctionSegment(BaseSegment):
     """A scalar or aggregate function.
 
@@ -2076,7 +1977,6 @@ class FunctionSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment(replace=True)
 class CreateTableStatementSegment(BaseSegment):
     """A `CREATE TABLE` statement."""
 
@@ -2122,7 +2022,6 @@ class CreateTableStatementSegment(BaseSegment):
     parse_grammar = match_grammar
 
 
-@tsql_dialect.segment(replace=True)
 class AlterTableStatementSegment(BaseSegment):
     """An `ALTER TABLE` statement.
 
@@ -2178,7 +2077,6 @@ class AlterTableStatementSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment(replace=True)
 class TableConstraintSegment(BaseSegment):
     """A table constraint, e.g. for CREATE TABLE."""
 
@@ -2209,7 +2107,6 @@ class TableConstraintSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment()
 class TableIndexSegment(BaseSegment):
     """A table index, e.g. for CREATE TABLE."""
 
@@ -2237,7 +2134,6 @@ class TableIndexSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment()
 class BracketedIndexColumnListGrammar(BaseSegment):
     """list of columns used for CREATE INDEX, constraints."""
 
@@ -2251,7 +2147,6 @@ class BracketedIndexColumnListGrammar(BaseSegment):
     )
 
 
-@tsql_dialect.segment()
 class FilegroupNameSegment(BaseSegment):
     """Filegroup Name Segment."""
 
@@ -2259,7 +2154,6 @@ class FilegroupNameSegment(BaseSegment):
     match_grammar = Ref("SingleIdentifierGrammar")
 
 
-@tsql_dialect.segment()
 class FilegroupClause(BaseSegment):
     """Filegroup Clause segment.
 
@@ -2273,7 +2167,6 @@ class FilegroupClause(BaseSegment):
     )
 
 
-@tsql_dialect.segment()
 class IdentityGrammar(BaseSegment):
     """`IDENTITY (1,1)` in table schemas.
 
@@ -2295,7 +2188,6 @@ class IdentityGrammar(BaseSegment):
     )
 
 
-@tsql_dialect.segment()
 class EncryptedWithGrammar(BaseSegment):
     """ENCRYPTED WITH in table schemas.
 
@@ -2328,7 +2220,6 @@ class EncryptedWithGrammar(BaseSegment):
     )
 
 
-@tsql_dialect.segment()
 class TableDistributionIndexClause(BaseSegment):
     """`CREATE TABLE` distribution / index clause.
 
@@ -2349,7 +2240,6 @@ class TableDistributionIndexClause(BaseSegment):
     )
 
 
-@tsql_dialect.segment()
 class TableDistributionClause(BaseSegment):
     """`CREATE TABLE` distribution clause.
 
@@ -2372,7 +2262,6 @@ class TableDistributionClause(BaseSegment):
     )
 
 
-@tsql_dialect.segment()
 class TableIndexClause(BaseSegment):
     """`CREATE TABLE` table index clause.
 
@@ -2417,7 +2306,6 @@ class TableIndexClause(BaseSegment):
     )
 
 
-@tsql_dialect.segment()
 class TableLocationClause(BaseSegment):
     """`CREATE TABLE` location clause.
 
@@ -2436,7 +2324,6 @@ class TableLocationClause(BaseSegment):
     )
 
 
-@tsql_dialect.segment()
 class AlterTableSwitchStatementSegment(BaseSegment):
     """An `ALTER TABLE SWITCH` statement."""
 
@@ -2461,7 +2348,6 @@ class AlterTableSwitchStatementSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment()
 class CreateTableAsSelectStatementSegment(BaseSegment):
     """A `CREATE TABLE AS SELECT` statement.
 
@@ -2482,7 +2368,6 @@ class CreateTableAsSelectStatementSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment(replace=True)
 class TransactionStatementSegment(BaseSegment):
     """A `COMMIT`, `ROLLBACK` or `TRANSACTION` statement."""
 
@@ -2511,7 +2396,6 @@ class TransactionStatementSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment()
 class BeginEndSegment(BaseSegment):
     """A `BEGIN/END` block.
 
@@ -2534,7 +2418,6 @@ class BeginEndSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment()
 class TryCatchSegment(BaseSegment):
     """A `TRY/CATCH` block pair.
 
@@ -2574,7 +2457,6 @@ class TryCatchSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment()
 class BatchSegment(BaseSegment):
     """A segment representing a GO batch within a file or script."""
 
@@ -2593,7 +2475,6 @@ class BatchSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment(replace=True)
 class FileSegment(BaseFileSegment):
     """A segment representing a whole file or script.
 
@@ -2616,7 +2497,6 @@ class FileSegment(BaseFileSegment):
     )
 
 
-@tsql_dialect.segment(replace=True)
 class DeleteStatementSegment(BaseSegment):
     """A `DELETE` statement.
 
@@ -2637,7 +2517,6 @@ class DeleteStatementSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment(replace=True)
 class FromClauseSegment(BaseSegment):
     """A `FROM` clause like in `SELECT`.
 
@@ -2668,12 +2547,9 @@ class FromClauseSegment(BaseSegment):
         Ref("DelimiterSegment", optional=True),
     )
 
-    get_eventual_aliases = ansi_dialect.get_segment(
-        "FromClauseSegment"
-    ).get_eventual_aliases
+    get_eventual_aliases = ansi.FromClauseSegment.get_eventual_aliases
 
 
-@tsql_dialect.segment(replace=True)
 class GroupByClauseSegment(BaseSegment):
     """A `GROUP BY` clause like in `SELECT`.
 
@@ -2707,7 +2583,6 @@ class GroupByClauseSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment(replace=True)
 class HavingClauseSegment(BaseSegment):
     """A `HAVING` clause like in `SELECT`.
 
@@ -2723,7 +2598,6 @@ class HavingClauseSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment(replace=True)
 class OrderByClauseSegment(BaseSegment):
     """A `ORDER BY` clause like in `SELECT`.
 
@@ -2765,7 +2639,6 @@ class OrderByClauseSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment()
 class RenameStatementSegment(BaseSegment):
     """`RENAME` statement.
 
@@ -2784,7 +2657,6 @@ class RenameStatementSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment(replace=True)
 class DropTableStatementSegment(BaseSegment):
     """A `DROP TABLE` statement.
 
@@ -2801,7 +2673,6 @@ class DropTableStatementSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment(replace=True)
 class DropViewStatementSegment(BaseSegment):
     """A `DROP VIEW` statement.
 
@@ -2818,7 +2689,6 @@ class DropViewStatementSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment(replace=True)
 class DropUserStatementSegment(BaseSegment):
     """A `DROP USER` statement.
 
@@ -2835,7 +2705,6 @@ class DropUserStatementSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment(replace=True)
 class UpdateStatementSegment(BaseSegment):
     """An `Update` statement.
 
@@ -2858,7 +2727,6 @@ class UpdateStatementSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment(replace=True)
 class SetClauseListSegment(BaseSegment):
     """set clause list.
 
@@ -2878,7 +2746,6 @@ class SetClauseListSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment(replace=True)
 class SetClauseSegment(BaseSegment):
     """Set clause.
 
@@ -2894,7 +2761,6 @@ class SetClauseSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment()
 class PrintStatementSegment(BaseSegment):
     """PRINT statement segment."""
 
@@ -2906,7 +2772,6 @@ class PrintStatementSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment()
 class OptionClauseSegment(BaseSegment):
     """Query Hint clause.
 
@@ -2926,7 +2791,6 @@ class OptionClauseSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment()
 class QueryHintSegment(BaseSegment):
     """Query Hint segment.
 
@@ -3027,7 +2891,6 @@ class QueryHintSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment(replace=True)
 class PostTableExpressionGrammar(BaseSegment):
     """Table Hint clause.  Overloading the PostTableExpressionGrammar to implement.
 
@@ -3047,7 +2910,6 @@ class PostTableExpressionGrammar(BaseSegment):
     )
 
 
-@tsql_dialect.segment()
 class TableHintSegment(BaseSegment):
     """Table Hint segment.
 
@@ -3117,7 +2979,6 @@ class TableHintSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment(replace=True)
 class SetOperatorSegment(BaseSegment):
     """A set operator such as Union, Except or Intersect.
 
@@ -3132,7 +2993,6 @@ class SetOperatorSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment(replace=True)
 class SetExpressionSegment(BaseSegment):
     """A set expression with either Union, Minus, Except or Intersect.
 
@@ -3156,7 +3016,6 @@ class SetExpressionSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment()
 class ExecuteScriptSegment(BaseSegment):
     """`EXECUTE` statement.
 
@@ -3198,7 +3057,6 @@ class ExecuteScriptSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment(replace=True)
 class CreateSchemaStatementSegment(BaseSegment):
     """A `CREATE SCHEMA` statement.
 
@@ -3227,7 +3085,6 @@ class CreateSchemaStatementSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment(replace=True)
 class MergeMatchSegment(BaseSegment):
     """Contains dialect specific merge operations."""
 
@@ -3244,7 +3101,6 @@ class MergeMatchSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment(replace=True)
 class MergeMatchedClauseSegment(BaseSegment):
     """The `WHEN MATCHED` clause within a `MERGE` statement."""
 
@@ -3268,7 +3124,6 @@ class MergeMatchedClauseSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment(replace=True)
 class MergeNotMatchedClauseSegment(BaseSegment):
     """The `WHEN NOT MATCHED` clause within a `MERGE` statement."""
 
@@ -3304,7 +3159,6 @@ class MergeNotMatchedClauseSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment(replace=True)
 class MergeInsertClauseSegment(BaseSegment):
     """`INSERT` clause within the `MERGE` statement."""
 
@@ -3333,7 +3187,6 @@ class MergeInsertClauseSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment()
 class OutputClauseSegment(BaseSegment):
     """OUTPUT Clause used within DELETE, INSERT, UPDATE, MERGE.
 
@@ -3373,7 +3226,6 @@ class OutputClauseSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment()
 class ThrowStatementSegment(BaseSegment):
     """A THROW statement.
 
@@ -3407,7 +3259,6 @@ class ThrowStatementSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment()
 class RaiserrorStatementSegment(BaseSegment):
     """RAISERROR statement.
 
@@ -3455,7 +3306,6 @@ class RaiserrorStatementSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment(replace=True)
 class WindowSpecificationSegment(BaseSegment):
     """Window specification within OVER(...).
 
