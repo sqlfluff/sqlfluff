@@ -34,6 +34,7 @@ from sqlfluff.dialects.dialect_snowflake_keywords import (
     snowflake_reserved_keywords,
     snowflake_unreserved_keywords,
 )
+from sqlfluff.dialects import dialect_ansi as ansi
 
 ansi_dialect = load_raw_dialect("ansi")
 snowflake_dialect = ansi_dialect.copy_as("snowflake")
@@ -762,7 +763,7 @@ class FunctionDefinitionGrammar(BaseSegment):
     )
 
 
-class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: ignore
+class StatementSegment(ansi.StatementSegment):
     """A generic segment, to any of its child subsegments."""
 
     parse_grammar = ansi_dialect.get_segment("StatementSegment").parse_grammar.copy(
@@ -1186,9 +1187,7 @@ class QualifyClauseSegment(BaseSegment):
     )
 
 
-class SelectStatementSegment(
-    ansi_dialect.get_segment("SelectStatementSegment")  # type: ignore
-):
+class SelectStatementSegment(ansi.SelectStatementSegment):
     """A snowflake `SELECT` statement including optional Qualify.
 
     https://docs.snowflake.com/en/sql-reference/constructs/qualify.html
@@ -1634,9 +1633,7 @@ class TagEqualsSegment(BaseSegment):
     )
 
 
-class UnorderedSelectStatementSegment(
-    ansi_dialect.get_segment("SelectStatementSegment")  # type: ignore
-):
+class UnorderedSelectStatementSegment(ansi.SelectStatementSegment):
     """A snowflake unordered `SELECT` statement including optional Qualify.
 
     https://docs.snowflake.com/en/sql-reference/constructs/qualify.html
@@ -3384,9 +3381,7 @@ class CreateRoleStatementSegment(BaseSegment):
     )
 
 
-class ExplainStatementSegment(
-    ansi_dialect.get_segment("ExplainStatementSegment")  # type: ignore
-):
+class ExplainStatementSegment(ansi.ExplainStatementSegment):
     """An `Explain` statement.
 
     EXPLAIN [ USING { TABULAR | JSON | TEXT } ] <statement>

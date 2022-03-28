@@ -24,6 +24,7 @@ from sqlfluff.core.parser import (
     AnySetOf,
 )
 from sqlfluff.core.dialects import load_raw_dialect
+from sqlfluff.dialects import dialect_ansi as ansi
 
 ansi_dialect = load_raw_dialect("ansi")
 mysql_dialect = ansi_dialect.copy_as("mysql")
@@ -280,9 +281,7 @@ class ColumnDefinitionSegment(BaseSegment):
     )
 
 
-class CreateTableStatementSegment(
-    ansi_dialect.get_segment("CreateTableStatementSegment")  # type: ignore
-):
+class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
     """Create table segment.
 
     https://dev.mysql.com/doc/refman/8.0/en/create-table.html
@@ -657,7 +656,7 @@ class DeclareStatement(BaseSegment):
     )
 
 
-class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: ignore
+class StatementSegment(ansi.StatementSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
 
     parse_grammar = ansi_dialect.get_segment("StatementSegment").parse_grammar.copy(

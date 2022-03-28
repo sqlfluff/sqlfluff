@@ -22,6 +22,7 @@ from sqlfluff.dialects.dialect_redshift_keywords import (
     redshift_reserved_keywords,
     redshift_unreserved_keywords,
 )
+from sqlfluff.dialects import dialect_postgres as postgres
 
 postgres_dialect = load_raw_dialect("postgres")
 ansi_dialect = load_raw_dialect("ansi")
@@ -160,7 +161,13 @@ redshift_dialect.replace(
     ),
 )
 
-ObjectReferenceSegment = redshift_dialect.get_segment("ObjectReferenceSegment")
+
+# Inherit from the Postgres ObjectReferenceSegment this way so we can inherit
+# other segment types from it.
+class ObjectReferenceSegment(postgres.ObjectReferenceSegment):
+    """A reference to an object."""
+
+    pass
 
 
 redshift_dialect.add(
@@ -196,7 +203,7 @@ redshift_dialect.add(
 # need to ignore type due to mypy rules on type variables
 # see https://mypy.readthedocs.io/en/stable/common_issues.html#variables-vs-type-aliases
 # for details
-class ColumnReferenceSegment(ObjectReferenceSegment):  # type: ignore
+class ColumnReferenceSegment(ObjectReferenceSegment):
     """A reference to column, field or alias.
 
     Adjusted to support column references for Redshift's SUPER data type
@@ -1115,9 +1122,7 @@ class UnloadStatementSegment(BaseSegment):
     )
 
 
-class CopyStatementSegment(
-    postgres_dialect.get_segment("CopyStatementSegment")  # type: ignore
-):
+class CopyStatementSegment(postgres.CopyStatementSegment):
     """A `COPY` statement.
 
     :
@@ -1714,9 +1719,7 @@ class VacuumStatementSegment(BaseSegment):
 
 
 # Adding Redshift specific statements
-class StatementSegment(
-    postgres_dialect.get_segment("StatementSegment")  # type: ignore
-):
+class StatementSegment(postgres.StatementSegment):
     """A generic segment, to any of its child subsegments."""
 
     type = "statement"

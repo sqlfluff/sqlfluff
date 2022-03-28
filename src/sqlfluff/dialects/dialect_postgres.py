@@ -399,6 +399,14 @@ postgres_dialect.replace(
 )
 
 
+# Inherit from the ANSI ObjectReferenceSegment this way so we can inherit
+# other segment types from it.
+class ObjectReferenceSegment(ansi.ObjectReferenceSegment):
+    """A reference to an object."""
+
+    pass
+
+
 class OverlapSegment(BaseSegment):
     """Overlaps range operator."""
 

@@ -39,6 +39,7 @@ from sqlfluff.dialects.dialect_bigquery_keywords import (
     bigquery_reserved_keywords,
     bigquery_unreserved_keywords,
 )
+from sqlfluff.dialects import dialect_ansi as ansi
 
 ansi_dialect = load_raw_dialect("ansi")
 bigquery_dialect = ansi_dialect.copy_as("bigquery")
@@ -343,7 +344,7 @@ class UnorderedSelectStatementSegment(BaseSegment):
     )
 
 
-class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: ignore
+class StatementSegment(ansi.StatementSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
 
     parse_grammar = ansi_dialect.get_segment("StatementSegment").parse_grammar.copy(
@@ -707,10 +708,12 @@ class LiteralCoercionSegment(BaseSegment):
     )
 
 
-# Dialects should not use Python "import" to access other dialects. Instead,
-# get a reference to the ANSI ObjectReferenceSegment this way so we can inherit
-# from it.
-ObjectReferenceSegment = ansi_dialect.get_segment("ObjectReferenceSegment")
+# Inherit from the ANSI ObjectReferenceSegment this way so we can inherit
+# other segment types from it.
+class ObjectReferenceSegment(ansi.ObjectReferenceSegment):
+    """A reference to an object."""
+
+    pass
 
 
 class SemiStructuredAccessorSegment(BaseSegment):
@@ -734,7 +737,7 @@ class SemiStructuredAccessorSegment(BaseSegment):
     )
 
 
-class ColumnReferenceSegment(ObjectReferenceSegment):  # type: ignore
+class ColumnReferenceSegment(ObjectReferenceSegment):
     """A reference to column, field or alias.
 
     We override this for BigQuery to allow keywords in structures
@@ -823,7 +826,7 @@ class ColumnReferenceSegment(ObjectReferenceSegment):  # type: ignore
         return super().extract_possible_multipart_references(levels)
 
 
-class HyphenatedObjectReferenceSegment(ObjectReferenceSegment):  # type: ignore
+class HyphenatedObjectReferenceSegment(ObjectReferenceSegment):
     """A reference to an object that may contain embedded hyphens."""
 
     type = "hyphenated_object_reference"

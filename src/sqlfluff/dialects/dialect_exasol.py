@@ -40,6 +40,7 @@ from sqlfluff.dialects.dialect_exasol_keywords import (
     SYSTEM_PARAMETERS,
     UNRESERVED_KEYWORDS,
 )
+from sqlfluff.dialects import dialect_ansi as ansi
 
 ansi_dialect = load_raw_dialect("ansi")
 exasol_dialect = ansi_dialect.copy_as("exasol")
@@ -866,9 +867,7 @@ class DropSchemaStatementSegment(BaseSegment):
 ############################
 # VIEW
 ############################
-class ViewReferenceSegment(
-    ansi_dialect.get_segment("ObjectReferenceSegment")  # type: ignore
-):
+class ViewReferenceSegment(ansi.ObjectReferenceSegment):
     """A reference to an schema."""
 
     type = "view_reference"
@@ -3237,9 +3236,7 @@ class ExplainVirtualSegment(BaseSegment):
 ############################
 
 
-class FunctionReferenceSegment(
-    exasol_dialect.get_segment("ObjectReferenceSegment")  # type: ignore
-):
+class FunctionReferenceSegment(ansi.ObjectReferenceSegment):
     """A reference to a function."""
 
     type = "function_reference"
@@ -3440,9 +3437,7 @@ class DropFunctionStatementSegment(BaseSegment):
 ############################
 # SCRIPT
 ############################
-class ScriptReferenceSegment(
-    exasol_dialect.get_segment("ObjectReferenceSegment")  # type: ignore
-):
+class ScriptReferenceSegment(ansi.ObjectReferenceSegment):
     """A reference to a script."""
 
     type = "script_reference"
@@ -3623,7 +3618,7 @@ class FunctionScriptStatementSegment(BaseSegment):
     )
 
 
-class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: ignore
+class StatementSegment(ansi.StatementSegment):
     """A generic segment, to any of its child subsegments."""
 
     type = "statement"

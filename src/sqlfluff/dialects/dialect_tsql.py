@@ -34,6 +34,7 @@ from sqlfluff.dialects.dialect_tsql_keywords import (
 )
 
 from sqlfluff.core.parser.segments.raw import NewlineSegment, WhitespaceSegment
+from sqlfluff.dialects import dialect_ansi as ansi
 
 ansi_dialect = load_raw_dialect("ansi")
 tsql_dialect = ansi_dialect.copy_as("tsql")
@@ -400,7 +401,7 @@ tsql_dialect.replace(
 )
 
 
-class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: ignore
+class StatementSegment(ansi.StatementSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
 
     match_grammar = ansi_dialect.get_segment("StatementSegment").parse_grammar.copy(
