@@ -3279,13 +3279,13 @@ class CreateStreamStatementSegment(BaseSegment):
                 Sequence(
                     "APPEND_ONLY",
                     Ref("EqualsSegment"),
-                    OneOf(Ref("TrueSegment"), Ref("FalseSegment")),
+                    Ref("BooleanLiteralGrammar"),
                     optional=True,
                 ),
                 Sequence(
                     "SHOW_INITIAL_ROWS",
                     Ref("EqualsSegment"),
-                    OneOf(Ref("TrueSegment"), Ref("FalseSegment")),
+                    Ref("BooleanLiteralGrammar"),
                     optional=True,
                 ),
             ),
