@@ -155,7 +155,11 @@ class Dialect:
             self._library[n] = kwargs[n]
 
     def add_update_segments(self, module_dct):
-        """Scans module dictionary, adding or replacing segment definitions."""
+        """Scans module dictionary, adding or replacing segment definitions.
+
+        Each dialect module (.py file) should call this function at the END OF
+        THE FILE, after all the segment classes have been defined.
+        """
         for k, v in module_dct.items():
             if isinstance(v, type) and issubclass(v, BaseSegment):
                 if k not in self._library:
