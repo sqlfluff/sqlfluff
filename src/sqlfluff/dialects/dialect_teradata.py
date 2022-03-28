@@ -91,7 +91,6 @@ teradata_dialect.sets("bare_functions").update(["DATE"])
 
 
 # BTEQ statement
-@teradata_dialect.segment()
 class BteqKeyWordSegment(BaseSegment):
     """Bteq Keywords.
 
@@ -132,7 +131,6 @@ class BteqKeyWordSegment(BaseSegment):
     )
 
 
-@teradata_dialect.segment()
 class BteqStatementSegment(BaseSegment):
     """Bteq statements start with a dot, followed by a Keyword.
 
@@ -159,7 +157,6 @@ class BteqStatementSegment(BaseSegment):
     )
 
 
-@teradata_dialect.segment()
 class TdCollectStatUsingOptionClauseSegment(BaseSegment):
     """'using_option' for COLLECT STAT clause."""
 
@@ -187,7 +184,6 @@ class TdCollectStatUsingOptionClauseSegment(BaseSegment):
     )
 
 
-@teradata_dialect.segment()
 class TdOrderByStatClauseSegment(BaseSegment):
     """An `ORDER BY (VALUES|HASH) (column_name)` clause in COLLECT STATS."""
 
@@ -198,7 +194,6 @@ class TdOrderByStatClauseSegment(BaseSegment):
 
 
 # Collect Statistics statement
-@teradata_dialect.segment()
 class TdCollectStatisticsStatementSegment(BaseSegment):
     """A `COLLECT STATISTICS (Optimizer Form)` statement.
 
@@ -271,7 +266,6 @@ class TdCollectStatisticsStatementSegment(BaseSegment):
     )
 
 
-@teradata_dialect.segment()
 class TdCommentStatementSegment(BaseSegment):
     """A `COMMENT` statement.
 
@@ -316,7 +310,6 @@ class TdCommentStatementSegment(BaseSegment):
 
 
 # Rename table statement
-@teradata_dialect.segment()
 class TdRenameStatementSegment(BaseSegment):
     """A `RENAME TABLE` statement.
 
@@ -338,7 +331,6 @@ class TdRenameStatementSegment(BaseSegment):
 
 
 # Adding Teradata specific DATE FORMAT 'YYYYMM'
-@teradata_dialect.segment(replace=True)
 class DatatypeSegment(BaseSegment):
     """A data type segment.
 
@@ -363,7 +355,6 @@ class DatatypeSegment(BaseSegment):
     )
 
 
-@teradata_dialect.segment()
 class TeradataCastSegment(BaseSegment):
     """A casting operation using Teradata conversion syntax.
 
@@ -387,7 +378,6 @@ class TeradataCastSegment(BaseSegment):
     match_grammar = Bracketed(Ref("DatatypeSegment"))
 
 
-@teradata_dialect.segment(replace=True)
 class ExpressionSegment(BaseSegment):
     """A expression, either arithmetic or boolean.
 
@@ -403,7 +393,6 @@ class ExpressionSegment(BaseSegment):
 
 
 # Adding Teradata specific column definitions
-@teradata_dialect.segment(replace=True)
 class ColumnDefinitionSegment(BaseSegment):
     """A column definition, e.g. for CREATE TABLE or ALTER TABLE."""
 
@@ -420,7 +409,6 @@ class ColumnDefinitionSegment(BaseSegment):
     )
 
 
-@teradata_dialect.segment()
 class TdColumnConstraintSegment(BaseSegment):
     """Teradata specific column attributes.
 
@@ -454,7 +442,6 @@ class TdColumnConstraintSegment(BaseSegment):
 
 
 # Create Teradata Create Table Statement
-@teradata_dialect.segment()
 class TdCreateTableOptions(BaseSegment):
     """CreateTableOptions.
 
@@ -511,7 +498,6 @@ class TdCreateTableOptions(BaseSegment):
     )
 
 
-@teradata_dialect.segment()
 class TdTablePartitioningLevel(BaseSegment):
     """Partitioning Level.
 
@@ -544,7 +530,6 @@ class TdTablePartitioningLevel(BaseSegment):
     )
 
 
-@teradata_dialect.segment()
 class TdTableConstraints(BaseSegment):
     """Teradata specific table attributes.
 
@@ -598,7 +583,6 @@ class TdTableConstraints(BaseSegment):
     )
 
 
-@teradata_dialect.segment(replace=True)
 class CreateTableStatementSegment(BaseSegment):
     """A `CREATE [MULTISET| SET] TABLE` statement."""
 
@@ -639,7 +623,6 @@ class CreateTableStatementSegment(BaseSegment):
 
 
 # Update
-@teradata_dialect.segment(replace=True)
 class UpdateStatementSegment(BaseSegment):
     """A `Update from` statement.
 
@@ -667,7 +650,6 @@ class UpdateStatementSegment(BaseSegment):
     )
 
 
-@teradata_dialect.segment()
 class FromUpdateClauseSegment(BaseSegment):
     """A `FROM` clause like in `SELECT` but terminated by SET."""
 
@@ -684,7 +666,6 @@ class FromUpdateClauseSegment(BaseSegment):
 
 
 # Adding Teradata specific statements
-@teradata_dialect.segment(replace=True)
 class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: ignore
     """A generic segment, to any of its child subsegments."""
 
@@ -727,7 +708,6 @@ teradata_dialect.replace(
 )
 
 
-@teradata_dialect.segment()
 class QualifyClauseSegment(BaseSegment):
     """A `QUALIFY` clause like in `SELECT`."""
 
@@ -745,7 +725,6 @@ class QualifyClauseSegment(BaseSegment):
     )
 
 
-@teradata_dialect.segment(replace=True)
 class SelectStatementSegment(BaseSegment):
     """A `SELECT` statement.
 
@@ -765,7 +744,6 @@ class SelectStatementSegment(BaseSegment):
     )
 
 
-@teradata_dialect.segment(replace=True)
 class UnorderedSelectStatementSegment(BaseSegment):
     """An unordered `SELECT` statement.
 
@@ -785,7 +763,6 @@ class UnorderedSelectStatementSegment(BaseSegment):
     )
 
 
-@teradata_dialect.segment(replace=True)
 class SelectClauseModifierSegment(BaseSegment):
     """Things that come after SELECT but before the columns.
 
@@ -822,7 +799,6 @@ class SelectClauseModifierSegment(BaseSegment):
     )
 
 
-@teradata_dialect.segment(replace=True)
 class SelectClauseSegment(BaseSegment):
     """A group of elements in a select target statement.
 
@@ -845,3 +821,6 @@ class SelectClauseSegment(BaseSegment):
     )
 
     parse_grammar = ansi_dialect.get_segment("SelectClauseSegment").parse_grammar.copy()
+
+
+teradata_dialect.add_update_segments(globals())

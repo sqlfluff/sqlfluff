@@ -196,7 +196,6 @@ redshift_dialect.add(
 # need to ignore type due to mypy rules on type variables
 # see https://mypy.readthedocs.io/en/stable/common_issues.html#variables-vs-type-aliases
 # for details
-@redshift_dialect.segment(replace=True)
 class ColumnReferenceSegment(ObjectReferenceSegment):  # type: ignore
     """A reference to column, field or alias.
 
@@ -231,7 +230,6 @@ class ColumnReferenceSegment(ObjectReferenceSegment):  # type: ignore
     )
 
 
-@redshift_dialect.segment()
 class FromUnpivotExpressionSegment(BaseSegment):
     """An UNPIVOT expression.
 
@@ -267,7 +265,6 @@ class FromUnpivotExpressionSegment(BaseSegment):
     )
 
 
-@redshift_dialect.segment()
 class FromPivotExpressionSegment(BaseSegment):
     """A PIVOT expression.
 
@@ -299,7 +296,6 @@ class FromPivotExpressionSegment(BaseSegment):
     )
 
 
-@redshift_dialect.segment(replace=True)
 class DateTimeTypeIdentifier(BaseSegment):
     """A Date Time type."""
 
@@ -317,7 +313,6 @@ class DateTimeTypeIdentifier(BaseSegment):
     )
 
 
-@redshift_dialect.segment(replace=True)
 class DatatypeSegment(BaseSegment):
     """A data type segment.
 
@@ -401,7 +396,6 @@ class DatatypeSegment(BaseSegment):
     )
 
 
-@redshift_dialect.segment()
 class DataFormatSegment(BaseSegment):
     """DataFormat segment.
 
@@ -453,7 +447,6 @@ class DataFormatSegment(BaseSegment):
     )
 
 
-@redshift_dialect.segment()
 class AuthorizationSegment(BaseSegment):
     """Authorization segment.
 
@@ -505,7 +498,6 @@ class AuthorizationSegment(BaseSegment):
     )
 
 
-@redshift_dialect.segment()
 class ColumnAttributeSegment(BaseSegment):
     """Redshift specific column attributes.
 
@@ -536,7 +528,6 @@ class ColumnAttributeSegment(BaseSegment):
     )
 
 
-@redshift_dialect.segment(replace=True)
 class ColumnConstraintSegment(BaseSegment):
     """Redshift specific column constraints.
 
@@ -557,7 +548,6 @@ class ColumnConstraintSegment(BaseSegment):
     )
 
 
-@redshift_dialect.segment()
 class TableAttributeSegment(BaseSegment):
     """Redshift specific table attributes.
 
@@ -583,7 +573,6 @@ class TableAttributeSegment(BaseSegment):
     )
 
 
-@redshift_dialect.segment(replace=True)
 class TableConstraintSegment(BaseSegment):
     """Redshift specific table constraints.
 
@@ -611,7 +600,6 @@ class TableConstraintSegment(BaseSegment):
     )
 
 
-@redshift_dialect.segment(replace=True)
 class LikeOptionSegment(BaseSegment):
     """Like Option Segment.
 
@@ -624,7 +612,6 @@ class LikeOptionSegment(BaseSegment):
     match_grammar = Sequence(OneOf("INCLUDING", "EXCLUDING"), "DEFAULTS")
 
 
-@redshift_dialect.segment(replace=True)
 class CreateTableStatementSegment(BaseSegment):
     """A `CREATE TABLE` statement.
 
@@ -665,7 +652,6 @@ class CreateTableStatementSegment(BaseSegment):
     )
 
 
-@redshift_dialect.segment(replace=True)
 class CreateTableAsStatementSegment(BaseSegment):
     """A `CREATE TABLE AS` statement.
 
@@ -696,7 +682,6 @@ class CreateTableAsStatementSegment(BaseSegment):
     )
 
 
-@redshift_dialect.segment(replace=True)
 class CreateModelStatementSegment(BaseSegment):
     """A `CREATE MODEL` statement.
 
@@ -834,7 +819,6 @@ class CreateModelStatementSegment(BaseSegment):
     )
 
 
-@redshift_dialect.segment()
 class ShowModelStatementSegment(BaseSegment):
     """A `SHOW MODEL` statement.
 
@@ -853,7 +837,6 @@ class ShowModelStatementSegment(BaseSegment):
     )
 
 
-@redshift_dialect.segment()
 class CreateExternalTableStatementSegment(BaseSegment):
     """A `CREATE EXTERNAL TABLE` statement.
 
@@ -941,7 +924,6 @@ class CreateExternalTableStatementSegment(BaseSegment):
     )
 
 
-@redshift_dialect.segment()
 class CreateExternalTableAsStatementSegment(BaseSegment):
     """A `CREATE EXTERNAL TABLE AS` statement.
 
@@ -990,7 +972,6 @@ class CreateExternalTableAsStatementSegment(BaseSegment):
     )
 
 
-@redshift_dialect.segment()
 class CreateLibraryStatementSegment(BaseSegment):
     """A `CREATE LIBRARY` statement.
 
@@ -1024,7 +1005,6 @@ class CreateLibraryStatementSegment(BaseSegment):
     )
 
 
-@redshift_dialect.segment()
 class UnloadStatementSegment(BaseSegment):
     """A `UNLOAD` statement.
 
@@ -1135,7 +1115,6 @@ class UnloadStatementSegment(BaseSegment):
     )
 
 
-@redshift_dialect.segment(replace=True)
 class CopyStatementSegment(
     postgres_dialect.get_segment("CopyStatementSegment")  # type: ignore
 ):
@@ -1287,7 +1266,6 @@ class CopyStatementSegment(
     )
 
 
-@redshift_dialect.segment(replace=True)
 class InsertStatementSegment(BaseSegment):
     """An`INSERT` statement.
 
@@ -1318,7 +1296,6 @@ class InsertStatementSegment(BaseSegment):
     )
 
 
-@redshift_dialect.segment(replace=True)
 class CreateSchemaStatementSegment(BaseSegment):
     """A `CREATE SCHEMA` statement.
 
@@ -1363,7 +1340,6 @@ class CreateSchemaStatementSegment(BaseSegment):
     )
 
 
-@redshift_dialect.segment()
 class ProcedureParameterListSegment(BaseSegment):
     """The parameters for a procedure.
 
@@ -1405,7 +1381,6 @@ class ProcedureParameterListSegment(BaseSegment):
     )
 
 
-@redshift_dialect.segment(replace=True)
 class CreateProcedureStatementSegment(BaseSegment):
     """A `CREATE PROCEDURE` statement.
 
@@ -1427,7 +1402,6 @@ class CreateProcedureStatementSegment(BaseSegment):
     )
 
 
-@redshift_dialect.segment()
 class AlterProcedureStatementSegment(BaseSegment):
     """An `ALTER PROCEDURE` statement.
 
@@ -1456,7 +1430,6 @@ class AlterProcedureStatementSegment(BaseSegment):
     )
 
 
-@redshift_dialect.segment(replace=True)
 class DropProcedureStatementSegment(BaseSegment):
     """An `DROP PROCEDURE` statement.
 
@@ -1478,7 +1451,6 @@ class DropProcedureStatementSegment(BaseSegment):
     )
 
 
-@redshift_dialect.segment()
 class DeclareStatementSegment(BaseSegment):
     """A `DECLARE` statement.
 
@@ -1496,7 +1468,6 @@ class DeclareStatementSegment(BaseSegment):
     )
 
 
-@redshift_dialect.segment()
 class FetchStatementSegment(BaseSegment):
     """A `FETCH` statement.
 
@@ -1523,7 +1494,6 @@ class FetchStatementSegment(BaseSegment):
     )
 
 
-@redshift_dialect.segment()
 class CloseStatementSegment(BaseSegment):
     """A `CLOSE` statement.
 
@@ -1538,7 +1508,6 @@ class CloseStatementSegment(BaseSegment):
     )
 
 
-@redshift_dialect.segment()
 class AltereDatashareStatementSegment(BaseSegment):
     """An `ALTER DATASHARE` statement.
 
@@ -1602,7 +1571,6 @@ class AltereDatashareStatementSegment(BaseSegment):
     )
 
 
-@redshift_dialect.segment()
 class CreateDatashareStatementSegment(BaseSegment):
     """A `CREATE DATASHARE` statement.
 
@@ -1627,7 +1595,6 @@ class CreateDatashareStatementSegment(BaseSegment):
     )
 
 
-@redshift_dialect.segment()
 class DescDatashareStatementSegment(BaseSegment):
     """A `DESC DATASHARE` statement.
 
@@ -1653,7 +1620,6 @@ class DescDatashareStatementSegment(BaseSegment):
     )
 
 
-@redshift_dialect.segment()
 class DropDatashareStatementSegment(BaseSegment):
     """A `DROP DATASHARE` statement.
 
@@ -1668,7 +1634,6 @@ class DropDatashareStatementSegment(BaseSegment):
     )
 
 
-@redshift_dialect.segment()
 class ShowDatasharesStatementSegment(BaseSegment):
     """A `SHOW DATASHARES` statement.
 
@@ -1687,7 +1652,6 @@ class ShowDatasharesStatementSegment(BaseSegment):
     )
 
 
-@redshift_dialect.segment()
 class AnalyzeCompressionStatementSegment(BaseSegment):
     """An `ANALYZE COMPRESSION` statement.
 
@@ -1716,7 +1680,6 @@ class AnalyzeCompressionStatementSegment(BaseSegment):
     )
 
 
-@redshift_dialect.segment()
 class VacuumStatementSegment(BaseSegment):
     """A `VACUUM` statement.
 
@@ -1751,7 +1714,6 @@ class VacuumStatementSegment(BaseSegment):
 
 
 # Adding Redshift specific statements
-@redshift_dialect.segment(replace=True)
 class StatementSegment(
     postgres_dialect.get_segment("StatementSegment")  # type: ignore
 ):
@@ -1791,7 +1753,6 @@ class StatementSegment(
     ).match_grammar.copy()
 
 
-@redshift_dialect.segment()
 class PartitionedBySegment(BaseSegment):
     """Partitioned By Segment.
 
@@ -1815,7 +1776,6 @@ class PartitionedBySegment(BaseSegment):
     )
 
 
-@redshift_dialect.segment()
 class RowFormatDelimitedSegment(BaseSegment):
     """Row Format Delimited Segment.
 
@@ -1842,7 +1802,6 @@ class RowFormatDelimitedSegment(BaseSegment):
     )
 
 
-@redshift_dialect.segment()
 class CreateUserStatementSegment(BaseSegment):
     """`CREATE USER` statement.
 
@@ -1894,7 +1853,6 @@ class CreateUserStatementSegment(BaseSegment):
     )
 
 
-@redshift_dialect.segment()
 class CreateGroupStatementSegment(BaseSegment):
     """`CREATE GROUP` statement.
 
@@ -1918,7 +1876,6 @@ class CreateGroupStatementSegment(BaseSegment):
     )
 
 
-@redshift_dialect.segment()
 class AlterUserStatementSegment(BaseSegment):
     """`ALTER USER` statement.
 
@@ -2005,7 +1962,6 @@ class AlterUserStatementSegment(BaseSegment):
     )
 
 
-@redshift_dialect.segment()
 class AlterGroupStatementSegment(BaseSegment):
     """`ALTER GROUP` statement.
 
@@ -2035,7 +1991,6 @@ class AlterGroupStatementSegment(BaseSegment):
     )
 
 
-@redshift_dialect.segment(replace=True)
 class TransactionStatementSegment(BaseSegment):
     """A `BEGIN|START`, `COMMIT|END` or `ROLLBACK|ABORT` transaction statement.
 
@@ -2063,3 +2018,6 @@ class TransactionStatementSegment(BaseSegment):
             optional=True,
         ),
     )
+
+
+redshift_dialect.add_update_segments(globals())

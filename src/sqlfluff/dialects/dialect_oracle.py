@@ -50,7 +50,6 @@ oracle_dialect.add(
 )
 
 
-@oracle_dialect.segment()
 class ExecuteFileSegment(BaseSegment):
     """A reference to an indextype."""
 
@@ -73,7 +72,6 @@ class ExecuteFileSegment(BaseSegment):
     )
 
 
-@oracle_dialect.segment()
 class IndexTypeReferenceSegment(BaseSegment):
     """A reference to an indextype."""
 
@@ -85,7 +83,6 @@ class IndexTypeReferenceSegment(BaseSegment):
 
 
 # Adding Oracle specific statements.
-@oracle_dialect.segment(replace=True)
 class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: ignore
     """A generic segment, to any of its child subsegments.
 
@@ -104,7 +101,6 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
     )
 
 
-@oracle_dialect.segment(replace=True)
 class FileSegment(BaseFileSegment):
     """A segment representing a whole file or script.
 
@@ -129,7 +125,6 @@ class FileSegment(BaseFileSegment):
     )
 
 
-@oracle_dialect.segment()
 class CommentStatementSegment(BaseSegment):
     """A `Comment` statement.
 
@@ -182,7 +177,6 @@ ObjectReferenceSegment = ansi_dialect.get_segment("ObjectReferenceSegment")
 # need to ignore type due to mypy rules on type variables
 # see https://mypy.readthedocs.io/en/stable/common_issues.html#variables-vs-type-aliases
 # for details
-@oracle_dialect.segment(replace=True)
 class TableReferenceSegment(ObjectReferenceSegment):  # type: ignore
     """A reference to an table, CTE, subquery or alias.
 
@@ -213,3 +207,6 @@ class TableReferenceSegment(ObjectReferenceSegment):  # type: ignore
         ),
         allow_gaps=False,
     )
+
+
+oracle_dialect.add_update_segments(globals())

@@ -3625,3 +3625,6 @@ class DeleteStatementSegment(BaseSegment):
 
 
 postgres_dialect.add_update_segments(globals())
+
+
+postgres_dialect.add_update_segments(globals())
