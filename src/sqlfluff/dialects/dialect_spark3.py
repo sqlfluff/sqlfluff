@@ -39,8 +39,8 @@ from sqlfluff.dialects.dialect_spark3_keywords import (
     UNRESERVED_KEYWORDS,
 )
 
-from . import dialect_ansi as ansi
-from . import dialect_hive as hive
+from sqlfluff.dialects import dialect_ansi as ansi
+from sqlfluff.dialects import dialect_hive as hive
 
 ansi_dialect = load_raw_dialect("ansi")
 hive_dialect = load_raw_dialect("hive")
