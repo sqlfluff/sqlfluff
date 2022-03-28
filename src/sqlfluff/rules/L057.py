@@ -109,7 +109,7 @@ class Rule_L057(BaseRule):
                     identifier = identifier[:-1]
                 identifier = identifier.replace(".", "")
 
-            # Spark3 file references for direct file query
+            # SparkSQL file references for direct file query
             # are quoted in back ticks to allow for identfiers common
             # in file paths and regex patterns for path globbing
             # https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-file.html
@@ -120,7 +120,7 @@ class Rule_L057(BaseRule):
 
             if context.dialect.name in ["sparksql"] and context.parent_stack:
 
-                # Spark3 file references for direct file query
+                # SparkSQL file references for direct file query
                 # are quoted in back ticks to allow for identfiers common
                 # in file paths and regex patterns for path globbing
                 # https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-file.html
@@ -131,7 +131,7 @@ class Rule_L057(BaseRule):
                 if context.parent_stack[-1].name == "FileReferenceSegment":
                     return None
 
-                # Spark3 properties keys used for setting table and runtime
+                # SparkSQL properties keys used for setting table and runtime
                 # configurations denote namespace using dots, so these are
                 # removed before testing L057 to not trigger false positives
                 # Runtime configurations:
