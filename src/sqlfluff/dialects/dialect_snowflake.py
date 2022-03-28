@@ -789,6 +789,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateStageSegment"),
             Ref("AlterStageSegment"),
             Ref("CreateStreamStatementSegment"),
+            Ref("AlterStreamStatementSegment"),
             Ref("UnsetStatementSegment"),
             Ref("UndropStatementSegment"),
             Ref("CommentStatementSegment"),
@@ -3242,6 +3243,48 @@ class CreateStreamStatementSegment(BaseSegment):
             ),
         ),
         Ref("CommentEqualsClauseSegment", optional=True),
+    )
+
+
+class AlterStreamStatementSegment(BaseSegment):
+    """A Snowflake `ALTER STREAM` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-stream.html
+    """
+
+    type = "alter_stream_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "STREAM",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Sequence(
+                "SET",
+                Sequence(
+                    "APPEND_ONLY",
+                    Ref("EqualsSegment"),
+                    Ref("BooleanLiteralGrammar"),
+                    optional=True,
+                ),
+                Sequence(
+                    "INSERT_ONLY",
+                    Ref("EqualsSegment"),
+                    Ref("TrueSegment"),
+                    optional=True,
+                ),
+                Ref("TagEqualsSegment", optional=True),
+                Ref("CommentEqualsClauseSegment", optional=True),
+            ),
+            Sequence(
+                "UNSET",
+                OneOf(
+                    Sequence("TAG", Delimited(Ref("NakedIdentifierSegment"))),
+                    "COMMENT",
+                ),
+            ),
+        ),
     )
 
 
