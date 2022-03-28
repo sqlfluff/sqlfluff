@@ -1,6 +1,5 @@
 create stream new_stream on table table_name;
 
-/*
 create stream mystream on table mytable before (timestamp => to_timestamp(40*365*86400));
 
 create stream mystream on table mytable at(offset => -60*5);
@@ -18,7 +17,6 @@ create stream new_stream clone source_stream;
 create or replace stream new_stream on table table_name;
 
 create stream if not exists new_stream on table table_name;
-
 CREATE OR REPLACE STREAM new_stream
 COPY GRANTS
 ON TABLE table_name
@@ -40,4 +38,3 @@ ON VIEW view_name
 APPEND_ONLY = FALSE
 SHOW_INITIAL_ROWS = FALSE
 COMMENT = 'amazing comment';
-*/

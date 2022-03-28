@@ -3251,45 +3251,6 @@ class AlterStageSegment(BaseSegment):
 
 
 @snowflake_dialect.segment()
-class AppendOnlyExpressionSegment(BaseSegment):
-    """An APPEND_ONLY = TRUE | FALSE expression."""
-
-    type = "append_only_expression"
-    
-    match_grammar = Sequence(
-        "APPEND_ONLY",
-        Ref("EqualsSegment"),
-        OneOf(Ref("TrueSegment"), Ref("FalseSegment"))
-    )
-
-
-@snowflake_dialect.segment()
-class ShowInitialRowsExpressionSegment(BaseSegment):
-    """A SHOW_INITIAL_ROWS = TRUE | FALSE expression."""
-
-    type = "show_initial_rows_expression"
-
-    match_grammar = Sequence(
-        "SHOW_INITIAL_ROWS",
-        Ref("EqualsSegment"),
-        OneOf(Ref("TrueSegment"), Ref("FalseSegment"))
-    )
-
-
-@snowflake_dialect.segment()
-class InsertOnlyExpressionSegment(BaseSegment):
-    """A INSERT_ONLY = TRUE expression."""
-
-    type = "insert_only_expression"
-
-    match_grammar = Sequence(
-        "INSERT_ONLY",
-        Ref("EqualsSegment"),
-        Ref("TrueSegment")
-    )
-
-
-@snowflake_dialect.segment()
 class CreateStreamStatementSegment(BaseSegment):
     """A Snowflake `CREATE STREAM` statement.
 
@@ -3311,21 +3272,38 @@ class CreateStreamStatementSegment(BaseSegment):
                 OneOf("TABLE", "VIEW"),
                 Ref("ObjectReferenceSegment"),        
                 OneOf(
-                    Ref("FromAtExpressionSegment", optional=True),
-                    Ref("FromBeforeExpressionSegment", optional=True)
+                    Ref("FromAtExpressionSegment"),
+                    Ref("FromBeforeExpressionSegment"),
+                    optional=True
                 ),
-                Ref("AppendOnlyExpressionSegment", optional=True),
-                Ref("ShowInitialRowsExpressionSegment", optional=True)
+                Sequence(
+                    "APPEND_ONLY",
+                    Ref("EqualsSegment"),
+                    OneOf(Ref("TrueSegment"), Ref("FalseSegment")),
+                    optional=True
+                ),
+                Sequence(
+                    "SHOW_INITIAL_ROWS",
+                    Ref("EqualsSegment"),
+                    OneOf(Ref("TrueSegment"), Ref("FalseSegment")),
+                    optional=True
+                )
             ),
             Sequence(
                 "EXTERNAL", 
                 "TABLE",
                 Ref("ObjectReferenceSegment"),
                 OneOf(
-                    Ref("FromAtExpressionSegment", optional=True),
-                    Ref("FromBeforeExpressionSegment", optional=True)
+                    Ref("FromAtExpressionSegment"),
+                    Ref("FromBeforeExpressionSegment"),
+                    optional=True
                 ),
-                Ref("InsertOnlyExpressionStatement", optional=True)
+                Sequence(
+                    "INSERT_ONLY",
+                    Ref("EqualsSegment"),
+                    Ref("TrueSegment"),
+                    optional=True
+                )
             ),
             Sequence(
                 "STAGE",
