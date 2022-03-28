@@ -196,6 +196,19 @@ class Dialect:
                 raise ValueError(f"{n!r} is not already registered in {self!r}")
             self._library[n] = kwargs[n]
 
+    def add_update_segments(self, module_dct):
+        """Scans module dictionary, adding or replacing all segments to dialect.
+
+        This eliminates the need to use the decorator, thus simplifying dialect
+        creation.
+        """
+        for k, v in module_dct.items():
+            if isinstance(v, type) and issubclass(v, BaseSegment):
+                if k not in self._library:
+                    self.add(**{k: v})
+                else:
+                    self.replace(**{k: v})
+
     def get_grammar(self, name: str) -> BaseGrammar:
         """Allow access to grammars pre-expansion.
 
