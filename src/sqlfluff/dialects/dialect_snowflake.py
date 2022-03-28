@@ -3270,47 +3270,47 @@ class CreateStreamStatementSegment(BaseSegment):
         OneOf(
             Sequence(
                 OneOf("TABLE", "VIEW"),
-                Ref("ObjectReferenceSegment"),        
+                Ref("ObjectReferenceSegment"),
                 OneOf(
                     Ref("FromAtExpressionSegment"),
                     Ref("FromBeforeExpressionSegment"),
-                    optional=True
+                    optional=True,
                 ),
                 Sequence(
                     "APPEND_ONLY",
                     Ref("EqualsSegment"),
                     OneOf(Ref("TrueSegment"), Ref("FalseSegment")),
-                    optional=True
+                    optional=True,
                 ),
                 Sequence(
                     "SHOW_INITIAL_ROWS",
                     Ref("EqualsSegment"),
                     OneOf(Ref("TrueSegment"), Ref("FalseSegment")),
-                    optional=True
-                )
+                    optional=True,
+                ),
             ),
             Sequence(
-                "EXTERNAL", 
+                "EXTERNAL",
                 "TABLE",
                 Ref("ObjectReferenceSegment"),
                 OneOf(
                     Ref("FromAtExpressionSegment"),
                     Ref("FromBeforeExpressionSegment"),
-                    optional=True
+                    optional=True,
                 ),
                 Sequence(
                     "INSERT_ONLY",
                     Ref("EqualsSegment"),
                     Ref("TrueSegment"),
-                    optional=True
-                )
+                    optional=True,
+                ),
             ),
             Sequence(
                 "STAGE",
                 Ref("ObjectReferenceSegment"),
-            )
+            ),
         ),
-        Ref("CommentEqualsClauseSegment", optional=True)
+        Ref("CommentEqualsClauseSegment", optional=True),
     )
 
 
