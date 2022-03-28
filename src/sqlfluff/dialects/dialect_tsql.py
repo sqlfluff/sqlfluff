@@ -494,16 +494,15 @@ class NotEqualToSegment(BaseSegment):
     )
 
 
-class SelectClauseElementSegment(BaseSegment):
+class SelectClauseElementSegment(ansi.SelectClauseElementSegment):
     """An element in the targets of a select statement.
 
     Overriding ANSI to remove GreedyUntil logic which assumes statements have been
     delimited
     """
 
-    type = "select_clause_element"
     # Important to split elements before parsing, otherwise debugging is really hard.
-    match_grammar = OneOf(
+    match_grammar = OneOf(  # type: ignore
         # *, blah.*, blah.blah.*, etc.
         Ref("WildcardExpressionSegment"),
         Sequence(
@@ -516,7 +515,7 @@ class SelectClauseElementSegment(BaseSegment):
         ),
     )
 
-    get_alias = ansi.SelectClauseElementSegment.get_alias
+    parse_grammar = None  # type: ignore
 
 
 class AltAliasExpressionSegment(BaseSegment):
