@@ -1410,7 +1410,7 @@ class JoinClauseSegment(BaseSegment):
             Indent,
             Sequence(
                 Ref("FromExpressionElementSegment"),
-                Ref("NestedJoinSegment", optional=True),
+                AnyNumberOf(Ref("NestedJoinSegment")),
                 Conditional(Dedent, indented_using_on=False),
                 # NB: this is optional
                 OneOf(
@@ -1465,8 +1465,7 @@ class JoinClauseSegment(BaseSegment):
             buff.append((from_expression, alias))
 
         # In some dialects, like TSQL, join clauses can have nested join clauses
-        join_clause = self.get_child("join_clause")
-        if join_clause:
+        for join_clause in self.get_children("join_clause"):
             aliases: List[
                 Tuple[BaseSegment, AliasInfo]
             ] = join_clause.get_eventual_aliases()
