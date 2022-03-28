@@ -1029,7 +1029,7 @@ class ObjectReferenceSegment(BaseSegment):
         ansi.ObjectReferenceSegment.extract_possible_multipart_references
     )
 
-    _level_to_int = ansi.ObjectReferenceSegment._level_to_int
+    _level_to_int = staticmethod(ansi.ObjectReferenceSegment._level_to_int)
 
 
 class TableReferenceSegment(ObjectReferenceSegment):
