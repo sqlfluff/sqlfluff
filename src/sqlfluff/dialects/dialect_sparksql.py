@@ -943,13 +943,11 @@ class MsckRepairTableStatementSegment(hive.MsckRepairTableStatementSegment):
     pass
 
 
-class TruncateStatementSegment(BaseSegment):
+class TruncateStatementSegment(ansi.TruncateStatementSegment):
     """A `TRUNCATE TABLE` statement.
 
     https://spark.apache.org/docs/latest/sql-ref-syntax-ddl-truncate-table.html
     """
-
-    type = "truncate_table_statement"
 
     match_grammar = Sequence(
         "TRUNCATE",
@@ -974,16 +972,14 @@ class UseDatabaseStatementSegment(BaseSegment):
 
 
 # Data Manipulation Statements
-class InsertStatementSegment(BaseSegment):
+class InsertStatementSegment(ansi.InsertStatementSegment):
     """A `INSERT [TABLE]` statement to insert or overwrite new rows into a table.
 
     https://spark.apache.org/docs/latest/sql-ref-syntax-dml-insert-into.html
     https://spark.apache.org/docs/latest/sql-ref-syntax-dml-insert-overwrite-table.html
     """
 
-    type = "insert_table_statement"
-
-    match_grammar = Sequence(
+    match_grammar = Sequence(  # type: ignore
         "INSERT",
         OneOf("INTO", "OVERWRITE"),
         Ref.keyword("TABLE", optional=True),
@@ -1014,6 +1010,7 @@ class InsertStatementSegment(BaseSegment):
             ),
         ),
     )
+    parse_grammar = None  # type: ignore
 
 
 class InsertOverwriteDirectorySegment(BaseSegment):
@@ -1338,13 +1335,11 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
     )
 
 
-class GroupByClauseSegment(BaseSegment):
+class GroupByClauseSegment(ansi.GroupByClauseSegment):
     """Enhance `GROUP BY` clause like in `SELECT` for 'CUBE' and 'ROLLUP`.
 
     https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-groupby.html
     """
-
-    type = "group_by_clause"
 
     match_grammar = StartsWith(
         Sequence("GROUP", "BY"),

@@ -332,14 +332,13 @@ class TdRenameStatementSegment(BaseSegment):
 
 
 # Adding Teradata specific DATE FORMAT 'YYYYMM'
-class DatatypeSegment(BaseSegment):
+class DatatypeSegment(ansi.DatatypeSegment):
     """A data type segment.
 
     DATE FORMAT 'YYYY-MM-DD'
     """
 
-    type = "td_internal_data_type"
-    match_grammar = Sequence(
+    match_grammar = Sequence(  # type: ignore
         Ref("DatatypeIdentifierSegment"),
         Bracketed(
             OneOf(

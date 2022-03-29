@@ -1530,13 +1530,12 @@ class CursorFetchSegment(BaseSegment):
     )
 
 
-class DropIndexStatementSegment(BaseSegment):
+class DropIndexStatementSegment(ansi.DropIndexStatementSegment):
     """A `DROP INDEX` statement.
 
     https://dev.mysql.com/doc/refman/8.0/en/drop-index.html
     """
 
-    type = "drop_statement"
     # DROP INDEX <Index name> ON <table_name>
     # [ALGORITHM [=] {DEFAULT | INPLACE | COPY} | LOCK [=] {DEFAULT | NONE | SHARED |
     # EXCLUSIVE}]

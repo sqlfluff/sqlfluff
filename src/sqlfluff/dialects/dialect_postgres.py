@@ -3082,13 +3082,11 @@ class AlterTriggerStatementSegment(BaseSegment):
     )
 
 
-class DropTriggerStatementSegment(BaseSegment):
+class DropTriggerStatementSegment(ansi.DropTriggerStatementSegment):
     """Drop Trigger Statement.
 
     As Specified in https://www.postgresql.org/docs/14/sql-droptrigger.html
     """
-
-    type = "drop_trigger_statement"
 
     match_grammar = Sequence("DROP", "TRIGGER", Anything())
 

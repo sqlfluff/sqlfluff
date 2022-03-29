@@ -162,6 +162,11 @@ class Dialect:
                 and isinstance(cls, type)
                 and not issubclass(cls, self._library[n])
             ):
+                if self._library[n].type != cls.type:
+                    raise ValueError(  # pragma: no cover
+                        f"Cannot replace {n!r} because 'type' property does not "
+                        f"match: {cls.type} != {self._library[n].type}"
+                    )
                 base_dir = set(dir(self._library[n]))
                 cls_dir = set(dir(cls))
                 missing = set(
