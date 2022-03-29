@@ -121,7 +121,7 @@ test_fail_data_type_capitalisation_policy_keywords_2:
         extended_capitalisation_policy: upper
 
 
-test_pass_spark3_complex_data_types:
+test_pass_sparksql_complex_data_types:
   pass_str: |
     CREATE TABLE table_identifier(
       a STRUCT<b: STRING COMMENT 'struct_comment', c: BOOLEAN> COMMENT 'col_comment',
@@ -130,7 +130,7 @@ test_pass_spark3_complex_data_types:
     );
   configs:
     core:
-      dialect: spark3
+      dialect: sparksql
     rules:
       L063:
         extended_capitalisation_policy: upper

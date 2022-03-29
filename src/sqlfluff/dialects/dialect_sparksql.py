@@ -1,4 +1,4 @@
-"""The Spark SQL dialect for ANSI Compliant Spark3.
+"""The ANSI Compliant SparkSQL dialect.
 
 Inherits from ANSI.
 Spark SQL ANSI Mode is more restrictive regarding
@@ -34,7 +34,7 @@ from sqlfluff.core.parser import (
     RegexParser,
 )
 from sqlfluff.core.parser.segments.raw import CodeSegment, KeywordSegment
-from sqlfluff.dialects.dialect_spark3_keywords import (
+from sqlfluff.dialects.dialect_sparksql_keywords import (
     RESERVED_KEYWORDS,
     UNRESERVED_KEYWORDS,
 )
@@ -44,9 +44,9 @@ from sqlfluff.dialects import dialect_hive as hive
 
 ansi_dialect = load_raw_dialect("ansi")
 hive_dialect = load_raw_dialect("hive")
-spark3_dialect = ansi_dialect.copy_as("spark3")
+sparksql_dialect = ansi_dialect.copy_as("sparksql")
 
-spark3_dialect.patch_lexer_matchers(
+sparksql_dialect.patch_lexer_matchers(
     [
         # Spark SQL, only -- is used for single-line comment
         RegexLexer(
@@ -112,7 +112,7 @@ spark3_dialect.patch_lexer_matchers(
     ]
 )
 
-spark3_dialect.insert_lexer_matchers(
+sparksql_dialect.insert_lexer_matchers(
     [
         RegexLexer("bytes_single_quote", r"X'([^'\\]|\\.)*'", CodeSegment),
         RegexLexer("bytes_double_quote", r'X"([^"\\]|\\.)*"', CodeSegment),
@@ -121,8 +121,8 @@ spark3_dialect.insert_lexer_matchers(
 )
 
 # Set the bare functions
-spark3_dialect.sets("bare_functions").clear()
-spark3_dialect.sets("bare_functions").update(
+sparksql_dialect.sets("bare_functions").clear()
+sparksql_dialect.sets("bare_functions").update(
     [
         "CURRENT_DATE",
         "CURRENT_TIMESTAMP",
@@ -131,8 +131,8 @@ spark3_dialect.sets("bare_functions").update(
 )
 
 # Set the datetime units
-spark3_dialect.sets("datetime_units").clear()
-spark3_dialect.sets("datetime_units").update(
+sparksql_dialect.sets("datetime_units").clear()
+sparksql_dialect.sets("datetime_units").update(
     [
         "YEAR",
         # Alternate syntax for YEAR
@@ -154,18 +154,18 @@ spark3_dialect.sets("datetime_units").update(
 )
 
 # Set Keywords
-spark3_dialect.sets("unreserved_keywords").update(UNRESERVED_KEYWORDS)
-spark3_dialect.sets("reserved_keywords").update(RESERVED_KEYWORDS)
+sparksql_dialect.sets("unreserved_keywords").update(UNRESERVED_KEYWORDS)
+sparksql_dialect.sets("reserved_keywords").update(RESERVED_KEYWORDS)
 
 # Set Angle Bracket Pairs
-spark3_dialect.sets("angle_bracket_pairs").update(
+sparksql_dialect.sets("angle_bracket_pairs").update(
     [
         ("angle", "StartAngleBracketSegment", "EndAngleBracketSegment", False),
     ]
 )
 
 # Real Segments
-spark3_dialect.replace(
+sparksql_dialect.replace(
     ComparisonOperatorGrammar=OneOf(
         Ref("EqualsSegment"),
         Ref("EqualsSegment_a"),
@@ -250,7 +250,7 @@ spark3_dialect.replace(
     ),
 )
 
-spark3_dialect.add(
+sparksql_dialect.add(
     BackQuotedIdentifierSegment=NamedParser(
         "back_quote",
         CodeSegment,
@@ -483,14 +483,14 @@ spark3_dialect.add(
 # `single_quote` so they are applied before comment lexer so
 # hints are treated as such instead of comments when parsing.
 # https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-hints.html
-spark3_dialect.insert_lexer_matchers(
+sparksql_dialect.insert_lexer_matchers(
     [
         RegexLexer("start_hint", r"\/\*\+", CodeSegment),
     ],
     before="block_comment",
 )
 
-spark3_dialect.insert_lexer_matchers(
+sparksql_dialect.insert_lexer_matchers(
     [
         RegexLexer("end_hint", r"\*\/", CodeSegment),
     ],
@@ -2338,7 +2338,7 @@ class ValuesClauseSegment(BaseSegment):
                 ),
             ),
         ),
-        # LIMIT/ORDER are unreserved in Spark3.
+        # LIMIT/ORDER are unreserved in sparksql.
         AnyNumberOf(
             Ref("AliasExpressionSegment"),
             min_times=0,
