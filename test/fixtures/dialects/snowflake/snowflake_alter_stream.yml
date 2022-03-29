@@ -1,0 +1,106 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 817d6aadcc472304b1c052e278aafc12940408db16685bfbed9ed1cfcf1797b8
+file:
+- statement:
+    alter_stream_statement:
+    - keyword: alter
+    - keyword: stream
+    - object_reference:
+        identifier: mystream
+    - keyword: set
+    - comment_equals_clause:
+        keyword: comment
+        comparison_operator:
+          raw_comparison_operator: '='
+        literal: "'New comment for stream'"
+- statement_terminator: ;
+- statement:
+    alter_stream_statement:
+    - keyword: alter
+    - keyword: stream
+    - keyword: if
+    - keyword: exists
+    - object_reference:
+        identifier: mystream
+    - keyword: set
+    - tag_equals:
+        keyword: tag
+        identifier: mytag
+        comparison_operator:
+          raw_comparison_operator: '='
+        literal: "'myvalue'"
+- statement_terminator: ;
+- statement:
+    alter_stream_statement:
+    - keyword: ALTER
+    - keyword: STREAM
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+        identifier: mystream
+    - keyword: SET
+    - keyword: APPEND_ONLY
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - literal: 'FALSE'
+    - tag_equals:
+      - keyword: TAG
+      - identifier: mytag1
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - literal: "'myvalue1'"
+      - comma: ','
+      - identifier: mytag2
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - literal: "'myvalue2'"
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        literal: "'amazing comment'"
+- statement_terminator: ;
+- statement:
+    alter_stream_statement:
+    - keyword: ALTER
+    - keyword: STREAM
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+        identifier: mystream
+    - keyword: SET
+    - keyword: INSERT_ONLY
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - literal: 'TRUE'
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        literal: "'amazing comment'"
+- statement_terminator: ;
+- statement:
+    alter_stream_statement:
+    - keyword: alter
+    - keyword: stream
+    - object_reference:
+        identifier: mystream
+    - keyword: unset
+    - keyword: comment
+- statement_terminator: ;
+- statement:
+    alter_stream_statement:
+    - keyword: alter
+    - keyword: stream
+    - object_reference:
+        identifier: mystream
+    - keyword: unset
+    - keyword: tag
+    - identifier: mytag1
+    - comma: ','
+    - identifier: mytag2
+- statement_terminator: ;

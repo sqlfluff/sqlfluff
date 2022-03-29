@@ -11,7 +11,7 @@ Within .dialects, each dialect is free to depend on other dialects as
 required. Any dependent dialects will be loaded as needed.
 """
 
-from typing import NamedTuple, Iterator, Any
+from typing import NamedTuple, Iterator
 from importlib import import_module
 
 
@@ -33,7 +33,7 @@ _dialect_lookup = {
     "sqlite": ("dialect_sqlite", "sqlite_dialect"),
     "teradata": ("dialect_teradata", "teradata_dialect"),
     "tsql": ("dialect_tsql", "tsql_dialect"),
-    "spark3": ("dialect_spark3", "spark3_dialect"),
+    "sparksql": ("dialect_sparksql", "sparksql_dialect"),
 }
 
 _legacy_dialects = {
@@ -41,16 +41,23 @@ _legacy_dialects = {
         "As of 0.7.0 the 'exasol_fs' dialect has been combined with "
         "the 'exasol' dialect, and is no longer a standalone dialect. "
         "Please use the 'exasol' dialect instead."
-    )
+    ),
+    "spark3": (
+        "The 'spark3' dialect has been renamed to sparksql."
+        "Please use the 'sparksql' dialect instead."
+    ),
 }
 
 
-def load_raw_dialect(label: str, base_module: str = "sqlfluff.dialects") -> Any:
+def load_raw_dialect(label: str, base_module: str = "sqlfluff.dialects") -> Dialect:
     """Dynamically load a dialect."""
     if label in _legacy_dialects:
         raise SQLFluffUserError(_legacy_dialects[label])
-    module, name = _dialect_lookup[label]
-    return getattr(import_module(f"{base_module}.{module}"), name)
+    module_name, name = _dialect_lookup[label]
+    module = import_module(f"{base_module}.{module_name}")
+    result: Dialect = getattr(module, name)
+    result.add_update_segments({k: getattr(module, k) for k in dir(module)})
+    return result
 
 
 class DialectTuple(NamedTuple):

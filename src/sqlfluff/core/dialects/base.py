@@ -127,32 +127,6 @@ class Dialect:
             root_segment_name=self.root_segment_name,
         )
 
-    def segment(self, replace=False):
-        """This is the decorator for elements, it should be called as a method.
-
-        e.g.
-        @dialect.segment()
-        class SomeSegment(BaseSegment):
-            blah blah blah
-
-        """
-
-        def segment_wrap(cls):
-            """Wrap a segment and register it against the dialect."""
-            n = cls.__name__
-            if replace:
-                if n not in self._library:  # pragma: no cover
-                    raise ValueError(f"{n!r} is not already registered in {self!r}")
-            else:
-                if n in self._library:  # pragma: no cover
-                    raise ValueError(f"{n!r} is already registered in {self!r}")
-            self._library[n] = cls
-            # Pass it back after registering it
-            return cls
-
-        # return the wrapping function
-        return segment_wrap
-
     def add(self, **kwargs: DialectElementType):
         """Add a segment to the dialect directly.
 
@@ -179,6 +153,15 @@ class Dialect:
             if n not in self._library:  # pragma: no cover
                 raise ValueError(f"{n!r} is not already registered in {self!r}")
             self._library[n] = kwargs[n]
+
+    def add_update_segments(self, module_dct):
+        """Scans module dictionary, adding or replacing segment definitions."""
+        for k, v in module_dct.items():
+            if isinstance(v, type) and issubclass(v, BaseSegment):
+                if k not in self._library:
+                    self.add(**{k: v})
+                else:
+                    self.replace(**{k: v})
 
     def get_grammar(self, name: str) -> BaseGrammar:
         """Allow access to grammars pre-expansion.
