@@ -673,14 +673,15 @@ class ValuesClauseSegment(ansi.ValuesClauseSegment):
     )
 
 
-class InsertStatementSegment(ansi.InsertStatementSegment):
+class InsertStatementSegment(BaseSegment):
     """An `INSERT` statement.
 
     https://docs.snowflake.com/en/sql-reference/sql/insert.html
     https://docs.snowflake.com/en/sql-reference/sql/insert-multi-table.html
     """
 
-    match_grammar = Sequence(  # type: ignore
+    type = "insert_statement"
+    match_grammar = Sequence(
         "INSERT",
         Ref.keyword("OVERWRITE", optional=True),
         OneOf(
