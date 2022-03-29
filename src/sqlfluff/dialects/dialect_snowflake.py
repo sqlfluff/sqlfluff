@@ -1215,7 +1215,7 @@ class SelectClauseModifierSegment(ansi.SelectClauseModifierSegment):
     https://docs.snowflake.com/en/sql-reference/constructs.html
     """
 
-    match_grammar = Sequence(  # type: ignore
+    match_grammar = Sequence(
         OneOf("DISTINCT", "ALL", optional=True),
         # TOP N is unique to Snowflake, and we can optionally add DISTINCT/ALL in front
         # of it.
@@ -1895,7 +1895,7 @@ class ColumnConstraintSegment(ansi.ColumnConstraintSegment):
     https://docs.snowflake.com/en/sql-reference/sql/create-table.html
     """
 
-    match_grammar = AnySetOf(  # type: ignore
+    match_grammar = AnySetOf(
         Sequence("COLLATE", Ref("QuotedLiteralSegment")),
         Sequence(
             "DEFAULT",
@@ -3930,7 +3930,7 @@ class TransactionStatementSegment(ansi.TransactionStatementSegment):
     https://docs.snowflake.com/en/sql-reference/sql/rollback.html
     """
 
-    match_grammar = OneOf(  # type: ignore
+    match_grammar = OneOf(
         Sequence(
             "BEGIN",
             OneOf("WORK", "TRANSACTION", optional=True),
@@ -4148,7 +4148,7 @@ class LimitClauseSegment(ansi.LimitClauseSegment):
     https://docs.snowflake.com/en/sql-reference/constructs/limit.html
     """
 
-    match_grammar = OneOf(  # type: ignore
+    match_grammar = OneOf(
         Sequence(
             "LIMIT",
             Indent,
@@ -4198,7 +4198,7 @@ class SelectClauseSegment(ansi.SelectClauseSegment):
     """A group of elements in a select target statement."""
 
     match_grammar = ansi.SelectClauseSegment.match_grammar.copy()
-    match_grammar.terminator = match_grammar.terminator.copy(
+    match_grammar.terminator = match_grammar.terminator.copy(  # type: ignore
         insert=[Ref.keyword("FETCH"), Ref.keyword("OFFSET")],
     )
     parse_grammar = ansi.SelectClauseSegment.parse_grammar.copy()
@@ -4211,7 +4211,7 @@ class OrderByClauseSegment(ansi.OrderByClauseSegment):
     """
 
     match_grammar = ansi.OrderByClauseSegment.match_grammar.copy()
-    match_grammar.terminator = match_grammar.terminator.copy(
+    match_grammar.terminator = match_grammar.terminator.copy(  # type: ignore
         insert=[Ref.keyword("FETCH"), Ref.keyword("OFFSET"), Ref.keyword("MEASURES")],
     )
     parse_grammar = Sequence(
@@ -4241,7 +4241,7 @@ class HavingClauseSegment(ansi.HavingClauseSegment):
 
     type = "having_clause"
     match_grammar = ansi.HavingClauseSegment.match_grammar.copy()
-    match_grammar.terminator = match_grammar.terminator.copy(
+    match_grammar.terminator = match_grammar.terminator.copy(  # type: ignore
         insert=[Ref.keyword("FETCH"), Ref.keyword("OFFSET")],
     )
     parse_grammar = ansi.HavingClauseSegment.parse_grammar

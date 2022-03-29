@@ -1274,7 +1274,7 @@ class SelectClauseModifierSegment(ansi.SelectClauseModifierSegment):
     https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-hints.html
     """
 
-    match_grammar = Sequence(  # type: ignore
+    match_grammar = Sequence(
         # TODO New Rule warning of Join Hints priority if multiple specified
         #   When different join strategy hints are specified on
         #     both sides of a join, Spark prioritizes the BROADCAST
@@ -1669,7 +1669,7 @@ class ExplainStatementSegment(ansi.ExplainStatementSegment):
     https://spark.apache.org/docs/latest/sql-ref-syntax-qry-explain.html
     """
 
-    explainable_stmt = Ref("StatementSegment")  # type: ignore
+    explainable_stmt = Ref("StatementSegment")
 
     match_grammar = Sequence(
         "EXPLAIN",
@@ -1680,7 +1680,7 @@ class ExplainStatementSegment(ansi.ExplainStatementSegment):
             "FORMATTED",
             optional=True,
         ),
-        explainable_stmt,  # type: ignore
+        explainable_stmt,
     )
 
 

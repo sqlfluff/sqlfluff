@@ -476,7 +476,7 @@ class TimeZoneGrammar(BaseSegment):
 class ArrayAccessorSegment(ansi.ArrayAccessorSegment):
     """Overwrites Array Accessor in ANSI to allow n many consecutive brackets."""
 
-    match_grammar = Sequence(  # type: ignore
+    match_grammar = Sequence(
         AnyNumberOf(
             Bracketed(
                 Sequence(
@@ -535,7 +535,7 @@ class DatatypeSegment(ansi.DatatypeSegment):
     Supports timestamp with(out) time zone. Doesn't currently support intervals.
     """
 
-    match_grammar = Sequence(  # type: ignore
+    match_grammar = Sequence(
         # Some dialects allow optional qualification of data types with schemas
         Sequence(
             Ref("SingleIdentifierGrammar"),
@@ -1963,13 +1963,13 @@ class CreateDatabaseStatementSegment(ansi.CreateDatabaseStatementSegment):
     As specified in https://www.postgresql.org/docs/14/sql-createdatabase.html
     """
 
-    match_grammar = StartsWith(Sequence("CREATE", "DATABASE"))  # type: ignore
+    match_grammar = StartsWith(Sequence("CREATE", "DATABASE"))
 
     parse_grammar = Sequence(
         "CREATE",
         "DATABASE",
         Ref("DatabaseReferenceSegment"),
-        Ref.keyword("WITH", optional=True),
+        Ref.keyword("WtITH", optional=True),
         AnyNumberOf(
             Sequence(
                 "OWNER",
@@ -2095,7 +2095,7 @@ class DropDatabaseStatementSegment(ansi.DropDatabaseStatementSegment):
     As specified in https://www.postgresql.org/docs/14/sql-dropdatabase.html
     """
 
-    match_grammar = StartsWith(Sequence("DROP", "DATABASE"))  # type: ignore
+    match_grammar = StartsWith(Sequence("DROP", "DATABASE"))
 
     parse_grammar = Sequence(
         "DROP",

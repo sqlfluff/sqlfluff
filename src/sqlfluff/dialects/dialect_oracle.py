@@ -90,7 +90,7 @@ class StatementSegment(ansi.StatementSegment):
 
     type = "statement"
 
-    match_grammar = OneOf(  # type: ignore
+    match_grammar = OneOf(
         GreedyUntil(Ref("DelimiterSegment")), exclude=Ref("ExecuteFileSegment")
     )
     parse_grammar = ansi.StatementSegment.parse_grammar.copy(

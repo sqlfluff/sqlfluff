@@ -338,7 +338,7 @@ class DatatypeSegment(ansi.DatatypeSegment):
     DATE FORMAT 'YYYY-MM-DD'
     """
 
-    match_grammar = Sequence(  # type: ignore
+    match_grammar = Sequence(
         Ref("DatatypeIdentifierSegment"),
         Bracketed(
             OneOf(

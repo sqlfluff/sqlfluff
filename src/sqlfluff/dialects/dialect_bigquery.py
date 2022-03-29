@@ -344,7 +344,7 @@ class StatementSegment(ansi.StatementSegment):
 class SelectClauseModifierSegment(ansi.SelectClauseModifierSegment):
     """Things that come after SELECT but before the columns."""
 
-    match_grammar = Sequence(  # type: ignore
+    match_grammar = Sequence(
         # https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax
         Sequence("AS", OneOf("STRUCT", "VALUE"), optional=True),
         OneOf("DISTINCT", "ALL", optional=True),
@@ -629,7 +629,7 @@ class TypelessStructSegment(ansi.TypelessStructSegment):
     https://cloud.google.com/bigquery/docs/reference/standard-sql/data-types#typeless_struct_syntax
     """
 
-    match_grammar = Sequence(  # type: ignore
+    match_grammar = Sequence(
         "STRUCT",
         Bracketed(
             Delimited(
@@ -809,7 +809,7 @@ class HyphenatedObjectReferenceSegment(ObjectReferenceSegment):
     """A reference to an object that may contain embedded hyphens."""
 
     type = "hyphenated_object_reference"
-    match_grammar = ansi.ObjectReferenceSegment.match_grammar.copy()
+    match_grammar = ObjectReferenceSegment.match_grammar.copy()
     match_grammar.delimiter = OneOf(  # type: ignore
         Ref("DotSegment"),
         Sequence(Ref("DotSegment"), Ref("DotSegment")),

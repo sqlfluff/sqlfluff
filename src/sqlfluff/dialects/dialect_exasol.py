@@ -3049,7 +3049,7 @@ class PreferringPlusPriorTermSegment(BaseSegment):
 class MLTableExpressionSegment(ansi.MLTableExpressionSegment):
     """Not supported."""
 
-    match_grammar = Nothing()  # type: ignore
+    match_grammar = Nothing()
 
 
 ############################

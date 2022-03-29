@@ -502,7 +502,7 @@ class SelectClauseElementSegment(ansi.SelectClauseElementSegment):
     """
 
     # Important to split elements before parsing, otherwise debugging is really hard.
-    match_grammar = OneOf(  # type: ignore
+    match_grammar = OneOf(
         # *, blah.*, blah.blah.*, etc.
         Ref("WildcardExpressionSegment"),
         Sequence(
@@ -515,7 +515,7 @@ class SelectClauseElementSegment(ansi.SelectClauseElementSegment):
         ),
     )
 
-    parse_grammar = None  # type: ignore
+    parse_grammar = None
 
 
 class AltAliasExpressionSegment(BaseSegment):
@@ -1807,7 +1807,7 @@ class PartitionClauseSegment(ansi.PartitionClauseSegment):
     """
 
     type = "partitionby_clause"
-    match_grammar = Sequence(  # type: ignore
+    match_grammar = Sequence(
         "PARTITION",
         "BY",
         Delimited(
@@ -1823,7 +1823,7 @@ class PartitionClauseSegment(ansi.PartitionClauseSegment):
             ),
         ),
     )
-    parse_grammar = None  # type: ignore
+    parse_grammar = None
 
 
 class OnPartitionsSegment(BaseSegment):
