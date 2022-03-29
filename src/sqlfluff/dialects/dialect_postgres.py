@@ -988,6 +988,7 @@ class IntoClauseSegment(BaseSegment):
 class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     """Overrides ANSI Statement, to allow for SELECT INTO statements."""
 
+    match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar
     parse_grammar = Sequence(
         Ref("SelectClauseSegment"),
         # Dedent for the indent in the select clause.
@@ -1005,6 +1006,7 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
 class SelectStatementSegment(ansi.SelectStatementSegment):
     """Overrides ANSI as the parse grammar copy needs to be reapplied."""
 
+    match_grammar = ansi.SelectStatementSegment.match_grammar
     parse_grammar = UnorderedSelectStatementSegment.parse_grammar.copy(
         insert=[
             Ref("OrderByClauseSegment", optional=True),
@@ -1030,6 +1032,7 @@ class SelectClauseSegment(ansi.SelectClauseSegment):
         ),
         enforce_whitespace_preceding_terminator=True,
     )
+    parse_grammar = ansi.SelectClauseSegment.parse_grammar
 
 
 class SelectClauseModifierSegment(ansi.SelectClauseModifierSegment):
@@ -2900,6 +2903,7 @@ class AnalyzeStatementSegment(BaseSegment):
 class StatementSegment(ansi.StatementSegment):
     """A generic segment, to any of its child subsegments."""
 
+    match_grammar = ansi.StatementSegment.match_grammar
     parse_grammar = ansi.StatementSegment.parse_grammar.copy(
         insert=[
             Ref("AlterDefaultPrivilegesStatementSegment"),
@@ -3110,6 +3114,7 @@ class InsertStatementSegment(ansi.InsertStatementSegment):
     TODO: Implement ON CONFLICT grammar.
     """
 
+    match_grammar = ansi.InsertStatementSegment.match_grammar
     parse_grammar = Sequence(
         "INSERT",
         "INTO",
@@ -3541,6 +3546,7 @@ class DeleteStatementSegment(ansi.DeleteStatementSegment):
     https://www.postgresql.org/docs/14/sql-delete.html
     """
 
+    match_grammar = ansi.DeleteStatementSegment.match_grammar
     parse_grammar = Sequence(
         "DELETE",
         "FROM",

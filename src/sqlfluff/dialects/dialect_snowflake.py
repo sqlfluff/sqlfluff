@@ -763,6 +763,7 @@ class FunctionDefinitionGrammar(ansi.FunctionDefinitionGrammar):
 class StatementSegment(ansi.StatementSegment):
     """A generic segment, to any of its child subsegments."""
 
+    match_grammar = ansi.StatementSegment.match_grammar
     parse_grammar = ansi.StatementSegment.parse_grammar.copy(
         insert=[
             Ref("CreateStatementSegment"),
@@ -4243,3 +4244,4 @@ class HavingClauseSegment(ansi.HavingClauseSegment):
     match_grammar.terminator = match_grammar.terminator.copy(
         insert=[Ref.keyword("FETCH"), Ref.keyword("OFFSET")],
     )
+    parse_grammar = ansi.HavingClauseSegment.parse_grammar

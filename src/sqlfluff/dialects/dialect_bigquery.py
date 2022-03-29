@@ -315,6 +315,7 @@ class SetOperatorSegment(BaseSegment):
 class SelectStatementSegment(ansi.SelectStatementSegment):
     """Enhance `SELECT` statement to include QUALIFY."""
 
+    match_grammar = ansi.SelectStatementSegment.match_grammar
     parse_grammar = ansi.SelectStatementSegment.parse_grammar.copy(
         insert=[Ref("QualifyClauseSegment", optional=True)],
         before=Ref("OrderByClauseSegment", optional=True),
@@ -324,6 +325,7 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
 class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     """Enhance unordered `SELECT` statement to include QUALIFY."""
 
+    match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar
     parse_grammar = ansi.UnorderedSelectStatementSegment.parse_grammar.copy(
         insert=[Ref("QualifyClauseSegment", optional=True)],
         before=Ref("OverlapsClauseSegment", optional=True),
@@ -333,6 +335,7 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
 class StatementSegment(ansi.StatementSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
 
+    match_grammar = ansi.StatementSegment.match_grammar
     parse_grammar = ansi.StatementSegment.parse_grammar.copy(
         insert=[Ref("DeclareStatementSegment"), Ref("SetStatementSegment")],
     )
@@ -1127,6 +1130,7 @@ class InsertStatementSegment(ansi.InsertStatementSegment):
     N.B. not a complete implementation.
     """
 
+    match_grammar = ansi.InsertStatementSegment.match_grammar
     parse_grammar = Sequence(
         "INSERT",
         Ref.keyword("INTO", optional=True),

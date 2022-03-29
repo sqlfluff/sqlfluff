@@ -1724,6 +1724,7 @@ class StatementSegment(postgres.StatementSegment):
 
     type = "statement"
 
+    match_grammar = postgres.StatementSegment.match_grammar
     parse_grammar = postgres.StatementSegment.parse_grammar.copy(
         insert=[
             Ref("CreateLibraryStatementSegment"),

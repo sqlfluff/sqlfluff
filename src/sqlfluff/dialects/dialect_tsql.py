@@ -1800,14 +1800,14 @@ class WithinGroupClause(BaseSegment):
     )
 
 
-class PartitionClauseSegment(BaseSegment):
+class PartitionClauseSegment(ansi.PartitionClauseSegment):
     """PARTITION BY clause.
 
     https://docs.microsoft.com/en-us/sql/t-sql/queries/select-over-clause-transact-sql?view=sql-server-ver15#partition-by
     """
 
     type = "partitionby_clause"
-    match_grammar = Sequence(
+    match_grammar = Sequence(  # type: ignore
         "PARTITION",
         "BY",
         Delimited(
@@ -1823,6 +1823,7 @@ class PartitionClauseSegment(BaseSegment):
             ),
         ),
     )
+    parse_grammar = ansi.PartitionClauseSegment.parse_grammar
 
 
 class OnPartitionsSegment(BaseSegment):

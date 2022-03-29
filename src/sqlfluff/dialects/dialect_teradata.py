@@ -731,6 +731,7 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
     https://dev.mysql.com/doc/refman/5.7/en/select.html
     """
 
+    match_grammar = ansi.SelectStatementSegment.match_grammar
     parse_grammar = ansi.SelectStatementSegment.parse_grammar.copy(
         insert=[Ref("QualifyClauseSegment", optional=True)],
         before=Ref("OrderByClauseSegment", optional=True),
@@ -743,6 +744,7 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     https://dev.mysql.com/doc/refman/5.7/en/select.html
     """
 
+    match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar
     parse_grammar = ansi.UnorderedSelectStatementSegment.parse_grammar.copy(
         insert=[Ref("QualifyClauseSegment", optional=True)],
         before=Ref("OverlapsClauseSegment", optional=True),
@@ -804,3 +806,4 @@ class SelectClauseSegment(ansi.SelectClauseSegment):
         ),
         enforce_whitespace_preceding_terminator=True,
     )
+    parse_grammar = ansi.SelectClauseSegment.parse_grammar

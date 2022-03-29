@@ -152,32 +152,57 @@ class Dialect:
         for n in kwargs:
             if n not in self._library:  # pragma: no cover
                 raise ValueError(f"{n!r} is not already registered in {self!r}")
+            cls = kwargs[n]
+            if self._library[n] is cls:
+                continue
 
             # To replace a segment, the replacement must either be a
             # subclass of the original, *or* it must have the same
             # public methods and/or fields as it.
-            cls = kwargs[n]
-            if (
-                isinstance(self._library[n], type)
-                and isinstance(cls, type)
-                and not issubclass(cls, self._library[n])
-            ):
-                if self._library[n].type != cls.type:
-                    raise ValueError(  # pragma: no cover
-                        f"Cannot replace {n!r} because 'type' property does not "
-                        f"match: {cls.type} != {self._library[n].type}"
-                    )
-                base_dir = set(dir(self._library[n]))
-                cls_dir = set(dir(cls))
-                missing = set(
-                    n for n in base_dir.difference(cls_dir) if not n.startswith("_")
-                )
-                if missing:
-                    raise ValueError(  # pragma: no cover
-                        f"Cannot replace {n!r} because it's not a subclass and "
-                        f"is missing these from base: {', '.join(missing)}"
-                    )
+            base_dir = set(dir(self._library[n]))
+            subclass = False
+            if isinstance(self._library[n], type) and isinstance(cls, type):
+                subclass = issubclass(cls, self._library[n])
+                if not subclass:
+                    if self._library[n].type != cls.type:
+                        raise ValueError(  # pragma: no cover
+                            f"Cannot replace {n!r} because 'type' property does not "
+                            f"match: {cls.type} != {self._library[n].type}"
+                        )
 
+                    cls_dir = set(dir(cls))
+                    missing = set(
+                        n for n in base_dir.difference(cls_dir) if not n.startswith("_")
+                    )
+                    if missing:
+                        raise ValueError(  # pragma: no cover
+                            f"Cannot replace {n!r} because it's not a subclass and "
+                            f"is missing these from base: {', '.join(missing)}"
+                        )
+
+            if subclass:
+                # If the segment class we're replacing defines these fields, the
+                # replacement must override either:
+                # - NONE of them or
+                # - ALL of them
+                # Overriding a subset of them is not necessarily wrong, but it's
+                # error-prone, hence this policy.
+                grammars = {"match_grammar", "parse_grammar"}
+                # TRICKY: The explicit use of __dict__ on the classes is
+                # deliberate. We are concerned with whether a class itself does
+                # or does not define a thing, IGNORING INHERITED VALUES.
+                if grammars.intersection(set(self._library[n].__dict__)) == grammars:
+                    overrides = grammars.intersection(set(cls.__dict__))
+                    if overrides and overrides != grammars:
+                        for grammar in grammars:
+                            if (
+                                grammar in self._library[n].__dict__
+                                and grammar not in cls.__dict__
+                            ):
+                                raise ValueError(  # pragma: no cover
+                                    f"Cannot replace {n!r} because it needs "
+                                    f"to define '{grammar}'"
+                                )
             self._library[n] = cls
 
     def add_update_segments(self, module_dct):

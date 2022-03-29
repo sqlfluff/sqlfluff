@@ -657,6 +657,7 @@ class DeclareStatement(BaseSegment):
 class StatementSegment(ansi.StatementSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
 
+    match_grammar = ansi.StatementSegment.match_grammar
     parse_grammar = ansi.StatementSegment.parse_grammar.copy(
         insert=[
             Ref("DelimiterStatement"),
@@ -1132,6 +1133,7 @@ class SelectClauseSegment(ansi.SelectClauseSegment):
     match_grammar.terminator = match_grammar.terminator.copy(
         insert=[Ref("IntoKeywordSegment")]
     )
+    parse_grammar = ansi.SelectClauseSegment.parse_grammar
 
 
 class SelectStatementSegment(ansi.SelectStatementSegment):
