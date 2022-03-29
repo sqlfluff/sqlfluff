@@ -965,14 +965,16 @@ class UseDatabaseStatementSegment(BaseSegment):
 
 
 # Data Manipulation Statements
-class InsertStatementSegment(ansi.InsertStatementSegment):
+class InsertStatementSegment(BaseSegment):
     """A `INSERT [TABLE]` statement to insert or overwrite new rows into a table.
 
     https://spark.apache.org/docs/latest/sql-ref-syntax-dml-insert-into.html
     https://spark.apache.org/docs/latest/sql-ref-syntax-dml-insert-overwrite-table.html
     """
 
-    match_grammar = Sequence(  # type: ignore
+    type = "insert_statement"
+
+    match_grammar = Sequence(
         "INSERT",
         OneOf("INTO", "OVERWRITE"),
         Ref.keyword("TABLE", optional=True),
@@ -1003,7 +1005,6 @@ class InsertStatementSegment(ansi.InsertStatementSegment):
             ),
         ),
     )
-    parse_grammar = None  # type: ignore
 
 
 class InsertOverwriteDirectorySegment(BaseSegment):
