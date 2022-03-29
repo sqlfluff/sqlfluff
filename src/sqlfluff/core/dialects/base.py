@@ -194,7 +194,7 @@ class Dialect:
                 if grammars.intersection(set(self._library[n].__dict__)) == grammars:
                     overrides = grammars.intersection(set(cls.__dict__))
                     if overrides and overrides != grammars:
-                        for grammar in grammars:
+                        for grammar in grammars:  # pragma: no cover
                             if (
                                 grammar in self._library[n].__dict__
                                 and grammar not in cls.__dict__
