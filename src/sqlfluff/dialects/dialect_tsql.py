@@ -1823,7 +1823,7 @@ class PartitionClauseSegment(ansi.PartitionClauseSegment):
             ),
         ),
     )
-    parse_grammar = ansi.PartitionClauseSegment.parse_grammar
+    parse_grammar = None  # type: ignore
 
 
 class OnPartitionsSegment(BaseSegment):
