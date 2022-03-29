@@ -1092,8 +1092,8 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
 
     type = "select_statement"
     match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar.copy()
-    match_grammar.terminator = (
-        match_grammar.terminator.copy(
+    match_grammar.terminator = (  # type: ignore
+        match_grammar.terminator.copy(  # type: ignore
             insert=[Ref("IntoClauseSegment")],
             before=Ref("SetOperatorSegment"),
         )
@@ -1130,7 +1130,7 @@ class SelectClauseSegment(ansi.SelectClauseSegment):
     """A group of elements in a select target statement."""
 
     match_grammar = ansi.SelectClauseSegment.match_grammar.copy()
-    match_grammar.terminator = match_grammar.terminator.copy(
+    match_grammar.terminator = match_grammar.terminator.copy(  # type: ignore
         insert=[Ref("IntoKeywordSegment")]
     )
     parse_grammar = ansi.SelectClauseSegment.parse_grammar
@@ -1143,7 +1143,7 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
     """
 
     match_grammar = ansi.SelectStatementSegment.match_grammar.copy()
-    match_grammar.terminator = match_grammar.terminator.copy(
+    match_grammar.terminator = match_grammar.terminator.copy(  # type: ignore
         insert=[Ref("UpsertClauseListSegment")]
     )
 
