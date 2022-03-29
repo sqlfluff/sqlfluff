@@ -1134,17 +1134,14 @@ class SelectClauseSegment(ansi.SelectClauseSegment):
     )
 
 
-class SelectStatementSegment(BaseSegment):
+class SelectStatementSegment(ansi.SelectStatementSegment):
     """A `SELECT` statement.
 
     https://dev.mysql.com/doc/refman/5.7/en/select.html
     """
 
-    type = "select_statement"
-    match_grammar = ansi_dialect.get_segment(
-        "SelectStatementSegment"
-    ).match_grammar.copy()
-    match_grammar.terminator = match_grammar.terminator.copy(  # type: ignore
+    match_grammar = ansi.SelectStatementSegment.match_grammar.copy()
+    match_grammar.terminator = match_grammar.terminator.copy(
         insert=[Ref("UpsertClauseListSegment")]
     )
 
