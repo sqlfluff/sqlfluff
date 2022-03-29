@@ -1969,7 +1969,7 @@ class CreateDatabaseStatementSegment(ansi.CreateDatabaseStatementSegment):
         "CREATE",
         "DATABASE",
         Ref("DatabaseReferenceSegment"),
-        Ref.keyword("WtITH", optional=True),
+        Ref.keyword("WITH", optional=True),
         AnyNumberOf(
             Sequence(
                 "OWNER",
