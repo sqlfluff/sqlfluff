@@ -152,7 +152,28 @@ class Dialect:
         for n in kwargs:
             if n not in self._library:  # pragma: no cover
                 raise ValueError(f"{n!r} is not already registered in {self!r}")
-            self._library[n] = kwargs[n]
+
+            # To replace a segment, the replacement must either be a
+            # subclass of the original, *or* it must have the same
+            # public methods and/or fields as it.
+            cls = kwargs[n]
+            if (
+                isinstance(self._library[n], type)
+                and isinstance(cls, type)
+                and not issubclass(cls, self._library[n])
+            ):
+                base_dir = set(dir(self._library[n]))
+                cls_dir = set(dir(cls))
+                missing = set(
+                    n for n in base_dir.difference(cls_dir) if not n.startswith("_")
+                )
+                if missing:
+                    raise ValueError(  # pragma: no cover
+                        f"Cannot replace {n!r} because it's not a subclass and "
+                        f"is missing these from base: {', '.join(missing)}"
+                    )
+
+            self._library[n] = cls
 
     def add_update_segments(self, module_dct):
         """Scans module dictionary, adding or replacing segment definitions."""
