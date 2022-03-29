@@ -2391,6 +2391,7 @@ class PropertyNameSegment(BaseSegment):
     """
 
     type = "property_name_identifier"
+
     match_grammar = Sequence(
         OneOf(
             Delimited(
