@@ -42,3 +42,10 @@ SELECT c_timestamp AT TIME ZONE 'Africa/Cairo' FROM t_table;
 SELECT (c_timestamp AT TIME ZONE 'Africa/Cairo')::time FROM t_table;
 
 SELECT a::double precision FROM my_table;
+
+
+SELECT
+    schema1.table1.columna,
+    t.col2
+FROM schema1.table1
+CROSS JOIN LATERAL somefunc(tb.columnb) as t(col1 text, col2 bool);

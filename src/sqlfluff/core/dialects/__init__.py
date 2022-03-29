@@ -11,7 +11,7 @@ Within .dialects, each dialect is free to depend on other dialects as
 required. Any dependent dialects will be loaded as needed.
 """
 
-from typing import NamedTuple, Iterator, Any
+from typing import NamedTuple, Iterator
 from importlib import import_module
 
 
@@ -49,12 +49,15 @@ _legacy_dialects = {
 }
 
 
-def load_raw_dialect(label: str, base_module: str = "sqlfluff.dialects") -> Any:
+def load_raw_dialect(label: str, base_module: str = "sqlfluff.dialects") -> Dialect:
     """Dynamically load a dialect."""
     if label in _legacy_dialects:
         raise SQLFluffUserError(_legacy_dialects[label])
-    module, name = _dialect_lookup[label]
-    return getattr(import_module(f"{base_module}.{module}"), name)
+    module_name, name = _dialect_lookup[label]
+    module = import_module(f"{base_module}.{module_name}")
+    result: Dialect = getattr(module, name)
+    result.add_update_segments({k: getattr(module, k) for k in dir(module)})
+    return result
 
 
 class DialectTuple(NamedTuple):
