@@ -621,7 +621,7 @@ class ConnectByClauseSegment(BaseSegment):
     )
 
 
-class GroupByClauseSegment(BaseSegment):
+class GroupByClauseSegment(ansi.GroupByClauseSegment):
     """A `GROUP BY` clause like in `SELECT`.
 
     Snowflake supports Cube, Rollup, and Grouping Sets
@@ -629,7 +629,6 @@ class GroupByClauseSegment(BaseSegment):
     https://docs.snowflake.com/en/sql-reference/constructs/group-by.html
     """
 
-    type = "groupby_clause"
     match_grammar = StartsWith(
         Sequence("GROUP", "BY"),
         terminator=OneOf(
@@ -654,10 +653,9 @@ class GroupByClauseSegment(BaseSegment):
     )
 
 
-class ValuesClauseSegment(BaseSegment):
+class ValuesClauseSegment(ansi.ValuesClauseSegment):
     """A `VALUES` clause like in `INSERT`."""
 
-    type = "values_clause"
     match_grammar = Sequence(
         "VALUES",
         Delimited(
@@ -675,15 +673,14 @@ class ValuesClauseSegment(BaseSegment):
     )
 
 
-class InsertStatementSegment(BaseSegment):
+class InsertStatementSegment(ansi.InsertStatementSegment):
     """An `INSERT` statement.
 
     https://docs.snowflake.com/en/sql-reference/sql/insert.html
     https://docs.snowflake.com/en/sql-reference/sql/insert-multi-table.html
     """
 
-    type = "insert_statement"
-    match_grammar = Sequence(
+    match_grammar = Sequence(  # type: ignore
         "INSERT",
         Ref.keyword("OVERWRITE", optional=True),
         OneOf(
@@ -747,10 +744,9 @@ class InsertStatementSegment(BaseSegment):
     )
 
 
-class FunctionDefinitionGrammar(BaseSegment):
+class FunctionDefinitionGrammar(ansi.FunctionDefinitionGrammar):
     """This is the body of a `CREATE FUNCTION AS` statement."""
 
-    type = "function_definition"
     match_grammar = Sequence(
         "AS",
         Ref("QuotedLiteralSegment"),
@@ -1085,10 +1081,9 @@ class FromUnpivotExpressionSegment(BaseSegment):
     )
 
 
-class SamplingExpressionSegment(BaseSegment):
+class SamplingExpressionSegment(ansi.SamplingExpressionSegment):
     """A sampling expression."""
 
-    type = "sample_expression"
     match_grammar = Sequence(
         OneOf("SAMPLE", "TABLESAMPLE"),
         OneOf("BERNOULLI", "ROW", "SYSTEM", "BLOCK", optional=True),
@@ -1212,14 +1207,13 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
     )
 
 
-class SelectClauseModifierSegment(BaseSegment):
+class SelectClauseModifierSegment(ansi.SelectClauseModifierSegment):
     """Things that come after SELECT but before the columns, specifically for Snowflake.
 
     https://docs.snowflake.com/en/sql-reference/constructs.html
     """
 
-    type = "select_clause_modifier"
-    match_grammar = Sequence(
+    match_grammar = Sequence(  # type: ignore
         OneOf("DISTINCT", "ALL", optional=True),
         # TOP N is unique to Snowflake, and we can optionally add DISTINCT/ALL in front
         # of it.
@@ -1227,14 +1221,12 @@ class SelectClauseModifierSegment(BaseSegment):
     )
 
 
-class AlterTableStatementSegment(BaseSegment):
+class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
     """An `ALTER TABLE` statement.
 
     https://docs.snowflake.com/en/sql-reference/sql/alter-table.html
     If possible, please keep the order below the same as Snowflake's doc:
     """
-
-    type = "alter_table_statement"
 
     match_grammar = Sequence(
         "ALTER",
@@ -1570,16 +1562,6 @@ class AlterWarehouseStatementSegment(BaseSegment):
     )
 
 
-class CommentClauseSegment(BaseSegment):
-    """A comment clause.
-
-    e.g. COMMENT 'column description'
-    """
-
-    type = "comment_clause"
-    match_grammar = Sequence("COMMENT", Ref("QuotedLiteralSegment"))
-
-
 class CommentEqualsClauseSegment(BaseSegment):
     """A comment clause.
 
@@ -1633,7 +1615,7 @@ class TagEqualsSegment(BaseSegment):
     )
 
 
-class UnorderedSelectStatementSegment(ansi.SelectStatementSegment):
+class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     """A snowflake unordered `SELECT` statement including optional Qualify.
 
     https://docs.snowflake.com/en/sql-reference/constructs/qualify.html
@@ -1905,14 +1887,13 @@ class ConstraintPropertiesSegment(BaseSegment):
     )
 
 
-class ColumnConstraintSegment(BaseSegment):
+class ColumnConstraintSegment(ansi.ColumnConstraintSegment):
     """A column option; each CREATE TABLE column can have 0 or more.
 
     https://docs.snowflake.com/en/sql-reference/sql/create-table.html
     """
 
-    type = "column_constraint_segment"
-    match_grammar = AnySetOf(
+    match_grammar = AnySetOf(  # type: ignore
         Sequence("COLLATE", Ref("QuotedLiteralSegment")),
         Sequence(
             "DEFAULT",
@@ -2007,7 +1988,7 @@ class CopyOptionsSegment(BaseSegment):
     )
 
 
-class CreateSchemaStatementSegment(BaseSegment):
+class CreateSchemaStatementSegment(ansi.CreateSchemaStatementSegment):
     """A `CREATE SCHEMA` statement.
 
     https://docs.snowflake.com/en/sql-reference/sql/create-schema.html
@@ -2101,14 +2082,13 @@ class SchemaObjectParamsSegment(BaseSegment):
     )
 
 
-class CreateTableStatementSegment(BaseSegment):
+class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
     """A `CREATE TABLE` statement.
 
     A lot more options than ANSI
     https://docs.snowflake.com/en/sql-reference/sql/create-table.html
     """
 
-    type = "create_table_statement"
     match_grammar = Sequence(
         "CREATE",
         Ref("OrReplaceGrammar", optional=True),
@@ -2379,13 +2359,11 @@ class CreateStatementSegment(BaseSegment):
     )
 
 
-class CreateViewStatementSegment(BaseSegment):
+class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
     """A `CREATE VIEW` statement, specifically for Snowflake's dialect.
 
     https://docs.snowflake.com/en/sql-reference/sql/create-view.html
     """
-
-    type = "create_view_statement"
 
     match_grammar = Sequence(
         "CREATE",
@@ -2666,10 +2644,9 @@ class CreateExternalTableSegment(BaseSegment):
     )
 
 
-class TableExpressionSegment(BaseSegment):
+class TableExpressionSegment(ansi.TableExpressionSegment):
     """The main table expression e.g. within a FROM clause."""
 
-    type = "table_expression"
     match_grammar = OneOf(
         Ref("BareFunctionSegment"),
         Ref("FunctionSegment"),
@@ -3449,14 +3426,13 @@ class AlterUserSegment(BaseSegment):
     )
 
 
-class CreateRoleStatementSegment(BaseSegment):
+class CreateRoleStatementSegment(ansi.CreateRoleStatementSegment):
     """A `CREATE ROLE` statement.
 
     Redefined because it's much simpler than postgres.
     https://docs.snowflake.com/en/sql-reference/sql/create-role.html
     """
 
-    type = "create_role_statement"
     match_grammar = Sequence(
         "CREATE",
         Sequence(
@@ -3704,10 +3680,9 @@ class AlterTaskUnsetClauseSegment(BaseSegment):
 ############################
 # MERGE
 ############################
-class MergeUpdateClauseSegment(BaseSegment):
+class MergeUpdateClauseSegment(ansi.MergeUpdateClauseSegment):
     """`UPDATE` clause within the `MERGE` statement."""
 
-    type = "merge_update_clause"
     match_grammar = Sequence(
         "UPDATE",
         Ref("SetClauseListSegment"),
@@ -3715,20 +3690,18 @@ class MergeUpdateClauseSegment(BaseSegment):
     )
 
 
-class MergeDeleteClauseSegment(BaseSegment):
+class MergeDeleteClauseSegment(ansi.MergeDeleteClauseSegment):
     """`DELETE` clause within the `MERGE` statement."""
 
-    type = "merge_delete_clause"
     match_grammar = Sequence(
         "DELETE",
         Ref("WhereClauseSegment", optional=True),
     )
 
 
-class MergeInsertClauseSegment(BaseSegment):
+class MergeInsertClauseSegment(ansi.MergeInsertClauseSegment):
     """`INSERT` clause within the `MERGE` statement."""
 
-    type = "merge_insert_clause"
     match_grammar = Sequence(
         "INSERT",
         Ref("BracketedColumnReferenceListGrammar", optional=True),
@@ -3945,7 +3918,7 @@ class DescribeStatementSegment(BaseSegment):
     )
 
 
-class TransactionStatementSegment(BaseSegment):
+class TransactionStatementSegment(ansi.TransactionStatementSegment):
     """`BEGIN`, `START TRANSACTION`, `COMMIT`, AND `ROLLBACK` statement grammar.
 
     Overwrites ANSI to match correct Snowflake grammar.
@@ -3955,8 +3928,7 @@ class TransactionStatementSegment(BaseSegment):
     https://docs.snowflake.com/en/sql-reference/sql/rollback.html
     """
 
-    type = "transaction_statement"
-    match_grammar = OneOf(
+    match_grammar = OneOf(  # type: ignore
         Sequence(
             "BEGIN",
             OneOf("WORK", "TRANSACTION", optional=True),
@@ -3972,13 +3944,12 @@ class TransactionStatementSegment(BaseSegment):
     )
 
 
-class TruncateStatementSegment(BaseSegment):
+class TruncateStatementSegment(ansi.TruncateStatementSegment):
     """`TRUNCATE TABLE` statement.
 
     https://docs.snowflake.com/en/sql-reference/sql/truncate-table.html
     """
 
-    type = "truncate_table"
     match_grammar = Sequence(
         "TRUNCATE",
         Ref.keyword("TABLE", optional=True),
@@ -4115,13 +4086,12 @@ class CommentStatementSegment(BaseSegment):
     )
 
 
-class UseStatementSegment(BaseSegment):
+class UseStatementSegment(ansi.UseStatementSegment):
     """A `USE` statement.
 
     https://docs.snowflake.com/en/sql-reference/sql/use.html
     """
 
-    type = "use_statement"
     match_grammar = Sequence(
         "USE",
         OneOf(
@@ -4170,14 +4140,13 @@ class CallStatementSegment(BaseSegment):
     )
 
 
-class LimitClauseSegment(BaseSegment):
+class LimitClauseSegment(ansi.LimitClauseSegment):
     """A `LIMIT` clause.
 
     https://docs.snowflake.com/en/sql-reference/constructs/limit.html
     """
 
-    type = "limit_clause"
-    match_grammar = OneOf(
+    match_grammar = OneOf(  # type: ignore
         Sequence(
             "LIMIT",
             Indent,
@@ -4233,17 +4202,14 @@ class SelectClauseSegment(ansi.SelectClauseSegment):
     parse_grammar = ansi.SelectClauseSegment.parse_grammar.copy()
 
 
-class OrderByClauseSegment(BaseSegment):
+class OrderByClauseSegment(ansi.OrderByClauseSegment):
     """An `ORDER BY` clause.
 
     https://docs.snowflake.com/en/sql-reference/constructs/order-by.html
     """
 
-    type = "orderby_clause"
-    match_grammar = ansi_dialect.get_segment(
-        "OrderByClauseSegment"
-    ).match_grammar.copy()
-    match_grammar.terminator = match_grammar.terminator.copy(  # type: ignore
+    match_grammar = ansi.OrderByClauseSegment.match_grammar.copy()
+    match_grammar.terminator = match_grammar.terminator.copy(
         insert=[Ref.keyword("FETCH"), Ref.keyword("OFFSET"), Ref.keyword("MEASURES")],
     )
     parse_grammar = Sequence(
@@ -4268,14 +4234,11 @@ class OrderByClauseSegment(BaseSegment):
     )
 
 
-class HavingClauseSegment(BaseSegment):
+class HavingClauseSegment(ansi.HavingClauseSegment):
     """A `HAVING` clause."""
 
     type = "having_clause"
-    match_grammar = ansi_dialect.get_segment("HavingClauseSegment").match_grammar.copy()
-    match_grammar.terminator = match_grammar.terminator.copy(  # type: ignore
+    match_grammar = ansi.HavingClauseSegment.match_grammar.copy()
+    match_grammar.terminator = match_grammar.terminator.copy(
         insert=[Ref.keyword("FETCH"), Ref.keyword("OFFSET")],
     )
-    parse_grammar = ansi_dialect.get_segment(
-        "HavingClauseSegment"
-    ).parse_grammar.copy()  # type: ignore
