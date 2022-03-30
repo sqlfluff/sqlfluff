@@ -194,12 +194,12 @@ class Dialect:
                 if grammars.intersection(set(self._library[n].__dict__)) == grammars:
                     overrides = grammars.intersection(set(cls.__dict__))
                     if overrides and overrides != grammars:
-                        for grammar in grammars:  # pragma: no cover
+                        for grammar in grammars:
                             if (
                                 grammar in self._library[n].__dict__
                                 and grammar not in cls.__dict__
                             ):
-                                raise ValueError(  # pragma: no cover
+                                raise ValueError(
                                     f"Cannot replace {n!r} because it needs "
                                     f"to define '{grammar}'"
                                 )
