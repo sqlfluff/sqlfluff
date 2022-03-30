@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7dbd7974f2c5d161a1e018946de1bb527f670d49a52704c20a119bb2aeca9488
+_hash: 8177c470efd7ef17c0e3e7ed3a0d3324440c00d030d39f1bd698f53a3c150cb9
 file:
 - statement:
     create_table_statement:
@@ -39,7 +39,7 @@ file:
                 - comma: ','
                 - literal: '4'
                 - end_bracket: )
-            column_option:
+            column_constraint_segment:
               table_constraint_definition:
               - keyword: NOT
               - keyword: 'NULL'
@@ -54,7 +54,7 @@ file:
               identifier: c
               data_type:
                 keyword: DECIMAL
-            column_option:
+            column_constraint_segment:
               keyword: DEFAULT
               literal: '122'
       - comma: ','
@@ -71,7 +71,7 @@ file:
               identifier: e
               data_type:
                 keyword: TIMESTAMP
-            column_option:
+            column_constraint_segment:
               keyword: DEFAULT
               bare_function: CURRENT_TIMESTAMP
       - comma: ','
@@ -214,7 +214,7 @@ file:
               identifier: id
               data_type:
                 keyword: int
-            column_option:
+            column_constraint_segment:
               keyword: IDENTITY
               table_constraint_definition:
               - keyword: PRIMARY
@@ -340,7 +340,7 @@ file:
               identifier: ref_id
               data_type:
                 keyword: int
-            column_option:
+            column_constraint_segment:
               table_constraint_definition:
               - keyword: CONSTRAINT
               - identifier: FK_T5
@@ -391,7 +391,7 @@ file:
                 - comma: ','
                 - literal: '0'
                 - end_bracket: )
-            column_option:
+            column_constraint_segment:
               keyword: IDENTITY
               table_constraint_definition:
               - keyword: CONSTRAINT
@@ -521,7 +521,7 @@ file:
                   start_bracket: (
                   literal: '1'
                   end_bracket: )
-            column_option:
+            column_constraint_segment:
               table_constraint_definition:
               - keyword: CONSTRAINT
               - identifier: '"ADMIN"'

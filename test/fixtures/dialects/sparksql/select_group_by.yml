@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1d96fa108bf0a7d4886ca012d15060c783d1454c539ad1b7158b393d61fcc3ad
+_hash: 0ebcef1dea141eb74575793098f6e2fe6d739149cac38f4cc67d717b55d6b68c
 file:
 - statement:
     select_statement:
@@ -33,7 +33,7 @@ file:
             table_expression:
               table_reference:
                 identifier: dealer
-      group_by_clause:
+      groupby_clause:
       - keyword: GROUP
       - keyword: BY
       - column_reference:
@@ -72,7 +72,7 @@ file:
             table_expression:
               table_reference:
                 identifier: dealer
-      group_by_clause:
+      groupby_clause:
       - keyword: GROUP
       - keyword: BY
       - literal: '1'
@@ -123,7 +123,7 @@ file:
             table_expression:
               table_reference:
                 identifier: dealer
-      group_by_clause:
+      groupby_clause:
       - keyword: GROUP
       - keyword: BY
       - column_reference:
@@ -163,7 +163,7 @@ file:
             table_expression:
               table_reference:
                 identifier: dealer
-      group_by_clause:
+      groupby_clause:
       - keyword: GROUP
       - keyword: BY
       - column_reference:
@@ -212,7 +212,7 @@ file:
             table_expression:
               table_reference:
                 identifier: dealer
-      group_by_clause:
+      groupby_clause:
       - keyword: GROUP
       - keyword: BY
       - column_reference:
@@ -255,7 +255,7 @@ file:
             table_expression:
               table_reference:
                 identifier: dealer
-      group_by_clause:
+      groupby_clause:
       - keyword: GROUP
       - keyword: BY
       - grouping_sets_clause:
@@ -335,7 +335,7 @@ file:
             table_expression:
               table_reference:
                 identifier: dealer
-      group_by_clause:
+      groupby_clause:
       - keyword: GROUP
       - keyword: BY
       - column_reference:
@@ -387,7 +387,7 @@ file:
             table_expression:
               table_reference:
                 identifier: dealer
-      group_by_clause:
+      groupby_clause:
       - keyword: GROUP
       - keyword: BY
       - column_reference:
@@ -514,7 +514,7 @@ file:
             table_expression:
               table_reference:
                 identifier: people
-      group_by_clause:
+      groupby_clause:
       - keyword: GROUP
       - keyword: BY
       - expression:
@@ -562,7 +562,7 @@ file:
             table_expression:
               table_reference:
                 identifier: people
-      group_by_clause:
+      groupby_clause:
       - keyword: GROUP
       - keyword: BY
       - expression:
