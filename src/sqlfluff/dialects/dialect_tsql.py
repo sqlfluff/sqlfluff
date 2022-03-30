@@ -426,6 +426,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("ThrowStatementSegment"),
             Ref("RaiserrorStatementSegment"),
             Ref("ReturnStatementSegment"),
+            Ref("GotoStatement"),
         ],
         remove=[
             Ref("CreateExtensionStatementSegment"),
@@ -1625,9 +1626,11 @@ class ProcedureParameterListGrammar(BaseSegment):
     match_grammar = OptionallyBracketed(
         Sequence(
             Ref("FunctionParameterGrammar"),
+            OneOf("OUT", "OUTPUT", "READONLY", optional=True),
             AnyNumberOf(
                 Ref("CommaSegment"),
                 Ref("FunctionParameterGrammar"),
+                OneOf("OUT", "OUTPUT", "READONLY", optional=True),
             ),
             optional=True,
         ),
@@ -3311,3 +3314,13 @@ class WindowSpecificationSegment(BaseSegment):
         optional=True,
         ephemeral_name="OverClauseContent",
     )
+
+
+class GotoStatement(BaseSegment):
+    """GOTO statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/language-elements/goto-transact-sql?view=sql-server-ver15
+    """
+
+    type = "goto_statement"
+    match_grammar = Sequence("GOTO", Ref("SingleIdentifierGrammar"))
