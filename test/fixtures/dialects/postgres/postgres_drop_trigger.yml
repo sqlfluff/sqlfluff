@@ -3,10 +3,10 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6670d8c469d2bc7b84b0e9ee89026706879b67416462305ae59412e51e70390f
+_hash: 7d795c868b9e279e23a114faf1e9e6fcdd63c15d70c543c0def0aeffa878953c
 file:
 - statement:
-    drop_trigger_statement:
+    drop_trigger:
     - keyword: DROP
     - keyword: TRIGGER
     - trigger_reference:
@@ -16,7 +16,7 @@ file:
         identifier: bar
 - statement_terminator: ;
 - statement:
-    drop_trigger_statement:
+    drop_trigger:
     - keyword: DROP
     - keyword: TRIGGER
     - keyword: IF
@@ -28,7 +28,7 @@ file:
         identifier: bar
 - statement_terminator: ;
 - statement:
-    drop_trigger_statement:
+    drop_trigger:
     - keyword: DROP
     - keyword: TRIGGER
     - trigger_reference:
@@ -39,7 +39,7 @@ file:
     - keyword: CASCADE
 - statement_terminator: ;
 - statement:
-    drop_trigger_statement:
+    drop_trigger:
     - keyword: DROP
     - keyword: TRIGGER
     - keyword: IF
@@ -52,7 +52,7 @@ file:
     - keyword: RESTRICT
 - statement_terminator: ;
 - statement:
-    drop_trigger_statement:
+    drop_trigger:
     - keyword: DROP
     - keyword: TRIGGER
     - trigger_reference:

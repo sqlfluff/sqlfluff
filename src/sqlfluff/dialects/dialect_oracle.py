@@ -78,9 +78,7 @@ class IndexTypeReferenceSegment(BaseSegment):
 
     type = "indextype_reference"
 
-    match_grammar = ansi_dialect.get_segment(
-        "ObjectReferenceSegment"
-    ).match_grammar.copy()
+    match_grammar = ansi.ObjectReferenceSegment.match_grammar.copy()
 
 
 # Adding Oracle specific statements.
@@ -92,7 +90,7 @@ class StatementSegment(ansi.StatementSegment):
 
     type = "statement"
 
-    match_grammar = OneOf(  # type: ignore
+    match_grammar = OneOf(
         GreedyUntil(Ref("DelimiterSegment")), exclude=Ref("ExecuteFileSegment")
     )
     parse_grammar = ansi.StatementSegment.parse_grammar.copy(

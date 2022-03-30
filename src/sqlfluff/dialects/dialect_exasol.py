@@ -1181,10 +1181,9 @@ class ColumnDefinitionSegment(BaseSegment):
     )
 
 
-class ColumnConstraintSegment(BaseSegment):
+class ColumnConstraintSegment(ansi.ColumnConstraintSegment):
     """A column option; each CREATE TABLE column can have 0 or more."""
 
-    type = "column_option"
     match_grammar = Sequence(
         OneOf(
             Sequence(
@@ -3047,7 +3046,7 @@ class PreferringPlusPriorTermSegment(BaseSegment):
     )
 
 
-class MLTableExpressionSegment(BaseSegment):
+class MLTableExpressionSegment(ansi.MLTableExpressionSegment):
     """Not supported."""
 
     match_grammar = Nothing()

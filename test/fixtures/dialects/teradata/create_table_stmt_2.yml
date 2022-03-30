@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 03156b8897a230c5efa2bf3895fe229abd8cd9c5aa16466db188eb8f2ba1387e
+_hash: a0a4e2684566f08cd241bdc172fd263b2545bf343041ce10d61c31ed6ae17144
 file:
   statement:
     create_table_statement:
@@ -17,7 +17,7 @@ file:
       - column_definition:
         - column_reference:
             identifier: CHAR_FIELD
-        - td_internal_data_type:
+        - data_type:
             data_type_identifier: CHAR
             bracketed:
               start_bracket: (
@@ -38,7 +38,7 @@ file:
       - column_definition:
           column_reference:
             identifier: DATE_FIELD
-          td_internal_data_type:
+          data_type:
             data_type_identifier: DATE
             keyword: FORMAT
             literal: "'YYYY-MM-DD'"
@@ -49,7 +49,7 @@ file:
       - column_definition:
           column_reference:
             identifier: BYTE_FIELD
-          td_internal_data_type:
+          data_type:
             data_type_identifier: BYTEINT
           td_column_attribute_constraint:
             keyword: COMPRESS
@@ -58,7 +58,7 @@ file:
       - column_definition:
           column_reference:
             identifier: DECIMAL_FIELD
-          td_internal_data_type:
+          data_type:
             data_type_identifier: DECIMAL
             bracketed:
             - start_bracket: (
@@ -106,7 +106,7 @@ file:
       - column_definition:
           column_reference:
             identifier: TIMESTAMP_FIELD
-          td_internal_data_type:
+          data_type:
             data_type_identifier: TIMESTAMP
             bracketed:
               start_bracket: (

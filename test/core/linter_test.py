@@ -8,11 +8,13 @@ from unittest.mock import patch
 import pytest
 
 from sqlfluff.core import Linter, FluffConfig
+from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.linter import runner
 from sqlfluff.core.errors import SQLLexError, SQLBaseError, SQLLintError, SQLParseError
 from sqlfluff.cli.formatters import CallbackFormatter
 from sqlfluff.core.linter import LintingResult, NoQaDirective
 import sqlfluff.core.linter as linter
+from sqlfluff.core.parser import GreedyUntil, Ref
 from sqlfluff.core.templaters import TemplatedFile
 
 
@@ -939,3 +941,30 @@ def test_normalise_newlines():
     in_str = "SELECT\r\n foo\n FROM \r \n\r bar;"
     out_str = "SELECT\n foo\n FROM \n \n\n bar;"
     assert out_str == Linter._normalise_newlines(in_str)
+
+
+def test_require_match_parse_grammar():
+    """Tests a segment validation check in Dialect.replace().
+
+    If a segment class defines both match_grammar and parse_grammar, replacing
+    it requires a segment that defines BOTH or NEITHER of them.
+    """
+    ansi_dialect = load_raw_dialect("ansi")
+
+    # Try to register a segment that defines match_grammar but not
+    # parse_grammar.
+    class StatementSegment(ansi_dialect.get_segment("StatementSegment")):
+        match_grammar = GreedyUntil(Ref("DelimiterSegment"))
+
+    with pytest.raises(ValueError) as e:
+        ansi_dialect.replace(StatementSegment=StatementSegment)
+    assert "needs to define 'parse_grammar'" in str(e.value)
+
+    # Now try to register a segment that defines parse_grammar but not
+    # match_grammar.
+    class StatementSegment(ansi_dialect.get_segment("StatementSegment")):
+        parse_grammar = GreedyUntil(Ref("DelimiterSegment"))
+
+    with pytest.raises(ValueError) as e:
+        ansi_dialect.replace(StatementSegment=StatementSegment)
+    assert "needs to define 'match_grammar'" in str(e.value)

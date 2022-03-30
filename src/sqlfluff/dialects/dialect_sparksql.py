@@ -632,13 +632,11 @@ class AlterDatabaseStatementSegment(BaseSegment):
     )
 
 
-class AlterTableStatementSegment(BaseSegment):
+class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
     """A `ALTER TABLE` statement to change the table schema or properties.
 
     http://spark.apache.org/docs/latest/sql-ref-syntax-ddl-alter-table.html
     """
-
-    type = "alter_table_statement"
 
     match_grammar = Sequence(
         "ALTER",
@@ -762,13 +760,12 @@ class AlterViewStatementSegment(BaseSegment):
     )
 
 
-class CreateDatabaseStatementSegment(BaseSegment):
+class CreateDatabaseStatementSegment(ansi.CreateDatabaseStatementSegment):
     """A `CREATE DATABASE` statement.
 
     https://spark.apache.org/docs/latest/sql-ref-syntax-ddl-create-database.html
     """
 
-    type = "create_database_statement"
     match_grammar = Sequence(
         "CREATE",
         OneOf("DATABASE", "SCHEMA"),
@@ -782,13 +779,11 @@ class CreateDatabaseStatementSegment(BaseSegment):
     )
 
 
-class CreateFunctionStatementSegment(BaseSegment):
+class CreateFunctionStatementSegment(ansi.CreateFunctionStatementSegment):
     """A `CREATE FUNCTION` statement.
 
     https://spark.apache.org/docs/latest/sql-ref-syntax-ddl-create-function.html
     """
-
-    type = "create_function_statement"
 
     match_grammar = Sequence(
         "CREATE",
@@ -811,14 +806,12 @@ class CreateFunctionStatementSegment(BaseSegment):
     )
 
 
-class CreateTableStatementSegment(BaseSegment):
+class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
     """A `CREATE TABLE` statement using a Data Source or Like.
 
     http://spark.apache.org/docs/latest/sql-ref-syntax-ddl-create-table-datasource.html
     https://spark.apache.org/docs/latest/sql-ref-syntax-ddl-create-table-like.html
     """
-
-    type = "create_table_statement"
 
     match_grammar = Sequence(
         "CREATE",
@@ -943,13 +936,11 @@ class MsckRepairTableStatementSegment(hive.MsckRepairTableStatementSegment):
     pass
 
 
-class TruncateStatementSegment(BaseSegment):
+class TruncateStatementSegment(ansi.TruncateStatementSegment):
     """A `TRUNCATE TABLE` statement.
 
     https://spark.apache.org/docs/latest/sql-ref-syntax-ddl-truncate-table.html
     """
-
-    type = "truncate_table_statement"
 
     match_grammar = Sequence(
         "TRUNCATE",
@@ -981,7 +972,7 @@ class InsertStatementSegment(BaseSegment):
     https://spark.apache.org/docs/latest/sql-ref-syntax-dml-insert-overwrite-table.html
     """
 
-    type = "insert_table_statement"
+    type = "insert_statement"
 
     match_grammar = Sequence(
         "INSERT",
@@ -1231,7 +1222,7 @@ class SelectHintSegment(BaseSegment):
     )
 
 
-class LimitClauseSegment(BaseSegment):
+class LimitClauseSegment(ansi.LimitClauseSegment):
     """A `LIMIT` clause like in `SELECT`.
 
     Enhanced from ANSI dialect.
@@ -1242,7 +1233,6 @@ class LimitClauseSegment(BaseSegment):
     https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-limit.html
     """
 
-    type = "limit_clause"
     match_grammar = Sequence(
         "LIMIT",
         Indent,
@@ -1255,7 +1245,7 @@ class LimitClauseSegment(BaseSegment):
     )
 
 
-class SetOperatorSegment(BaseSegment):
+class SetOperatorSegment(ansi.SetOperatorSegment):
     """A set operator such as Union, Minus, Except or Intersect.
 
     Enhanced from ANSI dialect.
@@ -1264,8 +1254,6 @@ class SetOperatorSegment(BaseSegment):
 
     # https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-setops.html
     """
-
-    type = "set_operator"
 
     match_grammar = OneOf(
         Sequence(
@@ -1279,14 +1267,13 @@ class SetOperatorSegment(BaseSegment):
     )
 
 
-class SelectClauseModifierSegment(BaseSegment):
+class SelectClauseModifierSegment(ansi.SelectClauseModifierSegment):
     """Things that come after SELECT but before the columns.
 
     Enhance `SelectClauseModifierSegment` from Ansi to allow SparkSQL Hints
     https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-hints.html
     """
 
-    type = "select_clause_modifier"
     match_grammar = Sequence(
         # TODO New Rule warning of Join Hints priority if multiple specified
         #   When different join strategy hints are specified on
@@ -1317,6 +1304,7 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     SelectStatementSegment.
     """
 
+    match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar
     parse_grammar = ansi.UnorderedSelectStatementSegment.parse_grammar.copy(
         # Removing non-valid clauses that exist in ANSI dialect
         remove=[Ref("OverlapsClauseSegment", optional=True)]
@@ -1326,6 +1314,7 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
 class SelectStatementSegment(ansi.SelectStatementSegment):
     """Enhance `SELECT` statement for valid SparkSQL clauses."""
 
+    match_grammar = ansi.SelectStatementSegment.match_grammar
     parse_grammar = ansi.SelectStatementSegment.parse_grammar.copy(
         # TODO New Rule: Warn of mutual exclusion of following clauses
         #  DISTRIBUTE, SORT, CLUSTER and ORDER BY if multiple specified
@@ -1338,13 +1327,11 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
     )
 
 
-class GroupByClauseSegment(BaseSegment):
+class GroupByClauseSegment(ansi.GroupByClauseSegment):
     """Enhance `GROUP BY` clause like in `SELECT` for 'CUBE' and 'ROLLUP`.
 
     https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-groupby.html
     """
-
-    type = "group_by_clause"
 
     match_grammar = StartsWith(
         Sequence("GROUP", "BY"),
@@ -1506,13 +1493,11 @@ class SortByClauseSegment(BaseSegment):
     )
 
 
-class SamplingExpressionSegment(BaseSegment):
+class SamplingExpressionSegment(ansi.SamplingExpressionSegment):
     """A `TABLESAMPLE` clause following a table identifier.
 
     https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-sampling.html
     """
-
-    type = "sample_expression"
 
     match_grammar = Sequence(
         "TABLESAMPLE",
@@ -1564,7 +1549,7 @@ class LateralViewClauseSegment(BaseSegment):
     )
 
 
-class OverClauseSegment(BaseSegment):
+class OverClauseSegment(ansi.OverClauseSegment):
     """An OVER clause for window functions.
 
     Enhance from ANSI dialect to allow for specification of
@@ -1572,8 +1557,6 @@ class OverClauseSegment(BaseSegment):
 
     https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-window.html
     """
-
-    type = "over_clause"
 
     match_grammar = Sequence(
         Sequence(OneOf("IGNORE", "RESPECT"), "NULLS", optional=True),
@@ -1676,7 +1659,7 @@ class TransformClauseSegment(BaseSegment):
     )
 
 
-class ExplainStatementSegment(BaseSegment):
+class ExplainStatementSegment(ansi.ExplainStatementSegment):
     """An `Explain` statement.
 
     Enhanced from ANSI dialect to allow for additonal parameters.
@@ -1685,8 +1668,6 @@ class ExplainStatementSegment(BaseSegment):
 
     https://spark.apache.org/docs/latest/sql-ref-syntax-qry-explain.html
     """
-
-    type = "explain_statement"
 
     explainable_stmt = Ref("StatementSegment")
 
@@ -2156,6 +2137,7 @@ class UncacheTableSegment(BaseSegment):
 class StatementSegment(ansi.StatementSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
 
+    match_grammar = ansi.StatementSegment.match_grammar
     parse_grammar = ansi.StatementSegment.parse_grammar.copy(
         # Segments defined in Spark3 dialect
         insert=[
@@ -2258,7 +2240,7 @@ class JoinClauseSegment(ansi.JoinClauseSegment):
     )
 
 
-class AliasExpressionSegment(BaseSegment):
+class AliasExpressionSegment(ansi.AliasExpressionSegment):
     """A reference to an object with an `AS` clause.
 
     The optional AS keyword allows both implicit and explicit aliasing.
@@ -2275,8 +2257,6 @@ class AliasExpressionSegment(BaseSegment):
     unlike ANSI which allows single quoted identifiers ('my_table') in aliases, this is
     not allowed in Spark and so the definition of this segment must depart from ANSI.
     """
-
-    type = "alias_expression"
 
     match_grammar = Sequence(
         Ref.keyword("AS", optional=True),
@@ -2298,7 +2278,7 @@ class AliasExpressionSegment(BaseSegment):
     )
 
 
-class ValuesClauseSegment(BaseSegment):
+class ValuesClauseSegment(ansi.ValuesClauseSegment):
     """A `VALUES` clause, as typically used with `INSERT` or `SELECT`.
 
     The Spark SQL reference does not mention `VALUES` clauses except in the context
@@ -2314,8 +2294,6 @@ class ValuesClauseSegment(BaseSegment):
         SELECT * FROM (VALUES (1,2) as t (a,b));
         WITH a AS (VALUES 1,2) SELECT * FROM a;
     """
-
-    type = "values_clause"
 
     match_grammar = Sequence(
         "VALUES",
@@ -2350,13 +2328,11 @@ class ValuesClauseSegment(BaseSegment):
     )
 
 
-class TableExpressionSegment(BaseSegment):
+class TableExpressionSegment(ansi.TableExpressionSegment):
     """The main table expression e.g. within a FROM clause.
 
     Enhance to allow for additional clauses allowed in Spark.
     """
-
-    type = "table_expression"
 
     match_grammar = OneOf(
         Ref("ValuesClauseSegment"),
