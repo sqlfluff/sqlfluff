@@ -32,6 +32,7 @@ from sqlfluff.core.parser import (
     Anything,
     StartsWith,
     RegexParser,
+    Matchable,
 )
 from sqlfluff.core.parser.segments.raw import CodeSegment, KeywordSegment
 from sqlfluff.dialects.dialect_sparksql_keywords import (
@@ -811,13 +812,18 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
 
     http://spark.apache.org/docs/latest/sql-ref-syntax-ddl-create-table-datasource.html
     https://spark.apache.org/docs/latest/sql-ref-syntax-ddl-create-table-like.html
+    https://docs.delta.io/latest/delta-batch.html#create-a-table
     """
 
     match_grammar = Sequence(
         "CREATE",
+        Sequence("OR", "REPLACE", optional=True),
         "TABLE",
         Ref("IfNotExistsGrammar", optional=True),
-        Ref("TableReferenceSegment"),
+        OneOf(
+            Ref("FileReferenceSegment"),
+            Ref("TableReferenceSegment"),
+        ),
         OneOf(
             # Columns and comment syntax:
             Sequence(
@@ -826,13 +832,19 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                     # Delimited breaks complex (MAP, STRUCT) datatypes
                     # (Comma splits angle bracket blocks)
                     Sequence(
-                        Ref("ColumnDefinitionSegment"),
+                        OneOf(
+                            Ref("ColumnDefinitionSegment"),
+                            Ref("GeneratedColumnDefinitionSegment"),
+                        ),
                         Ref("CommentGrammar", optional=True),
                     ),
                     AnyNumberOf(
                         Sequence(
                             Ref("CommaSegment"),
-                            Ref("ColumnDefinitionSegment"),
+                            OneOf(
+                                Ref("ColumnDefinitionSegment"),
+                                Ref("GeneratedColumnDefinitionSegment"),
+                            ),
                             Ref("CommentGrammar", optional=True),
                         ),
                     ),
@@ -841,7 +853,10 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
             # Like Syntax
             Sequence(
                 "LIKE",
-                Ref("TableReferenceSegment"),
+                OneOf(
+                    Ref("FileReferenceSegment"),
+                    Ref("TableReferenceSegment"),
+                ),
             ),
             optional=True,
         ),
@@ -2403,5 +2418,33 @@ class PropertyNameSegment(BaseSegment):
                 allow_gaps=False,
             ),
             Ref("SingleIdentifierGrammar"),
+        ),
+    )
+
+
+class GeneratedColumnDefinitionSegment(BaseSegment):
+    """A generated column definition, e.g. for CREATE TABLE or ALTER TABLE.
+
+    https://docs.delta.io/latest/delta-batch.html#use-generated-columns
+    """
+
+    type = "generated_column_definition"
+    match_grammar: Matchable = Sequence(
+        Ref("SingleIdentifierGrammar"),  # Column name
+        Ref("DatatypeSegment"),  # Column type
+        Bracketed(Anything(), optional=True),  # For types like VARCHAR(100)
+        Sequence(
+            "GENERATED",
+            "ALWAYS",
+            "AS",
+            Bracketed(
+                OneOf(
+                    Ref("FunctionSegment"),
+                    Ref("BareFunctionSegment"),
+                ),
+            ),
+        ),
+        AnyNumberOf(
+            Ref("ColumnConstraintSegment", optional=True),
         ),
     )
