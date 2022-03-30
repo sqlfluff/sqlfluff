@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b3d34791eef70799088a5a46e7fd040474fe138d5875ae277c5c6e10dd4bc8b9
+_hash: b1ccbd0bb2486a84ed79f72c630c026534e070d825a6e8c635e269422f47079b
 file:
-  batch:
+- batch:
     create_procedure_statement:
     - keyword: CREATE
     - keyword: PROCEDURE
@@ -56,3 +56,104 @@ file:
                           identifier: tbl2
                   statement_terminator: ;
           - keyword: END
+        statement_terminator: ;
+- go_statement:
+    keyword: GO
+- batch:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: PROCEDURE
+    - object_reference:
+      - identifier: '[dbo]'
+      - dot: .
+      - identifier: '[usp_process_tran_log]'
+    - procedure_parameter_list:
+      - parameter: '@out_vchCode'
+      - data_type:
+          identifier: uddt_output_code
+      - keyword: OUTPUT
+      - comma: ','
+      - parameter: '@out_vchMsg'
+      - data_type:
+          identifier: uddt_output_msg
+      - data_type:
+          identifier: OUTPUT
+      - comma: ','
+      - parameter: '@in_debug'
+      - data_type:
+          identifier: INT
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - expression:
+          literal: '1'
+    - keyword: AS
+    - procedure_statement:
+      - statement:
+          set_segment:
+          - keyword: SET
+          - keyword: NOCOUNT
+          - keyword: 'ON'
+          - statement_terminator: ;
+      - statement:
+          begin_end_block:
+          - keyword: BEGIN
+          - statement:
+              select_statement:
+                select_clause:
+                  keyword: SELECT
+                  select_clause_element:
+                    literal: "'8'"
+          - keyword: END
+      - statement_terminator: ;
+- go_statement:
+    keyword: GO
+- batch:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: PROCEDURE
+    - object_reference:
+      - identifier: '[dbo]'
+      - dot: .
+      - identifier: '[usp_process_tran_log]'
+    - procedure_parameter_list:
+      - parameter: '@out_vchCode'
+      - data_type:
+          identifier: uddt_output_code
+      - keyword: OUTPUT
+      - comma: ','
+      - parameter: '@out_vchMsg'
+      - data_type:
+          identifier: uddt_output_msg
+      - data_type:
+          identifier: OUT
+      - comma: ','
+      - parameter: '@in_debug'
+      - data_type:
+          identifier: INT
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - expression:
+          literal: '1'
+      - data_type:
+          identifier: READONLY
+    - keyword: AS
+    - procedure_statement:
+      - statement:
+          set_segment:
+          - keyword: SET
+          - keyword: NOCOUNT
+          - keyword: 'ON'
+          - statement_terminator: ;
+      - statement:
+          begin_end_block:
+          - keyword: BEGIN
+          - statement:
+              select_statement:
+                select_clause:
+                  keyword: SELECT
+                  select_clause_element:
+                    literal: "'8'"
+          - keyword: END
+      - statement_terminator: ;
+- go_statement:
+    keyword: GO
