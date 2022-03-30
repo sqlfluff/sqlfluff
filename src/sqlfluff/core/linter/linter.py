@@ -513,6 +513,7 @@ class Linter:
                     ignore_mask=ignore_buff,
                     dialect=config.get("dialect_obj"),
                     fname=fname,
+                    fix=fix,
                     templated_file=templated_file,
                 )
                 all_linting_errors += linting_errors
