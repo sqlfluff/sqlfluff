@@ -326,7 +326,7 @@ postgres_dialect.replace(
             "unicode_double_quote", CodeSegment, name="quoted_literal", type="literal"
         ),
     ),
-    PostFunctionGrammar=OneOf(
+    PostFunctionGrammar=AnyNumberOf(
         Ref("WithinGroupClauseSegment"),
         Ref("OverClauseSegment"),
         # Filter clause supported by both Postgres and SQLite
