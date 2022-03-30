@@ -357,6 +357,7 @@ class RuleContext:
     memory: Any
     dialect: Dialect
     path: Optional[pathlib.Path]
+    fix: bool
     templated_file: Optional[TemplatedFile]
 
     @cached_property
@@ -492,6 +493,7 @@ class BaseRule:
         raw_stack=None,
         memory=None,
         fname=None,
+        fix=None,
         templated_file: Optional["TemplatedFile"] = None,
     ):
         """Recursively perform the crawl operation on a given segment.
@@ -510,6 +512,7 @@ class BaseRule:
         siblings_post = siblings_post or ()
         siblings_pre = siblings_pre or ()
         memory = memory or {}
+        fix = fix or False
         vs: List[SQLLintError] = []
         fixes: List[LintFix] = []
 
@@ -529,6 +532,7 @@ class BaseRule:
             memory=memory,
             dialect=dialect,
             path=pathlib.Path(fname) if fname else None,
+            fix=fix,
             templated_file=templated_file,
         )
         try:
@@ -617,6 +621,7 @@ class BaseRule:
                 memory=memory,
                 dialect=dialect,
                 fname=fname,
+                fix=fix,
                 templated_file=templated_file,
             )
             vs += dvs
