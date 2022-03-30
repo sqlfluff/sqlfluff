@@ -1,7 +1,7 @@
 merge into foo.bar as tgt
 using (
 select
-  foo::date as bar
+  foo::DATE as bar
 from foo.bar
 where
 split(foo, '|')[2] REGEXP '^\\d+\\-\\d+\\-\\d+ \\d+\\:\\d+$'

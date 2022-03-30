@@ -20,7 +20,7 @@ class _LineSummary:
     """A dataobject to represent a line.
 
     A _LineSummary is created and then filled with elements,
-    before calling self.create_line to generate a final
+    before calling self.finalise to generate a final
     representation.
     """
 
