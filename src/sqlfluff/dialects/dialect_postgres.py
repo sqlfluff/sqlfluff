@@ -2948,14 +2948,6 @@ class CreateTriggerStatementSegment(ansi.CreateTriggerStatementSegment):
         Sequence("OR", "REPLACE", optional=True),
         Ref.keyword("CONSTRAINT", optional=True),
         "TRIGGER",
-        Anything(),
-    )
-
-    parse_grammar = Sequence(
-        "CREATE",
-        Sequence("OR", "REPLACE", optional=True),
-        Ref.keyword("CONSTRAINT", optional=True),
-        "TRIGGER",
         Ref("TriggerReferenceSegment"),
         OneOf("BEFORE", "AFTER", Sequence("INSTEAD", "OF")),
         Delimited(
