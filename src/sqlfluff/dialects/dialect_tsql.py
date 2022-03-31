@@ -427,6 +427,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("RaiserrorStatementSegment"),
             Ref("ReturnStatementSegment"),
             Ref("GotoStatement"),
+            Ref("DisableTriggerStatementSegment"),
         ],
         remove=[
             Ref("CreateExtensionStatementSegment"),
@@ -3324,3 +3325,117 @@ class GotoStatement(BaseSegment):
 
     type = "goto_statement"
     match_grammar = Sequence("GOTO", Ref("SingleIdentifierGrammar"))
+
+
+class CreateTriggerStatementSegment(BaseSegment):
+    """Create Trigger Statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-trigger-transact-sql?view=sql-server-ver15
+    """
+
+    type = "create_trigger"
+
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        "TRIGGER",
+        Ref("TriggerReferenceSegment"),
+        "ON",
+        OneOf(
+            Ref("TableReferenceSegment"),
+            Sequence("ALL", "SERVER"),
+            "DATABASE",
+        ),
+        Sequence(
+            "WITH",
+            OneOf(
+                Sequence(
+                    Ref.keyword("ENCRYPTION", optional=True),
+                    Sequence(
+                        "EXECUTE",
+                        "AS",
+                        Ref("SingleQuotedIdentifierSegment"),
+                        optional=True,
+                    ),
+                ),
+                Sequence(
+                    Ref.keyword("NATIVE_COMPILATION", optional=True),
+                    Ref.keyword("SCHEMABINDING", optional=True),
+                    Sequence(
+                        "EXECUTE",
+                        "AS",
+                        Ref("SingleQuotedIdentifierSegment"),
+                        optional=True,
+                    ),
+                ),
+                Sequence(
+                    Ref.keyword("ENCRYPTION", optional=True),
+                    Sequence(
+                        "EXECUTE",
+                        "AS",
+                        Ref("SingleQuotedIdentifierSegment"),
+                        optional=True,
+                    ),
+                ),
+            ),
+            optional=True,
+        ),
+        OneOf(
+            Sequence("FOR", Delimited(Ref("SingleIdentifierGrammar"), optional=True)),
+            "AFTER",
+            Sequence("INSTEAD", "OF"),
+            optional=True,
+        ),
+        Delimited(
+            "INSERT",
+            "UPDATE",
+            "DELETE",
+            optional=True,
+        ),
+        Sequence("WITH", "APPEND", optional=True),
+        Sequence("NOT", "FOR", "REPLICATION", optional=True),
+        "AS",
+        AnyNumberOf(
+            Ref("StatementSegment"),
+        ),
+        # TODO: EXTERNAL NAME
+    )
+
+
+class DropTriggerStatementSegment(BaseSegment):
+    """Drop Trigger Statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/drop-trigger-transact-sql?view=sql-server-ver15
+    """
+
+    type = "drop_trigger"
+
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        "TRIGGER",
+        Ref("IfExistsGrammar", optional=True),
+        Delimited(Ref("TriggerReferenceSegment")),
+        Sequence("ON", OneOf("DATABASE", Sequence("ALL", "SERVER")), optional=True),
+    )
+
+
+class DisableTriggerStatementSegment(BaseSegment):
+    """Disable Trigger Statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/disable-trigger-transact-sql?view=sql-server-ver15
+    """
+
+    type = "disable_trigger"
+
+    match_grammar: Matchable = Sequence(
+        "DISABLE",
+        "TRIGGER",
+        OneOf(
+            Delimited(Ref("TriggerReferenceSegment")),
+            "ALL",
+        ),
+        Sequence(
+            "ON",
+            OneOf(Ref("ObjectReferenceSegment"), "DATABASE", Sequence("ALL", "SERVER")),
+            optional=True,
+        ),
+    )
