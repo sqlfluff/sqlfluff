@@ -3,23 +3,8 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 02d506d13253ec4017d373000fb0b56553a7a6430bdb11f988091b61f62d9643
+_hash: c9f2ffa08a1568e8cc18ae8064c37951a0d5cb390bd642ba337e963382841e96
 file:
-- batch:
-    statement:
-      raiserror_statement:
-        keyword: RAISERROR
-        bracketed:
-        - start_bracket: (
-        - literal: "'Notify Customer Relations'"
-        - comma: ','
-        - literal: '16'
-        - comma: ','
-        - literal: '10'
-        - end_bracket: )
-    statement_terminator: ;
-- go_statement:
-    keyword: GO
 - batch:
     statement:
       create_trigger:

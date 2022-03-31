@@ -1,6 +1,3 @@
-RAISERROR ('Notify Customer Relations', 16, 10);
-GO
-
 CREATE TRIGGER reminder1
 ON Sales.Customer
 AFTER INSERT, UPDATE
