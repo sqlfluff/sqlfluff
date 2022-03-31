@@ -442,7 +442,8 @@ def test__project_dir_does_not_exist_error(dbt_templater, caplog):  # noqa: F811
     ],
 )
 def test__context_in_config_is_loaded(
-        project_dir, dbt_templater, model_path, var_value):  # noqa: F811
+        project_dir, dbt_templater, model_path, var_value
+):  # noqa: F811
     """Test that variables inside .sqlfluff are passed to dbt."""
     context = {"passed_through_cli": var_value} if var_value else {}
 
