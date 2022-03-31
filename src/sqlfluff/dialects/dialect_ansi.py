@@ -3566,9 +3566,7 @@ class CreateTriggerStatementSegment(BaseSegment):
 
     type = "create_trigger"
 
-    match_grammar: Matchable = Sequence("CREATE", "TRIGGER", Anything())
-
-    parse_grammar: Optional[Matchable] = Sequence(
+    match_grammar: Matchable = Sequence(
         "CREATE",
         "TRIGGER",
         Ref("TriggerReferenceSegment"),
