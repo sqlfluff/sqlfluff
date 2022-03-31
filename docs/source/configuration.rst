@@ -634,7 +634,7 @@ You can set the dbt project directory, profiles directory and profile with:
     running `dbt debug --config-dir`.
 
 If your project requires that you pass variables to dbt through command line,
-you can specify them in `template:dbt:contex` section of `.sqlfluff`.
+you can specify them in `template:dbt:context` section of `.sqlfluff`.
 See below configuration and its equivalend dbt command:
 
 .. code-block:: cfg
