@@ -258,7 +258,6 @@ tsql_dialect.replace(
         "NULL",
         Ref("BooleanLiteralGrammar"),
     ),
-    DatatypeIdentifierSegment=Ref("SingleIdentifierGrammar"),
     PrimaryKeyGrammar=Sequence(
         OneOf(
             Sequence(
