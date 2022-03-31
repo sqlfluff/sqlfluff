@@ -434,12 +434,13 @@ def test__project_dir_does_not_exist_error(dbt_templater, caplog):  # noqa: F811
 
 
 @pytest.mark.parametrize(
-    ("model_path", "var_value")
-    , [
-        ("models/vars_from_cli.sql", "expected_value")
-        , ("models/vars_from_cli.sql", [1])
-        , ("models/vars_from_cli.sql", {"nested": 1})
-    ])
+    ("model_path", "var_value"),
+    [
+        ("models/vars_from_cli.sql", "expected_value"),
+        ("models/vars_from_cli.sql", [1]),
+        ("models/vars_from_cli.sql", {"nested": 1}),
+    ],
+)
 def test__context_in_config_is_loaded(
         project_dir, dbt_templater, model_path, var_value):  # noqa: F811
     """Test that variables inside .sqlfluff are passed to dbt."""
