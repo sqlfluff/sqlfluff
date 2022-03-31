@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e64e8adb913de53da6a64eade1cc54d8d6ae67899b23dc6b09e1028097a7bd9f
+_hash: 45076fc4f279fd8cfa91c9fc06e55fcea7b8aa0aaa1ac27a5ba73f4ac3c79bfd
 file:
 - batch:
     statement:
@@ -19,7 +19,7 @@ file:
           column_definition:
             identifier: column_a
             data_type:
-              identifier: INT
+              data_type_identifier: INT
           end_bracket: )
       - statement_terminator: ;
 - go_statement:
@@ -37,7 +37,7 @@ file:
       - column_definition:
           identifier: column_b
           data_type:
-            identifier: VARCHAR
+            data_type_identifier: VARCHAR
             bracketed:
               start_bracket: (
               expression:
@@ -62,7 +62,7 @@ file:
           column_definition:
             identifier: column_a
             data_type:
-              identifier: INT
+              data_type_identifier: INT
           end_bracket: )
       - statement_terminator: ;
 - go_statement:
@@ -80,7 +80,7 @@ file:
       - column_definition:
         - identifier: column_b
         - data_type:
-            identifier: VARCHAR
+            data_type_identifier: VARCHAR
             bracketed:
               start_bracket: (
               expression:
@@ -132,12 +132,12 @@ file:
         - column_definition:
             identifier: column_a
             data_type:
-              identifier: INT
+              data_type_identifier: INT
         - comma: ','
         - column_definition:
             identifier: column_b
             data_type:
-              identifier: INT
+              data_type_identifier: INT
         - end_bracket: )
       - statement_terminator: ;
 - go_statement:
@@ -284,7 +284,7 @@ file:
       - column_definition:
           identifier: rec_number
           data_type:
-            identifier: VARCHAR
+            data_type_identifier: VARCHAR
             bracketed:
               start_bracket: (
               expression:
