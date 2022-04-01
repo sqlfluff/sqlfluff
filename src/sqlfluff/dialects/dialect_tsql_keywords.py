@@ -228,6 +228,7 @@ UNRESERVED_KEYWORDS = [
     "DATEFIRST",
     "DATEFORMAT",
     "DEADLOCK_PRIORITY",
+    "DELAY",
     "DENSE_RANK",
     "DETERMINISTIC",
     "DISABLE",
@@ -391,6 +392,7 @@ UNRESERVED_KEYWORDS = [
     "THROW",
     "TIES",
     "TIME",
+    "TIMEOUT",
     "TIMESTAMP",
     "TRANSACTION_ID",
     "TRUNCATE_TARGET",  # Azure Synapse Analytics specific
@@ -404,6 +406,7 @@ UNRESERVED_KEYWORDS = [
     "USING",
     "VALUE",
     "VIEW_METADATA",
+    "WAITFOR",
     "WAIT_AT_LOW_PRIORITY",
     "WITHIN",
     "WHILE",
