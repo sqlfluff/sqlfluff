@@ -49,7 +49,7 @@ bigquery_dialect.insert_lexer_matchers(
     [
         StringLexer("right_arrow", "=>", CodeSegment),
         StringLexer("question_mark", "?", CodeSegment),
-        RegexLexer("atsign_literal", r"@[a-zA-Z_][\w]*", CodeSegment),
+        RegexLexer("at_sign_literal", r"@[a-zA-Z_][\w]*", CodeSegment),
     ],
     before="equals",
 )
@@ -126,9 +126,9 @@ bigquery_dialect.add(
         "?", SymbolSegment, name="question_mark", type="question_mark"
     ),
     AtSignLiteralSegment=NamedParser(
-        "atsign_literal",
+        "at_sign_literal",
         CodeSegment,
-        name="atsign_literal",
+        name="at_sign_literal",
         type="literal",
         trim_chars=("@",),
     ),
