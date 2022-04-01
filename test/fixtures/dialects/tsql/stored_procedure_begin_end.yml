@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 950bd695b0c4e3121a707909132e1702ff0e3899bfd13fa525d2cf4de5576191
+_hash: b047204a43230419cc719d07ebb0abba2d2a992079cfe7d08629b2fc58e18739
 file:
 - batch:
     create_procedure_statement:
@@ -70,18 +70,18 @@ file:
     - procedure_parameter_list:
       - parameter: '@out_vchCode'
       - data_type:
-          data_type_identifier: uddt_output_code
+          identifier: uddt_output_code
       - keyword: OUTPUT
       - comma: ','
       - parameter: '@out_vchMsg'
       - data_type:
-          data_type_identifier: uddt_output_msg
+          identifier: uddt_output_msg
       - data_type:
-          data_type_identifier: OUTPUT
+          identifier: OUTPUT
       - comma: ','
       - parameter: '@in_debug'
       - data_type:
-          data_type_identifier: INT
+          identifier: INT
       - comparison_operator:
           raw_comparison_operator: '='
       - expression:
@@ -118,24 +118,24 @@ file:
     - procedure_parameter_list:
       - parameter: '@out_vchCode'
       - data_type:
-          data_type_identifier: uddt_output_code
+          identifier: uddt_output_code
       - keyword: OUTPUT
       - comma: ','
       - parameter: '@out_vchMsg'
       - data_type:
-          data_type_identifier: uddt_output_msg
+          identifier: uddt_output_msg
       - data_type:
-          data_type_identifier: OUT
+          identifier: OUT
       - comma: ','
       - parameter: '@in_debug'
       - data_type:
-          data_type_identifier: INT
+          identifier: INT
       - comparison_operator:
           raw_comparison_operator: '='
       - expression:
           literal: '1'
       - data_type:
-          data_type_identifier: READONLY
+          identifier: READONLY
     - keyword: AS
     - procedure_statement:
       - statement:
@@ -168,18 +168,18 @@ file:
     - procedure_parameter_list:
       - parameter: '@out_vchCode'
       - data_type:
-          data_type_identifier: uddt_output_code
+          identifier: uddt_output_code
       - keyword: OUTPUT
       - comma: ','
       - parameter: '@out_vchMsg'
       - data_type:
-          data_type_identifier: uddt_output_msg
+          identifier: uddt_output_msg
       - data_type:
-          data_type_identifier: OUTPUT
+          identifier: OUTPUT
       - comma: ','
       - parameter: '@in_debug'
       - data_type:
-          data_type_identifier: INT
+          identifier: INT
       - comparison_operator:
           raw_comparison_operator: '='
       - expression:

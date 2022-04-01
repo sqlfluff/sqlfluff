@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 35aeec15d3df4c3e2bddb886d3715f9d787c24b17d0a5f37d573755978fac457
+_hash: 8b2640305c8c7d4f0336524b9112f7af1fc2a5d753eac33818e00e0e56635790
 file:
 - batch:
     statement:
@@ -19,7 +19,7 @@ file:
         - column_definition:
             identifier: '[Column B]'
             data_type:
-              data_type_identifier: '[varchar]'
+              identifier: '[varchar]'
               bracketed:
                 start_bracket: (
                 expression:
@@ -29,7 +29,7 @@ file:
         - column_definition:
             identifier: '[ColumnC]'
             data_type:
-              data_type_identifier: varchar
+              identifier: varchar
               bracketed:
                 start_bracket: (
                 expression:
@@ -39,7 +39,7 @@ file:
         - column_definition:
             identifier: '[ColumnDecimal]'
             data_type:
-              data_type_identifier: decimal
+              identifier: decimal
               bracketed:
               - start_bracket: (
               - expression:
@@ -92,7 +92,7 @@ file:
         - column_definition:
             identifier: '[Column B]'
             data_type:
-              data_type_identifier: '[varchar]'
+              identifier: '[varchar]'
               bracketed:
                 start_bracket: (
                 expression:
@@ -102,7 +102,7 @@ file:
         - column_definition:
             identifier: '[ColumnC]'
             data_type:
-              data_type_identifier: varchar
+              identifier: varchar
               bracketed:
                 start_bracket: (
                 expression:
@@ -112,7 +112,7 @@ file:
         - column_definition:
             identifier: '[ColumnDecimal]'
             data_type:
-              data_type_identifier: decimal
+              identifier: decimal
               bracketed:
               - start_bracket: (
               - expression:
@@ -163,7 +163,7 @@ file:
         - column_definition:
             identifier: '[Column B]'
             data_type:
-              data_type_identifier: '[varchar]'
+              identifier: '[varchar]'
               bracketed:
                 start_bracket: (
                 expression:
@@ -173,7 +173,7 @@ file:
         - column_definition:
             identifier: '[ColumnC]'
             data_type:
-              data_type_identifier: varchar
+              identifier: varchar
               bracketed:
                 start_bracket: (
                 expression:
@@ -183,7 +183,7 @@ file:
         - column_definition:
             identifier: '[ColumnDecimal]'
             data_type:
-              data_type_identifier: decimal
+              identifier: decimal
               bracketed:
               - start_bracket: (
               - expression:
@@ -242,7 +242,7 @@ file:
         - column_definition:
             identifier: '[Column B]'
             data_type:
-              data_type_identifier: '[varchar]'
+              identifier: '[varchar]'
               bracketed:
                 start_bracket: (
                 expression:
@@ -252,7 +252,7 @@ file:
         - column_definition:
             identifier: '[ColumnC]'
             data_type:
-              data_type_identifier: varchar
+              identifier: varchar
               bracketed:
                 start_bracket: (
                 expression:
@@ -262,7 +262,7 @@ file:
         - column_definition:
             identifier: '[ColumnDecimal]'
             data_type:
-              data_type_identifier: decimal
+              identifier: decimal
               bracketed:
               - start_bracket: (
               - expression:
@@ -326,7 +326,7 @@ file:
         - column_definition:
             identifier: '[Column B]'
             data_type:
-              data_type_identifier: '[varchar]'
+              identifier: '[varchar]'
               bracketed:
                 start_bracket: (
                 expression:
@@ -336,7 +336,7 @@ file:
         - column_definition:
             identifier: '[ColumnC]'
             data_type:
-              data_type_identifier: varchar
+              identifier: varchar
               bracketed:
                 start_bracket: (
                 expression:
@@ -346,7 +346,7 @@ file:
         - column_definition:
             identifier: '[ColumnDecimal]'
             data_type:
-              data_type_identifier: decimal
+              identifier: decimal
               bracketed:
               - start_bracket: (
               - expression:
@@ -409,7 +409,7 @@ file:
         - column_definition:
             identifier: '[Column B]'
             data_type:
-              data_type_identifier: '[varchar]'
+              identifier: '[varchar]'
               bracketed:
                 start_bracket: (
                 expression:
@@ -419,7 +419,7 @@ file:
         - column_definition:
             identifier: '[ColumnC]'
             data_type:
-              data_type_identifier: varchar
+              identifier: varchar
               bracketed:
                 start_bracket: (
                 expression:
@@ -429,7 +429,7 @@ file:
         - column_definition:
             identifier: '[ColumnDecimal]'
             data_type:
-              data_type_identifier: decimal
+              identifier: decimal
               bracketed:
               - start_bracket: (
               - expression:

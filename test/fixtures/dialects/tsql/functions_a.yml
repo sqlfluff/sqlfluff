@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 46eeedeef9a1e84458eb58a4d365b4704e5e09effc6f6acff829e2548e01a50a
+_hash: b31c58fb4d3cf54ef1b50ffb06ff766a31b0f499ce6240f20b4f6319028e79b6
 file:
 - batch:
     statement:
@@ -106,7 +106,7 @@ file:
               bracketed:
               - start_bracket: (
               - data_type:
-                  data_type_identifier: varchar
+                  identifier: varchar
               - comma: ','
               - expression:
                   column_reference:
@@ -142,7 +142,7 @@ file:
             start_bracket: (
             parameter: '@admit'
             data_type:
-              data_type_identifier: DATE
+              identifier: DATE
             end_bracket: )
       - keyword: RETURNS
       - keyword: TABLE
@@ -188,7 +188,7 @@ file:
             end_bracket: )
       - keyword: RETURNS
       - data_type:
-          data_type_identifier: INT
+          identifier: INT
       - keyword: AS
       - procedure_statement:
           statement:

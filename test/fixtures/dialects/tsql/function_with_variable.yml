@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2137a488400f722da286ecd0c649121b893d7a0b55da5ae15671b96623c4e3bc
+_hash: 4643c54f439a55b763ad0cdad0068e71356582262a81c491d91962316d7eb73f
 file:
   batch:
     statement:
@@ -21,15 +21,15 @@ file:
           - start_bracket: (
           - parameter: '@year'
           - data_type:
-              data_type_identifier: INT
+              identifier: INT
           - comma: ','
           - parameter: '@week'
           - data_type:
-              data_type_identifier: INT
+              identifier: INT
           - end_bracket: )
       - keyword: RETURNS
       - data_type:
-          data_type_identifier: BIGINT
+          identifier: BIGINT
       - keyword: AS
       - procedure_statement:
           statement:
@@ -40,7 +40,7 @@ file:
                   keyword: DECLARE
                   parameter: '@result'
                   data_type:
-                    data_type_identifier: BIGINT
+                    identifier: BIGINT
             - statement:
                 set_segment:
                   keyword: SET

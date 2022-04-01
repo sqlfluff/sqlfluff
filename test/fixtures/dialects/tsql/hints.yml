@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9089be90f3163e1c71c8a0c6879aa774b1d4598924e60dd7832b8c12e275f957
+_hash: 14c17df80bffb83c147e1c094ff2f0c43dc2d1c926fc1877955e6406bcb82673
 file:
 - batch:
     statement:
@@ -81,7 +81,7 @@ file:
     - procedure_parameter_list:
       - parameter: '@city_name'
       - data_type:
-          data_type_identifier: NVARCHAR
+          identifier: NVARCHAR
           bracketed:
             start_bracket: (
             expression:
@@ -90,7 +90,7 @@ file:
       - comma: ','
       - parameter: '@postal_code'
       - data_type:
-          data_type_identifier: NVARCHAR
+          identifier: NVARCHAR
           bracketed:
             start_bracket: (
             expression:

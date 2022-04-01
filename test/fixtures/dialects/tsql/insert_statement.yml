@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: aa4bea9d7e2707f9e6436fd5b65653dbaf863d605994e15e8afaf502e2008ad9
+_hash: 6d1af97addb2c950720adfb03fa75afe4ec3281114b6df0a8b7df7b316261795
 file:
 - batch:
     statement:
@@ -78,7 +78,7 @@ file:
                       identifier: '[POPULATION]'
                   keyword: AS
                   data_type:
-                    data_type_identifier: BIGINT
+                    identifier: BIGINT
                   end_bracket: )
               alias_expression:
                 keyword: AS
@@ -99,7 +99,7 @@ file:
                       identifier: '[WEEKLY_COUNT]'
                   keyword: AS
                   data_type:
-                    data_type_identifier: BIGINT
+                    identifier: BIGINT
                   end_bracket: )
               alias_expression:
                 keyword: AS
@@ -153,7 +153,7 @@ file:
                       - end_bracket: )
                   keyword: AS
                   data_type:
-                    data_type_identifier: DATE
+                    identifier: DATE
                   end_bracket: )
               alias_expression:
                 keyword: AS
@@ -212,7 +212,7 @@ file:
                         end_bracket: )
                   keyword: AS
                   data_type:
-                    data_type_identifier: DATE
+                    identifier: DATE
                   end_bracket: )
               alias_expression:
                 keyword: AS
@@ -229,7 +229,7 @@ file:
                       identifier: '[RATE_14_DAY]'
                   keyword: AS
                   data_type:
-                    data_type_identifier: FLOAT
+                    identifier: FLOAT
                   end_bracket: )
               alias_expression:
                 keyword: AS
@@ -246,7 +246,7 @@ file:
                       identifier: '[CUMULATIVE_COUNT]'
                   keyword: AS
                   data_type:
-                    data_type_identifier: BIGINT
+                    identifier: BIGINT
                   end_bracket: )
               alias_expression:
                 keyword: AS
@@ -401,5 +401,33 @@ file:
           comparison_operator:
             raw_comparison_operator: '='
           literal: "'Picard'"
+- go_statement:
+    keyword: GO
+- batch:
+    statement:
+      insert_statement:
+        keyword: INSERT
+        table_reference:
+        - identifier: HumanResources
+        - dot: .
+        - identifier: NewEmployee
+        bracketed:
+        - start_bracket: (
+        - column_reference:
+            identifier: LastName
+        - comma: ','
+        - column_reference:
+            identifier: FirstName
+        - end_bracket: )
+        values_clause:
+          keyword: values
+          bracketed:
+          - start_bracket: (
+          - expression:
+              literal: "'Kirk'"
+          - comma: ','
+          - expression:
+              literal: "'James'"
+          - end_bracket: )
 - go_statement:
     keyword: GO
