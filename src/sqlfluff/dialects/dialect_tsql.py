@@ -597,7 +597,7 @@ class InsertStatementSegment(BaseSegment):
     type = "insert_statement"
     match_grammar = Sequence(
         "INSERT",
-        "INTO",
+        Ref.keyword("INTO", optional=True),
         Ref("TableReferenceSegment"),
         Ref("BracketedColumnReferenceListGrammar", optional=True),
         OneOf(Ref("SelectableGrammar"), Ref("ExecuteScriptSegment")),

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 814aafde54c3d35236c51d85ffb120760d66ad8d8a2e795bedaad2f706936af6
+_hash: 6d1af97addb2c950720adfb03fa75afe4ec3281114b6df0a8b7df7b316261795
 file:
 - batch:
     statement:
@@ -401,5 +401,33 @@ file:
           comparison_operator:
             raw_comparison_operator: '='
           literal: "'Picard'"
+- go_statement:
+    keyword: GO
+- batch:
+    statement:
+      insert_statement:
+        keyword: INSERT
+        table_reference:
+        - identifier: HumanResources
+        - dot: .
+        - identifier: NewEmployee
+        bracketed:
+        - start_bracket: (
+        - column_reference:
+            identifier: LastName
+        - comma: ','
+        - column_reference:
+            identifier: FirstName
+        - end_bracket: )
+        values_clause:
+          keyword: values
+          bracketed:
+          - start_bracket: (
+          - expression:
+              literal: "'Kirk'"
+          - comma: ','
+          - expression:
+              literal: "'James'"
+          - end_bracket: )
 - go_statement:
     keyword: GO
