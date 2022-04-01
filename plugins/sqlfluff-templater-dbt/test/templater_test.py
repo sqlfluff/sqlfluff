@@ -1,5 +1,6 @@
 """Tests for the dbt templater."""
 
+from copy import deepcopy
 import glob
 import os
 import logging
@@ -431,3 +432,29 @@ def test__project_dir_does_not_exist_error(dbt_templater, caplog):  # noqa: F811
         ) in caplog.text
     finally:
         logger.propagate = original_propagate_value
+
+
+@pytest.mark.parametrize(
+    ("model_path", "var_value"),
+    [
+        ("models/vars_from_cli.sql", "expected_value"),
+        ("models/vars_from_cli.sql", [1]),
+        ("models/vars_from_cli.sql", {"nested": 1}),
+    ],
+)
+def test__context_in_config_is_loaded(
+    project_dir, dbt_templater, model_path, var_value  # noqa: F811
+):
+    """Test that variables inside .sqlfluff are passed to dbt."""
+    context = {"passed_through_cli": var_value} if var_value else {}
+
+    config_dict = deepcopy(DBT_FLUFF_CONFIG)
+    config_dict["templater"]["dbt"]["context"] = context
+    config = FluffConfig(config_dict)
+
+    fname = os.path.abspath(os.path.join(project_dir, model_path))
+
+    processed, violations = dbt_templater.process(in_str="", fname=fname, config=config)
+
+    assert violations == []
+    assert str(var_value) in processed.templated_str
