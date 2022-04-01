@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3d6b0be21f77edc5e4ad35275af45c638fc67054a629f4a48c085c89012dda99
+_hash: 5a0177bbf18d5caa17660ef9d9c5b008832cfc620b9a6ce4a215d9e8a68560bb
 file:
   batch:
     create_procedure_statement:
@@ -24,14 +24,14 @@ file:
               - parameter: '@startdate'
               - keyword: AS
               - data_type:
-                  identifier: DATE
+                  data_type_identifier: DATE
               - statement_terminator: ;
           - statement:
               declare_segment:
                 keyword: DECLARE
                 parameter: '@DateNow'
                 data_type:
-                  identifier: DATE
+                  data_type_identifier: DATE
                 comparison_operator:
                   raw_comparison_operator: '='
                 expression:
@@ -47,7 +47,7 @@ file:
               - keyword: DECLARE
               - parameter: '@DateStart'
               - data_type:
-                  identifier: DATETIME2
+                  data_type_identifier: DATETIME2
               - comparison_operator:
                   raw_comparison_operator: '='
               - expression:
@@ -60,7 +60,7 @@ file:
               - comma: ','
               - parameter: '@DateEnd'
               - data_type:
-                  identifier: DATETIME2
+                  data_type_identifier: DATETIME2
               - comparison_operator:
                   raw_comparison_operator: '='
               - expression:
@@ -75,7 +75,7 @@ file:
                 keyword: DECLARE
                 parameter: '@EOMONTH'
                 data_type:
-                  identifier: DATE
+                  data_type_identifier: DATE
                 comparison_operator:
                   raw_comparison_operator: '='
                 expression:
