@@ -50,9 +50,6 @@ bigquery_dialect.insert_lexer_matchers(
         StringLexer("right_arrow", "=>", CodeSegment),
         StringLexer("question_mark", "?", CodeSegment),
         RegexLexer("atsign_literal", r"@[a-zA-Z_][\w]*", CodeSegment),
-        RegexLexer(
-            "hyphenated_identifier", r"[a-zA-Z_]+[-][a-zA-Z_0-9-]*", CodeSegment
-        ),
     ],
     before="equals",
 )
@@ -120,6 +117,7 @@ bigquery_dialect.add(
     RightArrowSegment=StringParser(
         "=>", SymbolSegment, name="right_arrow", type="right_arrow"
     ),
+    DashSegment=StringParser("-", SymbolSegment, name="dash", type="dash"),
     SelectClauseElementListGrammar=Delimited(
         Ref("SelectClauseElementSegment"),
         delimiter=Ref("CommaSegment"),
@@ -158,12 +156,6 @@ bigquery_dialect.add(
             Ref("TupleSegment"),
             Ref("BaseExpressionElementGrammar"),
         ),
-    ),
-    HyphenatedIdentifierGrammar=NamedParser(
-        "hyphenated_identifier",
-        CodeSegment,
-        name="hyphenated_identifier",
-        type="identifier",
     ),
 )
 
@@ -815,14 +807,22 @@ class ColumnReferenceSegment(ObjectReferenceSegment):
         return super().extract_possible_multipart_references(levels)
 
 
-class HyphenatedObjectReferenceSegment(ObjectReferenceSegment):
+class TableReferenceSegment(ansi.TableReferenceSegment):
     """A reference to an object that may contain embedded hyphens."""
 
-    type = "hyphenated_object_reference"
-
     match_grammar: Matchable = Delimited(
-        Ref("SingleIdentifierGrammar"),
-        Ref("HyphenatedIdentifierGrammar"),
+        Sequence(
+            Ref("SingleIdentifierGrammar"),
+            AnyNumberOf(
+                Sequence(
+                    Ref("DashSegment"),
+                    OneOf(Ref("SingleIdentifierGrammar"), Ref("NumericLiteralSegment")),
+                    allow_gaps=False,
+                ),
+                optional=True,
+            ),
+            allow_gaps=False,
+        ),
         delimiter=OneOf(
             Ref("DotSegment"), Sequence(Ref("DotSegment"), Ref("DotSegment"))
         ),
@@ -834,7 +834,6 @@ class HyphenatedObjectReferenceSegment(ObjectReferenceSegment):
             Ref("CastOperatorSegment"),
             Ref("StartSquareBracketSegment"),
             Ref("StartBracketSegment"),
-            Ref("BinaryOperatorGrammar"),
             Ref("ColonSegment"),
             Ref("DelimiterSegment"),
             Ref("JoinLikeClauseGrammar"),
@@ -861,16 +860,6 @@ class HyphenatedObjectReferenceSegment(ObjectReferenceSegment):
                 segments = list(elems)
                 parts = [seg.raw_trimmed() for seg in segments]
                 yield self.ObjectReferencePart("".join(parts), segments)
-
-
-class TableExpressionSegment(ansi.TableExpressionSegment):
-    """Main table expression e.g. within a FROM clause, with hyphen support."""
-
-    match_grammar = ansi.TableExpressionSegment.match_grammar.copy(
-        insert=[
-            Ref("HyphenatedObjectReferenceSegment"),
-        ]
-    )
 
 
 class DeclareStatementSegment(BaseSegment):
