@@ -1,5 +1,6 @@
 """Tests for the dbt templater."""
 
+from copy import deepcopy
 import glob
 import os
 import logging
@@ -447,7 +448,7 @@ def test__context_in_config_is_loaded(
     """Test that variables inside .sqlfluff are passed to dbt."""
     context = {"passed_through_cli": var_value} if var_value else {}
 
-    config_dict = DBT_FLUFF_CONFIG
+    config_dict = deepcopy(DBT_FLUFF_CONFIG)
     config_dict["templater"]["dbt"]["context"] = context
     config = FluffConfig(config_dict)
 
