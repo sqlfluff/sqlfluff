@@ -475,7 +475,16 @@ class DbtTemplater(JinjaTemplater):
             with open(fname) as source_dbt_model:
                 source_dbt_sql = source_dbt_model.read()
 
-            n_trailing_newlines = len(source_dbt_sql) - len(source_dbt_sql.rstrip("\n"))
+            if not source_dbt_sql.rstrip().endswith("-%}"):
+                n_trailing_newlines = len(source_dbt_sql) - len(
+                    source_dbt_sql.rstrip("\n")
+                )
+            else:
+                # Source file ends with right whitespace stripping, so there's
+                # no need to preserve/restore trailing newlines, as they would
+                # have been removed regardless of dbt's
+                # keep_trailing_newlines=False behavior.
+                n_trailing_newlines = 0
 
             templater_logger.debug(
                 "    Trailing newline count in source dbt model: %r",
