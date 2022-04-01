@@ -222,7 +222,7 @@ test_pass_consistent_capitalisation_properties_naked_identifier:
   pass_str: SHOW TBLPROPERTIES customer (created.by.user)
   configs:
     core:
-      dialect: spark3
+      dialect: sparksql
 
 test_fail_inconsistent_capitalisation_properties_naked_identifier:
   # Test that fixes are consistent
@@ -230,11 +230,11 @@ test_fail_inconsistent_capitalisation_properties_naked_identifier:
   fix_str: SHOW TBLPROPERTIES customer (created.by.user)
   configs:
     core:
-      dialect: spark3
+      dialect: sparksql
 
 test_fail_inconsistent_capitalisation_properties_naked_identifier_2:
   fail_str: SHOW TBLPROPERTIES customer (Created.By.User)
   fix_str: SHOW TBLPROPERTIES customer (created.by.user)
   configs:
     core:
-      dialect: spark3
+      dialect: sparksql

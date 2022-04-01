@@ -21,6 +21,7 @@ from sqlfluff.dialects.dialect_hive_keywords import (
     RESERVED_KEYWORDS,
     UNRESERVED_KEYWORDS,
 )
+from sqlfluff.dialects import dialect_ansi as ansi
 
 ansi_dialect = load_raw_dialect("ansi")
 hive_dialect = ansi_dialect.copy_as("hive")
@@ -154,7 +155,6 @@ hive_dialect.replace(
 )
 
 
-@hive_dialect.segment(replace=True)
 class CreateDatabaseStatementSegment(BaseSegment):
     """A `CREATE DATABASE` statement."""
 
@@ -173,7 +173,6 @@ class CreateDatabaseStatementSegment(BaseSegment):
     )
 
 
-@hive_dialect.segment(replace=True)
 class CreateTableStatementSegment(BaseSegment):
     """A `CREATE TABLE` statement.
 
@@ -278,7 +277,6 @@ class CreateTableStatementSegment(BaseSegment):
     )
 
 
-@hive_dialect.segment()
 class PrimitiveTypeSegment(BaseSegment):
     """Primitive data types."""
 
@@ -311,7 +309,6 @@ class PrimitiveTypeSegment(BaseSegment):
     )
 
 
-@hive_dialect.segment(replace=True)
 class DatatypeSegment(BaseSegment):
     """Data types."""
 
@@ -378,7 +375,6 @@ class DatatypeSegment(BaseSegment):
     )
 
 
-@hive_dialect.segment()
 class SkewedByClauseSegment(BaseSegment):
     """`SKEWED BY` clause in a CREATE / ALTER statement."""
 
@@ -399,7 +395,6 @@ class SkewedByClauseSegment(BaseSegment):
     )
 
 
-@hive_dialect.segment()
 class RowFormatClauseSegment(BaseSegment):
     """`ROW FORMAT` clause in a CREATE statement."""
 
@@ -436,7 +431,6 @@ class RowFormatClauseSegment(BaseSegment):
     )
 
 
-@hive_dialect.segment()
 class AlterDatabaseStatementSegment(BaseSegment):
     """An `ALTER DATABASE/SCHEMA` statement."""
 
@@ -459,7 +453,6 @@ class AlterDatabaseStatementSegment(BaseSegment):
     )
 
 
-@hive_dialect.segment(replace=True)
 class DropTableStatementSegment(BaseSegment):
     """A `DROP TABLE` statement."""
 
@@ -473,7 +466,6 @@ class DropTableStatementSegment(BaseSegment):
     )
 
 
-@hive_dialect.segment(replace=True)
 class TruncateStatementSegment(BaseSegment):
     """`TRUNCATE TABLE` statement."""
 
@@ -488,11 +480,10 @@ class TruncateStatementSegment(BaseSegment):
     )
 
 
-@hive_dialect.segment(replace=True)
-class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: ignore
+class StatementSegment(ansi.StatementSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
 
-    parse_grammar = ansi_dialect.get_segment("StatementSegment").parse_grammar.copy(
+    parse_grammar = ansi.StatementSegment.parse_grammar.copy(
         insert=[
             Ref("AlterDatabaseStatementSegment"),
             Ref("MsckRepairTableStatementSegment"),
@@ -507,9 +498,9 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             Ref("DropModelStatementSegment"),
         ],
     )
+    match_grammar = ansi.StatementSegment.match_grammar
 
 
-@hive_dialect.segment(replace=True)
 class InsertStatementSegment(BaseSegment):
     """An `INSERT` statement.
 
@@ -556,7 +547,6 @@ class InsertStatementSegment(BaseSegment):
     )
 
 
-@hive_dialect.segment(replace=True)
 class IntervalExpressionSegment(BaseSegment):
     """An interval expression segment.
 
@@ -581,7 +571,6 @@ class IntervalExpressionSegment(BaseSegment):
     )
 
 
-@hive_dialect.segment()
 class MsckRepairTableStatementSegment(BaseSegment):
     """An `MSCK REPAIR TABLE`statement.
 
@@ -615,7 +604,6 @@ class MsckRepairTableStatementSegment(BaseSegment):
     )
 
 
-@hive_dialect.segment()
 class MsckTableStatementSegment(BaseSegment):
     """An `MSCK TABLE`statement.
 
@@ -647,7 +635,6 @@ class MsckTableStatementSegment(BaseSegment):
     )
 
 
-@hive_dialect.segment(replace=True)
 class FunctionSegment(BaseSegment):
     """A scalar or aggregate function.
 

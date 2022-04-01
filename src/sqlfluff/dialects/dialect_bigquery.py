@@ -39,6 +39,7 @@ from sqlfluff.dialects.dialect_bigquery_keywords import (
     bigquery_reserved_keywords,
     bigquery_unreserved_keywords,
 )
+from sqlfluff.dialects import dialect_ansi as ansi
 
 ansi_dialect = load_raw_dialect("ansi")
 bigquery_dialect = ansi_dialect.copy_as("bigquery")
@@ -289,7 +290,6 @@ bigquery_dialect.sets("angle_bracket_pairs").update(
 )
 
 
-@bigquery_dialect.segment()
 class QualifyClauseSegment(BaseSegment):
     """A `QUALIFY` clause like in `SELECT`."""
 
@@ -308,7 +308,6 @@ class QualifyClauseSegment(BaseSegment):
     )
 
 
-@bigquery_dialect.segment(replace=True)
 class SetOperatorSegment(BaseSegment):
     """A set operator UNION, INTERSECT or EXCEPT.
 
@@ -323,54 +322,38 @@ class SetOperatorSegment(BaseSegment):
     )
 
 
-@bigquery_dialect.segment(replace=True)
-class SelectStatementSegment(BaseSegment):
+class SelectStatementSegment(ansi.SelectStatementSegment):
     """Enhance `SELECT` statement to include QUALIFY."""
 
-    type = "select_statement"
-    match_grammar = ansi_dialect.get_segment(
-        "SelectStatementSegment"
-    ).match_grammar.copy()
-
-    parse_grammar = ansi_dialect.get_segment(
-        "SelectStatementSegment"
-    ).parse_grammar.copy(
+    match_grammar = ansi.SelectStatementSegment.match_grammar
+    parse_grammar = ansi.SelectStatementSegment.parse_grammar.copy(
         insert=[Ref("QualifyClauseSegment", optional=True)],
         before=Ref("OrderByClauseSegment", optional=True),
     )
 
 
-@bigquery_dialect.segment(replace=True)
-class UnorderedSelectStatementSegment(BaseSegment):
+class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     """Enhance unordered `SELECT` statement to include QUALIFY."""
 
-    type = "select_statement"
-    match_grammar = ansi_dialect.get_segment(
-        "UnorderedSelectStatementSegment"
-    ).match_grammar.copy()
-
-    parse_grammar = ansi_dialect.get_segment(
-        "UnorderedSelectStatementSegment"
-    ).parse_grammar.copy(
+    match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar
+    parse_grammar = ansi.UnorderedSelectStatementSegment.parse_grammar.copy(
         insert=[Ref("QualifyClauseSegment", optional=True)],
         before=Ref("OverlapsClauseSegment", optional=True),
     )
 
 
-@bigquery_dialect.segment(replace=True)
-class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: ignore
+class StatementSegment(ansi.StatementSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
 
-    parse_grammar = ansi_dialect.get_segment("StatementSegment").parse_grammar.copy(
+    match_grammar = ansi.StatementSegment.match_grammar
+    parse_grammar = ansi.StatementSegment.parse_grammar.copy(
         insert=[Ref("DeclareStatementSegment"), Ref("SetStatementSegment")],
     )
 
 
-@bigquery_dialect.segment(replace=True)
-class SelectClauseModifierSegment(BaseSegment):
+class SelectClauseModifierSegment(ansi.SelectClauseModifierSegment):
     """Things that come after SELECT but before the columns."""
 
-    type = "select_clause_modifier"
     match_grammar = Sequence(
         # https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax
         Sequence("AS", OneOf("STRUCT", "VALUE"), optional=True),
@@ -379,11 +362,9 @@ class SelectClauseModifierSegment(BaseSegment):
 
 
 # BigQuery allows functions in INTERVAL
-@bigquery_dialect.segment(replace=True)
-class IntervalExpressionSegment(BaseSegment):
+class IntervalExpressionSegment(ansi.IntervalExpressionSegment):
     """An interval with a function as value segment."""
 
-    type = "interval_expression"
     match_grammar = Sequence(
         "INTERVAL",
         Ref("ExpressionSegment"),
@@ -444,8 +425,7 @@ bigquery_dialect.replace(
 )
 
 
-@bigquery_dialect.segment(replace=True)
-class FunctionSegment(BaseSegment):
+class FunctionSegment(ansi.FunctionSegment):
     """A scalar or aggregate function.
 
     Maybe in the future we should distinguish between
@@ -454,7 +434,6 @@ class FunctionSegment(BaseSegment):
     for our purposes.
     """
 
-    type = "function"
     match_grammar = OneOf(
         Sequence(
             # Treat functions which take date parts separately
@@ -518,11 +497,9 @@ class FunctionSegment(BaseSegment):
     )
 
 
-@bigquery_dialect.segment(replace=True)
-class FunctionDefinitionGrammar(BaseSegment):
+class FunctionDefinitionGrammar(ansi.FunctionDefinitionGrammar):
     """This is the body of a `CREATE FUNCTION AS` statement."""
 
-    type = "function_definition"
     match_grammar = Sequence(
         AnyNumberOf(
             Sequence(
@@ -563,14 +540,10 @@ class FunctionDefinitionGrammar(BaseSegment):
     )
 
 
-@bigquery_dialect.segment(replace=True)
-class WildcardExpressionSegment(BaseSegment):
+class WildcardExpressionSegment(ansi.WildcardExpressionSegment):
     """An extension of the star expression for Bigquery."""
 
-    type = "wildcard_expression"
-    match_grammar = ansi_dialect.get_segment(
-        "WildcardExpressionSegment"
-    ).match_grammar.copy(
+    match_grammar = ansi.WildcardExpressionSegment.match_grammar.copy(
         insert=[
             # Optional EXCEPT or REPLACE clause
             # https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax#select_replace
@@ -580,7 +553,6 @@ class WildcardExpressionSegment(BaseSegment):
     )
 
 
-@bigquery_dialect.segment()
 class ExceptClauseSegment(BaseSegment):
     """SELECT EXCEPT clause."""
 
@@ -593,7 +565,6 @@ class ExceptClauseSegment(BaseSegment):
     )
 
 
-@bigquery_dialect.segment()
 class ReplaceClauseSegment(BaseSegment):
     """SELECT REPLACE clause."""
 
@@ -611,15 +582,13 @@ class ReplaceClauseSegment(BaseSegment):
     )
 
 
-@bigquery_dialect.segment(replace=True)
-class DatatypeSegment(BaseSegment):
+class DatatypeSegment(ansi.DatatypeSegment):
     """A data type segment.
 
     In particular here, this enabled the support for
     the STRUCT datatypes.
     """
 
-    type = "data_type"
     match_grammar = OneOf(  # Parameter type
         Ref("DatatypeIdentifierSegment"),  # Simple type
         Sequence("ANY", "TYPE"),  # SQL UDFs can specify this "type"
@@ -649,13 +618,11 @@ class DatatypeSegment(BaseSegment):
     )
 
 
-@bigquery_dialect.segment(replace=True)
-class FunctionParameterListGrammar(BaseSegment):
+class FunctionParameterListGrammar(ansi.FunctionParameterListGrammar):
     """The parameters for a function ie. `(string, number)`."""
 
     # Function parameter list. Note that the only difference from the ANSI
     # grammar is that BigQuery provides overrides bracket_pairs_set.
-    type = "function_parameter_list"
     match_grammar = Bracketed(
         Delimited(
             Ref("FunctionParameterGrammar"),
@@ -666,14 +633,12 @@ class FunctionParameterListGrammar(BaseSegment):
     )
 
 
-@bigquery_dialect.segment(replace=True)
-class TypelessStructSegment(BaseSegment):
+class TypelessStructSegment(ansi.TypelessStructSegment):
     """Expression to construct a STRUCT with implicit types.
 
     https://cloud.google.com/bigquery/docs/reference/standard-sql/data-types#typeless_struct_syntax
     """
 
-    type = "typeless_struct"
     match_grammar = Sequence(
         "STRUCT",
         Bracketed(
@@ -687,7 +652,6 @@ class TypelessStructSegment(BaseSegment):
     )
 
 
-@bigquery_dialect.segment()
 class TupleSegment(BaseSegment):
     """Expression to construct a TUPLE.
 
@@ -698,7 +662,6 @@ class TupleSegment(BaseSegment):
     match_grammar = Bracketed(Delimited(Ref("BaseExpressionElementGrammar")))
 
 
-@bigquery_dialect.segment()
 class NamedArgumentSegment(BaseSegment):
     """Named argument to a function.
 
@@ -713,7 +676,6 @@ class NamedArgumentSegment(BaseSegment):
     )
 
 
-@bigquery_dialect.segment()
 class LiteralCoercionSegment(BaseSegment):
     """A casting operation with a type name preceding a string literal.
 
@@ -735,13 +697,14 @@ class LiteralCoercionSegment(BaseSegment):
     )
 
 
-# Dialects should not use Python "import" to access other dialects. Instead,
-# get a reference to the ANSI ObjectReferenceSegment this way so we can inherit
-# from it.
-ObjectReferenceSegment = ansi_dialect.get_segment("ObjectReferenceSegment")
+# Inherit from the ANSI ObjectReferenceSegment this way so we can inherit
+# other segment types from it.
+class ObjectReferenceSegment(ansi.ObjectReferenceSegment):
+    """A reference to an object."""
+
+    pass
 
 
-@bigquery_dialect.segment()
 class SemiStructuredAccessorSegment(BaseSegment):
     """A semi-structured data accessor segment."""
 
@@ -763,8 +726,7 @@ class SemiStructuredAccessorSegment(BaseSegment):
     )
 
 
-@bigquery_dialect.segment(replace=True)
-class ColumnReferenceSegment(ObjectReferenceSegment):  # type: ignore
+class ColumnReferenceSegment(ObjectReferenceSegment):
     """A reference to column, field or alias.
 
     We override this for BigQuery to allow keywords in structures
@@ -853,8 +815,7 @@ class ColumnReferenceSegment(ObjectReferenceSegment):  # type: ignore
         return super().extract_possible_multipart_references(levels)
 
 
-@bigquery_dialect.segment()
-class HyphenatedObjectReferenceSegment(ObjectReferenceSegment):  # type: ignore
+class HyphenatedObjectReferenceSegment(ObjectReferenceSegment):
     """A reference to an object that may contain embedded hyphens."""
 
     type = "hyphenated_object_reference"
@@ -902,21 +863,16 @@ class HyphenatedObjectReferenceSegment(ObjectReferenceSegment):  # type: ignore
                 yield self.ObjectReferencePart("".join(parts), segments)
 
 
-@bigquery_dialect.segment(replace=True)
-class TableExpressionSegment(BaseSegment):
+class TableExpressionSegment(ansi.TableExpressionSegment):
     """Main table expression e.g. within a FROM clause, with hyphen support."""
 
-    type = "table_expression"
-    match_grammar = ansi_dialect.get_segment(
-        "TableExpressionSegment"
-    ).match_grammar.copy(
+    match_grammar = ansi.TableExpressionSegment.match_grammar.copy(
         insert=[
             Ref("HyphenatedObjectReferenceSegment"),
         ]
     )
 
 
-@bigquery_dialect.segment()
 class DeclareStatementSegment(BaseSegment):
     """Declaration of a variable.
 
@@ -939,7 +895,6 @@ class DeclareStatementSegment(BaseSegment):
     )
 
 
-@bigquery_dialect.segment()
 class SetStatementSegment(BaseSegment):
     """Setting an already declared variable.
 
@@ -977,7 +932,6 @@ class SetStatementSegment(BaseSegment):
     )
 
 
-@bigquery_dialect.segment()
 class PartitionBySegment(BaseSegment):
     """PARTITION BY partition_expression."""
 
@@ -994,7 +948,6 @@ class PartitionBySegment(BaseSegment):
     )
 
 
-@bigquery_dialect.segment()
 class ClusterBySegment(BaseSegment):
     """CLUSTER BY clustering_column_list."""
 
@@ -1011,7 +964,6 @@ class ClusterBySegment(BaseSegment):
     )
 
 
-@bigquery_dialect.segment()
 class OptionsSegment(BaseSegment):
     """OPTIONS clause for a table."""
 
@@ -1024,18 +976,16 @@ class OptionsSegment(BaseSegment):
                 Sequence(
                     Ref("ParameterNameSegment"),
                     Ref("EqualsSegment"),
-                    Ref("LiteralGrammar"),
+                    Ref("BaseExpressionElementGrammar"),
                 )
             )
         ),
     )
 
 
-@bigquery_dialect.segment(replace=True)
-class CreateTableStatementSegment(BaseSegment):
+class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
     """A `CREATE TABLE` statement."""
 
-    type = "create_table_statement"
     # https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#create_table_statement
     match_grammar = Sequence(
         "CREATE",
@@ -1069,14 +1019,11 @@ class CreateTableStatementSegment(BaseSegment):
     )
 
 
-@bigquery_dialect.segment(replace=True)
-class CreateViewStatementSegment(BaseSegment):
+class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
     """A `CREATE VIEW` statement.
 
     https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#view_option_list
     """
-
-    type = "create_view_statement"
 
     match_grammar = Sequence(
         "CREATE",
@@ -1092,7 +1039,6 @@ class CreateViewStatementSegment(BaseSegment):
     )
 
 
-@bigquery_dialect.segment()
 class ParameterizedSegment(BaseSegment):
     """BigQuery allows named and argument based parameters to help preven SQL Injection.
 
@@ -1103,7 +1049,6 @@ class ParameterizedSegment(BaseSegment):
     match_grammar = OneOf(Ref("AtSignLiteralSegment"), Ref("QuestionMarkSegment"))
 
 
-@bigquery_dialect.segment()
 class FromPivotExpressionSegment(BaseSegment):
     """A PIVOT expression.
 
@@ -1137,7 +1082,6 @@ class FromPivotExpressionSegment(BaseSegment):
     )
 
 
-@bigquery_dialect.segment()
 class UnpivotAliasExpressionSegment(BaseSegment):
     """In BigQuery UNPIVOT alias's can be single or double quoted or numeric."""
 
@@ -1152,7 +1096,6 @@ class UnpivotAliasExpressionSegment(BaseSegment):
     )
 
 
-@bigquery_dialect.segment()
 class FromUnpivotExpressionSegment(BaseSegment):
     """An UNPIVOT expression.
 
@@ -1206,15 +1149,13 @@ class FromUnpivotExpressionSegment(BaseSegment):
     )
 
 
-@bigquery_dialect.segment(replace=True)
-class InsertStatementSegment(BaseSegment):
+class InsertStatementSegment(ansi.InsertStatementSegment):
     """A `INSERT` statement.
 
     N.B. not a complete implementation.
     """
 
-    type = "insert_statement"
-    match_grammar = StartsWith("INSERT")
+    match_grammar = ansi.InsertStatementSegment.match_grammar
     parse_grammar = Sequence(
         "INSERT",
         Ref.keyword("INTO", optional=True),
@@ -1224,14 +1165,12 @@ class InsertStatementSegment(BaseSegment):
     )
 
 
-@bigquery_dialect.segment(replace=True)
-class SamplingExpressionSegment(BaseSegment):
+class SamplingExpressionSegment(ansi.SamplingExpressionSegment):
     """A sampling expression.
 
     https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax#tablesample_operator
     """
 
-    type = "sample_expression"
     match_grammar = Sequence(
         "TABLESAMPLE", "SYSTEM", Bracketed(Ref("NumericLiteralSegment"), "PERCENT")
     )

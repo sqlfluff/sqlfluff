@@ -179,7 +179,7 @@ test_fail_exasol_values_clause:
     core:
       dialect: exasol
 
-test_pass_spark3_values_clause:
+test_pass_sparksql_values_clause:
   pass_str: |
     SELECT *
     FROM (
@@ -187,9 +187,9 @@ test_pass_spark3_values_clause:
     )
   configs:
     core:
-      dialect: spark3
+      dialect: sparksql
 
-test_fail_spark3_values_clause:
+test_fail_sparksql_values_clause:
   fail_str: |
     SELECT *
     FROM (
@@ -202,7 +202,7 @@ test_fail_spark3_values_clause:
     )
   configs:
     core:
-      dialect: spark3
+      dialect: sparksql
 
 test_pass_join_on_expression_in_parentheses:
   pass_str: |

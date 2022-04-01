@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f8890bd81affd3bdfec8771d75d8ff69688154f628169db8945a8f686057c2cf
+_hash: e1c1f4d96321835b7782bb39121ae2c66a14483e6981eb8fb9226b9a457e44d0
 file:
 - batch:
     statement:
@@ -84,7 +84,7 @@ file:
         - column_definition:
           - identifier: '[ID]'
           - data_type:
-              identifier: INT
+              data_type_identifier: INT
           - column_constraint_segment:
             - keyword: PRIMARY
             - keyword: KEY
@@ -108,12 +108,12 @@ file:
         - column_definition:
             identifier: '[WEEK_UNIX]'
             data_type:
-              identifier: BIGINT
+              data_type_identifier: BIGINT
         - comma: ','
         - column_definition:
             identifier: GMCODE
             data_type:
-              identifier: VARCHAR
+              data_type_identifier: VARCHAR
               bracketed:
                 start_bracket: (
                 expression:
@@ -123,7 +123,7 @@ file:
         - column_definition:
             identifier: AVERAGE_RNA_FLOW_PER_100000
             data_type:
-              identifier: DECIMAL
+              data_type_identifier: DECIMAL
               bracketed:
               - start_bracket: (
               - expression:
@@ -138,28 +138,28 @@ file:
         - column_definition:
             identifier: NUMBER_OF_MEASUREMENTS
             data_type:
-              identifier: INT
+              data_type_identifier: INT
             column_constraint_segment:
               keyword: 'NULL'
         - comma: ','
         - column_definition:
             identifier: NUMBER_OF_LOCATIONS
             data_type:
-              identifier: INT
+              data_type_identifier: INT
             column_constraint_segment:
               keyword: 'NULL'
         - comma: ','
         - column_definition:
             identifier: TOTAL_LOCATIONS
             data_type:
-              identifier: INT
+              data_type_identifier: INT
             column_constraint_segment:
               keyword: 'NULL'
         - comma: ','
         - column_definition:
             identifier: DATE_LAST_INSERTED
             data_type:
-              identifier: DATETIME
+              data_type_identifier: DATETIME
             column_constraint_segment:
               keyword: DEFAULT
               function:
@@ -248,7 +248,7 @@ file:
         - column_definition:
           - identifier: '[ID]'
           - data_type:
-              identifier: INT
+              data_type_identifier: INT
           - column_constraint_segment:
             - keyword: PRIMARY
             - keyword: KEY
@@ -273,7 +273,7 @@ file:
         - column_definition:
             identifier: GEMEENTE_CODE
             data_type:
-              identifier: VARCHAR
+              data_type_identifier: VARCHAR
               bracketed:
                 start_bracket: (
                 expression:
@@ -285,7 +285,7 @@ file:
         - column_definition:
             identifier: GEMEENTE
             data_type:
-              identifier: VARCHAR
+              data_type_identifier: VARCHAR
               bracketed:
                 start_bracket: (
                 expression:
@@ -297,7 +297,7 @@ file:
         - column_definition:
             identifier: LEEFTIJD
             data_type:
-              identifier: VARCHAR
+              data_type_identifier: VARCHAR
               bracketed:
                 start_bracket: (
                 expression:
@@ -309,7 +309,7 @@ file:
         - column_definition:
             identifier: GESLACHT
             data_type:
-              identifier: VARCHAR
+              data_type_identifier: VARCHAR
               bracketed:
                 start_bracket: (
                 expression:
@@ -321,7 +321,7 @@ file:
         - column_definition:
             identifier: DATUM_PEILING
             data_type:
-              identifier: VARCHAR
+              data_type_identifier: VARCHAR
               bracketed:
                 start_bracket: (
                 expression:
@@ -333,7 +333,7 @@ file:
         - column_definition:
             identifier: POPULATIE
             data_type:
-              identifier: VARCHAR
+              data_type_identifier: VARCHAR
               bracketed:
                 start_bracket: (
                 expression:
@@ -345,7 +345,7 @@ file:
         - column_definition:
             identifier: VEILIGHEIDSREGIO_CODE
             data_type:
-              identifier: VARCHAR
+              data_type_identifier: VARCHAR
               bracketed:
                 start_bracket: (
                 expression:
@@ -357,7 +357,7 @@ file:
         - column_definition:
             identifier: VEILIGHEIDSREGIO_NAAM
             data_type:
-              identifier: VARCHAR
+              data_type_identifier: VARCHAR
               bracketed:
                 start_bracket: (
                 expression:
@@ -369,7 +369,7 @@ file:
         - column_definition:
             identifier: PROVINCIE_CODE
             data_type:
-              identifier: VARCHAR
+              data_type_identifier: VARCHAR
               bracketed:
                 start_bracket: (
                 expression:
@@ -381,7 +381,7 @@ file:
         - column_definition:
             identifier: PROVINCIE_NAAM
             data_type:
-              identifier: VARCHAR
+              data_type_identifier: VARCHAR
               bracketed:
                 start_bracket: (
                 expression:
@@ -393,7 +393,7 @@ file:
         - column_definition:
             identifier: GGD_CODE
             data_type:
-              identifier: VARCHAR
+              data_type_identifier: VARCHAR
               bracketed:
                 start_bracket: (
                 expression:
@@ -405,7 +405,7 @@ file:
         - column_definition:
             identifier: GGD_NAAM
             data_type:
-              identifier: VARCHAR
+              data_type_identifier: VARCHAR
               bracketed:
                 start_bracket: (
                 expression:
@@ -417,7 +417,7 @@ file:
         - column_definition:
             identifier: DATE_LAST_INSERTED
             data_type:
-              identifier: DATETIME
+              data_type_identifier: DATETIME
             column_constraint_segment:
               keyword: DEFAULT
               function:
@@ -520,7 +520,7 @@ file:
         - column_definition:
           - identifier: '[ID]'
           - data_type:
-              identifier: INT
+              data_type_identifier: INT
           - column_constraint_segment:
             - keyword: PRIMARY
             - keyword: KEY
@@ -544,21 +544,21 @@ file:
         - column_definition:
             identifier: DATE_OF_REPORT
             data_type:
-              identifier: DATETIME
+              data_type_identifier: DATETIME
             column_constraint_segment:
               keyword: 'NULL'
         - comma: ','
         - column_definition:
             identifier: DATE_OF_REPORT_UNIX
             data_type:
-              identifier: BIGINT
+              data_type_identifier: BIGINT
             column_constraint_segment:
               keyword: 'NULL'
         - comma: ','
         - column_definition:
             identifier: INFECTED_DAILY_INCREASE
             data_type:
-              identifier: DECIMAL
+              data_type_identifier: DECIMAL
               bracketed:
               - start_bracket: (
               - expression:
@@ -573,14 +573,14 @@ file:
         - column_definition:
             identifier: INFECTED_DAILY_TOTAL
             data_type:
-              identifier: INT
+              data_type_identifier: INT
             column_constraint_segment:
               keyword: 'NULL'
         - comma: ','
         - column_definition:
             identifier: DATE_LAST_INSERTED
             data_type:
-              identifier: DATETIME
+              data_type_identifier: DATETIME
             column_constraint_segment:
               keyword: DEFAULT
               function:
@@ -593,22 +593,22 @@ file:
         - column_definition:
             identifier: '[DATE_RANGE_START]'
             data_type:
-              identifier: datetime
+              data_type_identifier: datetime
         - comma: ','
         - column_definition:
             identifier: '[DATE_OF_REPORTS_LAG]'
             data_type:
-              identifier: datetime
+              data_type_identifier: datetime
         - comma: ','
         - column_definition:
             identifier: '[DATE_RANGE_START_LAG]'
             data_type:
-              identifier: datetime
+              data_type_identifier: datetime
         - comma: ','
         - column_definition:
             identifier: '[7D_AVERAGE_INFECTED_DAILY_INCREASE_TOTAL]'
             data_type:
-              identifier: decimal
+              data_type_identifier: decimal
               bracketed:
               - start_bracket: (
               - expression:
@@ -621,7 +621,7 @@ file:
         - column_definition:
             identifier: '[7D_AVERAGE_INFECTED_DAILY_INCREASE_LAG]'
             data_type:
-              identifier: decimal
+              data_type_identifier: decimal
               bracketed:
               - start_bracket: (
               - expression:
@@ -634,7 +634,7 @@ file:
         - column_definition:
             identifier: '[7D_AVERAGE_INFECTED_DAILY_INCREASE_ABSOLUTE]'
             data_type:
-              identifier: decimal
+              data_type_identifier: decimal
               bracketed:
               - start_bracket: (
               - expression:

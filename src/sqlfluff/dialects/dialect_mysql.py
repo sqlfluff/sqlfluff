@@ -24,6 +24,7 @@ from sqlfluff.core.parser import (
     AnySetOf,
 )
 from sqlfluff.core.dialects import load_raw_dialect
+from sqlfluff.dialects import dialect_ansi as ansi
 
 ansi_dialect = load_raw_dialect("ansi")
 mysql_dialect = ansi_dialect.copy_as("mysql")
@@ -216,7 +217,6 @@ mysql_dialect.add(
 )
 
 
-@mysql_dialect.segment(replace=True)
 class AliasExpressionSegment(BaseSegment):
     """A reference to an object with an `AS` clause.
 
@@ -230,7 +230,6 @@ class AliasExpressionSegment(BaseSegment):
     )
 
 
-@mysql_dialect.segment(replace=True)
 class ColumnDefinitionSegment(BaseSegment):
     """A column definition, e.g. for CREATE TABLE or ALTER TABLE."""
 
@@ -282,18 +281,13 @@ class ColumnDefinitionSegment(BaseSegment):
     )
 
 
-@mysql_dialect.segment(replace=True)
-class CreateTableStatementSegment(
-    ansi_dialect.get_segment("CreateTableStatementSegment")  # type: ignore
-):
+class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
     """Create table segment.
 
     https://dev.mysql.com/doc/refman/8.0/en/create-table.html
     """
 
-    match_grammar = ansi_dialect.get_segment(
-        "CreateTableStatementSegment"
-    ).match_grammar.copy(
+    match_grammar = ansi.CreateTableStatementSegment.match_grammar.copy(
         insert=[
             AnyNumberOf(
                 Sequence(
@@ -307,7 +301,6 @@ class CreateTableStatementSegment(
     )
 
 
-@mysql_dialect.segment()
 class UpsertClauseListSegment(BaseSegment):
     """An `ON DUPLICATE KEY UPDATE` statement.
 
@@ -324,7 +317,6 @@ class UpsertClauseListSegment(BaseSegment):
     )
 
 
-@mysql_dialect.segment()
 class InsertRowAliasSegment(BaseSegment):
     """A row alias segment (used in `INSERT` statements).
 
@@ -342,7 +334,6 @@ class InsertRowAliasSegment(BaseSegment):
     )
 
 
-@mysql_dialect.segment(replace=True)
 class InsertStatementSegment(BaseSegment):
     """An `INSERT` statement.
 
@@ -390,7 +381,6 @@ class InsertStatementSegment(BaseSegment):
     )
 
 
-@mysql_dialect.segment()
 class DeleteUsingClauseSegment(BaseSegment):
     """A `USING` clause froma `DELETE` Statement`."""
 
@@ -408,7 +398,6 @@ class DeleteUsingClauseSegment(BaseSegment):
     )
 
 
-@mysql_dialect.segment(replace=True)
 class DeleteStatementSegment(BaseSegment):
     """A `DELETE` statement.
 
@@ -446,7 +435,6 @@ class DeleteStatementSegment(BaseSegment):
     )
 
 
-@mysql_dialect.segment(replace=True)
 class TableConstraintSegment(BaseSegment):
     """A table constraint, e.g. for CREATE TABLE."""
 
@@ -501,7 +489,6 @@ class TableConstraintSegment(BaseSegment):
     )
 
 
-@mysql_dialect.segment(replace=True)
 class IntervalExpressionSegment(BaseSegment):
     """An interval expression segment.
 
@@ -602,7 +589,6 @@ mysql_dialect.insert_lexer_matchers(
 )
 
 
-@mysql_dialect.segment()
 class DeclareStatement(BaseSegment):
     """DECLARE statement.
 
@@ -668,11 +654,11 @@ class DeclareStatement(BaseSegment):
     )
 
 
-@mysql_dialect.segment(replace=True)
-class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: ignore
+class StatementSegment(ansi.StatementSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
 
-    parse_grammar = ansi_dialect.get_segment("StatementSegment").parse_grammar.copy(
+    match_grammar = ansi.StatementSegment.match_grammar
+    parse_grammar = ansi.StatementSegment.parse_grammar.copy(
         insert=[
             Ref("DelimiterStatement"),
             Ref("CreateProcedureStatementSegment"),
@@ -709,7 +695,6 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
     )
 
 
-@mysql_dialect.segment()
 class DelimiterStatement(BaseSegment):
     """DELIMITER statement."""
 
@@ -718,7 +703,6 @@ class DelimiterStatement(BaseSegment):
     match_grammar = Ref.keyword("DELIMITER")
 
 
-@mysql_dialect.segment()
 class CreateProcedureStatementSegment(BaseSegment):
     """A `CREATE PROCEDURE` statement.
 
@@ -739,7 +723,6 @@ class CreateProcedureStatementSegment(BaseSegment):
     )
 
 
-@mysql_dialect.segment(replace=True)
 class FunctionDefinitionGrammar(BaseSegment):
     """This is the body of a `CREATE FUNCTION` statement."""
 
@@ -747,7 +730,6 @@ class FunctionDefinitionGrammar(BaseSegment):
     match_grammar = Ref("TransactionStatementSegment")
 
 
-@mysql_dialect.segment()
 class CharacteristicStatement(BaseSegment):
     """A Characteristics statement for functions/procedures."""
 
@@ -767,7 +749,6 @@ class CharacteristicStatement(BaseSegment):
     )
 
 
-@mysql_dialect.segment(replace=True)
 class CreateFunctionStatementSegment(BaseSegment):
     """A `CREATE FUNCTION` statement.
 
@@ -792,7 +773,6 @@ class CreateFunctionStatementSegment(BaseSegment):
     )
 
 
-@mysql_dialect.segment(replace=True)
 class AlterTableStatementSegment(BaseSegment):
     """An `ALTER TABLE .. ALTER COLUMN` statement.
 
@@ -903,7 +883,6 @@ class AlterTableStatementSegment(BaseSegment):
     )
 
 
-@mysql_dialect.segment()
 class ProcedureParameterListGrammar(BaseSegment):
     """The parameters for a procedure ie. `(in/out/inout name datatype)`."""
 
@@ -917,7 +896,6 @@ class ProcedureParameterListGrammar(BaseSegment):
     )
 
 
-@mysql_dialect.segment()
 class SetAssignmentStatementSegment(BaseSegment):
     """A `SET` statement.
 
@@ -943,7 +921,6 @@ class SetAssignmentStatementSegment(BaseSegment):
     )
 
 
-@mysql_dialect.segment(replace=True)
 class TransactionStatementSegment(BaseSegment):
     """A `COMMIT`, `ROLLBACK` or `TRANSACTION` statement.
 
@@ -985,7 +962,6 @@ class TransactionStatementSegment(BaseSegment):
     )
 
 
-@mysql_dialect.segment()
 class IfExpressionStatement(BaseSegment):
     """IF-THEN-ELSE-ELSEIF-END IF statement.
 
@@ -1011,7 +987,6 @@ class IfExpressionStatement(BaseSegment):
     )
 
 
-@mysql_dialect.segment()
 class DefinerSegment(BaseSegment):
     """This is the body of a `CREATE FUNCTION` statement."""
 
@@ -1026,7 +1001,6 @@ class DefinerSegment(BaseSegment):
     )
 
 
-@mysql_dialect.segment(replace=True)
 class SelectClauseModifierSegment(BaseSegment):
     """Things that come after SELECT but before the columns."""
 
@@ -1045,7 +1019,6 @@ class SelectClauseModifierSegment(BaseSegment):
     )
 
 
-@mysql_dialect.segment()
 class IntoClauseSegment(BaseSegment):
     """This is an `INTO` clause for assigning variables in a select statement.
 
@@ -1109,8 +1082,7 @@ class IntoClauseSegment(BaseSegment):
     )
 
 
-@mysql_dialect.segment(replace=True)
-class UnorderedSelectStatementSegment(BaseSegment):
+class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     """A `SELECT` statement without any ORDER clauses or later.
 
     This is designed for use in the context of set operations,
@@ -1119,11 +1091,9 @@ class UnorderedSelectStatementSegment(BaseSegment):
     """
 
     type = "select_statement"
-    match_grammar = ansi_dialect.get_segment(
-        "UnorderedSelectStatementSegment"
-    ).match_grammar.copy()
-    match_grammar.terminator = (
-        match_grammar.terminator.copy(
+    match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar.copy()
+    match_grammar.terminator = (  # type: ignore
+        match_grammar.terminator.copy(  # type: ignore
             insert=[Ref("IntoClauseSegment")],
             before=Ref("SetOperatorSegment"),
         )
@@ -1134,8 +1104,7 @@ class UnorderedSelectStatementSegment(BaseSegment):
     )
 
     parse_grammar = (
-        ansi_dialect.get_segment("UnorderedSelectStatementSegment")
-        .parse_grammar.copy(
+        ansi.UnorderedSelectStatementSegment.parse_grammar.copy(
             insert=[Ref("IntoClauseSegment", optional=True)],
             before=Ref("FromClauseSegment", optional=True),
         )
@@ -1151,43 +1120,30 @@ class UnorderedSelectStatementSegment(BaseSegment):
     )
 
 
-@mysql_dialect.segment(replace=True)
-class SelectClauseElementSegment(BaseSegment):
+class SelectClauseElementSegment(ansi.SelectClauseElementSegment):
     """An element in the targets of a select statement."""
 
-    type = "select_clause_element"
-
-    match_grammar = ansi_dialect.get_segment(
-        "SelectClauseElementSegment"
-    ).match_grammar.copy()
-
-    get_alias = ansi_dialect.get_segment("SelectClauseElementSegment").get_alias
+    pass
 
 
-@mysql_dialect.segment(replace=True)
-class SelectClauseSegment(BaseSegment):
+class SelectClauseSegment(ansi.SelectClauseSegment):
     """A group of elements in a select target statement."""
 
-    type = "select_clause"
-    match_grammar = ansi_dialect.get_segment("SelectClauseSegment").match_grammar.copy()
-    match_grammar.terminator = match_grammar.terminator.copy(
+    match_grammar = ansi.SelectClauseSegment.match_grammar.copy()
+    match_grammar.terminator = match_grammar.terminator.copy(  # type: ignore
         insert=[Ref("IntoKeywordSegment")]
     )
-    parse_grammar = ansi_dialect.get_segment("SelectClauseSegment").parse_grammar.copy()
+    parse_grammar = ansi.SelectClauseSegment.parse_grammar
 
 
-@mysql_dialect.segment(replace=True)
-class SelectStatementSegment(BaseSegment):
+class SelectStatementSegment(ansi.SelectStatementSegment):
     """A `SELECT` statement.
 
     https://dev.mysql.com/doc/refman/5.7/en/select.html
     """
 
-    type = "select_statement"
-    match_grammar = ansi_dialect.get_segment(
-        "SelectStatementSegment"
-    ).match_grammar.copy()
-    match_grammar.terminator = match_grammar.terminator.copy(
+    match_grammar = ansi.SelectStatementSegment.match_grammar.copy()
+    match_grammar.terminator = match_grammar.terminator.copy(  # type: ignore
         insert=[Ref("UpsertClauseListSegment")]
     )
 
@@ -1201,7 +1157,6 @@ class SelectStatementSegment(BaseSegment):
     )
 
 
-@mysql_dialect.segment()
 class ForClauseSegment(BaseSegment):
     """This is the body of a `FOR` clause."""
 
@@ -1221,7 +1176,6 @@ class ForClauseSegment(BaseSegment):
     )
 
 
-@mysql_dialect.segment()
 class IndexHintClauseSegment(BaseSegment):
     """This is the body of an index hint clause."""
 
@@ -1242,7 +1196,6 @@ class IndexHintClauseSegment(BaseSegment):
     )
 
 
-@mysql_dialect.segment()
 class CallStoredProcedureSegment(BaseSegment):
     """This is a CALL statement used to execute a stored procedure.
 
@@ -1272,7 +1225,6 @@ class CallStoredProcedureSegment(BaseSegment):
     )
 
 
-@mysql_dialect.segment()
 class SelectPartitionClauseSegment(BaseSegment):
     """This is the body of a partition clause."""
 
@@ -1284,7 +1236,6 @@ class SelectPartitionClauseSegment(BaseSegment):
     )
 
 
-@mysql_dialect.segment()
 class WhileStatementSegment(BaseSegment):
     """A `WHILE-DO-END WHILE` statement.
 
@@ -1315,7 +1266,6 @@ class WhileStatementSegment(BaseSegment):
     )
 
 
-@mysql_dialect.segment()
 class PrepareSegment(BaseSegment):
     """This is the body of a `PREPARE` statement.
 
@@ -1336,7 +1286,6 @@ class PrepareSegment(BaseSegment):
     )
 
 
-@mysql_dialect.segment()
 class GetDiagnosticsSegment(BaseSegment):
     """This is the body of a `GET DIAGNOSTICS` statement.
 
@@ -1392,7 +1341,6 @@ class GetDiagnosticsSegment(BaseSegment):
     )
 
 
-@mysql_dialect.segment()
 class LoopStatementSegment(BaseSegment):
     """A `LOOP` statement.
 
@@ -1419,7 +1367,6 @@ class LoopStatementSegment(BaseSegment):
     )
 
 
-@mysql_dialect.segment()
 class CursorOpenCloseSegment(BaseSegment):
     """This is a CLOSE or Open statement.
 
@@ -1438,7 +1385,6 @@ class CursorOpenCloseSegment(BaseSegment):
     )
 
 
-@mysql_dialect.segment()
 class IterateStatementSegment(BaseSegment):
     """A `ITERATE` statement.
 
@@ -1453,7 +1399,6 @@ class IterateStatementSegment(BaseSegment):
     )
 
 
-@mysql_dialect.segment()
 class ExecuteSegment(BaseSegment):
     """This is the body of a `EXECUTE` statement.
 
@@ -1469,7 +1414,6 @@ class ExecuteSegment(BaseSegment):
     )
 
 
-@mysql_dialect.segment()
 class RepeatStatementSegment(BaseSegment):
     """A `REPEAT-UNTIL` statement.
 
@@ -1500,7 +1444,6 @@ class RepeatStatementSegment(BaseSegment):
     )
 
 
-@mysql_dialect.segment()
 class DeallocateSegment(BaseSegment):
     """This is the body of a `DEALLOCATE/DROP` statement.
 
@@ -1515,7 +1458,6 @@ class DeallocateSegment(BaseSegment):
     )
 
 
-@mysql_dialect.segment()
 class ResignalSegment(BaseSegment):
     """This is the body of a `RESIGNAL` statement.
 
@@ -1567,7 +1509,6 @@ class ResignalSegment(BaseSegment):
     )
 
 
-@mysql_dialect.segment()
 class CursorFetchSegment(BaseSegment):
     """This is a FETCH statement.
 
@@ -1588,14 +1529,12 @@ class CursorFetchSegment(BaseSegment):
     )
 
 
-@mysql_dialect.segment(replace=True)
-class DropIndexStatementSegment(BaseSegment):
+class DropIndexStatementSegment(ansi.DropIndexStatementSegment):
     """A `DROP INDEX` statement.
 
     https://dev.mysql.com/doc/refman/8.0/en/drop-index.html
     """
 
-    type = "drop_statement"
     # DROP INDEX <Index name> ON <table_name>
     # [ALGORITHM [=] {DEFAULT | INPLACE | COPY} | LOCK [=] {DEFAULT | NONE | SHARED |
     # EXCLUSIVE}]
@@ -1621,7 +1560,6 @@ class DropIndexStatementSegment(BaseSegment):
     )
 
 
-@mysql_dialect.segment()
 class DropProcedureStatementSegment(BaseSegment):
     """A `DROP` statement that addresses stored procedures and functions.
 
@@ -1639,7 +1577,6 @@ class DropProcedureStatementSegment(BaseSegment):
     )
 
 
-@mysql_dialect.segment()
 class DropFunctionStatementSegment(BaseSegment):
     """A `DROP` statement that addresses loadable functions.
 
@@ -1657,7 +1594,6 @@ class DropFunctionStatementSegment(BaseSegment):
     )
 
 
-@mysql_dialect.segment()
 class RenameTableStatementSegment(BaseSegment):
     """A `RENAME TABLE` statement.
 
@@ -1678,7 +1614,6 @@ class RenameTableStatementSegment(BaseSegment):
     )
 
 
-@mysql_dialect.segment()
 class ResetMasterStatementSegment(BaseSegment):
     """A `RESET MASTER` statement.
 
@@ -1693,7 +1628,6 @@ class ResetMasterStatementSegment(BaseSegment):
     )
 
 
-@mysql_dialect.segment()
 class PurgeBinaryLogsStatementSegment(BaseSegment):
     """A `PURGE BINARY LOGS` statement.
 
@@ -1723,7 +1657,6 @@ class PurgeBinaryLogsStatementSegment(BaseSegment):
     )
 
 
-@mysql_dialect.segment()
 class HelpStatementSegment(BaseSegment):
     """A `HELP` statement.
 
@@ -1737,7 +1670,6 @@ class HelpStatementSegment(BaseSegment):
     )
 
 
-@mysql_dialect.segment()
 class CheckTableStatementSegment(BaseSegment):
     """A `CHECK TABLE` statement.
 
@@ -1763,7 +1695,6 @@ class CheckTableStatementSegment(BaseSegment):
     )
 
 
-@mysql_dialect.segment()
 class ChecksumTableStatementSegment(BaseSegment):
     """A `CHECKSUM TABLE` statement.
 
@@ -1784,7 +1715,6 @@ class ChecksumTableStatementSegment(BaseSegment):
     )
 
 
-@mysql_dialect.segment()
 class AnalyzeTableStatementSegment(BaseSegment):
     """An `ANALYZE TABLE` statement.
 
@@ -1834,7 +1764,6 @@ class AnalyzeTableStatementSegment(BaseSegment):
     )
 
 
-@mysql_dialect.segment()
 class RepairTableStatementSegment(BaseSegment):
     """A `REPAIR TABLE` statement.
 
@@ -1861,7 +1790,6 @@ class RepairTableStatementSegment(BaseSegment):
     )
 
 
-@mysql_dialect.segment()
 class OptimizeTableStatementSegment(BaseSegment):
     """An `OPTIMIZE TABLE` statement.
 

@@ -31,7 +31,7 @@ class Rule_L026(BaseRule):
     """References cannot reference objects not present in ``FROM`` clause.
 
     .. note::
-       This rule is disabled by default for BigQuery, Hive, Redshift, and Spark3
+       This rule is disabled by default for BigQuery, Hive, Redshift, and SparkSQL
        due to the use of structs and lateral views which trigger false positives.
        It can be enabled with the ``force_enable = True`` flag.
 
@@ -64,7 +64,7 @@ class Rule_L026(BaseRule):
         self.force_enable: bool
 
         if (
-            context.dialect.name in ["bigquery", "hive", "redshift", "spark3"]
+            context.dialect.name in ["bigquery", "hive", "redshift", "sparksql"]
             and not self.force_enable
         ):
             return LintResult()

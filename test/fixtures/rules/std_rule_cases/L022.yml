@@ -71,6 +71,28 @@ test_fail_no_blank_line_after_cte_before_comment:
 
     select * from my_cte cross join other_cte
 
+test_fail_no_blank_line_after_cte_and_comment:
+  # Issue #2136
+  fail_str: |
+    WITH mycte AS (
+      SELECT col
+      FROM
+        my_table
+    )  /* cte comment */
+    SELECT col
+    FROM
+      mycte
+  fix_str: |
+    WITH mycte AS (
+      SELECT col
+      FROM
+        my_table
+    )  /* cte comment */
+
+    SELECT col
+    FROM
+      mycte
+
 test_fail_no_blank_line_after_last_cte_trailing_comma:
   fail_str: |
     with my_cte as (

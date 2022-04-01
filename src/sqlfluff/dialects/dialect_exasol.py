@@ -37,6 +37,7 @@ from sqlfluff.dialects.dialect_exasol_keywords import (
     SYSTEM_PARAMETERS,
     UNRESERVED_KEYWORDS,
 )
+from sqlfluff.dialects import dialect_ansi as ansi
 
 ansi_dialect = load_raw_dialect("ansi")
 exasol_dialect = ansi_dialect.copy_as("exasol")
@@ -315,7 +316,6 @@ exasol_dialect.replace(
 ############################
 
 
-@exasol_dialect.segment(replace=True)
 class UnorderedSelectStatementSegment(BaseSegment):
     """A `SELECT` statement without any ORDER clauses or later.
 
@@ -368,7 +368,6 @@ class UnorderedSelectStatementSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment(replace=True)
 class SelectStatementSegment(BaseSegment):
     """A `SELECT` statement.
 
@@ -395,7 +394,6 @@ class SelectStatementSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class WithInvalidUniquePKSegment(BaseSegment):
     """`WITH INVALID UNIQUE` or `WITH INVALID PRIMARY KEY` clause within `SELECT`."""
 
@@ -416,7 +414,6 @@ class WithInvalidUniquePKSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class WithInvalidForeignKeySegment(BaseSegment):
     """`WITH INVALID FOREIGN KEY` clause within `SELECT`."""
 
@@ -441,7 +438,6 @@ class WithInvalidForeignKeySegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class IntoTableSegment(BaseSegment):
     """`INTO TABLE` clause within `SELECT`."""
 
@@ -450,7 +446,6 @@ class IntoTableSegment(BaseSegment):
     parse_grammar = Sequence("INTO", "TABLE", Ref("TableReferenceSegment"))
 
 
-@exasol_dialect.segment(replace=True)
 class TableExpressionSegment(BaseSegment):
     """The main table expression e.g. within a FROM clause."""
 
@@ -467,7 +462,6 @@ class TableExpressionSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment(replace=True)
 class ValuesClauseSegment(BaseSegment):
     """A `VALUES` clause within in `WITH` or `SELECT`."""
 
@@ -493,7 +487,6 @@ class ValuesClauseSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class ValuesRangeClauseSegment(BaseSegment):
     """A `VALUES BETWEEN` clause within a `SELECT` statement.
 
@@ -511,7 +504,6 @@ class ValuesRangeClauseSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment(replace=True)
 class SetOperatorSegment(BaseSegment):
     """A set operator such as Union, Minus, Except or Intersect."""
 
@@ -523,7 +515,6 @@ class SetOperatorSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class ConnectByClauseSegment(BaseSegment):
     """`CONNECT BY` clause within a select statement."""
 
@@ -567,7 +558,6 @@ class ConnectByClauseSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment(replace=True)
 class GroupByClauseSegment(BaseSegment):
     """A `GROUP BY` clause like in `SELECT`."""
 
@@ -610,7 +600,6 @@ class GroupByClauseSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class CubeRollupClauseSegment(BaseSegment):
     """`CUBE` / `ROLLUP` clause within the `GROUP BY` clause."""
 
@@ -633,7 +622,6 @@ class CubeRollupClauseSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class GroupingSetsClauseSegment(BaseSegment):
     """`GROUPING SETS` clause within the `GROUP BY` clause."""
 
@@ -661,7 +649,6 @@ class GroupingSetsClauseSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class GroupingExpressionList(BaseSegment):
     """Grouping expression list within `CUBE` / `ROLLUP` `GROUPING SETS`."""
 
@@ -674,7 +661,6 @@ class GroupingExpressionList(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class QualifyClauseSegment(BaseSegment):
     """`QUALIFY` clause within `SELECT`."""
 
@@ -690,7 +676,6 @@ class QualifyClauseSegment(BaseSegment):
     parse_grammar = Sequence("QUALIFY", Ref("ExpressionSegment"))
 
 
-@exasol_dialect.segment(replace=True)
 class LimitClauseSegment(BaseSegment):
     """A `LIMIT` clause like in `SELECT`."""
 
@@ -712,7 +697,6 @@ class LimitClauseSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment(replace=True)
 class LocalAliasSegment(BaseSegment):
     """The `LOCAL.ALIAS` syntax allows to use a alias name of a column within clauses.
 
@@ -734,7 +718,6 @@ class LocalAliasSegment(BaseSegment):
 ############################
 
 
-@exasol_dialect.segment(replace=True)
 class CreateSchemaStatementSegment(BaseSegment):
     """A `CREATE SCHEMA` statement.
 
@@ -755,7 +738,6 @@ class CreateSchemaStatementSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class CreateVirtualSchemaStatementSegment(BaseSegment):
     """A `CREATE VIRUTAL SCHEMA` statement.
 
@@ -787,7 +769,6 @@ class CreateVirtualSchemaStatementSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class AlterSchemaStatementSegment(BaseSegment):
     """A `ALTER VIRUTAL SCHEMA` statement.
 
@@ -817,7 +798,6 @@ class AlterSchemaStatementSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class AlterVirtualSchemaStatementSegment(BaseSegment):
     """A `ALTER VIRUTAL SCHEMA` statement.
 
@@ -860,7 +840,6 @@ class AlterVirtualSchemaStatementSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment(replace=True)
 class DropSchemaStatementSegment(BaseSegment):
     """A `DROP SCHEMA` statement for EXASOL schema.
 
@@ -888,16 +867,12 @@ class DropSchemaStatementSegment(BaseSegment):
 ############################
 # VIEW
 ############################
-@exasol_dialect.segment()
-class ViewReferenceSegment(
-    ansi_dialect.get_segment("ObjectReferenceSegment")  # type: ignore
-):
+class ViewReferenceSegment(ansi.ObjectReferenceSegment):
     """A reference to an schema."""
 
     type = "view_reference"
 
 
-@exasol_dialect.segment(replace=True)
 class CreateViewStatementSegment(BaseSegment):
     """A `CREATE VIEW` statement.
 
@@ -939,7 +914,6 @@ class CreateViewStatementSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment(replace=True)
 class DropViewStatementSegment(BaseSegment):
     """A `DROP VIEW` statement with CASCADE and RESTRICT option.
 
@@ -965,7 +939,6 @@ class DropViewStatementSegment(BaseSegment):
 ############################
 # TABLE
 ############################
-@exasol_dialect.segment(replace=True)
 class CreateTableStatementSegment(BaseSegment):
     """A `CREATE TABLE` statement.
 
@@ -1018,7 +991,6 @@ class CreateTableStatementSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class TableContentDefinitionSegment(BaseSegment):
     """The table content definition."""
 
@@ -1030,7 +1002,6 @@ class TableContentDefinitionSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class ColumnDatatypeSegment(BaseSegment):
     """sequence of column and datatype definition."""
 
@@ -1041,7 +1012,6 @@ class ColumnDatatypeSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment(replace=True)
 class DatatypeSegment(BaseSegment):
     """A data type segment.
 
@@ -1142,7 +1112,6 @@ class DatatypeSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment(replace=True)
 class IntervalExpressionSegment(BaseSegment):
     """An interval expression segment.
 
@@ -1202,7 +1171,6 @@ class IntervalExpressionSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment(replace=True)
 class ColumnDefinitionSegment(BaseSegment):
     """Column definition within a `CREATE / ALTER TABLE` statement."""
 
@@ -1213,11 +1181,9 @@ class ColumnDefinitionSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment(replace=True)
-class ColumnConstraintSegment(BaseSegment):
+class ColumnConstraintSegment(ansi.ColumnConstraintSegment):
     """A column option; each CREATE TABLE column can have 0 or more."""
 
-    type = "column_option"
     match_grammar = Sequence(
         OneOf(
             Sequence(
@@ -1235,7 +1201,6 @@ class ColumnConstraintSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class TableInlineConstraintSegment(BaseSegment):
     """Inline table constraint for CREATE / ALTER TABLE."""
 
@@ -1270,7 +1235,6 @@ class TableInlineConstraintSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class TableOutOfLineConstraintSegment(BaseSegment):
     """Out of line table constraint for CREATE / ALTER TABLE."""
 
@@ -1310,7 +1274,6 @@ class TableOutOfLineConstraintSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class CreateTableLikeClauseSegment(BaseSegment):
     """`CREATE TABLE` LIKE clause."""
 
@@ -1335,7 +1298,6 @@ class CreateTableLikeClauseSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class TableDistributionPartitonClause(BaseSegment):
     """`CREATE / ALTER TABLE` distribution / partition clause.
 
@@ -1357,7 +1319,6 @@ class TableDistributionPartitonClause(BaseSegment):
     )
 
 
-@exasol_dialect.segment(replace=True)
 class AlterTableStatementSegment(BaseSegment):
     """`ALTER TABLE` statement."""
 
@@ -1375,7 +1336,6 @@ class AlterTableStatementSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class AlterTableColumnSegment(BaseSegment):
     """A `ALTER TABLE` statement to add, modify, drop or rename columns.
 
@@ -1403,7 +1363,6 @@ class AlterTableColumnSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class AlterTableAddColumnSegment(BaseSegment):
     """ALTER TABLE ADD.."""
 
@@ -1416,7 +1375,6 @@ class AlterTableAddColumnSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class AlterTableDropColumnSegment(BaseSegment):
     """ALTER TABLE DROP.."""
 
@@ -1430,7 +1388,6 @@ class AlterTableDropColumnSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class AlterTableModifyColumnSegment(BaseSegment):
     """ALTER TABLE MODIFY.."""
 
@@ -1446,7 +1403,6 @@ class AlterTableModifyColumnSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class AlterTableRenameColumnSegment(BaseSegment):
     """ALTER TABLE RENAME.."""
 
@@ -1460,7 +1416,6 @@ class AlterTableRenameColumnSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class AlterTableAlterColumnSegment(BaseSegment):
     """ALTER TABLE ALTER.."""
 
@@ -1489,7 +1444,6 @@ class AlterTableAlterColumnSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class AlterTableConstraintSegment(BaseSegment):
     """A `ALTER TABLE` statement to add, modify, drop or rename constraints.
 
@@ -1539,7 +1493,6 @@ class AlterTableConstraintSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class AlterTableDistributePartitionSegment(BaseSegment):
     """A `ALTER TABLE` statement to add or drop distribution / partition keys.
 
@@ -1579,7 +1532,6 @@ class AlterTableDistributePartitionSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment(replace=True)
 class DropTableStatementSegment(BaseSegment):
     """A `DROP` table statement.
 
@@ -1605,7 +1557,6 @@ class DropTableStatementSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment(replace=True)
 class CommentClauseSegment(BaseSegment):
     """A comment clause within `CREATE TABLE` / `CREATE VIEW` statements.
 
@@ -1619,7 +1570,6 @@ class CommentClauseSegment(BaseSegment):
 ############################
 # RENAME
 ############################
-@exasol_dialect.segment()
 class RenameStatementSegment(BaseSegment):
     """`RENAME` statement.
 
@@ -1658,7 +1608,6 @@ class RenameStatementSegment(BaseSegment):
 ############################
 
 
-@exasol_dialect.segment()
 class CommentStatementSegment(BaseSegment):
     """`COMMENT` statement.
 
@@ -1713,7 +1662,6 @@ class CommentStatementSegment(BaseSegment):
 ############################
 # INSERT
 ############################
-@exasol_dialect.segment(replace=True)
 class InsertStatementSegment(BaseSegment):
     """A `INSERT` statement."""
 
@@ -1739,7 +1687,6 @@ class InsertStatementSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class ValuesInsertClauseSegment(BaseSegment):
     """A `VALUES` clause like in `INSERT`."""
 
@@ -1767,7 +1714,6 @@ class ValuesInsertClauseSegment(BaseSegment):
 ############################
 
 
-@exasol_dialect.segment(replace=True)
 class UpdateStatementSegment(BaseSegment):
     """A `Update` statement.
 
@@ -1793,7 +1739,6 @@ class UpdateStatementSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment(replace=True)
 class SetClauseListSegment(BaseSegment):
     """Overwritten from ANSI."""
 
@@ -1809,7 +1754,6 @@ class SetClauseListSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment(replace=True)
 class SetClauseSegment(BaseSegment):
     """Overwritten from ANSI."""
 
@@ -1833,7 +1777,6 @@ class SetClauseSegment(BaseSegment):
 ############################
 # MERGE
 ############################
-@exasol_dialect.segment(replace=True)
 class MergeMatchSegment(BaseSegment):
     """Contains dialect specific merge operations."""
 
@@ -1850,7 +1793,6 @@ class MergeMatchSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment(replace=True)
 class MergeMatchedClauseSegment(BaseSegment):
     """The `WHEN MATCHED` clause within a `MERGE` statement."""
 
@@ -1870,7 +1812,6 @@ class MergeMatchedClauseSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment(replace=True)
 class MergeNotMatchedClauseSegment(BaseSegment):
     """The `WHEN NOT MATCHED` clause within a `MERGE` statement."""
 
@@ -1893,7 +1834,6 @@ class MergeNotMatchedClauseSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment(replace=True)
 class MergeUpdateClauseSegment(BaseSegment):
     """`UPDATE` clause within the `MERGE` statement."""
 
@@ -1905,7 +1845,6 @@ class MergeUpdateClauseSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment(replace=True)
 class MergeDeleteClauseSegment(BaseSegment):
     """`DELETE` clause within the `MERGE` statement."""
 
@@ -1916,7 +1855,6 @@ class MergeDeleteClauseSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment(replace=True)
 class MergeInsertClauseSegment(BaseSegment):
     """`INSERT` clause within the `MERGE` statement."""
 
@@ -1940,7 +1878,6 @@ class MergeInsertClauseSegment(BaseSegment):
 ############################
 # DELETE
 ############################
-@exasol_dialect.segment(replace=True)
 class DeleteStatementSegment(BaseSegment):
     """`DELETE` statement.
 
@@ -1968,7 +1905,6 @@ class DeleteStatementSegment(BaseSegment):
 ############################
 # TRUNCATE
 ############################
-@exasol_dialect.segment(replace=True)
 class TruncateStatementSegment(BaseSegment):
     """`TRUNCATE TABLE` statement.
 
@@ -1993,7 +1929,6 @@ class TruncateStatementSegment(BaseSegment):
 ############################
 # IMPORT
 ############################
-@exasol_dialect.segment()
 class ImportStatementSegment(BaseSegment):
     """`IMPORT` statement.
 
@@ -2030,7 +1965,6 @@ class ImportStatementSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class ExportStatementSegment(BaseSegment):
     """`EXPORT` statement.
 
@@ -2061,7 +1995,6 @@ class ExportStatementSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class ExportIntoClauseSegment(BaseSegment):
     """EXPORT INTO CLAUSE."""
 
@@ -2081,7 +2014,6 @@ class ExportIntoClauseSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class ImportColumnsSegment(BaseSegment):
     """IMPORT COLUMNS."""
 
@@ -2094,7 +2026,6 @@ class ImportColumnsSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class ImportFromClauseSegment(BaseSegment):
     """IMPORT FROM CLAUSE."""
 
@@ -2114,7 +2045,6 @@ class ImportFromClauseSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class ImportFromExportIntoDbSrcSegment(BaseSegment):
     """`IMPORT` from or `EXPORT` to a external database source (EXA,ORA,JDBC)."""
 
@@ -2170,7 +2100,6 @@ class ImportFromExportIntoDbSrcSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class ImportFromExportIntoFileSegment(BaseSegment):
     """`IMPORT` from or `EXPORT` to a file source (FBV,CSV)."""
 
@@ -2222,7 +2151,6 @@ class ImportFromExportIntoFileSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class ImportFromExportIntoScriptSegment(BaseSegment):
     """`IMPORT` from / `EXPORT` to a executed database script."""
 
@@ -2247,7 +2175,6 @@ class ImportFromExportIntoScriptSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class ImportErrorsClauseSegment(BaseSegment):
     """`ERRORS` clause."""
 
@@ -2272,7 +2199,6 @@ class ImportErrorsClauseSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class ImportErrorDestinationSegment(BaseSegment):
     """Error destination (csv file or table)."""
 
@@ -2297,7 +2223,6 @@ class ImportErrorDestinationSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class RejectClauseSegment(BaseSegment):
     """`REJECT` clause within an import / export statement."""
 
@@ -2314,7 +2239,6 @@ class RejectClauseSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class CSVColumnDefinitionSegment(BaseSegment):
     """Definition of csv columns within an `IMPORT` / `EXPORT` statement."""
 
@@ -2349,7 +2273,6 @@ class CSVColumnDefinitionSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class FBVColumnDefinitionSegment(BaseSegment):
     """Definition of fbv columns within an `IMPORT` / `EXPORT` statement."""
 
@@ -2379,7 +2302,6 @@ class FBVColumnDefinitionSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class FileOptionSegment(BaseSegment):
     """File options."""
 
@@ -2429,7 +2351,6 @@ class FileOptionSegment(BaseSegment):
 ############################
 # USER
 ############################
-@exasol_dialect.segment()
 class CreateUserSegment(BaseSegment):
     """`CREATE USER` statement.
 
@@ -2460,7 +2381,6 @@ class CreateUserSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class AlterUserSegment(BaseSegment):
     """`ALTER USER` statement.
 
@@ -2515,7 +2435,6 @@ class AlterUserSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class UserPasswordAuthSegment(BaseSegment):
     """user password authentification."""
 
@@ -2527,7 +2446,6 @@ class UserPasswordAuthSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class UserKerberosAuthSegment(BaseSegment):
     """user kerberos authentification."""
 
@@ -2541,7 +2459,6 @@ class UserKerberosAuthSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class UserLDAPAuthSegment(BaseSegment):
     """user ldap authentification."""
 
@@ -2556,7 +2473,6 @@ class UserLDAPAuthSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class UserOpenIDAuthSegment(BaseSegment):
     """User OpenID authentification."""
 
@@ -2569,7 +2485,6 @@ class UserOpenIDAuthSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment(replace=True)
 class DropUserStatementSegment(BaseSegment):
     """A `DROP USER` statement with CASCADE option.
 
@@ -2597,7 +2512,6 @@ class DropUserStatementSegment(BaseSegment):
 ############################
 
 
-@exasol_dialect.segment()
 class CreateConsumerGroupSegment(BaseSegment):
     """`CREATE CONSUMER GROUP` statement."""
 
@@ -2612,7 +2526,6 @@ class CreateConsumerGroupSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class AlterConsumerGroupSegment(BaseSegment):
     """`ALTER CONSUMER GROUP` statement."""
 
@@ -2627,7 +2540,6 @@ class AlterConsumerGroupSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class ConsumerGroupParameterSegment(BaseSegment):
     """Consumer Group Parameters."""
 
@@ -2647,7 +2559,6 @@ class ConsumerGroupParameterSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class DropConsumerGroupSegment(BaseSegment):
     """A `DROP CONSUMER GROUP` statement.
 
@@ -2664,7 +2575,6 @@ class DropConsumerGroupSegment(BaseSegment):
 ############################
 # ROLE
 ############################
-@exasol_dialect.segment()
 class CreateRoleSegment(BaseSegment):
     """`CREATE ROLE` statement.
 
@@ -2688,7 +2598,6 @@ class CreateRoleSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class AlterRoleSegment(BaseSegment):
     """`ALTER ROLE` statement.
 
@@ -2718,7 +2627,6 @@ class AlterRoleSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class DropRoleStatementSegment(BaseSegment):
     """A `DROP ROLE` statement with CASCADE option.
 
@@ -2744,7 +2652,6 @@ class DropRoleStatementSegment(BaseSegment):
 ############################
 # CONNECTION
 ############################
-@exasol_dialect.segment()
 class CreateConnectionSegment(BaseSegment):
     """`CREATE CONNECTION` statement.
 
@@ -2771,7 +2678,6 @@ class CreateConnectionSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class AlterConnectionSegment(BaseSegment):
     """`ALTER CONNECTION` statement.
 
@@ -2797,7 +2703,6 @@ class AlterConnectionSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class ConnectionDefinition(BaseSegment):
     """Definition of a connection."""
 
@@ -2819,7 +2724,6 @@ class ConnectionDefinition(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class DropConnectionStatementSegment(BaseSegment):
     """A `DROP CONNECTION` statement.
 
@@ -2844,7 +2748,6 @@ class DropConnectionStatementSegment(BaseSegment):
 ############################
 # GRANT / REVOKE
 ############################
-@exasol_dialect.segment(replace=True)
 class AccessStatementSegment(BaseSegment):
     """`GRANT` / `REVOKE` statement.
 
@@ -2875,7 +2778,6 @@ class AccessStatementSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class GrantRevokeSystemPrivilegesSegment(BaseSegment):
     """`GRANT` / `REVOKE` system privileges."""
 
@@ -2902,7 +2804,6 @@ class GrantRevokeSystemPrivilegesSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class GrantRevokeObjectPrivilegesSegment(BaseSegment):
     """`GRANT` / `REVOKE` object privileges."""
 
@@ -2933,7 +2834,6 @@ class GrantRevokeObjectPrivilegesSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class GrantRevokeRolesSegment(BaseSegment):
     """`GRANT` / `REVOKE` roles."""
 
@@ -2949,7 +2849,6 @@ class GrantRevokeRolesSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class GrantRevokeImpersonationSegment(BaseSegment):
     """`GRANT` / `REVOKE` impersonation."""
 
@@ -2966,7 +2865,6 @@ class GrantRevokeImpersonationSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class GrantRevokeConnectionSegment(BaseSegment):
     """`GRANT` / `REVOKE` connection."""
 
@@ -2983,7 +2881,6 @@ class GrantRevokeConnectionSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class GrantRevokeConnectionRestrictedSegment(BaseSegment):
     """`GRANT` / `REVOKE` connection restricted."""
 
@@ -3003,7 +2900,6 @@ class GrantRevokeConnectionRestrictedSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class SystemPrivilegesSegment(BaseSegment):
     """System privileges.
 
@@ -3051,7 +2947,6 @@ class SystemPrivilegesSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class ObjectPrivilegesSegment(BaseSegment):
     """Object privileges.
 
@@ -3076,7 +2971,6 @@ class ObjectPrivilegesSegment(BaseSegment):
 ############################
 # SKYLINE
 ############################
-@exasol_dialect.segment()
 class PreferringClauseSegment(BaseSegment):
     """`PREFERRING` clause of the Exasol Skyline extension.
 
@@ -3102,7 +2996,6 @@ class PreferringClauseSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class PreferringPreferenceTermSegment(BaseSegment):
     """The preference term of a `PREFERRING` clause."""
 
@@ -3131,7 +3024,6 @@ class PreferringPreferenceTermSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class PreferringPlusPriorTermSegment(BaseSegment):
     """The preferring preference term expression."""
 
@@ -3154,8 +3046,7 @@ class PreferringPlusPriorTermSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment(replace=True)
-class MLTableExpressionSegment(BaseSegment):
+class MLTableExpressionSegment(ansi.MLTableExpressionSegment):
     """Not supported."""
 
     match_grammar = Nothing()
@@ -3164,7 +3055,6 @@ class MLTableExpressionSegment(BaseSegment):
 ############################
 # SYSTEM
 ############################
-@exasol_dialect.segment()
 class AlterSessionSegment(BaseSegment):
     """`ALTER SESSION` statement."""
 
@@ -3179,7 +3069,6 @@ class AlterSessionSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class AlterSystemSegment(BaseSegment):
     """`ALTER SYSTEM` statement."""
 
@@ -3194,7 +3083,6 @@ class AlterSystemSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class OpenSchemaSegment(BaseSegment):
     """`OPEN SCHEMA` statement."""
 
@@ -3202,7 +3090,6 @@ class OpenSchemaSegment(BaseSegment):
     match_grammar = Sequence("OPEN", "SCHEMA", Ref("SchemaReferenceSegment"))
 
 
-@exasol_dialect.segment()
 class CloseSchemaSegment(BaseSegment):
     """`CLOSE SCHEMA` statement."""
 
@@ -3210,7 +3097,6 @@ class CloseSchemaSegment(BaseSegment):
     match_grammar = Sequence("CLOSE", "SCHEMA")
 
 
-@exasol_dialect.segment()
 class FlushStatisticsSegment(BaseSegment):
     """`FLUSH STATISTICS` statement."""
 
@@ -3218,7 +3104,6 @@ class FlushStatisticsSegment(BaseSegment):
     match_grammar = Sequence("FLUSH", "STATISTICS")
 
 
-@exasol_dialect.segment()
 class RecompressReorganizeSegment(BaseSegment):
     """`RECOMPRESS` and `REOGRANIZE` statement."""
 
@@ -3240,7 +3125,6 @@ class RecompressReorganizeSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class PreloadSegment(BaseSegment):
     """`PRELOAD` statement."""
 
@@ -3261,7 +3145,6 @@ class PreloadSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class ImpersonateSegment(BaseSegment):
     """`IMPERSONATE` statement."""
 
@@ -3269,7 +3152,6 @@ class ImpersonateSegment(BaseSegment):
     match_grammar = Sequence("IMPERSONATE", Ref("SingleIdentifierGrammar"))
 
 
-@exasol_dialect.segment()
 class KillSegment(BaseSegment):
     """`KILL` statement."""
 
@@ -3291,7 +3173,6 @@ class KillSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class TruncateAuditLogsSegment(BaseSegment):
     """`TRUNCATE AUDIT LOGS` statement."""
 
@@ -3317,7 +3198,6 @@ class TruncateAuditLogsSegment(BaseSegment):
 ############################
 
 
-@exasol_dialect.segment(replace=True)
 class TransactionStatementSegment(BaseSegment):
     """A `COMMIT` or `ROLLBACK` statement."""
 
@@ -3327,7 +3207,6 @@ class TransactionStatementSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class ExecuteScriptSegment(BaseSegment):
     """`EXECUTE SCRIPT` statement."""
 
@@ -3344,7 +3223,6 @@ class ExecuteScriptSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class ExplainVirtualSegment(BaseSegment):
     """`EXPLAIN VIRTUAL` statement."""
 
@@ -3357,16 +3235,12 @@ class ExplainVirtualSegment(BaseSegment):
 ############################
 
 
-@exasol_dialect.segment()
-class FunctionReferenceSegment(
-    exasol_dialect.get_segment("ObjectReferenceSegment")  # type: ignore
-):
+class FunctionReferenceSegment(ansi.ObjectReferenceSegment):
     """A reference to a function."""
 
     type = "function_reference"
 
 
-@exasol_dialect.segment(replace=True)
 class CreateFunctionStatementSegment(BaseSegment):
     """A `CREATE FUNCTION` statement."""
 
@@ -3418,7 +3292,6 @@ class CreateFunctionStatementSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class FunctionBodySegment(BaseSegment):
     """The definition of the function body."""
 
@@ -3435,7 +3308,6 @@ class FunctionBodySegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class FunctionAssignmentSegment(BaseSegment):
     """The definition of a assignment within a function body."""
 
@@ -3454,7 +3326,6 @@ class FunctionAssignmentSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class FunctionIfBranchSegment(BaseSegment):
     """The definition of a if branch within a function body."""
 
@@ -3482,7 +3353,6 @@ class FunctionIfBranchSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class FunctionForLoopSegment(BaseSegment):
     """The definition of a for loop within a function body."""
 
@@ -3518,7 +3388,6 @@ class FunctionForLoopSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class FunctionWhileLoopSegment(BaseSegment):
     """The definition of a while loop within a function body."""
 
@@ -3534,7 +3403,6 @@ class FunctionWhileLoopSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class DropFunctionStatementSegment(BaseSegment):
     """A `DROP FUNCTION` statement with CASCADE and RESTRICT option.
 
@@ -3560,16 +3428,12 @@ class DropFunctionStatementSegment(BaseSegment):
 ############################
 # SCRIPT
 ############################
-@exasol_dialect.segment()
-class ScriptReferenceSegment(
-    exasol_dialect.get_segment("ObjectReferenceSegment")  # type: ignore
-):
+class ScriptReferenceSegment(ansi.ObjectReferenceSegment):
     """A reference to a script."""
 
     type = "script_reference"
 
 
-@exasol_dialect.segment()
 class DropScriptStatementSegment(BaseSegment):
     """A `DROP SCRIPT` statement.
 
@@ -3599,8 +3463,7 @@ class DropScriptStatementSegment(BaseSegment):
 ############################
 
 
-@exasol_dialect.segment(replace=True)
-class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: ignore
+class StatementSegment(ansi.StatementSegment):
     """A generic segment, to any of its child subsegments."""
 
     type = "statement"
@@ -3665,7 +3528,6 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
     )
 
 
-@exasol_dialect.segment()
 class EmitsSegment(BaseSegment):
     """EMITS Segment for JSON_EXTRACT for example.
 
@@ -3679,8 +3541,7 @@ class EmitsSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment(replace=True)
-class SelectClauseElementSegment(BaseSegment):
+class SelectClauseElementSegment(ansi.SelectClauseElementSegment):
     """An element in the targets of a select statement."""
 
     type = "select_clause_element"
@@ -3698,5 +3559,3 @@ class SelectClauseElementSegment(BaseSegment):
             Ref("AliasExpressionSegment", optional=True),
         ),
     )
-
-    get_alias = ansi_dialect.get_segment("SelectClauseElementSegment").get_alias

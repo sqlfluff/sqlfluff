@@ -113,6 +113,7 @@ class Rule_L042(BaseRule):
         # If there are offending elements calculate fixes
         return _calculate_fixes(
             dialect=context.dialect,
+            fix=context.fix,
             root_select=segment,
             nested_subqueries=nested_subqueries,
         )
@@ -120,6 +121,7 @@ class Rule_L042(BaseRule):
 
 def _calculate_fixes(
     dialect: Dialect,
+    fix: bool,
     root_select: Segments,
     nested_subqueries: List[_NestedSubQuerySummary],
 ) -> List[LintResult]:
@@ -184,7 +186,7 @@ def _calculate_fixes(
         )
         lint_results.append(res)
 
-    if ctes.has_duplicate_aliases() or is_recursive:
+    if not fix or ctes.has_duplicate_aliases() or is_recursive:
         # If we have duplicate CTE names just don't fix anything
         # Return the lint warnings anyway
         return lint_results

@@ -127,48 +127,6 @@ class Dialect:
             root_segment_name=self.root_segment_name,
         )
 
-    def segment(self, replace=False):
-        """This is the decorator for elements, it should be called as a method.
-
-        e.g.
-        @dialect.segment()
-        class SomeSegment(BaseSegment):
-            blah blah blah
-
-        """
-
-        def segment_wrap(cls):
-            """Wrap a segment and register it against the dialect."""
-            n = cls.__name__
-            if replace:
-                if n not in self._library:  # pragma: no cover
-                    raise ValueError(f"{n!r} is not already registered in {self!r}")
-                elif isinstance(self._library[n], type) and not issubclass(
-                    cls, self._library[n]
-                ):
-                    # To replace a segment, the replacement must either be a
-                    # subclass of the original, *or* it must have the same
-                    # public methods and/or fields as it.
-                    base_dir = set(dir(self._library[n]))
-                    cls_dir = set(dir(cls))
-                    missing = set(
-                        n for n in base_dir.difference(cls_dir) if not n.startswith("_")
-                    )
-                    if missing:
-                        raise ValueError(  # pragma: no cover
-                            f"Cannot replace {n!r} because it's not a subclass and "
-                            f"is missing these from base: {', '.join(missing)}"
-                        )
-            else:
-                if n in self._library:  # pragma: no cover
-                    raise ValueError(f"{n!r} is already registered in {self!r}")
-            self._library[n] = cls
-            # Pass it back after registering it
-            return cls
-
-        # return the wrapping function
-        return segment_wrap
-
     def add(self, **kwargs: DialectElementType):
         """Add a segment to the dialect directly.
 
@@ -194,7 +152,67 @@ class Dialect:
         for n in kwargs:
             if n not in self._library:  # pragma: no cover
                 raise ValueError(f"{n!r} is not already registered in {self!r}")
-            self._library[n] = kwargs[n]
+            cls = kwargs[n]
+            if self._library[n] is cls:
+                continue
+
+            # To replace a segment, the replacement must either be a
+            # subclass of the original, *or* it must have the same
+            # public methods and/or fields as it.
+            base_dir = set(dir(self._library[n]))
+            subclass = False
+            if isinstance(self._library[n], type) and isinstance(cls, type):
+                subclass = issubclass(cls, self._library[n])
+                if not subclass:
+                    if self._library[n].type != cls.type:
+                        raise ValueError(  # pragma: no cover
+                            f"Cannot replace {n!r} because 'type' property does not "
+                            f"match: {cls.type} != {self._library[n].type}"
+                        )
+
+                    cls_dir = set(dir(cls))
+                    missing = set(
+                        n for n in base_dir.difference(cls_dir) if not n.startswith("_")
+                    )
+                    if missing:
+                        raise ValueError(  # pragma: no cover
+                            f"Cannot replace {n!r} because it's not a subclass and "
+                            f"is missing these from base: {', '.join(missing)}"
+                        )
+
+            if subclass:
+                # If the segment class we're replacing defines these fields, the
+                # replacement must override either:
+                # - NONE of them or
+                # - ALL of them
+                # Overriding a subset of them is not necessarily wrong, but it's
+                # error-prone, hence this policy.
+                grammars = {"match_grammar", "parse_grammar"}
+                # TRICKY: The explicit use of __dict__ on the classes is
+                # deliberate. We are concerned with whether a class itself does
+                # or does not define a thing, IGNORING INHERITED VALUES.
+                if grammars.intersection(set(self._library[n].__dict__)) == grammars:
+                    overrides = grammars.intersection(set(cls.__dict__))
+                    if overrides and overrides != grammars:
+                        for grammar in grammars:
+                            if (
+                                grammar in self._library[n].__dict__
+                                and grammar not in cls.__dict__
+                            ):
+                                raise ValueError(
+                                    f"Cannot replace {n!r} because it needs "
+                                    f"to define '{grammar}'"
+                                )
+            self._library[n] = cls
+
+    def add_update_segments(self, module_dct):
+        """Scans module dictionary, adding or replacing segment definitions."""
+        for k, v in module_dct.items():
+            if isinstance(v, type) and issubclass(v, BaseSegment):
+                if k not in self._library:
+                    self.add(**{k: v})
+                else:
+                    self.replace(**{k: v})
 
     def get_grammar(self, name: str) -> BaseGrammar:
         """Allow access to grammars pre-expansion.
