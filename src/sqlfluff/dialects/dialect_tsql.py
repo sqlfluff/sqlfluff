@@ -428,6 +428,10 @@ class StatementSegment(ansi.StatementSegment):
             Ref("ReturnStatementSegment"),
             Ref("GotoStatement"),
             Ref("DisableTriggerStatementSegment"),
+            Ref("WhileExpressionStatement"),
+            Ref("BreakStatement"),
+            Ref("ContinueStatement"),
+            Ref("WaitForStatementSegment"),
         ],
         remove=[
             Ref("CreateExtensionStatementSegment"),
@@ -597,7 +601,7 @@ class InsertStatementSegment(BaseSegment):
     type = "insert_statement"
     match_grammar = Sequence(
         "INSERT",
-        "INTO",
+        Ref.keyword("INTO", optional=True),
         Ref("TableReferenceSegment"),
         Ref("BracketedColumnReferenceListGrammar", optional=True),
         OneOf(Ref("SelectableGrammar"), Ref("ExecuteScriptSegment")),
@@ -1300,6 +1304,72 @@ class IfClauseSegment(BaseSegment):
         Indent,
         Ref("ExpressionSegment"),
         Dedent,
+    )
+
+
+class WhileExpressionStatement(BaseSegment):
+    """WHILE statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/language-elements/while-transact-sql?view=sql-server-ver15
+    """
+
+    type = "while_statement"
+
+    match_grammar = Sequence(
+        "WHILE",
+        Ref("ExpressionSegment"),
+        Indent,
+        Sequence(
+            Ref("StatementSegment"),
+            Ref("DelimiterSegment", optional=True),
+        ),
+        Dedent,
+    )
+
+
+class BreakStatement(BaseSegment):
+    """BREAK statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/language-elements/break-transact-sql?view=sql-server-ver15
+    """
+
+    type = "break_statement"
+
+    match_grammar = Sequence(
+        "BREAK",
+    )
+
+
+class ContinueStatement(BaseSegment):
+    """CONTINUE statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/language-elements/continue-transact-sql?view=sql-server-ver15
+    """
+
+    type = "continue_statement"
+
+    match_grammar = Sequence(
+        "CONTINUE",
+    )
+
+
+class WaitForStatementSegment(BaseSegment):
+    """WAITFOR statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/language-elements/waitfor-transact-sql?view=sql-server-ver15
+    Partially implemented, lacking Receive and Get Conversation Group statements for
+    now.
+    """
+
+    type = "waitfor_statement"
+
+    match_grammar = Sequence(
+        "WAITFOR",
+        OneOf(
+            Sequence("DELAY", Ref("ExpressionSegment")),
+            Sequence("TIME", Ref("ExpressionSegment")),
+        ),
+        Sequence("TIMEOUT", Ref("NumericLiteralSegment"), optional=True),
     )
 
 
