@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bcbb76979748e153751521a760d3d32083c76ecf40b53ac2f5184a981e989691
+_hash: 187b4e24d20337a2f42cf85d9e24b006cf2457ae771b48d7967485ebba93737e
 file:
 - batch:
     statement:
@@ -33,7 +33,7 @@ file:
             - comma: ','
             - literal: '10'
             - end_bracket: )
-      - statement_terminator: ;
+- statement_terminator: ;
 - go_statement:
     keyword: GO
 - batch:
@@ -83,7 +83,7 @@ file:
           - comparison_operator:
               raw_comparison_operator: '='
           - literal: "'Reminder'"
-          - statement_terminator: ;
+- statement_terminator: ;
 - go_statement:
     keyword: GO
 - batch:
@@ -209,7 +209,7 @@ file:
                   return_segment:
                     keyword: RETURN
               - keyword: END
-            statement_terminator: ;
+- statement_terminator: ;
 - go_statement:
     keyword: GO
 - batch:
@@ -266,7 +266,7 @@ file:
           identifier: safety
       - keyword: 'ON'
       - keyword: DATABASE
-    statement_terminator: ;
+- statement_terminator: ;
 - go_statement:
     keyword: GO
 - batch:
@@ -332,7 +332,7 @@ file:
       - keyword: 'ON'
       - keyword: ALL
       - keyword: SERVER
-    statement_terminator: ;
+- statement_terminator: ;
 - go_statement:
     keyword: GO
 - batch:
@@ -416,7 +416,7 @@ file:
                     keyword: ROLLBACK
                     statement_terminator: ;
           - keyword: END
-      - statement_terminator: ;
+- statement_terminator: ;
 - go_statement:
     keyword: GO
 - batch:
@@ -588,7 +588,7 @@ file:
       - keyword: TRIGGER
       - trigger_reference:
           identifier: employee_insupd
-    statement_terminator: ;
+- statement_terminator: ;
 - go_statement:
     keyword: GO
 - batch:
@@ -600,7 +600,7 @@ file:
           identifier: safety
       - keyword: 'ON'
       - keyword: DATABASE
-    statement_terminator: ;
+- statement_terminator: ;
 - go_statement:
     keyword: GO
 - batch:
@@ -628,6 +628,6 @@ file:
           identifier: safety
       - keyword: 'ON'
       - keyword: DATABASE
-    statement_terminator: ;
+- statement_terminator: ;
 - go_statement:
     keyword: GO

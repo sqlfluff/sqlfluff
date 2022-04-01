@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 45076fc4f279fd8cfa91c9fc06e55fcea7b8aa0aaa1ac27a5ba73f4ac3c79bfd
+_hash: 86a651b06fd4e48e023cf26ed5fe8e713fe1d624c14ea4328d9e4928fcfbfeb8
 file:
 - batch:
     statement:
@@ -21,7 +21,7 @@ file:
             data_type:
               data_type_identifier: INT
           end_bracket: )
-      - statement_terminator: ;
+- statement_terminator: ;
 - go_statement:
     keyword: GO
 - batch:
@@ -45,7 +45,7 @@ file:
               end_bracket: )
           column_constraint_segment:
             keyword: 'NULL'
-    statement_terminator: ;
+- statement_terminator: ;
 - go_statement:
     keyword: GO
 - batch:
@@ -64,7 +64,7 @@ file:
             data_type:
               data_type_identifier: INT
           end_bracket: )
-      - statement_terminator: ;
+- statement_terminator: ;
 - go_statement:
     keyword: GO
 - batch:
@@ -93,7 +93,7 @@ file:
           - object_reference:
               identifier: exb_unique
           - keyword: UNIQUE
-    statement_terminator: ;
+- statement_terminator: ;
 - go_statement:
     keyword: GO
 - batch:
@@ -103,7 +103,7 @@ file:
         object_reference:
           identifier: sp_help
         identifier: doc_exc
-        statement_terminator: ;
+- statement_terminator: ;
 - go_statement:
     keyword: GO
 - batch:
@@ -115,7 +115,7 @@ file:
         - identifier: dbo
         - dot: .
         - identifier: doc_exc
-      - statement_terminator: ;
+- statement_terminator: ;
 - go_statement:
     keyword: GO
 - batch:
@@ -139,7 +139,7 @@ file:
             data_type:
               data_type_identifier: INT
         - end_bracket: )
-      - statement_terminator: ;
+- statement_terminator: ;
 - go_statement:
     keyword: GO
 - batch:
@@ -163,7 +163,7 @@ file:
             expression:
               literal: '7'
             end_bracket: )
-    statement_terminator: ;
+- statement_terminator: ;
 - go_statement:
     keyword: GO
 - batch:
@@ -185,7 +185,7 @@ file:
       - keyword: FOR
       - column_reference:
           identifier: column_b
-    statement_terminator: ;
+- statement_terminator: ;
 - go_statement:
     keyword: GO
 - batch:
@@ -209,7 +209,7 @@ file:
             expression:
               literal: '10'
             end_bracket: )
-    statement_terminator: ;
+- statement_terminator: ;
 - go_statement:
     keyword: GO
 - batch:
@@ -230,7 +230,7 @@ file:
                 - identifier: dbo
                 - dot: .
                 - identifier: doc_exz
-          statement_terminator: ;
+- statement_terminator: ;
 - go_statement:
     keyword: GO
 - batch:
@@ -242,7 +242,7 @@ file:
         - identifier: dbo
         - dot: .
         - identifier: doc_exz
-      - statement_terminator: ;
+- statement_terminator: ;
 - go_statement:
     keyword: GO
 - batch:

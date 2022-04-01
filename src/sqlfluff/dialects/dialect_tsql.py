@@ -2544,7 +2544,13 @@ class FileSegment(BaseFileSegment):
     # going straight into instantiating it directly usually.
     parse_grammar = Delimited(
         Ref("BatchSegment"),
-        delimiter=AnyNumberOf(Ref("BatchDelimiterSegment"), min_times=1),
+        delimiter=AnyNumberOf(
+            Sequence(
+                Ref("DelimiterSegment", optional=True),
+                Ref("BatchDelimiterSegment")
+            ),
+            min_times=1
+        ),
         allow_gaps=True,
         allow_trailing=True,
     )

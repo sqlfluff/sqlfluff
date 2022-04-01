@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9f348e3c6e1846863afc24260acc071d326cb77715077abfa91d55a250ecd0f9
+_hash: d713f8b5ef9a7ca417f6c692cb86c10dcd61ac14507557c097a13122539b70b3
 file:
 - batch:
   - statement:
@@ -42,7 +42,7 @@ file:
           - literal: "'UpdatedJob'"
           - statement_terminator: ;
       - keyword: END
-  - statement_terminator: ;
+- statement_terminator: ;
 - go_statement:
     keyword: GO
 - batch:
@@ -63,6 +63,6 @@ file:
               identifier: sp_helpdb
             statement_terminator: ;
       - keyword: END
-    statement_terminator: ;
+- statement_terminator: ;
 - go_statement:
     keyword: GO

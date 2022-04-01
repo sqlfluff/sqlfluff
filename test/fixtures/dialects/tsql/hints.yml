@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9089be90f3163e1c71c8a0c6879aa774b1d4598924e60dd7832b8c12e275f957
+_hash: 44029aea0c3eb3b5980fb3db7b29a1899fa75f1de79ab8d85aadb1c3835574a4
 file:
 - batch:
     statement:
@@ -67,7 +67,7 @@ file:
             - keyword: MERGE
             - keyword: JOIN
             end_bracket: )
-        statement_terminator: ;
+- statement_terminator: ;
 - go_statement:
     keyword: GO
 - batch:
@@ -147,7 +147,7 @@ file:
                   - keyword: UNKNOWN
                   - end_bracket: )
                 end_bracket: )
-            statement_terminator: ;
+- statement_terminator: ;
 - go_statement:
     keyword: GO
 - batch:
@@ -284,7 +284,7 @@ file:
                 keyword: MAXRECURSION
                 literal: '2'
               end_bracket: )
-          statement_terminator: ;
+- statement_terminator: ;
 - go_statement:
     keyword: GO
 - batch:
@@ -338,7 +338,7 @@ file:
             - keyword: MERGE
             - keyword: UNION
             end_bracket: )
-      - statement_terminator: ;
+- statement_terminator: ;
 - go_statement:
     keyword: GO
 - batch:
@@ -412,7 +412,7 @@ file:
               keyword: FAST
               literal: '10'
           - end_bracket: )
-        statement_terminator: ;
+- statement_terminator: ;
 - go_statement:
     keyword: GO
 - batch:
@@ -482,7 +482,7 @@ file:
               keyword: MAXDOP
               literal: '2'
             end_bracket: )
-        statement_terminator: ;
+- statement_terminator: ;
 - go_statement:
     keyword: GO
 - batch:
@@ -534,7 +534,7 @@ file:
               - literal: "'DISABLE_PARAMETER_SNIFFING'"
               - end_bracket: )
           - end_bracket: )
-        statement_terminator: ;
+- statement_terminator: ;
 - go_statement:
     keyword: GO
 - batch:
@@ -577,7 +577,7 @@ file:
               keyword: QUERYTRACEON
               literal: '4199'
             end_bracket: )
-        statement_terminator: ;
+- statement_terminator: ;
 - go_statement:
     keyword: GO
 - batch:
@@ -624,7 +624,7 @@ file:
               keyword: QUERYTRACEON
               literal: '4137'
           - end_bracket: )
-        statement_terminator: ;
+- statement_terminator: ;
 - go_statement:
     keyword: GO
 - batch:
@@ -661,7 +661,7 @@ file:
               identifier: ProductNumber
             keyword: LIKE
             literal: "'BK-%'"
-        statement_terminator: ;
+- statement_terminator: ;
 - go_statement:
     keyword: GO
 - batch:
@@ -747,7 +747,7 @@ file:
                   raw_comparison_operator: <
               - literal: '1000.00'
               end_bracket: )
-        statement_terminator: ;
+- statement_terminator: ;
 - go_statement:
     keyword: GO
 - batch:
@@ -855,7 +855,7 @@ file:
                   raw_comparison_operator: <
               - literal: '1000.00'
               end_bracket: )
-        statement_terminator: ;
+- statement_terminator: ;
 - go_statement:
     keyword: GO
 - batch:
@@ -954,7 +954,7 @@ file:
                   raw_comparison_operator: <
               - literal: '1000.00'
               end_bracket: )
-        statement_terminator: ;
+- statement_terminator: ;
 - go_statement:
     keyword: GO
 - batch:

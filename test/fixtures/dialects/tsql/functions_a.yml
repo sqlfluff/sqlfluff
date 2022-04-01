@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 46eeedeef9a1e84458eb58a4d365b4704e5e09effc6f6acff829e2548e01a50a
+_hash: bd7b74e82fa0605ae7ac85e37922d70d064927a8ff283e60048a954cf9dd957a
 file:
 - batch:
     statement:
@@ -170,7 +170,7 @@ file:
                               - dot: .
                               - identifier: '[RandomDate]'
                   end_bracket: )
-              statement_terminator: ;
+- statement_terminator: ;
 - go_statement:
     keyword: GO
 - batch:

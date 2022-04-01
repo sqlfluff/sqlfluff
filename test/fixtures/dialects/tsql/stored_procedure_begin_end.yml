@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 950bd695b0c4e3121a707909132e1702ff0e3899bfd13fa525d2cf4de5576191
+_hash: 50af253af83c9c6392bf6af3f97b315292c2325982e18a1b85b7d04087a756f5
 file:
 - batch:
     create_procedure_statement:
@@ -56,7 +56,7 @@ file:
                           identifier: tbl2
                   statement_terminator: ;
           - keyword: END
-        statement_terminator: ;
+- statement_terminator: ;
 - go_statement:
     keyword: GO
 - batch:
@@ -104,7 +104,7 @@ file:
                   select_clause_element:
                     literal: "'8'"
           - keyword: END
-      - statement_terminator: ;
+- statement_terminator: ;
 - go_statement:
     keyword: GO
 - batch:
@@ -154,7 +154,7 @@ file:
                   select_clause_element:
                     literal: "'8'"
           - keyword: END
-      - statement_terminator: ;
+- statement_terminator: ;
 - go_statement:
     keyword: GO
 - batch:
@@ -273,6 +273,6 @@ file:
               - keyword: END
               - keyword: CATCH
           - keyword: END
-      - statement_terminator: ;
+- statement_terminator: ;
 - go_statement:
     keyword: GO
