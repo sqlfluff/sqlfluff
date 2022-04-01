@@ -44,6 +44,7 @@ teradata_dialect.sets("unreserved_keywords").difference_update(
         # 'auto_increment',
         # The following are moved to being reserved keywords
         "UNION",
+        "TIMESTAMP",
     ]
 )
 
@@ -85,7 +86,7 @@ teradata_dialect.sets("unreserved_keywords").update(
     ]
 )
 
-teradata_dialect.sets("reserved_keywords").update(["UNION"])
+teradata_dialect.sets("reserved_keywords").update(["UNION", "TIMESTAMP"])
 
 teradata_dialect.sets("bare_functions").update(["DATE"])
 
