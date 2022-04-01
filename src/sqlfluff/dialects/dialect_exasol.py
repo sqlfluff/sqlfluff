@@ -3546,7 +3546,7 @@ class SelectClauseElementSegment(ansi.SelectClauseElementSegment):
 
     type = "select_clause_element"
     # Important to split elements before parsing, otherwise debugging is really hard.
-    match_grammar = GreedyUntil(
+    match_grammar = GreedyUntil(  # type: ignore
         Ref("SelectClauseElementTerminatorGrammar"),
         enforce_whitespace_preceding_terminator=False,
     )
