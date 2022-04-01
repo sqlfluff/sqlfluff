@@ -1079,6 +1079,9 @@ class BaseSegment:
         of raw segments, they will be replaced or removed by their parent and
         so this function should just return self.
         """
+        # if self.type == 'table_expression' and "from b" in self.raw:
+        #     import pdb;
+        #     pdb.set_trace()
         if fixes and not self.is_raw():
             # Get a reference to self to start with, but this will rapidly
             # become a working copy.
@@ -1088,6 +1091,7 @@ class BaseSegment:
             seg_buffer = []
             fixes_applied = []
             todo_buffer = list(self.segments)
+
             while True:
                 if len(todo_buffer) == 0:
                     break
@@ -1121,6 +1125,7 @@ class BaseSegment:
                                 "create_before",
                                 "create_after",
                             ):
+                                # import pdb; pdb.set_trace()
                                 if (
                                     f.edit_type == "create_after"
                                     and len(anchor_info.fixes) == 1
@@ -1171,8 +1176,9 @@ class BaseSegment:
                 # Pass through any additional kwargs
                 **{k: getattr(self, k) for k in self.additional_kwargs},
             )
-            if fixes_applied:
-                self._validate_segment_after_fixes(rule_code, dialect, fixes_applied, r)
+            # if fixes_applied:
+            #     self._validate_segment_after_fixes(
+            #       rule_code, dialect, fixes_applied, r)
             # Return the new segment with any unused fixes.
             return r, fixes
         else:

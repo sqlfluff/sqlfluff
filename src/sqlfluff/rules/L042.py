@@ -195,10 +195,17 @@ def _calculate_fixes(
     for parent_el, replacement in mutations_buffer:
         # TODO: Create non-mutative helper function.
         # We will replace the whole tree, mutate the table expression.
-        parent_el.segments = (replacement,)
+        if len(parent_el.segments) == 1:
+            lint_results[-1].fixes.append(
+                LintFix.replace(parent_el.segments[0], [replacement])
+            )
+            # import pdb; pdb.set_trace()
+            pass
+        else:
+            parent_el.segments = (replacement,)
 
     # Add fixes to the last result only
-    lint_results[-1].fixes = [
+    lint_results[-1].fixes += [
         LintFix.replace(
             root_select[0],
             edit_segments=[

@@ -1215,6 +1215,10 @@ class TableExpressionSegment(BaseSegment):
         Bracketed(Ref("MergeStatementSegment")),
     )
 
+    # def __init__(self, *args, **kwargs):
+    #     import pdb; pdb.set_trace()
+    #     super().__init__(*args, **kwargs)
+
 
 class WildcardIdentifierSegment(ObjectReferenceSegment):
     """Any identifier of the form a.b.*.
