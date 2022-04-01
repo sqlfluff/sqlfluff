@@ -428,6 +428,9 @@ class StatementSegment(ansi.StatementSegment):
             Ref("ReturnStatementSegment"),
             Ref("GotoStatement"),
             Ref("DisableTriggerStatementSegment"),
+            Ref("WhileExpressionStatement"),
+            Ref("BreakStatement"),
+            Ref("ContinueStatement"),
         ],
         remove=[
             Ref("CreateExtensionStatementSegment"),
@@ -1300,6 +1303,52 @@ class IfClauseSegment(BaseSegment):
         Indent,
         Ref("ExpressionSegment"),
         Dedent,
+    )
+
+
+class WhileExpressionStatement(BaseSegment):
+    """WHILE statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/language-elements/while-transact-sql?view=sql-server-ver15
+    """
+
+    type = "while_statement"
+
+    match_grammar = Sequence(
+        "WHILE",
+        Ref("ExpressionSegment"),
+        Indent,
+        Sequence(
+            Ref("StatementSegment"),
+            Ref("DelimiterSegment", optional=True),
+        ),
+        Dedent,
+    )
+
+
+class BreakStatement(BaseSegment):
+    """BREAK statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/language-elements/break-transact-sql?view=sql-server-ver15
+    """
+
+    type = "break_statement"
+
+    match_grammar = Sequence(
+        "BREAK",
+    )
+
+
+class ContinueStatement(BaseSegment):
+    """CONTINUE statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/language-elements/continue-transact-sql?view=sql-server-ver15
+    """
+
+    type = "continue_statement"
+
+    match_grammar = Sequence(
+        "CONTINUE",
     )
 
 
