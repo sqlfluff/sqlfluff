@@ -2546,10 +2546,9 @@ class FileSegment(BaseFileSegment):
         Ref("BatchSegment"),
         delimiter=AnyNumberOf(
             Sequence(
-                Ref("DelimiterSegment", optional=True),
-                Ref("BatchDelimiterSegment")
+                Ref("DelimiterSegment", optional=True), Ref("BatchDelimiterSegment")
             ),
-            min_times=1
+            min_times=1,
         ),
         allow_gaps=True,
         allow_trailing=True,
