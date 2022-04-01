@@ -62,6 +62,7 @@ class Rule_L063(Rule_L010):
     _exclude_elements: List[Tuple[str, str]] = [
         ("type", "identifier"),
         ("type", "literal"),
+        ("type", "parameter"),
     ]
     config_keywords = [
         "extended_capitalisation_policy",
