@@ -416,32 +416,27 @@ class DbtTemplater(JinjaTemplater):
         # turn is used by our parent class' (JinjaTemplater) slice_file()
         # function.
         old_from_string = Environment.from_string
-        try:
-            make_template = None
+        make_template = None
 
-            def from_string(*args, **kwargs):
-                """Replaces (via monkeypatch) the jinja2.Environment function."""
-                nonlocal make_template
-                # Is it processing the node corresponding to fname?
-                globals = kwargs.get("globals")
-                if globals:
-                    model = globals.get("model")
-                    if model:
-                        if model.get("original_file_path") == original_file_path:
-                            # Yes. Capture the important arguments and create
-                            # a make_template() function.
-                            env = args[0]
-                            globals = args[2] if len(args) >= 3 else kwargs["globals"]
+        def from_string(*args, **kwargs):
+            """Replaces (via monkeypatch) the jinja2.Environment function."""
+            nonlocal make_template
+            # Is it processing the node corresponding to fname?
+            globals = kwargs.get("globals")
+            if globals:
+                model = globals.get("model")
+                if model:
+                    if model.get("original_file_path") == original_file_path:
+                        # Yes. Capture the important arguments and create
+                        # a make_template() function.
+                        env = args[0]
+                        globals = args[2] if len(args) >= 3 else kwargs["globals"]
 
-                            def make_template(in_str):
-                                env.add_extension(SnapshotExtension)
-                                return env.from_string(in_str, globals=globals)
+                        def make_template(in_str):
+                            env.add_extension(SnapshotExtension)
+                            return env.from_string(in_str, globals=globals)
 
-                return old_from_string(*args, **kwargs)
-
-        finally:
-            # Undo the monkeypatch.
-            Environment.from_string = from_string
+            return old_from_string(*args, **kwargs)
 
         node = self._find_node(fname, config)
 
@@ -452,12 +447,16 @@ class DbtTemplater(JinjaTemplater):
             and not getattr(v, "compiled", False)
         )
         with self.connection():
-            node = self.dbt_compiler.compile_node(
-                node=node,
-                manifest=self.dbt_manifest,
-            )
-
-            Environment.from_string = old_from_string
+            # Apply the monkeypatch.
+            Environment.from_string = from_string
+            try:
+                node = self.dbt_compiler.compile_node(
+                    node=node,
+                    manifest=self.dbt_manifest,
+                )
+            finally:
+                # Undo the monkeypatch.
+                Environment.from_string = old_from_string
 
             if hasattr(node, "injected_sql"):
                 # If injected SQL is present, it contains a better picture
