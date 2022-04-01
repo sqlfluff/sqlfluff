@@ -951,10 +951,27 @@ class OptionsSegment(BaseSegment):
                 Sequence(
                     Ref("ParameterNameSegment"),
                     Ref("EqualsSegment"),
-                    Ref("LiteralGrammar"),
+                    Ref("BaseExpressionElementGrammar"),
                 )
             )
         ),
+    )
+
+
+class ColumnDefinitionSegment(ansi.ColumnDefinitionSegment):
+    """A column definition, e.g. for CREATE TABLE or ALTER TABLE.
+
+    Override ANSI support to allow passing of column options
+    """
+
+    match_grammar: Matchable = Sequence(
+        Ref("SingleIdentifierGrammar"),  # Column name
+        Ref("DatatypeSegment"),  # Column type
+        Bracketed(Anything(), optional=True),  # For types like VARCHAR(100)
+        AnyNumberOf(
+            Ref("ColumnConstraintSegment", optional=True),
+        ),
+        Ref("OptionsSegment", optional=True),
     )
 
 
