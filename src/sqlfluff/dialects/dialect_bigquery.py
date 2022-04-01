@@ -959,8 +959,10 @@ class OptionsSegment(BaseSegment):
 
 
 class ColumnDefinitionSegment(ansi.ColumnDefinitionSegment):
-    """A column definition, e.g. for CREATE TABLE or ALTER TABLE with support for passing
-    BigQuery column options"""
+    """A column definition, e.g. for CREATE TABLE or ALTER TABLE.
+    
+    Override ANSI support to allow passing of column options
+    """
 
     match_grammar: Matchable = Sequence(
         Ref("SingleIdentifierGrammar"),  # Column name
