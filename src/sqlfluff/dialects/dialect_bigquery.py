@@ -951,7 +951,7 @@ class OptionsSegment(BaseSegment):
                 Sequence(
                     Ref("ParameterNameSegment"),
                     Ref("EqualsSegment"),
-                    Ref("LiteralGrammar"),
+                    Ref("BaseExpressionElementGrammar"),
                 )
             )
         ),
