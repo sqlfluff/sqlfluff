@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6d1af97addb2c950720adfb03fa75afe4ec3281114b6df0a8b7df7b316261795
+_hash: f465eec05c05b4bf79660102b8a89df6d4799d4b35c85cf175d921d6c57bcfe8
 file:
 - batch:
     statement:
@@ -78,7 +78,7 @@ file:
                       identifier: '[POPULATION]'
                   keyword: AS
                   data_type:
-                    identifier: BIGINT
+                    data_type_identifier: BIGINT
                   end_bracket: )
               alias_expression:
                 keyword: AS
@@ -99,7 +99,7 @@ file:
                       identifier: '[WEEKLY_COUNT]'
                   keyword: AS
                   data_type:
-                    identifier: BIGINT
+                    data_type_identifier: BIGINT
                   end_bracket: )
               alias_expression:
                 keyword: AS
@@ -153,7 +153,7 @@ file:
                       - end_bracket: )
                   keyword: AS
                   data_type:
-                    identifier: DATE
+                    data_type_identifier: DATE
                   end_bracket: )
               alias_expression:
                 keyword: AS
@@ -212,7 +212,7 @@ file:
                         end_bracket: )
                   keyword: AS
                   data_type:
-                    identifier: DATE
+                    data_type_identifier: DATE
                   end_bracket: )
               alias_expression:
                 keyword: AS
@@ -229,7 +229,7 @@ file:
                       identifier: '[RATE_14_DAY]'
                   keyword: AS
                   data_type:
-                    identifier: FLOAT
+                    data_type_identifier: FLOAT
                   end_bracket: )
               alias_expression:
                 keyword: AS
@@ -246,7 +246,7 @@ file:
                       identifier: '[CUMULATIVE_COUNT]'
                   keyword: AS
                   data_type:
-                    identifier: BIGINT
+                    data_type_identifier: BIGINT
                   end_bracket: )
               alias_expression:
                 keyword: AS
