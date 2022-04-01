@@ -258,7 +258,18 @@ tsql_dialect.replace(
         "NULL",
         Ref("BooleanLiteralGrammar"),
     ),
-    DatatypeIdentifierSegment=Ref("SingleIdentifierGrammar"),
+    DatatypeIdentifierSegment=SegmentGenerator(
+        # Generate the anti template reserved keywords
+        lambda dialect: RegexParser(
+            r"[A-Z][A-Z0-9_]*|\[[A-Z][A-Z0-9_]*\]",
+            CodeSegment,
+            name="data_type_identifier",
+            type="data_type_identifier",
+            # anti_template=r"^(NOT)$",
+            anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
+            # TODO - this is a stopgap until we implement explicit data types
+        ),
+    ),
     PrimaryKeyGrammar=Sequence(
         OneOf(
             Sequence(

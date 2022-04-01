@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7506ca479266c6f032deb047e1bf55f44b0f9f633a4708ca77d644efbbe6ab49
+_hash: ee34dd3b9bd93acfda8550d84f33d9ea48febb98f103996664e13272b40e38aa
 file:
   batch:
     statement:
@@ -19,15 +19,15 @@ file:
           - start_bracket: (
           - parameter: '@add_1'
           - data_type:
-              identifier: int
+              data_type_identifier: int
           - comma: ','
           - parameter: '@add_2'
           - data_type:
-              identifier: int
+              data_type_identifier: int
           - end_bracket: )
       - keyword: RETURNS
       - data_type:
-          identifier: integer
+          data_type_identifier: integer
       - keyword: AS
       - procedure_statement:
           statement:
