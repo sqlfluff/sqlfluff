@@ -312,7 +312,7 @@ ansi_dialect.add(
             CodeSegment,
             name="data_type_identifier",
             type="data_type_identifier",
-            anti_template=r"^(NOT)$",
+            anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
             # TODO - this is a stopgap until we implement explicit data types
         ),
     ),
