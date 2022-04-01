@@ -431,6 +431,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("WhileExpressionStatement"),
             Ref("BreakStatement"),
             Ref("ContinueStatement"),
+            Ref("WaitForStatementSegment"),
         ],
         remove=[
             Ref("CreateExtensionStatementSegment"),
@@ -1349,6 +1350,26 @@ class ContinueStatement(BaseSegment):
 
     match_grammar = Sequence(
         "CONTINUE",
+    )
+
+
+class WaitForStatementSegment(BaseSegment):
+    """WAITFOR statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/language-elements/waitfor-transact-sql?view=sql-server-ver15
+    Partially implemented, lacking Receive and Get Conversation Group statements for
+    now.
+    """
+
+    type = "waitfor_statement"
+
+    match_grammar = Sequence(
+        "WAITFOR",
+        OneOf(
+            Sequence("DELAY", Ref("ExpressionSegment")),
+            Sequence("TIME", Ref("ExpressionSegment")),
+        ),
+        Sequence("TIMEOUT", Ref("NumericLiteralSegment"), optional=True),
     )
 
 
