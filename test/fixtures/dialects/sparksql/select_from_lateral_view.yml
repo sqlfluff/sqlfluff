@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0b5bd5052404350f980972aa1a44e3ddcab500dd8e1f9cd001feff54b11438d7
+_hash: 1db790b8df97b1fc79b959e5ae7c7e2c24e3830f13a6cc7120cc768811634f9d
 file:
 - statement:
     select_statement:
@@ -310,8 +310,8 @@ file:
           - dot: .
           - identifier: state
       from_clause:
-      - keyword: FROM
-      - from_expression:
+        keyword: FROM
+        from_expression:
           from_expression_element:
             table_expression:
               table_reference:
@@ -331,18 +331,10 @@ file:
             - identifier: exploded_people
             - keyword: AS
             - identifier: name
-      - comma: ','
-      - from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                identifier: age
-      - comma: ','
-      - from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                identifier: state
+            - comma: ','
+            - identifier: age
+            - comma: ','
+            - identifier: state
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -372,8 +364,8 @@ file:
           - dot: .
           - identifier: state
       from_clause:
-      - keyword: FROM
-      - from_expression:
+        keyword: FROM
+        from_expression:
           from_expression_element:
             table_expression:
               table_reference:
@@ -396,16 +388,8 @@ file:
             - identifier: exploded_people
             - keyword: AS
             - identifier: name
-      - comma: ','
-      - from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                identifier: age
-      - comma: ','
-      - from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                identifier: state
+            - comma: ','
+            - identifier: age
+            - comma: ','
+            - identifier: state
 - statement_terminator: ;

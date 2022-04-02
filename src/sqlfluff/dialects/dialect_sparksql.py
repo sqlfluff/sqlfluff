@@ -2353,12 +2353,9 @@ class ValuesClauseSegment(ansi.ValuesClauseSegment):
                         ephemeral_name="ValuesClauseElements",
                     )
                 ),
-                Delimited(
-                    # NULL keyword used in
-                    # INSERT INTO statement.
-                    "NULL",
-                    Ref("ExpressionSegment"),
-                ),
+                "NULL",
+                Ref("ExpressionSegment"),
+                exclude=OneOf("VALUES"),
             ),
         ),
         # LIMIT/ORDER are unreserved in sparksql.

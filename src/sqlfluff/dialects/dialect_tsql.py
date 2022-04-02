@@ -1182,7 +1182,7 @@ class GoStatementSegment(BaseSegment):
     """
 
     type = "go_statement"
-    match_grammar = Sequence("GO")
+    match_grammar = Ref.keyword("GO")
 
 
 class DatatypeSegment(BaseSegment):
@@ -3173,7 +3173,6 @@ class MergeMatchSegment(BaseSegment):
         ),
         Ref("OutputClauseSegment", optional=True),
         Ref("OptionClauseSegment", optional=True),
-        AnyNumberOf(Ref("DelimiterSegment"), optional=True),
     )
 
 

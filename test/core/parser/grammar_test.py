@@ -576,7 +576,7 @@ def test__parser__grammar_sequence_indent_conditional(seg_list, caplog):
         (["bar", " \t ", ".", "    ", "bar", "    "], None, True, False, 6),
         # Testing allow_trailing
         (["bar", " \t ", ".", "   "], None, True, False, 0),
-        (["bar", " \t ", ".", "   "], None, True, True, 3),
+        (["bar", " \t ", ".", "   "], None, True, True, 4),
         # Testing the implications of allow_gaps
         (["bar", " \t ", ".", "    ", "bar"], 0, True, False, 5),
         (["bar", " \t ", ".", "    ", "bar"], 0, False, False, 1),
@@ -677,6 +677,8 @@ def test__parser__grammar_noncode(seg_list, fresh_ansi_dialect):
     """Test the NonCodeMatcher."""
     with RootParseContext(dialect=fresh_ansi_dialect) as ctx:
         m = NonCodeMatcher().match(seg_list[1:], parse_context=ctx)
+        # NonCode Matcher doesn't work with simple
+        assert NonCodeMatcher().simple(ctx) is None
     # We should match one and only one segment
     assert len(m) == 1
 

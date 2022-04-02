@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e80cffc737b4d83a1cd8e8b829603f98eb8d96fb02bb5f3db7996a4597648bf6
+_hash: e1c1f4d96321835b7782bb39121ae2c66a14483e6981eb8fb9226b9a457e44d0
 file:
 - batch:
     statement:
@@ -15,44 +15,43 @@ file:
           - keyword: EXISTS
           - bracketed:
               start_bracket: (
-              expression:
-                select_statement:
-                  select_clause:
-                    keyword: SELECT
-                    select_clause_element:
-                      wildcard_expression:
-                        wildcard_identifier:
-                          star: '*'
-                  from_clause:
-                    keyword: FROM
-                    from_expression:
-                      from_expression_element:
-                        table_expression:
-                          table_reference:
-                          - identifier: sys
-                          - dot: .
-                          - identifier: sequences
-                  where_clause:
-                    keyword: WHERE
-                    expression:
-                    - column_reference:
-                        identifier: object_id
-                    - comparison_operator:
-                        raw_comparison_operator: '='
-                    - function:
-                        function_name:
-                          function_name_identifier: OBJECT_ID
-                        bracketed:
-                          start_bracket: (
-                          expression:
-                            literal: "N'[dbo].[SEQ_SCHEMA_NAME_TABLE_NAME]'"
-                          end_bracket: )
-                    - binary_operator: AND
-                    - column_reference:
-                        identifier: type
-                    - comparison_operator:
-                        raw_comparison_operator: '='
-                    - literal: "'SO'"
+              select_statement:
+                select_clause:
+                  keyword: SELECT
+                  select_clause_element:
+                    wildcard_expression:
+                      wildcard_identifier:
+                        star: '*'
+                from_clause:
+                  keyword: FROM
+                  from_expression:
+                    from_expression_element:
+                      table_expression:
+                        table_reference:
+                        - identifier: sys
+                        - dot: .
+                        - identifier: sequences
+                where_clause:
+                  keyword: WHERE
+                  expression:
+                  - column_reference:
+                      identifier: object_id
+                  - comparison_operator:
+                      raw_comparison_operator: '='
+                  - function:
+                      function_name:
+                        function_name_identifier: OBJECT_ID
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          literal: "N'[dbo].[SEQ_SCHEMA_NAME_TABLE_NAME]'"
+                        end_bracket: )
+                  - binary_operator: AND
+                  - column_reference:
+                      identifier: type
+                  - comparison_operator:
+                      raw_comparison_operator: '='
+                  - literal: "'SO'"
               end_bracket: )
         statement:
           create_sequence_statement:
@@ -180,44 +179,43 @@ file:
           - keyword: EXISTS
           - bracketed:
               start_bracket: (
-              expression:
-                select_statement:
-                  select_clause:
-                    keyword: SELECT
-                    select_clause_element:
-                      wildcard_expression:
-                        wildcard_identifier:
-                          star: '*'
-                  from_clause:
-                    keyword: FROM
-                    from_expression:
-                      from_expression_element:
-                        table_expression:
-                          table_reference:
-                          - identifier: sys
-                          - dot: .
-                          - identifier: sequences
-                  where_clause:
-                    keyword: WHERE
-                    expression:
-                    - column_reference:
-                        identifier: object_id
-                    - comparison_operator:
-                        raw_comparison_operator: '='
-                    - function:
-                        function_name:
-                          function_name_identifier: OBJECT_ID
-                        bracketed:
-                          start_bracket: (
-                          expression:
-                            literal: "N'[dbo].[SEQ_STAGE_CBS_POPULATION_BASE]'"
-                          end_bracket: )
-                    - binary_operator: AND
-                    - column_reference:
-                        identifier: type
-                    - comparison_operator:
-                        raw_comparison_operator: '='
-                    - literal: "'SO'"
+              select_statement:
+                select_clause:
+                  keyword: SELECT
+                  select_clause_element:
+                    wildcard_expression:
+                      wildcard_identifier:
+                        star: '*'
+                from_clause:
+                  keyword: FROM
+                  from_expression:
+                    from_expression_element:
+                      table_expression:
+                        table_reference:
+                        - identifier: sys
+                        - dot: .
+                        - identifier: sequences
+                where_clause:
+                  keyword: WHERE
+                  expression:
+                  - column_reference:
+                      identifier: object_id
+                  - comparison_operator:
+                      raw_comparison_operator: '='
+                  - function:
+                      function_name:
+                        function_name_identifier: OBJECT_ID
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          literal: "N'[dbo].[SEQ_STAGE_CBS_POPULATION_BASE]'"
+                        end_bracket: )
+                  - binary_operator: AND
+                  - column_reference:
+                      identifier: type
+                  - comparison_operator:
+                      raw_comparison_operator: '='
+                  - literal: "'SO'"
               end_bracket: )
         statement:
           create_sequence_statement:
