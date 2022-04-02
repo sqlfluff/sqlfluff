@@ -426,32 +426,27 @@ class DbtTemplater(JinjaTemplater):
         # turn is used by our parent class' (JinjaTemplater) slice_file()
         # function.
         old_from_string = Environment.from_string
-        try:
-            make_template = None
+        make_template = None
 
-            def from_string(*args, **kwargs):
-                """Replaces (via monkeypatch) the jinja2.Environment function."""
-                nonlocal make_template
-                # Is it processing the node corresponding to fname?
-                globals = kwargs.get("globals")
-                if globals:
-                    model = globals.get("model")
-                    if model:
-                        if model.get("original_file_path") == original_file_path:
-                            # Yes. Capture the important arguments and create
-                            # a make_template() function.
-                            env = args[0]
-                            globals = args[2] if len(args) >= 3 else kwargs["globals"]
+        def from_string(*args, **kwargs):
+            """Replaces (via monkeypatch) the jinja2.Environment function."""
+            nonlocal make_template
+            # Is it processing the node corresponding to fname?
+            globals = kwargs.get("globals")
+            if globals:
+                model = globals.get("model")
+                if model:
+                    if model.get("original_file_path") == original_file_path:
+                        # Yes. Capture the important arguments and create
+                        # a make_template() function.
+                        env = args[0]
+                        globals = args[2] if len(args) >= 3 else kwargs["globals"]
 
-                            def make_template(in_str):
-                                env.add_extension(SnapshotExtension)
-                                return env.from_string(in_str, globals=globals)
+                        def make_template(in_str):
+                            env.add_extension(SnapshotExtension)
+                            return env.from_string(in_str, globals=globals)
 
-                return old_from_string(*args, **kwargs)
-
-        finally:
-            # Undo the monkeypatch.
-            Environment.from_string = from_string
+            return old_from_string(*args, **kwargs)
 
         node = self._find_node(fname, config)
 
@@ -462,12 +457,16 @@ class DbtTemplater(JinjaTemplater):
             and not getattr(v, "compiled", False)
         )
         with self.connection():
-            node = self.dbt_compiler.compile_node(
-                node=node,
-                manifest=self.dbt_manifest,
-            )
-
-            Environment.from_string = old_from_string
+            # Apply the monkeypatch.
+            Environment.from_string = from_string
+            try:
+                node = self.dbt_compiler.compile_node(
+                    node=node,
+                    manifest=self.dbt_manifest,
+                )
+            finally:
+                # Undo the monkeypatch.
+                Environment.from_string = old_from_string
 
             if hasattr(node, "injected_sql"):
                 # If injected SQL is present, it contains a better picture
@@ -486,7 +485,16 @@ class DbtTemplater(JinjaTemplater):
             with open(fname) as source_dbt_model:
                 source_dbt_sql = source_dbt_model.read()
 
-            n_trailing_newlines = len(source_dbt_sql) - len(source_dbt_sql.rstrip("\n"))
+            if not source_dbt_sql.rstrip().endswith("-%}"):
+                n_trailing_newlines = len(source_dbt_sql) - len(
+                    source_dbt_sql.rstrip("\n")
+                )
+            else:
+                # Source file ends with right whitespace stripping, so there's
+                # no need to preserve/restore trailing newlines, as they would
+                # have been removed regardless of dbt's
+                # keep_trailing_newlines=False behavior.
+                n_trailing_newlines = 0
 
             templater_logger.debug(
                 "    Trailing newline count in source dbt model: %r",
