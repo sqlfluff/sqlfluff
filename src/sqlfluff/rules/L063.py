@@ -59,11 +59,7 @@ class Rule_L063(Rule_L010):
         ("parenttype", "primitive_type"),
         ("type", "data_type_identifier"),
     ]
-    _exclude_elements: List[Tuple[str, str]] = [
-        ("type", "identifier"),
-        ("type", "literal"),
-        ("type", "parameter"),
-    ]
+    _exclude_elements: List[Tuple[str, str]] = []
     config_keywords = [
         "extended_capitalisation_policy",
         "ignore_words",
