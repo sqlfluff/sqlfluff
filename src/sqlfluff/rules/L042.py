@@ -1,4 +1,5 @@
 """Implementation of Rule L042."""
+import copy
 from functools import partial
 from typing import Generator, List, NamedTuple, Optional, Tuple, Type, TypeVar, cast
 from sqlfluff.core.dialects.base import Dialect
@@ -140,14 +141,14 @@ def _calculate_fixes(
         assert isinstance(cte, CTEDefinitionSegment), "TypeGuard"
         ctes.insert_cte(cte)
 
-    # output_select = root_select
-    # if is_with:
-    #     output_select = root_select.children(
-    #         is_type(
-    #             "set_expression",
-    #             "select_statement",
-    #         )
-    #     )
+    output_select = root_select
+    if is_with:
+        output_select = root_select.children(
+            is_type(
+                "set_expression",
+                "select_statement",
+            )
+        )
 
     lint_results: List[LintResult] = []
     mutations_buffer: List[Tuple[BaseSegment, BaseSegment]] = []
@@ -188,38 +189,25 @@ def _calculate_fixes(
         )
         lint_results.append(res)
 
-    if not fix or ctes.has_duplicate_aliases() or is_recursive:
+    if ctes.has_duplicate_aliases() or is_recursive:
         # If we have duplicate CTE names just don't fix anything
         # Return the lint warnings anyway
         return lint_results
 
-    # Apply mutations only once we are sure we are applying fixes
-    for parent_el, replacement in mutations_buffer:
-        # TODO: Create non-mutative helper function.
-        # We will replace the whole tree, mutate the table expression.
-        if len(parent_el.segments) == 1:
-            lint_results[-1].fixes.append(
-                LintFix.replace(parent_el.segments[0], [replacement])
-            )
-            # import pdb; pdb.set_trace()
-            logger.info(
-                f"L042 fix anchor: {id(parent_el.segments[0])} {parent_el.segments[0]}"
-            )
-        else:
-            parent_el.segments = (replacement,)
-
     # Add fixes to the last result only
-    # lint_results[-1].fixes += [
-    #     LintFix.replace(
-    #         root_select[0],
-    #         edit_segments=[
-    #             ctes.compose_select(
-    #                 output_select[0],
-    #                 case_preference=case_preference,
-    #             ),
-    #         ],
-    #     )
-    # ]
+    more_fixes = [
+        LintFix.replace(
+            root_select[0],
+            edit_segments=[
+                ctes.compose_select(
+                    output_select[0],
+                    mutations_buffer,
+                    case_preference=case_preference,
+                ),
+            ],
+        )
+    ]
+    lint_results[-1].fixes += more_fixes
     return lint_results
 
 
@@ -327,8 +315,26 @@ class _CTEBuilder:
             ]
         return cte_segments[:-2]
 
-    def compose_select(self, output_select: BaseSegment, case_preference: str):
+    def compose_select(
+        self, output_select: BaseSegment, mutations_buffer, case_preference: str
+    ):
         """Compose our final new CTE."""
+        # We need to modify output_select, but it's illegal to modify the
+        # "active" parse tree. Make a copy instead.
+        output_select = copy.deepcopy(output_select)
+        to_replace = [
+            parent_el.pos_marker.templated_slice
+            for parent_el, replacement in mutations_buffer
+        ]
+        types = set(parent_el.type for parent_el, replacement in mutations_buffer)
+        for seg in output_select.recursive_crawl(*types):
+            try:
+                idx = to_replace.index(seg.pos_marker.templated_slice)
+            except ValueError:
+                idx = -1
+            if idx != -1:
+                _, replacement = mutations_buffer[idx]
+                seg.segments = (replacement,)
         new_select = WithCompoundStatementSegment(
             segments=tuple(
                 [
