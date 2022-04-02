@@ -854,19 +854,14 @@ class HyphenatedTableReferenceSegment(ObjectReferenceSegment):
         """
         # For each descendant element, group them, using "dot" elements as a
         # delimiter.
-        elements = list(self.recursive_crawl("identifier", "literal", "dash", "dot"))
-        # if len(elements) > 1:
         for is_dot, elems in itertools.groupby(
-            elements,
+            self.recursive_crawl("identifier", "literal", "dash", "dot"),
             lambda e: e.is_type("dot"),
         ):
             if not is_dot:
                 segments = list(elems)
                 parts = [seg.raw_trimmed() for seg in segments]
                 yield self.ObjectReferencePart("".join(parts), segments)
-        # else:
-        #     for elem in elements:
-        #         yield from self._iter_reference_parts(elem)
 
 
 class TableExpressionSegment(ansi.TableExpressionSegment):
