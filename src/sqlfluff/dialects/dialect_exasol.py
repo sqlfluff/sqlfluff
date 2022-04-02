@@ -6,7 +6,6 @@ https://docs.exasol.com/sql_references/sqlstandardcompliance.htm
 
 from sqlfluff.core.parser import (
     AnyNumberOf,
-    Anything,
     BaseSegment,
     Bracketed,
     OptionallyBracketed,
@@ -3439,6 +3438,7 @@ class ScriptReferenceSegment(ansi.ObjectReferenceSegment):
 
 class ScriptContentSegment(BaseSegment):
     """This represents the script content.
+
     Because the script content could be written in
     LUA, PYTHON, JAVA or R there is no further verification.
     """
@@ -3452,6 +3452,7 @@ class ScriptContentSegment(BaseSegment):
 
 class CreateScriptingLuaScriptStatementSegment(BaseSegment):
     """`CREATE SCRIPT` statement to create a Lua scripting script.
+
     https://docs.exasol.com/sql/create_script.htm
     """
 
@@ -3496,6 +3497,7 @@ class CreateScriptingLuaScriptStatementSegment(BaseSegment):
 
 class CreateUDFScriptStatementSegment(BaseSegment):
     """`CREATE SCRIPT` statement create a UDF script.
+
     https://docs.exasol.com/sql/create_script.htm
     """
 
@@ -3549,6 +3551,7 @@ class CreateUDFScriptStatementSegment(BaseSegment):
 
 class CreateAdapterScriptStatementSegment(BaseSegment):
     """`CREATE SCRIPT` statement create a adapter script.
+
     https://docs.exasol.com/sql/create_script.htm
     """
 
@@ -3679,6 +3682,7 @@ class StatementSegment(ansi.StatementSegment):
 
 class FileSegment(BaseFileSegment):
     """This overwrites the FileSegment from ANSI.
+
     The reason is because SCRIPT and FUNCTION statements
     are terminated by a trailing / at the end.
     A semicolon is the terminator of the statement within the function / script
