@@ -207,7 +207,6 @@ Steps to use the Docker Compose environment:
 * Install Docker on your machine.
 * Run `plugins/sqlfluff-templater-dbt/docker/startup` to create the containers.
 * Run `plugins/sqlfluff-templater-dbt/docker/shell` to start a bash session in the `app` container.
-* Manually edit the `host` value in `plugins/sqlfluff-templater-dbt/test/fixtures/dbt/profiles_yml/profiles.yml`, changing it to `postgres`. (This will likely be automated somehow in the future.)
 
 Inside the container, run:
 ```
