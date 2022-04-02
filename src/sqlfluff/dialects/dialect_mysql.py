@@ -208,9 +208,9 @@ mysql_dialect.add(
         trim_chars=('"',),
     ),
     AtSignLiteralSegment=NamedParser(
-        "atsign",
+        "at_sign",
         CodeSegment,
-        name="atsign_literal",
+        name="at_sign_literal",
         type="literal",
         trim_chars=("@",),
     ),
@@ -518,7 +518,7 @@ mysql_dialect.add(
         "$$", SymbolSegment, name="doubledollarsign", type="statement_terminator"
     ),
     AtSignSignSegment=StringParser(
-        "@", SymbolSegment, name="atsign", type="user_designator"
+        "@", SymbolSegment, name="at_sign", type="user_designator"
     ),
     OutputParameterSegment=StringParser(
         "OUT", SymbolSegment, name="inputparameter", type="parameter_direction"
@@ -580,7 +580,7 @@ mysql_dialect.replace(
 mysql_dialect.insert_lexer_matchers(
     [
         RegexLexer(
-            "atsign",
+            "at_sign",
             r"[@][a-zA-Z0-9_]*",
             CodeSegment,
         ),

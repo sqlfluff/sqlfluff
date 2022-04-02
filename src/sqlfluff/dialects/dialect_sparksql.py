@@ -121,6 +121,13 @@ sparksql_dialect.insert_lexer_matchers(
     before="single_quote",
 )
 
+sparksql_dialect.insert_lexer_matchers(
+    [
+        RegexLexer("at_sign_literal", r"@\w*", CodeSegment),
+    ],
+    before="code",
+)
+
 # Set the bare functions
 sparksql_dialect.sets("bare_functions").clear()
 sparksql_dialect.sets("bare_functions").update(
@@ -386,6 +393,22 @@ sparksql_dialect.add(
         # there since there are no significant syntax changes
         "JDBC",
     ),
+    TimestampAsOfGrammar=Sequence(
+        "TIMESTAMP",
+        "AS",
+        "OF",
+        OneOf(
+            Ref("QuotedLiteralSegment"),
+            Ref("BareFunctionSegment"),
+            Ref("FunctionSegment"),
+        ),
+    ),
+    VersionAsOfGrammar=Sequence(
+        "VERSION",
+        "AS",
+        "OF",
+        Ref("NumericLiteralSegment"),
+    ),
     # Adding Hint related segments so they are not treated as generic comments
     # https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-hints.html
     StartHintSegment=StringParser("/*+", KeywordSegment, name="start_hint"),
@@ -477,6 +500,13 @@ sparksql_dialect.add(
             Ref.keyword("LEFT", optional=True),
             "ANTI",
         ),
+    ),
+    AtSignLiteralSegment=NamedParser(
+        "at_sign_literal",
+        CodeSegment,
+        name="at_sign_literal",
+        type="literal",
+        trim_chars="@",
     ),
 )
 
@@ -2343,15 +2373,31 @@ class ValuesClauseSegment(ansi.ValuesClauseSegment):
 class TableExpressionSegment(ansi.TableExpressionSegment):
     """The main table expression e.g. within a FROM clause.
 
-    Enhance to allow for additional clauses allowed in Spark.
+    Enhance to allow for additional clauses allowed in Spark and Delta Lake.
     """
 
     match_grammar = OneOf(
         Ref("ValuesClauseSegment"),
         Ref("BareFunctionSegment"),
         Ref("FunctionSegment"),
-        Ref("FileReferenceSegment"),
-        Ref("TableReferenceSegment"),
+        Sequence(
+            OneOf(
+                Ref("FileReferenceSegment"),
+                Ref("TableReferenceSegment"),
+            ),
+            OneOf(
+                Ref("AtSignLiteralSegment"),
+                Sequence(
+                    Indent,
+                    OneOf(
+                        Ref("TimestampAsOfGrammar"),
+                        Ref("VersionAsOfGrammar"),
+                    ),
+                    Dedent,
+                ),
+                optional=True,
+            ),
+        ),
         # Nested Selects
         Bracketed(Ref("SelectableGrammar")),
     )
@@ -2426,6 +2472,7 @@ class GeneratedColumnDefinitionSegment(BaseSegment):
     """
 
     type = "generated_column_definition"
+
     match_grammar: Matchable = Sequence(
         Ref("SingleIdentifierGrammar"),  # Column name
         Ref("DatatypeSegment"),  # Column type
