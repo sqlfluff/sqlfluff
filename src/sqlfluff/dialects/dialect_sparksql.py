@@ -393,10 +393,10 @@ sparksql_dialect.add(
         # there since there are no significant syntax changes
         "JDBC",
     ),
-    AsOfGrammar=Sequence("AS", "OF"),
     TimestampAsOfGrammar=Sequence(
         "TIMESTAMP",
-        Ref("AsOfGrammar"),
+        "AS",
+        "OF",
         OneOf(
             Ref("QuotedLiteralSegment"),
             Ref("BareFunctionSegment"),
@@ -405,7 +405,8 @@ sparksql_dialect.add(
     ),
     VersionAsOfGrammar=Sequence(
         "VERSION",
-        Ref("AsOfGrammar"),
+        "AS",
+        "OF",
         Ref("NumericLiteralSegment"),
     ),
     # Adding Hint related segments so they are not treated as generic comments
