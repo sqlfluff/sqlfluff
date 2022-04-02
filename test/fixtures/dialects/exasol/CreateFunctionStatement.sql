@@ -1,7 +1,7 @@
 CREATE OR REPLACE FUNCTION percentage ( fraction DECIMAL,
                                         entirety DECIMAL)
 RETURN VARCHAR(10)
-IS
+AS
     res DECIMAL;
 BEGIN
     res := (100*fraction)/entirety;

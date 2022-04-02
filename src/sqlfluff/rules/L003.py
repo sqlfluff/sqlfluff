@@ -324,10 +324,10 @@ class Rule_L003(BaseRule):
         # We ignore certain types (e.g. non-SQL scripts in functions)
         # so check if on ignore list
         if context.segment.type in self._ignore_types:
-            return LintResult()
+            return LintResult()  # pragma: no cover
         for parent in context.parent_stack:
             if parent.type in self._ignore_types:
-                return LintResult()
+                return LintResult()  # pragma: no cover
 
         # Memory keeps track of what we've seen
         if not context.memory:

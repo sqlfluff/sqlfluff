@@ -387,6 +387,8 @@ ansi_dialect.add(
         Ref("LessThanOrEqualToSegment"),
         Ref("NotEqualToSegment"),
         Ref("LikeOperatorSegment"),
+        Sequence("IS", "DISTINCT", "FROM"),
+        Sequence("IS", "NOT", "DISTINCT", "FROM"),
     ),
     # hookpoint for other dialects
     # e.g. EXASOL str to date cast with DATE '2021-01-01'
@@ -452,7 +454,7 @@ ansi_dialect.add(
         "WHERE",
         Sequence("ORDER", "BY"),
         "LIMIT",
-        Ref("CommaSegment"),
+        "OVERLAPS",
         Ref("SetOperatorSegment"),
     ),
     # Define these as grammars to allow child dialects to enable them (since they are
@@ -1269,12 +1271,8 @@ class SelectClauseElementSegment(BaseSegment):
 
     type = "select_clause_element"
     # Important to split elements before parsing, otherwise debugging is really hard.
-    match_grammar: Matchable = GreedyUntil(
-        Ref("SelectClauseElementTerminatorGrammar"),
-        enforce_whitespace_preceding_terminator=True,
-    )
 
-    parse_grammar: Optional[Matchable] = OneOf(
+    match_grammar = OneOf(
         # *, blah.*, blah.blah.*, etc.
         Ref("WildcardExpressionSegment"),
         Sequence(
@@ -2285,11 +2283,8 @@ class MergeStatementSegment(BaseSegment):
     """A `MERGE` statement."""
 
     type = "merge_statement"
-    match_grammar: Matchable = StartsWith(
-        Ref("MergeIntoLiteralGrammar"),
-    )
-    # Note separate `match_grammar` as overridden in other dialects.
-    parse_grammar: Optional[Matchable] = Sequence(
+
+    match_grammar = Sequence(
         Ref("MergeIntoLiteralGrammar"),
         Indent,
         OneOf(
@@ -3570,9 +3565,7 @@ class CreateTriggerStatementSegment(BaseSegment):
 
     type = "create_trigger"
 
-    match_grammar: Matchable = Sequence("CREATE", "TRIGGER", Anything())
-
-    parse_grammar: Optional[Matchable] = Sequence(
+    match_grammar: Matchable = Sequence(
         "CREATE",
         "TRIGGER",
         Ref("TriggerReferenceSegment"),

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 08fe084946e86770098c2b5adf805b7527af2d066f2bc830cc15272d94565b9c
+_hash: 91f5b496be435d79d1edaa018a5a6b51e48a6688a7cf6005223bb3f6ac11d9d5
 file:
   batch:
     statement:
@@ -19,11 +19,11 @@ file:
             start_bracket: (
             parameter: '@DATE'
             data_type:
-              identifier: datetime
+              data_type_identifier: datetime
             end_bracket: )
       - keyword: RETURNS
       - data_type:
-          identifier: int
+          data_type_identifier: int
       - function_option_segment:
           keyword: WITH
           execute_as_clause:
@@ -40,7 +40,7 @@ file:
                   keyword: DECLARE
                   parameter: '@ISOweek'
                   data_type:
-                    identifier: int
+                    data_type_identifier: int
                   statement_terminator: ;
             - statement:
                 set_segment:
@@ -94,7 +94,7 @@ file:
                                   - end_bracket: )
                               keyword: as
                               data_type:
-                                identifier: CHAR
+                                data_type_identifier: CHAR
                                 bracketed:
                                   start_bracket: (
                                   expression:
@@ -155,7 +155,7 @@ file:
                                     literal: '1'
                                   keyword: AS
                                   data_type:
-                                    identifier: CHAR
+                                    data_type_identifier: CHAR
                                     bracketed:
                                       start_bracket: (
                                       expression:
@@ -187,7 +187,7 @@ file:
                                       - end_bracket: )
                                   keyword: AS
                                   data_type:
-                                    identifier: CHAR
+                                    data_type_identifier: CHAR
                                     bracketed:
                                       start_bracket: (
                                       expression:

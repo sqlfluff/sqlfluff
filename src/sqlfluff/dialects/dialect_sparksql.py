@@ -32,6 +32,7 @@ from sqlfluff.core.parser import (
     Anything,
     StartsWith,
     RegexParser,
+    Matchable,
 )
 from sqlfluff.core.parser.segments.raw import CodeSegment, KeywordSegment
 from sqlfluff.dialects.dialect_sparksql_keywords import (
@@ -118,6 +119,13 @@ sparksql_dialect.insert_lexer_matchers(
         RegexLexer("bytes_double_quote", r'X"([^"\\]|\\.)*"', CodeSegment),
     ],
     before="single_quote",
+)
+
+sparksql_dialect.insert_lexer_matchers(
+    [
+        RegexLexer("at_sign_literal", r"@\w*", CodeSegment),
+    ],
+    before="code",
 )
 
 # Set the bare functions
@@ -385,6 +393,22 @@ sparksql_dialect.add(
         # there since there are no significant syntax changes
         "JDBC",
     ),
+    TimestampAsOfGrammar=Sequence(
+        "TIMESTAMP",
+        "AS",
+        "OF",
+        OneOf(
+            Ref("QuotedLiteralSegment"),
+            Ref("BareFunctionSegment"),
+            Ref("FunctionSegment"),
+        ),
+    ),
+    VersionAsOfGrammar=Sequence(
+        "VERSION",
+        "AS",
+        "OF",
+        Ref("NumericLiteralSegment"),
+    ),
     # Adding Hint related segments so they are not treated as generic comments
     # https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-hints.html
     StartHintSegment=StringParser("/*+", KeywordSegment, name="start_hint"),
@@ -476,6 +500,13 @@ sparksql_dialect.add(
             Ref.keyword("LEFT", optional=True),
             "ANTI",
         ),
+    ),
+    AtSignLiteralSegment=NamedParser(
+        "at_sign_literal",
+        CodeSegment,
+        name="at_sign_literal",
+        type="literal",
+        trim_chars="@",
     ),
 )
 
@@ -811,13 +842,18 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
 
     http://spark.apache.org/docs/latest/sql-ref-syntax-ddl-create-table-datasource.html
     https://spark.apache.org/docs/latest/sql-ref-syntax-ddl-create-table-like.html
+    https://docs.delta.io/latest/delta-batch.html#create-a-table
     """
 
     match_grammar = Sequence(
         "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
         "TABLE",
         Ref("IfNotExistsGrammar", optional=True),
-        Ref("TableReferenceSegment"),
+        OneOf(
+            Ref("FileReferenceSegment"),
+            Ref("TableReferenceSegment"),
+        ),
         OneOf(
             # Columns and comment syntax:
             Sequence(
@@ -826,13 +862,19 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                     # Delimited breaks complex (MAP, STRUCT) datatypes
                     # (Comma splits angle bracket blocks)
                     Sequence(
-                        Ref("ColumnDefinitionSegment"),
+                        OneOf(
+                            Ref("ColumnDefinitionSegment"),
+                            Ref("GeneratedColumnDefinitionSegment"),
+                        ),
                         Ref("CommentGrammar", optional=True),
                     ),
                     AnyNumberOf(
                         Sequence(
                             Ref("CommaSegment"),
-                            Ref("ColumnDefinitionSegment"),
+                            OneOf(
+                                Ref("ColumnDefinitionSegment"),
+                                Ref("GeneratedColumnDefinitionSegment"),
+                            ),
                             Ref("CommentGrammar", optional=True),
                         ),
                     ),
@@ -841,7 +883,10 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
             # Like Syntax
             Sequence(
                 "LIKE",
-                Ref("TableReferenceSegment"),
+                OneOf(
+                    Ref("FileReferenceSegment"),
+                    Ref("TableReferenceSegment"),
+                ),
             ),
             optional=True,
         ),
@@ -2308,12 +2353,9 @@ class ValuesClauseSegment(ansi.ValuesClauseSegment):
                         ephemeral_name="ValuesClauseElements",
                     )
                 ),
-                Delimited(
-                    # NULL keyword used in
-                    # INSERT INTO statement.
-                    "NULL",
-                    Ref("ExpressionSegment"),
-                ),
+                "NULL",
+                Ref("ExpressionSegment"),
+                exclude=OneOf("VALUES"),
             ),
         ),
         # LIMIT/ORDER are unreserved in sparksql.
@@ -2331,15 +2373,31 @@ class ValuesClauseSegment(ansi.ValuesClauseSegment):
 class TableExpressionSegment(ansi.TableExpressionSegment):
     """The main table expression e.g. within a FROM clause.
 
-    Enhance to allow for additional clauses allowed in Spark.
+    Enhance to allow for additional clauses allowed in Spark and Delta Lake.
     """
 
     match_grammar = OneOf(
         Ref("ValuesClauseSegment"),
         Ref("BareFunctionSegment"),
         Ref("FunctionSegment"),
-        Ref("FileReferenceSegment"),
-        Ref("TableReferenceSegment"),
+        Sequence(
+            OneOf(
+                Ref("FileReferenceSegment"),
+                Ref("TableReferenceSegment"),
+            ),
+            OneOf(
+                Ref("AtSignLiteralSegment"),
+                Sequence(
+                    Indent,
+                    OneOf(
+                        Ref("TimestampAsOfGrammar"),
+                        Ref("VersionAsOfGrammar"),
+                    ),
+                    Dedent,
+                ),
+                optional=True,
+            ),
+        ),
         # Nested Selects
         Bracketed(Ref("SelectableGrammar")),
     )
@@ -2403,5 +2461,34 @@ class PropertyNameSegment(BaseSegment):
                 allow_gaps=False,
             ),
             Ref("SingleIdentifierGrammar"),
+        ),
+    )
+
+
+class GeneratedColumnDefinitionSegment(BaseSegment):
+    """A generated column definition, e.g. for CREATE TABLE or ALTER TABLE.
+
+    https://docs.delta.io/latest/delta-batch.html#use-generated-columns
+    """
+
+    type = "generated_column_definition"
+
+    match_grammar: Matchable = Sequence(
+        Ref("SingleIdentifierGrammar"),  # Column name
+        Ref("DatatypeSegment"),  # Column type
+        Bracketed(Anything(), optional=True),  # For types like VARCHAR(100)
+        Sequence(
+            "GENERATED",
+            "ALWAYS",
+            "AS",
+            Bracketed(
+                OneOf(
+                    Ref("FunctionSegment"),
+                    Ref("BareFunctionSegment"),
+                ),
+            ),
+        ),
+        AnyNumberOf(
+            Ref("ColumnConstraintSegment", optional=True),
         ),
     )
