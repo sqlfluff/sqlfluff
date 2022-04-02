@@ -792,6 +792,37 @@ test_pass_exasol_func_indent:
     core:
       dialect: exasol
 
+test_fail_fix_exa_func_format:
+  fail_str: |
+      CREATE FUNCTION schem.func (
+          p1 VARCHAR(6)
+      ) RETURN VARCHAR (20)
+      IS
+      res VARCHAR(20);
+      BEGIN
+      IF p1 = 1 THEN
+        res:= 'Hello World';
+          END IF;
+      RETURN res;
+      END schem.func;
+      /
+  fix_str: |
+      CREATE FUNCTION schem.func (
+          p1 VARCHAR(6)
+      ) RETURN VARCHAR (20)
+      IS
+          res VARCHAR(20);
+      BEGIN
+          IF p1 = 1 THEN
+              res:= 'Hello World';
+          END IF;
+          RETURN res;
+      END schem.func;
+      /
+  configs:
+    core:
+      dialect: exasol
+
 test_pass_tsql_index_indent:
   pass_str: |
     CREATE UNIQUE INDEX AK_UnitMeasure_Name
