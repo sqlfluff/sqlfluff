@@ -807,8 +807,10 @@ class ColumnReferenceSegment(ObjectReferenceSegment):
         return super().extract_possible_multipart_references(levels)
 
 
-class TableReferenceSegment(ansi.TableReferenceSegment):
+class TableReferenceSegment(ObjectReferenceSegment):
     """A reference to an object that may contain embedded hyphens."""
+
+    type = "table_reference"
 
     match_grammar: Matchable = Delimited(
         Sequence(
@@ -846,14 +848,14 @@ class TableReferenceSegment(ansi.TableReferenceSegment):
         """Generate a list of reference strings and elements.
 
         Each reference is an ObjectReferencePart. Overrides the base class
-        because hyphens (MinusSegment) causes one logical part of the name to
+        because hyphens (DashSegment) causes one logical part of the name to
         be split across multiple elements, e.g. "table-a" is parsed as three
         segments.
         """
         # For each descendant element, group them, using "dot" elements as a
         # delimiter.
         for is_dot, elems in itertools.groupby(
-            self.recursive_crawl("identifier", "binary_operator", "dot"),
+            self.recursive_crawl("identifier", "literal", "dash", "dot"),
             lambda e: e.is_type("dot"),
         ):
             if not is_dot:

@@ -2,7 +2,7 @@ rule: L026
 
 test_pass_object_referenced_1:
   # References in quotes in bigquery
-  pass_str: SELECT bar.user_id FROM `foo.far.bar`
+  pass_str: SELECT bar.user_id FROM foo.far.bar
 
   configs:
     core:
