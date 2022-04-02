@@ -764,7 +764,7 @@ class AlterFunctionStatementSegment(BaseSegment):
                 "DEPENDS",
                 "ON",
                 "EXTENSION",
-                Ref("ExtensionReferenceSegment")
+                Ref("ExtensionReferenceSegment"),
             ),
         ),
     )
@@ -2347,7 +2347,11 @@ class IndexParametersSegment(BaseSegment):
             optional=True,
         ),
         Sequence(
-            "USING", "INDEX", "TABLESPACE", Ref("TablespaceReferenceSegment"), optional=True
+            "USING",
+            "INDEX",
+            "TABLESPACE",
+            Ref("TablespaceReferenceSegment"),
+            optional=True,
         ),
     )
 
@@ -2752,27 +2756,15 @@ class AlterIndexStatementSegment(BaseSegment):
                 Ref("IfExistsGrammar", optional=True),
                 Ref("IndexReferenceSegment"),
                 OneOf(
-                    Sequence(
-                        "RENAME",
-                        "TO",
-                        Ref("IndexReferenceSegment")
-                    ),
-                    Sequence(
-                        "SET",
-                        "TABLESPACE",
-                        Ref("TablespaceReferenceSegment")
-                    ),
-                    Sequence(
-                        "ATTACH",
-                        "PARTITION",
-                        Ref("IndexReferenceSegment")
-                    ),
+                    Sequence("RENAME", "TO", Ref("IndexReferenceSegment")),
+                    Sequence("SET", "TABLESPACE", Ref("TablespaceReferenceSegment")),
+                    Sequence("ATTACH", "PARTITION", Ref("IndexReferenceSegment")),
                     Sequence(
                         Ref.keyword("NO", optional=True),
                         "DEPENDS",
                         "ON",
                         "EXTENSION",
-                        Ref("ExtensionReferenceSegment")
+                        Ref("ExtensionReferenceSegment"),
                     ),
                     Sequence(
                         "SET",
@@ -2783,17 +2775,14 @@ class AlterIndexStatementSegment(BaseSegment):
                                     Sequence(
                                         Ref("EqualsSegment"),
                                         Ref("LiteralGrammar"),
-                                        optional=True
-                                    )
+                                        optional=True,
+                                    ),
                                 )
                             )
-                        )
+                        ),
                     ),
                     Sequence(
-                        "RESET",
-                        Bracketed(
-                            Delimited(Ref("ParameterNameSegment"))
-                        )
+                        "RESET", Bracketed(Delimited(Ref("ParameterNameSegment")))
                     ),
                     Sequence(
                         "ALTER",
@@ -2801,9 +2790,9 @@ class AlterIndexStatementSegment(BaseSegment):
                         Ref("NumericLiteralSegment"),
                         "SET",
                         "STATISTICS",
-                        Ref("NumericLiteralSegment")
-                    )
-                )
+                        Ref("NumericLiteralSegment"),
+                    ),
+                ),
             ),
             Sequence(
                 "ALL",
@@ -2811,17 +2800,14 @@ class AlterIndexStatementSegment(BaseSegment):
                 "TABLESPACE",
                 Ref("TablespaceReferenceSegment"),
                 Sequence(
-                    "OWNED",
-                    "BY",
-                    Delimited(Ref("RoleReferenceSegment")),
-                    optional=True
+                    "OWNED", "BY", Delimited(Ref("RoleReferenceSegment")), optional=True
                 ),
                 "SET",
                 "TABLESPACE",
                 Ref("TablespaceReferenceSegment"),
-                Ref.keyword("NOWAIT", optional=True)
-            )
-        )
+                Ref.keyword("NOWAIT", optional=True),
+            ),
+        ),
     )
 
 
@@ -2837,43 +2823,37 @@ class ReindexStatementSegment(BaseSegment):
         "REINDEX",
         Bracketed(
             Delimited(
-                Sequence(
-                    "CONCURRENTLY",
-                    Ref("BooleanLiteralGrammar", optional=True)
-                ),
+                Sequence("CONCURRENTLY", Ref("BooleanLiteralGrammar", optional=True)),
                 Sequence(
                     "TABLESPACE",
                     Ref("TablespaceReferenceSegment"),
                 ),
-                Sequence(
-                    "VERBOSE",
-                    Ref("BooleanLiteralGrammar", optional=True)
-                )
+                Sequence("VERBOSE", Ref("BooleanLiteralGrammar", optional=True)),
             ),
-            optional=True
+            optional=True,
         ),
         OneOf(
             Sequence(
                 "INDEX",
                 Ref.keyword("CONCURRENTLY", optional=True),
-                Ref("IndexReferenceSegment")
+                Ref("IndexReferenceSegment"),
             ),
             Sequence(
                 "TABLE",
                 Ref.keyword("CONCURRENTLY", optional=True),
-                Ref("TableReferenceSegment")
+                Ref("TableReferenceSegment"),
             ),
             Sequence(
                 "SCHEMA",
                 Ref.keyword("CONCURRENTLY", optional=True),
-                Ref("SchemaReferenceSegment")
+                Ref("SchemaReferenceSegment"),
             ),
             Sequence(
                 OneOf("DATABASE", "SYSTEM"),
                 Ref.keyword("CONCURRENTLY", optional=True),
-                Ref("DatabaseReferenceSegment")
+                Ref("DatabaseReferenceSegment"),
             ),
-        )
+        ),
     )
 
 
@@ -3076,7 +3056,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CopyStatementSegment"),
             Ref("DoStatementSegment"),
             Ref("AlterIndexStatementSegment"),
-            Ref("ReindexStatementSegment")
+            Ref("ReindexStatementSegment"),
         ],
     )
 
