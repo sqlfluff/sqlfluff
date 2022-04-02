@@ -3,5 +3,42 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: fdda373cd9cd649f82a9c5cf7ba9e290375c0ceae29477b0bad5a25f24a52ae3
-file: null
+_hash: a0f12eb5997df14c159dc4acea327260dbf85dabefd494c89ec710a6c8d4a863
+file:
+  statement:
+    create_udf_script:
+    - keyword: CREATE
+    - keyword: PYTHON
+    - keyword: SCALAR
+    - keyword: SCRIPT
+    - script_reference:
+        identifier: sample_simple
+    - bracketed:
+        start_bracket: (
+        identifier: '...'
+        end_bracket: )
+    - emits_segment:
+        keyword: EMITS
+        bracketed:
+          start_bracket: (
+          identifier: '...'
+          end_bracket: )
+    - keyword: AS
+    - script_content:
+      - raw: def
+      - raw: run
+      - bracketed:
+          start_bracket: (
+          raw: ctx
+          end_bracket: )
+      - raw: ':'
+      - raw: ctx
+      - raw: .
+      - raw: emit
+      - bracketed:
+        - start_bracket: (
+        - raw: 'True'
+        - comma: ','
+        - raw: 'False'
+        - end_bracket: )
+  function_script_terminator: /
