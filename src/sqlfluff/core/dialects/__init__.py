@@ -43,7 +43,7 @@ _legacy_dialects = {
         "Please use the 'exasol' dialect instead."
     ),
     "spark3": (
-        "The 'spark3' dialect has been renamed to sparksql."
+        "The 'spark3' dialect has been renamed to sparksql. "
         "Please use the 'sparksql' dialect instead."
     ),
 }
