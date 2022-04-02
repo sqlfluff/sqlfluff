@@ -120,7 +120,6 @@ test_fail_data_type_capitalisation_policy_keywords_2:
       L063:
         extended_capitalisation_policy: upper
 
-
 test_pass_sparksql_complex_data_types:
   pass_str: |
     CREATE TABLE table_identifier(
@@ -131,6 +130,19 @@ test_pass_sparksql_complex_data_types:
   configs:
     core:
       dialect: sparksql
+    rules:
+      L063:
+        extended_capitalisation_policy: upper
+
+test_pass_bigquery_struct_params:
+  pass_str: |
+    CREATE TEMPORARY FUNCTION getTableInfo(payload STRING)
+    RETURNS STRUCT<has_table BOOLEAN, has_th BOOLEAN> LANGUAGE js AS '''
+    return 1
+    ''';
+  configs:
+    core:
+      dialect: bigquery
     rules:
       L063:
         extended_capitalisation_policy: upper

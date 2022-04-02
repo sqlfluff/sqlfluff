@@ -739,13 +739,16 @@ class BaseRule:
         elif seg.is_type(*[elem[1] for elem in target_tuples if elem[0] == "type"]):
             return True
         # For parent type checks, there's a higher risk of getting an incorrect
-        # segment, so we add some additional guards
+        # segment, so we add some additional guards. We also only check keywords
+        # as for other types we can check directly rather than using parent
         elif (
             not seg.is_meta
+            and not seg.is_comment
             and not seg.is_templated
             and not seg.is_whitespace
             and isinstance(seg, RawSegment)
             and len(seg.raw) > 0
+            and seg.is_type("keyword")
             and parent
             and parent.is_type(
                 *[elem[1] for elem in target_tuples if elem[0] == "parenttype"]
