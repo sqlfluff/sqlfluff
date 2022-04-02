@@ -159,10 +159,6 @@ def _calculate_fixes(
             dialect=dialect,
         )
         ctes.insert_cte(new_cte)
-        # We are preping a mutative change
-        # I gather this is bad. We must provide a position marker
-        # TODO: alternative to mutative change, Dummy pos markers
-
         assert this_seg[0].pos_marker, "TypeGuard"
         mutations_buffer.append(
             (
