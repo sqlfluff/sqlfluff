@@ -99,15 +99,6 @@ exasol_dialect.insert_lexer_matchers(
         ),
         RegexLexer("atsign_literal", r"@[a-zA-Z_][\w]*", CodeSegment),
         RegexLexer("dollar_literal", r"[$][a-zA-Z0-9_.]*", CodeSegment),
-        #RegexLexer(
-        #    # For now we'll just treat function syntax like comments and so just ignore
-        #    # them. In future we may want to enhance this to actually parse them to
-        #    # ensure they are valid meta commands.
-        #    "meta_command",
-        #    r"(?s)(CREATE)[^;]*?(SCRIPT|FUNCTION|ADAPTER)[^;]*?((A|I)S).*?"
-        #    r"((\n/\n)|(\n/$))",
-        #    CommentSegment,
-        #),
     ],
     before="like_operator",
 )
@@ -211,13 +202,11 @@ exasol_dialect.add(
         Delimited(Ref("ColumnDatatypeSegment")),
         Ref("UDFParameterDotSyntaxSegment"),
     ),
-    FunctionScriptTerminatorSegment=SegmentGenerator(
-        lambda dialect: RegexParser(
-            r"/",
-            SymbolSegment,
-            name="function_script_terminator",
-            type="function_script_terminator",
-        )
+    FunctionScriptTerminatorSegment=NamedParser(
+        "function_script_terminator",
+        SymbolSegment,
+        name="function_script_terminator",
+        type="function_script_terminator",
     ),
     WalrusOperatorSegment=NamedParser(
         "walrus_operator", SymbolSegment, type="assignment_operator"
@@ -3695,19 +3684,15 @@ class FileSegment(BaseFileSegment):
     A semicolon is the terminator of the statement within the function / script
     """
 
-    parse_grammar = AnyNumberOf(
-        Delimited(
-            Ref("FunctionScriptStatementSegment"),
-            delimiter=Ref("FunctionScriptTerminatorSegment"),
-            allow_gaps=True,
-            allow_trailing=True,
+    parse_grammar = Delimited(
+        Ref("FunctionScriptStatementSegment"),
+        Ref("StatementSegment"),
+        delimiter=OneOf(
+            Ref("DelimiterSegment"),
+            Ref("FunctionScriptTerminatorSegment"),
         ),
-        Delimited(
-            Ref("StatementSegment"),
-            delimiter=Ref("DelimiterSegment"),
-            allow_gaps=True,
-            allow_trailing=True,
-        ),
+        allow_gaps=True,
+        allow_trailing=True,
     )
 
 
