@@ -116,6 +116,7 @@ class Rule_L042(BaseRule):
             fix=context.fix,
             root_select=segment,
             nested_subqueries=nested_subqueries,
+            logger=self.logger,
         )
 
 
@@ -124,6 +125,7 @@ def _calculate_fixes(
     fix: bool,
     root_select: Segments,
     nested_subqueries: List[_NestedSubQuerySummary],
+    logger,
 ) -> List[LintResult]:
     """Given the Root select and the offending subqueries calculate fixes."""
     is_with = root_select.all(is_type("with_compound_statement"))
@@ -138,14 +140,14 @@ def _calculate_fixes(
         assert isinstance(cte, CTEDefinitionSegment), "TypeGuard"
         ctes.insert_cte(cte)
 
-    output_select = root_select
-    if is_with:
-        output_select = root_select.children(
-            is_type(
-                "set_expression",
-                "select_statement",
-            )
-        )
+    # output_select = root_select
+    # if is_with:
+    #     output_select = root_select.children(
+    #         is_type(
+    #             "set_expression",
+    #             "select_statement",
+    #         )
+    #     )
 
     lint_results: List[LintResult] = []
     mutations_buffer: List[Tuple[BaseSegment, BaseSegment]] = []
@@ -200,22 +202,24 @@ def _calculate_fixes(
                 LintFix.replace(parent_el.segments[0], [replacement])
             )
             # import pdb; pdb.set_trace()
-            pass
+            logger.info(
+                f"L042 fix anchor: {id(parent_el.segments[0])} {parent_el.segments[0]}"
+            )
         else:
             parent_el.segments = (replacement,)
 
     # Add fixes to the last result only
-    lint_results[-1].fixes += [
-        LintFix.replace(
-            root_select[0],
-            edit_segments=[
-                ctes.compose_select(
-                    output_select[0],
-                    case_preference=case_preference,
-                ),
-            ],
-        )
-    ]
+    # lint_results[-1].fixes += [
+    #     LintFix.replace(
+    #         root_select[0],
+    #         edit_segments=[
+    #             ctes.compose_select(
+    #                 output_select[0],
+    #                 case_preference=case_preference,
+    #             ),
+    #         ],
+    #     )
+    # ]
     return lint_results
 
 

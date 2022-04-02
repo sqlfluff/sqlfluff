@@ -1079,9 +1079,7 @@ class BaseSegment:
         of raw segments, they will be replaced or removed by their parent and
         so this function should just return self.
         """
-        # if self.type == 'table_expression' and "from b" in self.raw:
-        #     import pdb;
-        #     pdb.set_trace()
+        # linter_logger.info(f"apply_fixes({id(self)} {self})")
         if fixes and not self.is_raw():
             # Get a reference to self to start with, but this will rapidly
             # become a working copy.
@@ -1091,12 +1089,13 @@ class BaseSegment:
             seg_buffer = []
             fixes_applied = []
             todo_buffer = list(self.segments)
-
             while True:
                 if len(todo_buffer) == 0:
                     break
                 else:
                     seg = todo_buffer.pop(0)
+                    if seg.type == "table_expression":  # and "from b" in self.raw:
+                        linter_logger.info(f"apply_fixes({id(seg)} {seg})")
 
                     # Look for identity not just equality.
                     # This handles potential positioning ambiguity.
