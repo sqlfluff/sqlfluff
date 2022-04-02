@@ -13,7 +13,6 @@ https://www.cockroachlabs.com/docs/stable/sql-grammar.html#select_stmt
 """
 
 from enum import Enum
-import logging
 from typing import Generator, List, NamedTuple, Optional, Tuple, Union
 
 from sqlfluff.core.dialects.base import Dialect
@@ -55,8 +54,6 @@ from sqlfluff.dialects.dialect_ansi_keywords import (
     ansi_reserved_keywords,
     ansi_unreserved_keywords,
 )
-
-dialect_ansi_logger = logging.getLogger("sqlfluff.dialect_ansi")
 
 ansi_dialect = Dialect("ansi", root_segment_name="FileSegment")
 
@@ -1219,11 +1216,6 @@ class TableExpressionSegment(BaseSegment):
         Bracketed(Ref("SelectableGrammar")),
         Bracketed(Ref("MergeStatementSegment")),
     )
-
-    def __init__(self, *args, **kwargs):
-        # import pdb; pdb.set_trace()
-        super().__init__(*args, **kwargs)
-        dialect_ansi_logger.info(f"TableExpressionSegment: {id(self)} {self}")
 
 
 class WildcardIdentifierSegment(ObjectReferenceSegment):

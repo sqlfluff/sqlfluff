@@ -114,19 +114,15 @@ class Rule_L042(BaseRule):
         # If there are offending elements calculate fixes
         return _calculate_fixes(
             dialect=context.dialect,
-            fix=context.fix,
             root_select=segment,
             nested_subqueries=nested_subqueries,
-            logger=self.logger,
         )
 
 
 def _calculate_fixes(
     dialect: Dialect,
-    fix: bool,
     root_select: Segments,
     nested_subqueries: List[_NestedSubQuerySummary],
-    logger,
 ) -> List[LintResult]:
     """Given the Root select and the offending subqueries calculate fixes."""
     is_with = root_select.all(is_type("with_compound_statement"))
@@ -195,7 +191,7 @@ def _calculate_fixes(
         return lint_results
 
     # Add fixes to the last result only
-    more_fixes = [
+    lint_results[-1].fixes += [
         LintFix.replace(
             root_select[0],
             edit_segments=[
@@ -207,7 +203,6 @@ def _calculate_fixes(
             ],
         )
     ]
-    lint_results[-1].fixes += more_fixes
     return lint_results
 
 
@@ -316,16 +311,19 @@ class _CTEBuilder:
         return cte_segments[:-2]
 
     def compose_select(
-        self, output_select: BaseSegment, mutations_buffer, case_preference: str
+        self,
+        output_select: BaseSegment,
+        mutations_buffer: List[Tuple[BaseSegment, BaseSegment]],
+        case_preference: str,
     ):
         """Compose our final new CTE."""
         # We need to modify output_select, but it's illegal to modify the
         # "active" parse tree. Make a copy instead.
         output_select = copy.deepcopy(output_select)
-        to_replace = [
-            parent_el.pos_marker.templated_slice
-            for parent_el, replacement in mutations_buffer
-        ]
+        to_replace = []
+        for parent_el, replacement in mutations_buffer:
+            assert parent_el.pos_marker
+            to_replace.append(parent_el.pos_marker.templated_slice)
         types = set(parent_el.type for parent_el, replacement in mutations_buffer)
         # Replace nested SELECTs with the CTE names we moved them to.
         for seg in output_select.recursive_crawl(*types):
