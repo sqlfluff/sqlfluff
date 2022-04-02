@@ -807,7 +807,7 @@ class ColumnReferenceSegment(ObjectReferenceSegment):
         return super().extract_possible_multipart_references(levels)
 
 
-class TableReferenceSegment(ObjectReferenceSegment):
+class HyphenatedTableReferenceSegment(ObjectReferenceSegment):
     """A reference to an object that may contain embedded hyphens."""
 
     type = "table_reference"
@@ -854,14 +854,29 @@ class TableReferenceSegment(ObjectReferenceSegment):
         """
         # For each descendant element, group them, using "dot" elements as a
         # delimiter.
+        elements = list(self.recursive_crawl("identifier", "literal", "dash", "dot"))
+        # if len(elements) > 1:
         for is_dot, elems in itertools.groupby(
-            self.recursive_crawl("identifier", "literal", "dash", "dot"),
+            elements,
             lambda e: e.is_type("dot"),
         ):
             if not is_dot:
                 segments = list(elems)
                 parts = [seg.raw_trimmed() for seg in segments]
                 yield self.ObjectReferencePart("".join(parts), segments)
+        # else:
+        #     for elem in elements:
+        #         yield from self._iter_reference_parts(elem)
+
+
+class TableExpressionSegment(ansi.TableExpressionSegment):
+    """Main table expression e.g. within a FROM clause, with hyphen support."""
+
+    match_grammar = ansi.TableExpressionSegment.match_grammar.copy(
+        insert=[
+            Ref("HyphenatedTableReferenceSegment"),
+        ]
+    )
 
 
 class DeclareStatementSegment(BaseSegment):
