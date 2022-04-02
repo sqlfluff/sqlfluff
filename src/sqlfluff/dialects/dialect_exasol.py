@@ -97,7 +97,7 @@ exasol_dialect.insert_lexer_matchers(
                 NewlineSegment,
             ),
         ),
-        RegexLexer("atsign_literal", r"@[a-zA-Z_][\w]*", CodeSegment),
+        RegexLexer("at_sign_literal", r"@[a-zA-Z_][\w]*", CodeSegment),
         RegexLexer("dollar_literal", r"[$][a-zA-Z0-9_.]*", CodeSegment),
     ],
     before="like_operator",
