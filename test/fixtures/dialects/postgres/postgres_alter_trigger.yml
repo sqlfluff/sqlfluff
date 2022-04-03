@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 39c0473d4859c3585416afb762a0c2778a469b93478140d0b2c44af534986824
+_hash: 174e81c54842504ed42929c67173a5740f2939a77ac38a5e665a13198f533345
 file:
 - statement:
     alter_trigger:
@@ -31,7 +31,8 @@ file:
     - keyword: DEPENDS
     - keyword: 'ON'
     - keyword: EXTENSION
-    - parameter: extension_name
+    - extension_reference:
+        identifier: extension_name
 - statement_terminator: ;
 - statement:
     alter_trigger:
@@ -46,7 +47,8 @@ file:
     - keyword: DEPENDS
     - keyword: 'ON'
     - keyword: EXTENSION
-    - parameter: extension_name
+    - extension_reference:
+        identifier: extension_name
 - statement_terminator: ;
 - statement:
     alter_trigger:
@@ -74,5 +76,6 @@ file:
     - keyword: DEPENDS
     - keyword: 'ON'
     - keyword: EXTENSION
-    - parameter: emplib
+    - extension_reference:
+        identifier: emplib
 - statement_terminator: ;

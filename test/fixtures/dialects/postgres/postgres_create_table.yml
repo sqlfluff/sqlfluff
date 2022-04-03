@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b25e4f2619d261dfc79ccf68d287279847e993bc69c53c846319869b3fd82f91
+_hash: 1ce86226be391d0503f1a45ce8367faeb5628f17a241abc85aa0af4e308ef3f9
 file:
 - statement:
     create_table_statement:
@@ -410,7 +410,7 @@ file:
           keyword: text
       - end_bracket: )
     - keyword: TABLESPACE
-    - table_reference:
+    - tablespace_reference:
         identifier: diskvol1
 - statement_terminator: ;
 - statement:
