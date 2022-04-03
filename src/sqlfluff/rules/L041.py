@@ -67,6 +67,14 @@ class Rule_L041(BaseRule):
         if not leading_newline_segments:
             return None
 
+        # We should check if there is whitespace before the select clause modifier
+        # and remove this during the lint fix.
+        leading_whitespace_segments = child_segments.select(
+            select_if=sp.is_type("whitespace"),
+            loop_while=sp.or_(sp.is_whitespace(), sp.is_meta()),
+            start_seg=select_keyword,
+        )
+
         # We should also check if the following select clause element
         # is on the same line as the select clause modifier.
         trailing_newline_segments = child_segments.select(
@@ -93,9 +101,22 @@ class Rule_L041(BaseRule):
                 edit_segments=edit_segments,
             )
         )
-        # Delete original newlines between select keyword and select clause modifier
-        # and delete the original select clause modifier.
-        fixes.extend((LintFix.delete(s) for s in leading_newline_segments))
+
+        # Delete original newlines and whitespace between select keyword
+        # and select clause modifier.
+
+        # If there is not a newline after the select clause modifier then delete
+        # newlines between the select keyword and select clause modifier.
+        if not trailing_newline_segments:
+            fixes.extend(LintFix.delete(s) for s in leading_newline_segments)
+        # If there is a newline after the select clause modifier then delete both the
+        # newlines and whitespace between the select keyword and select clause modifier.
+        else:
+            fixes.extend(
+                LintFix.delete(s)
+                for s in leading_newline_segments + leading_whitespace_segments
+            )
+        # Delete the original select clause modifier.
         fixes.append(LintFix.delete(select_clause_modifier))
 
         # If there is whitespace (on the same line) after the select clause modifier
