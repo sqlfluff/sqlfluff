@@ -9,7 +9,63 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfluff/sqlfluff/releases) and will be copied in here on each release (please remember to update the issues and contributors to links!). There is no need to manually edit this file going forward.
 -->
 
-## [0.11.2] - 2022-03-24
+## [0.12.0] - 2022-04-04
+
+## Highlights
+
+Major changes include:
+* Rename `spark3` dialect to `sparksql` **BREAKING CHANGE**
+* New rule L063 to allow Datatypes to have a different capitalisation policy from L010. **BREAKING CHANGE**
+* Refactor and performance improvements of Delimted and L003.
+* Many dialect improvements and fixes.
+
+## What’s Changed
+
+* Redshift: Added Create External Schema, bugfix in Partitioned By [#2983](https://github.com/sqlfluff/sqlfluff/pull/2983) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* Added ALTER INDEX and REINDEX to Postgres, Some Grammar Cleaning [#2979](https://github.com/sqlfluff/sqlfluff/pull/2979) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* TSQL grammar deduplication [#2967](https://github.com/sqlfluff/sqlfluff/pull/2967) [@tunetheweb](https://github.com/tunetheweb)
+* L003  Refactor [#2884](https://github.com/sqlfluff/sqlfluff/pull/2884) [@OTooleMichael](https://github.com/OTooleMichael)
+* Delimited Refactor [#2831](https://github.com/sqlfluff/sqlfluff/pull/2831) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* SparkSQL: Support for querying snapshots when reading data with Delta Lake [#2972](https://github.com/sqlfluff/sqlfluff/pull/2972) [@R7L208](https://github.com/R7L208)
+* Fix bug in L063 for BigQuery `STRUCT` params [#2975](https://github.com/sqlfluff/sqlfluff/pull/2975) [@tunetheweb](https://github.com/tunetheweb)
+* Fix assertion error in dbt templater when file ends with whitespace strip ("-%}") [#2976](https://github.com/sqlfluff/sqlfluff/pull/2976) [@barrywhart](https://github.com/barrywhart)
+* Pass dbt vars to dbt [#2923](https://github.com/sqlfluff/sqlfluff/pull/2923) [@tcholewik](https://github.com/tcholewik)
+* BigQuery: Add support for column `OPTIONS` [#2973](https://github.com/sqlfluff/sqlfluff/pull/2973) [@dmohns](https://github.com/dmohns)
+* BigQuery: Allow expressions in `OPTIONS` clauses [#2971](https://github.com/sqlfluff/sqlfluff/pull/2971) [@dmohns](https://github.com/dmohns)
+* Bump black to 22.3.0 on pre-commit [#2969](https://github.com/sqlfluff/sqlfluff/pull/2969) [@pguyot](https://github.com/pguyot)
+* TSQL: Redefine `DatatypeIdentifierSegment` [#2959](https://github.com/sqlfluff/sqlfluff/pull/2959) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* TSQL: Add support for `WAITFOR` statement [#2968](https://github.com/sqlfluff/sqlfluff/pull/2968) [@pguyot](https://github.com/pguyot)
+* TSQL: Add `WHILE` statement support [#2966](https://github.com/sqlfluff/sqlfluff/pull/2966) [@pguyot](https://github.com/pguyot)
+* TSQL: `INTO` is optional within `INSERT` statement [#2963](https://github.com/sqlfluff/sqlfluff/pull/2963) [@pguyot](https://github.com/pguyot)
+* Add basic `IS (NOT) DISTINCT FROM` support in most dialects [#2962](https://github.com/sqlfluff/sqlfluff/pull/2962) [@tunetheweb](https://github.com/tunetheweb)
+* SparkSQL: Create Table Delta Lake Variant [#2954](https://github.com/sqlfluff/sqlfluff/pull/2954) [@R7L208](https://github.com/R7L208)
+* TSQL: Add support for `CREATE`/`DROP`/`DISABLE` `TRIGGER` [#2957](https://github.com/sqlfluff/sqlfluff/pull/2957) [@tunetheweb](https://github.com/tunetheweb)
+* Bug: L042 modifies parse tree even during "lint" [#2955](https://github.com/sqlfluff/sqlfluff/pull/2955) [@barrywhart](https://github.com/barrywhart)
+* Allow multiple post function clauses in Postgres and Redshift [#2952](https://github.com/sqlfluff/sqlfluff/pull/2952) [@aviv](https://github.com/aviv)
+* Fix bug in L022 for trailing comments in CTE [#2946](https://github.com/sqlfluff/sqlfluff/pull/2946) [@tunetheweb](https://github.com/tunetheweb)
+* More dialect checking, fixes, inheritance cleanup [#2942](https://github.com/sqlfluff/sqlfluff/pull/2942) [@barrywhart](https://github.com/barrywhart)
+* TSQL: Support `OUTPUT` Params and `GOTO` Statements [#2949](https://github.com/sqlfluff/sqlfluff/pull/2949) [@tunetheweb](https://github.com/tunetheweb)
+* BREAKING CHANGE: change existing dialect name from `spark3` to `sparksql` [#2924](https://github.com/sqlfluff/sqlfluff/pull/2924) [@R7L208](https://github.com/R7L208)
+* Add Symend to SQLFluff In The Wild [#2940](https://github.com/sqlfluff/sqlfluff/pull/2940) [@HeyZiko](https://github.com/HeyZiko)
+* Simplify segment creation and inheritance in dialects [#2933](https://github.com/sqlfluff/sqlfluff/pull/2933) [@barrywhart](https://github.com/barrywhart)
+* Snowflake: Add `ALTER STREAM` support [#2939](https://github.com/sqlfluff/sqlfluff/pull/2939) [@HeyZiko](https://github.com/HeyZiko)
+* TSQL: Handle multiple nested joins [#2938](https://github.com/sqlfluff/sqlfluff/pull/2938) [@tunetheweb](https://github.com/tunetheweb)
+* Snowflake: Add `CREATE STREAM` support [#2936](https://github.com/sqlfluff/sqlfluff/pull/2936) [@HeyZiko](https://github.com/HeyZiko)
+* TSQL: Support nested joins [#2928](https://github.com/sqlfluff/sqlfluff/pull/2928) [@tunetheweb](https://github.com/tunetheweb)
+* To replace base dialect segment class, must subclass or provide same stuff [#2930](https://github.com/sqlfluff/sqlfluff/pull/2930) [@barrywhart](https://github.com/barrywhart)
+* Add new rule L063 to allow separate capitalisation policy for Datatypes [#2931](https://github.com/sqlfluff/sqlfluff/pull/2931) [@tunetheweb](https://github.com/tunetheweb)
+* Adds support for column definitions in table alias expressions [#2932](https://github.com/sqlfluff/sqlfluff/pull/2932) [@derickl](https://github.com/derickl)
+* BigQuery: support numeric aliases in `UNPIVOT` clauses [#2925](https://github.com/sqlfluff/sqlfluff/pull/2925) [@tunetheweb](https://github.com/tunetheweb)
+* TSQL: Supported nested `MERGE` statements [#2926](https://github.com/sqlfluff/sqlfluff/pull/2926) [@tunetheweb](https://github.com/tunetheweb)
+
+## New Contributors
+* [@HeyZiko](https://github.com/HeyZiko) made their first contribution in [#2936](https://github.com/sqlfluff/sqlfluff/pull/2936)
+* [@aviv](https://github.com/aviv) made their first contribution in [#2952](https://github.com/sqlfluff/sqlfluff/pull/2952)
+* [@pguyot](https://github.com/pguyot) made their first contribution in [#2963](https://github.com/sqlfluff/sqlfluff/pull/2963)
+* [@dmohns](https://github.com/dmohns) made their first contribution in [#2971](https://github.com/sqlfluff/sqlfluff/pull/2971)
+* [@tcholewik](https://github.com/tcholewik) made their first contribution in [#2923](https://github.com/sqlfluff/sqlfluff/pull/2923)
+
+## [0.11.2] - 2022-03-25
 
 ## What’s Changed
 
@@ -35,7 +91,7 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 * L042: Detect violations when column is templated [#2879](https://github.com/sqlfluff/sqlfluff/pull/2879) [@barrywhart](https://github.com/barrywhart)
 * Improve parsing of `BETWEEN` statements [#2878](https://github.com/sqlfluff/sqlfluff/pull/2878) [@MarcAntoineSchmidtQC](https://github.com/MarcAntoineSchmidtQC)
 
-## [0.11.1] - 2022-03-18
+## [0.11.1] - 2022-03-17
 
 ## Highlights
 
@@ -46,7 +102,7 @@ Major changes include:
 * Numerous rule fixes including adding auto fix to L042
 * Numerous grammar changes
 
-## What's Changed
+## What’s Changed
 
 * Spark3: Support for `SHOW` statements [#2864](https://github.com/sqlfluff/sqlfluff/pull/2864) [@R7L208](https://github.com/R7L208)
 * Add Markerr to list of organizations using SQLFluff in the wild  [#2874](https://github.com/sqlfluff/sqlfluff/pull/2874) [@kdw2126](https://github.com/kdw2126)
@@ -98,7 +154,7 @@ Major changes include:
 * Improvements to Test Suite
 * Many dialect improvements
 
-## What's Changed
+## What’s Changed
 
 * Exasol: Fix `INTERVAL` literals / expression [#2804](https://github.com/sqlfluff/sqlfluff/pull/2804) [@sti0](https://github.com/sti0)
 * Exasol: Add `IDLE_TIMEOUT` and `SNAPSHOT_MODE` [#2805](https://github.com/sqlfluff/sqlfluff/pull/2805) [@sti0](https://github.com/sti0)
@@ -201,7 +257,7 @@ Major changes include:
 * Various dialect improvements
 
 
-## What's Changed
+## What’s Changed
 
 * Redshift: Support DATETIME as a valid datatype [#2665](https://github.com/sqlfluff/sqlfluff/pull/2665) [@PLBMR](https://github.com/PLBMR)
 * Support L033 for RedShift [#2661](https://github.com/sqlfluff/sqlfluff/pull/2661) [@tunetheweb](https://github.com/tunetheweb)
@@ -246,7 +302,7 @@ Major changes include:
 * Lots and lots of docs improvements
 * Looser requirements for `click` python package
 
-## What's Changed
+## What’s Changed
 
 * L046: Detect Jinja spacing issues where segment begins with literal content [#2603](https://github.com/sqlfluff/sqlfluff/pull/2603) [@barrywhart](https://github.com/barrywhart)
 * MySQL Add BINARY support [#2602](https://github.com/sqlfluff/sqlfluff/pull/2602) [@tunetheweb](https://github.com/tunetheweb)
@@ -318,7 +374,7 @@ Major changes include:
 * Fix some Jinja errors.
 * Various grammar fixes and improvements
 
-## What's Changed
+## What’s Changed
 * Spark3: test cases for HAVING clause in SELECT statement [#2518](https://github.com/sqlfluff/sqlfluff/pull/2517) [@R7L208](https://github.com/R7L208)
 * Update click version requirement in setup.cfg to match that in requirements.txt [#2518](https://github.com/sqlfluff/sqlfluff/pull/2518) [@barrywhart](https://github.com/barrywhart)
 * Postgres: Implement DO Statements + Refactored Language Clause [#2511](https://github.com/sqlfluff/sqlfluff/pull/2511) [@PLBMR](https://github.com/PLBMR)
@@ -351,7 +407,7 @@ Major changes include:
 * Add `ignore_words` option for rules L010, L014, L029, L030, L040
 * Fix some issues in 0.9.2 preventing some queries linting
 
-## What's Changed
+## What’s Changed
 * Prevent L031 throwing exception on unparsable code [#2486](https://github.com/sqlfluff/sqlfluff/pull/2486) [@tunetheweb](https://github.com/tunetheweb)
 * Add linting of fixtures SQL for critical rules errors to tox [#2473](https://github.com/sqlfluff/sqlfluff/pull/2473) [@tunetheweb](https://github.com/tunetheweb)
 * Fix L039 for T-SQL comparison operator using space [#2485](https://github.com/sqlfluff/sqlfluff/pull/2485) [@tunetheweb](https://github.com/tunetheweb)
@@ -392,7 +448,7 @@ Major changes include:
 * Many rule fixes
 * Many dialect improvements
 
-## What's Changed
+## What’s Changed
 * Add Postgres DROP PROCEDURE support [#2446](https://github.com/sqlfluff/sqlfluff/pull/2446) [@rpr-ableton](https://github.com/rpr-ableton)
 * MySQL Alter table ADD/DROP/RENAME INDEX support [#2443](https://github.com/sqlfluff/sqlfluff/pull/2443) [@tunetheweb](https://github.com/tunetheweb)
 * Add basic CREATE PROCEDURE support to Postgres [#2441](https://github.com/sqlfluff/sqlfluff/pull/2441) [@tunetheweb](https://github.com/tunetheweb)
@@ -523,7 +579,7 @@ Major changes include:
 * New components to simplify creating rules
 * Remove support for Python 3.6
 
-## What's Changed
+## What’s Changed
 * Fix delimited identifier parsing for spark3 [#2111](https://github.com/sqlfluff/sqlfluff/pull/2111) [@mcannamela](https://github.com/mcannamela)
 * Stop numeric literal from splitting valid naked identifiers. [#2114](https://github.com/sqlfluff/sqlfluff/pull/2114) [@jpy-git](https://github.com/jpy-git)
 * Grammar: Add CREATE USER/GROUP statement to Redshift dialect [#2115](https://github.com/sqlfluff/sqlfluff/pull/2115) [@jpy-git](https://github.com/jpy-git)
@@ -1074,7 +1130,7 @@ Lots of fixes to our rules (particularly when running `sqlfluff fix`, and partic
 
 Fixed some of our autofix rules where running `fix` sometimes made unintended changes. Added config to rules L011 and L012 to allow preferring implicit aliasing. Also further improved our Postgres support and documentation.
 
-### What's Changed
+### What’s Changed
 
 * Rule L036 bug fixes [#1427](https://github.com/sqlfluff/sqlfluff/pull/1427) [@tunetheweb](https://github.com/tunetheweb)
 * Added support for psql meta commands to Postgres [#1423](https://github.com/sqlfluff/sqlfluff/pull/1423) [@WittierDinosaur](https://github.com/WittierDinosaur)
@@ -1108,7 +1164,7 @@ Fixed some of our autofix rules where running `fix` sometimes made unintended ch
 
 ## [0.6.5] - 2021-09-10
 
-### What's Changed
+### What’s Changed
 
 This release includes initial support of Transact-SQL (T-SQL), much better Postgres and Snowflake support, improvements to our documentation, 100% coverage for Python code (with a small number of accepted exceptions), along with numerous other bug fixes and improvements.
 
