@@ -178,11 +178,12 @@ class JinjaTemplater(PythonTemplater):
                 return self.name
 
         dbt_builtins = {
-            # `is_incremental()` renders as False, always in this case.
-            # TODO: This means we'll never parse the other part of the query,
-            # so we should find a solution to that. Perhaps forcing the file
+            # `is_incremental()` renders as True, always in this case.
+            # TODO: This means we'll never parse other parts of the query,
+            # that are only reachable when `is_incremental()` returns False.
+            # We should try to find a solution to that. Perhaps forcing the file
             # to be parsed TWICE if it uses this variable.
-            "is_incremental": lambda: False,
+            "is_incremental": lambda: True,
             "this": ThisEmulator(),
         }
         return dbt_builtins
