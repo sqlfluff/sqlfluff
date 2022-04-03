@@ -634,8 +634,7 @@ class UpdateStatementSegment(BaseSegment):
     """
 
     type = "update_statement"
-    match_grammar = StartsWith("UPDATE")
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "UPDATE",
         OneOf(
             Ref("TableReferenceSegment"),
@@ -685,7 +684,7 @@ class StatementSegment(ansi.StatementSegment):
 
 
 teradata_dialect.add(
-    TdCastIdentifierSegment=Sequence(
+    TdCastIdentifierGrammar=Sequence(
         OneOf("DATE", "TIMESTAMP"), Ref("ExpressionSegment")
     ),
 )
@@ -694,7 +693,7 @@ teradata_dialect.replace(
     SingleIdentifierGrammar=OneOf(
         Ref("NakedIdentifierSegment"),
         Ref("QuotedIdentifierSegment"),
-        Ref("TdCastIdentifierSegment"),
+        Ref("TdCastIdentifierGrammar"),
     ),
     SelectClauseSegmentGrammar=Sequence(
         OneOf("SELECT", "SEL"),

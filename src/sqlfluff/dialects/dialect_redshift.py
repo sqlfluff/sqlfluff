@@ -230,7 +230,7 @@ class ColumnReferenceSegment(ObjectReferenceSegment):
             Ref("CastOperatorSegment"),
             Ref("BinaryOperatorGrammar"),
             Ref("ColonSegment"),
-            Ref("DelimiterSegment"),
+            Ref("DelimiterGrammar"),
             Ref("JoinLikeClauseGrammar"),
         ),
         allow_gaps=False,
@@ -976,6 +976,53 @@ class CreateExternalTableAsStatementSegment(BaseSegment):
         ),
         "AS",
         OptionallyBracketed(Ref("SelectableGrammar")),
+    )
+
+
+class CreateExternalSchemaStatementSegment(BaseSegment):
+    """A `CREATE EXTERNAL SCHEMA` statement.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_EXTERNAL_SCHEMA.html
+    """
+
+    type = "create_external_schema_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        "EXTERNAL",
+        "SCHEMA",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("SchemaReferenceSegment"),
+        "FROM",
+        OneOf(
+            Sequence("DATA", "CATALOG"),
+            Sequence("HIVE", "METASTORE"),
+            "POSTGRES",
+            "MYSQL",
+            "KINESIS",
+            "REDSHIFT",
+        ),
+        AnySetOf(
+            Sequence("DATABASE", Ref("QuotedLiteralSegment")),
+            Sequence("REGION", Ref("QuotedLiteralSegment")),
+            Sequence("SCHEMA", Ref("QuotedLiteralSegment")),
+            Sequence(
+                "URI",
+                Ref("QuotedLiteralSegment"),
+                Sequence("PORT", Ref("NumericLiteralSegment"), optional=True),
+            ),
+            Sequence(
+                "IAM_ROLE",
+                OneOf(
+                    "DEFAULT",
+                    Ref("QuotedLiteralSegment"),
+                ),
+            ),
+            Sequence("SECRET_ARN", Ref("QuotedLiteralSegment")),
+            Sequence("CATALOG_ROLE", Ref("QuotedLiteralSegment")),
+            Sequence("CREATE", "EXTERNAL", "DATABASE", "IF", "NOT", "EXISTS"),
+            optional=True,
+        ),
     )
 
 
@@ -1734,6 +1781,7 @@ class StatementSegment(postgres.StatementSegment):
             Ref("AlterGroupStatementSegment"),
             Ref("CreateExternalTableAsStatementSegment"),
             Ref("CreateExternalTableStatementSegment"),
+            Ref("CreateExternalSchemaStatementSegment"),
             Ref("DataFormatSegment"),
             Ref("UnloadStatementSegment"),
             Ref("CopyStatementSegment"),
@@ -1769,7 +1817,7 @@ class PartitionedBySegment(BaseSegment):
             Delimited(
                 Sequence(
                     Ref("ColumnReferenceSegment"),
-                    Ref("DatatypeSegment"),
+                    Ref("DatatypeSegment", optional=True),
                 ),
             ),
         ),
