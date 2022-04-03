@@ -88,15 +88,19 @@ class Segments(tuple):
             raw_segments_list.extend(s.raw_segments)
         return Segments(*raw_segments_list, templated_file=self.templated_file)
 
-    def recursive_crawl(
-        self, *seg_type: str, recurse_into: bool = True, all_descendants: bool = False
-    ) -> "Segments":
+    def recursive_crawl_all(self) -> "Segments":  # pragma: no cover
+        """Recursively crawl all descendant segments."""
+        segments: List[BaseSegment] = []
+        for s in self:
+            for i in s.recursive_crawl_all():
+                segments.append(i)
+        return Segments(*segments, templated_file=self.templated_file)
+
+    def recursive_crawl(self, *seg_type: str, recurse_into: bool = True) -> "Segments":
         """Recursively crawl for segments of a given type."""
         segments: List[BaseSegment] = []
         for s in self:
-            for i in s.recursive_crawl(
-                *seg_type, recurse_into=recurse_into, all_descendants=all_descendants
-            ):
+            for i in s.recursive_crawl(*seg_type, recurse_into=recurse_into):
                 segments.append(i)
         return Segments(*segments, templated_file=self.templated_file)
 

@@ -422,8 +422,8 @@ class SegmentCloneMap:
         segment_copy = copy.deepcopy(segment)
         self.segment_map = {}
         for old_segment, new_segment in zip(
-            segment.recursive_crawl(all_descendants=True),
-            segment_copy.recursive_crawl(all_descendants=True),
+            segment.recursive_crawl_all(),
+            segment_copy.recursive_crawl_all(),
         ):
             self.segment_map[id(old_segment)] = new_segment
 
