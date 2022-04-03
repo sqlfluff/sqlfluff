@@ -16,8 +16,8 @@ SELECT
         a.something_indented_well
         + least(
     	    a.good_example,
-    	    a.bad_example,
-    	    a.really_bad_example,
+            a.bad_example,
+            a.really_bad_example,
             a.nother_good_example
         )
     ) as some_harder_problems
