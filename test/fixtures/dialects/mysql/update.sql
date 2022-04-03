@@ -33,3 +33,5 @@ UPDATE items,
 UPDATE LOW_PRIORITY foo
 SET bar = 7
 LIMIT 4;
+
+UPDATE a, b SET a.name = b.name WHERE a.id = b.id;

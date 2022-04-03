@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b970f659fc1924bdd4f25707a5e37a562e3c22ef5a84db66ea7e5ec53e98cce7
+_hash: e34a015200fed0ceb65bba46b4516581dff4e88c314bf25f683eac0035da42d2
 file:
 - statement:
     update_statement:
@@ -369,4 +369,39 @@ file:
     - limit_clause:
         keyword: LIMIT
         literal: '4'
+- statement_terminator: ;
+- statement:
+    update_statement:
+    - keyword: UPDATE
+    - table_reference:
+        identifier: a
+    - comma: ','
+    - table_reference:
+        identifier: b
+    - set_clause_list:
+        keyword: SET
+        set_clause:
+        - column_reference:
+          - identifier: a
+          - dot: .
+          - identifier: name
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - identifier: b
+          - dot: .
+          - identifier: name
+    - where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+          - identifier: a
+          - dot: .
+          - identifier: id
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - identifier: b
+          - dot: .
+          - identifier: id
 - statement_terminator: ;
