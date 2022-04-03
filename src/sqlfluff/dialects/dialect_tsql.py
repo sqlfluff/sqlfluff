@@ -195,6 +195,14 @@ tsql_dialect.add(
     SystemVariableSegment=RegexParser(
         r"@@[A-Za-z0-9_]+", CodeSegment, name="system_variable", type="system_variable"
     ),
+    StatementAndDelimiterGrammar=Sequence(
+        Ref("StatementSegment"),
+        Ref("DelimiterSegment", optional=True),
+    ),
+    OneOrMoreStatementsGrammar=AnyNumberOf(
+        Ref("StatementAndDelimiterGrammar"),
+        min_times=1,
+    ),
 )
 
 tsql_dialect.replace(
@@ -1274,10 +1282,7 @@ class IfExpressionStatement(BaseSegment):
     match_grammar = Sequence(
         Ref("IfClauseSegment"),
         Indent,
-        Sequence(
-            Ref("StatementSegment"),
-            Ref("DelimiterSegment", optional=True),
-        ),
+        Ref("StatementAndDelimiterGrammar"),
         Dedent,
         AnyNumberOf(
             # ELSE IF included explicitly to allow for correct indentation
@@ -1285,20 +1290,14 @@ class IfExpressionStatement(BaseSegment):
                 "ELSE",
                 Ref("IfClauseSegment"),
                 Indent,
-                Sequence(
-                    Ref("StatementSegment"),
-                    Ref("DelimiterSegment", optional=True),
-                ),
+                Ref("StatementAndDelimiterGrammar"),
                 Dedent,
             ),
         ),
         Sequence(
             "ELSE",
             Indent,
-            Sequence(
-                Ref("StatementSegment"),
-                Ref("DelimiterSegment", optional=True),
-            ),
+            Ref("StatementAndDelimiterGrammar"),
             Dedent,
             optional=True,
         ),
@@ -1330,10 +1329,7 @@ class WhileExpressionStatement(BaseSegment):
         "WHILE",
         Ref("ExpressionSegment"),
         Indent,
-        Sequence(
-            Ref("StatementSegment"),
-            Ref("DelimiterSegment", optional=True),
-        ),
+        Ref("StatementAndDelimiterGrammar"),
         Dedent,
     )
 
@@ -1764,13 +1760,7 @@ class ProcedureDefinitionGrammar(BaseSegment):
     type = "procedure_statement"
     name = "procedure_statement"
 
-    match_grammar = AnyNumberOf(
-        Sequence(
-            Ref("StatementSegment"),
-            Ref("DelimiterSegment", optional=True),
-        ),
-        min_times=1,
-    )
+    match_grammar = Ref("OneOrMoreStatementsGrammar")
 
 
 class CreateViewStatementSegment(BaseSegment):
@@ -2493,11 +2483,7 @@ class BeginEndSegment(BaseSegment):
         "BEGIN",
         Ref("DelimiterSegment", optional=True),
         Indent,
-        AnyNumberOf(
-            Ref("StatementSegment"),
-            Ref("DelimiterSegment", optional=True),
-            min_times=1,
-        ),
+        Ref("OneOrMoreStatementsGrammar"),
         Dedent,
         "END",
     )
@@ -2515,13 +2501,7 @@ class TryCatchSegment(BaseSegment):
         "TRY",
         Ref("DelimiterSegment", optional=True),
         Indent,
-        AnyNumberOf(
-            Sequence(
-                Ref("StatementSegment"),
-                Ref("DelimiterSegment", optional=True),
-            ),
-            min_times=1,
-        ),
+        Ref("OneOrMoreStatementsGrammar"),
         Dedent,
         "END",
         "TRY",
@@ -2529,13 +2509,7 @@ class TryCatchSegment(BaseSegment):
         "CATCH",
         Ref("DelimiterSegment", optional=True),
         Indent,
-        AnyNumberOf(
-            Sequence(
-                Ref("StatementSegment"),
-                Ref("DelimiterSegment", optional=True),
-            ),
-            min_times=1,
-        ),
+        Ref("OneOrMoreStatementsGrammar"),
         Dedent,
         "END",
         "CATCH",
@@ -2548,13 +2522,7 @@ class BatchSegment(BaseSegment):
     type = "batch"
     match_grammar = OneOf(
         # Things that can be bundled
-        AnyNumberOf(
-            Sequence(
-                Ref("StatementSegment"),
-                Ref("DelimiterSegment", optional=True),
-            ),
-            min_times=1,
-        ),
+        Ref("OneOrMoreStatementsGrammar"),
         # Things that can't be bundled
         Ref("CreateProcedureStatementSegment"),
     )
@@ -2576,7 +2544,12 @@ class FileSegment(BaseFileSegment):
     # going straight into instantiating it directly usually.
     parse_grammar = Delimited(
         Ref("BatchSegment"),
-        delimiter=AnyNumberOf(Ref("BatchDelimiterSegment"), min_times=1),
+        delimiter=AnyNumberOf(
+            Sequence(
+                Ref("DelimiterSegment", optional=True), Ref("BatchDelimiterSegment")
+            ),
+            min_times=1,
+        ),
         allow_gaps=True,
         allow_trailing=True,
     )
@@ -3474,9 +3447,7 @@ class CreateTriggerStatementSegment(BaseSegment):
         Sequence("WITH", "APPEND", optional=True),
         Sequence("NOT", "FOR", "REPLICATION", optional=True),
         "AS",
-        AnyNumberOf(
-            Ref("StatementSegment"),
-        ),
+        Ref("OneOrMoreStatementsGrammar"),
         # TODO: EXTERNAL NAME
     )
 
