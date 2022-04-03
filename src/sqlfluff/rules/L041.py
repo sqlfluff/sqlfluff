@@ -102,14 +102,15 @@ class Rule_L041(BaseRule):
             )
         )
 
-        # Delete original newlines and whitespace between select keyword and select clause modifier.
+        # Delete original newlines and whitespace between select keyword
+        # and select clause modifier.
 
-        # If there is not a newline after the select clause modifier then simply delete newlines between
-        # the select keyword and the select clause modifier.
+        # If there is not a newline after the select clause modifier then delete
+        # newlines between the select keyword and select clause modifier.
         if not trailing_newline_segments:
             fixes.extend((LintFix.delete(s) for s in leading_newline_segments))
-        # If there is a newline after the select clause modifier then delete both the newlines and whitespace
-        # between the select keyword and the select clause modifier.
+        # If there is a newline after the select clause modifier then delete both the
+        # newlines and whitespace between the select keyword and select clause modifier.
         else:
             fixes.extend(
                 (
