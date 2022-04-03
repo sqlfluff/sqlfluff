@@ -197,7 +197,7 @@ mysql_dialect.replace(
         Ref.keyword("KEY", optional=True),
     ),
     # Odd syntax, but pr
-    CharCharacterSetSegment=Ref.keyword("BINARY"),
+    CharCharacterSetGrammar=Ref.keyword("BINARY"),
 )
 
 mysql_dialect.add(
@@ -566,7 +566,7 @@ mysql_dialect.add(
 )
 
 mysql_dialect.replace(
-    DelimiterSegment=OneOf(Ref("SemicolonSegment"), Ref("TildeSegment")),
+    DelimiterGrammar=OneOf(Ref("SemicolonSegment"), Ref("TildeSegment")),
     TildeSegment=StringParser(
         "~", SymbolSegment, name="tilde", type="statement_terminator"
     ),
