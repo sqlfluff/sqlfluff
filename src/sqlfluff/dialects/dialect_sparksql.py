@@ -211,7 +211,7 @@ sparksql_dialect.replace(
             Ref("BytesQuotedLiteralSegment"),
         ]
     ),
-    NaturalJoinKeywords=Sequence(
+    NaturalJoinKeywordsGrammar=Sequence(
         "NATURAL",
         Ref("JoinTypeKeywords", optional=True),
     ),
@@ -2239,7 +2239,7 @@ class JoinClauseSegment(ansi.JoinClauseSegment):
         # tab1.col1 = tab2.col1
         Sequence(
             Ref("JoinTypeKeywords", optional=True),
-            Ref("JoinKeywords"),
+            Ref("JoinKeywordsGrammar"),
             Indent,
             Sequence(
                 Ref("FromExpressionElementSegment"),
@@ -2276,8 +2276,8 @@ class JoinClauseSegment(ansi.JoinClauseSegment):
         ),
         # Note NATURAL joins do not support Join conditions
         Sequence(
-            Ref("NaturalJoinKeywords"),
-            Ref("JoinKeywords"),
+            Ref("NaturalJoinKeywordsGrammar"),
+            Ref("JoinKeywordsGrammar"),
             Indent,
             Ref("FromExpressionElementSegment"),
             Dedent,

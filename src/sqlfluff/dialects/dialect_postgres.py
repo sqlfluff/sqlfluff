@@ -363,7 +363,7 @@ postgres_dialect.replace(
     # https://www.postgresql.org/docs/14/functions-comparison.html
     IsNullGrammar=Ref.keyword("ISNULL"),
     NotNullGrammar=Ref.keyword("NOTNULL"),
-    JoinKeywords=Sequence("JOIN", Sequence("LATERAL", optional=True)),
+    JoinKeywordsGrammar=Sequence("JOIN", Sequence("LATERAL", optional=True)),
     SelectClauseElementTerminatorGrammar=OneOf(
         "INTO",
         "FROM",

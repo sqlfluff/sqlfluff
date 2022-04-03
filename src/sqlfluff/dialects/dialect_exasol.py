@@ -154,7 +154,7 @@ exasol_dialect.add(
         ),
         terminator=OneOf(
             Ref("TablePartitionByGrammar"),
-            Ref("DelimiterSegment"),
+            Ref("DelimiterGrammar"),
         ),
         enforce_whitespace_preceding_terminator=True,
     ),
@@ -172,7 +172,7 @@ exasol_dialect.add(
         ),
         terminator=OneOf(
             Ref("TableDistributeByGrammar"),
-            Ref("DelimiterSegment"),
+            Ref("DelimiterGrammar"),
         ),
         enforce_whitespace_preceding_terminator=True,
     ),
@@ -295,9 +295,9 @@ exasol_dialect.replace(
     DateTimeLiteralGrammar=Sequence(
         OneOf("DATE", "TIMESTAMP"), Ref("QuotedLiteralSegment")
     ),
-    CharCharacterSetSegment=OneOf(
-        Ref.keyword("UTF8"),
-        Ref.keyword("ASCII"),
+    CharCharacterSetGrammar=OneOf(
+        "UTF8",
+        "ASCII",
     ),
     PreTableFunctionKeywordsGrammar=Ref.keyword("TABLE"),
     BooleanLiteralGrammar=OneOf(
@@ -1109,7 +1109,7 @@ class DatatypeSegment(BaseSegment):
                     Bracketed(Ref("NumericLiteralSegment"), optional=True),
                 ),
             ),
-            Ref("CharCharacterSetSegment", optional=True),
+            Ref("CharCharacterSetGrammar", optional=True),
         ),
     )
 
@@ -3275,7 +3275,7 @@ class CreateFunctionStatementSegment(BaseSegment):
             Sequence(
                 Ref("VariableNameSegment"),
                 Ref("DatatypeSegment"),
-                Ref("DelimiterSegment"),
+                Ref("DelimiterGrammar"),
             ),
             optional=True,
         ),
@@ -3285,7 +3285,7 @@ class CreateFunctionStatementSegment(BaseSegment):
         AnyNumberOf(Ref("FunctionBodySegment")),
         "RETURN",
         Ref("FunctionContentsExpressionGrammar"),
-        Ref("DelimiterSegment"),
+        Ref("DelimiterGrammar"),
         Dedent,
         "END",
         Ref("FunctionReferenceSegment", optional=True),
@@ -3619,7 +3619,7 @@ class StatementSegment(ansi.StatementSegment):
 
     type = "statement"
 
-    match_grammar = GreedyUntil(Ref("DelimiterSegment"))
+    match_grammar = GreedyUntil(Ref("DelimiterGrammar"))
 
     parse_grammar = OneOf(
         # Data Query Language (DQL)
@@ -3691,7 +3691,7 @@ class FileSegment(BaseFileSegment):
         Ref("FunctionScriptStatementSegment"),
         Ref("StatementSegment"),
         delimiter=OneOf(
-            Ref("DelimiterSegment"),
+            Ref("DelimiterGrammar"),
             Ref("FunctionScriptTerminatorSegment"),
         ),
         allow_gaps=True,
