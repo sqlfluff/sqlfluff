@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 87d7617bcb4885385a15ebf4f8c7cd418c1f5a51a30bf9e75109cc081723ce38
+_hash: 19edbb5f9ab43a54ea88bff6779c6e1a518f909eb2df6a642280db43f6260062
 file:
 - statement:
     create_function_statement:
@@ -30,7 +30,7 @@ file:
           start_bracket: (
           literal: '10'
           end_bracket: )
-    - keyword: IS
+    - keyword: AS
     - variable: res
     - data_type:
         keyword: DECIMAL

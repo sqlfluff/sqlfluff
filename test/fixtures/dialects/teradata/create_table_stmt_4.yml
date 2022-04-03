@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 57904691dbaf13bcb52015b89379bf09be3758b69561a2080675d443f888b437
+_hash: bf1d5ec42281fca64ab0f0004ba38487528abf4d960262eb5327e5403a2553b6
 file:
   statement:
     create_table_statement:
@@ -18,7 +18,7 @@ file:
       - column_definition:
           column_reference:
             identifier: Org_Unit_Code
-          td_internal_data_type:
+          data_type:
             data_type_identifier: char
             bracketed:
               start_bracket: (
@@ -36,7 +36,7 @@ file:
       - column_definition:
           column_reference:
             identifier: Org_Unit_Type
-          td_internal_data_type:
+          data_type:
             data_type_identifier: char
             bracketed:
               start_bracket: (
@@ -54,7 +54,7 @@ file:
       - column_definition:
           column_reference:
             identifier: Entity_Code
-          td_internal_data_type:
+          data_type:
             data_type_identifier: varchar
             bracketed:
               start_bracket: (
@@ -70,7 +70,7 @@ file:
       - column_definition:
           column_reference:
             identifier: Parent_Org_Unit_Code
-          td_internal_data_type:
+          data_type:
             data_type_identifier: char
             bracketed:
               start_bracket: (
@@ -88,7 +88,7 @@ file:
       - column_definition:
           column_reference:
             identifier: Parent_Org_Unit_Type
-          td_internal_data_type:
+          data_type:
             data_type_identifier: char
             bracketed:
               start_bracket: (
@@ -106,7 +106,7 @@ file:
       - column_definition:
           column_reference:
             identifier: Parent_Entity_Code
-          td_internal_data_type:
+          data_type:
             data_type_identifier: varchar
             bracketed:
               start_bracket: (

@@ -498,6 +498,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DropModelStatementSegment"),
         ],
     )
+    match_grammar = ansi.StatementSegment.match_grammar
 
 
 class InsertStatementSegment(BaseSegment):

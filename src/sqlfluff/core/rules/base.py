@@ -357,6 +357,7 @@ class RuleContext:
     memory: Any
     dialect: Dialect
     path: Optional[pathlib.Path]
+    fix: bool
     templated_file: Optional[TemplatedFile]
 
     @cached_property
@@ -492,6 +493,7 @@ class BaseRule:
         raw_stack=None,
         memory=None,
         fname=None,
+        fix=None,
         templated_file: Optional["TemplatedFile"] = None,
     ):
         """Recursively perform the crawl operation on a given segment.
@@ -510,6 +512,7 @@ class BaseRule:
         siblings_post = siblings_post or ()
         siblings_pre = siblings_pre or ()
         memory = memory or {}
+        fix = fix or False
         vs: List[SQLLintError] = []
         fixes: List[LintFix] = []
 
@@ -529,6 +532,7 @@ class BaseRule:
             memory=memory,
             dialect=dialect,
             path=pathlib.Path(fname) if fname else None,
+            fix=fix,
             templated_file=templated_file,
         )
         try:
@@ -617,6 +621,7 @@ class BaseRule:
                 memory=memory,
                 dialect=dialect,
                 fname=fname,
+                fix=fix,
                 templated_file=templated_file,
             )
             vs += dvs
@@ -734,13 +739,16 @@ class BaseRule:
         elif seg.is_type(*[elem[1] for elem in target_tuples if elem[0] == "type"]):
             return True
         # For parent type checks, there's a higher risk of getting an incorrect
-        # segment, so we add some additional guards
+        # segment, so we add some additional guards. We also only check keywords
+        # as for other types we can check directly rather than using parent
         elif (
             not seg.is_meta
+            and not seg.is_comment
             and not seg.is_templated
             and not seg.is_whitespace
             and isinstance(seg, RawSegment)
             and len(seg.raw) > 0
+            and seg.is_type("keyword")
             and parent
             and parent.is_type(
                 *[elem[1] for elem in target_tuples if elem[0] == "parenttype"]

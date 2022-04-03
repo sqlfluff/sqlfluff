@@ -3,10 +3,10 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f97e76509bb5093ba779efc9bd0627135e0e79ab2649fef5dbc0896e19769508
+_hash: 02f397fb8dd0ebef10f043d3b5036a422e89db82582d5e73a4af64d28a4f314d
 file:
 - statement:
-    insert_table_statement:
+    insert_statement:
     - keyword: INSERT
     - keyword: INTO
     - keyword: TABLE
@@ -27,7 +27,7 @@ file:
         - end_bracket: )
 - statement_terminator: ;
 - statement:
-    insert_table_statement:
+    insert_statement:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
@@ -47,7 +47,7 @@ file:
         - end_bracket: )
 - statement_terminator: ;
 - statement:
-    insert_table_statement:
+    insert_statement:
     - keyword: INSERT
     - keyword: OVERWRITE
     - table_reference:
@@ -67,7 +67,7 @@ file:
         - end_bracket: )
 - statement_terminator: ;
 - statement:
-    insert_table_statement:
+    insert_statement:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
@@ -99,7 +99,7 @@ file:
         - end_bracket: )
 - statement_terminator: ;
 - statement:
-    insert_table_statement:
+    insert_statement:
     - keyword: INSERT
     - keyword: OVERWRITE
     - table_reference:
@@ -131,7 +131,7 @@ file:
         - end_bracket: )
 - statement_terminator: ;
 - statement:
-    insert_table_statement:
+    insert_statement:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
@@ -172,7 +172,7 @@ file:
             literal: '"Dora Williams"'
 - statement_terminator: ;
 - statement:
-    insert_table_statement:
+    insert_statement:
     - keyword: INSERT
     - keyword: OVERWRITE
     - table_reference:
@@ -213,7 +213,7 @@ file:
             literal: '"Dora Williams"'
 - statement_terminator: ;
 - statement:
-    insert_table_statement:
+    insert_statement:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
@@ -223,7 +223,7 @@ file:
         identifier: visiting_students
 - statement_terminator: ;
 - statement:
-    insert_table_statement:
+    insert_statement:
     - keyword: INSERT
     - keyword: OVERWRITE
     - table_reference:
@@ -233,7 +233,7 @@ file:
         identifier: visiting_students
 - statement_terminator: ;
 - statement:
-    insert_table_statement:
+    insert_statement:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
@@ -260,7 +260,7 @@ file:
           literal: 'TRUE'
 - statement_terminator: ;
 - statement:
-    insert_table_statement:
+    insert_statement:
     - keyword: INSERT
     - keyword: OVERWRITE
     - table_reference:
@@ -287,7 +287,7 @@ file:
           literal: 'TRUE'
 - statement_terminator: ;
 - statement:
-    insert_table_statement:
+    insert_statement:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
@@ -314,7 +314,7 @@ file:
         - end_bracket: )
 - statement_terminator: ;
 - statement:
-    insert_table_statement:
+    insert_statement:
     - keyword: INSERT
     - keyword: OVERWRITE
     - table_reference:
@@ -341,7 +341,7 @@ file:
         - end_bracket: )
 - statement_terminator: ;
 - statement:
-    insert_table_statement:
+    insert_statement:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
@@ -375,7 +375,7 @@ file:
         - end_bracket: )
 - statement_terminator: ;
 - statement:
-    insert_table_statement:
+    insert_statement:
     - keyword: INSERT
     - keyword: OVERWRITE
     - table_reference:

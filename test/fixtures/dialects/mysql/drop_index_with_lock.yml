@@ -3,10 +3,10 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bb73391972a39c39bc7df7e42c38ba00a34fc1cf5529d378311ad9d5a3104384
+_hash: 6d785c4bb5f484e913ace5ae9c1981a2f228c7986783ae66aa49296427c9c652
 file:
 - statement:
-    drop_statement:
+    drop_index_statement:
     - keyword: DROP
     - keyword: INDEX
     - index_reference:
@@ -20,7 +20,7 @@ file:
     - keyword: DEFAULT
 - statement_terminator: ;
 - statement:
-    drop_statement:
+    drop_index_statement:
     - keyword: DROP
     - keyword: INDEX
     - index_reference:
@@ -34,7 +34,7 @@ file:
     - keyword: NONE
 - statement_terminator: ;
 - statement:
-    drop_statement:
+    drop_index_statement:
     - keyword: DROP
     - keyword: INDEX
     - index_reference:
@@ -48,7 +48,7 @@ file:
     - keyword: SHARED
 - statement_terminator: ;
 - statement:
-    drop_statement:
+    drop_index_statement:
     - keyword: DROP
     - keyword: INDEX
     - index_reference:
@@ -62,7 +62,7 @@ file:
     - keyword: EXCLUSIVE
 - statement_terminator: ;
 - statement:
-    drop_statement:
+    drop_index_statement:
     - keyword: DROP
     - keyword: INDEX
     - index_reference:
@@ -74,7 +74,7 @@ file:
     - keyword: DEFAULT
 - statement_terminator: ;
 - statement:
-    drop_statement:
+    drop_index_statement:
     - keyword: DROP
     - keyword: INDEX
     - index_reference:
@@ -86,7 +86,7 @@ file:
     - keyword: NONE
 - statement_terminator: ;
 - statement:
-    drop_statement:
+    drop_index_statement:
     - keyword: DROP
     - keyword: INDEX
     - index_reference:
@@ -98,7 +98,7 @@ file:
     - keyword: SHARED
 - statement_terminator: ;
 - statement:
-    drop_statement:
+    drop_index_statement:
     - keyword: DROP
     - keyword: INDEX
     - index_reference:

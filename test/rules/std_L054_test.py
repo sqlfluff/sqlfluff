@@ -54,8 +54,8 @@ def test__rules__std_L054_noqa() -> None:
     sql = """
     SELECT foo.set.barr  --noqa: PRS
     FROM foo
-    GROUP BY  --noqa: PRS
-      foo.set.barr
+    GROUP BY
+      f@oo.set.bar.r --noqa: PRS
     """
     result = sqlfluff.lint(sql)
 

@@ -1724,7 +1724,8 @@ class StatementSegment(postgres.StatementSegment):
 
     type = "statement"
 
-    parse_grammar = redshift_dialect.get_segment("StatementSegment").parse_grammar.copy(
+    match_grammar = postgres.StatementSegment.match_grammar
+    parse_grammar = postgres.StatementSegment.parse_grammar.copy(
         insert=[
             Ref("CreateLibraryStatementSegment"),
             Ref("CreateUserStatementSegment"),
@@ -1750,10 +1751,6 @@ class StatementSegment(postgres.StatementSegment):
             Ref("AlterProcedureStatementSegment"),
         ],
     )
-
-    match_grammar = redshift_dialect.get_segment(
-        "StatementSegment"
-    ).match_grammar.copy()
 
 
 class PartitionedBySegment(BaseSegment):

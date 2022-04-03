@@ -258,7 +258,18 @@ tsql_dialect.replace(
         "NULL",
         Ref("BooleanLiteralGrammar"),
     ),
-    DatatypeIdentifierSegment=Ref("SingleIdentifierGrammar"),
+    DatatypeIdentifierSegment=SegmentGenerator(
+        # Generate the anti template reserved keywords
+        lambda dialect: RegexParser(
+            r"[A-Z][A-Z0-9_]*|\[[A-Z][A-Z0-9_]*\]",
+            CodeSegment,
+            name="data_type_identifier",
+            type="data_type_identifier",
+            # anti_template=r"^(NOT)$",
+            anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
+            # TODO - this is a stopgap until we implement explicit data types
+        ),
+    ),
     PrimaryKeyGrammar=Sequence(
         OneOf(
             Sequence(
@@ -426,6 +437,12 @@ class StatementSegment(ansi.StatementSegment):
             Ref("ThrowStatementSegment"),
             Ref("RaiserrorStatementSegment"),
             Ref("ReturnStatementSegment"),
+            Ref("GotoStatement"),
+            Ref("DisableTriggerStatementSegment"),
+            Ref("WhileExpressionStatement"),
+            Ref("BreakStatement"),
+            Ref("ContinueStatement"),
+            Ref("WaitForStatementSegment"),
         ],
         remove=[
             Ref("CreateExtensionStatementSegment"),
@@ -502,7 +519,7 @@ class SelectClauseElementSegment(ansi.SelectClauseElementSegment):
     """
 
     # Important to split elements before parsing, otherwise debugging is really hard.
-    match_grammar = OneOf(  # type: ignore
+    match_grammar = OneOf(
         # *, blah.*, blah.blah.*, etc.
         Ref("WildcardExpressionSegment"),
         Sequence(
@@ -515,7 +532,7 @@ class SelectClauseElementSegment(ansi.SelectClauseElementSegment):
         ),
     )
 
-    parse_grammar = None  # type: ignore
+    parse_grammar = None
 
 
 class AltAliasExpressionSegment(BaseSegment):
@@ -595,7 +612,7 @@ class InsertStatementSegment(BaseSegment):
     type = "insert_statement"
     match_grammar = Sequence(
         "INSERT",
-        "INTO",
+        Ref.keyword("INTO", optional=True),
         Ref("TableReferenceSegment"),
         Ref("BracketedColumnReferenceListGrammar", optional=True),
         OneOf(Ref("SelectableGrammar"), Ref("ExecuteScriptSegment")),
@@ -933,13 +950,12 @@ class MaxDurationSegment(BaseSegment):
     )
 
 
-class DropIndexStatementSegment(BaseSegment):
+class DropIndexStatementSegment(ansi.DropIndexStatementSegment):
     """A `DROP INDEX` statement.
 
     Overriding ANSI to include required ON clause.
     """
 
-    type = "drop_statement"
     match_grammar = Sequence(
         "DROP",
         "INDEX",
@@ -1166,7 +1182,7 @@ class GoStatementSegment(BaseSegment):
     """
 
     type = "go_statement"
-    match_grammar = Sequence("GO")
+    match_grammar = Ref.keyword("GO")
 
 
 class DatatypeSegment(BaseSegment):
@@ -1299,6 +1315,72 @@ class IfClauseSegment(BaseSegment):
         Indent,
         Ref("ExpressionSegment"),
         Dedent,
+    )
+
+
+class WhileExpressionStatement(BaseSegment):
+    """WHILE statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/language-elements/while-transact-sql?view=sql-server-ver15
+    """
+
+    type = "while_statement"
+
+    match_grammar = Sequence(
+        "WHILE",
+        Ref("ExpressionSegment"),
+        Indent,
+        Sequence(
+            Ref("StatementSegment"),
+            Ref("DelimiterSegment", optional=True),
+        ),
+        Dedent,
+    )
+
+
+class BreakStatement(BaseSegment):
+    """BREAK statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/language-elements/break-transact-sql?view=sql-server-ver15
+    """
+
+    type = "break_statement"
+
+    match_grammar = Sequence(
+        "BREAK",
+    )
+
+
+class ContinueStatement(BaseSegment):
+    """CONTINUE statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/language-elements/continue-transact-sql?view=sql-server-ver15
+    """
+
+    type = "continue_statement"
+
+    match_grammar = Sequence(
+        "CONTINUE",
+    )
+
+
+class WaitForStatementSegment(BaseSegment):
+    """WAITFOR statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/language-elements/waitfor-transact-sql?view=sql-server-ver15
+    Partially implemented, lacking Receive and Get Conversation Group statements for
+    now.
+    """
+
+    type = "waitfor_statement"
+
+    match_grammar = Sequence(
+        "WAITFOR",
+        OneOf(
+            Sequence("DELAY", Ref("ExpressionSegment")),
+            Sequence("TIME", Ref("ExpressionSegment")),
+        ),
+        Sequence("TIMEOUT", Ref("NumericLiteralSegment"), optional=True),
     )
 
 
@@ -1626,9 +1708,11 @@ class ProcedureParameterListGrammar(BaseSegment):
     match_grammar = OptionallyBracketed(
         Sequence(
             Ref("FunctionParameterGrammar"),
+            OneOf("OUT", "OUTPUT", "READONLY", optional=True),
             AnyNumberOf(
                 Ref("CommaSegment"),
                 Ref("FunctionParameterGrammar"),
+                OneOf("OUT", "OUTPUT", "READONLY", optional=True),
             ),
             optional=True,
         ),
@@ -1801,7 +1885,7 @@ class WithinGroupClause(BaseSegment):
     )
 
 
-class PartitionClauseSegment(BaseSegment):
+class PartitionClauseSegment(ansi.PartitionClauseSegment):
     """PARTITION BY clause.
 
     https://docs.microsoft.com/en-us/sql/t-sql/queries/select-over-clause-transact-sql?view=sql-server-ver15#partition-by
@@ -1824,6 +1908,7 @@ class PartitionClauseSegment(BaseSegment):
             ),
         ),
     )
+    parse_grammar = None
 
 
 class OnPartitionsSegment(BaseSegment):
@@ -2657,48 +2742,39 @@ class RenameStatementSegment(BaseSegment):
     )
 
 
-class DropTableStatementSegment(BaseSegment):
+class DropTableStatementSegment(ansi.DropTableStatementSegment):
     """A `DROP TABLE` statement.
 
     Overriding ANSI to add optional delimiter.
     """
 
-    type = "drop_table_statement"
-    match_grammar = ansi_dialect.get_segment(
-        "DropTableStatementSegment"
-    ).match_grammar.copy(
+    match_grammar = ansi.DropTableStatementSegment.match_grammar.copy(
         insert=[
             Ref("DelimiterSegment", optional=True),
         ],
     )
 
 
-class DropViewStatementSegment(BaseSegment):
+class DropViewStatementSegment(ansi.DropViewStatementSegment):
     """A `DROP VIEW` statement.
 
     Overriding ANSI to add optional delimiter.
     """
 
-    type = "drop_view_statement"
-    match_grammar = ansi_dialect.get_segment(
-        "DropViewStatementSegment"
-    ).match_grammar.copy(
+    match_grammar = ansi.DropViewStatementSegment.match_grammar.copy(
         insert=[
             Ref("DelimiterSegment", optional=True),
         ],
     )
 
 
-class DropUserStatementSegment(BaseSegment):
+class DropUserStatementSegment(ansi.DropUserStatementSegment):
     """A `DROP USER` statement.
 
     Overriding ANSI to add optional delimiter.
     """
 
-    type = "drop_user_statement"
-    match_grammar = ansi_dialect.get_segment(
-        "DropUserStatementSegment"
-    ).match_grammar.copy(
+    match_grammar = ansi.DropUserStatementSegment.match_grammar.copy(
         insert=[
             Ref("DelimiterSegment", optional=True),
         ],
@@ -3097,7 +3173,6 @@ class MergeMatchSegment(BaseSegment):
         ),
         Ref("OutputClauseSegment", optional=True),
         Ref("OptionClauseSegment", optional=True),
-        AnyNumberOf(Ref("DelimiterSegment"), optional=True),
     )
 
 
@@ -3319,4 +3394,128 @@ class WindowSpecificationSegment(BaseSegment):
         Ref("FrameClauseSegment", optional=True),
         optional=True,
         ephemeral_name="OverClauseContent",
+    )
+
+
+class GotoStatement(BaseSegment):
+    """GOTO statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/language-elements/goto-transact-sql?view=sql-server-ver15
+    """
+
+    type = "goto_statement"
+    match_grammar = Sequence("GOTO", Ref("SingleIdentifierGrammar"))
+
+
+class CreateTriggerStatementSegment(BaseSegment):
+    """Create Trigger Statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-trigger-transact-sql?view=sql-server-ver15
+    """
+
+    type = "create_trigger"
+
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        "TRIGGER",
+        Ref("TriggerReferenceSegment"),
+        "ON",
+        OneOf(
+            Ref("TableReferenceSegment"),
+            Sequence("ALL", "SERVER"),
+            "DATABASE",
+        ),
+        Sequence(
+            "WITH",
+            OneOf(
+                Sequence(
+                    Ref.keyword("ENCRYPTION", optional=True),
+                    Sequence(
+                        "EXECUTE",
+                        "AS",
+                        Ref("SingleQuotedIdentifierSegment"),
+                        optional=True,
+                    ),
+                ),
+                Sequence(
+                    Ref.keyword("NATIVE_COMPILATION", optional=True),
+                    Ref.keyword("SCHEMABINDING", optional=True),
+                    Sequence(
+                        "EXECUTE",
+                        "AS",
+                        Ref("SingleQuotedIdentifierSegment"),
+                        optional=True,
+                    ),
+                ),
+                Sequence(
+                    Ref.keyword("ENCRYPTION", optional=True),
+                    Sequence(
+                        "EXECUTE",
+                        "AS",
+                        Ref("SingleQuotedIdentifierSegment"),
+                        optional=True,
+                    ),
+                ),
+            ),
+            optional=True,
+        ),
+        OneOf(
+            Sequence("FOR", Delimited(Ref("SingleIdentifierGrammar"), optional=True)),
+            "AFTER",
+            Sequence("INSTEAD", "OF"),
+            optional=True,
+        ),
+        Delimited(
+            "INSERT",
+            "UPDATE",
+            "DELETE",
+            optional=True,
+        ),
+        Sequence("WITH", "APPEND", optional=True),
+        Sequence("NOT", "FOR", "REPLICATION", optional=True),
+        "AS",
+        AnyNumberOf(
+            Ref("StatementSegment"),
+        ),
+        # TODO: EXTERNAL NAME
+    )
+
+
+class DropTriggerStatementSegment(BaseSegment):
+    """Drop Trigger Statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/drop-trigger-transact-sql?view=sql-server-ver15
+    """
+
+    type = "drop_trigger"
+
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        "TRIGGER",
+        Ref("IfExistsGrammar", optional=True),
+        Delimited(Ref("TriggerReferenceSegment")),
+        Sequence("ON", OneOf("DATABASE", Sequence("ALL", "SERVER")), optional=True),
+    )
+
+
+class DisableTriggerStatementSegment(BaseSegment):
+    """Disable Trigger Statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/disable-trigger-transact-sql?view=sql-server-ver15
+    """
+
+    type = "disable_trigger"
+
+    match_grammar: Matchable = Sequence(
+        "DISABLE",
+        "TRIGGER",
+        OneOf(
+            Delimited(Ref("TriggerReferenceSegment")),
+            "ALL",
+        ),
+        Sequence(
+            "ON",
+            OneOf(Ref("ObjectReferenceSegment"), "DATABASE", Sequence("ALL", "SERVER")),
+            optional=True,
+        ),
     )

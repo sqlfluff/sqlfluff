@@ -208,9 +208,9 @@ mysql_dialect.add(
         trim_chars=('"',),
     ),
     AtSignLiteralSegment=NamedParser(
-        "atsign",
+        "at_sign",
         CodeSegment,
-        name="atsign_literal",
+        name="at_sign_literal",
         type="literal",
         trim_chars=("@",),
     ),
@@ -445,7 +445,7 @@ class TableConstraintSegment(BaseSegment):
         Sequence(  # [ CONSTRAINT <Constraint name> ]
             "CONSTRAINT", Ref("ObjectReferenceSegment"), optional=True
         ),
-        Delimited(
+        OneOf(
             Sequence(  # UNIQUE [INDEX | KEY] [index_name] ( column_name [, ... ] )
                 "UNIQUE",
                 OneOf("INDEX", "KEY", optional=True),
@@ -518,7 +518,7 @@ mysql_dialect.add(
         "$$", SymbolSegment, name="doubledollarsign", type="statement_terminator"
     ),
     AtSignSignSegment=StringParser(
-        "@", SymbolSegment, name="atsign", type="user_designator"
+        "@", SymbolSegment, name="at_sign", type="user_designator"
     ),
     OutputParameterSegment=StringParser(
         "OUT", SymbolSegment, name="inputparameter", type="parameter_direction"
@@ -580,7 +580,7 @@ mysql_dialect.replace(
 mysql_dialect.insert_lexer_matchers(
     [
         RegexLexer(
-            "atsign",
+            "at_sign",
             r"[@][a-zA-Z0-9_]*",
             CodeSegment,
         ),
@@ -657,6 +657,7 @@ class DeclareStatement(BaseSegment):
 class StatementSegment(ansi.StatementSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
 
+    match_grammar = ansi.StatementSegment.match_grammar
     parse_grammar = ansi.StatementSegment.parse_grammar.copy(
         insert=[
             Ref("DelimiterStatement"),
@@ -1091,8 +1092,8 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
 
     type = "select_statement"
     match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar.copy()
-    match_grammar.terminator = (
-        match_grammar.terminator.copy(
+    match_grammar.terminator = (  # type: ignore
+        match_grammar.terminator.copy(  # type: ignore
             insert=[Ref("IntoClauseSegment")],
             before=Ref("SetOperatorSegment"),
         )
@@ -1129,21 +1130,19 @@ class SelectClauseSegment(ansi.SelectClauseSegment):
     """A group of elements in a select target statement."""
 
     match_grammar = ansi.SelectClauseSegment.match_grammar.copy()
-    match_grammar.terminator = match_grammar.terminator.copy(
+    match_grammar.terminator = match_grammar.terminator.copy(  # type: ignore
         insert=[Ref("IntoKeywordSegment")]
     )
+    parse_grammar = ansi.SelectClauseSegment.parse_grammar
 
 
-class SelectStatementSegment(BaseSegment):
+class SelectStatementSegment(ansi.SelectStatementSegment):
     """A `SELECT` statement.
 
     https://dev.mysql.com/doc/refman/5.7/en/select.html
     """
 
-    type = "select_statement"
-    match_grammar = ansi_dialect.get_segment(
-        "SelectStatementSegment"
-    ).match_grammar.copy()
+    match_grammar = ansi.SelectStatementSegment.match_grammar.copy()
     match_grammar.terminator = match_grammar.terminator.copy(  # type: ignore
         insert=[Ref("UpsertClauseListSegment")]
     )
@@ -1530,13 +1529,12 @@ class CursorFetchSegment(BaseSegment):
     )
 
 
-class DropIndexStatementSegment(BaseSegment):
+class DropIndexStatementSegment(ansi.DropIndexStatementSegment):
     """A `DROP INDEX` statement.
 
     https://dev.mysql.com/doc/refman/8.0/en/drop-index.html
     """
 
-    type = "drop_statement"
     # DROP INDEX <Index name> ON <table_name>
     # [ALGORITHM [=] {DEFAULT | INPLACE | COPY} | LOCK [=] {DEFAULT | NONE | SHARED |
     # EXCLUSIVE}]

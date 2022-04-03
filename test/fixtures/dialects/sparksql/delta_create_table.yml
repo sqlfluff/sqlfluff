@@ -1,0 +1,371 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 2db33fb2102018afb83ed611e4ee19ce7dd13b1365cee2621641162d6df622b8
+file:
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+      - identifier: default
+      - dot: .
+      - identifier: people10m
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          identifier: id
+          data_type:
+            primitive_type:
+              keyword: INT
+      - comma: ','
+      - column_definition:
+          identifier: first_name
+          data_type:
+            primitive_type:
+              keyword: STRING
+      - comma: ','
+      - column_definition:
+          identifier: middle_name
+          data_type:
+            primitive_type:
+              keyword: STRING
+      - comma: ','
+      - column_definition:
+          identifier: last_name
+          data_type:
+            primitive_type:
+              keyword: STRING
+      - comma: ','
+      - column_definition:
+          identifier: gender
+          data_type:
+            primitive_type:
+              keyword: STRING
+      - comma: ','
+      - column_definition:
+          identifier: birth_date
+          data_type:
+            primitive_type:
+              keyword: TIMESTAMP
+      - comma: ','
+      - column_definition:
+          identifier: ssn
+          data_type:
+            primitive_type:
+              keyword: STRING
+      - comma: ','
+      - column_definition:
+          identifier: salary
+          data_type:
+            primitive_type:
+              keyword: INT
+      - end_bracket: )
+    - keyword: USING
+    - keyword: DELTA
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - binary_operator: OR
+    - keyword: REPLACE
+    - keyword: TABLE
+    - table_reference:
+      - identifier: default
+      - dot: .
+      - identifier: people10m
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          identifier: id
+          data_type:
+            primitive_type:
+              keyword: INT
+      - comma: ','
+      - column_definition:
+          identifier: first_name
+          data_type:
+            primitive_type:
+              keyword: STRING
+      - comma: ','
+      - column_definition:
+          identifier: middle_name
+          data_type:
+            primitive_type:
+              keyword: STRING
+      - comma: ','
+      - column_definition:
+          identifier: last_name
+          data_type:
+            primitive_type:
+              keyword: STRING
+      - comma: ','
+      - column_definition:
+          identifier: gender
+          data_type:
+            primitive_type:
+              keyword: STRING
+      - comma: ','
+      - column_definition:
+          identifier: birth_date
+          data_type:
+            primitive_type:
+              keyword: TIMESTAMP
+      - comma: ','
+      - column_definition:
+          identifier: ssn
+          data_type:
+            primitive_type:
+              keyword: STRING
+      - comma: ','
+      - column_definition:
+          identifier: salary
+          data_type:
+            primitive_type:
+              keyword: INT
+      - end_bracket: )
+    - keyword: USING
+    - keyword: DELTA
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - binary_operator: OR
+    - keyword: REPLACE
+    - keyword: TABLE
+    - file_reference:
+        keyword: DELTA
+        dot: .
+        identifier: '`/delta/people10m`'
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          identifier: id
+          data_type:
+            primitive_type:
+              keyword: INT
+      - comma: ','
+      - column_definition:
+          identifier: first_name
+          data_type:
+            primitive_type:
+              keyword: STRING
+      - comma: ','
+      - column_definition:
+          identifier: middle_name
+          data_type:
+            primitive_type:
+              keyword: STRING
+      - comma: ','
+      - column_definition:
+          identifier: last_name
+          data_type:
+            primitive_type:
+              keyword: STRING
+      - comma: ','
+      - column_definition:
+          identifier: gender
+          data_type:
+            primitive_type:
+              keyword: STRING
+      - comma: ','
+      - column_definition:
+          identifier: birth_date
+          data_type:
+            primitive_type:
+              keyword: TIMESTAMP
+      - comma: ','
+      - column_definition:
+          identifier: ssn
+          data_type:
+            primitive_type:
+              keyword: STRING
+      - comma: ','
+      - column_definition:
+          identifier: salary
+          data_type:
+            primitive_type:
+              keyword: INT
+      - end_bracket: )
+    - keyword: USING
+    - keyword: DELTA
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - identifier: default
+      - dot: .
+      - identifier: people10m
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          identifier: id
+          data_type:
+            primitive_type:
+              keyword: INT
+      - comma: ','
+      - column_definition:
+          identifier: first_name
+          data_type:
+            primitive_type:
+              keyword: STRING
+      - comma: ','
+      - column_definition:
+          identifier: middle_name
+          data_type:
+            primitive_type:
+              keyword: STRING
+      - comma: ','
+      - column_definition:
+          identifier: last_name
+          data_type:
+            primitive_type:
+              keyword: STRING
+      - comma: ','
+      - column_definition:
+          identifier: gender
+          data_type:
+            primitive_type:
+              keyword: STRING
+      - comma: ','
+      - column_definition:
+          identifier: birth_date
+          data_type:
+            primitive_type:
+              keyword: TIMESTAMP
+      - comma: ','
+      - column_definition:
+          identifier: ssn
+          data_type:
+            primitive_type:
+              keyword: STRING
+      - comma: ','
+      - column_definition:
+          identifier: salary
+          data_type:
+            primitive_type:
+              keyword: INT
+      - end_bracket: )
+    - keyword: USING
+    - keyword: DELTA
+    - keyword: PARTITIONED
+    - keyword: BY
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          identifier: gender
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - identifier: default
+      - dot: .
+      - identifier: people10m
+    - keyword: USING
+    - keyword: DELTA
+    - keyword: LOCATION
+    - literal: "'/delta/people10m'"
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - identifier: default
+      - dot: .
+      - identifier: people10m
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          identifier: id
+          data_type:
+            primitive_type:
+              keyword: INT
+      - comma: ','
+      - column_definition:
+          identifier: first_name
+          data_type:
+            primitive_type:
+              keyword: STRING
+      - comma: ','
+      - column_definition:
+          identifier: middle_name
+          data_type:
+            primitive_type:
+              keyword: STRING
+      - comma: ','
+      - column_definition:
+          identifier: last_name
+          data_type:
+            primitive_type:
+              keyword: STRING
+      - comma: ','
+      - column_definition:
+          identifier: gender
+          data_type:
+            primitive_type:
+              keyword: STRING
+      - comma: ','
+      - column_definition:
+          identifier: birth_date
+          data_type:
+            primitive_type:
+              keyword: TIMESTAMP
+      - comma: ','
+      - generated_column_definition:
+        - identifier: date_of_birth
+        - data_type:
+            primitive_type:
+              keyword: DATE
+        - keyword: GENERATED
+        - keyword: ALWAYS
+        - keyword: AS
+        - bracketed:
+            start_bracket: (
+            function:
+              function_name:
+                function_name_identifier: CAST
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    identifier: birth_date
+                keyword: AS
+                data_type:
+                  primitive_type:
+                    keyword: DATE
+                end_bracket: )
+            end_bracket: )
+      - comma: ','
+      - column_definition:
+          identifier: ssn
+          data_type:
+            primitive_type:
+              keyword: STRING
+      - comma: ','
+      - column_definition:
+          identifier: salary
+          data_type:
+            primitive_type:
+              keyword: INT
+      - end_bracket: )
+    - keyword: USING
+    - keyword: DELTA
+    - keyword: PARTITIONED
+    - keyword: BY
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          identifier: gender
+        end_bracket: )
+- statement_terminator: ;

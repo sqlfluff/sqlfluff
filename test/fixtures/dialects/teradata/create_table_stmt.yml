@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 771543dff4cc73b123422344fdd00be1d9b42b640b48f0656b1287cbc9c2623e
+_hash: a0ec0c525cb13655349b1a46d4084dda425ddd2eac69b3e2b478e46da23f5bb1
 file:
   statement:
     create_table_statement:
@@ -37,7 +37,7 @@ file:
         column_definition:
           column_reference:
             identifier: FIELD1
-          td_internal_data_type:
+          data_type:
             data_type_identifier: CHAR
             bracketed:
               start_bracket: (
