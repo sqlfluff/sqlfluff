@@ -21,6 +21,11 @@ Major changes include:
 
 ## What’s Changed
 
+* L041: Fix bug when there is a newline after the select clause modifier [#2981](https://github.com/sqlfluff/sqlfluff/pull/2981) [@jmc-bbk](https://github.com/jmc-bbk)
+* Rule L045 doesn't recognise CTE usage in a subquery when rule L042 is enabled [#2980](https://github.com/sqlfluff/sqlfluff/pull/2980) [@barrywhart](https://github.com/barrywhart)
+* dbt: Make `is_incremental()` defaults consistent [#2985](https://github.com/sqlfluff/sqlfluff/pull/2985) [@dmohns](https://github.com/dmohns)
+* Rename Grammars for consistency [#2986](https://github.com/sqlfluff/sqlfluff/pull/2986) [@tunetheweb](https://github.com/tunetheweb)
+* Added support for MySQL `UPDATE` Statements [#2982](https://github.com/sqlfluff/sqlfluff/pull/2982) [@WittierDinosaur](https://github.com/WittierDinosaur)
 * Redshift: Added `CREATE EXTERNAL SCHEMA`, bugfix in `PARTITION BY` [#2983](https://github.com/sqlfluff/sqlfluff/pull/2983) [@WittierDinosaur](https://github.com/WittierDinosaur)
 * Added `ALTER INDEX` and `REINDEX` to Postgres, Some Grammar Cleaning [#2979](https://github.com/sqlfluff/sqlfluff/pull/2979) [@WittierDinosaur](https://github.com/WittierDinosaur)
 * TSQL grammar deduplication [#2967](https://github.com/sqlfluff/sqlfluff/pull/2967) [@tunetheweb](https://github.com/tunetheweb)
@@ -64,6 +69,7 @@ Major changes include:
 * [@pguyot](https://github.com/pguyot) made their first contribution in [#2963](https://github.com/sqlfluff/sqlfluff/pull/2963)
 * [@dmohns](https://github.com/dmohns) made their first contribution in [#2971](https://github.com/sqlfluff/sqlfluff/pull/2971)
 * [@tcholewik](https://github.com/tcholewik) made their first contribution in [#2923](https://github.com/sqlfluff/sqlfluff/pull/2923)
+* [@jmc-bbk](https://github.com/jmc-bbk) made their first contribution in [#2981](https://github.com/sqlfluff/sqlfluff/pull/2981)
 
 ## [0.11.2] - 2022-03-25
 
