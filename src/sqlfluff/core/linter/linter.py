@@ -491,6 +491,7 @@ class Linter:
 
         save_tree = tree
         for loop in range(loop_limit):
+            linter_logger.info(f"Linter loop {loop+1}/{loop_limit}")
             changed = False
 
             progress_bar_crawler = tqdm(

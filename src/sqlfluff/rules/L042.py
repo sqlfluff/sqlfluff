@@ -1,6 +1,7 @@
 """Implementation of Rule L042."""
+import copy
 from functools import partial
-from typing import Generator, List, NamedTuple, Optional, Tuple, Type, TypeVar, cast
+from typing import Generator, List, NamedTuple, Optional, Type, TypeVar, cast
 from sqlfluff.core.dialects.base import Dialect
 from sqlfluff.core.parser.markers import PositionMarker
 
@@ -113,7 +114,6 @@ class Rule_L042(BaseRule):
         # If there are offending elements calculate fixes
         return _calculate_fixes(
             dialect=context.dialect,
-            fix=context.fix,
             root_select=segment,
             nested_subqueries=nested_subqueries,
         )
@@ -121,7 +121,6 @@ class Rule_L042(BaseRule):
 
 def _calculate_fixes(
     dialect: Dialect,
-    fix: bool,
     root_select: Segments,
     nested_subqueries: List[_NestedSubQuerySummary],
 ) -> List[LintResult]:
@@ -148,28 +147,22 @@ def _calculate_fixes(
         )
 
     lint_results: List[LintResult] = []
-    mutations_buffer: List[Tuple[BaseSegment, BaseSegment]] = []
+    clone_map = SegmentCloneMap(root_select[0])
     for parent_type, _, this_seg, subquery in nested_subqueries:
         alias_name = ctes.create_cte_alias(
             this_seg.children(is_type("alias_expression"))
         )
         new_cte = _create_cte_seg(
             alias_name=alias_name,
-            subquery=subquery,
+            subquery=clone_map[subquery],
             case_preference=case_preference,
             dialect=dialect,
         )
         ctes.insert_cte(new_cte)
-        # We are preping a mutative change
-        # I gather this is bad. We must provide a position marker
-        # TODO: alternative to mutative change, Dummy pos markers
-
-        assert this_seg[0].pos_marker, "TypeGuard"
-        mutations_buffer.append(
-            (
-                this_seg[0],
-                _create_table_ref(alias_name, dialect, this_seg[0].pos_marker),
-            )
+        this_seg_clone = clone_map[this_seg[0]]
+        assert this_seg_clone.pos_marker, "TypeGuard"
+        this_seg_clone.segments = (
+            _create_table_ref(alias_name, dialect, this_seg_clone.pos_marker),
         )
         anchor = subquery
         # Grab the first keyword or symbol in the subquery to use as the
@@ -186,16 +179,10 @@ def _calculate_fixes(
         )
         lint_results.append(res)
 
-    if not fix or ctes.has_duplicate_aliases() or is_recursive:
+    if ctes.has_duplicate_aliases() or is_recursive:
         # If we have duplicate CTE names just don't fix anything
         # Return the lint warnings anyway
         return lint_results
-
-    # Apply mutations only once we are sure we are applying fixes
-    for parent_el, replacement in mutations_buffer:
-        # TODO: Create non-mutative helper function.
-        # We will replace the whole tree, mutate the table expression.
-        parent_el.segments = (replacement,)
 
     # Add fixes to the last result only
     lint_results[-1].fixes = [
@@ -203,7 +190,7 @@ def _calculate_fixes(
             root_select[0],
             edit_segments=[
                 ctes.compose_select(
-                    output_select[0],
+                    clone_map[output_select[0]],
                     case_preference=case_preference,
                 ),
             ],
@@ -426,3 +413,19 @@ def _segmentify(input_el: str, casing: str) -> BaseSegment:
         input_el = input_el.upper()
 
     return KeywordSegment(raw=input_el)
+
+
+class SegmentCloneMap:
+    """Clones a segment tree, maps from original segments to their clones."""
+
+    def __init__(self, segment: BaseSegment):
+        segment_copy = copy.deepcopy(segment)
+        self.segment_map = {}
+        for old_segment, new_segment in zip(
+            segment.recursive_crawl_all(),
+            segment_copy.recursive_crawl_all(),
+        ):
+            self.segment_map[id(old_segment)] = new_segment
+
+    def __getitem__(self, old_segment: BaseSegment) -> BaseSegment:
+        return self.segment_map[id(old_segment)]
