@@ -751,23 +751,8 @@ where
 
 def test_linter_noqa_prs():
     """Test "noqa" feature to ignore PRS at the higher "Linter" level."""
-    lntr = Linter(
-        config=FluffConfig(
-            overrides={
-                "dialect": "bigquery",
-                "exclude_rules": "L050",
-            }
-        )
-    )
-    sql = """
-    CREATE TABLE IF NOT EXISTS
-    Test.events (userID STRING,
-    eventName STRING,
-    eventID INTEGER,
-    device STRUCT < mobileBrandName STRING, -- noqa: PRS
-    mobileModelName STRING>);
-    Insert into Test.events VALUES ("1","abc",123,STRUCT("htc","10"));
-        """
+    lntr = Linter()
+    sql = "SELEC * FROM foo -- noqa: PRS\n"
     result = lntr.lint_string(sql)
     violations = result.get_violations()
     assert not violations

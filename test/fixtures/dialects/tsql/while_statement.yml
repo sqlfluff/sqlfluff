@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0c5266c03f9510faf4c5326bba84a391e4e7c9a60cab44ff472746904e6fa69b
+_hash: e5ba3ea50fea419c66a70bab0d6fa187e2c5919d273f5e0383aaaae9c775bee9
 file:
   batch:
     statement:
@@ -29,29 +29,28 @@ file:
                     keyword: EXISTS
                     bracketed:
                       start_bracket: (
-                      expression:
-                        select_statement:
-                          select_clause:
-                            keyword: SELECT
-                            select_clause_element:
-                              wildcard_expression:
-                                wildcard_identifier:
-                                  star: '*'
-                          from_clause:
-                            keyword: FROM
-                            from_expression:
-                              from_expression_element:
-                                table_expression:
-                                  table_reference:
-                                    identifier: '##MyTempTable'
-                          where_clause:
-                            keyword: WHERE
-                            expression:
-                              column_reference:
-                                identifier: EventCode
-                              comparison_operator:
-                                raw_comparison_operator: '='
-                              literal: "'Done'"
+                      select_statement:
+                        select_clause:
+                          keyword: SELECT
+                          select_clause_element:
+                            wildcard_expression:
+                              wildcard_identifier:
+                                star: '*'
+                        from_clause:
+                          keyword: FROM
+                          from_expression:
+                            from_expression_element:
+                              table_expression:
+                                table_reference:
+                                  identifier: '##MyTempTable'
+                        where_clause:
+                          keyword: WHERE
+                          expression:
+                            column_reference:
+                              identifier: EventCode
+                            comparison_operator:
+                              raw_comparison_operator: '='
+                            literal: "'Done'"
                       end_bracket: )
                 statement:
                   begin_end_block:

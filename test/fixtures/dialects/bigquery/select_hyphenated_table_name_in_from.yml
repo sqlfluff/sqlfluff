@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 988e9594c851997adb0722cc892d1e3670f696e151a8817c7934652d6bcab118
+_hash: 09f04bb3080d62a6126486e51f3d46f9bbe86d5d62633cac33dc81dded2d3883
 file:
-  statement:
+- statement:
     select_statement:
       select_clause:
         keyword: SELECT
@@ -18,7 +18,7 @@ file:
         from_expression:
           from_expression_element:
             table_expression:
-              hyphenated_object_reference:
+              table_reference:
               - identifier: project
               - dash: '-'
               - identifier: a
@@ -34,7 +34,7 @@ file:
           - keyword: JOIN
           - from_expression_element:
               table_expression:
-                hyphenated_object_reference:
+                table_reference:
                 - identifier: dataset
                 - dash: '-'
                 - identifier: c
@@ -47,3 +47,39 @@ file:
               start_bracket: (
               identifier: a
               end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          expression:
+          - column_reference:
+              identifier: col1
+          - binary_operator: '-'
+          - column_reference:
+              identifier: col2
+          alias_expression:
+            keyword: AS
+            identifier: newcol1
+      - comma: ','
+      - select_clause_element:
+          expression:
+          - column_reference:
+              identifier: col1
+          - binary_operator: '-'
+          - column_reference:
+              identifier: col2
+          alias_expression:
+            keyword: AS
+            identifier: newcol2
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - identifier: table
+              - dash: '-'
+              - identifier: a123
+- statement_terminator: ;

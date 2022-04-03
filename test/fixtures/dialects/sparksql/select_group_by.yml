@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0ebcef1dea141eb74575793098f6e2fe6d739149cac38f4cc67d717b55d6b68c
+_hash: 9fd97404ccd602d831fc2860f1855dff23ae094732bb80699305d382a6d1fa3a
 file:
 - statement:
     select_statement:
@@ -262,41 +262,36 @@ file:
         - keyword: GROUPING
         - keyword: SETS
         - bracketed:
-          - start_bracket: (
-          - grouping_expression_list:
-              bracketed:
+            start_bracket: (
+            grouping_expression_list:
+            - bracketed:
               - start_bracket: (
-              - expression:
-                  column_reference:
-                    identifier: city
+              - column_reference:
+                  identifier: city
               - comma: ','
-              - expression:
-                  column_reference:
-                    identifier: car_model
+              - column_reference:
+                  identifier: car_model
               - end_bracket: )
-          - comma: ','
-          - grouping_expression_list:
-              bracketed:
+            - comma: ','
+            - bracketed:
                 start_bracket: (
                 expression:
                   column_reference:
                     identifier: city
                 end_bracket: )
-          - comma: ','
-          - grouping_expression_list:
-              bracketed:
+            - comma: ','
+            - bracketed:
                 start_bracket: (
                 expression:
                   column_reference:
                     identifier: car_model
                 end_bracket: )
-          - comma: ','
-          - grouping_expression_list:
-              expression:
+            - comma: ','
+            - expression:
                 array_literal:
                   start_bracket: (
                   end_bracket: )
-          - end_bracket: )
+            end_bracket: )
       orderby_clause:
       - keyword: ORDER
       - keyword: BY
