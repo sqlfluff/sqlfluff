@@ -1821,8 +1821,7 @@ class UpdateStatementSegment(BaseSegment):
     """
 
     type = "update_statement"
-    match_grammar: Matchable = StartsWith("UPDATE")
-    parse_grammar: Optional[Matchable] = Sequence(
+    match_grammar: Matchable = Sequence(
         "UPDATE",
         Ref.keyword("LOW_PRIORITY", optional=True),
         Ref.keyword("IGNORE", optional=True),
