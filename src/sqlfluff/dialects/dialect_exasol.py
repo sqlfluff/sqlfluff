@@ -1730,8 +1730,7 @@ class UpdateStatementSegment(BaseSegment):
     is_dql = False
     is_dcl = False
 
-    match_grammar = StartsWith("UPDATE")
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "UPDATE",
         OneOf(Ref("TableReferenceSegment"), Ref("AliasedTableReferenceGrammar")),
         Ref("SetClauseListSegment"),

@@ -3069,8 +3069,7 @@ class UpdateStatementSegment(BaseSegment):
     """
 
     type = "update_statement"
-    match_grammar: Matchable = StartsWith("UPDATE")
-    parse_grammar: Optional[Matchable] = Sequence(
+    match_grammar: Matchable = Sequence(
         "UPDATE",
         Ref("TableReferenceSegment"),
         # SET is not a resevered word in all dialects (e.g. RedShift)
