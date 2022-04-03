@@ -684,7 +684,7 @@ class StatementSegment(ansi.StatementSegment):
 
 
 teradata_dialect.add(
-    TdCastIdentifierSegment=Sequence(
+    TdCastIdentifierGrammar=Sequence(
         OneOf("DATE", "TIMESTAMP"), Ref("ExpressionSegment")
     ),
 )
@@ -693,7 +693,7 @@ teradata_dialect.replace(
     SingleIdentifierGrammar=OneOf(
         Ref("NakedIdentifierSegment"),
         Ref("QuotedIdentifierSegment"),
-        Ref("TdCastIdentifierSegment"),
+        Ref("TdCastIdentifierGrammar"),
     ),
     SelectClauseSegmentGrammar=Sequence(
         OneOf("SELECT", "SEL"),
