@@ -363,7 +363,7 @@ postgres_dialect.replace(
     # https://www.postgresql.org/docs/14/functions-comparison.html
     IsNullGrammar=Ref.keyword("ISNULL"),
     NotNullGrammar=Ref.keyword("NOTNULL"),
-    JoinKeywords=Sequence("JOIN", Sequence("LATERAL", optional=True)),
+    JoinKeywordsGrammar=Sequence("JOIN", Sequence("LATERAL", optional=True)),
     SelectClauseElementTerminatorGrammar=OneOf(
         "INTO",
         "FROM",
@@ -764,6 +764,7 @@ class AlterFunctionStatementSegment(BaseSegment):
                 "DEPENDS",
                 "ON",
                 "EXTENSION",
+                Ref("ExtensionReferenceSegment"),
             ),
         ),
     )
@@ -1310,7 +1311,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                 "COMMIT",
                 OneOf(Sequence("PRESERVE", "ROWS"), Sequence("DELETE", "ROWS"), "DROP"),
             ),
-            Sequence("TABLESPACE", Ref("TableReferenceSegment")),
+            Sequence("TABLESPACE", Ref("TablespaceReferenceSegment")),
         ),
     )
 
@@ -1369,7 +1370,7 @@ class CreateTableAsStatementSegment(BaseSegment):
                 OneOf(Sequence("PRESERVE", "ROWS"), Sequence("DELETE", "ROWS"), "DROP"),
                 optional=True,
             ),
-            Sequence("TABLESPACE", Ref("ParameterNameSegment"), optional=True),
+            Sequence("TABLESPACE", Ref("TablespaceReferenceSegment"), optional=True),
         ),
         "AS",
         OneOf(
@@ -1445,7 +1446,7 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                 "ALL",
                 "IN",
                 "TABLESPACE",
-                Ref("ParameterNameSegment"),
+                Ref("TablespaceReferenceSegment"),
                 Sequence(
                     "OWNED",
                     "BY",
@@ -1456,7 +1457,7 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                 ),
                 "SET",
                 "TABLESPACE",
-                Ref("ParameterNameSegment"),
+                Ref("TablespaceReferenceSegment"),
                 Ref.keyword("NOWAIT", optional=True),
             ),
         ),
@@ -1617,7 +1618,7 @@ class AlterTableActionSegment(BaseSegment):
         ),
         Sequence("CLUSTER", "ON", Ref("ParameterNameSegment")),
         Sequence("SET", "WITHOUT", OneOf("CLUSTER", "OIDS")),
-        Sequence("SET", "TABLESPACE", Ref("ParameterNameSegment")),
+        Sequence("SET", "TABLESPACE", Ref("TablespaceReferenceSegment")),
         Sequence("SET", OneOf("LOGGED", "UNLOGGED")),
         Sequence(
             "SET",
@@ -1658,7 +1659,7 @@ class AlterTableActionSegment(BaseSegment):
             "IDENTITY",
             OneOf(
                 "DEFAULT",
-                Sequence("USING", "INDEX", Ref("ParameterNameSegment")),
+                Sequence("USING", "INDEX", Ref("IndexReferenceSegment")),
                 "FULL",
                 "NOTHING",
             ),
@@ -1685,7 +1686,7 @@ class CreateMaterializedViewStatementSegment(BaseSegment):
         Ref("BracketedColumnReferenceListGrammar", optional=True),
         AnyNumberOf(
             Sequence("USING", Ref("ParameterNameSegment"), optional=True),
-            Sequence("TABLESPACE", Ref("ParameterNameSegment"), optional=True),
+            Sequence("TABLESPACE", Ref("TablespaceReferenceSegment"), optional=True),
             Sequence(
                 "WITH",
                 Bracketed(
@@ -1750,13 +1751,13 @@ class AlterMaterializedViewStatementSegment(BaseSegment):
                 "DEPENDS",
                 "ON",
                 "EXTENSION",
-                Ref("ParameterNameSegment"),
+                Ref("ExtensionReferenceSegment"),
             ),
             Sequence(
                 "ALL",
                 "IN",
                 "TABLESPACE",
-                Ref("TableReferenceSegment"),
+                Ref("TablespaceReferenceSegment"),
                 Sequence(
                     "OWNED",
                     "BY",
@@ -1765,7 +1766,7 @@ class AlterMaterializedViewStatementSegment(BaseSegment):
                 ),
                 "SET",
                 "TABLESPACE",
-                Ref("ParameterNameSegment"),
+                Ref("TablespaceReferenceSegment"),
                 Sequence("NOWAIT", optional=True),
             ),
         ),
@@ -2010,7 +2011,7 @@ class CreateDatabaseStatementSegment(ansi.CreateDatabaseStatementSegment):
             Sequence(
                 "TABLESPACE",
                 Ref("EqualsSegment", optional=True),
-                Ref("ParameterNameSegment"),
+                OneOf(Ref("TablespaceReferenceSegment"), "DEFAULT"),
             ),
             Sequence(
                 "ALLOW_CONNECTIONS",
@@ -2071,7 +2072,7 @@ class AlterDatabaseStatementSegment(BaseSegment):
                     "SESSION_USER",
                 ),
             ),
-            Sequence("SET", "TABLESPACE", Ref("ParameterNameSegment")),
+            Sequence("SET", "TABLESPACE", Ref("TablespaceReferenceSegment")),
             Sequence(
                 "SET",
                 Ref("ParameterNameSegment"),
@@ -2310,7 +2311,7 @@ class TableConstraintUsingIndexSegment(BaseSegment):
             OneOf("UNIQUE", Sequence("PRIMARY", "KEY")),
             "USING",
             "INDEX",
-            Ref("ParameterNameSegment"),
+            Ref("IndexReferenceSegment"),
         ),
         OneOf("DEFERRABLE", Sequence("NOT", "DEFERRABLE"), optional=True),
         OneOf(
@@ -2346,7 +2347,11 @@ class IndexParametersSegment(BaseSegment):
             optional=True,
         ),
         Sequence(
-            "USING", "INDEX", "TABLESPACE", Ref("ParameterNameSegment"), optional=True
+            "USING",
+            "INDEX",
+            "TABLESPACE",
+            Ref("TablespaceReferenceSegment"),
+            optional=True,
         ),
     )
 
@@ -2735,6 +2740,123 @@ class CreateIndexStatementSegment(ansi.CreateIndexStatementSegment):
     )
 
 
+class AlterIndexStatementSegment(BaseSegment):
+    """An ALTER INDEX segment.
+
+    As per https://www.postgresql.org/docs/14/sql-alterindex.html
+    """
+
+    type = "alter_index_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "INDEX",
+        OneOf(
+            Sequence(
+                Ref("IfExistsGrammar", optional=True),
+                Ref("IndexReferenceSegment"),
+                OneOf(
+                    Sequence("RENAME", "TO", Ref("IndexReferenceSegment")),
+                    Sequence("SET", "TABLESPACE", Ref("TablespaceReferenceSegment")),
+                    Sequence("ATTACH", "PARTITION", Ref("IndexReferenceSegment")),
+                    Sequence(
+                        Ref.keyword("NO", optional=True),
+                        "DEPENDS",
+                        "ON",
+                        "EXTENSION",
+                        Ref("ExtensionReferenceSegment"),
+                    ),
+                    Sequence(
+                        "SET",
+                        Bracketed(
+                            Delimited(
+                                Sequence(
+                                    Ref("ParameterNameSegment"),
+                                    Sequence(
+                                        Ref("EqualsSegment"),
+                                        Ref("LiteralGrammar"),
+                                        optional=True,
+                                    ),
+                                )
+                            )
+                        ),
+                    ),
+                    Sequence(
+                        "RESET", Bracketed(Delimited(Ref("ParameterNameSegment")))
+                    ),
+                    Sequence(
+                        "ALTER",
+                        Ref.keyword("COLUMN", optional=True),
+                        Ref("NumericLiteralSegment"),
+                        "SET",
+                        "STATISTICS",
+                        Ref("NumericLiteralSegment"),
+                    ),
+                ),
+            ),
+            Sequence(
+                "ALL",
+                "IN",
+                "TABLESPACE",
+                Ref("TablespaceReferenceSegment"),
+                Sequence(
+                    "OWNED", "BY", Delimited(Ref("RoleReferenceSegment")), optional=True
+                ),
+                "SET",
+                "TABLESPACE",
+                Ref("TablespaceReferenceSegment"),
+                Ref.keyword("NOWAIT", optional=True),
+            ),
+        ),
+    )
+
+
+class ReindexStatementSegment(BaseSegment):
+    """A Reindex Statement Segment.
+
+    As per https://www.postgresql.org/docs/14/sql-reindex.html
+    """
+
+    type = "reindex_statement_segment"
+
+    match_grammar = Sequence(
+        "REINDEX",
+        Bracketed(
+            Delimited(
+                Sequence("CONCURRENTLY", Ref("BooleanLiteralGrammar", optional=True)),
+                Sequence(
+                    "TABLESPACE",
+                    Ref("TablespaceReferenceSegment"),
+                ),
+                Sequence("VERBOSE", Ref("BooleanLiteralGrammar", optional=True)),
+            ),
+            optional=True,
+        ),
+        OneOf(
+            Sequence(
+                "INDEX",
+                Ref.keyword("CONCURRENTLY", optional=True),
+                Ref("IndexReferenceSegment"),
+            ),
+            Sequence(
+                "TABLE",
+                Ref.keyword("CONCURRENTLY", optional=True),
+                Ref("TableReferenceSegment"),
+            ),
+            Sequence(
+                "SCHEMA",
+                Ref.keyword("CONCURRENTLY", optional=True),
+                Ref("SchemaReferenceSegment"),
+            ),
+            Sequence(
+                OneOf("DATABASE", "SYSTEM"),
+                Ref.keyword("CONCURRENTLY", optional=True),
+                Ref("DatabaseReferenceSegment"),
+            ),
+        ),
+    )
+
+
 class FrameClauseSegment(ansi.FrameClauseSegment):
     """A frame clause for window functions.
 
@@ -2933,6 +3055,8 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DropProcedureStatementSegment"),
             Ref("CopyStatementSegment"),
             Ref("DoStatementSegment"),
+            Ref("AlterIndexStatementSegment"),
+            Ref("ReindexStatementSegment"),
         ],
     )
 
@@ -3032,7 +3156,7 @@ class AlterTriggerStatementSegment(BaseSegment):
                 "DEPENDS",
                 "ON",
                 "EXTENSION",
-                Ref("ParameterNameSegment"),
+                Ref("ExtensionReferenceSegment"),
             ),
         ),
     )

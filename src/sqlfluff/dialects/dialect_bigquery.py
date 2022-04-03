@@ -134,16 +134,16 @@ bigquery_dialect.add(
         trim_chars=("@",),
     ),
     # Add a Full equivalent which also allow keywords
-    NakedIdentifierSegmentFull=RegexParser(
+    NakedIdentifierFullSegment=RegexParser(
         r"[A-Z_][A-Z0-9_]*",
         CodeSegment,
         name="naked_identifier_all",
         type="identifier",
     ),
-    SingleIdentifierGrammarFull=OneOf(
+    SingleIdentifierFullGrammar=OneOf(
         Ref("NakedIdentifierSegment"),
         Ref("QuotedIdentifierSegment"),
-        Ref("NakedIdentifierSegmentFull"),
+        Ref("NakedIdentifierFullSegment"),
     ),
     DefaultDeclareOptionsGrammar=Sequence(
         "DEFAULT",
@@ -207,7 +207,7 @@ bigquery_dialect.replace(
         ),
         Ref("AliasExpressionSegment", optional=True),
     ),
-    NaturalJoinKeywords=Nothing(),
+    NaturalJoinKeywordsGrammar=Nothing(),
     MergeIntoLiteralGrammar=Sequence("MERGE", Ref.keyword("INTO", optional=True)),
     Accessor_Grammar=AnyNumberOf(
         Ref("ArrayAccessorSegment"),
@@ -736,7 +736,7 @@ class ColumnReferenceSegment(ObjectReferenceSegment):
         Sequence(
             OneOf(Ref("DotSegment"), Sequence(Ref("DotSegment"), Ref("DotSegment"))),
             Delimited(
-                Ref("SingleIdentifierGrammarFull"),
+                Ref("SingleIdentifierFullGrammar"),
                 delimiter=OneOf(
                     Ref("DotSegment"), Sequence(Ref("DotSegment"), Ref("DotSegment"))
                 ),
@@ -750,7 +750,7 @@ class ColumnReferenceSegment(ObjectReferenceSegment):
                     Ref("StartBracketSegment"),
                     Ref("BinaryOperatorGrammar"),
                     Ref("ColonSegment"),
-                    Ref("DelimiterSegment"),
+                    Ref("DelimiterGrammar"),
                     BracketedSegment,
                 ),
                 allow_gaps=False,
@@ -837,7 +837,7 @@ class HyphenatedTableReferenceSegment(ObjectReferenceSegment):
             Ref("StartSquareBracketSegment"),
             Ref("StartBracketSegment"),
             Ref("ColonSegment"),
-            Ref("DelimiterSegment"),
+            Ref("DelimiterGrammar"),
             Ref("JoinLikeClauseGrammar"),
             BracketedSegment,
         ),
@@ -939,7 +939,7 @@ class PartitionBySegment(BaseSegment):
     type = "partition_by_segment"
     match_grammar = StartsWith(
         "PARTITION",
-        terminator=OneOf("CLUSTER", "OPTIONS", "AS", Ref("DelimiterSegment")),
+        terminator=OneOf("CLUSTER", "OPTIONS", "AS", Ref("DelimiterGrammar")),
         enforce_whitespace_preceding_terminator=True,
     )
     parse_grammar = Sequence(
@@ -955,7 +955,7 @@ class ClusterBySegment(BaseSegment):
     type = "cluster_by_segment"
     match_grammar = StartsWith(
         "CLUSTER",
-        terminator=OneOf("OPTIONS", "AS", Ref("DelimiterSegment")),
+        terminator=OneOf("OPTIONS", "AS", Ref("DelimiterGrammar")),
         enforce_whitespace_preceding_terminator=True,
     )
     parse_grammar = Sequence(

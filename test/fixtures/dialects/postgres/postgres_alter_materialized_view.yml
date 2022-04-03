@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b56d612cc6e18c06bdf719c338af111c9a90a4267099694a7919ed210d38e8eb
+_hash: 3d4ae86a614a1bb0a71ed54200740b830737645311620da724215aab957db6bc
 file:
 - statement:
     alter_materialized_view_statement:
@@ -326,7 +326,8 @@ file:
     - keyword: DEPENDS
     - keyword: 'ON'
     - keyword: EXTENSION
-    - parameter: baz
+    - extension_reference:
+        identifier: baz
 - statement_terminator: ;
 - statement:
     alter_materialized_view_statement:
@@ -339,7 +340,8 @@ file:
     - keyword: DEPENDS
     - keyword: 'ON'
     - keyword: EXTENSION
-    - parameter: baz
+    - extension_reference:
+        identifier: baz
 - statement_terminator: ;
 - statement:
     alter_materialized_view_statement:
@@ -432,11 +434,12 @@ file:
     - keyword: ALL
     - keyword: IN
     - keyword: TABLESPACE
-    - table_reference:
+    - tablespace_reference:
         identifier: old_tablespace
     - keyword: SET
     - keyword: TABLESPACE
-    - parameter: new_tablespace
+    - tablespace_reference:
+        identifier: new_tablespace
 - statement_terminator: ;
 - statement:
     alter_materialized_view_statement:
@@ -446,11 +449,12 @@ file:
     - keyword: ALL
     - keyword: IN
     - keyword: TABLESPACE
-    - table_reference:
+    - tablespace_reference:
         identifier: old_tablespace
     - keyword: SET
     - keyword: TABLESPACE
-    - parameter: new_tablespace
+    - tablespace_reference:
+        identifier: new_tablespace
     - keyword: NOWAIT
 - statement_terminator: ;
 - statement:
@@ -461,7 +465,7 @@ file:
     - keyword: ALL
     - keyword: IN
     - keyword: TABLESPACE
-    - table_reference:
+    - tablespace_reference:
         identifier: old_tablespace
     - keyword: OWNED
     - keyword: BY
@@ -469,7 +473,8 @@ file:
         identifier: role_name
     - keyword: SET
     - keyword: TABLESPACE
-    - parameter: new_tablespace
+    - tablespace_reference:
+        identifier: new_tablespace
 - statement_terminator: ;
 - statement:
     alter_materialized_view_statement:
@@ -479,7 +484,7 @@ file:
     - keyword: ALL
     - keyword: IN
     - keyword: TABLESPACE
-    - table_reference:
+    - tablespace_reference:
         identifier: old_tablespace
     - keyword: OWNED
     - keyword: BY
@@ -487,7 +492,8 @@ file:
         identifier: role_name
     - keyword: SET
     - keyword: TABLESPACE
-    - parameter: new_tablespace
+    - tablespace_reference:
+        identifier: new_tablespace
     - keyword: NOWAIT
 - statement_terminator: ;
 - statement:
@@ -498,7 +504,7 @@ file:
     - keyword: ALL
     - keyword: IN
     - keyword: TABLESPACE
-    - table_reference:
+    - tablespace_reference:
         identifier: old_tablespace
     - keyword: OWNED
     - keyword: BY
@@ -509,7 +515,8 @@ file:
         identifier: role_name_2
     - keyword: SET
     - keyword: TABLESPACE
-    - parameter: new_tablespace
+    - tablespace_reference:
+        identifier: new_tablespace
 - statement_terminator: ;
 - statement:
     alter_materialized_view_statement:
@@ -519,7 +526,7 @@ file:
     - keyword: ALL
     - keyword: IN
     - keyword: TABLESPACE
-    - table_reference:
+    - tablespace_reference:
         identifier: old_tablespace
     - keyword: OWNED
     - keyword: BY
@@ -530,6 +537,7 @@ file:
         identifier: role_name_2
     - keyword: SET
     - keyword: TABLESPACE
-    - parameter: new_tablespace
+    - tablespace_reference:
+        identifier: new_tablespace
     - keyword: NOWAIT
 - statement_terminator: ;

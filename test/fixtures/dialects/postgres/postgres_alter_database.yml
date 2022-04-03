@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b326481b0d99b36621ac07151fd71a1a837e9dfdedf7e6deaaf6d76a57482de6
+_hash: 493cf6c8b8ef0e646333fac960017ac2cdccdbcd82edb6b8899598e2cc9fdc7f
 file:
 - statement:
     alter_database_statement:
@@ -195,7 +195,8 @@ file:
         identifier: db
     - keyword: SET
     - keyword: TABLESPACE
-    - parameter: new_tablespace
+    - tablespace_reference:
+        identifier: new_tablespace
 - statement_terminator: ;
 - statement:
     alter_database_statement:
