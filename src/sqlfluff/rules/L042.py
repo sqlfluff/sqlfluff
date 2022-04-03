@@ -1,7 +1,7 @@
 """Implementation of Rule L042."""
 import copy
 from functools import partial
-from typing import Generator, List, NamedTuple, Optional, Tuple, Type, TypeVar, cast
+from typing import Generator, List, NamedTuple, Optional, Type, TypeVar, cast
 from sqlfluff.core.dialects.base import Dialect
 from sqlfluff.core.parser.markers import PositionMarker
 
@@ -147,24 +147,22 @@ def _calculate_fixes(
         )
 
     lint_results: List[LintResult] = []
-    mutations_buffer: List[Tuple[BaseSegment, BaseSegment]] = []
+    clone_map = SegmentCloneMap(root_select[0])
     for parent_type, _, this_seg, subquery in nested_subqueries:
         alias_name = ctes.create_cte_alias(
             this_seg.children(is_type("alias_expression"))
         )
         new_cte = _create_cte_seg(
             alias_name=alias_name,
-            subquery=subquery,
+            subquery=clone_map[subquery],
             case_preference=case_preference,
             dialect=dialect,
         )
         ctes.insert_cte(new_cte)
-        assert this_seg[0].pos_marker, "TypeGuard"
-        mutations_buffer.append(
-            (
-                this_seg[0],
-                _create_table_ref(alias_name, dialect, this_seg[0].pos_marker),
-            )
+        this_seg_clone = clone_map[this_seg[0]]
+        assert this_seg_clone.pos_marker, "TypeGuard"
+        this_seg_clone.segments = (
+            _create_table_ref(alias_name, dialect, this_seg_clone.pos_marker),
         )
         anchor = subquery
         # Grab the first keyword or symbol in the subquery to use as the
@@ -192,8 +190,7 @@ def _calculate_fixes(
             root_select[0],
             edit_segments=[
                 ctes.compose_select(
-                    output_select[0],
-                    mutations_buffer,
+                    clone_map[output_select[0]],
                     case_preference=case_preference,
                 ),
             ],
@@ -309,31 +306,9 @@ class _CTEBuilder:
     def compose_select(
         self,
         output_select: BaseSegment,
-        mutations_buffer: List[Tuple[BaseSegment, BaseSegment]],
         case_preference: str,
     ):
         """Compose our final new CTE."""
-        # We need to modify output_select, but it's illegal to modify the
-        # "active" parse tree. Make a copy instead.
-        output_select = copy.deepcopy(output_select)
-        to_replace = []
-        for parent_el, replacement in mutations_buffer:
-            assert parent_el.pos_marker
-            to_replace.append(parent_el.pos_marker.templated_slice)
-        types = set(parent_el.type for parent_el, replacement in mutations_buffer)
-        # Replace nested SELECTs with the CTE names we moved them to.
-        mutations_buffer2 = []
-        for seg in output_select.recursive_crawl(*types):
-            try:
-                idx = to_replace.index(seg.pos_marker.templated_slice)
-            except ValueError:
-                pass
-            else:
-                _, replacement = mutations_buffer[idx]
-                mutations_buffer2.append((seg, replacement))
-        for parent_el, replacement in mutations_buffer2:
-            parent_el.segments = (replacement,)
-        # Create the fixed SELECT containing and using the new CTEs.
         new_select = WithCompoundStatementSegment(
             segments=tuple(
                 [
@@ -442,3 +417,19 @@ def _segmentify(input_el: str, casing: str) -> BaseSegment:
         input_el = input_el.upper()
 
     return KeywordSegment(raw=input_el)
+
+
+class SegmentCloneMap:
+    """Clones a segment tree, maps from original segments to their clones."""
+
+    def __init__(self, segment: BaseSegment):
+        segment_copy = copy.deepcopy(segment)
+        self.segment_map = {}
+        for old_segment, new_segment in zip(
+            segment.recursive_crawl(all_descendants=True),
+            segment_copy.recursive_crawl(all_descendants=True),
+        ):
+            self.segment_map[id(old_segment)] = new_segment
+
+    def __getitem__(self, old_segment: BaseSegment) -> BaseSegment:
+        return self.segment_map[id(old_segment)]
