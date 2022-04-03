@@ -322,6 +322,7 @@ class _CTEBuilder:
             to_replace.append(parent_el.pos_marker.templated_slice)
         types = set(parent_el.type for parent_el, replacement in mutations_buffer)
         # Replace nested SELECTs with the CTE names we moved them to.
+        mutations_buffer2 = []
         for seg in output_select.recursive_crawl(*types):
             try:
                 idx = to_replace.index(seg.pos_marker.templated_slice)
@@ -329,7 +330,9 @@ class _CTEBuilder:
                 pass
             else:
                 _, replacement = mutations_buffer[idx]
-                seg.segments = (replacement,)
+                mutations_buffer2.append((seg, replacement))
+        for parent_el, replacement in mutations_buffer2:
+            parent_el.segments = (replacement,)
         # Create the fixed SELECT containing and using the new CTEs.
         new_select = WithCompoundStatementSegment(
             segments=tuple(
