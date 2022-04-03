@@ -351,6 +351,14 @@ postgres_dialect.replace(
         ),
     ),
     FrameClauseUnitGrammar=OneOf("RANGE", "ROWS", "GROUPS"),
+    # In Postgres, column references may be followed by a time zone cast in all cases.
+    # For more information, see
+    # https://www.postgresql.org/docs/11/functions-datetime.html
+    ColumnReferenceSegment=Sequence(
+        ansi.ColumnReferenceSegment,
+        Ref("ArrayAccessorSegment", optional=True),
+        Ref("TimeZoneGrammar", optional=True),
+    ),
     # Postgres supports the non-standard ISNULL and NONNULL comparison operators. See
     # https://www.postgresql.org/docs/14/functions-comparison.html
     IsNullGrammar=Ref.keyword("ISNULL"),
@@ -436,21 +444,6 @@ class AdjacentSegment(BaseSegment):
     name = "adjacent"
     match_grammar = Sequence(
         Ref("MinusSegment"), Ref("PipeSegment"), Ref("MinusSegment"), allow_gaps=False
-    )
-
-
-class ColumnReferenceSegment(BaseSegment):
-    """A reference to column, field or alias.
-
-    In Postgres, column references may be followed by a time zone cast in all cases.
-    For more information, see
-    https://www.postgresql.org/docs/11/functions-datetime.html
-    """
-
-    match_grammar = Sequence(
-        ansi.ColumnReferenceSegment,
-        Ref("ArrayAccessorSegment", optional=True),
-        Ref("TimeZoneGrammar", optional=True),
     )
 
 
