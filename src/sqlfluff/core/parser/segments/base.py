@@ -892,7 +892,7 @@ class BaseSegment:
             yield from seg.recursive_crawl_all()
 
     def recursive_crawl(self, *seg_type: str, recurse_into: bool = True):
-        """Recursively crawl for segments of a given type (or all descendants)."""
+        """Recursively crawl for segments of a given type."""
         # Check this segment
         if self.is_type(*seg_type):
             match = True
@@ -902,10 +902,7 @@ class BaseSegment:
         if recurse_into or not match:
             # Recurse
             for seg in self.segments:
-                yield from seg.recursive_crawl(
-                    *seg_type,
-                    recurse_into=recurse_into,
-                )
+                yield from seg.recursive_crawl(*seg_type, recurse_into=recurse_into)
 
     def path_to(self, other):
         """Given a segment which is assumed within self, get the intermediate segments.
