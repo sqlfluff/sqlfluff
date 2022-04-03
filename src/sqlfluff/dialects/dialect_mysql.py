@@ -22,6 +22,7 @@ from sqlfluff.core.parser import (
     RegexParser,
     Anything,
     AnySetOf,
+    Matchable,
 )
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.dialects import dialect_ansi as ansi
@@ -1808,4 +1809,23 @@ class OptimizeTableStatementSegment(BaseSegment):
         Delimited(
             Ref("TableReferenceSegment"),
         ),
+    )
+
+
+class UpdateStatementSegment(BaseSegment):
+    """An `Update` statement.
+
+    As per https://dev.mysql.com/doc/refman/8.0/en/update.html
+    """
+
+    type = "update_statement"
+    match_grammar: Matchable = Sequence(
+        "UPDATE",
+        Ref.keyword("LOW_PRIORITY", optional=True),
+        Ref.keyword("IGNORE", optional=True),
+        Delimited(Ref("TableReferenceSegment"), Ref("FromExpressionElementSegment")),
+        Ref("SetClauseListSegment"),
+        Ref("WhereClauseSegment", optional=True),
+        Ref("OrderByClauseSegment", optional=True),
+        Ref("LimitClauseSegment", optional=True),
     )

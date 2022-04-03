@@ -1,0 +1,134 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: f45b88d1dea629bb74b5c55a115fdffef381317cf5196779acb827c6d72ebea8
+file:
+- statement:
+    alter_index_statement:
+    - keyword: ALTER
+    - keyword: INDEX
+    - index_reference:
+        identifier: distributors
+    - keyword: RENAME
+    - keyword: TO
+    - index_reference:
+        identifier: suppliers
+- statement_terminator: ;
+- statement:
+    alter_index_statement:
+    - keyword: ALTER
+    - keyword: INDEX
+    - index_reference:
+        identifier: distributors
+    - keyword: SET
+    - keyword: TABLESPACE
+    - tablespace_reference:
+        identifier: fasttablespace
+- statement_terminator: ;
+- statement:
+    alter_index_statement:
+    - keyword: ALTER
+    - keyword: INDEX
+    - index_reference:
+        identifier: distributors
+    - keyword: SET
+    - bracketed:
+        start_bracket: (
+        parameter: fillfactor
+        comparison_operator:
+          raw_comparison_operator: '='
+        literal: '75'
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_index_statement:
+    - keyword: ALTER
+    - keyword: INDEX
+    - index_reference:
+        identifier: coord_idx
+    - keyword: ALTER
+    - keyword: COLUMN
+    - literal: '3'
+    - keyword: SET
+    - keyword: STATISTICS
+    - literal: '1000'
+- statement_terminator: ;
+- statement:
+    alter_index_statement:
+    - keyword: ALTER
+    - keyword: INDEX
+    - keyword: IF
+    - keyword: EXISTS
+    - index_reference:
+        identifier: foo
+    - keyword: ATTACH
+    - keyword: PARTITION
+    - index_reference:
+        identifier: bar
+- statement_terminator: ;
+- statement:
+    alter_index_statement:
+    - keyword: ALTER
+    - keyword: INDEX
+    - index_reference:
+        identifier: foo
+    - keyword: 'NO'
+    - keyword: DEPENDS
+    - keyword: 'ON'
+    - keyword: EXTENSION
+    - extension_reference:
+        identifier: barr
+- statement_terminator: ;
+- statement:
+    alter_index_statement:
+    - keyword: ALTER
+    - keyword: INDEX
+    - index_reference:
+        identifier: foo
+    - keyword: RESET
+    - bracketed:
+      - start_bracket: (
+      - parameter: thing
+      - comma: ','
+      - parameter: other_thing
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_index_statement:
+    - keyword: ALTER
+    - keyword: INDEX
+    - index_reference:
+        identifier: foo
+    - keyword: ALTER
+    - literal: '4'
+    - keyword: SET
+    - keyword: STATISTICS
+    - literal: '7'
+- statement_terminator: ;
+- statement:
+    alter_index_statement:
+    - keyword: ALTER
+    - keyword: INDEX
+    - keyword: ALL
+    - keyword: IN
+    - keyword: TABLESPACE
+    - tablespace_reference:
+        identifier: foo
+    - keyword: OWNED
+    - keyword: BY
+    - role_reference:
+        identifier: role_1
+    - comma: ','
+    - role_reference:
+        identifier: account_admin
+    - comma: ','
+    - role_reference:
+        identifier: steve
+    - keyword: SET
+    - keyword: TABLESPACE
+    - tablespace_reference:
+        identifier: bar
+    - keyword: NOWAIT
+- statement_terminator: ;

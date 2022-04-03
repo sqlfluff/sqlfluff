@@ -634,8 +634,7 @@ class UpdateStatementSegment(BaseSegment):
     """
 
     type = "update_statement"
-    match_grammar = StartsWith("UPDATE")
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "UPDATE",
         OneOf(
             Ref("TableReferenceSegment"),

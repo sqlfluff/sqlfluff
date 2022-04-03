@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6487eedd406ade5995e902a2b4ef5760210ce154b9e3a1a03b7962fbebb61911
+_hash: 9624fe4f00943ec23c50109601e8ed98edf237925bfa9a3b2d25a321eaa88415
 file:
 - statement:
     create_database_statement:
@@ -243,7 +243,7 @@ file:
     - database_reference:
         identifier: db
     - keyword: TABLESPACE
-    - parameter: DEFAULT
+    - keyword: DEFAULT
 - statement_terminator: ;
 - statement:
     create_database_statement:
@@ -254,7 +254,7 @@ file:
     - keyword: TABLESPACE
     - comparison_operator:
         raw_comparison_operator: '='
-    - parameter: DEFAULT
+    - keyword: DEFAULT
 - statement_terminator: ;
 - statement:
     create_database_statement:
@@ -263,7 +263,8 @@ file:
     - database_reference:
         identifier: db
     - keyword: TABLESPACE
-    - parameter: new_tablespace
+    - tablespace_reference:
+        identifier: new_tablespace
 - statement_terminator: ;
 - statement:
     create_database_statement:
@@ -274,7 +275,8 @@ file:
     - keyword: TABLESPACE
     - comparison_operator:
         raw_comparison_operator: '='
-    - parameter: new_tablespace
+    - tablespace_reference:
+        identifier: new_tablespace
 - statement_terminator: ;
 - statement:
     create_database_statement:
@@ -286,7 +288,8 @@ file:
     - keyword: TABLESPACE
     - comparison_operator:
         raw_comparison_operator: '='
-    - parameter: new_tablespace
+    - tablespace_reference:
+        identifier: new_tablespace
 - statement_terminator: ;
 - statement:
     create_database_statement:
