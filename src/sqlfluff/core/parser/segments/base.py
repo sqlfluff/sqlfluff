@@ -893,6 +893,7 @@ class BaseSegment:
 
     def recursive_crawl(self, *seg_type: str, recurse_into: bool = True):
         """Recursively crawl for segments of a given type.
+
         Args:
             seg_type: :obj:`str`: one or more type of segment
                 to look for.
