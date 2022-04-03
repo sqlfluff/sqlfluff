@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 90b9abf0e8b5a8bc8dec52c184f7f35e594821f558a40c0210837523a1f3395d
+_hash: ea3de80765439ccc19377c65e12876ecdfea6567514def316c7c2918d8b61301
 file:
 - statement:
     create_materialized_view_statement:
@@ -430,7 +430,8 @@ file:
     - keyword: USING
     - parameter: heap
     - keyword: TABLESPACE
-    - parameter: pg_default
+    - tablespace_reference:
+        identifier: pg_default
     - keyword: WITH
     - bracketed:
       - start_bracket: (
@@ -524,7 +525,8 @@ file:
     - keyword: USING
     - parameter: heap
     - keyword: TABLESPACE
-    - parameter: pg_default
+    - tablespace_reference:
+        identifier: pg_default
     - keyword: WITH
     - bracketed:
       - start_bracket: (
