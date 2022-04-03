@@ -633,6 +633,28 @@ You can set the dbt project directory, profiles directory and profile with:
     `~/.dbt/`. On Windows, you can determine your default profile directory by
     running `dbt debug --config-dir`.
 
+To use builtin dbt Jinja functions SQLFluff provides a configuration option that
+enables usage withing templates.
+
+.. code-block:: cfg
+
+    [sqlfluff:templater:jinja]
+    apply_dbt_builtins = True
+
+This will provide dbt macros like `ref`, `var`, `is_incremental()`. If the need
+arises builtin dbt macros can be customised via Jinja macros in `.sqlfluff` configuration
+file.
+
+.. code-block:: cfg
+
+    [sqlfluff:templater:jinja:macros]
+    # Macros provided as builtins for dbt projects
+    dbt_ref = {% macro ref(model_ref) %}{{model_ref}}{% endmacro %}
+    dbt_source = {% macro source(source_name, table) %}{{source_name}}_{{table}}{% endmacro %}
+    dbt_config = {% macro config() %}{% for k in kwargs %}{% endfor %}{% endmacro %}
+    dbt_var = {% macro var(variable, default='') %}item{% endmacro %}
+    dbt_is_incremental = {% macro is_incremental() %}True{% endmacro %}
+
 If your project requires that you pass variables to dbt through command line,
 you can specify them in `template:dbt:context` section of `.sqlfluff`.
 See below configuration and its equivalent dbt command:
