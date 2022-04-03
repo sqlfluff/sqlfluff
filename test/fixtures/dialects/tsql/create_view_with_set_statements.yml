@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 792d3c0228235038f7be5a8c1e36bb1b1262133626b5ba9b8f2f9527df9dacdd
+_hash: 8e51debc947b9b373de3e7e527c0029b5bbadbdbe7c5713cc45e2303773d4561
 file:
 - batch:
     statement:
@@ -147,6 +147,6 @@ file:
                 raw_comparison_operator: '='
             - column_reference:
                 identifier: LAST_DATE_OF_REPORT
-- statement_terminator: ;
+          statement_terminator: ;
 - go_statement:
     keyword: GO

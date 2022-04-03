@@ -49,7 +49,7 @@ bigquery_dialect.insert_lexer_matchers(
     [
         StringLexer("right_arrow", "=>", CodeSegment),
         StringLexer("question_mark", "?", CodeSegment),
-        RegexLexer("atsign_literal", r"@[a-zA-Z_][\w]*", CodeSegment),
+        RegexLexer("at_sign_literal", r"@[a-zA-Z_][\w]*", CodeSegment),
     ],
     before="equals",
 )
@@ -117,6 +117,7 @@ bigquery_dialect.add(
     RightArrowSegment=StringParser(
         "=>", SymbolSegment, name="right_arrow", type="right_arrow"
     ),
+    DashSegment=StringParser("-", SymbolSegment, name="dash", type="dash"),
     SelectClauseElementListGrammar=Delimited(
         Ref("SelectClauseElementSegment"),
         delimiter=Ref("CommaSegment"),
@@ -126,9 +127,9 @@ bigquery_dialect.add(
         "?", SymbolSegment, name="question_mark", type="question_mark"
     ),
     AtSignLiteralSegment=NamedParser(
-        "atsign_literal",
+        "at_sign_literal",
         CodeSegment,
-        name="atsign_literal",
+        name="at_sign_literal",
         type="literal",
         trim_chars=("@",),
     ),
@@ -174,6 +175,7 @@ bigquery_dialect.replace(
         )
     ),
     FunctionContentsExpressionGrammar=OneOf(
+        Ref("DatetimeUnitSegment"),
         Sequence(
             Ref("ExpressionSegment"),
             Sequence(OneOf("IGNORE", "RESPECT"), "NULLS", optional=True),
@@ -805,31 +807,55 @@ class ColumnReferenceSegment(ObjectReferenceSegment):
         return super().extract_possible_multipart_references(levels)
 
 
-class HyphenatedObjectReferenceSegment(ObjectReferenceSegment):
+class HyphenatedTableReferenceSegment(ObjectReferenceSegment):
     """A reference to an object that may contain embedded hyphens."""
 
-    type = "hyphenated_object_reference"
-    match_grammar = ObjectReferenceSegment.match_grammar.copy()
-    match_grammar.delimiter = OneOf(  # type: ignore
-        Ref("DotSegment"),
-        Sequence(Ref("DotSegment"), Ref("DotSegment")),
+    type = "table_reference"
+
+    match_grammar: Matchable = Delimited(
         Sequence(
-            StringParser("-", SymbolSegment, name="dash", type="dash"),
+            Ref("SingleIdentifierGrammar"),
+            AnyNumberOf(
+                Sequence(
+                    Ref("DashSegment"),
+                    OneOf(Ref("SingleIdentifierGrammar"), Ref("NumericLiteralSegment")),
+                    allow_gaps=False,
+                ),
+                optional=True,
+            ),
+            allow_gaps=False,
         ),
+        delimiter=OneOf(
+            Ref("DotSegment"), Sequence(Ref("DotSegment"), Ref("DotSegment"))
+        ),
+        terminator=OneOf(
+            "ON",
+            "AS",
+            "USING",
+            Ref("CommaSegment"),
+            Ref("CastOperatorSegment"),
+            Ref("StartSquareBracketSegment"),
+            Ref("StartBracketSegment"),
+            Ref("ColonSegment"),
+            Ref("DelimiterSegment"),
+            Ref("JoinLikeClauseGrammar"),
+            BracketedSegment,
+        ),
+        allow_gaps=False,
     )
 
     def iter_raw_references(self):
         """Generate a list of reference strings and elements.
 
         Each reference is an ObjectReferencePart. Overrides the base class
-        because hyphens (MinusSegment) causes one logical part of the name to
+        because hyphens (DashSegment) causes one logical part of the name to
         be split across multiple elements, e.g. "table-a" is parsed as three
         segments.
         """
         # For each descendant element, group them, using "dot" elements as a
         # delimiter.
         for is_dot, elems in itertools.groupby(
-            self.recursive_crawl("identifier", "binary_operator", "dot"),
+            self.recursive_crawl("identifier", "literal", "dash", "dot"),
             lambda e: e.is_type("dot"),
         ):
             if not is_dot:
@@ -843,7 +869,7 @@ class TableExpressionSegment(ansi.TableExpressionSegment):
 
     match_grammar = ansi.TableExpressionSegment.match_grammar.copy(
         insert=[
-            Ref("HyphenatedObjectReferenceSegment"),
+            Ref("HyphenatedTableReferenceSegment"),
         ]
     )
 

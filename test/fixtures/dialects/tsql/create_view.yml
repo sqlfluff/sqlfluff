@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 814b8d1b46a8177bf6fb7419ea77a73deee3b1eb3d227cf1a3b7d6d09e0a28fa
+_hash: 4b0fcee3bfbe484857aaf60b2082405832a809ccfddc0fd71a059b049f153c7d
 file:
   batch:
   - statement:
@@ -22,12 +22,11 @@ file:
           - keyword: SELECT
           - select_clause_modifier:
               keyword: TOP
-              expression:
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    literal: '100'
-                  end_bracket: )
+              bracketed:
+                start_bracket: (
+                expression:
+                  literal: '100'
+                end_bracket: )
           - select_clause_element:
               column_reference:
                 identifier: SalesPersonID
@@ -96,12 +95,11 @@ file:
           - keyword: SELECT
           - select_clause_modifier:
               keyword: TOP
-              expression:
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    literal: '100'
-                  end_bracket: )
+              bracketed:
+                start_bracket: (
+                expression:
+                  literal: '100'
+                end_bracket: )
           - select_clause_element:
               column_reference:
                 identifier: SalesPersonID

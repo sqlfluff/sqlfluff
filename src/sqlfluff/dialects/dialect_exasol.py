@@ -6,7 +6,6 @@ https://docs.exasol.com/sql_references/sqlstandardcompliance.htm
 
 from sqlfluff.core.parser import (
     AnyNumberOf,
-    Anything,
     BaseSegment,
     Bracketed,
     OptionallyBracketed,
@@ -97,7 +96,7 @@ exasol_dialect.insert_lexer_matchers(
                 NewlineSegment,
             ),
         ),
-        RegexLexer("atsign_literal", r"@[a-zA-Z_][\w]*", CodeSegment),
+        RegexLexer("at_sign_literal", r"@[a-zA-Z_][\w]*", CodeSegment),
         RegexLexer("dollar_literal", r"[$][a-zA-Z0-9_.]*", CodeSegment),
     ],
     before="like_operator",
@@ -203,7 +202,10 @@ exasol_dialect.add(
         Ref("UDFParameterDotSyntaxSegment"),
     ),
     FunctionScriptTerminatorSegment=NamedParser(
-        "function_script_terminator", CodeSegment, type="function_script_terminator"
+        "function_script_terminator",
+        SymbolSegment,
+        name="function_script_terminator",
+        type="function_script_terminator",
     ),
     WalrusOperatorSegment=NamedParser(
         "walrus_operator", SymbolSegment, type="assignment_operator"
@@ -3251,15 +3253,7 @@ class CreateFunctionStatementSegment(BaseSegment):
     is_dql = False
     is_dcl = False
 
-    match_grammar = StartsWith(
-        Sequence(
-            "CREATE",
-            Ref("OrReplaceGrammar", optional=True),
-            "FUNCTION",
-        ),
-        terminator=Ref("FunctionScriptTerminatorSegment"),
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "CREATE",
         Ref("OrReplaceGrammar", optional=True),
         "FUNCTION",
@@ -3450,7 +3444,10 @@ class ScriptContentSegment(BaseSegment):
     """
 
     type = "script_content"
-    match_grammar = Anything()
+    match_grammar = GreedyUntil(
+        Ref("FunctionScriptTerminatorSegment"),
+        enforce_whitespace_preceding_terminator=False,
+    )
 
 
 class CreateScriptingLuaScriptStatementSegment(BaseSegment):
@@ -3525,7 +3522,8 @@ class CreateUDFScriptStatementSegment(BaseSegment):
             ),
             OneOf("SCALAR", "SET"),
             "SCRIPT",
-        )
+        ),
+        terminator=Ref("FunctionScriptTerminatorSegment"),
     )
     parse_grammar = Sequence(
         "CREATE",
@@ -3621,7 +3619,8 @@ class StatementSegment(ansi.StatementSegment):
     """A generic segment, to any of its child subsegments."""
 
     type = "statement"
-    match_grammar = GreedyUntil(Ref("SemicolonSegment"))
+
+    match_grammar = GreedyUntil(Ref("DelimiterSegment"))
 
     parse_grammar = OneOf(
         # Data Query Language (DQL)
@@ -3689,19 +3688,15 @@ class FileSegment(BaseFileSegment):
     A semicolon is the terminator of the statement within the function / script
     """
 
-    parse_grammar = AnyNumberOf(
-        Delimited(
-            Ref("FunctionScriptStatementSegment"),
-            delimiter=Ref("FunctionScriptTerminatorSegment"),
-            allow_gaps=True,
-            allow_trailing=True,
+    parse_grammar = Delimited(
+        Ref("FunctionScriptStatementSegment"),
+        Ref("StatementSegment"),
+        delimiter=OneOf(
+            Ref("DelimiterSegment"),
+            Ref("FunctionScriptTerminatorSegment"),
         ),
-        Delimited(
-            Ref("StatementSegment"),
-            delimiter=Ref("DelimiterSegment"),
-            allow_gaps=True,
-            allow_trailing=True,
-        ),
+        allow_gaps=True,
+        allow_trailing=True,
     )
 
 
@@ -3715,4 +3710,24 @@ class EmitsSegment(BaseSegment):
     match_grammar = Sequence(
         "EMITS",
         Bracketed(Ref("UDFParameterGrammar")),
+    )
+
+
+class SelectClauseElementSegment(ansi.SelectClauseElementSegment):
+    """An element in the targets of a select statement."""
+
+    type = "select_clause_element"
+    # Important to split elements before parsing, otherwise debugging is really hard.
+    match_grammar = GreedyUntil(  # type: ignore
+        Ref("SelectClauseElementTerminatorGrammar"),
+        enforce_whitespace_preceding_terminator=False,
+    )
+
+    parse_grammar = OneOf(
+        # *, blah.*, blah.blah.*, etc.
+        Ref("WildcardExpressionSegment"),
+        Sequence(
+            Ref("BaseExpressionElementGrammar"),
+            Ref("AliasExpressionSegment", optional=True),
+        ),
     )

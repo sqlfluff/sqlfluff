@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 514ed6c8b0c501cff874dd716423bb619884306ce305fea385f605085970d231
+_hash: d559127fe266f7daa798a41c46b707b2718435292dc11c6fc78beaa07957c169
 file:
 - batch:
     statement:
@@ -15,31 +15,30 @@ file:
           - keyword: EXISTS
           - bracketed:
               start_bracket: (
-              expression:
-                select_statement:
-                  select_clause:
-                    keyword: SELECT
-                    select_clause_element:
-                      wildcard_expression:
-                        wildcard_identifier:
-                          star: '*'
-                  from_clause:
-                    keyword: FROM
-                    from_expression:
-                      from_expression_element:
-                        table_expression:
-                          table_reference:
-                          - identifier: sys
-                          - dot: .
-                          - identifier: indexes
-                  where_clause:
-                    keyword: WHERE
-                    expression:
-                      column_reference:
-                        identifier: NAME
-                      comparison_operator:
-                        raw_comparison_operator: '='
-                      literal: "'IX_INTER_VIMR_INFECTIOUS_PEOPLE'"
+              select_statement:
+                select_clause:
+                  keyword: SELECT
+                  select_clause_element:
+                    wildcard_expression:
+                      wildcard_identifier:
+                        star: '*'
+                from_clause:
+                  keyword: FROM
+                  from_expression:
+                    from_expression_element:
+                      table_expression:
+                        table_reference:
+                        - identifier: sys
+                        - dot: .
+                        - identifier: indexes
+                where_clause:
+                  keyword: WHERE
+                  expression:
+                    column_reference:
+                      identifier: NAME
+                    comparison_operator:
+                      raw_comparison_operator: '='
+                    literal: "'IX_INTER_VIMR_INFECTIOUS_PEOPLE'"
               end_bracket: )
         statement:
           create_index_statement:
@@ -59,7 +58,7 @@ file:
                 index_column_definition:
                   identifier: DATE_LAST_INSERTED
                 end_bracket: )
-- statement_terminator: ;
+          - statement_terminator: ;
 - go_statement:
     keyword: GO
 - batch:
@@ -72,31 +71,30 @@ file:
           - keyword: EXISTS
           - bracketed:
               start_bracket: (
-              expression:
-                select_statement:
-                  select_clause:
-                    keyword: SELECT
-                    select_clause_element:
-                      wildcard_expression:
-                        wildcard_identifier:
-                          star: '*'
-                  from_clause:
-                    keyword: FROM
-                    from_expression:
-                      from_expression_element:
-                        table_expression:
-                          table_reference:
-                          - identifier: sys
-                          - dot: .
-                          - identifier: indexes
-                  where_clause:
-                    keyword: WHERE
-                    expression:
-                      column_reference:
-                        identifier: NAME
-                      comparison_operator:
-                        raw_comparison_operator: '='
-                      literal: "'IX_INTER_FOUNDATION_NICE_IC_INTAKE_COUNT'"
+              select_statement:
+                select_clause:
+                  keyword: SELECT
+                  select_clause_element:
+                    wildcard_expression:
+                      wildcard_identifier:
+                        star: '*'
+                from_clause:
+                  keyword: FROM
+                  from_expression:
+                    from_expression_element:
+                      table_expression:
+                        table_reference:
+                        - identifier: sys
+                        - dot: .
+                        - identifier: indexes
+                where_clause:
+                  keyword: WHERE
+                  expression:
+                    column_reference:
+                      identifier: NAME
+                    comparison_operator:
+                      raw_comparison_operator: '='
+                    literal: "'IX_INTER_FOUNDATION_NICE_IC_INTAKE_COUNT'"
               end_bracket: )
         statement:
           create_index_statement:
@@ -116,7 +114,7 @@ file:
                 index_column_definition:
                   identifier: DATE_LAST_INSERTED
                 end_bracket: )
-- statement_terminator: ;
+          - statement_terminator: ;
 - go_statement:
     keyword: GO
 - batch:
@@ -128,31 +126,30 @@ file:
             keyword: EXISTS
             bracketed:
               start_bracket: (
-              expression:
-                select_statement:
-                  select_clause:
-                    keyword: SELECT
-                    select_clause_element:
-                      wildcard_expression:
-                        wildcard_identifier:
-                          star: '*'
-                  from_clause:
-                    keyword: FROM
-                    from_expression:
-                      from_expression_element:
-                        table_expression:
-                          table_reference:
-                          - identifier: sys
-                          - dot: .
-                          - identifier: indexes
-                  where_clause:
-                    keyword: WHERE
-                    expression:
-                      column_reference:
-                        identifier: NAME
-                      comparison_operator:
-                        raw_comparison_operator: '='
-                      literal: "'IX_INTER_VIMR_REPRODUCTION_NUMBER'"
+              select_statement:
+                select_clause:
+                  keyword: SELECT
+                  select_clause_element:
+                    wildcard_expression:
+                      wildcard_identifier:
+                        star: '*'
+                from_clause:
+                  keyword: FROM
+                  from_expression:
+                    from_expression_element:
+                      table_expression:
+                        table_reference:
+                        - identifier: sys
+                        - dot: .
+                        - identifier: indexes
+                where_clause:
+                  keyword: WHERE
+                  expression:
+                    column_reference:
+                      identifier: NAME
+                    comparison_operator:
+                      raw_comparison_operator: '='
+                    literal: "'IX_INTER_VIMR_REPRODUCTION_NUMBER'"
               end_bracket: )
         statement:
           create_index_statement:
@@ -172,7 +169,7 @@ file:
                 index_column_definition:
                   identifier: DATE_LAST_INSERTED
                 end_bracket: )
-- statement_terminator: ;
+          - statement_terminator: ;
 - go_statement:
     keyword: GO
 - batch:
@@ -211,7 +208,7 @@ file:
             - keyword: IS
             - keyword: 'NULL'
             end_bracket: )
-- statement_terminator: ;
+      - statement_terminator: ;
 - go_statement:
     keyword: GO
 - batch:
@@ -239,7 +236,7 @@ file:
             keyword: 'ON'
             filegroup_name:
               identifier: '[PRIMARY]'
-- statement_terminator: ;
+      - statement_terminator: ;
 - go_statement:
     keyword: GO
 - batch:
@@ -270,7 +267,7 @@ file:
         - comparison_operator:
             raw_comparison_operator: '='
         - literal: '80'
-- statement_terminator: ;
+      - statement_terminator: ;
 - go_statement:
     keyword: GO
 - batch:
@@ -334,7 +331,7 @@ file:
               raw_comparison_operator: '='
           - keyword: 'ON'
           - end_bracket: )
-- statement_terminator: ;
+      - statement_terminator: ;
 - go_statement:
     keyword: GO
 - batch:
@@ -383,7 +380,7 @@ file:
               - end_bracket: )
               end_bracket: )
           - end_bracket: )
-- statement_terminator: ;
+      - statement_terminator: ;
 - go_statement:
     keyword: GO
 - batch:
@@ -462,7 +459,7 @@ file:
         - dot: .
         - identifier: Population
       - identifier: Stats_Population
-- statement_terminator: ;
+      - statement_terminator: ;
 - go_statement:
     keyword: GO
 - batch:
@@ -480,7 +477,7 @@ file:
         - comma: ','
         - identifier: Stats_Population
         - end_bracket: )
-- statement_terminator: ;
+      - statement_terminator: ;
 - go_statement:
     keyword: GO
 - batch:
@@ -508,6 +505,6 @@ file:
         - identifier: dbo
         - dot: .
         - identifier: VIMR_INFECTIOUS_PEOPLE
-- statement_terminator: ;
+      - statement_terminator: ;
 - go_statement:
     keyword: GO

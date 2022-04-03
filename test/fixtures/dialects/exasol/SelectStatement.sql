@@ -127,7 +127,7 @@ FROM sys.exa_sql_keywords
 CROSS JOIN sys.exa_sql_keywords
 UNION ALL
 SELECT 0;
-----
+--
 SELECT
 	INTERVAL '5' MONTH,
 	INTERVAL '130' MONTH (3),
@@ -141,7 +141,7 @@ SELECT
 	INTERVAL '100' HOUR(3) ,
 	INTERVAL '1.99999' SECOND(2,2) ,
 	INTERVAL '23:10:59.123' HOUR(2) TO SECOND(3);
-----
+--
 SELECT v,
        DATE'2020-10-26' + v * INTERVAL'7'DAY AS late_2020_mondays,
        5 * v AS five_times_table

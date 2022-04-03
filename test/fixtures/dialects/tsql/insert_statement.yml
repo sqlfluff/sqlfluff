@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a43511e59bd5739076b8950ace9c7b58126c8d309efe813fedc4e4aa4ec368a6
+_hash: f465eec05c05b4bf79660102b8a89df6d4799d4b35c85cf175d921d6c57bcfe8
 file:
 - batch:
     statement:
@@ -381,7 +381,7 @@ file:
                 table_expression:
                   table_reference:
                     identifier: EmployeeTemp
-- statement_terminator: ;
+            statement_terminator: ;
 - go_statement:
     keyword: GO
 - batch:

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6d857d570bcb83c06e0b8b27fa8b5454ba7717a6f72e0ca51d967e742a14dbab
+_hash: 35aeec15d3df4c3e2bddb886d3715f9d787c24b17d0a5f37d573755978fac457
 file:
 - batch:
     statement:
@@ -64,7 +64,7 @@ file:
                 raw_comparison_operator: '='
             - keyword: ROUND_ROBIN
             end_bracket: )
-- statement_terminator: ;
+      - statement_terminator: ;
 - go_statement:
     keyword: GO
 - batch:
@@ -135,7 +135,7 @@ file:
                 raw_comparison_operator: '='
             - keyword: REPLICATE
             end_bracket: )
-- statement_terminator: ;
+      - statement_terminator: ;
 - go_statement:
     keyword: GO
 - batch:
@@ -214,7 +214,7 @@ file:
                   identifier: '[Column B]'
                 end_bracket: )
             end_bracket: )
-- statement_terminator: ;
+      - statement_terminator: ;
 - go_statement:
     keyword: GO
 - batch:
@@ -298,7 +298,7 @@ file:
                   identifier: '[Column B]'
                 end_bracket: )
           - end_bracket: )
-- statement_terminator: ;
+      - statement_terminator: ;
 - go_statement:
     keyword: GO
 - batch:
@@ -380,7 +380,7 @@ file:
                   identifier: '[Column B]'
                 end_bracket: )
             end_bracket: )
-- statement_terminator: ;
+      - statement_terminator: ;
 - go_statement:
     keyword: GO
 - batch:
@@ -392,7 +392,7 @@ file:
         - identifier: '[dbo]'
         - dot: .
         - identifier: '[EC DC]'
-- statement_terminator: ;
+      - statement_terminator: ;
 - go_statement:
     keyword: GO
 - batch:
@@ -465,7 +465,7 @@ file:
                   identifier: '[Column B]'
                 end_bracket: )
             end_bracket: )
-- statement_terminator: ;
+      - statement_terminator: ;
 - go_statement:
     keyword: GO
 - batch:
@@ -477,6 +477,6 @@ file:
         - identifier: '[dbo]'
         - dot: .
         - identifier: '[EC DC]'
-- statement_terminator: ;
+      - statement_terminator: ;
 - go_statement:
     keyword: GO

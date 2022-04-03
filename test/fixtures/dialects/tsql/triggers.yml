@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 187b4e24d20337a2f42cf85d9e24b006cf2457ae771b48d7967485ebba93737e
+_hash: 2777acd1afcdfb6536d616a9c1aa629d7df656916c4713d8fc4c5a02f756ea31
 file:
 - batch:
     statement:
@@ -33,7 +33,7 @@ file:
             - comma: ','
             - literal: '10'
             - end_bracket: )
-- statement_terminator: ;
+      - statement_terminator: ;
 - go_statement:
     keyword: GO
 - batch:
@@ -83,7 +83,7 @@ file:
           - comparison_operator:
               raw_comparison_operator: '='
           - literal: "'Reminder'"
-- statement_terminator: ;
+          - statement_terminator: ;
 - go_statement:
     keyword: GO
 - batch:
@@ -133,56 +133,55 @@ file:
                 keyword: EXISTS
                 bracketed:
                   start_bracket: (
-                  expression:
-                    select_statement:
-                      select_clause:
-                        keyword: SELECT
-                        select_clause_element:
-                          literal: '1'
-                      from_clause:
-                        keyword: FROM
-                        from_expression:
+                  select_statement:
+                    select_clause:
+                      keyword: SELECT
+                      select_clause_element:
+                        literal: '1'
+                    from_clause:
+                      keyword: FROM
+                      from_expression:
+                        from_expression_element:
+                          table_expression:
+                            table_reference:
+                              identifier: inserted
+                          alias_expression:
+                            keyword: AS
+                            identifier: i
+                        join_clause:
+                          keyword: JOIN
                           from_expression_element:
                             table_expression:
                               table_reference:
-                                identifier: inserted
+                              - identifier: Purchasing
+                              - dot: .
+                              - identifier: Vendor
                             alias_expression:
                               keyword: AS
-                              identifier: i
-                          join_clause:
-                            keyword: JOIN
-                            from_expression_element:
-                              table_expression:
-                                table_reference:
-                                - identifier: Purchasing
-                                - dot: .
-                                - identifier: Vendor
-                              alias_expression:
-                                keyword: AS
-                                identifier: v
-                            join_on_condition:
-                              keyword: 'ON'
-                              expression:
-                              - column_reference:
-                                - identifier: v
-                                - dot: .
-                                - identifier: BusinessEntityID
-                              - comparison_operator:
-                                  raw_comparison_operator: '='
-                              - column_reference:
-                                - identifier: i
-                                - dot: .
-                                - identifier: VendorID
-                      where_clause:
-                        keyword: WHERE
-                        expression:
-                          column_reference:
-                          - identifier: v
-                          - dot: .
-                          - identifier: CreditRating
-                          comparison_operator:
-                            raw_comparison_operator: '='
-                          literal: '5'
+                              identifier: v
+                          join_on_condition:
+                            keyword: 'ON'
+                            expression:
+                            - column_reference:
+                              - identifier: v
+                              - dot: .
+                              - identifier: BusinessEntityID
+                            - comparison_operator:
+                                raw_comparison_operator: '='
+                            - column_reference:
+                              - identifier: i
+                              - dot: .
+                              - identifier: VendorID
+                    where_clause:
+                      keyword: WHERE
+                      expression:
+                        column_reference:
+                        - identifier: v
+                        - dot: .
+                        - identifier: CreditRating
+                        comparison_operator:
+                          raw_comparison_operator: '='
+                        literal: '5'
                   end_bracket: )
             statement:
               begin_end_block:
@@ -209,7 +208,7 @@ file:
                   return_segment:
                     keyword: RETURN
               - keyword: END
-- statement_terminator: ;
+            statement_terminator: ;
 - go_statement:
     keyword: GO
 - batch:
@@ -266,7 +265,7 @@ file:
           identifier: safety
       - keyword: 'ON'
       - keyword: DATABASE
-- statement_terminator: ;
+    statement_terminator: ;
 - go_statement:
     keyword: GO
 - batch:
@@ -332,7 +331,7 @@ file:
       - keyword: 'ON'
       - keyword: ALL
       - keyword: SERVER
-- statement_terminator: ;
+    statement_terminator: ;
 - go_statement:
     keyword: GO
 - batch:
@@ -416,7 +415,7 @@ file:
                     keyword: ROLLBACK
                     statement_terminator: ;
           - keyword: END
-- statement_terminator: ;
+      - statement_terminator: ;
 - go_statement:
     keyword: GO
 - batch:
@@ -588,7 +587,7 @@ file:
       - keyword: TRIGGER
       - trigger_reference:
           identifier: employee_insupd
-- statement_terminator: ;
+    statement_terminator: ;
 - go_statement:
     keyword: GO
 - batch:
@@ -600,7 +599,7 @@ file:
           identifier: safety
       - keyword: 'ON'
       - keyword: DATABASE
-- statement_terminator: ;
+    statement_terminator: ;
 - go_statement:
     keyword: GO
 - batch:
@@ -628,6 +627,6 @@ file:
           identifier: safety
       - keyword: 'ON'
       - keyword: DATABASE
-- statement_terminator: ;
+    statement_terminator: ;
 - go_statement:
     keyword: GO

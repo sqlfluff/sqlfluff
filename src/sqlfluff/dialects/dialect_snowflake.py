@@ -36,6 +36,7 @@ from sqlfluff.dialects.dialect_snowflake_keywords import (
 )
 from sqlfluff.dialects import dialect_ansi as ansi
 
+
 ansi_dialect = load_raw_dialect("ansi")
 snowflake_dialect = ansi_dialect.copy_as("snowflake")
 
@@ -385,7 +386,6 @@ snowflake_dialect.replace(
             Ref("MatchRecognizeClauseSegment"),
             Ref("ChangesClauseSegment"),
             Ref("ConnectByClauseSegment"),
-            Ref("FromAtExpressionSegment"),
             Ref("FromBeforeExpressionSegment"),
             Ref("FromPivotExpressionSegment"),
             Ref("FromUnpivotExpressionSegment"),
@@ -868,6 +868,37 @@ class WithinGroupClauseSegment(BaseSegment):
         "WITHIN",
         "GROUP",
         Bracketed(Ref("OrderByClauseSegment", optional=True)),
+    )
+
+
+class FromExpressionElementSegment(ansi.FromExpressionElementSegment):
+    """A table expression."""
+
+    type = "from_expression_element"
+    match_grammar = StartsWith(
+        Sequence(
+            Ref("PreTableFunctionKeywordsGrammar", optional=True),
+            OptionallyBracketed(Ref("TableExpressionSegment")),
+            OneOf(
+                Ref("AliasExpressionSegment"),
+                exclude=OneOf(
+                    Ref("SamplingExpressionSegment"),
+                    Ref("ChangesClauseSegment"),
+                    Ref("JoinLikeClauseGrammar"),
+                ),
+                optional=True,
+            ),
+            # https://cloud.google.com/bigquery/docs/reference/standard-sql/arrays#flattening_arrays
+            Sequence("WITH", "OFFSET", Ref("AliasExpressionSegment"), optional=True),
+            Ref("SamplingExpressionSegment", optional=True),
+            Ref("PostTableExpressionGrammar", optional=True),
+        ),
+        terminator=OneOf(
+            Ref("JoinClauseSegment"),
+            Ref("JoinLikeClauseGrammar"),
+            Ref("JoinOnConditionSegment"),
+            Ref("CommaSegment"),
+        ),
     )
 
 
