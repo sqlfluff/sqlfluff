@@ -21,14 +21,14 @@ Major changes include:
 
 ## What’s Changed
 
-* Redshift: Added Create External Schema, bugfix in Partitioned By [#2983](https://github.com/sqlfluff/sqlfluff/pull/2983) [@WittierDinosaur](https://github.com/WittierDinosaur)
-* Added ALTER INDEX and REINDEX to Postgres, Some Grammar Cleaning [#2979](https://github.com/sqlfluff/sqlfluff/pull/2979) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* Redshift: Added `CREATE EXTERNAL SCHEMA`, bugfix in `PARTITION BY` [#2983](https://github.com/sqlfluff/sqlfluff/pull/2983) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* Added `ALTER INDEX` and `REINDEX` to Postgres, Some Grammar Cleaning [#2979](https://github.com/sqlfluff/sqlfluff/pull/2979) [@WittierDinosaur](https://github.com/WittierDinosaur)
 * TSQL grammar deduplication [#2967](https://github.com/sqlfluff/sqlfluff/pull/2967) [@tunetheweb](https://github.com/tunetheweb)
 * L003  Refactor [#2884](https://github.com/sqlfluff/sqlfluff/pull/2884) [@OTooleMichael](https://github.com/OTooleMichael)
 * Delimited Refactor [#2831](https://github.com/sqlfluff/sqlfluff/pull/2831) [@WittierDinosaur](https://github.com/WittierDinosaur)
 * SparkSQL: Support for querying snapshots when reading data with Delta Lake [#2972](https://github.com/sqlfluff/sqlfluff/pull/2972) [@R7L208](https://github.com/R7L208)
 * Fix bug in L063 for BigQuery `STRUCT` params [#2975](https://github.com/sqlfluff/sqlfluff/pull/2975) [@tunetheweb](https://github.com/tunetheweb)
-* Fix assertion error in dbt templater when file ends with whitespace strip ("-%}") [#2976](https://github.com/sqlfluff/sqlfluff/pull/2976) [@barrywhart](https://github.com/barrywhart)
+* Fix assertion error in dbt templater when file ends with whitespace strip (`-%}`) [#2976](https://github.com/sqlfluff/sqlfluff/pull/2976) [@barrywhart](https://github.com/barrywhart)
 * Pass dbt vars to dbt [#2923](https://github.com/sqlfluff/sqlfluff/pull/2923) [@tcholewik](https://github.com/tcholewik)
 * BigQuery: Add support for column `OPTIONS` [#2973](https://github.com/sqlfluff/sqlfluff/pull/2973) [@dmohns](https://github.com/dmohns)
 * BigQuery: Allow expressions in `OPTIONS` clauses [#2971](https://github.com/sqlfluff/sqlfluff/pull/2971) [@dmohns](https://github.com/dmohns)
