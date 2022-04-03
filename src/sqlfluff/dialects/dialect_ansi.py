@@ -806,6 +806,18 @@ class IndexReferenceSegment(ObjectReferenceSegment):
     type = "index_reference"
 
 
+class RoleReferenceSegment(ObjectReferenceSegment):
+    """A reference to a role."""
+
+    type = "role_reference"
+
+
+class TablespaceReferenceSegment(ObjectReferenceSegment):
+    """A reference to a tablespace."""
+
+    type = "tablespace_reference"
+
+
 class ExtensionReferenceSegment(ObjectReferenceSegment):
     """A reference to an extension."""
 

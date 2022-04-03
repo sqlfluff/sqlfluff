@@ -109,3 +109,9 @@ STORED AS
 INPUTFORMAT 'com.amazon.ionhiveserde.formats.IonInputFormat'
 OUTPUTFORMAT 'com.amazon.ionhiveserde.formats.IonOutputFormat'
 LOCATION 's3://s3-bucket/prefix';
+
+CREATE EXTERNAL TABLE spectrum.partitioned_lineitem
+PARTITIONED BY (l_shipdate, l_shipmode)
+STORED AS parquet
+LOCATION 'S3://mybucket/cetas/partitioned_lineitem/'
+AS SELECT 1;
