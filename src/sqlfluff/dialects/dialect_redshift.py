@@ -230,7 +230,7 @@ class ColumnReferenceSegment(ObjectReferenceSegment):
             Ref("CastOperatorSegment"),
             Ref("BinaryOperatorGrammar"),
             Ref("ColonSegment"),
-            Ref("DelimiterSegment"),
+            Ref("DelimiterGrammar"),
             Ref("JoinLikeClauseGrammar"),
         ),
         allow_gaps=False,

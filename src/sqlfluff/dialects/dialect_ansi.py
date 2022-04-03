@@ -200,7 +200,7 @@ ansi_dialect.sets("value_table_functions").update([])
 
 ansi_dialect.add(
     # Real segments
-    DelimiterSegment=Ref("SemicolonSegment"),
+    DelimiterGrammar=Ref("SemicolonSegment"),
     SemicolonSegment=StringParser(
         ";", SymbolSegment, name="semicolon", type="statement_terminator"
     ),
@@ -508,10 +508,10 @@ ansi_dialect.add(
     ),
     FrameClauseUnitGrammar=OneOf("ROWS", "RANGE"),
     # It's as a sequence to allow to parametrize that in Postgres dialect with LATERAL
-    JoinKeywords=Sequence("JOIN"),
+    JoinKeywordsGrammar=Sequence("JOIN"),
     # NATURAL joins are not supported in all dialects (e.g. not in Bigquery
     # or T-SQL). So define here to allow override with Nothing() for those.
-    NaturalJoinKeywords=Sequence(
+    NaturalJoinKeywordsGrammar=Sequence(
         "NATURAL",
         OneOf(
             # Note that NATURAL joins do not support CROSS joins
@@ -524,7 +524,7 @@ ansi_dialect.add(
             optional=True,
         ),
     ),
-    NestedJoinSegment=Nothing(),
+    NestedJoinGrammar=Nothing(),
     ReferentialActionGrammar=OneOf(
         "RESTRICT",
         "CASCADE",
@@ -577,7 +577,7 @@ class FileSegment(BaseFileSegment):
     # going straight into instantiating it directly usually.
     parse_grammar: Optional[Matchable] = Delimited(
         Ref("StatementSegment"),
-        delimiter=AnyNumberOf(Ref("DelimiterSegment"), min_times=1),
+        delimiter=AnyNumberOf(Ref("DelimiterGrammar"), min_times=1),
         allow_gaps=True,
         allow_trailing=True,
     )
@@ -656,13 +656,13 @@ class DatatypeSegment(BaseSegment):
                 # There may be no brackets for some data types
                 optional=True,
             ),
-            Ref("CharCharacterSetSegment", optional=True),
+            Ref("CharCharacterSetGrammar", optional=True),
         ),
     )
 
 
 # hookpoint
-ansi_dialect.add(CharCharacterSetSegment=Nothing())
+ansi_dialect.add(CharCharacterSetGrammar=Nothing())
 
 
 class ObjectReferenceSegment(BaseSegment):
@@ -685,7 +685,7 @@ class ObjectReferenceSegment(BaseSegment):
             Ref("StartBracketSegment"),
             Ref("BinaryOperatorGrammar"),
             Ref("ColonSegment"),
-            Ref("DelimiterSegment"),
+            Ref("DelimiterGrammar"),
             Ref("JoinLikeClauseGrammar"),
             BracketedSegment,
         ),
@@ -1382,11 +1382,11 @@ class JoinClauseSegment(BaseSegment):
                 ),
                 optional=True,
             ),
-            Ref("JoinKeywords"),
+            Ref("JoinKeywordsGrammar"),
             Indent,
             Sequence(
                 Ref("FromExpressionElementSegment"),
-                AnyNumberOf(Ref("NestedJoinSegment")),
+                AnyNumberOf(Ref("NestedJoinGrammar")),
                 Conditional(Dedent, indented_using_on=False),
                 # NB: this is optional
                 OneOf(
@@ -1421,8 +1421,8 @@ class JoinClauseSegment(BaseSegment):
         ),
         # Note NATURAL joins do not support Join conditions
         Sequence(
-            Ref("NaturalJoinKeywords"),
-            Ref("JoinKeywords"),
+            Ref("NaturalJoinKeywordsGrammar"),
+            Ref("JoinKeywordsGrammar"),
             Indent,
             Ref("FromExpressionElementSegment"),
             Dedent,
@@ -3330,7 +3330,7 @@ class StatementSegment(BaseSegment):
     """A generic segment, to any of its child subsegments."""
 
     type = "statement"
-    match_grammar: Matchable = GreedyUntil(Ref("DelimiterSegment"))
+    match_grammar: Matchable = GreedyUntil(Ref("DelimiterGrammar"))
 
     parse_grammar: Matchable = OneOf(
         Ref("SelectableGrammar"),

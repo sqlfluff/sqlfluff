@@ -91,7 +91,7 @@ class StatementSegment(ansi.StatementSegment):
     type = "statement"
 
     match_grammar = OneOf(
-        GreedyUntil(Ref("DelimiterSegment")), exclude=Ref("ExecuteFileSegment")
+        GreedyUntil(Ref("DelimiterGrammar")), exclude=Ref("ExecuteFileSegment")
     )
     parse_grammar = ansi.StatementSegment.parse_grammar.copy(
         insert=[
@@ -108,7 +108,7 @@ class FileSegment(BaseFileSegment):
     has no match_grammar.
 
     Override ANSI to allow addition of ExecuteFileSegment without
-    ending in DelimiterSegment
+    ending in DelimiterGrammar
     """
 
     # NB: We don't need a match_grammar here because we're
@@ -117,7 +117,7 @@ class FileSegment(BaseFileSegment):
         Ref("ExecuteFileSegment"),
         Delimited(
             Ref("StatementSegment"),
-            delimiter=AnyNumberOf(Ref("DelimiterSegment"), min_times=1),
+            delimiter=AnyNumberOf(Ref("DelimiterGrammar"), min_times=1),
             allow_gaps=True,
             allow_trailing=True,
         ),
@@ -202,7 +202,7 @@ class TableReferenceSegment(ObjectReferenceSegment):
             Ref("StartBracketSegment"),
             Ref("BinaryOperatorGrammar"),
             Ref("ColonSegment"),
-            Ref("DelimiterSegment"),
+            Ref("DelimiterGrammar"),
             Ref("JoinLikeClauseGrammar"),
             BracketedSegment,
         ),
