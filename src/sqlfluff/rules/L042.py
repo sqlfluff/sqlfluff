@@ -185,7 +185,7 @@ def _calculate_fixes(
         return lint_results
 
     # Add fixes to the last result only
-    lint_results[-1].fixes += [
+    lint_results[-1].fixes = [
         LintFix.replace(
             root_select[0],
             edit_segments=[
@@ -303,11 +303,7 @@ class _CTEBuilder:
             ]
         return cte_segments[:-2]
 
-    def compose_select(
-        self,
-        output_select: BaseSegment,
-        case_preference: str,
-    ):
+    def compose_select(self, output_select: BaseSegment, case_preference: str):
         """Compose our final new CTE."""
         new_select = WithCompoundStatementSegment(
             segments=tuple(

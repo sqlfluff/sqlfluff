@@ -322,7 +322,7 @@ class BaseSegment:
         """Return True if this segment is entirely whitespace."""
         return all(seg.is_whitespace for seg in self.segments)
 
-    @property
+    @cached_property
     def raw(self) -> str:
         """Make a string from the segments of this segment."""
         return "".join(seg.raw for seg in self.segments)
