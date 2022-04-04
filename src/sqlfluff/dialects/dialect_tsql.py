@@ -1631,7 +1631,6 @@ class SetStatementSegment(BaseSegment):
                 ),
                 Sequence(
                     OneOf(
-                        Ref("ParameterNameSegment"),
                         "DATEFIRST",
                         "DATEFORMAT",
                         "DEADLOCK_PRIORITY",
@@ -1686,10 +1685,41 @@ class SetStatementSegment(BaseSegment):
                         ),
                     ),
                 ),
+                Sequence(
+                    Ref("ParameterNameSegment"),
+                    Ref("AssignmentOperatorSegment"),
+                    Ref("ExpressionSegment"),
+                ),
             ),
         ),
         Dedent,
         Ref("DelimiterGrammar", optional=True),
+    )
+
+
+class AssignmentOperatorSegment(BaseSegment):
+    """One of the assignment operators.
+
+    Includes simpler equals but also +=, -=, etc.
+    """
+
+    match_grammar = OneOf(
+        Ref("EqualsSegment"),
+        Sequence(
+            OneOf(
+                Ref("PlusSegment"),
+                Ref("MinusSegment"),
+                Ref("DivideSegment"),
+                Ref("MultiplySegment"),
+                Ref("ModuloSegment"),
+                Ref("BitwiseAndSegment"),
+                Ref("BitwiseOrSegment"),
+                Ref("BitwiseXorSegment"),
+                optional=True,
+            ),
+            Ref("EqualsSegment"),
+            allow_gaps=False,
+        ),
     )
 
 
