@@ -1168,7 +1168,13 @@ class FromExpressionElementSegment(BaseSegment):
         tbl_expression = self.get_child("table_expression")
         if not tbl_expression:  # pragma: no cover
             tbl_expression = self.get_child("bracketed").get_child("table_expression")
-        ref = tbl_expression.get_child("object_reference")
+        # For TSQL nested, bracketed tables get the first table as reference
+        if tbl_expression and not tbl_expression.get_child("object_reference"):
+            if tbl_expression.get_child("bracketed"):
+                tbl_expression = tbl_expression.get_child("bracketed").get_child(
+                    "table_expression"
+                )
+        ref = tbl_expression.get_child("object_reference") if tbl_expression else None
         if alias_expression:
             # If it has an alias, return that
             segment = alias_expression.get_child("identifier")
@@ -1438,7 +1444,11 @@ class JoinClauseSegment(BaseSegment):
             buff.append((from_expression, alias))
 
         # In some dialects, like TSQL, join clauses can have nested join clauses
-        for join_clause in self.get_children("join_clause"):
+        for join_clause in self.recursive_crawl("join_clause"):
+            if join_clause is self:
+                # If the starting segment itself matches the list of types we're
+                # searching for, recursive_crawl() will return it. Skip that.
+                continue
             aliases: List[
                 Tuple[BaseSegment, AliasInfo]
             ] = join_clause.get_eventual_aliases()
