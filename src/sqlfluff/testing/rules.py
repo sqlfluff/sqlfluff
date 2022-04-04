@@ -61,7 +61,7 @@ def get_rule_from_set(code, config):
 def assert_rule_fail_in_sql(code, sql, configs=None, line_numbers=None):
     """Assert that a given rule does fail on the given sql."""
     # Set up the config to only use the rule we are testing.
-    cfg = FluffConfig(configs=configs, overrides={"rules": code})
+    cfg = FluffConfig(configs=configs, overrides={"dialect": "ansi", "rules": code})
     # Lint it using the current config (while in fix mode)
     linted = Linter(config=cfg).lint_string(sql, fix=True)
     lerrs = linted.get_violations()
@@ -98,7 +98,7 @@ def assert_rule_pass_in_sql(code, sql, configs=None, msg=None):
         configs = {}
     core = configs.setdefault("core", {})
     core["rules"] = code
-    cfg = FluffConfig(configs=configs)
+    cfg = FluffConfig(configs=configs, overrides={"dialect": "ansi"})
     linter = Linter(config=cfg)
 
     # This section is mainly for aid in debugging.

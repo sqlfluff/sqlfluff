@@ -9,7 +9,7 @@ from sqlfluff.core.dialects import DialectTuple
 
 def list_rules() -> List[RuleTuple]:
     """Return a list of available rule tuples."""
-    linter = Linter()
+    linter = Linter(dialect="ansi")
     return linter.rule_tuples()
 
 
