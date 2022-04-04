@@ -1703,6 +1703,7 @@ class AssignmentOperatorSegment(BaseSegment):
     Includes simpler equals but also +=, -=, etc.
     """
 
+    type = "assignment_operator"
     match_grammar = OneOf(
         Ref("EqualsSegment"),
         Sequence(
@@ -1715,7 +1716,6 @@ class AssignmentOperatorSegment(BaseSegment):
                 Ref("BitwiseAndSegment"),
                 Ref("BitwiseOrSegment"),
                 Ref("BitwiseXorSegment"),
-                optional=True,
             ),
             Ref("EqualsSegment"),
             allow_gaps=False,
