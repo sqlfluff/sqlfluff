@@ -395,7 +395,7 @@ def test__linter__encoding(fname, config_encoding, lexerror):
 
 
 # noqa tests require a rule_set, therefore we construct dummy rule set for glob matching.
-dummy_rule_codes = [r.code for r in Linter().get_ruleset()]
+dummy_rule_codes = [r.code for r in Linter(dialect="ansi").get_ruleset()]
 
 
 @pytest.mark.parametrize(
