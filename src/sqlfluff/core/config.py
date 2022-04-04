@@ -455,6 +455,7 @@ class FluffConfig:
         ignore_local_config: bool = False,
         overrides: Optional[dict] = None,
         plugin_manager: Optional[pluggy.PluginManager] = None,
+        require_dialect: bool = True,
     ):
         self._extra_config_path = (
             extra_config_path  # We only store this for child configs
@@ -508,7 +509,7 @@ class FluffConfig:
             self._configs["core"]["dialect_obj"] = dialect_selector(
                 self._configs["core"]["dialect"]
             )
-        else:
+        elif require_dialect:
             # Get list of available dialects for the error message. We must
             # import here rather than at file scope in order to avoid a circular
             # import.
@@ -598,6 +599,7 @@ class FluffConfig:
         dialect: Optional[str] = None,
         rules: Optional[List[str]] = None,
         exclude_rules: Optional[List[str]] = None,
+        require_dialect: bool = True,
     ) -> "FluffConfig":
         """Instantiate a config from either an existing config or kwargs.
 
@@ -622,7 +624,7 @@ class FluffConfig:
         if exclude_rules:
             # Make a comma separated string to pass in as override
             overrides["exclude_rules"] = ",".join(exclude_rules)
-        return cls(overrides=overrides)
+        return cls(overrides=overrides, require_dialect=require_dialect)
 
     def get_templater(self, templater_name="jinja", **kwargs):
         """Fetch a templater by name."""

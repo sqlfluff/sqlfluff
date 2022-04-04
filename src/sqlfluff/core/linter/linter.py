@@ -76,6 +76,7 @@ class Linter:
             dialect=dialect,
             rules=rules,
             exclude_rules=exclude_rules,
+            require_dialect=False,
         )
         # Get the dialect and templater
         self.dialect = self.config.get("dialect_obj")

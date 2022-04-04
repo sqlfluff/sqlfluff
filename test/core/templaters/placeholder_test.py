@@ -233,7 +233,9 @@ def test__templater_raw():
 def test__templater_param_style(instr, expected_outstr, param_style, values):
     """Test different param_style templating."""
     t = PlaceholderTemplater(override_context={**values, "param_style": param_style})
-    outstr, _ = t.process(in_str=instr, fname="test", config=FluffConfig())
+    outstr, _ = t.process(
+        in_str=instr, fname="test", config=FluffConfig(overrides={"dialect": "ansi"})
+    )
     assert str(outstr) == expected_outstr
 
 
@@ -245,7 +247,7 @@ def test__templater_custom_regex():
     outstr, _ = t.process(
         in_str="SELECT bla FROM blob WHERE id = __my_name__",
         fname="test",
-        config=FluffConfig(),
+        config=FluffConfig(overrides={"dialect": "ansi"}),
     )
     assert str(outstr) == "SELECT bla FROM blob WHERE id = john"
 
