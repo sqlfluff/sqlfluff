@@ -1365,9 +1365,6 @@ class JoinClauseSegment(BaseSegment):
     type = "join_clause"
     match_grammar: Matchable = OneOf(
         # NB These qualifiers are optional
-        # TODO: Allow nested joins like:
-        # ....FROM S1.T1 t1 LEFT JOIN ( S2.T2 t2 JOIN S3.T3 t3 ON t2.col1=t3.col1) ON
-        # tab1.col1 = tab2.col1
         Sequence(
             OneOf(
                 "CROSS",
