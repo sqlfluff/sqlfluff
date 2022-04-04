@@ -510,6 +510,15 @@ class FluffConfig:
                 self._configs["core"]["dialect"]
             )
         elif require_dialect:
+            self.verify_dialect_specified()
+        self._configs["core"]["templater_obj"] = self.get_templater(
+            self._configs["core"]["templater"]
+        )
+
+    def verify_dialect_specified(self) -> None:
+        """Check if the config specifies a dialect, raising an error if not."""
+        dialect: Optional[str] = self._configs["core"]["dialect"]
+        if dialect is None:
             # Get list of available dialects for the error message. We must
             # import here rather than at file scope in order to avoid a circular
             # import.
@@ -520,9 +529,6 @@ class FluffConfig:
                 "specify one on the command line. Available dialects:\n"
                 f"{', '.join([d.label for d in dialect_readout()])}"
             )
-        self._configs["core"]["templater_obj"] = self.get_templater(
-            self._configs["core"]["templater"]
-        )
 
     def __getstate__(self):
         # Copy the object's state from self.__dict__ which contains
