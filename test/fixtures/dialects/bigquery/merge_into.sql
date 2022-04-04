@@ -8,6 +8,17 @@ WHEN NOT MATCHED THEN
     INSERT(product, quantity, supply_constrained)
         VALUES(product, quantity, FALSE);
 
+-- optional INTO
+MERGE INTO dataset.detailedinventory t
+USING dataset.inventory s
+ON t.product = s.product
+WHEN NOT MATCHED AND quantity < 20 THEN
+    INSERT(product, quantity, supply_constrained, comments)
+        VALUES(product, quantity, TRUE)
+WHEN NOT MATCHED THEN
+    INSERT(product, quantity, supply_constrained)
+        VALUES(product, quantity, FALSE);
+
 MERGE dataset.inventory t
 USING dataset.newarrivals s
 ON t.product = s.product
@@ -41,4 +52,29 @@ MERGE dataset.inventory t
 USING dataset.newarrivals s
 ON t.product = s.product
 WHEN MATCHED THEN
+    UPDATE SET quantity = t.quantity + s.quantity;
+
+-- INSERT ROW
+MERGE dataset.inventory t
+USING dataset.newarrivals s
+ON t.product = s.product
+WHEN NOT MATCHED THEN
+    INSERT ROW;
+
+-- Optional BY TARGET
+MERGE dataset.inventory t
+USING dataset.newarrivals s
+ON t.product = s.product
+WHEN NOT MATCHED BY TARGET AND quantity < 20 THEN
+    INSERT(product, quantity, supply_constrained, comments)
+        VALUES(product, quantity, TRUE)
+WHEN NOT MATCHED BY TARGET THEN
+    INSERT(product, quantity, supply_constrained)
+        VALUES(product, quantity, FALSE);
+
+-- NOT MATCHED BY SOURCE
+MERGE dataset.inventory t
+USING dataset.newarrivals s
+ON t.product = s.product
+WHEN NOT MATCHED BY SOURCE THEN
     UPDATE SET quantity = t.quantity + s.quantity;
