@@ -6,7 +6,7 @@ import json
 import logging
 import time
 from logging import LogRecord
-from typing import Callable, Tuple, NoReturn, Optional, List, cast
+from typing import Callable, Tuple, Optional, List, cast
 
 import yaml
 
@@ -175,14 +175,14 @@ def core_options(f: Callable) -> Callable:
         f = click.option(
             "--dialect",
             default=None,
-            help="The dialect of SQL to lint (default=ansi)",
+            help="The dialect of SQL to lint",
             shell_complete=dialect_shell_complete,
         )(f)
     else:  # pragma: no cover
         f = click.option(
             "--dialect",
             default=None,
-            help="The dialect of SQL to lint (default=ansi)",
+            help="The dialect of SQL to lint",
         )(f)
     f = click.option(
         "--templater",
@@ -290,7 +290,7 @@ def get_config(
     **kwargs,
 ) -> FluffConfig:
     """Get a config object from kwargs."""
-    if "dialect" in kwargs:
+    if kwargs.get("dialect"):
         try:
             # We're just making sure it exists at this stage.
             # It will be fetched properly in the linter.
@@ -491,7 +491,7 @@ def lint(
     extra_config_path: Optional[str] = None,
     ignore_local_config: bool = False,
     **kwargs,
-) -> NoReturn:
+) -> None:
     """Lint SQL files via passing a list of files or using stdin.
 
     PATH is the path to a sql file or directory to lint. This can be either a
@@ -686,7 +686,7 @@ def fix(
     extra_config_path: Optional[str] = None,
     ignore_local_config: bool = False,
     **kwargs,
-) -> NoReturn:
+) -> None:
     """Fix SQL files.
 
     PATH is the path to a sql file or directory to lint. This can be either a
@@ -926,7 +926,7 @@ def parse(
     extra_config_path: Optional[str] = None,
     ignore_local_config: bool = False,
     **kwargs,
-) -> NoReturn:
+) -> None:
     """Parse SQL files and just spit out the result.
 
     PATH is the path to a sql file or directory to lint. This can be either a

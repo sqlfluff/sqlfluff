@@ -503,9 +503,22 @@ class FluffConfig:
         # NB: We import here to avoid a circular references.
         from sqlfluff.core.dialects import dialect_selector
 
-        self._configs["core"]["dialect_obj"] = dialect_selector(
-            self._configs["core"]["dialect"]
-        )
+        dialect: Optional[str] = self._configs["core"]["dialect"]
+        if dialect is not None:
+            self._configs["core"]["dialect_obj"] = dialect_selector(
+                self._configs["core"]["dialect"]
+            )
+        else:
+            # Get list of available dialects for the error message. We must
+            # import here rather than at file scope in order to avoid a circular
+            # import.
+            from sqlfluff.core.dialects import dialect_readout
+
+            raise SQLFluffUserError(
+                "No dialect was specified. You must configure a dialect or "
+                "specify one on the command line. Available dialects:\n"
+                f"{', '.join([d.label for d in dialect_readout()])}"
+            )
         self._configs["core"]["templater_obj"] = self.get_templater(
             self._configs["core"]["templater"]
         )
