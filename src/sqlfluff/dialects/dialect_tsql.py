@@ -1165,7 +1165,18 @@ class DeclareStatementSegment(BaseSegment):
                     optional=True,
                 ),
             ),
-            Sequence("TABLE", Bracketed(Delimited(Ref("ColumnDefinitionSegment")))),
+            Sequence(
+                "TABLE",
+                Bracketed(
+                    Delimited(
+                        OneOf(
+                            Ref("TableConstraintSegment"),
+                            Ref("ColumnDefinitionSegment"),
+                        ),
+                        allow_trailing=True,
+                    )
+                ),
+            ),
         ),
         AnyNumberOf(
             Ref("CommaSegment"),
