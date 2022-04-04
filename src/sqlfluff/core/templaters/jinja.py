@@ -178,6 +178,10 @@ class JinjaTemplater(PythonTemplater):
                 return self.name
 
         dbt_builtins = {
+            "ref": lambda model_ref: model_ref,
+            "source": lambda source_name, table: f"{source_name}_{table}",
+            "config": lambda **kwargs: "",
+            "var": lambda variable, default="": "item",
             # `is_incremental()` renders as True, always in this case.
             # TODO: This means we'll never parse other parts of the query,
             # that are only reachable when `is_incremental()` returns False.
