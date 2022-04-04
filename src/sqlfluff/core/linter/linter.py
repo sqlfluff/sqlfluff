@@ -76,6 +76,9 @@ class Linter:
             dialect=dialect,
             rules=rules,
             exclude_rules=exclude_rules,
+            # Don't require a dialect to be provided yet. Defer this until we
+            # are actually linting something, since the directory we are linting
+            # from may provide additional configuration, including a dialect.
             require_dialect=False,
         )
         # Get the dialect and templater
