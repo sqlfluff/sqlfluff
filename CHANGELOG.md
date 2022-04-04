@@ -29,7 +29,7 @@ Major changes include:
 * Redshift: Added `CREATE EXTERNAL SCHEMA`, bugfix in `PARTITION BY` [#2983](https://github.com/sqlfluff/sqlfluff/pull/2983) [@WittierDinosaur](https://github.com/WittierDinosaur)
 * Added `ALTER INDEX` and `REINDEX` to Postgres, Some Grammar Cleaning [#2979](https://github.com/sqlfluff/sqlfluff/pull/2979) [@WittierDinosaur](https://github.com/WittierDinosaur)
 * TSQL grammar deduplication [#2967](https://github.com/sqlfluff/sqlfluff/pull/2967) [@tunetheweb](https://github.com/tunetheweb)
-* L003  Refactor [#2884](https://github.com/sqlfluff/sqlfluff/pull/2884) [@OTooleMichael](https://github.com/OTooleMichael)
+* L003 Refactor [#2884](https://github.com/sqlfluff/sqlfluff/pull/2884) [@OTooleMichael](https://github.com/OTooleMichael)
 * Delimited Refactor [#2831](https://github.com/sqlfluff/sqlfluff/pull/2831) [@WittierDinosaur](https://github.com/WittierDinosaur)
 * SparkSQL: Support for querying snapshots when reading data with Delta Lake [#2972](https://github.com/sqlfluff/sqlfluff/pull/2972) [@R7L208](https://github.com/R7L208)
 * Fix bug in L063 for BigQuery `STRUCT` params [#2975](https://github.com/sqlfluff/sqlfluff/pull/2975) [@tunetheweb](https://github.com/tunetheweb)
