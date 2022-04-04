@@ -633,8 +633,8 @@ You can set the dbt project directory, profiles directory and profile with:
     `~/.dbt/`. On Windows, you can determine your default profile directory by
     running `dbt debug --config-dir`.
 
-To use builtin dbt Jinja functions SQLFluff provides a configuration option that
-enables usage withing templates.
+To use builtin dbt Jinja functions SQLFluff provides a configuration option
+that enables usage withing templates.
 
 .. code-block:: cfg
 
@@ -642,8 +642,8 @@ enables usage withing templates.
     apply_dbt_builtins = True
 
 This will provide dbt macros like `ref`, `var`, `is_incremental()`. If the need
-arises builtin dbt macros can be customised via Jinja macros in `.sqlfluff` configuration
-file.
+arises builtin dbt macros can be customised via Jinja macros in `.sqlfluff`
+configuration file.
 
 .. code-block:: cfg
 
