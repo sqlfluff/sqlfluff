@@ -68,7 +68,7 @@ def test__parser__parse_expand(seg_list):
 def test__parser__parse_error():
     """Test that SQLParseError is raised for unparsable section."""
     in_str = "SELECT ;"
-    lnt = Linter()
+    lnt = Linter(dialect="ansi")
     parsed = lnt.parse_string(in_str)
 
     assert len(parsed.violations) == 1
