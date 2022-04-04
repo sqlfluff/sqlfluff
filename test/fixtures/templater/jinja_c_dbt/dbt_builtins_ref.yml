@@ -6,10 +6,6 @@ file:
       - select_clause_element:
           column_reference:
             identifier: col1
-      - comma: ','
-      - select_clause_element:
-          column_reference:
-            identifier: col2
       from_clause:
         keyword: FROM
         from_expression:
