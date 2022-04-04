@@ -16,7 +16,7 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 Major changes include:
 * Rename `spark3` dialect to `sparksql` **BREAKING CHANGE**
 * New rule L063 to allow Datatypes to have a different capitalisation policy from L010. **BREAKING CHANGE**
-* Refactor and performance improvements of Delimted and L003.
+* Refactor and performance improvements of Delimited and L003.
 * Many dialect improvements and fixes.
 
 ## What’s Changed
