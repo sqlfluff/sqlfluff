@@ -245,3 +245,16 @@ test_nested_join_clauses_do_not_flag:
   configs:
     core:
       dialect: tsql
+
+test_parenthesized_join_clauses_do_not_flag:
+  pass_str: |
+    SELECT
+        1 AS RegionCode
+    FROM BA
+    LEFT OUTER JOIN (
+        I LEFT OUTER JOIN P
+            ON I.Pcd = P.Iid
+    ) ON BA.Iid = I.Bcd
+  configs:
+    core:
+      dialect: tsql
