@@ -357,6 +357,7 @@ class RuleContext:
     memory: Any
     dialect: Dialect
     path: Optional[pathlib.Path]
+    fix: bool
     templated_file: Optional[TemplatedFile]
 
     @cached_property
@@ -492,6 +493,7 @@ class BaseRule:
         raw_stack=None,
         memory=None,
         fname=None,
+        fix=None,
         templated_file: Optional["TemplatedFile"] = None,
     ):
         """Recursively perform the crawl operation on a given segment.
@@ -510,6 +512,7 @@ class BaseRule:
         siblings_post = siblings_post or ()
         siblings_pre = siblings_pre or ()
         memory = memory or {}
+        fix = fix or False
         vs: List[SQLLintError] = []
         fixes: List[LintFix] = []
 
@@ -529,6 +532,7 @@ class BaseRule:
             memory=memory,
             dialect=dialect,
             path=pathlib.Path(fname) if fname else None,
+            fix=fix,
             templated_file=templated_file,
         )
         try:
@@ -542,6 +546,7 @@ class BaseRule:
                 f"Applying rule {self.code} threw an Exception: {e}", exc_info=True
             )
             exception_line, _ = segment.pos_marker.source_position()
+            self._log_critical_errors(e)
             vs.append(
                 SQLLintError(
                     rule=self,
@@ -616,6 +621,7 @@ class BaseRule:
                 memory=memory,
                 dialect=dialect,
                 fname=fname,
+                fix=fix,
                 templated_file=templated_file,
             )
             vs += dvs
@@ -623,6 +629,10 @@ class BaseRule:
         return vs, raw_stack, fixes, memory
 
     # HELPER METHODS --------
+    @staticmethod
+    def _log_critical_errors(error: Exception):  # pragma: no cover
+        """This method is monkey patched into a "raise" for certain tests."""
+        pass
 
     def _process_lint_result(
         self, res, templated_file, ignore_mask, new_lerrs, new_fixes
@@ -651,16 +661,18 @@ class BaseRule:
         space = " "
         return space * self.tab_space_size if self.indent_unit == "space" else tab
 
-    def is_final_segment(self, context: RuleContext) -> bool:
+    def is_final_segment(self, context: RuleContext, filter_meta: bool = True) -> bool:
         """Is the current segment the final segment in the parse tree."""
-        if len(self.filter_meta(context.siblings_post)) > 0:
+        siblings_post = context.siblings_post
+        if filter_meta:
+            siblings_post = self.filter_meta(siblings_post)
+        if len(siblings_post) > 0:
             # This can only fail on the last segment
             return False
         elif len(context.segment.segments) > 0:
             # This can only fail on the last base segment
             return False
-        elif context.segment.is_meta:
-            # We can't fail on a meta segment
+        elif filter_meta and context.segment.is_meta:
             return False
         else:
             # We know we are at a leaf of the tree but not necessarily at the end of the
@@ -669,9 +681,9 @@ class BaseRule:
             # one.
             child_segment = context.segment
             for parent_segment in context.parent_stack[::-1]:
-                possible_children = [
-                    s for s in parent_segment.segments if not s.is_meta
-                ]
+                possible_children = parent_segment.segments
+                if filter_meta:
+                    possible_children = [s for s in possible_children if not s.is_meta]
                 if len(possible_children) > possible_children.index(child_segment) + 1:
                     return False
                 child_segment = parent_segment
@@ -716,11 +728,32 @@ class BaseRule:
         return None
 
     @staticmethod
-    def matches_target_tuples(seg: BaseSegment, target_tuples: List[Tuple[str, str]]):
+    def matches_target_tuples(
+        seg: BaseSegment,
+        target_tuples: List[Tuple[str, str]],
+        parent: Optional[BaseSegment] = None,
+    ):
         """Does the given segment match any of the given type tuples."""
         if seg.name in [elem[1] for elem in target_tuples if elem[0] == "name"]:
             return True
         elif seg.is_type(*[elem[1] for elem in target_tuples if elem[0] == "type"]):
+            return True
+        # For parent type checks, there's a higher risk of getting an incorrect
+        # segment, so we add some additional guards. We also only check keywords
+        # as for other types we can check directly rather than using parent
+        elif (
+            not seg.is_meta
+            and not seg.is_comment
+            and not seg.is_templated
+            and not seg.is_whitespace
+            and isinstance(seg, RawSegment)
+            and len(seg.raw) > 0
+            and seg.is_type("keyword")
+            and parent
+            and parent.is_type(
+                *[elem[1] for elem in target_tuples if elem[0] == "parenttype"]
+            )
+        ):
             return True
         return False
 
@@ -779,7 +812,12 @@ class BaseRule:
                 )
 
     @staticmethod
-    def _choose_anchor_segment(context, edit_type, segment, filter_meta=False):
+    def _choose_anchor_segment(
+        context: RuleContext,
+        edit_type: str,
+        segment: BaseSegment,
+        filter_meta: bool = False,
+    ):
         """Choose the anchor point for a lint fix, i.e. where to apply the fix.
 
         From a grammar perspective, segments near the leaf of the tree are
@@ -795,23 +833,34 @@ class BaseRule:
         if edit_type not in ("create_before", "create_after"):
             return segment
 
-        anchor = segment
-        child = segment
-        for seg in context.parent_stack[0].path_to(segment)[1:-1][::-1]:
-            children = (
-                seg.segments
-                if not filter_meta
-                else [child for child in seg.segments if not child.is_meta]
-            )
-            if edit_type == "create_before" and children[0] is child:
-                anchor = seg
-                assert anchor.raw.startswith(segment.raw)
-            elif edit_type == "create_after" and children[-1] is child:
-                anchor = seg
-                assert anchor.raw.endswith(segment.raw)
-            else:
-                break
-            child = seg
+        anchor: BaseSegment = segment
+        child: BaseSegment = segment
+        parent: BaseSegment = context.parent_stack[0]
+        path: Optional[List[BaseSegment]] = parent.path_to(segment) if parent else None
+        inner_path: Optional[List[BaseSegment]] = path[1:-1] if path else None
+        if inner_path:
+            for seg in inner_path[::-1]:
+                # Which lists of children to check against.
+                children_lists: List[List[BaseSegment]] = []
+                if filter_meta:
+                    # Optionally check against filtered (non-meta only) children.
+                    children_lists.append(
+                        [child for child in seg.segments if not child.is_meta]
+                    )
+                # Always check against the full set of children.
+                children_lists.append(seg.segments)
+                children: List[BaseSegment]
+                for children in children_lists:
+                    if edit_type == "create_before" and children[0] is child:
+                        anchor = seg
+                        assert anchor.raw.startswith(segment.raw)
+                        child = seg
+                        break
+                    elif edit_type == "create_after" and children[-1] is child:
+                        anchor = seg
+                        assert anchor.raw.endswith(segment.raw)
+                        child = seg
+                        break
         return anchor
 
     @staticmethod

@@ -8,7 +8,7 @@ from sqlfluff.cli.autocomplete import dialect_shell_complete
     "incomplete,expected",
     [
         ["an", ["ansi"]],
-        ["s", ["snowflake", "spark3", "sqlite"]],
+        ["s", ["snowflake", "sparksql", "sqlite"]],
         ["post", ["postgres"]],
     ],
 )

@@ -1,0 +1,375 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 81bef999caba228cd010a13f1e162f756b39f27862e146f378a20e848095970f
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          column_reference:
+            identifier: c1
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: testtable
+      orderby_clause:
+      - keyword: order
+      - keyword: by
+      - column_reference:
+          identifier: c1
+      limit_clause:
+        keyword: limit
+        literal: '3'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          column_reference:
+            identifier: c1
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: testtable
+      orderby_clause:
+      - keyword: order
+      - keyword: by
+      - column_reference:
+          identifier: c1
+      limit_clause:
+      - keyword: limit
+      - literal: '3'
+      - keyword: offset
+      - literal: '3'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: demo1
+      orderby_clause:
+      - keyword: order
+      - keyword: by
+      - column_reference:
+          identifier: i
+      limit_clause:
+      - keyword: limit
+      - keyword: 'null'
+      - keyword: offset
+      - keyword: 'null'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: demo1
+      orderby_clause:
+      - keyword: order
+      - keyword: by
+      - column_reference:
+          identifier: i
+      limit_clause:
+      - keyword: limit
+      - literal: "''"
+      - keyword: offset
+      - literal: "''"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: demo1
+      orderby_clause:
+      - keyword: order
+      - keyword: by
+      - column_reference:
+          identifier: i
+      limit_clause:
+      - keyword: limit
+      - literal: $$$$
+      - keyword: offset
+      - literal: $$$$
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          column_reference:
+            identifier: c1
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: testtable
+      orderby_clause:
+      - keyword: order
+      - keyword: by
+      - column_reference:
+          identifier: c1
+      limit_clause:
+        keyword: fetch
+        literal: '3'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          column_reference:
+            identifier: c1
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: testtable
+      orderby_clause:
+      - keyword: order
+      - keyword: by
+      - column_reference:
+          identifier: c1
+      limit_clause:
+      - keyword: fetch
+      - keyword: first
+      - literal: '3'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          column_reference:
+            identifier: c1
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: testtable
+      orderby_clause:
+      - keyword: order
+      - keyword: by
+      - column_reference:
+          identifier: c1
+      limit_clause:
+      - keyword: fetch
+      - keyword: next
+      - literal: '3'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          column_reference:
+            identifier: c1
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: testtable
+      orderby_clause:
+      - keyword: order
+      - keyword: by
+      - column_reference:
+          identifier: c1
+      limit_clause:
+      - keyword: fetch
+      - literal: '1'
+      - keyword: row
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          column_reference:
+            identifier: c1
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: testtable
+      orderby_clause:
+      - keyword: order
+      - keyword: by
+      - column_reference:
+          identifier: c1
+      limit_clause:
+      - keyword: fetch
+      - literal: '3'
+      - keyword: rows
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          column_reference:
+            identifier: c1
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: testtable
+      orderby_clause:
+      - keyword: order
+      - keyword: by
+      - column_reference:
+          identifier: c1
+      limit_clause:
+      - keyword: fetch
+      - literal: '3'
+      - keyword: only
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          column_reference:
+            identifier: c1
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: testtable
+      orderby_clause:
+      - keyword: order
+      - keyword: by
+      - column_reference:
+          identifier: c1
+      limit_clause:
+      - keyword: offset
+      - literal: '3'
+      - keyword: fetch
+      - literal: '3'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          column_reference:
+            identifier: c1
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: testtable
+      orderby_clause:
+      - keyword: order
+      - keyword: by
+      - column_reference:
+          identifier: c1
+      limit_clause:
+      - keyword: offset
+      - literal: '1'
+      - keyword: row
+      - keyword: fetch
+      - literal: '1'
+      - keyword: row
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          column_reference:
+            identifier: c1
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: testtable
+      orderby_clause:
+      - keyword: order
+      - keyword: by
+      - column_reference:
+          identifier: c1
+      limit_clause:
+      - keyword: offset
+      - literal: '3'
+      - keyword: rows
+      - keyword: fetch
+      - literal: '3'
+      - keyword: rows
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          column_reference:
+            identifier: c1
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: testtable
+      limit_clause:
+      - keyword: offset
+      - literal: '3'
+      - keyword: fetch
+      - literal: '3'
+- statement_terminator: ;

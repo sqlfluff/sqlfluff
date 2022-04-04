@@ -1,0 +1,116 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: f7726c2bb500cf785beddb0ca56ec9703192d92fc6091b33737220ac49934a48
+file:
+  batch:
+    statement:
+      select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            function:
+              function_name:
+                keyword: convert
+              bracketed:
+                start_bracket: (
+                data_type:
+                  data_type_identifier: date
+                comma: ','
+                expression:
+                  function:
+                    function_name:
+                      function_name_identifier: dateadd
+                    bracketed:
+                    - start_bracket: (
+                    - date_part: month
+                    - comma: ','
+                    - expression:
+                        function:
+                          function_name:
+                            function_name_identifier: datediff
+                          bracketed:
+                          - start_bracket: (
+                          - date_part: month
+                          - comma: ','
+                          - expression:
+                              literal: '0'
+                          - comma: ','
+                          - expression:
+                              column_reference:
+                              - identifier: t
+                              - dot: .
+                              - identifier: valid_from_date
+                          - end_bracket: )
+                    - comma: ','
+                    - expression:
+                        literal: '0'
+                    - end_bracket: )
+                end_bracket: )
+            alias_expression:
+              keyword: as
+              identifier: valid_from_date
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: t
+              alias_expression:
+                keyword: as
+                identifier: t
+        where_clause:
+          keyword: where
+          expression:
+            column_reference:
+            - identifier: t
+            - dot: .
+            - identifier: activity_month
+            comparison_operator:
+            - raw_comparison_operator: '>'
+            - raw_comparison_operator: '='
+            function:
+              function_name:
+                keyword: convert
+              bracketed:
+                start_bracket: (
+                data_type:
+                  data_type_identifier: date
+                comma: ','
+                expression:
+                  function:
+                    function_name:
+                      function_name_identifier: dateadd
+                    bracketed:
+                    - start_bracket: (
+                    - date_part: yy
+                    - comma: ','
+                    - expression:
+                        function:
+                          function_name:
+                            function_name_identifier: datediff
+                          bracketed:
+                          - start_bracket: (
+                          - date_part: yy
+                          - comma: ','
+                          - expression:
+                              literal: '0'
+                          - comma: ','
+                          - expression:
+                              function:
+                                function_name:
+                                  function_name_identifier: getdate
+                                bracketed:
+                                  start_bracket: (
+                                  end_bracket: )
+                          - end_bracket: )
+                        binary_operator: '-'
+                        literal: '1'
+                    - comma: ','
+                    - expression:
+                        literal: '0'
+                    - end_bracket: )
+                end_bracket: )

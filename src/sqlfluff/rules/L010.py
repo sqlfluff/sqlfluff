@@ -1,7 +1,8 @@
 """Implementation of Rule L010."""
 
 import regex
-from typing import Tuple, List
+from typing import Tuple, List, Optional
+from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix, RuleContext
 from sqlfluff.core.rules.config_info import get_config_info
 from sqlfluff.core.rules.doc_decorators import (
@@ -47,7 +48,15 @@ class Rule_L010(BaseRule):
         ("type", "keyword"),
         ("type", "binary_operator"),
         ("type", "date_part"),
-        ("type", "data_type_identifier"),
+    ]
+    # Skip boolean and null literals (which are also keywords)
+    # as they have their own rule (L040)
+    _exclude_elements: List[Tuple[str, str]] = [
+        ("name", "null_literal"),
+        ("name", "boolean_literal"),
+        ("parenttype", "data_type"),
+        ("parenttype", "datetime_type_identifier"),
+        ("parenttype", "primitive_type"),
     ]
     config_keywords = ["capitalisation_policy", "ignore_words"]
     # Human readable target elem for description
@@ -62,7 +71,14 @@ class Rule_L010(BaseRule):
 
         """
         # Skip if not an element of the specified type/name
-        if not self.matches_target_tuples(context.segment, self._target_elems):
+        parent: Optional[BaseSegment] = (
+            context.parent_stack[-1] if context.parent_stack else None
+        )
+        if not self.matches_target_tuples(
+            context.segment, self._target_elems, parent
+        ) or self.matches_target_tuples(
+            context.segment, self._exclude_elements, parent
+        ):
             return LintResult(memory=context.memory)
 
         # Get the capitalisation policy configuration.

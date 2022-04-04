@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 103b85caea8316516741519b191e16afa6a3241cd0c0e716e98862e2bf66accf
+_hash: 09f04bb3080d62a6126486e51f3d46f9bbe86d5d62633cac33dc81dded2d3883
 file:
-  statement:
+- statement:
     select_statement:
       select_clause:
         keyword: SELECT
@@ -18,32 +18,68 @@ file:
         from_expression:
           from_expression_element:
             table_expression:
-              hyphenated_object_reference:
+              table_reference:
               - identifier: project
-              - binary_operator: '-'
+              - dash: '-'
               - identifier: a
               - dot: .
               - identifier: dataset
-              - binary_operator: '-'
+              - dash: '-'
               - identifier: b
               - dot: .
               - identifier: table
-              - binary_operator: '-'
+              - dash: '-'
               - identifier: c
           join_clause:
           - keyword: JOIN
           - from_expression_element:
               table_expression:
-                hyphenated_object_reference:
+                table_reference:
                 - identifier: dataset
-                - binary_operator: '-'
+                - dash: '-'
                 - identifier: c
                 - dot: .
                 - identifier: table
-                - binary_operator: '-'
+                - dash: '-'
                 - identifier: d
           - keyword: USING
           - bracketed:
               start_bracket: (
               identifier: a
               end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          expression:
+          - column_reference:
+              identifier: col1
+          - binary_operator: '-'
+          - column_reference:
+              identifier: col2
+          alias_expression:
+            keyword: AS
+            identifier: newcol1
+      - comma: ','
+      - select_clause_element:
+          expression:
+          - column_reference:
+              identifier: col1
+          - binary_operator: '-'
+          - column_reference:
+              identifier: col2
+          alias_expression:
+            keyword: AS
+            identifier: newcol2
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - identifier: table
+              - dash: '-'
+              - identifier: a123
+- statement_terminator: ;

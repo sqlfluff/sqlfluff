@@ -115,7 +115,7 @@ class Rule_L054(BaseRule):
         }
 
         # If there are no column references then just return
-        if not column_reference_category_set:
+        if not column_reference_category_set:  # pragma: no cover
             return LintResult(memory=context.memory)
 
         if self.group_by_and_order_by_style == "consistent":

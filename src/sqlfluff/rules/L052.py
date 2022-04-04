@@ -2,7 +2,7 @@
 from typing import List, NamedTuple, Optional
 
 from sqlfluff.core.parser import SymbolSegment
-from sqlfluff.core.parser.segments.base import BaseSegment
+from sqlfluff.core.parser.segments.base import BaseSegment, IdentitySet
 from sqlfluff.core.parser.segments.raw import NewlineSegment
 
 from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix, RuleContext
@@ -161,9 +161,8 @@ class Rule_L052(BaseRule):
         else:
             return self._handle_semicolon_newline(context, info)
 
-    @staticmethod
     def _handle_semicolon_same_line(
-        context: RuleContext, info: SegmentMoveContext
+        self, context: RuleContext, info: SegmentMoveContext
     ) -> Optional[LintResult]:
         if not info.before_segment:
             return None
@@ -171,19 +170,14 @@ class Rule_L052(BaseRule):
         # If preceding segments are found then delete the old
         # semi-colon and its preceding whitespace and then insert
         # the semi-colon in the correct location.
-        fixes = [
-            LintFix.replace(
-                info.anchor_segment,
-                [
-                    info.anchor_segment,
-                    SymbolSegment(raw=";", type="symbol", name="semicolon"),
-                ],
-            ),
-            LintFix.delete(
-                context.segment,
-            ),
-        ]
-        fixes.extend(LintFix.delete(d) for d in info.whitespace_deletions)
+        fixes = self._create_semicolon_and_delete_whitespace(
+            context,
+            info.anchor_segment,
+            info.whitespace_deletions,
+            [
+                SymbolSegment(raw=";", type="symbol", name="semicolon"),
+            ],
+        )
         return LintResult(
             anchor=info.anchor_segment,
             fixes=fixes,
@@ -224,25 +218,53 @@ class Rule_L052(BaseRule):
             )
         else:
             fixes.extend(
-                [
-                    LintFix.replace(
-                        anchor_segment,
-                        [
-                            anchor_segment,
-                            NewlineSegment(),
-                            SymbolSegment(raw=";", type="symbol", name="semicolon"),
-                        ],
-                    ),
-                    LintFix.delete(
-                        context.segment,
-                    ),
-                ]
+                self._create_semicolon_and_delete_whitespace(
+                    context,
+                    anchor_segment,
+                    info.whitespace_deletions,
+                    [
+                        NewlineSegment(),
+                        SymbolSegment(raw=";", type="symbol", name="semicolon"),
+                    ],
+                )
             )
-            fixes.extend(LintFix.delete(d) for d in info.whitespace_deletions)
         return LintResult(
             anchor=anchor_segment,
             fixes=fixes,
         )
+
+    def _create_semicolon_and_delete_whitespace(
+        self,
+        context: RuleContext,
+        anchor_segment: BaseSegment,
+        whitespace_deletions: Segments,
+        create_segments: List[BaseSegment],
+    ) -> List[LintFix]:
+        anchor_segment = self._choose_anchor_segment(
+            context, "create_after", anchor_segment, filter_meta=True
+        )
+        lintfix_fn = LintFix.create_after
+        # :TRICKY: Use IdentitySet rather than set() since
+        # different segments may compare as equal.
+        whitespace_deletion_set = IdentitySet(whitespace_deletions)
+        if anchor_segment in whitespace_deletion_set:
+            # Can't delete() and create_after() the same segment. Use replace()
+            # instead.
+            lintfix_fn = LintFix.replace
+            whitespace_deletions = whitespace_deletions.select(
+                lambda seg: seg is not anchor_segment
+            )
+        fixes = [
+            lintfix_fn(
+                anchor_segment,
+                create_segments,
+            ),
+            LintFix.delete(
+                context.segment,
+            ),
+        ]
+        fixes.extend(LintFix.delete(d) for d in whitespace_deletions)
+        return fixes
 
     def _ensure_final_semicolon(self, context: RuleContext) -> Optional[LintResult]:
         # Locate the end of the file.
@@ -277,10 +299,11 @@ class Rule_L052(BaseRule):
             # Semi-colon on same line.
             if not semicolon_newline:
                 fixes = [
-                    LintFix.replace(
-                        anchor_segment,
+                    LintFix.create_after(
+                        self._choose_anchor_segment(
+                            context, "create_after", anchor_segment, filter_meta=True
+                        ),
                         [
-                            anchor_segment,
                             SymbolSegment(raw=";", type="symbol", name="semicolon"),
                         ],
                     )
@@ -296,16 +319,16 @@ class Rule_L052(BaseRule):
                     before_segment, anchor_segment
                 )
                 fixes = [
-                    LintFix.replace(
-                        anchor_segment,
+                    LintFix.create_after(
+                        self._choose_anchor_segment(
+                            context, "create_after", anchor_segment, filter_meta=True
+                        ),
                         [
-                            anchor_segment,
                             NewlineSegment(),
                             SymbolSegment(raw=";", type="symbol", name="semicolon"),
                         ],
                     )
                 ]
-
             return LintResult(
                 anchor=anchor_segment,
                 fixes=fixes,

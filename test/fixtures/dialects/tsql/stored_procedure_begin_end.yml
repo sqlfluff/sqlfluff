@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b3d34791eef70799088a5a46e7fd040474fe138d5875ae277c5c6e10dd4bc8b9
+_hash: 950bd695b0c4e3121a707909132e1702ff0e3899bfd13fa525d2cf4de5576191
 file:
-  batch:
+- batch:
     create_procedure_statement:
     - keyword: CREATE
     - keyword: PROCEDURE
@@ -56,3 +56,223 @@ file:
                           identifier: tbl2
                   statement_terminator: ;
           - keyword: END
+        statement_terminator: ;
+- go_statement:
+    keyword: GO
+- batch:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: PROCEDURE
+    - object_reference:
+      - identifier: '[dbo]'
+      - dot: .
+      - identifier: '[usp_process_tran_log]'
+    - procedure_parameter_list:
+      - parameter: '@out_vchCode'
+      - data_type:
+          data_type_identifier: uddt_output_code
+      - keyword: OUTPUT
+      - comma: ','
+      - parameter: '@out_vchMsg'
+      - data_type:
+          data_type_identifier: uddt_output_msg
+      - data_type:
+          data_type_identifier: OUTPUT
+      - comma: ','
+      - parameter: '@in_debug'
+      - data_type:
+          data_type_identifier: INT
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - expression:
+          literal: '1'
+    - keyword: AS
+    - procedure_statement:
+      - statement:
+          set_segment:
+          - keyword: SET
+          - keyword: NOCOUNT
+          - keyword: 'ON'
+          - statement_terminator: ;
+      - statement:
+          begin_end_block:
+          - keyword: BEGIN
+          - statement:
+              select_statement:
+                select_clause:
+                  keyword: SELECT
+                  select_clause_element:
+                    literal: "'8'"
+          - keyword: END
+      - statement_terminator: ;
+- go_statement:
+    keyword: GO
+- batch:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: PROCEDURE
+    - object_reference:
+      - identifier: '[dbo]'
+      - dot: .
+      - identifier: '[usp_process_tran_log]'
+    - procedure_parameter_list:
+      - parameter: '@out_vchCode'
+      - data_type:
+          data_type_identifier: uddt_output_code
+      - keyword: OUTPUT
+      - comma: ','
+      - parameter: '@out_vchMsg'
+      - data_type:
+          data_type_identifier: uddt_output_msg
+      - data_type:
+          data_type_identifier: OUT
+      - comma: ','
+      - parameter: '@in_debug'
+      - data_type:
+          data_type_identifier: INT
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - expression:
+          literal: '1'
+      - data_type:
+          data_type_identifier: READONLY
+    - keyword: AS
+    - procedure_statement:
+      - statement:
+          set_segment:
+          - keyword: SET
+          - keyword: NOCOUNT
+          - keyword: 'ON'
+          - statement_terminator: ;
+      - statement:
+          begin_end_block:
+          - keyword: BEGIN
+          - statement:
+              select_statement:
+                select_clause:
+                  keyword: SELECT
+                  select_clause_element:
+                    literal: "'8'"
+          - keyword: END
+      - statement_terminator: ;
+- go_statement:
+    keyword: GO
+- batch:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: PROCEDURE
+    - object_reference:
+      - identifier: '[dbo]'
+      - dot: .
+      - identifier: '[usp_process_tran_log]'
+    - procedure_parameter_list:
+      - parameter: '@out_vchCode'
+      - data_type:
+          data_type_identifier: uddt_output_code
+      - keyword: OUTPUT
+      - comma: ','
+      - parameter: '@out_vchMsg'
+      - data_type:
+          data_type_identifier: uddt_output_msg
+      - data_type:
+          data_type_identifier: OUTPUT
+      - comma: ','
+      - parameter: '@in_debug'
+      - data_type:
+          data_type_identifier: INT
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - expression:
+          literal: '1'
+    - keyword: AS
+    - procedure_statement:
+      - statement:
+          set_segment:
+          - keyword: SET
+          - keyword: NOCOUNT
+          - keyword: 'ON'
+          - statement_terminator: ;
+      - statement:
+          begin_end_block:
+          - keyword: BEGIN
+          - statement:
+              try_catch:
+              - keyword: BEGIN
+              - keyword: TRY
+              - statement:
+                  select_statement:
+                    select_clause:
+                      keyword: SELECT
+                      select_clause_element:
+                        literal: "'8'"
+                    statement_terminator: ;
+              - keyword: END
+              - keyword: TRY
+              - keyword: BEGIN
+              - keyword: CATCH
+              - statement:
+                  set_segment:
+                    keyword: SET
+                    parameter: '@v_nSysErrorNum'
+                    comparison_operator:
+                      raw_comparison_operator: '='
+                    expression:
+                      function:
+                        function_name:
+                          function_name_identifier: ERROR_NUMBER
+                        bracketed:
+                          start_bracket: (
+                          end_bracket: )
+                    statement_terminator: ;
+              - statement:
+                  set_segment:
+                    keyword: SET
+                    parameter: '@v_vchCode'
+                    comparison_operator:
+                      raw_comparison_operator: '='
+                    expression:
+                      function:
+                        function_name:
+                          function_name_identifier: ERROR_LINE
+                        bracketed:
+                          start_bracket: (
+                          end_bracket: )
+                    statement_terminator: ;
+              - statement:
+                  set_segment:
+                    keyword: SET
+                    parameter: '@v_vchMsg'
+                    comparison_operator:
+                      raw_comparison_operator: '='
+                    expression:
+                      literal: "N'Missing control type.'"
+                    statement_terminator: ;
+              - statement:
+                  set_segment:
+                    keyword: SET
+                    parameter: '@v_vchMsg'
+                    comparison_operator:
+                      raw_comparison_operator: '='
+                    expression:
+                    - parameter: '@v_vchMsg'
+                    - binary_operator: +
+                    - literal: "N' SQL Error = '"
+                    - binary_operator: +
+                    - function:
+                        function_name:
+                          function_name_identifier: ERROR_MESSAGE
+                        bracketed:
+                          start_bracket: (
+                          end_bracket: )
+                    statement_terminator: ;
+              - statement:
+                  goto_statement:
+                    keyword: GOTO
+                    identifier: ERROR_HANDLER
+              - statement_terminator: ;
+              - keyword: END
+              - keyword: CATCH
+          - keyword: END
+      - statement_terminator: ;
+- go_statement:
+    keyword: GO

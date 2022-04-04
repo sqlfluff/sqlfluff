@@ -1,0 +1,204 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 1f8a834990a37113c9799fcf39709eb4789c51da710d2bd69b36581dac5b3a55
+file:
+  statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            identifier: col1
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: MICROSECOND
+              keyword: FROM
+              expression:
+                column_reference:
+                  identifier: col1
+              end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: MILLISECOND
+              keyword: FROM
+              expression:
+                column_reference:
+                  identifier: col1
+              end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: SECOND
+              keyword: FROM
+              expression:
+                column_reference:
+                  identifier: col1
+              end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: MINUTE
+              keyword: FROM
+              expression:
+                column_reference:
+                  identifier: col1
+              end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: HOUR
+              keyword: FROM
+              expression:
+                column_reference:
+                  identifier: col1
+              end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: DAY
+              keyword: FROM
+              expression:
+                column_reference:
+                  identifier: col1
+              end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: DAYOFWEEK
+              keyword: FROM
+              expression:
+                column_reference:
+                  identifier: col1
+              end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: DAYOFYEAR
+              keyword: FROM
+              expression:
+                column_reference:
+                  identifier: col1
+              end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: WEEK
+              keyword: FROM
+              expression:
+                column_reference:
+                  identifier: col1
+              end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: ISOWEEK
+              keyword: FROM
+              expression:
+                column_reference:
+                  identifier: col1
+              end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: MONTH
+              keyword: FROM
+              expression:
+                column_reference:
+                  identifier: col1
+              end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: QUARTER
+              keyword: FROM
+              expression:
+                column_reference:
+                  identifier: col1
+              end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: YEAR
+              keyword: FROM
+              expression:
+                column_reference:
+                  identifier: col1
+              end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: ISOYEAR
+              keyword: FROM
+              expression:
+                column_reference:
+                  identifier: col1
+              end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: tbl1
+  statement_terminator: ;

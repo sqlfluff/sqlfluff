@@ -20,7 +20,9 @@ file:
                   - start_bracket: (
                   - expression:
                       literal: "'01 July'"
-                      binary_operator: '||'
+                      binary_operator:
+                      - pipe: '|'
+                      - pipe: '|'
                       case_expression:
                       - keyword: case
                       - when_clause:
@@ -33,7 +35,9 @@ file:
                               - start_bracket: (
                               - expression:
                                   literal: "'01 July'"
-                                  binary_operator: '||'
+                                  binary_operator:
+                                  - pipe: '|'
+                                  - pipe: '|'
                                   function:
                                     function_name:
                                       function_name_identifier: extract

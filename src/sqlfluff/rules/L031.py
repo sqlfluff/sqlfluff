@@ -5,7 +5,11 @@ from typing import Generator, NamedTuple, Optional
 
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
-from sqlfluff.core.rules.doc_decorators import document_fix_compatible
+from sqlfluff.core.rules.doc_decorators import (
+    document_configuration,
+    document_fix_compatible,
+)
+
 import sqlfluff.core.rules.functional.segment_predicates as sp
 
 
@@ -19,6 +23,7 @@ class TableAliasInfo(NamedTuple):
 
 
 @document_fix_compatible
+@document_configuration
 class Rule_L031(BaseRule):
     """Avoid table aliases in from clauses and join conditions.
 
@@ -32,6 +37,11 @@ class Rule_L031(BaseRule):
 
        This rule is controversial and for many larger databases avoiding alias is
        neither realistic nor desirable. In this case this rule should be disabled.
+
+       This rule is disabled by default for BigQuery due to the complexity of
+       backtick requirements and determining whether a name refers to a project
+       or dataset, and automated fixes can potentially break working SQL code..
+       It can be enabled with the ``force_enable = True`` flag.
 
     **Anti-pattern**
 
@@ -71,12 +81,33 @@ class Rule_L031(BaseRule):
 
     """
 
+    config_keywords = ["force_enable"]
+    _dialects_disabled_by_default = ["bigquery"]
+
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Identify aliases in from clause and join conditions.
 
         Find base table, table expressions in join, and other expressions in select
         clause and decide if it's needed to report them.
         """
+        # Config type hints
+        self.force_enable: bool
+
+        # Issue 2810: BigQuery has some tricky expectations (apparently not
+        # documented, but subject to change, e.g.:
+        # https://www.reddit.com/r/bigquery/comments/fgk31y/new_in_bigquery_no_more_backticks_around_table/)
+        # about whether backticks are required (and whether the query is valid
+        # or not, even with them), depending on whether the GCP project name is
+        # present, or just the dataset name. Since SQLFluff doesn't have access
+        # to BigQuery when it is looking at the query, it would be complex for
+        # this rule to do the right thing. For now, the rule simply disables
+        # itself.
+        if (
+            context.dialect.name in self._dialects_disabled_by_default
+            and not self.force_enable
+        ):
+            return LintResult()
+
         if context.segment.is_type("select_statement"):
             children = context.functional.segment.children()
             from_clause_segment = children.select(sp.is_type("from_clause")).first()

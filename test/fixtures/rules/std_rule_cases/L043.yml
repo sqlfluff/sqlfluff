@@ -97,6 +97,16 @@ test_pass_case_cannot_be_reduced_12:
             when coalesce(field_2, field_3) is null then 1 else 0
         end as field_4
     from my_table;
+test_pass_case_cannot_be_reduced_13:
+  pass_str: |
+    SELECT
+        CASE
+            WHEN item.submitted_timestamp IS NOT NULL
+            THEN item.sitting_id
+        END
+  configs:
+    core:
+      dialect: postgres
 test_fail_unnecessary_case_1:
   fail_str: |
     select

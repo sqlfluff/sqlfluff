@@ -54,7 +54,7 @@ jobs:
         pip install .
     - name: Run the tests
       run: |
-        tox -e ruleslinting
+        tox -e ruleslinting -- -n 2 test
   python-version-tests:
     runs-on: ubuntu-latest
     strategy:
@@ -70,14 +70,9 @@ jobs:
     - name: Install dependencies
       run: |
         pip install tox
-    - name: Set Tox Python Param
-      run: |
-        echo 'TOXENV<<EOF' >> $GITHUB_ENV
-        echo "${{ matrix.python-version }}" | sed "s/\.//" | sed "s/^/py/" >> $GITHUB_ENV
-        echo 'EOF' >> $GITHUB_ENV
     - name: Run the tests
       run: |
-        tox -e ${{ env.TOXENV }} -- -n 2 test
+        tox -e py -- -n 2 test
     - name: Upload Coverage Report
       uses: codecov/codecov-action@v1
       with:
@@ -97,14 +92,11 @@ jobs:
     - name: Install dependencies
       run: |
         pip install tox
-    - name: Set Tox Params
-      run: |
-        echo "TOXENV=${{ matrix.jobs }}" >> $GITHUB_ENV
     - name: Run the tests
       env:
         SQLFLUFF_BENCHMARK_API_KEY: ${{ secrets.SQLFLUFF_BENCHMARK_API_KEY }}
       run: |
-        tox -e ${{ env.TOXENV }}
+        tox -e ${{ matrix.jobs }}
   examples:
     runs-on: ubuntu-latest
     name: example tests

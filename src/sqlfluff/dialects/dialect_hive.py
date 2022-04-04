@@ -1,6 +1,7 @@
 """The Hive dialect."""
 
 from sqlfluff.core.parser import (
+    AnyNumberOf,
     BaseSegment,
     Sequence,
     Ref,
@@ -20,6 +21,7 @@ from sqlfluff.dialects.dialect_hive_keywords import (
     RESERVED_KEYWORDS,
     UNRESERVED_KEYWORDS,
 )
+from sqlfluff.dialects import dialect_ansi as ansi
 
 ansi_dialect = load_raw_dialect("ansi")
 hive_dialect = ansi_dialect.copy_as("hive")
@@ -133,15 +135,26 @@ hive_dialect.add(
 
 # https://cwiki.apache.org/confluence/display/hive/languagemanual+joins
 hive_dialect.replace(
-    JoinKeywords=Sequence(Sequence("SEMI", optional=True), "JOIN"),
+    JoinKeywordsGrammar=Sequence(Sequence("SEMI", optional=True), "JOIN"),
     QuotedLiteralSegment=OneOf(
         NamedParser("single_quote", CodeSegment, name="quoted_literal", type="literal"),
         NamedParser("double_quote", CodeSegment, name="quoted_literal", type="literal"),
     ),
+    LiteralGrammar=OneOf(
+        Ref("QuotedLiteralSegment"),
+        Ref("NumericLiteralSegment"),
+        Ref("BooleanLiteralGrammar"),
+        Ref("QualifiedNumericLiteralSegment"),
+        # NB: Null is included in the literals, because it is a keyword which
+        # can otherwise be easily mistaken for an identifier.
+        Ref("NullLiteralSegment"),
+        Ref("DateTimeLiteralGrammar"),
+        Sequence(Ref("SimpleArrayTypeGrammar"), Ref("ArrayLiteralSegment")),
+    ),
+    SimpleArrayTypeGrammar=Ref.keyword("ARRAY"),
 )
 
 
-@hive_dialect.segment(replace=True)
 class CreateDatabaseStatementSegment(BaseSegment):
     """A `CREATE DATABASE` statement."""
 
@@ -160,7 +173,6 @@ class CreateDatabaseStatementSegment(BaseSegment):
     )
 
 
-@hive_dialect.segment(replace=True)
 class CreateTableStatementSegment(BaseSegment):
     """A `CREATE TABLE` statement.
 
@@ -265,7 +277,6 @@ class CreateTableStatementSegment(BaseSegment):
     )
 
 
-@hive_dialect.segment()
 class PrimitiveTypeSegment(BaseSegment):
     """Primitive data types."""
 
@@ -294,10 +305,10 @@ class PrimitiveTypeSegment(BaseSegment):
         "DATE",
         "VARCHAR",
         "CHAR",
+        "JSON",
     )
 
 
-@hive_dialect.segment(replace=True)
 class DatatypeSegment(BaseSegment):
     """Data types."""
 
@@ -350,10 +361,20 @@ class DatatypeSegment(BaseSegment):
                 bracket_type="angle",
             ),
         ),
+        # array types
+        OneOf(
+            AnyNumberOf(
+                Bracketed(
+                    Ref("ExpressionSegment", optional=True), bracket_type="square"
+                )
+            ),
+            Ref("SimpleArrayTypeGrammar"),
+            Sequence(Ref("SimpleArrayTypeGrammar"), Ref("ArrayLiteralSegment")),
+            optional=True,
+        ),
     )
 
 
-@hive_dialect.segment()
 class SkewedByClauseSegment(BaseSegment):
     """`SKEWED BY` clause in a CREATE / ALTER statement."""
 
@@ -374,7 +395,6 @@ class SkewedByClauseSegment(BaseSegment):
     )
 
 
-@hive_dialect.segment()
 class RowFormatClauseSegment(BaseSegment):
     """`ROW FORMAT` clause in a CREATE statement."""
 
@@ -411,7 +431,6 @@ class RowFormatClauseSegment(BaseSegment):
     )
 
 
-@hive_dialect.segment()
 class AlterDatabaseStatementSegment(BaseSegment):
     """An `ALTER DATABASE/SCHEMA` statement."""
 
@@ -434,7 +453,6 @@ class AlterDatabaseStatementSegment(BaseSegment):
     )
 
 
-@hive_dialect.segment(replace=True)
 class DropTableStatementSegment(BaseSegment):
     """A `DROP TABLE` statement."""
 
@@ -448,7 +466,6 @@ class DropTableStatementSegment(BaseSegment):
     )
 
 
-@hive_dialect.segment(replace=True)
 class TruncateStatementSegment(BaseSegment):
     """`TRUNCATE TABLE` statement."""
 
@@ -463,11 +480,10 @@ class TruncateStatementSegment(BaseSegment):
     )
 
 
-@hive_dialect.segment(replace=True)
-class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: ignore
+class StatementSegment(ansi.StatementSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
 
-    parse_grammar = ansi_dialect.get_segment("StatementSegment").parse_grammar.copy(
+    parse_grammar = ansi.StatementSegment.parse_grammar.copy(
         insert=[
             Ref("AlterDatabaseStatementSegment"),
             Ref("MsckRepairTableStatementSegment"),
@@ -482,9 +498,9 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             Ref("DropModelStatementSegment"),
         ],
     )
+    match_grammar = ansi.StatementSegment.match_grammar
 
 
-@hive_dialect.segment(replace=True)
 class InsertStatementSegment(BaseSegment):
     """An `INSERT` statement.
 
@@ -531,7 +547,6 @@ class InsertStatementSegment(BaseSegment):
     )
 
 
-@hive_dialect.segment(replace=True)
 class IntervalExpressionSegment(BaseSegment):
     """An interval expression segment.
 
@@ -556,7 +571,6 @@ class IntervalExpressionSegment(BaseSegment):
     )
 
 
-@hive_dialect.segment()
 class MsckRepairTableStatementSegment(BaseSegment):
     """An `MSCK REPAIR TABLE`statement.
 
@@ -590,7 +604,6 @@ class MsckRepairTableStatementSegment(BaseSegment):
     )
 
 
-@hive_dialect.segment()
 class MsckTableStatementSegment(BaseSegment):
     """An `MSCK TABLE`statement.
 
@@ -618,5 +631,83 @@ class MsckTableStatementSegment(BaseSegment):
             ),
             "PARTITIONS",
             optional=True,
+        ),
+    )
+
+
+class FunctionSegment(BaseSegment):
+    """A scalar or aggregate function.
+
+    Extended version of `ansi` to add support of row typecasting
+    https://prestodb.io/docs/current/language/types.html#row
+    ```
+    cast(row(val1, val2) as row(a integer, b integer))
+    ```
+    """
+
+    type = "function"
+    match_grammar = OneOf(
+        Sequence(
+            # Treat functions which take date parts separately
+            # So those functions parse date parts as DatetimeUnitSegment
+            # rather than identifiers.
+            Sequence(
+                Ref("DatePartFunctionNameSegment"),
+                Bracketed(
+                    Delimited(
+                        Ref("DatetimeUnitSegment"),
+                        Ref(
+                            "FunctionContentsGrammar",
+                            # The brackets might be empty for some functions...
+                            optional=True,
+                            ephemeral_name="FunctionContentsGrammar",
+                        ),
+                    )
+                ),
+            ),
+        ),
+        Sequence(
+            # This unusual syntax is used to cast the Keyword ROW to
+            # to the function_name to avoid rule linting exceptions
+            StringParser("ROW", KeywordSegment, type="function_name"),
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        Ref("BaseExpressionElementGrammar"),
+                    ),
+                ),
+            ),
+            "AS",
+            "ROW",
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        Ref("SingleIdentifierGrammar"),
+                        Ref("DatatypeSegment", optional=True),
+                    ),
+                ),
+            ),
+        ),
+        Sequence(
+            Sequence(
+                AnyNumberOf(
+                    Ref("FunctionNameSegment"),
+                    max_times=1,
+                    min_times=1,
+                    exclude=OneOf(
+                        Ref("DatePartFunctionNameSegment"),
+                        Ref("ValuesClauseSegment"),
+                    ),
+                ),
+                Bracketed(
+                    Ref(
+                        "FunctionContentsGrammar",
+                        # The brackets might be empty for some functions...
+                        optional=True,
+                        ephemeral_name="FunctionContentsGrammar",
+                    )
+                ),
+            ),
+            Ref("PostFunctionGrammar", optional=True),
         ),
     )

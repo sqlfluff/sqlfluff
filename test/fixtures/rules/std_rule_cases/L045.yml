@@ -213,7 +213,7 @@ test_pass_exasol_values_clause_cte_2:
     core:
       dialect: exasol
 
-test_pass_spark3_values_clause_cte_1:
+test_pass_sparksql_values_clause_cte_1:
   pass_str: |
     WITH txt AS (
         VALUES (1)
@@ -224,9 +224,9 @@ test_pass_spark3_values_clause_cte_1:
     FROM txt
   configs:
     core:
-      dialect: spark3
+      dialect: sparksql
 
-test_pass_spark3_values_clause_cte_2:
+test_pass_sparksql_values_clause_cte_2:
   pass_str: |
     WITH txt AS (
         VALUES (1, 'foo')
@@ -237,7 +237,7 @@ test_pass_spark3_values_clause_cte_2:
     FROM txt
   configs:
     core:
-      dialect: spark3
+      dialect: sparksql
 
 test_fail_query_uses_templating:
   fail_str: |

@@ -5,6 +5,7 @@ from typing import List, NamedTuple, Optional
 from sqlfluff.core.parser import WhitespaceSegment
 
 from sqlfluff.core.parser import BaseSegment, NewlineSegment
+from sqlfluff.core.parser.segments.base import IdentitySet
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 from sqlfluff.core.rules.functional import Segments
@@ -254,6 +255,7 @@ class Rule_L036(BaseRule):
 
                     def _fixes_for_move_after_select_clause(
                         stop_seg: BaseSegment,
+                        delete_segments: Optional[Segments] = None,
                         add_newline: bool = True,
                     ) -> List[LintFix]:
                         """Cleans up by moving leftover select_clause segments.
@@ -277,10 +279,25 @@ class Rule_L036(BaseRule):
                             start_seg=start_seg,
                             stop_seg=stop_seg,
                         )
-                        fixes = [
-                            LintFix.delete(seg) for seg in move_after_select_clause
+                        # :TRICKY: Below, we have a couple places where we
+                        # filter to guard against deleting the same segment
+                        # multiple times -- this is illegal.
+                        # :TRICKY: Use IdentitySet rather than set() since
+                        # different segments may compare as equal.
+                        all_deletes = IdentitySet(
+                            fix.anchor for fix in fixes if fix.edit_type == "delete"
+                        )
+                        fixes_ = []
+                        for seg in delete_segments or []:
+                            if seg not in all_deletes:
+                                fixes.append(LintFix.delete(seg))
+                                all_deletes.add(seg)
+                        fixes_ += [
+                            LintFix.delete(seg)
+                            for seg in move_after_select_clause
+                            if seg not in all_deletes
                         ]
-                        fixes.append(
+                        fixes_.append(
                             LintFix.create_after(
                                 self._choose_anchor_segment(
                                     context,
@@ -292,7 +309,7 @@ class Rule_L036(BaseRule):
                                 + list(move_after_select_clause),
                             )
                         )
-                        return fixes
+                        return fixes_
 
                     if select_stmt.segments[after_select_clause_idx].is_type("newline"):
                         # Since we're deleting the newline, we should also delete all
@@ -304,34 +321,33 @@ class Rule_L036(BaseRule):
                             loop_while=sp.is_type("whitespace"),
                             start_seg=select_children[start_idx],
                         )
-                        fixes += [LintFix.delete(seg) for seg in to_delete]
+                        if to_delete:
+                            # The select_clause is immediately followed by a
+                            # newline. Delete the newline in order to avoid leaving
+                            # behind an empty line after fix, *unless* we stopped
+                            # due to something other than a newline.
+                            delete_last_newline = select_children[
+                                start_idx - len(to_delete) - 1
+                            ].is_type("newline")
 
-                        # The select_clause is immediately followed by a
-                        # newline. Delete the newline in order to avoid leaving
-                        # behind an empty line after fix, *unless* we stopped
-                        # due to something other than a newline.
-                        delete_last_newline = select_children[
-                            start_idx - len(to_delete) - 1
-                        ].is_type("newline")
-
-                        # Delete the newline if we decided to.
-                        if delete_last_newline:
-                            fixes.append(
-                                LintFix.delete(
-                                    select_stmt.segments[after_select_clause_idx],
+                            # Delete the newline if we decided to.
+                            if delete_last_newline:
+                                fixes.append(
+                                    LintFix.delete(
+                                        select_stmt.segments[after_select_clause_idx],
+                                    )
                                 )
-                            )
 
-                        fixes += _fixes_for_move_after_select_clause(
-                            to_delete[-1],
-                        )
+                            fixes += _fixes_for_move_after_select_clause(
+                                to_delete[-1], to_delete
+                            )
                     elif select_stmt.segments[after_select_clause_idx].is_type(
                         "whitespace"
                     ):
                         # The select_clause has stuff after (most likely a comment)
                         # Delete the whitespace immediately after the select clause
                         # so the other stuff aligns nicely based on where the select
-                        # clause started
+                        # clause started.
                         fixes += [
                             LintFix.delete(
                                 select_stmt.segments[after_select_clause_idx],
@@ -352,11 +368,10 @@ class Rule_L036(BaseRule):
                             loop_while=sp.is_type("whitespace"),
                             start_seg=select_children[select_clause_idx - 1],
                         )
-                        fixes += [LintFix.delete(seg) for seg in to_delete]
-
                         if to_delete:
                             fixes += _fixes_for_move_after_select_clause(
                                 to_delete[-1],
+                                to_delete,
                                 # If we deleted a newline, create a newline.
                                 any(seg for seg in to_delete if seg.is_type("newline")),
                             )

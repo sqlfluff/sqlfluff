@@ -63,85 +63,10 @@ test_pass_date_part_consistent_capitalisation:
   # Test that correctly capitalized time units are left unchanged
   pass_str: SELECT dt + INTERVAL 2 DAY, INTERVAL 3 HOUR
 
-test_fail_data_type_inconsistent_capitalisation_1:
+
+test_pass_data_type_inconsistent_capitalisation:
   # Test that we don't have the "inconsistent" bug
-  fail_str: CREATE TABLE table1 (account_id BiGinT);
-  fix_str: CREATE TABLE table1 (account_id BIGINT);
-  configs:
-    rules:
-      L010:
-        capitalisation_policy: upper
-
-test_fail_data_type_inconsistent_capitalisation_2:
-  fail_str: CREATE TABLE table1 (account_id BiGinT);
-  fix_str: create table table1 (account_id bigint);
-  configs:
-    rules:
-      L010:
-        capitalisation_policy: lower
-
-test_fail_data_type_inconsistent_capitalisation_3:
-  fail_str: CREATE TABLE table1 (account_id BiGinT);
-  fix_str: Create Table table1 (account_id Bigint);
-  configs:
-    rules:
-      L010:
-        capitalisation_policy: capitalise
-
-test_fail_data_type_capitalisation_policy_lower:
-  fail_str: CREATE TABLE table1 (account_id BIGINT);
-  fix_str: create table table1 (account_id bigint);
-  configs:
-    rules:
-      L010:
-        capitalisation_policy: lower
-
-test_fail_data_type_capitalisation_policy_lower_2:
-  fail_str: CREATE TABLE table1 (account_id BIGINT, column_two varchar(255));
-  fix_str: create table table1 (account_id bigint, column_two varchar(255));
-  configs:
-    rules:
-      L010:
-        capitalisation_policy: lower
-
-test_fail_data_type_capitalisation_policy_upper:
-  fail_str: CREATE TABLE table1 (account_id bigint);
-  fix_str: CREATE TABLE table1 (account_id BIGINT);
-  configs:
-    rules:
-      L010:
-        capitalisation_policy: upper
-
-test_fail_data_type_capitalisation_policy_upper_2:
-  fail_str: CREATE TABLE table1 (account_id BIGINT, column_two varchar(255));
-  fix_str: CREATE TABLE table1 (account_id BIGINT, column_two VARCHAR(255));
-  configs:
-    rules:
-      L010:
-        capitalisation_policy: upper
-
-test_fail_data_type_capitalisation_policy_capitalise:
-  # Test for capitalised casing
-  fail_str: CREATE TABLE table1 (account_id BIGINT);
-  fix_str: Create Table table1 (account_id Bigint);
-  configs:
-    rules:
-      L010:
-        capitalisation_policy: capitalise
-
-test_fail_data_type_capitalisation_policy_keywords_1:
-  # Test cases where data types are keywords, not data_type_identifiers
-  # See: https://github.com/sqlfluff/sqlfluff/pull/2121
-  fail_str: CREATE TABLE table1 (account_id BIGINT, column_two timestamp);
-  fix_str: CREATE TABLE table1 (account_id BIGINT, column_two TIMESTAMP);
-  configs:
-    rules:
-      L010:
-        capitalisation_policy: upper
-
-test_fail_data_type_capitalisation_policy_keywords_2:
-  fail_str: CREATE TABLE table1 (account_id BIGINT, column_two timestamp with time zone);
-  fix_str: CREATE TABLE table1 (account_id BIGINT, column_two TIMESTAMP WITH TIME ZONE);
+  pass_str: CREATE TABLE table1 (account_id bigint);
   configs:
     rules:
       L010:
@@ -199,3 +124,21 @@ test_fail_snowflake_group_by_cube:
     rules:
       L010:
         capitalisation_policy: upper
+
+test_pass_ignore_null:
+  pass_str: |
+    SELECT null
+    FROM foo
+    WHERE 1
+
+test_pass_ignore_true:
+  pass_str: |
+    SELECT true
+    FROM foo
+    WHERE 1
+
+test_pass_ignore_false:
+  pass_str: |
+    SELECT false
+    FROM foo
+    WHERE 1

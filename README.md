@@ -28,7 +28,7 @@ Although SQL is reasonably consistent in its implementations, there are several 
 - [PostgreSQL](https://www.postgresql.org/) (aka Postgres)
 - [Redshift](https://docs.aws.amazon.com/redshift/index.html)
 - [Snowflake](https://www.snowflake.com/)
-- [Spark3](https://spark.apache.org/docs/latest/)
+- [SparkSQL](https://spark.apache.org/docs/latest/)
 - [SQLite](https://www.sqlite.org/)
 - [Teradata](https://www.teradata.com/)
 - [Transact-SQL](https://docs.microsoft.com/en-us/sql/t-sql/language-reference) (aka T-SQL)

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 19ab0b5dc237e58df14d877fba3e66305f3d2804ae44cfeb0211b45041055ed6
+_hash: 340f50dbfcd1cb7d9b26229abdf4db3a586b20f0c4071a3bdb24e89a3cc77a5f
 file:
 - statement:
     create_table_as_statement:
@@ -454,33 +454,30 @@ file:
       - end_bracket: )
     - keyword: AS
     - values_clause:
-        keyword: VALUES
-        delimited_values:
-        - tuple_value:
-            bracketed:
-            - start_bracket: (
-            - scalar_value:
-                literal: "'val1'"
-            - comma: ','
-            - scalar_value:
-                literal: "'val2'"
-            - comma: ','
-            - scalar_value:
-                literal: "'val3'"
-            - end_bracket: )
+      - keyword: VALUES
+      - bracketed:
+        - start_bracket: (
+        - expression:
+            literal: "'val1'"
         - comma: ','
-        - tuple_value:
-            bracketed:
-            - start_bracket: (
-            - scalar_value:
-                literal: "'val4'"
-            - comma: ','
-            - scalar_value:
-                literal: "'val5'"
-            - comma: ','
-            - scalar_value:
-                literal: "'val6'"
-            - end_bracket: )
+        - expression:
+            literal: "'val2'"
+        - comma: ','
+        - expression:
+            literal: "'val3'"
+        - end_bracket: )
+      - comma: ','
+      - bracketed:
+        - start_bracket: (
+        - expression:
+            literal: "'val4'"
+        - comma: ','
+        - expression:
+            literal: "'val5'"
+        - comma: ','
+        - expression:
+            literal: "'val6'"
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_as_statement:
@@ -515,7 +512,8 @@ file:
     - table_reference:
         identifier: t1
     - keyword: TABLESPACE
-    - parameter: ts
+    - tablespace_reference:
+        identifier: ts
     - keyword: AS
     - select_statement:
         select_clause:

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e0b172fdc980a67a84efa3eb8a9f2295567ab689b9cf2aefa9a3ef46913f80c7
+_hash: a8aafe431f1168b743a3407562c82fa80afaaa5c55b448ba641cd4f3258d0b3c
 file:
 - statement:
     alter_system_statement:
@@ -24,4 +24,34 @@ file:
     - comparison_operator:
         raw_comparison_operator: '='
     - literal: '1'
+- statement_terminator: ;
+- statement:
+    alter_system_statement:
+    - keyword: ALTER
+    - keyword: SYSTEM
+    - keyword: SET
+    - system_parameter: SNAPSHOT_MODE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - literal: "'SYSTEM TABLES'"
+- statement_terminator: ;
+- statement:
+    alter_system_statement:
+    - keyword: ALTER
+    - keyword: SYSTEM
+    - keyword: SET
+    - system_parameter: IDLE_TIMEOUT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - literal: '3600'
+- statement_terminator: ;
+- statement:
+    alter_system_statement:
+    - keyword: ALTER
+    - keyword: SYSTEM
+    - keyword: SET
+    - system_parameter: USER_TEMP_DB_RAM_LIMIT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - literal: "'50G'"
 - statement_terminator: ;

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0ad5cc35e1e142e2004ca5dc13465cd2802ab45b443948ff017d1357050c2340
+_hash: f2210d88d35ae39ed8fb7eb99050679868eb7992ef108bbe0f38e7335e3192de
 file:
 - statement:
     select_statement:
@@ -183,3 +183,113 @@ file:
               table_reference:
                 identifier: a
 - statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          expression:
+            column_reference:
+            - identifier: raw_data
+            - dot: .
+            - identifier: status
+            cast_expression:
+              casting_operator: '::'
+              data_type:
+                keyword: VARCHAR
+          alias_expression:
+            keyword: AS
+            identifier: status
+      - comma: ','
+      - select_clause_element:
+          expression:
+            column_reference:
+            - identifier: raw_data
+            - dot: .
+            - identifier: start
+            cast_expression:
+              casting_operator: '::'
+              data_type:
+                datetime_type_identifier:
+                  keyword: TIMESTAMPTZ
+                time_zone_grammar:
+                - keyword: AT
+                - keyword: TIME
+                - keyword: ZONE
+                - literal: "'UTC'"
+          alias_expression:
+            keyword: AS
+            identifier: started_at
+      - comma: ','
+      - select_clause_element:
+          expression:
+            column_reference:
+            - identifier: raw_data
+            - dot: .
+            - identifier: '"end"'
+            cast_expression:
+              casting_operator: '::'
+              data_type:
+                datetime_type_identifier:
+                  keyword: TIMESTAMPTZ
+                time_zone_grammar:
+                - keyword: AT
+                - keyword: TIME
+                - keyword: ZONE
+                - literal: "'UTC'"
+          alias_expression:
+            keyword: AS
+            identifier: ended_at
+      - comma: ','
+      - select_clause_element:
+          expression:
+            column_reference:
+            - identifier: raw_data
+            - dot: .
+            - identifier: created
+            cast_expression:
+              casting_operator: '::'
+              data_type:
+                datetime_type_identifier:
+                  keyword: TIMESTAMPTZ
+                time_zone_grammar:
+                - keyword: AT
+                - keyword: TIME
+                - keyword: ZONE
+                - literal: "'UTC'"
+          alias_expression:
+            keyword: AS
+            identifier: created_at
+      - comma: ','
+      - select_clause_element:
+          expression:
+            column_reference:
+            - identifier: raw_data
+            - dot: .
+            - identifier: identifier
+            - array_accessor:
+                start_square_bracket: '['
+                literal: '0'
+                end_square_bracket: ']'
+            - dot: .
+            - identifier: value
+            cast_expression:
+              casting_operator: '::'
+              data_type:
+                keyword: VARCHAR
+          alias_expression:
+            keyword: AS
+            identifier: communication_request_fhir_reference_origin
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - identifier: extension_extraction
+          - dot: .
+          - identifier: database_reference
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: raw_data
