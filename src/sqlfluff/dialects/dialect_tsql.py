@@ -2652,6 +2652,33 @@ class FromClauseSegment(BaseSegment):
     get_eventual_aliases = ansi.FromClauseSegment.get_eventual_aliases
 
 
+class TableExpressionSegment(BaseSegment):
+    """The main table expression e.g. within a FROM clause.
+
+    In SQL standard, as well as T-SQL, table expressions (`table reference` in SQL
+    standard) can also be join tables, optionally bracketed, allowing for nested joins.
+    """
+
+    type = "table_expression"
+    match_grammar: Matchable = OneOf(
+        Ref("ValuesClauseSegment"),
+        Ref("BareFunctionSegment"),
+        Ref("FunctionSegment"),
+        Ref("TableReferenceSegment"),
+        # Nested Selects
+        Bracketed(Ref("SelectableGrammar")),
+        Bracketed(Ref("MergeStatementSegment")),
+        Bracketed(
+            Sequence(
+                Ref("TableExpressionSegment"),
+                Conditional(Dedent, indented_joins=False),
+                OneOf(Ref("JoinClauseSegment"), Ref("JoinLikeClauseGrammar")),
+                Conditional(Dedent, indented_joins=True),
+            )
+        ),
+    )
+
+
 class GroupByClauseSegment(BaseSegment):
     """A `GROUP BY` clause like in `SELECT`.
 
