@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e01077856e2688a875954ec5d188a6025f348a76bce33887fd715006b2ebd5f2
+_hash: 1b53a3d9be4db4070f7a33c5c38026fecd81d53186618eb59096b3bbb3fe2394
 file:
-  batch:
+- batch:
     statement:
       create_function_statement:
       - keyword: CREATE
@@ -288,5 +288,35 @@ file:
                   statement_terminator: ;
             - keyword: END
           statement_terminator: ;
-  go_statement:
+- go_statement:
     keyword: GO
+- batch:
+    statement:
+      create_function_statement:
+      - keyword: CREATE
+      - keyword: FUNCTION
+      - object_reference:
+          identifier: F
+      - function_parameter_list:
+          bracketed:
+            start_bracket: (
+            parameter: '@DATE'
+            keyword: as
+            data_type:
+              data_type_identifier: datetime
+            end_bracket: )
+      - keyword: RETURNS
+      - data_type:
+          data_type_identifier: INT
+      - keyword: AS
+      - procedure_statement:
+          statement:
+            begin_end_block:
+            - keyword: BEGIN
+            - statement:
+                return_segment:
+                  keyword: RETURN
+                  expression:
+                    literal: '0'
+            - keyword: END
+          statement_terminator: ;
