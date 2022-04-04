@@ -2835,7 +2835,7 @@ class SetClauseSegment(BaseSegment):
 
     match_grammar = Sequence(
         Ref("ColumnReferenceSegment"),
-        Ref("EqualsSegment"),
+        Ref("AssignmentOperatorSegment"),
         Ref("ExpressionSegment"),
     )
 
