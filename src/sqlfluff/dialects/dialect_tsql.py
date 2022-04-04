@@ -2583,16 +2583,19 @@ class FileSegment(BaseFileSegment):
 
     # NB: We don't need a match_grammar here because we're
     # going straight into instantiating it directly usually.
-    parse_grammar = Delimited(
-        Ref("BatchSegment"),
-        delimiter=AnyNumberOf(
-            Sequence(
-                Ref("DelimiterGrammar", optional=True), Ref("BatchDelimiterGrammar")
+    parse_grammar = Sequence(
+        AnyNumberOf(Ref("BatchDelimiterGrammar")),
+        Delimited(
+            Ref("BatchSegment"),
+            delimiter=AnyNumberOf(
+                Sequence(
+                    Ref("DelimiterGrammar", optional=True), Ref("BatchDelimiterGrammar")
+                ),
+                min_times=1,
             ),
-            min_times=1,
+            allow_gaps=True,
+            allow_trailing=True,
         ),
-        allow_gaps=True,
-        allow_trailing=True,
     )
 
 
