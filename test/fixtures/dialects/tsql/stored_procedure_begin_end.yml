@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 950bd695b0c4e3121a707909132e1702ff0e3899bfd13fa525d2cf4de5576191
+_hash: 43c8fe22e411c3db9e03a91c9af332ac51bbccf66cf468191b0afc271161e461
 file:
 - batch:
     create_procedure_statement:
@@ -214,8 +214,9 @@ file:
                   set_segment:
                     keyword: SET
                     parameter: '@v_nSysErrorNum'
-                    comparison_operator:
-                      raw_comparison_operator: '='
+                    assignment_operator:
+                      comparison_operator:
+                        raw_comparison_operator: '='
                     expression:
                       function:
                         function_name:
@@ -228,8 +229,9 @@ file:
                   set_segment:
                     keyword: SET
                     parameter: '@v_vchCode'
-                    comparison_operator:
-                      raw_comparison_operator: '='
+                    assignment_operator:
+                      comparison_operator:
+                        raw_comparison_operator: '='
                     expression:
                       function:
                         function_name:
@@ -242,8 +244,9 @@ file:
                   set_segment:
                     keyword: SET
                     parameter: '@v_vchMsg'
-                    comparison_operator:
-                      raw_comparison_operator: '='
+                    assignment_operator:
+                      comparison_operator:
+                        raw_comparison_operator: '='
                     expression:
                       literal: "N'Missing control type.'"
                     statement_terminator: ;
@@ -251,8 +254,9 @@ file:
                   set_segment:
                     keyword: SET
                     parameter: '@v_vchMsg'
-                    comparison_operator:
-                      raw_comparison_operator: '='
+                    assignment_operator:
+                      comparison_operator:
+                        raw_comparison_operator: '='
                     expression:
                     - parameter: '@v_vchMsg'
                     - binary_operator: +

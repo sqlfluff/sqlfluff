@@ -3,10 +3,10 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c1b816e2107af6d327250f3dd97ca6d0f54e0d80d5fada0fd553fe8cc3b53249
+_hash: 266ad1644265754848038924e3318a4868944486cb5e799e2322c2a3e8276bcf
 file:
   batch:
-    statement:
+  - statement:
       update_statement:
         keyword: update
         table_reference:
@@ -18,8 +18,9 @@ file:
           set_clause:
             column_reference:
               identifier: '[Flg]'
-            comparison_operator:
-              raw_comparison_operator: '='
+            assignment_operator:
+              comparison_operator:
+                raw_comparison_operator: '='
             expression:
               literal: '1'
         where_clause:
@@ -59,3 +60,51 @@ file:
               literal: "'Cases'"
             end_bracket: )
         statement_terminator: ;
+  - statement:
+      update_statement:
+        keyword: update
+        table_reference:
+          identifier: tt
+        set_clause_list:
+          keyword: set
+          set_clause:
+            column_reference:
+            - identifier: tt
+            - dot: .
+            - identifier: rn
+            assignment_operator:
+              binary_operator: +
+              comparison_operator:
+                raw_comparison_operator: '='
+            expression:
+              literal: '1'
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: table1
+              alias_expression:
+                keyword: as
+                identifier: tt
+            join_clause:
+              keyword: join
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    identifier: src
+              join_on_condition:
+                keyword: 'on'
+                expression:
+                - column_reference:
+                  - identifier: tt
+                  - dot: .
+                  - identifier: _id
+                - comparison_operator:
+                    raw_comparison_operator: '='
+                - column_reference:
+                  - identifier: src
+                  - dot: .
+                  - identifier: _id
+          statement_terminator: ;
