@@ -37,7 +37,7 @@ def normalise_paths(paths):
 
 def test__linter__path_from_paths__dir():
     """Test extracting paths from directories."""
-    lntr = Linter()
+    lntr = Linter(dialect="ansi")
     paths = lntr.paths_from_path("test/fixtures/lexer")
     assert normalise_paths(paths) == {
         "test.fixtures.lexer.block_comment.sql",
@@ -48,7 +48,7 @@ def test__linter__path_from_paths__dir():
 
 def test__linter__path_from_paths__default():
     """Test .sql files are found by default."""
-    lntr = Linter()
+    lntr = Linter(dialect="ansi")
     paths = normalise_paths(lntr.paths_from_path("test/fixtures/linter"))
     assert "test.fixtures.linter.passing.sql" in paths
     assert "test.fixtures.linter.passing_cap_extension.SQL" in paths
@@ -57,7 +57,9 @@ def test__linter__path_from_paths__default():
 
 def test__linter__path_from_paths__exts():
     """Test configuration of file discovery."""
-    lntr = Linter(config=FluffConfig(overrides={"sql_file_exts": ".txt"}))
+    lntr = Linter(
+        config=FluffConfig(overrides={"sql_file_exts": ".txt", "dialect": "ansi"})
+    )
     paths = normalise_paths(lntr.paths_from_path("test/fixtures/linter"))
     assert "test.fixtures.linter.passing.sql" not in paths
     assert "test.fixtures.linter.passing_cap_extension.SQL" not in paths
@@ -66,28 +68,28 @@ def test__linter__path_from_paths__exts():
 
 def test__linter__path_from_paths__file():
     """Test extracting paths from a file path."""
-    lntr = Linter()
+    lntr = Linter(dialect="ansi")
     paths = lntr.paths_from_path("test/fixtures/linter/indentation_errors.sql")
     assert normalise_paths(paths) == {"test.fixtures.linter.indentation_errors.sql"}
 
 
 def test__linter__path_from_paths__not_exist():
     """Test extracting paths from a file path."""
-    lntr = Linter()
+    lntr = Linter(dialect="ansi")
     with pytest.raises(IOError):
         lntr.paths_from_path("asflekjfhsakuefhse")
 
 
 def test__linter__path_from_paths__not_exist_ignore():
     """Test extracting paths from a file path."""
-    lntr = Linter()
+    lntr = Linter(dialect="ansi")
     paths = lntr.paths_from_path("asflekjfhsakuefhse", ignore_non_existent_files=True)
     assert len(paths) == 0
 
 
 def test__linter__path_from_paths__explicit_ignore():
     """Test ignoring files that were passed explicitly."""
-    lntr = Linter()
+    lntr = Linter(dialect="ansi")
     paths = lntr.paths_from_path(
         "test/fixtures/linter/sqlfluffignore/path_a/query_a.sql",
         ignore_non_existent_files=True,
@@ -102,7 +104,7 @@ def test__linter__path_from_paths__sqlfluffignore_current_directory():
     oldcwd = os.getcwd()
     try:
         os.chdir("test/fixtures/linter/sqlfluffignore")
-        lntr = Linter()
+        lntr = Linter(dialect="ansi")
         paths = lntr.paths_from_path(
             "path_a/",
             ignore_non_existent_files=True,
@@ -116,7 +118,7 @@ def test__linter__path_from_paths__sqlfluffignore_current_directory():
 
 def test__linter__path_from_paths__dot():
     """Test extracting paths from a dot."""
-    lntr = Linter()
+    lntr = Linter(dialect="ansi")
     paths = lntr.paths_from_path(".")
     # Use set theory to check that we get AT LEAST these files
     assert normalise_paths(paths) >= {
@@ -136,7 +138,7 @@ def test__linter__path_from_paths__dot():
 )
 def test__linter__path_from_paths__ignore(path):
     """Test extracting paths from a dot."""
-    lntr = Linter()
+    lntr = Linter(dialect="ansi")
     paths = lntr.paths_from_path(path)
     # We should only get query_b, because of the sqlfluffignore files.
     assert normalise_paths(paths) == {
@@ -155,7 +157,7 @@ def test__linter__lint_string_vs_file(path):
     """Test the linter finds the same things on strings and files."""
     with open(path) as f:
         sql_str = f.read()
-    lntr = Linter()
+    lntr = Linter(dialect="ansi")
     assert (
         lntr.lint_string(sql_str).check_tuples() == lntr.lint_path(path).check_tuples()
     )
@@ -166,7 +168,7 @@ def test__linter__lint_string_vs_file(path):
 )
 def test__linter__get_violations_filter_rules(rules, num_violations):
     """Test filtering violations by which rules were violated."""
-    lntr = Linter()
+    lntr = Linter(dialect="ansi")
     lint_result = lntr.lint_string("select a, b FROM tbl c order BY d")
 
     assert len(lint_result.get_violations(rules=rules)) == num_violations
@@ -198,7 +200,7 @@ def test__linter__linting_result__combine_dicts():
 @pytest.mark.parametrize("by_path,result_type", [(False, list), (True, dict)])
 def test__linter__linting_result_check_tuples_by_path(by_path, result_type):
     """Test that a LintingResult can partition violations by the source files."""
-    lntr = Linter()
+    lntr = Linter(dialect="ansi")
     result = lntr.lint_paths(
         [
             "test/fixtures/linter/comma_errors.sql",
@@ -212,7 +214,7 @@ def test__linter__linting_result_check_tuples_by_path(by_path, result_type):
 @pytest.mark.parametrize("processes", [1, 2])
 def test__linter__linting_result_get_violations(processes):
     """Test that we can get violations from a LintingResult."""
-    lntr = Linter()
+    lntr = Linter(dialect="ansi")
     result = lntr.lint_paths(
         (
             "test/fixtures/linter/comma_errors.sql",
@@ -254,7 +256,10 @@ def test__linter__linting_parallel_thread(force_error, monkeypatch):
 
         monkeypatch.setattr(runner.MultiProcessRunner, "_create_pool", _create_pool)
 
-    lntr = Linter(formatter=CallbackFormatter(callback=lambda m: None, verbosity=0))
+    lntr = Linter(
+        formatter=CallbackFormatter(callback=lambda m: None, verbosity=0),
+        dialect="ansi",
+    )
     result = lntr.lint_paths(
         ("test/fixtures/linter/comma_errors.sql",),
         processes=2,
@@ -270,7 +275,9 @@ def test_lint_path_parallel_wrapper_exception(patched_lint):
     Test on MultiThread runner because otherwise we have pickling issues.
     """
     patched_lint.side_effect = ValueError("Something unexpected happened")
-    for result in runner.MultiThreadRunner(Linter(), FluffConfig(), processes=1).run(
+    for result in runner.MultiThreadRunner(
+        Linter(dialect="ansi"), FluffConfig(overrides={"dialect": "ansi"}), processes=1
+    ).run(
         ["test/fixtures/linter/passing.sql"],
         fix=False,
     ):
@@ -286,7 +293,7 @@ def test__linter__linting_unexpected_error_handled_gracefully(
 ):
     """Test that an unexpected internal error returns the issue-surfacing file."""
     patched_lint.side_effect = Exception("Something unexpected happened")
-    lntr = Linter()
+    lntr = Linter(dialect="ansi")
     lntr.lint_paths(("test/fixtures/linter/passing.sql",))
     assert (
         "Unable to lint test/fixtures/linter/passing.sql due to an internal error."
@@ -299,7 +306,7 @@ def test__linter__linting_unexpected_error_handled_gracefully(
 
 def test__linter__raises_malformed_noqa():
     """A badly formatted noqa gets raised as a parsing error."""
-    lntr = Linter()
+    lntr = Linter(dialect="ansi")
     result = lntr.lint_string_wrapped("select 1 --noqa missing semicolon")
 
     with pytest.raises(SQLParseError):
@@ -308,7 +315,7 @@ def test__linter__raises_malformed_noqa():
 
 def test__linter__empty_file():
     """Test linter behaves nicely with an empty string."""
-    lntr = Linter()
+    lntr = Linter(dialect="ansi")
     # Make sure no exceptions raised and no violations found in empty file.
     parsed = lntr.parse_string("")
     assert not parsed.violations
@@ -338,6 +345,7 @@ def test__linter__mask_templated_violations(ignore_templated_areas, check_tuples
             overrides={
                 "rules": "L006",
                 "ignore_templated_areas": ignore_templated_areas,
+                "dialect": "ansi",
             }
         )
     )
@@ -387,6 +395,7 @@ def test__linter__encoding(fname, config_encoding, lexerror):
             overrides={
                 "rules": "L001",
                 "encoding": config_encoding,
+                "dialect": "ansi",
             }
         )
     )
@@ -737,6 +746,7 @@ def test_linter_noqa_template_errors():
         config=FluffConfig(
             overrides={
                 "templater": "jinja",
+                "dialect": "ansi",
             }
         )
     )
@@ -751,7 +761,7 @@ where
 
 def test_linter_noqa_prs():
     """Test "noqa" feature to ignore PRS at the higher "Linter" level."""
-    lntr = Linter()
+    lntr = Linter(dialect="ansi")
     sql = "SELEC * FROM foo -- noqa: PRS\n"
     result = lntr.lint_string(sql)
     violations = result.get_violations()
@@ -764,6 +774,7 @@ def test_linter_noqa_tmp():
         config=FluffConfig(
             overrides={
                 "exclude_rules": "L050",
+                "dialect": "ansi",
             }
         )
     )
@@ -782,6 +793,7 @@ def test_linter_noqa_disable():
         config=FluffConfig(
             overrides={
                 "rules": "L012",
+                "dialect": "ansi",
             }
         )
     )
@@ -790,6 +802,7 @@ def test_linter_noqa_disable():
             overrides={
                 "disable_noqa": True,
                 "rules": "L012",
+                "dialect": "ansi",
             }
         )
     )
@@ -823,9 +836,13 @@ def test_delayed_exception():
 
 def test__attempt_to_change_templater_warning(caplog):
     """Test warning when changing templater in .sqlfluff file in subdirectory."""
-    initial_config = FluffConfig(configs={"core": {"templater": "jinja"}})
+    initial_config = FluffConfig(
+        configs={"core": {"templater": "jinja", "dialect": "ansi"}}
+    )
     lntr = Linter(config=initial_config)
-    updated_config = FluffConfig(configs={"core": {"templater": "python"}})
+    updated_config = FluffConfig(
+        configs={"core": {"templater": "python", "dialect": "ansi"}}
+    )
     logger = logging.getLogger("sqlfluff")
     original_propagate_value = logger.propagate
     try:
@@ -910,7 +927,7 @@ def test_advanced_api_methods():
     FROM cte
     INNER JOIN tab_b;
     """
-    linter = Linter()
+    linter = Linter(dialect="ansi")
     parsed = linter.parse_string(sql)
 
     # CTEDefinitionSegment.get_identifier
