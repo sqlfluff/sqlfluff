@@ -18,3 +18,14 @@ SET @param1 = "test, test",
 SET @param1 = ("test", "test"),
     @param2 = 2
 ;
+
+-- Assignment operators
+SET @param1 += 1,
+    @param2 -= 2,
+    @param3 *= 3,
+    @param4 /= 4,
+    @param5 %= 5,
+    @param5 ^= 6,
+    @param5 &= 7,
+    @param5 |= 8
+;

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: be9458cab507215616ce34e6f09fe4ce3e75886bbfd9b590323d79dd9cd66f2c
+_hash: aa3522bdae5fe9b0041c0c9ba130967fed8399855fb5e1274a9de55f0940ff66
 file:
   batch:
   - statement:
@@ -19,8 +19,9 @@ file:
       set_segment:
         keyword: SET
         parameter: '@param1'
-        comparison_operator:
-          raw_comparison_operator: '='
+        assignment_operator:
+          comparison_operator:
+            raw_comparison_operator: '='
         expression:
           literal: '1'
         statement_terminator: ;
@@ -28,14 +29,16 @@ file:
       set_segment:
       - keyword: SET
       - parameter: '@param1'
-      - comparison_operator:
-          raw_comparison_operator: '='
+      - assignment_operator:
+          comparison_operator:
+            raw_comparison_operator: '='
       - expression:
           literal: '1'
       - comma: ','
       - parameter: '@param2'
-      - comparison_operator:
-          raw_comparison_operator: '='
+      - assignment_operator:
+          comparison_operator:
+            raw_comparison_operator: '='
       - expression:
           literal: '2'
       - statement_terminator: ;
@@ -43,15 +46,17 @@ file:
       set_segment:
       - keyword: SET
       - parameter: '@param1'
-      - comparison_operator:
-          raw_comparison_operator: '='
+      - assignment_operator:
+          comparison_operator:
+            raw_comparison_operator: '='
       - expression:
           column_reference:
             identifier: '"test, test"'
       - comma: ','
       - parameter: '@param2'
-      - comparison_operator:
-          raw_comparison_operator: '='
+      - assignment_operator:
+          comparison_operator:
+            raw_comparison_operator: '='
       - expression:
           literal: '2'
       - statement_terminator: ;
@@ -59,8 +64,9 @@ file:
       set_segment:
       - keyword: SET
       - parameter: '@param1'
-      - comparison_operator:
-          raw_comparison_operator: '='
+      - assignment_operator:
+          comparison_operator:
+            raw_comparison_operator: '='
       - expression:
           bracketed:
           - start_bracket: (
@@ -72,8 +78,78 @@ file:
           - end_bracket: )
       - comma: ','
       - parameter: '@param2'
-      - comparison_operator:
-          raw_comparison_operator: '='
+      - assignment_operator:
+          comparison_operator:
+            raw_comparison_operator: '='
       - expression:
           literal: '2'
+      - statement_terminator: ;
+  - statement:
+      set_segment:
+      - keyword: SET
+      - parameter: '@param1'
+      - assignment_operator:
+          binary_operator: +
+          comparison_operator:
+            raw_comparison_operator: '='
+      - expression:
+          literal: '1'
+      - comma: ','
+      - parameter: '@param2'
+      - assignment_operator:
+          binary_operator: '-'
+          comparison_operator:
+            raw_comparison_operator: '='
+      - expression:
+          literal: '2'
+      - comma: ','
+      - parameter: '@param3'
+      - assignment_operator:
+          binary_operator: '*'
+          comparison_operator:
+            raw_comparison_operator: '='
+      - expression:
+          literal: '3'
+      - comma: ','
+      - parameter: '@param4'
+      - assignment_operator:
+          binary_operator: /
+          comparison_operator:
+            raw_comparison_operator: '='
+      - expression:
+          literal: '4'
+      - comma: ','
+      - parameter: '@param5'
+      - assignment_operator:
+          binary_operator: '%'
+          comparison_operator:
+            raw_comparison_operator: '='
+      - expression:
+          literal: '5'
+      - comma: ','
+      - parameter: '@param5'
+      - assignment_operator:
+          binary_operator: ^
+          comparison_operator:
+            raw_comparison_operator: '='
+      - expression:
+          literal: '6'
+      - comma: ','
+      - parameter: '@param5'
+      - assignment_operator:
+          binary_operator:
+            ampersand: '&'
+          comparison_operator:
+            raw_comparison_operator: '='
+      - expression:
+          literal: '7'
+      - comma: ','
+      - parameter: '@param5'
+      - assignment_operator:
+          binary_operator:
+            pipe: '|'
+          comparison_operator:
+            raw_comparison_operator: '='
+      - expression:
+          literal: '8'
       - statement_terminator: ;

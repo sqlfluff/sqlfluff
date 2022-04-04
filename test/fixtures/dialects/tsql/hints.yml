@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9089be90f3163e1c71c8a0c6879aa774b1d4598924e60dd7832b8c12e275f957
+_hash: 5bcf24968b7d9978c558f165b2a84e3ea46a42f03558600cdad2930890852042
 file:
 - batch:
     statement:
@@ -647,8 +647,9 @@ file:
           set_clause:
             column_reference:
               identifier: ListPrice
-            comparison_operator:
-              raw_comparison_operator: '='
+            assignment_operator:
+              comparison_operator:
+                raw_comparison_operator: '='
             expression:
               column_reference:
                 identifier: ListPrice
