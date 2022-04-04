@@ -73,10 +73,7 @@ class Rule_L027(Rule_L020):
                     )
                 )
 
-            all_table_aliases = [
-                t.ref_str
-                for t in table_aliases
-            ] + standalone_aliases
+            all_table_aliases = [t.ref_str for t in table_aliases] + standalone_aliases
 
             # For qualified references, we want to check that the alias is actually
             # valid
