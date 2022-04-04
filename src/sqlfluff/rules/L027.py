@@ -73,4 +73,24 @@ class Rule_L027(Rule_L020):
                     )
                 )
 
+            all_table_aliases = [
+                t.ref_str
+                for t in table_aliases
+            ] + standalone_aliases
+
+            # For qualified references, we want to check that the alias is actually
+            # valid
+            if (
+                this_ref_type == "qualified"
+                and list(r.iter_raw_references())[0].part not in all_table_aliases
+            ):
+                violation_buff.append(
+                    LintResult(
+                        anchor=r,
+                        description=f"Qualified reference {r.raw!r} not found in "
+                        f"available tables/view aliases {all_table_aliases} in select "
+                        "with more than one referenced table/view.",
+                    )
+                )
+
         return violation_buff or None

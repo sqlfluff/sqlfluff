@@ -68,7 +68,7 @@ from sqlfluff.testing.rules import assert_rule_raises_violations_in_file
         ),
         ("L016", "block_comment_errors_2.sql", [(1, 85), (2, 86)]),
         # Column references
-        ("L027", "column_references.sql", [(1, 8)]),
+        ("L027", "column_references.sql", [(1, 8), (1, 11)]),
         ("L027", "column_references_bare_function.sql", []),
         ("L026", "column_references.sql", [(1, 11)]),
         ("L025", "column_references.sql", [(2, 11)]),
