@@ -3278,9 +3278,6 @@ class CreateTypeStatementSegment(BaseSegment):
         Bracketed(Delimited(Anything()), optional=True),
     )
 
-############################
-# ROLE
-############################
 class CreateRoleStatementSegment(BaseSegment):
     """A `CREATE ROLE` statement.
 
