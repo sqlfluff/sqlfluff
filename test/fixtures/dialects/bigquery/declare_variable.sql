@@ -10,3 +10,10 @@ declare str1 struct<f1 string, f2 string>;
 declare str2 struct<f1 string, f2 string> default struct('one', 'two');
 declare str3 default struct('one', 'two');
 declare str4 struct<f1 string, f2 string> default ('one', 'two');
+-- Defining variables in quoted names
+declare `var1` string;
+declare `var1` string default 'value';
+declare `var1`, `var1` string;
+-- Defining variables mixing quoted and unquoted names
+declare var1, `var2` string;
+declare var1, `var2` string default 'value';
