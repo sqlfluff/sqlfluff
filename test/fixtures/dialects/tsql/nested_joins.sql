@@ -18,3 +18,11 @@ RIGHT OUTER JOIN I
             ON P_2.NID = IP_2.NID
         ON I.SecondaryPID = CAST(P_2.IDEID AS varchar)
     ON CAST(BA.IDEID AS varchar) = I.BAID
+
+SELECT 1 AS RegionCode
+FROM BA
+LEFT OUTER JOIN (
+    I JOIN P
+        ON I.Pcd = P.Iid
+) ON BA.Iid = I.Bcd;
+GO

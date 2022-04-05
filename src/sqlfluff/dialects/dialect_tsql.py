@@ -1165,7 +1165,18 @@ class DeclareStatementSegment(BaseSegment):
                     optional=True,
                 ),
             ),
-            Sequence("TABLE", Bracketed(Delimited(Ref("ColumnDefinitionSegment")))),
+            Sequence(
+                "TABLE",
+                Bracketed(
+                    Delimited(
+                        OneOf(
+                            Ref("TableConstraintSegment"),
+                            Ref("ColumnDefinitionSegment"),
+                        ),
+                        allow_trailing=True,
+                    )
+                ),
+            ),
         ),
         AnyNumberOf(
             Ref("CommaSegment"),
@@ -1503,7 +1514,22 @@ class CreateFunctionStatementSegment(BaseSegment):
         Ref("FunctionParameterListGrammar"),
         Sequence(  # Optional function return type
             "RETURNS",
-            OneOf(Ref("DatatypeSegment"), "TABLE"),
+            OneOf(
+                Ref("DatatypeSegment"),
+                "TABLE",
+                Sequence(
+                    Ref("ParameterNameSegment"),
+                    "TABLE",
+                    Bracketed(
+                        Delimited(
+                            OneOf(
+                                Ref("TableConstraintSegment"),
+                                Ref("ColumnDefinitionSegment"),
+                            ),
+                        ),
+                    ),
+                ),
+            ),
             optional=True,
         ),
         Ref("FunctionOptionSegment", optional=True),
@@ -1631,7 +1657,6 @@ class SetStatementSegment(BaseSegment):
                 ),
                 Sequence(
                     OneOf(
-                        Ref("ParameterNameSegment"),
                         "DATEFIRST",
                         "DATEFORMAT",
                         "DEADLOCK_PRIORITY",
@@ -1686,10 +1711,41 @@ class SetStatementSegment(BaseSegment):
                         ),
                     ),
                 ),
+                Sequence(
+                    Ref("ParameterNameSegment"),
+                    Ref("AssignmentOperatorSegment"),
+                    Ref("ExpressionSegment"),
+                ),
             ),
         ),
         Dedent,
         Ref("DelimiterGrammar", optional=True),
+    )
+
+
+class AssignmentOperatorSegment(BaseSegment):
+    """One of the assignment operators.
+
+    Includes simpler equals but also +=, -=, etc.
+    """
+
+    type = "assignment_operator"
+    match_grammar = OneOf(
+        Ref("EqualsSegment"),
+        Sequence(
+            OneOf(
+                Ref("PlusSegment"),
+                Ref("MinusSegment"),
+                Ref("DivideSegment"),
+                Ref("MultiplySegment"),
+                Ref("ModuloSegment"),
+                Ref("BitwiseAndSegment"),
+                Ref("BitwiseOrSegment"),
+                Ref("BitwiseXorSegment"),
+            ),
+            Ref("EqualsSegment"),
+            allow_gaps=False,
+        ),
     )
 
 
@@ -2542,16 +2598,19 @@ class FileSegment(BaseFileSegment):
 
     # NB: We don't need a match_grammar here because we're
     # going straight into instantiating it directly usually.
-    parse_grammar = Delimited(
-        Ref("BatchSegment"),
-        delimiter=AnyNumberOf(
-            Sequence(
-                Ref("DelimiterGrammar", optional=True), Ref("BatchDelimiterGrammar")
+    parse_grammar = Sequence(
+        AnyNumberOf(Ref("BatchDelimiterGrammar")),
+        Delimited(
+            Ref("BatchSegment"),
+            delimiter=AnyNumberOf(
+                Sequence(
+                    Ref("DelimiterGrammar", optional=True), Ref("BatchDelimiterGrammar")
+                ),
+                min_times=1,
             ),
-            min_times=1,
+            allow_gaps=True,
+            allow_trailing=True,
         ),
-        allow_gaps=True,
-        allow_trailing=True,
     )
 
 
@@ -2606,6 +2665,33 @@ class FromClauseSegment(BaseSegment):
     )
 
     get_eventual_aliases = ansi.FromClauseSegment.get_eventual_aliases
+
+
+class TableExpressionSegment(BaseSegment):
+    """The main table expression e.g. within a FROM clause.
+
+    In SQL standard, as well as T-SQL, table expressions (`table reference` in SQL
+    standard) can also be join tables, optionally bracketed, allowing for nested joins.
+    """
+
+    type = "table_expression"
+    match_grammar: Matchable = OneOf(
+        Ref("ValuesClauseSegment"),
+        Ref("BareFunctionSegment"),
+        Ref("FunctionSegment"),
+        Ref("TableReferenceSegment"),
+        # Nested Selects
+        Bracketed(Ref("SelectableGrammar")),
+        Bracketed(Ref("MergeStatementSegment")),
+        Bracketed(
+            Sequence(
+                Ref("TableExpressionSegment"),
+                Conditional(Dedent, indented_joins=False),
+                OneOf(Ref("JoinClauseSegment"), Ref("JoinLikeClauseGrammar")),
+                Conditional(Dedent, indented_joins=True),
+            )
+        ),
+    )
 
 
 class GroupByClauseSegment(BaseSegment):
@@ -2805,7 +2891,7 @@ class SetClauseSegment(BaseSegment):
 
     match_grammar = Sequence(
         Ref("ColumnReferenceSegment"),
-        Ref("EqualsSegment"),
+        Ref("AssignmentOperatorSegment"),
         Ref("ExpressionSegment"),
     )
 

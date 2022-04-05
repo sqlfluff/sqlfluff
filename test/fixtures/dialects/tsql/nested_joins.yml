@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d399f4448158d8e7ca5d517d170cb6300928c651d4f926f9100eb23abaf00cdb
+_hash: 6423c6ca2be10d1d3c39320bc15b81230b718e83cf1307d3e0bbbab96a7e92b9
 file:
 - batch:
     statement:
@@ -68,7 +68,7 @@ file:
 - go_statement:
     keyword: GO
 - batch:
-    statement:
+  - statement:
       select_statement:
         select_clause:
           keyword: SELECT
@@ -228,3 +228,66 @@ file:
                   - identifier: I
                   - dot: .
                   - identifier: BAID
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            literal: '1'
+            alias_expression:
+              keyword: AS
+              identifier: RegionCode
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: BA
+            join_clause:
+            - keyword: LEFT
+            - keyword: OUTER
+            - keyword: JOIN
+            - from_expression_element:
+                table_expression:
+                  bracketed:
+                    start_bracket: (
+                    table_expression:
+                      table_reference:
+                        identifier: I
+                    join_clause:
+                      keyword: JOIN
+                      from_expression_element:
+                        table_expression:
+                          table_reference:
+                            identifier: P
+                      join_on_condition:
+                        keyword: 'ON'
+                        expression:
+                        - column_reference:
+                          - identifier: I
+                          - dot: .
+                          - identifier: Pcd
+                        - comparison_operator:
+                            raw_comparison_operator: '='
+                        - column_reference:
+                          - identifier: P
+                          - dot: .
+                          - identifier: Iid
+                    end_bracket: )
+            - join_on_condition:
+                keyword: 'ON'
+                expression:
+                - column_reference:
+                  - identifier: BA
+                  - dot: .
+                  - identifier: Iid
+                - comparison_operator:
+                    raw_comparison_operator: '='
+                - column_reference:
+                  - identifier: I
+                  - dot: .
+                  - identifier: Bcd
+          statement_terminator: ;
+- go_statement:
+    keyword: GO
