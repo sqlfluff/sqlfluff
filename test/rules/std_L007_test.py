@@ -34,7 +34,10 @@ def test__rules__std_L007_after():
             a = 1 AND
             b = 2
     """
-    config = FluffConfig(configs={"rules": {"L007": {"operator_new_lines": "after"}}})
+    config = FluffConfig(
+        configs={"rules": {"L007": {"operator_new_lines": "after"}}},
+        overrides={"dialect": "ansi"},
+    )
     # The sqlfluff.lint API doesn't allow us to pass config so need to do what it does
     linter = Linter(config=config)
     result_records = linter.lint_string_wrapped(sql).as_records()
@@ -54,7 +57,10 @@ def test__rules__std_L007_before():
             a = 1
             AND b = 2
     """
-    config = FluffConfig(configs={"rules": {"L007": {"operator_new_lines": "before"}}})
+    config = FluffConfig(
+        configs={"rules": {"L007": {"operator_new_lines": "before"}}},
+        overrides={"dialect": "ansi"},
+    )
     # The sqlfluff.lint API doesn't allow us to pass config so need to do what it does
     linter = Linter(config=config)
     result_records = linter.lint_string_wrapped(sql).as_records()
