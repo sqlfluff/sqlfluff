@@ -2222,7 +2222,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                 Sequence("USING", "TEMPLATE", Ref("SelectableGrammar")),
                 optional=True,
             ),
-        )
+        ),
     )
 
 
