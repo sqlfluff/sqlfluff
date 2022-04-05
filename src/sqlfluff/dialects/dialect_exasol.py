@@ -2628,7 +2628,7 @@ class AlterRoleSegment(BaseSegment):
     )
 
 
-class DropRoleStatementSegment(ansi.DropRoleSegment):
+class DropRoleStatementSegment(ansi.DropRoleStatementSegment):
     """A `DROP ROLE` statement with CASCADE option.
 
     https://docs.exasol.com/sql/drop_role.htm
