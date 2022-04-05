@@ -12,6 +12,9 @@
 name: Critical CI Tests
 on:
   workflow_dispatch:
+  schedule:
+    # 2am each night
+    - cron: '00 2 * * *'
   pull_request:
   push:
     branches:
