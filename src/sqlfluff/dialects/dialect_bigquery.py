@@ -881,10 +881,9 @@ class DeclareStatementSegment(BaseSegment):
     """
 
     type = "declare_segment"
-    match_grammar = StartsWith("DECLARE")
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "DECLARE",
-        Delimited(Ref("NakedIdentifierSegment")),
+        Delimited(Ref("SingleIdentifierFullGrammar")),
         OneOf(
             Ref("DatatypeSegment"),
             Ref("DefaultDeclareOptionsGrammar"),
