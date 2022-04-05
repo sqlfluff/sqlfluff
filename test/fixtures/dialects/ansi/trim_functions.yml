@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 16d588f7a3b3b7407402eec763af5bc8fa8c6e28e1c24959ed93dd250275b6a3
+_hash: 909492cdbdd6267cfb96a29b3f9613f8551e4725a079d7eb26969538db71cdeb
 file:
 - statement:
     select_statement:
@@ -29,9 +29,7 @@ file:
               function_name_identifier: trim
             bracketed:
             - start_bracket: (
-            - expression:
-                column_reference:
-                  identifier: BOTH
+            - keyword: BOTH
             - keyword: FROM
             - expression:
                 literal: "'    SparkSQL   '"
@@ -47,9 +45,7 @@ file:
               function_name_identifier: trim
             bracketed:
             - start_bracket: (
-            - expression:
-                column_reference:
-                  identifier: LEADING
+            - keyword: LEADING
             - keyword: FROM
             - expression:
                 literal: "'    SparkSQL   '"
@@ -65,9 +61,7 @@ file:
               function_name_identifier: trim
             bracketed:
             - start_bracket: (
-            - expression:
-                column_reference:
-                  identifier: TRAILING
+            - keyword: TRAILING
             - keyword: FROM
             - expression:
                 literal: "'    SparkSQL   '"

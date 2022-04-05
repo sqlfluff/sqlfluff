@@ -938,7 +938,7 @@ ansi_dialect.add(
         # Trim function
         Sequence(
             Ref("TrimParametersGrammar"),
-            Ref("ExpressionSegment", optional=True),
+            OneOf(Ref("ExpressionSegment"), optional=True, exclude=Ref.keyword("FROM")),
             "FROM",
             Ref("ExpressionSegment"),
         ),
