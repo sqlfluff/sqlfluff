@@ -310,6 +310,9 @@ def get_config(
                 )
             )
             sys.exit(66)
+    from_root_kwargs = {}
+    if "require_dialect" in kwargs:
+        from_root_kwargs["require_dialect"] = kwargs.pop("require_dialect")
     # Instantiate a config object (filtering out the nulls)
     overrides = {k: kwargs[k] for k in kwargs if kwargs[k] is not None}
     try:
@@ -317,6 +320,7 @@ def get_config(
             extra_config_path=extra_config_path,
             ignore_local_config=ignore_local_config,
             overrides=overrides,
+            **from_root_kwargs,
         )
     except SQLFluffUserError as err:  # pragma: no cover
         click.echo(
@@ -384,7 +388,7 @@ def cli():
 @common_options
 def version(**kwargs) -> None:
     """Show the version of sqlfluff."""
-    c = get_config(**kwargs)
+    c = get_config(**kwargs, require_dialect=False)
     if c.get("verbose") > 0:
         # Instantiate the linter
         lnt, formatter = get_linter_and_formatter(c)
@@ -399,7 +403,7 @@ def version(**kwargs) -> None:
 @common_options
 def rules(**kwargs) -> None:
     """Show the current rules in use."""
-    c = get_config(**kwargs)
+    c = get_config(**kwargs, dialect="ansi")
     lnt, _ = get_linter_and_formatter(c)
     click.echo(format_rules(lnt), color=c.get("color"))
 
@@ -408,7 +412,7 @@ def rules(**kwargs) -> None:
 @common_options
 def dialects(**kwargs) -> None:
     """Show the current dialects available."""
-    c = get_config(**kwargs)
+    c = get_config(**kwargs, require_dialect=False)
     click.echo(format_dialects(dialect_readout), color=c.get("color"))
 
 

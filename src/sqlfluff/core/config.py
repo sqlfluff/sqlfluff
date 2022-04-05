@@ -559,6 +559,7 @@ class FluffConfig:
         extra_config_path: Optional[str] = None,
         ignore_local_config: bool = False,
         overrides: Optional[dict] = None,
+        **kw,
     ) -> "FluffConfig":
         """Loads a config object just based on the root directory."""
         loader = ConfigLoader.get_global()
@@ -572,6 +573,7 @@ class FluffConfig:
             extra_config_path=extra_config_path,
             ignore_local_config=ignore_local_config,
             overrides=overrides,
+            **kw,
         )
 
     @classmethod
