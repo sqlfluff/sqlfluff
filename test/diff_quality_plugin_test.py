@@ -13,19 +13,20 @@ except ImportError:
 @pytest.mark.parametrize(
     "sql_path,expected_violations_lines",
     [
-        ("test/fixtures/linter/indentation_errors.sql", list(range(2, 7))),
-        ("test/fixtures/linter/parse_error.sql", {1}),
+        ("fixtures/linter/indentation_errors.sql", list(range(2, 7))),
+        ("fixtures/linter/parse_error.sql", {1}),
         # NB: This version of the file is in a directory configured
         # to ignore parsing errors.
-        ("test/fixtures/linter/diffquality/parse_error.sql", []),
+        ("fixtures/linter/diffquality/parse_error.sql", []),
     ],
 )
 @pytest.mark.skipif(
     sys.version_info[:2] == (3, 4),
     reason="requires diff_cover package, which does not support python3.4",
 )
-def test_diff_quality_plugin(sql_path, expected_violations_lines):
+def test_diff_quality_plugin(sql_path, expected_violations_lines, monkeypatch):
     """Test the plugin at least finds errors on the expected lines."""
+    monkeypatch.chdir("test/")
     violation_reporter = diff_quality_plugin.diff_cover_report_quality()
     violations = violation_reporter.violations(sql_path)
     assert isinstance(violations, list)
