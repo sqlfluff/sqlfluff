@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8cab1604e7221513ab35a57a606583183c1a2b80b0383aa3889243c885baec2a
+_hash: 6f73ff2654c4a54f26ffee0eb19f317f64501c6a1b365c6a9e1640c3f5d72e35
 file:
 - statement:
     create_table_statement:
@@ -62,6 +62,100 @@ file:
     - keyword: table
     - table_reference:
         identifier: mytable
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          identifier: amount
+          data_type:
+            data_type_identifier: number
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        identifier: mytable
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          identifier: amount
+          data_type:
+            data_type_identifier: number
+        end_bracket: )
+    - keyword: CLUSTER
+    - keyword: BY
+    - bracketed:
+        start_bracket: (
+        expression:
+          column_reference:
+            identifier: amount
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        identifier: mytable
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          identifier: amount
+          data_type:
+            data_type_identifier: number
+        end_bracket: )
+    - keyword: CLUSTER
+    - keyword: BY
+    - function:
+        function_name:
+          function_name_identifier: LINEAR
+        bracketed:
+          start_bracket: (
+          expression:
+            column_reference:
+              identifier: amount
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        identifier: mytable
+    - keyword: CLUSTER
+    - keyword: BY
+    - bracketed:
+        start_bracket: (
+        expression:
+          column_reference:
+            identifier: amount
+        end_bracket: )
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          identifier: amount
+          data_type:
+            data_type_identifier: number
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        identifier: mytable
+    - keyword: CLUSTER
+    - keyword: BY
+    - function:
+        function_name:
+          function_name_identifier: LINEAR
+        bracketed:
+          start_bracket: (
+          expression:
+            column_reference:
+              identifier: amount
+          end_bracket: )
     - bracketed:
         start_bracket: (
         column_definition:
