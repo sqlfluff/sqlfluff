@@ -3311,6 +3311,19 @@ class CreateRoleStatementSegment(BaseSegment):
     )
 
 
+class DropRoleStatementSegment(BaseSegment):
+    """A `DROP ROLE` statement with CASCADE option."""
+
+    type = "drop_role_statement"
+
+    match_grammar = Sequence(
+        "DROP",
+        "ROLE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("SingleIdentifierGrammar"),
+    )
+
+
 class DropModelStatementSegment(BaseSegment):
     """A `DROP MODEL` statement."""
 
@@ -3368,6 +3381,7 @@ class StatementSegment(BaseSegment):
         Ref("CreateTableStatementSegment"),
         Ref("CreateTypeStatementSegment"),
         Ref("CreateRoleStatementSegment"),
+        Ref("DropRoleStatementSegment"),
         Ref("AlterTableStatementSegment"),
         Ref("CreateSchemaStatementSegment"),
         Ref("SetSchemaStatementSegment"),
