@@ -252,6 +252,7 @@ tsql_dialect.replace(
     ),
     FunctionParameterGrammar=Sequence(
         Ref("ParameterNameSegment", optional=True),
+        Sequence("AS", optional=True),
         Ref("DatatypeSegment"),
         Sequence(Ref("EqualsSegment"), Ref("ExpressionSegment"), optional=True),
     ),
@@ -417,6 +418,7 @@ tsql_dialect.replace(
         ),
         Ref.keyword("INTO", optional=True),
     ),
+    TrimParametersGrammar=Nothing(),
 )
 
 
