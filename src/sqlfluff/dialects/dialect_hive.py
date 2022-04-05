@@ -10,6 +10,7 @@ from sqlfluff.core.parser import (
     Delimited,
     StartsWith,
     NamedParser,
+    Nothing,
     SymbolSegment,
     StringParser,
     OptionallyBracketed,
@@ -152,6 +153,7 @@ hive_dialect.replace(
         Sequence(Ref("SimpleArrayTypeGrammar"), Ref("ArrayLiteralSegment")),
     ),
     SimpleArrayTypeGrammar=Ref.keyword("ARRAY"),
+    TrimParametersGrammar=Nothing(),
 )
 
 
