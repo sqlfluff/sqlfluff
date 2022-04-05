@@ -3292,6 +3292,7 @@ class CreateRoleStatementSegment(BaseSegment):
         Ref("ObjectReferenceSegment"),
     )
 
+
 class DropRoleStatementSegment(BaseSegment):
     """A `DROP ROLE` statement with CASCADE option.
 
