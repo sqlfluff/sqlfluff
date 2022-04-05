@@ -3278,7 +3278,9 @@ class CreateTypeStatementSegment(BaseSegment):
         Bracketed(Delimited(Anything()), optional=True),
     )
 
-
+############################
+# ROLE
+############################
 class CreateRoleStatementSegment(BaseSegment):
     """A `CREATE ROLE` statement.
 
@@ -3291,6 +3293,26 @@ class CreateRoleStatementSegment(BaseSegment):
         "CREATE",
         "ROLE",
         Ref("ObjectReferenceSegment"),
+    )
+
+class DropRoleStatementSegment(BaseSegment):
+    """A `DROP ROLE` statement with CASCADE option.
+
+    https://docs.exasol.com/sql/drop_role.htm
+    """
+
+    type = "drop_role_statement"
+
+    is_ddl = False
+    is_dml = False
+    is_dql = False
+    is_dcl = True
+
+    match_grammar = Sequence(
+        "DROP",
+        "ROLE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("SingleIdentifierGrammar"),
     )
 
 
@@ -3351,6 +3373,7 @@ class StatementSegment(BaseSegment):
         Ref("CreateTableStatementSegment"),
         Ref("CreateTypeStatementSegment"),
         Ref("CreateRoleStatementSegment"),
+        Ref("DropRoleStatementSegment"),
         Ref("AlterTableStatementSegment"),
         Ref("CreateSchemaStatementSegment"),
         Ref("SetSchemaStatementSegment"),

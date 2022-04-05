@@ -1079,21 +1079,25 @@ class WithinGroupClauseSegment(BaseSegment):
     )
 
 
-class CreateRoleStatementSegment(ansi.CreateRoleStatementSegment):
+class CreateRoleStatementSegment(BaseSegment):
     """A `CREATE ROLE` statement.
 
     As per:
     https://www.postgresql.org/docs/current/sql-createrole.html
     """
 
-    match_grammar = ansi.CreateRoleStatementSegment.match_grammar.copy(
-        insert=[
-            Sequence(
-                Ref.keyword("WITH", optional=True),
-                # Very permissive for now. Anything can go here.
-                Anything(),
-            )
-        ],
+    type = "create_role_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        "ROLE",
+        Ref("ObjectReferenceSegment"),
+        Sequence(
+            Ref.keyword("WITH", optional=True),
+            # Very permissive for now. Anything can go here.
+            Anything(),
+            optional=True,
+        ),
     )
 
 
