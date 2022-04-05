@@ -9,7 +9,7 @@ def test__rules__std_L009_and_L052_interaction() -> None:
     sql = "SELECT foo FROM bar"
 
     # Ensure final semicolon requirement is active.
-    cfg = FluffConfig()
+    cfg = FluffConfig(overrides={"dialect": "ansi"})
     cfg.set_value(config_path=["rules", "L052", "require_final_semicolon"], val=True)
     linter = Linter(config=cfg)
 
