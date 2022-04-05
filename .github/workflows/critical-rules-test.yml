@@ -1,0 +1,39 @@
+#############################
+## GitHub Actions CI Tests ##
+#############################
+#
+# This lints all our dialect fixtures to check rules can handle a variety
+# of SQL and don't error out badly.
+#
+# It's run as a separate job as takes longer than the CI jobs and allows
+# them to be rerun separately if GitHub Actions or Coverage is experiencing
+# issues.
+#
+name: Critical CI Tests
+on:
+  workflow_dispatch:
+  schedule:
+    # 2am each night
+    - cron: '00 2 * * *'
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  ruleslinting:
+    runs-on: ubuntu-latest
+    name: Rules critical errors tests
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.10'
+    - name: Install dependencies
+      run: |
+        pip install tox
+        pip install .
+    - name: Run the tests
+      run: |
+        tox -e ruleslinting -- -n 2 test
