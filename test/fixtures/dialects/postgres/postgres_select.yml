@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8f58eb5f482b7b93ccc202bc3fe82114e4ea87c66c867f5abc0562415f140015
+_hash: 32923ee3d80fb8d18d067f7e061beb76a9e1bacfbc3ebfee12339d59b6f40548
 file:
 - statement:
     select_statement:
@@ -104,7 +104,8 @@ file:
                 - keyword: AT
                 - keyword: TIME
                 - keyword: ZONE
-                - literal: "'UTC'"
+                - expression:
+                    literal: "'UTC'"
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -141,7 +142,8 @@ file:
                 - keyword: AT
                 - keyword: TIME
                 - keyword: ZONE
-                - literal: "'UTC'"
+                - expression:
+                    literal: "'UTC'"
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -188,7 +190,8 @@ file:
                 - keyword: AT
                 - keyword: TIME
                 - keyword: ZONE
-                - literal: "'UTC'"
+                - expression:
+                    literal: "'UTC'"
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -206,7 +209,8 @@ file:
             - keyword: AT
             - keyword: TIME
             - keyword: ZONE
-            - literal: "'Africa/Cairo'"
+            - expression:
+                literal: "'Africa/Cairo'"
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -237,7 +241,8 @@ file:
             - keyword: AT
             - keyword: TIME
             - keyword: ZONE
-            - literal: "'Africa/Cairo'"
+            - expression:
+                literal: "'Africa/Cairo'"
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -255,7 +260,8 @@ file:
             - keyword: AT
             - keyword: TIME
             - keyword: ZONE
-            - literal: "'Africa/Cairo'"
+            - expression:
+                literal: "'Africa/Cairo'"
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -286,7 +292,8 @@ file:
             - keyword: AT
             - keyword: TIME
             - keyword: ZONE
-            - literal: "'Africa/Cairo'"
+            - expression:
+                literal: "'Africa/Cairo'"
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -304,7 +311,8 @@ file:
             - keyword: AT
             - keyword: TIME
             - keyword: ZONE
-            - literal: "'Africa/Cairo'"
+            - expression:
+                literal: "'Africa/Cairo'"
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -317,7 +325,8 @@ file:
           - keyword: AT
           - keyword: TIME
           - keyword: ZONE
-          - literal: "'Africa/Cairo'"
+          - expression:
+              literal: "'Africa/Cairo'"
       from_clause:
         keyword: FROM
         from_expression:
@@ -341,7 +350,8 @@ file:
                 - keyword: AT
                 - keyword: TIME
                 - keyword: ZONE
-                - literal: "'Africa/Cairo'"
+                - expression:
+                    literal: "'Africa/Cairo'"
               end_bracket: )
             cast_expression:
               casting_operator: '::'

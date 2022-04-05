@@ -1,0 +1,176 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 22ce079d6ac2e0ba079299ebb928577690b8011191f5d3eadb4a33148b8f6cfa
+file:
+  statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            identifier: client
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: firstHtml
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: vary
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: IF
+            bracketed:
+            - start_bracket: (
+            - expression:
+                column_reference:
+                  identifier: _cdn_provider
+                comparison_operator:
+                - raw_comparison_operator: '!'
+                - raw_comparison_operator: '='
+                literal: "''"
+            - comma: ','
+            - expression:
+                literal: "'CDN'"
+            - comma: ','
+            - expression:
+                literal: "'Origin'"
+            - end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: source
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: COUNT
+            bracketed:
+              start_bracket: (
+              expression:
+                literal: '0'
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: total
+      from_clause:
+      - keyword: FROM
+      - from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: '`httparchive.almanac.requests`'
+      - comma: ','
+      - from_expression:
+          from_expression_element:
+            table_expression:
+              function:
+                function_name:
+                  function_name_identifier: UNNEST
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    function:
+                      function_name:
+                        function_name_identifier: split
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          function:
+                            function_name:
+                              function_name_identifier: REGEXP_REPLACE
+                            bracketed:
+                            - start_bracket: (
+                            - expression:
+                                function:
+                                  function_name:
+                                    function_name_identifier: REGEXP_REPLACE
+                                  bracketed:
+                                  - start_bracket: (
+                                  - expression:
+                                      function:
+                                        function_name:
+                                          function_name_identifier: LOWER
+                                        bracketed:
+                                          start_bracket: (
+                                          expression:
+                                            column_reference:
+                                              identifier: resp_vary
+                                          end_bracket: )
+                                  - comma: ','
+                                  - expression:
+                                      literal: "'\\\"'"
+                                  - comma: ','
+                                  - expression:
+                                      literal: "''"
+                                  - end_bracket: )
+                            - comma: ','
+                            - expression:
+                                literal: "'[, ]+|\\\\\\\\0'"
+                            - comma: ','
+                            - expression:
+                                literal: "','"
+                            - end_bracket: )
+                      - comma: ','
+                      - expression:
+                          literal: "','"
+                      - end_bracket: )
+                  end_bracket: )
+            alias_expression:
+              keyword: AS
+              identifier: vary
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            identifier: date
+          comparison_operator:
+            raw_comparison_operator: '='
+          literal: "'2019-07-01'"
+      groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - column_reference:
+          identifier: client
+      - comma: ','
+      - column_reference:
+          identifier: firstHtml
+      - comma: ','
+      - column_reference:
+          identifier: vary
+      - comma: ','
+      - column_reference:
+          identifier: source
+      having_clause:
+        keyword: HAVING
+        expression:
+        - column_reference:
+            identifier: vary
+        - comparison_operator:
+          - raw_comparison_operator: '!'
+          - raw_comparison_operator: '='
+        - literal: "''"
+        - binary_operator: AND
+        - column_reference:
+            identifier: vary
+        - keyword: IS
+        - keyword: NOT
+        - keyword: 'NULL'
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          identifier: client
+      - keyword: DESC
+      - comma: ','
+      - column_reference:
+          identifier: firstHtml
+      - keyword: DESC
+      - comma: ','
+      - column_reference:
+          identifier: total
+      - keyword: DESC
