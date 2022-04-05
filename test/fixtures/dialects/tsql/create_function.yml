@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1b53a3d9be4db4070f7a33c5c38026fecd81d53186618eb59096b3bbb3fe2394
+_hash: f78dbf5872c29abdcfe06775bc5c22755fad8596b185c6de7b73b032c9a3a5e2
 file:
 - batch:
     statement:
@@ -296,6 +296,52 @@ file:
       - keyword: CREATE
       - keyword: FUNCTION
       - object_reference:
+          identifier: f
+      - function_parameter_list:
+          bracketed:
+            start_bracket: (
+            end_bracket: )
+      - keyword: RETURNS
+      - parameter: '@t'
+      - keyword: TABLE
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            identifier: i
+            data_type:
+              data_type_identifier: int
+          end_bracket: )
+      - keyword: AS
+      - procedure_statement:
+          statement:
+            begin_end_block:
+            - keyword: BEGIN
+            - statement:
+                insert_statement:
+                - keyword: INSERT
+                - keyword: INTO
+                - table_reference:
+                    parameter: '@t'
+                - select_statement:
+                    select_clause:
+                      keyword: SELECT
+                      select_clause_element:
+                        literal: '1'
+                    statement_terminator: ;
+            - statement:
+                return_segment:
+                  keyword: RETURN
+                  statement_terminator: ;
+            - keyword: END
+          statement_terminator: ;
+- go_statement:
+    keyword: GO
+- batch:
+    statement:
+      create_function_statement:
+      - keyword: CREATE
+      - keyword: FUNCTION
+      - object_reference:
           identifier: F
       - function_parameter_list:
           bracketed:
@@ -320,3 +366,5 @@ file:
                     literal: '0'
             - keyword: END
           statement_terminator: ;
+- go_statement:
+    keyword: GO
