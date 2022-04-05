@@ -18,6 +18,7 @@ from sqlfluff.core.parser import (
     Delimited,
     Indent,
     NamedParser,
+    Nothing,
     OneOf,
     OptionallyBracketed,
     Ref,
@@ -481,6 +482,7 @@ snowflake_dialect.replace(
         "WINDOW",
         "OVERLAPS",
     ),
+    TrimParametersGrammar=Nothing(),
 )
 
 # Add all Snowflake keywords
