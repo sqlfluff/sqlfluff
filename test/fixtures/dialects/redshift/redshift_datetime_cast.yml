@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f2210d88d35ae39ed8fb7eb99050679868eb7992ef108bbe0f38e7335e3192de
+_hash: 9c1858fd045032763e8ac320cae1d7fd2af6c1201b19bc22f23e29af48caf5f1
 file:
 - statement:
     select_statement:
@@ -216,7 +216,8 @@ file:
                 - keyword: AT
                 - keyword: TIME
                 - keyword: ZONE
-                - literal: "'UTC'"
+                - expression:
+                    literal: "'UTC'"
           alias_expression:
             keyword: AS
             identifier: started_at
@@ -236,7 +237,8 @@ file:
                 - keyword: AT
                 - keyword: TIME
                 - keyword: ZONE
-                - literal: "'UTC'"
+                - expression:
+                    literal: "'UTC'"
           alias_expression:
             keyword: AS
             identifier: ended_at
@@ -256,7 +258,8 @@ file:
                 - keyword: AT
                 - keyword: TIME
                 - keyword: ZONE
-                - literal: "'UTC'"
+                - expression:
+                    literal: "'UTC'"
           alias_expression:
             keyword: AS
             identifier: created_at

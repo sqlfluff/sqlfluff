@@ -611,6 +611,15 @@ class ArrayLiteralSegment(BaseSegment):
     )
 
 
+class TimeZoneGrammar(BaseSegment):
+    """Casting to Time Zone."""
+
+    type = "time_zone_grammar"
+    match_grammar = AnyNumberOf(
+        Sequence("AT", "TIME", "ZONE", Ref("ExpressionSegment")),
+    )
+
+
 class DatatypeSegment(BaseSegment):
     """A data type segment.
 
