@@ -188,6 +188,7 @@ bigquery_dialect.replace(
         ),
         Ref("NamedArgumentSegment"),
     ),
+    TrimParametersGrammar=Nothing(),
     SimpleArrayTypeGrammar=Sequence(
         "ARRAY",
         Bracketed(

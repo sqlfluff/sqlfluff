@@ -562,6 +562,7 @@ ansi_dialect.add(
             ),
         ),
     ),
+    TrimParametersGrammar=OneOf("BOTH", "LEADING", "TRAILING"),
 )
 
 
@@ -943,6 +944,13 @@ ansi_dialect.add(
         Ref("ExpressionSegment"),
         # A Cast-like function
         Sequence(Ref("ExpressionSegment"), "AS", Ref("DatatypeSegment")),
+        # Trim function
+        Sequence(
+            Ref("TrimParametersGrammar"),
+            OneOf(Ref("ExpressionSegment"), optional=True, exclude=Ref.keyword("FROM")),
+            "FROM",
+            Ref("ExpressionSegment"),
+        ),
         # An extract-like or substring-like function
         Sequence(
             OneOf(Ref("DatetimeUnitSegment"), Ref("ExpressionSegment")),
