@@ -9,6 +9,14 @@ CREATE TABLE IF NOT EXISTS table_name (
 
 create table mytable (amount number);
 
+create table mytable (amount number) CLUSTER BY (amount);
+
+create table mytable (amount number) CLUSTER BY LINEAR(amount);
+
+create table mytable CLUSTER BY (amount) (amount number);
+
+create table mytable CLUSTER BY LINEAR(amount) (amount number);
+
 create table mytable_copy2 as select b+1 as c from mytable_copy;
 
 create table mytable_2 like mytable;
