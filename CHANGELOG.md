@@ -21,6 +21,14 @@ Major changes include:
 
 ## What’s Changed
 
+* T-SQL: allow optional AS keyword in parameters def [#3001](https://github.com/sqlfluff/sqlfluff/pull/3001) [@pguyot](https://github.com/pguyot)
+* T-SQL: add support for `RETURNS @var TABLE` syntax [#3000](https://github.com/sqlfluff/sqlfluff/pull/3000) [@pguyot](https://github.com/pguyot)
+* TSQL: add support for parenthesized nested joins [#2993](https://github.com/sqlfluff/sqlfluff/pull/2993) [@pguyot](https://github.com/pguyot)
+* dbt: Read builtins from code [#2988](https://github.com/sqlfluff/sqlfluff/pull/2988) [@dmohns](https://github.com/dmohns)
+* T-SQL: fix table type in `DECLARE` statements [#2999](https://github.com/sqlfluff/sqlfluff/pull/2999) [@pguyot](https://github.com/pguyot)
+* TSQL: allow leading GO [#2997](https://github.com/sqlfluff/sqlfluff/pull/2997) [@pguyot](https://github.com/pguyot)
+* T-SQL: add support for assignment operators [#2996](https://github.com/sqlfluff/sqlfluff/pull/2996) [@pguyot](https://github.com/pguyot)
+* BigQuery: Add more `MERGE` statement variants [#2989](https://github.com/sqlfluff/sqlfluff/pull/2989) [@dmohns](https://github.com/dmohns)
 * L041: Fix bug when there is a newline after the select clause modifier [#2981](https://github.com/sqlfluff/sqlfluff/pull/2981) [@jmc-bbk](https://github.com/jmc-bbk)
 * Rule L045 doesn't recognise CTE usage in a subquery when rule L042 is enabled [#2980](https://github.com/sqlfluff/sqlfluff/pull/2980) [@barrywhart](https://github.com/barrywhart)
 * dbt: Make `is_incremental()` defaults consistent [#2985](https://github.com/sqlfluff/sqlfluff/pull/2985) [@dmohns](https://github.com/dmohns)
