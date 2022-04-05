@@ -49,7 +49,8 @@ def test__templater_dbt_profiles_dir_expanded(dbt_templater):  # noqa: F811
                     "target": "dev",
                 }
             }
-        }
+        },
+        overrides={"dialect": "ansi"},
     )
     profiles_dir = dbt_templater._get_profiles_dir()
     # Normalise paths to control for OS variance
@@ -361,7 +362,7 @@ def test__templater_dbt_handle_exceptions(
         _, violations = dbt_templater.process(
             in_str="",
             fname=target_fpath,
-            config=FluffConfig(configs=DBT_FLUFF_CONFIG),
+            config=FluffConfig(configs=DBT_FLUFF_CONFIG, overrides={"dialect": "ansi"}),
         )
     finally:
         get_adapter(dbt_templater.dbt_config).connections.release()
@@ -421,7 +422,8 @@ def test__templater_dbt_handle_database_connection_failure(
 def test__project_dir_does_not_exist_error(dbt_templater, caplog):  # noqa: F811
     """Test an error is logged if the given dbt project directory doesn't exist."""
     dbt_templater.sqlfluff_config = FluffConfig(
-        configs={"templater": {"dbt": {"project_dir": "./non_existing_directory"}}}
+        configs={"templater": {"dbt": {"project_dir": "./non_existing_directory"}}},
+        overrides={"dialect": "ansi"},
     )
     logger = logging.getLogger("sqlfluff")
     original_propagate_value = logger.propagate
