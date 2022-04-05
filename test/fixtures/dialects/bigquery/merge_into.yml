@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 27c72b3038304130f55124641298b8e14061aeafbf6be16f31f6daf6c40fca08
+_hash: be29d8eac88d4901f217f6c10a4a05d5d0ef6900f788d32cb5ce9789bca03892
 file:
 - statement:
     merge_statement:
@@ -35,7 +35,7 @@ file:
           - dot: .
           - identifier: product
     - merge_match:
-      - merge_when_not_matched_clause:
+      - not_matched_by_target_clause:
         - keyword: WHEN
         - keyword: NOT
         - keyword: MATCHED
@@ -78,7 +78,115 @@ file:
               - expression:
                   literal: 'TRUE'
               - end_bracket: )
-      - merge_when_not_matched_clause:
+      - not_matched_by_target_clause:
+        - keyword: WHEN
+        - keyword: NOT
+        - keyword: MATCHED
+        - keyword: THEN
+        - merge_insert_clause:
+            keyword: INSERT
+            bracketed:
+            - start_bracket: (
+            - column_reference:
+                identifier: product
+            - comma: ','
+            - column_reference:
+                identifier: quantity
+            - comma: ','
+            - column_reference:
+                identifier: supply_constrained
+            - end_bracket: )
+            values_clause:
+              keyword: VALUES
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    identifier: product
+              - comma: ','
+              - expression:
+                  column_reference:
+                    identifier: quantity
+              - comma: ','
+              - expression:
+                  literal: 'FALSE'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+    merge_statement:
+    - keyword: MERGE
+    - keyword: INTO
+    - table_reference:
+      - identifier: dataset
+      - dot: .
+      - identifier: detailedinventory
+    - alias_expression:
+        identifier: t
+    - keyword: USING
+    - table_reference:
+      - identifier: dataset
+      - dot: .
+      - identifier: inventory
+    - alias_expression:
+        identifier: s
+    - join_on_condition:
+        keyword: 'ON'
+        expression:
+        - column_reference:
+          - identifier: t
+          - dot: .
+          - identifier: product
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - identifier: s
+          - dot: .
+          - identifier: product
+    - merge_match:
+      - not_matched_by_target_clause:
+        - keyword: WHEN
+        - keyword: NOT
+        - keyword: MATCHED
+        - binary_operator: AND
+        - expression:
+            column_reference:
+              identifier: quantity
+            comparison_operator:
+              raw_comparison_operator: <
+            literal: '20'
+        - keyword: THEN
+        - merge_insert_clause:
+            keyword: INSERT
+            bracketed:
+            - start_bracket: (
+            - column_reference:
+                identifier: product
+            - comma: ','
+            - column_reference:
+                identifier: quantity
+            - comma: ','
+            - column_reference:
+                identifier: supply_constrained
+            - comma: ','
+            - column_reference:
+                identifier: comments
+            - end_bracket: )
+            values_clause:
+              keyword: VALUES
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    identifier: product
+              - comma: ','
+              - expression:
+                  column_reference:
+                    identifier: quantity
+              - comma: ','
+              - expression:
+                  literal: 'TRUE'
+              - end_bracket: )
+      - not_matched_by_target_clause:
         - keyword: WHEN
         - keyword: NOT
         - keyword: MATCHED
@@ -165,7 +273,7 @@ file:
                   - identifier: s
                   - dot: .
                   - identifier: quantity
-        merge_when_not_matched_clause:
+        not_matched_by_target_clause:
         - keyword: WHEN
         - keyword: NOT
         - keyword: MATCHED
@@ -431,6 +539,213 @@ file:
         merge_when_matched_clause:
         - keyword: WHEN
         - keyword: MATCHED
+        - keyword: THEN
+        - merge_update_clause:
+            keyword: UPDATE
+            set_clause_list:
+              keyword: SET
+              set_clause:
+                column_reference:
+                  identifier: quantity
+                comparison_operator:
+                  raw_comparison_operator: '='
+                expression:
+                - column_reference:
+                  - identifier: t
+                  - dot: .
+                  - identifier: quantity
+                - binary_operator: +
+                - column_reference:
+                  - identifier: s
+                  - dot: .
+                  - identifier: quantity
+- statement_terminator: ;
+- statement:
+    merge_statement:
+    - keyword: MERGE
+    - table_reference:
+      - identifier: dataset
+      - dot: .
+      - identifier: inventory
+    - alias_expression:
+        identifier: t
+    - keyword: USING
+    - table_reference:
+      - identifier: dataset
+      - dot: .
+      - identifier: newarrivals
+    - alias_expression:
+        identifier: s
+    - join_on_condition:
+        keyword: 'ON'
+        expression:
+        - column_reference:
+          - identifier: t
+          - dot: .
+          - identifier: product
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - identifier: s
+          - dot: .
+          - identifier: product
+    - merge_match:
+        not_matched_by_target_clause:
+        - keyword: WHEN
+        - keyword: NOT
+        - keyword: MATCHED
+        - keyword: THEN
+        - merge_insert_clause:
+          - keyword: INSERT
+          - keyword: ROW
+- statement_terminator: ;
+- statement:
+    merge_statement:
+    - keyword: MERGE
+    - table_reference:
+      - identifier: dataset
+      - dot: .
+      - identifier: inventory
+    - alias_expression:
+        identifier: t
+    - keyword: USING
+    - table_reference:
+      - identifier: dataset
+      - dot: .
+      - identifier: newarrivals
+    - alias_expression:
+        identifier: s
+    - join_on_condition:
+        keyword: 'ON'
+        expression:
+        - column_reference:
+          - identifier: t
+          - dot: .
+          - identifier: product
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - identifier: s
+          - dot: .
+          - identifier: product
+    - merge_match:
+      - not_matched_by_target_clause:
+        - keyword: WHEN
+        - keyword: NOT
+        - keyword: MATCHED
+        - keyword: BY
+        - keyword: TARGET
+        - binary_operator: AND
+        - expression:
+            column_reference:
+              identifier: quantity
+            comparison_operator:
+              raw_comparison_operator: <
+            literal: '20'
+        - keyword: THEN
+        - merge_insert_clause:
+            keyword: INSERT
+            bracketed:
+            - start_bracket: (
+            - column_reference:
+                identifier: product
+            - comma: ','
+            - column_reference:
+                identifier: quantity
+            - comma: ','
+            - column_reference:
+                identifier: supply_constrained
+            - comma: ','
+            - column_reference:
+                identifier: comments
+            - end_bracket: )
+            values_clause:
+              keyword: VALUES
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    identifier: product
+              - comma: ','
+              - expression:
+                  column_reference:
+                    identifier: quantity
+              - comma: ','
+              - expression:
+                  literal: 'TRUE'
+              - end_bracket: )
+      - not_matched_by_target_clause:
+        - keyword: WHEN
+        - keyword: NOT
+        - keyword: MATCHED
+        - keyword: BY
+        - keyword: TARGET
+        - keyword: THEN
+        - merge_insert_clause:
+            keyword: INSERT
+            bracketed:
+            - start_bracket: (
+            - column_reference:
+                identifier: product
+            - comma: ','
+            - column_reference:
+                identifier: quantity
+            - comma: ','
+            - column_reference:
+                identifier: supply_constrained
+            - end_bracket: )
+            values_clause:
+              keyword: VALUES
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    identifier: product
+              - comma: ','
+              - expression:
+                  column_reference:
+                    identifier: quantity
+              - comma: ','
+              - expression:
+                  literal: 'FALSE'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+    merge_statement:
+    - keyword: MERGE
+    - table_reference:
+      - identifier: dataset
+      - dot: .
+      - identifier: inventory
+    - alias_expression:
+        identifier: t
+    - keyword: USING
+    - table_reference:
+      - identifier: dataset
+      - dot: .
+      - identifier: newarrivals
+    - alias_expression:
+        identifier: s
+    - join_on_condition:
+        keyword: 'ON'
+        expression:
+        - column_reference:
+          - identifier: t
+          - dot: .
+          - identifier: product
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - identifier: s
+          - dot: .
+          - identifier: product
+    - merge_match:
+        merge_when_matched_clause:
+        - keyword: WHEN
+        - keyword: NOT
+        - keyword: MATCHED
+        - keyword: BY
+        - keyword: SOURCE
         - keyword: THEN
         - merge_update_clause:
             keyword: UPDATE

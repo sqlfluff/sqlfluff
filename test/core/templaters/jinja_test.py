@@ -495,9 +495,13 @@ def assert_structure(yaml_loader, path, code_only=True, include_meta=False):
         ("jinja_a/jinja", True, False),
         # Macros
         ("jinja_b/jinja", False, False),
-        # dbt builting
-        ("jinja_c_dbt/dbt_builtins", True, False),
-        ("jinja_c_dbt/var_default", True, False),
+        # dbt builtins
+        ("jinja_c_dbt/dbt_builtins_config", True, False),
+        ("jinja_c_dbt/dbt_builtins_is_incremental", True, False),
+        ("jinja_c_dbt/dbt_builtins_ref", True, False),
+        ("jinja_c_dbt/dbt_builtins_source", True, False),
+        ("jinja_c_dbt/dbt_builtins_this", True, False),
+        ("jinja_c_dbt/dbt_builtins_var_default", True, False),
         # do directive
         ("jinja_e/jinja", True, False),
         # case sensitivity and python literals
@@ -518,6 +522,9 @@ def assert_structure(yaml_loader, path, code_only=True, include_meta=False):
         # Library Loading from a folder when library is module
         ("jinja_m_libraries_module/jinja", True, False),
         ("jinja_n_nested_macros/jinja", True, False),
+        # Test more dbt configurations
+        ("jinja_o_config_override_dbt_builtins/override_dbt_builtins", True, False),
+        ("jinja_p_disable_dbt_builtins/disable_dbt_builtins", True, False),
     ],
 )
 def test__templater_full(subpath, code_only, include_meta, yaml_loader, caplog):
