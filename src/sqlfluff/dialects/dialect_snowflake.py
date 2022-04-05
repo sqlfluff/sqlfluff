@@ -447,6 +447,17 @@ snowflake_dialect.replace(
         Sequence("ILIKE", Ref.keyword("ANY", optional=True)),
         "REGEXP",
     ),
+     ComparisonOperatorGrammar=OneOf(
+        Ref("EqualsSegment"),
+        Ref("GreaterThanSegment"),
+        Ref("LessThanSegment"),
+        Ref("GreaterThanOrEqualToSegment"),
+        Ref("LessThanOrEqualToSegment"),
+        Ref("NotEqualToSegment"),
+        Ref("LikeOperatorSegment"),
+        Sequence("IS", "DISTINCT", "FROM"),
+        Sequence("IS", "NOT", "DISTINCT", "FROM")
+    ),
     SelectClauseElementTerminatorGrammar=OneOf(
         "FROM",
         "WHERE",
