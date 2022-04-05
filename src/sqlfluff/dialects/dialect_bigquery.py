@@ -157,6 +157,12 @@ bigquery_dialect.add(
             Ref("BaseExpressionElementGrammar"),
         ),
     ),
+    ExtractFunctionName=StringParser(
+        "EXTRACT",
+        SymbolSegment,
+        name="function_name_identifier",
+        type="function_name_identifier",
+    ),
 )
 
 
@@ -417,6 +423,17 @@ bigquery_dialect.replace(
 )
 
 
+class ExtractFunctionNameSegment(BaseSegment):
+    """EXTRACT function name segment.
+
+    Need to be able to specify this as type function_name
+    so that linting rules identify it properly
+    """
+
+    type = "function_name"
+    match_grammar: Matchable = Ref("ExtractFunctionName")
+
+
 class FunctionSegment(ansi.FunctionSegment):
     """A scalar or aggregate function.
 
@@ -428,18 +445,29 @@ class FunctionSegment(ansi.FunctionSegment):
 
     match_grammar = OneOf(
         Sequence(
+            # BigQuery EXTRACT allows optional TimeZone
+            Ref("ExtractFunctionNameSegment"),
+            Bracketed(
+                Ref("DatetimeUnitSegment"),
+                "FROM",
+                Ref("ExpressionSegment"),
+                Ref("TimeZoneGrammar", optional=True),
+            ),
+        ),
+        Sequence(
             # Treat functions which take date parts separately
             # So those functions parse date parts as DatetimeUnitSegment
             # rather than identifiers.
-            Sequence(
+            OneOf(
                 Ref("DatePartFunctionNameSegment"),
-                Bracketed(
-                    Delimited(
-                        Ref("DatetimeUnitSegment"),
-                        Ref(
-                            "FunctionContentsGrammar",
-                            ephemeral_name="FunctionContentsGrammar",
-                        ),
+                exclude=Ref("ExtractFunctionNameSegment"),
+            ),
+            Bracketed(
+                Delimited(
+                    Ref("DatetimeUnitSegment"),
+                    Ref(
+                        "FunctionContentsGrammar",
+                        ephemeral_name="FunctionContentsGrammar",
                     ),
                 ),
             ),

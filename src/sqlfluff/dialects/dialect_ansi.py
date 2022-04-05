@@ -948,8 +948,6 @@ ansi_dialect.add(
             OneOf(Ref("DatetimeUnitSegment"), Ref("ExpressionSegment")),
             "FROM",
             Ref("ExpressionSegment"),
-            # BigQuery EXTRACT allows optional TimeZone
-            Ref("TimeZoneGrammar", optional=True),
         ),
         Sequence(
             # Allow an optional distinct keyword here.
