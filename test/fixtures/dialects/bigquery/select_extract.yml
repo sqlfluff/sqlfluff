@@ -1,0 +1,105 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 764a4c9fc56bbd16970345944c931a110f4554e6c09eeb67356a254e2d492827
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: HOUR
+              keyword: FROM
+              expression:
+                column_reference:
+                  identifier: some_timestamp
+              time_zone_grammar:
+              - keyword: AT
+              - keyword: TIME
+              - keyword: ZONE
+              - literal: '"UTC"'
+              end_bracket: )
+- statement_terminator: ;
+- statement:
+    with_compound_statement:
+      keyword: WITH
+      common_table_expression:
+        identifier: Input
+        keyword: AS
+        bracketed:
+          start_bracket: (
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                function:
+                  function_name:
+                    function_name_identifier: TIMESTAMP
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      literal: '"2008-12-25 05:30:00+00"'
+                    end_bracket: )
+                alias_expression:
+                  keyword: AS
+                  identifier: timestamp_value
+          end_bracket: )
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: EXTRACT
+              bracketed:
+                start_bracket: (
+                date_part: DAY
+                keyword: FROM
+                expression:
+                  column_reference:
+                    identifier: timestamp_value
+                time_zone_grammar:
+                - keyword: AT
+                - keyword: TIME
+                - keyword: ZONE
+                - literal: '"UTC"'
+                end_bracket: )
+            alias_expression:
+              keyword: AS
+              identifier: the_day_utc
+        - comma: ','
+        - select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: EXTRACT
+              bracketed:
+                start_bracket: (
+                date_part: DAY
+                keyword: FROM
+                expression:
+                  column_reference:
+                    identifier: timestamp_value
+                time_zone_grammar:
+                - keyword: AT
+                - keyword: TIME
+                - keyword: ZONE
+                - literal: '"America/Los_Angeles"'
+                end_bracket: )
+            alias_expression:
+              keyword: AS
+              identifier: the_day_california
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: Input
+- statement_terminator: ;

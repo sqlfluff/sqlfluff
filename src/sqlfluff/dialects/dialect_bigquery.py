@@ -718,6 +718,19 @@ class SemiStructuredAccessorSegment(BaseSegment):
     )
 
 
+class TimeZoneGrammar(BaseSegment):
+    """Casting to Time Zone.
+
+    BigQuery uses Double Quotes
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/timestamp_functions#timezone_definitions
+    """
+
+    type = "time_zone_grammar"
+    match_grammar = AnyNumberOf(
+        Sequence("AT", "TIME", "ZONE", Ref("DoubleQuotedLiteralSegment")),
+    )
+
+
 class ColumnReferenceSegment(ObjectReferenceSegment):
     """A reference to column, field or alias.
 
