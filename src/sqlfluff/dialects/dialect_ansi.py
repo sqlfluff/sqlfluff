@@ -616,7 +616,7 @@ class TimeZoneGrammar(BaseSegment):
 
     type = "time_zone_grammar"
     match_grammar = AnyNumberOf(
-        Sequence("AT", "TIME", "ZONE", Ref("QuotedLiteralSegment")),
+        Sequence("AT", "TIME", "ZONE", Ref("ExpressionSegment")),
     )
 
 
