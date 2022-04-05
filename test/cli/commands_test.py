@@ -966,8 +966,8 @@ def test__cli__command_lint_serialize_from_stdin(serialize, sql, expected, exit_
 @pytest.mark.parametrize(
     "command",
     [
-        [lint, ("this_file_does_not_exist.sql",)],
-        [fix, ("this_file_does_not_exist.sql",)],
+        [lint, ("this_file_does_not_exist.sql")],
+        [fix, ("this_file_does_not_exist.sql")],
     ],
 )
 def test__cli__command_fail_nice_not_found(command):
