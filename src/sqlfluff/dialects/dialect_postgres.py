@@ -464,15 +464,6 @@ class PsqlVariableGrammar(BaseSegment):
     )
 
 
-class TimeZoneGrammar(BaseSegment):
-    """Literal Date Time with optional casting to Time Zone."""
-
-    type = "time_zone_grammar"
-    match_grammar = AnyNumberOf(
-        Sequence("AT", "TIME", "ZONE", Ref("QuotedLiteralSegment")),
-    )
-
-
 class ArrayAccessorSegment(ansi.ArrayAccessorSegment):
     """Overwrites Array Accessor in ANSI to allow n many consecutive brackets."""
 
