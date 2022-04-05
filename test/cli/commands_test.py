@@ -1268,7 +1268,6 @@ class TestProgressBars:
         """When progress bar is disabled, nothing should be printed into output."""
         monkeypatch.chdir("test/fixtures/")
         result = invoke_assert_code(
-            ret_code=65,
             args=[
                 lint,
                 [
@@ -1290,7 +1289,6 @@ class TestProgressBars:
         """When progress bar is enabled, there should be some tracks in output."""
         monkeypatch.chdir("test/fixtures/")
         result = invoke_assert_code(
-            ret_code=65,
             args=[
                 lint,
                 [
@@ -1350,24 +1348,3 @@ class TestProgressBars:
         assert r"\rlint by rules:" in raw_output
         assert r"\rrule L001:" in raw_output
         assert r"\rrule L049:" in raw_output
-
-    def test_cli_lint_disabled_progress_bar_when_verbose_mode(
-        self, mock_disable_progress_bar: MagicMock, monkeypatch
-    ) -> None:
-        """Progressbar is disabled when verbose mode is set."""
-        monkeypatch.chdir("test/fixtures/")
-        result = invoke_assert_code(
-            ret_code=2,
-            args=[
-                lint,
-                [
-                    "-v",
-                    "linter/passing.sql",
-                ],
-            ],
-        )
-        raw_output = repr(result.output)
-
-        assert r"\rparsing: 0it" not in raw_output
-        assert r"\rlint by rules:" not in raw_output
-        assert r"\rrule L001:" not in raw_output
