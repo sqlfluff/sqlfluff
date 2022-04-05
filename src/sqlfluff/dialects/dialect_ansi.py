@@ -562,6 +562,7 @@ ansi_dialect.add(
             ),
         ),
     ),
+    TrimParametersGrammar=OneOf("BOTH", "LEADING", "TRAILING"),
 )
 
 
@@ -608,6 +609,15 @@ class ArrayLiteralSegment(BaseSegment):
     match_grammar: Matchable = Bracketed(
         Delimited(Ref("ExpressionSegment"), optional=True),
         bracket_type="square",
+    )
+
+
+class TimeZoneGrammar(BaseSegment):
+    """Casting to Time Zone."""
+
+    type = "time_zone_grammar"
+    match_grammar = AnyNumberOf(
+        Sequence("AT", "TIME", "ZONE", Ref("ExpressionSegment")),
     )
 
 
@@ -934,6 +944,13 @@ ansi_dialect.add(
         Ref("ExpressionSegment"),
         # A Cast-like function
         Sequence(Ref("ExpressionSegment"), "AS", Ref("DatatypeSegment")),
+        # Trim function
+        Sequence(
+            Ref("TrimParametersGrammar"),
+            OneOf(Ref("ExpressionSegment"), optional=True, exclude=Ref.keyword("FROM")),
+            "FROM",
+            Ref("ExpressionSegment"),
+        ),
         # An extract-like or substring-like function
         Sequence(
             OneOf(Ref("DatetimeUnitSegment"), Ref("ExpressionSegment")),
