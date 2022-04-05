@@ -52,23 +52,22 @@ def invoke_assert_code(
     return result
 
 
-expected_output = """== [linter/indentation_error_simple.sql] FAIL
+expected_output = """== [test/fixtures/linter/indentation_error_simple.sql] FAIL
 L:   2 | P:   4 | L003 | Expected 1 indentations, found 0 [compared to line 01]
 L:   5 | P:  10 | L010 | Keywords must be consistently upper case.
 L:   5 | P:  13 | L031 | Avoid aliases in from clauses and join conditions.
 """
 
 
-def test__cli__command_directed(monkeypatch):
+def test__cli__command_directed():
     """Basic checking of lint functionality."""
-    monkeypatch.chdir("test/fixtures/")
     result = invoke_assert_code(
         ret_code=65,
         args=[
             lint,
             [
                 "--disable_progress_bar",
-                "linter/indentation_error_simple.sql",
+                "test/fixtures/linter/indentation_error_simple.sql",
             ],
         ],
     )
@@ -94,7 +93,7 @@ def test__cli__command_dialect():
                 "-n",
                 "--dialect",
                 "faslkjh",
-                "linter/indentation_error_simple.sql",
+                "test/fixtures/linter/indentation_error_simple.sql",
             ],
         ],
     )
@@ -110,7 +109,7 @@ def test__cli__command_dialect_legacy():
                 "-n",
                 "--dialect",
                 "exasol_fs",
-                "linter/indentation_error_simple.sql",
+                "test/fixtures/linter/indentation_error_simple.sql",
             ],
         ],
     )
@@ -125,13 +124,13 @@ def test__cli__command_extra_config_fail():
             lint,
             [
                 "--config",
-                "cli/extra_configs/.sqlfluffsdfdfdfsfd",
-                "cli/extra_config_tsql.sql",
+                "test/fixtures/cli/extra_configs/.sqlfluffsdfdfdfsfd",
+                "test/fixtures/cli/extra_config_tsql.sql",
             ],
         ],
     )
     assert (
-        "Extra config 'cli/extra_configs/.sqlfluffsdfdfdfsfd' does not "
+        "Extra config 'test/fixtures/cli/extra_configs/.sqlfluffsdfdfdfsfd' does not "
         "exist." in result.stdout
     )
 
@@ -159,33 +158,32 @@ def test__cli__command_extra_config_fail():
         ),
     ],
 )
-def test__cli__command_lint_stdin(command, monkeypatch):
+def test__cli__command_lint_stdin(command):
     """Check basic commands on a simple script using stdin.
 
     The subprocess command should exit without errors, as no issues should be found.
     """
-    monkeypatch.chdir("test/fixtures/")
-    with open("cli/passing_a.sql") as test_file:
+    with open("test/fixtures/cli/passing_a.sql") as test_file:
         sql = test_file.read()
-    invoke_assert_code(args=[lint, command], cli_input=sql)
+    invoke_assert_code(args=[lint, ("--dialect=ansi",) + command], cli_input=sql)
 
 
 @pytest.mark.parametrize(
     "command",
     [
         # Test basic linting
-        (lint, ["-n", "cli/passing_b.sql", "--exclude-rules", "L051"]),
+        (lint, ["-n", "test/fixtures/cli/passing_b.sql", "--exclude-rules", "L051"]),
         # Original tests from test__cli__command_lint
-        (lint, ["-n", "cli/passing_a.sql"]),
-        (lint, ["-n", "-v", "cli/passing_a.sql"]),
-        (lint, ["-n", "-vvvv", "cli/passing_a.sql"]),
-        (lint, ["-vvvv", "cli/passing_a.sql"]),
+        (lint, ["-n", "test/fixtures/cli/passing_a.sql"]),
+        (lint, ["-n", "-v", "test/fixtures/cli/passing_a.sql"]),
+        (lint, ["-n", "-vvvv", "test/fixtures/cli/passing_a.sql"]),
+        (lint, ["-vvvv", "test/fixtures/cli/passing_a.sql"]),
         # Test basic linting with very high verbosity
         (
             lint,
             [
                 "-n",
-                "cli/passing_b.sql",
+                "test/fixtures/cli/passing_b.sql",
                 "-vvvvvvvvvvv",
                 "--exclude-rules",
                 "L051",
@@ -196,7 +194,7 @@ def test__cli__command_lint_stdin(command, monkeypatch):
             lint,
             [
                 "-n",
-                "cli/passing_b.sql",
+                "test/fixtures/cli/passing_b.sql",
                 "-vvv",
                 "--logger",
                 "parser",
@@ -205,31 +203,31 @@ def test__cli__command_lint_stdin(command, monkeypatch):
             ],
         ),
         # Check basic parsing
-        (parse, ["-n", "cli/passing_b.sql", "--exclude-rules", "L051"]),
+        (parse, ["-n", "test/fixtures/cli/passing_b.sql", "--exclude-rules", "L051"]),
         # Test basic parsing with very high verbosity
         (
             parse,
             [
                 "-n",
-                "cli/passing_b.sql",
+                "test/fixtures/cli/passing_b.sql",
                 "-vvvvvvvvvvv",
                 "--exclude-rules",
                 "L051",
             ],
         ),
         # Check basic parsing, with the code only option
-        (parse, ["-n", "cli/passing_b.sql", "-c"]),
+        (parse, ["-n", "test/fixtures/cli/passing_b.sql", "-c"]),
         # Check basic parsing, with the yaml output
-        (parse, ["-n", "cli/passing_b.sql", "-c", "-f", "yaml"]),
-        (parse, ["-n", "cli/passing_b.sql", "--format", "yaml"]),
+        (parse, ["-n", "test/fixtures/cli/passing_b.sql", "-c", "-f", "yaml"]),
+        (parse, ["-n", "test/fixtures/cli/passing_b.sql", "--format", "yaml"]),
         # Check the profiler and benching commands
-        (parse, ["-n", "cli/passing_b.sql", "--profiler"]),
-        (parse, ["-n", "cli/passing_b.sql", "--bench"]),
+        (parse, ["-n", "test/fixtures/cli/passing_b.sql", "--profiler"]),
+        (parse, ["-n", "test/fixtures/cli/passing_b.sql", "--bench"]),
         (
             lint,
             [
                 "-n",
-                "cli/passing_b.sql",
+                "test/fixtures/cli/passing_b.sql",
                 "--bench",
                 "--exclude-rules",
                 "L051",
@@ -239,18 +237,18 @@ def test__cli__command_lint_stdin(command, monkeypatch):
             fix,
             [
                 "-n",
-                "cli/passing_b.sql",
+                "test/fixtures/cli/passing_b.sql",
                 "--bench",
                 "--exclude-rules",
                 "L051",
             ],
         ),
         # Check linting works in specifying rules
-        (lint, ["-n", "--rules", "L001", "linter/operator_errors.sql"]),
+        (lint, ["-n", "--rules", "L001", "test/fixtures/linter/operator_errors.sql"]),
         # Check linting works in specifying multiple rules
         (
             lint,
-            ["-n", "--rules", "L001,L002", "linter/operator_errors.sql"],
+            ["-n", "--rules", "L001,L002", "test/fixtures/linter/operator_errors.sql"],
         ),
         # Check linting works with both included and excluded rules
         (
@@ -261,7 +259,7 @@ def test__cli__command_lint_stdin(command, monkeypatch):
                 "L001,L006",
                 "--exclude-rules",
                 "L006,L031",
-                "linter/operator_errors.sql",
+                "test/fixtures/linter/operator_errors.sql",
             ],
         ),
         # Check linting works with just excluded rules
@@ -271,7 +269,7 @@ def test__cli__command_lint_stdin(command, monkeypatch):
                 "-n",
                 "--exclude-rules",
                 "L006,L007,L031,L039",
-                "linter/operator_errors.sql",
+                "test/fixtures/linter/operator_errors.sql",
             ],
         ),
         # Check that ignoring works (also checks that unicode files parse).
@@ -283,33 +281,32 @@ def test__cli__command_lint_stdin(command, monkeypatch):
                 "L003,L009,L031",
                 "--ignore",
                 "parsing,lexing",
-                "linter/parse_lex_error.sql",
+                "test/fixtures/linter/parse_lex_error.sql",
             ],
         ),
         # Check nofail works
-        (lint, ["--nofail", "linter/parse_lex_error.sql"]),
+        (lint, ["--nofail", "test/fixtures/linter/parse_lex_error.sql"]),
         # Check config works (sets dialect to tsql)
         (
             lint,
             [
                 "--config",
-                "cli/extra_configs/.sqlfluff",
-                "cli/extra_config_tsql.sql",
+                "test/fixtures/cli/extra_configs/.sqlfluff",
+                "test/fixtures/cli/extra_config_tsql.sql",
             ],
         ),
         (
             lint,
             [
                 "--config",
-                "cli/extra_configs/pyproject.toml",
-                "cli/extra_config_tsql.sql",
+                "test/fixtures/cli/extra_configs/pyproject.toml",
+                "test/fixtures/cli/extra_config_tsql.sql",
             ],
         ),
     ],
 )
-def test__cli__command_lint_parse(command, monkeypatch):
+def test__cli__command_lint_parse(command):
     """Check basic commands on a more complicated script."""
-    monkeypatch.chdir("test/fixtures/")
     invoke_assert_code(args=command)
 
 
@@ -321,7 +318,7 @@ def test__cli__command_lint_parse(command, monkeypatch):
         (
             (
                 fix,
-                ["--rules", "L001", "cli/fail_many.sql", "-vvvvvvv"],
+                ["--rules", "L001", "test/fixtures/cli/fail_many.sql", "-vvvvvvv"],
                 "y",
             ),
             1,
@@ -335,7 +332,7 @@ def test__cli__command_lint_parse(command, monkeypatch):
                     "L001",
                     "--fixed-suffix",
                     "_fix",
-                    "cli/fail_many.sql",
+                    "test/fixtures/cli/fail_many.sql",
                 ],
                 "y",
             ),
@@ -348,7 +345,7 @@ def test__cli__command_lint_parse(command, monkeypatch):
                 [
                     "--fixed-suffix",
                     "_fix",
-                    "cli/fail_many.sql",
+                    "test/fixtures/cli/fail_many.sql",
                 ],
                 "y",
             ),
@@ -356,32 +353,31 @@ def test__cli__command_lint_parse(command, monkeypatch):
         ),
     ],
 )
-def test__cli__command_lint_parse_with_retcode(command, ret_code, monkeypatch):
+def test__cli__command_lint_parse_with_retcode(command, ret_code):
     """Check commands expecting a non-zero ret code."""
-    monkeypatch.chdir("test/fixtures/")
     invoke_assert_code(ret_code=ret_code, args=command)
 
 
-def test__cli__command_lint_warning_explicit_file_ignored(monkeypatch):
+def test__cli__command_lint_warning_explicit_file_ignored():
     """Check ignoring file works when file is in an ignore directory."""
-    monkeypatch.chdir("test/fixtures/")
     runner = CliRunner()
-    result = runner.invoke(lint, ["linter/sqlfluffignore/path_b/query_c.sql"])
+    result = runner.invoke(
+        lint, ["test/fixtures/linter/sqlfluffignore/path_b/query_c.sql"]
+    )
     assert result.exit_code == 0
     assert (
-        "Exact file path linter/sqlfluffignore/path_b/query_c.sql "
+        "Exact file path test/fixtures/linter/sqlfluffignore/path_b/query_c.sql "
         "was given but it was ignored"
     ) in result.output.strip()
 
 
-def test__cli__command_lint_skip_ignore_files(monkeypatch):
+def test__cli__command_lint_skip_ignore_files():
     """Check "ignore file" is skipped when --disregard-sqlfluffignores flag is set."""
-    monkeypatch.chdir("test/fixtures/")
     runner = CliRunner()
     result = runner.invoke(
         lint,
         [
-            "linter/sqlfluffignore/path_b/query_c.sql",
+            "test/fixtures/linter/sqlfluffignore/path_b/query_c.sql",
             "--disregard-sqlfluffignores",
         ],
     )
@@ -389,16 +385,15 @@ def test__cli__command_lint_skip_ignore_files(monkeypatch):
     assert "L009" in result.output.strip()
 
 
-def test__cli__command_lint_ignore_local_config(monkeypatch):
+def test__cli__command_lint_ignore_local_config():
     """Test that --ignore-local_config ignores .sqlfluff file as expected."""
-    monkeypatch.chdir("test/fixtures/")
     runner = CliRunner()
     # First we test that not including the --ignore-local-config includes
     # .sqlfluff file, and therefore the lint doesn't raise L012
     result = runner.invoke(
         lint,
         [
-            "cli/ignore_local_config/ignore_local_config_test.sql",
+            "test/fixtures/cli/ignore_local_config/ignore_local_config_test.sql",
         ],
     )
     assert result.exit_code == 0
@@ -410,7 +405,7 @@ def test__cli__command_lint_ignore_local_config(monkeypatch):
         [
             "--ignore-local-config",
             "--dialect=ansi",
-            "cli/ignore_local_config/ignore_local_config_test.sql",
+            "test/fixtures/cli/ignore_local_config/ignore_local_config_test.sql",
         ],
     )
     assert result.exit_code == 65
@@ -434,10 +429,9 @@ def test__cli__command_versioning():
     assert result.output.strip() == pkg_version
 
 
-def test__cli__command_version(monkeypatch):
+def test__cli__command_version():
     """Just check version command for exceptions."""
     # Get the package version info
-    monkeypatch.chdir("test/fixtures/")
     pkg_version = sqlfluff.__version__
     runner = CliRunner()
     result = runner.invoke(version)
@@ -511,16 +505,15 @@ def generic_roundtrip_test(
 @pytest.mark.parametrize(
     "rule,fname",
     [
-        ("L001", "linter/indentation_errors.sql"),
-        ("L008", "linter/whitespace_errors.sql"),
-        ("L008", "linter/indentation_errors.sql"),
+        ("L001", "test/fixtures/linter/indentation_errors.sql"),
+        ("L008", "test/fixtures/linter/whitespace_errors.sql"),
+        ("L008", "test/fixtures/linter/indentation_errors.sql"),
         # Really stretching the ability of the fixer to re-indent a file
-        ("L003", "linter/indentation_error_hard.sql"),
+        ("L003", "test/fixtures/linter/indentation_error_hard.sql"),
     ],
 )
-def test__cli__command__fix(rule, fname, monkeypatch):
+def test__cli__command__fix(rule, fname):
     """Test the round trip of detecting, fixing and then not detecting the rule."""
-    monkeypatch.chdir("test/fixtures/")
     with open(fname) as test_file:
         generic_roundtrip_test(test_file, rule)
 
@@ -751,7 +744,7 @@ def test__cli__fix_loop_limit_behavior(sql, exit_code, tmpdir):
 # some reason when we try to apply it, there's a failure.
 # @pytest.mark.parametrize('rule,fname', [
 #     # NB: L004 currently has no fix routine.
-#     ('L004', 'linter/indentation_errors.sql')
+#     ('L004', 'test/fixtures/linter/indentation_errors.sql')
 # ])
 # def test__cli__command__fix_fail(rule, fname):
 #     """Test the round trip of detecting, fixing and then still detecting the rule."""
@@ -860,15 +853,12 @@ def test__cli__command_fix_stdin_error_exit_code(
 @pytest.mark.parametrize(
     "rule,fname,prompt,exit_code,fix_exit_code",
     [
-        ("L001", "linter/indentation_errors.sql", "y", 0, 0),
-        ("L001", "linter/indentation_errors.sql", "n", 65, 1),
+        ("L001", "test/fixtures/linter/indentation_errors.sql", "y", 0, 0),
+        ("L001", "test/fixtures/linter/indentation_errors.sql", "n", 65, 1),
     ],
 )
-def test__cli__command__fix_no_force(
-    rule, fname, prompt, exit_code, fix_exit_code, monkeypatch
-):
+def test__cli__command__fix_no_force(rule, fname, prompt, exit_code, fix_exit_code):
     """Round trip test, using the prompts."""
-    monkeypatch.chdir("test/fixtures/")
     with open(fname) as test_file:
         generic_roundtrip_test(
             test_file,
@@ -976,8 +966,8 @@ def test__cli__command_lint_serialize_from_stdin(serialize, sql, expected, exit_
 @pytest.mark.parametrize(
     "command",
     [
-        [lint, ("--dialect=ansi", "this_file_does_not_exist.sql")],
-        [fix, ("--dialect=ansi", "this_file_does_not_exist.sql")],
+        [lint, ("this_file_does_not_exist.sql",)],
+        [fix, ("this_file_does_not_exist.sql",)],
     ],
 )
 def test__cli__command_fail_nice_not_found(command):
@@ -988,15 +978,12 @@ def test__cli__command_fail_nice_not_found(command):
 
 @pytest.mark.parametrize("serialize", ["yaml", "json", "github-annotation"])
 @pytest.mark.parametrize("write_file", [None, "outfile"])
-def test__cli__command_lint_serialize_multiple_files(
-    serialize, write_file, tmp_path, monkeypatch
-):
+def test__cli__command_lint_serialize_multiple_files(serialize, write_file, tmp_path):
     """Check the general format of JSON output for multiple files.
 
     This tests runs both stdout checking and file checking.
     """
-    monkeypatch.chdir("test/fixtures/")
-    fpath = "linter/indentation_errors.sql"
+    fpath = "test/fixtures/linter/indentation_errors.sql"
 
     cmd_args = (
         fpath,
@@ -1038,10 +1025,9 @@ def test__cli__command_lint_serialize_multiple_files(
         raise Exception
 
 
-def test__cli__command_lint_serialize_github_annotation(monkeypatch):
+def test__cli__command_lint_serialize_github_annotation():
     """Test format of github-annotation output."""
-    monkeypatch.chdir("test/fixtures/")
-    fpath = "linter/identifier_capitalisation.sql"
+    fpath = "test/fixtures/linter/identifier_capitalisation.sql"
     result = invoke_assert_code(
         args=[
             lint,
@@ -1061,7 +1047,9 @@ def test__cli__command_lint_serialize_github_annotation(monkeypatch):
         {
             "annotation_level": "warning",
             # Normalise paths to control for OS variance
-            "file": os.path.normpath("linter/identifier_capitalisation.sql"),
+            "file": os.path.normpath(
+                "test/fixtures/linter/identifier_capitalisation.sql"
+            ),
             "line": 1,
             "message": "L036: Select targets should be on a new line unless there is "
             "only one select target.",
@@ -1072,7 +1060,9 @@ def test__cli__command_lint_serialize_github_annotation(monkeypatch):
         {
             "annotation_level": "warning",
             # Normalise paths to control for OS variance
-            "file": os.path.normpath("linter/identifier_capitalisation.sql"),
+            "file": os.path.normpath(
+                "test/fixtures/linter/identifier_capitalisation.sql"
+            ),
             "line": 2,
             "message": "L027: Unqualified reference 'foo' found in select with more "
             "than one referenced table/view.",
@@ -1083,7 +1073,9 @@ def test__cli__command_lint_serialize_github_annotation(monkeypatch):
         {
             "annotation_level": "warning",
             # Normalise paths to control for OS variance
-            "file": os.path.normpath("linter/identifier_capitalisation.sql"),
+            "file": os.path.normpath(
+                "test/fixtures/linter/identifier_capitalisation.sql"
+            ),
             "line": 3,
             "message": "L012: Implicit/explicit aliasing of columns.",
             "start_column": 5,
@@ -1093,7 +1085,9 @@ def test__cli__command_lint_serialize_github_annotation(monkeypatch):
         {
             "annotation_level": "warning",
             # Normalise paths to control for OS variance
-            "file": os.path.normpath("linter/identifier_capitalisation.sql"),
+            "file": os.path.normpath(
+                "test/fixtures/linter/identifier_capitalisation.sql"
+            ),
             "line": 3,
             "message": "L014: Unquoted identifiers must be consistently lower case.",
             "start_column": 5,
@@ -1103,7 +1097,9 @@ def test__cli__command_lint_serialize_github_annotation(monkeypatch):
         {
             "annotation_level": "warning",
             # Normalise paths to control for OS variance
-            "file": os.path.normpath("linter/identifier_capitalisation.sql"),
+            "file": os.path.normpath(
+                "test/fixtures/linter/identifier_capitalisation.sql"
+            ),
             "line": 4,
             "message": "L010: Keywords must be consistently lower case.",
             "start_column": 1,
@@ -1113,7 +1109,9 @@ def test__cli__command_lint_serialize_github_annotation(monkeypatch):
         {
             "annotation_level": "warning",
             # Normalise paths to control for OS variance
-            "file": os.path.normpath("linter/identifier_capitalisation.sql"),
+            "file": os.path.normpath(
+                "test/fixtures/linter/identifier_capitalisation.sql"
+            ),
             "line": 4,
             "message": "L014: Unquoted identifiers must be consistently lower case.",
             "start_column": 12,
@@ -1123,7 +1121,9 @@ def test__cli__command_lint_serialize_github_annotation(monkeypatch):
         {
             "annotation_level": "warning",
             # Normalise paths to control for OS variance
-            "file": os.path.normpath("linter/identifier_capitalisation.sql"),
+            "file": os.path.normpath(
+                "test/fixtures/linter/identifier_capitalisation.sql"
+            ),
             "line": 4,
             "message": "L014: Unquoted identifiers must be consistently lower case.",
             "start_column": 18,
@@ -1149,10 +1149,9 @@ def test___main___help():
         ("utf-32", "UTF-32"),
     ],
 )
-def test_encoding(encoding_in, encoding_out, monkeypatch):
+def test_encoding(encoding_in, encoding_out):
     """Check the encoding of the test file remains the same after fix is applied."""
-    monkeypatch.chdir("test/fixtures/")
-    with open("linter/indentation_errors.sql", "r") as testfile:
+    with open("test/fixtures/linter/indentation_errors.sql", "r") as testfile:
         generic_roundtrip_test(
             testfile,
             "L001",
@@ -1161,15 +1160,14 @@ def test_encoding(encoding_in, encoding_out, monkeypatch):
         )
 
 
-def test_cli_pass_on_correct_encoding_argument(monkeypatch):
+def test_cli_pass_on_correct_encoding_argument():
     """Try loading a utf-8-SIG encoded file using the correct encoding via the cli."""
-    monkeypatch.chdir("test/fixtures/")
     result = invoke_assert_code(
         ret_code=65,
         args=[
             lint,
             [
-                "cli/encoding_test.sql",
+                "test/fixtures/cli/encoding_test.sql",
                 "--encoding",
                 "utf-8-SIG",
             ],
@@ -1182,15 +1180,14 @@ def test_cli_pass_on_correct_encoding_argument(monkeypatch):
     assert r"L:   1 | P:   1 |  PRS |" not in raw_output
 
 
-def test_cli_fail_on_wrong_encoding_argument(monkeypatch):
+def test_cli_fail_on_wrong_encoding_argument():
     """Try loading a utf-8-SIG encoded file using the wrong encoding via the cli."""
-    monkeypatch.chdir("test/fixtures/")
     result = invoke_assert_code(
         ret_code=65,
         args=[
             lint,
             [
-                "cli/encoding_test.sql",
+                "test/fixtures/cli/encoding_test.sql",
                 "--encoding",
                 "utf-8",
             ],
@@ -1203,27 +1200,25 @@ def test_cli_fail_on_wrong_encoding_argument(monkeypatch):
     assert r"L:   1 | P:   1 |  PRS |" in raw_output
 
 
-def test_cli_no_disable_noqa_flag(monkeypatch):
+def test_cli_no_disable_noqa_flag():
     """Test that unset --disable_noqa flag respects inline noqa comments."""
-    monkeypatch.chdir("test/fixtures/")
     invoke_assert_code(
         ret_code=0,
         args=[
             lint,
-            ["cli/disable_noqa_test.sql"],
+            ["test/fixtures/cli/disable_noqa_test.sql"],
         ],
     )
 
 
-def test_cli_disable_noqa_flag(monkeypatch):
+def test_cli_disable_noqa_flag():
     """Test that --disable_noqa flag ignores inline noqa comments."""
-    monkeypatch.chdir("test/fixtures/")
     result = invoke_assert_code(
         ret_code=65,
         args=[
             lint,
             [
-                "cli/disable_noqa_test.sql",
+                "test/fixtures/cli/disable_noqa_test.sql",
                 "--disable-noqa",
             ],
         ],
@@ -1234,11 +1229,10 @@ def test_cli_disable_noqa_flag(monkeypatch):
     assert r"L:   5 | P:  11 | L010 |" in raw_output
 
 
-def test_cli_get_default_config(monkeypatch):
+def test_cli_get_default_config():
     """`nocolor` and `verbose` values loaded from config if not specified via CLI."""
-    monkeypatch.chdir("test/fixtures/")
     config = get_config(
-        "config/toml/pyproject.toml",
+        "test/fixtures/config/toml/pyproject.toml",
         True,
         nocolor=None,
         verbose=None,
@@ -1263,36 +1257,33 @@ class TestProgressBars:
     """
 
     def test_cli_lint_disabled_progress_bar(
-        self, mock_disable_progress_bar: MagicMock, monkeypatch
+        self, mock_disable_progress_bar: MagicMock
     ) -> None:
         """When progress bar is disabled, nothing should be printed into output."""
-        monkeypatch.chdir("test/fixtures/")
         result = invoke_assert_code(
             args=[
                 lint,
                 [
                     "--disable_progress_bar",
-                    "linter/passing.sql",
-                    "--dialect=ansi",
+                    "test/fixtures/linter/passing.sql",
                 ],
             ],
         )
         raw_output = repr(result.output)
 
-        assert "\rpath linter/passing.sql:" not in raw_output
+        assert "\rpath test/fixtures/linter/passing.sql:" not in raw_output
         assert "\rparsing: 0it" not in raw_output
         assert "\r\rlint by rules:" not in raw_output
 
     def test_cli_lint_enabled_progress_bar(
-        self, mock_disable_progress_bar: MagicMock, monkeypatch
+        self, mock_disable_progress_bar: MagicMock
     ) -> None:
         """When progress bar is enabled, there should be some tracks in output."""
-        monkeypatch.chdir("test/fixtures/")
         result = invoke_assert_code(
             args=[
                 lint,
                 [
-                    "linter/passing.sql",
+                    "test/fixtures/linter/passing.sql",
                 ],
             ],
         )
@@ -1303,38 +1294,36 @@ class TestProgressBars:
         assert r"\rrule L049:" in raw_output
 
     def test_cli_lint_enabled_progress_bar_multiple_paths(
-        self, mock_disable_progress_bar: MagicMock, monkeypatch
+        self, mock_disable_progress_bar: MagicMock
     ) -> None:
         """When progress bar is enabled, there should be some tracks in output."""
-        monkeypatch.chdir("test/fixtures/")
         result = invoke_assert_code(
             ret_code=65,
             args=[
                 lint,
                 [
-                    "linter/passing.sql",
-                    "linter/indentation_errors.sql",
+                    "test/fixtures/linter/passing.sql",
+                    "test/fixtures/linter/indentation_errors.sql",
                 ],
             ],
         )
         raw_output = repr(result.output)
 
-        assert r"\rpath linter/passing.sql:" in raw_output
-        assert r"\rpath linter/indentation_errors.sql:" in raw_output
+        assert r"\rpath test/fixtures/linter/passing.sql:" in raw_output
+        assert r"\rpath test/fixtures/linter/indentation_errors.sql:" in raw_output
         assert r"\rlint by rules:" in raw_output
         assert r"\rrule L001:" in raw_output
         assert r"\rrule L049:" in raw_output
 
     def test_cli_lint_enabled_progress_bar_multiple_files(
-        self, mock_disable_progress_bar: MagicMock, monkeypatch
+        self, mock_disable_progress_bar: MagicMock
     ) -> None:
         """When progress bar is enabled, there should be some tracks in output."""
-        monkeypatch.chdir("test/fixtures/")
         result = invoke_assert_code(
             args=[
                 lint,
                 [
-                    "linter/multiple_files",
+                    "test/fixtures/linter/multiple_files",
                 ],
             ],
         )

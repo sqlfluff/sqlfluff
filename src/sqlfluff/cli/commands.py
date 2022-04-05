@@ -358,7 +358,9 @@ def get_linter_and_formatter(
     try:
         # We're just making sure it exists at this stage.
         # It will be fetched properly in the linter.
-        dialect_selector(cfg.get("dialect"))
+        dialect = cfg.get("dialect")
+        if dialect:
+            dialect_selector(dialect)
     except KeyError:  # pragma: no cover
         click.echo(f"Error: Unknown dialect '{cfg.get('dialect')}'")
         sys.exit(66)
@@ -514,7 +516,9 @@ def lint(
         echo 'select col from tbl' | sqlfluff lint -
 
     """
-    config = get_config(extra_config_path, ignore_local_config, **kwargs)
+    config = get_config(
+        extra_config_path, ignore_local_config, require_dialect=False, **kwargs
+    )
     non_human_output = (format != FormatType.human.value) or (write_output is not None)
     file_output = None
     lnt, formatter = get_linter_and_formatter(config, silent=non_human_output)
@@ -701,7 +705,9 @@ def fix(
     # some quick checks
     fixing_stdin = ("-",) == paths
 
-    config = get_config(extra_config_path, ignore_local_config, **kwargs)
+    config = get_config(
+        extra_config_path, ignore_local_config, require_dialect=False, **kwargs
+    )
     fix_even_unparsable = config.get("fix_even_unparsable")
     lnt, formatter = get_linter_and_formatter(config, silent=fixing_stdin)
 
@@ -938,7 +944,9 @@ def parse(
     character to indicate reading from *stdin* or a dot/blank ('.'/' ') which will
     be interpreted like passing the current working directory as a path argument.
     """
-    c = get_config(extra_config_path, ignore_local_config, **kwargs)
+    c = get_config(
+        extra_config_path, ignore_local_config, require_dialect=False, **kwargs
+    )
     # We don't want anything else to be logged if we want json or yaml output
     # unless we're writing to a file.
     non_human_output = (format != FormatType.human.value) or (write_output is not None)
