@@ -1314,7 +1314,6 @@ class TestProgressBars:
                 [
                     "linter/passing.sql",
                     "linter/indentation_errors.sql",
-                    "--dialect=ansi",
                 ],
             ],
         )
@@ -1336,7 +1335,6 @@ class TestProgressBars:
                 lint,
                 [
                     "linter/multiple_files",
-                    "--dialect=ansi",
                 ],
             ],
         )

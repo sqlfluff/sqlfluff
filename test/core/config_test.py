@@ -3,9 +3,9 @@
 import os
 import sys
 
-from sqlfluff.core import config
+from sqlfluff.core import config, Linter, FluffConfig
 from sqlfluff.core.config import ConfigLoader, nested_combine, dict_diff
-from sqlfluff.core import Linter, FluffConfig
+from sqlfluff.core.errors import SQLFluffUserError
 from sqlfluff.core.templaters import (
     RawTemplater,
     PythonTemplater,
@@ -304,3 +304,10 @@ def test__config__from_kwargs():
     assert cfg.get("dialect") == "snowflake"
     assert cfg.get("rules") == "L001,L002"
     assert cfg.get("exclude_rules") == "L010,L011"
+
+
+def test__config_missing_dialect():
+    """Verify an exception is thrown if no dialect was specified."""
+    with pytest.raises(SQLFluffUserError) as e:
+        FluffConfig.from_kwargs()
+    assert "must configure a dialect" in str(e.value)
