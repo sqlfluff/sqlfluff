@@ -1079,7 +1079,7 @@ class WithinGroupClauseSegment(BaseSegment):
     )
 
 
-class CreateRoleStatementSegment(BaseSegment):
+class CreateRoleStatementSegment(ansi.CreateRoleStatementSegment):
     """A `CREATE ROLE` statement.
 
     As per:

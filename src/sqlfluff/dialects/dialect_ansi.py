@@ -3295,10 +3295,7 @@ class CreateRoleStatementSegment(BaseSegment):
 
 
 class DropRoleStatementSegment(BaseSegment):
-    """A `DROP ROLE` statement with CASCADE option.
-
-    https://docs.exasol.com/sql/drop_role.htm
-    """
+    """A `DROP ROLE` statement with CASCADE option."""
 
     type = "drop_role_statement"
 
