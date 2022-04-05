@@ -3303,11 +3303,6 @@ class DropRoleStatementSegment(BaseSegment):
 
     type = "drop_role_statement"
 
-    is_ddl = False
-    is_dml = False
-    is_dql = False
-    is_dcl = True
-
     match_grammar = Sequence(
         "DROP",
         "ROLE",
