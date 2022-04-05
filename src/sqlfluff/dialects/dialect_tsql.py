@@ -252,6 +252,7 @@ tsql_dialect.replace(
     ),
     FunctionParameterGrammar=Sequence(
         Ref("ParameterNameSegment", optional=True),
+        Sequence("AS", optional=True),
         Ref("DatatypeSegment"),
         Sequence(Ref("EqualsSegment"), Ref("ExpressionSegment"), optional=True),
     ),
