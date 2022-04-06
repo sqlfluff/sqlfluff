@@ -616,22 +616,11 @@ class DatatypeSegment(PrimitiveTypeSegment):
         Sequence(
             "STRUCT",
             Bracketed(
-                # Manually rebuild Delimited.
-                # Delimited breaks futher nesting (MAP, STRUCT, ARRAY)
-                # of complex datatypes (Comma splits angle bracket blocks)
-                #
                 # CommentGrammar here is valid Spark SQL
                 # even though its not stored in Sparks Catalog
-                Sequence(
-                    Ref("NakedIdentifierSegment"),
-                    Ref("ColonSegment"),
-                    Ref("DatatypeSegment"),
-                    Ref("CommentGrammar", optional=True),
-                ),
-                AnyNumberOf(
+                Delimited(
                     Sequence(
-                        Ref("CommaSegment"),
-                        Ref("NakedIdentifierSegment"),
+                        Ref("SingleIdentifierGrammar"),
                         Ref("ColonSegment"),
                         Ref("DatatypeSegment"),
                         Ref("CommentGrammar", optional=True),
@@ -691,25 +680,69 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
             Sequence(
                 "ADD",
                 "COLUMNS",
-                Bracketed(
+                Indent,
+                OptionallyBracketed(
                     Delimited(
-                        Ref("ColumnDefinitionSegment"),
+                        Sequence(
+                            Ref("ColumnDefinitionSegment"),
+                            OneOf(
+                                "FIRST",
+                                Sequence(
+                                    "AFTER",
+                                    Ref("ColumnReferenceSegment"),
+                                ),
+                                optional=True,
+                            ),
+                        ),
                     ),
                 ),
+                Dedent,
             ),
             # ALTER TABLE - ALTER OR CHANGE COLUMN
             Sequence(
                 OneOf("ALTER", "CHANGE"),
-                "COLUMN",
-                Ref("ColumnReferenceSegment"),
-                Sequence("TYPE", Ref("DatatypeSegment"), optional=True),
+                Ref.keyword("COLUMN", optional=True),
+                Indent,
+                AnyNumberOf(
+                    OneOf(
+                        Ref("ColumnReferenceSegment"),
+                        exclude=OneOf(
+                            "COMMENT",
+                            "TYPE",
+                            Ref("DatatypeSegment"),
+                            "FIRST",
+                            "AFTER",
+                            "SET",
+                        ),
+                    ),
+                    max_times=2,
+                ),
+                Ref.keyword("TYPE", optional=True),
+                Ref("DatatypeSegment", optional=True),
                 Ref("CommentGrammar", optional=True),
                 OneOf(
                     "FIRST",
-                    Sequence("AFTER", Ref("ColumnReferenceSegment")),
+                    Sequence(
+                        "AFTER",
+                        Ref("ColumnReferenceSegment"),
+                    ),
                     optional=True,
                 ),
                 Sequence(OneOf("SET", "DROP"), "NOT NULL", optional=True),
+                Dedent,
+            ),
+            # ALTER TABLE - REPLACE COLUMNS
+            Sequence(
+                "REPLACE",
+                "COLUMNS",
+                Bracketed(
+                    Delimited(
+                        Sequence(
+                            Ref("ColumnDefinitionSegment"),
+                            Ref("CommentGrammar", optional=True),
+                        ),
+                    ),
+                ),
             ),
             # ALTER TABLE - ADD PARTITION
             Sequence(

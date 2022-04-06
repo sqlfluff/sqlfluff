@@ -795,6 +795,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CommentStatementSegment"),
             Ref("CallStatementSegment"),
             Ref("AlterViewStatementSegment"),
+            Ref("RemoveStatementSegment"),
         ],
         remove=[
             Ref("CreateTypeStatementSegment"),
@@ -4284,3 +4285,23 @@ class HavingClauseSegment(ansi.HavingClauseSegment):
         insert=[Ref.keyword("FETCH"), Ref.keyword("OFFSET")],
     )
     parse_grammar = ansi.HavingClauseSegment.parse_grammar
+
+
+class RemoveStatementSegment(BaseSegment):
+    """A Remove Statement.
+
+    As per https://docs.snowflake.com/en/sql-reference/sql/remove.html
+    """
+
+    type = "remove_statement"
+
+    match_grammar = Sequence(
+        OneOf("REMOVE", "RM"),
+        Ref("ObjectReferenceSegment"),
+        Sequence(
+            "PATTERN",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
+    )

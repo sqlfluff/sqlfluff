@@ -153,7 +153,7 @@ def test_segments_recursive_crawl():
     FROM cte
     INNER JOIN tab_b;
     """
-    linter = Linter()
+    linter = Linter(dialect="ansi")
     parsed = linter.parse_string(sql)
 
     functional_tree = segments.Segments(parsed.tree)

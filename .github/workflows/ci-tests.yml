@@ -226,13 +226,13 @@ jobs:
         sqlfluff --version
     - name: Run a simple select parse test via stdin
       run: |
-        echo "select 1" | sqlfluff parse -
+        echo "select 1" | sqlfluff parse --dialect=ansi -
     - name: Run a simple select lint test via stdin
       run: |
-        echo "select 1" | sqlfluff lint -
+        echo "select 1" | sqlfluff lint --dialect=ansi -
     - name: Run a simple select parse test via file
       run: |
-        sqlfluff parse <(echo "select 1")
+        sqlfluff parse --dialect=ansi <(echo "select 1")
     - name: Run a simple select lint test via file
       run: |
-        sqlfluff lint <(echo "select 1")
+        sqlfluff lint --dialect=ansi <(echo "select 1")
