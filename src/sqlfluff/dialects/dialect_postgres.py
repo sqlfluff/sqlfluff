@@ -1,5 +1,4 @@
 """The PostgreSQL dialect."""
-from abc import ABC
 from sqlfluff.core.parser import (
     OneOf,
     AnyNumberOf,
@@ -1099,6 +1098,7 @@ class CreateRoleStatementSegment(ansi.CreateRoleStatementSegment):
                     Sequence("USER", Ref("RoleReferenceSegment")),
                     Sequence("SYSID", Ref("NumericLiteralSegment")),
                 ),
+                optional=True,
             )
         ],
     )
@@ -1135,6 +1135,7 @@ class CreateUserStatementSegment(BaseSegment):
                 Sequence("USER", Ref("RoleReferenceSegment")),
                 Sequence("SYSID", Ref("NumericLiteralSegment")),
             ),
+            optional=True,
         ),
     )
 
@@ -3098,6 +3099,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DoStatementSegment"),
             Ref("AlterIndexStatementSegment"),
             Ref("ReindexStatementSegment"),
+            Ref("CreateUserStatementSegment"),
         ],
     )
 
