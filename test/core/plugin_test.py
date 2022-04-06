@@ -26,6 +26,6 @@ def test__plugin_example_rules_returned():
 
 def test__plugin_default_config_read():
     """Test that the example plugin default config is merged into FluffConfig."""
-    fluff_config = FluffConfig()
+    fluff_config = FluffConfig(overrides={"dialect": "ansi"})
     # The plugin import order is non-deterministic
     assert "forbidden_columns" in fluff_config._configs["rules"]["Example_L001"]

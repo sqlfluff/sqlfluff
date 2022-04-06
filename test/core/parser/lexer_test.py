@@ -57,7 +57,7 @@ def assert_matches(instring, matcher, matchstring):
 )
 def test__parser__lexer_obj(raw, res, caplog):
     """Test the lexer splits as expected in a selection of cases."""
-    lex = Lexer(config=FluffConfig())
+    lex = Lexer(config=FluffConfig(overrides={"dialect": "ansi"}))
     with caplog.at_level(logging.DEBUG):
         lexing_segments, _ = lex.lex(raw)
         assert [seg.raw for seg in lexing_segments] == res
@@ -117,7 +117,7 @@ def test__parser__lexer_lex_match(caplog):
 
 def test__parser__lexer_fail():
     """Test the how the lexer fails and reports errors."""
-    lex = Lexer(config=FluffConfig())
+    lex = Lexer(config=FluffConfig(overrides={"dialect": "ansi"}))
 
     _, vs = lex.lex("Select \u0394")
 
@@ -129,7 +129,7 @@ def test__parser__lexer_fail():
 
 def test__parser__lexer_fail_via_parse():
     """Test the how the parser fails and reports errors while lexing."""
-    lexer = Lexer(config=FluffConfig())
+    lexer = Lexer(config=FluffConfig(overrides={"dialect": "ansi"}))
     _, vs = lexer.lex("Select \u0394")
     assert vs
     assert len(vs) == 1
