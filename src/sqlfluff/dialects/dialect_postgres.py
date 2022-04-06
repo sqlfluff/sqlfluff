@@ -3217,6 +3217,98 @@ class AsAliasExpressionSegment(BaseSegment):
         Ref("SingleIdentifierGrammar"),
     )
 
+class ConflictActionSegment(BaseSegment):
+
+    type = "conflict_action"
+
+    match_grammar = Sequence(
+        "DO",
+        OneOf(
+            "NOTHING",
+            Sequence(
+                "UPDATE",
+                "SET",
+                Delimited(
+                    OneOf(
+                        Sequence(
+                            Ref("ColumnReferenceSegment"),
+                            Ref("EqualsSegment"),
+                            OneOf(
+                                Ref("ExpressionSegment"),
+                                "DEFAULT"
+                            )
+                        ),
+                        Sequence(
+                            Bracketed(
+                                Delimited(
+                                    Ref("ColumnReferenceExpression")
+                                )
+                            ),
+                            Ref("EqualsSegment"),
+                            Ref.keyword("ROW", optional=True),
+                            Bracketed(
+                                Delimited(
+                                    OneOf(
+                                        Ref("ExpressionSegment"),
+                                        "DEFAULT"
+                                    )
+                                )
+                            )
+                        ),
+                        # Sequence(
+                        #     Bracketed(
+                        #         Delimited(
+                        #             Ref("ColumnReferenceExpression")
+                        #         )
+                        #     ),
+                        #     Ref("EqualsSegment"),
+                        #     Bracketed(
+                        #         Ref("SubSelectExpression") # This isn't defined. Effectively an entire query.
+                        #     )
+                        # )
+                    )
+                ),
+                Sequence(
+                    "WHERE",
+                    Ref("ExpressionSegment"),
+                    optional=True
+                )
+            )
+        )
+    )
+
+class ConflictTargetSegment(BaseSegment):
+
+    type = "conflict_target"
+
+    # TODO: Add OneOf(Onconstraint)
+    match_grammar = Sequence(
+        Bracketed(
+            Delimited(
+                Sequence(
+                    OneOf(
+                        Ref("ColumnReferenceSegment"),
+                        Bracketed(
+                            Ref("ExpressionSegment")
+                        )
+                    ),
+                    Sequence(
+                        Ref.keyword("COLLATE"),
+                        Ref("QuotedLiteralSegment"),
+                        optional=True
+                    ),
+                    Ref("ObjectReferenceSegment") # PLACEHOLDER: for OperationClassReferenceSegment
+                )
+            )
+        ),
+        # TODO: Check below works (well add the tests).
+        Sequence(
+            "WHERE",
+            Ref("ExpressionSegment"),
+            optional=True
+        )
+    )
+
 
 class InsertStatementSegment(ansi.InsertStatementSegment):
     """An `INSERT` statement.
@@ -3238,6 +3330,13 @@ class InsertStatementSegment(ansi.InsertStatementSegment):
             Ref("SelectableGrammar"),
         ),
         # TODO: Add ON CONFLICT grammar.
+        Sequence(
+            "ON",
+            "CONFLICT",
+            Ref("ConflictTargetSegment", optional=True),
+            Ref("ConflictActionSegment"),
+            optional=True
+        ),
         Sequence(
             "RETURNING",
             OneOf(
