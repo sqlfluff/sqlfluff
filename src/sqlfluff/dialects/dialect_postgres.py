@@ -1,5 +1,5 @@
 """The PostgreSQL dialect."""
-
+from abc import ABC
 from sqlfluff.core.parser import (
     OneOf,
     AnyNumberOf,
@@ -1081,12 +1081,62 @@ class CreateRoleStatementSegment(ansi.CreateRoleStatementSegment):
         insert=[
             Sequence(
                 Ref.keyword("WITH", optional=True),
-                # Very permissive for now. Anything can go here.
-                Anything(),
+                AnySetOf(
+                    OneOf("SUPERUSER", "NOSUPERUSER"),
+                    OneOf("CREATEDB", "NOCREATEDB"),
+                    OneOf("CREATEROLE", "NOCREATEROLE"),
+                    OneOf("INHERIT", "NOINHERIT"),
+                    OneOf("LOGIN", "NOLOGIN"),
+                    OneOf("REPLICATION", "NOREPLICATION"),
+                    OneOf("BYPASSRLS", "NOBYPASSRLS"),
+                    Sequence("CONNECTION", "LIMIT", Ref("NumericLiteralSegment")),
+                    Sequence("PASSWORD", OneOf(Ref("QuotedLiteralSegment"), "NULL")),
+                    Sequence("VALID", "UNTIL", Ref("QuotedLiteralSegment")),
+                    Sequence("IN", "ROLE", Ref("RoleReferenceSegment")),
+                    Sequence("IN", "GROUP", Ref("RoleReferenceSegment")),
+                    Sequence("ROLE", Ref("RoleReferenceSegment")),
+                    Sequence("ADMIN", Ref("RoleReferenceSegment")),
+                    Sequence("USER", Ref("RoleReferenceSegment")),
+                    Sequence("SYSID", Ref("NumericLiteralSegment")),
+                ),
             )
         ],
     )
 
+class CreateUserStatementSegment(BaseSegment):
+    """A `CREATE USER` statement.
+
+    As per:
+    https://www.postgresql.org/docs/current/sql-createuser.html
+    """
+
+    type = "create_user"
+    match_grammar = Sequence(
+        "CREATE",
+        "USER",
+        Ref("ObjectReferenceSegment"),
+        Sequence(
+            Ref.keyword("WITH", optional=True),
+            AnySetOf(
+                OneOf("SUPERUSER", "NOSUPERUSER"),
+                OneOf("CREATEDB", "NOCREATEDB"),
+                OneOf("CREATEROLE", "NOCREATEROLE"),
+                OneOf("INHERIT", "NOINHERIT"),
+                OneOf("LOGIN", "NOLOGIN"),
+                OneOf("REPLICATION", "NOREPLICATION"),
+                OneOf("BYPASSRLS", "NOBYPASSRLS"),
+                Sequence("CONNECTION", "LIMIT", Ref("NumericLiteralSegment")),
+                Sequence("PASSWORD", OneOf(Ref("QuotedLiteralSegment"), "NULL")),
+                Sequence("VALID", "UNTIL", Ref("QuotedLiteralSegment")),
+                Sequence("IN", "ROLE", Ref("RoleReferenceSegment")),
+                Sequence("IN", "GROUP", Ref("RoleReferenceSegment")),
+                Sequence("ROLE", Ref("RoleReferenceSegment")),
+                Sequence("ADMIN", Ref("RoleReferenceSegment")),
+                Sequence("USER", Ref("RoleReferenceSegment")),
+                Sequence("SYSID", Ref("NumericLiteralSegment")),
+            ),
+        ),
+    )
 
 class ExplainStatementSegment(ansi.ExplainStatementSegment):
     """An `Explain` statement.
