@@ -706,7 +706,7 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                 AnyNumberOf(
                     OneOf(
                         Ref("ColumnReferenceSegment"),
-                        exclude=AnyNumberOf(
+                        exclude=OneOf(
                             "COMMENT",
                             "TYPE",
                             Ref("DatatypeSegment"),
