@@ -447,7 +447,7 @@ snowflake_dialect.replace(
         Sequence("ILIKE", Ref.keyword("ANY", optional=True)),
         "REGEXP",
     ),
-     ComparisonOperatorGrammar=OneOf(
+    ComparisonOperatorGrammar=OneOf(
         Ref("EqualsSegment"),
         Ref("GreaterThanSegment"),
         Ref("LessThanSegment"),
