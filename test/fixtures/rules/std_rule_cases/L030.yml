@@ -60,3 +60,8 @@ test_pass_ignore_templated_code:
     SELECT
         {{ "greatest(a, b)" }},
         GREATEST(i, j)
+
+test_fail_func_name_templated_literal_mix:
+  # Issue 3022. This was actually a bug in BaseSegment.iter_patches().
+  fail_str: SELECT RO(), {{ "t" }}.func()
+  fix_str: SELECT RO(), {{ "t" }}.FUNC()
