@@ -704,8 +704,8 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                 Ref.keyword("COLUMN", optional=True),
                 Indent,
                 AnyNumberOf(
-                    OneOf(
-                        Ref("ColumnReferenceSegment"),
+                    Ref(
+                        "ColumnReferenceSegment",
                         exclude=OneOf(
                             "COMMENT",
                             "TYPE",
