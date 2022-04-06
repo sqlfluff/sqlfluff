@@ -1,4 +1,5 @@
 """The PostgreSQL dialect."""
+
 from sqlfluff.core.parser import (
     OneOf,
     AnyNumberOf,
