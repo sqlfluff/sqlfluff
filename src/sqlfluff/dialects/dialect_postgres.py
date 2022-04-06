@@ -1081,12 +1081,28 @@ class CreateRoleStatementSegment(ansi.CreateRoleStatementSegment):
 
     match_grammar = Sequence(
         "CREATE",
-        "ROLE",
+        OneOf("ROLE", "USER"),
         Ref("ObjectReferenceSegment"),
         Sequence(
             Ref.keyword("WITH", optional=True),
-            # Very permissive for now. Anything can go here.
-            Anything(),
+            AnySetOf(
+                OneOf("SUPERUSER", "NOSUPERUSER"),
+                OneOf("CREATEDB", "NOCREATEDB"),
+                OneOf("CREATEROLE", "NOCREATEROLE"),
+                OneOf("INHERIT", "NOINHERIT"),
+                OneOf("LOGIN", "NOLOGIN"),
+                OneOf("REPLICATION", "NOREPLICATION"),
+                OneOf("BYPASSRLS", "NOBYPASSRLS"),
+                Sequence("CONNECTION", "LIMIT", Ref("NumericLiteralSegment")),
+                Sequence("PASSWORD", OneOf(Ref("QuotedLiteralSegment"), "NULL")),
+                Sequence("VALID", "UNTIL", Ref("QuotedLiteralSegment")),
+                Sequence("IN", "ROLE", Ref("RoleReferenceSegment")),
+                Sequence("IN", "GROUP", Ref("RoleReferenceSegment")),
+                Sequence("ROLE", Ref("RoleReferenceSegment")),
+                Sequence("ADMIN", Ref("RoleReferenceSegment")),
+                Sequence("USER", Ref("RoleReferenceSegment")),
+                Sequence("SYSID", Ref("NumericLiteralSegment")),
+            ),
             optional=True,
         ),
     )
