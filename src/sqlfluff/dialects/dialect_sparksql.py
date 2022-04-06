@@ -704,8 +704,8 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                 Ref.keyword("COLUMN", optional=True),
                 Indent,
                 AnyNumberOf(
-                    OneOf(
-                        Ref("ColumnReferenceSegment"),
+                    Ref(
+                        "ColumnReferenceSegment",
                         exclude=OneOf(
                             "COMMENT",
                             "TYPE",
@@ -889,27 +889,14 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
         ),
         OneOf(
             # Columns and comment syntax:
-            Sequence(
-                Bracketed(
-                    # Manually rebuild Delimited.
-                    # Delimited breaks complex (MAP, STRUCT) datatypes
-                    # (Comma splits angle bracket blocks)
+            Bracketed(
+                Delimited(
                     Sequence(
                         OneOf(
                             Ref("ColumnDefinitionSegment"),
                             Ref("GeneratedColumnDefinitionSegment"),
                         ),
                         Ref("CommentGrammar", optional=True),
-                    ),
-                    AnyNumberOf(
-                        Sequence(
-                            Ref("CommaSegment"),
-                            OneOf(
-                                Ref("ColumnDefinitionSegment"),
-                                Ref("GeneratedColumnDefinitionSegment"),
-                            ),
-                            Ref("CommentGrammar", optional=True),
-                        ),
                     ),
                 ),
             ),
@@ -2392,11 +2379,10 @@ class ValuesClauseSegment(ansi.ValuesClauseSegment):
             ),
         ),
         # LIMIT/ORDER are unreserved in sparksql.
-        AnyNumberOf(
-            Ref("AliasExpressionSegment"),
-            min_times=0,
-            max_times=1,
+        Ref(
+            "AliasExpressionSegment",
             exclude=OneOf("LIMIT", "ORDER"),
+            optional=True,
         ),
         Ref("OrderByClauseSegment", optional=True),
         Ref("LimitClauseSegment", optional=True),
@@ -2462,8 +2448,8 @@ class FromExpressionElementSegment(ansi.FromExpressionElementSegment):
     match_grammar = Sequence(
         Ref("PreTableFunctionKeywordsGrammar", optional=True),
         OptionallyBracketed(Ref("TableExpressionSegment")),
-        OneOf(
-            Ref("AliasExpressionSegment"),
+        Ref(
+            "AliasExpressionSegment",
             exclude=Ref("SamplingExpressionSegment"),
             optional=True,
         ),
@@ -2523,5 +2509,42 @@ class GeneratedColumnDefinitionSegment(BaseSegment):
         ),
         AnyNumberOf(
             Ref("ColumnConstraintSegment", optional=True),
+        ),
+    )
+
+
+class MergeUpdateClauseSegment(ansi.MergeUpdateClauseSegment):
+    """`UPDATE` clause within the `MERGE` statement."""
+
+    type = "merge_update_clause"
+    match_grammar: Matchable = Sequence(
+        "UPDATE",
+        OneOf(
+            Sequence("SET", Ref("WildcardIdentifierSegment")),
+            Sequence(
+                Indent,
+                Ref("SetClauseListSegment"),
+                Dedent,
+            ),
+        ),
+    )
+
+
+class MergeInsertClauseSegment(ansi.MergeInsertClauseSegment):
+    """`INSERT` clause within the `MERGE` statement."""
+
+    type = "merge_insert_clause"
+    match_grammar: Matchable = Sequence(
+        "INSERT",
+        OneOf(
+            Ref("WildcardIdentifierSegment"),
+            Sequence(
+                Indent,
+                Ref("BracketedColumnReferenceListGrammar"),
+                Dedent,
+                Indent,
+                Ref("ValuesClauseSegment"),
+                Dedent,
+            ),
         ),
     )

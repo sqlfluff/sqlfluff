@@ -947,7 +947,7 @@ ansi_dialect.add(
         # Trim function
         Sequence(
             Ref("TrimParametersGrammar"),
-            OneOf(Ref("ExpressionSegment"), optional=True, exclude=Ref.keyword("FROM")),
+            Ref("ExpressionSegment", optional=True, exclude=Ref.keyword("FROM")),
             "FROM",
             Ref("ExpressionSegment"),
         ),
@@ -1081,10 +1081,8 @@ class FunctionSegment(BaseSegment):
         ),
         Sequence(
             Sequence(
-                AnyNumberOf(
-                    Ref("FunctionNameSegment"),
-                    max_times=1,
-                    min_times=1,
+                Ref(
+                    "FunctionNameSegment",
                     exclude=OneOf(
                         Ref("DatePartFunctionNameSegment"),
                         Ref("ValuesClauseSegment"),
@@ -1158,8 +1156,8 @@ class FromExpressionElementSegment(BaseSegment):
     match_grammar: Matchable = Sequence(
         Ref("PreTableFunctionKeywordsGrammar", optional=True),
         OptionallyBracketed(Ref("TableExpressionSegment")),
-        OneOf(
-            Ref("AliasExpressionSegment"),
+        Ref(
+            "AliasExpressionSegment",
             exclude=OneOf(
                 Ref("SamplingExpressionSegment"),
                 Ref("JoinLikeClauseGrammar"),
@@ -3098,7 +3096,7 @@ class UpdateStatementSegment(BaseSegment):
         Ref("TableReferenceSegment"),
         # SET is not a resevered word in all dialects (e.g. RedShift)
         # So specifically exclude as an allowed implict alias to avoid parsing errors
-        OneOf(Ref("AliasExpressionSegment"), exclude=Ref.keyword("SET"), optional=True),
+        Ref("AliasExpressionSegment", exclude=Ref.keyword("SET"), optional=True),
         Ref("SetClauseListSegment"),
         Ref("FromClauseSegment", optional=True),
         Ref("WhereClauseSegment", optional=True),
@@ -3349,12 +3347,10 @@ class MLTableExpressionSegment(BaseSegment):
         Ref("SingleIdentifierGrammar"),
         Bracketed(
             Sequence("MODEL", Ref("ObjectReferenceSegment")),
-            OneOf(
-                Sequence(
-                    Ref("CommaSegment"),
-                    Bracketed(
-                        Ref("SelectableGrammar"),
-                    ),
+            Sequence(
+                Ref("CommaSegment"),
+                Bracketed(
+                    Ref("SelectableGrammar"),
                 ),
                 optional=True,
             ),
