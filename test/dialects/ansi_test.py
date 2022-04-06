@@ -166,7 +166,7 @@ def test__dialect__ansi_specific_segment_not_match(
 )
 def test__dialect__ansi_specific_segment_not_parse(raw, err_locations, caplog):
     """Test queries do not parse, with parsing errors raised properly."""
-    lnt = Linter()
+    lnt = Linter(dialect="ansi")
     parsed = lnt.parse_string(raw)
     assert len(parsed.violations) > 0
     print(parsed.violations)
@@ -176,7 +176,7 @@ def test__dialect__ansi_specific_segment_not_parse(raw, err_locations, caplog):
 
 def test__dialect__ansi_is_whitespace():
     """Test proper tagging with is_whitespace."""
-    lnt = Linter()
+    lnt = Linter(dialect="ansi")
     with open("test/fixtures/dialects/ansi/select_in_multiline_comment.sql") as f:
         parsed = lnt.parse_string(f.read())
     # Check all the segments that *should* be whitespace, ARE
@@ -205,7 +205,10 @@ def test__dialect__ansi_is_whitespace():
 def test__dialect__ansi_parse_indented_joins(sql_string, indented_joins, meta_loc):
     """Test parsing of meta segments using Conditional works with indented_joins."""
     lnt = Linter(
-        config=FluffConfig(configs={"indentation": {"indented_joins": indented_joins}})
+        config=FluffConfig(
+            configs={"indentation": {"indented_joins": indented_joins}},
+            overrides={"dialect": "ansi"},
+        )
     )
     parsed = lnt.parse_string(sql_string)
     # Check that there's nothing unparsable

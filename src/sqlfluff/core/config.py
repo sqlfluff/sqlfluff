@@ -455,6 +455,10 @@ class FluffConfig:
         ignore_local_config: bool = False,
         overrides: Optional[dict] = None,
         plugin_manager: Optional[pluggy.PluginManager] = None,
+        # Ideally a dialect should be set when config is read but sometimes
+        # it might only be set in nested .sqlfluff config files, so allow it
+        # to be not required.
+        require_dialect: bool = True,
     ):
         self._extra_config_path = (
             extra_config_path  # We only store this for child configs
@@ -503,12 +507,31 @@ class FluffConfig:
         # NB: We import here to avoid a circular references.
         from sqlfluff.core.dialects import dialect_selector
 
-        self._configs["core"]["dialect_obj"] = dialect_selector(
-            self._configs["core"]["dialect"]
-        )
+        dialect: Optional[str] = self._configs["core"]["dialect"]
+        if dialect is not None:
+            self._configs["core"]["dialect_obj"] = dialect_selector(
+                self._configs["core"]["dialect"]
+            )
+        elif require_dialect:
+            self.verify_dialect_specified()
         self._configs["core"]["templater_obj"] = self.get_templater(
             self._configs["core"]["templater"]
         )
+
+    def verify_dialect_specified(self) -> None:
+        """Check if the config specifies a dialect, raising an error if not."""
+        dialect: Optional[str] = self._configs["core"]["dialect"]
+        if dialect is None:
+            # Get list of available dialects for the error message. We must
+            # import here rather than at file scope in order to avoid a circular
+            # import.
+            from sqlfluff.core.dialects import dialect_readout
+
+            raise SQLFluffUserError(
+                "No dialect was specified. You must configure a dialect or "
+                "specify one on the command line. Available dialects:\n"
+                f"{', '.join([d.label for d in dialect_readout()])}"
+            )
 
     def __getstate__(self):
         # Copy the object's state from self.__dict__ which contains
@@ -539,6 +562,7 @@ class FluffConfig:
         extra_config_path: Optional[str] = None,
         ignore_local_config: bool = False,
         overrides: Optional[dict] = None,
+        **kw,
     ) -> "FluffConfig":
         """Loads a config object just based on the root directory."""
         loader = ConfigLoader.get_global()
@@ -552,6 +576,7 @@ class FluffConfig:
             extra_config_path=extra_config_path,
             ignore_local_config=ignore_local_config,
             overrides=overrides,
+            **kw,
         )
 
     @classmethod
@@ -585,6 +610,7 @@ class FluffConfig:
         dialect: Optional[str] = None,
         rules: Optional[List[str]] = None,
         exclude_rules: Optional[List[str]] = None,
+        require_dialect: bool = True,
     ) -> "FluffConfig":
         """Instantiate a config from either an existing config or kwargs.
 
@@ -609,7 +635,7 @@ class FluffConfig:
         if exclude_rules:
             # Make a comma separated string to pass in as override
             overrides["exclude_rules"] = ",".join(exclude_rules)
-        return cls(overrides=overrides)
+        return cls(overrides=overrides, require_dialect=require_dialect)
 
     def get_templater(self, templater_name="jinja", **kwargs):
         """Fetch a templater by name."""

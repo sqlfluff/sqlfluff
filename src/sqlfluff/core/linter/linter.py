@@ -76,6 +76,10 @@ class Linter:
             dialect=dialect,
             rules=rules,
             exclude_rules=exclude_rules,
+            # Don't require a dialect to be provided yet. Defer this until we
+            # are actually linting something, since the directory we are linting
+            # from may provide additional configuration, including a dialect.
+            require_dialect=False,
         )
         # Get the dialect and templater
         self.dialect = self.config.get("dialect_obj")
@@ -718,6 +722,11 @@ class Linter:
         # we want consistent mapping between the raw and templated slices.
         in_str = self._normalise_newlines(in_str)
 
+        # Since Linter.__init__() does not require a dialect to be specified,
+        # check for one now. (We're processing a string, not a file, so we're
+        # not going to pick up a .sqlfluff or other config file to provide a
+        # missing dialect at this point.)
+        config.verify_dialect_specified()
         if not config.get("templater_obj") == self.templater:
             linter_logger.warning(
                 (
