@@ -6,7 +6,7 @@ from sqlfluff.core import Linter
 def test__rules__std_L062_raised() -> None:
     """L062 is raised for use of blocked words with correct error message."""
     sql = "SELECT MYOLDFUNCTION(col1) FROM deprecated_table;\n"
-    cfg = FluffConfig()
+    cfg = FluffConfig(overrides={"dialect": "ansi"})
     cfg.set_value(
         config_path=["rules", "L062", "blocked_words"],
         val="myoldfunction,deprecated_table",

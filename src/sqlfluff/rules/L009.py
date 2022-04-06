@@ -106,12 +106,13 @@ class Rule_L009(BaseRule):
             select_if=sp.is_type("newline"),
             loop_while=sp.or_(sp.is_whitespace(), sp.is_type("dedent")),
         )
-        trailing_literal_newlines = trailing_newlines.select(
-            loop_while=lambda seg: sp.templated_slices(seg, context.templated_file).all(
-                tsp.is_slice_type("literal")
+        trailing_literal_newlines = trailing_newlines
+        if context.templated_file:
+            trailing_literal_newlines = trailing_newlines.select(
+                loop_while=lambda seg: sp.templated_slices(
+                    seg, context.templated_file
+                ).all(tsp.is_slice_type("literal"))
             )
-        )
-
         if not trailing_literal_newlines:
             # We make an edit to create this segment after the child of the FileSegment.
             if len(parent_stack) == 1:

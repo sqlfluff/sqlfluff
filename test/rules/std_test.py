@@ -94,7 +94,7 @@ def test__rules__std_file(rule, path, violations):
         rule=rule,
         fpath="test/fixtures/linter/" + path,
         violations=violations,
-        fluff_config=FluffConfig(overrides=dict(rules=rule)),
+        fluff_config=FluffConfig(overrides=dict(rules=rule, dialect="ansi")),
     )
 
 
@@ -117,6 +117,8 @@ def test__rules__std_file(rule, path, violations):
 )
 def test_improper_configs_are_rejected(rule_config_dict):
     """Ensure that unsupported configs raise a ValueError."""
-    config = FluffConfig(configs={"rules": rule_config_dict})
+    config = FluffConfig(
+        configs={"rules": rule_config_dict}, overrides={"dialect": "ansi"}
+    )
     with pytest.raises(ValueError):
         get_ruleset().get_rulelist(config)
