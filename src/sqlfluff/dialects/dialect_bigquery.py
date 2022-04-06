@@ -253,6 +253,13 @@ bigquery_dialect.sets("datetime_units").update(
         "QUARTER",
         "YEAR",
         "ISOYEAR",
+        "MONDAY",
+        "TUESDAY",
+        "WEDNESDAY",
+        "THURSDAY",
+        "FRIDAY",
+        "SATURDAY",
+        "SUNDAY",
     ]
 )
 
@@ -269,6 +276,7 @@ bigquery_dialect.sets("date_part_function_name").update(
         "TIME_TRUNC",
         "TIMESTAMP_DIFF",
         "TIMESTAMP_TRUNC",
+        "WEEK",
     ]
 )
 
