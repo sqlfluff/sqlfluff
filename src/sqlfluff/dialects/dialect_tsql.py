@@ -2079,16 +2079,10 @@ class FunctionSegment(BaseSegment):
             Ref("WithinGroupClause", optional=True),
         ),
         Sequence(
-            OneOf(
-                AnyNumberOf(
-                    Ref("FunctionNameSegment"),
-                    max_times=1,
-                    min_times=1,
-                    exclude=OneOf(
-                        Ref("ValuesClauseSegment"),
-                    ),
-                ),
+            Ref(
+                "FunctionNameSegment",
                 exclude=OneOf(
+                    Ref("ValuesClauseSegment"),
                     # List of special functions handled differently
                     Ref("CastFunctionNameSegment"),
                     Ref("ConvertFunctionNameSegment"),

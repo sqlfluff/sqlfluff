@@ -467,8 +467,8 @@ class FunctionSegment(ansi.FunctionSegment):
             # Treat functions which take date parts separately
             # So those functions parse date parts as DatetimeUnitSegment
             # rather than identifiers.
-            OneOf(
-                Ref("DatePartFunctionNameSegment"),
+            Ref(
+                "DatePartFunctionNameSegment",
                 exclude=Ref("ExtractFunctionNameSegment"),
             ),
             Bracketed(
@@ -483,10 +483,8 @@ class FunctionSegment(ansi.FunctionSegment):
         ),
         Sequence(
             Sequence(
-                AnyNumberOf(
-                    Ref("FunctionNameSegment"),
-                    max_times=1,
-                    min_times=1,
+                Ref(
+                    "FunctionNameSegment",
                     exclude=OneOf(
                         Ref("DatePartFunctionNameSegment"),
                         Ref("ValuesClauseSegment"),

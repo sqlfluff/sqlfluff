@@ -882,8 +882,8 @@ class FromExpressionElementSegment(ansi.FromExpressionElementSegment):
         Sequence(
             Ref("PreTableFunctionKeywordsGrammar", optional=True),
             OptionallyBracketed(Ref("TableExpressionSegment")),
-            OneOf(
-                Ref("AliasExpressionSegment"),
+            Ref(
+                "AliasExpressionSegment",
                 exclude=OneOf(
                     Ref("SamplingExpressionSegment"),
                     Ref("ChangesClauseSegment"),
