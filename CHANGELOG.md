@@ -21,6 +21,9 @@ Major changes include:
 
 ## What’s Changed
 
+* BigQuery: Parse `CREATE TABLE` with trailing comma [#3018](https://github.com/sqlfluff/sqlfluff/pull/3018) [@dmohns](https://github.com/dmohns)
+* Snowflake: Add `IS (NOT) DISTINCT FROM` test cases [#3014](https://github.com/sqlfluff/sqlfluff/pull/3014) [@kd2718](https://github.com/kd2718)
+* BigQuery: Add support for column `OPTIONS` in `STRUCT` definitions [#3017](https://github.com/sqlfluff/sqlfluff/pull/3017) [@dmohns](https://github.com/dmohns)
 * PostgreSQL: added support for `CREATE ROLE` and `DROP ROLE` statements [#3010](https://github.com/sqlfluff/sqlfluff/pull/3010) [@dnim](https://github.com/dnim)
 * Separate slow CI job to it's own workflow [#3012](https://github.com/sqlfluff/sqlfluff/pull/3012) [@tunetheweb](https://github.com/tunetheweb)
 * SparkSQL: Test cases for Delta Variation of Writing a table [#3009](https://github.com/sqlfluff/sqlfluff/pull/3009) [@R7L208](https://github.com/R7L208)
@@ -87,6 +90,7 @@ Major changes include:
 * [@tcholewik](https://github.com/tcholewik) made their first contribution in [#2923](https://github.com/sqlfluff/sqlfluff/pull/2923)
 * [@jmc-bbk](https://github.com/jmc-bbk) made their first contribution in [#2981](https://github.com/sqlfluff/sqlfluff/pull/2981)
 * [@dnim]](https://github.com/dnim) made their first contribution in [#3010]](https://github.com/sqlfluff/sqlfluff/pull/3010)
+* [@kd2718](https://github.com/kd2718) made their first contribution in [#3014](https://github.com/sqlfluff/sqlfluff/pull/3014)
 
 ## [0.11.2] - 2022-03-25
 
