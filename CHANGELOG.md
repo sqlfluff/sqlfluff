@@ -14,13 +14,21 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 ## Highlights
 
 Major changes include:
+* Dialect is now mandatory, either in command line, or in config **BREAKING CHANGE**
 * Rename `spark3` dialect to `sparksql` **BREAKING CHANGE**
+* L027 now checks tables references exist.
 * New rule L063 to allow Datatypes to have a different capitalisation policy from L010. **BREAKING CHANGE**
 * Refactor and performance improvements of Delimited and L003.
 * Many dialect improvements and fixes.
 
 ## What’s Changed
 
+* SparkSQL: Adding support for Delta Lake table schema updates [#3013](https://github.com/sqlfluff/sqlfluff/pull/3013) [@R7L208](https://github.com/R7L208)
+* L027: Check table aliases exists [#2998](https://github.com/sqlfluff/sqlfluff/pull/2998) [@dmohns](https://github.com/dmohns)
+* Snowflake: Added support for `REMOVE` statements [#3026](https://github.com/sqlfluff/sqlfluff/pull/3026) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* BigQuery: Support `WEEK` function with days of weeks [#3021](https://github.com/sqlfluff/sqlfluff/pull/3021) [@tunetheweb](https://github.com/tunetheweb)
+* Sparksql quoted identifier in `STRUCT` [#3023](https://github.com/sqlfluff/sqlfluff/pull/3023) [@PhilippLange](https://github.com/PhilippLange)
+* Force user to specify a dialect [#2995](https://github.com/sqlfluff/sqlfluff/pull/2995) [@barrywhart](https://github.com/barrywhart)
 * BigQuery: Parse `CREATE TABLE` with trailing comma [#3018](https://github.com/sqlfluff/sqlfluff/pull/3018) [@dmohns](https://github.com/dmohns)
 * Snowflake: Add `IS (NOT) DISTINCT FROM` test cases [#3014](https://github.com/sqlfluff/sqlfluff/pull/3014) [@kd2718](https://github.com/kd2718)
 * BigQuery: Add support for column `OPTIONS` in `STRUCT` definitions [#3017](https://github.com/sqlfluff/sqlfluff/pull/3017) [@dmohns](https://github.com/dmohns)

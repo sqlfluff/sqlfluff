@@ -35,8 +35,9 @@ Notable changes:
 * **0.10.x** removed support for older dbt versions < 0.20 and stopped ``fix``
   attempting to fix unparsable SQL.
 * **0.11.x** rule L030 changed to use ``extended_capitalisation_policy``.
-* **0.12.x** the ``spark3`` dialect was renamed to ``sparksql`` and  datatype
-  capitalisation was extracted from L010 to it's own rule L063.
+* **0.12.x** dialect is now mandatory, the ``spark3`` dialect was renamed to
+  ``sparksql`` and  datatype capitalisation was extracted from L010 to it's own
+  rule L063.
 
 
 
