@@ -680,25 +680,69 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
             Sequence(
                 "ADD",
                 "COLUMNS",
-                Bracketed(
+                Indent,
+                OptionallyBracketed(
                     Delimited(
-                        Ref("ColumnDefinitionSegment"),
+                        Sequence(
+                            Ref("ColumnDefinitionSegment"),
+                            OneOf(
+                                "FIRST",
+                                Sequence(
+                                    "AFTER",
+                                    Ref("ColumnReferenceSegment"),
+                                ),
+                                optional=True,
+                            ),
+                        ),
                     ),
                 ),
+                Dedent,
             ),
             # ALTER TABLE - ALTER OR CHANGE COLUMN
             Sequence(
                 OneOf("ALTER", "CHANGE"),
-                "COLUMN",
-                Ref("ColumnReferenceSegment"),
-                Sequence("TYPE", Ref("DatatypeSegment"), optional=True),
+                Ref.keyword("COLUMN", optional=True),
+                Indent,
+                AnyNumberOf(
+                    Ref(
+                        "ColumnReferenceSegment",
+                        exclude=OneOf(
+                            "COMMENT",
+                            "TYPE",
+                            Ref("DatatypeSegment"),
+                            "FIRST",
+                            "AFTER",
+                            "SET",
+                        ),
+                    ),
+                    max_times=2,
+                ),
+                Ref.keyword("TYPE", optional=True),
+                Ref("DatatypeSegment", optional=True),
                 Ref("CommentGrammar", optional=True),
                 OneOf(
                     "FIRST",
-                    Sequence("AFTER", Ref("ColumnReferenceSegment")),
+                    Sequence(
+                        "AFTER",
+                        Ref("ColumnReferenceSegment"),
+                    ),
                     optional=True,
                 ),
                 Sequence(OneOf("SET", "DROP"), "NOT NULL", optional=True),
+                Dedent,
+            ),
+            # ALTER TABLE - REPLACE COLUMNS
+            Sequence(
+                "REPLACE",
+                "COLUMNS",
+                Bracketed(
+                    Delimited(
+                        Sequence(
+                            Ref("ColumnDefinitionSegment"),
+                            Ref("CommentGrammar", optional=True),
+                        ),
+                    ),
+                ),
             ),
             # ALTER TABLE - ADD PARTITION
             Sequence(
@@ -2348,11 +2392,10 @@ class ValuesClauseSegment(ansi.ValuesClauseSegment):
             ),
         ),
         # LIMIT/ORDER are unreserved in sparksql.
-        AnyNumberOf(
-            Ref("AliasExpressionSegment"),
-            min_times=0,
-            max_times=1,
+        Ref(
+            "AliasExpressionSegment",
             exclude=OneOf("LIMIT", "ORDER"),
+            optional=True,
         ),
         Ref("OrderByClauseSegment", optional=True),
         Ref("LimitClauseSegment", optional=True),
@@ -2418,8 +2461,8 @@ class FromExpressionElementSegment(ansi.FromExpressionElementSegment):
     match_grammar = Sequence(
         Ref("PreTableFunctionKeywordsGrammar", optional=True),
         OptionallyBracketed(Ref("TableExpressionSegment")),
-        OneOf(
-            Ref("AliasExpressionSegment"),
+        Ref(
+            "AliasExpressionSegment",
             exclude=Ref("SamplingExpressionSegment"),
             optional=True,
         ),

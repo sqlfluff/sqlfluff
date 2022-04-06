@@ -795,6 +795,11 @@ class Ref(BaseGrammar):
     # and it also causes infinite recursion.
     allow_keyword_string_refs = False
 
+    def __init__(self, *args, **kwargs):
+        # Any patterns to _prevent_ a match.
+        self.exclude = kwargs.pop("exclude", None)
+        super().__init__(*args, **kwargs)
+
     @cached_method_for_parse_context
     def simple(self, parse_context: ParseContext) -> Optional[List[str]]:
         """Does this matcher support a uppercase hash matching route?
@@ -844,6 +849,13 @@ class Ref(BaseGrammar):
         using the parse_context `denylist` methods.
         """
         elem = self._get_elem(dialect=parse_context.dialect)
+
+        # First if we have an *exclude* option, we should check that
+        # which would prevent the rest of this grammar from matching.
+        if self.exclude:
+            with parse_context.deeper_match() as ctx:
+                if self.exclude.match(segments, parse_context=ctx):
+                    return MatchResult.from_unmatched(segments)
 
         if not elem:  # pragma: no cover
             raise ValueError(f"Null Element returned! _elements: {self._elements!r}")
