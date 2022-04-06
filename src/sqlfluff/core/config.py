@@ -455,6 +455,9 @@ class FluffConfig:
         ignore_local_config: bool = False,
         overrides: Optional[dict] = None,
         plugin_manager: Optional[pluggy.PluginManager] = None,
+        # Ideally a dialect should be set when config is read but sometimes
+        # it might only be set in nested .sqlfluff config files, so allow it
+        # to be not required.
         require_dialect: bool = True,
     ):
         self._extra_config_path = (
