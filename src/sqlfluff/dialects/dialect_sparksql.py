@@ -2348,11 +2348,10 @@ class ValuesClauseSegment(ansi.ValuesClauseSegment):
             ),
         ),
         # LIMIT/ORDER are unreserved in sparksql.
-        AnyNumberOf(
-            Ref("AliasExpressionSegment"),
-            min_times=0,
-            max_times=1,
+        Ref(
+            "AliasExpressionSegment",
             exclude=OneOf("LIMIT", "ORDER"),
+            optional=True,
         ),
         Ref("OrderByClauseSegment", optional=True),
         Ref("LimitClauseSegment", optional=True),
@@ -2418,8 +2417,8 @@ class FromExpressionElementSegment(ansi.FromExpressionElementSegment):
     match_grammar = Sequence(
         Ref("PreTableFunctionKeywordsGrammar", optional=True),
         OptionallyBracketed(Ref("TableExpressionSegment")),
-        OneOf(
-            Ref("AliasExpressionSegment"),
+        Ref(
+            "AliasExpressionSegment",
             exclude=Ref("SamplingExpressionSegment"),
             optional=True,
         ),

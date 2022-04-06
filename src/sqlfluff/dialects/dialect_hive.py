@@ -692,10 +692,8 @@ class FunctionSegment(BaseSegment):
         ),
         Sequence(
             Sequence(
-                AnyNumberOf(
-                    Ref("FunctionNameSegment"),
-                    max_times=1,
-                    min_times=1,
+                Ref(
+                    "FunctionNameSegment",
                     exclude=OneOf(
                         Ref("DatePartFunctionNameSegment"),
                         Ref("ValuesClauseSegment"),
