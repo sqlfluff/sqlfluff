@@ -1048,6 +1048,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                         Ref("TableConstraintSegment"),
                         Ref("ColumnDefinitionSegment"),
                     ),
+                    allow_trailing=True,
                 )
             ),
             Ref("CommentClauseSegment", optional=True),
