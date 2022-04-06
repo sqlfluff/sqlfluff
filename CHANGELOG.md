@@ -23,6 +23,7 @@ Major changes include:
 
 ## What’s Changed
 
+* Fix bug in patch generation for segments made of templated + literal fixes [#3030](https://github.com/sqlfluff/sqlfluff/pull/3030) [@barrywhart](https://github.com/barrywhart)
 * Formatters code cleanup [#3029](https://github.com/sqlfluff/sqlfluff/pull/3029) [@barrywhart](https://github.com/barrywhart)
 * Postgres better `CREATE USER`/`CREATE ROLE` support [#3016](https://github.com/sqlfluff/sqlfluff/pull/3016) [@mrf](https://github.com/mrf)
 * SparkSQL: Add `MERGE` syntax [#3025](https://github.com/sqlfluff/sqlfluff/pull/3025) [@PhilippLange](https://github.com/PhilippLange)
