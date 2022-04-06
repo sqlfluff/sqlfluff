@@ -9,3 +9,7 @@ CREATE TABLE table_identifier
 --Create Table with nested complex datatypes
 CREATE TABLE table_identifier
 ( a STRUCT<b: STRING, c: MAP<STRING, BOOLEAN>>, d MAP<STRING, STRUCT<e: STRING, f: MAP<STRING, BOOLEAN>>>, g ARRAY<STRUCT<h: STRING, i: MAP<STRING, BOOLEAN>>>);
+
+--Create Table with complex datatypes and quoted identifiers
+CREATE TABLE table_identifier
+( a STRUCT<`b`: STRING, c: BOOLEAN>, `d` MAP<STRING, BOOLEAN>, e ARRAY<STRING>);

@@ -3,9 +3,9 @@
 import os
 import sys
 
-from sqlfluff.core import config
+from sqlfluff.core import config, Linter, FluffConfig
 from sqlfluff.core.config import ConfigLoader, nested_combine, dict_diff
-from sqlfluff.core import Linter, FluffConfig
+from sqlfluff.core.errors import SQLFluffUserError
 from sqlfluff.core.templaters import (
     RawTemplater,
     PythonTemplater,
@@ -25,7 +25,7 @@ config_a = {
 }
 
 config_b = {
-    "core": {"rules": "L007"},
+    "core": {"rules": "L007", "dialect": "ansi"},
     "rules": {"L007": {"operator_new_lines": "before"}},
 }
 
@@ -85,7 +85,12 @@ def test__config__load_nested():
         )
     )
     assert cfg == {
-        "core": {"testing_val": "foobar", "testing_int": 1, "testing_bar": 7.698},
+        "core": {
+            "dialect": "ansi",
+            "testing_val": "foobar",
+            "testing_int": 1,
+            "testing_bar": 7.698,
+        },
         "bar": {"foo": "foobar"},
         "fnarr": {"fnarr": {"foo": "foobar"}},
     }
@@ -151,7 +156,9 @@ def test__config__nested_config_tests():
     This looks like a linter test but it's actually a config
     test.
     """
-    lntr = Linter(config=FluffConfig(overrides=dict(exclude_rules="L002")))
+    lntr = Linter(
+        config=FluffConfig(overrides=dict(exclude_rules="L002", dialect="ansi"))
+    )
     lnt = lntr.lint_path("test/fixtures/config/inheritance_b")
     violations = lnt.check_tuples(by_path=True)
     for k in violations:
@@ -213,7 +220,7 @@ def test__config__split_comma_separated_string(raw_str, expected):
 
 def test__config__templater_selection():
     """Test template selection by name."""
-    cfg = FluffConfig()
+    cfg = FluffConfig(overrides={"dialect": "ansi"})
     assert cfg.get_templater().__class__ is JinjaTemplater
     assert cfg.get_templater("raw").__class__ is RawTemplater
     assert cfg.get_templater("python").__class__ is PythonTemplater
@@ -297,3 +304,10 @@ def test__config__from_kwargs():
     assert cfg.get("dialect") == "snowflake"
     assert cfg.get("rules") == "L001,L002"
     assert cfg.get("exclude_rules") == "L010,L011"
+
+
+def test__config_missing_dialect():
+    """Verify an exception is thrown if no dialect was specified."""
+    with pytest.raises(SQLFluffUserError) as e:
+        FluffConfig.from_kwargs()
+    assert "must configure a dialect" in str(e.value)

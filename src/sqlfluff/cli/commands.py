@@ -6,7 +6,7 @@ import json
 import logging
 import time
 from logging import LogRecord
-from typing import Callable, Tuple, NoReturn, Optional, List, cast
+from typing import Callable, Tuple, Optional, List, cast
 
 import yaml
 
@@ -175,14 +175,14 @@ def core_options(f: Callable) -> Callable:
         f = click.option(
             "--dialect",
             default=None,
-            help="The dialect of SQL to lint (default=ansi)",
+            help="The dialect of SQL to lint",
             shell_complete=dialect_shell_complete,
         )(f)
     else:  # pragma: no cover
         f = click.option(
             "--dialect",
             default=None,
-            help="The dialect of SQL to lint (default=ansi)",
+            help="The dialect of SQL to lint",
         )(f)
     f = click.option(
         "--templater",
@@ -290,7 +290,7 @@ def get_config(
     **kwargs,
 ) -> FluffConfig:
     """Get a config object from kwargs."""
-    if "dialect" in kwargs:
+    if kwargs.get("dialect"):
         try:
             # We're just making sure it exists at this stage.
             # It will be fetched properly in the linter.
@@ -310,6 +310,9 @@ def get_config(
                 )
             )
             sys.exit(66)
+    from_root_kwargs = {}
+    if "require_dialect" in kwargs:
+        from_root_kwargs["require_dialect"] = kwargs.pop("require_dialect")
     # Instantiate a config object (filtering out the nulls)
     overrides = {k: kwargs[k] for k in kwargs if kwargs[k] is not None}
     try:
@@ -317,6 +320,7 @@ def get_config(
             extra_config_path=extra_config_path,
             ignore_local_config=ignore_local_config,
             overrides=overrides,
+            **from_root_kwargs,
         )
     except SQLFluffUserError as err:  # pragma: no cover
         click.echo(
@@ -354,7 +358,9 @@ def get_linter_and_formatter(
     try:
         # We're just making sure it exists at this stage.
         # It will be fetched properly in the linter.
-        dialect_selector(cfg.get("dialect"))
+        dialect = cfg.get("dialect")
+        if dialect:
+            dialect_selector(dialect)
     except KeyError:  # pragma: no cover
         click.echo(f"Error: Unknown dialect '{cfg.get('dialect')}'")
         sys.exit(66)
@@ -384,7 +390,7 @@ def cli():
 @common_options
 def version(**kwargs) -> None:
     """Show the version of sqlfluff."""
-    c = get_config(**kwargs)
+    c = get_config(**kwargs, require_dialect=False)
     if c.get("verbose") > 0:
         # Instantiate the linter
         lnt, formatter = get_linter_and_formatter(c)
@@ -399,7 +405,7 @@ def version(**kwargs) -> None:
 @common_options
 def rules(**kwargs) -> None:
     """Show the current rules in use."""
-    c = get_config(**kwargs)
+    c = get_config(**kwargs, dialect="ansi")
     lnt, _ = get_linter_and_formatter(c)
     click.echo(format_rules(lnt), color=c.get("color"))
 
@@ -408,7 +414,7 @@ def rules(**kwargs) -> None:
 @common_options
 def dialects(**kwargs) -> None:
     """Show the current dialects available."""
-    c = get_config(**kwargs)
+    c = get_config(**kwargs, require_dialect=False)
     click.echo(format_dialects(dialect_readout), color=c.get("color"))
 
 
@@ -491,7 +497,7 @@ def lint(
     extra_config_path: Optional[str] = None,
     ignore_local_config: bool = False,
     **kwargs,
-) -> NoReturn:
+) -> None:
     """Lint SQL files via passing a list of files or using stdin.
 
     PATH is the path to a sql file or directory to lint. This can be either a
@@ -510,7 +516,9 @@ def lint(
         echo 'select col from tbl' | sqlfluff lint -
 
     """
-    config = get_config(extra_config_path, ignore_local_config, **kwargs)
+    config = get_config(
+        extra_config_path, ignore_local_config, require_dialect=False, **kwargs
+    )
     non_human_output = (format != FormatType.human.value) or (write_output is not None)
     file_output = None
     lnt, formatter = get_linter_and_formatter(config, silent=non_human_output)
@@ -686,7 +694,7 @@ def fix(
     extra_config_path: Optional[str] = None,
     ignore_local_config: bool = False,
     **kwargs,
-) -> NoReturn:
+) -> None:
     """Fix SQL files.
 
     PATH is the path to a sql file or directory to lint. This can be either a
@@ -697,7 +705,9 @@ def fix(
     # some quick checks
     fixing_stdin = ("-",) == paths
 
-    config = get_config(extra_config_path, ignore_local_config, **kwargs)
+    config = get_config(
+        extra_config_path, ignore_local_config, require_dialect=False, **kwargs
+    )
     fix_even_unparsable = config.get("fix_even_unparsable")
     lnt, formatter = get_linter_and_formatter(config, silent=fixing_stdin)
 
@@ -926,7 +936,7 @@ def parse(
     extra_config_path: Optional[str] = None,
     ignore_local_config: bool = False,
     **kwargs,
-) -> NoReturn:
+) -> None:
     """Parse SQL files and just spit out the result.
 
     PATH is the path to a sql file or directory to lint. This can be either a
@@ -934,7 +944,9 @@ def parse(
     character to indicate reading from *stdin* or a dot/blank ('.'/' ') which will
     be interpreted like passing the current working directory as a path argument.
     """
-    c = get_config(extra_config_path, ignore_local_config, **kwargs)
+    c = get_config(
+        extra_config_path, ignore_local_config, require_dialect=False, **kwargs
+    )
     # We don't want anything else to be logged if we want json or yaml output
     # unless we're writing to a file.
     non_human_output = (format != FormatType.human.value) or (write_output is not None)

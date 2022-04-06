@@ -616,22 +616,11 @@ class DatatypeSegment(PrimitiveTypeSegment):
         Sequence(
             "STRUCT",
             Bracketed(
-                # Manually rebuild Delimited.
-                # Delimited breaks futher nesting (MAP, STRUCT, ARRAY)
-                # of complex datatypes (Comma splits angle bracket blocks)
-                #
                 # CommentGrammar here is valid Spark SQL
                 # even though its not stored in Sparks Catalog
-                Sequence(
-                    Ref("NakedIdentifierSegment"),
-                    Ref("ColonSegment"),
-                    Ref("DatatypeSegment"),
-                    Ref("CommentGrammar", optional=True),
-                ),
-                AnyNumberOf(
+                Delimited(
                     Sequence(
-                        Ref("CommaSegment"),
-                        Ref("NakedIdentifierSegment"),
+                        Ref("SingleIdentifierGrammar"),
                         Ref("ColonSegment"),
                         Ref("DatatypeSegment"),
                         Ref("CommentGrammar", optional=True),

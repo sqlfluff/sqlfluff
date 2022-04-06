@@ -2,8 +2,6 @@
 ## GitHub Actions CI Tests ##
 #############################
 #
-# Based on our old CircleCI config
-#
 # This can be kicked off manually in the Actions tab of GitHub
 # It will also run nightly at 2pm
 # It will run on any pull request, except non-code changes
@@ -39,22 +37,6 @@ jobs:
     - name: Run the tests
       run: |
         tox -e ${{ matrix.jobs }}
-  ruleslinting:
-    runs-on: ubuntu-latest
-    name: Rules critical errors tests
-    steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: '3.10'
-    - name: Install dependencies
-      run: |
-        pip install tox
-        pip install .
-    - name: Run the tests
-      run: |
-        tox -e ruleslinting -- -n 2 test
   python-version-tests:
     runs-on: ubuntu-latest
     strategy:
@@ -244,13 +226,13 @@ jobs:
         sqlfluff --version
     - name: Run a simple select parse test via stdin
       run: |
-        echo "select 1" | sqlfluff parse -
+        echo "select 1" | sqlfluff parse --dialect=ansi -
     - name: Run a simple select lint test via stdin
       run: |
-        echo "select 1" | sqlfluff lint -
+        echo "select 1" | sqlfluff lint --dialect=ansi -
     - name: Run a simple select parse test via file
       run: |
-        sqlfluff parse <(echo "select 1")
+        sqlfluff parse --dialect=ansi <(echo "select 1")
     - name: Run a simple select lint test via file
       run: |
-        sqlfluff lint <(echo "select 1")
+        sqlfluff lint --dialect=ansi <(echo "select 1")
