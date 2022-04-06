@@ -11,9 +11,9 @@ CREATE TABLE t_table1
 CREATE TABLE t_table1
 (
     x STRUCT<
-        col1 STRING OPTIONS(description="An INTEGER field in a STRUCT")
+        col1 INT64 OPTIONS(description="An INTEGER field in a STRUCT")
     >,
     y ARRAY<STRUCT<
-        col1 STRING OPTIONS(description="An INTEGER field in a REPEATED STRUCT")
+        col1 INT64 OPTIONS(description="An INTEGER field in a REPEATED STRUCT")
     >>
 );
