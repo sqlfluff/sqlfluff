@@ -9,20 +9,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfluff/sqlfluff/releases) and will be copied in here on each release (please remember to update the issues and contributors to links!). There is no need to manually edit this file going forward.
 -->
 
-## [0.12.0] - 2022-04-06
+## [0.12.0] - 2022-04-07
 
 ## Highlights
 
 Major changes include:
 * Dialect is now mandatory, either in command line, or in config **BREAKING CHANGE**
 * Rename `spark3` dialect to `sparksql` **BREAKING CHANGE**
-* L027 now checks tables references exist.
+* L027 now checks tables references exist **BREAKING CHANGE**
 * New rule L063 to allow Datatypes to have a different capitalisation policy from L010. **BREAKING CHANGE**
-* Refactor and performance improvements of Delimited and L003.
-* Many dialect improvements and fixes.
+* Refactor and performance improvements of Delimited and L003
+* Many dialect improvements and fixes
 
 ## What’s Changed
 
+* Formatters code cleanup [#3029](https://github.com/sqlfluff/sqlfluff/pull/3029) [@barrywhart](https://github.com/barrywhart)
+* Postgres better `CREATE USER`/`CREATE ROLE` support [#3016](https://github.com/sqlfluff/sqlfluff/pull/3016) [@mrf](https://github.com/mrf)
+* SparkSQL: Add `MERGE` syntax [#3025](https://github.com/sqlfluff/sqlfluff/pull/3025) [@PhilippLange](https://github.com/PhilippLange)
+* Remove Delimited workarounds [#3024](https://github.com/sqlfluff/sqlfluff/pull/3024) [@tunetheweb](https://github.com/tunetheweb)
+* Add `exclude` option for `Ref` grammar [#3028](https://github.com/sqlfluff/sqlfluff/pull/3028) [@tunetheweb](https://github.com/tunetheweb)
 * SparkSQL: Adding support for Delta Lake table schema updates [#3013](https://github.com/sqlfluff/sqlfluff/pull/3013) [@R7L208](https://github.com/R7L208)
 * L027: Check table aliases exists [#2998](https://github.com/sqlfluff/sqlfluff/pull/2998) [@dmohns](https://github.com/dmohns)
 * Snowflake: Added support for `REMOVE` statements [#3026](https://github.com/sqlfluff/sqlfluff/pull/3026) [@WittierDinosaur](https://github.com/WittierDinosaur)
@@ -99,6 +104,7 @@ Major changes include:
 * [@jmc-bbk](https://github.com/jmc-bbk) made their first contribution in [#2981](https://github.com/sqlfluff/sqlfluff/pull/2981)
 * [@dnim]](https://github.com/dnim) made their first contribution in [#3010]](https://github.com/sqlfluff/sqlfluff/pull/3010)
 * [@kd2718](https://github.com/kd2718) made their first contribution in [#3014](https://github.com/sqlfluff/sqlfluff/pull/3014)
+* [@mrf](https://github.com/mrf) made their first contribution in [#3016](https://github.com/sqlfluff/sqlfluff/pull/3016)
 
 ## [0.11.2] - 2022-03-25
 
