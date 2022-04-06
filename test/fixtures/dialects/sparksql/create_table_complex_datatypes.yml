@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7e2cde585ebd2449087447234f57d697481af4f5ded4d07695f8641650b997fa
+_hash: 9822eb92654515e7a9ec03ff46964af3530db1f5d8a016a8547de8de0073972a
 file:
 - statement:
     create_table_statement:
@@ -211,6 +211,56 @@ file:
                     keyword: BOOLEAN
                 end_angle_bracket: '>'
             - end_angle_bracket: '>'
+            end_angle_bracket: '>'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        identifier: table_identifier
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          identifier: a
+          data_type:
+          - keyword: STRUCT
+          - start_angle_bracket: <
+          - identifier: '`b`'
+          - colon: ':'
+          - data_type:
+              primitive_type:
+                keyword: STRING
+          - comma: ','
+          - identifier: c
+          - colon: ':'
+          - data_type:
+              primitive_type:
+                keyword: BOOLEAN
+          - end_angle_bracket: '>'
+      - comma: ','
+      - column_definition:
+          identifier: '`d`'
+          data_type:
+            keyword: MAP
+            start_angle_bracket: <
+            primitive_type:
+              keyword: STRING
+            comma: ','
+            data_type:
+              primitive_type:
+                keyword: BOOLEAN
+            end_angle_bracket: '>'
+      - comma: ','
+      - column_definition:
+          identifier: e
+          data_type:
+            keyword: ARRAY
+            start_angle_bracket: <
+            data_type:
+              primitive_type:
+                keyword: STRING
             end_angle_bracket: '>'
       - end_bracket: )
 - statement_terminator: ;
