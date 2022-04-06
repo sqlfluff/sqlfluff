@@ -239,10 +239,8 @@ class ColumnDefinitionSegment(BaseSegment):
         Ref("SingleIdentifierGrammar"),  # Column name
         OneOf(  # Column type
             # DATETIME and TIMESTAMP take special logic
-            AnyNumberOf(
-                Ref("DatatypeSegment"),
-                max_times=1,
-                min_times=1,
+            Ref(
+                "DatatypeSegment",
                 exclude=OneOf("DATETIME", "TIMESTAMP"),
             ),
             Sequence(
