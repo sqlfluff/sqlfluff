@@ -703,7 +703,7 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                                     Ref("ColumnReferenceSegment"),
                                 ),
                                 optional=True,
-                            )
+                            ),
                         ),
                     ),
                 ),
