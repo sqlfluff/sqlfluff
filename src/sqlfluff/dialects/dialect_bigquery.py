@@ -258,6 +258,8 @@ bigquery_dialect.sets("datetime_units").update(
         "WEDNESDAY",
         "THURSDAY",
         "FRIDAY",
+        "SATURDAY",
+        "SUNDAY",
     ]
 )
 
