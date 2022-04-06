@@ -418,6 +418,7 @@ tsql_dialect.replace(
         ),
         Ref.keyword("INTO", optional=True),
     ),
+    TrimParametersGrammar=Nothing(),
 )
 
 

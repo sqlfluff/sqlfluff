@@ -562,6 +562,7 @@ ansi_dialect.add(
             ),
         ),
     ),
+    TrimParametersGrammar=OneOf("BOTH", "LEADING", "TRAILING"),
 )
 
 
@@ -608,6 +609,15 @@ class ArrayLiteralSegment(BaseSegment):
     match_grammar: Matchable = Bracketed(
         Delimited(Ref("ExpressionSegment"), optional=True),
         bracket_type="square",
+    )
+
+
+class TimeZoneGrammar(BaseSegment):
+    """Casting to Time Zone."""
+
+    type = "time_zone_grammar"
+    match_grammar = AnyNumberOf(
+        Sequence("AT", "TIME", "ZONE", Ref("ExpressionSegment")),
     )
 
 
@@ -934,6 +944,13 @@ ansi_dialect.add(
         Ref("ExpressionSegment"),
         # A Cast-like function
         Sequence(Ref("ExpressionSegment"), "AS", Ref("DatatypeSegment")),
+        # Trim function
+        Sequence(
+            Ref("TrimParametersGrammar"),
+            OneOf(Ref("ExpressionSegment"), optional=True, exclude=Ref.keyword("FROM")),
+            "FROM",
+            Ref("ExpressionSegment"),
+        ),
         # An extract-like or substring-like function
         Sequence(
             OneOf(Ref("DatetimeUnitSegment"), Ref("ExpressionSegment")),
@@ -3294,6 +3311,19 @@ class CreateRoleStatementSegment(BaseSegment):
     )
 
 
+class DropRoleStatementSegment(BaseSegment):
+    """A `DROP ROLE` statement with CASCADE option."""
+
+    type = "drop_role_statement"
+
+    match_grammar = Sequence(
+        "DROP",
+        "ROLE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("SingleIdentifierGrammar"),
+    )
+
+
 class DropModelStatementSegment(BaseSegment):
     """A `DROP MODEL` statement."""
 
@@ -3351,6 +3381,7 @@ class StatementSegment(BaseSegment):
         Ref("CreateTableStatementSegment"),
         Ref("CreateTypeStatementSegment"),
         Ref("CreateRoleStatementSegment"),
+        Ref("DropRoleStatementSegment"),
         Ref("AlterTableStatementSegment"),
         Ref("CreateSchemaStatementSegment"),
         Ref("SetSchemaStatementSegment"),

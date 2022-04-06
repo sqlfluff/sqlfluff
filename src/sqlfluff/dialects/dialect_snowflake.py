@@ -18,6 +18,7 @@ from sqlfluff.core.parser import (
     Delimited,
     Indent,
     NamedParser,
+    Nothing,
     OneOf,
     OptionallyBracketed,
     Ref,
@@ -481,6 +482,7 @@ snowflake_dialect.replace(
         "WINDOW",
         "OVERLAPS",
     ),
+    TrimParametersGrammar=Nothing(),
 )
 
 # Add all Snowflake keywords
@@ -1503,8 +1505,9 @@ class AlterTableClusteringActionSegment(BaseSegment):
         Sequence(
             "CLUSTER",
             "BY",
-            Bracketed(
-                Delimited(Ref("ExpressionSegment")),
+            OneOf(
+                Ref("FunctionSegment"),
+                Bracketed(Delimited(Ref("ExpressionSegment"))),
             ),
         ),
         # N.B. RECLUSTER is deprecated:
@@ -2130,92 +2133,97 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
         Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
         # Columns and comment syntax:
-        Sequence(
-            Bracketed(
-                Delimited(
-                    Sequence(
-                        OneOf(
-                            Ref("TableConstraintSegment"),
-                            Ref("ColumnDefinitionSegment"),
-                            Ref("SingleIdentifierGrammar"),
+        AnySetOf(
+            Sequence(
+                Bracketed(
+                    Delimited(
+                        Sequence(
+                            OneOf(
+                                Ref("TableConstraintSegment"),
+                                Ref("ColumnDefinitionSegment"),
+                                Ref("SingleIdentifierGrammar"),
+                            ),
+                            Ref("CommentClauseSegment", optional=True),
                         ),
-                        Ref("CommentClauseSegment", optional=True),
                     ),
                 ),
+                optional=True,
             ),
-            optional=True,
-        ),
-        Sequence(
-            "CLUSTER",
-            "BY",
-            Bracketed(Delimited(Ref("ExpressionSegment"))),
-            optional=True,
-        ),
-        Sequence(
-            "STAGE_FILE_FORMAT",
-            Ref("EqualsSegment"),
-            Ref("FileFormatSegment"),
-            optional=True,
-        ),
-        Sequence(
-            "STAGE_COPY_OPTIONS",
-            Ref("EqualsSegment"),
-            Bracketed(Ref("CopyOptionsSegment")),
-            optional=True,
-        ),
-        Sequence(
-            "DATA_RETENTION_TIME_IN_DAYS",
-            Ref("EqualsSegment"),
-            Ref("LiteralNumericSegment"),
-            optional=True,
-        ),
-        Sequence(
-            "MAX_DATA_EXTENSION_TIME_IN_DAYS",
-            Ref("EqualsSegment"),
-            Ref("LiteralNumericSegment"),
-            optional=True,
-        ),
-        Sequence(
-            "CHANGE_TRACKING",
-            Ref("EqualsSegment"),
-            Ref("BooleanLiteralGrammar"),
-            optional=True,
-        ),
-        Sequence(
-            "DEFAULT_DDL_COLLATION",
-            Ref("EqualsSegment"),
-            Ref("QuotedLiteralGrammar"),
-            optional=True,
-        ),
-        Sequence(
-            "COPY",
-            "GRANTS",
-            optional=True,
-        ),
-        Sequence(
-            Sequence("WITH", optional=True),
-            "ROW",
-            "ACCESS",
-            "POLICY",
-            Ref("NakedIdentifierSegment"),
-            "ON",
-            Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
-            optional=True,
-        ),
-        Ref("TagBracketedEqualsSegment", optional=True),
-        Ref("CommentEqualsClauseSegment", optional=True),
-        OneOf(
-            # Create AS syntax:
             Sequence(
-                "AS",
-                OptionallyBracketed(Ref("SelectableGrammar")),
+                "CLUSTER",
+                "BY",
+                OneOf(
+                    Ref("FunctionSegment"),
+                    Bracketed(Delimited(Ref("ExpressionSegment"))),
+                ),
+                optional=True,
             ),
-            # Create like syntax
-            Sequence("LIKE", Ref("TableReferenceSegment")),
-            # Create clone syntax
-            Sequence("ClONE", Ref("TableReferenceSegment")),
-            Sequence("USING", "TEMPLATE", Ref("SelectableGrammar")),
-            optional=True,
+            Sequence(
+                "STAGE_FILE_FORMAT",
+                Ref("EqualsSegment"),
+                Ref("FileFormatSegment"),
+                optional=True,
+            ),
+            Sequence(
+                "STAGE_COPY_OPTIONS",
+                Ref("EqualsSegment"),
+                Bracketed(Ref("CopyOptionsSegment")),
+                optional=True,
+            ),
+            Sequence(
+                "DATA_RETENTION_TIME_IN_DAYS",
+                Ref("EqualsSegment"),
+                Ref("LiteralNumericSegment"),
+                optional=True,
+            ),
+            Sequence(
+                "MAX_DATA_EXTENSION_TIME_IN_DAYS",
+                Ref("EqualsSegment"),
+                Ref("LiteralNumericSegment"),
+                optional=True,
+            ),
+            Sequence(
+                "CHANGE_TRACKING",
+                Ref("EqualsSegment"),
+                Ref("BooleanLiteralGrammar"),
+                optional=True,
+            ),
+            Sequence(
+                "DEFAULT_DDL_COLLATION",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralGrammar"),
+                optional=True,
+            ),
+            Sequence(
+                "COPY",
+                "GRANTS",
+                optional=True,
+            ),
+            Sequence(
+                Sequence("WITH", optional=True),
+                "ROW",
+                "ACCESS",
+                "POLICY",
+                Ref("NakedIdentifierSegment"),
+                "ON",
+                Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+                optional=True,
+            ),
+            Ref("TagBracketedEqualsSegment", optional=True),
+            Ref("CommentEqualsClauseSegment", optional=True),
+            OneOf(
+                # Create AS syntax:
+                Sequence(
+                    "AS",
+                    OptionallyBracketed(Ref("SelectableGrammar")),
+                ),
+                # Create like syntax
+                Sequence("LIKE", Ref("TableReferenceSegment")),
+                # Create clone syntax
+                Sequence("ClONE", Ref("TableReferenceSegment")),
+                Sequence("USING", "TEMPLATE", Ref("SelectableGrammar")),
+                optional=True,
+            ),
         ),
     )
 

@@ -464,15 +464,6 @@ class PsqlVariableGrammar(BaseSegment):
     )
 
 
-class TimeZoneGrammar(BaseSegment):
-    """Literal Date Time with optional casting to Time Zone."""
-
-    type = "time_zone_grammar"
-    match_grammar = AnyNumberOf(
-        Sequence("AT", "TIME", "ZONE", Ref("QuotedLiteralSegment")),
-    )
-
-
 class ArrayAccessorSegment(ansi.ArrayAccessorSegment):
     """Overwrites Array Accessor in ANSI to allow n many consecutive brackets."""
 
@@ -1086,14 +1077,18 @@ class CreateRoleStatementSegment(ansi.CreateRoleStatementSegment):
     https://www.postgresql.org/docs/current/sql-createrole.html
     """
 
-    match_grammar = ansi.CreateRoleStatementSegment.match_grammar.copy(
-        insert=[
-            Sequence(
-                Ref.keyword("WITH", optional=True),
-                # Very permissive for now. Anything can go here.
-                Anything(),
-            )
-        ],
+    type = "create_role_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        "ROLE",
+        Ref("ObjectReferenceSegment"),
+        Sequence(
+            Ref.keyword("WITH", optional=True),
+            # Very permissive for now. Anything can go here.
+            Anything(),
+            optional=True,
+        ),
     )
 
 
