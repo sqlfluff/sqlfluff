@@ -1198,14 +1198,13 @@ class TableInlineConstraintSegment(BaseSegment):
     parse_grammar = Sequence(
         Sequence(
             "CONSTRAINT",
-            AnyNumberOf(
-                Ref("SingleIdentifierGrammar"),
-                max_times=1,
-                min_times=0,
+            Ref(
+                "SingleIdentifierGrammar",
                 # exclude UNRESERVED_KEYWORDS which could used as NakedIdentifier
                 # to make e.g. `id NUMBER CONSTRAINT PRIMARY KEY` work (which is equal
                 # to just `id NUMBER PRIMARY KEY`)
                 exclude=OneOf("NOT", "NULL", "PRIMARY", "FOREIGN"),
+                optional=True,
             ),
             optional=True,
         ),
@@ -1232,14 +1231,13 @@ class TableOutOfLineConstraintSegment(BaseSegment):
     parse_grammar = Sequence(
         Sequence(
             "CONSTRAINT",
-            AnyNumberOf(
-                Ref("SingleIdentifierGrammar"),
-                max_times=1,
-                min_times=0,
+            Ref(
+                "SingleIdentifierGrammar",
                 # exclude UNRESERVED_KEYWORDS which could used as NakedIdentifier
                 # to make e.g. `id NUMBER, CONSTRAINT PRIMARY KEY(id)` work (which is
                 # equal to just `id NUMBER, PRIMARY KEY(id)`)
                 exclude=OneOf("NOT", "NULL", "PRIMARY", "FOREIGN"),
+                optional=True,
             ),
             optional=True,
         ),

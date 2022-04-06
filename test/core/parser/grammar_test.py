@@ -329,6 +329,17 @@ def test__parser__grammar__ref_eq():
     assert r1 not in check_list
 
 
+def test__parser__grammar_ref_exclude(generate_test_segments, fresh_ansi_dialect):
+    """Test the Ref grammar exclude option."""
+    ni = Ref("NakedIdentifierSegment", exclude=Ref.keyword("ABS"))
+    ts = generate_test_segments(["ABS", "ABSOLUTE"])
+    with RootParseContext(dialect=fresh_ansi_dialect) as ctx:
+        # Asset ABS does not match, due to the exclude
+        assert not ni.match([ts[0]], parse_context=ctx)
+        # Asset ABSOLUTE does match
+        assert ni.match([ts[1]], parse_context=ctx)
+
+
 def test__parser__grammar__oneof__copy():
     """Test grammar copying."""
     bs = StringParser("bar", KeywordSegment)

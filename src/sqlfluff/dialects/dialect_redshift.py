@@ -1405,8 +1405,8 @@ class ProcedureParameterListSegment(BaseSegment):
         Delimited(
             Sequence(
                 AnyNumberOf(
-                    OneOf(
-                        Ref("ParameterNameSegment"),
+                    Ref(
+                        "ParameterNameSegment",
                         exclude=OneOf(_param_type, Ref("ArgModeGrammar")),
                         optional=True,
                     ),
