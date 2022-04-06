@@ -2510,10 +2510,10 @@ class MergeInsertClauseSegment(ansi.MergeInsertClauseSegment):
             Ref("WildcardIdentifierSegment"),
             Sequence(
                 Indent,
-                Ref("BracketedColumnReferenceListGrammar", optional=True),
+                Ref("BracketedColumnReferenceListGrammar"),
                 Dedent,
                 Indent,
-                Ref("ValuesClauseSegment", optional=True),
+                Ref("ValuesClauseSegment"),
                 Dedent,
             ),
         ),
