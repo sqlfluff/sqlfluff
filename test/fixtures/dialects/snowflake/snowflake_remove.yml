@@ -1,0 +1,51 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 221e78460df1731154ab5b575b3e004700519ecfc26c3e5c8c86c356dd195be3
+file:
+- statement:
+    remove_statement:
+      keyword: rm
+      object_reference:
+        identifier: '@%mytable/myobject'
+- statement_terminator: ;
+- statement:
+    remove_statement:
+      keyword: rm
+      object_reference:
+        identifier: '@%mytable/myobject/'
+- statement_terminator: ;
+- statement:
+    remove_statement:
+      keyword: remove
+      object_reference:
+        identifier: '@mystage/path1/subpath2'
+- statement_terminator: ;
+- statement:
+    remove_statement:
+      keyword: remove
+      object_reference:
+        identifier: '@%orders'
+- statement_terminator: ;
+- statement:
+    remove_statement:
+    - keyword: rm
+    - object_reference:
+        identifier: '@~'
+    - keyword: pattern
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - literal: "'.*jun.*'"
+- statement_terminator: ;
+- statement:
+    remove_statement:
+    - keyword: REMOVE
+    - object_reference:
+        identifier: '@foo.bar'
+    - keyword: PATTERN
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - literal: "'\\w'"
+- statement_terminator: ;
