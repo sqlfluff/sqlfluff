@@ -1268,6 +1268,7 @@ class BaseSegment:
             # This segment isn't a literal, but has changed, we need to go deeper.
 
             # Iterate through the child segments
+            source_idx = self.pos_marker.source_slice.start
             templated_idx = self.pos_marker.templated_slice.start
             insert_buff = ""
             for seg_idx, segment in enumerate(self.segments):
@@ -1311,15 +1312,19 @@ class BaseSegment:
 
                 # Once we've dealt with any patches from the segment, update
                 # our position markers.
+                source_idx = segment.pos_marker.source_slice.stop
                 templated_idx = segment.pos_marker.templated_slice.stop
 
             # After the loop, we check whether there's a trailing deletion
             # or insert. Also valid if we still have an insertion buffer here.
             end_diff = self.pos_marker.templated_slice.stop - templated_idx
             if end_diff or insert_buff:
-                source_slice = segment.pos_marker.source_slice
+                source_slice = slice(
+                    source_idx,
+                    self.pos_marker.source_slice.stop,
+                )
                 templated_slice = slice(
-                    self.pos_marker.templated_slice.stop - end_diff,
+                    templated_idx,
                     self.pos_marker.templated_slice.stop,
                 )
                 # By returning an EnrichedFixPatch (rather than FixPatch), which
