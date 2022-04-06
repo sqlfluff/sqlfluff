@@ -715,7 +715,17 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                 Ref.keyword("COLUMN", optional=True),
                 Indent,
                 AnyNumberOf(
-                    Ref("ColumnReferenceSegment"),  # matches WHATEVER IS NEXT
+                    OneOf(
+                        Ref("ColumnReferenceSegment"),
+                        exclude=AnyNumberOf(
+                            "COMMENT",
+                            "TYPE",
+                            Ref("DatatypeSegment"),
+                            "FIRST",
+                            "AFTER",
+                            "SET",
+                        ),
+                    ),
                     max_times=2,
                 ),
                 Ref.keyword("TYPE", optional=True),
