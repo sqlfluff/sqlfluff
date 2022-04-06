@@ -137,19 +137,12 @@ exasol_dialect.add(
         Ref("ColumnReferenceSegment"),
         ephemeral_name="ColumnReferenceList",
     ),
-    # delimiter doesn't work for DISTRIBUTE and PARTITION BY
-    # expression because both expressions are splitted by comma
-    # as well as n columns within each expression
     TableDistributeByGrammar=StartsWith(
         Sequence(
             "DISTRIBUTE",
             "BY",
-            AnyNumberOf(
-                Sequence(
-                    Ref("CommaSegment", optional=True),
-                    Ref("ColumnReferenceSegment"),
-                ),
-                min_times=1,
+            Delimited(
+                Ref("ColumnReferenceSegment"),
             ),
         ),
         terminator=OneOf(
@@ -162,12 +155,8 @@ exasol_dialect.add(
         Sequence(
             "PARTITION",
             "BY",
-            AnyNumberOf(
-                Sequence(
-                    Ref("CommaSegment", optional=True),
-                    Ref("ColumnReferenceSegment"),
-                ),
-                min_times=1,
+            Delimited(
+                Ref("ColumnReferenceSegment"),
             ),
         ),
         terminator=OneOf(
@@ -966,12 +955,8 @@ class CreateTableStatementSegment(BaseSegment):
             # Columns and comment syntax:
             Bracketed(
                 Sequence(
-                    Ref("TableContentDefinitionSegment"),
-                    AnyNumberOf(
-                        Sequence(
-                            Ref("CommaSegment"),
-                            Ref("TableContentDefinitionSegment"),
-                        ),
+                    Delimited(
+                        Ref("TableContentDefinitionSegment"),
                     ),
                     Sequence(
                         Ref("CommaSegment"),
@@ -1029,9 +1014,8 @@ class DatatypeSegment(BaseSegment):
         Sequence(
             OneOf("DECIMAL", "DEC", "NUMBER", "NUMERIC"),
             Bracketed(
-                Ref("NumericLiteralSegment"),
-                Sequence(
-                    Ref("CommaSegment"), Ref("NumericLiteralSegment"), optional=True
+                Delimited(
+                    Ref("NumericLiteralSegment"),
                 ),
                 optional=True,
             ),
@@ -1284,13 +1268,11 @@ class CreateTableLikeClauseSegment(BaseSegment):
         "LIKE",
         Ref("TableReferenceSegment"),
         Bracketed(
-            AnyNumberOf(
+            Delimited(
                 Sequence(
                     Ref("SingleIdentifierGrammar"),
                     Ref("AliasExpressionSegment", optional=True),
                 ),
-                Ref("CommaSegment", optional=True),
-                min_times=1,
             ),
             optional=True,
         ),
