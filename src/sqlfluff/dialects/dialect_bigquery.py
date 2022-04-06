@@ -628,6 +628,7 @@ class DatatypeSegment(ansi.DatatypeSegment):
                     Sequence(
                         Ref("ParameterNameSegment"),
                         Ref("DatatypeSegment"),
+                        Ref("OptionsSegment", optional=True),
                     ),
                     delimiter=Ref("CommaSegment"),
                     bracket_pairs_set="angle_bracket_pairs",
@@ -1048,6 +1049,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                         Ref("TableConstraintSegment"),
                         Ref("ColumnDefinitionSegment"),
                     ),
+                    allow_trailing=True,
                 )
             ),
             Ref("CommentClauseSegment", optional=True),
