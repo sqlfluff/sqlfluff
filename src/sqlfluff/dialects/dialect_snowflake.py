@@ -795,7 +795,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CommentStatementSegment"),
             Ref("CallStatementSegment"),
             Ref("AlterViewStatementSegment"),
-            Ref("RemoveStatementSegment")
+            Ref("RemoveStatementSegment"),
         ],
         remove=[
             Ref("CreateTypeStatementSegment"),
@@ -4288,7 +4288,7 @@ class HavingClauseSegment(ansi.HavingClauseSegment):
 
 
 class RemoveStatementSegment(BaseSegment):
-    """A Remove Statement
+    """A Remove Statement.
 
     As per https://docs.snowflake.com/en/sql-reference/sql/remove.html
     """
