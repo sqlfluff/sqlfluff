@@ -86,7 +86,7 @@ Major changes include:
 * [@dmohns](https://github.com/dmohns) made their first contribution in [#2971](https://github.com/sqlfluff/sqlfluff/pull/2971)
 * [@tcholewik](https://github.com/tcholewik) made their first contribution in [#2923](https://github.com/sqlfluff/sqlfluff/pull/2923)
 * [@jmc-bbk](https://github.com/jmc-bbk) made their first contribution in [#2981](https://github.com/sqlfluff/sqlfluff/pull/2981)
-* [@dnim]](https://github.com/jmc-bbk) made their first contribution in [#3010]](https://github.com/sqlfluff/sqlfluff/pull/3010)
+* [@dnim]](https://github.com/dnim) made their first contribution in [#3010]](https://github.com/sqlfluff/sqlfluff/pull/3010)
 
 ## [0.11.2] - 2022-03-25
 
