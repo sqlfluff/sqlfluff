@@ -1081,45 +1081,7 @@ class CreateRoleStatementSegment(ansi.CreateRoleStatementSegment):
 
     match_grammar = Sequence(
         "CREATE",
-        "ROLE",
-        Ref("ObjectReferenceSegment"),
-        Sequence(
-            Ref.keyword("WITH", optional=True),
-            AnySetOf(
-                OneOf("SUPERUSER", "NOSUPERUSER"),
-                OneOf("CREATEDB", "NOCREATEDB"),
-                OneOf("CREATEROLE", "NOCREATEROLE"),
-                OneOf("INHERIT", "NOINHERIT"),
-                OneOf("LOGIN", "NOLOGIN"),
-                OneOf("REPLICATION", "NOREPLICATION"),
-                OneOf("BYPASSRLS", "NOBYPASSRLS"),
-                Sequence("CONNECTION", "LIMIT", Ref("NumericLiteralSegment")),
-                Sequence("PASSWORD", OneOf(Ref("QuotedLiteralSegment"), "NULL")),
-                Sequence("VALID", "UNTIL", Ref("QuotedLiteralSegment")),
-                Sequence("IN", "ROLE", Ref("RoleReferenceSegment")),
-                Sequence("IN", "GROUP", Ref("RoleReferenceSegment")),
-                Sequence("ROLE", Ref("RoleReferenceSegment")),
-                Sequence("ADMIN", Ref("RoleReferenceSegment")),
-                Sequence("USER", Ref("RoleReferenceSegment")),
-                Sequence("SYSID", Ref("NumericLiteralSegment")),
-            ),
-            optional=True,
-        ),
-    )
-
-
-class CreateUserStatementSegment(BaseSegment):
-    """A `CREATE USER` statement.
-
-    As per:
-    https://www.postgresql.org/docs/current/sql-createuser.html
-    """
-
-    type = "create_user"
-
-    match_grammar = Sequence(
-        "CREATE",
-        "USER",
+        OneOf("ROLE", "USER"),
         Ref("ObjectReferenceSegment"),
         Sequence(
             Ref.keyword("WITH", optional=True),
@@ -3106,7 +3068,6 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DoStatementSegment"),
             Ref("AlterIndexStatementSegment"),
             Ref("ReindexStatementSegment"),
-            Ref("CreateUserStatementSegment"),
         ],
     )
 
