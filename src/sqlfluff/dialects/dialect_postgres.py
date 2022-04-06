@@ -1076,32 +1076,36 @@ class CreateRoleStatementSegment(ansi.CreateRoleStatementSegment):
     https://www.postgresql.org/docs/current/sql-createrole.html
     """
 
-    match_grammar = ansi.CreateRoleStatementSegment.match_grammar.copy(
-        insert=[
-            Sequence(
-                Ref.keyword("WITH", optional=True),
-                AnySetOf(
-                    OneOf("SUPERUSER", "NOSUPERUSER"),
-                    OneOf("CREATEDB", "NOCREATEDB"),
-                    OneOf("CREATEROLE", "NOCREATEROLE"),
-                    OneOf("INHERIT", "NOINHERIT"),
-                    OneOf("LOGIN", "NOLOGIN"),
-                    OneOf("REPLICATION", "NOREPLICATION"),
-                    OneOf("BYPASSRLS", "NOBYPASSRLS"),
-                    Sequence("CONNECTION", "LIMIT", Ref("NumericLiteralSegment")),
-                    Sequence("PASSWORD", OneOf(Ref("QuotedLiteralSegment"), "NULL")),
-                    Sequence("VALID", "UNTIL", Ref("QuotedLiteralSegment")),
-                    Sequence("IN", "ROLE", Ref("RoleReferenceSegment")),
-                    Sequence("IN", "GROUP", Ref("RoleReferenceSegment")),
-                    Sequence("ROLE", Ref("RoleReferenceSegment")),
-                    Sequence("ADMIN", Ref("RoleReferenceSegment")),
-                    Sequence("USER", Ref("RoleReferenceSegment")),
-                    Sequence("SYSID", Ref("NumericLiteralSegment")),
-                ),
-                optional=True,
-            )
-        ],
+    type = "create_role_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        "ROLE",
+        Ref("ObjectReferenceSegment"),
+        Sequence(
+            Ref.keyword("WITH", optional=True),
+            AnySetOf(
+                OneOf("SUPERUSER", "NOSUPERUSER"),
+                OneOf("CREATEDB", "NOCREATEDB"),
+                OneOf("CREATEROLE", "NOCREATEROLE"),
+                OneOf("INHERIT", "NOINHERIT"),
+                OneOf("LOGIN", "NOLOGIN"),
+                OneOf("REPLICATION", "NOREPLICATION"),
+                OneOf("BYPASSRLS", "NOBYPASSRLS"),
+                Sequence("CONNECTION", "LIMIT", Ref("NumericLiteralSegment")),
+                Sequence("PASSWORD", OneOf(Ref("QuotedLiteralSegment"), "NULL")),
+                Sequence("VALID", "UNTIL", Ref("QuotedLiteralSegment")),
+                Sequence("IN", "ROLE", Ref("RoleReferenceSegment")),
+                Sequence("IN", "GROUP", Ref("RoleReferenceSegment")),
+                Sequence("ROLE", Ref("RoleReferenceSegment")),
+                Sequence("ADMIN", Ref("RoleReferenceSegment")),
+                Sequence("USER", Ref("RoleReferenceSegment")),
+                Sequence("SYSID", Ref("NumericLiteralSegment")),
+            ),
+            optional=True,
+        ),
     )
+
 
 class CreateUserStatementSegment(BaseSegment):
     """A `CREATE USER` statement.
@@ -1111,6 +1115,7 @@ class CreateUserStatementSegment(BaseSegment):
     """
 
     type = "create_user"
+
     match_grammar = Sequence(
         "CREATE",
         "USER",
@@ -1138,6 +1143,7 @@ class CreateUserStatementSegment(BaseSegment):
             optional=True,
         ),
     )
+
 
 class ExplainStatementSegment(ansi.ExplainStatementSegment):
     """An `Explain` statement.

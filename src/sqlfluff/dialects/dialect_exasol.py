@@ -2576,7 +2576,7 @@ class DropConsumerGroupSegment(BaseSegment):
 ############################
 # ROLE
 ############################
-class CreateRoleSegment(BaseSegment):
+class CreateRoleSegment(ansi.CreateRoleStatementSegment):
     """`CREATE ROLE` statement.
 
     https://docs.exasol.com/sql/create_role.htm
@@ -2628,7 +2628,7 @@ class AlterRoleSegment(BaseSegment):
     )
 
 
-class DropRoleStatementSegment(BaseSegment):
+class DropRoleStatementSegment(ansi.DropRoleStatementSegment):
     """A `DROP ROLE` statement with CASCADE option.
 
     https://docs.exasol.com/sql/drop_role.htm
