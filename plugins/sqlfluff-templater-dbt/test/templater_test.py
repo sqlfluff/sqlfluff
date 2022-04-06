@@ -42,15 +42,15 @@ def test__templater_dbt_profiles_dir_expanded(dbt_templater):  # noqa: F811
     """Check that the profiles_dir is expanded."""
     dbt_templater.sqlfluff_config = FluffConfig(
         configs={
+            "core": {"dialect": "ansi"},
             "templater": {
                 "dbt": {
                     "profiles_dir": "~/.dbt",
                     "profile": "default",
                     "target": "dev",
                 }
-            }
+            },
         },
-        overrides={"dialect": "ansi"},
     )
     profiles_dir = dbt_templater._get_profiles_dir()
     # Normalise paths to control for OS variance
@@ -422,8 +422,10 @@ def test__templater_dbt_handle_database_connection_failure(
 def test__project_dir_does_not_exist_error(dbt_templater, caplog):  # noqa: F811
     """Test an error is logged if the given dbt project directory doesn't exist."""
     dbt_templater.sqlfluff_config = FluffConfig(
-        configs={"templater": {"dbt": {"project_dir": "./non_existing_directory"}}},
-        overrides={"dialect": "ansi"},
+        configs={
+            "core": {"dialect": "ansi"},
+            "templater": {"dbt": {"project_dir": "./non_existing_directory"}},
+        }
     )
     logger = logging.getLogger("sqlfluff")
     original_propagate_value = logger.propagate
