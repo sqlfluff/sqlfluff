@@ -3347,12 +3347,10 @@ class MLTableExpressionSegment(BaseSegment):
         Ref("SingleIdentifierGrammar"),
         Bracketed(
             Sequence("MODEL", Ref("ObjectReferenceSegment")),
-            OneOf(
-                Sequence(
-                    Ref("CommaSegment"),
-                    Bracketed(
-                        Ref("SelectableGrammar"),
-                    ),
+            Sequence(
+                Ref("CommaSegment"),
+                Bracketed(
+                    Ref("SelectableGrammar"),
                 ),
                 optional=True,
             ),

@@ -889,27 +889,14 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
         ),
         OneOf(
             # Columns and comment syntax:
-            Sequence(
-                Bracketed(
-                    # Manually rebuild Delimited.
-                    # Delimited breaks complex (MAP, STRUCT) datatypes
-                    # (Comma splits angle bracket blocks)
+            Bracketed(
+                Delimited(
                     Sequence(
                         OneOf(
                             Ref("ColumnDefinitionSegment"),
                             Ref("GeneratedColumnDefinitionSegment"),
                         ),
                         Ref("CommentGrammar", optional=True),
-                    ),
-                    AnyNumberOf(
-                        Sequence(
-                            Ref("CommaSegment"),
-                            OneOf(
-                                Ref("ColumnDefinitionSegment"),
-                                Ref("GeneratedColumnDefinitionSegment"),
-                            ),
-                            Ref("CommentGrammar", optional=True),
-                        ),
                     ),
                 ),
             ),
