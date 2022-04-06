@@ -2481,3 +2481,40 @@ class GeneratedColumnDefinitionSegment(BaseSegment):
             Ref("ColumnConstraintSegment", optional=True),
         ),
     )
+
+
+class MergeUpdateClauseSegment(ansi.MergeUpdateClauseSegment):
+    """`UPDATE` clause within the `MERGE` statement."""
+
+    type = "merge_update_clause"
+    match_grammar: Matchable = Sequence(
+        "UPDATE",
+        OneOf(
+            Sequence("SET", Ref("WildcardIdentifierSegment")),
+            Sequence(
+                Indent,
+                Ref("SetClauseListSegment"),
+                Dedent,
+            ),
+        ),
+    )
+
+
+class MergeInsertClauseSegment(ansi.MergeInsertClauseSegment):
+    """`INSERT` clause within the `MERGE` statement."""
+
+    type = "merge_insert_clause"
+    match_grammar: Matchable = Sequence(
+        "INSERT",
+        OneOf(
+            Ref("WildcardIdentifierSegment"),
+            Sequence(
+                Indent,
+                Ref("BracketedColumnReferenceListGrammar", optional=True),
+                Dedent,
+                Indent,
+                Ref("ValuesClauseSegment", optional=True),
+                Dedent,
+            ),
+        ),
+    )
