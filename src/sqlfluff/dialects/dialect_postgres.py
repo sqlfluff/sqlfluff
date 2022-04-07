@@ -3219,6 +3219,10 @@ class AsAliasExpressionSegment(BaseSegment):
 
 
 class ConflictActionSegment(BaseSegment):
+    """A Conflict Action Statement used within an INSERT statement.
+
+    As specified in https://www.postgresql.org/docs/14/sql-insert.html
+    """
 
     type = "conflict_action"
 
@@ -3260,6 +3264,10 @@ class ConflictActionSegment(BaseSegment):
 
 
 class ConflictTargetSegment(BaseSegment):
+    """A Conflict Target Statement used within an INSERT statement.
+
+    As specified in https://www.postgresql.org/docs/14/sql-insert.html
+    """
 
     type = "conflict_target"
 
