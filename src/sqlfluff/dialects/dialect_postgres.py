@@ -3267,9 +3267,7 @@ class ConflictActionSegment(BaseSegment):
                         Sequence(
                             Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
                             Ref("EqualsSegment"),
-                            Bracketed(
-                                Ref("SelectableGrammar")
-                            ),
+                            Bracketed(Ref("SelectableGrammar")),
                         ),
                     )
                 ),
