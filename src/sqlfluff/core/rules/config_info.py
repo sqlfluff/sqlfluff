@@ -74,6 +74,13 @@ STANDARD_CONFIG_INFO_DICT = {
             "Should trailing commas within select clauses be required or forbidden?"
         ),
     },
+    "create_table_trailing_comma": {
+        "validation": ["forbid", "require"],
+        "definition": (
+            "Should trailing commas within create table clauses be required or "
+            "forbidden?"
+        ),
+    },
     "ignore_comment_lines": {
         "validation": [True, False],
         "definition": (

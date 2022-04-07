@@ -1,13 +1,13 @@
 rule: L038
 
-test_require_pass:
+test_select_clause_trailing_comma_require_pass:
   pass_str: SELECT a, b, FROM foo
   configs:
     rules:
       L038:
         select_clause_trailing_comma: require
 
-test_require_fail:
+test_select_clause_trailing_comma_require_fail:
   fail_str: SELECT a, b FROM foo
   fix_str: SELECT a, b, FROM foo
   configs:
@@ -15,18 +15,47 @@ test_require_fail:
       L038:
         select_clause_trailing_comma: require
 
-
-test_forbid_pass:
+test_select_clause_trailing_comma_forbid_pass:
   pass_str: SELECT a, b FROM foo
   configs:
     rules:
       L038:
         select_clause_trailing_comma: forbid
 
-test_forbid_fail:
+test_select_clause_trailing_comma_forbid_fail:
   fail_str: SELECT a, b, FROM foo
   fix_str: SELECT a, b FROM foo
   configs:
     rules:
       L038:
         select_clause_trailing_comma: forbid
+
+test_create_table_trailing_comma_require_pass:
+  pass_str: CREATE TABLE t_table (a STRING, b STRING,)
+  configs:
+    rules:
+      L038:
+        create_table_trailing_comma: require
+
+test_create_table_trailing_comma_require_fail:
+  fail_str: CREATE TABLE t_table (a STRING, b STRING)
+  fix_str: CREATE TABLE t_table (a STRING, b STRING,)
+  configs:
+    rules:
+      L038:
+        create_table_trailing_comma: require
+
+test_create_table_trailing_comma_forbid_pass:
+  pass_str: CREATE TABLE t_table (a STRING, b STRING)
+  configs:
+    rules:
+      L038:
+        create_table_trailing_comma: forbid
+
+test_create_table_trailing_comma_forbid_fail:
+  fail_str: CREATE TABLE t_table (a STRING, b STRING,)
+  fix_str: CREATE TABLE t_table (a STRING, b STRING)
+  configs:
+    rules:
+      L038:
+        create_table_trailing_comma: forbid

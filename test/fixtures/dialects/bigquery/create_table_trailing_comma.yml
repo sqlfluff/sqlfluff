@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c9bb3144ff80289d82f0717754a2bb9fa552a8fa37324a3e54f188055049eb94
+_hash: fba05b44b40f553e9fc759ee98826311e144cdb365376a873c60a0d27aa421b3
 file:
 - statement:
     create_table_statement:
@@ -11,14 +11,15 @@ file:
     - keyword: TABLE
     - table_reference:
         identifier: t_table
-    - bracketed:
-        start_bracket: (
-        column_definition:
-          identifier: col1
-          data_type:
-            data_type_identifier: STRING
-        comma: ','
-        end_bracket: )
+    - column_list_segment:
+        bracketed:
+          start_bracket: (
+          column_definition:
+            identifier: col1
+            data_type:
+              data_type_identifier: STRING
+          comma: ','
+          end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:
@@ -26,29 +27,69 @@ file:
     - keyword: TABLE
     - table_reference:
         identifier: t_table
-    - bracketed:
-      - start_bracket: (
-      - column_definition:
-          identifier: col1
-          data_type:
-            data_type_identifier: STRING
-      - comma: ','
-      - column_definition:
-          identifier: x
-          data_type:
-            data_type_identifier: INT64
-          column_constraint_segment:
-          - keyword: NOT
-          - keyword: 'NULL'
-          options_segment:
-            keyword: OPTIONS
-            bracketed:
-              start_bracket: (
-              parameter: description
-              comparison_operator:
-                raw_comparison_operator: '='
-              literal: '"An INTEGER field that is NOT NULL"'
-              end_bracket: )
-      - comma: ','
-      - end_bracket: )
+    - column_list_segment:
+        bracketed:
+        - start_bracket: (
+        - column_definition:
+            identifier: col1
+            data_type:
+              data_type_identifier: STRING
+        - comma: ','
+        - column_definition:
+            identifier: x
+            data_type:
+              data_type_identifier: INT64
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+            options_segment:
+              keyword: OPTIONS
+              bracketed:
+                start_bracket: (
+                parameter: description
+                comparison_operator:
+                  raw_comparison_operator: '='
+                literal: '"An INTEGER field that is NOT NULL"'
+                end_bracket: )
+        - comma: ','
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        identifier: t_table
+    - column_list_segment:
+        bracketed:
+        - start_bracket: (
+        - column_definition:
+            identifier: col1
+            data_type:
+              data_type_identifier: STRING
+        - comma: ','
+        - column_definition:
+            identifier: x
+            data_type:
+              data_type_identifier: INT64
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+            options_segment:
+              keyword: OPTIONS
+              bracketed:
+                start_bracket: (
+                parameter: description
+                comparison_operator:
+                  raw_comparison_operator: '='
+                literal: '"An INTEGER field that is NOT NULL"'
+                end_bracket: )
+        - comma: ','
+        - end_bracket: )
+    - partition_by_segment:
+      - keyword: PARTITION
+      - keyword: BY
+      - expression:
+          column_reference:
+            identifier: x
 - statement_terminator: ;

@@ -14,14 +14,14 @@ from sqlfluff.core.rules.doc_decorators import (
 @document_configuration
 @document_fix_compatible
 class Rule_L038(BaseRule):
-    """Trailing commas within select clause.
+    """Trailing commas within select and create table clause.
 
     .. note::
        For many database backends this is allowed. For some users
        this may be something they wish to enforce (in line with
        Python best practice). Many database backends regard this
        as a syntax error, and as such the `SQLFluff` default is to
-       forbid trailing commas in the select clause.
+       forbid trailing commas in the select and create table clause.
 
     **Anti-pattern**
 
@@ -42,17 +42,19 @@ class Rule_L038(BaseRule):
         FROM foo
     """
 
-    config_keywords = ["select_clause_trailing_comma"]
+    config_keywords = ["select_clause_trailing_comma", "create_table_trailing_comma"]
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Trailing commas within select clause."""
         # Config type hints
         self.select_clause_trailing_comma: str
+        self.create_table_trailing_comma: str
 
         segment = context.functional.segment
-        children = segment.children()
+
         if segment.all(sp.is_type("select_clause")):
-            # Iterate content to find last element
+            # Find the last element
+            children = segment.children()
             last_content: BaseSegment = children.last(sp.is_code())[0]
 
             # What mode are we in?
@@ -73,5 +75,40 @@ class Rule_L038(BaseRule):
                             LintFix.replace(last_content, [last_content, new_comma])
                         ],
                         description="Trailing comma in select statement required",
+                    )
+
+        if segment.all(
+            sp.is_type("create_table_statement")
+        ) and segment.recursive_crawl("column_list_segment"):
+            # Iterate content to find the column definitions
+            children = segment.children()
+            column_list_target = children.select(sp.is_type("column_list_segment"))
+            # column_list_segment includes the brackets, so we need to decent inside ...
+            bracketed_target = column_list_target.children(sp.is_type("bracketed"))
+            column_list_definitions_target = bracketed_target.children()
+            # ... and do not consider the closing bracket
+            last_content: BaseSegment = column_list_definitions_target.last(
+                sp.and_(sp.is_code(), sp.not_(sp.is_type("end_bracket")))
+            )[0]
+
+            # What mode are we in?
+            if self.create_table_trailing_comma == "forbid":
+                # Is it a comma?
+                if last_content.is_type("comma"):
+                    return LintResult(
+                        anchor=last_content,
+                        fixes=[LintFix.delete(last_content)],
+                        description="Trailing comma in create table statement "
+                        "forbidden",
+                    )
+            elif self.create_table_trailing_comma == "require":
+                if not last_content.is_type("comma"):
+                    new_comma = SymbolSegment(",", name="comma", type="comma")
+                    return LintResult(
+                        anchor=last_content,
+                        fixes=[
+                            LintFix.replace(last_content, [last_content, new_comma])
+                        ],
+                        description="Trailing comma in create table statement required",
                     )
         return None
