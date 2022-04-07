@@ -1144,7 +1144,7 @@ class AlterRoleStatementSegment(BaseSegment):
                     "IN",
                     "DATABASE",
                     Ref("ObjectReferenceSegment"),
-                    optional=True
+                    optional=True,
                 ),
                 OneOf(
                     Sequence(
