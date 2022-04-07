@@ -1821,7 +1821,7 @@ class UpdateStatementSegment(BaseSegment):
         "UPDATE",
         Ref.keyword("LOW_PRIORITY", optional=True),
         Ref.keyword("IGNORE", optional=True),
-        Delimited(Ref("TableReferenceSegment"), Ref("FromExpressionElementSegment")),
+        Delimited(Ref("TableReferenceSegment"), Ref("FromExpressionSegment")),
         Ref("SetClauseListSegment"),
         Ref("WhereClauseSegment", optional=True),
         Ref("OrderByClauseSegment", optional=True),

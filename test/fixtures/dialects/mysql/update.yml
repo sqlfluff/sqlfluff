@@ -3,13 +3,16 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e34a015200fed0ceb65bba46b4516581dff4e88c314bf25f683eac0035da42d2
+_hash: 26988f2042831711db88eb657c8a1553e531dc4fd604a96782c842d21ce42f00
 file:
 - statement:
     update_statement:
       keyword: UPDATE
-      table_reference:
-        identifier: t1
+      from_expression:
+        from_expression_element:
+          table_expression:
+            table_reference:
+              identifier: t1
       set_clause_list:
         keyword: SET
         set_clause:
@@ -26,8 +29,11 @@ file:
 - statement:
     update_statement:
       keyword: UPDATE
-      table_reference:
-        identifier: t1
+      from_expression:
+        from_expression_element:
+          table_expression:
+            table_reference:
+              identifier: t1
       set_clause_list:
       - keyword: SET
       - set_clause:
@@ -51,13 +57,16 @@ file:
 - statement_terminator: ;
 - statement:
     update_statement:
-    - keyword: UPDATE
-    - table_reference:
+      keyword: UPDATE
+      table_reference:
         identifier: items
-    - comma: ','
-    - table_reference:
-        identifier: month
-    - set_clause_list:
+      comma: ','
+      from_expression:
+        from_expression_element:
+          table_expression:
+            table_reference:
+              identifier: month
+      set_clause_list:
         keyword: SET
         set_clause:
         - column_reference:
@@ -70,7 +79,7 @@ file:
           - identifier: month
           - dot: .
           - identifier: price
-    - where_clause:
+      where_clause:
         keyword: WHERE
         expression:
         - column_reference:
@@ -87,8 +96,11 @@ file:
 - statement:
     update_statement:
       keyword: UPDATE
-      table_reference:
-        identifier: t
+      from_expression:
+        from_expression_element:
+          table_expression:
+            table_reference:
+              identifier: t
       set_clause_list:
         keyword: SET
         set_clause:
@@ -111,8 +123,11 @@ file:
 - statement:
     update_statement:
       keyword: UPDATE
-      table_reference:
-        identifier: items
+      from_expression:
+        from_expression_element:
+          table_expression:
+            table_reference:
+              identifier: items
       set_clause_list:
         keyword: SET
         set_clause:
@@ -172,67 +187,68 @@ file:
       table_reference:
         identifier: items
       comma: ','
-      from_expression_element:
-        table_expression:
-          bracketed:
-            start_bracket: (
-            select_statement:
-              select_clause:
-                keyword: SELECT
-                select_clause_element:
-                  column_reference:
-                    identifier: id
-              from_clause:
-                keyword: FROM
-                from_expression:
-                  from_expression_element:
-                    table_expression:
-                      table_reference:
-                        identifier: items
-              where_clause:
-                keyword: WHERE
-                expression:
-                  column_reference:
-                    identifier: id
-                  keyword: IN
-                  bracketed:
-                    start_bracket: (
-                    select_statement:
-                      select_clause:
-                        keyword: SELECT
-                        select_clause_element:
-                          column_reference:
-                            identifier: id
-                      from_clause:
-                        keyword: FROM
-                        from_expression:
-                          from_expression_element:
-                            table_expression:
-                              table_reference:
-                                identifier: items
-                      where_clause:
-                        keyword: WHERE
-                        expression:
-                        - column_reference:
-                            identifier: retail
-                        - binary_operator: /
-                        - column_reference:
-                            identifier: wholesale
-                        - comparison_operator:
-                          - raw_comparison_operator: '>'
-                          - raw_comparison_operator: '='
-                        - literal: '1.3'
-                        - binary_operator: AND
-                        - column_reference:
-                            identifier: quantity
-                        - comparison_operator:
-                            raw_comparison_operator: <
-                        - literal: '100'
-                    end_bracket: )
-            end_bracket: )
-        alias_expression:
-          keyword: AS
-          identifier: discounted
+      from_expression:
+        from_expression_element:
+          table_expression:
+            bracketed:
+              start_bracket: (
+              select_statement:
+                select_clause:
+                  keyword: SELECT
+                  select_clause_element:
+                    column_reference:
+                      identifier: id
+                from_clause:
+                  keyword: FROM
+                  from_expression:
+                    from_expression_element:
+                      table_expression:
+                        table_reference:
+                          identifier: items
+                where_clause:
+                  keyword: WHERE
+                  expression:
+                    column_reference:
+                      identifier: id
+                    keyword: IN
+                    bracketed:
+                      start_bracket: (
+                      select_statement:
+                        select_clause:
+                          keyword: SELECT
+                          select_clause_element:
+                            column_reference:
+                              identifier: id
+                        from_clause:
+                          keyword: FROM
+                          from_expression:
+                            from_expression_element:
+                              table_expression:
+                                table_reference:
+                                  identifier: items
+                        where_clause:
+                          keyword: WHERE
+                          expression:
+                          - column_reference:
+                              identifier: retail
+                          - binary_operator: /
+                          - column_reference:
+                              identifier: wholesale
+                          - comparison_operator:
+                            - raw_comparison_operator: '>'
+                            - raw_comparison_operator: '='
+                          - literal: '1.3'
+                          - binary_operator: AND
+                          - column_reference:
+                              identifier: quantity
+                          - comparison_operator:
+                              raw_comparison_operator: <
+                          - literal: '100'
+                      end_bracket: )
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: discounted
       set_clause_list:
         keyword: SET
         set_clause:
@@ -269,42 +285,43 @@ file:
       table_reference:
         identifier: items
       comma: ','
-      from_expression_element:
-        table_expression:
-          bracketed:
-            start_bracket: (
-            select_statement:
-              select_clause:
-              - keyword: SELECT
-              - select_clause_element:
-                  column_reference:
-                    identifier: id
-              - comma: ','
-              - select_clause_element:
-                  expression:
-                  - column_reference:
-                      identifier: retail
-                  - binary_operator: /
-                  - column_reference:
-                      identifier: wholesale
-                  alias_expression:
-                    keyword: AS
-                    identifier: markup
-              - comma: ','
-              - select_clause_element:
-                  column_reference:
-                    identifier: quantity
-              from_clause:
-                keyword: FROM
-                from_expression:
-                  from_expression_element:
-                    table_expression:
-                      table_reference:
-                        identifier: items
-            end_bracket: )
-        alias_expression:
-          keyword: AS
-          identifier: discounted
+      from_expression:
+        from_expression_element:
+          table_expression:
+            bracketed:
+              start_bracket: (
+              select_statement:
+                select_clause:
+                - keyword: SELECT
+                - select_clause_element:
+                    column_reference:
+                      identifier: id
+                - comma: ','
+                - select_clause_element:
+                    expression:
+                    - column_reference:
+                        identifier: retail
+                    - binary_operator: /
+                    - column_reference:
+                        identifier: wholesale
+                    alias_expression:
+                      keyword: AS
+                      identifier: markup
+                - comma: ','
+                - select_clause_element:
+                    column_reference:
+                      identifier: quantity
+                from_clause:
+                  keyword: FROM
+                  from_expression:
+                    from_expression_element:
+                      table_expression:
+                        table_reference:
+                          identifier: items
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: discounted
       set_clause_list:
         keyword: SET
         set_clause:
@@ -356,8 +373,11 @@ file:
     update_statement:
     - keyword: UPDATE
     - keyword: LOW_PRIORITY
-    - table_reference:
-        identifier: foo
+    - from_expression:
+        from_expression_element:
+          table_expression:
+            table_reference:
+              identifier: foo
     - set_clause_list:
         keyword: SET
         set_clause:
@@ -372,13 +392,16 @@ file:
 - statement_terminator: ;
 - statement:
     update_statement:
-    - keyword: UPDATE
-    - table_reference:
+      keyword: UPDATE
+      table_reference:
         identifier: a
-    - comma: ','
-    - table_reference:
-        identifier: b
-    - set_clause_list:
+      comma: ','
+      from_expression:
+        from_expression_element:
+          table_expression:
+            table_reference:
+              identifier: b
+      set_clause_list:
         keyword: SET
         set_clause:
         - column_reference:
@@ -391,7 +414,7 @@ file:
           - identifier: b
           - dot: .
           - identifier: name
-    - where_clause:
+      where_clause:
         keyword: WHERE
         expression:
         - column_reference:
@@ -404,4 +427,54 @@ file:
           - identifier: b
           - dot: .
           - identifier: id
+- statement_terminator: ;
+- statement:
+    update_statement:
+      keyword: UPDATE
+      from_expression:
+        from_expression_element:
+          table_expression:
+            table_reference:
+              identifier: a
+        join_clause:
+          keyword: join
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: b
+          join_on_condition:
+            keyword: 'on'
+            expression:
+            - column_reference:
+              - identifier: a
+              - dot: .
+              - identifier: id
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - column_reference:
+              - identifier: b
+              - dot: .
+              - identifier: id
+      set_clause_list:
+        keyword: set
+        set_clause:
+        - column_reference:
+          - identifier: a
+          - dot: .
+          - identifier: type
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - identifier: b
+          - dot: .
+          - identifier: type
+      where_clause:
+        keyword: where
+        expression:
+        - column_reference:
+          - identifier: a
+          - dot: .
+          - identifier: type
+        - keyword: is
+        - keyword: 'null'
 - statement_terminator: ;
