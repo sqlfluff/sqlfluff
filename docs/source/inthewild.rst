@@ -67,4 +67,5 @@ Just add a section below by raising a PR on GitHub by
   near-term plans to implement it for our `dbt`_ projects.
 - At `CarePay <https://www.carepay.com>`_ we use SQLFLuff to lint and fix all
   our dbt models as well as several other SQL heavy projects. Locally we use
-  SQLFluff with pre-commit and have also integrated it into our CI/CD pipelines.
+  SQLFluff with pre-commit and have also integrated it into our CI/CD
+  pipelines.
