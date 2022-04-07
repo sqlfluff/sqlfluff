@@ -253,6 +253,13 @@ bigquery_dialect.sets("datetime_units").update(
         "QUARTER",
         "YEAR",
         "ISOYEAR",
+        "MONDAY",
+        "TUESDAY",
+        "WEDNESDAY",
+        "THURSDAY",
+        "FRIDAY",
+        "SATURDAY",
+        "SUNDAY",
     ]
 )
 
@@ -269,6 +276,7 @@ bigquery_dialect.sets("date_part_function_name").update(
         "TIME_TRUNC",
         "TIMESTAMP_DIFF",
         "TIMESTAMP_TRUNC",
+        "WEEK",
     ]
 )
 
@@ -459,8 +467,8 @@ class FunctionSegment(ansi.FunctionSegment):
             # Treat functions which take date parts separately
             # So those functions parse date parts as DatetimeUnitSegment
             # rather than identifiers.
-            OneOf(
-                Ref("DatePartFunctionNameSegment"),
+            Ref(
+                "DatePartFunctionNameSegment",
                 exclude=Ref("ExtractFunctionNameSegment"),
             ),
             Bracketed(
@@ -475,10 +483,8 @@ class FunctionSegment(ansi.FunctionSegment):
         ),
         Sequence(
             Sequence(
-                AnyNumberOf(
-                    Ref("FunctionNameSegment"),
-                    max_times=1,
-                    min_times=1,
+                Ref(
+                    "FunctionNameSegment",
                     exclude=OneOf(
                         Ref("DatePartFunctionNameSegment"),
                         Ref("ValuesClauseSegment"),

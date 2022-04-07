@@ -137,19 +137,12 @@ exasol_dialect.add(
         Ref("ColumnReferenceSegment"),
         ephemeral_name="ColumnReferenceList",
     ),
-    # delimiter doesn't work for DISTRIBUTE and PARTITION BY
-    # expression because both expressions are splitted by comma
-    # as well as n columns within each expression
     TableDistributeByGrammar=StartsWith(
         Sequence(
             "DISTRIBUTE",
             "BY",
-            AnyNumberOf(
-                Sequence(
-                    Ref("CommaSegment", optional=True),
-                    Ref("ColumnReferenceSegment"),
-                ),
-                min_times=1,
+            Delimited(
+                Ref("ColumnReferenceSegment"),
             ),
         ),
         terminator=OneOf(
@@ -162,12 +155,8 @@ exasol_dialect.add(
         Sequence(
             "PARTITION",
             "BY",
-            AnyNumberOf(
-                Sequence(
-                    Ref("CommaSegment", optional=True),
-                    Ref("ColumnReferenceSegment"),
-                ),
-                min_times=1,
+            Delimited(
+                Ref("ColumnReferenceSegment"),
             ),
         ),
         terminator=OneOf(
@@ -966,12 +955,8 @@ class CreateTableStatementSegment(BaseSegment):
             # Columns and comment syntax:
             Bracketed(
                 Sequence(
-                    Ref("TableContentDefinitionSegment"),
-                    AnyNumberOf(
-                        Sequence(
-                            Ref("CommaSegment"),
-                            Ref("TableContentDefinitionSegment"),
-                        ),
+                    Delimited(
+                        Ref("TableContentDefinitionSegment"),
                     ),
                     Sequence(
                         Ref("CommaSegment"),
@@ -1029,9 +1014,8 @@ class DatatypeSegment(BaseSegment):
         Sequence(
             OneOf("DECIMAL", "DEC", "NUMBER", "NUMERIC"),
             Bracketed(
-                Ref("NumericLiteralSegment"),
-                Sequence(
-                    Ref("CommaSegment"), Ref("NumericLiteralSegment"), optional=True
+                Delimited(
+                    Ref("NumericLiteralSegment"),
                 ),
                 optional=True,
             ),
@@ -1214,14 +1198,13 @@ class TableInlineConstraintSegment(BaseSegment):
     parse_grammar = Sequence(
         Sequence(
             "CONSTRAINT",
-            AnyNumberOf(
-                Ref("SingleIdentifierGrammar"),
-                max_times=1,
-                min_times=0,
+            Ref(
+                "SingleIdentifierGrammar",
                 # exclude UNRESERVED_KEYWORDS which could used as NakedIdentifier
                 # to make e.g. `id NUMBER CONSTRAINT PRIMARY KEY` work (which is equal
                 # to just `id NUMBER PRIMARY KEY`)
                 exclude=OneOf("NOT", "NULL", "PRIMARY", "FOREIGN"),
+                optional=True,
             ),
             optional=True,
         ),
@@ -1248,14 +1231,13 @@ class TableOutOfLineConstraintSegment(BaseSegment):
     parse_grammar = Sequence(
         Sequence(
             "CONSTRAINT",
-            AnyNumberOf(
-                Ref("SingleIdentifierGrammar"),
-                max_times=1,
-                min_times=0,
+            Ref(
+                "SingleIdentifierGrammar",
                 # exclude UNRESERVED_KEYWORDS which could used as NakedIdentifier
                 # to make e.g. `id NUMBER, CONSTRAINT PRIMARY KEY(id)` work (which is
                 # equal to just `id NUMBER, PRIMARY KEY(id)`)
                 exclude=OneOf("NOT", "NULL", "PRIMARY", "FOREIGN"),
+                optional=True,
             ),
             optional=True,
         ),
@@ -1284,13 +1266,11 @@ class CreateTableLikeClauseSegment(BaseSegment):
         "LIKE",
         Ref("TableReferenceSegment"),
         Bracketed(
-            AnyNumberOf(
+            Delimited(
                 Sequence(
                     Ref("SingleIdentifierGrammar"),
                     Ref("AliasExpressionSegment", optional=True),
                 ),
-                Ref("CommaSegment", optional=True),
-                min_times=1,
             ),
             optional=True,
         ),

@@ -299,13 +299,9 @@ tsql_dialect.replace(
         "SELECT",
         Ref("SelectClauseModifierSegment", optional=True),
         Indent,
-        AnyNumberOf(
-            Sequence(
-                Ref("SelectClauseElementSegment"),
-                Ref("CommaSegment"),
-            ),
+        Delimited(
+            Ref("SelectClauseElementSegment"),
         ),
-        Ref("SelectClauseElementSegment"),
         # NB: The Dedent for the indent above lives in the
         # SelectStatementSegment so that it sits in the right
         # place corresponding to the whitespace.
@@ -1156,38 +1152,32 @@ class DeclareStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "DECLARE",
         Indent,
-        Ref("ParameterNameSegment"),
-        Sequence("AS", optional=True),
-        OneOf(
+        Delimited(
             Sequence(
-                Ref("DatatypeSegment"),
-                Sequence(
-                    Ref("EqualsSegment"),
-                    Ref("ExpressionSegment"),
-                    optional=True,
-                ),
-            ),
-            Sequence(
-                "TABLE",
-                Bracketed(
-                    Delimited(
-                        OneOf(
-                            Ref("TableConstraintSegment"),
-                            Ref("ColumnDefinitionSegment"),
+                Ref("ParameterNameSegment"),
+                Sequence("AS", optional=True),
+                OneOf(
+                    Sequence(
+                        Ref("DatatypeSegment"),
+                        Sequence(
+                            Ref("EqualsSegment"),
+                            Ref("ExpressionSegment"),
+                            optional=True,
                         ),
-                        allow_trailing=True,
-                    )
+                    ),
+                    Sequence(
+                        "TABLE",
+                        Bracketed(
+                            Delimited(
+                                OneOf(
+                                    Ref("TableConstraintSegment"),
+                                    Ref("ColumnDefinitionSegment"),
+                                ),
+                                allow_trailing=True,
+                            )
+                        ),
+                    ),
                 ),
-            ),
-        ),
-        AnyNumberOf(
-            Ref("CommaSegment"),
-            Ref("ParameterNameSegment"),
-            Ref("DatatypeSegment"),
-            Sequence(
-                Ref("EqualsSegment"),
-                Ref("ExpressionSegment"),
-                optional=True,
             ),
         ),
         Dedent,
@@ -1480,14 +1470,10 @@ class FunctionParameterListGrammar(BaseSegment):
     type = "function_parameter_list"
     # Function parameter list
     match_grammar = Bracketed(
-        Sequence(
+        Delimited(
             Ref("FunctionParameterGrammar"),
-            AnyNumberOf(
-                Ref("CommaSegment"),
-                Ref("FunctionParameterGrammar"),
-            ),
             optional=True,
-        )
+        ),
     )
 
 
@@ -1760,11 +1746,8 @@ class ProcedureParameterListGrammar(BaseSegment):
     type = "procedure_parameter_list"
     # Function parameter list
     match_grammar = OptionallyBracketed(
-        Sequence(
-            Ref("FunctionParameterGrammar"),
-            OneOf("OUT", "OUTPUT", "READONLY", optional=True),
-            AnyNumberOf(
-                Ref("CommaSegment"),
+        Delimited(
+            Sequence(
                 Ref("FunctionParameterGrammar"),
                 OneOf("OUT", "OUTPUT", "READONLY", optional=True),
             ),
@@ -2079,16 +2062,10 @@ class FunctionSegment(BaseSegment):
             Ref("WithinGroupClause", optional=True),
         ),
         Sequence(
-            OneOf(
-                AnyNumberOf(
-                    Ref("FunctionNameSegment"),
-                    max_times=1,
-                    min_times=1,
-                    exclude=OneOf(
-                        Ref("ValuesClauseSegment"),
-                    ),
-                ),
+            Ref(
+                "FunctionNameSegment",
                 exclude=OneOf(
+                    Ref("ValuesClauseSegment"),
                     # List of special functions handled differently
                     Ref("CastFunctionNameSegment"),
                     Ref("ConvertFunctionNameSegment"),
@@ -2656,13 +2633,7 @@ class FromClauseSegment(BaseSegment):
     type = "from_clause"
     match_grammar = Sequence(
         "FROM",
-        AnyNumberOf(
-            Sequence(
-                Ref("FromExpressionSegment"),
-                Ref("CommaSegment"),
-            ),
-        ),
-        Ref("FromExpressionSegment"),
+        Delimited(Ref("FromExpressionSegment")),
         Ref("DelimiterGrammar", optional=True),
     )
 
@@ -2756,29 +2727,16 @@ class OrderByClauseSegment(BaseSegment):
         "ORDER",
         "BY",
         Indent,
-        Sequence(
-            OneOf(
-                Ref("ColumnReferenceSegment"),
-                # Can `ORDER BY 1`
-                Ref("NumericLiteralSegment"),
-                # Can order by an expression
-                Ref("ExpressionSegment"),
-            ),
-            OneOf("ASC", "DESC", optional=True),
-        ),
-        AnyNumberOf(
+        Delimited(
             Sequence(
-                Ref("CommaSegment"),
-                Sequence(
-                    OneOf(
-                        Ref("ColumnReferenceSegment"),
-                        # Can `ORDER BY 1`
-                        Ref("NumericLiteralSegment"),
-                        # Can order by an expression
-                        Ref("ExpressionSegment"),
-                    ),
-                    OneOf("ASC", "DESC", optional=True),
+                OneOf(
+                    Ref("ColumnReferenceSegment"),
+                    # Can `ORDER BY 1`
+                    Ref("NumericLiteralSegment"),
+                    # Can order by an expression
+                    Ref("ExpressionSegment"),
                 ),
+                OneOf("ASC", "DESC", optional=True),
             ),
         ),
         Dedent,
@@ -2919,11 +2877,7 @@ class OptionClauseSegment(BaseSegment):
     match_grammar = Sequence(
         Sequence("OPTION", optional=True),
         Bracketed(
-            Ref("QueryHintSegment"),
-            AnyNumberOf(
-                Ref("CommaSegment"),
-                Ref("QueryHintSegment"),
-            ),
+            Delimited(Ref("QueryHintSegment")),
         ),
     )
 
@@ -3019,11 +2973,7 @@ class QueryHintSegment(BaseSegment):
             "TABLE",
             "HINT",
             Ref("ObjectReferenceSegment"),
-            Ref("TableHintSegment"),
-            AnyNumberOf(
-                Ref("CommaSegment"),
-                Ref("TableHintSegment"),
-            ),
+            Delimited(Ref("TableHintSegment")),
         ),
     )
 
@@ -3059,13 +3009,8 @@ class TableHintSegment(BaseSegment):
         Sequence(
             "INDEX",
             Bracketed(
-                OneOf(Ref("IndexReferenceSegment"), Ref("NumericLiteralSegment")),
-                AnyNumberOf(
-                    Ref("CommaSegment"),
-                    OneOf(
-                        Ref("IndexReferenceSegment"),
-                        Ref("NumericLiteralSegment"),
-                    ),
+                Delimited(
+                    OneOf(Ref("IndexReferenceSegment"), Ref("NumericLiteralSegment")),
                 ),
             ),
         ),

@@ -239,10 +239,8 @@ class ColumnDefinitionSegment(BaseSegment):
         Ref("SingleIdentifierGrammar"),  # Column name
         OneOf(  # Column type
             # DATETIME and TIMESTAMP take special logic
-            AnyNumberOf(
-                Ref("DatatypeSegment"),
-                max_times=1,
-                min_times=1,
+            Ref(
+                "DatatypeSegment",
                 exclude=OneOf("DATETIME", "TIMESTAMP"),
             ),
             Sequence(
@@ -1823,7 +1821,7 @@ class UpdateStatementSegment(BaseSegment):
         "UPDATE",
         Ref.keyword("LOW_PRIORITY", optional=True),
         Ref.keyword("IGNORE", optional=True),
-        Delimited(Ref("TableReferenceSegment"), Ref("FromExpressionElementSegment")),
+        Delimited(Ref("TableReferenceSegment"), Ref("FromExpressionSegment")),
         Ref("SetClauseListSegment"),
         Ref("WhereClauseSegment", optional=True),
         Ref("OrderByClauseSegment", optional=True),

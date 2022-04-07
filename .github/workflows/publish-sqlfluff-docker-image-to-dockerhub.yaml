@@ -53,7 +53,7 @@ jobs:
         id: docker_test
         run: |
           echo "SELECT 1" > test.sql
-          docker run --rm -i -v $PWD:/sql ${{ env.TEST_TAG }} lint /sql/test.sql
+          docker run --rm -i -v $PWD:/sql ${{ env.TEST_TAG }} lint --dialect ansi /sql/test.sql
 
       # Build arm64 image (amd64 is cached from docker_build step) and export to DockerHub.
       # N.B. We tag this image as both latest and with its version number.
