@@ -3234,6 +3234,12 @@ class AsAliasExpressionSegment(BaseSegment):
     )
 
 
+class OperationClassReferenceSegment(ObjectReferenceSegment):
+    """A reference to an operation class."""
+
+    type = "operation_class_reference"
+
+
 class ConflictActionSegment(BaseSegment):
     """A Conflict Action Statement used within an INSERT statement.
 
@@ -3295,7 +3301,7 @@ class ConflictTargetSegment(BaseSegment):
                             Bracketed(Ref("ExpressionSegment")),
                         ),
                         Sequence(
-                            Ref.keyword("COLLATE"),
+                            "COLLATE",
                             Ref("QuotedLiteralSegment"),
                             optional=True,
                         ),
