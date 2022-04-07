@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2a461692811ad1b011d37d3a66002a6b1993994fea82550bf86b35ed37834118
+_hash: ea32bd4b8643f738c909451b6451ba5a582e33f91a94b2ce7c7b7bd9551970dc
 file:
   statement:
     create_table_statement:
@@ -11,74 +11,75 @@ file:
     - keyword: TABLE
     - table_reference:
         identifier: a
-    - bracketed:
-      - start_bracket: (
-      - column_definition:
-          identifier: a
-          data_type:
-            data_type_identifier: INT
-          column_constraint_segment:
-          - keyword: NOT
-          - keyword: 'NULL'
-      - comma: ','
-      - table_constraint:
-          keyword: UNIQUE
-          bracketed:
-            start_bracket: (
-            column_reference:
-              identifier: a
-            end_bracket: )
-      - comma: ','
-      - table_constraint:
-          keyword: UNIQUE
-          object_reference:
-            identifier: idx_c
-          bracketed:
-            start_bracket: (
-            expression:
+    - column_list_segment:
+        bracketed:
+        - start_bracket: (
+        - column_definition:
+            identifier: a
+            data_type:
+              data_type_identifier: INT
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+        - comma: ','
+        - table_constraint:
+            keyword: UNIQUE
+            bracketed:
+              start_bracket: (
               column_reference:
                 identifier: a
-            end_bracket: )
-      - comma: ','
-      - table_constraint:
-        - keyword: UNIQUE
-        - keyword: KEY
-        - bracketed:
-            start_bracket: (
-            expression:
+              end_bracket: )
+        - comma: ','
+        - table_constraint:
+            keyword: UNIQUE
+            object_reference:
+              identifier: idx_c
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  identifier: a
+              end_bracket: )
+        - comma: ','
+        - table_constraint:
+          - keyword: UNIQUE
+          - keyword: KEY
+          - bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  identifier: a
+              end_bracket: )
+        - comma: ','
+        - table_constraint:
+          - keyword: UNIQUE
+          - keyword: KEY
+          - object_reference:
+              identifier: idx_a
+          - bracketed:
+              start_bracket: (
               column_reference:
                 identifier: a
-            end_bracket: )
-      - comma: ','
-      - table_constraint:
-        - keyword: UNIQUE
-        - keyword: KEY
-        - object_reference:
-            identifier: idx_a
-        - bracketed:
-            start_bracket: (
-            column_reference:
-              identifier: a
-            end_bracket: )
-      - comma: ','
-      - table_constraint:
-        - keyword: UNIQUE
-        - keyword: INDEX
-        - bracketed:
-            start_bracket: (
-            expression:
+              end_bracket: )
+        - comma: ','
+        - table_constraint:
+          - keyword: UNIQUE
+          - keyword: INDEX
+          - bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  identifier: a
+              end_bracket: )
+        - comma: ','
+        - table_constraint:
+          - keyword: UNIQUE
+          - keyword: INDEX
+          - object_reference:
+              identifier: idx_b
+          - bracketed:
+              start_bracket: (
               column_reference:
                 identifier: a
-            end_bracket: )
-      - comma: ','
-      - table_constraint:
-        - keyword: UNIQUE
-        - keyword: INDEX
-        - object_reference:
-            identifier: idx_b
-        - bracketed:
-            start_bracket: (
-            column_reference:
-              identifier: a
-            end_bracket: )
-      - end_bracket: )
+              end_bracket: )
+        - end_bracket: )

@@ -2554,6 +2554,27 @@ class TypelessStructSegment(BaseSegment):
     match_grammar: Matchable = Nothing()
 
 
+class ColumnListSegment(BaseSegment):
+    """Abstraction for the list of columns in a CREATE TABLE statement.
+
+    Includes the surrounding brackets. Can be useful in rule definitions.
+    """
+
+    type = "column_list_segment"
+    match_grammar: Matchable = Sequence(
+        Bracketed(
+            Delimited(
+                OneOf(
+                    Ref("TableConstraintSegment"),
+                    Ref("ColumnDefinitionSegment"),
+                ),
+                allow_trailing=True,
+            )
+        ),
+        Ref("CommentClauseSegment", optional=True),
+    )
+
+
 class CreateTableStatementSegment(BaseSegment):
     """A `CREATE TABLE` statement."""
 
@@ -2568,18 +2589,7 @@ class CreateTableStatementSegment(BaseSegment):
         Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
         OneOf(
-            # Columns and comment syntax:
-            Sequence(
-                Bracketed(
-                    Delimited(
-                        OneOf(
-                            Ref("TableConstraintSegment"),
-                            Ref("ColumnDefinitionSegment"),
-                        ),
-                    )
-                ),
-                Ref("CommentClauseSegment", optional=True),
-            ),
+            Ref("ColumnListSegment"),
             # Create AS syntax:
             Sequence(
                 "AS",

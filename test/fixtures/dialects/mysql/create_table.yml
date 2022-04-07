@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 71febe91f1d57338e1ff1d3ada75652ea5064ebdc3d6c10d20a6598ad5a0584f
+_hash: cffb9ba5985da5f1f334f8ebddadaec8ef0b20b58573027ddc71f1cc5f0251d0
 file:
   statement:
     create_table_statement:
@@ -11,45 +11,46 @@ file:
     - keyword: TABLE
     - table_reference:
         identifier: '`foo`'
-    - bracketed:
-      - start_bracket: (
-      - column_definition:
-          identifier: b
-          data_type:
-            data_type_identifier: VARCHAR
-            bracketed:
+    - column_list_segment:
+        bracketed:
+        - start_bracket: (
+        - column_definition:
+            identifier: b
+            data_type:
+              data_type_identifier: VARCHAR
+              bracketed:
+                start_bracket: (
+                expression:
+                  literal: '255'
+                end_bracket: )
+              keyword: BINARY
+        - comma: ','
+        - column_definition:
+          - identifier: '`id`'
+          - data_type:
+              data_type_identifier: int
+              bracketed:
+                start_bracket: (
+                expression:
+                  literal: '11'
+                end_bracket: )
+          - column_constraint_segment:
+              keyword: unsigned
+          - column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+          - column_constraint_segment:
+              keyword: AUTO_INCREMENT
+        - comma: ','
+        - table_constraint:
+          - keyword: PRIMARY
+          - keyword: KEY
+          - bracketed:
               start_bracket: (
-              expression:
-                literal: '255'
+              column_reference:
+                identifier: '`id`'
               end_bracket: )
-            keyword: BINARY
-      - comma: ','
-      - column_definition:
-        - identifier: '`id`'
-        - data_type:
-            data_type_identifier: int
-            bracketed:
-              start_bracket: (
-              expression:
-                literal: '11'
-              end_bracket: )
-        - column_constraint_segment:
-            keyword: unsigned
-        - column_constraint_segment:
-          - keyword: NOT
-          - keyword: 'NULL'
-        - column_constraint_segment:
-            keyword: AUTO_INCREMENT
-      - comma: ','
-      - table_constraint:
-        - keyword: PRIMARY
-        - keyword: KEY
-        - bracketed:
-            start_bracket: (
-            column_reference:
-              identifier: '`id`'
-            end_bracket: )
-      - end_bracket: )
+        - end_bracket: )
     - parameter: ENGINE
     - comparison_operator:
         raw_comparison_operator: '='

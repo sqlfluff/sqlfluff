@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3df412d5cf7df13a1fff015dd84b29d94ef20b4c0c4718ef28be1d4564b0a7fd
+_hash: f5c6cff66481f4adef9f2439077ae9cf42e4db8ff319a971a481d0dcd9dc995e
 file:
   statement:
     create_table_statement:
@@ -11,187 +11,188 @@ file:
     - keyword: table
     - table_reference:
         identifier: table1
-    - bracketed:
-      - start_bracket: (
-      - column_definition:
-          identifier: c1
-          data_type:
-            data_type_identifier: INT
-          column_constraint_segment:
-          - keyword: NOT
-          - keyword: 'NULL'
-      - comma: ','
-      - column_definition:
-        - identifier: c2
-        - data_type:
-            data_type_identifier: INT
-        - column_constraint_segment:
-            keyword: 'NULL'
-        - column_constraint_segment:
-            keyword: DEFAULT
-            literal: '1'
-      - comma: ','
-      - column_definition:
-          identifier: c3
-          data_type:
-            data_type_identifier: INT
-          column_constraint_segment:
-          - keyword: PRIMARY
-          - keyword: KEY
-      - comma: ','
-      - column_definition:
-          identifier: c4
-          data_type:
-            data_type_identifier: INT
-          column_constraint_segment:
-            keyword: UNIQUE
-      - comma: ','
-      - column_definition:
-          identifier: c5
-          data_type:
-            data_type_identifier: INT
-          column_constraint_segment:
-            keyword: REFERENCES
-            table_reference:
-              identifier: table2
-      - comma: ','
-      - column_definition:
-          identifier: c6
-          data_type:
-            data_type_identifier: INT
-          column_constraint_segment:
-            keyword: REFERENCES
-            table_reference:
-              identifier: table2
-            bracketed:
-              start_bracket: (
-              column_reference:
-                identifier: c6_other
-              end_bracket: )
-      - comma: ','
-      - column_definition:
-          identifier: c6
-          data_type:
-            data_type_identifier: INT
-          column_constraint_segment:
-          - keyword: REFERENCES
-          - table_reference:
-              identifier: table2
-          - bracketed:
-              start_bracket: (
-              column_reference:
-                identifier: c6_other
-              end_bracket: )
-          - keyword: MATCH
-          - keyword: FULL
-      - comma: ','
-      - column_definition:
-          identifier: c6
-          data_type:
-            data_type_identifier: INT
-          column_constraint_segment:
-          - keyword: REFERENCES
-          - table_reference:
-              identifier: table2
-          - bracketed:
-              start_bracket: (
-              column_reference:
-                identifier: c6_other
-              end_bracket: )
-          - keyword: MATCH
-          - keyword: PARTIAL
-      - comma: ','
-      - column_definition:
-          identifier: c6
-          data_type:
-            data_type_identifier: INT
-          column_constraint_segment:
-          - keyword: REFERENCES
-          - table_reference:
-              identifier: table2
-          - bracketed:
-              start_bracket: (
-              column_reference:
-                identifier: c6_other
-              end_bracket: )
-          - keyword: MATCH
-          - keyword: SIMPLE
-      - comma: ','
-      - column_definition:
-          identifier: c6
-          data_type:
-            data_type_identifier: INT
-          column_constraint_segment:
-          - keyword: REFERENCES
-          - table_reference:
-              identifier: table2
-          - bracketed:
-              start_bracket: (
-              column_reference:
-                identifier: c6_other
-              end_bracket: )
-          - keyword: 'ON'
-          - keyword: DELETE
-          - keyword: 'NO'
-          - keyword: ACTION
-      - comma: ','
-      - column_definition:
-          identifier: c6
-          data_type:
-            data_type_identifier: INT
-          column_constraint_segment:
-          - keyword: REFERENCES
-          - table_reference:
-              identifier: table2
-          - bracketed:
-              start_bracket: (
-              column_reference:
-                identifier: c6_other
-              end_bracket: )
-          - keyword: 'ON'
-          - keyword: UPDATE
-          - keyword: SET
-          - keyword: 'NULL'
-      - comma: ','
-      - column_definition:
-          identifier: c6
-          data_type:
-            data_type_identifier: INT
-          column_constraint_segment:
-          - keyword: REFERENCES
-          - table_reference:
-              identifier: table2
-          - bracketed:
-              start_bracket: (
-              column_reference:
-                identifier: c6_other
-              end_bracket: )
-          - keyword: 'ON'
-          - keyword: DELETE
-          - keyword: RESTRICT
-          - keyword: 'ON'
-          - keyword: UPDATE
-          - keyword: CASCADE
-      - comma: ','
-      - column_definition:
-        - identifier: c7
-        - data_type:
-            data_type_identifier: INT
-        - column_constraint_segment:
-          - keyword: NOT
-          - keyword: 'NULL'
-        - column_constraint_segment:
-            keyword: DEFAULT
-            literal: '1'
-        - column_constraint_segment:
-            keyword: UNIQUE
-        - column_constraint_segment:
-            keyword: REFERENCES
-            table_reference:
-              identifier: table3
-            bracketed:
-              start_bracket: (
-              column_reference:
-                identifier: c7_other
-              end_bracket: )
-      - end_bracket: )
+    - column_list_segment:
+        bracketed:
+        - start_bracket: (
+        - column_definition:
+            identifier: c1
+            data_type:
+              data_type_identifier: INT
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+        - comma: ','
+        - column_definition:
+          - identifier: c2
+          - data_type:
+              data_type_identifier: INT
+          - column_constraint_segment:
+              keyword: 'NULL'
+          - column_constraint_segment:
+              keyword: DEFAULT
+              literal: '1'
+        - comma: ','
+        - column_definition:
+            identifier: c3
+            data_type:
+              data_type_identifier: INT
+            column_constraint_segment:
+            - keyword: PRIMARY
+            - keyword: KEY
+        - comma: ','
+        - column_definition:
+            identifier: c4
+            data_type:
+              data_type_identifier: INT
+            column_constraint_segment:
+              keyword: UNIQUE
+        - comma: ','
+        - column_definition:
+            identifier: c5
+            data_type:
+              data_type_identifier: INT
+            column_constraint_segment:
+              keyword: REFERENCES
+              table_reference:
+                identifier: table2
+        - comma: ','
+        - column_definition:
+            identifier: c6
+            data_type:
+              data_type_identifier: INT
+            column_constraint_segment:
+              keyword: REFERENCES
+              table_reference:
+                identifier: table2
+              bracketed:
+                start_bracket: (
+                column_reference:
+                  identifier: c6_other
+                end_bracket: )
+        - comma: ','
+        - column_definition:
+            identifier: c6
+            data_type:
+              data_type_identifier: INT
+            column_constraint_segment:
+            - keyword: REFERENCES
+            - table_reference:
+                identifier: table2
+            - bracketed:
+                start_bracket: (
+                column_reference:
+                  identifier: c6_other
+                end_bracket: )
+            - keyword: MATCH
+            - keyword: FULL
+        - comma: ','
+        - column_definition:
+            identifier: c6
+            data_type:
+              data_type_identifier: INT
+            column_constraint_segment:
+            - keyword: REFERENCES
+            - table_reference:
+                identifier: table2
+            - bracketed:
+                start_bracket: (
+                column_reference:
+                  identifier: c6_other
+                end_bracket: )
+            - keyword: MATCH
+            - keyword: PARTIAL
+        - comma: ','
+        - column_definition:
+            identifier: c6
+            data_type:
+              data_type_identifier: INT
+            column_constraint_segment:
+            - keyword: REFERENCES
+            - table_reference:
+                identifier: table2
+            - bracketed:
+                start_bracket: (
+                column_reference:
+                  identifier: c6_other
+                end_bracket: )
+            - keyword: MATCH
+            - keyword: SIMPLE
+        - comma: ','
+        - column_definition:
+            identifier: c6
+            data_type:
+              data_type_identifier: INT
+            column_constraint_segment:
+            - keyword: REFERENCES
+            - table_reference:
+                identifier: table2
+            - bracketed:
+                start_bracket: (
+                column_reference:
+                  identifier: c6_other
+                end_bracket: )
+            - keyword: 'ON'
+            - keyword: DELETE
+            - keyword: 'NO'
+            - keyword: ACTION
+        - comma: ','
+        - column_definition:
+            identifier: c6
+            data_type:
+              data_type_identifier: INT
+            column_constraint_segment:
+            - keyword: REFERENCES
+            - table_reference:
+                identifier: table2
+            - bracketed:
+                start_bracket: (
+                column_reference:
+                  identifier: c6_other
+                end_bracket: )
+            - keyword: 'ON'
+            - keyword: UPDATE
+            - keyword: SET
+            - keyword: 'NULL'
+        - comma: ','
+        - column_definition:
+            identifier: c6
+            data_type:
+              data_type_identifier: INT
+            column_constraint_segment:
+            - keyword: REFERENCES
+            - table_reference:
+                identifier: table2
+            - bracketed:
+                start_bracket: (
+                column_reference:
+                  identifier: c6_other
+                end_bracket: )
+            - keyword: 'ON'
+            - keyword: DELETE
+            - keyword: RESTRICT
+            - keyword: 'ON'
+            - keyword: UPDATE
+            - keyword: CASCADE
+        - comma: ','
+        - column_definition:
+          - identifier: c7
+          - data_type:
+              data_type_identifier: INT
+          - column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+          - column_constraint_segment:
+              keyword: DEFAULT
+              literal: '1'
+          - column_constraint_segment:
+              keyword: UNIQUE
+          - column_constraint_segment:
+              keyword: REFERENCES
+              table_reference:
+                identifier: table3
+              bracketed:
+                start_bracket: (
+                column_reference:
+                  identifier: c7_other
+                end_bracket: )
+        - end_bracket: )

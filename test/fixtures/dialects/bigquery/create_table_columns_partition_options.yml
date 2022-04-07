@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: cb8482ae65428c5be0ab51a183895c810e4bc48e5436f3a9edc97f310a36f976
+_hash: d22cdaadb2ecd5d21b0c53478e757949601c80d55e8691671722f544422f1232
 file:
   statement:
     create_table_statement:
@@ -11,18 +11,19 @@ file:
     - keyword: TABLE
     - table_reference:
         identifier: newtable
-    - bracketed:
-      - start_bracket: (
-      - column_definition:
-          identifier: x
-          data_type:
-            data_type_identifier: TIMESTAMP
-      - comma: ','
-      - column_definition:
-          identifier: y
-          data_type:
-            data_type_identifier: INT64
-      - end_bracket: )
+    - column_list_segment:
+        bracketed:
+        - start_bracket: (
+        - column_definition:
+            identifier: x
+            data_type:
+              data_type_identifier: TIMESTAMP
+        - comma: ','
+        - column_definition:
+            identifier: y
+            data_type:
+              data_type_identifier: INT64
+        - end_bracket: )
     - partition_by_segment:
       - keyword: PARTITION
       - keyword: BY

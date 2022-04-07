@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 94b516f95cfe6c0efc44f7d1859aa9fea9f1028c3203c4977c303064d198db54
+_hash: ffdab172332843eda05eeea9e3b625020eb5d9ec4509ac8c9ee535c4b45556f7
 file:
 - statement:
     create_table_statement:
@@ -11,19 +11,20 @@ file:
     - keyword: TABLE
     - table_reference:
         identifier: foo
-    - bracketed:
-        start_bracket: (
-        column_definition:
-        - identifier: id
-        - data_type:
-            data_type_identifier: INTEGER
-        - column_constraint_segment:
-          - keyword: NOT
-          - keyword: 'NULL'
-        - column_constraint_segment:
-          - keyword: PRIMARY
-          - keyword: KEY
-        end_bracket: )
+    - column_list_segment:
+        bracketed:
+          start_bracket: (
+          column_definition:
+          - identifier: id
+          - data_type:
+              data_type_identifier: INTEGER
+          - column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+          - column_constraint_segment:
+            - keyword: PRIMARY
+            - keyword: KEY
+          end_bracket: )
     - table_end_clause_segment:
       - keyword: WITHOUT
       - keyword: ROWID
@@ -37,21 +38,22 @@ file:
     - keyword: EXISTS
     - table_reference:
         identifier: wordcount
-    - bracketed:
-      - start_bracket: (
-      - column_definition:
-          identifier: word
-          data_type:
-            data_type_identifier: TEXT
-          column_constraint_segment:
-          - keyword: PRIMARY
-          - keyword: KEY
-      - comma: ','
-      - column_definition:
-          identifier: cnt
-          data_type:
-            data_type_identifier: INTEGER
-      - end_bracket: )
+    - column_list_segment:
+        bracketed:
+        - start_bracket: (
+        - column_definition:
+            identifier: word
+            data_type:
+              data_type_identifier: TEXT
+            column_constraint_segment:
+            - keyword: PRIMARY
+            - keyword: KEY
+        - comma: ','
+        - column_definition:
+            identifier: cnt
+            data_type:
+              data_type_identifier: INTEGER
+        - end_bracket: )
     - table_end_clause_segment:
       - keyword: WITHOUT
       - keyword: ROWID

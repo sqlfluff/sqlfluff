@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 07e39498149b03b49c1e841d2d8cb9e6b756c751ca37624e08aa0f0f9c696241
+_hash: 2732416a89fd13a63dce437879474c07fbf44ab3019d5b454f2e737f64b59924
 file:
 - statement:
     create_table_statement:
@@ -11,25 +11,26 @@ file:
     - keyword: TABLE
     - table_reference:
         identifier: parent
-    - bracketed:
-        start_bracket: (
-        column_definition:
-          identifier: id
-          data_type:
-            data_type_identifier: INT
-          column_constraint_segment:
-          - keyword: NOT
-          - keyword: 'NULL'
-        comma: ','
-        table_constraint:
-        - keyword: PRIMARY
-        - keyword: KEY
-        - bracketed:
-            start_bracket: (
-            column_reference:
-              identifier: id
-            end_bracket: )
-        end_bracket: )
+    - column_list_segment:
+        bracketed:
+          start_bracket: (
+          column_definition:
+            identifier: id
+            data_type:
+              data_type_identifier: INT
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+          comma: ','
+          table_constraint:
+          - keyword: PRIMARY
+          - keyword: KEY
+          - bracketed:
+              start_bracket: (
+              column_reference:
+                identifier: id
+              end_bracket: )
+          end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:
@@ -37,49 +38,50 @@ file:
     - keyword: TABLE
     - table_reference:
         identifier: child
-    - bracketed:
-      - start_bracket: (
-      - column_definition:
-          identifier: id
-          data_type:
-            data_type_identifier: INT
-      - comma: ','
-      - column_definition:
-          identifier: parent_id
-          data_type:
-            data_type_identifier: INT
-      - comma: ','
-      - column_definition:
-          identifier: INDEX
-          data_type:
-            data_type_identifier: par_ind
-            bracketed:
+    - column_list_segment:
+        bracketed:
+        - start_bracket: (
+        - column_definition:
+            identifier: id
+            data_type:
+              data_type_identifier: INT
+        - comma: ','
+        - column_definition:
+            identifier: parent_id
+            data_type:
+              data_type_identifier: INT
+        - comma: ','
+        - column_definition:
+            identifier: INDEX
+            data_type:
+              data_type_identifier: par_ind
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    identifier: parent_id
+                end_bracket: )
+        - comma: ','
+        - table_constraint:
+          - keyword: FOREIGN
+          - keyword: KEY
+          - bracketed:
               start_bracket: (
-              expression:
-                column_reference:
-                  identifier: parent_id
+              column_reference:
+                identifier: parent_id
               end_bracket: )
-      - comma: ','
-      - table_constraint:
-        - keyword: FOREIGN
-        - keyword: KEY
-        - bracketed:
-            start_bracket: (
-            column_reference:
-              identifier: parent_id
-            end_bracket: )
-        - keyword: REFERENCES
-        - column_reference:
-            identifier: parent
-        - bracketed:
-            start_bracket: (
-            column_reference:
-              identifier: id
-            end_bracket: )
-        - keyword: 'ON'
-        - keyword: DELETE
-        - keyword: CASCADE
-      - end_bracket: )
+          - keyword: REFERENCES
+          - column_reference:
+              identifier: parent
+          - bracketed:
+              start_bracket: (
+              column_reference:
+                identifier: id
+              end_bracket: )
+          - keyword: 'ON'
+          - keyword: DELETE
+          - keyword: CASCADE
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:
@@ -87,41 +89,42 @@ file:
     - keyword: TABLE
     - table_reference:
         identifier: product
-    - bracketed:
-      - start_bracket: (
-      - column_definition:
-          identifier: category
-          data_type:
-            data_type_identifier: INT
-          column_constraint_segment:
-          - keyword: NOT
-          - keyword: 'NULL'
-      - comma: ','
-      - column_definition:
-          identifier: id
-          data_type:
-            data_type_identifier: INT
-          column_constraint_segment:
-          - keyword: NOT
-          - keyword: 'NULL'
-      - comma: ','
-      - column_definition:
-          identifier: price
-          data_type:
-            data_type_identifier: DECIMAL
-      - comma: ','
-      - table_constraint:
-        - keyword: PRIMARY
-        - keyword: KEY
-        - bracketed:
-          - start_bracket: (
-          - column_reference:
-              identifier: category
-          - comma: ','
-          - column_reference:
-              identifier: id
-          - end_bracket: )
-      - end_bracket: )
+    - column_list_segment:
+        bracketed:
+        - start_bracket: (
+        - column_definition:
+            identifier: category
+            data_type:
+              data_type_identifier: INT
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+        - comma: ','
+        - column_definition:
+            identifier: id
+            data_type:
+              data_type_identifier: INT
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+        - comma: ','
+        - column_definition:
+            identifier: price
+            data_type:
+              data_type_identifier: DECIMAL
+        - comma: ','
+        - table_constraint:
+          - keyword: PRIMARY
+          - keyword: KEY
+          - bracketed:
+            - start_bracket: (
+            - column_reference:
+                identifier: category
+            - comma: ','
+            - column_reference:
+                identifier: id
+            - end_bracket: )
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:
@@ -129,25 +132,26 @@ file:
     - keyword: TABLE
     - table_reference:
         identifier: customer
-    - bracketed:
-        start_bracket: (
-        column_definition:
-          identifier: id
-          data_type:
-            data_type_identifier: INT
-          column_constraint_segment:
-          - keyword: NOT
-          - keyword: 'NULL'
-        comma: ','
-        table_constraint:
-        - keyword: PRIMARY
-        - keyword: KEY
-        - bracketed:
-            start_bracket: (
-            column_reference:
-              identifier: id
-            end_bracket: )
-        end_bracket: )
+    - column_list_segment:
+        bracketed:
+          start_bracket: (
+          column_definition:
+            identifier: id
+            data_type:
+              data_type_identifier: INT
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+          comma: ','
+          table_constraint:
+          - keyword: PRIMARY
+          - keyword: KEY
+          - bracketed:
+              start_bracket: (
+              column_reference:
+                identifier: id
+              end_bracket: )
+          end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:
@@ -155,88 +159,89 @@ file:
     - keyword: TABLE
     - table_reference:
         identifier: product_order
-    - bracketed:
-      - start_bracket: (
-      - column_definition:
-          identifier: product_category
-          data_type:
-            data_type_identifier: INT
-          column_constraint_segment:
-          - keyword: NOT
-          - keyword: 'NULL'
-      - comma: ','
-      - column_definition:
-          identifier: product_id
-          data_type:
-            data_type_identifier: INT
-          column_constraint_segment:
-          - keyword: NOT
-          - keyword: 'NULL'
-      - comma: ','
-      - column_definition:
-          identifier: customer_id
-          data_type:
-            data_type_identifier: INT
-          column_constraint_segment:
-          - keyword: NOT
-          - keyword: 'NULL'
-      - comma: ','
-      - table_constraint:
-        - keyword: PRIMARY
-        - keyword: KEY
-        - bracketed:
-            start_bracket: (
-            expression:
+    - column_list_segment:
+        bracketed:
+        - start_bracket: (
+        - column_definition:
+            identifier: product_category
+            data_type:
+              data_type_identifier: INT
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+        - comma: ','
+        - column_definition:
+            identifier: product_id
+            data_type:
+              data_type_identifier: INT
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+        - comma: ','
+        - column_definition:
+            identifier: customer_id
+            data_type:
+              data_type_identifier: INT
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+        - comma: ','
+        - table_constraint:
+          - keyword: PRIMARY
+          - keyword: KEY
+          - bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  identifier: 'no'
+              end_bracket: )
+        - comma: ','
+        - table_constraint:
+          - keyword: FOREIGN
+          - keyword: KEY
+          - bracketed:
+            - start_bracket: (
+            - column_reference:
+                identifier: product_category
+            - comma: ','
+            - column_reference:
+                identifier: product_id
+            - end_bracket: )
+          - keyword: REFERENCES
+          - column_reference:
+              identifier: product
+          - bracketed:
+            - start_bracket: (
+            - column_reference:
+                identifier: category
+            - comma: ','
+            - column_reference:
+                identifier: id
+            - end_bracket: )
+          - keyword: 'ON'
+          - keyword: UPDATE
+          - keyword: CASCADE
+          - keyword: 'ON'
+          - keyword: DELETE
+          - keyword: RESTRICT
+        - comma: ','
+        - table_constraint:
+          - keyword: FOREIGN
+          - keyword: KEY
+          - bracketed:
+              start_bracket: (
               column_reference:
-                identifier: 'no'
-            end_bracket: )
-      - comma: ','
-      - table_constraint:
-        - keyword: FOREIGN
-        - keyword: KEY
-        - bracketed:
-          - start_bracket: (
+                identifier: customer_id
+              end_bracket: )
+          - keyword: REFERENCES
           - column_reference:
-              identifier: product_category
-          - comma: ','
-          - column_reference:
-              identifier: product_id
-          - end_bracket: )
-        - keyword: REFERENCES
-        - column_reference:
-            identifier: product
-        - bracketed:
-          - start_bracket: (
-          - column_reference:
-              identifier: category
-          - comma: ','
-          - column_reference:
-              identifier: id
-          - end_bracket: )
-        - keyword: 'ON'
-        - keyword: UPDATE
-        - keyword: CASCADE
-        - keyword: 'ON'
-        - keyword: DELETE
-        - keyword: RESTRICT
-      - comma: ','
-      - table_constraint:
-        - keyword: FOREIGN
-        - keyword: KEY
-        - bracketed:
-            start_bracket: (
-            column_reference:
-              identifier: customer_id
-            end_bracket: )
-        - keyword: REFERENCES
-        - column_reference:
-            identifier: customer
-        - bracketed:
-            start_bracket: (
-            column_reference:
-              identifier: id
-            end_bracket: )
-      - end_bracket: )
+              identifier: customer
+          - bracketed:
+              start_bracket: (
+              column_reference:
+                identifier: id
+              end_bracket: )
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:
@@ -244,79 +249,80 @@ file:
     - keyword: TABLE
     - table_reference:
         identifier: source_tag_assoc
-    - bracketed:
-      - start_bracket: (
-      - column_definition:
-        - identifier: source_id
-        - data_type:
-            data_type_identifier: INT
-        - column_constraint_segment:
-            keyword: UNSIGNED
-        - column_constraint_segment:
-          - keyword: NOT
-          - keyword: 'NULL'
-      - comma: ','
-      - column_definition:
-        - identifier: tag_id
-        - data_type:
-            data_type_identifier: INT
-        - column_constraint_segment:
-            keyword: UNSIGNED
-        - column_constraint_segment:
-          - keyword: NOT
-          - keyword: 'NULL'
-      - comma: ','
-      - table_constraint:
-        - keyword: PRIMARY
-        - keyword: KEY
-        - bracketed:
-          - start_bracket: (
-          - column_reference:
-              identifier: source_id
-          - comma: ','
-          - column_reference:
-              identifier: tag_id
-          - end_bracket: )
-      - comma: ','
-      - table_constraint:
-        - keyword: FOREIGN
-        - keyword: KEY
-        - bracketed:
-            start_bracket: (
-            expression:
-              column_reference:
+    - column_list_segment:
+        bracketed:
+        - start_bracket: (
+        - column_definition:
+          - identifier: source_id
+          - data_type:
+              data_type_identifier: INT
+          - column_constraint_segment:
+              keyword: UNSIGNED
+          - column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+        - comma: ','
+        - column_definition:
+          - identifier: tag_id
+          - data_type:
+              data_type_identifier: INT
+          - column_constraint_segment:
+              keyword: UNSIGNED
+          - column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+        - comma: ','
+        - table_constraint:
+          - keyword: PRIMARY
+          - keyword: KEY
+          - bracketed:
+            - start_bracket: (
+            - column_reference:
                 identifier: source_id
-            end_bracket: )
-        - keyword: REFERENCES
-        - column_reference:
-            identifier: source
-        - bracketed:
-            start_bracket: (
-            column_reference:
-              identifier: id
-            end_bracket: )
-        - keyword: 'ON'
-        - keyword: DELETE
-        - keyword: CASCADE
-      - comma: ','
-      - table_constraint:
-        - keyword: FOREIGN
-        - keyword: KEY
-        - bracketed:
-            start_bracket: (
-            column_reference:
-              identifier: tag_id
-            end_bracket: )
-        - keyword: REFERENCES
-        - column_reference:
-            identifier: source_tag
-        - bracketed:
-            start_bracket: (
-            column_reference:
-              identifier: id
-            end_bracket: )
-        - keyword: 'ON'
-        - keyword: DELETE
-        - keyword: CASCADE
-      - end_bracket: )
+            - comma: ','
+            - column_reference:
+                identifier: tag_id
+            - end_bracket: )
+        - comma: ','
+        - table_constraint:
+          - keyword: FOREIGN
+          - keyword: KEY
+          - bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  identifier: source_id
+              end_bracket: )
+          - keyword: REFERENCES
+          - column_reference:
+              identifier: source
+          - bracketed:
+              start_bracket: (
+              column_reference:
+                identifier: id
+              end_bracket: )
+          - keyword: 'ON'
+          - keyword: DELETE
+          - keyword: CASCADE
+        - comma: ','
+        - table_constraint:
+          - keyword: FOREIGN
+          - keyword: KEY
+          - bracketed:
+              start_bracket: (
+              column_reference:
+                identifier: tag_id
+              end_bracket: )
+          - keyword: REFERENCES
+          - column_reference:
+              identifier: source_tag
+          - bracketed:
+              start_bracket: (
+              column_reference:
+                identifier: id
+              end_bracket: )
+          - keyword: 'ON'
+          - keyword: DELETE
+          - keyword: CASCADE
+        - end_bracket: )
 - statement_terminator: ;

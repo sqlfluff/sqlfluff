@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a3429a7470b5a9294bf9bb8d383cee02dcccb9235466218d16da77f6df7fabd2
+_hash: d97376a79e9ecaa49a0abd89712eed2768fc2f4b1c6a86afa69fe39bd4987f34
 file:
 - statement:
     create_table_statement:
@@ -11,63 +11,11 @@ file:
     - keyword: TABLE
     - table_reference:
         identifier: t_table1
-    - bracketed:
-        start_bracket: (
-        column_definition:
-          identifier: x
-          data_type:
-            data_type_identifier: INT64
-          options_segment:
-            keyword: OPTIONS
-            bracketed:
-              start_bracket: (
-              parameter: description
-              comparison_operator:
-                raw_comparison_operator: '='
-              literal: '"An INTEGER field"'
-              end_bracket: )
-        end_bracket: )
-- statement_terminator: ;
-- statement:
-    create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: t_table1
-    - bracketed:
-        start_bracket: (
-        column_definition:
-          identifier: x
-          data_type:
-            data_type_identifier: INT64
-          column_constraint_segment:
-          - keyword: NOT
-          - keyword: 'NULL'
-          options_segment:
-            keyword: OPTIONS
-            bracketed:
-              start_bracket: (
-              parameter: description
-              comparison_operator:
-                raw_comparison_operator: '='
-              literal: '"An INTEGER field that is NOT NULL"'
-              end_bracket: )
-        end_bracket: )
-- statement_terminator: ;
-- statement:
-    create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: t_table1
-    - bracketed:
-      - start_bracket: (
-      - column_definition:
-          identifier: x
-          data_type:
-            keyword: STRUCT
-            start_angle_bracket: <
-            parameter: col1
+    - column_list_segment:
+        bracketed:
+          start_bracket: (
+          column_definition:
+            identifier: x
             data_type:
               data_type_identifier: INT64
             options_segment:
@@ -77,15 +25,48 @@ file:
                 parameter: description
                 comparison_operator:
                   raw_comparison_operator: '='
-                literal: '"An INTEGER field in a STRUCT"'
+                literal: '"An INTEGER field"'
                 end_bracket: )
-            end_angle_bracket: '>'
-      - comma: ','
-      - column_definition:
-          identifier: y
-          data_type:
-            keyword: ARRAY
-            start_angle_bracket: <
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        identifier: t_table1
+    - column_list_segment:
+        bracketed:
+          start_bracket: (
+          column_definition:
+            identifier: x
+            data_type:
+              data_type_identifier: INT64
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+            options_segment:
+              keyword: OPTIONS
+              bracketed:
+                start_bracket: (
+                parameter: description
+                comparison_operator:
+                  raw_comparison_operator: '='
+                literal: '"An INTEGER field that is NOT NULL"'
+                end_bracket: )
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        identifier: t_table1
+    - column_list_segment:
+        bracketed:
+        - start_bracket: (
+        - column_definition:
+            identifier: x
             data_type:
               keyword: STRUCT
               start_angle_bracket: <
@@ -99,9 +80,31 @@ file:
                   parameter: description
                   comparison_operator:
                     raw_comparison_operator: '='
-                  literal: '"An INTEGER field in a REPEATED STRUCT"'
+                  literal: '"An INTEGER field in a STRUCT"'
                   end_bracket: )
               end_angle_bracket: '>'
-            end_angle_bracket: '>'
-      - end_bracket: )
+        - comma: ','
+        - column_definition:
+            identifier: y
+            data_type:
+              keyword: ARRAY
+              start_angle_bracket: <
+              data_type:
+                keyword: STRUCT
+                start_angle_bracket: <
+                parameter: col1
+                data_type:
+                  data_type_identifier: INT64
+                options_segment:
+                  keyword: OPTIONS
+                  bracketed:
+                    start_bracket: (
+                    parameter: description
+                    comparison_operator:
+                      raw_comparison_operator: '='
+                    literal: '"An INTEGER field in a REPEATED STRUCT"'
+                    end_bracket: )
+                end_angle_bracket: '>'
+              end_angle_bracket: '>'
+        - end_bracket: )
 - statement_terminator: ;
