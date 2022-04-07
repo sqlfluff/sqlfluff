@@ -1402,31 +1402,18 @@ class ProcedureParameterListSegment(BaseSegment):
     # Odd syntax, but prevents eager parameters being confused for data types
     _param_type = OneOf("REFCURSOR", Ref("DatatypeSegment"))
     match_grammar = Bracketed(
-        Sequence(
-            AnyNumberOf(
-                OneOf(
-                    Ref("ParameterNameSegment"),
-                    exclude=OneOf(_param_type, Ref("ArgModeGrammar")),
-                    optional=True,
-                ),
-                Ref("ArgModeGrammar", optional=True),
-                max_times_per_element=1,
-            ),
-            _param_type,
-            AnyNumberOf(
-                Sequence(
-                    Ref("CommaSegment"),
-                    AnyNumberOf(
-                        OneOf(
-                            Ref("ParameterNameSegment"),
-                            exclude=OneOf(_param_type, Ref("ArgModeGrammar")),
-                            optional=True,
-                        ),
-                        Ref("ArgModeGrammar", optional=True),
-                        max_times_per_element=1,
+        Delimited(
+            Sequence(
+                AnyNumberOf(
+                    Ref(
+                        "ParameterNameSegment",
+                        exclude=OneOf(_param_type, Ref("ArgModeGrammar")),
+                        optional=True,
                     ),
-                    _param_type,
+                    Ref("ArgModeGrammar", optional=True),
+                    max_times_per_element=1,
                 ),
+                _param_type,
             ),
             optional=True,
         ),

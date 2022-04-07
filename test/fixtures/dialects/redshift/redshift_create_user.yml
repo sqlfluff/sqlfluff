@@ -3,10 +3,10 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 05fe589d56960f4d5d47b5c6e089fc2e011761ccf689cae65b608f06f2e5270d
+_hash: f95f8af7e410a87c0e438444fa05fed29615de14f3864026f651118628733bd0
 file:
 - statement:
-    create_user:
+    create_role_statement:
     - keyword: CREATE
     - keyword: USER
     - object_reference:
@@ -15,7 +15,7 @@ file:
     - literal: "'md5153c434b4b77c89e6b94f12c5393af5b'"
 - statement_terminator: ;
 - statement:
-    create_user:
+    create_role_statement:
     - keyword: CREATE
     - keyword: USER
     - object_reference:
@@ -54,7 +54,7 @@ file:
     - keyword: DISABLE
 - statement_terminator: ;
 - statement:
-    create_user:
+    create_role_statement:
     - keyword: CREATE
     - keyword: USER
     - object_reference:
@@ -64,7 +64,7 @@ file:
     - keyword: CREATEDB
 - statement_terminator: ;
 - statement:
-    create_user:
+    create_role_statement:
     - keyword: CREATE
     - keyword: USER
     - object_reference:
@@ -118,7 +118,7 @@ file:
     - keyword: UNRESTRICTED
 - statement_terminator: ;
 - statement:
-    create_user:
+    create_role_statement:
     - keyword: CREATE
     - keyword: USER
     - object_reference:
@@ -127,7 +127,7 @@ file:
     - literal: "'md5153c434b4b77c89e6b94f12c5393af5b'"
     - keyword: IN
     - keyword: GROUP
-    - object_reference:
+    - role_reference:
         identifier: group_1
 - statement_terminator: ;
 - statement:
@@ -147,7 +147,7 @@ file:
         identifier: group_2
 - statement_terminator: ;
 - statement:
-    create_user:
+    create_role_statement:
     - keyword: CREATE
     - keyword: USER
     - object_reference:
@@ -159,7 +159,7 @@ file:
     - literal: "'2017-06-10'"
 - statement_terminator: ;
 - statement:
-    create_user:
+    create_role_statement:
     - keyword: CREATE
     - keyword: USER
     - object_reference:
