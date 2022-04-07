@@ -852,6 +852,12 @@ class TriggerReferenceSegment(ObjectReferenceSegment):
     type = "trigger_reference"
 
 
+class OperationClassReferenceSegment(ObjectReferenceSegment):
+    """A reference to an operation class."""
+
+    type = "operation_class_reference"
+
+
 class SingleIdentifierListSegment(BaseSegment):
     """A comma delimited list of identifiers."""
 
