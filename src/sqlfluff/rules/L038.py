@@ -87,7 +87,7 @@ class Rule_L038(BaseRule):
             bracketed_target = column_list_target.children(sp.is_type("bracketed"))
             column_list_definitions_target = bracketed_target.children()
             # ... and do not consider the closing bracket
-            last_content: BaseSegment = column_list_definitions_target.last(
+            last_content = column_list_definitions_target.last(
                 sp.and_(sp.is_code(), sp.not_(sp.is_type("end_bracket")))
             )[0]
 
