@@ -3252,7 +3252,7 @@ class ConflictActionSegment(BaseSegment):
                             Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
                             Ref("EqualsSegment"),
                             Bracketed(
-                                Ref("SelectableGrammar")  # Note. Changed to suggestion.
+                                Ref("SelectableGrammar")
                             ),
                         ),
                     )
