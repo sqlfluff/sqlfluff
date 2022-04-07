@@ -515,11 +515,11 @@ class Linter:
                 # The second is the element to insert or create.
                 linting_errors, _, fixes, _ = crawler.crawl(
                     tree,
-                    ignore_mask=ignore_buff,
                     dialect=config.get("dialect_obj"),
-                    fname=fname,
                     fix=fix,
                     templated_file=templated_file,
+                    ignore_mask=ignore_buff,
+                    fname=fname,
                 )
                 all_linting_errors += linting_errors
 

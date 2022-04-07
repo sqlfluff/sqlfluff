@@ -20,13 +20,13 @@ import fnmatch
 import logging
 import pathlib
 import regex
-from typing import cast, Iterable, Optional, List, Set, Tuple, Union, Any
+from typing import cast, Iterable, Iterator, Optional, List, Set, Tuple, Union, Any
 from collections import namedtuple
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from sqlfluff.core.cached_property import cached_property
 
-from sqlfluff.core.linter import LintedFile
+from sqlfluff.core.linter import LintedFile, NoQaDirective
 from sqlfluff.core.parser import BaseSegment, PositionMarker, RawSegment
 from sqlfluff.core.dialects import Dialect
 from sqlfluff.core.errors import SQLLintError
@@ -350,15 +350,15 @@ class RuleContext:
     """Class for holding the context passed to rule eval functions."""
 
     segment: BaseSegment
-    parent_stack: Tuple[BaseSegment, ...]
-    siblings_pre: Tuple[BaseSegment, ...]
-    siblings_post: Tuple[BaseSegment, ...]
-    raw_stack: Tuple[RawSegment, ...]
-    memory: Any
     dialect: Dialect
-    path: Optional[pathlib.Path]
     fix: bool
     templated_file: Optional[TemplatedFile]
+    path: Optional[pathlib.Path]
+    parent_stack: Tuple[BaseSegment, ...] = field(default=tuple())
+    siblings_pre: Tuple[BaseSegment, ...] = field(default=tuple())
+    siblings_post: Tuple[BaseSegment, ...] = field(default=tuple())
+    raw_stack: Tuple[RawSegment, ...] = field(default=tuple())
+    memory: Any = field(default_factory=dict)
 
     @cached_property
     def functional(self):
@@ -484,151 +484,139 @@ class BaseRule:
 
     def crawl(
         self,
-        segment,
-        ignore_mask,
-        dialect,
-        parent_stack=None,
-        siblings_pre=None,
-        siblings_post=None,
-        raw_stack=None,
-        memory=None,
-        fname=None,
-        fix=None,
-        templated_file: Optional["TemplatedFile"] = None,
-    ):
-        """Recursively perform the crawl operation on a given segment.
+        tree: BaseSegment,
+        dialect: Dialect,
+        fix: bool,
+        templated_file: Optional["TemplatedFile"],
+        ignore_mask: List[NoQaDirective],
+        fname: Optional[str],
+    ) -> Tuple[List[SQLLintError], Tuple[RawSegment, ...], List[LintFix], Any]:
+        """Run the rule on a given tree.
 
         Returns:
             A tuple of (vs, raw_stack, fixes, memory)
 
         """
-        # parent stack should be a tuple if it exists
-
-        # Rules should evaluate on segments FIRST, before evaluating on their
-        # children. They should also return a list of violations.
-
-        parent_stack = parent_stack or ()
-        raw_stack = raw_stack or ()
-        siblings_post = siblings_post or ()
-        siblings_pre = siblings_pre or ()
-        memory = memory or {}
-        fix = fix or False
+        root_context = RuleContext(
+            segment=tree,
+            dialect=dialect,
+            fix=fix,
+            templated_file=templated_file,
+            path=pathlib.Path(fname) if fname else None,
+        )
         vs: List[SQLLintError] = []
         fixes: List[LintFix] = []
 
-        # First, check whether we're looking at an unparsable and whether
-        # this rule will still operate on that.
-        if not self._works_on_unparsable and segment.is_type("unparsable"):
-            # Abort here if it doesn't. Otherwise we'll get odd results.
-            return vs, raw_stack, [], memory
-
-        # TODO: Document what options are available to the evaluation function.
-        context = RuleContext(
-            segment=segment,
-            parent_stack=parent_stack,
-            siblings_pre=siblings_pre,
-            siblings_post=siblings_post,
-            raw_stack=raw_stack,
-            memory=memory,
-            dialect=dialect,
-            path=pathlib.Path(fname) if fname else None,
-            fix=fix,
-            templated_file=templated_file,
-        )
-        try:
-            res = self._eval(context=context)
-        except (bdb.BdbQuit, KeyboardInterrupt):  # pragma: no cover
-            raise
-        # Any exception at this point would halt the linter and
-        # cause the user to get no results
-        except Exception as e:
-            self.logger.critical(
-                f"Applying rule {self.code} threw an Exception: {e}", exc_info=True
-            )
-            exception_line, _ = segment.pos_marker.source_position()
-            self._log_critical_errors(e)
-            vs.append(
-                SQLLintError(
-                    rule=self,
-                    segment=segment,
-                    fixes=[],
-                    description=(
-                        f"Unexpected exception: {str(e)};\n"
-                        "Could you open an issue at "
-                        "https://github.com/sqlfluff/sqlfluff/issues ?\n"
-                        "You can ignore this exception for now, by adding "
-                        f"'-- noqa: {self.code}' at the end\n"
-                        f"of line {exception_line}\n"
-                    ),
+        # Propagates memory from one rule _eval() to the next.
+        memory: Any = root_context.memory
+        raw_stack: List[RawSegment] = []
+        context = None
+        for context in self._crawl_helper(root_context, raw_stack):
+            try:
+                context.memory = memory
+                res = self._eval(context=context)
+            except (bdb.BdbQuit, KeyboardInterrupt):  # pragma: no cover
+                raise
+            # Any exception at this point would halt the linter and
+            # cause the user to get no results
+            except Exception as e:
+                self.logger.critical(
+                    f"Applying rule {self.code} threw an Exception: {e}", exc_info=True
                 )
-            )
-            return vs, raw_stack, fixes, memory
+                assert context.segment.pos_marker
+                exception_line, _ = context.segment.pos_marker.source_position()
+                self._log_critical_errors(e)
+                vs.append(
+                    SQLLintError(
+                        rule=self,
+                        segment=context.segment,
+                        fixes=[],
+                        description=(
+                            f"Unexpected exception: {str(e)};\n"
+                            "Could you open an issue at "
+                            "https://github.com/sqlfluff/sqlfluff/issues ?\n"
+                            "You can ignore this exception for now, by adding "
+                            f"'-- noqa: {self.code}' at the end\n"
+                            f"of line {exception_line}\n"
+                        ),
+                    )
+                )
+                return vs, context.raw_stack, fixes, context.memory
 
-        new_lerrs: List[SQLLintError] = []
-        new_fixes: List[LintFix] = []
+            new_lerrs: List[SQLLintError] = []
+            new_fixes: List[LintFix] = []
 
-        if res is None:
-            # Assume this means no problems (also means no memory)
-            pass
-        elif isinstance(res, LintResult):
-            # Extract any memory
-            memory = res.memory
-            self._adjust_anchors_for_fixes(context, res)
-            self._process_lint_result(
-                res, templated_file, ignore_mask, new_lerrs, new_fixes
-            )
-        elif isinstance(res, list) and all(
-            isinstance(elem, LintResult) for elem in res
-        ):
-            # Extract any memory from the *last* one, assuming
-            # it was the last to be added
-            memory = res[-1].memory
-            for elem in res:
-                self._adjust_anchors_for_fixes(context, elem)
+            if res is None:
+                # Assume this means no problems (also means no memory)
+                memory = {}
+            elif isinstance(res, LintResult):
+                # Extract any memory
+                memory = res.memory
+                self._adjust_anchors_for_fixes(context, res)
                 self._process_lint_result(
-                    elem, templated_file, ignore_mask, new_lerrs, new_fixes
+                    res, templated_file, ignore_mask, new_lerrs, new_fixes
                 )
-        else:  # pragma: no cover
-            raise TypeError(
-                "Got unexpected result [{!r}] back from linting rule: {!r}".format(
-                    res, self.code
+            elif isinstance(res, list) and all(
+                isinstance(elem, LintResult) for elem in res
+            ):
+                # Extract any memory from the *last* one, assuming
+                # it was the last to be added
+                memory = res[-1].memory
+                for elem in res:
+                    self._adjust_anchors_for_fixes(context, elem)
+                    self._process_lint_result(
+                        elem, templated_file, ignore_mask, new_lerrs, new_fixes
+                    )
+            else:  # pragma: no cover
+                raise TypeError(
+                    "Got unexpected result [{!r}] back from linting rule: {!r}".format(
+                        res, self.code
+                    )
                 )
-            )
 
-        for lerr in new_lerrs:
-            self.logger.debug("!! Violation Found: %r", lerr.description)
-        for fix in new_fixes:
-            self.logger.debug("!! Fix Proposed: %r", fix)
+            for lerr in new_lerrs:
+                self.logger.debug("!! Violation Found: %r", lerr.description)
+            for lfix in new_fixes:
+                self.logger.debug("!! Fix Proposed: %r", lfix)
 
-        # Consume the new results
-        vs += new_lerrs
-        fixes += new_fixes
-
-        # The raw stack only keeps track of the previous raw segments
-        if len(segment.segments) == 0:
-            raw_stack += (segment,)
-        # Parent stack keeps track of all the parent segments
-        parent_stack += (segment,)
-
-        for idx, child in enumerate(segment.segments):
-            dvs, raw_stack, child_fixes, memory = self.crawl(
-                segment=child,
-                ignore_mask=ignore_mask,
-                parent_stack=parent_stack,
-                siblings_pre=segment.segments[:idx],
-                siblings_post=segment.segments[idx + 1 :],
-                raw_stack=raw_stack,
-                memory=memory,
-                dialect=dialect,
-                fname=fname,
-                fix=fix,
-                templated_file=templated_file,
-            )
-            vs += dvs
-            fixes += child_fixes
-        return vs, raw_stack, fixes, memory
+            # Consume the new results
+            vs += new_lerrs
+            fixes += new_fixes
+        return vs, context.raw_stack if context else tuple(), fixes, context.memory
 
     # HELPER METHODS --------
+    def _crawl_helper(
+        self, context: RuleContext, raw_stack: List[RawSegment]
+    ) -> Iterator[RuleContext]:
+        # First, check whether we're looking at an unparsable and whether
+        # this rule will still operate on that.
+        if not self._works_on_unparsable and context.segment.is_type("unparsable"):
+            # Abort here if it doesn't. Otherwise we'll get odd results.
+            return
+
+        # Rules should evaluate on segments FIRST, before evaluating on their
+        # children.
+        yield context
+
+        # The raw stack only keeps track of the previous *raw* segments.
+        if len(context.segment.segments) == 0:
+            raw_stack.append(cast(RawSegment, context.segment))
+        for idx, child in enumerate(context.segment.segments):
+            child_context = RuleContext(
+                segment=child,
+                dialect=context.dialect,
+                fix=context.fix,
+                templated_file=context.templated_file,
+                path=context.path,
+                # Parent stack keeps track of all the parent segments
+                parent_stack=context.parent_stack + (context.segment,),
+                siblings_pre=context.segment.segments[:idx],
+                siblings_post=context.segment.segments[idx + 1 :],
+                raw_stack=tuple(raw_stack),
+                memory=context.memory,
+            )
+            yield from self._crawl_helper(child_context, raw_stack)
+
     @staticmethod
     def _log_critical_errors(error: Exception):  # pragma: no cover
         """This method is monkey patched into a "raise" for certain tests."""
