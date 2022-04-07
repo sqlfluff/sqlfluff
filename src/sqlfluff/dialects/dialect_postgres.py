@@ -3237,7 +3237,7 @@ class ConflictActionSegment(BaseSegment):
                             OneOf(Ref("ExpressionSegment"), "DEFAULT"),
                         ),
                         Sequence(
-                            Bracketed(Delimited(Ref("ColumnReferenceExpression"))),
+                            Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
                             Ref("EqualsSegment"),
                             Ref.keyword("ROW", optional=True),
                             Bracketed(
@@ -3245,7 +3245,7 @@ class ConflictActionSegment(BaseSegment):
                             ),
                         ),
                         Sequence(
-                            Bracketed(Delimited(Ref("ColumnReferenceExpression"))),
+                            Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
                             Ref("EqualsSegment"),
                             Bracketed(
                                 Ref("SelectableGrammar")  # Note. Changed to suggestion.
@@ -3277,13 +3277,13 @@ class ConflictTargetSegment(BaseSegment):
                             Ref("QuotedLiteralSegment"),
                             optional=True,
                         ),
-                        Ref("OperationClassReferenceSegment"),
+                        Ref("OperationClassReferenceSegment", optional=True),
                     )
                 )
             ),
             Sequence("WHERE", Ref("ExpressionSegment"), optional=True),
         ),
-        Sequence("ON", "CONSTRAINT", Ref("ParameterNameSegment")),  # TODO: Check this
+        Sequence("ON", "CONSTRAINT", Ref("ParameterNameSegment")),
     )
 
 
@@ -3291,7 +3291,6 @@ class InsertStatementSegment(ansi.InsertStatementSegment):
     """An `INSERT` statement.
 
     https://www.postgresql.org/docs/14/sql-insert.html
-    TODO: Implement ON CONFLICT grammar.
     """
 
     match_grammar = ansi.InsertStatementSegment.match_grammar
@@ -3306,7 +3305,6 @@ class InsertStatementSegment(ansi.InsertStatementSegment):
             Sequence("DEFAULT", "VALUES"),
             Ref("SelectableGrammar"),
         ),
-        # TODO: Add ON CONFLICT grammar.
         Sequence(
             "ON",
             "CONFLICT",
