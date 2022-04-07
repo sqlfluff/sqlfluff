@@ -23,6 +23,7 @@ Major changes include:
 
 ## What’s Changed
 
+* MySQL: Allow `JOIN`s in `UPDATE` expressions [#3031](https://github.com/sqlfluff/sqlfluff/pull/3031) [@zapion](https://github.com/zapion)
 * Fix bug in patch generation for segments made of templated + literal fixes [#3030](https://github.com/sqlfluff/sqlfluff/pull/3030) [@barrywhart](https://github.com/barrywhart)
 * Formatters code cleanup [#3029](https://github.com/sqlfluff/sqlfluff/pull/3029) [@barrywhart](https://github.com/barrywhart)
 * Postgres better `CREATE USER`/`CREATE ROLE` support [#3016](https://github.com/sqlfluff/sqlfluff/pull/3016) [@mrf](https://github.com/mrf)
@@ -106,6 +107,7 @@ Major changes include:
 * [@dnim]](https://github.com/dnim) made their first contribution in [#3010]](https://github.com/sqlfluff/sqlfluff/pull/3010)
 * [@kd2718](https://github.com/kd2718) made their first contribution in [#3014](https://github.com/sqlfluff/sqlfluff/pull/3014)
 * [@mrf](https://github.com/mrf) made their first contribution in [#3016](https://github.com/sqlfluff/sqlfluff/pull/3016)
+* [@zapion](https://github.com/zapion) made their first contribution in [#3031](https://github.com/sqlfluff/sqlfluff/pull/3031)
 
 ## [0.11.2] - 2022-03-25
 
