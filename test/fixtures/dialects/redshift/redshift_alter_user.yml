@@ -3,38 +3,38 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 914b5822b521637de63bf93b1d5518fd0027e8b943dbacf8c330d2b047eee651
+_hash: f982bd196fa03d9c7773fc03b49d59594fab8edb9b06aec16481ebe4b7e9f62a
 file:
 - statement:
-    alter_user:
+    alter_role_statement:
     - keyword: alter
     - keyword: user
-    - object_reference:
+    - role_reference:
         identifier: admin
     - keyword: createdb
 - statement_terminator: ;
 - statement:
-    alter_user:
+    alter_role_statement:
     - keyword: alter
     - keyword: user
-    - object_reference:
+    - role_reference:
         identifier: admin
     - keyword: with
     - keyword: createdb
 - statement_terminator: ;
 - statement:
-    alter_user:
+    alter_role_statement:
     - keyword: alter
     - keyword: user
-    - object_reference:
+    - role_reference:
         identifier: admin
     - keyword: nocreatedb
 - statement_terminator: ;
 - statement:
-    alter_user:
+    alter_role_statement:
     - keyword: alter
     - keyword: user
-    - object_reference:
+    - role_reference:
         identifier: admin
     - keyword: with
     - keyword: nocreatedb
@@ -137,19 +137,19 @@ file:
     - keyword: unrestricted
 - statement_terminator: ;
 - statement:
-    alter_user:
+    alter_role_statement:
     - keyword: alter
     - keyword: user
-    - object_reference:
+    - role_reference:
         identifier: iam_superuser
     - keyword: password
     - literal: "'mdA51234567890123456780123456789012'"
 - statement_terminator: ;
 - statement:
-    alter_user:
+    alter_role_statement:
     - keyword: alter
     - keyword: user
-    - object_reference:
+    - role_reference:
         identifier: iam_superuser
     - keyword: with
     - keyword: password
@@ -175,10 +175,10 @@ file:
     - keyword: DISABLE
 - statement_terminator: ;
 - statement:
-    alter_user:
+    alter_role_statement:
     - keyword: alter
     - keyword: user
-    - object_reference:
+    - role_reference:
         identifier: admin
     - keyword: password
     - literal: "'adminPass9'"
@@ -187,10 +187,10 @@ file:
     - literal: "'2017-12-31 23:59'"
 - statement_terminator: ;
 - statement:
-    alter_user:
+    alter_role_statement:
     - keyword: alter
     - keyword: user
-    - object_reference:
+    - role_reference:
         identifier: admin
     - keyword: with
     - keyword: password
@@ -200,10 +200,10 @@ file:
     - literal: "'2017-12-31 23:59'"
 - statement_terminator: ;
 - statement:
-    alter_user:
+    alter_role_statement:
     - keyword: alter
     - keyword: user
-    - object_reference:
+    - role_reference:
         identifier: admin
     - keyword: rename
     - keyword: to
@@ -223,20 +223,20 @@ file:
         identifier: sysadmin
 - statement_terminator: ;
 - statement:
-    alter_user:
+    alter_role_statement:
     - keyword: alter
     - keyword: user
-    - object_reference:
+    - role_reference:
         identifier: admin
     - keyword: connection
     - keyword: limit
     - literal: '10'
 - statement_terminator: ;
 - statement:
-    alter_user:
+    alter_role_statement:
     - keyword: alter
     - keyword: user
-    - object_reference:
+    - role_reference:
         identifier: admin
     - keyword: with
     - keyword: connection
@@ -332,10 +332,10 @@ file:
     - literal: '100'
 - statement_terminator: ;
 - statement:
-    alter_user:
+    alter_role_statement:
     - keyword: alter
     - keyword: user
-    - object_reference:
+    - role_reference:
         identifier: dbuser
     - keyword: set
     - object_reference:
@@ -359,10 +359,10 @@ file:
     - literal: "'hi'"
 - statement_terminator: ;
 - statement:
-    alter_user:
+    alter_role_statement:
     - keyword: alter
     - keyword: user
-    - object_reference:
+    - role_reference:
         identifier: dbuser
     - keyword: set
     - object_reference:
@@ -384,10 +384,10 @@ file:
     - keyword: default
 - statement_terminator: ;
 - statement:
-    alter_user:
+    alter_role_statement:
     - keyword: alter
     - keyword: user
-    - object_reference:
+    - role_reference:
         identifier: dbuser
     - keyword: set
     - object_reference:
