@@ -3234,11 +3234,91 @@ class AsAliasExpressionSegment(BaseSegment):
     )
 
 
+class OperationClassReferenceSegment(ObjectReferenceSegment):
+    """A reference to an operation class."""
+
+    type = "operation_class_reference"
+
+
+class ConflictActionSegment(BaseSegment):
+    """A Conflict Action Statement used within an INSERT statement.
+
+    As specified in https://www.postgresql.org/docs/14/sql-insert.html
+    """
+
+    type = "conflict_action"
+
+    match_grammar = Sequence(
+        "DO",
+        OneOf(
+            "NOTHING",
+            Sequence(
+                "UPDATE",
+                "SET",
+                Delimited(
+                    OneOf(
+                        Sequence(
+                            Ref("ColumnReferenceSegment"),
+                            Ref("EqualsSegment"),
+                            OneOf(Ref("ExpressionSegment"), "DEFAULT"),
+                        ),
+                        Sequence(
+                            Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+                            Ref("EqualsSegment"),
+                            Ref.keyword("ROW", optional=True),
+                            Bracketed(
+                                Delimited(OneOf(Ref("ExpressionSegment"), "DEFAULT"))
+                            ),
+                        ),
+                        Sequence(
+                            Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+                            Ref("EqualsSegment"),
+                            Bracketed(Ref("SelectableGrammar")),
+                        ),
+                    )
+                ),
+                Sequence("WHERE", Ref("ExpressionSegment"), optional=True),
+            ),
+        ),
+    )
+
+
+class ConflictTargetSegment(BaseSegment):
+    """A Conflict Target Statement used within an INSERT statement.
+
+    As specified in https://www.postgresql.org/docs/14/sql-insert.html
+    """
+
+    type = "conflict_target"
+
+    match_grammar = OneOf(
+        Sequence(
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        OneOf(
+                            Ref("ColumnReferenceSegment"),
+                            Bracketed(Ref("ExpressionSegment")),
+                        ),
+                        Sequence(
+                            "COLLATE",
+                            Ref("QuotedLiteralSegment"),
+                            optional=True,
+                        ),
+                        Ref("OperationClassReferenceSegment", optional=True),
+                    )
+                )
+            ),
+            Sequence("WHERE", Ref("ExpressionSegment"), optional=True),
+        ),
+        Sequence("ON", "CONSTRAINT", Ref("ParameterNameSegment")),
+    )
+
+
 class InsertStatementSegment(ansi.InsertStatementSegment):
     """An `INSERT` statement.
 
     https://www.postgresql.org/docs/14/sql-insert.html
-    TODO: Implement ON CONFLICT grammar.
     """
 
     match_grammar = ansi.InsertStatementSegment.match_grammar
@@ -3253,7 +3333,13 @@ class InsertStatementSegment(ansi.InsertStatementSegment):
             Sequence("DEFAULT", "VALUES"),
             Ref("SelectableGrammar"),
         ),
-        # TODO: Add ON CONFLICT grammar.
+        Sequence(
+            "ON",
+            "CONFLICT",
+            Ref("ConflictTargetSegment", optional=True),
+            Ref("ConflictActionSegment"),
+            optional=True,
+        ),
         Sequence(
             "RETURNING",
             OneOf(

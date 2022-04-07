@@ -30,3 +30,22 @@ RETURNING bar, baz;
 
 INSERT INTO foo (bar, baz) VALUES(1, 2)
 RETURNING bar AS alias1, baz AS alias2;
+
+INSERT INTO foo (bar, baz) VALUES (1, 'var')
+ON CONFLICT (bar) DO UPDATE SET baz = EXCLUDED.baz;
+
+INSERT INTO foo (bar, baz) VALUES (1, 'var')
+ON CONFLICT (bar) DO NOTHING;
+
+INSERT INTO foo AS f (bar, baz) VALUES (1, 'var')
+ON CONFLICT (bar) DO UPDATE SET baz = EXCLUDED.baz || ' (formerly ' || f.baz || ')'
+WHERE f.zipcode != '21201';
+
+INSERT INTO foo (bar, baz) VALUES (1, 'var')
+ON CONFLICT ON CONSTRAINT foo_pkey DO NOTHING;
+
+INSERT INTO foo (bar, baz) VALUES (1, 'var')
+ON CONFLICT (bar) WHERE is_active DO NOTHING;
+
+INSERT INTO foo (bar, baz) VALUES (1, 'var')
+ON CONFLICT (bar) DO UPDATE SET (baz) = (SELECT baz FROM foobar WHERE bar = 1);
