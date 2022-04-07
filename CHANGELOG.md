@@ -12,7 +12,6 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 ## [0.12.0] - 2022-04-07
 
 ## Highlights
-
 Major changes include:
 * Dialect is now mandatory, either in command line, or in config **BREAKING CHANGE**
 * Rename `spark3` dialect to `sparksql` **BREAKING CHANGE**
@@ -22,7 +21,6 @@ Major changes include:
 * Many dialect improvements and fixes
 
 ## What’s Changed
-
 * MySQL: Allow `JOIN`s in `UPDATE` expressions [#3031](https://github.com/sqlfluff/sqlfluff/pull/3031) [@zapion](https://github.com/zapion)
 * Fix bug in patch generation for segments made of templated + literal fixes [#3030](https://github.com/sqlfluff/sqlfluff/pull/3030) [@barrywhart](https://github.com/barrywhart)
 * Formatters code cleanup [#3029](https://github.com/sqlfluff/sqlfluff/pull/3029) [@barrywhart](https://github.com/barrywhart)
@@ -104,7 +102,7 @@ Major changes include:
 * [@dmohns](https://github.com/dmohns) made their first contribution in [#2971](https://github.com/sqlfluff/sqlfluff/pull/2971)
 * [@tcholewik](https://github.com/tcholewik) made their first contribution in [#2923](https://github.com/sqlfluff/sqlfluff/pull/2923)
 * [@jmc-bbk](https://github.com/jmc-bbk) made their first contribution in [#2981](https://github.com/sqlfluff/sqlfluff/pull/2981)
-* [@dnim]](https://github.com/dnim) made their first contribution in [#3010]](https://github.com/sqlfluff/sqlfluff/pull/3010)
+* [@dnim](https://github.com/dnim) made their first contribution in [#3010](https://github.com/sqlfluff/sqlfluff/pull/3010)
 * [@kd2718](https://github.com/kd2718) made their first contribution in [#3014](https://github.com/sqlfluff/sqlfluff/pull/3014)
 * [@mrf](https://github.com/mrf) made their first contribution in [#3016](https://github.com/sqlfluff/sqlfluff/pull/3016)
 * [@zapion](https://github.com/zapion) made their first contribution in [#3031](https://github.com/sqlfluff/sqlfluff/pull/3031)
@@ -112,7 +110,6 @@ Major changes include:
 ## [0.11.2] - 2022-03-25
 
 ## What’s Changed
-
 * Added Support For Snowflake Inline Comments [#2919](https://github.com/sqlfluff/sqlfluff/pull/2919) [@WittierDinosaur](https://github.com/WittierDinosaur)
 * Spark3: Fix bug which did not allow multiple joins [#2917](https://github.com/sqlfluff/sqlfluff/pull/2917) [@tunetheweb](https://github.com/tunetheweb)
 * Added Snowflake Alter View Support [#2915](https://github.com/sqlfluff/sqlfluff/pull/2915) [@WittierDinosaur](https://github.com/WittierDinosaur)
@@ -138,7 +135,6 @@ Major changes include:
 ## [0.11.1] - 2022-03-17
 
 ## Highlights
-
 Major changes include:
 * A number of changes to `fix` code to make these more robust
 * Improvements to templating blocks
@@ -147,7 +143,6 @@ Major changes include:
 * Numerous grammar changes
 
 ## What’s Changed
-
 * Spark3: Support for `SHOW` statements [#2864](https://github.com/sqlfluff/sqlfluff/pull/2864) [@R7L208](https://github.com/R7L208)
 * Add Markerr to list of organizations using SQLFluff in the wild  [#2874](https://github.com/sqlfluff/sqlfluff/pull/2874) [@kdw2126](https://github.com/kdw2126)
 * Refactor JinjaTracer: Split into two classes, break up `_slice_template()` function [#2870](https://github.com/sqlfluff/sqlfluff/pull/2870) [@barrywhart](https://github.com/barrywhart)
@@ -187,7 +182,6 @@ Major changes include:
 ## [0.11.0] - 2022-03-07
 
 ## Highlights
-
 Major changes include:
 * Changes rule L030 to use `extended_capitalisation_policy` to support PascalCase **BREAKING CHANGE**
 * Fixes dbt error on ephemeral models
@@ -199,7 +193,6 @@ Major changes include:
 * Many dialect improvements
 
 ## What’s Changed
-
 * Exasol: Fix `INTERVAL` literals / expression [#2804](https://github.com/sqlfluff/sqlfluff/pull/2804) [@sti0](https://github.com/sti0)
 * Exasol: Add `IDLE_TIMEOUT` and `SNAPSHOT_MODE` [#2805](https://github.com/sqlfluff/sqlfluff/pull/2805) [@sti0](https://github.com/sti0)
 * Exasol: Support value range clause within `INSERT` statements (7.1+) [#2802](https://github.com/sqlfluff/sqlfluff/pull/2802) [@sti0](https://github.com/sti0)
@@ -293,7 +286,6 @@ Major changes include:
 ## [0.10.1] - 2022-02-15
 
 ## Highlights
-
 Major changes include:
 * Improvements to rules L023, L045, L048, L052, L059 to make them more accurate.
 * If `sqlfluff fix` cannot find a stable fix after `runaway_limit` iterations (default 10) then no fixes will be applied.
@@ -302,7 +294,6 @@ Major changes include:
 
 
 ## What’s Changed
-
 * Redshift: Support DATETIME as a valid datatype [#2665](https://github.com/sqlfluff/sqlfluff/pull/2665) [@PLBMR](https://github.com/PLBMR)
 * Support L033 for RedShift [#2661](https://github.com/sqlfluff/sqlfluff/pull/2661) [@tunetheweb](https://github.com/tunetheweb)
 * Fix parsing types and add check to test in future [#2652](https://github.com/sqlfluff/sqlfluff/pull/2652) [@tunetheweb](https://github.com/tunetheweb)
@@ -337,7 +328,6 @@ Major changes include:
 ## [0.10.0] - 2022-02-10
 
 ## Highlights
-
 Major changes include:
 
 * Dropping support of DBT < 0.20 **BREAKING CHANGE**
@@ -347,7 +337,6 @@ Major changes include:
 * Looser requirements for `click` python package
 
 ## What’s Changed
-
 * L046: Detect Jinja spacing issues where segment begins with literal content [#2603](https://github.com/sqlfluff/sqlfluff/pull/2603) [@barrywhart](https://github.com/barrywhart)
 * MySQL Add BINARY support [#2602](https://github.com/sqlfluff/sqlfluff/pull/2602) [@tunetheweb](https://github.com/tunetheweb)
 * Support indenting WINDOWS clauses and (optionally) CTEs [#2601](https://github.com/sqlfluff/sqlfluff/pull/2601) [@tunetheweb](https://github.com/tunetheweb)
@@ -409,7 +398,6 @@ Major changes include:
 ## [0.9.4] - 2022-01-30
 
 ## Highlights
-
 Major changes include:
 
 * dbt performance improvements
@@ -445,7 +433,6 @@ Major changes include:
 ## [0.9.3] - 2022-01-26
 
 ## Highlights
-
 Major changes include:
 
 * Add `ignore_words` option for rules L010, L014, L029, L030, L040
@@ -478,7 +465,6 @@ Major changes include:
 ## [0.9.2] - 2022-01-24
 
 ## Highlights
-
 We are pleased to include 110 improvements and fixes in this release, and welcome 7 new contributors to the code.
 
 Major changes include:
@@ -617,7 +603,6 @@ Major changes include:
 ## [0.9.1] - 2022-01-08
 
 ## Highlights
-
 * Fix dbt 1.0.0 connection issue
 * Fix some SQL corruption issues with templated code
 * New components to simplify creating rules
@@ -1028,7 +1013,6 @@ It also adds the `redshift` dialect and removes the `exasol_fs` dialect which ha
 into the `exasol` dialect.
 
 ## What’s Changed
-
 * src/sqlfluff/core/linter: Improve ignore file processing [#1650](https://github.com/sqlfluff/sqlfluff/pull/1650) [@CyberShadow](https://github.com/CyberShadow)
 * Misc documentation updates [#1644](https://github.com/sqlfluff/sqlfluff/pull/1644) [@tunetheweb](https://github.com/tunetheweb)
 * Segregate dbt plugin tests [#1610](https://github.com/sqlfluff/sqlfluff/pull/1610) [@alanmcruickshank](https://github.com/alanmcruickshank)
@@ -1127,7 +1111,6 @@ T-SQL: Support for unicode literals [#1511](https://github.com/sqlfluff/sqlfluff
 Lots of fixes to our rules (particularly when running `sqlfluff fix`, and particularly for Jinja and DBT templates). We also have good improvements to Exasol, Snowflake, and T-SQL dialects amongst others. Plus we added Hive and SQLite as supported dialects!
 
 ## What’s Changed
-
 * Snowflake better WAREHOUSE and CREATE (EXTERNAL) TABLES support [#1508](https://github.com/sqlfluff/sqlfluff/pull/1508) [@tunetheweb](https://github.com/tunetheweb)
 * Exasol: Fix typo in `REORGANIZE` statement [#1509](https://github.com/sqlfluff/sqlfluff/pull/1509) [@sti0](https://github.com/sti0)
 * Fix bug that can prevent linting ephemeral dbt models [#1496](https://github.com/sqlfluff/sqlfluff/pull/1496) [@barrywhart](https://github.com/barrywhart)
@@ -1175,7 +1158,6 @@ Lots of fixes to our rules (particularly when running `sqlfluff fix`, and partic
 Fixed some of our autofix rules where running `fix` sometimes made unintended changes. Added config to rules L011 and L012 to allow preferring implicit aliasing. Also further improved our Postgres support and documentation.
 
 ### What’s Changed
-
 * Rule L036 bug fixes [#1427](https://github.com/sqlfluff/sqlfluff/pull/1427) [@tunetheweb](https://github.com/tunetheweb)
 * Added support for psql meta commands to Postgres [#1423](https://github.com/sqlfluff/sqlfluff/pull/1423) [@WittierDinosaur](https://github.com/WittierDinosaur)
 * Remaining line endings [#1415](https://github.com/sqlfluff/sqlfluff/pull/1415) [@tunetheweb](https://github.com/tunetheweb)
