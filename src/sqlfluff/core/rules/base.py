@@ -349,18 +349,36 @@ EvalResultType = Union[LintResult, List[LintResult], None]
 class RuleContext:
     """Class for holding the context passed to rule eval functions."""
 
-    segment: BaseSegment
+    # These don't change within a file.
     dialect: Dialect
     fix: bool
     templated_file: Optional[TemplatedFile]
     path: Optional[pathlib.Path]
+
+    # These change within a file.
+    segment: BaseSegment
     parent_stack: Tuple[BaseSegment, ...] = field(default=tuple())
-    siblings_pre: Tuple[BaseSegment, ...] = field(default=tuple())
-    siblings_post: Tuple[BaseSegment, ...] = field(default=tuple())
     raw_stack: Tuple[RawSegment, ...] = field(default=tuple())
     memory: Any = field(default_factory=dict)
+    segment_idx: int = field(default=0)
 
-    @cached_property
+    @property
+    def siblings_pre(self) -> Tuple[BaseSegment, ...]:
+        """Return sibling segments prior to self.segment."""
+        if self.parent_stack:
+            return self.parent_stack[-1].segments[: self.segment_idx]
+        else:
+            return tuple()
+
+    @property
+    def siblings_post(self) -> Tuple[BaseSegment, ...]:
+        """Return sibling segments after self.segment."""
+        if self.parent_stack:
+            return self.parent_stack[-1].segments[self.segment_idx + 1 :]
+        else:
+            return tuple()
+
+    @property
     def functional(self):
         """Returns a Surrogates object that simplifies writing rules."""
         return FunctionalRuleContext(self)
@@ -372,7 +390,7 @@ class FunctionalRuleContext:
     def __init__(self, context: RuleContext):
         self.context = context
 
-    @cached_property
+    @property
     def segment(self) -> "Segments":
         """Returns a Segments object for context.segment."""
         return Segments(
@@ -400,14 +418,14 @@ class FunctionalRuleContext:
             *self.context.siblings_post, templated_file=self.context.templated_file
         )
 
-    @cached_property
+    @property
     def raw_stack(self) -> "Segments":
         """Returns a Segments object for context.raw_stack."""
         return Segments(
             *self.context.raw_stack, templated_file=self.context.templated_file
         )
 
-    @cached_property
+    @property
     def raw_segments(self):
         """Returns a Segments object for all the raw segments in the file."""
         file_segment = self.context.parent_stack[0]
@@ -441,21 +459,18 @@ class CrawlBehavior:
             # The raw stack only keeps track of the previous *raw* segments.
             if len(context.segment.segments) == 0:
                 raw_stack.append(cast(RawSegment, context.segment))
+                context.raw_stack = tuple(raw_stack)
+            base_parent_stack = context.parent_stack
+            new_parent_stack = base_parent_stack + (context.segment,)
             for idx, child in enumerate(context.segment.segments):
-                child_context = RuleContext(
-                    segment=child,
-                    dialect=context.dialect,
-                    fix=context.fix,
-                    templated_file=context.templated_file,
-                    path=context.path,
-                    # Parent stack keeps track of all the parent segments
-                    parent_stack=context.parent_stack + (context.segment,),
-                    siblings_pre=context.segment.segments[:idx],
-                    siblings_post=context.segment.segments[idx + 1 :],
-                    raw_stack=tuple(raw_stack),
-                    memory=context.memory,
-                )
-                yield from self.crawl(child_context, raw_stack)
+                # TRICKY: We don't create a nwe RuleContext; we modify the
+                # existing one in place. This requires some careful bookkeeping,
+                # but it avoids creating a huge number of short-lived
+                # RuleContext objects (#linter loops x #rules x #segments.
+                context.segment = child
+                context.parent_stack = new_parent_stack
+                context.segment_idx = idx
+                yield from self.crawl(context, raw_stack)
 
 
 class BaseRule:
@@ -541,11 +556,11 @@ class BaseRule:
 
         """
         root_context = RuleContext(
-            segment=tree,
             dialect=dialect,
             fix=fix,
             templated_file=templated_file,
             path=pathlib.Path(fname) if fname else None,
+            segment=tree,
         )
         vs: List[SQLLintError] = []
         fixes: List[LintFix] = []
