@@ -1108,6 +1108,67 @@ class CreateRoleStatementSegment(ansi.CreateRoleStatementSegment):
     )
 
 
+class AlterRoleStatementSegment(BaseSegment):
+    """An `ALTER ROLE` statement.
+
+    As per:
+    https://www.postgresql.org/docs/current/sql-alterrole.html
+    """
+
+    type = "alter_role_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        OneOf("ROLE", "USER"),
+        OneOf(Ref("RoleReferenceSegment"), "ALL"),
+        OneOf(
+            Sequence(
+                Ref.keyword("WITH", optional=True),
+                AnySetOf(
+                    OneOf("SUPERUSER", "NOSUPERUSER"),
+                    OneOf("CREATEDB", "NOCREATEDB"),
+                    OneOf("CREATEROLE", "NOCREATEROLE"),
+                    OneOf("INHERIT", "NOINHERIT"),
+                    OneOf("LOGIN", "NOLOGIN"),
+                    OneOf("REPLICATION", "NOREPLICATION"),
+                    OneOf("BYPASSRLS", "NOBYPASSRLS"),
+                    Sequence("CONNECTION", "LIMIT", Ref("NumericLiteralSegment")),
+                    Sequence("PASSWORD", OneOf(Ref("QuotedLiteralSegment"), "NULL")),
+                    Sequence("VALID", "UNTIL", Ref("QuotedLiteralSegment")),
+                ),
+                optional=True,
+            ),
+            Sequence("RENAME", "TO", Ref("ObjectReferenceSegment"), optional=True),
+            Sequence(
+                Sequence(
+                    "IN",
+                    "DATABASE",
+                    Ref("ObjectReferenceSegment"),
+                    optional=True,
+                ),
+                OneOf(
+                    Sequence(
+                        "SET",
+                        Ref("ObjectReferenceSegment"),
+                        OneOf(
+                            Sequence(
+                                OneOf("TO", Ref("EqualsSegment")),
+                                OneOf(Ref("QuotedLiteralSegment"), "DEFAULT"),
+                            ),
+                            Sequence(
+                                "FROM",
+                                "CURRENT",
+                            ),
+                        ),
+                    ),
+                    Sequence("RESET", OneOf(Ref("QuotedLiteralSegment"), "ALL")),
+                ),
+                optional=True,
+            ),
+        ),
+    )
+
+
 class ExplainStatementSegment(ansi.ExplainStatementSegment):
     """An `Explain` statement.
 
@@ -3068,6 +3129,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DoStatementSegment"),
             Ref("AlterIndexStatementSegment"),
             Ref("ReindexStatementSegment"),
+            Ref("AlterRoleStatementSegment"),
         ],
     )
 
