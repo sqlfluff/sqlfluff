@@ -1,5 +1,5 @@
 """Implementation of Rule L009."""
-from typing import Iterator, List, Optional, Tuple
+from typing import List, Optional, Tuple
 
 from sqlfluff.core.parser import BaseSegment, NewlineSegment
 from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix, RuleContext
@@ -7,18 +7,10 @@ from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 from sqlfluff.core.rules.functional import Segments, sp, tsp
 
 
-def get_trailing_segments(segment: BaseSegment) -> Iterator[BaseSegment]:
-    """Recurses the parse tree in reverse, i.e. returning last segments first."""
-    if segment.segments:
-        for child in reversed(segment.segments):
-            yield from get_trailing_segments(child)
-    yield segment
-
-
 def get_trailing_newlines(segment: BaseSegment) -> List[BaseSegment]:
     """Returns list of trailing newlines in the tree."""
     result = []
-    for seg in get_trailing_segments(segment):
+    for seg in segment.recursive_crawl_all(reverse=True):
         if seg.is_type("newline"):
             result.append(seg)
         if not seg.is_whitespace and not seg.is_type("dedent"):
