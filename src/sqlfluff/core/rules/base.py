@@ -416,6 +416,48 @@ class FunctionalRuleContext:
         )
 
 
+class CrawlBehavior:
+    """Implements how a lint rule traverses the parse tree."""
+
+    def __init__(self, works_on_unparsable: bool, recurse_into: bool):
+        self.works_on_unparsable = works_on_unparsable
+        self.recurse_into = recurse_into
+
+    def crawl(
+        self, context: RuleContext, raw_stack: List[RawSegment]
+    ) -> Iterator[RuleContext]:
+        """Yields a RuleContext for each segment the rule should process."""
+        # First, check whether we're looking at an unparsable and whether
+        # this rule will still operate on that.
+        if not self.works_on_unparsable and context.segment.is_type("unparsable"):
+            # Abort here if it doesn't. Otherwise we'll get odd results.
+            return
+
+        # Rules should evaluate on segments FIRST, before evaluating on their
+        # children.
+        yield context
+
+        if self.recurse_into:
+            # The raw stack only keeps track of the previous *raw* segments.
+            if len(context.segment.segments) == 0:
+                raw_stack.append(cast(RawSegment, context.segment))
+            for idx, child in enumerate(context.segment.segments):
+                child_context = RuleContext(
+                    segment=child,
+                    dialect=context.dialect,
+                    fix=context.fix,
+                    templated_file=context.templated_file,
+                    path=context.path,
+                    # Parent stack keeps track of all the parent segments
+                    parent_stack=context.parent_stack + (context.segment,),
+                    siblings_pre=context.segment.segments[:idx],
+                    siblings_post=context.segment.segments[idx + 1 :],
+                    raw_stack=tuple(raw_stack),
+                    memory=context.memory,
+                )
+                yield from self.crawl(child_context, raw_stack)
+
+
 class BaseRule:
     """The base class for a rule.
 
@@ -431,6 +473,7 @@ class BaseRule:
     _works_on_unparsable = True
     _adjust_anchors = False
     targets_templated = False
+    recurse_into = True
 
     def __init__(self, code, description, **kwargs):
         self.description = description
@@ -511,7 +554,8 @@ class BaseRule:
         memory: Any = root_context.memory
         raw_stack: List[RawSegment] = []
         context = None
-        for context in self._crawl_helper(root_context, raw_stack):
+        crawl_behavior = self.crawl_behavior()
+        for context in crawl_behavior.crawl(root_context, raw_stack):
             try:
                 context.memory = memory
                 res = self._eval(context=context)
@@ -585,37 +629,9 @@ class BaseRule:
         return vs, context.raw_stack if context else tuple(), fixes, context.memory
 
     # HELPER METHODS --------
-    def _crawl_helper(
-        self, context: RuleContext, raw_stack: List[RawSegment]
-    ) -> Iterator[RuleContext]:
-        # First, check whether we're looking at an unparsable and whether
-        # this rule will still operate on that.
-        if not self._works_on_unparsable and context.segment.is_type("unparsable"):
-            # Abort here if it doesn't. Otherwise we'll get odd results.
-            return
-
-        # Rules should evaluate on segments FIRST, before evaluating on their
-        # children.
-        yield context
-
-        # The raw stack only keeps track of the previous *raw* segments.
-        if len(context.segment.segments) == 0:
-            raw_stack.append(cast(RawSegment, context.segment))
-        for idx, child in enumerate(context.segment.segments):
-            child_context = RuleContext(
-                segment=child,
-                dialect=context.dialect,
-                fix=context.fix,
-                templated_file=context.templated_file,
-                path=context.path,
-                # Parent stack keeps track of all the parent segments
-                parent_stack=context.parent_stack + (context.segment,),
-                siblings_pre=context.segment.segments[:idx],
-                siblings_post=context.segment.segments[idx + 1 :],
-                raw_stack=tuple(raw_stack),
-                memory=context.memory,
-            )
-            yield from self._crawl_helper(child_context, raw_stack)
+    def crawl_behavior(self):
+        """Returns object for crawling parse tree. May be overridden."""
+        return CrawlBehavior(self._works_on_unparsable, self.recurse_into)
 
     @staticmethod
     def _log_critical_errors(error: Exception):  # pragma: no cover
