@@ -364,7 +364,7 @@ class RuleContext:
     segment_idx: int = field(default=0)
 
     @property
-    def siblings_pre(self) -> Tuple[BaseSegment, ...]:
+    def siblings_pre(self) -> Tuple[BaseSegment, ...]:  # pragma: no cover
         """Return sibling segments prior to self.segment."""
         if self.parent_stack:
             return self.parent_stack[-1].segments[: self.segment_idx]
