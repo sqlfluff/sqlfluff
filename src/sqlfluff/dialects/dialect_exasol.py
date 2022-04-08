@@ -2332,13 +2332,11 @@ class FileOptionSegment(BaseSegment):
 ############################
 # USER
 ############################
-class CreateUserStatementSegment(BaseSegment):
+class CreateUserStatementSegment(ansi.CreateUserStatementSegment):
     """`CREATE USER` statement.
 
     https://docs.exasol.com/sql/create_user.htm
     """
-
-    type = "create_user_statement"
 
     is_ddl = False
     is_dml = False

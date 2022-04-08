@@ -3,10 +3,10 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f29e4b091d6c216b3ce74e10a1b7dd79f3461b55b852cd61b7436829b9a26738
+_hash: 34ae3480c4706854f8d10be8b0e2c118962d35a996e0fdd197b101a50492b8b2
 file:
 - statement:
-    create_role_statement:
+    create_user_statement:
     - keyword: CREATE
     - keyword: USER
     - object_reference:
@@ -15,7 +15,7 @@ file:
     - literal: "'md5153c434b4b77c89e6b94f12c5393af5b'"
 - statement_terminator: ;
 - statement:
-    create_role_statement:
+    create_user_statement:
     - keyword: CREATE
     - keyword: USER
     - object_reference:
@@ -54,7 +54,7 @@ file:
     - keyword: DISABLE
 - statement_terminator: ;
 - statement:
-    create_role_statement:
+    create_user_statement:
     - keyword: CREATE
     - keyword: USER
     - object_reference:
@@ -64,7 +64,7 @@ file:
     - keyword: CREATEDB
 - statement_terminator: ;
 - statement:
-    create_role_statement:
+    create_user_statement:
     - keyword: CREATE
     - keyword: USER
     - object_reference:
@@ -118,7 +118,7 @@ file:
     - keyword: UNRESTRICTED
 - statement_terminator: ;
 - statement:
-    create_role_statement:
+    create_user_statement:
     - keyword: CREATE
     - keyword: USER
     - object_reference:
@@ -127,7 +127,7 @@ file:
     - literal: "'md5153c434b4b77c89e6b94f12c5393af5b'"
     - keyword: IN
     - keyword: GROUP
-    - role_reference:
+    - object_reference:
         identifier: group_1
 - statement_terminator: ;
 - statement:
@@ -147,7 +147,7 @@ file:
         identifier: group_2
 - statement_terminator: ;
 - statement:
-    create_role_statement:
+    create_user_statement:
     - keyword: CREATE
     - keyword: USER
     - object_reference:
@@ -159,7 +159,7 @@ file:
     - literal: "'2017-06-10'"
 - statement_terminator: ;
 - statement:
-    create_role_statement:
+    create_user_statement:
     - keyword: CREATE
     - keyword: USER
     - object_reference:
