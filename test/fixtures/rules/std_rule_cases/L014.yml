@@ -238,3 +238,9 @@ test_fail_inconsistent_capitalisation_properties_naked_identifier_2:
   configs:
     core:
       dialect: sparksql
+
+test_pass_bigquer_safe_does_not_trigger:
+  pass_str: SELECT SAFE.myFunction(1) AS col1
+  configs:
+    core:
+      dialect: bigquery
