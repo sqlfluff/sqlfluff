@@ -548,7 +548,7 @@ class BaseRule:
 
             if res is None:
                 # Assume this means no problems (also means no memory)
-                memory = {}
+                pass
             elif isinstance(res, LintResult):
                 # Extract any memory
                 memory = res.memory
