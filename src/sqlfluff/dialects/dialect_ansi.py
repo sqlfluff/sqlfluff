@@ -3294,6 +3294,21 @@ class CreateTypeStatementSegment(BaseSegment):
     )
 
 
+class CreateUserStatementSegment(BaseSegment):
+    """A `CREATE USER` statement.
+
+    A very simple create user syntax which can be extended
+    by other dialects.
+    """
+
+    type = "create_user_statement"
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        "USER",
+        Ref("ObjectReferenceSegment"),
+    )
+
+
 class CreateRoleStatementSegment(BaseSegment):
     """A `CREATE ROLE` statement.
 
@@ -3371,6 +3386,7 @@ class StatementSegment(BaseSegment):
         Ref("TransactionStatementSegment"),
         Ref("DropTableStatementSegment"),
         Ref("DropViewStatementSegment"),
+        Ref("CreateUserStatementSegment"),
         Ref("DropUserStatementSegment"),
         Ref("TruncateStatementSegment"),
         Ref("AccessStatementSegment"),

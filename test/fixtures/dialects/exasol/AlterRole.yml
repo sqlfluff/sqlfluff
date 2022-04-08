@@ -3,10 +3,10 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b02409a52edf2ba89b628bf79ab8396480d6f7520f19822fc19d133e8763f045
+_hash: 13796427e55a28e3cecd41043e9386f69878289bc37e2338a6b81ce2da55308b
 file:
 - statement:
-    alter_role:
+    alter_role_statement:
     - keyword: ALTER
     - keyword: ROLE
     - identifier: role1
@@ -17,7 +17,7 @@ file:
     - identifier: CEO
 - statement_terminator: ;
 - statement:
-    alter_role:
+    alter_role_statement:
     - keyword: ALTER
     - keyword: ROLE
     - identifier: role2
@@ -28,7 +28,7 @@ file:
     - keyword: 'NULL'
 - statement_terminator: ;
 - statement:
-    alter_role:
+    alter_role_statement:
     - keyword: ALTER
     - keyword: ROLE
     - identifier: '"TABLE"'

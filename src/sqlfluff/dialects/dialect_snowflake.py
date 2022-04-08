@@ -773,7 +773,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateCloneStatementSegment"),
             Ref("CreateProcedureStatementSegment"),
             Ref("ShowStatementSegment"),
-            Ref("AlterUserSegment"),
+            Ref("AlterUserStatementSegment"),
             Ref("AlterSessionStatementSegment"),
             Ref("AlterTaskStatementSegment"),
             Ref("SetAssignmentStatementSegment"),
@@ -3401,7 +3401,7 @@ class ShowStatementSegment(BaseSegment):
     )
 
 
-class AlterUserSegment(BaseSegment):
+class AlterUserStatementSegment(BaseSegment):
     """`ALTER USER` statement.
 
     https://docs.snowflake.com/en/sql-reference/sql/alter-user.html
@@ -3410,7 +3410,7 @@ class AlterUserSegment(BaseSegment):
     https://docs.snowflake.com/en/sql-reference/parameters.html
     """
 
-    type = "alter_user"
+    type = "alter_user_statement"
 
     match_grammar = StartsWith(
         Sequence("ALTER", "USER"),
