@@ -495,116 +495,129 @@ class Linter:
             ignore_buff = []
 
         save_tree = tree
-        for loop in range(loop_limit):
-            linter_logger.info(f"Linter loop {loop+1}/{loop_limit}")
-            changed = False
+        for phase in ["main", "post"]:
+            rules_this_phase = [rule for rule in rule_set if rule.lint_phase == phase]
+            for loop in range(loop_limit if phase == "main" else 2):
+                linter_logger.info(f"Linter phase {phase}, loop {loop+1}/{loop_limit}")
+                changed = False
 
-            progress_bar_crawler = tqdm(
-                rule_set,
-                desc="lint by rules",
-                leave=False,
-                disable=progress_bar_configuration.disable_progress_bar,
-            )
-
-            for crawler in progress_bar_crawler:
-                # Performance: After first loop pass, skip rules that don't do fixes.
-                if fix and loop > 0 and not is_fix_compatible(crawler):
-                    continue
-
-                progress_bar_crawler.set_description(f"rule {crawler.code}")
-
-                # fixes should be a dict {} with keys edit, delete, create
-                # delete is just a list of segments to delete
-                # edit and create are list of tuples. The first element is the
-                # "anchor", the segment to look for either to edit or to insert BEFORE.
-                # The second is the element to insert or create.
-                linting_errors, _, fixes, _ = crawler.crawl(
-                    tree,
-                    dialect=config.get("dialect_obj"),
-                    fix=fix,
-                    templated_file=templated_file,
-                    ignore_mask=ignore_buff,
-                    fname=fname,
+                if phase == "main" and loop == 0:
+                    # In order to compute initial_linting_errors correctly, need
+                    # to run all rules on the first loop of the main phase.
+                    rules_this_phase = rule_set
+                progress_bar_crawler = tqdm(
+                    rules_this_phase,
+                    desc="lint by rules",
+                    leave=False,
+                    disable=progress_bar_configuration.disable_progress_bar,
                 )
-                all_linting_errors += linting_errors
 
-                if fix and fixes:
-                    linter_logger.info(f"Applying Fixes [{crawler.code}]: {fixes}")
-                    # Do some sanity checks on the fixes before applying.
-                    anchor_info = BaseSegment.compute_anchor_edit_info(fixes)
-                    if any(
-                        not info.is_valid for info in anchor_info.values()
-                    ):  # pragma: no cover
-                        message = (
-                            f"Rule {crawler.code} returned conflicting fixes with the "
-                            f"same anchor. This is only supported for create_before+"
-                            f"create_after, so the fixes will not be applied. {fixes!r}"
-                        )
-                        cls._report_conflicting_fixes_same_anchor(message)
-                        for lint_result in linting_errors:
-                            lint_result.fixes = []
-                    elif fixes == last_fixes:  # pragma: no cover
-                        # If we generate the same fixes two times in a row,
-                        # that means we're in a loop, and we want to stop.
-                        # (Fixes should address issues, hence different
-                        # and/or fewer fixes next time.)
-                        cls._warn_unfixable(crawler.code)
-                    else:
-                        # This is the happy path. We have fixes, now we want to
-                        # apply them.
-                        last_fixes = fixes
-                        new_tree, _ = tree.apply_fixes(
-                            config.get("dialect_obj"), crawler.code, anchor_info
-                        )
-                        # Check for infinite loops
-                        if new_tree.raw not in previous_versions:
-                            # We've not seen this version of the file so far. Continue.
-                            tree = new_tree
-                            previous_versions.add(tree.raw)
-                            changed = True
-                            continue
-                        else:
-                            # Applying these fixes took us back to a state which we've
-                            # seen before. We're in a loop, so we want to stop.
+                for crawler in progress_bar_crawler:
+                    # Performance: After first loop pass, skip rules that don't
+                    # do fixes.
+                    if fix and loop > 0 and not is_fix_compatible(crawler):
+                        continue
+
+                    progress_bar_crawler.set_description(f"rule {crawler.code}")
+
+                    # fixes should be a dict {} with keys edit, delete, create
+                    # delete is just a list of segments to delete
+                    # edit and create are list of tuples. The first element is
+                    # the "anchor", the segment to look for either to edit or to
+                    # insert BEFORE. The second is the element to insert or create.
+                    linting_errors, _, fixes, _ = crawler.crawl(
+                        tree,
+                        dialect=config.get("dialect_obj"),
+                        fix=fix,
+                        templated_file=templated_file,
+                        ignore_mask=ignore_buff,
+                        fname=fname,
+                    )
+                    all_linting_errors += linting_errors
+
+                    if fix and fixes:
+                        linter_logger.info(f"Applying Fixes [{crawler.code}]: {fixes}")
+                        # Do some sanity checks on the fixes before applying.
+                        anchor_info = BaseSegment.compute_anchor_edit_info(fixes)
+                        if any(
+                            not info.is_valid for info in anchor_info.values()
+                        ):  # pragma: no cover
+                            message = (
+                                f"Rule {crawler.code} returned conflicting "
+                                "fixes with the same anchor. This is only "
+                                "supported for create_before+create_after, so "
+                                "the fixes will not be applied. {fixes!r}"
+                            )
+                            cls._report_conflicting_fixes_same_anchor(message)
+                            for lint_result in linting_errors:
+                                lint_result.fixes = []
+                        elif fixes == last_fixes:  # pragma: no cover
+                            # If we generate the same fixes two times in a row,
+                            # that means we're in a loop, and we want to stop.
+                            # (Fixes should address issues, hence different
+                            # and/or fewer fixes next time.)
                             cls._warn_unfixable(crawler.code)
+                        else:
+                            # This is the happy path. We have fixes, now we want to
+                            # apply them.
+                            last_fixes = fixes
+                            new_tree, _ = tree.apply_fixes(
+                                config.get("dialect_obj"), crawler.code, anchor_info
+                            )
+                            # Check for infinite loops
+                            if new_tree.raw not in previous_versions:
+                                # We've not seen this version of the file so
+                                # far. Continue.
+                                tree = new_tree
+                                previous_versions.add(tree.raw)
+                                changed = True
+                                continue
+                            else:
+                                # Applying these fixes took us back to a state
+                                # which we've seen before. We're in a loop, so
+                                # we want to stop.
+                                cls._warn_unfixable(crawler.code)
 
-            if loop == 0:
-                # Keep track of initial errors for reporting.
-                initial_linting_errors = all_linting_errors.copy()
+                if phase == "main" and loop == 0:
+                    # Keep track of initial errors for reporting.
+                    initial_linting_errors = all_linting_errors.copy()
 
-            if fix and not changed:
-                # We did not change the file. Either the file is clean (no fixes), or
-                # any fixes which are present will take us back to a previous state.
-                linter_logger.info(
-                    f"Fix loop complete. Stability achieved after {loop}/{loop_limit} "
-                    "loops."
-                )
-                break
-        else:
-            if fix:
-                # The linter loop hit the limit before reaching a stable point
-                # (i.e. free of lint errors). If this happens, it's usually
-                # because one or more rules produced fixes which did not address
-                # the original issue **or** created new issues.
-                linter_logger.warning(f"Loop limit on fixes reached [{loop_limit}].")
+                if fix and not changed:
+                    # We did not change the file. Either the file is clean (no
+                    # fixes), or any fixes which are present will take us back
+                    # to a previous state.
+                    linter_logger.info(
+                        f"Fix loop complete for {phase} phase. Stability "
+                        f"achieved after {loop}/{loop_limit} loops."
+                    )
+                    break
+            else:
+                if fix:
+                    # The linter loop hit the limit before reaching a stable point
+                    # (i.e. free of lint errors). If this happens, it's usually
+                    # because one or more rules produced fixes which did not address
+                    # the original issue **or** created new issues.
+                    linter_logger.warning(
+                        f"Loop limit on fixes reached [{loop_limit}]."
+                    )
 
-                # Discard any fixes for the linting errors, since they caused a
-                # loop. IMPORTANT: By doing this, we are telling SQLFluff that
-                # these linting errors are "unfixable". This is important,
-                # because when "sqlfluff fix" encounters unfixable lint errors,
-                # it exits with a "failure" exit code, which is exactly what we
-                # want in this situation. (Reason: Although this is more of an
-                # internal SQLFluff issue, users deserve to know about it,
-                # because it means their file(s) weren't fixed.
-                for violation in initial_linting_errors:
-                    if isinstance(violation, SQLLintError):
-                        violation.fixes = []
+                    # Discard any fixes for the linting errors, since they caused a
+                    # loop. IMPORTANT: By doing this, we are telling SQLFluff that
+                    # these linting errors are "unfixable". This is important,
+                    # because when "sqlfluff fix" encounters unfixable lint errors,
+                    # it exits with a "failure" exit code, which is exactly what we
+                    # want in this situation. (Reason: Although this is more of an
+                    # internal SQLFluff issue, users deserve to know about it,
+                    # because it means their file(s) weren't fixed.
+                    for violation in initial_linting_errors:
+                        if isinstance(violation, SQLLintError):
+                            violation.fixes = []
 
-                # Return the original parse tree, before any fixes were applied.
-                # Reason: When the linter hits the loop limit, the file is often
-                # messy, e.g. some of the fixes were applied repeatedly, possibly
-                # other weird things. We don't want the user to see this junk!
-                return save_tree, initial_linting_errors, ignore_buff
+                    # Return the original parse tree, before any fixes were applied.
+                    # Reason: When the linter hits the loop limit, the file is often
+                    # messy, e.g. some of the fixes were applied repeatedly, possibly
+                    # other weird things. We don't want the user to see this junk!
+                    return save_tree, initial_linting_errors, ignore_buff
 
         if config.get("ignore_templated_areas", default=True):
             initial_linting_errors = cls.remove_templated_errors(initial_linting_errors)

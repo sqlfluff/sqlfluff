@@ -498,11 +498,19 @@ class BaseRule:
     """
 
     _check_docstring = True
-    _works_on_unparsable = True
     _adjust_anchors = False
     targets_templated = False
+
+    # Lint loop / crawl behavior
+    _works_on_unparsable = True
     recurse_into = True
     needs_raw_stack = False
+    # Rules can override this to specify "post". "Post" rules are those that are
+    # not expected to trigger any downstream rules, e.g. capitalization fixes.
+    # They run on two occasions:
+    # - On the first loop of the main phase
+    # - In a second linter loop after the main rules run
+    lint_phase = "main"
 
     def __init__(self, code, description, **kwargs):
         self.description = description

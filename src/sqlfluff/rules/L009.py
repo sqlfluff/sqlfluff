@@ -115,6 +115,7 @@ class Rule_L009(BaseRule):
     targets_templated = True
     # TRICKY: Tells linter to only call _eval() ONCE, with the root segment
     recurse_into = False
+    lint_phase = "post"
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Files must end with a single trailing newline.
