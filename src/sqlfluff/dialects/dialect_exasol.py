@@ -2345,10 +2345,7 @@ class CreateUserStatementSegment(BaseSegment):
     is_dql = False
     is_dcl = True
 
-    match_grammar = StartsWith(
-        Sequence("CREATE", "USER"),
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "CREATE",
         "USER",
         Ref("SingleIdentifierGrammar"),
@@ -2466,13 +2463,11 @@ class UserOpenIDAuthSegment(BaseSegment):
     )
 
 
-class DropUserStatementSegment(BaseSegment):
+class DropUserStatementSegment(ansi.DropUserStatementSegment):
     """A `DROP USER` statement with CASCADE option.
 
     https://docs.exasol.com/sql/drop_user.htm
     """
-
-    type = "drop_user_statement"
 
     is_ddl = False
     is_dml = False
@@ -2562,17 +2557,12 @@ class CreateRoleStatementSegment(ansi.CreateRoleStatementSegment):
     https://docs.exasol.com/sql/create_role.htm
     """
 
-    type = "create_role_statement"
-
     is_ddl = False
     is_dml = False
     is_dql = False
     is_dcl = True
 
-    match_grammar = StartsWith(
-        Sequence("CREATE", "ROLE"),
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "CREATE",
         "ROLE",
         Ref("SingleIdentifierGrammar"),
@@ -2613,8 +2603,6 @@ class DropRoleStatementSegment(ansi.DropRoleStatementSegment):
 
     https://docs.exasol.com/sql/drop_role.htm
     """
-
-    type = "drop_role_statement"
 
     is_ddl = False
     is_dml = False

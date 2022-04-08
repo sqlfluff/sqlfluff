@@ -1843,7 +1843,7 @@ class CreateUserStatementSegment(BaseSegment):
     https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_USER.html
     """
 
-    type = "create_user"
+    type = "create_user_statement"
 
     match_grammar = Sequence(
         "CREATE",
@@ -1917,7 +1917,7 @@ class AlterUserStatementSegment(BaseSegment):
     https://docs.aws.amazon.com/redshift/latest/dg/r_ALTER_USER.html
     """
 
-    type = "alter_user"
+    type = "alter_user_statement"
 
     match_grammar = Sequence(
         "ALTER",

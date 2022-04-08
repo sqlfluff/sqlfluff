@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f95f8af7e410a87c0e438444fa05fed29615de14f3864026f651118628733bd0
+_hash: f29e4b091d6c216b3ce74e10a1b7dd79f3461b55b852cd61b7436829b9a26738
 file:
 - statement:
     create_role_statement:
@@ -25,7 +25,7 @@ file:
     - literal: "'sha256|Mypassword1'"
 - statement_terminator: ;
 - statement:
-    create_user:
+    create_user_statement:
     - keyword: CREATE
     - keyword: USER
     - object_reference:
@@ -34,7 +34,7 @@ file:
     - keyword: DISABLE
 - statement_terminator: ;
 - statement:
-    create_user:
+    create_user_statement:
     - keyword: CREATE
     - keyword: USER
     - object_reference:
@@ -44,7 +44,7 @@ file:
     - keyword: DISABLE
 - statement_terminator: ;
 - statement:
-    create_user:
+    create_user_statement:
     - keyword: CREATE
     - keyword: USER
     - object_reference:
@@ -74,7 +74,7 @@ file:
     - keyword: NOCREATEDB
 - statement_terminator: ;
 - statement:
-    create_user:
+    create_user_statement:
     - keyword: CREATE
     - keyword: USER
     - object_reference:
@@ -84,7 +84,7 @@ file:
     - keyword: CREATEUSER
 - statement_terminator: ;
 - statement:
-    create_user:
+    create_user_statement:
     - keyword: CREATE
     - keyword: USER
     - object_reference:
@@ -94,7 +94,7 @@ file:
     - keyword: NOCREATEUSER
 - statement_terminator: ;
 - statement:
-    create_user:
+    create_user_statement:
     - keyword: CREATE
     - keyword: USER
     - object_reference:
@@ -106,7 +106,7 @@ file:
     - keyword: RESTRICTED
 - statement_terminator: ;
 - statement:
-    create_user:
+    create_user_statement:
     - keyword: CREATE
     - keyword: USER
     - object_reference:
@@ -131,7 +131,7 @@ file:
         identifier: group_1
 - statement_terminator: ;
 - statement:
-    create_user:
+    create_user_statement:
     - keyword: CREATE
     - keyword: USER
     - object_reference:
@@ -171,7 +171,7 @@ file:
     - literal: '30'
 - statement_terminator: ;
 - statement:
-    create_user:
+    create_user_statement:
     - keyword: CREATE
     - keyword: USER
     - object_reference:
@@ -183,7 +183,7 @@ file:
     - keyword: UNLIMITED
 - statement_terminator: ;
 - statement:
-    create_user:
+    create_user_statement:
     - keyword: CREATE
     - keyword: USER
     - object_reference:
