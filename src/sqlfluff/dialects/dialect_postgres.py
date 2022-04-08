@@ -1109,7 +1109,7 @@ class CreateRoleStatementSegment(ansi.CreateRoleStatementSegment):
 
 
 class AlterRoleStatementSegment(BaseSegment):
-    """A `ALTER ROLE` statement.
+    """An `ALTER ROLE` statement.
 
     As per:
     https://www.postgresql.org/docs/current/sql-alterrole.html
