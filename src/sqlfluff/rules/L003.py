@@ -230,14 +230,14 @@ class Rule_L003(BaseRule):
 
         working_state = _LineSummary(indent_balance=starting_indent_balance)
         line_no = 1
-        started = line_no == (cached_line_count + 1)
+        target_line_no = cached_line_count + 1
         for elem in raw_stack:
-            is_newline = elem.is_type("newline")
-            # the below line act to reduce recalculation
-            if not started:
+            # Normally we use is_type() for this,, but this line is a
+            # bottleneck, and this is much faster.
+            is_newline = elem.type == "newline"
+            if line_no < target_line_no:
                 if is_newline:
                     line_no += 1
-                started = line_no == (cached_line_count + 1)
                 continue
 
             working_state.line_buffer.append(elem)
