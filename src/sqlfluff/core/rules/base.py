@@ -387,11 +387,9 @@ class RuleContext:
         - Much faster
         - Does not allow filtering out meta segments
         """
-        last_segment: BaseSegment
-        if self.parent_stack:
-            last_segment = self.parent_stack[0]
-        else:
-            last_segment = self.segment
+        last_segment: BaseSegment = (
+            self.parent_stack[0] if self.parent_stack else self.segment
+        )
         while True:
             try:
                 last_segment = last_segment.segments[-1]

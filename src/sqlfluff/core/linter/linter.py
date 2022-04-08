@@ -495,6 +495,10 @@ class Linter:
             ignore_buff = []
 
         save_tree = tree
+        # There are two phases of rule running. The main loop is for most rules.
+        # These rules are assumed to interact and cause a cascade of fixes
+        # requiring multiple passes. The post loop is for post-processing rules,
+        # not expected to trigger any downstream rules, e.g. capitalization fixes.
         for phase in ["main", "post"]:
             rules_this_phase = [rule for rule in rule_set if rule.lint_phase == phase]
             for loop in range(loop_limit if phase == "main" else 2):
@@ -514,7 +518,8 @@ class Linter:
 
                 for crawler in progress_bar_crawler:
                     # Performance: After first loop pass, skip rules that don't
-                    # do fixes.
+                    # do fixes. Any results returned won't be seen by the user
+                    # anyway, so there's absolutely no reason to run them.
                     if fix and loop > 0 and not is_fix_compatible(crawler):
                         continue
 
