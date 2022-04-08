@@ -2,6 +2,7 @@
 from typing import Optional
 
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
+from sqlfluff.core.rules.functional import Segments
 import sqlfluff.core.rules.functional.segment_predicates as sp
 import sqlfluff.core.rules.functional.raw_file_slice_predicates as rsp
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
@@ -66,7 +67,9 @@ class Rule_L050(BaseRule):
     """
 
     targets_templated = True
-    needs_raw_stack = True
+    needs_raw_stack = False
+    # TRICKY: Tells linter to only call _eval() ONCE, with the root segment
+    recurse_into = False
     lint_phase = "post"
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
@@ -74,40 +77,35 @@ class Rule_L050(BaseRule):
         # Only check raw segments. This ensures we don't try and delete the same
         # whitespace multiple times (i.e. for non-raw segments higher in the
         # tree).
-        if not context.segment.is_raw():
-            return None
-
-        # If parent_stack is empty we are currently at FileSegment.
-        if len(context.parent_stack) == 0:
-            return None  # pragma: no cover
-
-        # If raw_stack is empty there can be nothing to remove.
-        if len(context.raw_stack) == 0:
-            return None
-
-        segment = context.functional.segment
-        raw_stack = context.functional.raw_stack
+        raw_segments = []
         whitespace_types = {"newline", "whitespace", "indent", "dedent"}
-        # Non-whitespace segment.
-        if (
+        for seg in context.segment.recursive_crawl_all():
+            if not seg.is_raw():
+                continue
+
+            if seg.is_type(*whitespace_types):
+                raw_segments.append(seg)
+                continue
+
+            segment = Segments(seg)
+            raw_stack = Segments(*raw_segments, templated_file=context.templated_file)
             # Non-whitespace segment.
-            not segment.all(sp.is_type(*whitespace_types))
-            # We want first Non-whitespace segment so
-            # all preceding segments must be whitespace
-            # and at least one is not meta.
-            and raw_stack.all(sp.is_type(*whitespace_types))
-            and not raw_stack.all(sp.is_meta())
-            # Found leaf of parse tree.
-            and not segment.all(sp.is_expandable())
-            # It is possible that a template segment (e.g.
-            # {{ config(materialized='view') }}) renders to an empty string and as such
-            # is omitted from the parsed tree. We therefore should flag if a templated
-            # raw slice intersects with the source slices in the raw stack and skip this
-            # rule to avoid risking collisions with template objects.
-            and not raw_stack.raw_slices.any(rsp.is_slice_type("templated"))
-        ):
-            return LintResult(
-                anchor=context.parent_stack[0],
-                fixes=[LintFix.delete(d) for d in raw_stack],
-            )
+            if (
+                not raw_stack.all(sp.is_meta())
+                # Found leaf of parse tree.
+                and not segment.all(sp.is_expandable())
+                # It is possible that a template segment (e.g.
+                # {{ config(materialized='view') }}) renders to an empty string
+                # and as such is omitted from the parsed tree. We therefore
+                # should flag if a templated raw slice intersects with the
+                # source slices in the raw stack and skip this rule to avoid
+                # risking collisions with template objects.
+                and not raw_stack.raw_slices.any(rsp.is_slice_type("templated"))
+            ):
+                return LintResult(
+                    anchor=context.segment,
+                    fixes=[LintFix.delete(d) for d in raw_stack],
+                )
+            else:
+                break
         return None
