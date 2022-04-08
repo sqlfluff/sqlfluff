@@ -23,6 +23,7 @@ from sqlfluff.dialects.dialect_redshift_keywords import (
     redshift_unreserved_keywords,
 )
 from sqlfluff.dialects import dialect_postgres as postgres
+from sqlfluff.dialects import dialect_ansi as ansi
 
 postgres_dialect = load_raw_dialect("postgres")
 ansi_dialect = load_raw_dialect("ansi")
@@ -1762,7 +1763,6 @@ class StatementSegment(postgres.StatementSegment):
     parse_grammar = postgres.StatementSegment.parse_grammar.copy(
         insert=[
             Ref("CreateLibraryStatementSegment"),
-            Ref("CreateUserStatementSegment"),
             Ref("CreateGroupStatementSegment"),
             Ref("AlterUserStatementSegment"),
             Ref("AlterGroupStatementSegment"),
@@ -1837,13 +1837,11 @@ class RowFormatDelimitedSegment(BaseSegment):
     )
 
 
-class CreateUserStatementSegment(BaseSegment):
+class CreateUserStatementSegment(ansi.CreateUserStatementSegment):
     """`CREATE USER` statement.
 
     https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_USER.html
     """
-
-    type = "create_user"
 
     match_grammar = Sequence(
         "CREATE",
@@ -1917,7 +1915,7 @@ class AlterUserStatementSegment(BaseSegment):
     https://docs.aws.amazon.com/redshift/latest/dg/r_ALTER_USER.html
     """
 
-    type = "alter_user"
+    type = "alter_user_statement"
 
     match_grammar = Sequence(
         "ALTER",
