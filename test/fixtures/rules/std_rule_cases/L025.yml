@@ -21,7 +21,7 @@ test_pass_unaliased_table_referenced:
   # L025 fix with https://github.com/sqlfluff/sqlfluff/issues/449
   pass_str: select ps.*, pandgs.blah from ps join pandgs using(moo)
 
-test_ignore_value_table_functions:
+test_ignore_bigquery_value_table_functions:
   # L025 fix with https://github.com/sqlfluff/sqlfluff/issues/356
   pass_str: |
     select *
@@ -30,6 +30,19 @@ test_ignore_value_table_functions:
   configs:
     core:
       dialect: bigquery
+
+test_ignore_postgres_value_table_functions:
+  # L025 fix with https://github.com/sqlfluff/sqlfluff/issues/3051
+  pass_str: |
+    SELECT json_build_object(
+        'name', 'ticket_status',
+        'type', 'enum',
+        'values', json_agg(status_name)
+    )
+    FROM unnest(enum_range(NULL::my_enum)) AS status_name;
+  configs:
+    core:
+      dialect: postgres
 
 test_fail_table_alias_not_referenced_2:
   # Similar to test_1, but with implicit alias.
