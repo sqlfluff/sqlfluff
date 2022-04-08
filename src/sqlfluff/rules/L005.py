@@ -1,6 +1,7 @@
 """Implementation of Rule L005."""
 from typing import Optional
 
+from sqlfluff.core.parser import RawSegment
 from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix, RuleContext
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
@@ -43,8 +44,8 @@ class Rule_L005(BaseRule):
         We need at least one segment behind us for this to work.
 
         """
-        if len(context.raw_stack) >= 1:
-            cm1 = context.raw_stack[-1]
+        if context.raw_segment_pre is not None:
+            cm1: RawSegment = context.raw_segment_pre
             if (
                 context.segment.is_type("comma")
                 and cm1.is_type("whitespace")

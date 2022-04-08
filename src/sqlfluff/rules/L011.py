@@ -53,8 +53,8 @@ class Rule_L011(BaseRule):
         We look for the alias segment, and then evaluate its parent and whether
         it contains an AS keyword. This is the _eval function for both L011 and L012.
 
-        The use of `raw_stack` is just for working out how much whitespace to add.
-
+        The use of `raw_segment_pre` is just for working out how much whitespace to
+        add.
         """
         # Config type hints
         self.aliasing: str
@@ -68,14 +68,14 @@ class Rule_L011(BaseRule):
 
                             # Remove the AS as we're using implict aliasing
                             fixes.append(LintFix.delete(context.segment.segments[0]))
-                            anchor = context.raw_stack[-1]
+                            anchor = context.raw_segment_pre
 
                             # Remove whitespace before (if exists) or after (if not)
                             if (
-                                len(context.raw_stack) > 0
-                                and context.raw_stack[-1].type == "whitespace"
+                                context.raw_segment_pre is not None
+                                and context.raw_segment_pre.type == "whitespace"
                             ):
-                                fixes.append(LintFix.delete(context.raw_stack[-1]))
+                                fixes.append(LintFix.delete(context.raw_segment_pre))
                             elif (
                                 len(context.segment.segments) > 0
                                 and context.segment.segments[1].type == "whitespace"
@@ -90,7 +90,8 @@ class Rule_L011(BaseRule):
                     insert_buff: List[Union[WhitespaceSegment, KeywordSegment]] = []
 
                     # Add initial whitespace if we need to...
-                    if context.raw_stack[-1].name not in ["whitespace", "newline"]:
+                    assert context.raw_segment_pre
+                    if context.raw_segment_pre.name not in ["whitespace", "newline"]:
                         insert_buff.append(WhitespaceSegment())
 
                     # Add an AS (Uppercase for now, but could be corrected later)

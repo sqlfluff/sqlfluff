@@ -358,6 +358,7 @@ class RuleContext:
     # These change within a file.
     segment: BaseSegment
     parent_stack: Tuple[BaseSegment, ...] = field(default=tuple())
+    raw_segment_pre: Optional[RawSegment] = field(default=None)
     raw_stack: Tuple[RawSegment, ...] = field(default=tuple())
     memory: Any = field(default_factory=dict)
     segment_idx: int = field(default=0)
@@ -440,10 +441,9 @@ class CrawlBehavior:
     def __init__(self, works_on_unparsable: bool, recurse_into: bool):
         self.works_on_unparsable = works_on_unparsable
         self.recurse_into = recurse_into
+        self.raw_stack: List[RawSegment] = []
 
-    def crawl(
-        self, context: RuleContext, raw_stack: List[RawSegment]
-    ) -> Iterator[RuleContext]:
+    def crawl(self, context: RuleContext) -> Iterator[RuleContext]:
         """Yields a RuleContext for each segment the rule should process."""
         # First, check whether we're looking at an unparsable and whether
         # this rule will still operate on that.
@@ -453,13 +453,17 @@ class CrawlBehavior:
 
         # Rules should evaluate on segments FIRST, before evaluating on their
         # children.
+        assert (
+            len(context.raw_stack) == 0 and context.raw_segment_pre is None
+        ) or context.raw_stack[-1] is context.raw_segment_pre
         yield context
 
         if self.recurse_into:
             # The raw stack only keeps track of the previous *raw* segments.
             if len(context.segment.segments) == 0:
-                raw_stack.append(cast(RawSegment, context.segment))
-                context.raw_stack = tuple(raw_stack)
+                context.raw_segment_pre = cast(RawSegment, context.segment)
+                self.raw_stack.append(context.raw_segment_pre)
+                context.raw_stack = tuple(self.raw_stack)
             base_parent_stack = context.parent_stack
             new_parent_stack = base_parent_stack + (context.segment,)
             for idx, child in enumerate(context.segment.segments):
@@ -470,7 +474,7 @@ class CrawlBehavior:
                 context.segment = child
                 context.parent_stack = new_parent_stack
                 context.segment_idx = idx
-                yield from self.crawl(context, raw_stack)
+                yield from self.crawl(context)
 
 
 class BaseRule:
@@ -567,10 +571,9 @@ class BaseRule:
 
         # Propagates memory from one rule _eval() to the next.
         memory: Any = root_context.memory
-        raw_stack: List[RawSegment] = []
         context = None
         crawl_behavior = self.crawl_behavior()
-        for context in crawl_behavior.crawl(root_context, raw_stack):
+        for context in crawl_behavior.crawl(root_context):
             try:
                 context.memory = memory
                 res = self._eval(context=context)
