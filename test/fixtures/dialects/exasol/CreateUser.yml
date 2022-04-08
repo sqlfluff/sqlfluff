@@ -3,10 +3,10 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a5fa8725372d16c8ad86f0be4c520f3054bffa4d0058196dab60feddcfebc9f8
+_hash: e7dfd2812835391d1f97ca7c196dd923c26a2f7989e36cf8632bdb1a8522e41f
 file:
 - statement:
-    create_user:
+    create_user_statement:
     - keyword: CREATE
     - keyword: USER
     - identifier: user_1
@@ -16,7 +16,7 @@ file:
         identifier: '"h12_xhz"'
 - statement_terminator: ;
 - statement:
-    create_user:
+    create_user_statement:
     - keyword: CREATE
     - keyword: USER
     - identifier: user_2
@@ -28,7 +28,7 @@ file:
       - literal: "'cn=user_2,dc=authorization,dc=exasol,dc=com'"
 - statement_terminator: ;
 - statement:
-    create_user:
+    create_user_statement:
     - keyword: CREATE
     - keyword: USER
     - identifier: user_3
@@ -40,7 +40,7 @@ file:
       - literal: "'<user>@<realm>'"
 - statement_terminator: ;
 - statement:
-    create_user:
+    create_user_statement:
     - keyword: CREATE
     - keyword: USER
     - identifier: oidctestuser

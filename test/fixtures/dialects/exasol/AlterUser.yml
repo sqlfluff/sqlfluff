@@ -3,10 +3,10 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1f3cf9cfc7ce37a8561888aa40b051445962db12465583b07db1b53f2376e831
+_hash: 58f0f47b74fde009b07b503fe4bcaccd06662393493edcae607f79d81a63f28e
 file:
 - statement:
-    alter_user:
+    alter_user_statement:
     - keyword: ALTER
     - keyword: USER
     - identifier: user_1
@@ -18,7 +18,7 @@ file:
     - identifier: '"h12_xhz"'
 - statement_terminator: ;
 - statement:
-    alter_user:
+    alter_user_statement:
     - keyword: ALTER
     - keyword: USER
     - identifier: user_1
@@ -28,7 +28,7 @@ file:
         identifier: '"h12_xhz"'
 - statement_terminator: ;
 - statement:
-    alter_user:
+    alter_user_statement:
     - keyword: ALTER
     - keyword: USER
     - identifier: user_2
@@ -40,7 +40,7 @@ file:
       - literal: "'cn=user_2,dc=authorization,dc=exasol,dc=com'"
 - statement_terminator: ;
 - statement:
-    alter_user:
+    alter_user_statement:
     - keyword: ALTER
     - keyword: USER
     - identifier: user_3
@@ -50,7 +50,7 @@ file:
     - literal: "'42 days'"
 - statement_terminator: ;
 - statement:
-    alter_user:
+    alter_user_statement:
     - keyword: ALTER
     - keyword: USER
     - identifier: user_4
@@ -58,7 +58,7 @@ file:
     - keyword: EXPIRE
 - statement_terminator: ;
 - statement:
-    alter_user:
+    alter_user_statement:
     - keyword: ALTER
     - keyword: USER
     - identifier: user_5
@@ -68,7 +68,7 @@ file:
     - keyword: ATTEMPTS
 - statement_terminator: ;
 - statement:
-    alter_user:
+    alter_user_statement:
     - keyword: ALTER
     - keyword: USER
     - identifier: userx
@@ -79,7 +79,7 @@ file:
     - identifier: CEO
 - statement_terminator: ;
 - statement:
-    alter_user:
+    alter_user_statement:
     - keyword: ALTER
     - keyword: USER
     - identifier: userx
@@ -90,7 +90,7 @@ file:
     - keyword: 'NULL'
 - statement_terminator: ;
 - statement:
-    alter_user:
+    alter_user_statement:
     - keyword: ALTER
     - keyword: USER
     - identifier: '"ADMIN"'
@@ -101,7 +101,7 @@ file:
     - identifier: '"TABLE"'
 - statement_terminator: ;
 - statement:
-    alter_user:
+    alter_user_statement:
     - keyword: ALTER
     - keyword: USER
     - identifier: '[admin]'
@@ -112,7 +112,7 @@ file:
     - identifier: '"DAY"'
 - statement_terminator: ;
 - statement:
-    alter_user:
+    alter_user_statement:
     - keyword: ALTER
     - keyword: USER
     - identifier: '"ADMIN"'
@@ -123,7 +123,7 @@ file:
     - identifier: '[day]'
 - statement_terminator: ;
 - statement:
-    alter_user:
+    alter_user_statement:
     - keyword: ALTER
     - keyword: USER
     - identifier: oidctestuser
