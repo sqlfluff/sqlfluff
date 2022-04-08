@@ -457,29 +457,31 @@ class CrawlBehavior:
             # Abort here if it doesn't. Otherwise we'll get odd results.
             return
 
-        # Rules should evaluate on segments FIRST, before evaluating on their
-        # children.
         assert (
             self.raw_stack is None
             or (len(context.raw_stack) == 0 and context.raw_segment_pre is None)
             or context.raw_stack[-1] is context.raw_segment_pre
         )
+        # Rules should evaluate on segments FIRST, before evaluating on their
+        # children.
         yield context
 
         if self.recurse_into:
             # The raw stack only keeps track of the previous *raw* segments.
             if len(context.segment.segments) == 0:
                 context.raw_segment_pre = cast(RawSegment, context.segment)
+                # Tracking raw_stack is expensive, so it's optional per rule.
                 if self.raw_stack is not None:
                     self.raw_stack.append(context.raw_segment_pre)
                     context.raw_stack = tuple(self.raw_stack)
             base_parent_stack = context.parent_stack
             new_parent_stack = base_parent_stack + (context.segment,)
             for idx, child in enumerate(context.segment.segments):
-                # TRICKY: We don't create a nwe RuleContext; we modify the
-                # existing one in place. This requires some careful bookkeeping,
-                # but it avoids creating a huge number of short-lived
-                # RuleContext objects (#linter loops x #rules x #segments.
+                # For performance reasons, don't create a new RuleContext for
+                # each segment; just modify the existing one in place. This
+                # requires some careful bookkeeping, but it avoids creating a
+                # HUGE number of short-lived RuleContext objects
+                # (#linter loops x #rules x #segments).
                 context.segment = child
                 context.parent_stack = new_parent_stack
                 context.segment_idx = idx
@@ -498,11 +500,12 @@ class BaseRule:
     """
 
     _check_docstring = True
+    _works_on_unparsable = True
     _adjust_anchors = False
     targets_templated = False
 
-    # Lint loop / crawl behavior
-    _works_on_unparsable = True
+    # Lint loop / crawl behavior. When appropriate, rules can (and should)
+    # override these values to make linting faster.
     recurse_into = True
     needs_raw_stack = False
     # Rules can override this to specify "post". "Post" rules are those that are
@@ -590,7 +593,9 @@ class BaseRule:
         # Propagates memory from one rule _eval() to the next.
         memory: Any = root_context.memory
         context = None
-        crawl_behavior = self.crawl_behavior()
+        crawl_behavior = CrawlBehavior(
+            self._works_on_unparsable, self.recurse_into, self.needs_raw_stack
+        )
         for context in crawl_behavior.crawl(root_context):
             try:
                 context.memory = memory
@@ -665,12 +670,6 @@ class BaseRule:
         return vs, context.raw_stack if context else tuple(), fixes, context.memory
 
     # HELPER METHODS --------
-    def crawl_behavior(self):
-        """Returns object for crawling parse tree. May be overridden."""
-        return CrawlBehavior(
-            self._works_on_unparsable, self.recurse_into, self.needs_raw_stack
-        )
-
     @staticmethod
     def _log_critical_errors(error: Exception):  # pragma: no cover
         """This method is monkey patched into a "raise" for certain tests."""
