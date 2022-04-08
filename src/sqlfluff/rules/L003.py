@@ -150,6 +150,9 @@ class _Memory:
     in_indent: bool = True
     trigger: Optional[BaseSegment] = None
 
+    line_no: int = dataclasses.field(default=1)
+    start_process_raw_idx: int = dataclasses.field(default=0)
+
     @property
     def noncomparable_lines(self):
         return self.hanging_lines.union(self.problem_lines)
@@ -229,15 +232,17 @@ class Rule_L003(BaseRule):
             starting_indent_balance = result_buffer[cached_line_count].indent_balance
 
         working_state = _LineSummary(indent_balance=starting_indent_balance)
-        line_no = 1
+
+        line_no = memory.line_no
         target_line_no = cached_line_count + 1
-        for elem in raw_stack:
-            # Normally we use is_type() for this,, but this line is a
-            # bottleneck, and this is much faster.
-            is_newline = elem.type == "newline"
+        for idx, elem in enumerate(raw_stack[memory.start_process_raw_idx :]):
+            is_newline = elem.is_type("newline")
             if line_no < target_line_no:
                 if is_newline:
                     line_no += 1
+                    if line_no == target_line_no:
+                        memory.start_process_raw_idx += idx + 1
+                        memory.line_no = line_no
                 continue
 
             working_state.line_buffer.append(elem)
@@ -409,7 +414,7 @@ class Rule_L003(BaseRule):
                 # First non-whitespace element is our trigger
                 memory.trigger = segment
 
-        is_last = self.is_final_segment(context)
+        is_last = context.segment is context.final_segment
         if not segment.is_type("newline") and not is_last:
             # Process on line ends or file end
             return LintResult(memory=memory)

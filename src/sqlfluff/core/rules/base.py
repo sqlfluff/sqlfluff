@@ -379,6 +379,25 @@ class RuleContext:
         else:
             return tuple()
 
+    @cached_property
+    def final_segment(self) -> BaseSegment:
+        """Returns rightmost & lowest descendant.
+
+        Similar in spirit to BaseRule.is_final_segment(), but:
+        - Much faster
+        - Does not allow filtering out meta segments
+        """
+        last_segment: BaseSegment
+        if self.parent_stack:
+            last_segment = self.parent_stack[0]
+        else:
+            last_segment = self.segment
+        while True:
+            try:
+                last_segment = last_segment.segments[-1]
+            except IndexError:
+                return last_segment
+
     @property
     def functional(self):
         """Returns a Surrogates object that simplifies writing rules."""
