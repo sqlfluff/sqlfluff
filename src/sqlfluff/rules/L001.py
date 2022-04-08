@@ -30,6 +30,8 @@ class Rule_L001(BaseRule):
         FROM foo
     """
 
+    needs_raw_stack = True
+
     def _eval(self, context: RuleContext) -> LintResult:
         """Unnecessary trailing whitespace.
 

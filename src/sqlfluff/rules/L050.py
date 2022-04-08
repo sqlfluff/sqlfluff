@@ -66,6 +66,7 @@ class Rule_L050(BaseRule):
     """
 
     targets_templated = True
+    needs_raw_stack = True
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Files must not begin with newlines or whitespace."""

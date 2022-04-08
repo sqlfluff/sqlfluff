@@ -438,10 +438,16 @@ class FunctionalRuleContext:
 class CrawlBehavior:
     """Implements how a lint rule traverses the parse tree."""
 
-    def __init__(self, works_on_unparsable: bool, recurse_into: bool):
+    def __init__(
+        self, works_on_unparsable: bool, recurse_into: bool, needs_raw_stack: bool
+    ):
         self.works_on_unparsable = works_on_unparsable
         self.recurse_into = recurse_into
-        self.raw_stack: List[RawSegment] = []
+        self.raw_stack: Optional[List[RawSegment]]
+        if needs_raw_stack:
+            self.raw_stack = []
+        else:
+            self.raw_stack = None
 
     def crawl(self, context: RuleContext) -> Iterator[RuleContext]:
         """Yields a RuleContext for each segment the rule should process."""
@@ -454,16 +460,19 @@ class CrawlBehavior:
         # Rules should evaluate on segments FIRST, before evaluating on their
         # children.
         assert (
-            len(context.raw_stack) == 0 and context.raw_segment_pre is None
-        ) or context.raw_stack[-1] is context.raw_segment_pre
+            self.raw_stack is None
+            or (len(context.raw_stack) == 0 and context.raw_segment_pre is None)
+            or context.raw_stack[-1] is context.raw_segment_pre
+        )
         yield context
 
         if self.recurse_into:
             # The raw stack only keeps track of the previous *raw* segments.
             if len(context.segment.segments) == 0:
                 context.raw_segment_pre = cast(RawSegment, context.segment)
-                self.raw_stack.append(context.raw_segment_pre)
-                context.raw_stack = tuple(self.raw_stack)
+                if self.raw_stack is not None:
+                    self.raw_stack.append(context.raw_segment_pre)
+                    context.raw_stack = tuple(self.raw_stack)
             base_parent_stack = context.parent_stack
             new_parent_stack = base_parent_stack + (context.segment,)
             for idx, child in enumerate(context.segment.segments):
@@ -493,6 +502,7 @@ class BaseRule:
     _adjust_anchors = False
     targets_templated = False
     recurse_into = True
+    needs_raw_stack = False
 
     def __init__(self, code, description, **kwargs):
         self.description = description
@@ -649,7 +659,9 @@ class BaseRule:
     # HELPER METHODS --------
     def crawl_behavior(self):
         """Returns object for crawling parse tree. May be overridden."""
-        return CrawlBehavior(self._works_on_unparsable, self.recurse_into)
+        return CrawlBehavior(
+            self._works_on_unparsable, self.recurse_into, self.needs_raw_stack
+        )
 
     @staticmethod
     def _log_critical_errors(error: Exception):  # pragma: no cover
