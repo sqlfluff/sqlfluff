@@ -30,6 +30,7 @@ from sqlfluff.core.parser import Lexer, Parser, RegexLexer
 from sqlfluff.core.file_helpers import get_encoding
 from sqlfluff.core.templaters import TemplatedFile
 from sqlfluff.core.rules import get_ruleset
+from sqlfluff.core.rules.doc_decorators import is_fix_compatible
 from sqlfluff.core.config import FluffConfig, ConfigLoader, progress_bar_configuration
 
 # Classes needed only for type checking
@@ -506,6 +507,10 @@ class Linter:
             )
 
             for crawler in progress_bar_crawler:
+                # Performance: After first loop pass, skip rules that don't do fixes.
+                if fix and loop > 0 and not is_fix_compatible(crawler):
+                    continue
+
                 progress_bar_crawler.set_description(f"rule {crawler.code}")
 
                 # fixes should be a dict {} with keys edit, delete, create
