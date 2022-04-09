@@ -33,8 +33,8 @@ supported cfg file types):
 .. code-block:: cfg
 
     [sqlfluff]
-    templater = "jinja"
-    sql_file_exts = ".sql,.sql.j2,.dml,.ddl"
+    templater = jinja
+    sql_file_exts = .sql,.sql.j2,.dml,.ddl
 
     [sqlfluff:indentation]
     indented_joins = false
@@ -57,8 +57,8 @@ For example, a snippet from a :code:`pyproject.toml` file:
 .. code-block:: cfg
 
     [tool.sqlfluff.core]
-    templater = "jinja"
-    sql_file_exts = ".sql,.sql.j2,.dml,.ddl"
+    templater = jinja
+    sql_file_exts = .sql,.sql.j2,.dml,.ddl
 
     [tool.sqlfluff.indentation]
     indented_joins = false
