@@ -14,9 +14,16 @@ indent_size = 2
 [*.py]
 indent_size = 4
 
-# Don't correct spacing for sql and yaml files as sometimes want them wrong for tests
-[*.sql]
+# Don't correct indentation for sql and yaml files as sometimes want them wrong for tests
+[*.{yml,sql}]
 indent_style = unset
+
+# Some specific tests with trailing newlines
+[test/fixtures/linter/sqlfluffignore/*/*.sql]
+indent_style = unset
+insert_final_newline = unset
+
+[test/fixtures/linter/indentation_errors.sql,test/fixtures/templater/jinja_d_roundtrip/test.sql]
 trim_trailing_whitespace = unset
 
 [*.rst]

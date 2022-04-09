@@ -15,16 +15,16 @@ order by employee_id;
 select
   description,
   quantity,
-  component_id, 
+  component_id,
   parent_component_id,
   sys_connect_by_path(component_id, ' -> ') as path
 from components
 start with component_id = 1
-connect by 
+connect by
     parent_component_id = prior component_id
 order by path;
 
-select 
+select
 employee_id, manager_id, title,
 connect_by_root title as root_title
 from employees

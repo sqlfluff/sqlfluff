@@ -4,7 +4,7 @@ test_fail_right_join:
   fail_str: |
     SELECT
         foo.col1,
-        bar.col2
+        bar.col
     FROM foo
     RIGHT JOIN bar
         ON foo.bar_id = bar.id;

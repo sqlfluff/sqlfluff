@@ -51,6 +51,6 @@ SELECT
 FROM
     subscription_auto
 WHERE
-    messages[0].payload.payload."assetId" > 'abc' 
+    messages[0].payload.payload."assetId" > 'abc'
 GROUP BY
     messages[0].format;

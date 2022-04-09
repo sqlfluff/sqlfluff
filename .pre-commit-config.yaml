@@ -3,9 +3,14 @@ repos:
     rev: v4.1.0
     hooks:
       - id: end-of-file-fixer
-        exclude: (.*\.sql$|test/fixtures/linter/sqlfluffignore/path_c)
+        exclude: (test/fixtures/linter/sqlfluffignore/)
       - id: trailing-whitespace
-        exclude: (.*\.sql$|test/fixtures/linter/sqlfluffignore/path_c)
+        exclude: |
+            (?x)^(
+              test/fixtures/linter/indentation_errors.sql|
+              test/fixtures/templater/jinja_d_roundtrip/test.sql|
+              test/fixtures/linter/sqlfluffignore/
+            )$
   - repo: https://github.com/psf/black
     rev: 22.3.0
     hooks:
