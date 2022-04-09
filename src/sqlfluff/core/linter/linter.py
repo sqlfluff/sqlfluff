@@ -473,6 +473,14 @@ class Linter:
         """Lint and optionally fix a tree object."""
         # Keep track of the linting errors
         all_linting_errors = []
+        # Keep track of the linting errors on the very first linter pass. The
+        # list of issues output by "lint" and "fix" only includes issues present
+        # in the initial SQL code, EXCLUDING ANY ISSUES THAT MAY BE CREATED BY
+        # THE FIXES THEMSELVES.
+        # The value is initially None, and is set to a list value on the first
+        # pass. The value None is used as a sentinel to indicate we're on the
+        # first pass.
+        initial_linting_errors = None
         # A placeholder for the fixes we had on the previous loop
         last_fixes = None
         # Keep a set of previous versions to catch infinite loops.
@@ -513,7 +521,7 @@ class Linter:
                 linter_logger.info(f"Linter phase {phase}, loop {loop+1}/{loop_limit}")
                 changed = False
 
-                if phase == "main" and loop == 0:
+                if initial_linting_errors is None:
                     # In order to compute initial_linting_errors correctly, need
                     # to run all rules on the first loop of the main phase.
                     rules_this_phase = rule_set
@@ -528,7 +536,11 @@ class Linter:
                     # Performance: After first loop pass, skip rules that don't
                     # do fixes. Any results returned won't be seen by the user
                     # anyway, so there's absolutely no reason to run them.
-                    if fix and loop > 0 and not is_fix_compatible(crawler):
+                    if (
+                        fix
+                        and initial_linting_errors is not None
+                        and not is_fix_compatible(crawler)
+                    ):
                         continue
 
                     progress_bar_crawler.set_description(f"rule {crawler.code}")
@@ -591,7 +603,7 @@ class Linter:
                                 # we want to stop.
                                 cls._warn_unfixable(crawler.code)
 
-                if phase == "main" and loop == 0:
+                if initial_linting_errors is None:
                     # Keep track of initial errors for reporting.
                     initial_linting_errors = all_linting_errors.copy()
 
@@ -622,6 +634,7 @@ class Linter:
                     # want in this situation. (Reason: Although this is more of an
                     # internal SQLFluff issue, users deserve to know about it,
                     # because it means their file(s) weren't fixed.
+                    assert initial_linting_errors is not None
                     for violation in initial_linting_errors:
                         if isinstance(violation, SQLLintError):
                             violation.fixes = []
@@ -632,6 +645,7 @@ class Linter:
                     # other weird things. We don't want the user to see this junk!
                     return save_tree, initial_linting_errors, ignore_buff
 
+        assert initial_linting_errors is not None
         if config.get("ignore_templated_areas", default=True):
             initial_linting_errors = cls.remove_templated_errors(initial_linting_errors)
 
