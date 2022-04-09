@@ -473,8 +473,8 @@ class Linter:
         """Lint and optionally fix a tree object."""
         # Keep track of the linting errors on the very first linter pass. The
         # list of issues output by "lint" and "fix" only includes issues present
-        # in the initial SQL code, EXCLUDING ANY ISSUES THAT MAY BE CREATED BY
-        # THE FIXES THEMSELVES.
+        # in the initial SQL code, EXCLUDING any issues that may be created by
+        # the fixes themselves.
         initial_linting_errors = []
         # A placeholder for the fixes we had on the previous loop
         last_fixes = None
@@ -498,10 +498,14 @@ class Linter:
             ignore_buff = []
 
         save_tree = tree
-        # There are two phases of rule running. The main loop is for most rules.
-        # These rules are assumed to interact and cause a cascade of fixes
-        # requiring multiple passes. The post loop is for post-processing rules,
-        # not expected to trigger any downstream rules, e.g. capitalization fixes.
+        # There are two phases of rule running.
+        # 1. The main loop is for most rules. These rules are assumed to
+        # interact and cause a cascade of fixes requiring multiple passes.
+        # These are run the `runaway_limit` number of times (default 10).
+        # 2. The post loop is for post-processing rules, not expected to trigger
+        # any downstream rules, e.g. capitalization fixes. They are run on the
+        # first loop and then twice at the end (once to fix, and once again to
+        # check result of fixes), but not in the intervening loops.
         phases = ["main"]
         if fix:
             phases.append("post")
@@ -534,7 +538,9 @@ class Linter:
                 for crawler in progress_bar_crawler:
                     # Performance: After first loop pass, skip rules that don't
                     # do fixes. Any results returned won't be seen by the user
-                    # anyway, so there's absolutely no reason to run them.
+                    # anyway (linting errors ADDED by rules changing SQL, are
+                    # not reported back to the user - only initial linting errors),
+                    # so there's absolutely no reason to run them.
                     if (
                         fix
                         and not is_first_linter_pass()
