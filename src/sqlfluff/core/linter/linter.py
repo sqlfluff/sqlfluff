@@ -565,6 +565,7 @@ class Linter:
                     )
                     if is_first_linter_pass():
                         initial_linting_errors += linting_errors
+
                     if fix and fixes:
                         linter_logger.info(f"Applying Fixes [{crawler.code}]: {fixes}")
                         # Do some sanity checks on the fixes before applying.
