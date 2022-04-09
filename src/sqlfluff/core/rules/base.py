@@ -520,7 +520,22 @@ class BaseRule:
     # Lint loop / crawl behavior. When appropriate, rules can (and should)
     # override these values to make linting faster.
     recurse_into = True
-    needs_raw_stack = False  # False is faster & most rules don't need it
+    # False is faster & most rules don't need it. Rules that use it are usually
+    # rules that look at the surroundings of a segment, e.g. "is there
+    # whitespace preceding this segment?" In the long run, it would be good to
+    # review rules that use raw_stack to try and eliminate its use. These
+    # rules will often be good candidates for one of the following:
+    # - Rewriting to use "RuleContext.raw_segment_pre", which is similar to
+    #   "raw_stack", but it's only the ONE raw segment prior to the current
+    #   one.
+    # - Rewriting to use "BaseRule.recurse_into = False" and traversing the
+    #   parse tree directly.
+    # - Using "RuleContext.memory" to implement custom, lighter weight tracking
+    #   of just the MINIMUM required state across calls to _eval().  Reason:
+    #   "raw_stack" becomes very large for large files (thousands or more
+    #   segments!). In practice, most rules only need to look at a few adjacent
+    #   segments, e.g. others on the same line or in the same statement.
+    needs_raw_stack = False
     # Rules can override this to specify "post". "Post" rules are those that are
     # not expected to trigger any downstream rules, e.g. capitalization fixes.
     # They run on two occasions:
