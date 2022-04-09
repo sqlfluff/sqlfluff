@@ -19,11 +19,24 @@ indent_size = 4
 indent_style = unset
 
 # Some specific tests with trailing newlines
-[test/fixtures/linter/sqlfluffignore/*/*.sql,test/fixtures/config/inheritance_b/example.sql,trailing_newlines.sql]
+[test/fixtures/linter/sqlfluffignore/*/*.sql]
 indent_style = unset
+trim_trailing_whitespace = unset
+insert_final_newline = unset
+[test/fixtures/config/inheritance_b/example.sql]
+indent_style = unset
+trim_trailing_whitespace = unset
+insert_final_newline = unset
+[trailing_newlines.sql]
+indent_style = unset
+trim_trailing_whitespace = unset
+insert_final_newline = unset
+[plugins/sqlfluff-templater-dbt/test/fixtures/dbt/templated_output/{,dbt_utils_0.8.0/}last_day.sql]
+indent_style = unset
+trim_trailing_whitespace = unset
 insert_final_newline = unset
 [test/fixtures/linter/indentation_errors.sql,test/fixtures/templater/jinja_d_roundtrip/test.sql]
-trim_trailing_whitespace = unset
+trim_trailing_whitespace = false
 
 [*.rst]
 indent_size = 3
