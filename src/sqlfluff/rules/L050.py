@@ -67,7 +67,6 @@ class Rule_L050(BaseRule):
     """
 
     targets_templated = True
-    needs_raw_stack = False
     # TRICKY: Tells linter to only call _eval() ONCE, with the root segment
     recurse_into = False
     lint_phase = "post"

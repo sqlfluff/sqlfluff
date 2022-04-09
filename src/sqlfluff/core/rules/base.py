@@ -520,12 +520,12 @@ class BaseRule:
     # Lint loop / crawl behavior. When appropriate, rules can (and should)
     # override these values to make linting faster.
     recurse_into = True
-    needs_raw_stack = False
+    needs_raw_stack = False  # False is faster & most rules don't need it
     # Rules can override this to specify "post". "Post" rules are those that are
     # not expected to trigger any downstream rules, e.g. capitalization fixes.
     # They run on two occasions:
-    # - On the first loop of the main phase
-    # - In a second linter loop after the main rules run
+    # - On the first pass of the main phase
+    # - In a second linter pass after the main phase
     lint_phase = "main"
 
     def __init__(self, code, description, **kwargs):

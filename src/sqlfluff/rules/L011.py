@@ -52,9 +52,6 @@ class Rule_L011(BaseRule):
 
         We look for the alias segment, and then evaluate its parent and whether
         it contains an AS keyword. This is the _eval function for both L011 and L012.
-
-        The use of `raw_segment_pre` is just for working out how much whitespace to
-        add.
         """
         # Config type hints
         self.aliasing: str

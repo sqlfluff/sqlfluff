@@ -21,14 +21,13 @@ def get_trailing_newlines(segment: BaseSegment) -> List[BaseSegment]:
 def get_last_segment(segment: Segments) -> Tuple[List[BaseSegment], Segments]:
     """Returns rightmost & lowest descendant and its "parent stack"."""
     parent_stack: List[BaseSegment] = []
-    last_segment: Segments = segment
-    rightmost_child = last_segment.children().last()
-    while rightmost_child:
-        parent_stack.append(last_segment[0])
-        last_segment = rightmost_child
-        rightmost_child = last_segment.children().last()
-    segment = last_segment
-    return parent_stack, segment
+    while True:
+        children = segment.children()
+        if children:
+            parent_stack.append(segment[0])
+            segment = children.last()
+        else:
+            return parent_stack, segment
 
 
 @document_fix_compatible
