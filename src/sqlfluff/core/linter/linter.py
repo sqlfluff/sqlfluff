@@ -499,8 +499,16 @@ class Linter:
         # These rules are assumed to interact and cause a cascade of fixes
         # requiring multiple passes. The post loop is for post-processing rules,
         # not expected to trigger any downstream rules, e.g. capitalization fixes.
-        for phase in ["main", "post"]:
-            rules_this_phase = [rule for rule in rule_set if rule.lint_phase == phase]
+        phases = ["main"]
+        if fix:
+            phases.append("post")
+        for phase in phases:
+            if len(phases) > 1:
+                rules_this_phase = [
+                    rule for rule in rule_set if rule.lint_phase == phase
+                ]
+            else:
+                rules_this_phase = rule_set
             for loop in range(loop_limit if phase == "main" else 2):
                 linter_logger.info(f"Linter phase {phase}, loop {loop+1}/{loop_limit}")
                 changed = False
