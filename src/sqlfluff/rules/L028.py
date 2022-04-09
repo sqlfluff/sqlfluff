@@ -61,11 +61,6 @@ class Rule_L028(Rule_L020):
         "single_table_references",
         "force_enable",
     ]
-    # Lateral references are when we reference a column just created in the select above
-    # This can be in a WHERE clause or any column expression further on than the def.
-    # https://aws.amazon.com/about-aws/whats-new/2018/08/amazon-redshift-announces-support-for-lateral-column-alias-reference
-    _allow_lateral_reference = False
-    _dialects_allowing_lateral_reference = ["snowflake", "redshift"]
     _is_struct_dialect = False
     _dialects_with_structs = ["bigquery", "hive", "redshift"]
     # This could be turned into an option
@@ -89,7 +84,6 @@ class Rule_L028(Rule_L020):
             references,
             col_aliases,
             self.single_table_references,
-            self._allow_lateral_reference,
             self._is_struct_dialect,
             self._fix_inconsistent_to,
         )
@@ -106,10 +100,6 @@ class Rule_L028(Rule_L020):
         ):
             return LintResult()
 
-        # See comment above (by prop definition)
-        if context.dialect.name in self._dialects_allowing_lateral_reference:
-            self._allow_lateral_reference = True
-
         if context.dialect.name in self._dialects_with_structs:
             self._is_struct_dialect = True
 
@@ -122,7 +112,6 @@ def _generate_fixes(
     references: List[BaseSegment],
     col_aliases: List[ColumnAliasInfo],
     single_table_references: str,
-    allow_select_alias: bool,
     is_struct_dialect: bool,
     fix_inconsistent_to: Optional[str],
 ) -> Optional[List[LintResult]]:
@@ -146,7 +135,6 @@ def _generate_fixes(
 
         lint_res = _validate_one_reference(
             single_table_references,
-            allow_select_alias,
             ref,
             this_ref_type,
             standalone_aliases,
@@ -169,7 +157,6 @@ def _generate_fixes(
                 col_aliases,
                 # NB vars are passed in a different order here
                 single_table_references=fix_inconsistent_to,
-                allow_select_alias=allow_select_alias,
                 is_struct_dialect=is_struct_dialect,
                 fix_inconsistent_to=None,
             )
@@ -181,7 +168,6 @@ def _generate_fixes(
 
 def _validate_one_reference(
     single_table_references: str,
-    allow_select_alias: bool,
     ref: BaseSegment,
     this_ref_type: str,
     standalone_aliases: List[str],
@@ -202,7 +188,7 @@ def _validate_one_reference(
         return None
 
     # Certain dialects allow use of SELECT alias in WHERE clauses
-    if allow_select_alias and ref.raw in col_alias_names:
+    if ref.raw in col_alias_names:
         return None
 
     if single_table_references == "consistent":
