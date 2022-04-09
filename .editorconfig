@@ -15,7 +15,7 @@ indent_size = 2
 indent_size = 4
 
 # Don't correct indentation for sql and yaml files as sometimes want them wrong for tests
-[*.{yml,sql}]
+[*.{yml,yaml,sql}]
 indent_style = unset
 
 # Some specific tests with trailing newlines
