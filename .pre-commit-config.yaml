@@ -3,12 +3,19 @@ repos:
     rev: v4.1.0
     hooks:
       - id: end-of-file-fixer
-        exclude: (test/fixtures/linter/sqlfluffignore/)
+        exclude: |
+            (?x)^(
+              test/fixtures/linter/sqlfluffignore/|
+              test/fixtures/config/inheritance_b/example.sql|
+              plugins/sqlfluff-templater-dbt/test/fixtures/dbt/templated_output/trailing_newlines.sql|
+              plugins/sqlfluff-templater-dbt/test/fixtures/dbt/dbt_project/models/my_new_project/trailing_newlines.sql
+            )$
       - id: trailing-whitespace
         exclude: |
             (?x)^(
               test/fixtures/linter/indentation_errors.sql|
               test/fixtures/templater/jinja_d_roundtrip/test.sql|
+              test/fixtures/config/inheritance_b/example.sql|
               test/fixtures/linter/sqlfluffignore/
             )$
   - repo: https://github.com/psf/black
