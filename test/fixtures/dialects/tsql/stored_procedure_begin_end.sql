@@ -2,9 +2,9 @@ CREATE PROCEDURE dbo.Test_Begin_End
 AS
 BEGIN
 	SELECT 'Weekend';
-	
+
 	select a from tbl1;
-	
+
 	select b from tbl2;
 END;
 GO
@@ -16,7 +16,7 @@ CREATE PROCEDURE [dbo].[usp_process_tran_log]
 AS
 --*******************************************************************************************
 SET NOCOUNT ON;
-BEGIN 
+BEGIN
 SELECT '8'
 END;
 GO
@@ -28,7 +28,7 @@ CREATE PROCEDURE [dbo].[usp_process_tran_log]
 AS
 --*******************************************************************************************
 SET NOCOUNT ON;
-BEGIN 
+BEGIN
 SELECT '8'
 END;
 GO

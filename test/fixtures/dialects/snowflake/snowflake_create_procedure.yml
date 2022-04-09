@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f75c5ea627915ae5e2514712f363f7616b2ddd951141022c7eca340bb2dccb45
+_hash: b04edc64283ab093c837f7b9389344bdd5ce606fb27fd68c054de59941b9ba2b
 file:
 - statement:
     create_procedure_statement:
@@ -52,7 +52,7 @@ file:
     - keyword: as
     - keyword: owner
     - keyword: as
-    - udf_body: "$$\n    var sql_command = \n     \"INSERT INTO stproc_test_table1\
+    - udf_body: "$$\n    var sql_command =\n     \"INSERT INTO stproc_test_table1\
         \ (num_col1) VALUES (\" + FLOAT_PARAM1 + \")\";\n    try {\n        snowflake.execute\
         \ (\n            {sqlText: sql_command}\n            );\n        return \"\
         Succeeded.\";   // Return a success/error indicator.\n        }\n    catch\
@@ -95,8 +95,8 @@ file:
     - keyword: LANGUAGE
     - keyword: JAVASCRIPT
     - keyword: AS
-    - udf_body: "$$  \ntry {\n    var sql_command = \"ALTER TABLE \" + test_table\
-        \ + \" DROP \" + tet_col;\n    snowflake.execute ({sqlText: sql_command});\n\
+    - udf_body: "$$\ntry {\n    var sql_command = \"ALTER TABLE \" + test_table +\
+        \ \" DROP \" + tet_col;\n    snowflake.execute ({sqlText: sql_command});\n\
         \    return \"Succeeded.\";\n}\ncatch (err) {\n   return \"Failed: execute\
         \ \"+ sql_command +\". Error : \"+ err;   // Return a success/error indicator.\n\
         }\n$$"

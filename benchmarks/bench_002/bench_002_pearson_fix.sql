@@ -180,8 +180,8 @@ imputed_effect_sizes AS (
         business_type,
 
         -- We now impute the value of the effect size to 0 if it was NaN or NULL. This is to
-        --  take into account states where all campaigns either did or did not perform an 
-        --  action. In these cases, we assume that campaign outcome is uncorrelated with 
+        --  take into account states where all campaigns either did or did not perform an
+        --  action. In these cases, we assume that campaign outcome is uncorrelated with
         --  the action because we do not have evidence otherwise.
         COALESCE(
             IF(
@@ -193,8 +193,8 @@ imputed_effect_sizes AS (
         ) AS open_uses_small_subject_line,
 
         -- We now impute the value of the effect size to 0 if it was NaN or NULL. This is to
-        --  take into account states where all campaigns either did or did not perform an 
-        --  action. In these cases, we assume that campaign outcome is uncorrelated with 
+        --  take into account states where all campaigns either did or did not perform an
+        --  action. In these cases, we assume that campaign outcome is uncorrelated with
         --  the action because we do not have evidence otherwise.
         COALESCE(
             IF(
@@ -206,32 +206,32 @@ imputed_effect_sizes AS (
         ) AS open_uses_personal_subject,
 
         -- We now impute the value of the effect size to 0 if it was NaN or NULL. This is to
-        --  take into account states where all campaigns either did or did not perform an 
-        --  action. In these cases, we assume that campaign outcome is uncorrelated with 
+        --  take into account states where all campaigns either did or did not perform an
+        --  action. In these cases, we assume that campaign outcome is uncorrelated with
         --  the action because we do not have evidence otherwise.
         COALESCE(
             IF(IS_NAN(open_uses_timewarp), 0, open_uses_timewarp), 0
         ) AS open_uses_timewarp,
 
         -- We now impute the value of the effect size to 0 if it was NaN or NULL. This is to
-        --  take into account states where all campaigns either did or did not perform an 
-        --  action. In these cases, we assume that campaign outcome is uncorrelated with 
+        --  take into account states where all campaigns either did or did not perform an
+        --  action. In these cases, we assume that campaign outcome is uncorrelated with
         --  the action because we do not have evidence otherwise.
         COALESCE(
             IF(IS_NAN(open_uses_small_preview), 0, open_uses_small_preview), 0
         ) AS open_uses_small_preview,
 
         -- We now impute the value of the effect size to 0 if it was NaN or NULL. This is to
-        --  take into account states where all campaigns either did or did not perform an 
-        --  action. In these cases, we assume that campaign outcome is uncorrelated with 
+        --  take into account states where all campaigns either did or did not perform an
+        --  action. In these cases, we assume that campaign outcome is uncorrelated with
         --  the action because we do not have evidence otherwise.
         COALESCE(
             IF(IS_NAN(open_uses_personal_to), 0, open_uses_personal_to), 0
         ) AS open_uses_personal_to,
 
         -- We now impute the value of the effect size to 0 if it was NaN or NULL. This is to
-        --  take into account states where all campaigns either did or did not perform an 
-        --  action. In these cases, we assume that campaign outcome is uncorrelated with 
+        --  take into account states where all campaigns either did or did not perform an
+        --  action. In these cases, we assume that campaign outcome is uncorrelated with
         --  the action because we do not have evidence otherwise.
         COALESCE(
             IF(IS_NAN(open_uses_ab_test_subject), 0, open_uses_ab_test_subject),
@@ -239,8 +239,8 @@ imputed_effect_sizes AS (
         ) AS open_uses_ab_test_subject,
 
         -- We now impute the value of the effect size to 0 if it was NaN or NULL. This is to
-        --  take into account states where all campaigns either did or did not perform an 
-        --  action. In these cases, we assume that campaign outcome is uncorrelated with 
+        --  take into account states where all campaigns either did or did not perform an
+        --  action. In these cases, we assume that campaign outcome is uncorrelated with
         --  the action because we do not have evidence otherwise.
         COALESCE(
             IF(IS_NAN(open_uses_ab_test_content), 0, open_uses_ab_test_content),
@@ -248,32 +248,32 @@ imputed_effect_sizes AS (
         ) AS open_uses_ab_test_content,
 
         -- We now impute the value of the effect size to 0 if it was NaN or NULL. This is to
-        --  take into account states where all campaigns either did or did not perform an 
-        --  action. In these cases, we assume that campaign outcome is uncorrelated with 
+        --  take into account states where all campaigns either did or did not perform an
+        --  action. In these cases, we assume that campaign outcome is uncorrelated with
         --  the action because we do not have evidence otherwise.
         COALESCE(
             IF(IS_NAN(open_uses_preview_text), 0, open_uses_preview_text), 0
         ) AS open_uses_preview_text,
 
         -- We now impute the value of the effect size to 0 if it was NaN or NULL. This is to
-        --  take into account states where all campaigns either did or did not perform an 
-        --  action. In these cases, we assume that campaign outcome is uncorrelated with 
+        --  take into account states where all campaigns either did or did not perform an
+        --  action. In these cases, we assume that campaign outcome is uncorrelated with
         --  the action because we do not have evidence otherwise.
         COALESCE(
             IF(IS_NAN(open_uses_sto), 0, open_uses_sto), 0
         ) AS open_uses_sto,
 
         -- We now impute the value of the effect size to 0 if it was NaN or NULL. This is to
-        --  take into account states where all campaigns either did or did not perform an 
-        --  action. In these cases, we assume that campaign outcome is uncorrelated with 
+        --  take into account states where all campaigns either did or did not perform an
+        --  action. In these cases, we assume that campaign outcome is uncorrelated with
         --  the action because we do not have evidence otherwise.
         COALESCE(
             IF(IS_NAN(open_uses_freemail_from), 0, open_uses_freemail_from), 0
         ) AS open_uses_freemail_from,
 
         -- We now impute the value of the effect size to 0 if it was NaN or NULL. This is to
-        --  take into account states where all campaigns either did or did not perform an 
-        --  action. In these cases, we assume that campaign outcome is uncorrelated with 
+        --  take into account states where all campaigns either did or did not perform an
+        --  action. In these cases, we assume that campaign outcome is uncorrelated with
         --  the action because we do not have evidence otherwise.
         COALESCE(
             IF(
@@ -285,24 +285,24 @@ imputed_effect_sizes AS (
         ) AS open_uses_resend_non_openers,
 
         -- We now impute the value of the effect size to 0 if it was NaN or NULL. This is to
-        --  take into account states where all campaigns either did or did not perform an 
-        --  action. In these cases, we assume that campaign outcome is uncorrelated with 
+        --  take into account states where all campaigns either did or did not perform an
+        --  action. In these cases, we assume that campaign outcome is uncorrelated with
         --  the action because we do not have evidence otherwise.
         COALESCE(
             IF(IS_NAN(open_uses_promo_code), 0, open_uses_promo_code), 0
         ) AS open_uses_promo_code,
 
         -- We now impute the value of the effect size to 0 if it was NaN or NULL. This is to
-        --  take into account states where all campaigns either did or did not perform an 
-        --  action. In these cases, we assume that campaign outcome is uncorrelated with 
+        --  take into account states where all campaigns either did or did not perform an
+        --  action. In these cases, we assume that campaign outcome is uncorrelated with
         --  the action because we do not have evidence otherwise.
         COALESCE(
             IF(IS_NAN(open_uses_prex), 0, open_uses_prex), 0
         ) AS open_uses_prex,
 
         -- We now impute the value of the effect size to 0 if it was NaN or NULL. This is to
-        --  take into account states where all campaigns either did or did not perform an 
-        --  action. In these cases, we assume that campaign outcome is uncorrelated with 
+        --  take into account states where all campaigns either did or did not perform an
+        --  action. In these cases, we assume that campaign outcome is uncorrelated with
         --  the action because we do not have evidence otherwise.
         COALESCE(
             IF(IS_NAN(open_uses_ab_test_from), 0, open_uses_ab_test_from), 0

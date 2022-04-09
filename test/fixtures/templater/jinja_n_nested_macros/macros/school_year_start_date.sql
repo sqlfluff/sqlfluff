@@ -7,7 +7,7 @@ date_trunc( 'week',
 
   -- If date is on or after this calendar year's school year start,
   -- then date is in the school year that started this calendar year
-  case when 
+  case when
     TO_DATE( '01 July' ||
       extract(year from {{ week_start_date( date ) }})
 	, 'DD Mon YYYY' )
@@ -17,8 +17,8 @@ date_trunc( 'week',
 
   -- Otherwise, school year started in previous calendar year
   else extract(year from {{ week_start_date( date ) }} )  - 1
-      
-  end  
+
+  end
   , 'DD Mon YYYY' )
 
 )

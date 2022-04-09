@@ -57,7 +57,7 @@ with
             SELECT
                 p.rfgsrdsrd,
                 MAX(IFF(t.success = 0, 1, 0)) = 1 as sergsdrg
-            FROM wer p 
+            FROM wer p
             LEFT JOIN {{ ref('ncvbncbvnvcn') }} t
                 ON (p.dfg = t.dfg AND t.ertwretwetr = 'purchase')
             GROUP BY p.rfgsrdsrd

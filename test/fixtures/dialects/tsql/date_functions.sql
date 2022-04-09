@@ -1,21 +1,21 @@
 select convert(
-        date, 
+        date,
         dateadd(
-            month, 
+            month,
             datediff(
-                month, 
-                0, 
+                month,
+                0,
                 t.valid_from_date
             ),
             0
         )
     ) as valid_from_date
 from t as t
-where t.activity_month >= 
+where t.activity_month >=
     convert(
-        date, 
+        date,
         dateadd(
-            yy, 
+            yy,
             datediff(yy, 0, getdate()
         ) - 1, 0)
-    ) 
+    )
