@@ -207,8 +207,8 @@ test_pass_group_by_alias:
 test_pass_order_by_alias:
   pass_str: |
     select
-        t.col1 + 1 as alias_col1,
-        count(1)
+        t.col0,
+        t.col1 + 1 as alias_col1
     from table1 as t
     order by alias_col1
 
