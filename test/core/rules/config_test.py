@@ -4,7 +4,10 @@ import pytest
 from sqlfluff.core import Linter
 from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix
 from sqlfluff.core.rules import get_ruleset
-from sqlfluff.core.rules.doc_decorators import document_configuration
+from sqlfluff.core.rules.doc_decorators import (
+    document_configuration,
+    document_fix_compatible,
+)
 from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.parser import WhitespaceSegment
 from sqlfluff.testing.rules import get_rule_from_set
@@ -21,8 +24,14 @@ class Rule_T042(BaseRule):
         pass
 
 
+@document_fix_compatible
 class Rule_T001(BaseRule):
-    """A deliberately malicious rule."""
+    """A deliberately malicious rule.
+
+    **Anti-pattern**
+
+    Blah blah
+    """
 
     def _eval(self, context):
         """Stars make newlines."""
