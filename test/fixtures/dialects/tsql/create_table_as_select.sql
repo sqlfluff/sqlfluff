@@ -3,7 +3,7 @@ CREATE TABLE [dbo].[PL_stage]
 WITH (DISTRIBUTION = HASH([ID]), HEAP)
 AS
 WITH CommentsTracking
-AS 
+AS
 (
 	SELECT
 		  'Program' AS Program
@@ -52,4 +52,4 @@ AS
 	FROM dbo.Encounter e
 	JOIN dbo.Finance f ON e.[ID] = f.[ID]
 )
-OPTION (LABEL = 'Test_Label')		
+OPTION (LABEL = 'Test_Label')

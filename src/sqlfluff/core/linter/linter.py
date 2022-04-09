@@ -471,8 +471,11 @@ class Linter:
         formatter: Any = None,
     ) -> Tuple[BaseSegment, List[SQLBaseError], List[NoQaDirective]]:
         """Lint and optionally fix a tree object."""
-        # Keep track of the linting errors
-        all_linting_errors = []
+        # Keep track of the linting errors on the very first linter pass. The
+        # list of issues output by "lint" and "fix" only includes issues present
+        # in the initial SQL code, EXCLUDING any issues that may be created by
+        # the fixes themselves.
+        initial_linting_errors = []
         # A placeholder for the fixes we had on the previous loop
         last_fixes = None
         # Keep a set of previous versions to catch infinite loops.
@@ -490,22 +493,38 @@ class Linter:
         if not config.get("disable_noqa"):
             rule_codes = [r.code for r in rule_set]
             ignore_buff, ivs = cls.extract_ignore_mask_tree(tree, rule_codes)
-            all_linting_errors += ivs
+            initial_linting_errors += ivs
         else:
             ignore_buff = []
 
         save_tree = tree
-        # There are two phases of rule running. The main loop is for most rules.
-        # These rules are assumed to interact and cause a cascade of fixes
-        # requiring multiple passes. The post loop is for post-processing rules,
-        # not expected to trigger any downstream rules, e.g. capitalization fixes.
-        for phase in ["main", "post"]:
-            rules_this_phase = [rule for rule in rule_set if rule.lint_phase == phase]
+        # There are two phases of rule running.
+        # 1. The main loop is for most rules. These rules are assumed to
+        # interact and cause a cascade of fixes requiring multiple passes.
+        # These are run the `runaway_limit` number of times (default 10).
+        # 2. The post loop is for post-processing rules, not expected to trigger
+        # any downstream rules, e.g. capitalization fixes. They are run on the
+        # first loop and then twice at the end (once to fix, and once again to
+        # check result of fixes), but not in the intervening loops.
+        phases = ["main"]
+        if fix:
+            phases.append("post")
+        for phase in phases:
+            if len(phases) > 1:
+                rules_this_phase = [
+                    rule for rule in rule_set if rule.lint_phase == phase
+                ]
+            else:
+                rules_this_phase = rule_set
             for loop in range(loop_limit if phase == "main" else 2):
+
+                def is_first_linter_pass():
+                    return phase == phases[0] and loop == 0
+
                 linter_logger.info(f"Linter phase {phase}, loop {loop+1}/{loop_limit}")
                 changed = False
 
-                if phase == "main" and loop == 0:
+                if is_first_linter_pass():
                     # In order to compute initial_linting_errors correctly, need
                     # to run all rules on the first loop of the main phase.
                     rules_this_phase = rule_set
@@ -519,8 +538,14 @@ class Linter:
                 for crawler in progress_bar_crawler:
                     # Performance: After first loop pass, skip rules that don't
                     # do fixes. Any results returned won't be seen by the user
-                    # anyway, so there's absolutely no reason to run them.
-                    if fix and loop > 0 and not is_fix_compatible(crawler):
+                    # anyway (linting errors ADDED by rules changing SQL, are
+                    # not reported back to the user - only initial linting errors),
+                    # so there's absolutely no reason to run them.
+                    if (
+                        fix
+                        and not is_first_linter_pass()
+                        and not is_fix_compatible(crawler)
+                    ):
                         continue
 
                     progress_bar_crawler.set_description(f"rule {crawler.code}")
@@ -538,8 +563,8 @@ class Linter:
                         ignore_mask=ignore_buff,
                         fname=fname,
                     )
-                    all_linting_errors += linting_errors
-
+                    if is_first_linter_pass():
+                        initial_linting_errors += linting_errors
                     if fix and fixes:
                         linter_logger.info(f"Applying Fixes [{crawler.code}]: {fixes}")
                         # Do some sanity checks on the fixes before applying.
@@ -582,10 +607,6 @@ class Linter:
                                 # which we've seen before. We're in a loop, so
                                 # we want to stop.
                                 cls._warn_unfixable(crawler.code)
-
-                if phase == "main" and loop == 0:
-                    # Keep track of initial errors for reporting.
-                    initial_linting_errors = all_linting_errors.copy()
 
                 if fix and not changed:
                     # We did not change the file. Either the file is clean (no

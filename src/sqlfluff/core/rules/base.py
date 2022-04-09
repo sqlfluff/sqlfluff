@@ -460,11 +460,7 @@ class CrawlBehavior:
     ):
         self.works_on_unparsable = works_on_unparsable
         self.recurse_into = recurse_into
-        self.raw_stack: Optional[List[RawSegment]]
-        if needs_raw_stack:
-            self.raw_stack = []
-        else:
-            self.raw_stack = None
+        self.raw_stack: Optional[List[RawSegment]] = [] if needs_raw_stack else None
 
     def crawl(self, context: RuleContext) -> Iterator[RuleContext]:
         """Yields a RuleContext for each segment the rule should process."""
