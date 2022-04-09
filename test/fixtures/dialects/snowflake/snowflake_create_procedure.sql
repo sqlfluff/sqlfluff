@@ -14,7 +14,7 @@ create or replace procedure stproc1(FLOAT_PARAM1 FLOAT)
     execute as owner
     as
     $$
-    var sql_command = 
+    var sql_command =
      "INSERT INTO stproc_test_table1 (num_col1) VALUES (" + FLOAT_PARAM1 + ")";
     try {
         snowflake.execute (
@@ -32,7 +32,7 @@ CREATE OR REPLACE PROCEDURE public.test_procedure (test_table VARCHAR(), test_co
 RETURNS VARCHAR()
 LANGUAGE JAVASCRIPT
 AS
-$$  
+$$
 try {
     var sql_command = "ALTER TABLE " + test_table + " DROP " + tet_col;
     snowflake.execute ({sqlText: sql_command});
@@ -43,6 +43,3 @@ catch (err) {
 }
 $$
 ;
-
-
-

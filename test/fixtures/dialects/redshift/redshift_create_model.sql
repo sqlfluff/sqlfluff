@@ -6,7 +6,7 @@ FROM ( SELECT length_val,
               shucked_weight,
               viscera_weight,
               shell_weight,
-              rings 
+              rings
         FROM abalone_xgb WHERE record_number < 2500 )
 TARGET rings FUNCTION ml_fn_abalone_xgboost_multi_predict_age
 IAM_ROLE 'arn:aws:iam::XXXXXXXXXXXX:role/Redshift-ML'
