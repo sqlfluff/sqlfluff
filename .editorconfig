@@ -19,11 +19,12 @@ indent_size = 4
 indent_style = unset
 
 # Some specific tests with trailing newlines
+# If adding any exceptions here, make sure to add them to .pre-commit-config.yaml as well
 [test/fixtures/linter/sqlfluffignore/*/*.sql]
 indent_style = unset
 trim_trailing_whitespace = unset
 insert_final_newline = unset
-[test/fixtures/config/inheritance_b/example.sql]
+[test/fixtures/config/inheritance_b/{,nested/}example.sql]
 indent_style = unset
 trim_trailing_whitespace = unset
 insert_final_newline = unset
