@@ -471,16 +471,11 @@ class Linter:
         formatter: Any = None,
     ) -> Tuple[BaseSegment, List[SQLBaseError], List[NoQaDirective]]:
         """Lint and optionally fix a tree object."""
-        # Keep track of the linting errors
-        all_linting_errors = []
         # Keep track of the linting errors on the very first linter pass. The
         # list of issues output by "lint" and "fix" only includes issues present
         # in the initial SQL code, EXCLUDING ANY ISSUES THAT MAY BE CREATED BY
         # THE FIXES THEMSELVES.
-        # The value is initially None, and is set to a list value on the first
-        # pass. The value None is used as a sentinel to indicate we're on the
-        # first pass.
-        initial_linting_errors = None
+        initial_linting_errors = []
         # A placeholder for the fixes we had on the previous loop
         last_fixes = None
         # Keep a set of previous versions to catch infinite loops.
@@ -498,7 +493,7 @@ class Linter:
         if not config.get("disable_noqa"):
             rule_codes = [r.code for r in rule_set]
             ignore_buff, ivs = cls.extract_ignore_mask_tree(tree, rule_codes)
-            all_linting_errors += ivs
+            initial_linting_errors += ivs
         else:
             ignore_buff = []
 
@@ -518,10 +513,14 @@ class Linter:
             else:
                 rules_this_phase = rule_set
             for loop in range(loop_limit if phase == "main" else 2):
+
+                def is_first_linter_pass():
+                    return phase == phases[0] and loop == 0
+
                 linter_logger.info(f"Linter phase {phase}, loop {loop+1}/{loop_limit}")
                 changed = False
 
-                if initial_linting_errors is None:
+                if is_first_linter_pass():
                     # In order to compute initial_linting_errors correctly, need
                     # to run all rules on the first loop of the main phase.
                     rules_this_phase = rule_set
@@ -538,7 +537,7 @@ class Linter:
                     # anyway, so there's absolutely no reason to run them.
                     if (
                         fix
-                        and initial_linting_errors is not None
+                        and not is_first_linter_pass()
                         and not is_fix_compatible(crawler)
                     ):
                         continue
@@ -558,7 +557,8 @@ class Linter:
                         ignore_mask=ignore_buff,
                         fname=fname,
                     )
-                    all_linting_errors += linting_errors
+                    if is_first_linter_pass():
+                        initial_linting_errors += linting_errors
 
                     if fix and fixes:
                         linter_logger.info(f"Applying Fixes [{crawler.code}]: {fixes}")
@@ -603,10 +603,6 @@ class Linter:
                                 # we want to stop.
                                 cls._warn_unfixable(crawler.code)
 
-                if initial_linting_errors is None:
-                    # Keep track of initial errors for reporting.
-                    initial_linting_errors = all_linting_errors.copy()
-
                 if fix and not changed:
                     # We did not change the file. Either the file is clean (no
                     # fixes), or any fixes which are present will take us back
@@ -634,7 +630,6 @@ class Linter:
                     # want in this situation. (Reason: Although this is more of an
                     # internal SQLFluff issue, users deserve to know about it,
                     # because it means their file(s) weren't fixed.
-                    assert initial_linting_errors is not None
                     for violation in initial_linting_errors:
                         if isinstance(violation, SQLLintError):
                             violation.fixes = []
@@ -645,7 +640,6 @@ class Linter:
                     # other weird things. We don't want the user to see this junk!
                     return save_tree, initial_linting_errors, ignore_buff
 
-        assert initial_linting_errors is not None
         if config.get("ignore_templated_areas", default=True):
             initial_linting_errors = cls.remove_templated_errors(initial_linting_errors)
 
