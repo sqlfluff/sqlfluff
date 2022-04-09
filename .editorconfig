@@ -31,6 +31,10 @@ insert_final_newline = unset
 indent_style = unset
 trim_trailing_whitespace = unset
 insert_final_newline = unset
+[plugins/sqlfluff-templater-dbt/test/fixtures/dbt/templated_output/macro_in_macro.sql]
+indent_style = unset
+trim_trailing_whitespace = unset
+insert_final_newline = unset
 [plugins/sqlfluff-templater-dbt/test/fixtures/dbt/templated_output/{,dbt_utils_0.8.0/}last_day.sql]
 indent_style = unset
 trim_trailing_whitespace = unset
