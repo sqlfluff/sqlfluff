@@ -236,6 +236,18 @@ test_fail_indented_multi_line_comment:
     FROM
         global_actions_states
 
+test_jinja_with_disbalanced_pairs:
+  # The range(3) -%} results in swallowing the \n
+  # Its questionable if this is correct.
+  pass_str: |
+    SELECT
+        cohort_month
+        {% for i in range(3) -%}
+            , {{ i }} AS index_{{ i }}
+        {% endfor -%}
+        , TRUE AS overall
+    FROM orders
+
 test_fail_attempted_hanger_fix:
   # It's almost a hanger and so should be corrected to one.
   fail_str: |
