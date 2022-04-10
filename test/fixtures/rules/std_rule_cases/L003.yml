@@ -884,11 +884,8 @@ test_pass_hanging_indents_allowed_in_default:
         a.line + (a.with
                   + a.hanging_indent) as actually_ok,
     FROM tbl as a
-  configs:
-    core:
-      dialect: ansi
 
-test_fail_disallow_hanging_indents_convert_hanging_to_normal_indent:
+test_fail_hanging_indents_convert_to_normal_indent:
   fail_str: |
     SELECT
         a.line + (a.with
@@ -900,32 +897,17 @@ test_fail_disallow_hanging_indents_convert_hanging_to_normal_indent:
             + a.hanging_indent) as actually_not_ok,
     FROM tbl as a
   configs:
-    core:
-      dialect: ansi
     rules:
       L003:
-        disallow_hanging_indents: True
+        hanging_indents: False
 
-test_fail_disallow_hanging_indents_complex_example:
+test_fail_hanging_indents_fix_mixed_indents:
   fail_str: |
     SELECT
-      a.id, -- 3 Spaces
-        a.name,
-        a.training_spaces,
-        (
-        a.under_indented_line
-        ) as foo,
-        (
-                a.over_indented_line
-        ) as bar,
-        a.line + (a.with
-                  + a.hanging_indent) as actually_ok,
-        a.line + (a.with
-                + a.bad_hanging_indent) as problem,
         a.line + (
             a.something_indented_well
             + least(
-            	  a.good_example,
+            	  a.good_example, -- there is a tab here
         a.bad_example,
          a.really_bad_example,
                 a.nother_good_example
@@ -934,23 +916,10 @@ test_fail_disallow_hanging_indents_complex_example:
     FROM tbl as a
   fix_str: |
     SELECT
-        a.id, -- 3 Spaces
-        a.name,
-        a.training_spaces,
-        (
-            a.under_indented_line
-        ) as foo,
-        (
-            a.over_indented_line
-        ) as bar,
-        a.line + (a.with
-            + a.hanging_indent) as actually_ok,
-        a.line + (a.with
-            + a.bad_hanging_indent) as problem,
         a.line + (
             a.something_indented_well
             + least(
-                a.good_example,
+                a.good_example, -- there is a tab here
                 a.bad_example,
                 a.really_bad_example,
                 a.nother_good_example
@@ -958,8 +927,6 @@ test_fail_disallow_hanging_indents_complex_example:
         ) as some_harder_problems
     FROM tbl as a
   configs:
-    core:
-      dialect: ansi
     rules:
       L003:
-        disallow_hanging_indents: True
+        hanging_indents: False

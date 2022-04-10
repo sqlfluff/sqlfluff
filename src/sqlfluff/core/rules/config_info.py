@@ -27,11 +27,11 @@ STANDARD_CONFIG_INFO_DICT = {
         "validation": ["space", "tab"],
         "definition": "Whether to use tabs or spaces to add new indents.",
     },
-    "disallow_hanging_indents": {
+    "hanging_indents": {
         "validation": [True, False],
         "definition": (
-            "Whether to disallow hanging indents when evaluting the indentation of "
-            "a file."
+            "Whether hanging indents will be considered when evaluting the "
+            "indentation of a file."
         ),
     },
     "comma_style": {
