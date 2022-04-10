@@ -238,7 +238,8 @@ test_fail_indented_multi_line_comment:
 
 test_jinja_with_disbalanced_pairs:
   # The range(3) -%} results in swallowing the \n
-  # Its questionable if this is correct.
+  # N.B. The way L003 handles this is questionable,
+  # and this test seals in that behaviour.
   pass_str: |
     SELECT
         cohort_month
