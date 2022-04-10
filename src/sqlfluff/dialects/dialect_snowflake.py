@@ -348,6 +348,35 @@ snowflake_dialect.add(
         ),
         Ref("DollarSegment", optional=True),
     ),
+    CompressionType=OneOf(
+        "NONE",
+        "GZIP",
+        "DEFLATE",
+        "AUTO",
+    ),
+    ContextHeaders=OneOf(
+        "CURRENT_ACCOUNT",
+        "CURRENT_CLIENT",
+        "CURRENT_DATABASE",
+        "CURRENT_DATE",
+        "CURRENT_IP_ADDRESS",
+        "CURRENT_REGION",
+        "CURRENT_ROLE",
+        "CURRENT_SCHEMA",
+        "CURRENT_SCHEMAS",
+        "CURRENT_SESSION",
+        "CURRENT_STATEMENT",
+        "CURRENT_TIME",
+        "CURRENT_TIMESTAMP",
+        "CURRENT_TRANSACTION",
+        "CURRENT_USER",
+        "CURRENT_VERSION",
+        "CURRENT_WAREHOUSE",
+        "LAST_QUERY_ID",
+        "LAST_TRANSACTION",
+        "LOCALTIME",
+        "LOCALTIMESTAMP",
+    ),
 )
 
 snowflake_dialect.replace(
@@ -483,6 +512,19 @@ snowflake_dialect.replace(
         "OVERLAPS",
     ),
     TrimParametersGrammar=Nothing(),
+    FunctionParameterGrammar=OneOf(
+        Sequence(
+            Ref("ParameterNameSegment", optional=True),
+            OneOf(
+                Sequence("ANY", "TYPE"),
+                Ref("DatatypeSegment"),
+            ),
+        ),
+        OneOf(
+            Sequence("ANY", "TYPE"),
+            Ref("DatatypeSegment"),
+        ),
+    ),
 )
 
 # Add all Snowflake keywords
@@ -786,6 +828,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterSchemaStatementSegment"),
             Ref("CreateFunctionStatementSegment"),
             Ref("AlterFunctionStatementSegment"),
+            Ref("CreateExternalFunctionStatementSegment"),
             Ref("CreateStageSegment"),
             Ref("AlterStageSegment"),
             Ref("CreateStreamStatementSegment"),
@@ -1775,9 +1818,13 @@ class CreateFunctionStatementSegment(BaseSegment):
 
 
 class AlterFunctionStatementSegment(BaseSegment):
-    """A snowflake `ALTER ... FUNCTION` statement.
+    """A snowflake `ALTER ... FUNCTION` and `ALTER ... EXTERNAL FUNCTION` statements.
+
+    NOTE: `ALTER ... EXTERNAL FUNCTION` statements always use the `ALTER ... FUNCTION`
+    syntax.
 
     https://docs.snowflake.com/en/sql-reference/sql/alter-function.html
+    https://docs.snowflake.com/en/sql-reference/sql/alter-external-function.html
     """
 
     type = "alter_function_statement"
@@ -1789,9 +1836,185 @@ class AlterFunctionStatementSegment(BaseSegment):
         Ref("FunctionParameterListGrammar"),
         OneOf(
             Sequence("RENAME", "TO", Ref("FunctionNameSegment")),
-            Sequence("SET", OneOf("SECURE", Ref("CommentEqualsClauseSegment"))),
-            Sequence("UNSET", OneOf("SECURE", "COMMENT")),
+            Sequence(
+                "SET",
+                OneOf(
+                    Ref("CommentEqualsClauseSegment"),
+                    Sequence(
+                        "API_INTEGRATION",
+                        Ref("EqualsSegment"),
+                        Ref("SingleIdentifierGrammar"),
+                    ),
+                    Sequence(
+                        "HEADERS",
+                        Ref("EqualsSegment"),
+                        Bracketed(
+                            Delimited(
+                                Sequence(
+                                    Ref("SingleQuotedIdentifierSegment"),
+                                    Ref("EqualsSegment"),
+                                    Ref("SingleQuotedIdentifierSegment"),
+                                ),
+                            ),
+                        ),
+                    ),
+                    Sequence(
+                        "CONTEXT_HEADERS",
+                        Ref("EqualsSegment"),
+                        Bracketed(
+                            Delimited(
+                                Ref("ContextHeaders"),
+                            ),
+                        ),
+                    ),
+                    Sequence(
+                        "MAX_BATCH_ROWS",
+                        Ref("EqualsSegment"),
+                        Ref("NumericLiteralSegment"),
+                    ),
+                    Sequence(
+                        "COMPRESSION",
+                        Ref("EqualsSegment"),
+                        Ref("CompressionType"),
+                    ),
+                    "SECURE",
+                    Sequence(
+                        OneOf("REQUEST_TRANSLATOR", "RESPONSE_TRANSLATOR"),
+                        Ref("EqualsSegment"),
+                        Ref("FunctionNameSegment"),
+                    ),
+                ),
+            ),
+            Sequence(
+                "UNSET",
+                OneOf(
+                    "COMMENT",
+                    "HEADERS",
+                    "CONTEXT_HEADERS",
+                    "MAX_BATCH_ROWS",
+                    "COMPRESSION",
+                    "SECURE",
+                    "REQUEST_TRANSLATOR",
+                    "RESPONSE_TRANSLATOR",
+                ),
+            ),
+            Sequence(
+                "RENAME",
+                "TO",
+                Ref("SingleIdentifierGrammar"),
+            ),
         ),
+    )
+
+
+class CreateExternalFunctionStatementSegment(BaseSegment):
+    """A snowflake `CREATE ... EXTERNAL FUNCTION` statement for API integrations.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-external-function.html
+    """
+
+    type = "create_external_function_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        Sequence("OR", "REPLACE", optional=True),
+        Sequence("SECURE", optional=True),
+        "EXTERNAL",
+        "FUNCTION",
+        Ref("FunctionNameSegment"),
+        Ref("FunctionParameterListGrammar"),
+        "RETURNS",
+        OneOf(
+            Ref("DatatypeSegment"),
+        ),
+        OneOf(
+            "NULL",
+            Sequence(
+                "NOT",
+                "NULL",
+            ),
+            optional=True,
+        ),
+        OneOf(
+            Sequence(
+                "CALLED",
+                "ON",
+                "NULL",
+                "INPUT",
+            ),
+            Sequence(
+                OneOf(
+                    Sequence(
+                        "RETURNS",
+                        "NULL",
+                        "ON",
+                        "NULL",
+                        "INPUT",
+                    ),
+                    "STRICT",
+                )
+            ),
+            optional=True,
+        ),
+        OneOf("VOLATILE", "IMMUTABLE", optional=True),
+        Sequence("LANGUAGE", "JAVASCRIPT", optional=True),
+        OneOf(
+            Sequence("CALLED", "ON", "NULL", "INPUT"),
+            Sequence("RETURNS", "NULL", "ON", "NULL", "INPUT"),
+            "STRICT",
+            optional=True,
+        ),
+        OneOf("VOLATILE", "IMMUTABLE", optional=True),
+        Ref("CommentEqualsClauseSegment", optional=True),
+        "API_INTEGRATION",
+        Ref("EqualsSegment"),
+        Ref("SingleIdentifierGrammar"),
+        Sequence(
+            "HEADERS",
+            Ref("EqualsSegment"),
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        Ref("SingleQuotedIdentifierSegment"),
+                        Ref("EqualsSegment"),
+                        Ref("SingleQuotedIdentifierSegment"),
+                    ),
+                ),
+            ),
+            optional=True,
+        ),
+        Sequence(
+            "CONTEXT_HEADERS",
+            Ref("EqualsSegment"),
+            Bracketed(
+                Delimited(
+                    Ref("ContextHeaders"),
+                ),
+            ),
+            optional=True,
+        ),
+        Sequence(
+            "MAX_BATCH_ROWS",
+            Ref("EqualsSegment"),
+            Ref("NumericLiteralSegment"),
+            optional=True,
+        ),
+        Sequence(
+            "COMPRESSION", Ref("EqualsSegment"), Ref("CompressionType"), optional=True
+        ),
+        Sequence(
+            "REQUEST_TRANSLATOR",
+            Ref("EqualsSegment"),
+            Ref("FunctionNameSegment"),
+            optional=True,
+        ),
+        Sequence(
+            "RESPONSE_TRANSLATOR",
+            Ref("EqualsSegment"),
+            Ref("FunctionNameSegment"),
+            optional=True,
+        ),
+        Ref.keyword("AS"),
+        Ref("SingleQuotedIdentifierSegment"),
     )
 
 
