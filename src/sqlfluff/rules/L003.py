@@ -774,7 +774,7 @@ class Rule_L003(BaseRule):
         template_line = _find_matching_start_line(previous_lines)
         # In rare circumstances there may be disbalanced pairs
         if not template_line:
-            return None
+            return LintResult(memory=memory)
 
         if template_line.line_no in memory.noncomparable_lines:
             return LintResult(memory=memory)
