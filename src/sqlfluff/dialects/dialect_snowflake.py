@@ -348,13 +348,13 @@ snowflake_dialect.add(
         ),
         Ref("DollarSegment", optional=True),
     ),
-    CompressionType=OneOf(
+    CompressionTypeGrammar=OneOf(
         "NONE",
         "GZIP",
         "DEFLATE",
         "AUTO",
     ),
-    ContextHeaders=OneOf(
+    ContextHeadersGrammar=OneOf(
         "CURRENT_ACCOUNT",
         "CURRENT_CLIENT",
         "CURRENT_DATABASE",
@@ -512,19 +512,6 @@ snowflake_dialect.replace(
         "OVERLAPS",
     ),
     TrimParametersGrammar=Nothing(),
-    FunctionParameterGrammar=OneOf(
-        Sequence(
-            Ref("ParameterNameSegment", optional=True),
-            OneOf(
-                Sequence("ANY", "TYPE"),
-                Ref("DatatypeSegment"),
-            ),
-        ),
-        OneOf(
-            Sequence("ANY", "TYPE"),
-            Ref("DatatypeSegment"),
-        ),
-    ),
 )
 
 # Add all Snowflake keywords
@@ -1863,7 +1850,7 @@ class AlterFunctionStatementSegment(BaseSegment):
                         Ref("EqualsSegment"),
                         Bracketed(
                             Delimited(
-                                Ref("ContextHeaders"),
+                                Ref("ContextHeadersGrammar"),
                             ),
                         ),
                     ),
@@ -1875,7 +1862,7 @@ class AlterFunctionStatementSegment(BaseSegment):
                     Sequence(
                         "COMPRESSION",
                         Ref("EqualsSegment"),
-                        Ref("CompressionType"),
+                        Ref("CompressionTypeGrammar"),
                     ),
                     "SECURE",
                     Sequence(
@@ -1987,7 +1974,7 @@ class CreateExternalFunctionStatementSegment(BaseSegment):
             Ref("EqualsSegment"),
             Bracketed(
                 Delimited(
-                    Ref("ContextHeaders"),
+                    Ref("ContextHeadersGrammar"),
                 ),
             ),
             optional=True,
@@ -1999,7 +1986,10 @@ class CreateExternalFunctionStatementSegment(BaseSegment):
             optional=True,
         ),
         Sequence(
-            "COMPRESSION", Ref("EqualsSegment"), Ref("CompressionType"), optional=True
+            "COMPRESSION",
+            Ref("EqualsSegment"),
+            Ref("CompressionTypeGrammar"),
+            optional=True,
         ),
         Sequence(
             "REQUEST_TRANSLATOR",
