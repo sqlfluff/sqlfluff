@@ -195,7 +195,7 @@ class Rule_L003(BaseRule):
     _works_on_unparsable = False
     _adjust_anchors = True
     _ignore_types: List[str] = ["script_content"]
-    config_keywords = ["tab_space_size", "indent_unit"]
+    config_keywords = ["tab_space_size", "indent_unit", "disallow_hanging_indents"]
 
     @staticmethod
     def _make_indent(
@@ -391,6 +391,7 @@ class Rule_L003(BaseRule):
         # Config type hints
         self.tab_space_size: int
         self.indent_unit: str
+        self.disallow_hanging_indents: bool
         segment = context.segment
         memory: _Memory = context.memory or _Memory()
         raw_stack: Tuple[BaseSegment, ...] = context.raw_stack
@@ -469,9 +470,11 @@ class Rule_L003(BaseRule):
         # we will iterate this more than once
         previous_lines = list(map(lambda k: line_summaries[k], previous_line_numbers))
 
-        hanger_res = self._handle_hanging_indents(this_line, previous_lines, memory)
-        if hanger_res:
-            return hanger_res
+        # handline hanging indents if allowed
+        if not self.disallow_hanging_indents:
+            hanger_res = self._handle_hanging_indents(this_line, previous_lines, memory)
+            if hanger_res:
+                return hanger_res
 
         # Is this an indented first line?
         if this_line.line_no == 1 and this_line.indent_size > 0:
@@ -572,7 +575,7 @@ class Rule_L003(BaseRule):
                     num=indent_diff + this_indent_num,
                 )
                 # If we have the option of a hanging indent then use it.
-                if prev_line.hanging_indent:
+                if not self.disallow_hanging_indents and prev_line.hanging_indent:
                     self.logger.debug("        Use hanging indent.")
                     desired_indent = " " * prev_line.hanging_indent
 

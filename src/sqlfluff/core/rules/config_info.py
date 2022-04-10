@@ -27,6 +27,13 @@ STANDARD_CONFIG_INFO_DICT = {
         "validation": ["space", "tab"],
         "definition": "Whether to use tabs or spaces to add new indents.",
     },
+    "disallow_hanging_indents": {
+        "validation": [True, False],
+        "definition": (
+            "Whether to disallow hanging indents when evaluting the indentation of "
+            "a file."
+        ),
+    },
     "comma_style": {
         "validation": ["leading", "trailing"],
         "definition": "The comma style to enforce.",
