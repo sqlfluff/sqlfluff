@@ -2548,3 +2548,29 @@ class MergeInsertClauseSegment(ansi.MergeInsertClauseSegment):
             ),
         ),
     )
+
+
+class UpdateStatementSegment(ansi.UpdateStatementSegment):
+    """An `Update` statement.
+
+    Enhancing from ANSI dialect to be SparkSQL & Delta Lake specific.
+
+    https://docs.delta.io/latest/delta-update.html#update-a-table
+    """
+
+    match_grammar: Matchable = Sequence(
+        "UPDATE",
+        OneOf(
+            Ref("FileReferenceSegment"),
+            Ref("TableReferenceSegment"),
+        ),
+        # SET is not a resevered word in all dialects (e.g. RedShift)
+        # So specifically exclude as an allowed implict alias to avoid parsing errors
+        Ref(
+            "AliasExpressionSegment",
+            exclude=Ref.keyword("SET"),
+            optional=True,
+        ),
+        Ref("SetClauseListSegment"),
+        Ref("WhereClauseSegment"),
+    )
