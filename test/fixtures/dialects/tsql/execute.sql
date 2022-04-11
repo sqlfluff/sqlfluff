@@ -22,3 +22,10 @@ EXECUTE sp_addextendedproperty
 @level0name = N'my_schema_name',
 @level1type = N'my_object_type',
 @level1name = N'my_object_name'
+
+
+-- Executing a stored procedure and capturing the RETURN value in a variable
+EXEC @pRes = dbo.ProcTestDefaults;
+EXEC @pRes = dbo.ProcTestDefaults @p1 = DEFAULT;
+EXECUTE @pRes = dbo.ProcTestDefaults;
+EXECUTE @pRes = dbo.ProcTestDefaults @p1 = DEFAULT;
