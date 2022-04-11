@@ -1912,14 +1912,7 @@ class CreateExternalFunctionStatementSegment(BaseSegment):
         OneOf(
             Ref("DatatypeSegment"),
         ),
-        OneOf(
-            "NULL",
-            Sequence(
-                "NOT",
-                "NULL",
-            ),
-            optional=True,
-        ),
+        Sequence(Ref.keyword("NOT", optional=True), "NULL"),
         OneOf(
             Sequence(
                 "CALLED",
