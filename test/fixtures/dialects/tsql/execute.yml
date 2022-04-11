@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bf4a1fc98bc0fe16302bc0a0aca1ab75709e0ff090f5e8ca627a5735673f5b0e
+_hash: ecd09ca267687792ef1da9fc9a73ebe0614cbef1628958f5b0055a198f4125bd
 file:
   batch:
   - statement:
@@ -148,3 +148,55 @@ file:
       - comparison_operator:
           raw_comparison_operator: '='
       - literal: "N'my_object_name'"
+  - statement:
+      execute_script_statement:
+        keyword: EXEC
+        parameter: '@pRes'
+        comparison_operator:
+          raw_comparison_operator: '='
+        object_reference:
+        - identifier: dbo
+        - dot: .
+        - identifier: ProcTestDefaults
+        statement_terminator: ;
+  - statement:
+      execute_script_statement:
+      - keyword: EXEC
+      - parameter: '@pRes'
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - object_reference:
+        - identifier: dbo
+        - dot: .
+        - identifier: ProcTestDefaults
+      - parameter: '@p1'
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: DEFAULT
+      - statement_terminator: ;
+  - statement:
+      execute_script_statement:
+        keyword: EXECUTE
+        parameter: '@pRes'
+        comparison_operator:
+          raw_comparison_operator: '='
+        object_reference:
+        - identifier: dbo
+        - dot: .
+        - identifier: ProcTestDefaults
+        statement_terminator: ;
+  - statement:
+      execute_script_statement:
+      - keyword: EXECUTE
+      - parameter: '@pRes'
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - object_reference:
+        - identifier: dbo
+        - dot: .
+        - identifier: ProcTestDefaults
+      - parameter: '@p1'
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: DEFAULT
+      - statement_terminator: ;

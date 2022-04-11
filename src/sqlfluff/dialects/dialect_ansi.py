@@ -3175,8 +3175,7 @@ class FunctionDefinitionGrammar(BaseSegment):
         Ref("QuotedLiteralSegment"),
         Sequence(
             "LANGUAGE",
-            # Not really a parameter, but best fit for now.
-            Ref("ParameterNameSegment"),
+            Ref("NakedIdentifierSegment"),
             optional=True,
         ),
     )

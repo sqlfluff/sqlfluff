@@ -542,8 +542,7 @@ class FunctionDefinitionGrammar(ansi.FunctionDefinitionGrammar):
             ),
             Sequence(
                 "LANGUAGE",
-                # Not really a parameter, but best fit for now.
-                Ref("ParameterNameSegment"),
+                Ref("NakedIdentifierSegment"),
                 Sequence(
                     "OPTIONS",
                     Bracketed(

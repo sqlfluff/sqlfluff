@@ -773,8 +773,9 @@ class Rule_L003(BaseRule):
         # both have lines where anchor_indent_balance drops 2 levels from one line
         # to the next, making it a bit unclear how to indent that line.
         template_line = _find_matching_start_line(previous_lines)
-        # This cant occur in valid code
-        assert template_line, "TypeGuard"
+        # In rare circumstances there may be disbalanced pairs
+        if not template_line:
+            return LintResult(memory=memory)
 
         if template_line.line_no in memory.noncomparable_lines:
             return LintResult(memory=memory)
@@ -861,6 +862,7 @@ class _TemplateLineInterpreter:
                 return False
             elif seg.is_type("placeholder"):
                 count_placeholder += 1
+
         return count_placeholder == 1
 
     def list_segment_and_raw_segment_types(self) -> Iterable[Tuple[str, Optional[str]]]:
