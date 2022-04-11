@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 24071ae8ff02d6c9b3dff1a8e91545911c372bdc95a650f31583bdb2e2844996
+_hash: 6debebd9a935337e17ffe22690ae32752a79a4c64984cd37c07d0dd9e498b3a9
 file:
 - statement:
     create_function_statement:
@@ -28,7 +28,7 @@ file:
         literal: "'select $1 + $2;'"
         language_clause:
           keyword: LANGUAGE
-          parameter: SQL
+          identifier: SQL
 - statement_terminator: ;
 - statement:
     create_function_statement:
@@ -78,7 +78,7 @@ file:
       - literal: "'\n    BEGIN\n        RETURN i + 1;\n    END;\n'"
       - language_clause:
           keyword: LANGUAGE
-          parameter: plpgsql
+          identifier: plpgsql
       - keyword: VOLATILE
 - statement_terminator: ;
 - statement:
@@ -104,7 +104,7 @@ file:
       - literal: "'\n    BEGIN\n        RETURN i + 1;\n    END;\n'"
       - language_clause:
           keyword: LANGUAGE
-          parameter: plpgsql
+          identifier: plpgsql
       - keyword: WINDOW
       - keyword: IMMUTABLE
       - keyword: STABLE
@@ -150,7 +150,7 @@ file:
       - literal: "'symlink_c'"
       - language_clause:
           keyword: LANGUAGE
-          parameter: plpgsql
+          identifier: plpgsql
       - keyword: WINDOW
       - keyword: IMMUTABLE
       - keyword: STABLE
@@ -203,7 +203,7 @@ file:
       - literal: "$$\n    BEGIN\n        RETURN i + 1;\n    END;\n$$"
       - language_clause:
           keyword: LANGUAGE
-          parameter: plpgsql
+          identifier: plpgsql
       - keyword: SUPPORT
       - parameter: my_function
 - statement_terminator: ;
@@ -230,7 +230,7 @@ file:
       - literal: "'select $1 + $2;'"
       - language_clause:
           keyword: LANGUAGE
-          parameter: SQL
+          identifier: SQL
       - keyword: IMMUTABLE
       - keyword: RETURNS
       - keyword: 'NULL'
@@ -262,7 +262,7 @@ file:
           $$"
         language_clause:
           keyword: LANGUAGE
-          parameter: plpgsql
+          identifier: plpgsql
 - statement_terminator: ;
 - statement:
     create_function_statement:
@@ -292,7 +292,7 @@ file:
         literal: "$$ SELECT $1, CAST($1 AS text) || ' is text' $$"
         language_clause:
           keyword: LANGUAGE
-          parameter: SQL
+          identifier: SQL
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -352,7 +352,7 @@ file:
         literal: "$$ SELECT $1, CAST($1 AS text) || ' is text' $$"
         language_clause:
           keyword: LANGUAGE
-          parameter: SQL
+          identifier: SQL
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -405,7 +405,7 @@ file:
         literal: "$$ SELECT $1, CAST($1 AS text) || ' is text' $$"
         language_clause:
           keyword: LANGUAGE
-          parameter: SQL
+          identifier: SQL
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -456,7 +456,7 @@ file:
           \   RETURN passed;\nEND;\n$$"
       - language_clause:
           keyword: LANGUAGE
-          parameter: plpgsql
+          identifier: plpgsql
       - keyword: SECURITY
       - keyword: DEFINER
       - keyword: SET
@@ -498,7 +498,7 @@ file:
           \   RETURN passed;\nEND;\n$$"
       - language_clause:
           keyword: LANGUAGE
-          parameter: plpgsql
+          identifier: plpgsql
       - keyword: SECURITY
       - keyword: DEFINER
 - statement_terminator: ;
@@ -573,7 +573,7 @@ file:
     - function_definition:
       - language_clause:
           keyword: LANGUAGE
-          parameter: sql
+          identifier: sql
       - keyword: STABLE
       - keyword: STRICT
       - keyword: AS
@@ -608,7 +608,7 @@ file:
       - literal: "$$\n  RETURN 0.0\n$$"
       - language_clause:
           keyword: LANGUAGE
-          parameter: plpgsql
+          identifier: plpgsql
       - keyword: STABLE
       - keyword: PARALLEL
       - keyword: SAFE
@@ -636,7 +636,7 @@ file:
         literal: "'select $1 + $2;'"
         language_clause:
           keyword: LANGUAGE
-          parameter: SQL
+          identifier: SQL
 - statement_terminator: ;
 - statement:
     create_function_statement:
@@ -661,5 +661,5 @@ file:
         literal: "'select $1 + $2;'"
         language_clause:
           keyword: LANGUAGE
-          parameter: SQL
+          identifier: SQL
 - statement_terminator: ;

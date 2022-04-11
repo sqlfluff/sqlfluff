@@ -3726,7 +3726,7 @@ class LanguageClauseSegment(BaseSegment):
 
     match_grammar = Sequence(
         "LANGUAGE",
-        OneOf(Ref("ParameterNameSegment"), Ref("SingleQuotedIdentifierSegment")),
+        OneOf(Ref("NakedIdentifierSegment"), Ref("SingleQuotedIdentifierSegment")),
     )
 
 
