@@ -10,6 +10,7 @@ from typing import Callable, cast, Dict, List, NamedTuple, Optional
 
 from jinja2 import Environment
 from jinja2.environment import Template
+from jinja2.exceptions import TemplateSyntaxError
 
 from sqlfluff.core.templaters.base import (
     RawFileSlice,
@@ -240,10 +241,21 @@ class JinjaAnalyzer:
             # as other code inside these regions require special handling.
             # (Generally speaking, JinjaTracer ignores the contents of these
             # blocks, treating them like opaque templated regions.)
-            filtered_trimmed_parts = [p for p in trimmed_parts if not p.isspace()]
-            if len(filtered_trimmed_parts) < 3 or filtered_trimmed_parts[2] != "=":
-                # Entering a set/macro block.
-                self.inside_set_or_macro = True
+            try:
+                # Entering a set/macro block. Build a source string consisting
+                # of just this one Jinja command and see if it parses. If so,
+                # it's a standalone command. OTOH, if it fails with "Unexpected
+                # end of template", it was the opening command for a block.
+                self.env.from_string(
+                    f"{self.env.block_start_string} {' '.join(trimmed_parts)} "
+                    f"{self.env.block_end_string}"
+                )
+            except TemplateSyntaxError as e:
+                if "Unexpected end of template" in e.message:
+                    # It was opening a block, thus we're inside a set or macro.
+                    self.inside_set_or_macro = True
+                else:
+                    raise  # pragma: no cover
         elif block_type == "block_end" and (trimmed_parts[0] in ("endmacro", "endset")):
             # Exiting a set/macro block.
             self.inside_set_or_macro = False

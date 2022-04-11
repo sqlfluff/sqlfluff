@@ -3108,6 +3108,7 @@ class ExecuteScriptSegment(BaseSegment):
     type = "execute_script_statement"
     match_grammar = Sequence(
         OneOf("EXEC", "EXECUTE"),
+        Sequence(Ref("ParameterNameSegment"), Ref("EqualsSegment"), optional=True),
         Ref("ObjectReferenceSegment"),
         Indent,
         Sequence(
