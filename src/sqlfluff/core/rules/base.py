@@ -520,11 +520,12 @@ class BaseRule:
     # Lint loop / crawl behavior. When appropriate, rules can (and should)
     # override these values to make linting faster.
     recurse_into = True
-    # False is faster & most rules don't need it. Rules that use it are usually
-    # rules that look at the surroundings of a segment, e.g. "is there
-    # whitespace preceding this segment?" In the long run, it would be good to
-    # review rules that use raw_stack to try and eliminate its use. These
-    # rules will often be good candidates for one of the following:
+    # "needs_raw_stack" defaults to False because rules run faster that way, and
+    # most rules don't need it. Rules that use it are usually those that look
+    # at the surroundings of a segment, e.g. "is there whitespace preceding this
+    # segment?" In the long run, it would be good to review rules that use
+    # raw_stack to try and eliminate its use. These rules will often be good
+    # candidates for one of the following:
     # - Rewriting to use "RuleContext.raw_segment_pre", which is similar to
     #   "raw_stack", but it's only the ONE raw segment prior to the current
     #   one.
