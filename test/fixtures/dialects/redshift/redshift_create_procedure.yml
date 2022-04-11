@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bd350497df9e079083f825a4d844ad8d3aa1dbd9faccbdbf1c92481ce0434784
+_hash: 186bee2569c79b2f467138996ed94eb4d5d0ea9740aee7861b7fbfff29f30f98
 file:
 - statement:
     create_procedure_statement:
@@ -36,7 +36,7 @@ file:
           \ f2 = %', min_val, f2;\nEND;\n$$"
       - language_clause:
           keyword: LANGUAGE
-          parameter: plpgsql
+          identifier: plpgsql
       - keyword: SECURITY
       - keyword: INVOKER
 - statement_terminator: ;
@@ -84,5 +84,5 @@ file:
           \ count(*) from my_etl;\nEND;\n$$"
         language_clause:
           keyword: LANGUAGE
-          parameter: plpgsql
+          identifier: plpgsql
 - statement_terminator: ;
