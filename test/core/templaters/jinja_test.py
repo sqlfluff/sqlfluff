@@ -335,6 +335,58 @@ FROM
                 "\n",
             ],
         ),
+        RawTemplatedTestCase(
+            "set_multiple_variables_and_define_macro",
+            """{% macro echo(text) %}
+{{text}}
+{% endmacro %}
+
+{% set a, b = 1, 2 %}
+
+SELECT
+    {{ echo(a) }},
+    {{ echo(b) }}""",
+            "\n\n\n\nSELECT\n    \n1\n,\n    \n2\n",
+            [
+                "{% macro echo(text) %}",
+                "\n",
+                "{{text}}",
+                "\n",
+                "{% endmacro %}",
+                "\n\n",
+                "{% set a, b = 1, 2 %}",
+                "\n\nSELECT\n    ",
+                "{{ echo(a) }}",
+                ",\n    ",
+                "{{ echo(b) }}",
+            ],
+            [
+                "",
+                "",
+                "",
+                "",
+                "",
+                "\n\n",
+                "",
+                "\n\nSELECT\n    ",
+                "\n1\n",
+                ",\n    ",
+                "\n2\n",
+            ],
+            [
+                "{% macro echo(text) %}",
+                "\n",
+                "{{text}}",
+                "\n",
+                "{% endmacro %}",
+                "\n\n",
+                "{% set a, b = 1, 2 %}",
+                "\n\nSELECT\n    ",
+                "{{ echo(a) }}",
+                ",\n    ",
+                "{{ echo(b) }}",
+            ],
+        ),
     ],
     ids=lambda case: case.name,
 )
