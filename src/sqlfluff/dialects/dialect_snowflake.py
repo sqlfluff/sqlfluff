@@ -755,8 +755,7 @@ class FunctionDefinitionGrammar(ansi.FunctionDefinitionGrammar):
         Ref("QuotedLiteralSegment"),
         Sequence(
             "LANGUAGE",
-            # Not really a parameter, but best fit for now.
-            Ref("ParameterNameSegment"),
+            Ref("NakedIdentifierSegment"),
             optional=True,
         ),
     )
