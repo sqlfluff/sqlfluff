@@ -57,8 +57,8 @@ These rules run the `runaway_limit` number of times (default 10).
 2. The ``post`` phase is for post-processing rules, not expected to trigger
 any downstream rules, e.g. capitalization fixes. They are run in a
 post-processing loop at the end. This loop is identical to the ``main`` loop,
-but is only run 2 times (once to fix, and once again to confirm no remaining
-issues).
+but is only run 2 times at the end (once to fix, and once again to confirm no
+remaining issues).
 
 The two phases add complexity, but they also improve performance by allowing
 SQLFluff to run fewer rules during the ``main`` phase, which often runs several
