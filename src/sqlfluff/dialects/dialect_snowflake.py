@@ -1910,30 +1910,7 @@ class CreateExternalFunctionStatementSegment(BaseSegment):
         Ref("FunctionParameterListGrammar"),
         "RETURNS",
         Ref("DatatypeSegment"),
-        Sequence(Ref.keyword("NOT", optional=True), "NULL"),
-        OneOf(
-            Sequence(
-                "CALLED",
-                "ON",
-                "NULL",
-                "INPUT",
-            ),
-            Sequence(
-                OneOf(
-                    Sequence(
-                        "RETURNS",
-                        "NULL",
-                        "ON",
-                        "NULL",
-                        "INPUT",
-                    ),
-                    "STRICT",
-                )
-            ),
-            optional=True,
-        ),
-        OneOf("VOLATILE", "IMMUTABLE", optional=True),
-        Sequence("LANGUAGE", "JAVASCRIPT", optional=True),
+        Sequence(Ref.keyword("NOT", optional=True), "NULL", optional=True),
         OneOf(
             Sequence("CALLED", "ON", "NULL", "INPUT"),
             Sequence("RETURNS", "NULL", "ON", "NULL", "INPUT"),
@@ -1982,7 +1959,13 @@ class CreateExternalFunctionStatementSegment(BaseSegment):
             optional=True,
         ),
         Sequence(
-            OneOf("REQUEST_TRANSLATOR", "RESPONSE_TRANSLATOR"),
+            "REQUEST_TRANSLATOR",
+            Ref("EqualsSegment"),
+            Ref("FunctionNameSegment"),
+            optional=True,
+        ),
+        Sequence(
+            "RESPONSE_TRANSLATOR",
             Ref("EqualsSegment"),
             Ref("FunctionNameSegment"),
             optional=True,
