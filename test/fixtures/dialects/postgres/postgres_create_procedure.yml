@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c3b4c04072380df8946cd93f66d490b70ad0b3f3245887aef53bbaa17b0c731e
+_hash: fb46b495b13aa937e7c7a89248daea9ae99e953875d17b8b2e0571da767d04e5
 file:
 - statement:
     create_procedure_statement:
@@ -25,7 +25,7 @@ file:
         literal: "$$\nBEGIN\n    RETURN;\nEND;\n$$"
         language_clause:
           keyword: LANGUAGE
-          parameter: plpgsql
+          identifier: plpgsql
 - statement_terminator: ;
 - statement:
     create_procedure_statement:
@@ -47,7 +47,7 @@ file:
     - function_definition:
         language_clause:
           keyword: LANGUAGE
-          parameter: SQL
+          identifier: SQL
         keyword: AS
         literal: "$$\nINSERT INTO tbl VALUES (a);\nINSERT INTO tbl VALUES (b);\n$$"
 - statement_terminator: ;

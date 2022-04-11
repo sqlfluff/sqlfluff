@@ -97,6 +97,15 @@ def is_whitespace() -> Callable[[BaseSegment], bool]:
     return _
 
 
+def is_templated() -> Callable[[BaseSegment], bool]:
+    """Returns a function that checks if segment is templated."""
+
+    def _(segment: BaseSegment) -> bool:
+        return segment.is_templated
+
+    return _
+
+
 def get_name() -> Callable[[BaseSegment], str]:
     """Returns a function that gets segment name."""
 
