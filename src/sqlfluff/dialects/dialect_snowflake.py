@@ -1987,7 +1987,7 @@ class CreateExternalFunctionStatementSegment(BaseSegment):
             Ref("FunctionNameSegment"),
             optional=True,
         ),
-        Ref.keyword("AS"),
+        "AS",
         Ref("SingleQuotedIdentifierSegment"),
     )
 
