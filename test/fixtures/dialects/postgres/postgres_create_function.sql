@@ -4,6 +4,11 @@ CREATE FUNCTION add(integer, integer) RETURNS integer
     AS 'select $1 + $2;'
     LANGUAGE SQL;
 
+-- Quoted language options are deprecated but still supported
+CREATE FUNCTION add(integer, integer) RETURNS integer
+    AS 'select $1 + $2;'
+    LANGUAGE 'sql';
+
 CREATE OR REPLACE FUNCTION increment(i integer) RETURNS integer AS '
     BEGIN
         RETURN i + 1;

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5b94d0d9a1fa6b0c49783fc4cb6277fd613f4a4da8b55c1f17e88321b1c8b3c3
+_hash: c4eb479814aa14039641c04434c3fb1afeca555d6ef0c0a82f62ff521919676f
 file:
 - statement:
     do_statement:
@@ -18,7 +18,7 @@ file:
       keyword: DO
       language_clause:
         keyword: LANGUAGE
-        parameter: plpgsql
+        identifier: plpgsql
       literal: "$$\nDECLARE r record;\nBEGIN\n    FOR r IN SELECT table_schema, table_name\
         \ FROM information_schema.tables\n             WHERE table_type = 'VIEW' AND\
         \ table_schema = 'public'\n    LOOP\n        EXECUTE 'GRANT ALL ON ' || quote_ident(r.table_schema)\
@@ -33,7 +33,7 @@ file:
         \ || '.' || quote_ident(r.table_name) || ' TO webuser';\n    END LOOP;\nEND$$"
       language_clause:
         keyword: LANGUAGE
-        parameter: plpgsql
+        identifier: plpgsql
 - statement_terminator: ;
 - statement:
     do_statement:

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 71492f64ce880f27b02655dd780bd1c63233f5c037c5c3a0fe99aa0611be442e
+_hash: 5f38dd8cdd79212ed38bc07ea1f6052263adc7f3bcaa80af5bebb1ab9d93429c
 file:
   statement:
     create_function_statement:
@@ -22,5 +22,5 @@ file:
       - keyword: AS
       - udf_body: "'select $1 + $2;'"
       - keyword: LANGUAGE
-      - parameter: SQL
+      - identifier: SQL
   statement_terminator: ;
