@@ -1909,9 +1909,7 @@ class CreateExternalFunctionStatementSegment(BaseSegment):
         Ref("FunctionNameSegment"),
         Ref("FunctionParameterListGrammar"),
         "RETURNS",
-        OneOf(
-            Ref("DatatypeSegment"),
-        ),
+        Ref("DatatypeSegment"),
         Sequence(Ref.keyword("NOT", optional=True), "NULL"),
         OneOf(
             Sequence(
