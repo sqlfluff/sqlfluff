@@ -3837,12 +3837,7 @@ class DescribeStatementSegment(BaseSegment):
             ),
             # https://docs.snowflake.com/en/sql-reference/sql/desc-integration.html
             Sequence(
-                OneOf(
-                    "API",
-                    "NOTIFICATION",
-                    "SECURITY",
-                    "STORAGE",
-                ),
+                OneOf("API", "NOTIFICATION", "SECURITY", "STORAGE", optional=True),
                 "INTEGRATION",
                 Ref("ObjectReferenceSegment"),
             ),

@@ -37,6 +37,9 @@ DESC SECURITY INTEGRATION my_integration;
 DESCRIBE STORAGE INTEGRATION my_integration;
 DESC STORAGE INTEGRATION my_integration;
 
+DESCRIBE INTEGRATION my_integration;
+DESC INTEGRATION my_integration;
+
 DESCRIBE SESSION POLICY my_session_policy;
 DESC SESSION POLICY my_session_policy;
 
