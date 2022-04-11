@@ -1982,13 +1982,7 @@ class CreateExternalFunctionStatementSegment(BaseSegment):
             optional=True,
         ),
         Sequence(
-            "REQUEST_TRANSLATOR",
-            Ref("EqualsSegment"),
-            Ref("FunctionNameSegment"),
-            optional=True,
-        ),
-        Sequence(
-            "RESPONSE_TRANSLATOR",
+            OneOf("REQUEST_TRANSLATOR", "RESPONSE_TRANSLATOR"),
             Ref("EqualsSegment"),
             Ref("FunctionNameSegment"),
             optional=True,
