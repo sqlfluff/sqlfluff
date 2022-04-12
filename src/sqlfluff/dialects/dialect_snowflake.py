@@ -2534,11 +2534,6 @@ class CreateStatementSegment(BaseSegment):
                     Ref("GCSStorageIntegrationParameters"),
                     Ref("AzureStorageIntegrationParameters"),
                 ),
-                # Note Could result in mismatched IntegrationParams and AllowedLocations
-                # E.G. S3 IntegrationParameters would parse with GCS compliant paths
-                # Alternative would be to add these to IntegrationParameter Segments but
-                # I feel like that is harder to understand the match_grammar
-                # when comparing against Snowflake docs.
                 Sequence(
                     "STORAGE_ALLOWED_LOCATIONS",
                     Ref("EqualsSegment"),
@@ -2548,14 +2543,11 @@ class CreateStatementSegment(BaseSegment):
                                 Ref("S3Path"),
                                 Ref("GCSPath"),
                                 Ref("AzureBlobStoragePath"),
-                                Ref(
-                                    "QuotedLiteralSegment"
-                                ),  # TODO: Need help. Should only be '*'.
+                                Ref("QuotedStarSegment"),
                             )
                         )
                     ),
                 ),
-                # Note. Same issue as above. Paths could mismatch IntegrationParameters
                 Sequence(
                     "STORAGE_BLOCKED_LOCATIONS",
                     Ref("EqualsSegment"),
@@ -2565,9 +2557,7 @@ class CreateStatementSegment(BaseSegment):
                                 Ref("S3Path"),
                                 Ref("GCSPath"),
                                 Ref("AzureBlobStoragePath"),
-                                Ref(
-                                    "QuotedLiteralSegment"
-                                ),  # TODO: Need help. Should only be '*'.
+                                Ref("QuotedStarSegment"),
                             )
                         )
                     ),
@@ -3021,9 +3011,7 @@ class S3StorageIntegrationParameters(BaseSegment):
         Sequence(
             "STORAGE_AWS_OBJECT_ACL",
             Ref("EqualsSegment"),
-            Ref(
-                "QuotedLiteralSegment"
-            ),  # TODO: Can only be 'bucket-owner-full-control'.
+            StringParser("'bucket-owner-full-control'", CodeSegment, type="literal"),
             optional=True,
         ),
     )
