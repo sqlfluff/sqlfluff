@@ -32,6 +32,8 @@ class Rule_L039(BaseRule):
         FROM foo
     """
 
+    needs_raw_stack = True
+
     def _eval(self, context: RuleContext) -> Optional[List[LintResult]]:
         """Unnecessary whitespace."""
         # For the given segment, lint whitespace directly within it.

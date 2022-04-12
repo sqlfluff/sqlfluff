@@ -45,6 +45,7 @@ class Rule_L018(BaseRule):
     """
 
     _works_on_unparsable = False
+    needs_raw_stack = True
     config_keywords = ["tab_space_size"]
 
     def _eval(self, context: RuleContext) -> LintResult:

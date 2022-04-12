@@ -67,6 +67,7 @@ class Rule_L014(Rule_L010):
 
     """
 
+    lint_phase = "post"
     _target_elems: List[Tuple[str, str]] = [
         ("name", "naked_identifier"),
         ("name", "properties_naked_identifier"),

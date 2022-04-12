@@ -193,6 +193,7 @@ class Rule_L003(BaseRule):
 
     targets_templated = True
     _works_on_unparsable = False
+    needs_raw_stack = True
     _adjust_anchors = True
     _ignore_types: List[str] = ["script_content"]
     config_keywords = ["tab_space_size", "indent_unit", "hanging_indents"]
@@ -414,7 +415,7 @@ class Rule_L003(BaseRule):
                 # First non-whitespace element is our trigger
                 memory.trigger = segment
 
-        is_last = self.is_final_segment(context)
+        is_last = context.segment is context.final_segment
         if not segment.is_type("newline") and not is_last:
             # Process on line ends or file end
             return LintResult(memory=memory)
@@ -776,8 +777,9 @@ class Rule_L003(BaseRule):
         # both have lines where anchor_indent_balance drops 2 levels from one line
         # to the next, making it a bit unclear how to indent that line.
         template_line = _find_matching_start_line(previous_lines)
-        # This cant occur in valid code
-        assert template_line, "TypeGuard"
+        # In rare circumstances there may be disbalanced pairs
+        if not template_line:
+            return LintResult(memory=memory)
 
         if template_line.line_no in memory.noncomparable_lines:
             return LintResult(memory=memory)
@@ -864,6 +866,7 @@ class _TemplateLineInterpreter:
                 return False
             elif seg.is_type("placeholder"):
                 count_placeholder += 1
+
         return count_placeholder == 1
 
     def list_segment_and_raw_segment_types(self) -> Iterable[Tuple[str, Optional[str]]]:

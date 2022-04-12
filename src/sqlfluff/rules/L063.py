@@ -53,6 +53,7 @@ class Rule_L063(Rule_L010):
 
     """
 
+    lint_phase = "post"
     _target_elems: List[Tuple[str, str]] = [
         ("parenttype", "data_type"),
         ("parenttype", "datetime_type_identifier"),
