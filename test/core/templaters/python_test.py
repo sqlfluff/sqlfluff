@@ -460,7 +460,8 @@ def test__templater_python_slice_file(raw_file, templated_file, unwrap_wrapped, 
         raw_file,
         templated_file,
         config=FluffConfig(
-            configs={"templater": {"unwrap_wrapped_queries": unwrap_wrapped}}
+            configs={"templater": {"unwrap_wrapped_queries": unwrap_wrapped}},
+            overrides={"dialect": "ansi"},
         ),
     )
     # Check contigious

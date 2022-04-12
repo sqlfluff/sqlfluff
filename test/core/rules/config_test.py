@@ -4,7 +4,10 @@ import pytest
 from sqlfluff.core import Linter
 from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix
 from sqlfluff.core.rules import get_ruleset
-from sqlfluff.core.rules.doc_decorators import document_configuration
+from sqlfluff.core.rules.doc_decorators import (
+    document_configuration,
+    document_fix_compatible,
+)
 from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.parser import WhitespaceSegment
 from sqlfluff.testing.rules import get_rule_from_set
@@ -21,8 +24,14 @@ class Rule_T042(BaseRule):
         pass
 
 
+@document_fix_compatible
 class Rule_T001(BaseRule):
-    """A deliberately malicious rule."""
+    """A deliberately malicious rule.
+
+    **Anti-pattern**
+
+    Blah blah
+    """
 
     def _eval(self, context):
         """Stars make newlines."""
@@ -40,12 +49,12 @@ class Rule_T001(BaseRule):
 def test__rules__user_rules():
     """Test that can safely add user rules."""
     # Set up a linter with the user rule
-    linter = Linter(user_rules=[Rule_T042])
+    linter = Linter(user_rules=[Rule_T042], dialect="ansi")
     # Make sure the new one is in there.
     assert ("T042", "A dummy rule.") in linter.rule_tuples()
     # Instantiate a second linter and check it's NOT in there.
     # This tests that copying and isolation works.
-    linter = Linter()
+    linter = Linter(dialect="ansi")
     assert not any(rule[0] == "T042" for rule in linter.rule_tuples())
 
 
@@ -54,7 +63,9 @@ def test__rules__runaway_fail_catch():
     runaway_limit = 5
     my_query = "SELECT * FROM foo"
     # Set up the config to only use the rule we are testing.
-    cfg = FluffConfig(overrides={"rules": "T001", "runaway_limit": runaway_limit})
+    cfg = FluffConfig(
+        overrides={"rules": "T001", "runaway_limit": runaway_limit, "dialect": "ansi"}
+    )
     # Lint it using the current config (while in fix mode)
     linter = Linter(config=cfg, user_rules=[Rule_T001])
     # In theory this step should result in an infinite
@@ -110,7 +121,7 @@ def test_rule_exception_is_caught_to_validation():
             raise Exception("Catch me or I'll deny any linting results from you")
 
     linter = Linter(
-        config=FluffConfig(overrides=dict(rules="T000")),
+        config=FluffConfig(overrides=dict(rules="T000", dialect="ansi")),
         user_rules=[Rule_T000],
     )
 
@@ -135,7 +146,7 @@ def test_std_rule_import_fail_bad_naming():
 
 def test_rule_set_return_informative_error_when_rule_not_registered():
     """Assert that a rule that throws an exception returns it as a validation."""
-    cfg = FluffConfig()
+    cfg = FluffConfig(overrides={"dialect": "ansi"})
     with pytest.raises(ValueError) as e:
         get_rule_from_set("L000", config=cfg)
 

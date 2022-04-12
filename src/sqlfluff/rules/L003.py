@@ -150,6 +150,9 @@ class _Memory:
     in_indent: bool = True
     trigger: Optional[BaseSegment] = None
 
+    line_no: int = dataclasses.field(default=1)
+    start_process_raw_idx: int = dataclasses.field(default=0)
+
     @property
     def noncomparable_lines(self):
         return self.hanging_lines.union(self.problem_lines)
@@ -190,6 +193,7 @@ class Rule_L003(BaseRule):
 
     targets_templated = True
     _works_on_unparsable = False
+    needs_raw_stack = True
     _adjust_anchors = True
     _ignore_types: List[str] = ["script_content"]
     config_keywords = ["tab_space_size", "indent_unit"]
@@ -228,15 +232,17 @@ class Rule_L003(BaseRule):
             starting_indent_balance = result_buffer[cached_line_count].indent_balance
 
         working_state = _LineSummary(indent_balance=starting_indent_balance)
-        line_no = 1
-        started = line_no == (cached_line_count + 1)
-        for elem in raw_stack:
+
+        line_no = memory.line_no
+        target_line_no = cached_line_count + 1
+        for idx, elem in enumerate(raw_stack[memory.start_process_raw_idx :]):
             is_newline = elem.is_type("newline")
-            # the below line act to reduce recalculation
-            if not started:
+            if line_no < target_line_no:
                 if is_newline:
                     line_no += 1
-                started = line_no == (cached_line_count + 1)
+                    if line_no == target_line_no:
+                        memory.start_process_raw_idx += idx + 1
+                        memory.line_no = line_no
                 continue
 
             working_state.line_buffer.append(elem)
@@ -408,7 +414,7 @@ class Rule_L003(BaseRule):
                 # First non-whitespace element is our trigger
                 memory.trigger = segment
 
-        is_last = self.is_final_segment(context)
+        is_last = context.segment is context.final_segment
         if not segment.is_type("newline") and not is_last:
             # Process on line ends or file end
             return LintResult(memory=memory)
@@ -767,8 +773,9 @@ class Rule_L003(BaseRule):
         # both have lines where anchor_indent_balance drops 2 levels from one line
         # to the next, making it a bit unclear how to indent that line.
         template_line = _find_matching_start_line(previous_lines)
-        # This cant occur in valid code
-        assert template_line, "TypeGuard"
+        # In rare circumstances there may be disbalanced pairs
+        if not template_line:
+            return LintResult(memory=memory)
 
         if template_line.line_no in memory.noncomparable_lines:
             return LintResult(memory=memory)
@@ -855,6 +862,7 @@ class _TemplateLineInterpreter:
                 return False
             elif seg.is_type("placeholder"):
                 count_placeholder += 1
+
         return count_placeholder == 1
 
     def list_segment_and_raw_segment_types(self) -> Iterable[Tuple[str, Optional[str]]]:

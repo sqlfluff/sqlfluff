@@ -3,18 +3,189 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3428758841f68772b865055172e2bf7c6e65ad8ca2e78190ce2887076b7ec450
+_hash: 5ba67ae516de43f28161a2962848830299bb533cd41d2e4e625d03c2e6ca3668
 file:
-  statement:
+- statement:
+    create_role_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - object_reference:
+        identifier: foo_role
+    - keyword: WITH
+    - keyword: SUPERUSER
+    - keyword: NOLOGIN
+    - keyword: REPLICATION
+    - keyword: IN
+    - keyword: GROUP
+    - role_reference:
+        identifier: foo_group
+- statement_terminator: ;
+- statement:
+    create_user_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - object_reference:
+        identifier: foo_role
+- statement_terminator: ;
+- statement:
+    create_role_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - object_reference:
+        identifier: frank
+    - keyword: WITH
+    - keyword: CONNECTION
+    - keyword: LIMIT
+    - literal: '1'
+- statement_terminator: ;
+- statement:
+    create_role_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - object_reference:
+        identifier: frank
+    - keyword: WITH
+    - keyword: IN
+    - keyword: ROLE
+    - role_reference:
+        identifier: frank
+- statement_terminator: ;
+- statement:
+    create_role_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - object_reference:
+        identifier: frank
+    - keyword: WITH
+    - keyword: SUPERUSER
+    - keyword: CREATEDB
+    - keyword: CREATEROLE
+- statement_terminator: ;
+- statement:
+    create_role_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - object_reference:
+        identifier: frank
+    - keyword: WITH
+    - keyword: INHERIT
+    - keyword: LOGIN
+    - keyword: REPLICATION
+    - keyword: BYPASSRLS
+- statement_terminator: ;
+- statement:
+    create_role_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - object_reference:
+        identifier: davide
+    - keyword: WITH
+    - keyword: PASSWORD
+    - literal: "'jw8s0F4'"
+- statement_terminator: ;
+- statement:
+    create_role_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - object_reference:
+        identifier: miriam
+    - keyword: WITH
+    - keyword: LOGIN
+    - keyword: PASSWORD
+    - literal: "'jw8s0F4'"
+    - keyword: VALID
+    - keyword: UNTIL
+    - literal: "'2005-01-01'"
+- statement_terminator: ;
+- statement:
     create_role_statement:
     - keyword: CREATE
     - keyword: ROLE
     - object_reference:
         identifier: foo_role
     - keyword: WITH
-    - raw: SUPERUSER
-    - raw: NOLOGIN
-    - raw: REPLICATION
-    - raw: IN
-    - raw: GROUP
-    - raw: foo_group
+    - keyword: SUPERUSER
+    - keyword: NOLOGIN
+    - keyword: REPLICATION
+    - keyword: IN
+    - keyword: GROUP
+    - role_reference:
+        identifier: foo_group
+- statement_terminator: ;
+- statement:
+    create_role_statement:
+    - keyword: CREATE
+    - keyword: ROLE
+    - object_reference:
+        identifier: foo_role
+- statement_terminator: ;
+- statement:
+    create_role_statement:
+    - keyword: CREATE
+    - keyword: ROLE
+    - object_reference:
+        identifier: frank
+    - keyword: WITH
+    - keyword: CONNECTION
+    - keyword: LIMIT
+    - literal: '1'
+- statement_terminator: ;
+- statement:
+    create_role_statement:
+    - keyword: CREATE
+    - keyword: ROLE
+    - object_reference:
+        identifier: frank
+    - keyword: WITH
+    - keyword: IN
+    - keyword: ROLE
+    - role_reference:
+        identifier: frank
+- statement_terminator: ;
+- statement:
+    create_role_statement:
+    - keyword: CREATE
+    - keyword: ROLE
+    - object_reference:
+        identifier: frank
+    - keyword: WITH
+    - keyword: SUPERUSER
+    - keyword: CREATEDB
+    - keyword: CREATEROLE
+- statement_terminator: ;
+- statement:
+    create_role_statement:
+    - keyword: CREATE
+    - keyword: ROLE
+    - object_reference:
+        identifier: frank
+    - keyword: WITH
+    - keyword: INHERIT
+    - keyword: LOGIN
+    - keyword: REPLICATION
+    - keyword: BYPASSRLS
+- statement_terminator: ;
+- statement:
+    create_role_statement:
+    - keyword: CREATE
+    - keyword: ROLE
+    - object_reference:
+        identifier: davide
+    - keyword: WITH
+    - keyword: PASSWORD
+    - literal: "'jw8s0F4'"
+- statement_terminator: ;
+- statement:
+    create_role_statement:
+    - keyword: CREATE
+    - keyword: ROLE
+    - object_reference:
+        identifier: miriam
+    - keyword: WITH
+    - keyword: LOGIN
+    - keyword: PASSWORD
+    - literal: "'jw8s0F4'"
+    - keyword: VALID
+    - keyword: UNTIL
+    - literal: "'2005-01-01'"
+- statement_terminator: ;

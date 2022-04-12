@@ -185,6 +185,9 @@ postgres_dialect.sets("datetime_units").update(
 # It quotes dateparts. So don't need this.
 postgres_dialect.sets("date_part_function_name").clear()
 
+# In Postgres, UNNEST() returns a "value table", similar to BigQuery
+postgres_dialect.sets("value_table_functions").update(["unnest"])
+
 postgres_dialect.add(
     JsonOperatorSegment=NamedParser(
         "json_operator", SymbolSegment, name="json_operator", type="binary_operator"
@@ -461,15 +464,6 @@ class PsqlVariableGrammar(BaseSegment):
                 Ref("QuotedIdentifierSegment"),
             ),
         )
-    )
-
-
-class TimeZoneGrammar(BaseSegment):
-    """Literal Date Time with optional casting to Time Zone."""
-
-    type = "time_zone_grammar"
-    match_grammar = AnyNumberOf(
-        Sequence("AT", "TIME", "ZONE", Ref("QuotedLiteralSegment")),
     )
 
 
@@ -1086,14 +1080,95 @@ class CreateRoleStatementSegment(ansi.CreateRoleStatementSegment):
     https://www.postgresql.org/docs/current/sql-createrole.html
     """
 
-    match_grammar = ansi.CreateRoleStatementSegment.match_grammar.copy(
-        insert=[
+    type = "create_role_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        OneOf("ROLE", "USER"),
+        Ref("ObjectReferenceSegment"),
+        Sequence(
+            Ref.keyword("WITH", optional=True),
+            AnySetOf(
+                OneOf("SUPERUSER", "NOSUPERUSER"),
+                OneOf("CREATEDB", "NOCREATEDB"),
+                OneOf("CREATEROLE", "NOCREATEROLE"),
+                OneOf("INHERIT", "NOINHERIT"),
+                OneOf("LOGIN", "NOLOGIN"),
+                OneOf("REPLICATION", "NOREPLICATION"),
+                OneOf("BYPASSRLS", "NOBYPASSRLS"),
+                Sequence("CONNECTION", "LIMIT", Ref("NumericLiteralSegment")),
+                Sequence("PASSWORD", OneOf(Ref("QuotedLiteralSegment"), "NULL")),
+                Sequence("VALID", "UNTIL", Ref("QuotedLiteralSegment")),
+                Sequence("IN", "ROLE", Ref("RoleReferenceSegment")),
+                Sequence("IN", "GROUP", Ref("RoleReferenceSegment")),
+                Sequence("ROLE", Ref("RoleReferenceSegment")),
+                Sequence("ADMIN", Ref("RoleReferenceSegment")),
+                Sequence("USER", Ref("RoleReferenceSegment")),
+                Sequence("SYSID", Ref("NumericLiteralSegment")),
+            ),
+            optional=True,
+        ),
+    )
+
+
+class AlterRoleStatementSegment(BaseSegment):
+    """An `ALTER ROLE` statement.
+
+    As per:
+    https://www.postgresql.org/docs/current/sql-alterrole.html
+    """
+
+    type = "alter_role_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        OneOf("ROLE", "USER"),
+        OneOf(Ref("RoleReferenceSegment"), "ALL"),
+        OneOf(
             Sequence(
                 Ref.keyword("WITH", optional=True),
-                # Very permissive for now. Anything can go here.
-                Anything(),
-            )
-        ],
+                AnySetOf(
+                    OneOf("SUPERUSER", "NOSUPERUSER"),
+                    OneOf("CREATEDB", "NOCREATEDB"),
+                    OneOf("CREATEROLE", "NOCREATEROLE"),
+                    OneOf("INHERIT", "NOINHERIT"),
+                    OneOf("LOGIN", "NOLOGIN"),
+                    OneOf("REPLICATION", "NOREPLICATION"),
+                    OneOf("BYPASSRLS", "NOBYPASSRLS"),
+                    Sequence("CONNECTION", "LIMIT", Ref("NumericLiteralSegment")),
+                    Sequence("PASSWORD", OneOf(Ref("QuotedLiteralSegment"), "NULL")),
+                    Sequence("VALID", "UNTIL", Ref("QuotedLiteralSegment")),
+                ),
+                optional=True,
+            ),
+            Sequence("RENAME", "TO", Ref("ObjectReferenceSegment"), optional=True),
+            Sequence(
+                Sequence(
+                    "IN",
+                    "DATABASE",
+                    Ref("ObjectReferenceSegment"),
+                    optional=True,
+                ),
+                OneOf(
+                    Sequence(
+                        "SET",
+                        Ref("ObjectReferenceSegment"),
+                        OneOf(
+                            Sequence(
+                                OneOf("TO", Ref("EqualsSegment")),
+                                OneOf(Ref("QuotedLiteralSegment"), "DEFAULT"),
+                            ),
+                            Sequence(
+                                "FROM",
+                                "CURRENT",
+                            ),
+                        ),
+                    ),
+                    Sequence("RESET", OneOf(Ref("QuotedLiteralSegment"), "ALL")),
+                ),
+                optional=True,
+            ),
+        ),
     )
 
 
@@ -3057,6 +3132,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DoStatementSegment"),
             Ref("AlterIndexStatementSegment"),
             Ref("ReindexStatementSegment"),
+            Ref("AlterRoleStatementSegment"),
         ],
     )
 
@@ -3223,11 +3299,91 @@ class AsAliasExpressionSegment(BaseSegment):
     )
 
 
+class OperationClassReferenceSegment(ObjectReferenceSegment):
+    """A reference to an operation class."""
+
+    type = "operation_class_reference"
+
+
+class ConflictActionSegment(BaseSegment):
+    """A Conflict Action Statement used within an INSERT statement.
+
+    As specified in https://www.postgresql.org/docs/14/sql-insert.html
+    """
+
+    type = "conflict_action"
+
+    match_grammar = Sequence(
+        "DO",
+        OneOf(
+            "NOTHING",
+            Sequence(
+                "UPDATE",
+                "SET",
+                Delimited(
+                    OneOf(
+                        Sequence(
+                            Ref("ColumnReferenceSegment"),
+                            Ref("EqualsSegment"),
+                            OneOf(Ref("ExpressionSegment"), "DEFAULT"),
+                        ),
+                        Sequence(
+                            Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+                            Ref("EqualsSegment"),
+                            Ref.keyword("ROW", optional=True),
+                            Bracketed(
+                                Delimited(OneOf(Ref("ExpressionSegment"), "DEFAULT"))
+                            ),
+                        ),
+                        Sequence(
+                            Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+                            Ref("EqualsSegment"),
+                            Bracketed(Ref("SelectableGrammar")),
+                        ),
+                    )
+                ),
+                Sequence("WHERE", Ref("ExpressionSegment"), optional=True),
+            ),
+        ),
+    )
+
+
+class ConflictTargetSegment(BaseSegment):
+    """A Conflict Target Statement used within an INSERT statement.
+
+    As specified in https://www.postgresql.org/docs/14/sql-insert.html
+    """
+
+    type = "conflict_target"
+
+    match_grammar = OneOf(
+        Sequence(
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        OneOf(
+                            Ref("ColumnReferenceSegment"),
+                            Bracketed(Ref("ExpressionSegment")),
+                        ),
+                        Sequence(
+                            "COLLATE",
+                            Ref("QuotedLiteralSegment"),
+                            optional=True,
+                        ),
+                        Ref("OperationClassReferenceSegment", optional=True),
+                    )
+                )
+            ),
+            Sequence("WHERE", Ref("ExpressionSegment"), optional=True),
+        ),
+        Sequence("ON", "CONSTRAINT", Ref("ParameterNameSegment")),
+    )
+
+
 class InsertStatementSegment(ansi.InsertStatementSegment):
     """An `INSERT` statement.
 
     https://www.postgresql.org/docs/14/sql-insert.html
-    TODO: Implement ON CONFLICT grammar.
     """
 
     match_grammar = ansi.InsertStatementSegment.match_grammar
@@ -3242,7 +3398,13 @@ class InsertStatementSegment(ansi.InsertStatementSegment):
             Sequence("DEFAULT", "VALUES"),
             Ref("SelectableGrammar"),
         ),
-        # TODO: Add ON CONFLICT grammar.
+        Sequence(
+            "ON",
+            "CONFLICT",
+            Ref("ConflictTargetSegment", optional=True),
+            Ref("ConflictActionSegment"),
+            optional=True,
+        ),
         Sequence(
             "RETURNING",
             OneOf(
@@ -3562,7 +3724,10 @@ class LanguageClauseSegment(BaseSegment):
 
     type = "language_clause"
 
-    match_grammar = Sequence("LANGUAGE", Ref("ParameterNameSegment"))
+    match_grammar = Sequence(
+        "LANGUAGE",
+        OneOf(Ref("NakedIdentifierSegment"), Ref("SingleQuotedIdentifierSegment")),
+    )
 
 
 class DoStatementSegment(BaseSegment):

@@ -10,6 +10,7 @@ from sqlfluff.core.parser import (
     Delimited,
     StartsWith,
     NamedParser,
+    Nothing,
     SymbolSegment,
     StringParser,
     OptionallyBracketed,
@@ -152,6 +153,7 @@ hive_dialect.replace(
         Sequence(Ref("SimpleArrayTypeGrammar"), Ref("ArrayLiteralSegment")),
     ),
     SimpleArrayTypeGrammar=Ref.keyword("ARRAY"),
+    TrimParametersGrammar=Nothing(),
 )
 
 
@@ -690,10 +692,8 @@ class FunctionSegment(BaseSegment):
         ),
         Sequence(
             Sequence(
-                AnyNumberOf(
-                    Ref("FunctionNameSegment"),
-                    max_times=1,
-                    min_times=1,
+                Ref(
+                    "FunctionNameSegment",
                     exclude=OneOf(
                         Ref("DatePartFunctionNameSegment"),
                         Ref("ValuesClauseSegment"),

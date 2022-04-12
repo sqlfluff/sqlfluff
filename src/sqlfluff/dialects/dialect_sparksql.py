@@ -616,22 +616,11 @@ class DatatypeSegment(PrimitiveTypeSegment):
         Sequence(
             "STRUCT",
             Bracketed(
-                # Manually rebuild Delimited.
-                # Delimited breaks futher nesting (MAP, STRUCT, ARRAY)
-                # of complex datatypes (Comma splits angle bracket blocks)
-                #
                 # CommentGrammar here is valid Spark SQL
                 # even though its not stored in Sparks Catalog
-                Sequence(
-                    Ref("NakedIdentifierSegment"),
-                    Ref("ColonSegment"),
-                    Ref("DatatypeSegment"),
-                    Ref("CommentGrammar", optional=True),
-                ),
-                AnyNumberOf(
+                Delimited(
                     Sequence(
-                        Ref("CommaSegment"),
-                        Ref("NakedIdentifierSegment"),
+                        Ref("SingleIdentifierGrammar"),
                         Ref("ColonSegment"),
                         Ref("DatatypeSegment"),
                         Ref("CommentGrammar", optional=True),
@@ -691,25 +680,69 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
             Sequence(
                 "ADD",
                 "COLUMNS",
-                Bracketed(
+                Indent,
+                OptionallyBracketed(
                     Delimited(
-                        Ref("ColumnDefinitionSegment"),
+                        Sequence(
+                            Ref("ColumnDefinitionSegment"),
+                            OneOf(
+                                "FIRST",
+                                Sequence(
+                                    "AFTER",
+                                    Ref("ColumnReferenceSegment"),
+                                ),
+                                optional=True,
+                            ),
+                        ),
                     ),
                 ),
+                Dedent,
             ),
             # ALTER TABLE - ALTER OR CHANGE COLUMN
             Sequence(
                 OneOf("ALTER", "CHANGE"),
-                "COLUMN",
-                Ref("ColumnReferenceSegment"),
-                Sequence("TYPE", Ref("DatatypeSegment"), optional=True),
+                Ref.keyword("COLUMN", optional=True),
+                Indent,
+                AnyNumberOf(
+                    Ref(
+                        "ColumnReferenceSegment",
+                        exclude=OneOf(
+                            "COMMENT",
+                            "TYPE",
+                            Ref("DatatypeSegment"),
+                            "FIRST",
+                            "AFTER",
+                            "SET",
+                        ),
+                    ),
+                    max_times=2,
+                ),
+                Ref.keyword("TYPE", optional=True),
+                Ref("DatatypeSegment", optional=True),
                 Ref("CommentGrammar", optional=True),
                 OneOf(
                     "FIRST",
-                    Sequence("AFTER", Ref("ColumnReferenceSegment")),
+                    Sequence(
+                        "AFTER",
+                        Ref("ColumnReferenceSegment"),
+                    ),
                     optional=True,
                 ),
                 Sequence(OneOf("SET", "DROP"), "NOT NULL", optional=True),
+                Dedent,
+            ),
+            # ALTER TABLE - REPLACE COLUMNS
+            Sequence(
+                "REPLACE",
+                "COLUMNS",
+                Bracketed(
+                    Delimited(
+                        Sequence(
+                            Ref("ColumnDefinitionSegment"),
+                            Ref("CommentGrammar", optional=True),
+                        ),
+                    ),
+                ),
             ),
             # ALTER TABLE - ADD PARTITION
             Sequence(
@@ -856,27 +889,14 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
         ),
         OneOf(
             # Columns and comment syntax:
-            Sequence(
-                Bracketed(
-                    # Manually rebuild Delimited.
-                    # Delimited breaks complex (MAP, STRUCT) datatypes
-                    # (Comma splits angle bracket blocks)
+            Bracketed(
+                Delimited(
                     Sequence(
                         OneOf(
                             Ref("ColumnDefinitionSegment"),
                             Ref("GeneratedColumnDefinitionSegment"),
                         ),
                         Ref("CommentGrammar", optional=True),
-                    ),
-                    AnyNumberOf(
-                        Sequence(
-                            Ref("CommaSegment"),
-                            OneOf(
-                                Ref("ColumnDefinitionSegment"),
-                                Ref("GeneratedColumnDefinitionSegment"),
-                            ),
-                            Ref("CommentGrammar", optional=True),
-                        ),
                     ),
                 ),
             ),
@@ -2359,11 +2379,10 @@ class ValuesClauseSegment(ansi.ValuesClauseSegment):
             ),
         ),
         # LIMIT/ORDER are unreserved in sparksql.
-        AnyNumberOf(
-            Ref("AliasExpressionSegment"),
-            min_times=0,
-            max_times=1,
+        Ref(
+            "AliasExpressionSegment",
             exclude=OneOf("LIMIT", "ORDER"),
+            optional=True,
         ),
         Ref("OrderByClauseSegment", optional=True),
         Ref("LimitClauseSegment", optional=True),
@@ -2429,8 +2448,8 @@ class FromExpressionElementSegment(ansi.FromExpressionElementSegment):
     match_grammar = Sequence(
         Ref("PreTableFunctionKeywordsGrammar", optional=True),
         OptionallyBracketed(Ref("TableExpressionSegment")),
-        OneOf(
-            Ref("AliasExpressionSegment"),
+        Ref(
+            "AliasExpressionSegment",
             exclude=Ref("SamplingExpressionSegment"),
             optional=True,
         ),
@@ -2491,4 +2510,67 @@ class GeneratedColumnDefinitionSegment(BaseSegment):
         AnyNumberOf(
             Ref("ColumnConstraintSegment", optional=True),
         ),
+    )
+
+
+class MergeUpdateClauseSegment(ansi.MergeUpdateClauseSegment):
+    """`UPDATE` clause within the `MERGE` statement."""
+
+    type = "merge_update_clause"
+    match_grammar: Matchable = Sequence(
+        "UPDATE",
+        OneOf(
+            Sequence("SET", Ref("WildcardIdentifierSegment")),
+            Sequence(
+                Indent,
+                Ref("SetClauseListSegment"),
+                Dedent,
+            ),
+        ),
+    )
+
+
+class MergeInsertClauseSegment(ansi.MergeInsertClauseSegment):
+    """`INSERT` clause within the `MERGE` statement."""
+
+    type = "merge_insert_clause"
+    match_grammar: Matchable = Sequence(
+        "INSERT",
+        OneOf(
+            Ref("WildcardIdentifierSegment"),
+            Sequence(
+                Indent,
+                Ref("BracketedColumnReferenceListGrammar"),
+                Dedent,
+                Indent,
+                Ref("ValuesClauseSegment"),
+                Dedent,
+            ),
+        ),
+    )
+
+
+class UpdateStatementSegment(ansi.UpdateStatementSegment):
+    """An `Update` statement.
+
+    Enhancing from ANSI dialect to be SparkSQL & Delta Lake specific.
+
+    https://docs.delta.io/latest/delta-update.html#update-a-table
+    """
+
+    match_grammar: Matchable = Sequence(
+        "UPDATE",
+        OneOf(
+            Ref("FileReferenceSegment"),
+            Ref("TableReferenceSegment"),
+        ),
+        # SET is not a resevered word in all dialects (e.g. RedShift)
+        # So specifically exclude as an allowed implict alias to avoid parsing errors
+        Ref(
+            "AliasExpressionSegment",
+            exclude=Ref.keyword("SET"),
+            optional=True,
+        ),
+        Ref("SetClauseListSegment"),
+        Ref("WhereClauseSegment"),
     )

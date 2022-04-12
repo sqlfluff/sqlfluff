@@ -77,8 +77,8 @@ class Rule_L004(BaseRule):
                 )
                 # Only attempt a fix at the start of a newline for now
                 and (
-                    len(context.raw_stack) == 0
-                    or context.raw_stack[-1].is_type("newline")
+                    context.raw_segment_pre is None
+                    or context.raw_segment_pre.is_type("newline")
                 )
             ):
                 fixes = [
@@ -90,7 +90,8 @@ class Rule_L004(BaseRule):
                     )
                 ]
             elif not (
-                len(context.raw_stack) == 0 or context.raw_stack[-1].is_type("newline")
+                context.raw_segment_pre is None
+                or context.raw_segment_pre.is_type("newline")
             ):
                 # give a helpful message if the wrong indent has been found and is not
                 # at the start of a newline

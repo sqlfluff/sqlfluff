@@ -137,19 +137,12 @@ exasol_dialect.add(
         Ref("ColumnReferenceSegment"),
         ephemeral_name="ColumnReferenceList",
     ),
-    # delimiter doesn't work for DISTRIBUTE and PARTITION BY
-    # expression because both expressions are splitted by comma
-    # as well as n columns within each expression
     TableDistributeByGrammar=StartsWith(
         Sequence(
             "DISTRIBUTE",
             "BY",
-            AnyNumberOf(
-                Sequence(
-                    Ref("CommaSegment", optional=True),
-                    Ref("ColumnReferenceSegment"),
-                ),
-                min_times=1,
+            Delimited(
+                Ref("ColumnReferenceSegment"),
             ),
         ),
         terminator=OneOf(
@@ -162,12 +155,8 @@ exasol_dialect.add(
         Sequence(
             "PARTITION",
             "BY",
-            AnyNumberOf(
-                Sequence(
-                    Ref("CommaSegment", optional=True),
-                    Ref("ColumnReferenceSegment"),
-                ),
-                min_times=1,
+            Delimited(
+                Ref("ColumnReferenceSegment"),
             ),
         ),
         terminator=OneOf(
@@ -966,12 +955,8 @@ class CreateTableStatementSegment(BaseSegment):
             # Columns and comment syntax:
             Bracketed(
                 Sequence(
-                    Ref("TableContentDefinitionSegment"),
-                    AnyNumberOf(
-                        Sequence(
-                            Ref("CommaSegment"),
-                            Ref("TableContentDefinitionSegment"),
-                        ),
+                    Delimited(
+                        Ref("TableContentDefinitionSegment"),
                     ),
                     Sequence(
                         Ref("CommaSegment"),
@@ -1029,9 +1014,8 @@ class DatatypeSegment(BaseSegment):
         Sequence(
             OneOf("DECIMAL", "DEC", "NUMBER", "NUMERIC"),
             Bracketed(
-                Ref("NumericLiteralSegment"),
-                Sequence(
-                    Ref("CommaSegment"), Ref("NumericLiteralSegment"), optional=True
+                Delimited(
+                    Ref("NumericLiteralSegment"),
                 ),
                 optional=True,
             ),
@@ -1214,14 +1198,13 @@ class TableInlineConstraintSegment(BaseSegment):
     parse_grammar = Sequence(
         Sequence(
             "CONSTRAINT",
-            AnyNumberOf(
-                Ref("SingleIdentifierGrammar"),
-                max_times=1,
-                min_times=0,
+            Ref(
+                "SingleIdentifierGrammar",
                 # exclude UNRESERVED_KEYWORDS which could used as NakedIdentifier
                 # to make e.g. `id NUMBER CONSTRAINT PRIMARY KEY` work (which is equal
                 # to just `id NUMBER PRIMARY KEY`)
                 exclude=OneOf("NOT", "NULL", "PRIMARY", "FOREIGN"),
+                optional=True,
             ),
             optional=True,
         ),
@@ -1248,14 +1231,13 @@ class TableOutOfLineConstraintSegment(BaseSegment):
     parse_grammar = Sequence(
         Sequence(
             "CONSTRAINT",
-            AnyNumberOf(
-                Ref("SingleIdentifierGrammar"),
-                max_times=1,
-                min_times=0,
+            Ref(
+                "SingleIdentifierGrammar",
                 # exclude UNRESERVED_KEYWORDS which could used as NakedIdentifier
                 # to make e.g. `id NUMBER, CONSTRAINT PRIMARY KEY(id)` work (which is
                 # equal to just `id NUMBER, PRIMARY KEY(id)`)
                 exclude=OneOf("NOT", "NULL", "PRIMARY", "FOREIGN"),
+                optional=True,
             ),
             optional=True,
         ),
@@ -1284,13 +1266,11 @@ class CreateTableLikeClauseSegment(BaseSegment):
         "LIKE",
         Ref("TableReferenceSegment"),
         Bracketed(
-            AnyNumberOf(
+            Delimited(
                 Sequence(
                     Ref("SingleIdentifierGrammar"),
                     Ref("AliasExpressionSegment", optional=True),
                 ),
-                Ref("CommaSegment", optional=True),
-                min_times=1,
             ),
             optional=True,
         ),
@@ -2352,23 +2332,18 @@ class FileOptionSegment(BaseSegment):
 ############################
 # USER
 ############################
-class CreateUserSegment(BaseSegment):
+class CreateUserStatementSegment(ansi.CreateUserStatementSegment):
     """`CREATE USER` statement.
 
     https://docs.exasol.com/sql/create_user.htm
     """
-
-    type = "create_user"
 
     is_ddl = False
     is_dml = False
     is_dql = False
     is_dcl = True
 
-    match_grammar = StartsWith(
-        Sequence("CREATE", "USER"),
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "CREATE",
         "USER",
         Ref("SingleIdentifierGrammar"),
@@ -2382,13 +2357,13 @@ class CreateUserSegment(BaseSegment):
     )
 
 
-class AlterUserSegment(BaseSegment):
+class AlterUserStatementSegment(BaseSegment):
     """`ALTER USER` statement.
 
     https://docs.exasol.com/sql/alter_user.htm
     """
 
-    type = "alter_user"
+    type = "alter_user_statement"
 
     is_ddl = False
     is_dml = False
@@ -2486,13 +2461,11 @@ class UserOpenIDAuthSegment(BaseSegment):
     )
 
 
-class DropUserStatementSegment(BaseSegment):
+class DropUserStatementSegment(ansi.DropUserStatementSegment):
     """A `DROP USER` statement with CASCADE option.
 
     https://docs.exasol.com/sql/drop_user.htm
     """
-
-    type = "drop_user_statement"
 
     is_ddl = False
     is_dml = False
@@ -2576,36 +2549,31 @@ class DropConsumerGroupSegment(BaseSegment):
 ############################
 # ROLE
 ############################
-class CreateRoleSegment(BaseSegment):
+class CreateRoleStatementSegment(ansi.CreateRoleStatementSegment):
     """`CREATE ROLE` statement.
 
     https://docs.exasol.com/sql/create_role.htm
     """
-
-    type = "create_role"
 
     is_ddl = False
     is_dml = False
     is_dql = False
     is_dcl = True
 
-    match_grammar = StartsWith(
-        Sequence("CREATE", "ROLE"),
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "CREATE",
         "ROLE",
         Ref("SingleIdentifierGrammar"),
     )
 
 
-class AlterRoleSegment(BaseSegment):
+class AlterRoleStatementSegment(BaseSegment):
     """`ALTER ROLE` statement.
 
     Only allowed to alter CONSUMER GROUPs
     """
 
-    type = "alter_role"
+    type = "alter_role_statement"
 
     is_ddl = False
     is_dml = False
@@ -2628,13 +2596,11 @@ class AlterRoleSegment(BaseSegment):
     )
 
 
-class DropRoleStatementSegment(BaseSegment):
+class DropRoleStatementSegment(ansi.DropRoleStatementSegment):
     """A `DROP ROLE` statement with CASCADE option.
 
     https://docs.exasol.com/sql/drop_role.htm
     """
-
-    type = "drop_role_statement"
 
     is_ddl = False
     is_dml = False
@@ -3650,10 +3616,10 @@ class StatementSegment(ansi.StatementSegment):
         # Access Control Language (DCL)
         Ref("AccessStatementSegment"),
         Ref("AlterConnectionSegment"),
-        Ref("AlterUserSegment"),
+        Ref("AlterUserStatementSegment"),
         Ref("CreateConnectionSegment"),
-        Ref("CreateRoleSegment"),
-        Ref("CreateUserSegment"),
+        Ref("CreateRoleStatementSegment"),
+        Ref("CreateUserStatementSegment"),
         Ref("DropRoleStatementSegment"),
         Ref("DropUserStatementSegment"),
         Ref("DropConnectionStatementSegment"),
@@ -3661,7 +3627,7 @@ class StatementSegment(ansi.StatementSegment):
         Ref("CreateConsumerGroupSegment"),
         Ref("AlterConsumerGroupSegment"),
         Ref("DropConsumerGroupSegment"),
-        Ref("AlterRoleSegment"),
+        Ref("AlterRoleStatementSegment"),
         Ref("AlterSessionSegment"),
         Ref("AlterSystemSegment"),
         Ref("OpenSchemaSegment"),

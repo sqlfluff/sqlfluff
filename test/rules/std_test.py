@@ -68,7 +68,7 @@ from sqlfluff.testing.rules import assert_rule_raises_violations_in_file
         ),
         ("L016", "block_comment_errors_2.sql", [(1, 85), (2, 86)]),
         # Column references
-        ("L027", "column_references.sql", [(1, 8)]),
+        ("L027", "column_references.sql", [(1, 8), (1, 11)]),
         ("L027", "column_references_bare_function.sql", []),
         ("L026", "column_references.sql", [(1, 11)]),
         ("L025", "column_references.sql", [(2, 11)]),
@@ -94,7 +94,7 @@ def test__rules__std_file(rule, path, violations):
         rule=rule,
         fpath="test/fixtures/linter/" + path,
         violations=violations,
-        fluff_config=FluffConfig(overrides=dict(rules=rule)),
+        fluff_config=FluffConfig(overrides=dict(rules=rule, dialect="ansi")),
     )
 
 
@@ -117,6 +117,8 @@ def test__rules__std_file(rule, path, violations):
 )
 def test_improper_configs_are_rejected(rule_config_dict):
     """Ensure that unsupported configs raise a ValueError."""
-    config = FluffConfig(configs={"rules": rule_config_dict})
+    config = FluffConfig(
+        configs={"rules": rule_config_dict}, overrides={"dialect": "ansi"}
+    )
     with pytest.raises(ValueError):
         get_ruleset().get_rulelist(config)

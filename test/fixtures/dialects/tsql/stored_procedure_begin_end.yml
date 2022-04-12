@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 950bd695b0c4e3121a707909132e1702ff0e3899bfd13fa525d2cf4de5576191
+_hash: a9b73b631282e142a63ae0f9ec3dc3f89c09e166c98bda81928aba95e87e6572
 file:
 - batch:
     create_procedure_statement:
@@ -76,8 +76,7 @@ file:
       - parameter: '@out_vchMsg'
       - data_type:
           data_type_identifier: uddt_output_msg
-      - data_type:
-          data_type_identifier: OUTPUT
+      - keyword: OUTPUT
       - comma: ','
       - parameter: '@in_debug'
       - data_type:
@@ -124,8 +123,7 @@ file:
       - parameter: '@out_vchMsg'
       - data_type:
           data_type_identifier: uddt_output_msg
-      - data_type:
-          data_type_identifier: OUT
+      - keyword: OUT
       - comma: ','
       - parameter: '@in_debug'
       - data_type:
@@ -134,8 +132,7 @@ file:
           raw_comparison_operator: '='
       - expression:
           literal: '1'
-      - data_type:
-          data_type_identifier: READONLY
+      - keyword: READONLY
     - keyword: AS
     - procedure_statement:
       - statement:
@@ -174,8 +171,7 @@ file:
       - parameter: '@out_vchMsg'
       - data_type:
           data_type_identifier: uddt_output_msg
-      - data_type:
-          data_type_identifier: OUTPUT
+      - keyword: OUTPUT
       - comma: ','
       - parameter: '@in_debug'
       - data_type:
@@ -214,8 +210,9 @@ file:
                   set_segment:
                     keyword: SET
                     parameter: '@v_nSysErrorNum'
-                    comparison_operator:
-                      raw_comparison_operator: '='
+                    assignment_operator:
+                      comparison_operator:
+                        raw_comparison_operator: '='
                     expression:
                       function:
                         function_name:
@@ -228,8 +225,9 @@ file:
                   set_segment:
                     keyword: SET
                     parameter: '@v_vchCode'
-                    comparison_operator:
-                      raw_comparison_operator: '='
+                    assignment_operator:
+                      comparison_operator:
+                        raw_comparison_operator: '='
                     expression:
                       function:
                         function_name:
@@ -242,8 +240,9 @@ file:
                   set_segment:
                     keyword: SET
                     parameter: '@v_vchMsg'
-                    comparison_operator:
-                      raw_comparison_operator: '='
+                    assignment_operator:
+                      comparison_operator:
+                        raw_comparison_operator: '='
                     expression:
                       literal: "N'Missing control type.'"
                     statement_terminator: ;
@@ -251,8 +250,9 @@ file:
                   set_segment:
                     keyword: SET
                     parameter: '@v_vchMsg'
-                    comparison_operator:
-                      raw_comparison_operator: '='
+                    assignment_operator:
+                      comparison_operator:
+                        raw_comparison_operator: '='
                     expression:
                     - parameter: '@v_vchMsg'
                     - binary_operator: +

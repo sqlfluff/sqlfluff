@@ -35,3 +35,5 @@ SET bar = 7
 LIMIT 4;
 
 UPDATE a, b SET a.name = b.name WHERE a.id = b.id;
+
+UPDATE a join b on a.id = b.id set a.type = b.type where a.type is null;

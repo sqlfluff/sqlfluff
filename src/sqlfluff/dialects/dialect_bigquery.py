@@ -157,6 +157,12 @@ bigquery_dialect.add(
             Ref("BaseExpressionElementGrammar"),
         ),
     ),
+    ExtractFunctionName=StringParser(
+        "EXTRACT",
+        SymbolSegment,
+        name="function_name_identifier",
+        type="function_name_identifier",
+    ),
 )
 
 
@@ -182,6 +188,7 @@ bigquery_dialect.replace(
         ),
         Ref("NamedArgumentSegment"),
     ),
+    TrimParametersGrammar=Nothing(),
     SimpleArrayTypeGrammar=Sequence(
         "ARRAY",
         Bracketed(
@@ -246,6 +253,13 @@ bigquery_dialect.sets("datetime_units").update(
         "QUARTER",
         "YEAR",
         "ISOYEAR",
+        "MONDAY",
+        "TUESDAY",
+        "WEDNESDAY",
+        "THURSDAY",
+        "FRIDAY",
+        "SATURDAY",
+        "SUNDAY",
     ]
 )
 
@@ -262,6 +276,7 @@ bigquery_dialect.sets("date_part_function_name").update(
         "TIME_TRUNC",
         "TIMESTAMP_DIFF",
         "TIMESTAMP_TRUNC",
+        "WEEK",
     ]
 )
 
@@ -417,6 +432,17 @@ bigquery_dialect.replace(
 )
 
 
+class ExtractFunctionNameSegment(BaseSegment):
+    """EXTRACT function name segment.
+
+    Need to be able to specify this as type function_name
+    so that linting rules identify it properly
+    """
+
+    type = "function_name"
+    match_grammar: Matchable = Ref("ExtractFunctionName")
+
+
 class FunctionSegment(ansi.FunctionSegment):
     """A scalar or aggregate function.
 
@@ -426,13 +452,30 @@ class FunctionSegment(ansi.FunctionSegment):
     for our purposes.
     """
 
-    match_grammar = OneOf(
-        Sequence(
-            # Treat functions which take date parts separately
-            # So those functions parse date parts as DatetimeUnitSegment
-            # rather than identifiers.
+    match_grammar = Sequence(
+        # BigQuery Function names can be prefixed by the keyword SAFE to
+        # return NULL instead of error.
+        # https://cloud.google.com/bigquery/docs/reference/standard-sql/functions-reference#safe_prefix
+        Sequence("SAFE", Ref("DotSegment"), optional=True),
+        OneOf(
             Sequence(
-                Ref("DatePartFunctionNameSegment"),
+                # BigQuery EXTRACT allows optional TimeZone
+                Ref("ExtractFunctionNameSegment"),
+                Bracketed(
+                    Ref("DatetimeUnitSegment"),
+                    "FROM",
+                    Ref("ExpressionSegment"),
+                    Ref("TimeZoneGrammar", optional=True),
+                ),
+            ),
+            Sequence(
+                # Treat functions which take date parts separately
+                # So those functions parse date parts as DatetimeUnitSegment
+                # rather than identifiers.
+                Ref(
+                    "DatePartFunctionNameSegment",
+                    exclude=Ref("ExtractFunctionNameSegment"),
+                ),
                 Bracketed(
                     Delimited(
                         Ref("DatetimeUnitSegment"),
@@ -443,49 +486,48 @@ class FunctionSegment(ansi.FunctionSegment):
                     ),
                 ),
             ),
-        ),
-        Sequence(
             Sequence(
-                AnyNumberOf(
-                    Ref("FunctionNameSegment"),
-                    max_times=1,
-                    min_times=1,
-                    exclude=OneOf(
-                        Ref("DatePartFunctionNameSegment"),
-                        Ref("ValuesClauseSegment"),
-                    ),
-                ),
-                Bracketed(
+                Sequence(
                     Ref(
-                        "FunctionContentsGrammar",
-                        # The brackets might be empty for some functions...
-                        optional=True,
-                        ephemeral_name="FunctionContentsGrammar",
-                    )
-                ),
-            ),
-            # Functions returning ARRAYS in BigQuery can have optional
-            # Array Accessor clauses
-            Ref("ArrayAccessorSegment", optional=True),
-            # Functions returning STRUCTs in BigQuery can have the fields
-            # elements referenced (e.g. ".a"), including wildcards (e.g. ".*")
-            # or multiple nested fields (e.g. ".a.b", or ".a.b.c")
-            Sequence(
-                Ref("DotSegment"),
-                AnyNumberOf(
-                    Sequence(
-                        Ref("ParameterNameSegment"),
-                        Ref("DotSegment"),
+                        "FunctionNameSegment",
+                        exclude=OneOf(
+                            Ref("DatePartFunctionNameSegment"),
+                            Ref("ValuesClauseSegment"),
+                        ),
+                    ),
+                    Bracketed(
+                        Ref(
+                            "FunctionContentsGrammar",
+                            # The brackets might be empty for some functions...
+                            optional=True,
+                            ephemeral_name="FunctionContentsGrammar",
+                        )
                     ),
                 ),
-                OneOf(
-                    Ref("ParameterNameSegment"),
-                    Ref("StarSegment"),
+                # Functions returning ARRAYS in BigQuery can have optional
+                # Array Accessor clauses
+                Ref("ArrayAccessorSegment", optional=True),
+                # Functions returning STRUCTs in BigQuery can have the fields
+                # elements referenced (e.g. ".a"), including wildcards (e.g. ".*")
+                # or multiple nested fields (e.g. ".a.b", or ".a.b.c")
+                Sequence(
+                    Ref("DotSegment"),
+                    AnyNumberOf(
+                        Sequence(
+                            Ref("ParameterNameSegment"),
+                            Ref("DotSegment"),
+                        ),
+                    ),
+                    OneOf(
+                        Ref("ParameterNameSegment"),
+                        Ref("StarSegment"),
+                    ),
+                    optional=True,
                 ),
-                optional=True,
+                Ref("PostFunctionGrammar", optional=True),
             ),
-            Ref("PostFunctionGrammar", optional=True),
         ),
+        allow_gaps=False,
     )
 
 
@@ -500,8 +542,7 @@ class FunctionDefinitionGrammar(ansi.FunctionDefinitionGrammar):
             ),
             Sequence(
                 "LANGUAGE",
-                # Not really a parameter, but best fit for now.
-                Ref("ParameterNameSegment"),
+                Ref("NakedIdentifierSegment"),
                 Sequence(
                     "OPTIONS",
                     Bracketed(
@@ -599,6 +640,7 @@ class DatatypeSegment(ansi.DatatypeSegment):
                     Sequence(
                         Ref("ParameterNameSegment"),
                         Ref("DatatypeSegment"),
+                        Ref("OptionsSegment", optional=True),
                     ),
                     delimiter=Ref("CommaSegment"),
                     bracket_pairs_set="angle_bracket_pairs",
@@ -881,10 +923,9 @@ class DeclareStatementSegment(BaseSegment):
     """
 
     type = "declare_segment"
-    match_grammar = StartsWith("DECLARE")
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "DECLARE",
-        Delimited(Ref("NakedIdentifierSegment")),
+        Delimited(Ref("SingleIdentifierFullGrammar")),
         OneOf(
             Ref("DatatypeSegment"),
             Ref("DefaultDeclareOptionsGrammar"),
@@ -1020,6 +1061,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                         Ref("TableConstraintSegment"),
                         Ref("ColumnDefinitionSegment"),
                     ),
+                    allow_trailing=True,
                 )
             ),
             Ref("CommentClauseSegment", optional=True),
@@ -1191,4 +1233,85 @@ class SamplingExpressionSegment(ansi.SamplingExpressionSegment):
 
     match_grammar = Sequence(
         "TABLESAMPLE", "SYSTEM", Bracketed(Ref("NumericLiteralSegment"), "PERCENT")
+    )
+
+
+class MergeMatchSegment(ansi.MergeMatchSegment):
+    """Contains BigQuery specific merge operations.
+
+    Overriding ANSI to allow `NOT MATCHED BY SOURCE` statements
+    """
+
+    type = "merge_match"
+    match_grammar: Matchable = AnyNumberOf(
+        Ref("MergeMatchedClauseSegment"),
+        Ref("MergeNotMatchedByTargetClauseSegment"),
+        Ref("MergeNotMatchedBySourceClauseSegment"),
+        min_times=1,
+    )
+
+
+class MergeNotMatchedByTargetClauseSegment(ansi.MergeNotMatchedClauseSegment):
+    """The `WHEN NOT MATCHED [BY TARGET]` clause within a `MERGE` statement.
+
+    Overriding ANSI to allow optionally `NOT MATCHED [BY TARGET]` statements
+    """
+
+    type = "not_matched_by_target_clause"
+    match_grammar: Matchable = Sequence(
+        "WHEN",
+        "NOT",
+        "MATCHED",
+        Sequence("BY", "TARGET", optional=True),
+        Sequence("AND", Ref("ExpressionSegment"), optional=True),
+        "THEN",
+        Indent,
+        Ref("MergeInsertClauseSegment"),
+        Dedent,
+    )
+
+
+class MergeNotMatchedBySourceClauseSegment(ansi.MergeMatchedClauseSegment):
+    """The `WHEN MATCHED BY SOURCE` clause within a `MERGE` statement.
+
+    It inherits from `ansi.MergeMatchedClauseSegment` because NotMatchedBySource clause
+    is conceptionally more close to a Matched clause than to NotMatched clause, i.e.
+    it get's combined with an UPDATE or DELETE, not with an INSERT.
+    """
+
+    type = "merge_when_matched_clause"
+    match_grammar: Matchable = Sequence(
+        "WHEN",
+        "NOT",
+        "MATCHED",
+        "BY",
+        "SOURCE",
+        Sequence("AND", Ref("ExpressionSegment"), optional=True),
+        "THEN",
+        Indent,
+        OneOf(
+            Ref("MergeUpdateClauseSegment"),
+            Ref("MergeDeleteClauseSegment"),
+        ),
+        Dedent,
+    )
+
+
+class MergeInsertClauseSegment(ansi.MergeInsertClauseSegment):
+    """`INSERT` clause within the `MERGE` statement.
+
+    Overriding ANSI to allow `INSERT ROW` statements
+    """
+
+    match_grammar: Matchable = OneOf(
+        Sequence(
+            "INSERT",
+            Indent,
+            Ref("BracketedColumnReferenceListGrammar", optional=True),
+            Dedent,
+            Indent,
+            Ref("ValuesClauseSegment", optional=True),
+            Dedent,
+        ),
+        Sequence("INSERT", "ROW"),
     )

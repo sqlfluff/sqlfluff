@@ -165,7 +165,7 @@ def test__cli__command_lint_stdin(command):
     """
     with open("test/fixtures/cli/passing_a.sql") as test_file:
         sql = test_file.read()
-    invoke_assert_code(args=[lint, command], cli_input=sql)
+    invoke_assert_code(args=[lint, ("--dialect=ansi",) + command], cli_input=sql)
 
 
 @pytest.mark.parametrize(
@@ -404,6 +404,7 @@ def test__cli__command_lint_ignore_local_config():
         lint,
         [
             "--ignore-local-config",
+            "--dialect=ansi",
             "test/fixtures/cli/ignore_local_config/ignore_local_config_test.sql",
         ],
     )
@@ -476,18 +477,22 @@ def generic_roundtrip_test(
         for line in source_file:
             dest_file.write(line)
     # Check that we first detect the issue
-    invoke_assert_code(ret_code=65, args=[lint, ["--rules", rulestring, filepath]])
+    invoke_assert_code(
+        ret_code=65, args=[lint, ["--dialect=ansi", "--rules", rulestring, filepath]]
+    )
     # Fix the file (in force mode)
     if force:
         fix_args = ["--rules", rulestring, "-f", filepath]
     else:
         fix_args = ["--rules", rulestring, filepath]
+    fix_args.append("--dialect=ansi")
     invoke_assert_code(
         ret_code=fix_exit_code, args=[fix, fix_args], cli_input=fix_input
     )
     # Now lint the file and check for exceptions
     invoke_assert_code(
-        ret_code=final_exit_code, args=[lint, ["--rules", rulestring, filepath]]
+        ret_code=final_exit_code,
+        args=[lint, ["--dialect=ansi", "--rules", rulestring, filepath]],
     )
     # Check the output file has the correct encoding after fix
     if output_file_encoding:
@@ -658,6 +663,7 @@ def test__cli__fix_error_handling_behavior(sql, fix_args, fixed, exit_code, tmpd
                 fix_args
                 + [
                     "-f",
+                    "--dialect=ansi",
                 ]
             )
         assert exit_code == e.value.code
@@ -672,33 +678,24 @@ def test__cli__fix_error_handling_behavior(sql, fix_args, fixed, exit_code, tmpd
             assert not fixed_path.is_file()
 
 
-_old_crawl = BaseRule.crawl
+_old_eval = BaseRule._eval
 _fix_counter = 0
 
 
-def _mock_crawl(rule, segment, ignore_mask, templated_file=None, *args, **kwargs):
+def _mock_eval(rule, context):
     # For test__cli__fix_loop_limit_behavior, we mock BaseRule.crawl(),
     # replacing it with this function. This function generates an infinite
     # sequence of fixes without ever repeating the same fix. This causes the
     # linter to hit the loop limit, allowing us to test that behavior.
-    if segment.is_type("comment") and "Comment" in segment.raw:
+    if context.segment.is_type("comment") and "Comment" in context.segment.raw:
         global _fix_counter
         _fix_counter += 1
-        fix = LintFix.replace(segment, [CommentSegment(f"-- Comment {_fix_counter}")])
-        result = LintResult(segment, fixes=[fix])
-        errors = []
-        fixes = []
-        rule._process_lint_result(result, templated_file, ignore_mask, errors, fixes)
-        return (
-            errors,
-            None,
-            fixes,
-            None,
+        fix = LintFix.replace(
+            context.segment, [CommentSegment(f"-- Comment {_fix_counter}")]
         )
+        return LintResult(context.segment, fixes=[fix])
     else:
-        return _old_crawl(
-            rule, segment, ignore_mask, templated_file=templated_file, *args, **kwargs
-        )
+        return _old_eval(rule, context)
 
 
 @pytest.mark.parametrize(
@@ -708,7 +705,7 @@ def _mock_crawl(rule, segment, ignore_mask, templated_file=None, *args, **kwargs
         ("-- noqa: disable=all\n-- Comment A\nSELECT 1 FROM foo", 0),
     ],
 )
-@patch("sqlfluff.core.rules.base.BaseRule.crawl", _mock_crawl)
+@patch("sqlfluff.rules.L001.Rule_L001._eval", _mock_eval)
 def test__cli__fix_loop_limit_behavior(sql, exit_code, tmpdir):
     """Tests how "fix" behaves when the loop limit is exceeded."""
     fix_args = ["--force", "--fixed-suffix", "FIXED", "--rules", "L001"]
@@ -721,6 +718,7 @@ def test__cli__fix_loop_limit_behavior(sql, exit_code, tmpdir):
                 fix_args
                 + [
                     "-f",
+                    "--dialect=ansi",
                 ]
             )
         assert exit_code == e.value.code
@@ -766,7 +764,8 @@ def test__cli__fix_loop_limit_behavior(sql, exit_code, tmpdir):
 def test__cli__command_fix_stdin(stdin, rules, stdout):
     """Check stdin input for fix works."""
     result = invoke_assert_code(
-        args=[fix, ("-", "--rules", rules, "--disable_progress_bar")], cli_input=stdin
+        args=[fix, ("-", "--rules", rules, "--disable_progress_bar", "--dialect=ansi")],
+        cli_input=stdin,
     )
     assert result.output == stdout
 
@@ -783,7 +782,9 @@ def test__cli__command_fix_stdin_logging_to_stderr(monkeypatch):
 
     monkeypatch.setattr(sqlfluff.cli.commands, "Linter", MockLinter)
     result = invoke_assert_code(
-        args=[fix, ("-", "--rules=L003")], cli_input=perfect_sql, mix_stderr=False
+        args=[fix, ("-", "--rules=L003", "--dialect=ansi")],
+        cli_input=perfect_sql,
+        mix_stderr=False,
     )
 
     assert result.stdout == perfect_sql
@@ -796,7 +797,8 @@ def test__cli__command_fix_stdin_safety():
 
     # just prints the very same thing
     result = invoke_assert_code(
-        args=[fix, ("-", "--disable_progress_bar")], cli_input=perfect_sql
+        args=[fix, ("-", "--disable_progress_bar", "--dialect=ansi")],
+        cli_input=perfect_sql,
     )
     assert result.output.strip() == perfect_sql
 
@@ -826,13 +828,13 @@ def test__cli__command_fix_stdin_error_exit_code(
     """Check that the CLI fails nicely if fixing a templated stdin."""
     if exit_code == 0:
         invoke_assert_code(
-            args=[fix, ("-")],
+            args=[fix, ("--dialect=ansi", "-")],
             cli_input=sql,
         )
     else:
         with pytest.raises(SystemExit) as exc_info:
             invoke_assert_code(
-                args=[fix, (params, "-")],
+                args=[fix, (params, "--dialect=ansi", "-")],
                 cli_input=sql,
                 output_contains=output_contains,
             )
@@ -868,7 +870,7 @@ def test__cli__command_parse_serialize_from_stdin(serialize, write_file, tmp_pat
 
     Not going to test for the content of the output as that is subject to change.
     """
-    cmd_args = ("-", "--format", serialize)
+    cmd_args = ("-", "--format", serialize, "--dialect=ansi")
 
     if write_file:
         target_file = os.path.join(tmp_path, write_file + "." + serialize)
@@ -930,7 +932,15 @@ def test__cli__command_lint_serialize_from_stdin(serialize, sql, expected, exit_
     result = invoke_assert_code(
         args=[
             lint,
-            ("-", "--rules", "L010", "--format", serialize, "--disable_progress_bar"),
+            (
+                "-",
+                "--rules",
+                "L010",
+                "--format",
+                serialize,
+                "--disable_progress_bar",
+                "--dialect=ansi",
+            ),
         ],
         cli_input=sql,
         ret_code=exit_code,
@@ -966,7 +976,13 @@ def test__cli__command_lint_serialize_multiple_files(serialize, write_file, tmp_
     """
     fpath = "test/fixtures/linter/indentation_errors.sql"
 
-    cmd_args = (fpath, fpath, "--format", serialize, "--disable_progress_bar")
+    cmd_args = (
+        fpath,
+        fpath,
+        "--format",
+        serialize,
+        "--disable_progress_bar",
+    )
 
     if write_file:
         target_file = os.path.join(
@@ -1141,7 +1157,11 @@ def test_cli_pass_on_correct_encoding_argument():
         ret_code=65,
         args=[
             lint,
-            ["test/fixtures/cli/encoding_test.sql", "--encoding", "utf-8-SIG"],
+            [
+                "test/fixtures/cli/encoding_test.sql",
+                "--encoding",
+                "utf-8-SIG",
+            ],
         ],
     )
     raw_output = repr(result.output)
@@ -1157,7 +1177,11 @@ def test_cli_fail_on_wrong_encoding_argument():
         ret_code=65,
         args=[
             lint,
-            ["test/fixtures/cli/encoding_test.sql", "--encoding", "utf-8"],
+            [
+                "test/fixtures/cli/encoding_test.sql",
+                "--encoding",
+                "utf-8",
+            ],
         ],
     )
     raw_output = repr(result.output)
@@ -1184,7 +1208,10 @@ def test_cli_disable_noqa_flag():
         ret_code=65,
         args=[
             lint,
-            ["test/fixtures/cli/disable_noqa_test.sql", "--disable-noqa"],
+            [
+                "test/fixtures/cli/disable_noqa_test.sql",
+                "--disable-noqa",
+            ],
         ],
     )
     raw_output = repr(result.output)
@@ -1200,6 +1227,7 @@ def test_cli_get_default_config():
         True,
         nocolor=None,
         verbose=None,
+        require_dialect=False,
     )
     assert config.get("nocolor") is True
     assert config.get("verbose") == 2
@@ -1224,7 +1252,6 @@ class TestProgressBars:
     ) -> None:
         """When progress bar is disabled, nothing should be printed into output."""
         result = invoke_assert_code(
-            ret_code=65,
             args=[
                 lint,
                 [
@@ -1244,7 +1271,6 @@ class TestProgressBars:
     ) -> None:
         """When progress bar is enabled, there should be some tracks in output."""
         result = invoke_assert_code(
-            ret_code=65,
             args=[
                 lint,
                 [
@@ -1300,22 +1326,3 @@ class TestProgressBars:
         assert r"\rlint by rules:" in raw_output
         assert r"\rrule L001:" in raw_output
         assert r"\rrule L049:" in raw_output
-
-    def test_cli_lint_disabled_progress_bar_when_verbose_mode(
-        self, mock_disable_progress_bar: MagicMock
-    ) -> None:
-        """Progressbar is disabled when verbose mode is set."""
-        result = invoke_assert_code(
-            ret_code=2,
-            args=[
-                lint,
-                [
-                    "-v" "test/fixtures/linter/passing.sql",
-                ],
-            ],
-        )
-        raw_output = repr(result.output)
-
-        assert r"\rparsing: 0it" not in raw_output
-        assert r"\rlint by rules:" not in raw_output
-        assert r"\rrule L001:" not in raw_output

@@ -1,11 +1,33 @@
 """Implementation of Rule L009."""
-from typing import Optional
+from typing import List, Optional, Tuple
 
-from sqlfluff.core.parser import NewlineSegment
-
+from sqlfluff.core.parser import BaseSegment, NewlineSegment
 from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix, RuleContext
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 from sqlfluff.core.rules.functional import Segments, sp, tsp
+
+
+def get_trailing_newlines(segment: BaseSegment) -> List[BaseSegment]:
+    """Returns list of trailing newlines in the tree."""
+    result = []
+    for seg in segment.recursive_crawl_all(reverse=True):
+        if seg.is_type("newline"):
+            result.append(seg)
+        if not seg.is_whitespace and not seg.is_type("dedent"):
+            break
+    return result
+
+
+def get_last_segment(segment: Segments) -> Tuple[List[BaseSegment], Segments]:
+    """Returns rightmost & lowest descendant and its "parent stack"."""
+    parent_stack: List[BaseSegment] = []
+    while True:
+        children = segment.children()
+        if children:
+            parent_stack.append(segment[0])
+            segment = children.last()
+        else:
+            return parent_stack, segment
 
 
 @document_fix_compatible
@@ -82,6 +104,9 @@ class Rule_L009(BaseRule):
     """
 
     targets_templated = True
+    # TRICKY: Tells linter to only call _eval() ONCE, with the root segment
+    recurse_into = False
+    lint_phase = "post"
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Files must end with a single trailing newline.
@@ -91,36 +116,25 @@ class Rule_L009(BaseRule):
 
         """
         # We only care about the final segment of the parse tree.
-        if not self.is_final_segment(context, filter_meta=False):
-            return None
+        parent_stack, segment = get_last_segment(context.functional.segment)
 
-        # Include current segment for complete stack and reverse.
-        parent_stack: Segments = context.functional.parent_stack
-        complete_stack: Segments = (
-            context.functional.raw_stack + context.functional.segment
-        )
-        reversed_complete_stack = complete_stack.reversed()
-
-        # Find the trailing newline segments.
-        trailing_newlines = reversed_complete_stack.select(
-            select_if=sp.is_type("newline"),
-            loop_while=sp.or_(sp.is_whitespace(), sp.is_type("dedent")),
-        )
-        trailing_literal_newlines = trailing_newlines.select(
-            loop_while=lambda seg: sp.templated_slices(seg, context.templated_file).all(
-                tsp.is_slice_type("literal")
+        trailing_newlines = Segments(*get_trailing_newlines(context.segment))
+        trailing_literal_newlines = trailing_newlines
+        if context.templated_file:
+            trailing_literal_newlines = trailing_newlines.select(
+                loop_while=lambda seg: sp.templated_slices(
+                    seg, context.templated_file
+                ).all(tsp.is_slice_type("literal"))
             )
-        )
-
         if not trailing_literal_newlines:
             # We make an edit to create this segment after the child of the FileSegment.
             if len(parent_stack) == 1:
-                fix_anchor_segment = context.segment
+                fix_anchor_segment = segment[0]
             else:
                 fix_anchor_segment = parent_stack[1]
 
             return LintResult(
-                anchor=context.segment,
+                anchor=segment[0],
                 fixes=[
                     LintFix.create_after(
                         fix_anchor_segment,
@@ -131,7 +145,7 @@ class Rule_L009(BaseRule):
         elif len(trailing_literal_newlines) > 1:
             # Delete extra newlines.
             return LintResult(
-                anchor=context.segment,
+                anchor=segment[0],
                 fixes=[LintFix.delete(d) for d in trailing_literal_newlines[1:]],
             )
         else:

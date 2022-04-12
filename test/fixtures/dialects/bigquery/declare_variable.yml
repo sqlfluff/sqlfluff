@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b072399d5f83df444e0434bdf9c0b46373debdfb3916e86cc0cb4c1f5118157d
+_hash: 314dd609dfc7087e8874e235ab1c8d78bfbec61c644eba51fa7caad598e574ea
 file:
 - statement:
     declare_segment:
@@ -174,4 +174,49 @@ file:
         - comma: ','
         - literal: "'two'"
         - end_bracket: )
+- statement_terminator: ;
+- statement:
+    declare_segment:
+      keyword: declare
+      identifier: '`var1`'
+      data_type:
+        data_type_identifier: string
+- statement_terminator: ;
+- statement:
+    declare_segment:
+    - keyword: declare
+    - identifier: '`var1`'
+    - data_type:
+        data_type_identifier: string
+    - keyword: default
+    - literal: "'value'"
+- statement_terminator: ;
+- statement:
+    declare_segment:
+    - keyword: declare
+    - identifier: '`var1`'
+    - comma: ','
+    - identifier: '`var1`'
+    - data_type:
+        data_type_identifier: string
+- statement_terminator: ;
+- statement:
+    declare_segment:
+    - keyword: declare
+    - identifier: var1
+    - comma: ','
+    - identifier: '`var2`'
+    - data_type:
+        data_type_identifier: string
+- statement_terminator: ;
+- statement:
+    declare_segment:
+    - keyword: declare
+    - identifier: var1
+    - comma: ','
+    - identifier: '`var2`'
+    - data_type:
+        data_type_identifier: string
+    - keyword: default
+    - literal: "'value'"
 - statement_terminator: ;

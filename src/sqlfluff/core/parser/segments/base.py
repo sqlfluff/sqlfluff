@@ -885,11 +885,15 @@ class BaseSegment:
                 buff.append(seg)
         return buff
 
-    def recursive_crawl_all(self):
+    def recursive_crawl_all(self, reverse: bool = False):
         """Recursively crawl all descendant segments."""
+        if reverse:
+            for seg in reversed(self.segments):
+                yield from seg.recursive_crawl_all(reverse=reverse)
         yield self
-        for seg in self.segments:
-            yield from seg.recursive_crawl_all()
+        if not reverse:
+            for seg in self.segments:
+                yield from seg.recursive_crawl_all(reverse=reverse)
 
     def recursive_crawl(self, *seg_type: str, recurse_into: bool = True):
         """Recursively crawl for segments of a given type.
@@ -1268,6 +1272,7 @@ class BaseSegment:
             # This segment isn't a literal, but has changed, we need to go deeper.
 
             # Iterate through the child segments
+            source_idx = self.pos_marker.source_slice.start
             templated_idx = self.pos_marker.templated_slice.start
             insert_buff = ""
             for seg_idx, segment in enumerate(self.segments):
@@ -1311,15 +1316,19 @@ class BaseSegment:
 
                 # Once we've dealt with any patches from the segment, update
                 # our position markers.
+                source_idx = segment.pos_marker.source_slice.stop
                 templated_idx = segment.pos_marker.templated_slice.stop
 
             # After the loop, we check whether there's a trailing deletion
             # or insert. Also valid if we still have an insertion buffer here.
             end_diff = self.pos_marker.templated_slice.stop - templated_idx
             if end_diff or insert_buff:
-                source_slice = segment.pos_marker.source_slice
+                source_slice = slice(
+                    source_idx,
+                    self.pos_marker.source_slice.stop,
+                )
                 templated_slice = slice(
-                    self.pos_marker.templated_slice.stop - end_diff,
+                    templated_idx,
                     self.pos_marker.templated_slice.stop,
                 )
                 # By returning an EnrichedFixPatch (rather than FixPatch), which

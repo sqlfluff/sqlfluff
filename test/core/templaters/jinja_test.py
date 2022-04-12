@@ -47,7 +47,9 @@ FROM events
 def test__templater_jinja(instr, expected_outstr):
     """Test jinja templating and the treatment of whitespace."""
     t = JinjaTemplater(override_context=dict(blah="foo", condition="a < 10"))
-    outstr, _ = t.process(in_str=instr, fname="test", config=FluffConfig())
+    outstr, _ = t.process(
+        in_str=instr, fname="test", config=FluffConfig(overrides={"dialect": "ansi"})
+    )
     assert str(outstr) == expected_outstr
 
 
@@ -333,13 +335,69 @@ FROM
                 "\n",
             ],
         ),
+        RawTemplatedTestCase(
+            "set_multiple_variables_and_define_macro",
+            """{% macro echo(text) %}
+{{text}}
+{% endmacro %}
+
+{% set a, b = 1, 2 %}
+
+SELECT
+    {{ echo(a) }},
+    {{ echo(b) }}""",
+            "\n\n\n\nSELECT\n    \n1\n,\n    \n2\n",
+            [
+                "{% macro echo(text) %}",
+                "\n",
+                "{{text}}",
+                "\n",
+                "{% endmacro %}",
+                "\n\n",
+                "{% set a, b = 1, 2 %}",
+                "\n\nSELECT\n    ",
+                "{{ echo(a) }}",
+                ",\n    ",
+                "{{ echo(b) }}",
+            ],
+            [
+                "",
+                "",
+                "",
+                "",
+                "",
+                "\n\n",
+                "",
+                "\n\nSELECT\n    ",
+                "\n1\n",
+                ",\n    ",
+                "\n2\n",
+            ],
+            [
+                "{% macro echo(text) %}",
+                "\n",
+                "{{text}}",
+                "\n",
+                "{% endmacro %}",
+                "\n\n",
+                "{% set a, b = 1, 2 %}",
+                "\n\nSELECT\n    ",
+                "{{ echo(a) }}",
+                ",\n    ",
+                "{{ echo(b) }}",
+            ],
+        ),
     ],
     ids=lambda case: case.name,
 )
 def test__templater_jinja_slices(case: RawTemplatedTestCase):
     """Test that Jinja templater slices raw and templated file correctly."""
     t = JinjaTemplater()
-    templated_file, _ = t.process(in_str=case.instr, fname="test", config=FluffConfig())
+    templated_file, _ = t.process(
+        in_str=case.instr,
+        fname="test",
+        config=FluffConfig(overrides={"dialect": "ansi"}),
+    )
     assert templated_file
     assert templated_file.source_str == case.instr
     assert templated_file.templated_str == case.templated_str
@@ -394,7 +452,9 @@ select 1 from foobarfoobarfoobarfoobar_{{ "dev" }}
 
 {{ run_query(my_query2) }}
 """
-    outstr, vs = t.process(in_str=instr, fname="test", config=FluffConfig())
+    outstr, vs = t.process(
+        in_str=instr, fname="test", config=FluffConfig(overrides={"dialect": "ansi"})
+    )
     assert str(outstr) == "\n\n\n\n\nselect 1 from foobarfoobarfoobarfoobar_dev\n\n\n"
     assert len(vs) == 0
 
@@ -403,7 +463,9 @@ def test__templater_jinja_error_variable():
     """Test missing variable error handling in the jinja templater."""
     t = JinjaTemplater(override_context=dict(blah="foo"))
     instr = JINJA_STRING
-    outstr, vs = t.process(in_str=instr, fname="test", config=FluffConfig())
+    outstr, vs = t.process(
+        in_str=instr, fname="test", config=FluffConfig(overrides={"dialect": "ansi"})
+    )
     assert str(outstr) == "SELECT * FROM f, o, o WHERE \n\n"
     # Check we have violations.
     assert len(vs) > 0
@@ -419,7 +481,9 @@ def test__templater_jinja_dynamic_variable_no_violations():
     SELECT {{some_var}}
 {% endif %}
 """
-    outstr, vs = t.process(in_str=instr, fname="test", config=FluffConfig())
+    outstr, vs = t.process(
+        in_str=instr, fname="test", config=FluffConfig(overrides={"dialect": "ansi"})
+    )
     assert str(outstr) == "\n    \n    SELECT 1\n\n"
     # Check we have no violations.
     assert len(vs) == 0
@@ -429,7 +493,9 @@ def test__templater_jinja_error_syntax():
     """Test syntax problems in the jinja templater."""
     t = JinjaTemplater()
     instr = "SELECT {{foo} FROM jinja_error\n"
-    outstr, vs = t.process(in_str=instr, fname="test", config=FluffConfig())
+    outstr, vs = t.process(
+        in_str=instr, fname="test", config=FluffConfig(overrides={"dialect": "ansi"})
+    )
     # Check we just skip templating.
     assert str(outstr) == instr
     # Check we have violations.
@@ -442,7 +508,9 @@ def test__templater_jinja_error_catastrophic():
     """Test error handling in the jinja templater."""
     t = JinjaTemplater(override_context=dict(blah=7))
     instr = JINJA_STRING
-    outstr, vs = t.process(in_str=instr, fname="test", config=FluffConfig())
+    outstr, vs = t.process(
+        in_str=instr, fname="test", config=FluffConfig(overrides={"dialect": "ansi"})
+    )
     assert not outstr
     assert len(vs) > 0
 
@@ -463,7 +531,7 @@ def test__templater_jinja_lint_empty():
 
     No exception should be raised, but the parsed tree should be None.
     """
-    lntr = Linter()
+    lntr = Linter(dialect="ansi")
     parsed = lntr.parse_string(in_str='{{ "" }}')
     assert parsed.templated_file.source_str == '{{ "" }}'
     assert parsed.templated_file.templated_str == ""
@@ -483,7 +551,7 @@ def assert_structure(yaml_loader, path, code_only=True, include_meta=False):
     # Check nothing unparsable
     if "unparsable" in parsed.type_set():
         print(parsed.stringify())
-        raise ValueError("Input file is contains unparsable.")
+        raise ValueError("Input file is unparsable.")
     _hash, expected = yaml_loader(path + ".yml")
     assert tpl == expected
 
@@ -495,9 +563,13 @@ def assert_structure(yaml_loader, path, code_only=True, include_meta=False):
         ("jinja_a/jinja", True, False),
         # Macros
         ("jinja_b/jinja", False, False),
-        # dbt builting
-        ("jinja_c_dbt/dbt_builtins", True, False),
-        ("jinja_c_dbt/var_default", True, False),
+        # dbt builtins
+        ("jinja_c_dbt/dbt_builtins_config", True, False),
+        ("jinja_c_dbt/dbt_builtins_is_incremental", True, False),
+        ("jinja_c_dbt/dbt_builtins_ref", True, False),
+        ("jinja_c_dbt/dbt_builtins_source", True, False),
+        ("jinja_c_dbt/dbt_builtins_this", True, False),
+        ("jinja_c_dbt/dbt_builtins_var_default", True, False),
         # do directive
         ("jinja_e/jinja", True, False),
         # case sensitivity and python literals
@@ -518,6 +590,9 @@ def assert_structure(yaml_loader, path, code_only=True, include_meta=False):
         # Library Loading from a folder when library is module
         ("jinja_m_libraries_module/jinja", True, False),
         ("jinja_n_nested_macros/jinja", True, False),
+        # Test more dbt configurations
+        ("jinja_o_config_override_dbt_builtins/override_dbt_builtins", True, False),
+        ("jinja_p_disable_dbt_builtins/disable_dbt_builtins", True, False),
     ],
 )
 def test__templater_full(subpath, code_only, include_meta, yaml_loader, caplog):

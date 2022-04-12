@@ -252,9 +252,11 @@ class CallbackFormatter:
                 ("sqlfluff", get_package_version()),
                 ("python", get_python_version()),
                 ("implementation", get_python_implementation()),
-                ("dialect", linter.dialect.name),
                 ("verbosity", self._verbosity),
-            ] + linter.templater.config_pairs()
+            ]
+            if linter.dialect:
+                config_content.append(("dialect", linter.dialect.name))
+            config_content += linter.templater.config_pairs()
             text_buffer.write(
                 cli_table(config_content, col_width=30, max_label_width=15)
             )

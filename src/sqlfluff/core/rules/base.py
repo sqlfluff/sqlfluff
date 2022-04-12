@@ -20,13 +20,13 @@ import fnmatch
 import logging
 import pathlib
 import regex
-from typing import cast, Iterable, Optional, List, Set, Tuple, Union, Any
+from typing import cast, Iterable, Iterator, Optional, List, Set, Tuple, Union, Any
 from collections import namedtuple
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from sqlfluff.core.cached_property import cached_property
 
-from sqlfluff.core.linter import LintedFile
+from sqlfluff.core.linter import LintedFile, NoQaDirective
 from sqlfluff.core.parser import BaseSegment, PositionMarker, RawSegment
 from sqlfluff.core.dialects import Dialect
 from sqlfluff.core.errors import SQLLintError
@@ -349,18 +349,54 @@ EvalResultType = Union[LintResult, List[LintResult], None]
 class RuleContext:
     """Class for holding the context passed to rule eval functions."""
 
-    segment: BaseSegment
-    parent_stack: Tuple[BaseSegment, ...]
-    siblings_pre: Tuple[BaseSegment, ...]
-    siblings_post: Tuple[BaseSegment, ...]
-    raw_stack: Tuple[RawSegment, ...]
-    memory: Any
+    # These don't change within a file.
     dialect: Dialect
-    path: Optional[pathlib.Path]
     fix: bool
     templated_file: Optional[TemplatedFile]
+    path: Optional[pathlib.Path]
+
+    # These change within a file.
+    segment: BaseSegment
+    parent_stack: Tuple[BaseSegment, ...] = field(default=tuple())
+    raw_segment_pre: Optional[RawSegment] = field(default=None)
+    raw_stack: Tuple[RawSegment, ...] = field(default=tuple())
+    memory: Any = field(default_factory=dict)
+    segment_idx: int = field(default=0)
+
+    @property
+    def siblings_pre(self) -> Tuple[BaseSegment, ...]:  # pragma: no cover
+        """Return sibling segments prior to self.segment."""
+        if self.parent_stack:
+            return self.parent_stack[-1].segments[: self.segment_idx]
+        else:
+            return tuple()
+
+    @property
+    def siblings_post(self) -> Tuple[BaseSegment, ...]:
+        """Return sibling segments after self.segment."""
+        if self.parent_stack:
+            return self.parent_stack[-1].segments[self.segment_idx + 1 :]
+        else:
+            return tuple()
 
     @cached_property
+    def final_segment(self) -> BaseSegment:
+        """Returns rightmost & lowest descendant.
+
+        Similar in spirit to BaseRule.is_final_segment(), but:
+        - Much faster
+        - Does not allow filtering out meta segments
+        """
+        last_segment: BaseSegment = (
+            self.parent_stack[0] if self.parent_stack else self.segment
+        )
+        while True:
+            try:
+                last_segment = last_segment.segments[-1]
+            except IndexError:
+                return last_segment
+
+    @property
     def functional(self):
         """Returns a Surrogates object that simplifies writing rules."""
         return FunctionalRuleContext(self)
@@ -372,7 +408,7 @@ class FunctionalRuleContext:
     def __init__(self, context: RuleContext):
         self.context = context
 
-    @cached_property
+    @property
     def segment(self) -> "Segments":
         """Returns a Segments object for context.segment."""
         return Segments(
@@ -400,20 +436,69 @@ class FunctionalRuleContext:
             *self.context.siblings_post, templated_file=self.context.templated_file
         )
 
-    @cached_property
+    @property
     def raw_stack(self) -> "Segments":
         """Returns a Segments object for context.raw_stack."""
         return Segments(
             *self.context.raw_stack, templated_file=self.context.templated_file
         )
 
-    @cached_property
+    @property
     def raw_segments(self):
         """Returns a Segments object for all the raw segments in the file."""
         file_segment = self.context.parent_stack[0]
         return Segments(
             *file_segment.get_raw_segments(), templated_file=self.context.templated_file
         )
+
+
+class CrawlBehavior:
+    """Implements how a lint rule traverses the parse tree."""
+
+    def __init__(
+        self, works_on_unparsable: bool, recurse_into: bool, needs_raw_stack: bool
+    ):
+        self.works_on_unparsable = works_on_unparsable
+        self.recurse_into = recurse_into
+        self.raw_stack: Optional[List[RawSegment]] = [] if needs_raw_stack else None
+
+    def crawl(self, context: RuleContext) -> Iterator[RuleContext]:
+        """Yields a RuleContext for each segment the rule should process."""
+        # First, check whether we're looking at an unparsable and whether
+        # this rule will still operate on that.
+        if not self.works_on_unparsable and context.segment.is_type("unparsable"):
+            # Abort here if it doesn't. Otherwise we'll get odd results.
+            return
+
+        assert (
+            self.raw_stack is None
+            or (len(context.raw_stack) == 0 and context.raw_segment_pre is None)
+            or context.raw_stack[-1] is context.raw_segment_pre
+        )
+        # Rules should evaluate on segments FIRST, before evaluating on their
+        # children.
+        yield context
+
+        if self.recurse_into:
+            # The raw stack only keeps track of the previous *raw* segments.
+            if len(context.segment.segments) == 0:
+                context.raw_segment_pre = cast(RawSegment, context.segment)
+                # Tracking raw_stack is expensive, so it's optional per rule.
+                if self.raw_stack is not None:
+                    self.raw_stack.append(context.raw_segment_pre)
+                    context.raw_stack = tuple(self.raw_stack)
+            base_parent_stack = context.parent_stack
+            new_parent_stack = base_parent_stack + (context.segment,)
+            for idx, child in enumerate(context.segment.segments):
+                # For performance reasons, don't create a new RuleContext for
+                # each segment; just modify the existing one in place. This
+                # requires some careful bookkeeping, but it avoids creating a
+                # HUGE number of short-lived RuleContext objects
+                # (#linter loops x #rules x #segments).
+                context.segment = child
+                context.parent_stack = new_parent_stack
+                context.segment_idx = idx
+                yield from self.crawl(context)
 
 
 class BaseRule:
@@ -431,6 +516,33 @@ class BaseRule:
     _works_on_unparsable = True
     _adjust_anchors = False
     targets_templated = False
+
+    # Lint loop / crawl behavior. When appropriate, rules can (and should)
+    # override these values to make linting faster.
+    recurse_into = True
+    # "needs_raw_stack" defaults to False because rules run faster that way, and
+    # most rules don't need it. Rules that use it are usually those that look
+    # at the surroundings of a segment, e.g. "is there whitespace preceding this
+    # segment?" In the long run, it would be good to review rules that use
+    # raw_stack to try and eliminate its use. These rules will often be good
+    # candidates for one of the following:
+    # - Rewriting to use "RuleContext.raw_segment_pre", which is similar to
+    #   "raw_stack", but it's only the ONE raw segment prior to the current
+    #   one.
+    # - Rewriting to use "BaseRule.recurse_into = False" and traversing the
+    #   parse tree directly.
+    # - Using "RuleContext.memory" to implement custom, lighter weight tracking
+    #   of just the MINIMUM required state across calls to _eval().  Reason:
+    #   "raw_stack" becomes very large for large files (thousands or more
+    #   segments!). In practice, most rules only need to look at a few adjacent
+    #   segments, e.g. others on the same line or in the same statement.
+    needs_raw_stack = False
+    # Rules can override this to specify "post". "Post" rules are those that are
+    # not expected to trigger any downstream rules, e.g. capitalization fixes.
+    # They run on two occasions:
+    # - On the first pass of the main phase
+    # - In a second linter pass after the main phase
+    lint_phase = "main"
 
     def __init__(self, code, description, **kwargs):
         self.description = description
@@ -484,149 +596,107 @@ class BaseRule:
 
     def crawl(
         self,
-        segment,
-        ignore_mask,
-        dialect,
-        parent_stack=None,
-        siblings_pre=None,
-        siblings_post=None,
-        raw_stack=None,
-        memory=None,
-        fname=None,
-        fix=None,
-        templated_file: Optional["TemplatedFile"] = None,
-    ):
-        """Recursively perform the crawl operation on a given segment.
+        tree: BaseSegment,
+        dialect: Dialect,
+        fix: bool,
+        templated_file: Optional["TemplatedFile"],
+        ignore_mask: List[NoQaDirective],
+        fname: Optional[str],
+    ) -> Tuple[List[SQLLintError], Tuple[RawSegment, ...], List[LintFix], Any]:
+        """Run the rule on a given tree.
 
         Returns:
             A tuple of (vs, raw_stack, fixes, memory)
 
         """
-        # parent stack should be a tuple if it exists
-
-        # Rules should evaluate on segments FIRST, before evaluating on their
-        # children. They should also return a list of violations.
-
-        parent_stack = parent_stack or ()
-        raw_stack = raw_stack or ()
-        siblings_post = siblings_post or ()
-        siblings_pre = siblings_pre or ()
-        memory = memory or {}
-        fix = fix or False
+        root_context = RuleContext(
+            dialect=dialect,
+            fix=fix,
+            templated_file=templated_file,
+            path=pathlib.Path(fname) if fname else None,
+            segment=tree,
+        )
         vs: List[SQLLintError] = []
         fixes: List[LintFix] = []
 
-        # First, check whether we're looking at an unparsable and whether
-        # this rule will still operate on that.
-        if not self._works_on_unparsable and segment.is_type("unparsable"):
-            # Abort here if it doesn't. Otherwise we'll get odd results.
-            return vs, raw_stack, [], memory
-
-        # TODO: Document what options are available to the evaluation function.
-        context = RuleContext(
-            segment=segment,
-            parent_stack=parent_stack,
-            siblings_pre=siblings_pre,
-            siblings_post=siblings_post,
-            raw_stack=raw_stack,
-            memory=memory,
-            dialect=dialect,
-            path=pathlib.Path(fname) if fname else None,
-            fix=fix,
-            templated_file=templated_file,
+        # Propagates memory from one rule _eval() to the next.
+        memory: Any = root_context.memory
+        context = None
+        crawl_behavior = CrawlBehavior(
+            self._works_on_unparsable, self.recurse_into, self.needs_raw_stack
         )
-        try:
-            res = self._eval(context=context)
-        except (bdb.BdbQuit, KeyboardInterrupt):  # pragma: no cover
-            raise
-        # Any exception at this point would halt the linter and
-        # cause the user to get no results
-        except Exception as e:
-            self.logger.critical(
-                f"Applying rule {self.code} threw an Exception: {e}", exc_info=True
-            )
-            exception_line, _ = segment.pos_marker.source_position()
-            self._log_critical_errors(e)
-            vs.append(
-                SQLLintError(
-                    rule=self,
-                    segment=segment,
-                    fixes=[],
-                    description=(
-                        f"Unexpected exception: {str(e)};\n"
-                        "Could you open an issue at "
-                        "https://github.com/sqlfluff/sqlfluff/issues ?\n"
-                        "You can ignore this exception for now, by adding "
-                        f"'-- noqa: {self.code}' at the end\n"
-                        f"of line {exception_line}\n"
-                    ),
+        for context in crawl_behavior.crawl(root_context):
+            try:
+                context.memory = memory
+                res = self._eval(context=context)
+            except (bdb.BdbQuit, KeyboardInterrupt):  # pragma: no cover
+                raise
+            # Any exception at this point would halt the linter and
+            # cause the user to get no results
+            except Exception as e:
+                self.logger.critical(
+                    f"Applying rule {self.code} threw an Exception: {e}", exc_info=True
                 )
-            )
-            return vs, raw_stack, fixes, memory
+                assert context.segment.pos_marker
+                exception_line, _ = context.segment.pos_marker.source_position()
+                self._log_critical_errors(e)
+                vs.append(
+                    SQLLintError(
+                        rule=self,
+                        segment=context.segment,
+                        fixes=[],
+                        description=(
+                            f"Unexpected exception: {str(e)};\n"
+                            "Could you open an issue at "
+                            "https://github.com/sqlfluff/sqlfluff/issues ?\n"
+                            "You can ignore this exception for now, by adding "
+                            f"'-- noqa: {self.code}' at the end\n"
+                            f"of line {exception_line}\n"
+                        ),
+                    )
+                )
+                return vs, context.raw_stack, fixes, context.memory
 
-        new_lerrs: List[SQLLintError] = []
-        new_fixes: List[LintFix] = []
+            new_lerrs: List[SQLLintError] = []
+            new_fixes: List[LintFix] = []
 
-        if res is None:
-            # Assume this means no problems (also means no memory)
-            pass
-        elif isinstance(res, LintResult):
-            # Extract any memory
-            memory = res.memory
-            self._adjust_anchors_for_fixes(context, res)
-            self._process_lint_result(
-                res, templated_file, ignore_mask, new_lerrs, new_fixes
-            )
-        elif isinstance(res, list) and all(
-            isinstance(elem, LintResult) for elem in res
-        ):
-            # Extract any memory from the *last* one, assuming
-            # it was the last to be added
-            memory = res[-1].memory
-            for elem in res:
-                self._adjust_anchors_for_fixes(context, elem)
+            if res is None:
+                # Assume this means no problems (also means no memory)
+                pass
+            elif isinstance(res, LintResult):
+                # Extract any memory
+                memory = res.memory
+                self._adjust_anchors_for_fixes(context, res)
                 self._process_lint_result(
-                    elem, templated_file, ignore_mask, new_lerrs, new_fixes
+                    res, templated_file, ignore_mask, new_lerrs, new_fixes
                 )
-        else:  # pragma: no cover
-            raise TypeError(
-                "Got unexpected result [{!r}] back from linting rule: {!r}".format(
-                    res, self.code
+            elif isinstance(res, list) and all(
+                isinstance(elem, LintResult) for elem in res
+            ):
+                # Extract any memory from the *last* one, assuming
+                # it was the last to be added
+                memory = res[-1].memory
+                for elem in res:
+                    self._adjust_anchors_for_fixes(context, elem)
+                    self._process_lint_result(
+                        elem, templated_file, ignore_mask, new_lerrs, new_fixes
+                    )
+            else:  # pragma: no cover
+                raise TypeError(
+                    "Got unexpected result [{!r}] back from linting rule: {!r}".format(
+                        res, self.code
+                    )
                 )
-            )
 
-        for lerr in new_lerrs:
-            self.logger.debug("!! Violation Found: %r", lerr.description)
-        for fix in new_fixes:
-            self.logger.debug("!! Fix Proposed: %r", fix)
+            for lerr in new_lerrs:
+                self.logger.debug("!! Violation Found: %r", lerr.description)
+            for lfix in new_fixes:
+                self.logger.debug("!! Fix Proposed: %r", lfix)
 
-        # Consume the new results
-        vs += new_lerrs
-        fixes += new_fixes
-
-        # The raw stack only keeps track of the previous raw segments
-        if len(segment.segments) == 0:
-            raw_stack += (segment,)
-        # Parent stack keeps track of all the parent segments
-        parent_stack += (segment,)
-
-        for idx, child in enumerate(segment.segments):
-            dvs, raw_stack, child_fixes, memory = self.crawl(
-                segment=child,
-                ignore_mask=ignore_mask,
-                parent_stack=parent_stack,
-                siblings_pre=segment.segments[:idx],
-                siblings_post=segment.segments[idx + 1 :],
-                raw_stack=raw_stack,
-                memory=memory,
-                dialect=dialect,
-                fname=fname,
-                fix=fix,
-                templated_file=templated_file,
-            )
-            vs += dvs
-            fixes += child_fixes
-        return vs, raw_stack, fixes, memory
+            # Consume the new results
+            vs += new_lerrs
+            fixes += new_fixes
+        return vs, context.raw_stack if context else tuple(), fixes, context.memory
 
     # HELPER METHODS --------
     @staticmethod

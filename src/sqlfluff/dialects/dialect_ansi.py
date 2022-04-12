@@ -562,6 +562,7 @@ ansi_dialect.add(
             ),
         ),
     ),
+    TrimParametersGrammar=OneOf("BOTH", "LEADING", "TRAILING"),
 )
 
 
@@ -608,6 +609,15 @@ class ArrayLiteralSegment(BaseSegment):
     match_grammar: Matchable = Bracketed(
         Delimited(Ref("ExpressionSegment"), optional=True),
         bracket_type="square",
+    )
+
+
+class TimeZoneGrammar(BaseSegment):
+    """Casting to Time Zone."""
+
+    type = "time_zone_grammar"
+    match_grammar = AnyNumberOf(
+        Sequence("AT", "TIME", "ZONE", Ref("ExpressionSegment")),
     )
 
 
@@ -934,6 +944,13 @@ ansi_dialect.add(
         Ref("ExpressionSegment"),
         # A Cast-like function
         Sequence(Ref("ExpressionSegment"), "AS", Ref("DatatypeSegment")),
+        # Trim function
+        Sequence(
+            Ref("TrimParametersGrammar"),
+            Ref("ExpressionSegment", optional=True, exclude=Ref.keyword("FROM")),
+            "FROM",
+            Ref("ExpressionSegment"),
+        ),
         # An extract-like or substring-like function
         Sequence(
             OneOf(Ref("DatetimeUnitSegment"), Ref("ExpressionSegment")),
@@ -1064,10 +1081,8 @@ class FunctionSegment(BaseSegment):
         ),
         Sequence(
             Sequence(
-                AnyNumberOf(
-                    Ref("FunctionNameSegment"),
-                    max_times=1,
-                    min_times=1,
+                Ref(
+                    "FunctionNameSegment",
                     exclude=OneOf(
                         Ref("DatePartFunctionNameSegment"),
                         Ref("ValuesClauseSegment"),
@@ -1141,8 +1156,8 @@ class FromExpressionElementSegment(BaseSegment):
     match_grammar: Matchable = Sequence(
         Ref("PreTableFunctionKeywordsGrammar", optional=True),
         OptionallyBracketed(Ref("TableExpressionSegment")),
-        OneOf(
-            Ref("AliasExpressionSegment"),
+        Ref(
+            "AliasExpressionSegment",
             exclude=OneOf(
                 Ref("SamplingExpressionSegment"),
                 Ref("JoinLikeClauseGrammar"),
@@ -1168,7 +1183,13 @@ class FromExpressionElementSegment(BaseSegment):
         tbl_expression = self.get_child("table_expression")
         if not tbl_expression:  # pragma: no cover
             tbl_expression = self.get_child("bracketed").get_child("table_expression")
-        ref = tbl_expression.get_child("object_reference")
+        # For TSQL nested, bracketed tables get the first table as reference
+        if tbl_expression and not tbl_expression.get_child("object_reference"):
+            if tbl_expression.get_child("bracketed"):
+                tbl_expression = tbl_expression.get_child("bracketed").get_child(
+                    "table_expression"
+                )
+        ref = tbl_expression.get_child("object_reference") if tbl_expression else None
         if alias_expression:
             # If it has an alias, return that
             segment = alias_expression.get_child("identifier")
@@ -1365,9 +1386,6 @@ class JoinClauseSegment(BaseSegment):
     type = "join_clause"
     match_grammar: Matchable = OneOf(
         # NB These qualifiers are optional
-        # TODO: Allow nested joins like:
-        # ....FROM S1.T1 t1 LEFT JOIN ( S2.T2 t2 JOIN S3.T3 t3 ON t2.col1=t3.col1) ON
-        # tab1.col1 = tab2.col1
         Sequence(
             OneOf(
                 "CROSS",
@@ -1441,7 +1459,11 @@ class JoinClauseSegment(BaseSegment):
             buff.append((from_expression, alias))
 
         # In some dialects, like TSQL, join clauses can have nested join clauses
-        for join_clause in self.get_children("join_clause"):
+        for join_clause in self.recursive_crawl("join_clause"):
+            if join_clause is self:
+                # If the starting segment itself matches the list of types we're
+                # searching for, recursive_crawl() will return it. Skip that.
+                continue
             aliases: List[
                 Tuple[BaseSegment, AliasInfo]
             ] = join_clause.get_eventual_aliases()
@@ -3074,7 +3096,7 @@ class UpdateStatementSegment(BaseSegment):
         Ref("TableReferenceSegment"),
         # SET is not a resevered word in all dialects (e.g. RedShift)
         # So specifically exclude as an allowed implict alias to avoid parsing errors
-        OneOf(Ref("AliasExpressionSegment"), exclude=Ref.keyword("SET"), optional=True),
+        Ref("AliasExpressionSegment", exclude=Ref.keyword("SET"), optional=True),
         Ref("SetClauseListSegment"),
         Ref("FromClauseSegment", optional=True),
         Ref("WhereClauseSegment", optional=True),
@@ -3153,8 +3175,7 @@ class FunctionDefinitionGrammar(BaseSegment):
         Ref("QuotedLiteralSegment"),
         Sequence(
             "LANGUAGE",
-            # Not really a parameter, but best fit for now.
-            Ref("ParameterNameSegment"),
+            Ref("NakedIdentifierSegment"),
             optional=True,
         ),
     )
@@ -3272,6 +3293,21 @@ class CreateTypeStatementSegment(BaseSegment):
     )
 
 
+class CreateUserStatementSegment(BaseSegment):
+    """A `CREATE USER` statement.
+
+    A very simple create user syntax which can be extended
+    by other dialects.
+    """
+
+    type = "create_user_statement"
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        "USER",
+        Ref("ObjectReferenceSegment"),
+    )
+
+
 class CreateRoleStatementSegment(BaseSegment):
     """A `CREATE ROLE` statement.
 
@@ -3284,6 +3320,19 @@ class CreateRoleStatementSegment(BaseSegment):
         "CREATE",
         "ROLE",
         Ref("ObjectReferenceSegment"),
+    )
+
+
+class DropRoleStatementSegment(BaseSegment):
+    """A `DROP ROLE` statement with CASCADE option."""
+
+    type = "drop_role_statement"
+
+    match_grammar = Sequence(
+        "DROP",
+        "ROLE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("SingleIdentifierGrammar"),
     )
 
 
@@ -3312,12 +3361,10 @@ class MLTableExpressionSegment(BaseSegment):
         Ref("SingleIdentifierGrammar"),
         Bracketed(
             Sequence("MODEL", Ref("ObjectReferenceSegment")),
-            OneOf(
-                Sequence(
-                    Ref("CommaSegment"),
-                    Bracketed(
-                        Ref("SelectableGrammar"),
-                    ),
+            Sequence(
+                Ref("CommaSegment"),
+                Bracketed(
+                    Ref("SelectableGrammar"),
                 ),
                 optional=True,
             ),
@@ -3338,12 +3385,14 @@ class StatementSegment(BaseSegment):
         Ref("TransactionStatementSegment"),
         Ref("DropTableStatementSegment"),
         Ref("DropViewStatementSegment"),
+        Ref("CreateUserStatementSegment"),
         Ref("DropUserStatementSegment"),
         Ref("TruncateStatementSegment"),
         Ref("AccessStatementSegment"),
         Ref("CreateTableStatementSegment"),
         Ref("CreateTypeStatementSegment"),
         Ref("CreateRoleStatementSegment"),
+        Ref("DropRoleStatementSegment"),
         Ref("AlterTableStatementSegment"),
         Ref("CreateSchemaStatementSegment"),
         Ref("SetSchemaStatementSegment"),

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5a0177bbf18d5caa17660ef9d9c5b008832cfc620b9a6ce4a215d9e8a68560bb
+_hash: 2b15bff17b0bca2a6197eaee7bdc2da1d35fcd74e08b42e3751b8a5bf6d99201
 file:
   batch:
     create_procedure_statement:
@@ -88,8 +88,9 @@ file:
               set_segment:
                 keyword: SET
                 parameter: '@EOMONTH'
-                comparison_operator:
-                  raw_comparison_operator: '='
+                assignment_operator:
+                  comparison_operator:
+                    raw_comparison_operator: '='
                 expression:
                   bracketed:
                     start_bracket: (
@@ -100,8 +101,9 @@ file:
               set_segment:
                 keyword: SET
                 parameter: '@EOMONTH'
-                comparison_operator:
-                  raw_comparison_operator: '='
+                assignment_operator:
+                  comparison_operator:
+                    raw_comparison_operator: '='
                 expression:
                   bracketed:
                     start_bracket: (

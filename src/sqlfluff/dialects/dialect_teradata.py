@@ -450,9 +450,9 @@ class TdCreateTableOptions(BaseSegment):
     """
 
     type = "create_table_options_statement"
-    match_grammar = AnyNumberOf(
-        Sequence(
-            Ref("CommaSegment"),
+    match_grammar = Sequence(
+        Ref("CommaSegment"),
+        Delimited(
             OneOf(
                 # [ NO ] FALLBACK [ PROTECTION ]
                 Sequence(
@@ -597,7 +597,7 @@ class CreateTableStatementSegment(BaseSegment):
         Sequence("IF", "NOT", "EXISTS", optional=True),
         Ref("TableReferenceSegment"),
         # , NO FALLBACK, NO BEFORE JOURNAL, NO AFTER JOURNAL
-        OneOf(Ref("TdCreateTableOptions"), optional=True),
+        Ref("TdCreateTableOptions", optional=True),
         OneOf(
             # Columns and comment syntax:
             Sequence(

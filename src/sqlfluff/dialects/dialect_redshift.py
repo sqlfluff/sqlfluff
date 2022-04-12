@@ -23,6 +23,7 @@ from sqlfluff.dialects.dialect_redshift_keywords import (
     redshift_unreserved_keywords,
 )
 from sqlfluff.dialects import dialect_postgres as postgres
+from sqlfluff.dialects import dialect_ansi as ansi
 
 postgres_dialect = load_raw_dialect("postgres")
 ansi_dialect = load_raw_dialect("ansi")
@@ -1402,31 +1403,18 @@ class ProcedureParameterListSegment(BaseSegment):
     # Odd syntax, but prevents eager parameters being confused for data types
     _param_type = OneOf("REFCURSOR", Ref("DatatypeSegment"))
     match_grammar = Bracketed(
-        Sequence(
-            AnyNumberOf(
-                OneOf(
-                    Ref("ParameterNameSegment"),
-                    exclude=OneOf(_param_type, Ref("ArgModeGrammar")),
-                    optional=True,
-                ),
-                Ref("ArgModeGrammar", optional=True),
-                max_times_per_element=1,
-            ),
-            _param_type,
-            AnyNumberOf(
-                Sequence(
-                    Ref("CommaSegment"),
-                    AnyNumberOf(
-                        OneOf(
-                            Ref("ParameterNameSegment"),
-                            exclude=OneOf(_param_type, Ref("ArgModeGrammar")),
-                            optional=True,
-                        ),
-                        Ref("ArgModeGrammar", optional=True),
-                        max_times_per_element=1,
+        Delimited(
+            Sequence(
+                AnyNumberOf(
+                    Ref(
+                        "ParameterNameSegment",
+                        exclude=OneOf(_param_type, Ref("ArgModeGrammar")),
+                        optional=True,
                     ),
-                    _param_type,
+                    Ref("ArgModeGrammar", optional=True),
+                    max_times_per_element=1,
                 ),
+                _param_type,
             ),
             optional=True,
         ),
@@ -1775,7 +1763,6 @@ class StatementSegment(postgres.StatementSegment):
     parse_grammar = postgres.StatementSegment.parse_grammar.copy(
         insert=[
             Ref("CreateLibraryStatementSegment"),
-            Ref("CreateUserStatementSegment"),
             Ref("CreateGroupStatementSegment"),
             Ref("AlterUserStatementSegment"),
             Ref("AlterGroupStatementSegment"),
@@ -1850,13 +1837,11 @@ class RowFormatDelimitedSegment(BaseSegment):
     )
 
 
-class CreateUserStatementSegment(BaseSegment):
+class CreateUserStatementSegment(ansi.CreateUserStatementSegment):
     """`CREATE USER` statement.
 
     https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_USER.html
     """
-
-    type = "create_user"
 
     match_grammar = Sequence(
         "CREATE",
@@ -1930,7 +1915,7 @@ class AlterUserStatementSegment(BaseSegment):
     https://docs.aws.amazon.com/redshift/latest/dg/r_ALTER_USER.html
     """
 
-    type = "alter_user"
+    type = "alter_user_statement"
 
     match_grammar = Sequence(
         "ALTER",
