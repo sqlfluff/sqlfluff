@@ -54,7 +54,7 @@ class Rule_L002(BaseRule):
 
         if context.segment.is_type("whitespace"):
             if " " in context.segment.raw and "\t" in context.segment.raw:
-                if len(context.raw_stack) == 0 or context.raw_stack[-1].is_type(
+                if context.raw_segment_pre is None or context.raw_segment_pre.is_type(
                     "newline"
                 ):
                     # We've got a single whitespace at the beginning of a line.
