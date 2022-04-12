@@ -193,6 +193,7 @@ class Rule_L003(BaseRule):
 
     targets_templated = True
     _works_on_unparsable = False
+    needs_raw_stack = True
     _adjust_anchors = True
     _ignore_types: List[str] = ["script_content"]
     config_keywords = ["tab_space_size", "indent_unit"]
@@ -413,7 +414,7 @@ class Rule_L003(BaseRule):
                 # First non-whitespace element is our trigger
                 memory.trigger = segment
 
-        is_last = self.is_final_segment(context)
+        is_last = context.segment is context.final_segment
         if not segment.is_type("newline") and not is_last:
             # Process on line ends or file end
             return LintResult(memory=memory)

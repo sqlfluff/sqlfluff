@@ -379,6 +379,23 @@ class RuleContext:
         else:
             return tuple()
 
+    @cached_property
+    def final_segment(self) -> BaseSegment:
+        """Returns rightmost & lowest descendant.
+
+        Similar in spirit to BaseRule.is_final_segment(), but:
+        - Much faster
+        - Does not allow filtering out meta segments
+        """
+        last_segment: BaseSegment = (
+            self.parent_stack[0] if self.parent_stack else self.segment
+        )
+        while True:
+            try:
+                last_segment = last_segment.segments[-1]
+            except IndexError:
+                return last_segment
+
     @property
     def functional(self):
         """Returns a Surrogates object that simplifies writing rules."""
@@ -503,12 +520,28 @@ class BaseRule:
     # Lint loop / crawl behavior. When appropriate, rules can (and should)
     # override these values to make linting faster.
     recurse_into = True
-    needs_raw_stack = True
+    # "needs_raw_stack" defaults to False because rules run faster that way, and
+    # most rules don't need it. Rules that use it are usually those that look
+    # at the surroundings of a segment, e.g. "is there whitespace preceding this
+    # segment?" In the long run, it would be good to review rules that use
+    # raw_stack to try and eliminate its use. These rules will often be good
+    # candidates for one of the following:
+    # - Rewriting to use "RuleContext.raw_segment_pre", which is similar to
+    #   "raw_stack", but it's only the ONE raw segment prior to the current
+    #   one.
+    # - Rewriting to use "BaseRule.recurse_into = False" and traversing the
+    #   parse tree directly.
+    # - Using "RuleContext.memory" to implement custom, lighter weight tracking
+    #   of just the MINIMUM required state across calls to _eval().  Reason:
+    #   "raw_stack" becomes very large for large files (thousands or more
+    #   segments!). In practice, most rules only need to look at a few adjacent
+    #   segments, e.g. others on the same line or in the same statement.
+    needs_raw_stack = False
     # Rules can override this to specify "post". "Post" rules are those that are
     # not expected to trigger any downstream rules, e.g. capitalization fixes.
     # They run on two occasions:
-    # - On the first loop of the main phase
-    # - In a second linter loop after the main rules run
+    # - On the first pass of the main phase
+    # - In a second linter pass after the main phase
     lint_phase = "main"
 
     def __init__(self, code, description, **kwargs):
