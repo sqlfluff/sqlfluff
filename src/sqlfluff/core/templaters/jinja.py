@@ -227,12 +227,56 @@ class JinjaTemplater(PythonTemplater):
                     return result
         return None
 
+    def _get_macros_order_load(self, config: FluffConfig) -> list[str]:
+        default_order = ["project", "config", "libraries"]
+        macros_directory_order = (
+            config.get_section((self.templater_selector, self.name, "context")) or {}
+        )
+
+        if macros_directory_order:
+            macro_directories = macros_directory_order["order"].split(",")
+            not_found = [
+                item for item in macro_directories if item not in default_order
+            ]
+            if len(not_found) > 0:
+                raise ValueError(
+                    """For the jinja templater, type of macros does not exist
+                    - [config,libraires,project]"""
+                    "object."
+                )
+            return macro_directories
+        else:
+            return default_order
+
+    def _load_macros(self, type: str, config: FluffConfig, env, live_context) -> dict:
+        if type == "config":
+            return self._extract_macros_from_config(
+                config=config, env=env, ctx=live_context
+            )
+        elif type == "libraries":
+            return self._extract_libraries_from_config(config=config)
+        elif type == "project":
+            macros_path = self._get_macros_path(config)
+            if macros_path is not None:
+                return self._extract_macros_from_path(
+                    macros_path, env=env, ctx=live_context
+                )
+            return {}
+        else:
+            raise ValueError(
+                """For the jinja templater, type of macros does not exist
+                - [config,libraires,project]"""
+                "object."
+            )
+
     def get_context(self, fname=None, config=None, **kw) -> Dict:
         """Get the templating context from the config."""
         # Load the context
         env = kw.pop("env")
         live_context = super().get_context(fname=fname, config=config)
         # Apply dbt builtin functions if we're allowed.
+        macros_directory_order = self._get_macros_order_load(config)
+
         if config:
             apply_dbt_builtins = config.get_section(
                 (self.templater_selector, self.name, "apply_dbt_builtins")
@@ -249,30 +293,11 @@ class JinjaTemplater(PythonTemplater):
 
         # Load macros from path (if applicable)
         if config:
-            # Get macros from config - useful if we have macros in our macros
-            # models -> macros -> macros
-            macros_from_config = self._extract_macros_from_config(
-                config=config, env=env, ctx=live_context
-            )
-            live_context.update(macros_from_config)
-
-            # Get macros from libraries - useful if we have macros in our macros
-            # models -> macros -> macros
-            libraries_from_config = self._extract_libraries_from_config(config=config)
-            live_context.update(libraries_from_config)
-
-            macros_path = self._get_macros_path(config)
-            if macros_path:
-                live_context.update(
-                    self._extract_macros_from_path(
-                        macros_path, env=env, ctx=live_context
-                    )
-                )
-
-            # Load config macros, these will take precedence over macros from the path
-            live_context.update(macros_from_config)
-
-            live_context.update(libraries_from_config)
+            macros_by_path = {}
+            for e in macros_directory_order:
+                if e not in macros_by_path:
+                    macros_by_path[e] = self._load_macros(e, config, env, live_context)
+                live_context.update(macros_by_path[e])
         return live_context
 
     def template_builder(
