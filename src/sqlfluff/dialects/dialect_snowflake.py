@@ -96,6 +96,13 @@ snowflake_dialect.add(
     FunctionAssignerSegment=StringParser(
         "->", SymbolSegment, name="function_assigner", type="function_assigner"
     ),
+    QuotedStarSegment=StringParser(
+        "'*'",
+        CodeSegment,
+        name="quoted_star",
+        type="identifier",
+        trim_chars=("'",),
+    ),
     NakedSemiStructuredElementSegment=RegexParser(
         r"[A-Z0-9_]*",
         CodeSegment,
@@ -2537,29 +2544,37 @@ class CreateStatementSegment(BaseSegment):
                 Sequence(
                     "STORAGE_ALLOWED_LOCATIONS",
                     Ref("EqualsSegment"),
-                    Bracketed(
-                        Delimited(
-                            OneOf(
-                                Ref("S3Path"),
-                                Ref("GCSPath"),
-                                Ref("AzureBlobStoragePath"),
-                                Ref("QuotedStarSegment"),
+                    OneOf(
+                        Bracketed(
+                            Delimited(
+                                OneOf(
+                                    Ref("S3Path"),
+                                    Ref("GCSPath"),
+                                    Ref("AzureBlobStoragePath"),
+                                )
                             )
-                        )
+                        ),
+                        Bracketed(
+                            Ref("QuotedStarSegment"),
+                        ),
                     ),
                 ),
                 Sequence(
                     "STORAGE_BLOCKED_LOCATIONS",
                     Ref("EqualsSegment"),
-                    Bracketed(
-                        Delimited(
-                            OneOf(
-                                Ref("S3Path"),
-                                Ref("GCSPath"),
-                                Ref("AzureBlobStoragePath"),
-                                Ref("QuotedStarSegment"),
+                    OneOf(
+                        Bracketed(
+                            Delimited(
+                                OneOf(
+                                    Ref("S3Path"),
+                                    Ref("GCSPath"),
+                                    Ref("AzureBlobStoragePath"),
+                                )
                             )
-                        )
+                        ),
+                        Bracketed(
+                            Ref("QuotedStarSegment"),
+                        ),
                     ),
                     optional=True,
                 ),

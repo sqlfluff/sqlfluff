@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 83aee238cc834fbb8361c639828ad6ed60d63bff58ed54f31c750ab7d8b16e17
+_hash: 5876a68b60db0d5347597107bca8742d1b3794812e6b7bc93ca0a871ac6208ce
 file:
 - statement:
     create_statement:
@@ -135,7 +135,7 @@ file:
         raw_comparison_operator: '='
     - bracketed:
         start_bracket: (
-        literal: "'*'"
+        identifier: "'*'"
         end_bracket: )
     - keyword: storage_blocked_locations
     - comparison_operator:
@@ -174,7 +174,7 @@ file:
         raw_comparison_operator: '='
     - bracketed:
         start_bracket: (
-        literal: "'*'"
+        identifier: "'*'"
         end_bracket: )
     - keyword: storage_blocked_locations
     - comparison_operator:
@@ -218,7 +218,7 @@ file:
         raw_comparison_operator: '='
     - bracketed:
         start_bracket: (
-        literal: "'*'"
+        identifier: "'*'"
         end_bracket: )
     - keyword: storage_blocked_locations
     - comparison_operator:
