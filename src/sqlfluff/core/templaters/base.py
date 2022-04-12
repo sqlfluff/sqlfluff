@@ -73,6 +73,7 @@ class TemplatedFile:
         templated_str: Optional[str] = None,
         sliced_file: Optional[List[TemplatedFileSlice]] = None,
         raw_sliced: Optional[List[RawFileSlice]] = None,
+        check_consistency=True,
     ):
         """Initialise the TemplatedFile.
 
@@ -103,6 +104,36 @@ class TemplatedFile:
         # Precalculate newlines, character positions.
         self._source_newlines = list(iter_indices_of_newlines(self.source_str))
         self._templated_newlines = list(iter_indices_of_newlines(self.templated_str))
+
+        # NOTE: The "check_consistency" flag should always be True when using
+        # SQLFluff in real life. This flag was only added because some legacy
+        # templater tests in test/core/templaters/jinja_test.py use hardcoded
+        # test data with issues that will trigger errors here. It would be cool
+        # to fix that data someday. I (Barry H.) started looking into it, but
+        # it was much trickier than I expected, because bits of the same data
+        # are shared across multiple tests.
+        if check_consistency:
+            # Sanity check raw string and slices.
+            pos = 0
+            rfs: RawFileSlice
+            for idx, rfs in enumerate(self.raw_sliced):
+                assert rfs.source_idx == pos
+                pos += len(rfs.raw)
+            assert pos == len(self.source_str)
+
+            # Sanity check templated string and slices.
+            previous_slice = None
+            tfs: Optional[TemplatedFileSlice] = None
+            for idx, tfs in enumerate(self.sliced_file):
+                if previous_slice:
+                    assert (
+                        tfs.templated_slice.start == previous_slice.templated_slice.stop
+                    )
+                else:
+                    assert tfs.templated_slice.start == 0
+                previous_slice = tfs
+            if self.sliced_file and templated_str is not None:
+                assert tfs.templated_slice.stop == len(templated_str)
 
     @classmethod
     def from_string(cls, raw):

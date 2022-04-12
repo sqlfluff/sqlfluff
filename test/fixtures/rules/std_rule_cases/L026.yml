@@ -172,6 +172,16 @@ test_pass_two_part_reference_11:
     select * from agent1
     where public.agent1.agent_code <> '3'
 
+test_pass_bigquery_dash:
+  # References in quotes in bigquery
+  pass_str: SELECT bar.user_id FROM foo-far.bar
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      L026:
+        force_enable: true
+
 test_pass_exasol_select_into:
   pass_str: |
     select *
@@ -197,6 +207,41 @@ test_exasol_invalid_foreign_key_from:
 test_tsql_select_system_as_identifier:
   pass_str: |
     SELECT @@IDENTITY AS 'Identity'
+  configs:
+    core:
+      dialect: tsql
+
+test_mysql_select_no_from_should_not_except:
+  pass_str: |
+    SELECT DATE_SUB('1992-12-31 23:59:59.000002', INTERVAL '1.999999' SECOND_MICROSECOND);
+  configs:
+    core:
+      dialect: mysql
+
+test_nested_join_clause_does_not_flag:
+  pass_str: |
+    SELECT
+        1 AS RegionCode
+    FROM BA
+    LEFT OUTER JOIN I
+      LEFT OUTER JOIN P
+        ON I.Pcd = P.Iid
+      ON BA.Iid = I.Bcd
+  configs:
+    core:
+      dialect: tsql
+
+test_nested_join_clauses_do_not_flag:
+  pass_str: |
+    SELECT
+        1 AS RegionCode
+    FROM BA
+    LEFT OUTER JOIN I
+      LEFT OUTER JOIN P
+        ON I.Pcd = P.Iid
+      LEFT OUTER JOIN C
+        ON I.Pcd = C.Iid
+      ON BA.Iid = I.Bcd
   configs:
     core:
       dialect: tsql

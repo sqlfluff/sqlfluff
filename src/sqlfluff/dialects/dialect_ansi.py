@@ -115,7 +115,6 @@ ansi_dialect.set_lexer_matchers(
         RegexLexer("like_operator", r"!?~~?\*?", CodeSegment),
         RegexLexer("newline", r"\r\n|\n", NewlineSegment),
         StringLexer("casting_operator", "::", CodeSegment),
-        StringLexer("concat_operator", "||", CodeSegment),
         StringLexer("equals", "=", CodeSegment),
         StringLexer("greater_than", ">", CodeSegment),
         StringLexer("less_than", "<", CodeSegment),
@@ -201,7 +200,7 @@ ansi_dialect.sets("value_table_functions").update([])
 
 ansi_dialect.add(
     # Real segments
-    DelimiterSegment=Ref("SemicolonSegment"),
+    DelimiterGrammar=Ref("SemicolonSegment"),
     SemicolonSegment=StringParser(
         ";", SymbolSegment, name="semicolon", type="statement_terminator"
     ),
@@ -250,15 +249,10 @@ ansi_dialect.add(
         "%", SymbolSegment, name="modulo", type="binary_operator"
     ),
     SlashSegment=StringParser("/", SymbolSegment, name="slash", type="slash"),
-    ConcatSegment=StringParser(
-        "||", SymbolSegment, name="concatenate", type="binary_operator"
+    AmpersandSegment=StringParser(
+        "&", SymbolSegment, name="ampersand", type="ampersand"
     ),
-    BitwiseAndSegment=StringParser(
-        "&", SymbolSegment, name="binary_and", type="binary_operator"
-    ),
-    BitwiseOrSegment=StringParser(
-        "|", SymbolSegment, name="binary_or", type="binary_operator"
-    ),
+    PipeSegment=StringParser("|", SymbolSegment, name="pipe", type="pipe"),
     BitwiseXorSegment=StringParser(
         "^", SymbolSegment, name="binary_xor", type="binary_operator"
     ),
@@ -393,12 +387,17 @@ ansi_dialect.add(
         Ref("LessThanOrEqualToSegment"),
         Ref("NotEqualToSegment"),
         Ref("LikeOperatorSegment"),
+        Sequence("IS", "DISTINCT", "FROM"),
+        Sequence("IS", "NOT", "DISTINCT", "FROM"),
     ),
     # hookpoint for other dialects
     # e.g. EXASOL str to date cast with DATE '2021-01-01'
     DateTimeLiteralGrammar=Sequence(
         OneOf("DATE", "TIME", "TIMESTAMP", "INTERVAL"), Ref("QuotedLiteralSegment")
     ),
+    # Hookpoint for other dialects
+    # e.g. INTO is optional in BIGQUERY
+    MergeIntoLiteralGrammar=Sequence("MERGE", "INTO"),
     LiteralGrammar=OneOf(
         Ref("QuotedLiteralSegment"),
         Ref("NumericLiteralSegment"),
@@ -455,7 +454,7 @@ ansi_dialect.add(
         "WHERE",
         Sequence("ORDER", "BY"),
         "LIMIT",
-        Ref("CommaSegment"),
+        "OVERLAPS",
         Ref("SetOperatorSegment"),
     ),
     # Define these as grammars to allow child dialects to enable them (since they are
@@ -509,10 +508,10 @@ ansi_dialect.add(
     ),
     FrameClauseUnitGrammar=OneOf("ROWS", "RANGE"),
     # It's as a sequence to allow to parametrize that in Postgres dialect with LATERAL
-    JoinKeywords=Sequence("JOIN"),
+    JoinKeywordsGrammar=Sequence("JOIN"),
     # NATURAL joins are not supported in all dialects (e.g. not in Bigquery
     # or T-SQL). So define here to allow override with Nothing() for those.
-    NaturalJoinKeywords=Sequence(
+    NaturalJoinKeywordsGrammar=Sequence(
         "NATURAL",
         OneOf(
             # Note that NATURAL joins do not support CROSS joins
@@ -525,6 +524,7 @@ ansi_dialect.add(
             optional=True,
         ),
     ),
+    NestedJoinGrammar=Nothing(),
     ReferentialActionGrammar=OneOf(
         "RESTRICT",
         "CASCADE",
@@ -565,7 +565,6 @@ ansi_dialect.add(
 )
 
 
-@ansi_dialect.segment()
 class FileSegment(BaseFileSegment):
     """A segment representing a whole file or script.
 
@@ -576,20 +575,19 @@ class FileSegment(BaseFileSegment):
 
     # NB: We don't need a match_grammar here because we're
     # going straight into instantiating it directly usually.
-    parse_grammar = Delimited(
+    parse_grammar: Optional[Matchable] = Delimited(
         Ref("StatementSegment"),
-        delimiter=AnyNumberOf(Ref("DelimiterSegment"), min_times=1),
+        delimiter=AnyNumberOf(Ref("DelimiterGrammar"), min_times=1),
         allow_gaps=True,
         allow_trailing=True,
     )
 
 
-@ansi_dialect.segment()
 class IntervalExpressionSegment(BaseSegment):
     """An interval expression segment."""
 
     type = "interval_expression"
-    match_grammar = Sequence(
+    match_grammar: Matchable = Sequence(
         "INTERVAL",
         OneOf(
             # The Numeric Version
@@ -603,18 +601,16 @@ class IntervalExpressionSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class ArrayLiteralSegment(BaseSegment):
     """An array literal segment."""
 
     type = "array_literal"
-    match_grammar = Bracketed(
+    match_grammar: Matchable = Bracketed(
         Delimited(Ref("ExpressionSegment"), optional=True),
         bracket_type="square",
     )
 
 
-@ansi_dialect.segment()
 class DatatypeSegment(BaseSegment):
     """A data type segment.
 
@@ -622,9 +618,9 @@ class DatatypeSegment(BaseSegment):
     """
 
     type = "data_type"
-    match_grammar = OneOf(
+    match_grammar: Matchable = OneOf(
         Sequence(
-            OneOf("time", "timestamp"),
+            OneOf("TIME", "TIMESTAMP"),
             Bracketed(Ref("NumericLiteralSegment"), optional=True),
             Sequence(OneOf("WITH", "WITHOUT"), "TIME", "ZONE", optional=True),
         ),
@@ -660,16 +656,15 @@ class DatatypeSegment(BaseSegment):
                 # There may be no brackets for some data types
                 optional=True,
             ),
-            Ref("CharCharacterSetSegment", optional=True),
+            Ref("CharCharacterSetGrammar", optional=True),
         ),
     )
 
 
 # hookpoint
-ansi_dialect.add(CharCharacterSetSegment=Nothing())
+ansi_dialect.add(CharCharacterSetGrammar=Nothing())
 
 
-@ansi_dialect.segment()
 class ObjectReferenceSegment(BaseSegment):
     """A reference to an object."""
 
@@ -690,7 +685,7 @@ class ObjectReferenceSegment(BaseSegment):
             Ref("StartBracketSegment"),
             Ref("BinaryOperatorGrammar"),
             Ref("ColonSegment"),
-            Ref("DelimiterSegment"),
+            Ref("DelimiterGrammar"),
             Ref("JoinLikeClauseGrammar"),
             BracketedSegment,
         ),
@@ -787,76 +782,78 @@ class ObjectReferenceSegment(BaseSegment):
         return level
 
 
-@ansi_dialect.segment()
 class TableReferenceSegment(ObjectReferenceSegment):
     """A reference to an table, CTE, subquery or alias."""
 
     type = "table_reference"
 
 
-@ansi_dialect.segment()
 class SchemaReferenceSegment(ObjectReferenceSegment):
     """A reference to a schema."""
 
     type = "schema_reference"
 
 
-@ansi_dialect.segment()
 class DatabaseReferenceSegment(ObjectReferenceSegment):
     """A reference to a database."""
 
     type = "database_reference"
 
 
-@ansi_dialect.segment()
 class IndexReferenceSegment(ObjectReferenceSegment):
     """A reference to an index."""
 
     type = "index_reference"
 
 
-@ansi_dialect.segment()
+class RoleReferenceSegment(ObjectReferenceSegment):
+    """A reference to a role."""
+
+    type = "role_reference"
+
+
+class TablespaceReferenceSegment(ObjectReferenceSegment):
+    """A reference to a tablespace."""
+
+    type = "tablespace_reference"
+
+
 class ExtensionReferenceSegment(ObjectReferenceSegment):
     """A reference to an extension."""
 
     type = "extension_reference"
 
 
-@ansi_dialect.segment()
 class ColumnReferenceSegment(ObjectReferenceSegment):
     """A reference to column, field or alias."""
 
     type = "column_reference"
 
 
-@ansi_dialect.segment()
 class SequenceReferenceSegment(ObjectReferenceSegment):
     """A reference to a sequence."""
 
     type = "sequence_reference"
 
 
-@ansi_dialect.segment()
 class TriggerReferenceSegment(ObjectReferenceSegment):
     """A reference to a trigger."""
 
     type = "trigger_reference"
 
 
-@ansi_dialect.segment()
 class SingleIdentifierListSegment(BaseSegment):
     """A comma delimited list of identifiers."""
 
     type = "identifier_list"
-    match_grammar = Delimited(Ref("SingleIdentifierGrammar"))
+    match_grammar: Matchable = Delimited(Ref("SingleIdentifierGrammar"))
 
 
-@ansi_dialect.segment()
 class ArrayAccessorSegment(BaseSegment):
     """An array accessor e.g. [3:4]."""
 
     type = "array_accessor"
-    match_grammar = Bracketed(
+    match_grammar: Matchable = Bracketed(
         Delimited(
             OneOf(Ref("NumericLiteralSegment"), Ref("ExpressionSegment")),
             delimiter=Ref("SliceSegment"),
@@ -866,12 +863,11 @@ class ArrayAccessorSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class AliasedObjectReferenceSegment(BaseSegment):
     """A reference to an object with an `AS` clause."""
 
     type = "object_reference"
-    match_grammar = Sequence(
+    match_grammar: Matchable = Sequence(
         Ref("ObjectReferenceSegment"), Ref("AliasExpressionSegment")
     )
 
@@ -884,7 +880,6 @@ ansi_dialect.add(
 )
 
 
-@ansi_dialect.segment()
 class AliasExpressionSegment(BaseSegment):
     """A reference to an object with an `AS` clause.
 
@@ -892,7 +887,7 @@ class AliasExpressionSegment(BaseSegment):
     """
 
     type = "alias_expression"
-    match_grammar = Sequence(
+    match_grammar: Matchable = Sequence(
         Ref.keyword("AS", optional=True),
         OneOf(
             Sequence(
@@ -905,17 +900,15 @@ class AliasExpressionSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class ShorthandCastSegment(BaseSegment):
     """A casting operation using '::'."""
 
     type = "cast_expression"
-    match_grammar = Sequence(
+    match_grammar: Matchable = Sequence(
         Ref("CastOperatorSegment"), Ref("DatatypeSegment"), allow_gaps=True
     )
 
 
-@ansi_dialect.segment()
 class QualifiedNumericLiteralSegment(BaseSegment):
     """A numeric literal with a + or - sign preceding.
 
@@ -926,7 +919,7 @@ class QualifiedNumericLiteralSegment(BaseSegment):
     """
 
     type = "numeric_literal"
-    match_grammar = Sequence(
+    match_grammar: Matchable = Sequence(
         OneOf(Ref("PlusSegment"), Ref("MinusSegment")),
         Ref("NumericLiteralSegment"),
         allow_gaps=False,
@@ -989,12 +982,11 @@ ansi_dialect.add(
 )
 
 
-@ansi_dialect.segment()
 class OverClauseSegment(BaseSegment):
     """An OVER clause for window functions."""
 
     type = "over_clause"
-    match_grammar = Sequence(
+    match_grammar: Matchable = Sequence(
         "OVER",
         OneOf(
             Ref("SingleIdentifierGrammar"),  # Window name
@@ -1005,12 +997,11 @@ class OverClauseSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class WindowSpecificationSegment(BaseSegment):
     """Window specification within OVER(...)."""
 
     type = "window_specification"
-    match_grammar = Sequence(
+    match_grammar: Matchable = Sequence(
         Ref("SingleIdentifierGrammar", optional=True),  # "Base" window name
         Ref("PartitionClauseSegment", optional=True),
         Ref("OrderByClauseSegment", optional=True),
@@ -1020,12 +1011,11 @@ class WindowSpecificationSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class FunctionNameSegment(BaseSegment):
     """Function name, including any prefix bits, e.g. project or schema."""
 
     type = "function_name"
-    match_grammar = Sequence(
+    match_grammar: Matchable = Sequence(
         # Project name, schema identifier, etc.
         AnyNumberOf(
             Sequence(
@@ -1042,7 +1032,6 @@ class FunctionNameSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class FunctionSegment(BaseSegment):
     """A scalar or aggregate function.
 
@@ -1053,7 +1042,7 @@ class FunctionSegment(BaseSegment):
     """
 
     type = "function"
-    match_grammar = OneOf(
+    match_grammar: Matchable = OneOf(
         Sequence(
             # Treat functions which take date parts separately
             # So those functions parse date parts as DatetimeUnitSegment
@@ -1098,17 +1087,16 @@ class FunctionSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class PartitionClauseSegment(BaseSegment):
     """A `PARTITION BY` for window functions."""
 
     type = "partitionby_clause"
-    match_grammar = StartsWith(
+    match_grammar: Matchable = StartsWith(
         "PARTITION",
         terminator=OneOf("ORDER", Ref("FrameClauseUnitGrammar")),
         enforce_whitespace_preceding_terminator=True,
     )
-    parse_grammar = Sequence(
+    parse_grammar: Optional[Matchable] = Sequence(
         "PARTITION",
         "BY",
         Indent,
@@ -1118,7 +1106,6 @@ class PartitionClauseSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class FrameClauseSegment(BaseSegment):
     """A frame clause for window functions.
 
@@ -1135,7 +1122,7 @@ class FrameClauseSegment(BaseSegment):
         ),
     )
 
-    match_grammar = Sequence(
+    match_grammar: Matchable = Sequence(
         Ref("FrameClauseUnitGrammar"),
         OneOf(_frame_extent, Sequence("BETWEEN", _frame_extent, "AND", _frame_extent)),
     )
@@ -1147,22 +1134,24 @@ ansi_dialect.add(
 )
 
 
-@ansi_dialect.segment()
 class FromExpressionElementSegment(BaseSegment):
     """A table expression."""
 
     type = "from_expression_element"
-    match_grammar = Sequence(
+    match_grammar: Matchable = Sequence(
         Ref("PreTableFunctionKeywordsGrammar", optional=True),
         OptionallyBracketed(Ref("TableExpressionSegment")),
-        # https://cloud.google.com/bigquery/docs/reference/standard-sql/arrays#flattening_arrays
-        Sequence("WITH", "OFFSET", optional=True),
         OneOf(
-            Sequence(Ref("AliasExpressionSegment"), Ref("SamplingExpressionSegment")),
-            Ref("SamplingExpressionSegment"),
             Ref("AliasExpressionSegment"),
+            exclude=OneOf(
+                Ref("SamplingExpressionSegment"),
+                Ref("JoinLikeClauseGrammar"),
+            ),
             optional=True,
         ),
+        # https://cloud.google.com/bigquery/docs/reference/standard-sql/arrays#flattening_arrays
+        Sequence("WITH", "OFFSET", Ref("AliasExpressionSegment"), optional=True),
+        Ref("SamplingExpressionSegment", optional=True),
         Ref("PostTableExpressionGrammar", optional=True),
     )
 
@@ -1206,12 +1195,11 @@ class FromExpressionElementSegment(BaseSegment):
         return None
 
 
-@ansi_dialect.segment()
 class FromExpressionSegment(BaseSegment):
     """A from expression segment."""
 
     type = "from_expression"
-    match_grammar = Sequence(
+    match_grammar: Matchable = Sequence(
         Indent,
         OneOf(
             # check first for MLTableExpression, because of possible FunctionSegment in
@@ -1227,22 +1215,21 @@ class FromExpressionSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class TableExpressionSegment(BaseSegment):
     """The main table expression e.g. within a FROM clause."""
 
     type = "table_expression"
-    match_grammar = OneOf(
+    match_grammar: Matchable = OneOf(
         Ref("ValuesClauseSegment"),
         Ref("BareFunctionSegment"),
         Ref("FunctionSegment"),
         Ref("TableReferenceSegment"),
         # Nested Selects
         Bracketed(Ref("SelectableGrammar")),
+        Bracketed(Ref("MergeStatementSegment")),
     )
 
 
-@ansi_dialect.segment()
 class WildcardIdentifierSegment(ObjectReferenceSegment):
     """Any identifier of the form a.b.*.
 
@@ -1251,7 +1238,7 @@ class WildcardIdentifierSegment(ObjectReferenceSegment):
     """
 
     type = "wildcard_identifier"
-    match_grammar = Sequence(
+    match_grammar: Matchable = Sequence(
         # *, blah.*, blah.blah.*, etc.
         AnyNumberOf(
             Sequence(Ref("SingleIdentifierGrammar"), Ref("DotSegment"), allow_gaps=True)
@@ -1272,7 +1259,6 @@ class WildcardIdentifierSegment(ObjectReferenceSegment):
             yield from self._iter_reference_parts(elem)
 
 
-@ansi_dialect.segment()
 class WildcardExpressionSegment(BaseSegment):
     """A star (*) expression for a SELECT clause.
 
@@ -1282,24 +1268,19 @@ class WildcardExpressionSegment(BaseSegment):
     """
 
     type = "wildcard_expression"
-    match_grammar = Sequence(
+    match_grammar: Matchable = Sequence(
         # *, blah.*, blah.blah.*, etc.
         Ref("WildcardIdentifierSegment")
     )
 
 
-@ansi_dialect.segment()
 class SelectClauseElementSegment(BaseSegment):
     """An element in the targets of a select statement."""
 
     type = "select_clause_element"
     # Important to split elements before parsing, otherwise debugging is really hard.
-    match_grammar = GreedyUntil(
-        Ref("SelectClauseElementTerminatorGrammar"),
-        enforce_whitespace_preceding_terminator=True,
-    )
 
-    parse_grammar = OneOf(
+    match_grammar = OneOf(
         # *, blah.*, blah.blah.*, etc.
         Ref("WildcardExpressionSegment"),
         Sequence(
@@ -1348,23 +1329,21 @@ class SelectClauseElementSegment(BaseSegment):
         )
 
 
-@ansi_dialect.segment()
 class SelectClauseModifierSegment(BaseSegment):
     """Things that come after SELECT but before the columns."""
 
     type = "select_clause_modifier"
-    match_grammar = OneOf(
+    match_grammar: Matchable = OneOf(
         "DISTINCT",
         "ALL",
     )
 
 
-@ansi_dialect.segment()
 class SelectClauseSegment(BaseSegment):
     """A group of elements in a select target statement."""
 
     type = "select_clause"
-    match_grammar = StartsWith(
+    match_grammar: Matchable = StartsWith(
         Sequence("SELECT", Ref("WildcardExpressionSegment", optional=True)),
         terminator=OneOf(
             "FROM",
@@ -1377,15 +1356,14 @@ class SelectClauseSegment(BaseSegment):
         enforce_whitespace_preceding_terminator=True,
     )
 
-    parse_grammar = Ref("SelectClauseSegmentGrammar")
+    parse_grammar: Matchable = Ref("SelectClauseSegmentGrammar")
 
 
-@ansi_dialect.segment()
 class JoinClauseSegment(BaseSegment):
     """Any number of join clauses, including the `JOIN` keyword."""
 
     type = "join_clause"
-    match_grammar = OneOf(
+    match_grammar: Matchable = OneOf(
         # NB These qualifiers are optional
         # TODO: Allow nested joins like:
         # ....FROM S1.T1 t1 LEFT JOIN ( S2.T2 t2 JOIN S3.T3 t3 ON t2.col1=t3.col1) ON
@@ -1404,10 +1382,11 @@ class JoinClauseSegment(BaseSegment):
                 ),
                 optional=True,
             ),
-            Ref("JoinKeywords"),
+            Ref("JoinKeywordsGrammar"),
             Indent,
             Sequence(
                 Ref("FromExpressionElementSegment"),
+                AnyNumberOf(Ref("NestedJoinGrammar")),
                 Conditional(Dedent, indented_using_on=False),
                 # NB: this is optional
                 OneOf(
@@ -1442,26 +1421,42 @@ class JoinClauseSegment(BaseSegment):
         ),
         # Note NATURAL joins do not support Join conditions
         Sequence(
-            Ref("NaturalJoinKeywords"),
-            Ref("JoinKeywords"),
+            Ref("NaturalJoinKeywordsGrammar"),
+            Ref("JoinKeywordsGrammar"),
             Indent,
             Ref("FromExpressionElementSegment"),
             Dedent,
         ),
     )
 
-    def get_eventual_alias(self) -> AliasInfo:
+    def get_eventual_aliases(self) -> List[Tuple[BaseSegment, AliasInfo]]:
         """Return the eventual table name referred to by this join clause."""
-        from_expression_element = self.get_child("from_expression_element")
-        return from_expression_element.get_eventual_alias()
+        buff = []
+
+        from_expression = self.get_child("from_expression_element")
+        alias: AliasInfo = from_expression.get_eventual_alias()
+        # Only append if non null. A None reference, may
+        # indicate a generator expression or similar.
+        if alias:
+            buff.append((from_expression, alias))
+
+        # In some dialects, like TSQL, join clauses can have nested join clauses
+        for join_clause in self.get_children("join_clause"):
+            aliases: List[
+                Tuple[BaseSegment, AliasInfo]
+            ] = join_clause.get_eventual_aliases()
+            # Only append if non null. A None reference, may
+            # indicate a generator expression or similar.
+            if aliases:
+                buff = buff + aliases
+        return buff
 
 
-@ansi_dialect.segment()
 class JoinOnConditionSegment(BaseSegment):
     """The `ON` condition within a `JOIN` clause."""
 
     type = "join_on_condition"
-    match_grammar = Sequence(
+    match_grammar: Matchable = Sequence(
         "ON",
         Indent,
         OptionallyBracketed(Ref("ExpressionSegment")),
@@ -1475,7 +1470,6 @@ ansi_dialect.add(
 )
 
 
-@ansi_dialect.segment()
 class FromClauseSegment(BaseSegment):
     """A `FROM` clause like in `SELECT`.
 
@@ -1491,12 +1485,12 @@ class FromClauseSegment(BaseSegment):
     """
 
     type = "from_clause"
-    match_grammar = StartsWith(
+    match_grammar: Matchable = StartsWith(
         "FROM",
         terminator=Ref("FromClauseTerminatorGrammar"),
         enforce_whitespace_preceding_terminator=True,
     )
-    parse_grammar = Sequence(
+    parse_grammar: Optional[Matchable] = Sequence(
         "FROM",
         Delimited(
             Ref("FromExpressionSegment"),
@@ -1519,8 +1513,8 @@ class FromClauseSegment(BaseSegment):
             join_clauses += from_expression.get_children("join_clause")
 
         # Iterate through the potential sources of aliases
-        for clause in (*direct_table_children, *join_clauses):
-            ref: AliasInfo = clause.get_eventual_alias()
+        for clause in direct_table_children:
+            alias: AliasInfo = clause.get_eventual_alias()
             # Only append if non null. A None reference, may
             # indicate a generator expression or similar.
             table_expr = (
@@ -1528,17 +1522,22 @@ class FromClauseSegment(BaseSegment):
                 if clause in direct_table_children
                 else clause.get_child("from_expression_element")
             )
-            if ref:
-                buff.append((table_expr, ref))
+            if alias:
+                buff.append((table_expr, alias))
+        for clause in join_clauses:
+            aliases: List[Tuple[BaseSegment, AliasInfo]] = clause.get_eventual_aliases()
+            # Only append if non null. A None reference, may
+            # indicate a generator expression or similar.
+            if aliases:
+                buff = buff + aliases
         return buff
 
 
-@ansi_dialect.segment()
 class WhenClauseSegment(BaseSegment):
     """A 'WHEN' clause for a 'CASE' statement."""
 
     type = "when_clause"
-    match_grammar = Sequence(
+    match_grammar: Matchable = Sequence(
         "WHEN",
         Indent,
         Ref("ExpressionSegment"),
@@ -1548,20 +1547,20 @@ class WhenClauseSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class ElseClauseSegment(BaseSegment):
     """An 'ELSE' clause for a 'CASE' statement."""
 
     type = "else_clause"
-    match_grammar = Sequence("ELSE", Indent, Ref("ExpressionSegment"), Dedent)
+    match_grammar: Matchable = Sequence(
+        "ELSE", Indent, Ref("ExpressionSegment"), Dedent
+    )
 
 
-@ansi_dialect.segment()
 class CaseExpressionSegment(BaseSegment):
     """A `CASE WHEN` clause."""
 
     type = "case_expression"
-    match_grammar = OneOf(
+    match_grammar: Matchable = OneOf(
         Sequence(
             "CASE",
             Indent,
@@ -1655,34 +1654,38 @@ ansi_dialect.add(
                 Sequence(
                     Ref.keyword("NOT", optional=True),
                     "BETWEEN",
-                    # In a between expression, we're restricted to arithmetic operations
-                    # because if we look for all binary operators then we would match
-                    # AND as both an operator and also as the delimiter within the
-                    # BETWEEN expression.
-                    Ref("Expression_C_Grammar"),
-                    AnyNumberOf(
-                        Sequence(
-                            Ref("ArithmeticBinaryOperatorGrammar"),
-                            Ref("Expression_C_Grammar"),
-                        )
-                    ),
+                    Ref("Expression_B_Grammar"),
                     "AND",
-                    Ref("Expression_C_Grammar"),
-                    AnyNumberOf(
-                        Sequence(
-                            Ref("ArithmeticBinaryOperatorGrammar"),
-                            Ref("Expression_C_Grammar"),
-                        )
-                    ),
+                    Ref("Expression_A_Grammar"),
                 ),
             )
         ),
     ),
-    # CockroachDB defines Expression_B_Grammar. The SQLFluff implementation of
-    # expression parsing pulls that logic into Expression_A_Grammar and so there's
-    # currently no need to define Expression_B.
+    # Expression_B_Grammar: Does not directly feed into Expression_A_Grammar
+    # but is used for a BETWEEN statement within Expression_A_Grammar.
     # https://www.cockroachlabs.com/docs/v20.2/sql-grammar.htm#b_expr
-    #
+    Expression_B_Grammar=Sequence(
+        OneOf(
+            Ref("Expression_C_Grammar"),
+            Sequence(
+                OneOf(
+                    Ref("PositiveSegment"),
+                    Ref("NegativeSegment"),
+                ),
+                Ref("Expression_B_Grammar"),
+            ),
+        ),
+        AnyNumberOf(
+            Sequence(
+                OneOf(
+                    Ref("ArithmeticBinaryOperatorGrammar"),
+                    Ref("StringBinaryOperatorGrammar"),
+                    Ref("ComparisonOperatorGrammar"),
+                ),
+                Ref("Expression_C_Grammar"),
+            ),
+        ),
+    ),
     # Expression_C_Grammar
     # https://www.cockroachlabs.com/docs/v20.2/sql-grammar.htm#c_expr
     Expression_C_Grammar=OneOf(
@@ -1754,62 +1757,56 @@ ansi_dialect.add(
 )
 
 
-@ansi_dialect.segment()
 class EqualsSegment(BaseSegment):
     """Equals operator."""
 
     type = "comparison_operator"
     name = "equals"
-    match_grammar = Ref("RawEqualsSegment")
+    match_grammar: Matchable = Ref("RawEqualsSegment")
 
 
-@ansi_dialect.segment()
 class GreaterThanSegment(BaseSegment):
     """Greater than operator."""
 
     type = "comparison_operator"
     name = "greater_than"
-    match_grammar = Ref("RawGreaterThanSegment")
+    match_grammar: Matchable = Ref("RawGreaterThanSegment")
 
 
-@ansi_dialect.segment()
 class LessThanSegment(BaseSegment):
     """Less than operator."""
 
     type = "comparison_operator"
     name = "less_than"
-    match_grammar = Ref("RawLessThanSegment")
+    match_grammar: Matchable = Ref("RawLessThanSegment")
 
 
-@ansi_dialect.segment()
 class GreaterThanOrEqualToSegment(BaseSegment):
     """Greater than or equal to operator."""
 
     type = "comparison_operator"
     name = "greater_than_equal_to"
-    match_grammar = Sequence(
+    match_grammar: Matchable = Sequence(
         Ref("RawGreaterThanSegment"), Ref("RawEqualsSegment"), allow_gaps=False
     )
 
 
-@ansi_dialect.segment()
 class LessThanOrEqualToSegment(BaseSegment):
     """Less than or equal to operator."""
 
     type = "comparison_operator"
     name = "less_than_equal_to"
-    match_grammar = Sequence(
+    match_grammar: Matchable = Sequence(
         Ref("RawLessThanSegment"), Ref("RawEqualsSegment"), allow_gaps=False
     )
 
 
-@ansi_dialect.segment()
 class NotEqualToSegment(BaseSegment):
     """Not equal to operator."""
 
     type = "comparison_operator"
     name = "not_equal_to"
-    match_grammar = OneOf(
+    match_grammar: Matchable = OneOf(
         Sequence(Ref("RawNotSegment"), Ref("RawEqualsSegment"), allow_gaps=False),
         Sequence(
             Ref("RawLessThanSegment"), Ref("RawGreaterThanSegment"), allow_gaps=False
@@ -1817,27 +1814,50 @@ class NotEqualToSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
+class ConcatSegment(BaseSegment):
+    """Concat operator."""
+
+    type = "binary_operator"
+    name = "concatenate"
+    match_grammar: Matchable = Sequence(
+        Ref("PipeSegment"), Ref("PipeSegment"), allow_gaps=False
+    )
+
+
+class BitwiseAndSegment(BaseSegment):
+    """Bitwise and operator."""
+
+    type = "binary_operator"
+    name = "binary_and"
+    match_grammar: Matchable = Ref("AmpersandSegment")
+
+
+class BitwiseOrSegment(BaseSegment):
+    """Bitwise or operator."""
+
+    type = "binary_operator"
+    name = "binary_or"
+    match_grammar: Matchable = Ref("PipeSegment")
+
+
 class BitwiseLShiftSegment(BaseSegment):
     """Bitwise left-shift operator."""
 
     type = "binary_operator"
-    match_grammar = Sequence(
+    match_grammar: Matchable = Sequence(
         Ref("RawLessThanSegment"), Ref("RawLessThanSegment"), allow_gaps=False
     )
 
 
-@ansi_dialect.segment()
 class BitwiseRShiftSegment(BaseSegment):
     """Bitwise right-shift operator."""
 
     type = "binary_operator"
-    match_grammar = Sequence(
+    match_grammar: Matchable = Sequence(
         Ref("RawGreaterThanSegment"), Ref("RawGreaterThanSegment"), allow_gaps=False
     )
 
 
-@ansi_dialect.segment()
 class ExpressionSegment(BaseSegment):
     """A expression, either arithmetic or boolean.
 
@@ -1855,20 +1875,19 @@ class ExpressionSegment(BaseSegment):
     """
 
     type = "expression"
-    match_grammar = Ref("Expression_A_Grammar")
+    match_grammar: Matchable = Ref("Expression_A_Grammar")
 
 
-@ansi_dialect.segment()
 class WhereClauseSegment(BaseSegment):
     """A `WHERE` clause like in `SELECT` or `INSERT`."""
 
     type = "where_clause"
-    match_grammar = StartsWith(
+    match_grammar: Matchable = StartsWith(
         "WHERE",
         terminator=Ref("WhereClauseTerminatorGrammar"),
         enforce_whitespace_preceding_terminator=True,
     )
-    parse_grammar = Sequence(
+    parse_grammar: Optional[Matchable] = Sequence(
         "WHERE",
         Indent,
         OptionallyBracketed(Ref("ExpressionSegment")),
@@ -1876,12 +1895,11 @@ class WhereClauseSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class OrderByClauseSegment(BaseSegment):
     """A `ORDER BY` clause like in `SELECT`."""
 
     type = "orderby_clause"
-    match_grammar = StartsWith(
+    match_grammar: Matchable = StartsWith(
         Sequence("ORDER", "BY"),
         terminator=OneOf(
             "LIMIT",
@@ -1893,7 +1911,7 @@ class OrderByClauseSegment(BaseSegment):
             "SEPARATOR",
         ),
     )
-    parse_grammar = Sequence(
+    parse_grammar: Optional[Matchable] = Sequence(
         "ORDER",
         "BY",
         Indent,
@@ -1918,17 +1936,16 @@ class OrderByClauseSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class GroupByClauseSegment(BaseSegment):
     """A `GROUP BY` clause like in `SELECT`."""
 
     type = "groupby_clause"
-    match_grammar = StartsWith(
+    match_grammar: Matchable = StartsWith(
         Sequence("GROUP", "BY"),
         terminator=OneOf("ORDER", "LIMIT", "HAVING", "QUALIFY", "WINDOW"),
         enforce_whitespace_preceding_terminator=True,
     )
-    parse_grammar = Sequence(
+    parse_grammar: Optional[Matchable] = Sequence(
         "GROUP",
         "BY",
         Indent,
@@ -1946,17 +1963,16 @@ class GroupByClauseSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class HavingClauseSegment(BaseSegment):
     """A `HAVING` clause like in `SELECT`."""
 
     type = "having_clause"
-    match_grammar = StartsWith(
+    match_grammar: Matchable = StartsWith(
         "HAVING",
         terminator=OneOf("ORDER", "LIMIT", "QUALIFY", "WINDOW"),
         enforce_whitespace_preceding_terminator=True,
     )
-    parse_grammar = Sequence(
+    parse_grammar: Optional[Matchable] = Sequence(
         "HAVING",
         Indent,
         OptionallyBracketed(Ref("ExpressionSegment")),
@@ -1964,12 +1980,11 @@ class HavingClauseSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class LimitClauseSegment(BaseSegment):
     """A `LIMIT` clause like in `SELECT`."""
 
     type = "limit_clause"
-    match_grammar = Sequence(
+    match_grammar: Matchable = Sequence(
         "LIMIT",
         Indent,
         OneOf(
@@ -1987,15 +2002,14 @@ class LimitClauseSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class OverlapsClauseSegment(BaseSegment):
     """An `OVERLAPS` clause like in `SELECT."""
 
     type = "overlaps_clause"
-    match_grammar = StartsWith(
+    match_grammar: Matchable = StartsWith(
         "OVERLAPS",
     )
-    parse_grammar = Sequence(
+    parse_grammar: Optional[Matchable] = Sequence(
         "OVERLAPS",
         OneOf(
             Sequence(
@@ -2010,12 +2024,11 @@ class OverlapsClauseSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class NamedWindowSegment(BaseSegment):
     """A WINDOW clause."""
 
     type = "named_window"
-    match_grammar = Sequence(
+    match_grammar: Matchable = Sequence(
         "WINDOW",
         Indent,
         Delimited(
@@ -2025,12 +2038,11 @@ class NamedWindowSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class NamedWindowExpressionSegment(BaseSegment):
     """Named window expression."""
 
     type = "named_window_expression"
-    match_grammar = Sequence(
+    match_grammar: Matchable = Sequence(
         Ref("SingleIdentifierGrammar"),  # Window name
         "AS",
         Bracketed(
@@ -2039,12 +2051,11 @@ class NamedWindowExpressionSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class ValuesClauseSegment(BaseSegment):
     """A `VALUES` clause like in `INSERT`."""
 
     type = "values_clause"
-    match_grammar = Sequence(
+    match_grammar: Matchable = Sequence(
         OneOf("VALUE", "VALUES"),
         Delimited(
             Sequence(
@@ -2058,7 +2069,7 @@ class ValuesClauseSegment(BaseSegment):
                 Ref.keyword("ROW", optional=True),
                 Bracketed(
                     Delimited(
-                        "DEFAULT",  # not in `FROM` clause, rule?
+                        "DEFAULT",
                         Ref("ExpressionSegment"),
                         ephemeral_name="ValuesClauseElements",
                     )
@@ -2068,7 +2079,6 @@ class ValuesClauseSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class UnorderedSelectStatementSegment(BaseSegment):
     """A `SELECT` statement without any ORDER clauses or later.
 
@@ -2080,7 +2090,7 @@ class UnorderedSelectStatementSegment(BaseSegment):
     type = "select_statement"
     # match grammar. This one makes sense in the context of knowing that it's
     # definitely a statement, we just don't know what type yet.
-    match_grammar = StartsWith(
+    match_grammar: Matchable = StartsWith(
         # NB: In bigquery, the select clause may include an EXCEPT, which
         # will also match the set operator, but by starting with the whole
         # select clause rather than just the SELECT keyword, we mitigate that
@@ -2097,7 +2107,7 @@ class UnorderedSelectStatementSegment(BaseSegment):
         enforce_whitespace_preceding_terminator=True,
     )
 
-    parse_grammar = Sequence(
+    parse_grammar: Matchable = Sequence(
         Ref("SelectClauseSegment"),
         # Dedent for the indent in the select clause.
         # It's here so that it can come AFTER any whitespace.
@@ -2110,14 +2120,13 @@ class UnorderedSelectStatementSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class SelectStatementSegment(BaseSegment):
     """A `SELECT` statement."""
 
     type = "select_statement"
     # match grammar. This one makes sense in the context of knowing that it's
     # definitely a statement, we just don't know what type yet.
-    match_grammar = StartsWith(
+    match_grammar: Matchable = StartsWith(
         # NB: In bigquery, the select clause may include an EXCEPT, which
         # will also match the set operator, but by starting with the whole
         # select clause rather than just the SELECT keyword, we mitigate that
@@ -2132,7 +2141,7 @@ class SelectStatementSegment(BaseSegment):
     )
 
     # Inherit most of the parse grammar from the original.
-    parse_grammar = UnorderedSelectStatementSegment.parse_grammar.copy(
+    parse_grammar: Matchable = UnorderedSelectStatementSegment.parse_grammar.copy(
         insert=[
             Ref("OrderByClauseSegment", optional=True),
             Ref("LimitClauseSegment", optional=True),
@@ -2159,6 +2168,7 @@ ansi_dialect.add(
     NonWithNonSelectableGrammar=OneOf(
         Ref("UpdateStatementSegment"),
         Ref("InsertStatementSegment"),
+        Ref("DeleteStatementSegment"),
     ),
     # Things that behave like select statements, which can form part of set expressions.
     NonSetSelectableGrammar=OneOf(
@@ -2172,7 +2182,6 @@ ansi_dialect.add(
 )
 
 
-@ansi_dialect.segment()
 class CTEDefinitionSegment(BaseSegment):
     """A CTE Definition from a WITH statement.
 
@@ -2180,7 +2189,7 @@ class CTEDefinitionSegment(BaseSegment):
     """
 
     type = "common_table_expression"
-    match_grammar = Sequence(
+    match_grammar: Matchable = Sequence(
         Ref("SingleIdentifierGrammar"),
         Bracketed(
             Ref("SingleIdentifierListSegment"),
@@ -2203,7 +2212,6 @@ class CTEDefinitionSegment(BaseSegment):
         return self.get_child("identifier")
 
 
-@ansi_dialect.segment()
 class WithCompoundStatementSegment(BaseSegment):
     """A `SELECT` statement preceded by a selection of `WITH` clauses.
 
@@ -2212,8 +2220,8 @@ class WithCompoundStatementSegment(BaseSegment):
 
     type = "with_compound_statement"
     # match grammar
-    match_grammar = StartsWith("WITH")
-    parse_grammar = Sequence(
+    match_grammar: Matchable = StartsWith("WITH")
+    parse_grammar: Optional[Matchable] = Sequence(
         "WITH",
         Ref.keyword("RECURSIVE", optional=True),
         Conditional(Indent, indented_ctes=True),
@@ -2229,12 +2237,11 @@ class WithCompoundStatementSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class SetOperatorSegment(BaseSegment):
     """A set operator such as Union, Minus, Except or Intersect."""
 
     type = "set_operator"
-    match_grammar = OneOf(
+    match_grammar: Matchable = OneOf(
         Sequence("UNION", OneOf("DISTINCT", "ALL", optional=True)),
         "INTERSECT",
         "EXCEPT",
@@ -2243,13 +2250,12 @@ class SetOperatorSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class SetExpressionSegment(BaseSegment):
     """A set expression with either Union, Minus, Except or Intersect."""
 
     type = "set_expression"
     # match grammar
-    match_grammar = Sequence(
+    match_grammar: Matchable = Sequence(
         Ref("NonSetSelectableGrammar"),
         AnyNumberOf(
             Sequence(
@@ -2264,13 +2270,12 @@ class SetExpressionSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class InsertStatementSegment(BaseSegment):
     """An `INSERT` statement."""
 
     type = "insert_statement"
-    match_grammar = StartsWith("INSERT")
-    parse_grammar = Sequence(
+    match_grammar: Matchable = StartsWith("INSERT")
+    parse_grammar: Optional[Matchable] = Sequence(
         "INSERT",
         # Maybe OVERWRITE is just snowflake?
         # (It's also Hive but that has full insert grammar implementation)
@@ -2282,12 +2287,125 @@ class InsertStatementSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
+class MergeStatementSegment(BaseSegment):
+    """A `MERGE` statement."""
+
+    type = "merge_statement"
+
+    match_grammar = Sequence(
+        Ref("MergeIntoLiteralGrammar"),
+        Indent,
+        OneOf(
+            Ref("TableReferenceSegment"),
+            Ref("AliasedTableReferenceGrammar"),
+        ),
+        Dedent,
+        "USING",
+        Indent,
+        OneOf(
+            Ref("TableReferenceSegment"),
+            Ref("AliasedTableReferenceGrammar"),
+            Sequence(
+                Bracketed(
+                    Ref("SelectableGrammar"),
+                ),
+                Ref("AliasExpressionSegment"),
+            ),
+        ),
+        Dedent,
+        Ref("JoinOnConditionSegment"),
+        Ref("MergeMatchSegment"),
+    )
+
+
+class MergeMatchSegment(BaseSegment):
+    """Contains dialect specific merge operations.
+
+    Hookpoint for dialect specific behavior
+    e.g. UpdateClause / DeleteClause, multiple MergeMatchedClauses
+    """
+
+    type = "merge_match"
+    match_grammar: Matchable = AnyNumberOf(
+        Ref("MergeMatchedClauseSegment"),
+        Ref("MergeNotMatchedClauseSegment"),
+        min_times=1,
+    )
+
+
+class MergeMatchedClauseSegment(BaseSegment):
+    """The `WHEN MATCHED` clause within a `MERGE` statement."""
+
+    type = "merge_when_matched_clause"
+    match_grammar: Matchable = Sequence(
+        "WHEN",
+        "MATCHED",
+        Sequence("AND", Ref("ExpressionSegment"), optional=True),
+        "THEN",
+        Indent,
+        OneOf(
+            Ref("MergeUpdateClauseSegment"),
+            Ref("MergeDeleteClauseSegment"),
+        ),
+        Dedent,
+    )
+
+
+class MergeNotMatchedClauseSegment(BaseSegment):
+    """The `WHEN NOT MATCHED` clause within a `MERGE` statement."""
+
+    type = "merge_when_not_matched_clause"
+    match_grammar: Matchable = Sequence(
+        "WHEN",
+        "NOT",
+        "MATCHED",
+        Sequence("AND", Ref("ExpressionSegment"), optional=True),
+        "THEN",
+        Indent,
+        Ref("MergeInsertClauseSegment"),
+        Dedent,
+    )
+
+
+class MergeUpdateClauseSegment(BaseSegment):
+    """`UPDATE` clause within the `MERGE` statement."""
+
+    type = "merge_update_clause"
+    match_grammar: Matchable = Sequence(
+        "UPDATE",
+        Indent,
+        Ref("SetClauseListSegment"),
+        Dedent,
+    )
+
+
+class MergeInsertClauseSegment(BaseSegment):
+    """`INSERT` clause within the `MERGE` statement."""
+
+    type = "merge_insert_clause"
+    match_grammar: Matchable = Sequence(
+        "INSERT",
+        Indent,
+        Ref("BracketedColumnReferenceListGrammar", optional=True),
+        Dedent,
+        Indent,
+        Ref("ValuesClauseSegment", optional=True),
+        Dedent,
+    )
+
+
+class MergeDeleteClauseSegment(BaseSegment):
+    """`DELETE` clause within the `MERGE` statement."""
+
+    type = "merge_delete_clause"
+    match_grammar: Matchable = Ref.keyword("DELETE")
+
+
 class TransactionStatementSegment(BaseSegment):
     """A `COMMIT`, `ROLLBACK` or `TRANSACTION` statement."""
 
     type = "transaction_statement"
-    match_grammar = Sequence(
+    match_grammar: Matchable = Sequence(
         # COMMIT [ WORK ] [ AND [ NO ] CHAIN ]
         # ROLLBACK [ WORK ] [ AND [ NO ] CHAIN ]
         # BEGIN | END TRANSACTION | WORK
@@ -2301,14 +2419,13 @@ class TransactionStatementSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class ColumnConstraintSegment(BaseSegment):
     """A column option; each CREATE TABLE column can have 0 or more."""
 
     type = "column_constraint_segment"
     # Column constraint from
     # https://www.postgresql.org/docs/12/sql-createtable.html
-    match_grammar = Sequence(
+    match_grammar: Matchable = Sequence(
         Sequence(
             "CONSTRAINT",
             Ref("ObjectReferenceSegment"),  # Constraint name
@@ -2335,12 +2452,11 @@ class ColumnConstraintSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class ColumnDefinitionSegment(BaseSegment):
     """A column definition, e.g. for CREATE TABLE or ALTER TABLE."""
 
     type = "column_definition"
-    match_grammar = Sequence(
+    match_grammar: Matchable = Sequence(
         Ref("SingleIdentifierGrammar"),  # Column name
         Ref("DatatypeSegment"),  # Column type
         Bracketed(Anything(), optional=True),  # For types like VARCHAR(100)
@@ -2350,18 +2466,16 @@ class ColumnDefinitionSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class IndexColumnDefinitionSegment(BaseSegment):
     """A column definition for CREATE INDEX."""
 
     type = "index_column_definition"
-    match_grammar = Sequence(
+    match_grammar: Matchable = Sequence(
         Ref("SingleIdentifierGrammar"),  # Column name
         OneOf("ASC", "DESC", optional=True),
     )
 
 
-@ansi_dialect.segment()
 class TableConstraintSegment(BaseSegment):
     """A table constraint, e.g. for CREATE TABLE."""
 
@@ -2369,7 +2483,7 @@ class TableConstraintSegment(BaseSegment):
 
     # Later add support for CHECK constraint, others?
     # e.g. CONSTRAINT constraint_1 PRIMARY KEY(column_1)
-    match_grammar = Sequence(
+    match_grammar: Matchable = Sequence(
         Sequence(  # [ CONSTRAINT <Constraint name> ]
             "CONSTRAINT", Ref("ObjectReferenceSegment"), optional=True
         ),
@@ -2398,7 +2512,6 @@ class TableConstraintSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class TableEndClauseSegment(BaseSegment):
     """Allow for additional table endings.
 
@@ -2406,10 +2519,9 @@ class TableEndClauseSegment(BaseSegment):
     """
 
     type = "table_end_clause_segment"
-    match_grammar = Nothing()
+    match_grammar: Matchable = Nothing()
 
 
-@ansi_dialect.segment()
 class TypelessStructSegment(BaseSegment):
     """Expression to construct a STRUCT with implicit types.
 
@@ -2417,17 +2529,16 @@ class TypelessStructSegment(BaseSegment):
     """
 
     type = "typeless_struct"
-    match_grammar = Nothing()
+    match_grammar: Matchable = Nothing()
 
 
-@ansi_dialect.segment()
 class CreateTableStatementSegment(BaseSegment):
     """A `CREATE TABLE` statement."""
 
     type = "create_table_statement"
     # https://crate.io/docs/sql-99/en/latest/chapters/18.html
     # https://www.postgresql.org/docs/12/sql-createtable.html
-    match_grammar = Sequence(
+    match_grammar: Matchable = Sequence(
         "CREATE",
         Ref("OrReplaceGrammar", optional=True),
         Ref("TemporaryTransientGrammar", optional=True),
@@ -2459,7 +2570,6 @@ class CreateTableStatementSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class CommentClauseSegment(BaseSegment):
     """A comment clause.
 
@@ -2467,15 +2577,14 @@ class CommentClauseSegment(BaseSegment):
     """
 
     type = "comment_clause"
-    match_grammar = Sequence("COMMENT", Ref("QuotedLiteralSegment"))
+    match_grammar: Matchable = Sequence("COMMENT", Ref("QuotedLiteralSegment"))
 
 
-@ansi_dialect.segment()
 class CreateSchemaStatementSegment(BaseSegment):
     """A `CREATE SCHEMA` statement."""
 
     type = "create_schema_statement"
-    match_grammar = Sequence(
+    match_grammar: Matchable = Sequence(
         "CREATE",
         "SCHEMA",
         Ref("IfNotExistsGrammar", optional=True),
@@ -2483,12 +2592,11 @@ class CreateSchemaStatementSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class SetSchemaStatementSegment(BaseSegment):
     """A `SET SCHEMA` statement."""
 
     type = "set_schema_statement"
-    match_grammar = Sequence(
+    match_grammar: Matchable = Sequence(
         "SET",
         "SCHEMA",
         Ref("IfNotExistsGrammar", optional=True),
@@ -2496,12 +2604,11 @@ class SetSchemaStatementSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class DropSchemaStatementSegment(BaseSegment):
     """A `DROP SCHEMA` statement."""
 
     type = "drop_schema_statement"
-    match_grammar = Sequence(
+    match_grammar: Matchable = Sequence(
         "DROP",
         "SCHEMA",
         Ref("IfExistsGrammar", optional=True),
@@ -2510,12 +2617,11 @@ class DropSchemaStatementSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class DropTypeStatementSegment(BaseSegment):
     """A `DROP TYPE` statement."""
 
     type = "drop_type_statement"
-    match_grammar = Sequence(
+    match_grammar: Matchable = Sequence(
         "DROP",
         "TYPE",
         Ref("IfExistsGrammar", optional=True),
@@ -2524,12 +2630,11 @@ class DropTypeStatementSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class CreateDatabaseStatementSegment(BaseSegment):
     """A `CREATE DATABASE` statement."""
 
     type = "create_database_statement"
-    match_grammar = Sequence(
+    match_grammar: Matchable = Sequence(
         "CREATE",
         "DATABASE",
         Ref("IfNotExistsGrammar", optional=True),
@@ -2537,12 +2642,11 @@ class CreateDatabaseStatementSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class DropDatabaseStatementSegment(BaseSegment):
     """A `DROP DATABASE` statement."""
 
     type = "drop_database_statement"
-    match_grammar = Sequence(
+    match_grammar: Matchable = Sequence(
         "DROP",
         "DATABASE",
         Ref("IfExistsGrammar", optional=True),
@@ -2551,7 +2655,6 @@ class DropDatabaseStatementSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class CreateExtensionStatementSegment(BaseSegment):
     """A `CREATE EXTENSION` statement.
 
@@ -2559,7 +2662,7 @@ class CreateExtensionStatementSegment(BaseSegment):
     """
 
     type = "create_extension_statement"
-    match_grammar = Sequence(
+    match_grammar: Matchable = Sequence(
         "CREATE",
         "EXTENSION",
         Ref("IfNotExistsGrammar", optional=True),
@@ -2571,12 +2674,11 @@ class CreateExtensionStatementSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class CreateIndexStatementSegment(BaseSegment):
     """A `CREATE INDEX` statement."""
 
     type = "create_index_statement"
-    match_grammar = Sequence(
+    match_grammar: Matchable = Sequence(
         "CREATE",
         Ref("OrReplaceGrammar", optional=True),
         Ref.keyword("UNIQUE", optional=True),
@@ -2595,7 +2697,6 @@ class CreateIndexStatementSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class AlterTableStatementSegment(BaseSegment):
     """An `ALTER TABLE` statement."""
 
@@ -2603,7 +2704,7 @@ class AlterTableStatementSegment(BaseSegment):
     # Based loosely on:
     # https://dev.mysql.com/doc/refman/8.0/en/alter-table.html
     # TODO: Flesh this out with more detail.
-    match_grammar = Sequence(
+    match_grammar: Matchable = Sequence(
         "ALTER",
         "TABLE",
         Ref("TableReferenceSegment"),
@@ -2640,7 +2741,6 @@ class AlterTableStatementSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class CreateViewStatementSegment(BaseSegment):
     """A `CREATE VIEW` statement."""
 
@@ -2648,7 +2748,7 @@ class CreateViewStatementSegment(BaseSegment):
     # https://crate.io/docs/sql-99/en/latest/chapters/18.html#create-view-statement
     # https://dev.mysql.com/doc/refman/8.0/en/create-view.html
     # https://www.postgresql.org/docs/12/sql-createview.html
-    match_grammar = Sequence(
+    match_grammar: Matchable = Sequence(
         "CREATE",
         Ref("OrReplaceGrammar", optional=True),
         "VIEW",
@@ -2662,13 +2762,12 @@ class CreateViewStatementSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class DropTableStatementSegment(BaseSegment):
     """A `DROP TABLE` statement."""
 
     type = "drop_table_statement"
 
-    match_grammar = Sequence(
+    match_grammar: Matchable = Sequence(
         "DROP",
         "TABLE",
         Ref("IfExistsGrammar", optional=True),
@@ -2677,13 +2776,12 @@ class DropTableStatementSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class DropViewStatementSegment(BaseSegment):
     """A `DROP VIEW` statement."""
 
     type = "drop_view_statement"
 
-    match_grammar = Sequence(
+    match_grammar: Matchable = Sequence(
         "DROP",
         "VIEW",
         Ref("IfExistsGrammar", optional=True),
@@ -2692,13 +2790,12 @@ class DropViewStatementSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class DropUserStatementSegment(BaseSegment):
     """A `DROP USER` statement."""
 
     type = "drop_user_statement"
 
-    match_grammar = Sequence(
+    match_grammar: Matchable = Sequence(
         "DROP",
         "USER",
         Ref("IfExistsGrammar", optional=True),
@@ -2706,26 +2803,24 @@ class DropUserStatementSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class TruncateStatementSegment(BaseSegment):
     """`TRUNCATE TABLE` statement."""
 
     type = "truncate_table"
 
-    match_grammar = Sequence(
+    match_grammar: Matchable = Sequence(
         "TRUNCATE",
         Ref.keyword("TABLE", optional=True),
         Ref("TableReferenceSegment"),
     )
 
 
-@ansi_dialect.segment()
 class DropIndexStatementSegment(BaseSegment):
     """A `DROP INDEX` statement."""
 
     type = "drop_index_statement"
     # DROP INDEX <Index name> [CONCURRENTLY] [IF EXISTS] {RESTRICT | CASCADE}
-    match_grammar = Sequence(
+    match_grammar: Matchable = Sequence(
         "DROP",
         "INDEX",
         Ref.keyword("CONCURRENTLY", optional=True),
@@ -2735,7 +2830,6 @@ class DropIndexStatementSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class AccessStatementSegment(BaseSegment):
     """A `GRANT` or `REVOKE` statement.
 
@@ -2878,7 +2972,7 @@ class AccessStatementSegment(BaseSegment):
         Sequence("LARGE", "OBJECT", Ref("NumericLiteralSegment")),
     )
 
-    match_grammar = OneOf(
+    match_grammar: Matchable = OneOf(
         # Based on https://www.postgresql.org/docs/13/sql-grant.html
         # and https://docs.snowflake.com/en/sql-reference/sql/grant-privilege.html
         Sequence(
@@ -2951,7 +3045,6 @@ class AccessStatementSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class DeleteStatementSegment(BaseSegment):
     """A `DELETE` statement.
 
@@ -2961,15 +3054,14 @@ class DeleteStatementSegment(BaseSegment):
     type = "delete_statement"
     # match grammar. This one makes sense in the context of knowing that it's
     # definitely a statement, we just don't know what type yet.
-    match_grammar = StartsWith("DELETE")
-    parse_grammar = Sequence(
+    match_grammar: Matchable = StartsWith("DELETE")
+    parse_grammar: Optional[Matchable] = Sequence(
         "DELETE",
         Ref("FromClauseSegment"),
         Ref("WhereClauseSegment", optional=True),
     )
 
 
-@ansi_dialect.segment()
 class UpdateStatementSegment(BaseSegment):
     """An `Update` statement.
 
@@ -2977,8 +3069,7 @@ class UpdateStatementSegment(BaseSegment):
     """
 
     type = "update_statement"
-    match_grammar = StartsWith("UPDATE")
-    parse_grammar = Sequence(
+    match_grammar: Matchable = Sequence(
         "UPDATE",
         Ref("TableReferenceSegment"),
         # SET is not a resevered word in all dialects (e.g. RedShift)
@@ -2990,7 +3081,6 @@ class UpdateStatementSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class SetClauseListSegment(BaseSegment):
     """SQL 1992 set clause list.
 
@@ -3009,7 +3099,7 @@ class SetClauseListSegment(BaseSegment):
     """
 
     type = "set_clause_list"
-    match_grammar = Sequence(
+    match_grammar: Matchable = Sequence(
         "SET",
         Indent,
         OneOf(
@@ -3023,7 +3113,6 @@ class SetClauseListSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class SetClauseSegment(BaseSegment):
     """SQL 1992 set clause.
 
@@ -3040,7 +3129,7 @@ class SetClauseSegment(BaseSegment):
 
     type = "set_clause"
 
-    match_grammar = Sequence(
+    match_grammar: Matchable = Sequence(
         Ref("ColumnReferenceSegment"),
         Ref("EqualsSegment"),
         OneOf(
@@ -3055,12 +3144,11 @@ class SetClauseSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class FunctionDefinitionGrammar(BaseSegment):
     """This is the body of a `CREATE FUNCTION AS` statement."""
 
     type = "function_definition"
-    match_grammar = Sequence(
+    match_grammar: Matchable = Sequence(
         "AS",
         Ref("QuotedLiteralSegment"),
         Sequence(
@@ -3072,7 +3160,6 @@ class FunctionDefinitionGrammar(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class CreateFunctionStatementSegment(BaseSegment):
     """A `CREATE FUNCTION` statement.
 
@@ -3086,7 +3173,7 @@ class CreateFunctionStatementSegment(BaseSegment):
 
     type = "create_function_statement"
 
-    match_grammar = Sequence(
+    match_grammar: Matchable = Sequence(
         "CREATE",
         Ref("OrReplaceGrammar", optional=True),
         Ref("TemporaryGrammar", optional=True),
@@ -3094,7 +3181,7 @@ class CreateFunctionStatementSegment(BaseSegment):
         Anything(),
     )
 
-    parse_grammar = Sequence(
+    parse_grammar: Optional[Matchable] = Sequence(
         "CREATE",
         Ref("OrReplaceGrammar", optional=True),
         Ref("TemporaryGrammar", optional=True),
@@ -3111,13 +3198,12 @@ class CreateFunctionStatementSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class FunctionParameterListGrammar(BaseSegment):
     """The parameters for a function ie. `(string, number)`."""
 
     type = "function_parameter_list"
     # Function parameter list
-    match_grammar = Bracketed(
+    match_grammar: Matchable = Bracketed(
         Delimited(
             Ref("FunctionParameterGrammar"),
             delimiter=Ref("CommaSegment"),
@@ -3126,13 +3212,12 @@ class FunctionParameterListGrammar(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class CreateModelStatementSegment(BaseSegment):
     """A BigQuery `CREATE MODEL` statement."""
 
     type = "create_model_statement"
     # https://cloud.google.com/bigquery-ml/docs/reference/standard-sql/bigqueryml-syntax-create
-    match_grammar = Sequence(
+    match_grammar: Matchable = Sequence(
         "CREATE",
         Ref("OrReplaceGrammar", optional=True),
         "MODEL",
@@ -3166,7 +3251,6 @@ class CreateModelStatementSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class CreateTypeStatementSegment(BaseSegment):
     """A `CREATE TYPE` statement.
 
@@ -3179,7 +3263,7 @@ class CreateTypeStatementSegment(BaseSegment):
     """
 
     type = "create_type_statement"
-    match_grammar = Sequence(
+    match_grammar: Matchable = Sequence(
         "CREATE",
         "TYPE",
         Ref("ObjectReferenceSegment"),
@@ -3188,7 +3272,6 @@ class CreateTypeStatementSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class CreateRoleStatementSegment(BaseSegment):
     """A `CREATE ROLE` statement.
 
@@ -3197,21 +3280,20 @@ class CreateRoleStatementSegment(BaseSegment):
     """
 
     type = "create_role_statement"
-    match_grammar = Sequence(
+    match_grammar: Matchable = Sequence(
         "CREATE",
         "ROLE",
         Ref("ObjectReferenceSegment"),
     )
 
 
-@ansi_dialect.segment()
 class DropModelStatementSegment(BaseSegment):
     """A `DROP MODEL` statement."""
 
     type = "drop_MODELstatement"
     # DROP MODEL <Model name> [IF EXISTS}
     # https://cloud.google.com/bigquery-ml/docs/reference/standard-sql/bigqueryml-syntax-drop-model
-    match_grammar = Sequence(
+    match_grammar: Matchable = Sequence(
         "DROP",
         "MODEL",
         Ref("IfExistsGrammar", optional=True),
@@ -3219,13 +3301,12 @@ class DropModelStatementSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class MLTableExpressionSegment(BaseSegment):
     """An ML table expression."""
 
     type = "ml_table_expression"
     # E.g. ML.WEIGHTS(MODEL `project.dataset.model`)
-    match_grammar = Sequence(
+    match_grammar: Matchable = Sequence(
         "ML",
         Ref("DotSegment"),
         Ref("SingleIdentifierGrammar"),
@@ -3244,15 +3325,15 @@ class MLTableExpressionSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class StatementSegment(BaseSegment):
     """A generic segment, to any of its child subsegments."""
 
     type = "statement"
-    match_grammar = GreedyUntil(Ref("DelimiterSegment"))
+    match_grammar: Matchable = GreedyUntil(Ref("DelimiterGrammar"))
 
-    parse_grammar = OneOf(
+    parse_grammar: Matchable = OneOf(
         Ref("SelectableGrammar"),
+        Ref("MergeStatementSegment"),
         Ref("InsertStatementSegment"),
         Ref("TransactionStatementSegment"),
         Ref("DropTableStatementSegment"),
@@ -3303,7 +3384,6 @@ class StatementSegment(BaseSegment):
         return table_refs - cte_refs
 
 
-@ansi_dialect.segment()
 class WithNoSchemaBindingClauseSegment(BaseSegment):
     """WITH NO SCHEMA BINDING clause for Redshift's Late Binding Views.
 
@@ -3311,7 +3391,7 @@ class WithNoSchemaBindingClauseSegment(BaseSegment):
     """
 
     type = "with_no_schema_binding_clause"
-    match_grammar = Sequence(
+    match_grammar: Matchable = Sequence(
         "WITH",
         "NO",
         "SCHEMA",
@@ -3319,7 +3399,6 @@ class WithNoSchemaBindingClauseSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class WithDataClauseSegment(BaseSegment):
     """WITH [NO] DATA clause for Postgres' MATERIALIZED VIEWS.
 
@@ -3327,10 +3406,9 @@ class WithDataClauseSegment(BaseSegment):
     """
 
     type = "with_data_clause"
-    match_grammar = Sequence("WITH", Sequence("NO", optional=True), "DATA")
+    match_grammar: Matchable = Sequence("WITH", Sequence("NO", optional=True), "DATA")
 
 
-@ansi_dialect.segment()
 class DescribeStatementSegment(BaseSegment):
     """A `Describe` statement.
 
@@ -3338,27 +3416,25 @@ class DescribeStatementSegment(BaseSegment):
     """
 
     type = "describe_statement"
-    match_grammar = StartsWith("DESCRIBE")
+    match_grammar: Matchable = StartsWith("DESCRIBE")
 
-    parse_grammar = Sequence(
+    parse_grammar: Optional[Matchable] = Sequence(
         "DESCRIBE",
         Ref("NakedIdentifierSegment"),
         Ref("ObjectReferenceSegment"),
     )
 
 
-@ansi_dialect.segment()
 class UseStatementSegment(BaseSegment):
     """A `USE` statement."""
 
     type = "use_statement"
-    match_grammar = Sequence(
+    match_grammar: Matchable = Sequence(
         "USE",
         Ref("DatabaseReferenceSegment"),
     )
 
 
-@ansi_dialect.segment()
 class ExplainStatementSegment(BaseSegment):
     """An `Explain` statement.
 
@@ -3367,22 +3443,19 @@ class ExplainStatementSegment(BaseSegment):
 
     type = "explain_statement"
 
-    explainable_stmt = OneOf(
+    explainable_stmt: Matchable = OneOf(
         Ref("SelectableGrammar"),
         Ref("InsertStatementSegment"),
         Ref("UpdateStatementSegment"),
         Ref("DeleteStatementSegment"),
     )
 
-    match_grammar = StartsWith("EXPLAIN")
-
-    parse_grammar = Sequence(
+    match_grammar: Matchable = Sequence(
         "EXPLAIN",
         explainable_stmt,
     )
 
 
-@ansi_dialect.segment()
 class CreateSequenceOptionsSegment(BaseSegment):
     """Options for Create Sequence statement.
 
@@ -3391,7 +3464,7 @@ class CreateSequenceOptionsSegment(BaseSegment):
 
     type = "create_sequence_options_segment"
 
-    match_grammar = OneOf(
+    match_grammar: Matchable = OneOf(
         Sequence("INCREMENT", "BY", Ref("NumericLiteralSegment")),
         Sequence(
             "START", Ref.keyword("WITH", optional=True), Ref("NumericLiteralSegment")
@@ -3410,7 +3483,6 @@ class CreateSequenceOptionsSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class CreateSequenceStatementSegment(BaseSegment):
     """Create Sequence statement.
 
@@ -3419,7 +3491,7 @@ class CreateSequenceStatementSegment(BaseSegment):
 
     type = "create_sequence_statement"
 
-    match_grammar = Sequence(
+    match_grammar: Matchable = Sequence(
         "CREATE",
         "SEQUENCE",
         Ref("SequenceReferenceSegment"),
@@ -3427,7 +3499,6 @@ class CreateSequenceStatementSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class AlterSequenceOptionsSegment(BaseSegment):
     """Options for Alter Sequence statement.
 
@@ -3436,7 +3507,7 @@ class AlterSequenceOptionsSegment(BaseSegment):
 
     type = "alter_sequence_options_segment"
 
-    match_grammar = OneOf(
+    match_grammar: Matchable = OneOf(
         Sequence("INCREMENT", "BY", Ref("NumericLiteralSegment")),
         OneOf(
             Sequence("MINVALUE", Ref("NumericLiteralSegment")),
@@ -3452,7 +3523,6 @@ class AlterSequenceOptionsSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class AlterSequenceStatementSegment(BaseSegment):
     """Alter Sequence Statement.
 
@@ -3461,7 +3531,7 @@ class AlterSequenceStatementSegment(BaseSegment):
 
     type = "alter_sequence_statement"
 
-    match_grammar = Sequence(
+    match_grammar: Matchable = Sequence(
         "ALTER",
         "SEQUENCE",
         Ref("SequenceReferenceSegment"),
@@ -3469,7 +3539,6 @@ class AlterSequenceStatementSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class DropSequenceStatementSegment(BaseSegment):
     """Drop Sequence Statement.
 
@@ -3478,10 +3547,11 @@ class DropSequenceStatementSegment(BaseSegment):
 
     type = "drop_sequence_statement"
 
-    match_grammar = Sequence("DROP", "SEQUENCE", Ref("SequenceReferenceSegment"))
+    match_grammar: Matchable = Sequence(
+        "DROP", "SEQUENCE", Ref("SequenceReferenceSegment")
+    )
 
 
-@ansi_dialect.segment()
 class DatePartFunctionNameSegment(BaseSegment):
     """DATEADD function name segment.
 
@@ -3490,10 +3560,9 @@ class DatePartFunctionNameSegment(BaseSegment):
     """
 
     type = "function_name"
-    match_grammar = Ref("DatePartFunctionName")
+    match_grammar: Matchable = Ref("DatePartFunctionName")
 
 
-@ansi_dialect.segment()
 class CreateTriggerStatementSegment(BaseSegment):
     """Create Trigger Statement.
 
@@ -3503,9 +3572,7 @@ class CreateTriggerStatementSegment(BaseSegment):
 
     type = "create_trigger"
 
-    match_grammar = Sequence("CREATE", "TRIGGER", Anything())
-
-    parse_grammar = Sequence(
+    match_grammar: Matchable = Sequence(
         "CREATE",
         "TRIGGER",
         Ref("TriggerReferenceSegment"),
@@ -3564,7 +3631,6 @@ class CreateTriggerStatementSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class DropTriggerStatementSegment(BaseSegment):
     """Drop Trigger Statement.
 
@@ -3574,15 +3640,16 @@ class DropTriggerStatementSegment(BaseSegment):
 
     type = "drop_trigger"
 
-    match_grammar = Sequence("DROP", "TRIGGER", Ref("TriggerReferenceSegment"))
+    match_grammar: Matchable = Sequence(
+        "DROP", "TRIGGER", Ref("TriggerReferenceSegment")
+    )
 
 
-@ansi_dialect.segment()
 class SamplingExpressionSegment(BaseSegment):
     """A sampling expression."""
 
     type = "sample_expression"
-    match_grammar = Sequence(
+    match_grammar: Matchable = Sequence(
         "TABLESAMPLE",
         OneOf("BERNOULLI", "SYSTEM"),
         Bracketed(Ref("NumericLiteralSegment")),
@@ -3594,7 +3661,6 @@ class SamplingExpressionSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
 class LocalAliasSegment(BaseSegment):
     """The `LOCAL.ALIAS` syntax allows to use a alias name of a column within clauses.
 
@@ -3602,4 +3668,4 @@ class LocalAliasSegment(BaseSegment):
     """
 
     type = "local_alias_segment"
-    match_grammar = Nothing()
+    match_grammar: Matchable = Nothing()

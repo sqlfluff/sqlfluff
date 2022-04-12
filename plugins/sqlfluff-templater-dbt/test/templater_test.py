@@ -1,5 +1,6 @@
 """Tests for the dbt templater."""
 
+from copy import deepcopy
 import glob
 import os
 import logging
@@ -74,6 +75,11 @@ def test__templater_dbt_profiles_dir_expanded(dbt_templater):  # noqa: F811
         "templated_inside_comment.sql",
         # {{ dbt_utils.last_day(
         "last_day.sql",
+        # Many newlines at end, tests templater newline handling
+        "trailing_newlines.sql",
+        # Ends with whitespace stripping, so trailing newline handling should
+        # be disabled
+        "ends_with_whitespace_stripping.sql",
     ],
 )
 def test__templater_dbt_templating_result(
@@ -242,12 +248,27 @@ def test__templater_dbt_templating_test_lex(
     )
 
 
-def test__templater_dbt_skips_disabled_model(dbt_templater, project_dir):  # noqa: F811
+@pytest.mark.parametrize(
+    "path,reason",
+    [
+        (
+            "models/my_new_project/disabled_model.sql",
+            "it is disabled",
+        ),
+        (
+            "macros/echo.sql",
+            "it is a macro",
+        ),
+    ],
+)
+def test__templater_dbt_skips_file(
+    path, reason, dbt_templater, project_dir  # noqa: F811
+):
     """A disabled dbt model should be skipped."""
-    with pytest.raises(SQLTemplaterSkipFile, match=r"model was disabled"):
+    with pytest.raises(SQLTemplaterSkipFile, match=reason):
         dbt_templater.process(
             in_str="",
-            fname=os.path.join(project_dir, "models/my_new_project/disabled_model.sql"),
+            fname=os.path.join(project_dir, path),
             config=FluffConfig(configs=DBT_FLUFF_CONFIG),
         )
 
@@ -414,3 +435,29 @@ def test__project_dir_does_not_exist_error(dbt_templater, caplog):  # noqa: F811
         ) in caplog.text
     finally:
         logger.propagate = original_propagate_value
+
+
+@pytest.mark.parametrize(
+    ("model_path", "var_value"),
+    [
+        ("models/vars_from_cli.sql", "expected_value"),
+        ("models/vars_from_cli.sql", [1]),
+        ("models/vars_from_cli.sql", {"nested": 1}),
+    ],
+)
+def test__context_in_config_is_loaded(
+    project_dir, dbt_templater, model_path, var_value  # noqa: F811
+):
+    """Test that variables inside .sqlfluff are passed to dbt."""
+    context = {"passed_through_cli": var_value} if var_value else {}
+
+    config_dict = deepcopy(DBT_FLUFF_CONFIG)
+    config_dict["templater"]["dbt"]["context"] = context
+    config = FluffConfig(config_dict)
+
+    fname = os.path.abspath(os.path.join(project_dir, model_path))
+
+    processed, violations = dbt_templater.process(in_str="", fname=fname, config=config)
+
+    assert violations == []
+    assert str(var_value) in processed.templated_str

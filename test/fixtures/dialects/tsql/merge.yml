@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8fa53c129dd5e6336294d5bb37cb34f8eca817e030b7df419859b4f0f8cb8ed1
+_hash: b415f47c240637e0941e4defed07cf29232d18b409a9b7b2c2c4d42dd47e7492
 file:
 - batch:
     statement:
@@ -50,39 +50,40 @@ file:
             - identifier: src
             - dot: .
             - identifier: cc_id
-      - merge_when_matched_clause:
-        - keyword: when
-        - keyword: matched
-        - keyword: then
-        - merge_update_clause:
-            keyword: update
-            set_clause_list:
-            - keyword: set
-            - set_clause:
-                column_reference:
-                - identifier: dst
-                - dot: .
-                - identifier: l_id
-                comparison_operator:
-                  raw_comparison_operator: '='
-                expression:
+      - merge_match:
+          merge_when_matched_clause:
+          - keyword: when
+          - keyword: matched
+          - keyword: then
+          - merge_update_clause:
+              keyword: update
+              set_clause_list:
+              - keyword: set
+              - set_clause:
                   column_reference:
-                  - identifier: src
+                  - identifier: dst
                   - dot: .
                   - identifier: l_id
-            - comma: ','
-            - set_clause:
-                column_reference:
-                - identifier: dst
-                - dot: .
-                - identifier: e_date_to
-                comparison_operator:
-                  raw_comparison_operator: '='
-                expression:
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  expression:
+                    column_reference:
+                    - identifier: src
+                    - dot: .
+                    - identifier: l_id
+              - comma: ','
+              - set_clause:
                   column_reference:
-                  - identifier: src
+                  - identifier: dst
                   - dot: .
-                  - identifier: e_date_from
+                  - identifier: e_date_to
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  expression:
+                    column_reference:
+                    - identifier: src
+                    - dot: .
+                    - identifier: e_date_from
 - go_statement:
     keyword: go
 - batch:
@@ -171,73 +172,74 @@ file:
               - identifier: dst
               - dot: .
               - identifier: cc_id
-        - merge_when_matched_clause:
-          - keyword: when
-          - keyword: matched
-          - keyword: then
-          - merge_update_clause:
-              keyword: update
-              set_clause_list:
-              - keyword: set
-              - set_clause:
-                  column_reference:
-                  - identifier: dst
-                  - dot: .
-                  - identifier: cc_name
-                  comparison_operator:
-                    raw_comparison_operator: '='
-                  expression:
+        - merge_match:
+            merge_when_matched_clause:
+            - keyword: when
+            - keyword: matched
+            - keyword: then
+            - merge_update_clause:
+                keyword: update
+                set_clause_list:
+                - keyword: set
+                - set_clause:
                     column_reference:
-                    - identifier: src
+                    - identifier: dst
                     - dot: .
                     - identifier: cc_name
-              - comma: ','
-              - set_clause:
-                  column_reference:
-                  - identifier: dst
-                  - dot: .
-                  - identifier: cc_description
-                  comparison_operator:
-                    raw_comparison_operator: '='
-                  expression:
+                    comparison_operator:
+                      raw_comparison_operator: '='
+                    expression:
+                      column_reference:
+                      - identifier: src
+                      - dot: .
+                      - identifier: cc_name
+                - comma: ','
+                - set_clause:
                     column_reference:
-                    - identifier: src
+                    - identifier: dst
                     - dot: .
                     - identifier: cc_description
-        - merge_when_not_matched_clause:
-          - keyword: when
-          - keyword: not
-          - keyword: matched
-          - keyword: then
-          - merge_insert_clause:
-            - keyword: insert
-            - bracketed:
-              - start_bracket: (
-              - column_reference:
-                  identifier: cc_id
-              - comma: ','
-              - column_reference:
-                  identifier: cc_name
-              - comma: ','
-              - column_reference:
-                  identifier: cc_description
-              - end_bracket: )
-            - keyword: values
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                  column_reference:
+                    comparison_operator:
+                      raw_comparison_operator: '='
+                    expression:
+                      column_reference:
+                      - identifier: src
+                      - dot: .
+                      - identifier: cc_description
+            merge_when_not_matched_clause:
+            - keyword: when
+            - keyword: not
+            - keyword: matched
+            - keyword: then
+            - merge_insert_clause:
+              - keyword: insert
+              - bracketed:
+                - start_bracket: (
+                - column_reference:
                     identifier: cc_id
-              - comma: ','
-              - expression:
-                  column_reference:
+                - comma: ','
+                - column_reference:
                     identifier: cc_name
-              - comma: ','
-              - expression:
-                  column_reference:
+                - comma: ','
+                - column_reference:
                     identifier: cc_description
-              - end_bracket: )
-        - statement_terminator: ;
+                - end_bracket: )
+              - keyword: values
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                    column_reference:
+                      identifier: cc_id
+                - comma: ','
+                - expression:
+                    column_reference:
+                      identifier: cc_name
+                - comma: ','
+                - expression:
+                    column_reference:
+                      identifier: cc_description
+                - end_bracket: )
+    statement_terminator: ;
 - go_statement:
     keyword: go
 - batch:
@@ -285,180 +287,181 @@ file:
             - identifier: src
             - dot: .
             - identifier: c_id
-      - merge_when_matched_clause:
-        - keyword: when
-        - keyword: matched
-        - keyword: then
-        - merge_update_clause:
-            keyword: update
-            set_clause_list:
-            - keyword: set
-            - set_clause:
-                column_reference:
-                - identifier: dst
-                - dot: .
-                - identifier: c_name
-                comparison_operator:
-                  raw_comparison_operator: '='
-                expression:
+      - merge_match:
+        - merge_when_matched_clause:
+          - keyword: when
+          - keyword: matched
+          - keyword: then
+          - merge_update_clause:
+              keyword: update
+              set_clause_list:
+              - keyword: set
+              - set_clause:
+                  column_reference:
+                  - identifier: dst
+                  - dot: .
+                  - identifier: c_name
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  expression:
+                    column_reference:
+                    - identifier: src
+                    - dot: .
+                    - identifier: c_name
+              - comma: ','
+              - set_clause:
+                  column_reference:
+                  - identifier: dst
+                  - dot: .
+                  - identifier: col1
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  expression:
+                    column_reference:
+                    - identifier: src
+                    - dot: .
+                    - identifier: col1
+              - comma: ','
+              - set_clause:
+                  column_reference:
+                  - identifier: dst
+                  - dot: .
+                  - identifier: col2
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  expression:
+                    column_reference:
+                    - identifier: src
+                    - dot: .
+                    - identifier: col2
+        - merge_when_not_matched_clause:
+          - keyword: when
+          - keyword: not
+          - keyword: matched
+          - keyword: by
+          - keyword: target
+          - binary_operator: and
+          - expression:
+            - column_reference:
+              - identifier: src
+              - dot: .
+              - identifier: c_id
+            - keyword: is
+            - keyword: not
+            - keyword: 'null'
+          - keyword: then
+          - merge_insert_clause:
+            - keyword: insert
+            - bracketed:
+              - start_bracket: (
+              - column_reference:
+                  identifier: s_id
+              - comma: ','
+              - column_reference:
+                  identifier: c_id
+              - comma: ','
+              - column_reference:
+                  identifier: c_name
+              - comma: ','
+              - column_reference:
+                  identifier: col1
+              - comma: ','
+              - column_reference:
+                  identifier: col2
+              - end_bracket: )
+            - keyword: values
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                  - identifier: src
+                  - dot: .
+                  - identifier: s_id
+              - comma: ','
+              - expression:
+                  column_reference:
+                  - identifier: src
+                  - dot: .
+                  - identifier: c_id
+              - comma: ','
+              - expression:
                   column_reference:
                   - identifier: src
                   - dot: .
                   - identifier: c_name
-            - comma: ','
-            - set_clause:
-                column_reference:
-                - identifier: dst
-                - dot: .
-                - identifier: col1
-                comparison_operator:
-                  raw_comparison_operator: '='
-                expression:
+              - comma: ','
+              - expression:
                   column_reference:
                   - identifier: src
                   - dot: .
                   - identifier: col1
-            - comma: ','
-            - set_clause:
-                column_reference:
-                - identifier: dst
-                - dot: .
-                - identifier: col2
-                comparison_operator:
-                  raw_comparison_operator: '='
-                expression:
+              - comma: ','
+              - expression:
                   column_reference:
                   - identifier: src
                   - dot: .
                   - identifier: col2
-      - merge_when_not_matched_clause:
-        - keyword: when
-        - keyword: not
-        - keyword: matched
-        - keyword: by
-        - keyword: target
-        - binary_operator: and
-        - expression:
-          - column_reference:
-            - identifier: src
-            - dot: .
-            - identifier: c_id
-          - keyword: is
+              - end_bracket: )
+        - merge_when_not_matched_clause:
+          - keyword: when
           - keyword: not
-          - keyword: 'null'
-        - keyword: then
-        - merge_insert_clause:
-          - keyword: insert
-          - bracketed:
-            - start_bracket: (
-            - column_reference:
+          - keyword: matched
+          - keyword: by
+          - keyword: source
+          - binary_operator: and
+          - expression:
+              column_reference:
                 identifier: s_id
-            - comma: ','
-            - column_reference:
-                identifier: c_id
-            - comma: ','
-            - column_reference:
-                identifier: c_name
-            - comma: ','
-            - column_reference:
-                identifier: col1
-            - comma: ','
-            - column_reference:
-                identifier: col2
-            - end_bracket: )
-          - keyword: values
-          - bracketed:
-            - start_bracket: (
-            - expression:
-                column_reference:
-                - identifier: src
-                - dot: .
-                - identifier: s_id
-            - comma: ','
-            - expression:
-                column_reference:
-                - identifier: src
-                - dot: .
-                - identifier: c_id
-            - comma: ','
-            - expression:
-                column_reference:
-                - identifier: src
-                - dot: .
-                - identifier: c_name
-            - comma: ','
-            - expression:
-                column_reference:
-                - identifier: src
-                - dot: .
-                - identifier: col1
-            - comma: ','
-            - expression:
-                column_reference:
-                - identifier: src
-                - dot: .
-                - identifier: col2
-            - end_bracket: )
-      - merge_when_not_matched_clause:
-        - keyword: when
-        - keyword: not
-        - keyword: matched
-        - keyword: by
-        - keyword: source
-        - binary_operator: and
-        - expression:
-            column_reference:
-              identifier: s_id
-            comparison_operator:
-              raw_comparison_operator: '='
-            literal: '1'
-            keyword: in
-            bracketed:
-              start_bracket: (
-              select_statement:
-                select_clause:
-                  keyword: select
-                  select_clause_element:
-                    column_reference:
-                      identifier: s_id
-                from_clause:
-                  keyword: from
-                  from_expression:
-                    from_expression_element:
-                      table_expression:
-                        table_reference:
-                        - identifier: LA
-                        - dot: .
-                        - identifier: g
-                        - dot: .
-                        - identifier: tbl3
-              end_bracket: )
-        - keyword: then
-        - merge_update_clause:
-            keyword: update
-            set_clause_list:
-            - keyword: set
-            - set_clause:
-                column_reference:
-                - identifier: dst
-                - dot: .
-                - identifier: col1
-                comparison_operator:
-                  raw_comparison_operator: '='
-                expression:
-                  literal: "'N'"
-            - comma: ','
-            - set_clause:
-                column_reference:
-                - identifier: dst
-                - dot: .
-                - identifier: col2
-                comparison_operator:
-                  raw_comparison_operator: '='
-                expression:
+              comparison_operator:
+                raw_comparison_operator: '='
+              literal: '1'
+              keyword: in
+              bracketed:
+                start_bracket: (
+                select_statement:
+                  select_clause:
+                    keyword: select
+                    select_clause_element:
+                      column_reference:
+                        identifier: s_id
+                  from_clause:
+                    keyword: from
+                    from_expression:
+                      from_expression_element:
+                        table_expression:
+                          table_reference:
+                          - identifier: LA
+                          - dot: .
+                          - identifier: g
+                          - dot: .
+                          - identifier: tbl3
+                end_bracket: )
+          - keyword: then
+          - merge_update_clause:
+              keyword: update
+              set_clause_list:
+              - keyword: set
+              - set_clause:
                   column_reference:
-                    identifier: col2
-      - statement_terminator: ;
+                  - identifier: dst
+                  - dot: .
+                  - identifier: col1
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  expression:
+                    literal: "'N'"
+              - comma: ','
+              - set_clause:
+                  column_reference:
+                  - identifier: dst
+                  - dot: .
+                  - identifier: col2
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  expression:
+                    column_reference:
+                      identifier: col2
+    statement_terminator: ;
 - go_statement:
     keyword: go
 - batch:
@@ -510,74 +513,75 @@ file:
               - dot: .
               - identifier: UnitMeasureCode
             end_bracket: )
-      - merge_when_matched_clause:
-        - keyword: WHEN
-        - keyword: MATCHED
-        - keyword: THEN
-        - merge_update_clause:
-            keyword: UPDATE
-            set_clause_list:
-              keyword: SET
-              set_clause:
-                column_reference:
+      - merge_match:
+          merge_when_matched_clause:
+          - keyword: WHEN
+          - keyword: MATCHED
+          - keyword: THEN
+          - merge_update_clause:
+              keyword: UPDATE
+              set_clause_list:
+                keyword: SET
+                set_clause:
+                  column_reference:
+                    identifier: Name
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  expression:
+                    column_reference:
+                    - identifier: src
+                    - dot: .
+                    - identifier: Name
+          merge_when_not_matched_clause:
+          - keyword: WHEN
+          - keyword: NOT
+          - keyword: MATCHED
+          - keyword: THEN
+          - merge_insert_clause:
+            - keyword: INSERT
+            - bracketed:
+              - start_bracket: (
+              - column_reference:
+                  identifier: UnitMeasureCode
+              - comma: ','
+              - column_reference:
                   identifier: Name
-                comparison_operator:
-                  raw_comparison_operator: '='
-                expression:
+              - end_bracket: )
+            - keyword: VALUES
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                  - identifier: src
+                  - dot: .
+                  - identifier: UnitMeasureCode
+              - comma: ','
+              - expression:
                   column_reference:
                   - identifier: src
                   - dot: .
                   - identifier: Name
-      - merge_when_not_matched_clause:
-        - keyword: WHEN
-        - keyword: NOT
-        - keyword: MATCHED
-        - keyword: THEN
-        - merge_insert_clause:
-          - keyword: INSERT
-          - bracketed:
-            - start_bracket: (
-            - column_reference:
-                identifier: UnitMeasureCode
-            - comma: ','
-            - column_reference:
-                identifier: Name
-            - end_bracket: )
-          - keyword: VALUES
-          - bracketed:
-            - start_bracket: (
-            - expression:
-                column_reference:
-                - identifier: src
-                - dot: .
-                - identifier: UnitMeasureCode
-            - comma: ','
-            - expression:
-                column_reference:
-                - identifier: src
-                - dot: .
-                - identifier: Name
-            - end_bracket: )
-      - output_clause:
-        - keyword: OUTPUT
-        - wildcard_expression:
-            wildcard_identifier:
-              identifier: deleted
-              dot: .
-              star: '*'
-        - comma: ','
-        - column_reference:
-            identifier: $action
-        - comma: ','
-        - wildcard_expression:
-            wildcard_identifier:
-              identifier: inserted
-              dot: .
-              star: '*'
-        - keyword: INTO
-        - table_reference:
-            identifier: '#MyTempTable'
-      - statement_terminator: ;
+              - end_bracket: )
+          output_clause:
+          - keyword: OUTPUT
+          - wildcard_expression:
+              wildcard_identifier:
+                identifier: deleted
+                dot: .
+                star: '*'
+          - comma: ','
+          - column_reference:
+              identifier: $action
+          - comma: ','
+          - wildcard_expression:
+              wildcard_identifier:
+                identifier: inserted
+                dot: .
+                star: '*'
+          - keyword: INTO
+          - table_reference:
+              identifier: '#MyTempTable'
+    statement_terminator: ;
 - go_statement:
     keyword: GO
 - batch:
@@ -687,102 +691,103 @@ file:
               - dot: .
               - identifier: ProductID
             end_bracket: )
-      - merge_when_matched_clause:
-        - keyword: WHEN
-        - keyword: MATCHED
-        - binary_operator: AND
-        - expression:
-          - column_reference:
-            - identifier: tgt
-            - dot: .
-            - identifier: Quantity
-          - binary_operator: '-'
-          - column_reference:
-            - identifier: src
-            - dot: .
-            - identifier: OrderQty
-          - comparison_operator:
-            - raw_comparison_operator: <
-            - raw_comparison_operator: '='
-          - literal: '0'
-        - keyword: THEN
-        - merge_delete_clause:
-            keyword: DELETE
-      - merge_when_matched_clause:
-        - keyword: WHEN
-        - keyword: MATCHED
-        - keyword: THEN
-        - merge_update_clause:
-            keyword: UPDATE
-            set_clause_list:
-            - keyword: SET
-            - set_clause:
-                column_reference:
-                - identifier: tgt
-                - dot: .
-                - identifier: Quantity
-                comparison_operator:
-                  raw_comparison_operator: '='
-                expression:
-                - column_reference:
+      - merge_match:
+        - merge_when_matched_clause:
+          - keyword: WHEN
+          - keyword: MATCHED
+          - binary_operator: AND
+          - expression:
+            - column_reference:
+              - identifier: tgt
+              - dot: .
+              - identifier: Quantity
+            - binary_operator: '-'
+            - column_reference:
+              - identifier: src
+              - dot: .
+              - identifier: OrderQty
+            - comparison_operator:
+              - raw_comparison_operator: <
+              - raw_comparison_operator: '='
+            - literal: '0'
+          - keyword: THEN
+          - merge_delete_clause:
+              keyword: DELETE
+        - merge_when_matched_clause:
+          - keyword: WHEN
+          - keyword: MATCHED
+          - keyword: THEN
+          - merge_update_clause:
+              keyword: UPDATE
+              set_clause_list:
+              - keyword: SET
+              - set_clause:
+                  column_reference:
                   - identifier: tgt
                   - dot: .
                   - identifier: Quantity
-                - binary_operator: '-'
-                - column_reference:
-                  - identifier: src
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  expression:
+                  - column_reference:
+                    - identifier: tgt
+                    - dot: .
+                    - identifier: Quantity
+                  - binary_operator: '-'
+                  - column_reference:
+                    - identifier: src
+                    - dot: .
+                    - identifier: OrderQty
+              - comma: ','
+              - set_clause:
+                  column_reference:
+                  - identifier: tgt
                   - dot: .
-                  - identifier: OrderQty
-            - comma: ','
-            - set_clause:
-                column_reference:
-                - identifier: tgt
-                - dot: .
-                - identifier: ModifiedDate
-                comparison_operator:
-                  raw_comparison_operator: '='
-                expression:
-                  function:
-                    function_name:
-                      function_name_identifier: GETDATE
-                    bracketed:
-                      start_bracket: (
-                      end_bracket: )
-      - output_clause:
-        - keyword: OUTPUT
-        - column_reference:
-            identifier: $action
-        - comma: ','
-        - column_reference:
-          - identifier: Inserted
-          - dot: .
-          - identifier: ProductID
-        - comma: ','
-        - column_reference:
-          - identifier: Inserted
-          - dot: .
-          - identifier: Quantity
-        - comma: ','
-        - column_reference:
-          - identifier: Inserted
-          - dot: .
-          - identifier: ModifiedDate
-        - comma: ','
-        - column_reference:
-          - identifier: Deleted
-          - dot: .
-          - identifier: ProductID
-        - comma: ','
-        - column_reference:
-          - identifier: Deleted
-          - dot: .
-          - identifier: Quantity
-        - comma: ','
-        - column_reference:
-          - identifier: Deleted
-          - dot: .
-          - identifier: ModifiedDate
-      - statement_terminator: ;
+                  - identifier: ModifiedDate
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  expression:
+                    function:
+                      function_name:
+                        function_name_identifier: GETDATE
+                      bracketed:
+                        start_bracket: (
+                        end_bracket: )
+        - output_clause:
+          - keyword: OUTPUT
+          - column_reference:
+              identifier: $action
+          - comma: ','
+          - column_reference:
+            - identifier: Inserted
+            - dot: .
+            - identifier: ProductID
+          - comma: ','
+          - column_reference:
+            - identifier: Inserted
+            - dot: .
+            - identifier: Quantity
+          - comma: ','
+          - column_reference:
+            - identifier: Inserted
+            - dot: .
+            - identifier: ModifiedDate
+          - comma: ','
+          - column_reference:
+            - identifier: Deleted
+            - dot: .
+            - identifier: ProductID
+          - comma: ','
+          - column_reference:
+            - identifier: Deleted
+            - dot: .
+            - identifier: Quantity
+          - comma: ','
+          - column_reference:
+            - identifier: Deleted
+            - dot: .
+            - identifier: ModifiedDate
+    statement_terminator: ;
 - go_statement:
     keyword: GO
 - batch:
@@ -890,95 +895,206 @@ file:
             - identifier: src
             - dot: .
             - identifier: ProductID
-      - merge_when_matched_clause:
-        - keyword: WHEN
-        - keyword: MATCHED
-        - binary_operator: AND
-        - expression:
-          - column_reference:
-            - identifier: pi
-            - dot: .
-            - identifier: Quantity
-          - binary_operator: '-'
-          - column_reference:
-            - identifier: src
-            - dot: .
-            - identifier: OrderQty
-          - comparison_operator:
-            - raw_comparison_operator: '>'
-            - raw_comparison_operator: '='
-          - literal: '0'
-        - keyword: THEN
-        - merge_update_clause:
-            keyword: UPDATE
-            set_clause_list:
-              keyword: SET
-              set_clause:
-                column_reference:
-                - identifier: pi
-                - dot: .
-                - identifier: Quantity
-                comparison_operator:
-                  raw_comparison_operator: '='
-                expression:
-                - column_reference:
+      - merge_match:
+        - merge_when_matched_clause:
+          - keyword: WHEN
+          - keyword: MATCHED
+          - binary_operator: AND
+          - expression:
+            - column_reference:
+              - identifier: pi
+              - dot: .
+              - identifier: Quantity
+            - binary_operator: '-'
+            - column_reference:
+              - identifier: src
+              - dot: .
+              - identifier: OrderQty
+            - comparison_operator:
+              - raw_comparison_operator: '>'
+              - raw_comparison_operator: '='
+            - literal: '0'
+          - keyword: THEN
+          - merge_update_clause:
+              keyword: UPDATE
+              set_clause_list:
+                keyword: SET
+                set_clause:
+                  column_reference:
                   - identifier: pi
                   - dot: .
                   - identifier: Quantity
-                - binary_operator: '-'
-                - column_reference:
-                  - identifier: src
-                  - dot: .
-                  - identifier: OrderQty
-      - merge_when_matched_clause:
-        - keyword: WHEN
-        - keyword: MATCHED
-        - binary_operator: AND
-        - expression:
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  expression:
+                  - column_reference:
+                    - identifier: pi
+                    - dot: .
+                    - identifier: Quantity
+                  - binary_operator: '-'
+                  - column_reference:
+                    - identifier: src
+                    - dot: .
+                    - identifier: OrderQty
+        - merge_when_matched_clause:
+          - keyword: WHEN
+          - keyword: MATCHED
+          - binary_operator: AND
+          - expression:
+            - column_reference:
+              - identifier: pi
+              - dot: .
+              - identifier: Quantity
+            - binary_operator: '-'
+            - column_reference:
+              - identifier: src
+              - dot: .
+              - identifier: OrderQty
+            - comparison_operator:
+              - raw_comparison_operator: <
+              - raw_comparison_operator: '='
+            - literal: '0'
+          - keyword: THEN
+          - merge_delete_clause:
+              keyword: DELETE
+        - output_clause:
+          - keyword: OUTPUT
           - column_reference:
-            - identifier: pi
+              identifier: $action
+          - comma: ','
+          - column_reference:
+            - identifier: Inserted
+            - dot: .
+            - identifier: ProductID
+          - comma: ','
+          - column_reference:
+            - identifier: Inserted
+            - dot: .
+            - identifier: LocationID
+          - comma: ','
+          - column_reference:
+            - identifier: Inserted
             - dot: .
             - identifier: Quantity
-          - binary_operator: '-'
+          - alias_expression:
+              keyword: AS
+              identifier: NewQty
+          - comma: ','
           - column_reference:
-            - identifier: src
+            - identifier: Deleted
             - dot: .
-            - identifier: OrderQty
-          - comparison_operator:
-            - raw_comparison_operator: <
-            - raw_comparison_operator: '='
-          - literal: '0'
-        - keyword: THEN
-        - merge_delete_clause:
-            keyword: DELETE
-      - output_clause:
-        - keyword: OUTPUT
-        - column_reference:
-            identifier: $action
-        - comma: ','
-        - column_reference:
-          - identifier: Inserted
-          - dot: .
-          - identifier: ProductID
-        - comma: ','
-        - column_reference:
-          - identifier: Inserted
-          - dot: .
-          - identifier: LocationID
-        - comma: ','
-        - column_reference:
-          - identifier: Inserted
-          - dot: .
-          - identifier: Quantity
-        - alias_expression:
-            keyword: AS
-            identifier: NewQty
-        - comma: ','
-        - column_reference:
-          - identifier: Deleted
-          - dot: .
-          - identifier: Quantity
-        - alias_expression:
-            keyword: AS
-            identifier: PreviousQty
-      - statement_terminator: ;
+            - identifier: Quantity
+          - alias_expression:
+              keyword: AS
+              identifier: PreviousQty
+    statement_terminator: ;
+- go_statement:
+    keyword: GO
+- batch:
+    statement:
+      insert_statement:
+      - keyword: insert
+      - keyword: into
+      - table_reference:
+        - identifier: sch1
+        - dot: .
+        - identifier: table1
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            identifier: columnC
+          end_bracket: )
+      - select_statement:
+          select_clause:
+            keyword: select
+            select_clause_element:
+              column_reference:
+              - identifier: upd
+              - dot: .
+              - identifier: columnC
+          from_clause:
+            keyword: from
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  bracketed:
+                    start_bracket: (
+                    merge_statement:
+                    - keyword: merge
+                    - table_reference:
+                      - identifier: sch1
+                      - dot: .
+                      - identifier: table1
+                    - alias_expression:
+                        identifier: trg
+                    - keyword: using
+                    - bracketed:
+                        start_bracket: (
+                        select_statement:
+                          select_clause:
+                            keyword: select
+                            select_clause_element:
+                              column_reference:
+                              - identifier: gr
+                              - dot: .
+                              - identifier: columnC
+                          from_clause:
+                            keyword: from
+                            from_expression:
+                              from_expression_element:
+                                table_expression:
+                                  table_reference:
+                                  - identifier: sch2
+                                  - dot: .
+                                  - identifier: table2
+                                alias_expression:
+                                  keyword: as
+                                  identifier: gr
+                        end_bracket: )
+                    - alias_expression:
+                        identifier: src
+                    - join_on_condition:
+                        keyword: 'on'
+                        expression:
+                        - column_reference:
+                          - identifier: trg
+                          - dot: .
+                          - identifier: columnC
+                        - comparison_operator:
+                            raw_comparison_operator: '='
+                        - column_reference:
+                          - identifier: src
+                          - dot: .
+                          - identifier: columnC
+                    - merge_match:
+                        merge_when_matched_clause:
+                        - keyword: when
+                        - keyword: matched
+                        - keyword: then
+                        - merge_update_clause:
+                            keyword: update
+                            set_clause_list:
+                              keyword: set
+                              set_clause:
+                                column_reference:
+                                  identifier: columnC
+                                comparison_operator:
+                                  raw_comparison_operator: '='
+                                expression:
+                                  column_reference:
+                                  - identifier: src
+                                  - dot: .
+                                  - identifier: columnC
+                        output_clause:
+                          keyword: output
+                          column_reference:
+                          - identifier: inserted
+                          - dot: .
+                          - identifier: columnC
+                    end_bracket: )
+                alias_expression:
+                  keyword: as
+                  identifier: upd
+            statement_terminator: ;
+- go_statement:
+    keyword: GO

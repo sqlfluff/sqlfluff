@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3f82c29898bfee1f67c347a1b44c01d7613e1ab5f8455aedb0bf5c43acd3e2f5
+_hash: bd17e7438ba701410abf847c3dd1fe1bc242b72f974edc5e624d4600166c290a
 file:
 - statement:
     select_statement:
@@ -39,7 +39,7 @@ file:
               expression:
                 literal: "'200010'"
               keyword: AS
-              td_internal_data_type:
+              data_type:
                 data_type_identifier: DATE
                 keyword: FORMAT
                 literal: "'YYYYMM'"

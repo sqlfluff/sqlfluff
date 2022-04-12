@@ -42,6 +42,7 @@ class Rule_L030(Rule_L010):
         ("type", "function_name_identifier"),
         ("type", "bare_function"),
     ]
+    _exclude_elements: List[Tuple[str, str]] = []
     config_keywords = [
         "extended_capitalisation_policy",
         "ignore_words",

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4778c8399c5a81295beeb012658e4bb670224d00c385f76b4288844c041c2625
+_hash: 180e33bf259724317583dab3e78b19c1f51ed36022b5309a35e1bc0c4f58eb8c
 file:
   statement:
     select_statement:
@@ -79,49 +79,115 @@ file:
       - comma: ','
       - select_clause_element:
           function:
-          - function_name:
+            function_name:
               function_name_identifier: testFunction
-          - bracketed:
+            bracketed:
               start_bracket: (
               expression:
                 column_reference:
                   identifier: a
               end_bracket: )
-          - start_square_bracket: '['
-          - keyword: OFFSET
-          - bracketed:
-              start_bracket: (
-              literal: '0'
-              end_bracket: )
-          - end_square_bracket: ']'
-          - dot: .
-          - star: '*'
+            array_accessor:
+              start_square_bracket: '['
+              expression:
+                function:
+                  function_name:
+                    function_name_identifier: OFFSET
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      literal: '0'
+                    end_bracket: )
+              end_square_bracket: ']'
+            dot: .
+            star: '*'
           alias_expression:
             keyword: AS
             identifier: field_with_offset_wildcard
       - comma: ','
       - select_clause_element:
           function:
-          - function_name:
+            function_name:
               function_name_identifier: testFunction
-          - bracketed:
+            bracketed:
               start_bracket: (
               expression:
                 column_reference:
                   identifier: a
               end_bracket: )
-          - start_square_bracket: '['
-          - keyword: ORDINAL
-          - bracketed:
+            array_accessor:
+              start_square_bracket: '['
+              expression:
+                function:
+                  function_name:
+                    function_name_identifier: SAFE_OFFSET
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      literal: '0'
+                    end_bracket: )
+              end_square_bracket: ']'
+            dot: .
+            star: '*'
+          alias_expression:
+            keyword: AS
+            identifier: field_with_safe_offset_wildcard
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: testFunction
+            bracketed:
               start_bracket: (
-              literal: '1'
+              expression:
+                column_reference:
+                  identifier: a
               end_bracket: )
-          - end_square_bracket: ']'
-          - dot: .
-          - star: '*'
+            array_accessor:
+              start_square_bracket: '['
+              expression:
+                function:
+                  function_name:
+                    function_name_identifier: ORDINAL
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      literal: '1'
+                    end_bracket: )
+              end_square_bracket: ']'
+            dot: .
+            star: '*'
           alias_expression:
             keyword: AS
             identifier: field_with_ordinal_wildcard
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: testFunction
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  identifier: a
+              end_bracket: )
+            array_accessor:
+              start_square_bracket: '['
+              expression:
+                function:
+                  function_name:
+                    function_name_identifier: ORDINAL
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      literal: '1'
+                    end_bracket: )
+              end_square_bracket: ']'
+            dot: .
+            parameter: a
+          alias_expression:
+            keyword: AS
+            identifier: field_with_ordinal_field
       from_clause:
         keyword: FROM
         from_expression:

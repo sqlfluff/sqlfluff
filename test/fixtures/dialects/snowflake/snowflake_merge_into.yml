@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 875e32f8f894d6371606ead067c30eee14e9db5ca2e11874ab48e668d470c55f
+_hash: b6669741d2f2f6aad1aaf1e6a18c6541ba5fc55433650fc8ae5672a4e184b8a5
 file:
 - statement:
     alter_table_statement:
@@ -21,7 +21,8 @@ file:
       - keyword: SET
       - keyword: MASKING
       - keyword: POLICY
-      - function_name_identifier: example_MASKING_POLICY
+      - function_name:
+          function_name_identifier: example_MASKING_POLICY
 - statement_terminator: ;
 - statement:
     merge_statement:
@@ -45,25 +46,26 @@ file:
           - identifier: source_table
           - dot: .
           - identifier: id
-    - merge_when_matched_clause:
-      - keyword: when
-      - keyword: matched
-      - keyword: then
-      - merge_update_clause:
-          keyword: update
-          set_clause_list:
-            keyword: set
-            set_clause:
-            - column_reference:
-              - identifier: target_table
-              - dot: .
-              - identifier: description
-            - comparison_operator:
-                raw_comparison_operator: '='
-            - column_reference:
-              - identifier: source_table
-              - dot: .
-              - identifier: description
+    - merge_match:
+        merge_when_matched_clause:
+        - keyword: when
+        - keyword: matched
+        - keyword: then
+        - merge_update_clause:
+            keyword: update
+            set_clause_list:
+              keyword: set
+              set_clause:
+              - column_reference:
+                - identifier: target_table
+                - dot: .
+                - identifier: description
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                - identifier: source_table
+                - dot: .
+                - identifier: description
 - statement_terminator: ;
 - statement:
     merge_statement:
@@ -87,69 +89,71 @@ file:
           - identifier: t2
           - dot: .
           - identifier: t2key
-    - merge_when_matched_clause:
-      - keyword: when
-      - keyword: matched
-      - binary_operator: and
-      - expression:
-          column_reference:
-          - identifier: t2
-          - dot: .
-          - identifier: marked
-          comparison_operator:
-            raw_comparison_operator: '='
-          literal: '1'
-      - keyword: then
-      - merge_delete_clause:
-          keyword: delete
-- statement_terminator: ;
-- statement:
-    merge_statement:
-    - keyword: merge
-    - keyword: into
-    - table_reference:
-        identifier: t1
-    - keyword: using
-    - table_reference:
-        identifier: t2
-    - join_on_condition:
-        keyword: 'on'
-        expression:
-        - column_reference:
-          - identifier: t1
-          - dot: .
-          - identifier: t1key
-        - comparison_operator:
-            raw_comparison_operator: '='
-        - column_reference:
-          - identifier: t2
-          - dot: .
-          - identifier: t2key
-    - merge_when_not_matched_clause:
-      - keyword: when
-      - keyword: not
-      - keyword: matched
-      - binary_operator: and
-      - expression:
-          column_reference:
-          - identifier: t2
-          - dot: .
-          - identifier: marked
-          comparison_operator:
-            raw_comparison_operator: '='
-          literal: '1'
-      - keyword: then
-      - merge_insert_clause:
-        - keyword: insert
-        - bracketed:
-            start_bracket: (
+    - merge_match:
+        merge_when_matched_clause:
+        - keyword: when
+        - keyword: matched
+        - binary_operator: and
+        - expression:
             column_reference:
-              identifier: marked
-            end_bracket: )
-        - keyword: values
-        - bracketed:
-            start_bracket: (
-            expression:
-              literal: '1'
-            end_bracket: )
+            - identifier: t2
+            - dot: .
+            - identifier: marked
+            comparison_operator:
+              raw_comparison_operator: '='
+            literal: '1'
+        - keyword: then
+        - merge_delete_clause:
+            keyword: delete
+- statement_terminator: ;
+- statement:
+    merge_statement:
+    - keyword: merge
+    - keyword: into
+    - table_reference:
+        identifier: t1
+    - keyword: using
+    - table_reference:
+        identifier: t2
+    - join_on_condition:
+        keyword: 'on'
+        expression:
+        - column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: t1key
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - identifier: t2
+          - dot: .
+          - identifier: t2key
+    - merge_match:
+        merge_when_not_matched_clause:
+        - keyword: when
+        - keyword: not
+        - keyword: matched
+        - binary_operator: and
+        - expression:
+            column_reference:
+            - identifier: t2
+            - dot: .
+            - identifier: marked
+            comparison_operator:
+              raw_comparison_operator: '='
+            literal: '1'
+        - keyword: then
+        - merge_insert_clause:
+          - keyword: insert
+          - bracketed:
+              start_bracket: (
+              column_reference:
+                identifier: marked
+              end_bracket: )
+          - keyword: values
+          - bracketed:
+              start_bracket: (
+              expression:
+                literal: '1'
+              end_bracket: )
 - statement_terminator: ;

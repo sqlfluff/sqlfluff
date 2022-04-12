@@ -1,0 +1,69 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: ba591924793ee8b220bab4ac72acacfc799f302ff22f8f3d4e6a28f591501911
+file:
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: FUNCTIONS
+    - function_name:
+        function_name_identifier: trim
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: ALL
+    - keyword: FUNCTIONS
+    - function_name:
+        function_name_identifier: trim
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: SYSTEM
+    - keyword: FUNCTIONS
+    - function_name:
+        function_name_identifier: concat
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: USER
+    - keyword: FUNCTIONS
+    - function_name:
+        function_name_identifier: concat_user
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: SYSTEM
+    - keyword: FUNCTIONS
+    - function_name:
+        identifier: salesdb
+        dot: .
+        function_name_identifier: max
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: FUNCTIONS
+    - keyword: LIKE
+    - literal: "'t*'"
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: FUNCTIONS
+    - keyword: LIKE
+    - literal: "'yea*|windo*'"
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: FUNCTIONS
+    - keyword: LIKE
+    - literal: "'t[a-z][a-z][a-z]'"
+- statement_terminator: ;

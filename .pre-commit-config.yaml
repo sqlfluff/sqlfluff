@@ -7,7 +7,7 @@ repos:
       - id: trailing-whitespace
         exclude: (.*\.sql$|test/fixtures/linter/sqlfluffignore/path_c)
   - repo: https://github.com/psf/black
-    rev: 22.1.0
+    rev: 22.3.0
     hooks:
       - id: black
   - repo: https://github.com/pre-commit/mirrors-mypy

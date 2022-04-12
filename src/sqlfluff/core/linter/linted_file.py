@@ -30,9 +30,9 @@ from sqlfluff.core.string_helpers import findall
 from sqlfluff.core.templaters import TemplatedFile
 
 # Classes needed only for type checking
-from sqlfluff.core.parser.segments.base import BaseSegment, FixPatch
+from sqlfluff.core.parser.segments.base import BaseSegment, FixPatch, EnrichedFixPatch
 
-from sqlfluff.core.linter.common import NoQaDirective, EnrichedFixPatch
+from sqlfluff.core.linter.common import NoQaDirective
 
 # Instantiate the linter logger
 linter_logger: logging.Logger = logging.getLogger("sqlfluff.linter")
@@ -203,9 +203,7 @@ class LintedFile(NamedTuple):
         return not any(self.get_violations(filter_ignore=True))
 
     @staticmethod
-    def _log_hints(
-        patch: Union[EnrichedFixPatch, FixPatch], templated_file: TemplatedFile
-    ):
+    def _log_hints(patch: FixPatch, templated_file: TemplatedFile):
         """Log hints for debugging during patch generation."""
         # This next bit is ALL FOR LOGGING AND DEBUGGING
         max_log_length = 10
@@ -279,18 +277,16 @@ class LintedFile(NamedTuple):
         dedupe_buffer = []
         # We use enumerate so that we get an index for each patch. This is entirely
         # so when debugging logs we can find a given patch again!
-        patch: Union[EnrichedFixPatch, FixPatch]
+        patch: FixPatch  # Could be FixPatch or its subclass, EnrichedFixPatch
         for idx, patch in enumerate(
-            self.tree.iter_patches(templated_str=self.templated_file.templated_str)
+            self.tree.iter_patches(templated_file=self.templated_file)
         ):
             linter_logger.debug("  %s Yielded patch: %s", idx, patch)
             self._log_hints(patch, self.templated_file)
 
-            # Attempt to convert to source space.
+            # Get source_slice.
             try:
-                source_slice = self.templated_file.templated_slice_to_source_slice(
-                    patch.templated_slice,
-                )
+                enriched_patch = patch.enrich(self.templated_file)
             except ValueError:  # pragma: no cover
                 linter_logger.info(
                     "      - Skipping. Source space Value Error. i.e. attempted "
@@ -301,10 +297,10 @@ class LintedFile(NamedTuple):
                 continue
 
             # Check for duplicates
-            dedupe_tuple = (source_slice, patch.fixed_raw)
-            if dedupe_tuple in dedupe_buffer:
+            if enriched_patch.dedupe_tuple() in dedupe_buffer:
                 linter_logger.info(
-                    "      - Skipping. Source space Duplicate: %s", dedupe_tuple
+                    "      - Skipping. Source space Duplicate: %s",
+                    enriched_patch.dedupe_tuple(),
                 )
                 continue
 
@@ -318,18 +314,9 @@ class LintedFile(NamedTuple):
 
             # Get the affected raw slices.
             local_raw_slices = self.templated_file.raw_slices_spanning_source_slice(
-                source_slice
+                enriched_patch.source_slice
             )
             local_type_list = [slc.slice_type for slc in local_raw_slices]
-
-            enriched_patch = EnrichedFixPatch(
-                source_slice=source_slice,
-                templated_slice=patch.templated_slice,
-                patch_category=patch.patch_category,
-                fixed_raw=patch.fixed_raw,
-                templated_str=self.templated_file.templated_str[patch.templated_slice],
-                source_str=self.templated_file.source_str[source_slice],
-            )
 
             # Deal with the easy cases of 1) New code at end 2) only literals
             if not local_type_list or set(local_type_list) == {"literal"}:

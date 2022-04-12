@@ -185,6 +185,7 @@ class BaseGrammar(Matchable):
         matchers: List["MatchableType"],
         parse_context: ParseContext,
         trim_noncode=True,
+        terminators: List["MatchableType"] = None,
     ) -> Tuple[MatchResult, Optional["MatchableType"]]:
         """Return longest match from a selection of matchers.
 
@@ -196,8 +197,10 @@ class BaseGrammar(Matchable):
             `tuple` of (match_object, matcher).
 
         """
+        terminated = False
+
         # Have we been passed an empty list?
-        if len(segments) == 0:
+        if len(segments) == 0:  # pragma: no cover
             return MatchResult.from_empty(), None
 
         # If gaps are allowed, trim the ends.
@@ -224,9 +227,27 @@ class BaseGrammar(Matchable):
                     return res_match, matcher
             elif res_match:
                 # We've got an incomplete match, if it's the best so far keep it.
-                if res_match.matched_length > best_match_length:
+                if res_match.trimmed_matched_length > best_match_length:
                     best_match = res_match, matcher
-                    best_match_length = res_match.matched_length
+                    best_match_length = res_match.trimmed_matched_length
+
+                    if terminators:
+
+                        _, segs, _ = trim_non_code_segments(
+                            best_match[0].unmatched_segments
+                        )
+                        for terminator in terminators:
+                            terminator_match: MatchResult = terminator.match(
+                                segs, parse_context=parse_context
+                            )
+
+                            if terminator_match.matched_segments:
+                                terminated = True
+                                break
+
+            if terminated:
+                break
+
             # We could stash segments here, but given we might have some successful
             # matches here, we shouldn't, because they'll be mutated in the wrong way.
             # Eventually there might be a performance gain from doing that sensibly
@@ -383,11 +404,11 @@ class BaseGrammar(Matchable):
                 return ((), MatchResult.from_unmatched(segments), None)
 
         # Make some buffers
-        seg_buff = segments
-        pre_seg_buff = ()  # NB: Tuple
+        seg_buff = segments  # pragma: no cover
+        pre_seg_buff = ()  # pragma: no cover
 
         # Loop
-        while True:
+        while True:  # pragma: no cover
             # Do we have anything left to match on?
             if seg_buff:
                 # Great, carry on.

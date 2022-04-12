@@ -838,3 +838,42 @@ test_pass_tsql_statistics_indent:
   configs:
     core:
       dialect: tsql
+
+test_fail_snowflake_merge_statement:
+  fail_str: |
+    merge into foo.bar as tgt
+    using (
+    select
+      foo::date as bar
+    from foo.bar
+    where
+    split(foo, '|')[2] REGEXP '^\\d+\\-\\d+\\-\\d+ \\d+\\:\\d+$'
+    OR
+    foo IN ('BAR','FOO')
+    ) as src
+    on
+      src.foo = tgt.foo
+    when matched then
+    update set
+      tgt.foo = src.foo
+    ;
+  fix_str: |
+    merge into foo.bar as tgt
+    using (
+        select
+            foo::date as bar
+        from foo.bar
+        where
+            split(foo, '|')[2] REGEXP '^\\d+\\-\\d+\\-\\d+ \\d+\\:\\d+$'
+            OR
+            foo IN ('BAR','FOO')
+    ) as src
+    on
+        src.foo = tgt.foo
+    when matched then
+        update set
+            tgt.foo = src.foo
+    ;
+  configs:
+    core:
+      dialect: snowflake

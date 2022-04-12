@@ -23,6 +23,7 @@ from sqlfluff.core.parser import (
 )
 
 from sqlfluff.core.parser.segments.base import BracketedSegment
+from sqlfluff.dialects import dialect_ansi as ansi
 
 ansi_dialect = load_raw_dialect("ansi")
 oracle_dialect = ansi_dialect.copy_as("oracle")
@@ -50,7 +51,6 @@ oracle_dialect.add(
 )
 
 
-@oracle_dialect.segment()
 class ExecuteFileSegment(BaseSegment):
     """A reference to an indextype."""
 
@@ -73,20 +73,16 @@ class ExecuteFileSegment(BaseSegment):
     )
 
 
-@oracle_dialect.segment()
 class IndexTypeReferenceSegment(BaseSegment):
     """A reference to an indextype."""
 
     type = "indextype_reference"
 
-    match_grammar = ansi_dialect.get_segment(
-        "ObjectReferenceSegment"
-    ).match_grammar.copy()
+    match_grammar = ansi.ObjectReferenceSegment.match_grammar.copy()
 
 
 # Adding Oracle specific statements.
-@oracle_dialect.segment(replace=True)
-class StatementSegment(BaseSegment):
+class StatementSegment(ansi.StatementSegment):
     """A generic segment, to any of its child subsegments.
 
     Override ANSI to allow exclusion of ExecuteFileSegment.
@@ -95,16 +91,15 @@ class StatementSegment(BaseSegment):
     type = "statement"
 
     match_grammar = OneOf(
-        GreedyUntil(Ref("DelimiterSegment")), exclude=Ref("ExecuteFileSegment")
+        GreedyUntil(Ref("DelimiterGrammar")), exclude=Ref("ExecuteFileSegment")
     )
-    parse_grammar = ansi_dialect.get_segment("StatementSegment").parse_grammar.copy(
+    parse_grammar = ansi.StatementSegment.parse_grammar.copy(
         insert=[
             Ref("CommentStatementSegment"),
         ],
     )
 
 
-@oracle_dialect.segment(replace=True)
 class FileSegment(BaseFileSegment):
     """A segment representing a whole file or script.
 
@@ -113,7 +108,7 @@ class FileSegment(BaseFileSegment):
     has no match_grammar.
 
     Override ANSI to allow addition of ExecuteFileSegment without
-    ending in DelimiterSegment
+    ending in DelimiterGrammar
     """
 
     # NB: We don't need a match_grammar here because we're
@@ -122,14 +117,13 @@ class FileSegment(BaseFileSegment):
         Ref("ExecuteFileSegment"),
         Delimited(
             Ref("StatementSegment"),
-            delimiter=AnyNumberOf(Ref("DelimiterSegment"), min_times=1),
+            delimiter=AnyNumberOf(Ref("DelimiterGrammar"), min_times=1),
             allow_gaps=True,
             allow_trailing=True,
         ),
     )
 
 
-@oracle_dialect.segment()
 class CommentStatementSegment(BaseSegment):
     """A `Comment` statement.
 
@@ -173,17 +167,18 @@ class CommentStatementSegment(BaseSegment):
     )
 
 
-# Dialects should not use Python "import" to access other dialects. Instead,
-# get a reference to the ANSI ObjectReferenceSegment this way so we can inherit
-# from it.
-ObjectReferenceSegment = ansi_dialect.get_segment("ObjectReferenceSegment")
+# Inherit from the ANSI ObjectReferenceSegment this way so we can inherit
+# other segment types from it.
+class ObjectReferenceSegment(ansi.ObjectReferenceSegment):
+    """A reference to an object."""
+
+    pass
 
 
 # need to ignore type due to mypy rules on type variables
 # see https://mypy.readthedocs.io/en/stable/common_issues.html#variables-vs-type-aliases
 # for details
-@oracle_dialect.segment(replace=True)
-class TableReferenceSegment(ObjectReferenceSegment):  # type: ignore
+class TableReferenceSegment(ObjectReferenceSegment):
     """A reference to an table, CTE, subquery or alias.
 
     Extended from ANSI to allow Database Link syntax using AtSignSegment
@@ -207,7 +202,7 @@ class TableReferenceSegment(ObjectReferenceSegment):  # type: ignore
             Ref("StartBracketSegment"),
             Ref("BinaryOperatorGrammar"),
             Ref("ColonSegment"),
-            Ref("DelimiterSegment"),
+            Ref("DelimiterGrammar"),
             Ref("JoinLikeClauseGrammar"),
             BracketedSegment,
         ),

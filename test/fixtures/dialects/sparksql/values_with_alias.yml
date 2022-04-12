@@ -1,0 +1,240 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: c19b9865f7bc29197359f871b57e66d4f12bccb6f3241c8e68e6c9502c39b0a9
+file:
+- statement:
+    values_clause:
+      keyword: values
+      bracketed:
+      - start_bracket: (
+      - expression:
+          literal: '1'
+      - comma: ','
+      - expression:
+          literal: '2'
+      - end_bracket: )
+      alias_expression:
+        keyword: as
+        identifier: t
+- statement_terminator: ;
+- statement:
+    values_clause:
+      keyword: values
+      bracketed:
+      - start_bracket: (
+      - expression:
+          literal: '1'
+      - comma: ','
+      - expression:
+          literal: '2'
+      - end_bracket: )
+      alias_expression:
+        identifier: t
+- statement_terminator: ;
+- statement:
+    values_clause:
+      keyword: values
+      bracketed:
+      - start_bracket: (
+      - expression:
+          literal: '1'
+      - comma: ','
+      - expression:
+          literal: '2'
+      - end_bracket: )
+      alias_expression:
+        keyword: as
+        identifier: t
+        bracketed:
+          start_bracket: (
+          identifier_list:
+          - identifier: a
+          - comma: ','
+          - identifier: b
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    values_clause:
+    - keyword: values
+    - bracketed:
+      - start_bracket: (
+      - expression:
+          literal: '1'
+      - comma: ','
+      - expression:
+          literal: '2'
+      - end_bracket: )
+    - comma: ','
+    - bracketed:
+      - start_bracket: (
+      - expression:
+          literal: '3'
+      - comma: ','
+      - expression:
+          literal: '4'
+      - end_bracket: )
+    - alias_expression:
+        keyword: as
+        identifier: t
+        bracketed:
+          start_bracket: (
+          identifier_list:
+          - identifier: a
+          - comma: ','
+          - identifier: b
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    values_clause:
+      keyword: values
+      bracketed:
+      - start_bracket: (
+      - expression:
+          literal: '1'
+      - comma: ','
+      - expression:
+          literal: '2'
+      - end_bracket: )
+      alias_expression:
+        keyword: as
+        bracketed:
+          start_bracket: (
+          identifier_list:
+          - identifier: a
+          - comma: ','
+          - identifier: b
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    values_clause:
+      keyword: values
+      bracketed:
+      - start_bracket: (
+      - expression:
+          literal: '1'
+      - comma: ','
+      - expression:
+          literal: '2'
+      - end_bracket: )
+      alias_expression:
+        identifier: t
+        bracketed:
+          start_bracket: (
+          identifier_list:
+          - identifier: a
+          - comma: ','
+          - identifier: b
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    values_clause:
+      keyword: values
+      bracketed:
+      - start_bracket: (
+      - expression:
+          literal: '1'
+      - comma: ','
+      - expression:
+          literal: '2'
+      - end_bracket: )
+      alias_expression:
+        bracketed:
+          start_bracket: (
+          identifier_list:
+          - identifier: a
+          - comma: ','
+          - identifier: b
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    values_clause:
+    - keyword: values
+    - bracketed:
+      - start_bracket: (
+      - expression:
+          literal: '1'
+      - comma: ','
+      - expression:
+          literal: '2'
+      - end_bracket: )
+    - comma: ','
+    - bracketed:
+      - start_bracket: (
+      - expression:
+          literal: '3'
+      - comma: ','
+      - expression:
+          literal: '4'
+      - end_bracket: )
+    - alias_expression:
+        keyword: as
+        bracketed:
+          start_bracket: (
+          identifier_list:
+          - identifier: a
+          - comma: ','
+          - identifier: b
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    values_clause:
+    - keyword: values
+    - bracketed:
+      - start_bracket: (
+      - expression:
+          literal: '1'
+      - comma: ','
+      - expression:
+          literal: '2'
+      - end_bracket: )
+    - comma: ','
+    - bracketed:
+      - start_bracket: (
+      - expression:
+          literal: '3'
+      - comma: ','
+      - expression:
+          literal: '4'
+      - end_bracket: )
+    - alias_expression:
+        identifier: t
+        bracketed:
+          start_bracket: (
+          identifier_list:
+          - identifier: a
+          - comma: ','
+          - identifier: b
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    values_clause:
+    - keyword: values
+    - bracketed:
+      - start_bracket: (
+      - expression:
+          literal: '1'
+      - comma: ','
+      - expression:
+          literal: '2'
+      - end_bracket: )
+    - comma: ','
+    - bracketed:
+      - start_bracket: (
+      - expression:
+          literal: '3'
+      - comma: ','
+      - expression:
+          literal: '4'
+      - end_bracket: )
+    - alias_expression:
+        bracketed:
+          start_bracket: (
+          identifier_list:
+          - identifier: a
+          - comma: ','
+          - identifier: b
+          end_bracket: )
+- statement_terminator: ;

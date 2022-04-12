@@ -1,0 +1,399 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 7e8e25230b7bb4701fec6377de0003673787f75e5bf9a02ba791ae7f89927149
+file:
+- statement:
+    delete_statement:
+      keyword: DELETE
+      table_reference:
+        identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: a
+          join_clause:
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: b
+          - keyword: USING
+          - bracketed:
+              start_bracket: (
+              identifier: id
+              end_bracket: )
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+          - identifier: b
+          - dot: .
+          - identifier: name
+          comparison_operator:
+            raw_comparison_operator: '='
+          literal: "'example'"
+- statement_terminator: ;
+- statement:
+    delete_statement:
+      keyword: DELETE
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: somelog
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            identifier: user
+          comparison_operator:
+            raw_comparison_operator: '='
+          literal: "'jcole'"
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          identifier: timestamp_column
+      limit_clause:
+        keyword: LIMIT
+        literal: '1'
+- statement_terminator: ;
+- statement:
+    delete_statement:
+    - keyword: DELETE
+    - keyword: LOW_PRIORITY
+    - keyword: QUICK
+    - keyword: IGNORE
+    - table_reference:
+        identifier: a
+    - from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: a
+          join_clause:
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: b
+          - keyword: USING
+          - bracketed:
+              start_bracket: (
+              identifier: id
+              end_bracket: )
+    - where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+          - identifier: b
+          - dot: .
+          - identifier: name
+          comparison_operator:
+            raw_comparison_operator: '='
+          literal: "'example'"
+- statement_terminator: ;
+- statement:
+    delete_statement:
+      keyword: DELETE
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: a
+      partition_clause:
+        keyword: PARTITION
+        bracketed:
+          start_bracket: (
+          object_reference:
+            identifier: p
+          end_bracket: )
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+          - identifier: b
+          - dot: .
+          - identifier: name
+          comparison_operator:
+            raw_comparison_operator: '='
+          literal: "'example'"
+- statement_terminator: ;
+- statement:
+    delete_statement:
+    - keyword: DELETE
+    - table_reference:
+        identifier: t1
+    - comma: ','
+    - table_reference:
+        identifier: t2
+    - from_clause:
+        keyword: FROM
+        from_expression:
+        - from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+        - join_clause:
+          - keyword: INNER
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: t2
+        - join_clause:
+          - keyword: INNER
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: t3
+    - where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: id
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - identifier: t2
+          - dot: .
+          - identifier: id
+        - binary_operator: AND
+        - column_reference:
+          - identifier: t2
+          - dot: .
+          - identifier: id
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - identifier: t3
+          - dot: .
+          - identifier: id
+- statement_terminator: ;
+- statement:
+    delete_statement:
+    - keyword: DELETE
+    - keyword: LOW_PRIORITY
+    - keyword: QUICK
+    - keyword: IGNORE
+    - table_reference:
+        identifier: t1
+    - comma: ','
+    - table_reference:
+        identifier: t2
+    - from_clause:
+        keyword: FROM
+        from_expression:
+        - from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+        - join_clause:
+          - keyword: INNER
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: t2
+        - join_clause:
+          - keyword: INNER
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: t3
+    - where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: id
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - identifier: t2
+          - dot: .
+          - identifier: id
+        - binary_operator: AND
+        - column_reference:
+          - identifier: t2
+          - dot: .
+          - identifier: id
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - identifier: t3
+          - dot: .
+          - identifier: id
+- statement_terminator: ;
+- statement:
+    delete_statement:
+    - keyword: DELETE
+    - keyword: FROM
+    - table_reference:
+        identifier: t1
+    - comma: ','
+    - table_reference:
+        identifier: t2
+    - using_clause:
+        keyword: USING
+        from_expression:
+        - from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+        - join_clause:
+          - keyword: INNER
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: t2
+        - join_clause:
+          - keyword: INNER
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: t3
+    - where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: id
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - identifier: t2
+          - dot: .
+          - identifier: id
+        - binary_operator: AND
+        - column_reference:
+          - identifier: t2
+          - dot: .
+          - identifier: id
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - identifier: t3
+          - dot: .
+          - identifier: id
+- statement_terminator: ;
+- statement:
+    delete_statement:
+    - keyword: DELETE
+    - keyword: LOW_PRIORITY
+    - keyword: QUICK
+    - keyword: IGNORE
+    - keyword: FROM
+    - table_reference:
+        identifier: t1
+    - comma: ','
+    - table_reference:
+        identifier: t2
+    - using_clause:
+        keyword: USING
+        from_expression:
+        - from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+        - join_clause:
+          - keyword: INNER
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: t2
+        - join_clause:
+          - keyword: INNER
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: t3
+    - where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: id
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - identifier: t2
+          - dot: .
+          - identifier: id
+        - binary_operator: AND
+        - column_reference:
+          - identifier: t2
+          - dot: .
+          - identifier: id
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - identifier: t3
+          - dot: .
+          - identifier: id
+- statement_terminator: ;
+- statement:
+    delete_statement:
+    - keyword: DELETE
+    - table_reference:
+        identifier: a1
+    - comma: ','
+    - table_reference:
+        identifier: a2
+    - from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+            alias_expression:
+              keyword: AS
+              identifier: a1
+          join_clause:
+          - keyword: INNER
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: t2
+              alias_expression:
+                keyword: AS
+                identifier: a2
+    - where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+          - identifier: a1
+          - dot: .
+          - identifier: id
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - identifier: a2
+          - dot: .
+          - identifier: id
+- statement_terminator: ;

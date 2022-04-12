@@ -1,4 +1,4 @@
-version: "2"
+version: "2.4"
 
 services:
   app:
@@ -13,6 +13,8 @@ services:
     depends_on:
       - postgres
     entrypoint: /bin/bash
+    environment:
+      - POSTGRES_HOST=postgres
     tty: true
   postgres:
     image: postgres:14-bullseye

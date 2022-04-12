@@ -23,7 +23,6 @@ sqlite_dialect.replace(
 )
 
 
-@sqlite_dialect.segment(replace=True)
 class TableEndClauseSegment(BaseSegment):
     """Support WITHOUT ROWID at end of tables.
 

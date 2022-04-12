@@ -9,6 +9,187 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfluff/sqlfluff/releases) and will be copied in here on each release (please remember to update the issues and contributors to links!). There is no need to manually edit this file going forward.
 -->
 
+## [0.11.2] - 2022-03-24
+
+## What’s Changed
+
+* Added Support For Snowflake Inline Comments [#2919](https://github.com/sqlfluff/sqlfluff/pull/2919) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* Spark3: Fix bug which did not allow multiple joins [#2917](https://github.com/sqlfluff/sqlfluff/pull/2917) [@tunetheweb](https://github.com/tunetheweb)
+* Added Snowflake Alter View Support [#2915](https://github.com/sqlfluff/sqlfluff/pull/2915) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* Adjust L010 to ignore nulls and booleans covered by L040 [#2913](https://github.com/sqlfluff/sqlfluff/pull/2913) [@tunetheweb](https://github.com/tunetheweb)
+* Fix bug where L043 corrupts SQL [#2908](https://github.com/sqlfluff/sqlfluff/pull/2908) [@barrywhart](https://github.com/barrywhart)
+* Jinja: Add support for Block Assignments [#2907](https://github.com/sqlfluff/sqlfluff/pull/2907) [@barrywhart](https://github.com/barrywhart)
+* L042 fix fails with missing function `get_identifier()` on Postgres, Redshift dialects [#2899](https://github.com/sqlfluff/sqlfluff/pull/2899) [@barrywhart](https://github.com/barrywhart)
+* BigQuery: Better Set Operators support [#2901](https://github.com/sqlfluff/sqlfluff/pull/2901) [@tunetheweb](https://github.com/tunetheweb)
+* Hive: support for complex types in `cast` `rowtype` definition [#2896](https://github.com/sqlfluff/sqlfluff/pull/2896) [@KulykDmytro](https://github.com/KulykDmytro)
+* Hive: added `json` type support [#2894](https://github.com/sqlfluff/sqlfluff/pull/2894) [@KulykDmytro](https://github.com/KulykDmytro)
+* Hive: fix incorrect L027 error for rowtype attribute name [#2893](https://github.com/sqlfluff/sqlfluff/pull/2893) [@KulykDmytro](https://github.com/KulykDmytro)
+* Hive: Add `ARRAY` support [#2891](https://github.com/sqlfluff/sqlfluff/pull/2891) [@tunetheweb](https://github.com/tunetheweb)
+* Implemented `PIVOT`/`UNPIVOT` Redshift + Fixed Snowflake Bug + Standardized `PIVOT`/`UNPIVOT` Parsing [#2888](https://github.com/sqlfluff/sqlfluff/pull/2888) [@PLBMR](https://github.com/PLBMR)
+* Fix AssertionError in dbt templater when file ends with multiple newlines [#2887](https://github.com/sqlfluff/sqlfluff/pull/2887) [@barrywhart](https://github.com/barrywhart)
+* Hive: Row typecasting in `cast` function [#2889](https://github.com/sqlfluff/sqlfluff/pull/2889) [@KulykDmytro](https://github.com/KulykDmytro)
+* dbt templater should gracefully skip macro files [#2886](https://github.com/sqlfluff/sqlfluff/pull/2886) [@barrywhart](https://github.com/barrywhart)
+* Disable L031 on BigQuery due to complex backtick / project name behavior [#2882](https://github.com/sqlfluff/sqlfluff/pull/2882) [@barrywhart](https://github.com/barrywhart)
+* Documentation: Update dbt templater docs with more detail about pros and cons [#2885](https://github.com/sqlfluff/sqlfluff/pull/2885) [@barrywhart](https://github.com/barrywhart)
+* BigQuery: Better `STRUCT` Array Support [#2881](https://github.com/sqlfluff/sqlfluff/pull/2881) [@tunetheweb](https://github.com/tunetheweb)
+* L042: Detect violations when column is templated [#2879](https://github.com/sqlfluff/sqlfluff/pull/2879) [@barrywhart](https://github.com/barrywhart)
+* Improve parsing of `BETWEEN` statements [#2878](https://github.com/sqlfluff/sqlfluff/pull/2878) [@MarcAntoineSchmidtQC](https://github.com/MarcAntoineSchmidtQC)
+
+## [0.11.1] - 2022-03-18
+
+## Highlights
+
+Major changes include:
+* A number of changes to `fix` code to make these more robust
+* Improvements to templating blocks
+* `generate_parse_fixture_yml` options to allow quicker, partial regeneration of YML files
+* Numerous rule fixes including adding auto fix to L042
+* Numerous grammar changes
+
+## What's Changed
+
+* Spark3: Support for `SHOW` statements [#2864](https://github.com/sqlfluff/sqlfluff/pull/2864) [@R7L208](https://github.com/R7L208)
+* Add Markerr to list of organizations using SQLFluff in the wild  [#2874](https://github.com/sqlfluff/sqlfluff/pull/2874) [@kdw2126](https://github.com/kdw2126)
+* Refactor JinjaTracer: Split into two classes, break up `_slice_template()` function [#2870](https://github.com/sqlfluff/sqlfluff/pull/2870) [@barrywhart](https://github.com/barrywhart)
+* BigQuery: support Parameterized Numeric Literals [#2872](https://github.com/sqlfluff/sqlfluff/pull/2872) [@tunetheweb](https://github.com/tunetheweb)
+* L042 autofix [#2860](https://github.com/sqlfluff/sqlfluff/pull/2860) [@OTooleMichael](https://github.com/OTooleMichael)
+* Redshift: transaction statement [#2852](https://github.com/sqlfluff/sqlfluff/pull/2852) [@rpr-ableton](https://github.com/rpr-ableton)
+* JinjaTracer fix for endif/endfor inside "set" or "macro" blocks [#2868](https://github.com/sqlfluff/sqlfluff/pull/2868) [@barrywhart](https://github.com/barrywhart)
+* L009: Handle adding newline after `{% endif %}` at end of file [#2862](https://github.com/sqlfluff/sqlfluff/pull/2862) [@barrywhart](https://github.com/barrywhart)
+* Redshift: Add support for `AT TIME ZONE` [#2863](https://github.com/sqlfluff/sqlfluff/pull/2863) [@tunetheweb](https://github.com/tunetheweb)
+* L032 bug fix and fix improvement [#2859](https://github.com/sqlfluff/sqlfluff/pull/2859) [@OTooleMichael](https://github.com/OTooleMichael)
+* Refactor JinjaTracer; store lex output as individual strings where possible [#2856](https://github.com/sqlfluff/sqlfluff/pull/2856) [@barrywhart](https://github.com/barrywhart)
+* Add ability to regenerate subsets of fixture YAMLs (by dialect, or new only) [#2850](https://github.com/sqlfluff/sqlfluff/pull/2850) [@OTooleMichael](https://github.com/OTooleMichael)
+* Fix bug with Jinja and dbt `{% set %}` blocks [#2849](https://github.com/sqlfluff/sqlfluff/pull/2849) [@barrywhart](https://github.com/barrywhart)
+* Bug fix: `ValueError: Position Not Found for lint/parse/fix` in JinjaTracer [#2846](https://github.com/sqlfluff/sqlfluff/pull/2846) [@barrywhart](https://github.com/barrywhart)
+* Reduce unnecessary setting run ci [#2847](https://github.com/sqlfluff/sqlfluff/pull/2847) [@zhongjiajie](https://github.com/zhongjiajie)
+* Spark3: statements to `SET` and `RESET` spark runtime configurations [#2839](https://github.com/sqlfluff/sqlfluff/pull/2839) [@R7L208](https://github.com/R7L208)
+* BigQuery - prevent L006 flagging hyphenated table references [#2842](https://github.com/sqlfluff/sqlfluff/pull/2842) [@tunetheweb](https://github.com/tunetheweb)
+* TSQL fix `CONVERT` function definition [#2843](https://github.com/sqlfluff/sqlfluff/pull/2843) [@tunetheweb](https://github.com/tunetheweb)
+* Change rule test script from bash to python [#2840](https://github.com/sqlfluff/sqlfluff/pull/2840) [@OTooleMichael](https://github.com/OTooleMichael)
+* Spark3: Support `DESCRIBE` statement [#2837](https://github.com/sqlfluff/sqlfluff/pull/2837) [@R7L208](https://github.com/R7L208)
+* Spark3: Refactor `REFRESH` statements into one class [#2838](https://github.com/sqlfluff/sqlfluff/pull/2838) [@R7L208](https://github.com/R7L208)
+* Prevent rules incorrectly returning conflicting fixes to same position [#2830](https://github.com/sqlfluff/sqlfluff/pull/2830) [@barrywhart](https://github.com/barrywhart)
+* Redshift and BigQuery: Update dateparts values and functions  [#2829](https://github.com/sqlfluff/sqlfluff/pull/2829) [@rpr-ableton](https://github.com/rpr-ableton)
+* MySQL add `NOW` support [#2825](https://github.com/sqlfluff/sqlfluff/pull/2825) [@tunetheweb](https://github.com/tunetheweb)
+* MySQL `DELETE FROM` support [#2823](https://github.com/sqlfluff/sqlfluff/pull/2823) [@tunetheweb](https://github.com/tunetheweb)
+* Rule L059 bug with `IF` [#2824](https://github.com/sqlfluff/sqlfluff/pull/2824) [@tunetheweb](https://github.com/tunetheweb)
+* Prevent exceptions when running `fix` on dialect fixtures [#2818](https://github.com/sqlfluff/sqlfluff/pull/2818) [@tunetheweb](https://github.com/tunetheweb)
+* Spark3: Support to handle `CACHE` AND `UNCACHE` auxiliary statements [#2814](https://github.com/sqlfluff/sqlfluff/pull/2814) [@R7L208](https://github.com/R7L208)
+* Fix L036 error on `CREATE VIEW AS SELECT` [#2816](https://github.com/sqlfluff/sqlfluff/pull/2816) [@tunetheweb](https://github.com/tunetheweb)
+* Fixes for the new post-fix parse check [#2813](https://github.com/sqlfluff/sqlfluff/pull/2813) [@barrywhart](https://github.com/barrywhart)
+* Add initial `MERGE` syntax to most dialects [#2807](https://github.com/sqlfluff/sqlfluff/pull/2807) [@PhilippLange](https://github.com/PhilippLange)
+* Automated tests should fail if a lint fix introduces a parse error [#2809](https://github.com/sqlfluff/sqlfluff/pull/2809) [@barrywhart](https://github.com/barrywhart)
+
+## New Contributors
+* [@kdw2126](https://github.com/kdw2126) made their first contribution in [#2874](https://github.com/sqlfluff/sqlfluff/pull/2874)
+
+## [0.11.0] - 2022-03-07
+
+## Highlights
+
+Major changes include:
+* Changes rule L030 to use `extended_capitalisation_policy` to support PascalCase **BREAKING CHANGE**
+* Fixes dbt error on ephemeral models
+* Log warnings for fixes that seem to corrupt the parse SQL as may cause incorrect fixes in other rules.
+* Bug fix to rule L011 for `implicit` aliases
+* Bug fix to rule L019 for commas besides templated code
+* Rule L051 can now optionally be applied to `LEFT`/`RIGHT`/`OUTER JOIN`s
+* Improvements to Test Suite
+* Many dialect improvements
+
+## What's Changed
+
+* Exasol: Fix `INTERVAL` literals / expression [#2804](https://github.com/sqlfluff/sqlfluff/pull/2804) [@sti0](https://github.com/sti0)
+* Exasol: Add `IDLE_TIMEOUT` and `SNAPSHOT_MODE` [#2805](https://github.com/sqlfluff/sqlfluff/pull/2805) [@sti0](https://github.com/sti0)
+* Exasol: Support value range clause within `INSERT` statements (7.1+) [#2802](https://github.com/sqlfluff/sqlfluff/pull/2802) [@sti0](https://github.com/sti0)
+* Exasol: Add lua adapter scripts (7.1+) [#2801](https://github.com/sqlfluff/sqlfluff/pull/2801) [@sti0](https://github.com/sti0)
+* Exasol: Add openid support for create/alter user (7.1+) [#2800](https://github.com/sqlfluff/sqlfluff/pull/2800) [@sti0](https://github.com/sti0)
+* Exasol: New consumer group params and unreserved keywords (7.1+) [#2799](https://github.com/sqlfluff/sqlfluff/pull/2799) [@sti0](https://github.com/sti0)
+* Snowflake: Complete `INSERT` grammar [#2798](https://github.com/sqlfluff/sqlfluff/pull/2798) [@jpy-git](https://github.com/jpy-git)
+* Fix Postgres `VALUES`, make Spark3 `VALUES` consistent [#2797](https://github.com/sqlfluff/sqlfluff/pull/2797) [@jpy-git](https://github.com/jpy-git)
+* Postgres: `INSERT DEFAULT` value [#2796](https://github.com/sqlfluff/sqlfluff/pull/2796) [@jpy-git](https://github.com/jpy-git)
+* Postgres: Make `AS` optional in Postgres `DELETE` [#2794](https://github.com/sqlfluff/sqlfluff/pull/2794) [@jpy-git](https://github.com/jpy-git)
+* BigQuery support `UNEST` aliases [#2793](https://github.com/sqlfluff/sqlfluff/pull/2793) [@tunetheweb](https://github.com/tunetheweb)
+* Postgres: Add all range operators [#2789](https://github.com/sqlfluff/sqlfluff/pull/2789) [@jpy-git](https://github.com/jpy-git)
+* Snowflake: Complete `DELETE FROM` grammar [#2792](https://github.com/sqlfluff/sqlfluff/pull/2792) [@jpy-git](https://github.com/jpy-git)
+* Postgres: Complete `DELETE FROM` grammar [#2791](https://github.com/sqlfluff/sqlfluff/pull/2791) [@jpy-git](https://github.com/jpy-git)
+* Postgres: Add `RETURNING` grammar to `INSERT INTO` statement [#2790](https://github.com/sqlfluff/sqlfluff/pull/2790) [@jpy-git](https://github.com/jpy-git)
+* Snowflake: Complete `PATTERN` grammar [#2788](https://github.com/sqlfluff/sqlfluff/pull/2788) [@jpy-git](https://github.com/jpy-git)
+* Redshift: add `[ALTER/CREATE/DROP] PROCEDURE` segments [#2774](https://github.com/sqlfluff/sqlfluff/pull/2774) [@rpr-ableton](https://github.com/rpr-ableton)
+* Spark3: Support for `ANALYZE TABLE` statement [#2780](https://github.com/sqlfluff/sqlfluff/pull/2780) [@R7L208](https://github.com/R7L208)
+* Snowflake: Add `MATCH_RECOGNIZE` clause [#2781](https://github.com/sqlfluff/sqlfluff/pull/2781) [@jpy-git](https://github.com/jpy-git)
+* Snowflake: Complete `LIMIT` grammar [#2784](https://github.com/sqlfluff/sqlfluff/pull/2784) [@jpy-git](https://github.com/jpy-git)
+* Rough autofix for L028 [#2757](https://github.com/sqlfluff/sqlfluff/pull/2757) [@OTooleMichael](https://github.com/OTooleMichael)
+* Spark3 bug: Create with complex data types (#2761) [#2782](https://github.com/sqlfluff/sqlfluff/pull/2782) [@PhilippLange](https://github.com/PhilippLange)
+* Snowflake: Complete `LIKE` grammar [#2779](https://github.com/sqlfluff/sqlfluff/pull/2779) [@jpy-git](https://github.com/jpy-git)
+* Spark3: Auxiliary`FILE` and `JAR` statements [#2778](https://github.com/sqlfluff/sqlfluff/pull/2778) [@R7L208](https://github.com/R7L208)
+* Snowflake: Refine `SET`/`UNSET` `MASKING POLICY` grammar [#2775](https://github.com/sqlfluff/sqlfluff/pull/2775) [@jpy-git](https://github.com/jpy-git)
+* L049 bug: correct over zealous `=` --> `IS` [#2760](https://github.com/sqlfluff/sqlfluff/pull/2760) [@OTooleMichael](https://github.com/OTooleMichael)
+* Make extenstion case insensitive [#2773](https://github.com/sqlfluff/sqlfluff/pull/2773) [@tunetheweb](https://github.com/tunetheweb)
+* Snowflake: Add dollar quoted string literal [#2770](https://github.com/sqlfluff/sqlfluff/pull/2770) [@jpy-git](https://github.com/jpy-git)
+* Bug fix: L036 corrupts `SELECT DISTINCT id` query [#2768](https://github.com/sqlfluff/sqlfluff/pull/2768) [@barrywhart](https://github.com/barrywhart)
+* Snowflake: Add `CHANGES` clause [#2764](https://github.com/sqlfluff/sqlfluff/pull/2764) [@jpy-git](https://github.com/jpy-git)
+* Spark3: Support for `EXPLAIN` statement [#2767](https://github.com/sqlfluff/sqlfluff/pull/2767) [@R7L208](https://github.com/R7L208)
+* Snowflake: Add `CONNECT BY` clause [#2763](https://github.com/sqlfluff/sqlfluff/pull/2763) [@jpy-git](https://github.com/jpy-git)
+* Spark3: Support for `TRANSFORM` clause [#2762](https://github.com/sqlfluff/sqlfluff/pull/2762) [@R7L208](https://github.com/R7L208)
+* Snowflake: Fix `GROUP BY {CUBE|ROLLUP|GROUPING SETS}` parsing [#2759](https://github.com/sqlfluff/sqlfluff/pull/2759) [@jpy-git](https://github.com/jpy-git)
+* BigQuery: allow identifiers starting with dash [#2756](https://github.com/sqlfluff/sqlfluff/pull/2756) [@tunetheweb](https://github.com/tunetheweb)
+* Add `ignore_words` options to L057 and L059 [#2753](https://github.com/sqlfluff/sqlfluff/pull/2753) [@tunetheweb](https://github.com/tunetheweb)
+* L012 bug fix for TSQL alternative alias types [#2750](https://github.com/sqlfluff/sqlfluff/pull/2750) [@tunetheweb](https://github.com/tunetheweb)
+* Spark3: Support for `PIVOT` clause [#2752](https://github.com/sqlfluff/sqlfluff/pull/2752) [@R7L208](https://github.com/R7L208)
+* Update Redshift reserved keywords list [#2751](https://github.com/sqlfluff/sqlfluff/pull/2751) [@rpr-ableton](https://github.com/rpr-ableton)
+* L007 autofix [#2735](https://github.com/sqlfluff/sqlfluff/pull/2735) [@OTooleMichael](https://github.com/OTooleMichael)
+* L032 fixable in easy cases [#2737](https://github.com/sqlfluff/sqlfluff/pull/2737) [@OTooleMichael](https://github.com/OTooleMichael)
+* Fix dbt templater runtime error in `inject_ctes_into_sql()` [#2748](https://github.com/sqlfluff/sqlfluff/pull/2748) [@barrywhart](https://github.com/barrywhart)
+* L059: Exasol: Allow quotes around passwords in `CREATE USER` [#2744](https://github.com/sqlfluff/sqlfluff/pull/2744) [@sti0](https://github.com/sti0)
+* Improve docs for `load_macros_from_path` [#2743](https://github.com/sqlfluff/sqlfluff/pull/2743) [@barrywhart](https://github.com/barrywhart)
+* Make L045 (Query defines a CTE but does not use it) case insensitive [#2746](https://github.com/sqlfluff/sqlfluff/pull/2746) [@barrywhart](https://github.com/barrywhart)
+* Add L049 test for T-SQL alternate alias syntax (`=`) [#2745](https://github.com/sqlfluff/sqlfluff/pull/2745) [@barrywhart](https://github.com/barrywhart)
+* `BaseSegment.pos_marker` is typed as non optional but sometimes set to `None` [#2741](https://github.com/sqlfluff/sqlfluff/pull/2741) [@barrywhart](https://github.com/barrywhart)
+* Support Pascal case for L030 [#2739](https://github.com/sqlfluff/sqlfluff/pull/2739) [@tunetheweb](https://github.com/tunetheweb)
+* Postgres, Redshift: Support `SIMILAR TO` pattern matching expressions [#2732](https://github.com/sqlfluff/sqlfluff/pull/2732) [@PLBMR](https://github.com/PLBMR)
+* Forgive shorthand cast only / bracket only expressions from L013 [#2729](https://github.com/sqlfluff/sqlfluff/pull/2729) [@OTooleMichael](https://github.com/OTooleMichael)
+* L052: Refactor `_eval()` into individual functions to improve readability [#2733](https://github.com/sqlfluff/sqlfluff/pull/2733) [@barrywhart](https://github.com/barrywhart)
+* L018: Move closing parenthesis to next line [#2734](https://github.com/sqlfluff/sqlfluff/pull/2734) [@barrywhart](https://github.com/barrywhart)
+* Improve rule yaml tests: assert that `fix_str` passes the rule [#2624](https://github.com/sqlfluff/sqlfluff/pull/2624) [@juhoautio](https://github.com/juhoautio)
+*  Extend rule L051 to `LEFT`/`RIGHT`/`OUTER` `JOIN`s [#2719](https://github.com/sqlfluff/sqlfluff/pull/2719) [@rpr-ableton](https://github.com/rpr-ableton)
+* T-SQL: Allow aliases with `=` [#2727](https://github.com/sqlfluff/sqlfluff/pull/2727) [@fdw](https://github.com/fdw)
+* T-SQL: Support table variables [#2728](https://github.com/sqlfluff/sqlfluff/pull/2728) [@fdw](https://github.com/fdw)
+* Support for checking violations in YAML rule tests [#2718](https://github.com/sqlfluff/sqlfluff/pull/2718) [@juhoautio](https://github.com/juhoautio)
+* Roll back PR #2610 [#2726](https://github.com/sqlfluff/sqlfluff/pull/2726) [@barrywhart](https://github.com/barrywhart)
+* Redshift: Allow whitespace around cast operators [#2721](https://github.com/sqlfluff/sqlfluff/pull/2721) [@PLBMR](https://github.com/PLBMR)
+* Support database links in Oracle [#2725](https://github.com/sqlfluff/sqlfluff/pull/2725) [@tunetheweb](https://github.com/tunetheweb)
+* Rule L019: Ignore comma placement violations if the adjacent code is templated [#2717](https://github.com/sqlfluff/sqlfluff/pull/2717) [@barrywhart](https://github.com/barrywhart)
+* T-SQL: Add drop constraint syntax [#2724](https://github.com/sqlfluff/sqlfluff/pull/2724) [@fdw](https://github.com/fdw)
+* ANSI: Support optionally bracketed CTE [#2716](https://github.com/sqlfluff/sqlfluff/pull/2716) [@OTooleMichael](https://github.com/OTooleMichael)
+* Spark3: Test cases for `CASE` clause [#2714](https://github.com/sqlfluff/sqlfluff/pull/2714) [@R7L208](https://github.com/R7L208)
+* Spark3: Support for `WINDOW` functions [#2711](https://github.com/sqlfluff/sqlfluff/pull/2711) [@R7L208](https://github.com/R7L208)
+* TSQL: Add variables as options for `RAISERROR` parameters [#2709](https://github.com/sqlfluff/sqlfluff/pull/2709) [@jpers36](https://github.com/jpers36)
+* TSQL: Add `OPTION` clause to `UPDATE` [#2707](https://github.com/sqlfluff/sqlfluff/pull/2707) [@jpers36](https://github.com/jpers36)
+* Spark3: Test cases for `WHERE` clause [#2704](https://github.com/sqlfluff/sqlfluff/pull/2704) [@R7L208](https://github.com/R7L208)
+* Spark3: test cases for Table-Valued Functions [#2703](https://github.com/sqlfluff/sqlfluff/pull/2703) [@R7L208](https://github.com/R7L208)
+* TSQL: Allow for optionally bracketed `PARTITION BY` elements [#2702](https://github.com/sqlfluff/sqlfluff/pull/2702) [@jpers36](https://github.com/jpers36)
+* TSQL: Fix `SET TRANSACTION ISOLATION LEVEL` parsing [#2701](https://github.com/sqlfluff/sqlfluff/pull/2701) [@jpers36](https://github.com/jpers36)
+* Migrate tricky L004 tests to python [#2681](https://github.com/sqlfluff/sqlfluff/pull/2681) [@juhoautio](https://github.com/juhoautio)
+* Core linter enhancement: Check for successful parse after applying fixes [#2657](https://github.com/sqlfluff/sqlfluff/pull/2657) [@barrywhart](https://github.com/barrywhart)
+* Spark3: Support for `LATERAL VIEW` clause [#2687](https://github.com/sqlfluff/sqlfluff/pull/2687) [@R7L208](https://github.com/R7L208)
+* Document python requirement for tox/mypy & remove basepython from conf [#2644](https://github.com/sqlfluff/sqlfluff/pull/2644) [@juhoautio](https://github.com/juhoautio)
+* Fix rule L011 for implicit aliases [#2683](https://github.com/sqlfluff/sqlfluff/pull/2683) [@tunetheweb](https://github.com/tunetheweb)
+* Pin markupsafe to prevent CI failures [#2685](https://github.com/sqlfluff/sqlfluff/pull/2685) [@tunetheweb](https://github.com/tunetheweb)
+* Exasol: Allow `CROSS` joins [#2680](https://github.com/sqlfluff/sqlfluff/pull/2680) [@sti0](https://github.com/sti0)
+* Exasol: Improve function formatting [#2678](https://github.com/sqlfluff/sqlfluff/pull/2678) [@sti0](https://github.com/sti0)
+* TSQL: Add indentation for `CREATE` `INDEX`/`STATISTICS` [#2679](https://github.com/sqlfluff/sqlfluff/pull/2679) [@jpers36](https://github.com/jpers36)
+* Spark3: Support for `TABLESAMPLE` clause [#2674](https://github.com/sqlfluff/sqlfluff/pull/2674) [@R7L208](https://github.com/R7L208)
+* TSQL: Improve `RAISERROR` functionality [#2672](https://github.com/sqlfluff/sqlfluff/pull/2672) [@jpers36](https://github.com/jpers36)
+* Snowflake dialect update for `MERGE INTO` predicates [#2670](https://github.com/sqlfluff/sqlfluff/pull/2670) [@The-Loud](https://github.com/The-Loud)
+* Assert that fix_str is set [#2663](https://github.com/sqlfluff/sqlfluff/pull/2663) [@juhoautio](https://github.com/juhoautio)
+
+## New Contributors
+* [@The-Loud](https://github.com/The-Loud) made their first contribution in [#2670](https://github.com/sqlfluff/sqlfluff/pull/2670)
+* [@OTooleMichael](https://github.com/OTooleMichael) made their first contribution in [#2716](https://github.com/sqlfluff/sqlfluff/pull/2716)
+* [@PhilippLange](https://github.com/PhilippLange) made their first contribution in [#2782](https://github.com/sqlfluff/sqlfluff/pull/2782)
+
 ## [0.10.1] - 2022-02-15
 
 ## Highlights
@@ -59,8 +240,8 @@ Major changes include:
 
 Major changes include:
 
-* Dropping support of DBT < 0.20 ** BREAKING CHANGE **
-* `sqlfluff fix` no will no longer fix SQL containing parsing or templating errors ** BREAKING CHANGE **
+* Dropping support of DBT < 0.20 **BREAKING CHANGE**
+* `sqlfluff fix` no will no longer fix SQL containing parsing or templating errors **BREAKING CHANGE**
 * New rule L062 to allow blocking of list of configurable words (e.g. syntax, or schemas, or tables you do not want people to use)
 * Lots and lots of docs improvements
 * Looser requirements for `click` python package
@@ -737,7 +918,7 @@ Highlights of this release contains a lot of T-SQL dialect improvements (shout o
 
 ## [0.7.0] - 2021-10-14
 
-*** BREAKING CHANGE ***
+**BREAKING CHANGE**
 
 This release extracts the dbt templater to a seperately installable plugin
 [sqlfluff-templater-dbt](https://pypi.org/project/sqlfluff-templater-dbt/).

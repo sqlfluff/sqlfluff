@@ -257,66 +257,127 @@ test_pass_single_quote2_bigquery:
       L057:
         additional_allowed_characters: "-'."
 
-test_pass_dot_slash_identifier_in_file_reference_spark3:
+test_pass_dot_slash_identifier_in_file_reference_sparksql:
   pass_str:
     SELECT a
     FROM TEXT.`examples/src/main/resources/people.txt`
   configs:
     core:
-      dialect: spark3
+      dialect: sparksql
 
-test_pass_star_identifier_in_file_reference_spark3:
+test_pass_star_identifier_in_file_reference_sparksql:
   pass_str:
     SELECT a
     FROM TEXT.`//root/*.txt`;
   configs:
     core:
-      dialect: spark3
+      dialect: sparksql
 
-test_pass_question_mark_identifier_in_file_reference_spark3:
+test_pass_question_mark_identifier_in_file_reference_sparksql:
   pass_str:
     SELECT a
     FROM TEXT.`//root/200?.txt`;
   configs:
     core:
-      dialect: spark3
+      dialect: sparksql
 
-test_pass_character_class_identifier_in_file_reference_spark3:
+test_pass_character_class_identifier_in_file_reference_sparksql:
   pass_str:
     SELECT a
     FROM TEXT.`//root/200[23].txt`;
   configs:
     core:
-      dialect: spark3
+      dialect: sparksql
 
-test_pass_negated_character_class_identifier_in_file_reference_spark3:
+test_pass_negated_character_class_identifier_in_file_reference_sparksql:
   pass_str:
     SELECT a
     FROM TEXT.`//root/200[^23].txt`;
   configs:
     core:
-      dialect: spark3
+      dialect: sparksql
 
-test_pass_character_range_identifier_in_file_reference_spark3:
+test_pass_character_range_identifier_in_file_reference_sparksql:
   pass_str:
     SELECT a
     FROM TEXT.`//root/200[2-5].txt`;
   configs:
     core:
-      dialect: spark3
+      dialect: sparksql
 
-test_pass_negated_character_range_identifier_in_file_reference_spark3:
+test_pass_negated_character_range_identifier_in_file_reference_sparksql:
   pass_str:
     SELECT a
     FROM TEXT.`//root/200[^2-5].txt`;
   configs:
     core:
-      dialect: spark3
+      dialect: sparksql
 
-test_pass_alteration_identifier_in_file_reference_spark3:
+test_pass_alteration_identifier_in_file_reference_sparksql:
   pass_str:
     SELECT a
     FROM TEXT.`//root/20{04, 05}.txt`;
   configs:
     core:
-      dialect: spark3
+      dialect: sparksql
+
+test_pass_ignore_lists_quoted:
+  pass_str:
+    SELECT a as 'aliashash#'
+  configs:
+    rules:
+      L057:
+        ignore_words: aliashash#
+
+test_pass_ignore_lists_quoted_fail:
+  fail_str:
+    SELECT a as 'aliashash#'
+
+test_pass_ignore_lists_quoted_mixed_case:
+  pass_str:
+    SELECT a as 'aliasHash#'
+  configs:
+    rules:
+      L057:
+        ignore_words: aliashash#
+
+test_pass_ignore_lists_unquoted:
+  pass_str:
+    SELECT a as alias$
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      L057:
+        ignore_words: alias$
+
+test_pass_ignore_lists_unquoted_fail:
+  fail_str:
+    SELECT a as alias$
+  configs:
+    core:
+      dialect: postgres
+
+test_pass_ignore_lists_unquoted_mixed_case:
+  pass_str:
+    SELECT a as Alias$
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      L057:
+        ignore_words: alias$
+
+test_pass_special_chars_show_tblproperties:
+  pass_str:
+    SHOW TBLPROPERTIES customer ('created.date');
+  configs:
+    core:
+      dialect: sparksql
+
+test_fail_special_chars_show_tblproperties:
+  fail_str:
+    SHOW TBLPROPERTIES customer ('created.*');
+  configs:
+    core:
+      dialect: sparksql

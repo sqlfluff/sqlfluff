@@ -6,8 +6,8 @@ from typing import List, NamedTuple
 import pytest
 
 from sqlfluff.core.templaters import JinjaTemplater
-from sqlfluff.core.templaters.base import RawFileSlice
-from sqlfluff.core.templaters.jinja import JinjaTracer
+from sqlfluff.core.templaters.base import RawFileSlice, TemplatedFile
+from sqlfluff.core.templaters.jinja import JinjaAnalyzer
 from sqlfluff.core import Linter, FluffConfig
 
 
@@ -370,6 +370,35 @@ def test__templater_jinja_slices(case: RawTemplatedTestCase):
     assert actual_rs_source_list == case.expected_raw_sliced__source_list
 
 
+def test_templater_set_block_handling():
+    """Test handling of literals in {% set %} blocks.
+
+    Specifically, verify they are not modified in the alternate template.
+    """
+
+    def run_query(sql):
+        # Prior to the bug fix, this assertion failed. This was bad because,
+        # inside JinjaTracer, dbt templates similar to the one in this test
+        # would call the database with funky SQL (including weird strings it
+        # uses internally like: 00000000000000000000000000000002.
+        assert sql == "\n\nselect 1 from foobarfoobarfoobarfoobar_dev\n\n"
+        return sql
+
+    t = JinjaTemplater(override_context=dict(run_query=run_query))
+    instr = """{% set my_query1 %}
+select 1 from foobarfoobarfoobarfoobar_{{ "dev" }}
+{% endset %}
+{% set my_query2 %}
+{{ my_query1 }}
+{% endset %}
+
+{{ run_query(my_query2) }}
+"""
+    outstr, vs = t.process(in_str=instr, fname="test", config=FluffConfig())
+    assert str(outstr) == "\n\n\n\n\nselect 1 from foobarfoobarfoobarfoobar_dev\n\n\n"
+    assert len(vs) == 0
+
+
 def test__templater_jinja_error_variable():
     """Test missing variable error handling in the jinja templater."""
     t = JinjaTemplater(override_context=dict(blah="foo"))
@@ -380,6 +409,20 @@ def test__templater_jinja_error_variable():
     assert len(vs) > 0
     # Check one of them is a templating error on line 1
     assert any(v.rule_code() == "TMP" and v.line_no == 1 for v in vs)
+
+
+def test__templater_jinja_dynamic_variable_no_violations():
+    """Test no templater violation for variable defined within template."""
+    t = JinjaTemplater(override_context=dict(blah="foo"))
+    instr = """{% if True %}
+    {% set some_var %}1{% endset %}
+    SELECT {{some_var}}
+{% endif %}
+"""
+    outstr, vs = t.process(in_str=instr, fname="test", config=FluffConfig())
+    assert str(outstr) == "\n    \n    SELECT 1\n\n"
+    # Check we have no violations.
+    assert len(vs) == 0
 
 
 def test__templater_jinja_error_syntax():
@@ -558,8 +601,9 @@ def test__templater_jinja_slice_template(test, result):
     """Test _slice_template."""
     templater = JinjaTemplater()
     env, live_context, make_template = templater.template_builder()
-    tracer = JinjaTracer(test, env, make_template)
-    resp = list(tracer._slice_template())
+    analyzer = JinjaAnalyzer(test, env)
+    analyzer.analyze(make_template)
+    resp = analyzer.raw_sliced
     # check contiguous (unless there's a comment in it)
     if "{#" not in test:
         assert "".join(elem.raw for elem in resp) == test
@@ -756,7 +800,6 @@ SELECT
                 ("block_start", slice(0, 25, None), slice(0, 0, None)),
                 ("literal", slice(25, 30, None), slice(0, 5, None)),
                 ("block_start", slice(30, 47, None), slice(5, 5, None)),
-                ("literal", slice(47, 67, None), slice(5, 5, None)),
                 ("block_end", slice(67, 78, None), slice(5, 5, None)),
                 ("literal", slice(78, 79, None), slice(5, 5, None)),
                 ("block_end", slice(79, 92, None), slice(5, 5, None)),
@@ -794,6 +837,152 @@ SELECT
                 ("block_end", slice(113, 127, None), slice(11, 11, None)),
                 ("block_start", slice(27, 46, None), slice(11, 11, None)),
                 ("literal", slice(46, 57, None), slice(11, 22, None)),
+                ("block_end", slice(57, 70, None), slice(22, 22, None)),
+                ("block_start", slice(70, 89, None), slice(22, 22, None)),
+                ("block_end", slice(100, 113, None), slice(22, 22, None)),
+                ("block_end", slice(113, 127, None), slice(22, 22, None)),
+            ],
+        ),
+        (
+            # Test for issue 2786. Also lots of whitespace control. In this
+            # case, removing whitespace control alone wasn't enough. In order
+            # to get a good trace, JinjaTracer had to be updated so the
+            # alternate template included output for the discarded whitespace.
+            """select
+    id,
+    {%- for features in ["value4", "value5"] %}
+        {%- if features in ["value7"] %}
+            {{features}}
+            {%- if not loop.last -%},{% endif %}
+        {%- else -%}
+            {{features}}
+            {%- if not loop.last -%},{% endif %}
+        {%- endif -%}
+    {%- endfor %}
+from my_table
+""",
+            None,
+            [
+                ("literal", slice(0, 14, None), slice(0, 14, None)),
+                ("literal", slice(14, 19, None), slice(14, 14, None)),
+                ("block_start", slice(19, 62, None), slice(14, 14, None)),
+                ("literal", slice(62, 71, None), slice(14, 14, None)),
+                ("block_start", slice(71, 103, None), slice(14, 14, None)),
+                ("block_mid", slice(186, 198, None), slice(14, 14, None)),
+                ("literal", slice(198, 211, None), slice(14, 14, None)),
+                ("templated", slice(211, 223, None), slice(14, 20, None)),
+                ("literal", slice(223, 236, None), slice(20, 20, None)),
+                ("block_start", slice(236, 260, None), slice(20, 20, None)),
+                ("literal", slice(260, 261, None), slice(20, 21, None)),
+                ("block_end", slice(261, 272, None), slice(21, 21, None)),
+                ("literal", slice(272, 281, None), slice(21, 21, None)),
+                ("block_end", slice(281, 294, None), slice(21, 21, None)),
+                ("literal", slice(294, 299, None), slice(21, 21, None)),
+                ("block_end", slice(299, 312, None), slice(21, 21, None)),
+                ("literal", slice(62, 71, None), slice(21, 21, None)),
+                ("block_start", slice(71, 103, None), slice(21, 21, None)),
+                ("block_mid", slice(186, 198, None), slice(21, 21, None)),
+                ("literal", slice(198, 211, None), slice(21, 21, None)),
+                ("templated", slice(211, 223, None), slice(21, 27, None)),
+                ("literal", slice(223, 236, None), slice(27, 27, None)),
+                ("block_start", slice(236, 260, None), slice(27, 27, None)),
+                ("block_end", slice(261, 272, None), slice(27, 27, None)),
+                ("literal", slice(272, 281, None), slice(27, 27, None)),
+                ("block_end", slice(281, 294, None), slice(27, 27, None)),
+                ("literal", slice(294, 299, None), slice(27, 27, None)),
+                ("block_end", slice(299, 312, None), slice(27, 27, None)),
+                ("literal", slice(312, 327, None), slice(27, 42, None)),
+            ],
+        ),
+        (
+            # Test for issue 2835. There's no space between "col" and "="
+            """{% set col= "col1" %}
+SELECT {{ col }}
+""",
+            None,
+            [
+                ("block_start", slice(0, 21, None), slice(0, 0, None)),
+                ("literal", slice(21, 29, None), slice(0, 8, None)),
+                ("templated", slice(29, 38, None), slice(8, 12, None)),
+                ("literal", slice(38, 39, None), slice(12, 13, None)),
+            ],
+        ),
+        (
+            # Another test for issue 2835. The {% for %} loop inside the
+            # {% set %} caused JinjaTracer to think the {% set %} ended
+            # at the {% endfor %}
+            """{% set some_part_of_the_query %}
+    {% for col in ["col1"] %}
+    {{col}}
+    {% endfor %}
+{% endset %}
+
+SELECT {{some_part_of_the_query}}
+FROM SOME_TABLE
+""",
+            None,
+            [
+                ("block_start", slice(0, 32, None), slice(0, 0, None)),
+                ("literal", slice(32, 37, None), slice(0, 0, None)),
+                ("block_start", slice(37, 62, None), slice(0, 0, None)),
+                ("literal", slice(62, 67, None), slice(0, 0, None)),
+                ("templated", slice(67, 74, None), slice(0, 0, None)),
+                ("literal", slice(74, 79, None), slice(0, 0, None)),
+                ("block_end", slice(79, 91, None), slice(0, 0, None)),
+                ("literal", slice(91, 92, None), slice(0, 0, None)),
+                ("block_end", slice(92, 104, None), slice(0, 0, None)),
+                ("literal", slice(104, 113, None), slice(0, 9, None)),
+                ("templated", slice(113, 139, None), slice(9, 29, None)),
+                ("literal", slice(139, 156, None), slice(29, 46, None)),
+            ],
+        ),
+        (
+            # Third test for issue 2835. This was the original SQL provided in
+            # the issue report.
+            """{% set whitelisted= [
+    {'name': 'COL_1'},
+    {'name': 'COL_2'},
+    {'name': 'COL_3'}
+] %}
+
+{% set some_part_of_the_query %}
+    {% for col in whitelisted %}
+    {{col.name}}{{ ", " if not loop.last }}
+    {% endfor %}
+{% endset %}
+
+SELECT {{some_part_of_the_query}}
+FROM SOME_TABLE
+""",
+            None,
+            [
+                ("block_start", slice(0, 94, None), slice(0, 0, None)),
+                ("literal", slice(94, 96, None), slice(0, 2, None)),
+                ("block_start", slice(96, 128, None), slice(2, 2, None)),
+                ("literal", slice(128, 133, None), slice(2, 2, None)),
+                ("block_start", slice(133, 161, None), slice(2, 2, None)),
+                ("literal", slice(161, 166, None), slice(2, 2, None)),
+                ("templated", slice(166, 178, None), slice(2, 2, None)),
+                ("templated", slice(178, 205, None), slice(2, 2, None)),
+                ("literal", slice(205, 210, None), slice(2, 2, None)),
+                ("block_end", slice(210, 222, None), slice(2, 2, None)),
+                ("literal", slice(222, 223, None), slice(2, 2, None)),
+                ("block_end", slice(223, 235, None), slice(2, 2, None)),
+                ("literal", slice(235, 244, None), slice(2, 11, None)),
+                ("templated", slice(244, 270, None), slice(11, 66, None)),
+                ("literal", slice(270, 287, None), slice(66, 83, None)),
+            ],
+        ),
+        (
+            # Test for issue 2822: Handle slicing when there's no newline after
+            # the Jinja block end.
+            "{% if true %}\nSELECT 1 + 1\n{%- endif %}",
+            None,
+            [
+                ("block_start", slice(0, 13, None), slice(0, 0, None)),
+                ("literal", slice(13, 26, None), slice(0, 13, None)),
+                ("literal", slice(26, 27, None), slice(13, 13, None)),
+                ("block_end", slice(27, 39, None), slice(13, 13, None)),
             ],
         ),
     ],
@@ -809,19 +998,22 @@ def test__templater_jinja_slice_file(raw_file, override_context, result, caplog)
 
     templated_file = make_template(raw_file).render()
     with caplog.at_level(logging.DEBUG, logger="sqlfluff.templater"):
-        _, resp, _ = templater.slice_file(
+        raw_sliced, sliced_file, templated_str = templater.slice_file(
             raw_file, templated_file, make_template=make_template
         )
+    # Create a TemplatedFile from the results. This runs some useful sanity
+    # checks.
+    _ = TemplatedFile(raw_file, "<<DUMMY>>", templated_str, sliced_file, raw_sliced)
     # Check contiguous on the TEMPLATED VERSION
-    print(resp)
+    print(sliced_file)
     prev_slice = None
-    for elem in resp:
+    for elem in sliced_file:
         print(elem)
         if prev_slice:
             assert elem[2].start == prev_slice.stop
         prev_slice = elem[2]
     # Check that all literal segments have a raw slice
-    for elem in resp:
+    for elem in sliced_file:
         if elem[0] == "literal":
             assert elem[1] is not None
     # check result
@@ -831,6 +1023,6 @@ def test__templater_jinja_slice_file(raw_file, override_context, result, caplog)
             templated_file_slice.source_slice,
             templated_file_slice.templated_slice,
         )
-        for templated_file_slice in resp
+        for templated_file_slice in sliced_file
     ]
     assert actual == result

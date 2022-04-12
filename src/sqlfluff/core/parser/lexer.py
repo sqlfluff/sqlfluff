@@ -535,6 +535,31 @@ class Lexer:
                 )
             )
 
+            # Generate placeholders for any source-only slices that *follow*
+            # the last element. This happens, for example, if a Jinja templated
+            # file ends with "{% endif %}", and there's no trailing newline.
+            if idx == len(elements) - 1:
+                so_slices = [
+                    so
+                    for so in source_only_slices
+                    if so.source_idx >= source_slice.stop
+                ]
+                for so_slice in so_slices:
+                    segment_buffer.append(
+                        TemplateSegment(
+                            pos_marker=PositionMarker(
+                                slice(so_slice.source_idx, so_slice.end_source_idx()),
+                                slice(
+                                    element.template_slice.stop,
+                                    element.template_slice.stop,
+                                ),
+                                templated_file,
+                            ),
+                            source_str=so_slice.raw,
+                            block_type=so_slice.slice_type,
+                        )
+                    )
+
         # Convert to tuple before return
         return tuple(segment_buffer)
 

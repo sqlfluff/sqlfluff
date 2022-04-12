@@ -48,3 +48,9 @@ GO
 INSERT INTO HumanResources.NewEmployee
   EXEC FindEmployeesFunc @lastName = 'Picard'
 GO
+
+INSERT HumanResources.NewEmployee
+  (LastName, FirstName)
+  values
+  ('Kirk', 'James')
+GO

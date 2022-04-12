@@ -206,3 +206,29 @@ test_fail_no_copy_code_out_of_template:
       jinja:
         context:
           source_table: foobar
+
+test_bigquery_skip_multipart_names:
+  pass_str: |
+    SELECT t.col1
+    FROM shema1.table1 AS t
+  configs:
+    core:
+      dialect: bigquery
+
+test_bigquery_force_enable:
+  fail_str: |
+    SELECT t.col1
+    FROM schema1.table1 AS t
+  # TRICKY: The fix_str does not parse in the real BigQuery, due to backtick
+  # requirements. That's why the rule is disabled by default.
+  # TODO (low priority): Update this test to test for a case where the rule
+  # produces valid SQL.
+  fix_str: |
+    SELECT schema1.table1.col1
+    FROM schema1.table1
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      L031:
+        force_enable: true

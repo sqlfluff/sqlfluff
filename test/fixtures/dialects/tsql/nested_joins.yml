@@ -1,0 +1,230 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: d399f4448158d8e7ca5d517d170cb6300928c651d4f926f9100eb23abaf00cdb
+file:
+- batch:
+    statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            literal: '1'
+            alias_expression:
+              keyword: AS
+              identifier: RegionCode
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: BA
+            join_clause:
+            - keyword: LEFT
+            - keyword: OUTER
+            - keyword: JOIN
+            - from_expression_element:
+                table_expression:
+                  table_reference:
+                    identifier: I
+            - join_clause:
+              - keyword: LEFT
+              - keyword: OUTER
+              - keyword: JOIN
+              - from_expression_element:
+                  table_expression:
+                    table_reference:
+                      identifier: P
+              - join_on_condition:
+                  keyword: 'ON'
+                  expression:
+                  - column_reference:
+                    - identifier: I
+                    - dot: .
+                    - identifier: Pcd
+                  - comparison_operator:
+                      raw_comparison_operator: '='
+                  - column_reference:
+                    - identifier: P
+                    - dot: .
+                    - identifier: Iid
+            - join_on_condition:
+                keyword: 'ON'
+                expression:
+                - column_reference:
+                  - identifier: BA
+                  - dot: .
+                  - identifier: Iid
+                - comparison_operator:
+                    raw_comparison_operator: '='
+                - column_reference:
+                  - identifier: I
+                  - dot: .
+                  - identifier: Bcd
+          statement_terminator: ;
+- go_statement:
+    keyword: GO
+- batch:
+    statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            literal: '1'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: BA
+            join_clause:
+            - keyword: RIGHT
+            - keyword: OUTER
+            - keyword: JOIN
+            - from_expression_element:
+                table_expression:
+                  table_reference:
+                    identifier: I
+            - join_clause:
+              - keyword: LEFT
+              - keyword: OUTER
+              - keyword: JOIN
+              - from_expression_element:
+                  table_expression:
+                    table_reference:
+                      identifier: P
+                  alias_expression:
+                    keyword: AS
+                    identifier: P_1
+              - join_clause:
+                - keyword: LEFT
+                - keyword: OUTER
+                - keyword: JOIN
+                - from_expression_element:
+                    table_expression:
+                      table_reference:
+                        identifier: IP
+                    alias_expression:
+                      keyword: AS
+                      identifier: IP_1
+                - join_on_condition:
+                    keyword: 'ON'
+                    expression:
+                    - column_reference:
+                      - identifier: P_1
+                      - dot: .
+                      - identifier: NID
+                    - comparison_operator:
+                        raw_comparison_operator: '='
+                    - column_reference:
+                      - identifier: IP_1
+                      - dot: .
+                      - identifier: NID
+              - join_on_condition:
+                  keyword: 'ON'
+                  expression:
+                    column_reference:
+                    - identifier: I
+                    - dot: .
+                    - identifier: PID
+                    comparison_operator:
+                      raw_comparison_operator: '='
+                    function:
+                      function_name:
+                        keyword: CAST
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                          - identifier: P_1
+                          - dot: .
+                          - identifier: IDEID
+                        keyword: AS
+                        data_type:
+                          data_type_identifier: varchar
+                        end_bracket: )
+            - join_clause:
+              - keyword: LEFT
+              - keyword: OUTER
+              - keyword: JOIN
+              - from_expression_element:
+                  table_expression:
+                    table_reference:
+                      identifier: P
+                  alias_expression:
+                    keyword: AS
+                    identifier: P_2
+              - join_clause:
+                - keyword: LEFT
+                - keyword: OUTER
+                - keyword: JOIN
+                - from_expression_element:
+                    table_expression:
+                      table_reference:
+                        identifier: IP
+                    alias_expression:
+                      keyword: AS
+                      identifier: IP_2
+                - join_on_condition:
+                    keyword: 'ON'
+                    expression:
+                    - column_reference:
+                      - identifier: P_2
+                      - dot: .
+                      - identifier: NID
+                    - comparison_operator:
+                        raw_comparison_operator: '='
+                    - column_reference:
+                      - identifier: IP_2
+                      - dot: .
+                      - identifier: NID
+              - join_on_condition:
+                  keyword: 'ON'
+                  expression:
+                    column_reference:
+                    - identifier: I
+                    - dot: .
+                    - identifier: SecondaryPID
+                    comparison_operator:
+                      raw_comparison_operator: '='
+                    function:
+                      function_name:
+                        keyword: CAST
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                          - identifier: P_2
+                          - dot: .
+                          - identifier: IDEID
+                        keyword: AS
+                        data_type:
+                          data_type_identifier: varchar
+                        end_bracket: )
+            - join_on_condition:
+                keyword: 'ON'
+                expression:
+                  function:
+                    function_name:
+                      keyword: CAST
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                        - identifier: BA
+                        - dot: .
+                        - identifier: IDEID
+                      keyword: AS
+                      data_type:
+                        data_type_identifier: varchar
+                      end_bracket: )
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  column_reference:
+                  - identifier: I
+                  - dot: .
+                  - identifier: BAID

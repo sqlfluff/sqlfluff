@@ -76,3 +76,5 @@ create table test_table (test_column NUMBER autoincrement (0, 1));
 create table test_schema.test_table (test_column NUMBER autoincrement (0, 1));
 create or replace table test_schema.test_table (test_column NUMBER autoincrement (0, 1));
 create table test_schema.test_table (test_column INTEGER AUTOINCREMENT);
+
+CREATE TABLE test_table (test_column NUMBER WITH MASKING POLICY my_policy USING(test_column, test_column > 10))

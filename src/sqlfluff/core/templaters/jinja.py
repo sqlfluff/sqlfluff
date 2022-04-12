@@ -24,7 +24,7 @@ from sqlfluff.core.templaters.base import (
     TemplatedFileSlice,
 )
 from sqlfluff.core.templaters.python import PythonTemplater
-from sqlfluff.core.templaters.slicers.tracer import JinjaTracer
+from sqlfluff.core.templaters.slicers.tracer import JinjaAnalyzer
 
 
 # Instantiate the templater logger
@@ -178,11 +178,12 @@ class JinjaTemplater(PythonTemplater):
                 return self.name
 
         dbt_builtins = {
-            # `is_incremental()` renders as False, always in this case.
-            # TODO: This means we'll never parse the other part of the query,
-            # so we should find a solution to that. Perhaps forcing the file
+            # `is_incremental()` renders as True, always in this case.
+            # TODO: This means we'll never parse other parts of the query,
+            # that are only reachable when `is_incremental()` returns False.
+            # We should try to find a solution to that. Perhaps forcing the file
             # to be parsed TWICE if it uses this variable.
-            "is_incremental": lambda: False,
+            "is_incremental": lambda: True,
             "this": ThisEmulator(),
         }
         return dbt_builtins
@@ -376,20 +377,33 @@ class JinjaTemplater(PythonTemplater):
         # first Exception which serves only to catch catastrophic errors.
         try:
             syntax_tree = env.parse(in_str)
-            undefined_variables = meta.find_undeclared_variables(syntax_tree)
+            potentially_undefined_variables = meta.find_undeclared_variables(
+                syntax_tree
+            )
         except Exception as err:  # pragma: no cover
             # TODO: Add a url here so people can get more help.
             raise SQLTemplaterError(f"Failure in identifying Jinja variables: {err}.")
 
-        # Get rid of any that *are* actually defined.
-        for val in live_context:
-            if val in undefined_variables:
-                undefined_variables.remove(val)
+        undefined_variables = set()
 
-        if undefined_variables:
-            # Lets go through and find out where they are:
-            for val in self._crawl_tree(syntax_tree, undefined_variables, in_str):
-                violations.append(val)
+        class Undefined:
+            """Similar to jinja2.StrictUndefined, but remembers, not fails."""
+
+            def __init__(self, name):
+                self.name = name
+
+            def __str__(self):
+                """Treat undefined vars as empty, but remember for later."""
+                undefined_variables.add(self.name)
+                return ""
+
+            def __getattr__(self, item):
+                undefined_variables.add(self.name)
+                return Undefined(f"{self.name}.{item}")
+
+        for val in potentially_undefined_variables:
+            if val not in live_context:
+                live_context[val] = Undefined(name=val)
 
         try:
             # NB: Passing no context. Everything is loaded when the template is loaded.
@@ -401,6 +415,10 @@ class JinjaTemplater(PythonTemplater):
                 config=config,
                 make_template=make_template,
             )
+            if undefined_variables:
+                # Lets go through and find out where they are:
+                for val in self._crawl_tree(syntax_tree, undefined_variables, in_str):
+                    violations.append(val)
             return (
                 TemplatedFile(
                     source_str=in_str,
@@ -446,6 +464,9 @@ class JinjaTemplater(PythonTemplater):
         templater_logger.info("Slicing File Template")
         templater_logger.debug("    Raw String: %r", raw_str)
         templater_logger.debug("    Templated String: %r", templated_str)
-        tracer = JinjaTracer(raw_str, self._get_jinja_env(), make_template)
-        trace = tracer.trace()
+        # TRICKY: Note that the templated_str parameter is not used. JinjaTracer
+        # uses make_template() to build and render the template itself.
+        analyzer = JinjaAnalyzer(raw_str, self._get_jinja_env())
+        tracer = analyzer.analyze(make_template)
+        trace = tracer.trace(append_to_templated=kwargs.pop("append_to_templated", ""))
         return trace.raw_sliced, trace.sliced_file, trace.templated_str

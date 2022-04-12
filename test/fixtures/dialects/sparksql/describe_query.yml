@@ -1,0 +1,134 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 0e9c5272ec5d75aa63346b09e7d4e4b28471c0e84a689a6a05e8fc4d66ac1ad0
+file:
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: QUERY
+    - statement:
+        select_statement:
+          select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+              column_reference:
+                identifier: age
+          - comma: ','
+          - select_clause_element:
+              function:
+                function_name:
+                  function_name_identifier: sum
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      identifier: age
+                  end_bracket: )
+              alias_expression:
+                keyword: AS
+                identifier: sum_age
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    identifier: person
+          groupby_clause:
+          - keyword: GROUP
+          - keyword: BY
+          - column_reference:
+              identifier: age
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: QUERY
+    - statement:
+        with_compound_statement:
+          keyword: WITH
+          common_table_expression:
+            identifier: all_names_cte
+            keyword: AS
+            bracketed:
+              start_bracket: (
+              select_statement:
+                select_clause:
+                  keyword: SELECT
+                  select_clause_element:
+                    column_reference:
+                      identifier: name
+                from_clause:
+                  keyword: FROM
+                  from_expression:
+                    from_expression_element:
+                      table_expression:
+                        table_reference:
+                          identifier: person
+              end_bracket: )
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                column_reference:
+                  identifier: name
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      identifier: all_names_cte
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESC
+    - keyword: QUERY
+    - statement:
+        values_clause:
+          keyword: VALUES
+          bracketed:
+          - start_bracket: (
+          - expression:
+              literal: '100'
+          - comma: ','
+          - expression:
+              literal: "'John'"
+          - comma: ','
+          - expression:
+              literal: 10000.20D
+          - end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: employee
+            bracketed:
+              start_bracket: (
+              identifier_list:
+              - identifier: id
+              - comma: ','
+              - identifier: name
+              - comma: ','
+              - identifier: salary
+              end_bracket: )
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESC
+    - keyword: QUERY
+    - keyword: TABLE
+    - table_reference:
+        identifier: person
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: FROM
+    - table_reference:
+        identifier: person
+    - keyword: SELECT
+    - column_reference:
+        identifier: age
+- statement_terminator: ;

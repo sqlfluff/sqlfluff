@@ -330,6 +330,12 @@ class Linter:
         return result
 
     @staticmethod
+    def _report_conflicting_fixes_same_anchor(message: str):  # pragma: no cover
+        # This function exists primarily in order to let us monkeypatch it at
+        # runtime (replacing it with a function that raises an exception).
+        linter_logger.critical(message)
+
+    @staticmethod
     def _warn_unfixable(code: str):
         linter_logger.warning(
             f"One fix for {code} not applied, it would re-cause the same error."
@@ -485,6 +491,7 @@ class Linter:
 
         save_tree = tree
         for loop in range(loop_limit):
+            linter_logger.info(f"Linter loop {loop+1}/{loop_limit}")
             changed = False
 
             progress_bar_crawler = tqdm(
@@ -507,6 +514,7 @@ class Linter:
                     ignore_mask=ignore_buff,
                     dialect=config.get("dialect_obj"),
                     fname=fname,
+                    fix=fix,
                     templated_file=templated_file,
                 )
                 all_linting_errors += linting_errors
@@ -514,11 +522,31 @@ class Linter:
                 if fix and fixes:
                     linter_logger.info(f"Applying Fixes [{crawler.code}]: {fixes}")
                     # Do some sanity checks on the fixes before applying.
-                    if fixes == last_fixes:  # pragma: no cover
+                    anchor_info = BaseSegment.compute_anchor_edit_info(fixes)
+                    if any(
+                        not info.is_valid for info in anchor_info.values()
+                    ):  # pragma: no cover
+                        message = (
+                            f"Rule {crawler.code} returned conflicting fixes with the "
+                            f"same anchor. This is only supported for create_before+"
+                            f"create_after, so the fixes will not be applied. {fixes!r}"
+                        )
+                        cls._report_conflicting_fixes_same_anchor(message)
+                        for lint_result in linting_errors:
+                            lint_result.fixes = []
+                    elif fixes == last_fixes:  # pragma: no cover
+                        # If we generate the same fixes two times in a row,
+                        # that means we're in a loop, and we want to stop.
+                        # (Fixes should address issues, hence different
+                        # and/or fewer fixes next time.)
                         cls._warn_unfixable(crawler.code)
                     else:
+                        # This is the happy path. We have fixes, now we want to
+                        # apply them.
                         last_fixes = fixes
-                        new_tree, _ = tree.apply_fixes(config.get("dialect_obj"), fixes)
+                        new_tree, _ = tree.apply_fixes(
+                            config.get("dialect_obj"), crawler.code, anchor_info
+                        )
                         # Check for infinite loops
                         if new_tree.raw not in previous_versions:
                             # We've not seen this version of the file so far. Continue.
@@ -528,7 +556,7 @@ class Linter:
                             continue
                         else:
                             # Applying these fixes took us back to a state which we've
-                            # seen before. Abort.
+                            # seen before. We're in a loop, so we want to stop.
                             cls._warn_unfixable(crawler.code)
 
             if loop == 0:
@@ -914,9 +942,11 @@ class Linter:
                 # that the ignore file is processed after the sql file.
 
                 # Scan for remaining files
-                for ext in self.config.get("sql_file_exts", default=".sql").split(","):
+                for ext in (
+                    self.config.get("sql_file_exts", default=".sql").lower().split(",")
+                ):
                     # is it a sql file?
-                    if fname.endswith(ext):
+                    if fname.lower().endswith(ext):
                         buffer.append(fpath)
 
         if not ignore_files:

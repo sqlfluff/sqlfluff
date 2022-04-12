@@ -245,3 +245,68 @@ test_pass_quoted_identifier_keyword_tsql:
   configs:
     core:
       dialect: tsql
+
+test_pass_create_user_quoted_password_exasol:
+  pass_str: |
+    CREATE USER user_1 IDENTIFIED BY "h12_xhz";
+  configs:
+    core:
+      dialect: exasol
+
+test_fail_create_quoted_user_exasol:
+  fail_str: |
+    CREATE USER "USER1" IDENTIFIED BY "h12_xhz";
+  fix_str: |
+    CREATE USER USER1 IDENTIFIED BY "h12_xhz";
+  configs:
+    core:
+      dialect: exasol
+
+test_pass_ignore_lists:
+  pass_str:
+    SELECT 123 AS "foo";
+  configs:
+    rules:
+      L059:
+        ignore_words: foo
+
+test_pass_ignore_lists_mixed_case:
+  pass_str:
+    SELECT 123 AS "Foo";
+  configs:
+    rules:
+      L059:
+        ignore_words: foo
+
+test_pass_ignore_if:
+  pass_str:
+    DROP TABLE IF EXISTS "example";
+  configs:
+    rules:
+      L059:
+        prefer_quoted_identifiers: True
+
+test_fail_insert_overwrite_directory:
+  fail_str: |
+    INSERT OVERWRITE DIRECTORY '/tmp/destination'
+    USING PARQUET
+    OPTIONS ("col1" = "1", "col2" = "2", "col3" = 'test', "user" = "a person")
+    SELECT a FROM test_table;
+  fix_str: |
+    INSERT OVERWRITE DIRECTORY '/tmp/destination'
+    USING PARQUET
+    OPTIONS (col1 = "1", col2 = "2", col3 = 'test', "user" = "a person")
+    SELECT a FROM test_table;
+  configs:
+    core:
+      dialect: sparksql
+
+test_pass_insert_overwrite_directory:
+  pass_str: |
+    INSERT OVERWRITE DIRECTORY '/tmp/destination'
+    USING PARQUET
+    OPTIONS (col1 = "1", col2 = "2", col3 = 'test', "user" = "a person")
+    SELECT a FROM test_table;
+  configs:
+    core:
+      dialect: sparksql
