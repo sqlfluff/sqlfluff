@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e4ccba07f84315656aae040f39b983e98e1b0624712ac9861d24b4d9c42e3b0d
+_hash: 02775388620890f17894f148d7cf19bae1d9332a76d7c182bfbde2031a69e5ee
 file:
 - statement:
     describe_statement:
@@ -199,6 +199,20 @@ file:
     describe_statement:
     - keyword: DESC
     - keyword: STORAGE
+    - keyword: INTEGRATION
+    - object_reference:
+        identifier: my_integration
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: INTEGRATION
+    - object_reference:
+        identifier: my_integration
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESC
     - keyword: INTEGRATION
     - object_reference:
         identifier: my_integration
