@@ -105,10 +105,10 @@ test_excess_space_cast:
     from table_a
 
 test_redshift_at_time_zone:
-  post_str: |
+  pass_str: |
     SELECT
     date_w_tz [0] AT TIME ZONE 'Etc/UTC' AS bar
     FROM foo
   configs:
     core:
-      dialect: postgres
+      dialect: redshift
