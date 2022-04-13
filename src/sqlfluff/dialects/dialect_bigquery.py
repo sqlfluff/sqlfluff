@@ -502,7 +502,7 @@ class FunctionSegment(ansi.FunctionSegment):
                 # rather than identifiers.
                 Ref(
                     "DatePartFunctionNameSegment",
-                    exclude=OneOf(Ref("ExtractFunctionNameSegment")),
+                    exclude=Ref("ExtractFunctionNameSegment"),
                 ),
                 Bracketed(
                     Delimited(
