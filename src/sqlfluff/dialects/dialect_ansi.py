@@ -3214,6 +3214,19 @@ class FunctionParameterListGrammar(BaseSegment):
     )
 
 
+class DropFunctionStatementSegment(BaseSegment):
+    """A `DROP FUNCTION` statement."""
+
+    type = "drop_function_statement"
+
+    match_grammar = Sequence(
+        "DROP",
+        "FUNCTION",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("FunctionNameSegment"),
+    )
+
+
 class CreateModelStatementSegment(BaseSegment):
     """A BigQuery `CREATE MODEL` statement."""
 
@@ -3387,6 +3400,7 @@ class StatementSegment(BaseSegment):
         Ref("DeleteStatementSegment"),
         Ref("UpdateStatementSegment"),
         Ref("CreateFunctionStatementSegment"),
+        Ref("DropFunctionStatementSegment"),
         Ref("CreateModelStatementSegment"),
         Ref("DropModelStatementSegment"),
         Ref("DescribeStatementSegment"),
