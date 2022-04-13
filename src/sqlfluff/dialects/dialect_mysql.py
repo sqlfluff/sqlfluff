@@ -676,7 +676,6 @@ class StatementSegment(ansi.StatementSegment):
             Ref("ResignalSegment"),
             Ref("CursorOpenCloseSegment"),
             Ref("CursorFetchSegment"),
-            Ref("DropFunctionStatementSegment"),
             Ref("DropProcedureStatementSegment"),
             Ref("AlterTableStatementSegment"),
             Ref("RenameTableStatementSegment"),
@@ -1582,7 +1581,7 @@ class DropFunctionStatementSegment(BaseSegment):
     https://dev.mysql.com/doc/refman/8.0/en/drop-function-loadable.html
     """
 
-    type = "drop_function_ statement"
+    type = "drop_function_statement"
 
     # DROP FUNCTION [IF EXISTS] function_name
     match_grammar = Sequence(

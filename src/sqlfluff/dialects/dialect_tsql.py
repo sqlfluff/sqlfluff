@@ -436,7 +436,6 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DropStatisticsStatementSegment"),
             Ref("DropProcedureStatementSegment"),
             Ref("UpdateStatisticsStatementSegment"),
-            Ref("DropFunctionStatementSegment"),
             Ref("BeginEndSegment"),
             Ref("TryCatchSegment"),
             Ref("MergeStatementSegment"),
