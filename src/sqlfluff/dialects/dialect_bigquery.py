@@ -429,8 +429,8 @@ bigquery_dialect.replace(
 class ExtractFunctionNameSegment(BaseSegment):
     """EXTRACT function name segment.
 
-    Need to be able to specify this as type function_name
-    so that linting rules identify it properly
+    Need to be able to specify this as type `function_name_identifier`
+    within a `function_name` so that linting rules identify it properly.
     """
 
     type = "function_name"
@@ -445,8 +445,8 @@ class ExtractFunctionNameSegment(BaseSegment):
 class NormalizeFunctionNameSegment(BaseSegment):
     """NORMALIZE function name segment.
 
-    Need to be able to specify this as type function_name
-    so that linting rules identify it properly
+    Need to be able to specify this as type `function_name_identifier`
+    within a `function_name` so that linting rules identify it properly.
     """
 
     type = "function_name"
