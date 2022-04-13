@@ -828,7 +828,6 @@ class StatementSegment(ansi.StatementSegment):
         ],
         remove=[
             Ref("CreateTypeStatementSegment"),
-            Ref("CreateExtensionStatementSegment"),
             Ref("CreateIndexStatementSegment"),
             Ref("DropIndexStatementSegment"),
         ],

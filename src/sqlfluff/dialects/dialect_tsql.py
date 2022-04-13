@@ -451,7 +451,6 @@ class StatementSegment(ansi.StatementSegment):
             Ref("WaitForStatementSegment"),
         ],
         remove=[
-            Ref("CreateExtensionStatementSegment"),
             Ref("CreateModelStatementSegment"),
             Ref("DropModelStatementSegment"),
             Ref("DescribeStatementSegment"),

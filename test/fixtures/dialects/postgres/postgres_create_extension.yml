@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 790fb83cc2ebcbee4dd258f4c2d8b6cb63cd40a28bda0842a221e00aa0431097
+_hash: 5e8bc80269bd8ba7b0b8e30c11af61ee0581352db8c9273d40534c0ba364f759
 file:
-  statement:
+- statement:
     create_extension_statement:
     - keyword: CREATE
     - keyword: EXTENSION
@@ -22,3 +22,11 @@ file:
     - identifier: '2.0'
     - keyword: FROM
     - identifier: '1.0'
+- statement_terminator: ;
+- statement:
+    drop_extension_statement:
+    - keyword: DROP
+    - keyword: EXTENSION
+    - extension_reference:
+        identifier: amazing_extension
+- statement_terminator: ;

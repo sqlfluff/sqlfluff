@@ -1,26 +1,27 @@
 """The PostgreSQL dialect."""
 
 from sqlfluff.core.parser import (
-    OneOf,
     AnyNumberOf,
-    Ref,
-    Sequence,
-    Bracketed,
-    OptionallyBracketed,
     Anything,
     BaseSegment,
+    Bracketed,
+    CodeSegment,
+    CommentSegment,
+    Dedent,
     Delimited,
+    Indent,
+    Matchable,
+    NamedParser,
+    NewlineSegment,
+    OneOf,
+    OptionallyBracketed,
+    Ref,
     RegexLexer,
     RegexParser,
-    CodeSegment,
-    NamedParser,
+    SegmentGenerator,
+    Sequence,
     SymbolSegment,
     StartsWith,
-    CommentSegment,
-    Indent,
-    Dedent,
-    SegmentGenerator,
-    NewlineSegment,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -1742,6 +1743,41 @@ class AlterTableActionSegment(BaseSegment):
     )
 
 
+class CreateExtensionStatementSegment(BaseSegment):
+    """A `CREATE EXTENSION` statement.
+
+    https://www.postgresql.org/docs/9.1/sql-createextension.html
+    """
+
+    type = "create_extension_statement"
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        "EXTENSION",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("ExtensionReferenceSegment"),
+        Ref.keyword("WITH", optional=True),
+        Sequence("SCHEMA", Ref("SchemaReferenceSegment"), optional=True),
+        Sequence("VERSION", Ref("VersionIdentifierSegment"), optional=True),
+        Sequence("FROM", Ref("VersionIdentifierSegment"), optional=True),
+    )
+
+
+class DropExtensionStatementSegment(BaseSegment):
+    """A `DROP EXTENSION` statement.
+
+    https://www.postgresql.org/docs/14/sql-dropextension.html
+    """
+
+    type = "drop_extension_statement"
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        "EXTENSION",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("ExtensionReferenceSegment"),
+        OneOf("CASCADE", "RESTRICT", optional=True),
+    )
+
+
 class CreateMaterializedViewStatementSegment(BaseSegment):
     """A `CREATE MATERIALIZED VIEW` statement.
 
@@ -3133,6 +3169,8 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterIndexStatementSegment"),
             Ref("ReindexStatementSegment"),
             Ref("AlterRoleStatementSegment"),
+            Ref("CreateExtensionStatementSegment"),
+            Ref("DropExtensionStatementSegment"),
         ],
     )
 
