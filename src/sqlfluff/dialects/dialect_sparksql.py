@@ -2239,7 +2239,6 @@ class StatementSegment(ansi.StatementSegment):
             Ref("TransactionStatementSegment"),
             Ref("CreateSchemaStatementSegment"),
             Ref("SetSchemaStatementSegment"),
-            Ref("CreateExtensionStatementSegment"),
             Ref("CreateModelStatementSegment"),
             Ref("DropModelStatementSegment"),
         ],
