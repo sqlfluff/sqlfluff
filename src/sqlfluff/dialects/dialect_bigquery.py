@@ -157,12 +157,6 @@ bigquery_dialect.add(
             Ref("BaseExpressionElementGrammar"),
         ),
     ),
-    ExtractFunctionName=StringParser(
-        "EXTRACT",
-        SymbolSegment,
-        name="function_name_identifier",
-        type="function_name_identifier",
-    ),
 )
 
 
@@ -440,7 +434,28 @@ class ExtractFunctionNameSegment(BaseSegment):
     """
 
     type = "function_name"
-    match_grammar: Matchable = Ref("ExtractFunctionName")
+    match_grammar: Matchable = StringParser(
+        "EXTRACT",
+        SymbolSegment,
+        name="function_name_identifier",
+        type="function_name_identifier",
+    )
+
+
+class NormalizeFunctionNameSegment(BaseSegment):
+    """EXTRACT function name segment.
+
+    Need to be able to specify this as type function_name
+    so that linting rules identify it properly
+    """
+
+    type = "function_name"
+    match_grammar: Matchable = RegexParser(
+        r"^(NORMALIZE|NORMALIZE_AND_CASEFOLD)$",
+        CodeSegment,
+        name="function_name_identifier",
+        type="function_name_identifier",
+    )
 
 
 class FunctionSegment(ansi.FunctionSegment):
@@ -469,12 +484,25 @@ class FunctionSegment(ansi.FunctionSegment):
                 ),
             ),
             Sequence(
+                # BigQuery NORMALIZE allows optional normalization_mode
+                # https://cloud.google.com/bigquery/docs/reference/standard-sql/functions-and-operators#normalize
+                Ref("NormalizeFunctionNameSegment"),
+                Bracketed(
+                    Ref("ExpressionSegment"),
+                    Sequence(
+                        Ref("CommaSegment"),
+                        OneOf("NFC", "NFKC", "NFD", "NFKD"),
+                        optional=True,
+                    ),
+                ),
+            ),
+            Sequence(
                 # Treat functions which take date parts separately
                 # So those functions parse date parts as DatetimeUnitSegment
                 # rather than identifiers.
                 Ref(
                     "DatePartFunctionNameSegment",
-                    exclude=Ref("ExtractFunctionNameSegment"),
+                    exclude=OneOf(Ref("ExtractFunctionNameSegment")),
                 ),
                 Bracketed(
                     Delimited(
@@ -492,6 +520,7 @@ class FunctionSegment(ansi.FunctionSegment):
                         "FunctionNameSegment",
                         exclude=OneOf(
                             Ref("DatePartFunctionNameSegment"),
+                            Ref("NormalizeFunctionNameSegment"),
                             Ref("ValuesClauseSegment"),
                         ),
                     ),
