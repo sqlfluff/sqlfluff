@@ -436,25 +436,33 @@ class ExtractFunctionNameSegment(BaseSegment):
     type = "function_name"
     match_grammar: Matchable = StringParser(
         "EXTRACT",
-        SymbolSegment,
+        CodeSegment,
         name="function_name_identifier",
         type="function_name_identifier",
     )
 
 
 class NormalizeFunctionNameSegment(BaseSegment):
-    """EXTRACT function name segment.
+    """NORMALIZE function name segment.
 
     Need to be able to specify this as type function_name
     so that linting rules identify it properly
     """
 
     type = "function_name"
-    match_grammar: Matchable = RegexParser(
-        r"^(NORMALIZE|NORMALIZE_AND_CASEFOLD)$",
-        CodeSegment,
-        name="function_name_identifier",
-        type="function_name_identifier",
+    match_grammar: Matchable = OneOf(
+        StringParser(
+            "NORMALIZE",
+            CodeSegment,
+            name="function_name_identifier",
+            type="function_name_identifier",
+        ),
+        StringParser(
+            "NORMALIZE_AND_CASEFOLD",
+            CodeSegment,
+            name="function_name_identifier",
+            type="function_name_identifier",
+        ),
     )
 
 
