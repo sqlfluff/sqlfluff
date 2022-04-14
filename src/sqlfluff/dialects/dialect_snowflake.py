@@ -3019,7 +3019,6 @@ class S3StorageIntegrationParameters(BaseSegment):
             "STORAGE_AWS_OBJECT_ACL",
             Ref("EqualsSegment"),
             StringParser("'bucket-owner-full-control'", CodeSegment, type="literal"),
-            optional=True,
         ),
     )
 
