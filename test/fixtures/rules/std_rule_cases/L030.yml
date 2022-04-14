@@ -96,4 +96,4 @@ test_pass_ignore_words_regex_bigquery_complex:
       dialect: bigquery
     rules:
       L030:
-        ignore_words_regex: (^_f_|._f_)
+        ignore_words_regex: (^_f_|\._f_)
