@@ -1,5 +1,5 @@
 """Implementation of Rule L057."""
-
+import regex
 from typing import Optional
 
 from sqlfluff.core.rules.base import BaseRule, LintResult, RuleContext
@@ -49,6 +49,7 @@ class Rule_L057(BaseRule):
         "allow_space_in_identifier",
         "additional_allowed_characters",
         "ignore_words",
+        "ignore_words_regex",
     ]
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
@@ -59,6 +60,7 @@ class Rule_L057(BaseRule):
         self.allow_space_in_identifier: bool
         self.additional_allowed_characters: str
         self.ignore_words: str
+        self.ignore_words_regex: str
 
         # Exit early if not a single identifier.
         if context.segment.name not in ("naked_identifier", "quoted_identifier"):
@@ -81,6 +83,12 @@ class Rule_L057(BaseRule):
         if ignore_words_list and identifier.lower() in ignore_words_list:
             return None
 
+        # Skip if matches ignore regex
+        if self.ignore_words_regex and regex.match(
+            self.ignore_words_regex, identifier
+        ):
+            return LintResult(memory=context.memory)
+
         # Do some extra processing for quoted identifiers.
         if context.segment.name == "quoted_identifier":
 
@@ -93,6 +101,12 @@ class Rule_L057(BaseRule):
             # Skip if in ignore list - repeat check now we've strip the quotes
             if ignore_words_list and identifier.lower() in ignore_words_list:
                 return None
+
+            # Skip if matches ignore regex - repeat check now we've strip the quotes
+            if self.ignore_words_regex and regex.match(
+                self.ignore_words_regex, identifier
+            ):
+                return LintResult(memory=context.memory)
 
             # BigQuery table references are quoted in back ticks so allow dots
             #
