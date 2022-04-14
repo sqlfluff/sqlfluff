@@ -70,7 +70,11 @@ class Rule_L059(BaseRule):
 
     """
 
-    config_keywords = ["prefer_quoted_identifiers", "ignore_words", "ignore_words_regex"]
+    config_keywords = [
+        "prefer_quoted_identifiers",
+        "ignore_words",
+        "ignore_words_regex",
+    ]
 
     # Ignore "password_auth" type to allow quotes around passwords within
     # `CREATE USER` statements in Exasol dialect.
