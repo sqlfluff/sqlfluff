@@ -2542,7 +2542,6 @@ class CreateStatementSegment(BaseSegment):
                     Ref("AzureStorageIntegrationParameters"),
                 ),
                 Sequence(
-                    OneOf("STORAGE_ALLOWED_LOCATIONS", "STORAGE_BLOCKED_LOCATIONS"),
                     "STORAGE_ALLOWED_LOCATIONS",
                     Ref("EqualsSegment"),
                     OneOf(
@@ -2563,19 +2562,14 @@ class CreateStatementSegment(BaseSegment):
                 Sequence(
                     "STORAGE_BLOCKED_LOCATIONS",
                     Ref("EqualsSegment"),
-                    OneOf(
-                        Bracketed(
-                            Delimited(
-                                OneOf(
-                                    Ref("S3Path"),
-                                    Ref("GCSPath"),
-                                    Ref("AzureBlobStoragePath"),
-                                )
+                    Bracketed(
+                        Delimited(
+                            OneOf(
+                                Ref("S3Path"),
+                                Ref("GCSPath"),
+                                Ref("AzureBlobStoragePath"),
                             )
-                        ),
-                        Bracketed(
-                            Ref("QuotedStarSegment"),
-                        ),
+                        )
                     ),
                 ),
                 Sequence(
