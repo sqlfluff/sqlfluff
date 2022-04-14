@@ -192,6 +192,33 @@ test_fail_indented_joins_using_on_false:
       indented_joins: false
       indented_using_on: false
 
+test_fail_indented_using_on_merge_statment_default:
+  # indented_using_on also covers MERGE INTO statements
+  fail_str: |
+    MERGE INTO t
+    USING u
+    ON t.a = u.b
+    WHEN MATCHED THEN
+        UPDATE SET a = 1
+  fix_str: |
+    MERGE INTO t
+    USING u
+        ON t.a = u.b
+    WHEN MATCHED THEN
+        UPDATE SET a = 1
+
+test_pass_indented_using_on_merge_statment_false:
+  # indented_using_on also covers MERGE INTO statements
+  pass_str: |
+    MERGE INTO t
+    USING u
+    ON t.a = u.b
+    WHEN MATCHED THEN
+        UPDATE SET a = 1
+  configs:
+    indentation:
+      indented_using_on: false
+
 test_pass_indented_from_with_comment:
   pass_str: |
     SELECT *
