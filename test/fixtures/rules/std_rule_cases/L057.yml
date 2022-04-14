@@ -370,11 +370,13 @@ test_pass_ignore_lists_unquoted_mixed_case:
 
 test_pass_ignore_words_regex_unquoted:
   pass_str:
-    SELECT a as aliashash#
+    SELECT a as alias$
   configs:
+    core:
+      dialect: postgres
     rules:
       L057:
-        ignore_words_regex: hash#$
+        ignore_words_regex: lias\$$
 
 test_pass_ignore_words_regex_quoted:
   pass_str:
