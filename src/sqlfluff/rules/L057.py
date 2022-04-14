@@ -84,7 +84,7 @@ class Rule_L057(BaseRule):
             return None
 
         # Skip if matches ignore regex
-        if self.ignore_words_regex and regex.match(self.ignore_words_regex, identifier):
+        if self.ignore_words_regex and regex.search(self.ignore_words_regex, identifier):
             return LintResult(memory=context.memory)
 
         # Do some extra processing for quoted identifiers.
@@ -101,7 +101,7 @@ class Rule_L057(BaseRule):
                 return None
 
             # Skip if matches ignore regex - repeat check now we've strip the quotes
-            if self.ignore_words_regex and regex.match(
+            if self.ignore_words_regex and regex.search(
                 self.ignore_words_regex, identifier
             ):
                 return LintResult(memory=context.memory)

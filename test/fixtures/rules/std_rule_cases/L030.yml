@@ -80,7 +80,7 @@ test_pass_ignore_words_regex_complex:
       L030:
         ignore_words_regex: (^f_|^g_)
 
-test_pass_ignore_words_regex_bigquery:
+test_pass_ignore_words_regex_bigquery_simple:
   pass_str: SELECT MAX(id), project.dataset._f_test_udf(id) FROM TABLE1
   configs:
     core:
@@ -88,3 +88,12 @@ test_pass_ignore_words_regex_bigquery:
     rules:
       L030:
         ignore_words_regex: ^_f_
+
+test_pass_ignore_words_regex_bigquery_complex:
+  pass_str: SELECT MAX(id), project.dataset._f_test_udf(id), `project.dataset._f_test_udf`(id) FROM TABLE1
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      L030:
+        ignore_words_regex: (^_f_|._f_)

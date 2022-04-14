@@ -104,7 +104,7 @@ class Rule_L010(BaseRule):
             return LintResult(memory=context.memory)
 
         # Skip if matches ignore regex
-        if self.ignore_words_regex and regex.match(
+        if self.ignore_words_regex and regex.search(
             self.ignore_words_regex, context.segment.raw
         ):
             return LintResult(memory=context.memory)

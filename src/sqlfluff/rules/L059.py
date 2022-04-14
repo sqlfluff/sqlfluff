@@ -111,7 +111,7 @@ class Rule_L059(BaseRule):
             return None
 
         # Skip if matches ignore regex
-        if self.ignore_words_regex and regex.match(
+        if self.ignore_words_regex and regex.search(
             self.ignore_words_regex, identifier_contents
         ):
             return LintResult(memory=context.memory)
