@@ -71,6 +71,9 @@ class Rule_L010(BaseRule):
         for what the possible case is.
 
         """
+        # Config type hints
+        self.ignore_words_regex: str
+
         # Skip if not an element of the specified type/name
         parent: Optional[BaseSegment] = (
             context.parent_stack[-1] if context.parent_stack else None
@@ -87,7 +90,6 @@ class Rule_L010(BaseRule):
             cap_policy = self.cap_policy
             cap_policy_opts = self.cap_policy_opts
             ignore_words_list = self.ignore_words_list
-            ignore_words_regex = self.ignore_words_regex
         except AttributeError:
             # First-time only, read the settings from configuration. This is
             # very slow.
@@ -95,7 +97,6 @@ class Rule_L010(BaseRule):
                 cap_policy,
                 cap_policy_opts,
                 ignore_words_list,
-                ignore_words_regex,
             ) = self._init_capitalisation_policy()
 
         # Skip if in ignore list
@@ -103,7 +104,9 @@ class Rule_L010(BaseRule):
             return LintResult(memory=context.memory)
 
         # Skip if matches ignore regex
-        if ignore_words_regex and regex.match(ignore_words_regex, context.segment.raw):
+        if self.ignore_words_regex and regex.match(
+            self.ignore_words_regex, context.segment.raw
+        ):
             return LintResult(memory=context.memory)
 
         # Skip if templated.
@@ -255,6 +258,4 @@ class Rule_L010(BaseRule):
         cap_policy = self.cap_policy
         cap_policy_opts = self.cap_policy_opts
         ignore_words_list = self.ignore_words_list
-        ignore_words_regex = self.ignore_words_regex
-
-        return cap_policy, cap_policy_opts, ignore_words_list, ignore_words_regex
+        return cap_policy, cap_policy_opts, ignore_words_list
