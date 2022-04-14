@@ -59,7 +59,7 @@ class Rule_L010(BaseRule):
         ("parenttype", "datetime_type_identifier"),
         ("parenttype", "primitive_type"),
     ]
-    config_keywords = ["capitalisation_policy", "ignore_words"]
+    config_keywords = ["capitalisation_policy", "ignore_words", "ignore_words_regex"]
     # Human readable target elem for description
     _description_elem = "Keywords"
 
@@ -87,6 +87,7 @@ class Rule_L010(BaseRule):
             cap_policy = self.cap_policy
             cap_policy_opts = self.cap_policy_opts
             ignore_words_list = self.ignore_words_list
+            ignore_words_regex = self.ignore_words_regex
         except AttributeError:
             # First-time only, read the settings from configuration. This is
             # very slow.
@@ -94,10 +95,15 @@ class Rule_L010(BaseRule):
                 cap_policy,
                 cap_policy_opts,
                 ignore_words_list,
+                ignore_words_regex,
             ) = self._init_capitalisation_policy()
 
         # Skip if in ignore list
         if ignore_words_list and context.segment.raw.lower() in ignore_words_list:
+            return LintResult(memory=context.memory)
+
+        # Skip if matches ignore regex
+        if ignore_words_regex and regex.match(ignore_words_regex, context.segment.raw):
             return LintResult(memory=context.memory)
 
         # Skip if templated.
@@ -249,4 +255,6 @@ class Rule_L010(BaseRule):
         cap_policy = self.cap_policy
         cap_policy_opts = self.cap_policy_opts
         ignore_words_list = self.ignore_words_list
-        return cap_policy, cap_policy_opts, ignore_words_list
+        ignore_words_regex = self.ignore_words_regex
+
+        return cap_policy, cap_policy_opts, ignore_words_list, ignore_words_regex

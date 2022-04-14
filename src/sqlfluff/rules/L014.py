@@ -76,6 +76,7 @@ class Rule_L014(Rule_L010):
         "extended_capitalisation_policy",
         "unquoted_identifiers_policy",
         "ignore_words",
+        "ignore_words_regex",
     ]
     _description_elem = "Unquoted identifiers"
 

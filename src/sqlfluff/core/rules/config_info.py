@@ -91,6 +91,9 @@ STANDARD_CONFIG_INFO_DICT = {
     "ignore_words": {
         "definition": ("Comma separated list of words to ignore from rule"),
     },
+    "ignore_words_regex": {
+        "definition": ("Regex to match words to ignore from rule"),
+    },
     "forbid_subquery_in": {
         "validation": ["join", "from", "both"],
         "definition": "Which clauses should be linted for subqueries?",

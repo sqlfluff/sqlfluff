@@ -65,3 +65,26 @@ test_fail_func_name_templated_literal_mix:
   # Issue 3022. This was actually a bug in BaseSegment.iter_patches().
   fail_str: SELECT RO(), {{ "t" }}.func()
   fix_str: SELECT RO(), {{ "t" }}.FUNC()
+
+test_pass_ignore_words_regex_simple:
+  pass_str: SELECT MAX(id), f_test_udf(id) FROM TABLE1
+  configs:
+    rules:
+      L030:
+        ignore_words_regex: ^f_
+
+test_pass_ignore_words_regex_complex:
+  pass_str: SELECT MAX(id), f_test_udf(id), g_test_udf(id) FROM TABLE1
+  configs:
+    rules:
+      L030:
+        ignore_words_regex: (^f_|^g_)
+
+test_pass_ignore_words_regex_bigquery:
+  pass_str: SELECT MAX(id), project.dataset._f_test_udf(id) FROM TABLE1
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      L030:
+        ignore_words_regex: ^_f_
