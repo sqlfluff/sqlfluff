@@ -70,7 +70,7 @@ class Rule_L059(BaseRule):
 
     """
 
-    config_keywords = ["prefer_quoted_identifiers", "ignore_words"]
+    config_keywords = ["prefer_quoted_identifiers", "ignore_words", "ignore_words_regex"]
 
     # Ignore "password_auth" type to allow quotes around passwords within
     # `CREATE USER` statements in Exasol dialect.
@@ -81,6 +81,7 @@ class Rule_L059(BaseRule):
         # Config type hints
         self.prefer_quoted_identifiers: bool
         self.ignore_words: str
+        self.ignore_words_regex: str
 
         # Ignore some segment types
         if context.functional.parent_stack.any(sp.is_type(*self._ignore_types)):
@@ -104,6 +105,12 @@ class Rule_L059(BaseRule):
         # Skip if in ignore list
         if ignore_words_list and identifier_contents.lower() in ignore_words_list:
             return None
+
+        # Skip if matches ignore regex
+        if self.ignore_words_regex and regex.match(
+            self.ignore_words_regex, identifier_contents
+        ):
+            return LintResult(memory=context.memory)
 
         # Ignore the segments that are not of the same type as the defined policy above.
         # Also TSQL has a keyword called QUOTED_IDENTIFIER which maps to the name so
