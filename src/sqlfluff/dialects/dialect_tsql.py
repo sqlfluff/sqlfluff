@@ -436,7 +436,6 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DropStatisticsStatementSegment"),
             Ref("DropProcedureStatementSegment"),
             Ref("UpdateStatisticsStatementSegment"),
-            Ref("DropFunctionStatementSegment"),
             Ref("BeginEndSegment"),
             Ref("TryCatchSegment"),
             Ref("MergeStatementSegment"),
@@ -451,7 +450,6 @@ class StatementSegment(ansi.StatementSegment):
             Ref("WaitForStatementSegment"),
         ],
         remove=[
-            Ref("CreateExtensionStatementSegment"),
             Ref("CreateModelStatementSegment"),
             Ref("DropModelStatementSegment"),
             Ref("DescribeStatementSegment"),

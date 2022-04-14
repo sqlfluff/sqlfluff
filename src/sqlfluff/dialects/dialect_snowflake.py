@@ -835,7 +835,6 @@ class StatementSegment(ansi.StatementSegment):
         ],
         remove=[
             Ref("CreateTypeStatementSegment"),
-            Ref("CreateExtensionStatementSegment"),
             Ref("CreateIndexStatementSegment"),
             Ref("DropIndexStatementSegment"),
         ],
@@ -4124,12 +4123,7 @@ class DescribeStatementSegment(BaseSegment):
             ),
             # https://docs.snowflake.com/en/sql-reference/sql/desc-integration.html
             Sequence(
-                OneOf(
-                    "API",
-                    "NOTIFICATION",
-                    "SECURITY",
-                    "STORAGE",
-                ),
+                OneOf("API", "NOTIFICATION", "SECURITY", "STORAGE", optional=True),
                 "INTEGRATION",
                 Ref("ObjectReferenceSegment"),
             ),
