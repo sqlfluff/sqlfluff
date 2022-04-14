@@ -2531,36 +2531,18 @@ class CreateStatementSegment(BaseSegment):
         Ref("ObjectReferenceSegment"),
         # Next set are Storage Integration statements
         # https://docs.snowflake.com/en/sql-reference/sql/create-storage-integration.html
-        Sequence(
-            AnySetOf(
-                Sequence("TYPE", Ref("EqualsSegment"), "EXTERNAL_STAGE"),
-                Sequence("ENABLED", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
+        AnySetOf(
+            Sequence("TYPE", Ref("EqualsSegment"), "EXTERNAL_STAGE"),
+            Sequence("ENABLED", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
+            OneOf(
+                Ref("S3StorageIntegrationParameters"),
+                Ref("GCSStorageIntegrationParameters"),
+                Ref("AzureStorageIntegrationParameters"),
+            ),
+            Sequence(
+                "STORAGE_ALLOWED_LOCATIONS",
+                Ref("EqualsSegment"),
                 OneOf(
-                    Ref("S3StorageIntegrationParameters"),
-                    Ref("GCSStorageIntegrationParameters"),
-                    Ref("AzureStorageIntegrationParameters"),
-                ),
-                Sequence(
-                    "STORAGE_ALLOWED_LOCATIONS",
-                    Ref("EqualsSegment"),
-                    OneOf(
-                        Bracketed(
-                            Delimited(
-                                OneOf(
-                                    Ref("S3Path"),
-                                    Ref("GCSPath"),
-                                    Ref("AzureBlobStoragePath"),
-                                )
-                            )
-                        ),
-                        Bracketed(
-                            Ref("QuotedStarSegment"),
-                        ),
-                    ),
-                ),
-                Sequence(
-                    "STORAGE_BLOCKED_LOCATIONS",
-                    Ref("EqualsSegment"),
                     Bracketed(
                         Delimited(
                             OneOf(
@@ -2570,14 +2552,29 @@ class CreateStatementSegment(BaseSegment):
                             )
                         )
                     ),
-                ),
-                Sequence(
-                    "COMMENT",
-                    Ref("EqualsSegment"),
-                    Ref("QuotedLiteralSegment"),
+                    Bracketed(
+                        Ref("QuotedStarSegment"),
+                    ),
                 ),
             ),
-            optional=True,
+            Sequence(
+                "STORAGE_BLOCKED_LOCATIONS",
+                Ref("EqualsSegment"),
+                Bracketed(
+                    Delimited(
+                        OneOf(
+                            Ref("S3Path"),
+                            Ref("GCSPath"),
+                            Ref("AzureBlobStoragePath"),
+                        )
+                    )
+                ),
+            ),
+            Sequence(
+                "COMMENT",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
         ),
         # Next set are Pipe statements
         # https://docs.snowflake.com/en/sql-reference/sql/create-pipe.html
