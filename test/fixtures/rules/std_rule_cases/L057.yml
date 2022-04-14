@@ -368,6 +368,14 @@ test_pass_ignore_lists_unquoted_mixed_case:
       L057:
         ignore_words: alias$
 
+test_pass_ignore_words_regex_unquoted:
+  pass_str:
+    SELECT a as aliashash#
+  configs:
+    rules:
+      L057:
+        ignore_words_regex: .*hash#$
+
 test_pass_ignore_words_regex_quoted:
   pass_str:
     SELECT a as 'aliashash#'
