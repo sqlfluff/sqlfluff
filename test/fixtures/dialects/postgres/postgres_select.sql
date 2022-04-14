@@ -49,3 +49,13 @@ SELECT
     t.col2
 FROM schema1.table1
 CROSS JOIN LATERAL somefunc(tb.columnb) as t(col1 text, col2 bool);
+
+SELECT a COLLATE "de_DE" < b FROM test1;
+
+SELECT a < ('foo' COLLATE "fr_FR") FROM test1;
+
+SELECT a < b COLLATE "de_DE" FROM test1;
+
+SELECT a COLLATE "de_DE" < b FROM test1;
+
+SELECT * FROM test1 ORDER BY a || b COLLATE "fr_FR";
