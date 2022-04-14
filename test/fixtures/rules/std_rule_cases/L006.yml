@@ -65,3 +65,10 @@ pass_bigquery_hyphen:
   configs:
     core:
       dialect: bigquery
+
+
+pass_sparksql_ansi_interval_minus:
+  pass_str: SELECT INTERVAL -'20 15:40:32.99899999' DAY TO SECOND AS col;
+  configs:
+    core:
+      dialect: sparksql

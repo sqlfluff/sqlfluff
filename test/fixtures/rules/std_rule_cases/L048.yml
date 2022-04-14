@@ -109,3 +109,17 @@ test_pass_teradata_casting_type2:
   configs:
     core:
       dialect: teradata
+
+
+test_pass_sparksql_ansi_interval_minus:
+  pass_str: SELECT INTERVAL -'20 15:40:32.99899999' DAY TO SECOND AS col;
+  configs:
+    core:
+      dialect: sparksql
+
+
+test_pass_sparksql_multi_units_interval_minus:
+  pass_str: SELECT INTERVAL -2 HOUR '3' MINUTE AS col;
+  configs:
+    core:
+      dialect: sparksql
