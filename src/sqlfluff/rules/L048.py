@@ -137,7 +137,8 @@ class Rule_L048(Rule_L006):
                         check_after = True
 
             if check_before:
-                # NB: Should not check for whitespaces inside of Interval Literals for SparkSQL dialect
+                # NB: Should not check for whitespaces inside of
+                # Interval Literals for SparkSQL dialect
                 # https://spark.apache.org/docs/latest/sql-ref-literals.html#interval-literal
                 if context.dialect.name in ["sparksql"]:
                     possible_interval_segment = self._find_segment(
