@@ -130,7 +130,7 @@ test_pass_ignore_word2:
       L029:
         ignore_words: date
 
-test_pass_ignore_word_regex1:
+test_pass_ignore_words_regex1:
   pass_str: CREATE TABLE artist(create TEXT)
   configs:
     rules:
@@ -138,7 +138,7 @@ test_pass_ignore_word_regex1:
         ignore_words_regex: ^cr
 
 
-test_pass_ignore_word2:
+test_pass_ignore_words_regex2:
   pass_str: SELECT col1 AS date FROM table1
   configs:
     rules:
