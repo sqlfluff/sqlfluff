@@ -2335,7 +2335,9 @@ class MergeStatementSegment(BaseSegment):
             ),
         ),
         Dedent,
+        Conditional(Indent, indented_using_on=True),
         Ref("JoinOnConditionSegment"),
+        Conditional(Dedent, indented_using_on=True),
         Ref("MergeMatchSegment"),
     )
 
