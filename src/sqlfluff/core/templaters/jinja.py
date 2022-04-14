@@ -234,24 +234,25 @@ class JinjaTemplater(PythonTemplater):
 
     def _get_macros_order_load(self, config: FluffConfig) -> list[str]:
         default_order = ["project", "config", "libraries"]
-        macros_directory_order = (
-            config.get_section((self.templater_selector, self.name, "context")) or {}
-        )
+        if config is not None:
+            macros_directory_order = (
+                config.get_section((self.templater_selector, self.name, "context"))
+                or {}
+            )
 
-        if macros_directory_order:
-            macro_directories = macros_directory_order["order"].split(",")
-            not_found = [
-                item for item in macro_directories if item not in default_order
-            ]
-            if len(not_found) > 0:
-                raise ValueError(
-                    """For the jinja templater, type of macros does not exist
-                    - [config,libraires,project]"""
-                    "object."
-                )
-            return macro_directories
-        else:
-            return default_order
+            if macros_directory_order and "order" in macros_directory_order:
+                macro_directories = macros_directory_order["order"].split(",")
+                not_found = [
+                    item for item in macro_directories if item not in default_order
+                ]
+                if len(not_found) > 0:
+                    raise ValueError(
+                        """For the jinja templater, type of macros does not exist
+                        - [config,libraires,project]"""
+                        "object."
+                    )
+                return macro_directories
+        return default_order
 
     def _load_macros(self, type: str, config: FluffConfig, env, live_context) -> dict:
         if type == "config":
