@@ -143,21 +143,30 @@ sparksql_dialect.sets("datetime_units").clear()
 sparksql_dialect.sets("datetime_units").update(
     [
         "YEAR",
-        # Alternate syntax for YEAR
+        "YEARS",
         "YYYY",
         "YY",
         "QUARTER",
+        "QUARTERS",
         "MONTH",
-        # Alternate syntax for MONTH
+        "MONTHS",
         "MON",
         "MM",
         "WEEK",
+        "WEEKS",
         "DAY",
-        # Alternate syntax for DAY
+        "DAYS",
         "DD",
         "HOUR",
+        "HOURS",
         "MINUTE",
+        "MINUTES",
         "SECOND",
+        "SECONDS",
+        "MILLISECOND",
+        "MILLISECONDS",
+        "MICROSECOND",
+        "MICROSECONDS",
     ]
 )
 
@@ -2336,6 +2345,7 @@ class AliasExpressionSegment(ansi.AliasExpressionSegment):
                 Ref("JoinTypeKeywords"),
                 "WINDOW",
                 "PIVOT",
+                Ref("DatetimeUnitSegment"),
             ),
         ),
     )
@@ -2571,4 +2581,49 @@ class UpdateStatementSegment(ansi.UpdateStatementSegment):
         ),
         Ref("SetClauseListSegment"),
         Ref("WhereClauseSegment"),
+    )
+
+
+class IntervalExpressionSegment(ansi.IntervalExpressionSegment):
+    """An interval expression segment.
+
+    Redefining from ANSI dialect to allow for additional syntax.
+
+    https://spark.apache.org/docs/latest/sql-ref-literals.html#interval-literal
+    """
+
+    match_grammar: Matchable = Sequence(
+        "INTERVAL",
+        OneOf(
+            # multi-units syntax
+            OneOf(
+                AnyNumberOf(
+                    Sequence(
+                        OneOf(  # TODO: disable L47
+                            Ref("PlusSegment"),
+                            Ref("MinusSegment"),
+                            optional=True,
+                        ),
+                        OneOf(
+                            Ref("NumericLiteralSegment"),
+                            Ref("QuotedLiteralSegment"),
+                        ),
+                        Ref("DatetimeUnitSegment"),
+                    ),
+                ),
+                Ref("QuotedLiteralSegment"),
+            ),
+            # ansi syntax
+            Sequence(
+                OneOf(  # TODO: disable L47
+                    Ref("PlusSegment"),
+                    Ref("MinusSegment"),
+                    optional=True,
+                ),
+                Ref("QuotedLiteralSegment"),
+                Ref("DatetimeUnitSegment"),
+                Ref.keyword("TO", optional=True),
+                Ref("DatetimeUnitSegment", optional=True),
+            ),
+        ),
     )
