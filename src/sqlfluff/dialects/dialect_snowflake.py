@@ -2542,6 +2542,7 @@ class CreateStatementSegment(BaseSegment):
                     Ref("AzureStorageIntegrationParameters"),
                 ),
                 Sequence(
+                    OneOf("STORAGE_ALLOWED_LOCATIONS", "STORAGE_BLOCKED_LOCATIONS"),
                     "STORAGE_ALLOWED_LOCATIONS",
                     Ref("EqualsSegment"),
                     OneOf(
@@ -2576,13 +2577,11 @@ class CreateStatementSegment(BaseSegment):
                             Ref("QuotedStarSegment"),
                         ),
                     ),
-                    optional=True,
                 ),
                 Sequence(
                     "COMMENT",
                     Ref("EqualsSegment"),
                     Ref("QuotedLiteralSegment"),
-                    optional=True,
                 ),
             ),
             optional=True,
