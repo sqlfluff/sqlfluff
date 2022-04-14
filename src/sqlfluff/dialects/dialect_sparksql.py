@@ -2211,7 +2211,6 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterTableStatementSegment"),
             Ref("AlterViewStatementSegment"),
             Ref("CreateHiveFormatTableStatementSegment"),
-            Ref("DropFunctionStatementSegment"),
             Ref("MsckRepairTableStatementSegment"),
             Ref("UseDatabaseStatementSegment"),
             # Auxiliary Statements
@@ -2239,7 +2238,6 @@ class StatementSegment(ansi.StatementSegment):
             Ref("TransactionStatementSegment"),
             Ref("CreateSchemaStatementSegment"),
             Ref("SetSchemaStatementSegment"),
-            Ref("CreateExtensionStatementSegment"),
             Ref("CreateModelStatementSegment"),
             Ref("DropModelStatementSegment"),
         ],

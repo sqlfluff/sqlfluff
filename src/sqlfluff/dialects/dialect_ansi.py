@@ -2335,7 +2335,9 @@ class MergeStatementSegment(BaseSegment):
             ),
         ),
         Dedent,
+        Conditional(Indent, indented_using_on=True),
         Ref("JoinOnConditionSegment"),
+        Conditional(Dedent, indented_using_on=True),
         Ref("MergeMatchSegment"),
     )
 
@@ -2674,25 +2676,6 @@ class DropDatabaseStatementSegment(BaseSegment):
         Ref("IfExistsGrammar", optional=True),
         Ref("DatabaseReferenceSegment"),
         Ref("DropBehaviorGrammar", optional=True),
-    )
-
-
-class CreateExtensionStatementSegment(BaseSegment):
-    """A `CREATE EXTENSION` statement.
-
-    https://www.postgresql.org/docs/9.1/sql-createextension.html
-    """
-
-    type = "create_extension_statement"
-    match_grammar: Matchable = Sequence(
-        "CREATE",
-        "EXTENSION",
-        Ref("IfNotExistsGrammar", optional=True),
-        Ref("ExtensionReferenceSegment"),
-        Ref.keyword("WITH", optional=True),
-        Sequence("SCHEMA", Ref("SchemaReferenceSegment"), optional=True),
-        Sequence("VERSION", Ref("VersionIdentifierSegment"), optional=True),
-        Sequence("FROM", Ref("VersionIdentifierSegment"), optional=True),
     )
 
 
@@ -3233,6 +3216,19 @@ class FunctionParameterListGrammar(BaseSegment):
     )
 
 
+class DropFunctionStatementSegment(BaseSegment):
+    """A `DROP FUNCTION` statement."""
+
+    type = "drop_function_statement"
+
+    match_grammar = Sequence(
+        "DROP",
+        "FUNCTION",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("FunctionNameSegment"),
+    )
+
+
 class CreateModelStatementSegment(BaseSegment):
     """A BigQuery `CREATE MODEL` statement."""
 
@@ -3400,13 +3396,13 @@ class StatementSegment(BaseSegment):
         Ref("DropTypeStatementSegment"),
         Ref("CreateDatabaseStatementSegment"),
         Ref("DropDatabaseStatementSegment"),
-        Ref("CreateExtensionStatementSegment"),
         Ref("CreateIndexStatementSegment"),
         Ref("DropIndexStatementSegment"),
         Ref("CreateViewStatementSegment"),
         Ref("DeleteStatementSegment"),
         Ref("UpdateStatementSegment"),
         Ref("CreateFunctionStatementSegment"),
+        Ref("DropFunctionStatementSegment"),
         Ref("CreateModelStatementSegment"),
         Ref("DropModelStatementSegment"),
         Ref("DescribeStatementSegment"),

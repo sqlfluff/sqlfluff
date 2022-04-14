@@ -58,6 +58,7 @@ class Rule_L052(BaseRule):
     """
 
     config_keywords = ["multiline_newline", "require_final_semicolon"]
+    needs_raw_stack = True
 
     @staticmethod
     def _handle_preceding_inline_comments(before_segment, anchor_segment):

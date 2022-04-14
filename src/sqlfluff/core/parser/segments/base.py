@@ -885,11 +885,15 @@ class BaseSegment:
                 buff.append(seg)
         return buff
 
-    def recursive_crawl_all(self):
+    def recursive_crawl_all(self, reverse: bool = False):
         """Recursively crawl all descendant segments."""
+        if reverse:
+            for seg in reversed(self.segments):
+                yield from seg.recursive_crawl_all(reverse=reverse)
         yield self
-        for seg in self.segments:
-            yield from seg.recursive_crawl_all()
+        if not reverse:
+            for seg in self.segments:
+                yield from seg.recursive_crawl_all(reverse=reverse)
 
     def recursive_crawl(self, *seg_type: str, recurse_into: bool = True):
         """Recursively crawl for segments of a given type.
