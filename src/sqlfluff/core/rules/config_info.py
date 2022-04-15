@@ -92,7 +92,13 @@ STANDARD_CONFIG_INFO_DICT = {
         "definition": ("Comma separated list of words to ignore from rule"),
     },
     "ignore_words_regex": {
-        "definition": ("Regex to match words to ignore from rule"),
+        "definition": (
+            "Words to ignore from rule if they are a partial match for the regular "
+            "expression. To ignore only full matches you can use ``^`` (beginning "
+            "of text) and ``$`` (end of text). Due to regular expression operator "
+            "precedence, it is good practice to use parentheses around everything "
+            "between ``^`` and ``$``."
+        ),
     },
     "forbid_subquery_in": {
         "validation": ["join", "from", "both"],
