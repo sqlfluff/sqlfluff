@@ -152,7 +152,7 @@ class Rule_L006(BaseRule):
                             after_anchor.pos_marker,
                             after_anchor.raw,
                         )
-                        check_after = True
+                        check_after = True  # pragma: no cover
 
             if check_before:
                 if context.dialect.name in ["sparksql"]:
