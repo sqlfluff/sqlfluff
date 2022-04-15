@@ -278,6 +278,22 @@ test_pass_ignore_lists_mixed_case:
       L059:
         ignore_words: foo
 
+test_pass_ignore_words_regex:
+  pass_str:
+    SELECT 123 AS "foo";
+  configs:
+    rules:
+      L059:
+        ignore_words_regex: ^fo
+
+test_pass_ignore_words_regex_mixed_case:
+  pass_str:
+    SELECT 123 AS "Foo";
+  configs:
+    rules:
+      L059:
+        ignore_words_regex: ^Fo
+
 test_pass_ignore_if:
   pass_str:
     DROP TABLE IF EXISTS "example";

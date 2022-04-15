@@ -103,3 +103,12 @@ test_excess_space_cast:
         '1'::INT as id1,
         '2'::int as id2
     from table_a
+
+test_redshift_at_time_zone:
+  pass_str: |
+    SELECT
+    date_w_tz [0] AT TIME ZONE 'Etc/UTC' AS bar
+    FROM foo
+  configs:
+    core:
+      dialect: redshift
