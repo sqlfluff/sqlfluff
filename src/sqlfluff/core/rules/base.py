@@ -858,7 +858,8 @@ class BaseRule:
         for fix in lint_result.fixes:
             fix_slices = fix.get_fix_slices(templated_file, within_only=True)
             for fix_slice in fix_slices:
-                block_indices.add(fix_slice.block_idx)
+                if fix_slice.slice_type not in ("block_start", "block_end"):
+                    block_indices.add(fix_slice.block_idx)
         if len(block_indices) > 1:
             linter_logger.info(
                 "      * Discarding fixes that span multiple template blocks: %s",
