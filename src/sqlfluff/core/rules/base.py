@@ -301,12 +301,11 @@ class LintFix:
             file_end_slice=RawFileSlice("", "literal", -1),
         )
 
-    def has_template_conflicts(
-        self, fix_slices: Set[RawFileSlice], templated_file: TemplatedFile
-    ) -> bool:
+    def has_template_conflicts(self, templated_file: TemplatedFile) -> bool:
         """Based on the fix slices, should we discard the fix?"""
         # Given fix slices, check for conflicts.
         check_fn = all if self.edit_type in ("create_before", "create_after") else any
+        fix_slices = self.get_fix_slices(templated_file, within_only=False)
         result = check_fn(fs.slice_type == "templated" for fs in fix_slices)
         if result or not self.source:
             return result
@@ -845,8 +844,7 @@ class BaseRule:
 
         # Check for fixes that touch templated code.
         for fix in lint_result.fixes:
-            fix_slices = fix.get_fix_slices(templated_file, within_only=False)
-            if fix.has_template_conflicts(fix_slices, templated_file):
+            if fix.has_template_conflicts(templated_file):
                 linter_logger.info(
                     "      * Discarding fixes that touch templated code: %s",
                     lint_result.fixes,
