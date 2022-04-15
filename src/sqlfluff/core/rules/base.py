@@ -258,21 +258,18 @@ class LintFix:
         """Create edit segments after the supplied anchor segment."""
         return cls("create_after", anchor_segment, edit_segments, source)
 
-    def has_template_conflicts(self, templated_file: TemplatedFile) -> bool:
-        """Does this fix conflict with (i.e. touch) templated code?"""
+    def get_fix_slices(self, templated_file: TemplatedFile) -> Set[RawFileSlice]:
+        """Returns slices touched by the fix."""
         # Goal: Find the raw slices touched by the fix. Two cases, based on
         # edit type:
-        # 1. "delete", "replace": Raw slices touching the anchor segment. If
-        #    ANY are templated, discard the fix.
+        # 1. "delete", "replace": Raw slices touching the anchor segment.
         # 2. "create_before", "create_after": Raw slices encompassing the two
         #    character positions surrounding the insertion point (**NOT** the
         #    whole anchor segment, because we're not *touching* the anchor
-        #    segment, we're inserting **RELATIVE** to it. If ALL are templated,
-        #    discard the fix.
+        #    segment, we're inserting **RELATIVE** to it.
         assert self.anchor.pos_marker
         anchor_slice = self.anchor.pos_marker.templated_slice
         templated_slices = [anchor_slice]
-        check_fn = any
 
         if self.edit_type == "create_before":
             # Consider the first position of the anchor segment and the
@@ -281,7 +278,6 @@ class LintFix:
                 slice(anchor_slice.start, anchor_slice.start + 1),
                 slice(anchor_slice.start - 1, anchor_slice.start),
             ]
-            check_fn = all
         elif self.edit_type == "create_after":
             # Consider the last position of the anchor segment and the
             # character just after it.
@@ -289,20 +285,24 @@ class LintFix:
                 slice(anchor_slice.stop - 1, anchor_slice.stop),
                 slice(anchor_slice.stop, anchor_slice.stop + 1),
             ]
-            check_fn = all
         # TRICKY: For creations at the end of the file, there won't be an
         # existing slice. In this case, the function adds file_end_slice to the
         # result, as a sort of placeholder or sentinel value. We pass a literal
         # slice for "file_end_slice" so that later in this function, the LintFix
         # is interpreted as literal code. Otherwise, it could be interpreted as
         # a fix to *templated* code and incorrectly discarded.
-        fix_slices = self._raw_slices_from_templated_slices(
+        return self._raw_slices_from_templated_slices(
             templated_file,
             templated_slices,
             file_end_slice=RawFileSlice("", "literal", -1),
         )
 
-        # We have the fix slices. Now check for conflicts.
+    def has_template_conflicts(
+        self, fix_slices: Set[RawFileSlice], templated_file: TemplatedFile
+    ) -> bool:
+        """Based on the fix slices, should we discard the fix?"""
+        # Given fix slices, check for conflicts.
+        check_fn = all if self.edit_type in ("create_before", "create_after") else any
         result = check_fn(fs.slice_type == "templated" for fs in fix_slices)
         if result or not self.source:
             return result
@@ -839,20 +839,13 @@ class BaseRule:
         if not lint_result.fixes or not templated_file:
             return
 
-        # Get the set of slices touched by any of the fixes.
-        fix_slices: Set[RawFileSlice] = set()
-        for fix in lint_result.fixes:
-            if fix.anchor:
-                assert fix.anchor.pos_marker
-                fix_slices.update(
-                    templated_file.raw_slices_spanning_source_slice(
-                        fix.anchor.pos_marker.source_slice
-                    )
-                )
-
         # Check for fixes that touch templated code.
+        block_indices: Set[int] = set()
         for fix in lint_result.fixes:
-            if fix.has_template_conflicts(templated_file):
+            fix_slices = fix.get_fix_slices(templated_file)
+            for fix_slice in fix_slices:
+                block_indices.add(fix_slice.block_idx)
+            if fix.has_template_conflicts(fix_slices, templated_file):
                 linter_logger.info(
                     "      * Discarding fixes that touch templated code: %s",
                     lint_result.fixes,
@@ -862,9 +855,6 @@ class BaseRule:
 
         # Issue 3079: Fixes that span multiple template blocks are dangerous.
         # Don't permit them.
-        block_indices: Set[int] = set()
-        for fix_slice in fix_slices:
-            block_indices.add(fix_slice.block_idx)
         if len(block_indices) > 1:
             linter_logger.info(
                 "      * Discarding fixes that span multiple template blocks: %s",
