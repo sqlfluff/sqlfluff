@@ -316,8 +316,7 @@ class JinjaAnalyzer:
 
             if elem_type.endswith("_begin"):
                 self.handle_left_whitespace_stripping(raw, block_idx)
-                block_idx += 1
-            elif elem_type.endswith("_end"):
+            if elem_type in ("block_start", "block_end"):
                 block_idx += 1
 
             raw_slice_info: RawSliceInfo = self.make_raw_slice_info(None, None)
@@ -369,7 +368,7 @@ class JinjaAnalyzer:
                         )
                     )
                     self.raw_slice_info[self.raw_sliced[-1]] = raw_slice_info
-                    block_idx = len(self.raw_sliced) - 1
+                    slice_idx = len(self.raw_sliced) - 1
                     self.idx_raw += len(str_buff) - trailing_chars
                     self.raw_sliced.append(
                         RawFileSlice(
@@ -395,12 +394,12 @@ class JinjaAnalyzer:
                         )
                     )
                     self.raw_slice_info[self.raw_sliced[-1]] = raw_slice_info
-                    block_idx = len(self.raw_sliced) - 1
+                    slice_idx = len(self.raw_sliced) - 1
                     self.idx_raw += len(str_buff)
                 if block_type.startswith("block"):
                     self.track_block_end(block_type, tag_contents[0])
                     self.update_next_slice_indices(
-                        block_idx, block_type, tag_contents[0]
+                        slice_idx, block_type, tag_contents[0]
                     )
                 str_buff = ""
                 str_parts = []
@@ -504,21 +503,21 @@ class JinjaAnalyzer:
             )
 
     def update_next_slice_indices(
-        self, block_idx: int, block_type: str, tag_name: str
+        self, slice_idx: int, block_type: str, tag_name: str
     ) -> None:
         """Based on block, update conditional jump info."""
         if block_type == "block_start" and tag_name in (
             "for",
             "if",
         ):
-            self.stack.append(block_idx)
+            self.stack.append(slice_idx)
         elif block_type == "block_mid":
             # Record potential forward jump over this block.
             self.raw_slice_info[
                 self.raw_sliced[self.stack[-1]]
-            ].next_slice_indices.append(block_idx)
+            ].next_slice_indices.append(slice_idx)
             self.stack.pop()
-            self.stack.append(block_idx)
+            self.stack.append(slice_idx)
         elif block_type == "block_end" and tag_name in (
             "endfor",
             "endif",
@@ -527,11 +526,11 @@ class JinjaAnalyzer:
                 # Record potential forward jump over this block.
                 self.raw_slice_info[
                     self.raw_sliced[self.stack[-1]]
-                ].next_slice_indices.append(block_idx)
+                ].next_slice_indices.append(slice_idx)
                 if self.raw_sliced[self.stack[-1]].slice_subtype == "loop":
                     # Record potential backward jump to the loop beginning.
                     self.raw_slice_info[
-                        self.raw_sliced[block_idx]
+                        self.raw_sliced[slice_idx]
                     ].next_slice_indices.append(self.stack[-1] + 1)
                 self.stack.pop()
 
