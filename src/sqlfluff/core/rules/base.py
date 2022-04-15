@@ -258,7 +258,9 @@ class LintFix:
         """Create edit segments after the supplied anchor segment."""
         return cls("create_after", anchor_segment, edit_segments, source)
 
-    def get_fix_slices(self, templated_file: TemplatedFile) -> Set[RawFileSlice]:
+    def get_fix_slices(
+        self, templated_file: TemplatedFile, within_only: bool
+    ) -> Set[RawFileSlice]:
         """Returns slices touched by the fix."""
         # Goal: Find the raw slices touched by the fix. Two cases, based on
         # edit type:
@@ -271,19 +273,21 @@ class LintFix:
         anchor_slice = self.anchor.pos_marker.templated_slice
         templated_slices = [anchor_slice]
 
+        # If "within_only" is set for a "create_*" fix, the slice should only
+        # include the area of code "within" the area of insertion, not the other
+        # side.
+        adjust_boundary = 1 if not within_only else 0
         if self.edit_type == "create_before":
             # Consider the first position of the anchor segment and the
             # position just before it.
             templated_slices = [
-                slice(anchor_slice.start, anchor_slice.start + 1),
-                slice(anchor_slice.start - 1, anchor_slice.start),
+                slice(anchor_slice.start - 1, anchor_slice.start + adjust_boundary),
             ]
         elif self.edit_type == "create_after":
             # Consider the last position of the anchor segment and the
             # character just after it.
             templated_slices = [
-                slice(anchor_slice.stop - 1, anchor_slice.stop),
-                slice(anchor_slice.stop, anchor_slice.stop + 1),
+                slice(anchor_slice.stop - adjust_boundary, anchor_slice.stop + 1),
             ]
         # TRICKY: For creations at the end of the file, there won't be an
         # existing slice. In this case, the function adds file_end_slice to the
@@ -803,7 +807,7 @@ class BaseRule:
         target_tuples: List[Tuple[str, str]],
         parent: Optional[BaseSegment] = None,
     ):
-        """Does the given segment match any of the given type tuples."""
+        """Does the given segment match any of the given type tuples?"""
         if seg.name in [elem[1] for elem in target_tuples if elem[0] == "name"]:
             return True
         elif seg.is_type(*[elem[1] for elem in target_tuples if elem[0] == "type"]):
@@ -840,11 +844,8 @@ class BaseRule:
             return
 
         # Check for fixes that touch templated code.
-        block_indices: Set[int] = set()
         for fix in lint_result.fixes:
-            fix_slices = fix.get_fix_slices(templated_file)
-            for fix_slice in fix_slices:
-                block_indices.add(fix_slice.block_idx)
+            fix_slices = fix.get_fix_slices(templated_file, within_only=False)
             if fix.has_template_conflicts(fix_slices, templated_file):
                 linter_logger.info(
                     "      * Discarding fixes that touch templated code: %s",
@@ -853,8 +854,13 @@ class BaseRule:
                 lint_result.fixes = []
                 return
 
-        # Issue 3079: Fixes that span multiple template blocks are dangerous.
-        # Don't permit them.
+        # Issue 3079: Fixes that span multiple template blocks are bad. Don't
+        # permit them.
+        block_indices: Set[int] = set()
+        for fix in lint_result.fixes:
+            fix_slices = fix.get_fix_slices(templated_file, within_only=True)
+            for fix_slice in fix_slices:
+                block_indices.add(fix_slice.block_idx)
         if len(block_indices) > 1:
             linter_logger.info(
                 "      * Discarding fixes that span multiple template blocks: %s",
