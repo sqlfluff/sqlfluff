@@ -97,6 +97,31 @@ test_pass_ignore_words:
         capitalisation_policy: upper
         ignore_words: select,from
 
+test_pass_ignore_words_regex_simple:
+  pass_str: SeleCT 1
+  configs:
+    rules:
+      L010:
+        capitalisation_policy: upper
+        ignore_words_regex: ^Se
+
+test_fail_ignore_words_regex_simple:
+  fail_str: SeleCT 1 FrOM t_table
+  fix_str: SeleCT 1 FROM t_table
+  configs:
+    rules:
+      L010:
+        capitalisation_policy: upper
+        ignore_words_regex: ^Se
+
+test_pass_ignore_words_complex:
+  pass_str: SeleCT 1 FrOM t_table
+  configs:
+    rules:
+      L010:
+        capitalisation_policy: upper
+        ignore_words_regex: (^Se|^Fr)
+
 test_pass_ignore_templated_code:
   pass_str: |
     {{ "select" }} a

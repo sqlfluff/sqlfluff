@@ -47,6 +47,7 @@ class Rule_L030(Rule_L010):
     config_keywords = [
         "extended_capitalisation_policy",
         "ignore_words",
+        "ignore_words_regex",
     ]
     _description_elem = "Function names"
 
