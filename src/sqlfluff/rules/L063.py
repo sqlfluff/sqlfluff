@@ -64,5 +64,6 @@ class Rule_L063(Rule_L010):
     config_keywords = [
         "extended_capitalisation_policy",
         "ignore_words",
+        "ignore_words_regex",
     ]
     _description_elem = "Datatypes"
