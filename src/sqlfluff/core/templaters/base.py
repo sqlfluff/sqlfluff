@@ -38,6 +38,10 @@ class RawFileSlice(NamedTuple):
         """Return the a slice object for this slice."""
         return slice(self.source_idx, self.end_source_idx())
 
+    def is_source_only_slice(self):
+        """Based on its slice_type, does it only appear in the *source*?"""
+        return self.slice_type in ("comment", "block_end", "block_start", "block_mid")
+
 
 class TemplatedFileSlice(NamedTuple):
     """A slice referring to a templated file."""
@@ -386,7 +390,7 @@ class TemplatedFile:
         """
         ret_buff = []
         for elem in self.raw_sliced:
-            if elem.slice_type in ("comment", "block_end", "block_start", "block_mid"):
+            if elem.is_source_only_slice():
                 ret_buff.append(elem)
         return ret_buff
 

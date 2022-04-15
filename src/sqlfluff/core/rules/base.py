@@ -858,7 +858,10 @@ class BaseRule:
         for fix in lint_result.fixes:
             fix_slices = fix.get_fix_slices(templated_file, within_only=True)
             for fix_slice in fix_slices:
-                if fix_slice.slice_type not in ("block_start", "block_end"):
+                # Ignore fix slices that exist only in the source. For purposes
+                # of this check, it's not meaningful to say that a fix "touched"
+                # one of these.
+                if not fix_slice.is_source_only_slice():
                     block_indices.add(fix_slice.block_idx)
         if len(block_indices) > 1:
             linter_logger.info(
