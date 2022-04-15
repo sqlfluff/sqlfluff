@@ -309,6 +309,10 @@ class JinjaAnalyzer:
         block_idx = 0
         last_elem_type = None
         for _, elem_type, raw in self.env.lex(self.raw_str):
+            if last_elem_type == "block_end" or elem_type == "block_start":
+                block_idx += 1
+            last_elem_type = elem_type
+
             if elem_type == "data":
                 self.track_literal(raw, block_idx)
                 continue
@@ -317,9 +321,6 @@ class JinjaAnalyzer:
 
             if elem_type.endswith("_begin"):
                 self.handle_left_whitespace_stripping(raw, block_idx)
-            if last_elem_type == "block_end" or elem_type == "block_start":
-                block_idx += 1
-            last_elem_type = elem_type
 
             raw_slice_info: RawSliceInfo = self.make_raw_slice_info(None, None)
             tag_contents = []
