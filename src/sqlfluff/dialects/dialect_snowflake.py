@@ -228,6 +228,13 @@ snowflake_dialect.add(
         name="file_type",
         type="file_type",
     ),
+    IntegerSegment=RegexParser(
+        # An unquoted integer that can be passed as an argument to Snowflake functions.
+        r"[0-9]+",
+        CodeSegment,
+        name="integer_segment",
+        type="integer_segment",
+    ),
     GroupByContentsGrammar=Delimited(
         OneOf(
             Ref("ColumnReferenceSegment"),
@@ -825,6 +832,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CallStatementSegment"),
             Ref("AlterViewStatementSegment"),
             Ref("RemoveStatementSegment"),
+            Ref("CreateFileFormatSegment"),
         ],
         remove=[
             Ref("CreateTypeStatementSegment"),
@@ -2518,7 +2526,6 @@ class CreateStatementSegment(BaseSegment):
             # Objects that also support clone
             "DATABASE",
             "SEQUENCE",
-            Sequence("FILE", "FORMAT"),
         ),
         Ref("IfNotExistsGrammar", optional=True),
         Ref("ObjectReferenceSegment"),
@@ -2712,6 +2719,127 @@ class AlterViewStatementSegment(BaseSegment):
                         ),
                     ),
                 ),
+            ),
+        ),
+    )
+
+
+class CreateFileFormatSegment(BaseSegment):
+    """A snowflake `CREATE FILE FORMAT` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-file-format.html
+    """
+
+    type = "create_file_format_segment"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        Sequence("FILE", "FORMAT"),
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        # Non-delimited works fine.
+        # TODO: Allow below segments to be delimited.
+        "TYPE",
+        Ref("EqualsSegment"),
+        Ref("FileType"),
+        AnySetOf(
+            Ref("CsvFileFormatTypeOptions"),  # TODO: Add Other File Formats.
+        ),
+        Ref("CommentEqualsClauseSegment", optional=True),
+    )
+
+
+class CsvFileFormatTypeOptions(BaseSegment):
+    """A Snowflake File Format Type Options segment for CSV.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-file-format.html
+    """
+
+    type = "csv_file_format_type_options"
+
+    match_grammar = AnySetOf(
+        Sequence(
+            "COMPRESSION",
+            Ref("EqualsSegment"),
+            # Remove OneOf().
+            OneOf(
+                "NONE",
+                Ref("NakedIdentifierSegment"),  # TODO: Replace this with keywords.
+            ),
+        ),
+        Sequence(
+            "RECORD_DELIMITER",
+            Ref("EqualsSegment"),
+            OneOf("NONE", Ref("QuotedLiteralSegment")),
+        ),
+        Sequence(
+            "FIELD_DELIMITER",
+            Ref("EqualsSegment"),
+            OneOf("NONE", Ref("QuotedLiteralSegment")),
+        ),
+        Sequence("FILE_EXTENSION", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")),
+        Sequence(
+            "SKIP_HEADER",
+            Ref("EqualsSegment"),
+            Ref("IntegerSegment"),
+        ),
+        Sequence(
+            "SKIP_BLANK_LINES", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
+        ),
+        Sequence(
+            "DATE_FORMAT",
+            Ref("EqualsSegment"),
+            OneOf("AUTO", Ref("QuotedLiteralSegment")),
+        ),
+        Sequence(
+            "TIME_FORMAT",
+            Ref("EqualsSegment"),
+            OneOf("AUTO", Ref("QuotedLiteralSegment")),
+        ),
+        Sequence(
+            "TIMESTAMP_FORMAT",
+            Ref("EqualsSegment"),
+            OneOf("AUTO", Ref("QuotedLiteralSegment")),
+        ),
+        Sequence("BINARY_FORMAT", Ref("EqualsSegment"), OneOf("HEX", "BASE64", "UTF8")),
+        Sequence("TRIM_SPACE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
+        Sequence(
+            "FIELD_OPTIONALLY_ENCLOSED_BY",
+            Ref("EqualsSegment"),
+            OneOf(
+                "NONE",
+                Ref("QuotedLiteralSegment"),
+            ),
+        ),
+        Sequence(
+            "NULL_IF",
+            Ref("EqualsSegment"),
+            Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
+        ),
+        Sequence(
+            "ERROR_ON_COLUMN_COUNT_MISMATCH",
+            Ref("EqualsSegment"),
+            Ref("BooleanLiteralGrammar"),
+        ),
+        Sequence(
+            "REPLACE_INVALID_CHARACTERS",
+            Ref("EqualsSegment"),
+            Ref("BooleanLiteralGrammar"),
+        ),
+        Sequence("VALIDATE_UTF8", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
+        Sequence(
+            "EMPTY_FIELD_AS_NULL", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
+        ),
+        Sequence(
+            "SKIP_BYTE_ORDER_MARK", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
+        ),
+        Sequence(
+            "ENCODING",
+            Ref("EqualsSegment"),
+            OneOf(
+                "UTF8",
+                Ref("QuotedLiteralSegment"),
             ),
         ),
     )
