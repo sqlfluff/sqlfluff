@@ -146,8 +146,8 @@ class Rule_L006(BaseRule):
                         )
                         check_before = True
                     if self.matches_target_tuples(trailing, self._target_elems):
-                        after_anchor = trailing
-                        self.logger.debug(
+                        after_anchor = trailing  # pragma: no cover
+                        self.logger.debug(  # pragma: no cover
                             "Found Target [trailing] @%s: %r",
                             after_anchor.pos_marker,
                             after_anchor.raw,
