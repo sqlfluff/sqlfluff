@@ -89,7 +89,7 @@ class Rule_L048(Rule_L006):
         # to have at least three children.
 
         if self._require_three_children and len(context.segment.segments) <= 2:
-            return LintResult()
+            return LintResult()  # pragma: no cover
 
         violations = []
 
