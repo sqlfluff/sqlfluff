@@ -3,21 +3,22 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 57efe01db5aba98c89dc2c3b2f86267b2e7de4a3718810ded92cb83325c4c8b9
+_hash: b16dfd012256a556b2987b513a67526db9dd2bf2a936507fd1ce9d2c719583a2
 file:
 - statement:
     select_statement:
       select_clause:
       - keyword: SELECT
       - select_clause_element:
-          column_reference:
-          - identifier: c
-          - array_accessor:
-              start_square_bracket: '['
-              literal: '0'
-              end_square_bracket: ']'
-          - dot: .
-          - identifier: col
+        - column_reference:
+            identifier: c
+        - array_accessor:
+            start_square_bracket: '['
+            literal: '0'
+            end_square_bracket: ']'
+        - dot: .
+        - column_reference:
+            identifier: col
       - comma: ','
       - select_clause_element:
           column_reference:
@@ -65,13 +66,14 @@ file:
         keyword: WHERE
         expression:
         - column_reference:
-          - identifier: c_orders
-          - array_accessor:
-              start_square_bracket: '['
-              literal: '0'
-              end_square_bracket: ']'
-          - dot: .
-          - identifier: o_orderkey
+            identifier: c_orders
+        - array_accessor:
+            start_square_bracket: '['
+            literal: '0'
+            end_square_bracket: ']'
+        - dot: .
+        - column_reference:
+            identifier: o_orderkey
         - keyword: IS
         - keyword: NOT
         - keyword: 'NULL'
@@ -104,36 +106,38 @@ file:
                   bracketed:
                     start_bracket: (
                     expression:
-                      column_reference:
-                      - identifier: c_orders
-                      - array_accessor:
-                          start_square_bracket: '['
-                          literal: '0'
-                          end_square_bracket: ']'
-                      - dot: .
-                      - identifier: o_orderstatus
+                    - column_reference:
+                        identifier: c_orders
+                    - array_accessor:
+                        start_square_bracket: '['
+                        literal: '0'
+                        end_square_bracket: ']'
+                    - dot: .
+                    - column_reference:
+                        identifier: o_orderstatus
                     end_bracket: )
                 comparison_operator:
                   raw_comparison_operator: '='
                 literal: "'string'"
             - keyword: THEN
             - expression:
-                column_reference:
-                - identifier: c_orders
-                - array_accessor:
-                    start_square_bracket: '['
-                    literal: '0'
-                    end_square_bracket: ']'
-                - dot: .
-                - identifier: o_orderstatus
-                cast_expression:
+              - column_reference:
+                  identifier: c_orders
+              - array_accessor:
+                  start_square_bracket: '['
+                  literal: '0'
+                  end_square_bracket: ']'
+              - dot: .
+              - column_reference:
+                  identifier: o_orderstatus
+              - cast_expression:
                   casting_operator: '::'
                   data_type:
                     keyword: VARCHAR
-                comparison_operator:
+              - comparison_operator:
                 - raw_comparison_operator: <
                 - raw_comparison_operator: '='
-                literal: "'P'"
+              - literal: "'P'"
           - else_clause:
               keyword: ELSE
               expression:
@@ -145,26 +149,27 @@ file:
       select_clause:
       - keyword: SELECT
       - select_clause_element:
-          column_reference:
-          - identifier: c
-          - array_accessor:
-            - start_square_bracket: '['
-            - literal: '0'
-            - end_square_bracket: ']'
-            - start_square_bracket: '['
-            - literal: '1'
-            - end_square_bracket: ']'
-            - start_square_bracket: '['
-            - literal: '2'
-            - end_square_bracket: ']'
-            - start_square_bracket: '['
-            - literal: '3'
-            - end_square_bracket: ']'
-            - start_square_bracket: '['
-            - literal: '4'
-            - end_square_bracket: ']'
-          - dot: .
-          - identifier: col
+        - column_reference:
+            identifier: c
+        - array_accessor:
+          - start_square_bracket: '['
+          - literal: '0'
+          - end_square_bracket: ']'
+          - start_square_bracket: '['
+          - literal: '1'
+          - end_square_bracket: ']'
+          - start_square_bracket: '['
+          - literal: '2'
+          - end_square_bracket: ']'
+          - start_square_bracket: '['
+          - literal: '3'
+          - end_square_bracket: ']'
+          - start_square_bracket: '['
+          - literal: '4'
+          - end_square_bracket: ']'
+        - dot: .
+        - column_reference:
+            identifier: col
       - comma: ','
       - select_clause_element:
           column_reference:
@@ -228,24 +233,26 @@ file:
       select_clause:
       - keyword: SELECT
       - select_clause_element:
-          column_reference:
-          - identifier: messages
-          - array_accessor:
-              start_square_bracket: '['
-              literal: '0'
-              end_square_bracket: ']'
-          - dot: .
-          - identifier: format
+        - column_reference:
+            identifier: messages
+        - array_accessor:
+            start_square_bracket: '['
+            literal: '0'
+            end_square_bracket: ']'
+        - dot: .
+        - column_reference:
+            identifier: format
       - comma: ','
       - select_clause_element:
-          column_reference:
-          - identifier: messages
-          - array_accessor:
-              start_square_bracket: '['
-              literal: '0'
-              end_square_bracket: ']'
-          - dot: .
-          - identifier: topic
+        - column_reference:
+            identifier: messages
+        - array_accessor:
+            start_square_bracket: '['
+            literal: '0'
+            end_square_bracket: ']'
+        - dot: .
+        - column_reference:
+            identifier: topic
       from_clause:
         keyword: FROM
         from_expression:
@@ -256,35 +263,37 @@ file:
       where_clause:
         keyword: WHERE
         expression:
-          column_reference:
-          - identifier: messages
-          - array_accessor:
-              start_square_bracket: '['
-              literal: '0'
-              end_square_bracket: ']'
-          - dot: .
+        - column_reference:
+            identifier: messages
+        - array_accessor:
+            start_square_bracket: '['
+            literal: '0'
+            end_square_bracket: ']'
+        - dot: .
+        - column_reference:
           - identifier: payload
           - dot: .
           - identifier: payload
           - dot: .
           - identifier: '"assetId"'
-          comparison_operator:
+        - comparison_operator:
             raw_comparison_operator: '>'
-          literal: '0'
+        - literal: '0'
 - statement_terminator: ;
 - statement:
     select_statement:
       select_clause:
       - keyword: SELECT
       - select_clause_element:
-          column_reference:
-          - identifier: messages
-          - array_accessor:
-              start_square_bracket: '['
-              literal: '0'
-              end_square_bracket: ']'
-          - dot: .
-          - identifier: format
+        - column_reference:
+            identifier: messages
+        - array_accessor:
+            start_square_bracket: '['
+            literal: '0'
+            end_square_bracket: ']'
+        - dot: .
+        - column_reference:
+            identifier: format
       - comma: ','
       - select_clause_element:
           function:
@@ -293,14 +302,15 @@ file:
             bracketed:
               start_bracket: (
               expression:
-                column_reference:
-                - identifier: messages
-                - array_accessor:
-                    start_square_bracket: '['
-                    literal: '0'
-                    end_square_bracket: ']'
-                - dot: .
-                - identifier: topic
+              - column_reference:
+                  identifier: messages
+              - array_accessor:
+                  start_square_bracket: '['
+                  literal: '0'
+                  end_square_bracket: ']'
+              - dot: .
+              - column_reference:
+                  identifier: topic
               end_bracket: )
       from_clause:
         keyword: FROM
@@ -312,30 +322,32 @@ file:
       where_clause:
         keyword: WHERE
         expression:
-          column_reference:
-          - identifier: messages
-          - array_accessor:
-              start_square_bracket: '['
-              literal: '0'
-              end_square_bracket: ']'
-          - dot: .
-          - identifier: payload
-          - dot: .
-          - identifier: payload
-          - dot: .
-          - identifier: '"assetId"'
-          comparison_operator:
-            raw_comparison_operator: '>'
-          literal: "'abc'"
-      groupby_clause:
-      - keyword: GROUP
-      - keyword: BY
-      - column_reference:
-        - identifier: messages
+        - column_reference:
+            identifier: messages
         - array_accessor:
             start_square_bracket: '['
             literal: '0'
             end_square_bracket: ']'
         - dot: .
-        - identifier: format
+        - column_reference:
+          - identifier: payload
+          - dot: .
+          - identifier: payload
+          - dot: .
+          - identifier: '"assetId"'
+        - comparison_operator:
+            raw_comparison_operator: '>'
+        - literal: "'abc'"
+      groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - column_reference:
+          identifier: messages
+      - array_accessor:
+          start_square_bracket: '['
+          literal: '0'
+          end_square_bracket: ']'
+      - dot: .
+      - column_reference:
+          identifier: format
 - statement_terminator: ;
