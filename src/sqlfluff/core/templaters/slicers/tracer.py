@@ -306,15 +306,19 @@ class JinjaAnalyzer:
         str_parts = []
 
         # https://jinja.palletsprojects.com/en/2.11.x/api/#jinja2.Environment.lex
+        block_idx = 0
         for _, elem_type, raw in self.env.lex(self.raw_str):
             if elem_type == "data":
-                self.track_literal(raw)
+                self.track_literal(raw, block_idx)
                 continue
             str_buff += raw
             str_parts.append(raw)
 
             if elem_type.endswith("_begin"):
-                self.handle_left_whitespace_stripping(raw)
+                self.handle_left_whitespace_stripping(raw, block_idx)
+                block_idx += 1
+            elif elem_type.endswith("_end"):
+                block_idx += 1
 
             raw_slice_info: RawSliceInfo = self.make_raw_slice_info(None, None)
             tag_contents = []
@@ -361,6 +365,7 @@ class JinjaAnalyzer:
                             block_type,
                             self.idx_raw,
                             block_subtype,
+                            block_idx,
                         )
                     )
                     self.raw_slice_info[self.raw_sliced[-1]] = raw_slice_info
@@ -371,6 +376,8 @@ class JinjaAnalyzer:
                             str_buff[-trailing_chars:],
                             "literal",
                             self.idx_raw,
+                            None,
+                            block_idx,
                         )
                     )
                     self.raw_slice_info[
@@ -384,6 +391,7 @@ class JinjaAnalyzer:
                             block_type,
                             self.idx_raw,
                             block_subtype,
+                            block_idx,
                         )
                     )
                     self.raw_slice_info[self.raw_sliced[-1]] = raw_slice_info
@@ -419,13 +427,15 @@ class JinjaAnalyzer:
         )
         return self.make_raw_slice_info(unique_alternate_id, alternate_code)
 
-    def track_literal(self, raw: str) -> None:
+    def track_literal(self, raw: str, block_idx: int) -> None:
         """Set up tracking for a Jinja literal."""
         self.raw_sliced.append(
             RawFileSlice(
                 raw,
                 "literal",
                 self.idx_raw,
+                None,
+                block_idx,
             )
         )
         # Replace literal text with a unique ID.
@@ -525,7 +535,7 @@ class JinjaAnalyzer:
                     ].next_slice_indices.append(self.stack[-1] + 1)
                 self.stack.pop()
 
-    def handle_left_whitespace_stripping(self, token: str) -> None:
+    def handle_left_whitespace_stripping(self, token: str, block_idx: int) -> None:
         """If block open uses whitespace stripping, record it.
 
         When a "begin" tag (whether block, comment, or data) uses whitespace
@@ -565,6 +575,8 @@ class JinjaAnalyzer:
                 "Jinja lex() skipped non-whitespace: %s", skipped_str
             )
         # Treat the skipped whitespace as a literal.
-        self.raw_sliced.append(RawFileSlice(skipped_str, "literal", self.idx_raw))
+        self.raw_sliced.append(
+            RawFileSlice(skipped_str, "literal", self.idx_raw, None, block_idx)
+        )
         self.raw_slice_info[self.raw_sliced[-1]] = self.slice_info_for_literal(0)
         self.idx_raw += num_chars_skipped

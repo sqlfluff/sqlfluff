@@ -23,10 +23,12 @@ def iter_indices_of_newlines(raw_str: str) -> Iterator[int]:
 class RawFileSlice(NamedTuple):
     """A slice referring to a raw file."""
 
-    raw: str
+    raw: str  # Source string
     slice_type: str
-    source_idx: int
+    source_idx: int  # Offset from beginning of source string
     slice_subtype: Optional[str] = None
+    # Block index, incremented on start or end block tags, e.g. "if", "for"
+    block_idx: int = 0
 
     def end_source_idx(self):
         """Return the closing index of this slice."""

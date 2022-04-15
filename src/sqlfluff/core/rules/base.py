@@ -850,6 +850,7 @@ class BaseRule:
                     )
                 )
 
+        # Check for fixes that touch templated code.
         for fix in lint_result.fixes:
             if fix.has_template_conflicts(templated_file):
                 linter_logger.info(
@@ -858,6 +859,19 @@ class BaseRule:
                 )
                 lint_result.fixes = []
                 return
+
+        # Issue 3079: Fixes that span multiple template blocks are dangerous.
+        # Don't permit them.
+        block_indices: Set[int] = set()
+        for fix_slice in fix_slices:
+            block_indices.add(fix_slice.block_idx)
+        if len(block_indices) > 1:
+            linter_logger.info(
+                "      * Discarding fixes that span multiple template blocks: %s",
+                lint_result.fixes,
+            )
+            lint_result.fixes = []
+            return
 
     @classmethod
     def _adjust_anchors_for_fixes(cls, context, lint_result):
