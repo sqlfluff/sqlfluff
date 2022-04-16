@@ -453,7 +453,7 @@ def dump_file_payload(filename: Optional[str], payload: str):
     default="notice",
     type=click.Choice(["notice", "warning", "failure"], case_sensitive=False),
     help=(
-        "When format is set to github-annotation, "
+        "When format is set to github-annotation or github-annotation-native, "
         "default annotation level (default=notice)."
     ),
 )
@@ -582,6 +582,24 @@ def lint(
                     }
                 )
         file_output = json.dumps(github_result)
+    elif format == FormatType.github_annotation_native.value:
+        github_result_native = []
+        for record in result.as_records():
+            filepath = record["filepath"]
+            for violation in record["violations"]:
+                # NOTE: The output format is designed for GitHub action:
+                # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-a-notice-message
+                line = f"::{annotation_level} "
+                line += "title=SQLFluff,"
+                line += f"file={filepath},"
+                line += f"line={violation['line_no']},"
+                line += f"col={violation['line_pos']}"
+                line += "::"
+                line += f"{violation['code']}: {violation['description']}"
+
+                github_result_native.append(line)
+
+        file_output = "\n".join(github_result_native)
 
     if file_output:
         dump_file_payload(write_output, cast(str, file_output))
