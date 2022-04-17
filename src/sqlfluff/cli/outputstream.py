@@ -1,4 +1,4 @@
-"""Classes for managing linter output, used with CallbackFormatter."""
+"""Classes for managing linter output, used with OutputStreamFormatter."""
 import abc
 import os
 from typing import Any, Optional
