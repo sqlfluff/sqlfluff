@@ -451,10 +451,10 @@ def dump_file_payload(filename: Optional[str], payload: str):
 @click.option(
     "--annotation-level",
     default="notice",
-    type=click.Choice(["notice", "warning", "failure"], case_sensitive=False),
+    type=click.Choice(["notice", "warning", "failure", "error"], case_sensitive=False),
     help=(
         "When format is set to github-annotation or github-annotation-native, "
-        "default annotation level (default=notice)."
+        "default annotation level (default=notice). failure and error are equivalent."
     ),
 )
 @click.option(
@@ -562,6 +562,9 @@ def lint(
     elif format == FormatType.yaml.value:
         file_output = yaml.dump(result.as_records(), sort_keys=False)
     elif format == FormatType.github_annotation.value:
+        if annotation_level == "error":
+            annotation_level = "failure"
+
         github_result = []
         for record in result.as_records():
             filepath = record["filepath"]
@@ -583,6 +586,9 @@ def lint(
                 )
         file_output = json.dumps(github_result)
     elif format == FormatType.github_annotation_native.value:
+        if annotation_level == "failure":
+            annotation_level = "error"
+
         github_result_native = []
         for record in result.as_records():
             filepath = record["filepath"]
