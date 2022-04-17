@@ -67,9 +67,5 @@ def make_output_stream(
         if not output_path:
             # Human-format output to stdout.
             return TqdmOutput(config)
-        else:
-            # Human-format output to a file.
-            return FileOutput(config, output_path)
-    else:
-        # Discard output
-        return FileOutput(config, os.devnull)
+    # Human-format output to a file (discard if output_path is None)..
+    return FileOutput(config, output_path or os.devnull)
