@@ -27,7 +27,7 @@ class OutputStream(abc.ABC):
 
     def __exit__(self, type, value, traceback):
         if self.context:
-            self.context.__exit__()
+            self.context.__exit__(type, value, traceback)
 
 
 class TqdmOutput(OutputStream):
