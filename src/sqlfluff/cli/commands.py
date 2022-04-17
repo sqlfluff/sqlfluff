@@ -1,6 +1,7 @@
 """Contains the CLI."""
 
 from itertools import chain
+import os
 import sys
 import json
 import logging
@@ -684,7 +685,8 @@ def fix(
         extra_config_path, ignore_local_config, require_dialect=False, **kwargs
     )
     fix_even_unparsable = config.get("fix_even_unparsable")
-    lnt, formatter = get_linter_and_formatter(config)
+    output_stream = make_output_stream(config, None, os.devnull)
+    lnt, formatter = get_linter_and_formatter(config, output_stream)
 
     verbose = config.get("verbose")
     progress_bar_configuration.disable_progress_bar = disable_progress_bar
