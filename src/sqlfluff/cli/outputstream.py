@@ -18,7 +18,7 @@ class OutputStream(abc.ABC):
 
     def write(self, message: str) -> None:
         """Write message to output."""
-        pass
+        raise NotImplementedError  # pragma: no cover
 
     def close(self):
         """Close output stream."""
