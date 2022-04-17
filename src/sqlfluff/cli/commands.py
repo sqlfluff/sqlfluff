@@ -685,7 +685,9 @@ def fix(
         extra_config_path, ignore_local_config, require_dialect=False, **kwargs
     )
     fix_even_unparsable = config.get("fix_even_unparsable")
-    output_stream = make_output_stream(config, None, os.devnull)
+    output_stream = make_output_stream(
+        config, None, os.devnull if fixing_stdin else None
+    )
     lnt, formatter = get_linter_and_formatter(config, output_stream)
 
     verbose = config.get("verbose")
