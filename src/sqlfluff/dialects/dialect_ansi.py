@@ -375,6 +375,7 @@ ansi_dialect.add(
         Ref("BitwiseLShiftSegment"),
         Ref("BitwiseRShiftSegment"),
     ),
+    SignedSegmentGrammar=OneOf(Ref("PositiveSegment"), Ref("NegativeSegment")),
     StringBinaryOperatorGrammar=OneOf(Ref("ConcatSegment")),
     BooleanBinaryOperatorGrammar=OneOf(
         Ref("AndKeywordSegment"), Ref("OrKeywordSegment")
@@ -930,7 +931,7 @@ class QualifiedNumericLiteralSegment(BaseSegment):
 
     type = "numeric_literal"
     match_grammar: Matchable = Sequence(
-        OneOf(Ref("PlusSegment"), Ref("MinusSegment")),
+        Ref("SignedSegmentGrammar"),
         Ref("NumericLiteralSegment"),
         allow_gaps=False,
     )
@@ -1611,8 +1612,7 @@ ansi_dialect.add(
             Ref("Expression_C_Grammar"),
             Sequence(
                 OneOf(
-                    Ref("PositiveSegment"),
-                    Ref("NegativeSegment"),
+                    Ref("SignedSegmentGrammar"),
                     # Ref('TildeSegment'),
                     "NOT",
                     "PRIOR",
@@ -1690,10 +1690,7 @@ ansi_dialect.add(
         OneOf(
             Ref("Expression_C_Grammar"),
             Sequence(
-                OneOf(
-                    Ref("PositiveSegment"),
-                    Ref("NegativeSegment"),
-                ),
+                Ref("SignedSegmentGrammar"),
                 Ref("Expression_B_Grammar"),
             ),
         ),

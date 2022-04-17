@@ -967,7 +967,9 @@ def test__cli__command_fail_nice_not_found(command):
     assert "could not be accessed" in result.output
 
 
-@pytest.mark.parametrize("serialize", ["yaml", "json", "github-annotation"])
+@pytest.mark.parametrize(
+    "serialize", ["yaml", "json", "github-annotation", "github-annotation-native"]
+)
 @pytest.mark.parametrize("write_file", [None, "outfile"])
 def test__cli__command_lint_serialize_multiple_files(serialize, write_file, tmp_path):
     """Check the general format of JSON output for multiple files.
@@ -1012,6 +1014,12 @@ def test__cli__command_lint_serialize_multiple_files(serialize, write_file, tmp_
         result = json.loads(result_payload)
         filepaths = {r["file"] for r in result}
         assert len(filepaths) == 1
+    elif serialize == "github-annotation-native":
+        result = result_payload.split("\n")
+        # SQLFluff produces trailing newline
+        if result[-1] == "":
+            del result[-1]
+        assert len(result) == 24
     else:
         raise Exception
 
@@ -1122,6 +1130,89 @@ def test__cli__command_lint_serialize_github_annotation():
             "title": "SQLFluff",
         },
     ]
+
+
+def test__cli__command_lint_serialize_github_annotation_native():
+    """Test format of github-annotation output."""
+    fpath = "test/fixtures/linter/identifier_capitalisation.sql"
+    # Normalise paths to control for OS variance
+    fpath_normalised = os.path.normpath(fpath)
+
+    result = invoke_assert_code(
+        args=[
+            lint,
+            (
+                fpath,
+                "--format",
+                "github-annotation-native",
+                "--annotation-level",
+                "error",
+                "--disable_progress_bar",
+            ),
+        ],
+        ret_code=65,
+    )
+
+    assert result.output == "\n".join(
+        [
+            f"::error title=SQLFluff,file={fpath_normalised},line=1,col=1::"
+            "L036: Select targets should be on a new line unless there is only one "
+            "select target.",
+            f"::error title=SQLFluff,file={fpath_normalised},line=2,col=5::"
+            "L027: Unqualified reference 'foo' found in select with more than one "
+            "referenced table/view.",
+            f"::error title=SQLFluff,file={fpath_normalised},line=3,col=5::"
+            "L012: Implicit/explicit aliasing of columns.",
+            f"::error title=SQLFluff,file={fpath_normalised},line=3,col=5::"
+            "L014: Unquoted identifiers must be consistently lower case.",
+            f"::error title=SQLFluff,file={fpath_normalised},line=4,col=1::"
+            "L010: Keywords must be consistently lower case.",
+            f"::error title=SQLFluff,file={fpath_normalised},line=4,col=12::"
+            "L014: Unquoted identifiers must be consistently lower case.",
+            f"::error title=SQLFluff,file={fpath_normalised},line=4,col=18::"
+            "L014: Unquoted identifiers must be consistently lower case.",
+            "",  # SQLFluff produces trailing newline
+        ]
+    )
+
+
+@pytest.mark.parametrize("serialize", ["github-annotation", "github-annotation-native"])
+def test__cli__command_lint_serialize_annotation_level_error_failure_equivalent(
+    serialize,
+):
+    """Test format of github-annotation output."""
+    fpath = "test/fixtures/linter/identifier_capitalisation.sql"
+    result_error = invoke_assert_code(
+        args=[
+            lint,
+            (
+                fpath,
+                "--format",
+                serialize,
+                "--annotation-level",
+                "error",
+                "--disable_progress_bar",
+            ),
+        ],
+        ret_code=65,
+    )
+
+    result_failure = invoke_assert_code(
+        args=[
+            lint,
+            (
+                fpath,
+                "--format",
+                serialize,
+                "--annotation-level",
+                "failure",
+                "--disable_progress_bar",
+            ),
+        ],
+        ret_code=65,
+    )
+
+    assert result_error.output == result_failure.output
 
 
 def test___main___help():
