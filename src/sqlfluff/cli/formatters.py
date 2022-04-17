@@ -2,7 +2,7 @@
 
 
 from io import StringIO
-from typing import Callable, List, Union
+from typing import List, Union
 
 from sqlfluff.cli.helpers import (
     colorize,
@@ -12,6 +12,7 @@ from sqlfluff.cli.helpers import (
     get_python_implementation,
     pad_line,
 )
+from sqlfluff.cli.outputstream import OutputStream
 from sqlfluff.core import SQLBaseError, FluffConfig, Linter
 from sqlfluff.core.enums import Color
 from sqlfluff.core.linter import LintedFile
@@ -199,8 +200,8 @@ def format_dialect_warning():  # pragma: no cover
     )
 
 
-class CallbackFormatter:
-    """Formatter which uses a callback to output information.
+class OutputStreamFormatter:
+    """Formatter which writes to an OutputStream.
 
     On instantiation, this formatter accepts a function to
     dispatch messages. Each public method accepts an object
@@ -212,23 +213,20 @@ class CallbackFormatter:
 
 
     Args:
-        callback (:obj:`callable`): A callable which can be
-            be called with a string to be output.
-        verbosity (:obj:`int`): An integer specifying how
-            verbose the output should be.
-        filter_empty (:obj:`bool`): If True, empty messages
-            will not be dispatched.
-
+        output_stream: Output is sent here
+        verbosity: Specifies how verbose output should be
+        filter_empty: If True, empty messages will not be dispatched
+        output_line_length: Maximum line length
     """
 
     def __init__(
         self,
-        callback: Callable,
+        output_stream: OutputStream,
         verbosity: int = 0,
         filter_empty: bool = True,
         output_line_length: int = 80,
     ):
-        self._callback = callback
+        self._output_stream = output_stream
         self._verbosity = verbosity
         self._filter_empty = filter_empty
         self.output_line_length = output_line_length
@@ -240,7 +238,7 @@ class CallbackFormatter:
         """
         # The strip here is to filter out any empty messages
         if (not self._filter_empty) or s.strip(" \n\t"):
-            self._callback(s)
+            self._output_stream(s)
 
     def _format_config(self, linter: Linter) -> str:
         """Format the config of a `Linter`."""

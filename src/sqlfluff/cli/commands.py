@@ -29,9 +29,10 @@ from sqlfluff.cli.formatters import (
     colorize,
     format_dialect_warning,
     format_dialects,
-    CallbackFormatter,
+    OutputStreamFormatter,
 )
 from sqlfluff.cli.helpers import cli_table, get_package_version
+from sqlfluff.cli.outputstream import make_output_stream, OutputStream
 
 # Import from sqlfluff core.
 from sqlfluff.core import (
@@ -332,28 +333,9 @@ def get_config(
         sys.exit(66)
 
 
-def _callback_handler(cfg: FluffConfig) -> Callable:
-    """Returns function which will be bound as a callback for printing passed message.
-
-    Called in `get_linter_and_formatter`.
-    """
-
-    def _echo_with_tqdm_lock(message: str) -> None:
-        """Makes sure that message printing (echoing) will be not in conflict with tqdm.
-
-        It may happen that progressbar conflicts with extra printing. Nothing very
-        serious happens then, except that there is printed (not removed) progressbar
-        line. The `external_write_mode` allows to disable tqdm for writing time.
-        """
-        with tqdm.external_write_mode():
-            click.echo(message=message, color=cfg.get("color"))
-
-    return _echo_with_tqdm_lock
-
-
 def get_linter_and_formatter(
-    cfg: FluffConfig, silent: bool = False
-) -> Tuple[Linter, CallbackFormatter]:
+    cfg: FluffConfig, output_stream: Optional[OutputStream] = None
+) -> Tuple[Linter, OutputStreamFormatter]:
     """Get a linter object given a config."""
     try:
         # We're just making sure it exists at this stage.
@@ -364,20 +346,12 @@ def get_linter_and_formatter(
     except KeyError:  # pragma: no cover
         click.echo(f"Error: Unknown dialect '{cfg.get('dialect')}'")
         sys.exit(66)
-
-    if not silent:
-        # Instantiate the linter and return it (with an output function)
-        formatter = CallbackFormatter(
-            callback=_callback_handler(cfg=cfg),
-            verbosity=cfg.get("verbose"),
-            output_line_length=cfg.get("output_line_length"),
-        )
-        return Linter(config=cfg, formatter=formatter), formatter
-    else:
-        # Instantiate the linter and return. NB: No formatter
-        # in the Linter and a black formatter otherwise.
-        formatter = CallbackFormatter(callback=lambda m: None, verbosity=0)
-        return Linter(config=cfg), formatter
+    formatter = OutputStreamFormatter(
+        output_stream=output_stream or make_output_stream(cfg),
+        verbosity=cfg.get("verbose"),
+        output_line_length=cfg.get("output_line_length"),
+    )
+    return Linter(config=cfg, formatter=formatter), formatter
 
 
 @click.group(context_settings={"help_option_names": ["-h", "--help"]})
@@ -521,7 +495,8 @@ def lint(
     )
     non_human_output = (format != FormatType.human.value) or (write_output is not None)
     file_output = None
-    lnt, formatter = get_linter_and_formatter(config, silent=non_human_output)
+    output_stream = make_output_stream(config, format, write_output)
+    lnt, formatter = get_linter_and_formatter(config, output_stream)
 
     verbose = config.get("verbose")
     progress_bar_configuration.disable_progress_bar = disable_progress_bar
@@ -709,7 +684,8 @@ def fix(
         extra_config_path, ignore_local_config, require_dialect=False, **kwargs
     )
     fix_even_unparsable = config.get("fix_even_unparsable")
-    lnt, formatter = get_linter_and_formatter(config, silent=fixing_stdin)
+    output_stream = make_output_stream(config)
+    lnt, formatter = get_linter_and_formatter(config, output_stream)
 
     verbose = config.get("verbose")
     progress_bar_configuration.disable_progress_bar = disable_progress_bar
@@ -950,7 +926,8 @@ def parse(
     # We don't want anything else to be logged if we want json or yaml output
     # unless we're writing to a file.
     non_human_output = (format != FormatType.human.value) or (write_output is not None)
-    lnt, formatter = get_linter_and_formatter(c, silent=non_human_output)
+    output_stream = make_output_stream(c, format, write_output)
+    lnt, formatter = get_linter_and_formatter(c, output_stream)
     verbose = c.get("verbose")
     recurse = c.get("recurse")
 
@@ -996,7 +973,7 @@ def parse(
         # iterative print for human readout
         if format == FormatType.human.value:
             violations_count = _print_out_violations_and_timing(
-                bench, code_only, total_time, verbose, parsed_strings
+                output_stream, bench, code_only, total_time, verbose, parsed_strings
             )
         else:
             parsed_strings_dict = [
@@ -1048,6 +1025,7 @@ def parse(
 
 
 def _print_out_violations_and_timing(
+    output_stream: OutputStream,
     bench: bool,
     code_only: bool,
     total_time: float,
@@ -1062,30 +1040,30 @@ def _print_out_violations_and_timing(
         timing.add(parsed_string.time_dict)
 
         if parsed_string.tree:
-            click.echo(parsed_string.tree.stringify(code_only=code_only))
+            output_stream(parsed_string.tree.stringify(code_only=code_only))
         else:
             # TODO: Make this prettier
-            click.echo("...Failed to Parse...")  # pragma: no cover
+            output_stream("...Failed to Parse...")  # pragma: no cover
 
         violations_count += len(parsed_string.violations)
         if parsed_string.violations:
-            click.echo("==== parsing violations ====")  # pragma: no cover
+            output_stream("==== parsing violations ====")  # pragma: no cover
         for v in parsed_string.violations:
-            click.echo(format_violation(v))  # pragma: no cover
+            output_stream(format_violation(v))  # pragma: no cover
         if parsed_string.violations and parsed_string.config.get("dialect") == "ansi":
-            click.echo(format_dialect_warning())  # pragma: no cover
+            output_stream(format_dialect_warning())  # pragma: no cover
 
         if verbose >= 2:
-            click.echo("==== timings ====")
-            click.echo(cli_table(parsed_string.time_dict.items()))
+            output_stream("==== timings ====")
+            output_stream(cli_table(parsed_string.time_dict.items()))
 
     if verbose >= 2 or bench:
-        click.echo("==== overall timings ====")
-        click.echo(cli_table([("Clock time", total_time)]))
+        output_stream("==== overall timings ====")
+        output_stream(cli_table([("Clock time", total_time)]))
         timing_summary = timing.summary()
         for step in timing_summary:
-            click.echo(f"=== {step} ===")
-            click.echo(cli_table(timing_summary[step].items()))
+            output_stream(f"=== {step} ===")
+            output_stream(cli_table(timing_summary[step].items()))
 
     return violations_count
 
