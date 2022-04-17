@@ -451,10 +451,10 @@ def dump_file_payload(filename: Optional[str], payload: str):
 @click.option(
     "--annotation-level",
     default="notice",
-    type=click.Choice(["notice", "warning", "failure"], case_sensitive=False),
+    type=click.Choice(["notice", "warning", "failure", "error"], case_sensitive=False),
     help=(
-        "When format is set to github-annotation, "
-        "default annotation level (default=notice)."
+        "When format is set to github-annotation or github-annotation-native, "
+        "default annotation level (default=notice). failure and error are equivalent."
     ),
 )
 @click.option(
@@ -562,6 +562,9 @@ def lint(
     elif format == FormatType.yaml.value:
         file_output = yaml.dump(result.as_records(), sort_keys=False)
     elif format == FormatType.github_annotation.value:
+        if annotation_level == "error":
+            annotation_level = "failure"
+
         github_result = []
         for record in result.as_records():
             filepath = record["filepath"]
@@ -582,6 +585,27 @@ def lint(
                     }
                 )
         file_output = json.dumps(github_result)
+    elif format == FormatType.github_annotation_native.value:
+        if annotation_level == "failure":
+            annotation_level = "error"
+
+        github_result_native = []
+        for record in result.as_records():
+            filepath = record["filepath"]
+            for violation in record["violations"]:
+                # NOTE: The output format is designed for GitHub action:
+                # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-a-notice-message
+                line = f"::{annotation_level} "
+                line += "title=SQLFluff,"
+                line += f"file={filepath},"
+                line += f"line={violation['line_no']},"
+                line += f"col={violation['line_pos']}"
+                line += "::"
+                line += f"{violation['code']}: {violation['description']}"
+
+                github_result_native.append(line)
+
+        file_output = "\n".join(github_result_native)
 
     if file_output:
         dump_file_payload(write_output, cast(str, file_output))
