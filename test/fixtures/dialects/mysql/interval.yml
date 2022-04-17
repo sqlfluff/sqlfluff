@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 16fde14028919875d259e244f9620226a249cd1f78ee8a5eeaaa97160399107a
+_hash: c97934eaf51f702823f4320a83bbbf734e8951c88f92d3c81e24a16d19ac5273
 file:
 - statement:
     select_statement:
@@ -28,7 +28,7 @@ file:
                   keyword: INTERVAL
                   expression:
                     numeric_literal:
-                      binary_operator: '-'
+                      sign_indicator: '-'
                       literal: '30'
                   date_part: DAY
             - end_bracket: )
@@ -77,7 +77,7 @@ file:
                   keyword: INTERVAL
                   expression:
                     numeric_literal:
-                      binary_operator: '-'
+                      sign_indicator: '-'
                       literal: '30'
                   date_part: DAY
             - end_bracket: )
