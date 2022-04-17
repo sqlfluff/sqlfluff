@@ -23,10 +23,12 @@ def iter_indices_of_newlines(raw_str: str) -> Iterator[int]:
 class RawFileSlice(NamedTuple):
     """A slice referring to a raw file."""
 
-    raw: str
+    raw: str  # Source string
     slice_type: str
-    source_idx: int
+    source_idx: int  # Offset from beginning of source string
     slice_subtype: Optional[str] = None
+    # Block index, incremented on start or end block tags, e.g. "if", "for"
+    block_idx: int = 0
 
     def end_source_idx(self):
         """Return the closing index of this slice."""
@@ -35,6 +37,10 @@ class RawFileSlice(NamedTuple):
     def source_slice(self):
         """Return the a slice object for this slice."""
         return slice(self.source_idx, self.end_source_idx())
+
+    def is_source_only_slice(self):
+        """Based on its slice_type, does it only appear in the *source*?"""
+        return self.slice_type in ("comment", "block_end", "block_start", "block_mid")
 
 
 class TemplatedFileSlice(NamedTuple):
@@ -384,7 +390,7 @@ class TemplatedFile:
         """
         ret_buff = []
         for elem in self.raw_sliced:
-            if elem.slice_type in ("comment", "block_end", "block_start", "block_mid"):
+            if elem.is_source_only_slice():
                 ret_buff.append(elem)
         return ret_buff
 
