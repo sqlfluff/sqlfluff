@@ -238,7 +238,7 @@ class OutputStreamFormatter:
         """
         # The strip here is to filter out any empty messages
         if (not self._filter_empty) or s.strip(" \n\t"):
-            self._output_stream(s)
+            self._output_stream.write(s)
 
     def _format_config(self, linter: Linter) -> str:
         """Format the config of a `Linter`."""

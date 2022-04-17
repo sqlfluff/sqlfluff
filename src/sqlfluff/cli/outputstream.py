@@ -15,19 +15,14 @@ class OutputStream(abc.ABC):
 
     def __init__(self, config: FluffConfig, context: Any = None):
         self.config = config
-        self.context = context
 
-    def __call__(self, message: str) -> None:
+    def write(self, message: str) -> None:
         """Write message to output."""
         pass
 
-    def __enter__(self):
-        if self.context:
-            self.context.__enter__()
-
-    def __exit__(self, type, value, traceback):
-        if self.context:
-            self.context.__exit__(type, value, traceback)
+    def close(self):
+        """Close output stream."""
+        pass
 
 
 class TqdmOutput(OutputStream):
@@ -39,22 +34,28 @@ class TqdmOutput(OutputStream):
     """
 
     def __init__(self, config: FluffConfig):
-        super().__init__(config, context=tqdm.external_write_mode())
+        super().__init__(config)
 
-    def __call__(self, message: str) -> None:
+    def write(self, message: str) -> None:
         """Write message to stdout."""
-        click.echo(message=message, color=self.config.get("color"))
+        with tqdm.external_write_mode():
+            click.echo(message=message, color=self.config.get("color"))
 
 
 class FileOutput(OutputStream):
     """Outputs to a specified file."""
 
     def __init__(self, config: FluffConfig, output_path: str):
-        super().__init__(config, context=open(output_path, "w"))
+        super().__init__(config)
+        self.file = open(output_path, "w")
 
-    def __call__(self, message: str) -> None:
+    def write(self, message: str) -> None:
         """Write message to output_path."""
-        print(message, file=self.context)
+        print(message, file=self.file)
+
+    def close(self):
+        """Close output file."""
+        self.file.close()
 
 
 def make_output_stream(

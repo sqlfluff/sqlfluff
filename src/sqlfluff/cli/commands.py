@@ -502,84 +502,82 @@ def lint(
     verbose = config.get("verbose")
     progress_bar_configuration.disable_progress_bar = disable_progress_bar
 
-    with output_stream:
-        formatter.dispatch_config(lnt)
+    formatter.dispatch_config(lnt)
 
-        # Set up logging.
-        set_logging_level(
-            verbosity=verbose, logger=logger, stderr_output=non_human_output
-        )
-        # add stdin if specified via lone '-'
-        if ("-",) == paths:
-            result = lnt.lint_string_wrapped(sys.stdin.read(), fname="stdin")
-        else:
-            # Output the results as we go
-            if verbose >= 1:
-                click.echo(format_linting_result_header())
-            try:
-                result = lnt.lint_paths(
-                    paths,
-                    ignore_non_existent_files=False,
-                    ignore_files=not disregard_sqlfluffignores,
-                    processes=processes,
+    # Set up logging.
+    set_logging_level(verbosity=verbose, logger=logger, stderr_output=non_human_output)
+    # add stdin if specified via lone '-'
+    if ("-",) == paths:
+        result = lnt.lint_string_wrapped(sys.stdin.read(), fname="stdin")
+    else:
+        # Output the results as we go
+        if verbose >= 1:
+            click.echo(format_linting_result_header())
+        try:
+            result = lnt.lint_paths(
+                paths,
+                ignore_non_existent_files=False,
+                ignore_files=not disregard_sqlfluffignores,
+                processes=processes,
+            )
+        except OSError:
+            click.echo(
+                colorize(
+                    f"The path(s) '{paths}' could not be accessed. Check it/they "
+                    "exist(s).",
+                    Color.red,
                 )
-            except OSError:
-                click.echo(
-                    colorize(
-                        f"The path(s) '{paths}' could not be accessed. Check it/they "
-                        "exist(s).",
-                        Color.red,
-                    )
+            )
+            sys.exit(1)
+        # Output the final stats
+        if verbose >= 1:
+            click.echo(format_linting_stats(result, verbose=verbose))
+
+    if format == FormatType.json.value:
+        file_output = json.dumps(result.as_records())
+    elif format == FormatType.yaml.value:
+        file_output = yaml.dump(result.as_records(), sort_keys=False)
+    elif format == FormatType.github_annotation.value:
+        github_result = []
+        for record in result.as_records():
+            filepath = record["filepath"]
+            for violation in record["violations"]:
+                # NOTE: The output format is designed for this GitHub action:
+                # https://github.com/yuzutech/annotations-action
+                # It is similar, but not identical, to the native GitHub format:
+                # https://docs.github.com/en/rest/reference/checks#annotations-items
+                github_result.append(
+                    {
+                        "file": filepath,
+                        "line": violation["line_no"],
+                        "start_column": violation["line_pos"],
+                        "end_column": violation["line_pos"],
+                        "title": "SQLFluff",
+                        "message": f"{violation['code']}: "
+                        f"{violation['description']}",
+                        "annotation_level": annotation_level,
+                    }
                 )
-                sys.exit(1)
-            # Output the final stats
-            if verbose >= 1:
-                click.echo(format_linting_stats(result, verbose=verbose))
+        file_output = json.dumps(github_result)
 
-        if format == FormatType.json.value:
-            file_output = json.dumps(result.as_records())
-        elif format == FormatType.yaml.value:
-            file_output = yaml.dump(result.as_records(), sort_keys=False)
-        elif format == FormatType.github_annotation.value:
-            github_result = []
-            for record in result.as_records():
-                filepath = record["filepath"]
-                for violation in record["violations"]:
-                    # NOTE: The output format is designed for this GitHub action:
-                    # https://github.com/yuzutech/annotations-action
-                    # It is similar, but not identical, to the native GitHub format:
-                    # https://docs.github.com/en/rest/reference/checks#annotations-items
-                    github_result.append(
-                        {
-                            "file": filepath,
-                            "line": violation["line_no"],
-                            "start_column": violation["line_pos"],
-                            "end_column": violation["line_pos"],
-                            "title": "SQLFluff",
-                            "message": f"{violation['code']}: "
-                            f"{violation['description']}",
-                            "annotation_level": annotation_level,
-                        }
-                    )
-            file_output = json.dumps(github_result)
+    if file_output:
+        dump_file_payload(write_output, cast(str, file_output))
 
-        if file_output:
-            dump_file_payload(write_output, cast(str, file_output))
+    output_stream.close()
+    if bench:
+        click.echo("==== overall timings ====")
+        click.echo(cli_table([("Clock time", result.total_time)]))
+        timing_summary = result.timing_summary()
+        for step in timing_summary:
+            click.echo(f"=== {step} ===")
+            click.echo(cli_table(timing_summary[step].items()))
 
-        if bench:
-            click.echo("==== overall timings ====")
-            click.echo(cli_table([("Clock time", result.total_time)]))
-            timing_summary = result.timing_summary()
-            for step in timing_summary:
-                click.echo(f"=== {step} ===")
-                click.echo(cli_table(timing_summary[step].items()))
-
-        if not nofail:
-            if not non_human_output:
-                _completion_message(config)
-            sys.exit(result.stats()["exit code"])
-        else:
-            sys.exit(0)
+    if not nofail:
+        if not non_human_output:
+            _completion_message(config)
+        sys.exit(result.stats()["exit code"])
+    else:
+        sys.exit(0)
 
 
 def _handle_files_with_tmp_or_prs_errors(lint_result: LintingResult) -> int:
@@ -1047,30 +1045,30 @@ def _print_out_violations_and_timing(
         timing.add(parsed_string.time_dict)
 
         if parsed_string.tree:
-            output_stream(parsed_string.tree.stringify(code_only=code_only))
+            output_stream.write(parsed_string.tree.stringify(code_only=code_only))
         else:
             # TODO: Make this prettier
-            output_stream("...Failed to Parse...")  # pragma: no cover
+            output_stream.write("...Failed to Parse...")  # pragma: no cover
 
         violations_count += len(parsed_string.violations)
         if parsed_string.violations:
-            output_stream("==== parsing violations ====")  # pragma: no cover
+            output_stream.write("==== parsing violations ====")  # pragma: no cover
         for v in parsed_string.violations:
-            output_stream(format_violation(v))  # pragma: no cover
+            output_stream.write(format_violation(v))  # pragma: no cover
         if parsed_string.violations and parsed_string.config.get("dialect") == "ansi":
-            output_stream(format_dialect_warning())  # pragma: no cover
+            output_stream.write(format_dialect_warning())  # pragma: no cover
 
         if verbose >= 2:
-            output_stream("==== timings ====")
-            output_stream(cli_table(parsed_string.time_dict.items()))
+            output_stream.write("==== timings ====")
+            output_stream.write(cli_table(parsed_string.time_dict.items()))
 
     if verbose >= 2 or bench:
-        output_stream("==== overall timings ====")
-        output_stream(cli_table([("Clock time", total_time)]))
+        output_stream.write("==== overall timings ====")
+        output_stream.write(cli_table([("Clock time", total_time)]))
         timing_summary = timing.summary()
         for step in timing_summary:
-            output_stream(f"=== {step} ===")
-            output_stream(cli_table(timing_summary[step].items()))
+            output_stream.write(f"=== {step} ===")
+            output_stream.write(cli_table(timing_summary[step].items()))
 
     return violations_count
 
