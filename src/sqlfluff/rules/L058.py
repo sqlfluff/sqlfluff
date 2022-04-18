@@ -53,6 +53,9 @@ class Rule_L058(BaseRule):
             )
             expression_children = case1_else_expressions.children()
             case2 = expression_children.select(sp.is_type("case_expression"))
+            # The len() checks below are for safety, to ensure the CASE inside
+            # the ELSE is not part of a larger expression. In that case, it's
+            # not safe to simplify in this way -- we'd be deleting other code.
             if (
                 not case1_last_when
                 or len(case1_else_expressions) > 1
