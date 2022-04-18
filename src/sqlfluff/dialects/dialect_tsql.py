@@ -256,12 +256,6 @@ tsql_dialect.replace(
         Ref("DatatypeSegment"),
         Sequence(Ref("EqualsSegment"), Ref("ExpressionSegment"), optional=True),
     ),
-    FunctionNameIdentifierSegment=RegexParser(
-        r"[A-Z][A-Z0-9_]*|\[[A-Z][A-Z0-9_]*\]",
-        CodeSegment,
-        name="function_name_identifier",
-        type="function_name_identifier",
-    ),
     # Override ANSI IsClauseGrammar to remove TSQL non-keyword NAN
     IsClauseGrammar=OneOf(
         "NULL",
@@ -1983,6 +1977,28 @@ class PartitionSchemeClause(BaseSegment):
         Bracketed(Ref("ColumnReferenceSegment")),
     )
 
+
+class FunctionNameIdentifierSegment(BaseSegment):
+    """A function name.
+
+    Overriding ANSI since, in general, TSQL names functions the same way
+    as any other identifier.
+    """
+
+    type="function_name_identifier"
+
+    match_grammar = OneOf(
+            Ref("SingleIdentifierGrammar"),
+            "COALESCE",
+            "CONVERT",
+            "CURRENT_TIMESTAMP",
+            "CURRENT_USER",
+            "LEFT",
+            "NULLIF",
+            "RIGHT",
+            "SESSION_USER",
+            "SYSTEM_USER",
+        )
 
 class FunctionSegment(BaseSegment):
     """A scalar or aggregate function.

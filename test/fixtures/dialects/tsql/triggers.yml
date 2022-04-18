@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 23ac2a1432d1d9a9d3d1082d960b7377edb1c61437200d966cf7c4dd2bd5e5fc
+_hash: 35370c3a910582723b90763a7f3982543d12d4df93141be75fa5a0ab84171831
 file:
 - batch:
     statement:
@@ -113,7 +113,8 @@ file:
                   expression:
                     function:
                       function_name:
-                        function_name_identifier: ROWCOUNT_BIG
+                        function_name_identifier:
+                          identifier: ROWCOUNT_BIG
                       bracketed:
                         start_bracket: (
                         end_bracket: )
@@ -361,7 +362,8 @@ file:
                   expression:
                   - function:
                       function_name:
-                        function_name_identifier: ORIGINAL_LOGIN
+                        function_name_identifier:
+                          identifier: ORIGINAL_LOGIN
                       bracketed:
                         start_bracket: (
                         end_bracket: )
@@ -378,7 +380,8 @@ file:
                             select_clause_element:
                               function:
                                 function_name:
-                                  function_name_identifier: COUNT
+                                  function_name_identifier:
+                                    identifier: COUNT
                                 bracketed:
                                   start_bracket: (
                                   star: '*'
@@ -453,7 +456,8 @@ file:
                 expression:
                   function:
                     function_name:
-                      function_name_identifier: Getdate
+                      function_name_identifier:
+                        identifier: Getdate
                     bracketed:
                       start_bracket: (
                       end_bracket: )
@@ -543,7 +547,8 @@ file:
                 expression:
                   function:
                     function_name:
-                      function_name_identifier: sysdatetime
+                      function_name_identifier:
+                        identifier: sysdatetime
                     bracketed:
                       start_bracket: (
                       end_bracket: )

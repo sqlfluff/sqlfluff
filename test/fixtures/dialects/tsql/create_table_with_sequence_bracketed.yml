@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e1c1f4d96321835b7782bb39121ae2c66a14483e6981eb8fb9226b9a457e44d0
+_hash: cd40732d74b1aedf47a8654fbda33571bd5bafe7408ceb82a3304a83bf05122a
 file:
 - batch:
     statement:
@@ -40,7 +40,8 @@ file:
                       raw_comparison_operator: '='
                   - function:
                       function_name:
-                        function_name_identifier: OBJECT_ID
+                        function_name_identifier:
+                          identifier: OBJECT_ID
                       bracketed:
                         start_bracket: (
                         expression:
@@ -164,7 +165,8 @@ file:
               keyword: DEFAULT
               function:
                 function_name:
-                  function_name_identifier: GETDATE
+                  function_name_identifier:
+                    identifier: GETDATE
                 bracketed:
                   start_bracket: (
                   end_bracket: )
@@ -204,7 +206,8 @@ file:
                       raw_comparison_operator: '='
                   - function:
                       function_name:
-                        function_name_identifier: OBJECT_ID
+                        function_name_identifier:
+                          identifier: OBJECT_ID
                       bracketed:
                         start_bracket: (
                         expression:
@@ -422,7 +425,8 @@ file:
               keyword: DEFAULT
               function:
                 function_name:
-                  function_name_identifier: GETDATE
+                  function_name_identifier:
+                    identifier: GETDATE
                 bracketed:
                   start_bracket: (
                   end_bracket: )
@@ -585,7 +589,8 @@ file:
               keyword: DEFAULT
               function:
                 function_name:
-                  function_name_identifier: GETDATE
+                  function_name_identifier:
+                    identifier: GETDATE
                 bracketed:
                   start_bracket: (
                   end_bracket: )

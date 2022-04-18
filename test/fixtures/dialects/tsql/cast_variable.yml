@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 03a0841edd11332238c135bbe9bd530deaeec17853cf68f61f28fc9495987d19
+_hash: 5b18cc67450a02cc518543f4bad9a60eefd95180f16f40f44c9ae9af69954d70
 file:
   batch:
   - statement:
@@ -17,7 +17,8 @@ file:
         expression:
           function:
             function_name:
-              function_name_identifier: ISNULL
+              function_name_identifier:
+                identifier: ISNULL
             bracketed:
             - start_bracket: (
             - expression:
@@ -25,13 +26,15 @@ file:
                   function_name:
                     identifier: Shared
                     dot: .
-                    function_name_identifier: GetESTDateTime
+                    function_name_identifier:
+                      identifier: GetESTDateTime
                   bracketed:
                     start_bracket: (
                     expression:
                       function:
                         function_name:
-                          function_name_identifier: GETDATE
+                          function_name_identifier:
+                            identifier: GETDATE
                         bracketed:
                           start_bracket: (
                           end_bracket: )
@@ -40,7 +43,8 @@ file:
             - expression:
                 function:
                   function_name:
-                    function_name_identifier: GETDATE
+                    function_name_identifier:
+                      identifier: GETDATE
                   bracketed:
                     start_bracket: (
                     end_bracket: )

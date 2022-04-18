@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 67c7d072ec1b8d46101b5506ae2887a234167f679c0e241c76eb32101016d921
+_hash: 3c6ce31cd712fdb3e17c2779b89eaf467125c4d8901d1a7bd2bcb7885f11149c
 file:
   batch:
     statement:
@@ -528,7 +528,8 @@ file:
         - select_clause_element:
             function:
               function_name:
-                function_name_identifier: sum
+                function_name_identifier:
+                  identifier: sum
               bracketed:
                 start_bracket: (
                 expression:
@@ -628,7 +629,8 @@ file:
                 - keyword: BY
                 - function:
                     function_name:
-                      function_name_identifier: COALESCE
+                      function_name_identifier:
+                        keyword: COALESCE
                     bracketed:
                     - start_bracket: (
                     - expression:
@@ -645,7 +647,8 @@ file:
                 - expression:
                     function:
                       function_name:
-                        function_name_identifier: COALESCE
+                        function_name_identifier:
+                          keyword: COALESCE
                       bracketed:
                       - start_bracket: (
                       - expression:
@@ -700,7 +703,8 @@ file:
               raw_comparison_operator: '='
             function:
               function_name:
-                function_name_identifier: count
+                function_name_identifier:
+                  identifier: count
               bracketed:
                 start_bracket: (
                 star: '*'
@@ -731,7 +735,8 @@ file:
               raw_comparison_operator: '='
             function:
               function_name:
-                function_name_identifier: count
+                function_name_identifier:
+                  identifier: count
               bracketed:
                 start_bracket: (
                 star: '*'
@@ -762,7 +767,8 @@ file:
               raw_comparison_operator: '='
             function:
               function_name:
-                function_name_identifier: count
+                function_name_identifier:
+                  identifier: count
               bracketed:
                 start_bracket: (
                 star: '*'

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 414d0bd70fbb79c4499b50c67a799b5eb2ebbe965251ae0f48dd5a574e799a29
+_hash: ff76aa0eb5c162cbda7f6a30a54969b5b0ef23e6107b4f7e9e0ebe07c8b53bb8
 file:
 - batch:
     statement:
@@ -13,7 +13,8 @@ file:
         - select_clause_element:
             function:
               function_name:
-                function_name_identifier: DATE
+                function_name_identifier:
+                  identifier: DATE
               bracketed:
                 start_bracket: (
                 expression:
@@ -27,7 +28,8 @@ file:
         - select_clause_element:
             function:
               function_name:
-                function_name_identifier: ROUND
+                function_name_identifier:
+                  identifier: ROUND
               bracketed:
               - start_bracket: (
               - expression:
@@ -44,13 +46,15 @@ file:
         - select_clause_element:
             function:
               function_name:
-                function_name_identifier: LEFT
+                function_name_identifier:
+                  keyword: LEFT
               bracketed:
               - start_bracket: (
               - expression:
                   function:
                     function_name:
-                      function_name_identifier: RIGHT
+                      function_name_identifier:
+                        keyword: RIGHT
                     bracketed:
                     - start_bracket: (
                     - expression:
@@ -64,7 +68,8 @@ file:
               - expression:
                   function:
                     function_name:
-                      function_name_identifier: LEN
+                      function_name_identifier:
+                        identifier: LEN
                     bracketed:
                       start_bracket: (
                       expression:
@@ -201,3 +206,72 @@ file:
                     literal: '2'
                   statement_terminator: ;
             - keyword: END
+- go_statement:
+    keyword: GO
+- batch:
+    statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                identifier: a
+                dot: .
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                bracketed:
+                  start_bracket: (
+                  select_statement:
+                    select_clause:
+                      keyword: SELECT
+                      select_clause_element:
+                        column_reference:
+                          identifier: FIN
+                    from_clause:
+                      keyword: FROM
+                      from_expression:
+                        from_expression_element:
+                          table_expression:
+                            table_reference:
+                              identifier: enc
+                  end_bracket: )
+              alias_expression:
+                keyword: AS
+                identifier: a
+            join_clause:
+            - keyword: LEFT
+            - keyword: JOIN
+            - from_expression_element:
+                table_expression:
+                  table_reference:
+                    identifier: b
+            - join_on_condition:
+                keyword: 'ON'
+                expression:
+                - column_reference:
+                  - identifier: a
+                  - dot: .
+                  - identifier: FIN
+                - comparison_operator:
+                    raw_comparison_operator: '='
+                - column_reference:
+                  - identifier: b
+                  - dot: .
+                  - identifier: FIN
+        where_clause:
+          keyword: WHERE
+          expression:
+          - column_reference:
+            - identifier: b
+            - dot: .
+            - identifier: FIN
+          - keyword: IS
+          - keyword: 'NULL'
+        statement_terminator: ;
+- go_statement:
+    keyword: GO
