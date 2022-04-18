@@ -5,6 +5,7 @@ import json
 import os
 import pathlib
 import shutil
+import stat
 import tempfile
 import textwrap
 from unittest.mock import MagicMock, patch
@@ -476,6 +477,9 @@ def generic_roundtrip_test(
     with open(filepath, mode="w", encoding=input_file_encoding) as dest_file:
         for line in source_file:
             dest_file.write(line)
+    status = os.stat(filepath)
+    assert stat.S_ISREG(status.st_mode)
+    old_mode = stat.S_IMODE(status.st_mode)
     # Check that we first detect the issue
     invoke_assert_code(
         ret_code=65, args=[lint, ["--dialect=ansi", "--rules", rulestring, filepath]]
@@ -499,6 +503,11 @@ def generic_roundtrip_test(
         with open(filepath, mode="rb") as f:
             data = f.read()
         assert chardet.detect(data)["encoding"] == output_file_encoding
+    # Also check the file mode was preserved.
+    status = os.stat(filepath)
+    assert stat.S_ISREG(status.st_mode)
+    new_mode = stat.S_IMODE(status.st_mode)
+    assert new_mode == old_mode
     shutil.rmtree(tempdir_path)
 
 
