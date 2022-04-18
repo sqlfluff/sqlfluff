@@ -1715,7 +1715,7 @@ ansi_dialect.add(
                 Ref("Expression_D_Grammar"),
                 Ref("CaseExpressionSegment"),
             ),
-            AnyNumberOf(Ref("ShorthandCastSegment")),
+            AnyNumberOf(Ref("ShorthandCastSegment"), Ref("TimeZoneGrammar")),
         ),
     ),
     # Expression_D_Grammar
