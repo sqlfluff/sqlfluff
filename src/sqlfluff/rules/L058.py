@@ -48,10 +48,20 @@ class Rule_L058(BaseRule):
             case1_children = segment.children()
             case1_last_when = case1_children.last(sp.is_type("when_clause"))
             case1_else_clause = case1_children.select(sp.is_type("else_clause"))
-            case2 = case1_else_clause.children(sp.is_type("expression")).children(
-                sp.is_type("case_expression")
+            case1_else_expressions = case1_else_clause.children(
+                sp.is_type("expression")
             )
-            if not case1_last_when or not case2:
+            expression_children = case1_else_expressions.children()
+            case2 = expression_children.select(sp.is_type("case_expression"))
+            # The len() checks below are for safety, to ensure the CASE inside
+            # the ELSE is not part of a larger expression. In that case, it's
+            # not safe to simplify in this way -- we'd be deleting other code.
+            if (
+                not case1_last_when
+                or len(case1_else_expressions) > 1
+                or len(expression_children) > 1
+                or not case2
+            ):
                 return LintResult()
 
             # Delete stuff between the last "WHEN" clause and the "ELSE" clause.
