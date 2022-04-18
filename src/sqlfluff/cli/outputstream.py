@@ -72,5 +72,5 @@ def make_output_stream(
             # Human-format output to a file.
             return FileOutput(config, output_path)
     else:
-        # Discard output
+        # Discard human output as not required
         return FileOutput(config, os.devnull)
