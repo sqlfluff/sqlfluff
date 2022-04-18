@@ -968,11 +968,12 @@ def test__cli__command_fail_nice_not_found(command):
 
 
 @pytest.mark.parametrize(
-    "serialize", ["yaml", "json", "github-annotation", "github-annotation-native"]
+    "serialize",
+    ["human", "yaml", "json", "github-annotation", "github-annotation-native"],
 )
 @pytest.mark.parametrize("write_file", [None, "outfile"])
 def test__cli__command_lint_serialize_multiple_files(serialize, write_file, tmp_path):
-    """Check the general format of JSON output for multiple files.
+    """Test the output output formats for multiple files.
 
     This tests runs both stdout checking and file checking.
     """
@@ -987,9 +988,11 @@ def test__cli__command_lint_serialize_multiple_files(serialize, write_file, tmp_
     )
 
     if write_file:
-        target_file = os.path.join(
-            tmp_path, write_file + (".yaml" if serialize == "yaml" else ".json")
-        )
+        ext = {
+            "human": ".txt",
+            "yaml": ".yaml",
+        }
+        target_file = os.path.join(tmp_path, write_file + ext.get(serialize, ".json"))
         cmd_args += ("--write-output", target_file)
 
     # note the file is in here twice. two files = two payloads.
@@ -1004,7 +1007,9 @@ def test__cli__command_lint_serialize_multiple_files(serialize, write_file, tmp_
     else:
         result_payload = result.output
 
-    if serialize == "json":
+    if serialize == "human":
+        assert len(result_payload.split("\n")) == 29 if write_file else 30
+    elif serialize == "json":
         result = json.loads(result_payload)
         assert len(result) == 2
     elif serialize == "yaml":
