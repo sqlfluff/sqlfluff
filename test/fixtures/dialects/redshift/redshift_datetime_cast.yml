@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ff7831f8b8f3f25939ed8649e432b0988b2fc12c08f7e32ecc4a9db8bb080b2a
+_hash: bfc4b7136cc562e8ed26d85f398dbe6dbad115a7cb3565b36ae881e707296ebe
 file:
 - statement:
     select_statement:
@@ -212,12 +212,12 @@ file:
               data_type:
                 datetime_type_identifier:
                   keyword: TIMESTAMPTZ
-                time_zone_grammar:
-                - keyword: AT
-                - keyword: TIME
-                - keyword: ZONE
-                - expression:
-                    literal: "'UTC'"
+            time_zone_grammar:
+            - keyword: AT
+            - keyword: TIME
+            - keyword: ZONE
+            - expression:
+                literal: "'UTC'"
           alias_expression:
             keyword: AS
             identifier: started_at
@@ -233,12 +233,12 @@ file:
               data_type:
                 datetime_type_identifier:
                   keyword: TIMESTAMPTZ
-                time_zone_grammar:
-                - keyword: AT
-                - keyword: TIME
-                - keyword: ZONE
-                - expression:
-                    literal: "'UTC'"
+            time_zone_grammar:
+            - keyword: AT
+            - keyword: TIME
+            - keyword: ZONE
+            - expression:
+                literal: "'UTC'"
           alias_expression:
             keyword: AS
             identifier: ended_at
@@ -254,12 +254,12 @@ file:
               data_type:
                 datetime_type_identifier:
                   keyword: TIMESTAMPTZ
-                time_zone_grammar:
-                - keyword: AT
-                - keyword: TIME
-                - keyword: ZONE
-                - expression:
-                    literal: "'UTC'"
+            time_zone_grammar:
+            - keyword: AT
+            - keyword: TIME
+            - keyword: ZONE
+            - expression:
+                literal: "'UTC'"
           alias_expression:
             keyword: AS
             identifier: created_at

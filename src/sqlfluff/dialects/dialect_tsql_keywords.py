@@ -206,6 +206,7 @@ UNRESERVED_KEYWORDS = [
     "APPLY",
     "ARITHABORT",
     "ARITHIGNORE",
+    "AT",
     "BERNOULLI",
     "BLOCKERS",
     "BREAK",
@@ -414,4 +415,5 @@ UNRESERVED_KEYWORDS = [
     "XACT_ABORT",
     "XLOCK",
     "XML",
+    "ZONE",
 ]

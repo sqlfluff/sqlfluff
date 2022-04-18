@@ -163,7 +163,6 @@ redshift_dialect.replace(
         Sequence(
             ansi.ColumnReferenceSegment,
             AnyNumberOf(Ref("ArrayAccessorSegment")),
-            Ref("TimeZoneGrammar", optional=True),
         ),
         delimiter=OneOf(
             Ref("DotSegment"), Sequence(Ref("DotSegment"), Ref("DotSegment"))
@@ -358,10 +357,7 @@ class DatatypeSegment(BaseSegment):
             "BPCHAR",
             "TEXT",
         ),
-        Sequence(
-            Ref("DateTimeTypeIdentifier"),
-            Ref("TimeZoneGrammar", optional=True),
-        ),
+        Ref("DateTimeTypeIdentifier"),
         # INTERVAL is a data type *only* for conversion operations
         "INTERVAL",
         # boolean types
