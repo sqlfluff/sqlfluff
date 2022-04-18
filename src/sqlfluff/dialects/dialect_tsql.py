@@ -1983,6 +1983,10 @@ class FunctionNameIdentifierSegment(BaseSegment):
 
     Overriding ANSI since, in general, TSQL names functions the same way
     as any other identifier.
+
+    Built-in function list: https://www.w3schools.com/sql/sql_ref_sqlserver.asp
+    Reserved keywords from this list have been explicitly added to the grammar
+    to allow for built-in functions with reserved names.
     """
 
     type="function_name_identifier"
