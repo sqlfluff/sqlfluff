@@ -1989,20 +1989,21 @@ class FunctionNameIdentifierSegment(BaseSegment):
     to allow for built-in functions with reserved names.
     """
 
-    type="function_name_identifier"
+    type = "function_name_identifier"
 
     match_grammar = OneOf(
-            Ref("SingleIdentifierGrammar"),
-            "COALESCE",
-            "CONVERT",
-            "CURRENT_TIMESTAMP",
-            "CURRENT_USER",
-            "LEFT",
-            "NULLIF",
-            "RIGHT",
-            "SESSION_USER",
-            "SYSTEM_USER",
-        )
+        Ref("SingleIdentifierGrammar"),
+        "COALESCE",
+        "CONVERT",
+        "CURRENT_TIMESTAMP",
+        "CURRENT_USER",
+        "LEFT",
+        "NULLIF",
+        "RIGHT",
+        "SESSION_USER",
+        "SYSTEM_USER",
+    )
+
 
 class FunctionSegment(BaseSegment):
     """A scalar or aggregate function.
