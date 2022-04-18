@@ -11,7 +11,8 @@ from sqlfluff.core import Linter, FluffConfig
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.linter import runner
 from sqlfluff.core.errors import SQLLexError, SQLBaseError, SQLLintError, SQLParseError
-from sqlfluff.cli.formatters import CallbackFormatter
+from sqlfluff.cli.formatters import OutputStreamFormatter
+from sqlfluff.cli.outputstream import make_output_stream
 from sqlfluff.core.linter import LintingResult, NoQaDirective
 import sqlfluff.core.linter as linter
 from sqlfluff.core.parser import GreedyUntil, Ref
@@ -256,8 +257,10 @@ def test__linter__linting_parallel_thread(force_error, monkeypatch):
 
         monkeypatch.setattr(runner.MultiProcessRunner, "_create_pool", _create_pool)
 
+    config = FluffConfig(overrides={"dialect": "ansi"})
+    output_stream = make_output_stream(config, None, os.devnull)
     lntr = Linter(
-        formatter=CallbackFormatter(callback=lambda m: None, verbosity=0),
+        formatter=OutputStreamFormatter(output_stream, verbosity=0),
         dialect="ansi",
     )
     result = lntr.lint_paths(
