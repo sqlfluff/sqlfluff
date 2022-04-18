@@ -515,6 +515,6 @@ class LintedFile(NamedTuple):
             tmp.flush()
             os.fsync(tmp.fileno())
         # Once the temp file is safely written, replace the existing file.
-        shutil.move(tmp.name, output_path)
         if mode is not None:
-            os.chmod(output_path, mode)
+            os.chmod(tmp.name, mode)
+        shutil.move(tmp.name, output_path)
