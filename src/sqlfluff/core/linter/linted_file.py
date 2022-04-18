@@ -492,16 +492,22 @@ class LintedFile(NamedTuple):
         return success
 
     @staticmethod
-    def _safe_create_replace_file(input_path, output_path, write_buff, encoding):
+    def _safe_create_replace_file(
+        input_path: str, output_path: str, write_buff: str, encoding: str
+    ):
         # Write to a temporary file first, so in case of encoding or other
         # issues, we don't delete or corrupt the user's existing file.
 
         # Get file mode (i.e. permissions) on existing file. We'll preserve the
         # same permissions on the output file.
-        status = os.stat(input_path)
         mode = None
-        if stat.S_ISREG(status.st_mode):
-            mode = stat.S_IMODE(status.st_mode)
+        try:
+            status = os.stat(input_path)
+        except FileNotFoundError:
+            pass
+        else:
+            if stat.S_ISREG(status.st_mode):
+                mode = stat.S_IMODE(status.st_mode)
         dirname, basename = os.path.split(output_path)
         with tempfile.NamedTemporaryFile(
             mode="w",
