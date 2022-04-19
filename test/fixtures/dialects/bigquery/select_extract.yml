@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 387a4fc1a1069c0062336a89aea1b69e7adb3c7d503d6212b02fd7977ee987a9
+_hash: bbdfebdf5f418e88cbcfd4ac1fa893903d0383f87cd2212c7763c567534e4398
 file:
 - statement:
     select_statement:
@@ -20,12 +20,12 @@ file:
               expression:
                 column_reference:
                   identifier: some_timestamp
-              time_zone_grammar:
-              - keyword: AT
-              - keyword: TIME
-              - keyword: ZONE
-              - expression:
-                  literal: '"UTC"'
+                time_zone_grammar:
+                - keyword: AT
+                - keyword: TIME
+                - keyword: ZONE
+                - expression:
+                    literal: '"UTC"'
               end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -43,13 +43,13 @@ file:
               expression:
                 column_reference:
                   identifier: some_timestamp
-              time_zone_grammar:
-              - keyword: AT
-              - keyword: TIME
-              - keyword: ZONE
-              - expression:
-                  column_reference:
-                    identifier: timezone_column
+                time_zone_grammar:
+                - keyword: AT
+                - keyword: TIME
+                - keyword: ZONE
+                - expression:
+                    column_reference:
+                      identifier: timezone_column
               end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -90,12 +90,12 @@ file:
                 expression:
                   column_reference:
                     identifier: timestamp_value
-                time_zone_grammar:
-                - keyword: AT
-                - keyword: TIME
-                - keyword: ZONE
-                - expression:
-                    literal: '"UTC"'
+                  time_zone_grammar:
+                  - keyword: AT
+                  - keyword: TIME
+                  - keyword: ZONE
+                  - expression:
+                      literal: '"UTC"'
                 end_bracket: )
             alias_expression:
               keyword: AS
@@ -112,12 +112,12 @@ file:
                 expression:
                   column_reference:
                     identifier: timestamp_value
-                time_zone_grammar:
-                - keyword: AT
-                - keyword: TIME
-                - keyword: ZONE
-                - expression:
-                    literal: '"America/Los_Angeles"'
+                  time_zone_grammar:
+                  - keyword: AT
+                  - keyword: TIME
+                  - keyword: ZONE
+                  - expression:
+                      literal: '"America/Los_Angeles"'
                 end_bracket: )
             alias_expression:
               keyword: AS

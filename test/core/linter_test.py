@@ -907,7 +907,7 @@ def test_safe_create_replace_file(case, tmp_path):
         p.write_text(case["existing"])
     try:
         linter.LintedFile._safe_create_replace_file(
-            str(p), case["update"], case["encoding"]
+            str(p), str(p), case["update"], case["encoding"]
         )
     except:  # noqa: E722
         pass

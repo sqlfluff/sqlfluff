@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1bb19f138d7fe037da9d1e44293f49ffbb3d8200c140ffd832481a74a1ee5904
+_hash: bfc4b7136cc562e8ed26d85f398dbe6dbad115a7cb3565b36ae881e707296ebe
 file:
 - statement:
     select_statement:
@@ -212,12 +212,12 @@ file:
               data_type:
                 datetime_type_identifier:
                   keyword: TIMESTAMPTZ
-                time_zone_grammar:
-                - keyword: AT
-                - keyword: TIME
-                - keyword: ZONE
-                - expression:
-                    literal: "'UTC'"
+            time_zone_grammar:
+            - keyword: AT
+            - keyword: TIME
+            - keyword: ZONE
+            - expression:
+                literal: "'UTC'"
           alias_expression:
             keyword: AS
             identifier: started_at
@@ -233,12 +233,12 @@ file:
               data_type:
                 datetime_type_identifier:
                   keyword: TIMESTAMPTZ
-                time_zone_grammar:
-                - keyword: AT
-                - keyword: TIME
-                - keyword: ZONE
-                - expression:
-                    literal: "'UTC'"
+            time_zone_grammar:
+            - keyword: AT
+            - keyword: TIME
+            - keyword: ZONE
+            - expression:
+                literal: "'UTC'"
           alias_expression:
             keyword: AS
             identifier: ended_at
@@ -254,12 +254,12 @@ file:
               data_type:
                 datetime_type_identifier:
                   keyword: TIMESTAMPTZ
-                time_zone_grammar:
-                - keyword: AT
-                - keyword: TIME
-                - keyword: ZONE
-                - expression:
-                    literal: "'UTC'"
+            time_zone_grammar:
+            - keyword: AT
+            - keyword: TIME
+            - keyword: ZONE
+            - expression:
+                literal: "'UTC'"
           alias_expression:
             keyword: AS
             identifier: created_at
@@ -290,6 +290,75 @@ file:
           - identifier: extension_extraction
           - dot: .
           - identifier: database_reference
+      - comma: ','
+      - select_clause_element:
+          expression:
+            function:
+              function_name:
+                function_name_identifier: GETDATE
+              bracketed:
+                start_bracket: (
+                end_bracket: )
+            time_zone_grammar:
+            - keyword: AT
+            - keyword: TIME
+            - keyword: ZONE
+            - expression:
+                literal: "'UTC'"
+      - comma: ','
+      - select_clause_element:
+          expression:
+            bracketed:
+              start_bracket: (
+              expression:
+                function:
+                  function_name:
+                    function_name_identifier: GETDATE
+                  bracketed:
+                    start_bracket: (
+                    end_bracket: )
+                time_zone_grammar:
+                - keyword: AT
+                - keyword: TIME
+                - keyword: ZONE
+                - expression:
+                    literal: "'UTC'"
+              end_bracket: )
+            time_zone_grammar:
+            - keyword: AT
+            - keyword: TIME
+            - keyword: ZONE
+            - expression:
+                literal: "'AEST'"
+      - comma: ','
+      - select_clause_element:
+          expression:
+            bracketed:
+              start_bracket: (
+              expression:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    function:
+                      function_name:
+                        function_name_identifier: GETDATE
+                      bracketed:
+                        start_bracket: (
+                        end_bracket: )
+                    time_zone_grammar:
+                    - keyword: AT
+                    - keyword: TIME
+                    - keyword: ZONE
+                    - expression:
+                        literal: "'UTC'"
+                  end_bracket: )
+                time_zone_grammar:
+                - keyword: AT
+                - keyword: TIME
+                - keyword: ZONE
+                - expression:
+                    literal: "'AEST'"
+              end_bracket: )
       from_clause:
         keyword: FROM
         from_expression:
