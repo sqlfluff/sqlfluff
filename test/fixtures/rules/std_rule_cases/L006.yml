@@ -72,3 +72,9 @@ pass_sparksql_ansi_interval_minus:
   configs:
     core:
       dialect: sparksql
+
+test_pass_sparksql_multi_units_interval_minus:
+  pass_str: SELECT INTERVAL -2 HOUR '3' MINUTE AS col;
+  configs:
+    core:
+      dialect: sparksql
