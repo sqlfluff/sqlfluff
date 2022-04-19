@@ -1,0 +1,62 @@
+rule: L064
+
+test_fail_unnecessary_escaping:
+  fail_str: |
+    SELECT
+        'unnecessary \"\"escaping',
+        "unnecessary \'\'escaping"
+  fix_str: |
+    SELECT
+        'unnecessary ""escaping',
+        "unnecessary ''escaping"
+  configs:
+    core:
+      dialect: bigquery
+
+test_pass_lots_of_quotes:
+  # Test that we can handle complexe quoting examples
+  pass_str: |
+    SELECT
+      '\\""',
+      "\\''"
+  configs:
+    core:
+      dialect: bigquery
+
+test_fail_lots_of_quotes:
+  # Test that we can handle complexe quoting examples
+  fail_str: |
+    SELECT 'Lots of \\\\\\\\\'quotes\''
+  fix_str: |
+    SELECT "Lots of \\\\\\\\'quotes'"
+  configs:
+    core:
+      dialect: bigquery
+
+test_fail_quote_replace_in_raw_strings:
+  # Test that we can handle complexe quoting examples
+  fail_str: |
+    SELECT
+        r'Tricky "quote',
+        r'Not-so-tricky \"quote'
+  fix_str: |
+    SELECT
+        r'Tricky "quote',
+        r"Not-so-tricky \"quote"
+  configs:
+    core:
+      dialect: bigquery
+
+test_pass_dollar_quoted_strings_are_ignored:
+  # Test that we dont interfer with dollar quoted strings
+  pass_str: |
+    SELECT
+        'some string',
+        $$some_other_string$$
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      L064:
+        force_enable: True
+        preferred_string_quotes: single_quotes
