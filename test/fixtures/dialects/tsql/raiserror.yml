@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7f2a6825244f19753b04754321ca24fd602b2509cb647cd1f3f23884d2bddc69
+_hash: 55a7be6a253a7a592fa0a0f18511cf58e29f9c320c62019877210a92a0f2d5a4
 file:
   batch:
   - statement:
@@ -14,11 +14,11 @@ file:
         - literal: '15600'
         - comma: ','
         - numeric_literal:
-            binary_operator: '-'
+            sign_indicator: '-'
             literal: '1'
         - comma: ','
         - numeric_literal:
-            binary_operator: '-'
+            sign_indicator: '-'
             literal: '1'
         - comma: ','
         - literal: "'mysp_CreateCustomer'"
