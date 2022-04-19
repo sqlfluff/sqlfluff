@@ -30,7 +30,7 @@ Major changes include:
 * Add native Github-actions output [#3107](https://github.com/sqlfluff/sqlfluff/pull/3107) [@dmohns](https://github.com/dmohns)
 * Improved signed literal parsing [#3108](https://github.com/sqlfluff/sqlfluff/pull/3108) [@tunetheweb](https://github.com/tunetheweb)
 * Don't allow fixes to span template blocks [#3105](https://github.com/sqlfluff/sqlfluff/pull/3105) [@barrywhart](https://github.com/barrywhart)
-* L010: Add `ignore_words_regex` configuration option [#3098](https://github.com/sqlfluff/sqlfluff/pull/3098) [@dmohns](https://github.com/dmohns)
+* Add `ignore_words_regex` configuration option [#3098](https://github.com/sqlfluff/sqlfluff/pull/3098) [@dmohns](https://github.com/dmohns)
 * Redshift: Better `AT TIME ZONE` support [#3087](https://github.com/sqlfluff/sqlfluff/pull/3087) [@tunetheweb](https://github.com/tunetheweb)
 * Fix In The Wild typo [#3100](https://github.com/sqlfluff/sqlfluff/pull/3100) [@sivaraam](https://github.com/sivaraam)
 * Snowflake: Add Create Storage Integration grammar. [#3075](https://github.com/sqlfluff/sqlfluff/pull/3075) [@jmc-bbk](https://github.com/jmc-bbk)
