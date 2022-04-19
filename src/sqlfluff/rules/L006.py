@@ -64,7 +64,7 @@ class Rule_L006(BaseRule):
         if seg.name.endswith("_bracket"):
             if seg.name.startswith("start_" if before else "end_"):
                 return False
-        if seg.is_meta:  # pragma: no cover
+        if seg.is_meta:
             if before:
                 if seg.source_str.endswith(" ") or seg.source_str.endswith("\n"):
                     return False
@@ -145,13 +145,13 @@ class Rule_L006(BaseRule):
                         )
                         check_before = True
                     if self.matches_target_tuples(trailing, self._target_elems):
-                        after_anchor = trailing  # pragma: no cover
-                        self.logger.debug(  # pragma: no cover
+                        after_anchor = trailing
+                        self.logger.debug(
                             "Found Target [trailing] @%s: %r",
                             after_anchor.pos_marker,
                             after_anchor.raw,
                         )
-                        check_after = True  # pragma: no cover
+                        check_after = True
 
             if check_before:
                 prev_seg = self._find_segment(
