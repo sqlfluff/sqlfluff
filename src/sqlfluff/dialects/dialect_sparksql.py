@@ -517,10 +517,21 @@ sparksql_dialect.add(
         type="literal",
         trim_chars="@",
     ),
-    # This is the same as QuotedLiteralSegment but is given a different `name` to stop L048 flagging
+    # This is the same as QuotedLiteralSegment but
+    # is given a different `name` to stop L048 flagging
     SignedQuotedLiteralSegment=OneOf(
-        NamedParser("single_quote", CodeSegment, name="signed_quoted_literal", type="literal"),
-        NamedParser("double_quote", CodeSegment, name="signed_quoted_literal", type="literal"),
+        NamedParser(
+            "single_quote",
+            CodeSegment,
+            name="signed_quoted_literal",
+            type="literal",
+        ),
+        NamedParser(
+            "double_quote",
+            CodeSegment,
+            name="signed_quoted_literal",
+            type="literal",
+        ),
     ),
 )
 
@@ -2590,8 +2601,9 @@ class UpdateStatementSegment(ansi.UpdateStatementSegment):
 
 
 class IntervalLiteralSegment(BaseSegment):
-    """
+    """An interval literal segment.
 
+    https://spark.apache.org/docs/latest/sql-ref-literals.html#interval-literal
     """
 
     type = "interval_literal"
