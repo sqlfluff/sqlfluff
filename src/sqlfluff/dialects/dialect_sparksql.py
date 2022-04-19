@@ -2584,6 +2584,25 @@ class UpdateStatementSegment(ansi.UpdateStatementSegment):
     )
 
 
+class IntervalLiteralSegment(BaseSegment):
+    """
+
+    """
+
+    type = "interval_literal"
+
+    match_grammar: Matchable = Sequence(
+        Ref("SignedSegmentGrammar", optional=True),
+        OneOf(
+            Ref("NumericLiteralSegment"),
+            Ref("QuotedLiteralSegment"),
+        ),
+        Ref("DatetimeUnitSegment"),
+        Ref.keyword("TO", optional=True),
+        Ref("DatetimeUnitSegment", optional=True),
+    )
+
+
 class IntervalExpressionSegment(ansi.IntervalExpressionSegment):
     """An interval expression segment.
 
@@ -2595,27 +2614,9 @@ class IntervalExpressionSegment(ansi.IntervalExpressionSegment):
     match_grammar: Matchable = Sequence(
         "INTERVAL",
         OneOf(
-            # multi-units syntax
-            OneOf(
-                AnyNumberOf(
-                    Sequence(
-                        Ref("SignedSegmentGrammar", optional=True),
-                        OneOf(
-                            Ref("NumericLiteralSegment"),
-                            Ref("QuotedLiteralSegment"),
-                        ),
-                        Ref("DatetimeUnitSegment"),
-                    ),
-                ),
-                Ref("QuotedLiteralSegment"),
+            AnyNumberOf(
+                Ref("IntervalLiteralSegment"),
             ),
-            # ansi syntax
-            Sequence(
-                Ref("SignedSegmentGrammar", optional=True),
-                Ref("QuotedLiteralSegment"),
-                Ref("DatetimeUnitSegment"),
-                Ref.keyword("TO", optional=True),
-                Ref("DatetimeUnitSegment", optional=True),
-            ),
+            Ref("QuotedLiteralSegment"),
         ),
     )
