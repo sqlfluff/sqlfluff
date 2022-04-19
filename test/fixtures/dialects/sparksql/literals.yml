@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 13cbaf5d8a2684aff4a922ebc53b475dd0f14c90eb0db1a9e94a1684bdf31406
+_hash: 252f56626a64ac8173456d72f7287861c6f8cf2aa19a0974369b67ebff94fc32
 file:
 - statement:
     select_statement:
@@ -323,27 +323,12 @@ file:
         keyword: SELECT
         select_clause_element:
           interval_expression:
-          - keyword: INTERVAL
-          - literal: "'2-3'"
-          - date_part: YEAR
-          - keyword: TO
-          - date_part: MONTH
-          alias_expression:
-            keyword: AS
-            identifier: col
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-        keyword: SELECT
-        select_clause_element:
-          interval_expression:
-          - keyword: INTERVAL
-          - sign_indicator: '-'
-          - literal: "'20 15:40:32.99899999'"
-          - date_part: DAY
-          - keyword: TO
-          - date_part: SECOND
+            keyword: INTERVAL
+            interval_literal:
+            - literal: "'2-3'"
+            - date_part: YEAR
+            - keyword: TO
+            - date_part: MONTH
           alias_expression:
             keyword: AS
             identifier: col
@@ -355,8 +340,26 @@ file:
         select_clause_element:
           interval_expression:
             keyword: INTERVAL
-            literal: '3'
-            date_part: YEAR
+            interval_literal:
+            - sign_indicator: '-'
+            - literal: "'20 15:40:32.99899999'"
+            - date_part: DAY
+            - keyword: TO
+            - date_part: SECOND
+          alias_expression:
+            keyword: AS
+            identifier: col
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          interval_expression:
+            keyword: INTERVAL
+            interval_literal:
+              literal: '3'
+              date_part: YEAR
           alias_expression:
             keyword: AS
             identifier: col
@@ -368,11 +371,13 @@ file:
         select_clause_element:
           interval_expression:
           - keyword: INTERVAL
-          - sign_indicator: '-'
-          - literal: '2'
-          - date_part: HOUR
-          - literal: "'3'"
-          - date_part: MINUTE
+          - interval_literal:
+              sign_indicator: '-'
+              literal: '2'
+              date_part: HOUR
+          - interval_literal:
+              literal: "'3'"
+              date_part: MINUTE
           alias_expression:
             keyword: AS
             identifier: col
@@ -392,24 +397,33 @@ file:
         select_clause_element:
           interval_expression:
           - keyword: INTERVAL
-          - literal: '1'
-          - date_part: YEARS
-          - literal: '2'
-          - date_part: MONTH
-          - literal: '3'
-          - date_part: WEEK
-          - literal: '4'
-          - date_part: DAYS
-          - literal: '5'
-          - date_part: HOUR
-          - literal: '6'
-          - date_part: MINUTES
-          - literal: '7'
-          - date_part: SECOND
-          - literal: '8'
-          - date_part: MILLISECOND
-          - literal: '9'
-          - date_part: MICROSECONDS
+          - interval_literal:
+              literal: '1'
+              date_part: YEARS
+          - interval_literal:
+              literal: '2'
+              date_part: MONTH
+          - interval_literal:
+              literal: '3'
+              date_part: WEEK
+          - interval_literal:
+              literal: '4'
+              date_part: DAYS
+          - interval_literal:
+              literal: '5'
+              date_part: HOUR
+          - interval_literal:
+              literal: '6'
+              date_part: MINUTES
+          - interval_literal:
+              literal: '7'
+              date_part: SECOND
+          - interval_literal:
+              literal: '8'
+              date_part: MILLISECOND
+          - interval_literal:
+              literal: '9'
+              date_part: MICROSECONDS
           alias_expression:
             keyword: AS
             identifier: col
