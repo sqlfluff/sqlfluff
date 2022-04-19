@@ -19,7 +19,6 @@ SELECT 9223372036854775807l AS col;
 SELECT -32Y AS col;
 SELECT 482S AS col;
 
-
 -- fractional literals
 SELECT 12.578 AS col;
 SELECT -0.1234567 AS col;

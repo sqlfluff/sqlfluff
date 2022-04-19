@@ -3,7 +3,6 @@
 from typing import Tuple, List
 
 from sqlfluff.core.parser import BaseSegment
-
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
 from sqlfluff.rules.L006 import Rule_L006
