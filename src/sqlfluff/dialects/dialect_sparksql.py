@@ -517,6 +517,11 @@ sparksql_dialect.add(
         type="literal",
         trim_chars="@",
     ),
+    # This is the same as QuotedLiteralSegment but is given a different `name` to stop L048 flagging
+    SignedQuotedLiteralSegment=OneOf(
+        NamedParser("single_quote", CodeSegment, name="signed_quoted_literal", type="literal"),
+        NamedParser("double_quote", CodeSegment, name="signed_quoted_literal", type="literal"),
+    ),
 )
 
 # Adding Hint related grammar before comment `block_comment` and
@@ -2595,7 +2600,7 @@ class IntervalLiteralSegment(BaseSegment):
         Ref("SignedSegmentGrammar", optional=True),
         OneOf(
             Ref("NumericLiteralSegment"),
-            Ref("QuotedLiteralSegment"),
+            Ref("SignedQuotedLiteralSegment"),
         ),
         Ref("DatetimeUnitSegment"),
         Ref.keyword("TO", optional=True),
