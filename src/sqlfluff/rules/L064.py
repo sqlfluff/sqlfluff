@@ -1,7 +1,7 @@
 """Implementation of Rule L064."""
 
 import sys
-from typing import Optional, Pattern
+from typing import Optional
 
 import regex
 
@@ -48,6 +48,7 @@ class Rule_L064(BaseRule):
     **Anti-pattern**
 
     .. code-block:: sql
+       :force:
 
         select
             "abc",
@@ -62,6 +63,7 @@ class Rule_L064(BaseRule):
     using alternate quotes.
 
     .. code-block:: sql
+       :force:
 
         select
             "abc",
@@ -127,7 +129,9 @@ class Rule_L064(BaseRule):
                 ),
             )
 
-    def _sub_twice(self, regex: Pattern[str], replacement: str, original: str) -> str:
+        return None
+
+    def _sub_twice(self, regex: regex.Pattern, replacement: str, original: str) -> str:
         """Replace `regex` with `replacement` twice on `original`.
 
         This is used by string normalization to perform replaces on
