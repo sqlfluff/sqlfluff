@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3467fbde60ca51fc151c81864542f666f6a3a234b333c0e19bf64903dc99607a
+_hash: 13cbaf5d8a2684aff4a922ebc53b475dd0f14c90eb0db1a9e94a1684bdf31406
 file:
 - statement:
     select_statement:
@@ -81,7 +81,7 @@ file:
         keyword: SELECT
         select_clause_element:
           numeric_literal:
-            binary_operator: '-'
+            sign_indicator: '-'
             literal: '2147483648'
           alias_expression:
             keyword: AS
@@ -103,7 +103,7 @@ file:
         keyword: SELECT
         select_clause_element:
           numeric_literal:
-            binary_operator: '-'
+            sign_indicator: '-'
             literal: 32Y
           alias_expression:
             keyword: AS
@@ -135,7 +135,7 @@ file:
         keyword: SELECT
         select_clause_element:
           numeric_literal:
-            binary_operator: '-'
+            sign_indicator: '-'
             literal: '0.1234567'
           alias_expression:
             keyword: AS
@@ -147,7 +147,7 @@ file:
         keyword: SELECT
         select_clause_element:
           numeric_literal:
-            binary_operator: '-'
+            sign_indicator: '-'
             literal: '.1234567'
           alias_expression:
             keyword: AS
@@ -199,7 +199,7 @@ file:
         keyword: SELECT
         select_clause_element:
           numeric_literal:
-            binary_operator: '-'
+            sign_indicator: '-'
             literal: 5BD
           alias_expression:
             keyword: AS
@@ -221,7 +221,7 @@ file:
         keyword: SELECT
         select_clause_element:
           numeric_literal:
-            binary_operator: '-'
+            sign_indicator: '-'
             literal: .1234567E+2BD
           alias_expression:
             keyword: AS
@@ -233,7 +233,7 @@ file:
         keyword: SELECT
         select_clause_element:
           numeric_literal:
-            binary_operator: +
+            sign_indicator: +
             literal: '3.e+3'
           alias_expression:
             keyword: AS
@@ -245,7 +245,7 @@ file:
         keyword: SELECT
         select_clause_element:
           numeric_literal:
-            binary_operator: '-'
+            sign_indicator: '-'
             literal: 3.E-3D
           alias_expression:
             keyword: AS
@@ -339,7 +339,7 @@ file:
         select_clause_element:
           interval_expression:
           - keyword: INTERVAL
-          - binary_operator: '-'
+          - sign_indicator: '-'
           - literal: "'20 15:40:32.99899999'"
           - date_part: DAY
           - keyword: TO
@@ -368,7 +368,7 @@ file:
         select_clause_element:
           interval_expression:
           - keyword: INTERVAL
-          - binary_operator: '-'
+          - sign_indicator: '-'
           - literal: '2'
           - date_part: HOUR
           - literal: "'3'"

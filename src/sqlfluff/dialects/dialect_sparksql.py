@@ -2599,11 +2599,7 @@ class IntervalExpressionSegment(ansi.IntervalExpressionSegment):
             OneOf(
                 AnyNumberOf(
                     Sequence(
-                        OneOf(  # TODO: disable L47
-                            Ref("PlusSegment"),
-                            Ref("MinusSegment"),
-                            optional=True,
-                        ),
+                        Ref("SignedSegmentGrammar", optional=True),
                         OneOf(
                             Ref("NumericLiteralSegment"),
                             Ref("QuotedLiteralSegment"),
@@ -2615,11 +2611,7 @@ class IntervalExpressionSegment(ansi.IntervalExpressionSegment):
             ),
             # ansi syntax
             Sequence(
-                OneOf(  # TODO: disable L47
-                    Ref("PlusSegment"),
-                    Ref("MinusSegment"),
-                    optional=True,
-                ),
+                Ref("SignedSegmentGrammar", optional=True),
                 Ref("QuotedLiteralSegment"),
                 Ref("DatetimeUnitSegment"),
                 Ref.keyword("TO", optional=True),
