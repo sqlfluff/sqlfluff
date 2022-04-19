@@ -74,10 +74,9 @@ class Rule_L006(BaseRule):
         return True
 
     @staticmethod
-    def _find_segment(idx, segments, before=True, step=None):
+    def _find_segment(idx, segments, before=True):
         """Go back or forward to find the next relevant segment."""
-        if step is None:
-            step = -1 if before else 1
+        step = -1 if before else 1
         j = idx + step
         while (j >= 0) if before else (j < len(segments)):
             # Don't trigger on indents, but placeholders are allowed.
@@ -155,18 +154,6 @@ class Rule_L006(BaseRule):
                         check_after = True  # pragma: no cover
 
             if check_before:
-                if context.dialect.name in ["sparksql"]:
-                    # NB: Should not check for whitespaces inside of
-                    # Interval Literals for SparkSQL dialect
-                    # https://spark.apache.org/docs/latest/sql-ref-literals.html#interval-literal
-                    possible_interval_segment = self._find_segment(
-                        idx, context.segment.segments, before=True, step=-2
-                    )
-                    if (
-                        possible_interval_segment is not None
-                        and possible_interval_segment.raw.upper() == "INTERVAL"
-                    ):
-                        continue
                 prev_seg = self._find_segment(
                     idx, context.segment.segments, before=True
                 )
