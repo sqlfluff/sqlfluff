@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 29174aff25590a9259c400c9105772f5e4c3542fe2c906353c0a1727b50bbdbd
+_hash: 0bc4b039ebf0a388fe704b591548f408c116472b58410b75ba40edab65c65aa8
 file:
   batch:
   - statement:
@@ -51,8 +51,7 @@ file:
                     function_name:
                       identifier: dbo
                       dot: .
-                      function_name_identifier:
-                        identifier: GetReports
+                      function_name_identifier: GetReports
                     bracketed:
                       start_bracket: (
                       expression:
@@ -88,8 +87,7 @@ file:
                     function_name:
                       identifier: dbo
                       dot: .
-                      function_name_identifier:
-                        identifier: fn_GetAllEmployeeOfADepartment
+                      function_name_identifier: fn_GetAllEmployeeOfADepartment
                     bracketed:
                       start_bracket: (
                       expression:
@@ -131,15 +129,13 @@ file:
                 table_expression:
                   function:
                     function_name:
-                      function_name_identifier:
-                        identifier: string_split
+                      function_name_identifier: string_split
                     bracketed:
                     - start_bracket: (
                     - expression:
                         function:
                           function_name:
-                            function_name_identifier:
-                              identifier: replace
+                            function_name_identifier: replace
                           bracketed:
                           - start_bracket: (
                           - expression:

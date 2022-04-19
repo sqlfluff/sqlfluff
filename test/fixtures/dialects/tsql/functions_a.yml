@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ff76aa0eb5c162cbda7f6a30a54969b5b0ef23e6107b4f7e9e0ebe07c8b53bb8
+_hash: a3a6930d6681ac484720ab8322991bc463aa8a29ab286671428dc53619fb5001
 file:
 - batch:
     statement:
@@ -13,8 +13,7 @@ file:
         - select_clause_element:
             function:
               function_name:
-                function_name_identifier:
-                  identifier: DATE
+                function_name_identifier: DATE
               bracketed:
                 start_bracket: (
                 expression:
@@ -28,8 +27,7 @@ file:
         - select_clause_element:
             function:
               function_name:
-                function_name_identifier:
-                  identifier: ROUND
+                function_name_identifier: ROUND
               bracketed:
               - start_bracket: (
               - expression:
@@ -46,15 +44,13 @@ file:
         - select_clause_element:
             function:
               function_name:
-                function_name_identifier:
-                  keyword: LEFT
+                function_name_identifier: LEFT
               bracketed:
               - start_bracket: (
               - expression:
                   function:
                     function_name:
-                      function_name_identifier:
-                        keyword: RIGHT
+                      function_name_identifier: RIGHT
                     bracketed:
                     - start_bracket: (
                     - expression:
@@ -68,8 +64,7 @@ file:
               - expression:
                   function:
                     function_name:
-                      function_name_identifier:
-                        identifier: LEN
+                      function_name_identifier: LEN
                     bracketed:
                       start_bracket: (
                       expression:

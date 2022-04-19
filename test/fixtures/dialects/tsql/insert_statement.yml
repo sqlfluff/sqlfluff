@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 29421c3d269592b426eda9be3027bc229387d32cafd40da5e3d55fc47b4c6971
+_hash: f465eec05c05b4bf79660102b8a89df6d4799d4b35c85cf175d921d6c57bcfe8
 file:
 - batch:
     statement:
@@ -120,15 +120,13 @@ file:
                       function_name:
                         identifier: '[dbo]'
                         dot: .
-                        function_name_identifier:
-                          identifier: '[CONVERT_ISO_WEEK_TO_DATETIME]'
+                        function_name_identifier: '[CONVERT_ISO_WEEK_TO_DATETIME]'
                       bracketed:
                       - start_bracket: (
                       - expression:
                           function:
                             function_name:
-                              function_name_identifier:
-                                keyword: LEFT
+                              function_name_identifier: LEFT
                             bracketed:
                             - start_bracket: (
                             - expression:
@@ -142,8 +140,7 @@ file:
                       - expression:
                           function:
                             function_name:
-                              function_name_identifier:
-                                keyword: RIGHT
+                              function_name_identifier: RIGHT
                             bracketed:
                             - start_bracket: (
                             - expression:
@@ -173,8 +170,7 @@ file:
                       function_name:
                         identifier: '[dbo]'
                         dot: .
-                        function_name_identifier:
-                          identifier: '[WEEK_END]'
+                        function_name_identifier: '[WEEK_END]'
                       bracketed:
                         start_bracket: (
                         expression:
@@ -182,15 +178,13 @@ file:
                             function_name:
                               identifier: '[dbo]'
                               dot: .
-                              function_name_identifier:
-                                identifier: '[CONVERT_ISO_WEEK_TO_DATETIME]'
+                              function_name_identifier: '[CONVERT_ISO_WEEK_TO_DATETIME]'
                             bracketed:
                             - start_bracket: (
                             - expression:
                                 function:
                                   function_name:
-                                    function_name_identifier:
-                                      keyword: LEFT
+                                    function_name_identifier: LEFT
                                   bracketed:
                                   - start_bracket: (
                                   - expression:
@@ -204,8 +198,7 @@ file:
                             - expression:
                                 function:
                                   function_name:
-                                    function_name_identifier:
-                                      keyword: RIGHT
+                                    function_name_identifier: RIGHT
                                   bracketed:
                                   - start_bracket: (
                                   - expression:

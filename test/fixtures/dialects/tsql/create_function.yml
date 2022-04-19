@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 746ce097b6754c40ecaefce9fc3022d3c6d1251572306f0a22bd95fca091f0f6
+_hash: f78dbf5872c29abdcfe06775bc5c22755fad8596b185c6de7b73b032c9a3a5e2
 file:
 - batch:
     statement:
@@ -52,8 +52,7 @@ file:
                   expression:
                   - function:
                       function_name:
-                        function_name_identifier:
-                          identifier: DATEPART
+                        function_name_identifier: DATEPART
                       bracketed:
                       - start_bracket: (
                       - expression:
@@ -68,8 +67,7 @@ file:
                   - binary_operator: '-'
                   - function:
                       function_name:
-                        function_name_identifier:
-                          identifier: DATEPART
+                        function_name_identifier: DATEPART
                       bracketed:
                       - start_bracket: (
                       - expression:
@@ -85,8 +83,7 @@ file:
                               expression:
                                 function:
                                   function_name:
-                                    function_name_identifier:
-                                      identifier: DATEPART
+                                    function_name_identifier: DATEPART
                                   bracketed:
                                   - start_bracket: (
                                   - expression:
@@ -134,8 +131,7 @@ file:
                           function_name:
                             identifier: dbo
                             dot: .
-                            function_name_identifier:
-                              identifier: ISOweek
+                            function_name_identifier: ISOweek
                           bracketed:
                             start_bracket: (
                             expression:
@@ -147,8 +143,7 @@ file:
                                   expression:
                                     function:
                                       function_name:
-                                        function_name_identifier:
-                                          identifier: DATEPART
+                                        function_name_identifier: DATEPART
                                       bracketed:
                                       - start_bracket: (
                                       - expression:
@@ -182,8 +177,7 @@ file:
                                     binary_operator: +
                                     function:
                                       function_name:
-                                        function_name_identifier:
-                                          identifier: DATEPART
+                                        function_name_identifier: DATEPART
                                       bracketed:
                                       - start_bracket: (
                                       - expression:
@@ -219,8 +213,7 @@ file:
                             expression:
                               function:
                                 function_name:
-                                  function_name_identifier:
-                                    identifier: DATEPART
+                                  function_name_identifier: DATEPART
                                 bracketed:
                                 - start_bracket: (
                                 - expression:
@@ -243,8 +236,7 @@ file:
                                 expression:
                                 - function:
                                     function_name:
-                                      function_name_identifier:
-                                        identifier: DATEPART
+                                      function_name_identifier: DATEPART
                                     bracketed:
                                     - start_bracket: (
                                     - expression:
@@ -257,8 +249,7 @@ file:
                                 - binary_operator: '-'
                                 - function:
                                     function_name:
-                                      function_name_identifier:
-                                        identifier: DATEPART
+                                      function_name_identifier: DATEPART
                                     bracketed:
                                     - start_bracket: (
                                     - expression:

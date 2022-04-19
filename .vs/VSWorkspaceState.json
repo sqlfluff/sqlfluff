@@ -1,0 +1,12 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\src",
+    "\\src\\sqlfluff",
+    "\\src\\sqlfluff\\rules",
+    "\\test\\fixtures\\dialects",
+    "\\test\\fixtures\\dialects\\tsql"
+  ],
+  "SelectedNode": "\\src\\sqlfluff\\rules\\L010.py",
+  "PreviewInSolutionExplorer": false
+}

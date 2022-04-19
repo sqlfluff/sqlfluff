@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8d7fde7fb4ca08f6f36729e16aa1319ce98e88cc229a713ee41de17e83e0b3b8
+_hash: 4f394efeb23b6f838b5fd9f7278f98b49696440e7372e563c1c8810ed73771ae
 file:
   batch:
     statement:
@@ -81,8 +81,7 @@ file:
             - start_bracket: (
             - function:
                 function_name:
-                  function_name_identifier:
-                    identifier: AVG
+                  function_name_identifier: AVG
                 bracketed:
                   start_bracket: (
                   expression:
