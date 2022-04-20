@@ -2501,9 +2501,9 @@ class TransactionStatementSegment(BaseSegment):
 
     type = "transaction_statement"
     match_grammar = OneOf(
-        # [ BEGIN | SAVE ] [ TRANSACTION | TRAN ] [ <Transaction Name> | <Transaction Name Variable> ]
+        # [ BEGIN | SAVE ] [ TRANSACTION | TRAN ] [ <Name> | <Variable> ]
         # COMMIT [ TRANSACTION | TRAN | WORK ]
-        # ROLLBACK [ TRANSACTION | TRAN | WORK ] [ <Transaction Name> | <Transaction Name Variable> ]
+        # ROLLBACK [ TRANSACTION | TRAN | WORK ] [ <Name> | <Variable> ]
         # https://docs.microsoft.com/en-us/sql/t-sql/language-elements/begin-transaction-transact-sql?view=sql-server-ver15
         Sequence(
             "BEGIN",
