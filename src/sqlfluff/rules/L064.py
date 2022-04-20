@@ -50,7 +50,7 @@ class Rule_L064(BaseRule):
 
     **Best practice**
 
-    Ensure all STRING literals use preferred quotes, unless escaping can be reduced by
+    Ensure all quoted literals use preferred quotes, unless escaping can be reduced by
     using alternate quotes.
 
     .. code-block:: sql
