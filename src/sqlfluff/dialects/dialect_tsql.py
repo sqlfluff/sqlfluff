@@ -2501,9 +2501,9 @@ class TransactionStatementSegment(BaseSegment):
 
     type = "transaction_statement"
     match_grammar = OneOf(
-        # [ BEGIN | SAVE ] [ TRANSACTION | TRAN ]
+        # [ BEGIN | SAVE ] [ TRANSACTION | TRAN ] [ <Name> | <Variable> ]
         # COMMIT [ TRANSACTION | TRAN | WORK ]
-        # ROLLBACK [ TRANSACTION | TRAN | WORK ]
+        # ROLLBACK [ TRANSACTION | TRAN | WORK ] [ <Name> | <Variable> ]
         # https://docs.microsoft.com/en-us/sql/t-sql/language-elements/begin-transaction-transact-sql?view=sql-server-ver15
         Sequence(
             "BEGIN",
@@ -2515,11 +2515,28 @@ class TransactionStatementSegment(BaseSegment):
         ),
         Sequence(
             OneOf("COMMIT", "ROLLBACK"),
-            OneOf(Ref("TransactionGrammar"), "WORK", optional=True),
+            Ref("TransactionGrammar", optional=True),
+            OneOf(
+                Ref("SingleIdentifierGrammar"),
+                Ref("VariableIdentifierSegment"),
+                optional=True,
+            ),
             Ref("DelimiterGrammar", optional=True),
         ),
         Sequence(
-            "SAVE", Ref("TransactionGrammar"), Ref("DelimiterGrammar", optional=True)
+            OneOf("COMMIT", "ROLLBACK"),
+            Sequence("WORK", optional=True),
+            Ref("DelimiterGrammar", optional=True),
+        ),
+        Sequence(
+            "SAVE",
+            Ref("TransactionGrammar"),
+            OneOf(
+                Ref("SingleIdentifierGrammar"),
+                Ref("VariableIdentifierSegment"),
+                optional=True,
+            ),
+            Ref("DelimiterGrammar", optional=True),
         ),
     )
 
