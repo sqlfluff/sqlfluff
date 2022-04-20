@@ -913,8 +913,7 @@ class FromExpressionElementSegment(ansi.FromExpressionElementSegment):
     """A table expression."""
 
     type = "from_expression_element"
-    match_grammar = StartsWith(
-        Sequence(
+    match_grammar = Sequence(
             Ref("PreTableFunctionKeywordsGrammar", optional=True),
             OptionallyBracketed(Ref("TableExpressionSegment")),
             Ref(
@@ -930,13 +929,6 @@ class FromExpressionElementSegment(ansi.FromExpressionElementSegment):
             Sequence("WITH", "OFFSET", Ref("AliasExpressionSegment"), optional=True),
             Ref("SamplingExpressionSegment", optional=True),
             Ref("PostTableExpressionGrammar", optional=True),
-        ),
-        terminator=OneOf(
-            Ref("JoinClauseSegment"),
-            Ref("JoinLikeClauseGrammar"),
-            Ref("JoinOnConditionSegment"),
-            Ref("CommaSegment"),
-        ),
     )
 
 
