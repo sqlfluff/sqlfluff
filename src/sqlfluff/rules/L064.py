@@ -178,7 +178,8 @@ class Rule_L064(BaseRule):
         value = s.lstrip(self._string_prefix_chars)
 
         if value[:3] == preferred_quote_char * 3:
-            # TODO: Are we not replacing unnecessary quotes here?
+            # In tripple quoted strings we are not replacing escaped quotes.
+            # So nothing left to do and we can exit.
             return s
         elif value[0] == preferred_quote_char:
             # Quotes are alright already. But maybe we can remove some unnecessary

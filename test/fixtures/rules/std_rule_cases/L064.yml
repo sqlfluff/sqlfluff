@@ -136,6 +136,38 @@ test_fail_tripple_quoted_strings_with_quotes_in_them:
     core:
       dialect: bigquery
 
+test_fail_tripple_quoted_strings_dont_remove_escapes_single_quotes:
+  fail_str: |
+    SELECT
+        """Strings escaped quotes \" and \' in them""",
+        '''Strings escaped quotes \" and \' in them'''
+  fix_str: |
+    SELECT
+        '''Strings escaped quotes \" and \' in them''',
+        '''Strings escaped quotes \" and \' in them'''
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      L064:
+        preferred_string_quotes: single_quotes
+
+test_fail_tripple_quoted_strings_dont_remove_escapes_double_quotes:
+  fail_str: |
+    SELECT
+        """Strings escaped quotes \" and \' in them""",
+        '''Strings escaped quotes \" and \' in them'''
+  fix_str: |
+    SELECT
+        """Strings escaped quotes \" and \' in them""",
+        """Strings escaped quotes \" and \' in them"""
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      L064:
+        preferred_string_quotes: double_quotes
+
 test_fail_edge_case_tripple_quoted_string_ending_with_double_quote:
   # Test that a trailing preferred quote in tripple quote scenario doesn't break
   fail_str: |
