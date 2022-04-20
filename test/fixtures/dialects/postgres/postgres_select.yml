@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 572e9cff030f960fecb75a5b65fa334eafee69090a608803d23fd9851874312f
+_hash: 2ac14552506be39c7f8cb304071dd62b0f075b16dc4632cc94609fe8bbaac8bc
 file:
 - statement:
     select_statement:
@@ -40,7 +40,7 @@ file:
             - comma: ','
             - expression:
                 numeric_literal:
-                  binary_operator: '-'
+                  sign_indicator: '-'
                   literal: '2'
             - comma: ','
             - expression:
@@ -100,12 +100,12 @@ file:
               data_type:
                 datetime_type_identifier:
                   keyword: TIMESTAMP
-                time_zone_grammar:
-                - keyword: AT
-                - keyword: TIME
-                - keyword: ZONE
-                - expression:
-                    literal: "'UTC'"
+            time_zone_grammar:
+            - keyword: AT
+            - keyword: TIME
+            - keyword: ZONE
+            - expression:
+                literal: "'UTC'"
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -138,12 +138,12 @@ file:
                 - keyword: WITH
                 - keyword: TIME
                 - keyword: ZONE
-                time_zone_grammar:
-                - keyword: AT
-                - keyword: TIME
-                - keyword: ZONE
-                - expression:
-                    literal: "'UTC'"
+            time_zone_grammar:
+            - keyword: AT
+            - keyword: TIME
+            - keyword: ZONE
+            - expression:
+                literal: "'UTC'"
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -186,25 +186,26 @@ file:
               data_type:
                 datetime_type_identifier:
                   keyword: TIMESTAMPTZ
-                time_zone_grammar:
-                - keyword: AT
-                - keyword: TIME
-                - keyword: ZONE
-                - expression:
-                    literal: "'UTC'"
+            time_zone_grammar:
+            - keyword: AT
+            - keyword: TIME
+            - keyword: ZONE
+            - expression:
+                literal: "'UTC'"
 - statement_terminator: ;
 - statement:
     select_statement:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          datetime_literal:
-            datetime_type_identifier:
-            - keyword: timestamp
-            - keyword: with
-            - keyword: time
-            - keyword: zone
-            literal: "'2025-11-20 00:00:00+00'"
+          expression:
+            datetime_literal:
+              datetime_type_identifier:
+              - keyword: timestamp
+              - keyword: with
+              - keyword: time
+              - keyword: zone
+              literal: "'2025-11-20 00:00:00+00'"
             time_zone_grammar:
             - keyword: AT
             - keyword: TIME
@@ -230,13 +231,34 @@ file:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          datetime_literal:
-            datetime_type_identifier:
-            - keyword: timestamp
-            - keyword: without
-            - keyword: time
-            - keyword: zone
-            literal: "'2025-11-20 00:00:00'"
+          expression:
+            datetime_literal:
+              datetime_type_identifier:
+              - keyword: timestamp
+              - keyword: without
+              - keyword: time
+              - keyword: zone
+              literal: "'2025-11-20 00:00:00'"
+            time_zone_grammar:
+            - keyword: AT
+            - keyword: TIME
+            - keyword: ZONE
+            - expression:
+                literal: "'Africa/Cairo'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            datetime_literal:
+              datetime_type_identifier:
+              - keyword: timestamp
+              - keyword: without
+              - keyword: time
+              - keyword: zone
+              literal: "'2025-11-20 00:00:00+12'"
             time_zone_grammar:
             - keyword: AT
             - keyword: TIME
@@ -256,6 +278,20 @@ file:
             - keyword: time
             - keyword: zone
             literal: "'2025-11-20 00:00:00+12'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            datetime_literal:
+              datetime_type_identifier:
+              - keyword: time
+              - keyword: with
+              - keyword: time
+              - keyword: zone
+              literal: "'00:00:00+00'"
             time_zone_grammar:
             - keyword: AT
             - keyword: TIME
@@ -268,26 +304,14 @@ file:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          datetime_literal:
-            datetime_type_identifier:
-            - keyword: timestamp
-            - keyword: without
-            - keyword: time
-            - keyword: zone
-            literal: "'2025-11-20 00:00:00+12'"
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-        keyword: SELECT
-        select_clause_element:
-          datetime_literal:
-            datetime_type_identifier:
-            - keyword: time
-            - keyword: with
-            - keyword: time
-            - keyword: zone
-            literal: "'00:00:00+00'"
+          expression:
+            datetime_literal:
+              datetime_type_identifier:
+              - keyword: time
+              - keyword: without
+              - keyword: time
+              - keyword: zone
+              literal: "'00:00:00'"
             time_zone_grammar:
             - keyword: AT
             - keyword: TIME
@@ -300,33 +324,15 @@ file:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          datetime_literal:
-            datetime_type_identifier:
-            - keyword: time
-            - keyword: without
-            - keyword: time
-            - keyword: zone
-            literal: "'00:00:00'"
+          expression:
+            column_reference:
+              identifier: c_timestamp
             time_zone_grammar:
             - keyword: AT
             - keyword: TIME
             - keyword: ZONE
             - expression:
                 literal: "'Africa/Cairo'"
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-        keyword: SELECT
-        select_clause_element:
-          column_reference:
-            identifier: c_timestamp
-          time_zone_grammar:
-          - keyword: AT
-          - keyword: TIME
-          - keyword: ZONE
-          - expression:
-              literal: "'Africa/Cairo'"
       from_clause:
         keyword: FROM
         from_expression:

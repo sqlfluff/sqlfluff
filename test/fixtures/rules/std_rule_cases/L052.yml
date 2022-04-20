@@ -470,6 +470,7 @@ test_fail_whitespace_after_simple_select:
     SELECT 1 ;
   fix_str: |
     SELECT 1;
+
 test_fail_whitespace_after_snowflake_set:
   fail_str: |
     SET foo = (SELECT foo FROM foo.foo) ;
@@ -478,3 +479,18 @@ test_fail_whitespace_after_snowflake_set:
   configs:
     core:
       dialect: snowflake
+
+test_fail_templated_fix_crosses_block_boundary:
+  # The rule wants to move the semicolon to the same line as the SELECT, but
+  # the core linter prevents it because it crosses a template block boundary.
+  fail_str: |
+    {% if True %}
+    SELECT 1
+    {% else %}
+    SELECT 2
+    {% endif %}
+    ;
+  configs:
+    rules:
+      L052:
+        require_final_semicolon: true

@@ -256,11 +256,31 @@ tsql_dialect.replace(
         Ref("DatatypeSegment"),
         Sequence(Ref("EqualsSegment"), Ref("ExpressionSegment"), optional=True),
     ),
-    FunctionNameIdentifierSegment=RegexParser(
-        r"[A-Z][A-Z0-9_]*|\[[A-Z][A-Z0-9_]*\]",
-        CodeSegment,
-        name="function_name_identifier",
-        type="function_name_identifier",
+    FunctionNameIdentifierSegment=SegmentGenerator(
+        # Generate the anti template from the set of reserved keywords
+        # minus the function names that are reserved words.
+        lambda dialect: RegexParser(
+            r"[A-Z][A-Z0-9_]*|\[[A-Z][A-Z0-9_]*\]",
+            CodeSegment,
+            name="function_name_identifier",
+            type="function_name_identifier",
+            anti_template=r"^("
+            + r"|".join(
+                dialect.sets("reserved_keywords")
+                - {
+                    "COALESCE",
+                    "CONVERT",
+                    "CURRENT_TIMESTAMP",
+                    "CURRENT_USER",
+                    "LEFT",
+                    "NULLIF",
+                    "RIGHT",
+                    "SESSION_USER",
+                    "SYSTEM_USER",
+                }
+            )
+            + r")$",
+        )
     ),
     # Override ANSI IsClauseGrammar to remove TSQL non-keyword NAN
     IsClauseGrammar=OneOf(

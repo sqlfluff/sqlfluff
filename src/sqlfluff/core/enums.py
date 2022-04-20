@@ -11,6 +11,7 @@ class FormatType(Enum):
     json = "json"
     yaml = "yaml"
     github_annotation = "github-annotation"
+    github_annotation_native = "github-annotation-native"
 
 
 class Color(Enum):

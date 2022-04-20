@@ -143,21 +143,30 @@ sparksql_dialect.sets("datetime_units").clear()
 sparksql_dialect.sets("datetime_units").update(
     [
         "YEAR",
-        # Alternate syntax for YEAR
+        "YEARS",
         "YYYY",
         "YY",
         "QUARTER",
+        "QUARTERS",
         "MONTH",
-        # Alternate syntax for MONTH
+        "MONTHS",
         "MON",
         "MM",
         "WEEK",
+        "WEEKS",
         "DAY",
-        # Alternate syntax for DAY
+        "DAYS",
         "DD",
         "HOUR",
+        "HOURS",
         "MINUTE",
+        "MINUTES",
         "SECOND",
+        "SECONDS",
+        "MILLISECOND",
+        "MILLISECONDS",
+        "MICROSECOND",
+        "MICROSECONDS",
     ]
 )
 
@@ -507,6 +516,22 @@ sparksql_dialect.add(
         name="at_sign_literal",
         type="literal",
         trim_chars="@",
+    ),
+    # This is the same as QuotedLiteralSegment but
+    # is given a different `name` to stop L048 flagging
+    SignedQuotedLiteralSegment=OneOf(
+        NamedParser(
+            "single_quote",
+            CodeSegment,
+            name="signed_quoted_literal",
+            type="literal",
+        ),
+        NamedParser(
+            "double_quote",
+            CodeSegment,
+            name="signed_quoted_literal",
+            type="literal",
+        ),
     ),
 )
 
@@ -2336,6 +2361,7 @@ class AliasExpressionSegment(ansi.AliasExpressionSegment):
                 Ref("JoinTypeKeywords"),
                 "WINDOW",
                 "PIVOT",
+                Ref("DatetimeUnitSegment"),
             ),
         ),
     )
@@ -2571,4 +2597,43 @@ class UpdateStatementSegment(ansi.UpdateStatementSegment):
         ),
         Ref("SetClauseListSegment"),
         Ref("WhereClauseSegment"),
+    )
+
+
+class IntervalLiteralSegment(BaseSegment):
+    """An interval literal segment.
+
+    https://spark.apache.org/docs/latest/sql-ref-literals.html#interval-literal
+    """
+
+    type = "interval_literal"
+
+    match_grammar: Matchable = Sequence(
+        Ref("SignedSegmentGrammar", optional=True),
+        OneOf(
+            Ref("NumericLiteralSegment"),
+            Ref("SignedQuotedLiteralSegment"),
+        ),
+        Ref("DatetimeUnitSegment"),
+        Ref.keyword("TO", optional=True),
+        Ref("DatetimeUnitSegment", optional=True),
+    )
+
+
+class IntervalExpressionSegment(ansi.IntervalExpressionSegment):
+    """An interval expression segment.
+
+    Redefining from ANSI dialect to allow for additional syntax.
+
+    https://spark.apache.org/docs/latest/sql-ref-literals.html#interval-literal
+    """
+
+    match_grammar: Matchable = Sequence(
+        "INTERVAL",
+        OneOf(
+            AnyNumberOf(
+                Ref("IntervalLiteralSegment"),
+            ),
+            Ref("QuotedLiteralSegment"),
+        ),
     )

@@ -488,7 +488,6 @@ class FunctionSegment(ansi.FunctionSegment):
                     Ref("DatetimeUnitSegment"),
                     "FROM",
                     Ref("ExpressionSegment"),
-                    Ref("TimeZoneGrammar", optional=True),
                 ),
             ),
             Sequence(
