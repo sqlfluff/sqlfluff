@@ -1,14 +1,8 @@
 """Implementation of Rule L064."""
 
-import sys
 from typing import Optional
 
 import regex
-
-if sys.version_info < (3, 8):
-    from typing_extensions import Final
-else:
-    from typing import Final
 
 from sqlfluff.core.parser.segments.raw import CodeSegment
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
@@ -16,21 +10,6 @@ from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
 )
-
-QUOTES_MAPPING: Final = {
-    "single_quotes": {
-        "common_name": "single quotes",
-        "preferred_quote_char": "'",
-        "alternate_quote_char": '"',
-    },
-    "double_quotes": {
-        "common_name": "double quotes",
-        "preferred_quote_char": '"',
-        "alternate_quote_char": "'",
-    },
-}
-# BigQuery string prefix characters.
-STRING_PREFIX_CHARS: Final = "rbRB"
 
 
 @document_configuration
@@ -91,6 +70,21 @@ class Rule_L064(BaseRule):
         "sparksql",
     ]
 
+    _quotes_mapping = {
+        "single_quotes": {
+            "common_name": "single quotes",
+            "preferred_quote_char": "'",
+            "alternate_quote_char": '"',
+        },
+        "double_quotes": {
+            "common_name": "double quotes",
+            "preferred_quote_char": '"',
+            "alternate_quote_char": "'",
+        },
+    }
+    # BigQuery string prefix characters.
+    _string_prefix_chars = "rbRB"
+
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         # Config type hints
         self.preferred_string_quotes: str
@@ -131,10 +125,10 @@ class Rule_L064(BaseRule):
 
         fixed_string = self._normalize_preferred_string_quotes(
             context.segment.raw,
-            preferred_quote_char=QUOTES_MAPPING[preferred_string_quotes][
+            preferred_quote_char=self._quotes_mapping[preferred_string_quotes][
                 "preferred_quote_char"
             ],
-            alternate_quote_char=QUOTES_MAPPING[preferred_string_quotes][
+            alternate_quote_char=self._quotes_mapping[preferred_string_quotes][
                 "alternate_quote_char"
             ],
         )
@@ -157,7 +151,7 @@ class Rule_L064(BaseRule):
                 ],
                 description=(
                     "Inconsistent use of preferred quote style '"
-                    f"{QUOTES_MAPPING[preferred_string_quotes]['common_name']}'. "
+                    f"{self._quotes_mapping[preferred_string_quotes]['common_name']}'. "
                     f"Use {fixed_string} instead of {context.segment.raw}."
                 ),
             )
@@ -178,7 +172,7 @@ class Rule_L064(BaseRule):
 
         Adds or removes backslashes as appropriate.
         """
-        value = s.lstrip(STRING_PREFIX_CHARS)
+        value = s.lstrip(self._string_prefix_chars)
 
         if value[:3] == preferred_quote_char * 3:
             # TODO: Are we not replacing unnecessary quotes here?
