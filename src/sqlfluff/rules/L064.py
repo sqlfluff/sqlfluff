@@ -184,11 +184,12 @@ class Rule_L064(BaseRule):
         escaped_orig_quote = regex.compile(rf"([^\\]|^)\\((?:\\\\)*){orig_quote}")
         body = s[first_quote_pos + len(orig_quote) : -len(orig_quote)]
 
-        if "r" in prefix.casefold():
+        if "r" in prefix.lower():
             if unescaped_new_quote.search(body):
-                # There's at least one unescaped new_quote in this raw string
-                # so converting is impossible
-                # self.logger.debug()
+                self.logger.debug(
+                    "There's at least one unescaped new_quote in this raw string "
+                    "so converting is impossible."
+                )
                 return s
 
             # Do not introduce or remove backslashes in raw strings
