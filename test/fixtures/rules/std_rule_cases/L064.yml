@@ -6,6 +6,9 @@ test_pass_preferred_tripple_quotes:
   configs:
     core:
       dialect: bigquery
+    rules:
+      L064:
+        force_enable: True
 
 test_fail_alternate_tripple_quotes:
   fail_str: |
@@ -15,6 +18,9 @@ test_fail_alternate_tripple_quotes:
   configs:
     core:
       dialect: bigquery
+    rules:
+      L064:
+        force_enable: True
 
 test_fail_unnecessary_escaping:
   fail_str: |
@@ -28,6 +34,9 @@ test_fail_unnecessary_escaping:
   configs:
     core:
       dialect: bigquery
+    rules:
+      L064:
+        force_enable: True
 
 test_fail_edge_case_tripple_quoted_string_ending_with_double_quote:
   fail_str: |
@@ -41,6 +50,9 @@ test_fail_edge_case_tripple_quoted_string_ending_with_double_quote:
   configs:
     core:
       dialect: bigquery
+    rules:
+      L064:
+        force_enable: True
 
 test_pass_lots_of_quotes:
   # Test that we can handle complexe quoting examples
@@ -51,6 +63,9 @@ test_pass_lots_of_quotes:
   configs:
     core:
       dialect: bigquery
+    rules:
+      L064:
+        force_enable: True
 
 test_fail_lots_of_quotes:
   # Test that we can handle complexe quoting examples
@@ -61,6 +76,9 @@ test_fail_lots_of_quotes:
   configs:
     core:
       dialect: bigquery
+    rules:
+      L064:
+        force_enable: True
 
 test_fail_quote_replace_in_raw_strings:
   # Test that we can handle complexe quoting examples
@@ -75,6 +93,9 @@ test_fail_quote_replace_in_raw_strings:
   configs:
     core:
       dialect: bigquery
+    rules:
+      L064:
+        force_enable: True
 
 test_pass_dollar_quoted_strings_are_ignored:
   # Test that we dont interfer with dollar quoted strings

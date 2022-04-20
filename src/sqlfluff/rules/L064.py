@@ -45,6 +45,22 @@ class Rule_L064(BaseRule):
     Dollar quotes raw strings are excluded from this rule, as they mostly used for
     literal UDF Body definitions.
 
+    .. note::
+       This rule was taken from `Black code style
+       <https://black.readthedocs.io/en/stable/the_black_code_style/current_style.html#strings>`_
+       .
+
+       For this rule to work the user needs to settle on a preferred quoting style. This
+       is controversial and users may have different opinion on whether single or double
+       quotes are preferred.
+
+       Additionally, this rule can be dangerous. If accidentally enabled for dialects
+       that do not support single *and* double quotes automated fixes can potentially
+       break working SQL code.
+
+       This rule is disabled by default.
+       It can be enabled with the ``force_enable = True`` flag.
+
     **Anti-pattern**
 
     .. code-block:: sql
@@ -75,22 +91,13 @@ class Rule_L064(BaseRule):
     """
 
     config_keywords = ["preferred_string_quotes", "force_enable"]
-    _dialects_with_double_quoted_strings = [
-        "bigquery",
-        "hive",
-        "mysql",
-        "sparksql",
-    ]
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         # Config type hints
         self.preferred_string_quotes: str
         self.force_enable: bool
 
-        if (
-            context.dialect.name not in self._dialects_with_double_quoted_strings
-            and not self.force_enable
-        ):
+        if not self.force_enable:
             return LintResult()
 
         # Only care about quoted literal segments.
