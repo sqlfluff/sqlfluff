@@ -2186,11 +2186,19 @@ class AlterTableStatementSegment(BaseSegment):
                     Ref("ColumnReferenceSegment"),
                 ),
                 Sequence(
+                    Sequence(
+                        "WITH",
+                        "CHECK",
+                        optional=True,
+                    ),
                     "ADD",
                     Ref("TableConstraintSegment"),
                 ),
                 Sequence(
-                    "DROP",
+                    OneOf(
+                        "CHECK",
+                        "DROP",
+                    ),
                     "CONSTRAINT",
                     Ref("ObjectReferenceSegment"),
                 ),
