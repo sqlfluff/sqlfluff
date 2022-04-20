@@ -46,19 +46,12 @@ class Rule_L064(BaseRule):
     literal UDF Body definitions.
 
     .. note::
-       This rule was taken from `Black code style
-       <https://black.readthedocs.io/en/stable/the_black_code_style/current_style.html#strings>`_
-       .
+       This rule can be dangerous. If accidentally enabled for dialects that do not
+       support single *and* double quotes automated fixes can potentially break working
+       SQL code.
 
-       For this rule to work the user needs to settle on a preferred quoting style. This
-       is controversial and users may have different opinions on whether single or
-       double quotes are preferred.
-
-       Additionally, this rule can be dangerous. If accidentally enabled for dialects
-       that do not support single *and* double quotes automated fixes can potentially
-       break working SQL code.
-
-       This rule is disabled by default. It can be enabled with the
+       This rule is disabled by default for dialetcs that don't allow double quotes for
+       STRING datatype (e.g. Postgres). It can be enabled with the
        ``force_enable = True`` flag.
 
     **Anti-pattern**
@@ -91,25 +84,57 @@ class Rule_L064(BaseRule):
     """
 
     config_keywords = ["preferred_string_quotes", "force_enable"]
+    _dialects_with_double_quoted_strings = [
+        "bigquery",
+        "hive",
+        "mysql",
+        "sparksql",
+    ]
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         # Config type hints
         self.preferred_string_quotes: str
         self.force_enable: bool
 
-        if not self.force_enable:
-            return LintResult()
+        if (
+            context.dialect.name not in self._dialects_with_double_quoted_strings
+            and not self.force_enable
+        ):
+            return LintResult(memory=context.memory)
 
         # Only care about quoted literal segments.
         if not context.segment.name == "quoted_literal":
             return None
 
+        # If quoting style is set to consistent we use the quoting style of the first
+        # quoted_literal that we encounter.
+        if self.preferred_string_quotes == "consistent":
+            memory = context.memory
+            preferred_string_quotes = memory.get("preferred_string_quotes")
+
+            if not preferred_string_quotes:
+                # Getting the quote from LAST character to be able to handle STRING
+                # prefixes
+                preferred_string_quotes = (
+                    "double_quotes"
+                    if context.segment.raw[-1] == '"'
+                    else "single_quotes"
+                )
+                memory["preferred_string_quotes"] = preferred_string_quotes
+                self.logger.debug(
+                    "Preferred string quotes is set to `consistent`. Derived quoting "
+                    "style %s from first quoted literal.",
+                    preferred_string_quotes,
+                )
+        else:
+            preferred_string_quotes = self.preferred_string_quotes
+
         fixed_string = self._normalize_preferred_string_quotes(
             context.segment.raw,
-            preferred_quote_char=QUOTES_MAPPING[self.preferred_string_quotes][
+            preferred_quote_char=QUOTES_MAPPING[preferred_string_quotes][
                 "preferred_quote_char"
             ],
-            alternate_quote_char=QUOTES_MAPPING[self.preferred_string_quotes][
+            alternate_quote_char=QUOTES_MAPPING[preferred_string_quotes][
                 "alternate_quote_char"
             ],
         )
@@ -122,6 +147,7 @@ class Rule_L064(BaseRule):
             )
             return LintResult(
                 anchor=context.segment,
+                memory=context.memory,
                 fixes=[
                     LintFix.replace(
                         context.segment,
@@ -136,7 +162,7 @@ class Rule_L064(BaseRule):
                 ],
                 description=(
                     "Inconsistent use of preferred quote style '"
-                    f"{QUOTES_MAPPING[self.preferred_string_quotes]['common_name']}"
+                    f"{QUOTES_MAPPING[preferred_string_quotes]['common_name']}"
                     "' for STRING datatype."
                 ),
             )

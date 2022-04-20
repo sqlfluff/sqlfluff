@@ -3,8 +3,8 @@ rule: L064
 test_fail_result_of_fix_is_valid_bigquery:
   fail_str: |
     SELECT
-        'some string',
-        "some string"
+        "some string",
+        'some string'
   fix_str: |
     SELECT
         "some string",
@@ -12,15 +12,12 @@ test_fail_result_of_fix_is_valid_bigquery:
   configs:
     core:
       dialect: bigquery
-    rules:
-      L064:
-        force_enable: True
 
 test_fail_result_of_fix_is_valid_hive:
   fail_str: |
     SELECT
-        'some string',
-        "some string"
+        "some string",
+        'some string'
   fix_str: |
     SELECT
         "some string",
@@ -28,15 +25,12 @@ test_fail_result_of_fix_is_valid_hive:
   configs:
     core:
       dialect: hive
-    rules:
-      L064:
-        force_enable: True
 
 test_fail_result_of_fix_is_valid_mysql:
   fail_str: |
     SELECT
-        'some string',
-        "some string"
+        "some string",
+        'some string'
   fix_str: |
     SELECT
         "some string",
@@ -44,15 +38,12 @@ test_fail_result_of_fix_is_valid_mysql:
   configs:
     core:
       dialect: mysql
-    rules:
-      L064:
-        force_enable: True
 
 test_fail_result_of_fix_is_valid_sparksql:
   fail_str: |
     SELECT
-        'some string',
-        "some string"
+        "some string",
+        'some string'
   fix_str: |
     SELECT
         "some string",
@@ -60,9 +51,6 @@ test_fail_result_of_fix_is_valid_sparksql:
   configs:
     core:
       dialect: sparksql
-    rules:
-      L064:
-        force_enable: True
 
 test_pass_preferred_tripple_quotes:
   pass_str: |
@@ -72,7 +60,7 @@ test_pass_preferred_tripple_quotes:
       dialect: bigquery
     rules:
       L064:
-        force_enable: True
+        preferred_string_quotes: double_quotes
 
 test_fail_alternate_tripple_quotes:
   fail_str: |
@@ -84,7 +72,7 @@ test_fail_alternate_tripple_quotes:
       dialect: bigquery
     rules:
       L064:
-        force_enable: True
+        preferred_string_quotes: double_quotes
 
 test_fail_unnecessary_escaping:
   fail_str: |
@@ -100,7 +88,7 @@ test_fail_unnecessary_escaping:
       dialect: bigquery
     rules:
       L064:
-        force_enable: True
+        preferred_string_quotes: double_quotes
 
 test_fail_bigquery_string_prefixes:
   fail_str: |
@@ -120,7 +108,20 @@ test_fail_bigquery_string_prefixes:
       dialect: bigquery
     rules:
       L064:
-        force_enable: True
+        preferred_string_quotes: double_quotes
+
+test_fail_bigquery_string_prefixes_when_style_is_consistent:
+  fail_str: |
+    SELECT
+        r'some_string',
+        b"some_string"
+  fix_str: |
+    SELECT
+        r'some_string',
+        b'some_string'
+  configs:
+    core:
+      dialect: bigquery
 
 test_fail_tripple_quoted_strings_with_quotes_in_them:
   fail_str: |
@@ -134,9 +135,6 @@ test_fail_tripple_quoted_strings_with_quotes_in_them:
   configs:
     core:
       dialect: bigquery
-    rules:
-      L064:
-        force_enable: True
 
 test_fail_edge_case_tripple_quoted_string_ending_with_double_quote:
   # Test that a trailing preferred quote in tripple quote scenario doesn't break
@@ -153,7 +151,7 @@ test_fail_edge_case_tripple_quoted_string_ending_with_double_quote:
       dialect: bigquery
     rules:
       L064:
-        force_enable: True
+        preferred_string_quotes: double_quotes
 
 test_pass_lots_of_quotes:
   # Test that we can handle complex quoting scenarios
@@ -166,7 +164,7 @@ test_pass_lots_of_quotes:
       dialect: bigquery
     rules:
       L064:
-        force_enable: True
+        preferred_string_quotes: double_quotes
 
 test_fail_lots_of_quotes:
   # Test that we can handle complex quoting scenarios
@@ -179,7 +177,7 @@ test_fail_lots_of_quotes:
       dialect: bigquery
     rules:
       L064:
-        force_enable: True
+        preferred_string_quotes: double_quotes
 
 test_fail_quote_replace_in_raw_strings:
   # Test that we can handle complex quoting scenarios
@@ -196,7 +194,7 @@ test_fail_quote_replace_in_raw_strings:
       dialect: bigquery
     rules:
       L064:
-        force_enable: True
+        preferred_string_quotes: double_quotes
 
 test_pass_dollar_quoted_strings_are_ignored:
   # Test that we dont interfere with dollar quoted strings
