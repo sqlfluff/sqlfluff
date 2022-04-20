@@ -130,13 +130,10 @@ def test_rule_exception_is_caught_to_validation():
 
 def test_std_rule_import_fail_bad_naming():
     """Check that rule import from file works."""
-    assert (
-        get_rules_from_path(
-            rules_path="test/fixtures/rules/custom/*.py",
-            base_module="test.fixtures.rules.custom",
-        )
-        == [Rule_L000, Rule_S000]
-    )
+    assert get_rules_from_path(
+        rules_path="test/fixtures/rules/custom/*.py",
+        base_module="test.fixtures.rules.custom",
+    ) == [Rule_L000, Rule_S000]
 
     with pytest.raises(AttributeError) as e:
         get_rules_from_path(
