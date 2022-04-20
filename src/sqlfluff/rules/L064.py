@@ -140,11 +140,6 @@ class Rule_L064(BaseRule):
         )
 
         if fixed_string != context.segment.raw:
-            self.logger.debug(
-                "Inconsistent use of preferred quote style. Use %s instead of %s.",
-                fixed_string,
-                context.segment.raw,
-            )
             return LintResult(
                 anchor=context.segment,
                 memory=context.memory,
@@ -162,8 +157,8 @@ class Rule_L064(BaseRule):
                 ],
                 description=(
                     "Inconsistent use of preferred quote style '"
-                    f"{QUOTES_MAPPING[preferred_string_quotes]['common_name']}"
-                    "' for STRING datatype."
+                    f"{QUOTES_MAPPING[preferred_string_quotes]['common_name']}'. "
+                    f"Use {fixed_string} instead of {context.segment.raw}."
                 ),
             )
 
