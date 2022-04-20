@@ -2239,8 +2239,7 @@ class WithCompoundStatementSegment(BaseSegment):
 
     type = "with_compound_statement"
     # match grammar
-    match_grammar: Matchable = StartsWith("WITH")
-    parse_grammar: Optional[Matchable] = Sequence(
+    match_grammar: Matchable = Sequence(
         "WITH",
         Ref.keyword("RECURSIVE", optional=True),
         Conditional(Indent, indented_ctes=True),
