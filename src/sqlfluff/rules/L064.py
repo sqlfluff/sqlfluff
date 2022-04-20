@@ -42,7 +42,7 @@ class Rule_L064(BaseRule):
     literal. Prefer one type of quotes as specified in rule setting. Falling back to
     alternate quotes to reduce escapes.
 
-    Dollar quotes raw strings are excluded from this rule, as they mostly used for
+    Dollar quoted raw strings are excluded from this rule, as they are mostly used for
     literal UDF Body definitions.
 
     .. note::
@@ -51,15 +51,15 @@ class Rule_L064(BaseRule):
        .
 
        For this rule to work the user needs to settle on a preferred quoting style. This
-       is controversial and users may have different opinion on whether single or double
-       quotes are preferred.
+       is controversial and users may have different opinions on whether single or
+       double quotes are preferred.
 
        Additionally, this rule can be dangerous. If accidentally enabled for dialects
        that do not support single *and* double quotes automated fixes can potentially
        break working SQL code.
 
-       This rule is disabled by default.
-       It can be enabled with the ``force_enable = True`` flag.
+       This rule is disabled by default. It can be enabled with the
+       ``force_enable = True`` flag.
 
     **Anti-pattern**
 
@@ -75,7 +75,7 @@ class Rule_L064(BaseRule):
 
     **Best practice**
 
-    Ensure all STRING literals use preferred quotes, unless escaping can be reduced
+    Ensure all STRING literals use preferred quotes, unless escaping can be reduced by
     using alternate quotes.
 
     .. code-block:: sql
@@ -116,7 +116,7 @@ class Rule_L064(BaseRule):
 
         if fixed_string != context.segment.raw:
             self.logger.debug(
-                "Inconsistent use of preferred quote style, Use %s instead of %s.",
+                "Inconsistent use of preferred quote style. Use %s instead of %s.",
                 fixed_string,
                 context.segment.raw,
             )
@@ -146,18 +146,16 @@ class Rule_L064(BaseRule):
     def _sub_twice(self, regex: regex.Pattern, replacement: str, original: str) -> str:
         """Replace `regex` with `replacement` twice on `original`.
 
-        This is used by string normalization to perform replaces on
-        overlapping matches.
+        This is used by string normalization to perform replaces on overlapping matches.
         """
         return regex.sub(replacement, regex.sub(replacement, original))
 
     def _normalize_preferred_string_quotes(
         self, s: str, preferred_quote_char: str, alternate_quote_char: str
     ) -> str:
-        """Prefer double quotes but only if it doesn't cause more escaping.
+        """Prefer `preferred_quote_char` but only if it doesn't cause more escaping.
 
-        Adds or removes backslashes as appropriate. Doesn't parse and fix
-        strings nested in f-strings.
+        Adds or removes backslashes as appropriate.
         """
         value = s.lstrip(STRING_PREFIX_CHARS)
 
@@ -165,9 +163,8 @@ class Rule_L064(BaseRule):
             # TODO: Are we not replacing unnecessary quotes here?
             return s
         elif value[0] == preferred_quote_char:
-            # quotes are alright already,
-            # but maybe we can remove some unneeded escapes or reduce the number
-            # of escape using alternate_quote_char ?
+            # Quotes are alright already. But maybe we can remove some unnecessary
+            # escapes or reduce the number of escapes using alternate_quote_char ?
             orig_quote = preferred_quote_char
             new_quote = alternate_quote_char
         elif value[:3] == alternate_quote_char * 3:
@@ -223,7 +220,7 @@ class Rule_L064(BaseRule):
             and new_body[-1:] == preferred_quote_char
         ):
             # edge case: for example when converting quotes from '''a"'''
-            # to """a\"""" the last " of the string needs to be escaped.
+            # to """a\"""" the last " of the string body needs to be escaped.
             new_body = new_body[:-1] + f"\\{preferred_quote_char}"
 
         orig_escape_count = body.count("\\")

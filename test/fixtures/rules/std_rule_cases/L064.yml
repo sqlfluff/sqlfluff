@@ -39,6 +39,7 @@ test_fail_unnecessary_escaping:
         force_enable: True
 
 test_fail_edge_case_tripple_quoted_string_ending_with_double_quote:
+  # Test that a trailing preferred quote in tripple quote scenario doesn't break
   fail_str: |
     SELECT
         '''Here's a "''',
@@ -55,7 +56,7 @@ test_fail_edge_case_tripple_quoted_string_ending_with_double_quote:
         force_enable: True
 
 test_pass_lots_of_quotes:
-  # Test that we can handle complexe quoting examples
+  # Test that we can handle complex quoting scenarios
   pass_str: |
     SELECT
       '\\""',
@@ -68,7 +69,7 @@ test_pass_lots_of_quotes:
         force_enable: True
 
 test_fail_lots_of_quotes:
-  # Test that we can handle complexe quoting examples
+  # Test that we can handle complex quoting scenarios
   fail_str: |
     SELECT 'Lots of \\\\\\\\\'quotes\''
   fix_str: |
@@ -81,7 +82,7 @@ test_fail_lots_of_quotes:
         force_enable: True
 
 test_fail_quote_replace_in_raw_strings:
-  # Test that we can handle complexe quoting examples
+  # Test that we can handle complex quoting scenarios
   fail_str: |
     SELECT
         r'Tricky "quote',
@@ -98,7 +99,7 @@ test_fail_quote_replace_in_raw_strings:
         force_enable: True
 
 test_pass_dollar_quoted_strings_are_ignored:
-  # Test that we dont interfer with dollar quoted strings
+  # Test that we dont interfere with dollar quoted strings
   pass_str: |
     SELECT
         'some string',

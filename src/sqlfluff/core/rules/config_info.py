@@ -179,7 +179,7 @@ STANDARD_CONFIG_INFO_DICT = {
     },
     "preferred_string_quotes": {
         "validation": ["single_quotes", "double_quotes"],
-        "definition": ("Preferred quoting style to using for the STRING datatype."),
+        "definition": ("Preferred quoting style to use for the STRING datatype."),
     },
 }
 
