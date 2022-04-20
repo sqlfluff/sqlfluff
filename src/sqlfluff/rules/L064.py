@@ -180,9 +180,6 @@ class Rule_L064(BaseRule):
             return s
 
         first_quote_pos = s.find(orig_quote)
-        if first_quote_pos == -1:
-            return s  # There's an internal error
-
         prefix = s[:first_quote_pos]
         unescaped_new_quote = regex.compile(rf"(([^\\]|^)(\\\\)*){new_quote}")
         escaped_new_quote = regex.compile(rf"([^\\]|^)\\((?:\\\\)*){new_quote}")
