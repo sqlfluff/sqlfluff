@@ -5,6 +5,7 @@ import json
 import os
 import pathlib
 import shutil
+import stat
 import tempfile
 import textwrap
 from unittest.mock import MagicMock, patch
@@ -476,6 +477,9 @@ def generic_roundtrip_test(
     with open(filepath, mode="w", encoding=input_file_encoding) as dest_file:
         for line in source_file:
             dest_file.write(line)
+    status = os.stat(filepath)
+    assert stat.S_ISREG(status.st_mode)
+    old_mode = stat.S_IMODE(status.st_mode)
     # Check that we first detect the issue
     invoke_assert_code(
         ret_code=65, args=[lint, ["--dialect=ansi", "--rules", rulestring, filepath]]
@@ -499,6 +503,11 @@ def generic_roundtrip_test(
         with open(filepath, mode="rb") as f:
             data = f.read()
         assert chardet.detect(data)["encoding"] == output_file_encoding
+    # Also check the file mode was preserved.
+    status = os.stat(filepath)
+    assert stat.S_ISREG(status.st_mode)
+    new_mode = stat.S_IMODE(status.st_mode)
+    assert new_mode == old_mode
     shutil.rmtree(tempdir_path)
 
 
@@ -968,11 +977,12 @@ def test__cli__command_fail_nice_not_found(command):
 
 
 @pytest.mark.parametrize(
-    "serialize", ["yaml", "json", "github-annotation", "github-annotation-native"]
+    "serialize",
+    ["human", "yaml", "json", "github-annotation", "github-annotation-native"],
 )
 @pytest.mark.parametrize("write_file", [None, "outfile"])
 def test__cli__command_lint_serialize_multiple_files(serialize, write_file, tmp_path):
-    """Check the general format of JSON output for multiple files.
+    """Test the output output formats for multiple files.
 
     This tests runs both stdout checking and file checking.
     """
@@ -987,9 +997,11 @@ def test__cli__command_lint_serialize_multiple_files(serialize, write_file, tmp_
     )
 
     if write_file:
-        target_file = os.path.join(
-            tmp_path, write_file + (".yaml" if serialize == "yaml" else ".json")
-        )
+        ext = {
+            "human": ".txt",
+            "yaml": ".yaml",
+        }
+        target_file = os.path.join(tmp_path, write_file + ext.get(serialize, ".json"))
         cmd_args += ("--write-output", target_file)
 
     # note the file is in here twice. two files = two payloads.
@@ -1004,7 +1016,9 @@ def test__cli__command_lint_serialize_multiple_files(serialize, write_file, tmp_
     else:
         result_payload = result.output
 
-    if serialize == "json":
+    if serialize == "human":
+        assert len(result_payload.split("\n")) == 29 if write_file else 30
+    elif serialize == "json":
         result = json.loads(result_payload)
         assert len(result) == 2
     elif serialize == "yaml":

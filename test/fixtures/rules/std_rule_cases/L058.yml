@@ -14,6 +14,22 @@ test_pass_1:
         END AS sound
     FROM mytable
 
+test_pass_2:
+  # Issue 3110. The nested CASE is part of a larger expression. Cannot flatten.
+  pass_str: |
+    SELECT CASE 'b'
+            WHEN 'a' THEN
+                TRUE
+            ELSE
+                '2022-01-01'::date > CURRENT_DATE + CASE 'b'
+                    WHEN 'b' THEN
+                        8
+                    WHEN 'c' THEN
+                        9
+                END
+                AND (c > 10)
+        END AS test
+
 test_fail_1:
   # Simple case.
   fail_str: |

@@ -362,7 +362,6 @@ postgres_dialect.replace(
     ColumnReferenceSegment=Sequence(
         ansi.ColumnReferenceSegment,
         Ref("ArrayAccessorSegment", optional=True),
-        Ref("TimeZoneGrammar", optional=True),
     ),
     # Postgres supports the non-standard ISNULL and NONNULL comparison operators. See
     # https://www.postgresql.org/docs/14/functions-comparison.html
@@ -515,13 +514,12 @@ class DateTimeTypeIdentifier(BaseSegment):
 
 
 class DateTimeLiteralGrammar(BaseSegment):
-    """Literal Date Time with optional casting to Time Zone."""
+    """Literal Date Time."""
 
     type = "datetime_literal"
     match_grammar = Sequence(
         Ref("DateTimeTypeIdentifier"),
         Ref("QuotedLiteralSegment"),
-        Ref("TimeZoneGrammar", optional=True),
     )
 
 
@@ -541,10 +539,7 @@ class DatatypeSegment(ansi.DatatypeSegment):
         ),
         OneOf(
             Ref("WellKnownTextGeometrySegment"),
-            Sequence(
-                Ref("DateTimeTypeIdentifier"),
-                Ref("TimeZoneGrammar", optional=True),
-            ),
+            Ref("DateTimeTypeIdentifier"),
             Sequence(
                 OneOf(
                     # numeric types
