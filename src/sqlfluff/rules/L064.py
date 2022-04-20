@@ -50,7 +50,7 @@ class Rule_L064(BaseRule):
        support single *and* double quotes automated fixes can potentially break working
        SQL code.
 
-       This rule is disabled by default for dialetcs that don't allow double quotes for
+       This rule is disabled by default for dialects that don't allow double quotes for
        STRING datatype (e.g. Postgres). It can be enabled with the
        ``force_enable = True`` flag.
 
