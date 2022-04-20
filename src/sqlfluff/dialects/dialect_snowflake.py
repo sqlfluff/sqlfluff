@@ -914,21 +914,21 @@ class FromExpressionElementSegment(ansi.FromExpressionElementSegment):
 
     type = "from_expression_element"
     match_grammar = Sequence(
-            Ref("PreTableFunctionKeywordsGrammar", optional=True),
-            OptionallyBracketed(Ref("TableExpressionSegment")),
-            Ref(
-                "AliasExpressionSegment",
-                exclude=OneOf(
-                    Ref("SamplingExpressionSegment"),
-                    Ref("ChangesClauseSegment"),
-                    Ref("JoinLikeClauseGrammar"),
-                ),
-                optional=True,
+        Ref("PreTableFunctionKeywordsGrammar", optional=True),
+        OptionallyBracketed(Ref("TableExpressionSegment")),
+        Ref(
+            "AliasExpressionSegment",
+            exclude=OneOf(
+                Ref("SamplingExpressionSegment"),
+                Ref("ChangesClauseSegment"),
+                Ref("JoinLikeClauseGrammar"),
             ),
-            # https://cloud.google.com/bigquery/docs/reference/standard-sql/arrays#flattening_arrays
-            Sequence("WITH", "OFFSET", Ref("AliasExpressionSegment"), optional=True),
-            Ref("SamplingExpressionSegment", optional=True),
-            Ref("PostTableExpressionGrammar", optional=True),
+            optional=True,
+        ),
+        # https://cloud.google.com/bigquery/docs/reference/standard-sql/arrays#flattening_arrays
+        Sequence("WITH", "OFFSET", Ref("AliasExpressionSegment"), optional=True),
+        Ref("SamplingExpressionSegment", optional=True),
+        Ref("PostTableExpressionGrammar", optional=True),
     )
 
 
