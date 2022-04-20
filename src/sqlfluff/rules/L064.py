@@ -15,9 +15,9 @@ from sqlfluff.core.rules.doc_decorators import (
 @document_configuration
 @document_fix_compatible
 class Rule_L064(BaseRule):
-    r"""Consistent usage of preferred quotes for STRING datatype.
+    r"""Consistent usage of preferred quotes for quoted literals.
 
-    Some databases allow single quotes as well as double quotes to express a STRING
+    Some databases allow single quotes as well as double quotes to express a quoted
     literal. Prefer one type of quotes as specified in rule setting. Falling back to
     alternate quotes to reduce escapes.
 
@@ -25,12 +25,15 @@ class Rule_L064(BaseRule):
     literal UDF Body definitions.
 
     .. note::
+       This rule only checks quoted literals and not quoted identifiers as they often
+       cannot interchange single and double quotes
+
        This rule can be dangerous. If accidentally enabled for dialects that do not
        support single *and* double quotes automated fixes can potentially break working
        SQL code.
 
        This rule is disabled by default for dialects that don't allow double quotes for
-       STRING datatype (e.g. Postgres). It can be enabled with the
+       quoted literals (e.g. Postgres). It can be enabled with the
        ``force_enable = True`` flag.
 
     **Anti-pattern**
