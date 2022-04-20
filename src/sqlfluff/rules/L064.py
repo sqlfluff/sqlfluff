@@ -214,12 +214,12 @@ class Rule_L064(BaseRule):
                 unescaped_new_quote, rf"\1\\{new_quote}", new_body
             )
 
-        # TODO: Clarify why this is needed and write a test case for it
         if (
             new_quote == 3 * preferred_quote_char
             and new_body[-1:] == preferred_quote_char
         ):
-            # edge case:
+            # edge case: for example when converting quotes from '''a"'''
+            # to """a\"""" the last " of the string needs to be escaped.
             new_body = new_body[:-1] + f"\\{preferred_quote_char}"
 
         orig_escape_count = body.count("\\")

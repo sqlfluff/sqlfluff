@@ -1,5 +1,21 @@
 rule: L064
 
+test_pass_preferred_tripple_quotes:
+  pass_str: |
+    SELECT """some_string"""
+  configs:
+    core:
+      dialect: bigquery
+
+test_fail_alternate_tripple_quotes:
+  fail_str: |
+    SELECT '''some_string'''
+  fix_str: |
+    SELECT """some_string"""
+  configs:
+    core:
+      dialect: bigquery
+
 test_fail_unnecessary_escaping:
   fail_str: |
     SELECT
@@ -9,6 +25,19 @@ test_fail_unnecessary_escaping:
     SELECT
         'unnecessary ""escaping',
         "unnecessary ''escaping"
+  configs:
+    core:
+      dialect: bigquery
+
+test_fail_edge_case_tripple_quoted_string_ending_with_double_quote:
+  fail_str: |
+    SELECT
+        '''Here's a "''',
+        '''Here's a " '''
+  fix_str: |
+    SELECT
+        '''Here's a "''',
+        """Here's a " """
   configs:
     core:
       dialect: bigquery
