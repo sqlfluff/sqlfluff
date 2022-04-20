@@ -256,7 +256,7 @@ class Rule_L064(BaseRule):
             return s  # Do not introduce more escaping
 
         if new_escape_count == orig_escape_count and orig_quote == preferred_quote_char:
-            # Use preferred_quote_char
+            # Already using preferred_quote_char, and no escape benefit to changing
             return s
 
         return f"{prefix}{new_quote}{new_body}{new_quote}"
