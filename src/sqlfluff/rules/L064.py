@@ -111,7 +111,7 @@ class Rule_L064(BaseRule):
             self.logger.debug(
                 "Inconsistent use of preferred quote style, Use %s instead of %s.",
                 fixed_string,
-                context.segment.raw
+                context.segment.raw,
             )
             return LintResult(
                 anchor=context.segment,
