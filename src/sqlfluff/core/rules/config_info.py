@@ -180,7 +180,7 @@ STANDARD_CONFIG_INFO_DICT = {
     "preferred_string_quotes": {
         "validation": ["consistent", "single_quotes", "double_quotes"],
         "definition": (
-            "Preferred quoting style to use for the STRING datatype. If set to "
+            "Preferred quoting style to use for the quoted literals. If set to "
             "``consistent`` quoting style is derived from the first quoted literal"
             "encountered by the parser."
         ),
