@@ -291,6 +291,7 @@ UNRESERVED_KEYWORDS = [
     "MAX_GRANT_PERCENT",
     "MASKED",
     "MATCHED",
+    "MAX",
     "MAXDOP",
     "MAXRECURSION",
     "MAXVALUE",
