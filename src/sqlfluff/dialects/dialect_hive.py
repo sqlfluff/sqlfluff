@@ -143,6 +143,7 @@ hive_dialect.replace(
     QuotedLiteralSegment=OneOf(
         NamedParser("single_quote", CodeSegment, name="quoted_literal", type="literal"),
         NamedParser("double_quote", CodeSegment, name="quoted_literal", type="literal"),
+        NamedParser("back_quote", CodeSegment, name="quoted_literal", type="literal"),
     ),
     LiteralGrammar=OneOf(
         Ref("QuotedLiteralSegment"),
@@ -157,6 +158,14 @@ hive_dialect.replace(
     ),
     SimpleArrayTypeGrammar=Ref.keyword("ARRAY"),
     TrimParametersGrammar=Nothing(),
+    SingleQuotedIdentifierSegment=OneOf(
+        NamedParser(
+            "single_quote", CodeSegment, name="quoted_identifier", type="identifier"
+        ),
+        NamedParser(
+            "back_quote", CodeSegment, name="quoted_identifier", type="identifier"
+        ),
+    ),
 )
 
 
