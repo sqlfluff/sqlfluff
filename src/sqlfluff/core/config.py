@@ -486,16 +486,25 @@ class FluffConfig:
             )
         else:
             self._configs["core"]["ignore"] = []
+        # rule groupings
+        if self._configs["rules"].get("groups", None):
+            rule_groups = list(self._configs["rules"]["groups"].keys())
+        else:
+            rule_groups = []
         # Allowlists and denylists
         if self._configs["core"].get("rules", None):
-            self._configs["core"]["rule_allowlist"] = _split_comma_separated_string(
-                self._configs["core"]["rules"]
+            allow_rules = _split_comma_separated_string(self._configs["core"]["rules"])
+            self._configs["core"]["rule_allowlist"] = self._lookup_rules_from_group(
+                allow_rules, rule_groups
             )
         else:
             self._configs["core"]["rule_allowlist"] = None
         if self._configs["core"].get("exclude_rules", None):
-            self._configs["core"]["rule_denylist"] = _split_comma_separated_string(
+            deny_rules = _split_comma_separated_string(
                 self._configs["core"]["exclude_rules"]
+            )
+            self._configs["core"]["rule_denylist"] = self._lookup_rules_from_group(
+                deny_rules, rule_groups
             )
         else:
             self._configs["core"]["rule_denylist"] = None
@@ -517,6 +526,21 @@ class FluffConfig:
         self._configs["core"]["templater_obj"] = self.get_templater(
             self._configs["core"]["templater"]
         )
+
+    def _lookup_rules_from_group(
+        self, rules: List[str], rule_groups: List[str]
+    ) -> List[str]:
+        """Look up group rules and add them to the a rules list."""
+        rules = rules.copy()
+        groups = set(rules).intersection(set(rule_groups))
+        for group in groups:
+            group_rules = _split_comma_separated_string(
+                self._configs["rules"]["groups"][group]
+            )
+            rules.extend(group_rules)
+            rules.remove(group)
+
+        return rules
 
     def verify_dialect_specified(self) -> None:
         """Check if the config specifies a dialect, raising an error if not."""
