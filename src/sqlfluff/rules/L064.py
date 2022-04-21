@@ -21,7 +21,7 @@ class Rule_L064(BaseRule):
     Prefer one type of quotes as specified in rule setting, falling back to
     alternate quotes to reduce the need for escapes.
 
-    Dollar quoted raw strings are excluded from this rule, as they are mostly used for
+    Dollar-quoted raw strings are excluded from this rule, as they are mostly used for
     literal UDF Body definitions.
 
     .. note::
