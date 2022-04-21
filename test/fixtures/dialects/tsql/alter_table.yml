@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 45076fc4f279fd8cfa91c9fc06e55fcea7b8aa0aaa1ac27a5ba73f4ac3c79bfd
+_hash: f764e68ea672dbbfd2b726a0c582ba7615524a549eaedb43255b0c6974edad3f
 file:
 - batch:
     statement:
@@ -293,7 +293,7 @@ file:
 - go_statement:
     keyword: GO
 - batch:
-    statement:
+  - statement:
       alter_table_statement:
       - keyword: ALTER
       - keyword: TABLE
@@ -305,3 +305,53 @@ file:
       - keyword: CONSTRAINT
       - object_reference:
           identifier: PK_TransactionHistoryArchive_TransactionID
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - identifier: '[Production]'
+        - dot: .
+        - identifier: '[ProductCostHistory]'
+      - keyword: WITH
+      - keyword: CHECK
+      - keyword: ADD
+      - table_constraint:
+        - keyword: CONSTRAINT
+        - object_reference:
+            identifier: '[FK_ProductCostHistory_Product_ProductID]'
+        - keyword: FOREIGN
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              identifier: '[ProductID]'
+            end_bracket: )
+        - references_constraint_grammar:
+            keyword: REFERENCES
+            table_reference:
+            - identifier: '[Production]'
+            - dot: .
+            - identifier: '[Product]'
+            bracketed:
+              start_bracket: (
+              column_reference:
+                identifier: '[ProductID]'
+              end_bracket: )
+- go_statement:
+    keyword: GO
+- batch:
+    statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - identifier: '[Production]'
+        - dot: .
+        - identifier: '[ProductCostHistory]'
+      - keyword: CHECK
+      - keyword: CONSTRAINT
+      - object_reference:
+          identifier: '[FK_ProductCostHistory_Product_ProductID]'
+- go_statement:
+    keyword: GO

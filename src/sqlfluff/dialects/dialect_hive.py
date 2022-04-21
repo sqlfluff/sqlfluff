@@ -126,8 +126,11 @@ hive_dialect.add(
             Delimited(
                 Sequence(
                     Ref("ColumnReferenceSegment"),
-                    Ref("EqualsSegment"),
-                    Ref("LiteralGrammar"),
+                    Sequence(
+                        Ref("EqualsSegment"),
+                        Ref("LiteralGrammar"),
+                        optional=True,
+                    ),
                 )
             )
         ),
