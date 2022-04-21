@@ -908,7 +908,8 @@ class BaseSegment:
                 to look for.
             recurse_into: :obj:`bool`: When an element of type "seg_type" is
                 found, whether to recurse into it.
-            no_recursive_seg_type: obj: `str`:
+            no_recursive_seg_type: obj: `str`: a type of segment
+                not to recurse further into.
         """
         # Check this segment
         if self.is_type(*seg_type):
