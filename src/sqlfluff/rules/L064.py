@@ -161,6 +161,9 @@ class Rule_L064(BaseRule):
 
         return None
 
+    # Code for preferred quoted_literal style was copied from Black string normalization
+    # https://github.com/psf/black/blob/7f7673d941a947a8d392c8c0866d3d588affc174/src/black/strings.py
+    # and adapted to our use-case.
     def _sub_twice(self, regex: regex.Pattern, replacement: str, original: str) -> str:
         """Replace `regex` with `replacement` twice on `original`.
 
