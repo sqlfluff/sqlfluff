@@ -89,15 +89,15 @@ class Rule_L064(BaseRule):
         self.preferred_quoted_literal_style: str
         self.force_enable: bool
 
-        if (
-            context.dialect.name not in self._dialects_with_double_quoted_strings
-            and not self.force_enable
-        ):
-            return LintResult(memory=context.memory)
-
         # Only care about quoted literal segments.
         if context.segment.name != "quoted_literal":
             return None
+
+        if not (
+            self.force_enable
+            or context.dialect.name in self._dialects_with_double_quoted_strings
+        ):
+            return LintResult(memory=context.memory)
 
         # If quoting style is set to consistent we use the quoting style of the first
         # quoted_literal that we encounter.
