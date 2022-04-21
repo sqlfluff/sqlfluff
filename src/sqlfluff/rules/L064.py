@@ -61,7 +61,7 @@ class Rule_L064(BaseRule):
 
     """
 
-    config_keywords = ["preferred_string_quotes", "force_enable"]
+    config_keywords = ["preferred_quoted_literal_style", "force_enable"]
     _dialects_with_double_quoted_strings = [
         "bigquery",
         "hive",
@@ -86,7 +86,7 @@ class Rule_L064(BaseRule):
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         # Config type hints
-        self.preferred_string_quotes: str
+        self.preferred_quoted_literal_style: str
         self.force_enable: bool
 
         if (
@@ -101,33 +101,37 @@ class Rule_L064(BaseRule):
 
         # If quoting style is set to consistent we use the quoting style of the first
         # quoted_literal that we encounter.
-        if self.preferred_string_quotes == "consistent":
+        if self.preferred_quoted_literal_style == "consistent":
             memory = context.memory
-            preferred_string_quotes = memory.get("preferred_string_quotes")
+            preferred_quoted_literal_style = memory.get(
+                "preferred_quoted_literal_style"
+            )
 
-            if not preferred_string_quotes:
+            if not preferred_quoted_literal_style:
                 # Getting the quote from LAST character to be able to handle STRING
                 # prefixes
-                preferred_string_quotes = (
+                preferred_quoted_literal_style = (
                     "double_quotes"
                     if context.segment.raw[-1] == '"'
                     else "single_quotes"
                 )
-                memory["preferred_string_quotes"] = preferred_string_quotes
+                memory[
+                    "preferred_quoted_literal_style"
+                ] = preferred_quoted_literal_style
                 self.logger.debug(
                     "Preferred string quotes is set to `consistent`. Derived quoting "
                     "style %s from first quoted literal.",
-                    preferred_string_quotes,
+                    preferred_quoted_literal_style,
                 )
         else:
-            preferred_string_quotes = self.preferred_string_quotes
+            preferred_quoted_literal_style = self.preferred_quoted_literal_style
 
-        fixed_string = self._normalize_preferred_string_quotes(
+        fixed_string = self._normalize_preferred_quoted_literal_style(
             context.segment.raw,
-            preferred_quote_char=self._quotes_mapping[preferred_string_quotes][
+            preferred_quote_char=self._quotes_mapping[preferred_quoted_literal_style][
                 "preferred_quote_char"
             ],
-            alternate_quote_char=self._quotes_mapping[preferred_string_quotes][
+            alternate_quote_char=self._quotes_mapping[preferred_quoted_literal_style][
                 "alternate_quote_char"
             ],
         )
@@ -150,8 +154,8 @@ class Rule_L064(BaseRule):
                 ],
                 description=(
                     "Inconsistent use of preferred quote style '"
-                    f"{self._quotes_mapping[preferred_string_quotes]['common_name']}'. "
-                    f"Use {fixed_string} instead of {context.segment.raw}."
+                    f"{self._quotes_mapping[preferred_quoted_literal_style]['common_name']}"  # noqa: E501
+                    f"'. Use {fixed_string} instead of {context.segment.raw}."
                 ),
             )
 
@@ -164,7 +168,7 @@ class Rule_L064(BaseRule):
         """
         return regex.sub(replacement, regex.sub(replacement, original))
 
-    def _normalize_preferred_string_quotes(
+    def _normalize_preferred_quoted_literal_style(
         self, s: str, preferred_quote_char: str, alternate_quote_char: str
     ) -> str:
         """Prefer `preferred_quote_char` but only if it doesn't cause more escaping.

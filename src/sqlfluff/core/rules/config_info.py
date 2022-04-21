@@ -177,7 +177,7 @@ STANDARD_CONFIG_INFO_DICT = {
             "in statements."
         ),
     },
-    "preferred_string_quotes": {
+    "preferred_quoted_literal_style": {
         "validation": ["consistent", "single_quotes", "double_quotes"],
         "definition": (
             "Preferred quoting style to use for the quoted literals. If set to "

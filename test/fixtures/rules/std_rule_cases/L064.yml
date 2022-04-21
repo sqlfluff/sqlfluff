@@ -60,7 +60,7 @@ test_pass_preferred_tripple_quotes:
       dialect: bigquery
     rules:
       L064:
-        preferred_string_quotes: double_quotes
+        preferred_quoted_literal_style: double_quotes
 
 test_fail_alternate_tripple_quotes:
   fail_str: |
@@ -72,7 +72,7 @@ test_fail_alternate_tripple_quotes:
       dialect: bigquery
     rules:
       L064:
-        preferred_string_quotes: double_quotes
+        preferred_quoted_literal_style: double_quotes
 
 test_fail_unnecessary_escaping:
   fail_str: |
@@ -88,7 +88,7 @@ test_fail_unnecessary_escaping:
       dialect: bigquery
     rules:
       L064:
-        preferred_string_quotes: double_quotes
+        preferred_quoted_literal_style: double_quotes
 
 test_fail_bigquery_string_prefixes:
   fail_str: |
@@ -108,7 +108,7 @@ test_fail_bigquery_string_prefixes:
       dialect: bigquery
     rules:
       L064:
-        preferred_string_quotes: double_quotes
+        preferred_quoted_literal_style: double_quotes
 
 test_fail_bigquery_string_prefixes_when_style_is_consistent:
   fail_str: |
@@ -150,7 +150,7 @@ test_fail_tripple_quoted_strings_dont_remove_escapes_single_quotes:
       dialect: bigquery
     rules:
       L064:
-        preferred_string_quotes: single_quotes
+        preferred_quoted_literal_style: single_quotes
 
 test_fail_tripple_quoted_strings_dont_remove_escapes_double_quotes:
   fail_str: |
@@ -166,7 +166,7 @@ test_fail_tripple_quoted_strings_dont_remove_escapes_double_quotes:
       dialect: bigquery
     rules:
       L064:
-        preferred_string_quotes: double_quotes
+        preferred_quoted_literal_style: double_quotes
 
 test_fail_edge_case_tripple_quoted_string_ending_with_double_quote:
   # Test that a trailing preferred quote in tripple quote scenario doesn't break
@@ -183,7 +183,7 @@ test_fail_edge_case_tripple_quoted_string_ending_with_double_quote:
       dialect: bigquery
     rules:
       L064:
-        preferred_string_quotes: double_quotes
+        preferred_quoted_literal_style: double_quotes
 
 test_pass_lots_of_quotes:
   # Test that we can handle complex quoting scenarios
@@ -196,7 +196,7 @@ test_pass_lots_of_quotes:
       dialect: bigquery
     rules:
       L064:
-        preferred_string_quotes: double_quotes
+        preferred_quoted_literal_style: double_quotes
 
 test_fail_lots_of_quotes:
   # Test that we can handle complex quoting scenarios
@@ -209,7 +209,7 @@ test_fail_lots_of_quotes:
       dialect: bigquery
     rules:
       L064:
-        preferred_string_quotes: double_quotes
+        preferred_quoted_literal_style: double_quotes
 
 test_fail_quote_replace_in_raw_strings:
   # Test that we can handle complex quoting scenarios
@@ -226,7 +226,7 @@ test_fail_quote_replace_in_raw_strings:
       dialect: bigquery
     rules:
       L064:
-        preferred_string_quotes: double_quotes
+        preferred_quoted_literal_style: double_quotes
 
 test_pass_dollar_quoted_strings_are_ignored:
   # Test that we dont interfere with dollar quoted strings
@@ -240,4 +240,4 @@ test_pass_dollar_quoted_strings_are_ignored:
     rules:
       L064:
         force_enable: True
-        preferred_string_quotes: single_quotes
+        preferred_quoted_literal_style: single_quotes
