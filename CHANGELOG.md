@@ -13,13 +13,18 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 ## Highlights
 Major changes include:
-* Rule speed improvements
+* Rule speed improvements and fixing performance regression from 0.12.0
 * Add configuration option to disallow hanging indents in L003
 * Add `ignore_words_regex` configuration option for rules
 * New GitHub Annotations option
 * Many bug fixes and dialect improvements
 
 ## What’s Changed
+* Hive: Support dynamic partition insert [#3126](https://github.com/sqlfluff/sqlfluff/pull/3126) [@barunpuri](https://github.com/barunpuri)
+* T-SQL - `ALTER TABLE` - add support for `WITH CHECK ADD CONSTRAINT` and `CHECK CONSTRAINT` [#3132](https://github.com/sqlfluff/sqlfluff/pull/3132) [@nevado](https://github.com/nevado)
+* TSQL: Support names for transactions [#3129](https://github.com/sqlfluff/sqlfluff/pull/3129) [@fdw](https://github.com/fdw)
+* Snowflake: `StartsWith()` in `FromExpressionElementSegment` caused performance issues for large queries [#3128](https://github.com/sqlfluff/sqlfluff/pull/3128) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* Fix parsing of Compound Statements [#3121](https://github.com/sqlfluff/sqlfluff/pull/3121) [@jonyscathe](https://github.com/jonyscathe)
 * SparkSQL: Update to support all valid Literal Types [#3102](https://github.com/sqlfluff/sqlfluff/pull/3102) [@R7L208](https://github.com/R7L208)
 * TSQL: Exclude non-function-name keywords from function names [#3112](https://github.com/sqlfluff/sqlfluff/pull/3112) [@jpers36](https://github.com/jpers36)
 * ANSI `AT TIME ZONE` parsing improvements [#3115](https://github.com/sqlfluff/sqlfluff/pull/3115) [@tunetheweb](https://github.com/tunetheweb)
@@ -66,6 +71,8 @@ Major changes include:
 * [@chrisalexeev](https://github.com/chrisalexeev) made their first contribution in [#3071](https://github.com/sqlfluff/sqlfluff/pull/3071)
 * [@MartynJones87](https://github.com/MartynJones87) made their first contribution in [#3077](https://github.com/sqlfluff/sqlfluff/pull/3077)
 * [@sivaraam](https://github.com/sivaraam) made their first contribution in [#3100](https://github.com/sqlfluff/sqlfluff/pull/3100)
+* [@jonyscathe](https://github.com/jonyscathe) made their first contribution in [#3121](https://github.com/sqlfluff/sqlfluff/pull/3121)
+* [@barunpuri](https://github.com/barunpuri) made their first contribution in [#3126](https://github.com/sqlfluff/sqlfluff/pull/3126)
 
 
 ## [0.12.0] - 2022-04-07
