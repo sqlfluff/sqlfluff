@@ -162,12 +162,16 @@ class Rule_L064(BaseRule):
         return None
 
     # Code for preferred quoted_literal style was copied from Black string normalization
-    # https://github.com/psf/black/blob/7f7673d941a947a8d392c8c0866d3d588affc174/src/black/strings.py
     # and adapted to our use-case.
-    def _sub_twice(self, regex: regex.Pattern, replacement: str, original: str) -> str:
+    def _regex_sub_with_overlap(
+        self, regex: regex.Pattern, replacement: str, original: str
+    ) -> str:
         """Replace `regex` with `replacement` twice on `original`.
 
         This is used by string normalization to perform replaces on overlapping matches.
+
+        Source:
+        https://github.com/psf/black/blob/7f7673d941a947a8d392c8c0866d3d588affc174/src/black/strings.py#L23-L29
         """
         return regex.sub(replacement, regex.sub(replacement, original))
 
@@ -177,6 +181,9 @@ class Rule_L064(BaseRule):
         """Prefer `preferred_quote_char` but only if it doesn't cause more escaping.
 
         Adds or removes backslashes as appropriate.
+
+        Source:
+        https://github.com/psf/black/blob/7f7673d941a947a8d392c8c0866d3d588affc174/src/black/strings.py#L167
         """
         value = s.lstrip(self._string_prefix_chars)
 
@@ -225,16 +232,18 @@ class Rule_L064(BaseRule):
             new_body = body
         else:
             # remove unnecessary escapes
-            new_body = self._sub_twice(escaped_new_quote, rf"\1\2{new_quote}", body)
+            new_body = self._regex_sub_with_overlap(
+                escaped_new_quote, rf"\1\2{new_quote}", body
+            )
             if body != new_body:
                 # Consider the string without unnecessary escapes as the original
                 self.logger.debug("Removing unnecessary escapes in %s.", body)
                 body = new_body
                 s = f"{prefix}{orig_quote}{body}{orig_quote}"
-            new_body = self._sub_twice(
+            new_body = self._regex_sub_with_overlap(
                 escaped_orig_quote, rf"\1\2{orig_quote}", new_body
             )
-            new_body = self._sub_twice(
+            new_body = self._regex_sub_with_overlap(
                 unescaped_new_quote, rf"\1\\{new_quote}", new_body
             )
 
