@@ -182,7 +182,7 @@ STANDARD_CONFIG_INFO_DICT = {
         "definition": (
             "Preferred quoting style to use for the quoted literals. If set to "
             "``consistent`` quoting style is derived from the first quoted literal"
-            "encountered by the parser."
+            "in the file."
         ),
     },
 }
