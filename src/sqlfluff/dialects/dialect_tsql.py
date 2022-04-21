@@ -1235,6 +1235,7 @@ class DatatypeSegment(BaseSegment):
         ),
         Bracketed(
             OneOf(
+                "MAX",
                 Delimited(Ref("ExpressionSegment")),
                 # The brackets might be empty for some cases...
                 optional=True,
@@ -1866,7 +1867,7 @@ class ConvertFunctionNameSegment(BaseSegment):
     """
 
     type = "function_name"
-    match_grammar = Sequence("CONVERT")
+    match_grammar = OneOf("CONVERT", "TRY_CONVERT")
 
 
 class CastFunctionNameSegment(BaseSegment):
