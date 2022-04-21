@@ -220,7 +220,8 @@ class Rule_L064(BaseRule):
                 )
                 return s
 
-            # Do not introduce or remove backslashes in raw strings
+            # Do not modify the body of raw strings by introducing or removing
+            # backslashes as this changes the value of the raw string.
             new_body = body
         else:
             # remove unnecessary escapes
