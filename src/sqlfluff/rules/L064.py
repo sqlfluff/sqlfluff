@@ -17,9 +17,9 @@ from sqlfluff.core.rules.doc_decorators import (
 class Rule_L064(BaseRule):
     r"""Consistent usage of preferred quotes for quoted literals.
 
-    Some databases allow single quotes as well as double quotes to express a quoted
-    literal. Prefer one type of quotes as specified in rule setting. Falling back to
-    alternate quotes to reduce escapes.
+    Some databases allow quoted literals to use either single or double quotes.
+    Prefer one type of quotes as specified in rule setting, falling back to
+    alternate quotes to reduce the need for escapes.
 
     Dollar quoted raw strings are excluded from this rule, as they are mostly used for
     literal UDF Body definitions.
