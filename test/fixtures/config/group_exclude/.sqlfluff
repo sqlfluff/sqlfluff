@@ -1,0 +1,5 @@
+[sqlfluff]
+exclude_rules = test_group
+
+[sqlfluff:rules:groups]
+test_group = L050,L051

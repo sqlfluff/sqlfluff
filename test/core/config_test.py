@@ -265,6 +265,32 @@ def test__config__glob_include_config_tests():
         assert "L044" not in [c[0] for c in violations[k]]
 
 
+def test__config__group_include__config_tests():
+    """Test linting with a rule group in rules."""
+    lntr = Linter(config=FluffConfig.from_path("test/fixtures/config/group_include"))
+    lnt = lntr.lint_path("test/fixtures/config/group_include/test.sql")
+    violations = lnt.check_tuples(by_path=True)
+    # breakpoint()
+    for k in violations:
+        assert ("L050", 1, 1) in violations[k]
+        assert ("L051", 12, 1) in violations[k]
+        assert "L027" not in [c[0] for c in violations[k]]
+        assert "L044" not in [c[0] for c in violations[k]]
+
+
+def test__config__group_exclude__config_tests():
+    """Test linting with a rule group in rules."""
+    lntr = Linter(config=FluffConfig.from_path("test/fixtures/config/group_exclude"))
+    lnt = lntr.lint_path("test/fixtures/config/group_exclude/test.sql")
+    violations = lnt.check_tuples(by_path=True)
+    # breakpoint()
+    for k in violations:
+        assert ("L027", 10, 8) in violations[k]
+        assert ("L044", 10, 1) in violations[k]
+        assert "L050" not in [c[0] for c in violations[k]]
+        assert "L051" not in [c[0] for c in violations[k]]
+
+
 def test__config__get_section():
     """Test FluffConfig.get_section method."""
     cfg = FluffConfig(config_b)
