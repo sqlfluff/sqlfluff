@@ -99,7 +99,7 @@ class Rule_L064(BaseRule):
             return LintResult(memory=context.memory)
 
         # Only care about quoted literal segments.
-        if not context.segment.name == "quoted_literal":
+        if context.segment.name != "quoted_literal":
             return None
 
         # If quoting style is set to consistent we use the quoting style of the first
