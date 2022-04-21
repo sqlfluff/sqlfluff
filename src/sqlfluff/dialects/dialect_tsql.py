@@ -1866,7 +1866,7 @@ class ConvertFunctionNameSegment(BaseSegment):
     """
 
     type = "function_name"
-    match_grammar = Sequence("CONVERT")
+    match_grammar = OneOf("CONVERT", "TRY_CONVERT")
 
 
 class CastFunctionNameSegment(BaseSegment):
