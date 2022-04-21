@@ -1235,8 +1235,8 @@ class DatatypeSegment(BaseSegment):
         ),
         Bracketed(
             OneOf(
-                Delimited(Ref("ExpressionSegment")),
                 "MAX",
+                Delimited(Ref("ExpressionSegment")),
                 # The brackets might be empty for some cases...
                 optional=True,
             ),
