@@ -28,9 +28,6 @@ class Rule_L064(BaseRule):
        This rule only checks quoted literals and not quoted identifiers as they often
        cannot interchange single and double quotes
 
-       For dialects that do not support single *and* double quotes for quoted literals
-       automated fixes can potentially break working SQL code.
-
        This rule is only enabled for dialects that allow single *and* double quotes for
        quoted literals (currently ``bigquery``, ``hive``, ``mysql``, ``sparksql``).
        It can be enabled for other dialects with the ``force_enable = True`` flag.
