@@ -623,8 +623,11 @@ class CreateTableStatementSegment(BaseSegment):
                     Sequence(
                         Ref("ColumnReferenceSegment"),
                         Ref("DatatypeSegment"),
-                        AnyNumberOf(Ref("ColumnAttributeSegment"), optional=True),
-                        AnyNumberOf(Ref("ColumnConstraintSegment"), optional=True),
+                        AnyNumberOf(
+                            Ref("ColumnAttributeSegment"),
+                            Ref("ColumnConstraintSegment"),
+                            optional=True,
+                        ),
                     ),
                     Ref("TableConstraintSegment", optional=True),
                 ),
@@ -1234,7 +1237,7 @@ class CopyStatementSegment(postgres.CopyStatementSegment):
             Sequence(
                 "ACCEPTINVCHARS",
                 Ref.keyword("AS", optional=True),
-                Ref("QuotedLiteralSegment"),
+                Ref("QuotedLiteralSegment", optional=True),
                 optional=True,
             ),
             Ref.keyword("BLANKSASNULL", optional=True),
@@ -1266,7 +1269,7 @@ class CopyStatementSegment(postgres.CopyStatementSegment):
             Sequence(
                 "IGNOREHEADER",
                 Ref.keyword("AS", optional=True),
-                Ref("QuotedLiteralSegment"),
+                Ref("LiteralGrammar"),
                 optional=True,
             ),
             Sequence(
