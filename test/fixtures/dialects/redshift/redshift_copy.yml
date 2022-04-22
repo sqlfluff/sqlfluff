@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: aa773f461bcb691c377e29c744af7bb7c003f82e0c6ce375421802122c35aa6c
+_hash: cb3aa5a22924dce0365e5189fef0cf9783fe3592ae141e19f7a6dd4203e5fbf7
 file:
 - statement:
     copy_statement:
@@ -330,4 +330,23 @@ file:
     - authorization_segment:
         keyword: CREDENTIALS
         literal: "'aws_iam_role=arn:aws:iam::123456789012:role/MyRoleName'"
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        identifier: some_table
+    - keyword: FROM
+    - literal: "'s3://some_bucket/some/path'"
+    - authorization_segment:
+        keyword: IAM_ROLE
+        literal: "'some_iam_role'"
+    - data_format_segment:
+      - keyword: FORMAT
+      - keyword: AS
+      - keyword: CSV
+    - keyword: TRUNCATECOLUMNS
+    - keyword: IGNOREHEADER
+    - literal: '1'
+    - keyword: ACCEPTINVCHARS
 - statement_terminator: ;

@@ -106,3 +106,11 @@ COPY norway_natural_order(wkb_geometry, osm_id, code, fclass, name)
 FROM 's3://bucket_name/shapefiles/norway/gis_osm_natural_free_1.shp'
 FORMAT SHAPEFILE
 CREDENTIALS 'aws_iam_role=arn:aws:iam::123456789012:role/MyRoleName';
+
+COPY some_table
+FROM 's3://some_bucket/some/path'
+IAM_ROLE 'some_iam_role'
+FORMAT AS CSV TRUNCATECOLUMNS
+IGNOREHEADER 1
+ACCEPTINVCHARS
+;
