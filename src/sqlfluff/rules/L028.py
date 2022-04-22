@@ -5,7 +5,7 @@ from typing import Generator, List, Optional, Set
 from sqlfluff.core.dialects.common import AliasInfo, ColumnAliasInfo
 from sqlfluff.core.parser.segments.base import BaseSegment
 from sqlfluff.core.parser.segments.raw import CodeSegment, SymbolSegment
-from sqlfluff.core.rules.analysis.select_crawler import SelectCrawler
+from sqlfluff.core.rules.analysis.select_crawler import Query, SelectCrawler
 from sqlfluff.core.rules.base import (
     BaseRule,
     LintFix,
@@ -13,6 +13,7 @@ from sqlfluff.core.rules.base import (
     EvalResultType,
     RuleContext,
 )
+from sqlfluff.core.rules.functional import sp
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
@@ -89,26 +90,32 @@ class Rule_L028(BaseRule):
 
         """Outermost query should produce known number of columns."""
         start_types = ["select_statement", "set_expression", "with_compound_statement"]
-        if context.segment.is_type(*start_types):
+        if context.segment.is_type(
+            *start_types
+        ) and not context.functional.parent_stack.any(sp.is_type(*start_types)):
             crawler = SelectCrawler(context.segment, context.dialect)
             if crawler.query_tree:
-                select_info = crawler.query_tree.selectables[0].select_info
-                # How many aliases are there? If more than one then do nothing.
-                # TODO: In some of these cases, we can (and should) generate
-                # WARNINGS even though we can't generate FIXES.
-                if len(select_info.table_aliases) == 1:
-                    return list(
-                        _generate_fixes(
-                            select_info.table_aliases,
-                            select_info.standalone_aliases,
-                            select_info.reference_buffer,
-                            select_info.col_aliases,
-                            self.single_table_references,  # type: ignore
-                            self._is_struct_dialect,
-                            self._fix_inconsistent_to,
-                        )
-                    )
+                # Recursively visit and check each query in the tree.
+                return list(self._visit_queries(crawler.query_tree))
         return None
+
+    def _visit_queries(self, query: Query) -> Generator[LintResult, None, None]:
+        select_info = query.selectables[0].select_info
+        # How many aliases are there? If more than one then do nothing.
+        # TODO: In some of these cases, we can (and should) generate
+        # WARNINGS even though we can't generate FIXES.
+        if len(select_info.table_aliases) == 1:
+            yield from _generate_fixes(
+                select_info.table_aliases,
+                select_info.standalone_aliases,
+                select_info.reference_buffer,
+                select_info.col_aliases,
+                self.single_table_references,  # type: ignore
+                self._is_struct_dialect,
+                self._fix_inconsistent_to,
+            )
+        for child in query.children:
+            yield from self._visit_queries(child)
 
 
 def _generate_fixes(
