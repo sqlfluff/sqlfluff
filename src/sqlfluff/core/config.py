@@ -486,25 +486,16 @@ class FluffConfig:
             )
         else:
             self._configs["core"]["ignore"] = []
-        # rule groupings
-        if self._configs["rules"].get("groups", None):
-            rule_groups = list(self._configs["rules"]["groups"].keys())
-        else:
-            rule_groups = []
         # Allowlists and denylists
         if self._configs["core"].get("rules", None):
-            allow_rules = _split_comma_separated_string(self._configs["core"]["rules"])
-            self._configs["core"]["rule_allowlist"] = self._lookup_rules_from_group(
-                allow_rules, rule_groups
+            self._configs["core"]["rule_allowlist"] = _split_comma_separated_string(
+                self._configs["core"]["rules"]
             )
         else:
             self._configs["core"]["rule_allowlist"] = None
         if self._configs["core"].get("exclude_rules", None):
-            deny_rules = _split_comma_separated_string(
+            self._configs["core"]["rule_denylist"] = _split_comma_separated_string(
                 self._configs["core"]["exclude_rules"]
-            )
-            self._configs["core"]["rule_denylist"] = self._lookup_rules_from_group(
-                deny_rules, rule_groups
             )
         else:
             self._configs["core"]["rule_denylist"] = None
