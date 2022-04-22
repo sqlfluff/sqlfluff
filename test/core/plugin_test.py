@@ -29,3 +29,16 @@ def test__plugin_default_config_read():
     fluff_config = FluffConfig(overrides={"dialect": "ansi"})
     # The plugin import order is non-deterministic
     assert "forbidden_columns" in fluff_config._configs["rules"]["Example_L001"]
+
+
+def test__plugin_class_vars_exist():
+    """Test that class variables are created for custom rules."""
+    plugin_manager = get_plugin_manager()
+    custom_rule = [
+        rule
+        for rules in plugin_manager.hook.get_rules()
+        for rule in rules
+        if rule.__name__ == "Rule_Example_L001"
+    ].pop()
+    assert custom_rule.config_keywords
+    assert custom_rule.groups
