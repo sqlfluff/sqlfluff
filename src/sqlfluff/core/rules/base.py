@@ -20,7 +20,18 @@ import fnmatch
 import logging
 import pathlib
 import regex
-from typing import Sequence, cast, Iterable, Iterator, Optional, List, Set, Tuple, Union, Any
+from typing import (
+    Sequence,
+    cast,
+    Iterable,
+    Iterator,
+    Optional,
+    List,
+    Set,
+    Tuple,
+    Union,
+    Any,
+)
 from collections import namedtuple
 from dataclasses import dataclass, field
 
@@ -1071,7 +1082,7 @@ class RuleSet:
         try:
             groups = cls.groups
         except AttributeError:
-            breakpoint()
+
             raise AttributeError(
                 (
                     "Rule {!r} doesn't belong to any rule groups. "
@@ -1181,7 +1192,7 @@ class RuleSet:
         keylist = [
             r for r in keylist if r in expanded_allowlist and r not in expanded_denylist
         ]
-        breakpoint()
+
         # Construct the kwargs for instantiation before we actually do it.
         rule_kwargs = {}
         for k in keylist:
