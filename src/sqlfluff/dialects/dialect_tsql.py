@@ -3767,3 +3767,41 @@ class AccessStatementSegment(BaseSegment):
             ),
         ),
     )
+
+
+class CreateTypeStatementSegment(BaseSegment):
+    """A `CREATE TYPE` statement.
+
+    This is based around the Postgres syntax.
+    https://www.postgresql.org/docs/current/sql-createtype.html
+
+    Note: This is relatively permissive currently
+    and does not lint the syntax strictly, to allow
+    for some deviation between dialects.
+    """
+
+    type = "create_type_statement"
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        "TYPE",
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Sequence("FROM", Ref("ObjectReferenceSegment")),
+            Sequence(
+                "AS",
+                "TABLE",
+                Sequence(
+                    Bracketed(
+                        Delimited(
+                            OneOf(
+                                Ref("TableConstraintSegment"),
+                                Ref("ColumnDefinitionSegment"),
+                                Ref("TableIndexSegment"),
+                            ),
+                            allow_trailing=True,
+                        )
+                    ),
+                ),
+            ),
+        ),
+    )
