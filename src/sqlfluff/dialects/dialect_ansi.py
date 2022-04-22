@@ -1460,7 +1460,10 @@ class JoinClauseSegment(BaseSegment):
             buff.append((from_expression, alias))
 
         # In some dialects, like TSQL, join clauses can have nested join clauses
-        for join_clause in self.recursive_crawl("join_clause"):
+        # recurse into them - but not if part of a sub-select statement (see #3144)
+        for join_clause in self.recursive_crawl(
+            "join_clause", no_recursive_seg_type="select_statement"
+        ):
             if join_clause is self:
                 # If the starting segment itself matches the list of types we're
                 # searching for, recursive_crawl() will return it. Skip that.
@@ -2300,8 +2303,16 @@ class InsertStatementSegment(BaseSegment):
         Ref.keyword("OVERWRITE", optional=True),
         "INTO",
         Ref("TableReferenceSegment"),
-        Ref("BracketedColumnReferenceListGrammar", optional=True),
-        Ref("SelectableGrammar"),
+        OneOf(
+            # As SelectableGrammar can be bracketed too, the parse gets confused
+            # so we need slightly odd syntax here to allow those to parse (rather
+            # than just add optional=True to BracketedColumnReferenceListGrammar).
+            Ref("SelectableGrammar"),
+            Sequence(
+                Ref("BracketedColumnReferenceListGrammar"),
+                Ref("SelectableGrammar"),
+            ),
+        ),
     )
 
 

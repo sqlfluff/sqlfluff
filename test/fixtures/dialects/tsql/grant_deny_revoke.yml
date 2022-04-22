@@ -1,0 +1,222 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 53d71d07668d7560c035dbde99ef9fb6e5bc37aa25430bef1e1096d2335f5056
+file:
+- batch:
+    statement:
+      access_statement:
+      - keyword: GRANT
+      - keyword: SELECT
+      - keyword: 'ON'
+      - keyword: OBJECT
+      - casting_operator: '::'
+      - object_reference:
+        - identifier: Person
+        - dot: .
+        - identifier: Address
+      - keyword: TO
+      - object_reference:
+          identifier: RosaQdM
+    statement_terminator: ;
+- go_statement:
+    keyword: GO
+- batch:
+  - statement:
+      use_statement:
+        keyword: USE
+        database_reference:
+          identifier: AdventureWorks2012
+  - statement_terminator: ;
+  - statement:
+      access_statement:
+      - keyword: GRANT
+      - keyword: EXECUTE
+      - keyword: 'ON'
+      - keyword: OBJECT
+      - casting_operator: '::'
+      - object_reference:
+        - identifier: HumanResources
+        - dot: .
+        - identifier: uspUpdateEmployeeHireInfo
+      - keyword: TO
+      - object_reference:
+          identifier: Recruiting11
+  - statement_terminator: ;
+- go_statement:
+    keyword: GO
+- batch:
+    statement:
+      access_statement:
+      - keyword: GRANT
+      - keyword: REFERENCES
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            identifier: BusinessEntityID
+          end_bracket: )
+      - keyword: 'ON'
+      - keyword: OBJECT
+      - casting_operator: '::'
+      - object_reference:
+        - identifier: HumanResources
+        - dot: .
+        - identifier: vEmployee
+      - keyword: TO
+      - object_reference:
+          identifier: Wanida
+      - keyword: WITH
+      - keyword: GRANT
+      - keyword: OPTION
+    statement_terminator: ;
+- go_statement:
+    keyword: GO
+- batch:
+    statement:
+      access_statement:
+      - keyword: GRANT
+      - keyword: SELECT
+      - keyword: 'ON'
+      - object_reference:
+        - identifier: Person
+        - dot: .
+        - identifier: Address
+      - keyword: TO
+      - object_reference:
+          identifier: RosaQdM
+    statement_terminator: ;
+- go_statement:
+    keyword: GO
+- batch:
+    statement:
+      access_statement:
+      - keyword: GRANT
+      - keyword: SELECT
+      - keyword: 'ON'
+      - object_reference:
+        - identifier: Person
+        - dot: .
+        - identifier: Address
+      - keyword: TO
+      - object_reference:
+          identifier: '[AdventureWorks2012\RosaQdM]'
+    statement_terminator: ;
+- go_statement:
+    keyword: GO
+- batch:
+  - statement:
+      create_role_statement:
+      - keyword: CREATE
+      - keyword: ROLE
+      - object_reference:
+          identifier: newrole
+  - statement_terminator: ;
+  - statement:
+      access_statement:
+      - keyword: GRANT
+      - keyword: EXECUTE
+      - keyword: 'ON'
+      - object_reference:
+        - identifier: dbo
+        - dot: .
+        - identifier: uspGetBillOfMaterials
+      - keyword: TO
+      - object_reference:
+          identifier: newrole
+  - statement_terminator: ;
+- go_statement:
+    keyword: GO
+- batch:
+    statement:
+      access_statement:
+      - keyword: GRANT
+      - keyword: SELECT
+      - keyword: 'ON'
+      - keyword: SCHEMA
+      - casting_operator: '::'
+      - object_reference:
+          identifier: Sales
+      - keyword: TO
+      - object_reference:
+          identifier: Vendors
+    statement_terminator: ;
+- go_statement:
+    keyword: GO
+- batch:
+    statement:
+      access_statement:
+      - keyword: REVOKE
+      - keyword: SELECT
+      - keyword: 'ON'
+      - keyword: SCHEMA
+      - casting_operator: '::'
+      - object_reference:
+          identifier: Sales
+      - keyword: TO
+      - object_reference:
+          identifier: Vendors
+    statement_terminator: ;
+- go_statement:
+    keyword: GO
+- batch:
+    statement:
+      access_statement:
+      - keyword: DENY
+      - keyword: SELECT
+      - keyword: 'ON'
+      - keyword: OBJECT
+      - casting_operator: '::'
+      - object_reference:
+        - identifier: Person
+        - dot: .
+        - identifier: Address
+      - keyword: TO
+      - object_reference:
+          identifier: RosaQdM
+    statement_terminator: ;
+- go_statement:
+    keyword: GO
+- batch:
+    statement:
+      access_statement:
+      - keyword: DENY
+      - keyword: EXECUTE
+      - keyword: 'ON'
+      - keyword: OBJECT
+      - casting_operator: '::'
+      - object_reference:
+        - identifier: HumanResources
+        - dot: .
+        - identifier: uspUpdateEmployeeHireInfo
+      - keyword: TO
+      - object_reference:
+          identifier: Recruiting11
+    statement_terminator: ;
+- go_statement:
+    keyword: GO
+- batch:
+    statement:
+      access_statement:
+      - keyword: DENY
+      - keyword: REFERENCES
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            identifier: BusinessEntityID
+          end_bracket: )
+      - keyword: 'ON'
+      - keyword: OBJECT
+      - casting_operator: '::'
+      - object_reference:
+        - identifier: HumanResources
+        - dot: .
+        - identifier: vEmployee
+      - keyword: TO
+      - object_reference:
+          identifier: Wanida
+      - keyword: CASCADE
+    statement_terminator: ;
+- go_statement:
+    keyword: GO

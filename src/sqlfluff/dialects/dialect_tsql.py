@@ -463,6 +463,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("RaiserrorStatementSegment"),
             Ref("ReturnStatementSegment"),
             Ref("GotoStatement"),
+            Ref("LabelStatementSegment"),
             Ref("DisableTriggerStatementSegment"),
             Ref("WhileExpressionStatement"),
             Ref("BreakStatement"),
@@ -1235,6 +1236,7 @@ class DatatypeSegment(BaseSegment):
         ),
         Bracketed(
             OneOf(
+                "MAX",
                 Delimited(Ref("ExpressionSegment")),
                 # The brackets might be empty for some cases...
                 optional=True,
@@ -1866,7 +1868,7 @@ class ConvertFunctionNameSegment(BaseSegment):
     """
 
     type = "function_name"
-    match_grammar = Sequence("CONVERT")
+    match_grammar = OneOf("CONVERT", "TRY_CONVERT")
 
 
 class CastFunctionNameSegment(BaseSegment):
@@ -3565,5 +3567,201 @@ class DisableTriggerStatementSegment(BaseSegment):
             "ON",
             OneOf(Ref("ObjectReferenceSegment"), "DATABASE", Sequence("ALL", "SERVER")),
             optional=True,
+        ),
+    )
+
+
+class LabelStatementSegment(BaseSegment):
+    """Label Statement, for a GOTO statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/language-elements/goto-transact-sql?view=sql-server-ver15
+    """
+
+    type = "label_segment"
+
+    match_grammar: Matchable = Sequence(
+        Ref("NakedIdentifierSegment"), Ref("ColonSegment"), allow_gaps=False
+    )
+
+
+class AccessStatementSegment(BaseSegment):
+    """A `GRANT` or `REVOKE` statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/grant-transact-sql?view=sql-server-ver15
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/deny-transact-sql?view=sql-server-ver15
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/revoke-transact-sql?view=sql-server-ver15
+    """
+
+    type = "access_statement"
+
+    # Privileges that can be set on the account (specific to snowflake)
+    _global_permissions = OneOf(
+        Sequence(
+            "CREATE",
+            OneOf(
+                "ROLE",
+                "USER",
+                "WAREHOUSE",
+                "DATABASE",
+                "INTEGRATION",
+            ),
+        ),
+        Sequence("APPLY", "MASKING", "POLICY"),
+        "EXECUTE",
+    )
+
+    _schema_object_names = [
+        "TABLE",
+        "VIEW",
+        "FUNCTION",
+        "PROCEDURE",
+        "SEQUENCE",
+    ]
+
+    _schema_object_types = OneOf(
+        *_schema_object_names,
+        Sequence("EXTERNAL", "TABLE"),
+        Sequence("FILE", "FORMAT"),
+    )
+
+    # We reuse the object names above and simply append an `S` to the end of them to get
+    # plurals
+    _schema_object_types_plural = OneOf(
+        *[f"{object_name}S" for object_name in _schema_object_names]
+    )
+
+    _permissions = Sequence(
+        OneOf(
+            "ALTER",
+            "CONTROL",
+            "DELETE",
+            "EXECUTE",
+            "INSERT",
+            "RECEIVE",
+            "REFERENCES",
+            "SELECT",
+            Sequence("TAKE", "OWNERSHIP"),
+            "UPDATE",
+            Sequence("VIEW", "CHANGE", "TRACKING"),
+            Sequence("VIEW", "DEFINITION"),
+        ),
+        Ref("BracketedColumnReferenceListGrammar", optional=True),
+    )
+
+    # All of the object types that we can grant permissions on.
+    # This list will contain ansi sql objects as well as dialect specific ones.
+    _objects = Sequence(
+        OneOf(
+            "DATABASE",
+            "LANGUAGE",
+            "SCHEMA",
+            "ROLE",
+            "TYPE",
+            Sequence(
+                "FOREIGN",
+                OneOf("SERVER", Sequence("DATA", "WRAPPER")),
+            ),
+            Sequence("ALL", "SCHEMAS", "IN", "DATABASE"),
+            _schema_object_types,
+            Sequence("ALL", _schema_object_types_plural, "IN", "SCHEMA"),
+            optional=True,
+        ),
+        Delimited(Ref("ObjectReferenceSegment"), terminator=OneOf("TO", "FROM")),
+        Ref("FunctionParameterListGrammar", optional=True),
+    )
+
+    match_grammar: Matchable = OneOf(
+        # Based on https://www.postgresql.org/docs/13/sql-grant.html
+        # and https://docs.snowflake.com/en/sql-reference/sql/grant-privilege.html
+        Sequence(
+            "GRANT",
+            OneOf(
+                Sequence(
+                    Delimited(
+                        OneOf(_global_permissions, _permissions),
+                        delimiter=Ref("CommaSegment"),
+                        terminator="ON",
+                    ),
+                ),
+                Sequence("ALL", Ref.keyword("PRIVILEGES", optional=True)),
+            ),
+            "ON",
+            Sequence(
+                OneOf("LOGIN", "DATABASE", "OBJECT", "ROLE", "SCHEMA", "USER"),
+                Ref("CastOperatorSegment"),
+                optional=True,
+            ),
+            _objects,
+            "TO",
+            Delimited(
+                OneOf(Ref("ObjectReferenceSegment"), Ref("FunctionSegment")),
+                delimiter=Ref("CommaSegment"),
+            ),
+            OneOf(
+                Sequence("WITH", "GRANT", "OPTION"),
+                optional=True,
+            ),
+            Sequence(
+                "AS",
+                Ref("ObjectReferenceSegment"),
+                optional=True,
+            ),
+        ),
+        Sequence(
+            "DENY",
+            OneOf(
+                Delimited(
+                    OneOf(_global_permissions, _permissions),
+                    delimiter=Ref("CommaSegment"),
+                    terminator="ON",
+                ),
+                Sequence("ALL", Ref.keyword("PRIVILEGES", optional=True)),
+            ),
+            "ON",
+            Sequence(
+                OneOf("LOGIN", "DATABASE", "OBJECT", "ROLE", "SCHEMA", "USER"),
+                Ref("CastOperatorSegment"),
+                optional=True,
+            ),
+            _objects,
+            OneOf("TO"),
+            Delimited(
+                Ref("ObjectReferenceSegment"),
+                delimiter=Ref("CommaSegment"),
+            ),
+            Sequence(
+                Ref.keyword("CASCADE", optional=True),
+                Ref("ObjectReferenceSegment", optional=True),
+                optional=True,
+            ),
+        ),
+        Sequence(
+            "REVOKE",
+            Sequence("GRANT", "OPTION", "FOR", optional=True),
+            OneOf(
+                Delimited(
+                    OneOf(_global_permissions, _permissions),
+                    delimiter=Ref("CommaSegment"),
+                    terminator="ON",
+                ),
+                Sequence("ALL", Ref.keyword("PRIVILEGES", optional=True)),
+            ),
+            "ON",
+            Sequence(
+                OneOf("LOGIN", "DATABASE", "OBJECT", "ROLE", "SCHEMA", "USER"),
+                Ref("CastOperatorSegment"),
+                optional=True,
+            ),
+            _objects,
+            OneOf("TO", "FROM"),
+            Delimited(
+                Ref("ObjectReferenceSegment"),
+                delimiter=Ref("CommaSegment"),
+            ),
+            Sequence(
+                Ref.keyword("CASCADE", optional=True),
+                Ref("ObjectReferenceSegment", optional=True),
+                optional=True,
+            ),
         ),
     )

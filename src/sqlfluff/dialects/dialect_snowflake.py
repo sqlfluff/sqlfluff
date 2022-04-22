@@ -2920,7 +2920,7 @@ class TableExpressionSegment(ansi.TableExpressionSegment):
         Ref("TableReferenceSegment"),
         # Nested Selects
         Bracketed(Ref("SelectableGrammar")),
-        # Values clause?
+        Ref("ValuesClauseSegment"),
         Ref("StagePath"),
     )
 
