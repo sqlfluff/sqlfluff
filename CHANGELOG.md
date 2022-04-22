@@ -9,10 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfluff/sqlfluff/releases) and will be copied in here on each release (please remember to update the issues and contributors to links!). There is no need to manually edit this file going forward.
 -->
 
-## [0.12.1] - 2022-04-22
+## [0.13.0] - 2022-04-22
 
 ## Highlights
 Major changes include:
+* New Rule (L064) for preferred quotes for quoted literals
 * Rule speed improvements and fixing performance regression from 0.12.0
 * Add configuration option to disallow hanging indents in L003
 * Add `ignore_words_regex` configuration option for rules
@@ -20,6 +21,13 @@ Major changes include:
 * Many bug fixes and dialect improvements
 
 ## What’s Changed
+* New Rule L064: Consistent usage of preferred quotes for quoted literals [#3118](https://github.com/sqlfluff/sqlfluff/pull/3118) [@dmohns](https://github.com/dmohns)
+* L025 bug fix: stop incorrectly flagging on nested inner joins [#3145](https://github.com/sqlfluff/sqlfluff/pull/3145) [@tunetheweb](https://github.com/tunetheweb)
+* T-SQL: Add labels, as well as `GRANT`/`DENY`/`REVOKE` [#3149](https://github.com/sqlfluff/sqlfluff/pull/3149) [@tunetheweb](https://github.com/tunetheweb)
+* Snowflake: allow bracketless `VALUES` in `FROM` clauses [#3141](https://github.com/sqlfluff/sqlfluff/pull/3141) [@tunetheweb](https://github.com/tunetheweb)
+* T-SQL: Support `TRY_CONVERT` [#3143](https://github.com/sqlfluff/sqlfluff/pull/3143) [@fdw](https://github.com/fdw)
+* T-SQL: Support `NVARCHAR(MAX)` [#3130](https://github.com/sqlfluff/sqlfluff/pull/3130) [@fdw](https://github.com/fdw)
+* Allow column-less `INSERT INTO` with bracketed `SELECT` in ANSI and BigQuery [#3139](https://github.com/sqlfluff/sqlfluff/pull/3139) [@tunetheweb](https://github.com/tunetheweb)
 * Hive: Support dynamic partition insert [#3126](https://github.com/sqlfluff/sqlfluff/pull/3126) [@barunpuri](https://github.com/barunpuri)
 * T-SQL - `ALTER TABLE` - add support for `WITH CHECK ADD CONSTRAINT` and `CHECK CONSTRAINT` [#3132](https://github.com/sqlfluff/sqlfluff/pull/3132) [@nevado](https://github.com/nevado)
 * TSQL: Support names for transactions [#3129](https://github.com/sqlfluff/sqlfluff/pull/3129) [@fdw](https://github.com/fdw)
