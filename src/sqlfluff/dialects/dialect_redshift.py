@@ -1237,7 +1237,7 @@ class CopyStatementSegment(postgres.CopyStatementSegment):
             Sequence(
                 "ACCEPTINVCHARS",
                 Ref.keyword("AS", optional=True),
-                Ref("QuotedLiteralSegment"),
+                Ref("QuotedLiteralSegment", optional=True),
                 optional=True,
             ),
             Ref.keyword("BLANKSASNULL", optional=True),
@@ -1269,7 +1269,7 @@ class CopyStatementSegment(postgres.CopyStatementSegment):
             Sequence(
                 "IGNOREHEADER",
                 Ref.keyword("AS", optional=True),
-                Ref("QuotedLiteralSegment"),
+                Ref("LiteralGrammar"),
                 optional=True,
             ),
             Sequence(
