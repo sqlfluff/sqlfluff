@@ -623,8 +623,11 @@ class CreateTableStatementSegment(BaseSegment):
                     Sequence(
                         Ref("ColumnReferenceSegment"),
                         Ref("DatatypeSegment"),
-                        AnyNumberOf(Ref("ColumnAttributeSegment"), optional=True),
-                        AnyNumberOf(Ref("ColumnConstraintSegment"), optional=True),
+                        AnyNumberOf(
+                            Ref("ColumnAttributeSegment"),
+                            Ref("ColumnConstraintSegment"),
+                            optional=True,
+                        ),
                     ),
                     Ref("TableConstraintSegment", optional=True),
                 ),
