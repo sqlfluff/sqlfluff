@@ -68,6 +68,7 @@ class Rule_Example_L001(BaseRule):
         ORDER BY bar
     """
 
+    groups = ("all",)
     config_keywords = ["forbidden_columns"]
 
     def __init__(self, *args, **kwargs):
