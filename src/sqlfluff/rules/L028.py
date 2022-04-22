@@ -93,15 +93,19 @@ class Rule_L028(BaseRule):
             crawler = SelectCrawler(context.segment, context.dialect)
             if crawler.query_tree:
                 select_info = crawler.query_tree.selectables[0].select_info
-                return _generate_fixes(
-                    select_info.table_aliases,
-                    select_info.standalone_aliases,
-                    select_info.reference_buffer,
-                    select_info.col_aliases,
-                    self.single_table_references,  # type: ignore
-                    self._is_struct_dialect,
-                    self._fix_inconsistent_to,
-                )
+                # How many aliases are there? If more than one then do nothing.
+                # TODO: In some of these cases, we can (and should) generate
+                # WARNINGS even though we can't generate FIXES.
+                if len(select_info.table_aliases) == 1:
+                    return _generate_fixes(
+                        select_info.table_aliases,
+                        select_info.standalone_aliases,
+                        select_info.reference_buffer,
+                        select_info.col_aliases,
+                        self.single_table_references,  # type: ignore
+                        self._is_struct_dialect,
+                        self._fix_inconsistent_to,
+                    )
         return None
 
 
@@ -115,10 +119,6 @@ def _generate_fixes(
     fix_inconsistent_to: Optional[str],
 ) -> Optional[List[LintResult]]:
     """Iterate through references and check consistency."""
-    # How many aliases are there? If more than one then abort.
-    if len(table_aliases) != 1:
-        return None
-
     # A buffer to keep any violations.
     violation_buff: List[LintResult] = []
     col_alias_names: List[str] = [c.alias_identifier_name for c in col_aliases]
