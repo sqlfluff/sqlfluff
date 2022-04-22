@@ -58,6 +58,8 @@ class Rule_L020(BaseRule):
 
     """
 
+    groups = ("all", "core")
+
     def _lint_references_and_aliases(
         self,
         table_aliases: List[AliasInfo],

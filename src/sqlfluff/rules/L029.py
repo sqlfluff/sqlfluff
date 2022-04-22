@@ -42,6 +42,7 @@ class Rule_L029(BaseRule):
 
     """
 
+    groups = ("all",)
     # Binary operators behave like keywords too.
     _target_elems: List[Tuple[str, str]] = [
         ("name", "naked_identifier"),

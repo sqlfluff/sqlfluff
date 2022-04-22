@@ -46,6 +46,8 @@ class Rule_L053(BaseRule):
         FROM (SELECT * FROM bar)
     """
 
+    groups = ("all",)
+
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Top-level statements should not be wrapped in brackets."""
         # We only care about bracketed segments that are direct

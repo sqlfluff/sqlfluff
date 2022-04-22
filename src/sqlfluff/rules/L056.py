@@ -51,6 +51,8 @@ class Rule_L056(BaseRule):
         FROM table1
     """
 
+    groups = ("all",)
+
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         r"""``SP_`` prefix should not be used for user-defined stored procedures."""
         # Rule only applies to T-SQL syntax.

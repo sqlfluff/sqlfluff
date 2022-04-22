@@ -70,6 +70,7 @@ class Rule_L059(BaseRule):
 
     """
 
+    groups = ("all",)
     config_keywords = [
         "prefer_quoted_identifiers",
         "ignore_words",

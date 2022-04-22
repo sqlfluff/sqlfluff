@@ -69,6 +69,8 @@ class Rule_L036(BaseRule):
 
     """
 
+    groups = ("all",)
+
     def _eval(self, context: RuleContext):
         if context.segment.is_type("select_clause"):
             select_targets_info = self._get_indexes(context)

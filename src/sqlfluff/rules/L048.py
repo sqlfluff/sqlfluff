@@ -35,6 +35,7 @@ class Rule_L048(Rule_L006):
         FROM foo
     """
 
+    groups = ("all", "core")
     _require_three_children: bool = False
 
     _target_elems: List[Tuple[str, str]] = [

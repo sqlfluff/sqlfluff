@@ -44,6 +44,7 @@ class Rule_L004(BaseRule):
         from foo
     """
 
+    groups = ("all", "core")
     config_keywords = ["indent_unit", "tab_space_size"]
 
     # TODO fix indents after text:

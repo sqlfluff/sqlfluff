@@ -103,6 +103,8 @@ class Rule_L009(BaseRule):
 
     """
 
+    groups = ("all", "core")
+
     targets_templated = True
     # TRICKY: Tells linter to only call _eval() ONCE, with the root segment
     recurse_into = False

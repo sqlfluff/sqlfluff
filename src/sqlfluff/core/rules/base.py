@@ -20,7 +20,7 @@ import fnmatch
 import logging
 import pathlib
 import regex
-from typing import cast, Iterable, Iterator, Optional, List, Set, Tuple, Union, Any
+from typing import Sequence, cast, Iterable, Iterator, Optional, List, Set, Tuple, Union, Any
 from collections import namedtuple
 from dataclasses import dataclass, field
 
@@ -1067,10 +1067,41 @@ class RuleSet:
                     code, self.name
                 )
             )
-        self._register[code] = dict(code=code, description=description, cls=cls)
+
+        try:
+            groups = cls.groups
+        except AttributeError:
+            breakpoint()
+            raise AttributeError(
+                (
+                    "Rule {!r} doesn't belong to any rule groups. "
+                    "All rules must belong to at least one group"
+                ).format(code)
+            )
+
+        self._register[code] = dict(
+            code=code, description=description, groups=groups, cls=cls
+        )
 
         # Make sure we actually return the original class
         return cls
+
+    def _expand_config_rule_group_list(
+        self, rule_list: List[str], valid_groups: Sequence[str]
+    ) -> List[str]:
+        expanded_rule_list: List[str] = []
+        for r in rule_list:
+            if r in valid_groups:
+                rules_in_group = [
+                    rule
+                    for rule, rule_dict in self._register.items()
+                    if r in rule_dict["groups"]
+                ]
+                expanded_rule_list.extend(rules_in_group)
+            else:
+                expanded_rule_list.extend(r)
+
+        return expanded_rule_list
 
     def _expand_config_rule_glob_list(self, glob_list: List[str]) -> List[str]:
         """Expand a list of rule globs into a list of rule codes.
@@ -1103,12 +1134,19 @@ class RuleSet:
         """
         # Validate all generic rule configs
         self._validate_config_options(config)
+        # Find all valid groups for ruleset
+        valid_groups = set(
+            [group for _, attrs in self._register.items() for group in attrs["groups"]]
+        )
         # default the allowlist to all the rules if not set
         allowlist = config.get("rule_allowlist") or list(self._register.keys())
         denylist = config.get("rule_denylist") or []
 
         allowlisted_unknown_rule_codes = [
-            r for r in allowlist if not fnmatch.filter(self._register, r)
+            r
+            for r in allowlist
+            # Add valid groups to the register when searching for invalid rules _only_
+            if not fnmatch.filter({**self._register, **dict.fromkeys(valid_groups)}, r)
         ]
         if any(allowlisted_unknown_rule_codes):
             rules_logger.warning(
@@ -1118,7 +1156,9 @@ class RuleSet:
             )
 
         denylisted_unknown_rule_codes = [
-            r for r in denylist if not fnmatch.filter(self._register, r)
+            r
+            for r in denylist
+            if not fnmatch.filter({**self._register, **dict.fromkeys(valid_groups)}, r)
         ]
         if any(denylisted_unknown_rule_codes):  # pragma: no cover
             rules_logger.warning(
@@ -1130,14 +1170,18 @@ class RuleSet:
         keylist = sorted(self._register.keys())
 
         # First we expand the allowlist and denylist globs
-        expanded_allowlist = self._expand_config_rule_glob_list(allowlist)
-        expanded_denylist = self._expand_config_rule_glob_list(denylist)
+        expanded_allowlist = self._expand_config_rule_glob_list(
+            allowlist
+        ) + self._expand_config_rule_group_list(allowlist, valid_groups)
+        expanded_denylist = self._expand_config_rule_glob_list(
+            denylist
+        ) + self._expand_config_rule_group_list(denylist, valid_groups)
 
         # Then we filter the rules
         keylist = [
             r for r in keylist if r in expanded_allowlist and r not in expanded_denylist
         ]
-
+        breakpoint()
         # Construct the kwargs for instantiation before we actually do it.
         rule_kwargs = {}
         for k in keylist:

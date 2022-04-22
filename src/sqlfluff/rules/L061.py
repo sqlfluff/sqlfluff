@@ -31,6 +31,8 @@ class Rule_L061(BaseRule):
 
     """
 
+    groups = ("all",)
+
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Use ``!=`` instead of ``<>`` for "not equal to" comparison."""
         # Only care about not_equal_to segments.

@@ -36,6 +36,8 @@ class Rule_L055(BaseRule):
             ON foo.bar_id = bar.id;
     """
 
+    groups = ("all",)
+
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Use LEFT JOIN instead of RIGHT JOIN."""
         # We are only interested in JOIN clauses.

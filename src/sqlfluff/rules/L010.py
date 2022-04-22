@@ -43,6 +43,7 @@ class Rule_L010(BaseRule):
         from foo
     """
 
+    groups = ("all", "core")
     lint_phase = "post"
     # Binary operators behave like keywords too.
     _target_elems: List[Tuple[str, str]] = [

@@ -43,6 +43,7 @@ class Rule_L011(BaseRule):
 
     """
 
+    groups = ("all",)
     config_keywords = ["aliasing"]
 
     _target_elems = ("from_expression_element",)

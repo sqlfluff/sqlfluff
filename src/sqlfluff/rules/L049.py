@@ -39,6 +39,8 @@ class Rule_L049(Rule_L006):
         WHERE a IS NULL
     """
 
+    groups = ("all", "core")
+
     def _eval(self, context: RuleContext) -> Optional[List[LintResult]]:
         """Relational operators should not be used to check for NULL values."""
         # Context/motivation for this rule:

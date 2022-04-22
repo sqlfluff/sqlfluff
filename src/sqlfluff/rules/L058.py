@@ -41,6 +41,8 @@ class Rule_L058(BaseRule):
 
     """
 
+    groups = ("all",)
+
     def _eval(self, context: RuleContext) -> LintResult:
         """Nested CASE statement in ELSE clause could be flattened."""
         segment = context.functional.segment

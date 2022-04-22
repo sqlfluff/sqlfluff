@@ -62,6 +62,7 @@ class Rule_L044(BaseRule):
 
     """
 
+    groups = ("all",)
     _works_on_unparsable = False
 
     def _handle_alias(self, selectable, alias_info, query):

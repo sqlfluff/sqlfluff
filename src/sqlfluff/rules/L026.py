@@ -57,6 +57,7 @@ class Rule_L026(BaseRule):
 
     """
 
+    groups = ("all", "core")
     config_keywords = ["force_enable"]
 
     def _eval(self, context: RuleContext) -> EvalResultType:

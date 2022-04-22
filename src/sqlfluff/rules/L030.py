@@ -38,6 +38,7 @@ class Rule_L030(Rule_L010):
 
     """
 
+    groups = ("all", "core")
     lint_phase = "post"
     _target_elems: List[Tuple[str, str]] = [
         ("type", "function_name_identifier"),

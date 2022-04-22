@@ -55,6 +55,7 @@ class Rule_L007(BaseRule):
         FROM foo
     """
 
+    groups = ("all",)
     config_keywords = ["operator_new_lines"]
 
     def _eval(self, context: RuleContext) -> Optional[List[LintResult]]:

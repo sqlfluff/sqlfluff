@@ -53,6 +53,7 @@ class Rule_L040(Rule_L010):
 
     """
 
+    groups = ("all", "core")
     lint_phase = "post"
     _target_elems: List[Tuple[str, str]] = [
         ("name", "null_literal"),

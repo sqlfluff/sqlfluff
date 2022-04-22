@@ -68,14 +68,15 @@ class Rule_Example_L001(BaseRule):
         ORDER BY bar
     """
 
-    config_keywords = ["forbidden_columns"]
-
     def __init__(self, *args, **kwargs):
         """Overwrite __init__ to set config."""
         super().__init__(*args, **kwargs)
         self.forbidden_columns = [
             col.strip() for col in self.forbidden_columns.split(",")
         ]
+
+    config_keywords = ["forbidden_columns"]
+    groups = ("all",)
 
     def _eval(self, context: RuleContext):
         """We should not use ORDER BY."""

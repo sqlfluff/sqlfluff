@@ -32,6 +32,8 @@ class Rule_L027(Rule_L020):
         LEFT JOIN vee ON vee.a = foo.a
     """
 
+    groups = ("all",)
+
     def _lint_references_and_aliases(
         self,
         table_aliases,

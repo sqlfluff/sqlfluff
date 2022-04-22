@@ -36,6 +36,8 @@ class Rule_L035(BaseRule):
         from x
     """
 
+    groups = ("all",)
+
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Find rule violations and provide fixes.
 

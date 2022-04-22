@@ -23,6 +23,7 @@ from sqlfluff.rules.L003 import Rule_L003
 class Rule_L016(Rule_L003):
     """Line is too long."""
 
+    groups = ("all", "core")
     needs_raw_stack = True
     _adjust_anchors = True
     _check_docstring = False

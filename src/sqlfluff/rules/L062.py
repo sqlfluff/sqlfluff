@@ -45,6 +45,7 @@ class Rule_L062(BaseRule):
 
     """
 
+    groups = ("all",)
     config_keywords = [
         "blocked_words",
     ]

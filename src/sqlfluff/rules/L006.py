@@ -41,6 +41,7 @@ class Rule_L006(BaseRule):
         FROM foo
     """
 
+    groups = ("all", "core")
     # L006 works on operators so requires three operators.
     # However some rules that inherit from here (e.g. L048) do not.
     # So allow this to be configurable.

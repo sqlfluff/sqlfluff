@@ -76,6 +76,8 @@ class Rule_L043(BaseRule):
 
     """
 
+    groups = ("all",)
+
     @staticmethod
     def _coalesce_fix_list(
         context: RuleContext,

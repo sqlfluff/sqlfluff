@@ -51,6 +51,7 @@ class Rule_L019(BaseRule):
         FROM foo
     """
 
+    groups = ("all", "core")
     _works_on_unparsable = False
     needs_raw_stack = True
     config_keywords = ["comma_style"]

@@ -32,6 +32,7 @@ class Rule_L039(BaseRule):
         FROM foo
     """
 
+    groups = ("all", "core")
     needs_raw_stack = True
 
     def _eval(self, context: RuleContext) -> Optional[List[LintResult]]:

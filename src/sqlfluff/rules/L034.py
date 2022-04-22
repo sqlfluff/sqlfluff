@@ -37,6 +37,8 @@ class Rule_L034(BaseRule):
 
     """
 
+    groups = ("all",)
+
     def _validate(self, i: int, segment: BaseSegment) -> None:
         # Check if we've seen a more complex select target element already
         if self.seen_band_elements[i + 1 : :] != [[]] * len(

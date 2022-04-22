@@ -43,6 +43,7 @@ class Rule_L057(BaseRule):
 
     """
 
+    groups = ("all",)
     config_keywords = [
         "quoted_identifiers_policy",
         "unquoted_identifiers_policy",

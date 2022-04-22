@@ -81,6 +81,7 @@ class Rule_L031(BaseRule):
 
     """
 
+    groups = ("all",)
     config_keywords = ["force_enable"]
     _dialects_disabled_by_default = ["bigquery"]
 
