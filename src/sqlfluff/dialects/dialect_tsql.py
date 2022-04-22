@@ -639,6 +639,7 @@ class InsertStatementSegment(BaseSegment):
         "INSERT",
         Ref.keyword("INTO", optional=True),
         Ref("TableReferenceSegment"),
+        Ref("PostTableExpressionGrammar", optional=True),
         Ref("BracketedColumnReferenceListGrammar", optional=True),
         OneOf(Ref("SelectableGrammar"), Ref("ExecuteScriptSegment")),
     )
@@ -2652,6 +2653,7 @@ class DeleteStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "DELETE",
         Ref("TableReferenceSegment", optional=True),  # Azure Synapse Analytics-specific
+        Ref("PostTableExpressionGrammar", optional=True),
         Ref("FromClauseSegment"),
         Ref("WhereClauseSegment", optional=True),
         Ref("DelimiterGrammar", optional=True),
