@@ -38,8 +38,8 @@ Notable changes:
 * **0.12.x** dialect is now mandatory, the ``spark3`` dialect was renamed to
   ``sparksql`` and  datatype capitalisation was extracted from L010 to it's own
   rule L063.
-
-
+* **0.13.x** new rule for quoted literals, option to remove hanging indents in
+  rule L003, and introduction of ``ignore_words_regex``.
 
 Want to see where and how people are using SQLFluff in their projects?
 Head over to :ref:`inthewildref` for inspiration.
