@@ -518,21 +518,6 @@ class FluffConfig:
             self._configs["core"]["templater"]
         )
 
-    def _lookup_rules_from_group(
-        self, rules: List[str], rule_groups: List[str]
-    ) -> List[str]:
-        """Look up group rules and add them to the a rules list."""
-        rules = rules.copy()
-        groups = set(rules).intersection(set(rule_groups))
-        for group in groups:
-            group_rules = _split_comma_separated_string(
-                self._configs["rules"]["groups"][group]
-            )
-            rules.extend(group_rules)
-            rules.remove(group)
-
-        return rules
-
     def verify_dialect_specified(self) -> None:
         """Check if the config specifies a dialect, raising an error if not."""
         dialect: Optional[str] = self._configs["core"]["dialect"]
