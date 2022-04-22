@@ -239,3 +239,21 @@ test_pass_bigquery_qualify_clause:
   configs:
     core:
       dialect: bigquery
+
+test_pass_bigquery_nested_inner_join:
+  pass_str: |
+    with abh as (
+        select
+            ceb.emailaddresskey,
+            dac.accountkey
+        from table2 as dac
+        inner join table3 as ceb
+            on ceb.col2 = dac.col2
+    )
+    select col1
+    from table1 as abg
+    inner join  abh
+    on abg.col1 = abh.col1
+  configs:
+    core:
+      dialect: bigquery
