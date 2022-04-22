@@ -1,6 +1,6 @@
 """Implementation of Rule L028."""
 
-from typing import List, Optional, Set
+from typing import Generator, List, Optional, Set
 
 from sqlfluff.core.dialects.common import AliasInfo, ColumnAliasInfo
 from sqlfluff.core.parser.segments.base import BaseSegment
@@ -97,14 +97,16 @@ class Rule_L028(BaseRule):
                 # TODO: In some of these cases, we can (and should) generate
                 # WARNINGS even though we can't generate FIXES.
                 if len(select_info.table_aliases) == 1:
-                    return _generate_fixes(
-                        select_info.table_aliases,
-                        select_info.standalone_aliases,
-                        select_info.reference_buffer,
-                        select_info.col_aliases,
-                        self.single_table_references,  # type: ignore
-                        self._is_struct_dialect,
-                        self._fix_inconsistent_to,
+                    return list(
+                        _generate_fixes(
+                            select_info.table_aliases,
+                            select_info.standalone_aliases,
+                            select_info.reference_buffer,
+                            select_info.col_aliases,
+                            self.single_table_references,  # type: ignore
+                            self._is_struct_dialect,
+                            self._fix_inconsistent_to,
+                        )
                     )
         return None
 
@@ -117,10 +119,9 @@ def _generate_fixes(
     single_table_references: str,
     is_struct_dialect: bool,
     fix_inconsistent_to: Optional[str],
-) -> Optional[List[LintResult]]:
+) -> Generator[LintResult, None, None]:
     """Iterate through references and check consistency."""
     # A buffer to keep any violations.
-    violation_buff: List[LintResult] = []
     col_alias_names: List[str] = [c.alias_identifier_name for c in col_aliases]
     table_ref_str: str = table_aliases[0].ref_str
     # Check all the references that we have.
@@ -149,7 +150,7 @@ def _generate_fixes(
         if fix_inconsistent_to and single_table_references == "consistent":
             # If we found a "consistent" error but we have a fix directive,
             # recurse with a different single_table_references value
-            return _generate_fixes(
+            yield from _generate_fixes(
                 table_aliases,
                 standalone_aliases,
                 references,
@@ -160,9 +161,7 @@ def _generate_fixes(
                 fix_inconsistent_to=None,
             )
 
-        violation_buff.append(lint_res)
-
-    return violation_buff or None
+        yield lint_res
 
 
 def _validate_one_reference(
