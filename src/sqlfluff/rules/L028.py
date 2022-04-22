@@ -5,22 +5,28 @@ from typing import List, Optional, Set
 from sqlfluff.core.dialects.common import AliasInfo, ColumnAliasInfo
 from sqlfluff.core.parser.segments.base import BaseSegment
 from sqlfluff.core.parser.segments.raw import CodeSegment, SymbolSegment
-from sqlfluff.core.rules.base import LintFix, LintResult, EvalResultType, RuleContext
+from sqlfluff.core.rules.analysis.select_crawler import SelectCrawler
+from sqlfluff.core.rules.base import (
+    BaseRule,
+    LintFix,
+    LintResult,
+    EvalResultType,
+    RuleContext,
+)
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
 )
-from sqlfluff.rules.L020 import Rule_L020
 
 
 @document_configuration
 @document_fix_compatible
-class Rule_L028(Rule_L020):
+class Rule_L028(BaseRule):
     """References should be consistent in statements with a single table.
 
     .. note::
         For BigQuery, Hive and Redshift this rule is disabled by default.
-        This is due to historical false positives assocaited with STRUCT data types.
+        This is due to historical false positives associated with STRUCT data types.
         This default behaviour may be changed in the future.
         The rule can be enabled with the ``force_enable = True`` flag.
 
@@ -66,28 +72,6 @@ class Rule_L028(Rule_L020):
     # This could be turned into an option
     _fix_inconsistent_to = "qualified"
 
-    def _lint_references_and_aliases(
-        self,
-        table_aliases,
-        standalone_aliases,
-        references,
-        col_aliases,
-        using_cols,
-        parent_select,
-    ):
-        """Iterate through references and check consistency."""
-        self.single_table_references: str
-
-        return _generate_fixes(
-            table_aliases,
-            standalone_aliases,
-            references,
-            col_aliases,
-            self.single_table_references,
-            self._is_struct_dialect,
-            self._fix_inconsistent_to,
-        )
-
     def _eval(self, context: RuleContext) -> EvalResultType:
         """Override base class for dialects that use structs, or SELECT aliases."""
         # Config type hints
@@ -103,7 +87,22 @@ class Rule_L028(Rule_L020):
         if context.dialect.name in self._dialects_with_structs:
             self._is_struct_dialect = True
 
-        return super()._eval(context=context)
+        """Outermost query should produce known number of columns."""
+        start_types = ["select_statement", "set_expression", "with_compound_statement"]
+        if context.segment.is_type(*start_types):
+            crawler = SelectCrawler(context.segment, context.dialect)
+            if crawler.query_tree:
+                select_info = crawler.query_tree.selectables[0].select_info
+                return _generate_fixes(
+                    select_info.table_aliases,
+                    select_info.standalone_aliases,
+                    select_info.reference_buffer,
+                    select_info.col_aliases,
+                    self.single_table_references,  # type: ignore
+                    self._is_struct_dialect,
+                    self._fix_inconsistent_to,
+                )
+        return None
 
 
 def _generate_fixes(
