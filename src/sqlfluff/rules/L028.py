@@ -113,8 +113,11 @@ class Rule_L028(BaseRule):
             )
             filtered_query_list = [q for q in query_list if isinstance(q, str)]
             if len(filtered_query_list) != 1:
+                # If more than one table name is visible, check for and report
+                # potential lint warnings, but don't generate fixes, because
+                # fixes are unsafe if there's more than one table visible.
                 fixable = False
-            yield from _generate_fixes(
+            yield from _check_references(
                 select_info.table_aliases,
                 select_info.standalone_aliases,
                 select_info.reference_buffer,
@@ -128,7 +131,7 @@ class Rule_L028(BaseRule):
             yield from self._visit_queries(child)
 
 
-def _generate_fixes(
+def _check_references(
     table_aliases: List[AliasInfo],
     standalone_aliases: List[str],
     references: List[BaseSegment],
@@ -169,7 +172,7 @@ def _generate_fixes(
         if fix_inconsistent_to and single_table_references == "consistent":
             # If we found a "consistent" error but we have a fix directive,
             # recurse with a different single_table_references value
-            yield from _generate_fixes(
+            yield from _check_references(
                 table_aliases,
                 standalone_aliases,
                 references,
