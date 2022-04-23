@@ -12,3 +12,8 @@ from
 join
 	src
 	on tt._id = src._id;
+
+UPDATE stuff SET
+  deleted = 1
+OUTPUT * INTO trash
+WHERE useless = 1

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 266ad1644265754848038924e3318a4868944486cb5e799e2322c2a3e8276bcf
+_hash: f4d0f0156b3a4a242c31eb7f365ac0a1b15e0d9fee75d71ad0a22023abc4f468
 file:
   batch:
   - statement:
@@ -108,3 +108,34 @@ file:
                   - dot: .
                   - identifier: _id
           statement_terminator: ;
+  - statement:
+      update_statement:
+        keyword: UPDATE
+        table_reference:
+          identifier: stuff
+        set_clause_list:
+          keyword: SET
+          set_clause:
+            column_reference:
+              identifier: deleted
+            assignment_operator:
+              comparison_operator:
+                raw_comparison_operator: '='
+            expression:
+              literal: '1'
+        output_clause:
+        - keyword: OUTPUT
+        - wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+        - keyword: INTO
+        - table_reference:
+            identifier: trash
+        where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+              identifier: useless
+            comparison_operator:
+              raw_comparison_operator: '='
+            literal: '1'
