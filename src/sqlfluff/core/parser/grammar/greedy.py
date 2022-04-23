@@ -62,7 +62,9 @@ class GreedyUntil(BaseGrammar):
         seg_buff = segments
         seg_bank = ()  # Empty tuple
         # If no terminators then just return the whole thing.
-        if matchers == [None]:
+        # Shouldn't really happen as GreedyMatch is everything
+        # and StartsWith has mandatory terminator
+        if matchers == [None]:  # pragma: no cover
             return MatchResult.from_matched(segments)
 
         while True:
