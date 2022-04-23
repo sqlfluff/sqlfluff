@@ -980,8 +980,7 @@ class SetStatementSegment(BaseSegment):
     """
 
     type = "set_segment"
-    match_grammar = StartsWith("SET")
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "SET",
         OneOf(
             Ref("NakedIdentifierSegment"),
@@ -1251,8 +1250,7 @@ class InsertStatementSegment(ansi.InsertStatementSegment):
     N.B. not a complete implementation.
     """
 
-    match_grammar = ansi.InsertStatementSegment.match_grammar
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "INSERT",
         Ref.keyword("INTO", optional=True),
         Ref("TableReferenceSegment"),
