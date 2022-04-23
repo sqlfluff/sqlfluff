@@ -445,6 +445,7 @@ class StatementSegment(ansi.StatementSegment):
         insert=[
             Ref("IfExpressionStatement"),
             Ref("DeclareStatementSegment"),
+            Ref("DeclareCursorStatementSegment"),
             Ref("SetStatementSegment"),
             Ref("AlterTableSwitchStatementSegment"),
             Ref("PrintStatementSegment"),
@@ -1202,6 +1203,27 @@ class DeclareStatementSegment(BaseSegment):
         ),
         Dedent,
         Ref("DelimiterGrammar", optional=True),
+    )
+
+
+class DeclareCursorStatementSegment(BaseSegment):
+    """Declaration of a cursor.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/language-elements/declare-cursor-transact-sql?view=sql-server-ver15
+    """
+
+    type = "declare_segment"
+    match_grammar = Sequence(
+        "DECLARE",
+        Ref("ParameterNameSegment"),
+        "CURSOR",
+        OneOf("LOCAL", "GLOBAL", optional=True),
+        OneOf("FORWARD_ONLY", "SCROLL", optional=True),
+        OneOf("STATIC", "KEYSET", "DYNAMIC", "FAST_FORWARD", optional=True),
+        OneOf("READ_ONLY", "SCROLL_LOCKS", "OPTIMISTIC", optional=True),
+        Sequence("TYPE_WARNING", optional=True),
+        "FOR",
+        Ref("SelectStatementSegment"),
     )
 
 
