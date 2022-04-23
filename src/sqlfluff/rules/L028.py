@@ -109,8 +109,12 @@ class Rule_L028(BaseRule):
                 # in the FROM list of the containing query. Thus, count tables at
                 # the *parent* query level.
                 table_search_root = query.parent if query.parent else query
-                query_list = SelectCrawler.get(
-                    table_search_root, table_search_root.selectables[0].selectable
+                query_list = (
+                    SelectCrawler.get(
+                        table_search_root, table_search_root.selectables[0].selectable
+                    )
+                    if table_search_root.selectables
+                    else []
                 )
                 filtered_query_list = [q for q in query_list if isinstance(q, str)]
                 if len(filtered_query_list) != 1:
