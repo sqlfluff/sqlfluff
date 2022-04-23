@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 71446e18003f3b4d7aa5eed92bd5b779f3de2940b6c98745a94844d1ca2cf15d
+_hash: 633d8376ff1aba52ccad087dd1b5afa28bcfa17d302935eaa4c0ed7f22370b32
 file:
   batch:
   - statement:
@@ -79,3 +79,10 @@ file:
                   query_hint_segment:
                     keyword: NOLOCK
                   end_bracket: )
+        output_clause:
+        - keyword: OUTPUT
+        - column_reference:
+            identifier: age
+        - keyword: INTO
+        - table_reference:
+            identifier: ages
