@@ -3839,7 +3839,8 @@ class OpenCursorStatementSegment(BaseSegment):
 
     type = "open_cursor_statement"
     match_grammar: Matchable = Sequence(
-        "OPEN", Sequence(Sequence("GLOBAL", optional=True), Ref("ParameterNameSegment"))
+        "OPEN",
+        Sequence(Ref.keyword("GLOBAL", optional=True), Ref("ParameterNameSegment")),
     )
 
 
@@ -3852,7 +3853,7 @@ class CloseCursorStatementSegment(BaseSegment):
     type = "close_cursor_statement"
     match_grammar: Matchable = Sequence(
         "CLOSE",
-        Sequence(Sequence("GLOBAL", optional=True), Ref("ParameterNameSegment")),
+        Sequence(Ref.keyword("GLOBAL", optional=True), Ref("ParameterNameSegment")),
     )
 
 
@@ -3865,7 +3866,7 @@ class DeallocateCursorStatementSegment(BaseSegment):
     type = "deallocate_cursor_statement"
     match_grammar: Matchable = Sequence(
         "DEALLOCATE",
-        Sequence(Sequence("GLOBAL", optional=True), Ref("ParameterNameSegment")),
+        Sequence(Ref.keyword("GLOBAL", optional=True), Ref("ParameterNameSegment")),
     )
 
 
@@ -3880,7 +3881,7 @@ class FetchCursorStatementSegment(BaseSegment):
         "FETCH",
         OneOf("NEXT", "PRIOR", "FIRST", "LAST", optional=True),
         "FROM",
-        Sequence("GLOBAL", optional=True),
+        Ref.keyword("GLOBAL", optional=True),
         Ref("ParameterNameSegment"),
         Sequence("INTO", Ref("ParameterNameSegment"), optional=True),
     )
