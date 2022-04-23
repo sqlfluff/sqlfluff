@@ -45,7 +45,7 @@ INSERT INTO HumanResources.NewEmployee
     FROM EmployeeTemp;
 GO
 
-INSERT INTO HumanResources.NewEmployee
+INSERT INTO HumanResources.NewEmployee WITH(TABLOCK)
   EXEC FindEmployeesFunc @lastName = 'Picard'
 GO
 

@@ -1,4 +1,4 @@
-SELECT result
+SELECT result, `timestamp` as `timestamp`
 FROM student
 WHERE
     name = "John Smith"

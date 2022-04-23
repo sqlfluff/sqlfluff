@@ -639,6 +639,7 @@ class InsertStatementSegment(BaseSegment):
         "INSERT",
         Ref.keyword("INTO", optional=True),
         Ref("TableReferenceSegment"),
+        Ref("PostTableExpressionGrammar", optional=True),
         Ref("BracketedColumnReferenceListGrammar", optional=True),
         OneOf(Ref("SelectableGrammar"), Ref("ExecuteScriptSegment")),
     )
@@ -2652,6 +2653,7 @@ class DeleteStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "DELETE",
         Ref("TableReferenceSegment", optional=True),  # Azure Synapse Analytics-specific
+        Ref("PostTableExpressionGrammar", optional=True),
         Ref("FromClauseSegment"),
         Ref("WhereClauseSegment", optional=True),
         Ref("DelimiterGrammar", optional=True),
@@ -3762,6 +3764,39 @@ class AccessStatementSegment(BaseSegment):
                 Ref.keyword("CASCADE", optional=True),
                 Ref("ObjectReferenceSegment", optional=True),
                 optional=True,
+            ),
+        ),
+    )
+
+
+class CreateTypeStatementSegment(BaseSegment):
+    """A `CREATE TYPE` statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-type-transact-sql?view=sql-server-ver15
+    """
+
+    type = "create_type_statement"
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        "TYPE",
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Sequence("FROM", Ref("ObjectReferenceSegment")),
+            Sequence(
+                "AS",
+                "TABLE",
+                Sequence(
+                    Bracketed(
+                        Delimited(
+                            OneOf(
+                                Ref("TableConstraintSegment"),
+                                Ref("ColumnDefinitionSegment"),
+                                Ref("TableIndexSegment"),
+                            ),
+                            allow_trailing=True,
+                        )
+                    ),
+                ),
             ),
         ),
     )

@@ -14,6 +14,7 @@ from sqlfluff.core.parser import (
     SymbolSegment,
     StringParser,
     OptionallyBracketed,
+    RegexParser,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -135,6 +136,12 @@ hive_dialect.add(
             )
         ),
     ),
+    BackQuotedIdentifierSegment=NamedParser(
+        "back_quote",
+        CodeSegment,
+        name="quoted_identifier",
+        type="identifier",
+    ),
 )
 
 # https://cwiki.apache.org/confluence/display/hive/languagemanual+joins
@@ -143,6 +150,7 @@ hive_dialect.replace(
     QuotedLiteralSegment=OneOf(
         NamedParser("single_quote", CodeSegment, name="quoted_literal", type="literal"),
         NamedParser("double_quote", CodeSegment, name="quoted_literal", type="literal"),
+        NamedParser("back_quote", CodeSegment, name="quoted_literal", type="literal"),
     ),
     LiteralGrammar=OneOf(
         Ref("QuotedLiteralSegment"),
@@ -157,6 +165,11 @@ hive_dialect.replace(
     ),
     SimpleArrayTypeGrammar=Ref.keyword("ARRAY"),
     TrimParametersGrammar=Nothing(),
+    SingleIdentifierGrammar=ansi_dialect.get_grammar("SingleIdentifierGrammar").copy(
+        insert=[
+            Ref("BackQuotedIdentifierSegment"),
+        ]
+    ),
 )
 
 
@@ -711,5 +724,47 @@ class FunctionSegment(BaseSegment):
                 ),
             ),
             Ref("PostFunctionGrammar", optional=True),
+        ),
+    )
+
+
+class SamplingExpressionSegment(BaseSegment):
+    """A sampling expression."""
+
+    type = "sample_expression"
+    match_grammar = Sequence(
+        "TABLESAMPLE",
+        Bracketed(
+            OneOf(
+                Sequence(
+                    "BUCKET",
+                    Ref("NumericLiteralSegment"),
+                    "OUT",
+                    "OF",
+                    Ref("NumericLiteralSegment"),
+                    Sequence(
+                        "ON",
+                        OneOf(
+                            Ref("SingleIdentifierGrammar"),
+                            Ref("FunctionSegment"),
+                        ),
+                        optional=True,
+                    ),
+                ),
+                Sequence(
+                    Ref("NumericLiteralSegment"),
+                    OneOf("PERCENT", "ROWS", optional=True),
+                ),
+                RegexParser(
+                    r"\d+[bBkKmMgG]",
+                    CodeSegment,
+                    name="byte_length_literal",
+                    type="byte_length_literal",
+                ),
+            ),
+        ),
+        Ref(
+            "AliasExpressionSegment",
+            optional=True,
         ),
     )
