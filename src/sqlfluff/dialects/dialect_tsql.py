@@ -470,6 +470,9 @@ class StatementSegment(ansi.StatementSegment):
             Ref("BreakStatement"),
             Ref("ContinueStatement"),
             Ref("WaitForStatementSegment"),
+            Ref("OpenCursorStatementSegment"),
+            Ref("CloseCursorStatementSegment"),
+            Ref("DeallocateCursorStatementSegment"),
         ],
         remove=[
             Ref("CreateModelStatementSegment"),
@@ -3824,4 +3827,42 @@ class CreateTypeStatementSegment(BaseSegment):
                 ),
             ),
         ),
+    )
+
+
+class OpenCursorStatementSegment(BaseSegment):
+    """An `OPEN` cursor statement
+
+    https://docs.microsoft.com/en-us/sql/t-sql/language-elements/open-transact-sql?view=sql-server-ver15
+    """
+
+    type = "open_cursor_statement"
+    match_grammar: Matchable = Sequence(
+        "OPEN", Sequence(Sequence("GLOBAL", optional=True), Ref("ParameterNameSegment"))
+    )
+
+
+class CloseCursorStatementSegment(BaseSegment):
+    """A `CLOSE` cursor statement
+
+    https://docs.microsoft.com/en-us/sql/t-sql/language-elements/close-transact-sql?view=sql-server-ver15
+    """
+
+    type = "close_cursor_statement"
+    match_grammar: Matchable = Sequence(
+        "CLOSE",
+        Sequence(Sequence("GLOBAL", optional=True), Ref("ParameterNameSegment")),
+    )
+
+
+class DeallocateCursorStatementSegment(BaseSegment):
+    """A `DEALLOCATE` cursor statement
+
+    https://docs.microsoft.com/en-us/sql/t-sql/language-elements/deallocate-transact-sql?view=sql-server-ver15
+    """
+
+    type = "deallocate_cursor_statement"
+    match_grammar: Matchable = Sequence(
+        "DEALLOCATE",
+        Sequence(Sequence("GLOBAL", optional=True), Ref("ParameterNameSegment")),
     )
