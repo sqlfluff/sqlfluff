@@ -3772,12 +3772,7 @@ class AccessStatementSegment(BaseSegment):
 class CreateTypeStatementSegment(BaseSegment):
     """A `CREATE TYPE` statement.
 
-    This is based around the Postgres syntax.
-    https://www.postgresql.org/docs/current/sql-createtype.html
-
-    Note: This is relatively permissive currently
-    and does not lint the syntax strictly, to allow
-    for some deviation between dialects.
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-type-transact-sql?view=sql-server-ver15
     """
 
     type = "create_type_statement"
