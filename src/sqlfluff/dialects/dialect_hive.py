@@ -14,6 +14,7 @@ from sqlfluff.core.parser import (
     SymbolSegment,
     StringParser,
     OptionallyBracketed,
+    RegexParser,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -711,5 +712,47 @@ class FunctionSegment(BaseSegment):
                 ),
             ),
             Ref("PostFunctionGrammar", optional=True),
+        ),
+    )
+
+
+class SamplingExpressionSegment(BaseSegment):
+    """A sampling expression."""
+
+    type = "sample_expression"
+    match_grammar = Sequence(
+        "TABLESAMPLE",
+        Bracketed(
+            OneOf(
+                Sequence(
+                    "BUCKET",
+                    Ref("NumericLiteralSegment"),
+                    "OUT",
+                    "OF",
+                    Ref("NumericLiteralSegment"),
+                    Sequence(
+                        "ON",
+                        OneOf(
+                            Ref("SingleIdentifierGrammar"),
+                            Ref("FunctionSegment"),
+                        ),
+                        optional=True,
+                    ),
+                ),
+                Sequence(
+                    Ref("NumericLiteralSegment"),
+                    OneOf("PERCENT", "ROWS", optional=True),
+                ),
+                RegexParser(
+                    r"\d+[bBkKmMgG]",
+                    CodeSegment,
+                    name="byte_length_literal",
+                    type="byte_length_literal",
+                ),
+            ),
+        ),
+        Ref(
+            "AliasExpressionSegment",
+            optional=True,
         ),
     )
