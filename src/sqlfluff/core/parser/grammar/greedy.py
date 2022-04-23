@@ -161,6 +161,10 @@ class StartsWith(GreedyUntil):
         self.target = self._resolve_ref(target)
         self.terminator = self._resolve_ref(kwargs.pop("terminator", None))
         self.include_terminator = kwargs.pop("include_terminator", False)
+
+        # StartsWith should only be used with a terminator
+        assert self.terminator
+
         super().__init__(*args, **kwargs)
 
     @cached_method_for_parse_context

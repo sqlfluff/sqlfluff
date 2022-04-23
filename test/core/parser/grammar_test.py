@@ -447,23 +447,11 @@ def test__parser__grammar_oneof_take_first(seg_list):
         )
 
 
-@pytest.mark.parametrize(
-    "keyword,match_truthy",
-    [
-        ("baar", False),
-        ("bar", True),
-    ],
-)
-def test__parser__grammar_startswith_a(
-    keyword, match_truthy, seg_list, fresh_ansi_dialect, caplog
-):
-    """Test the StartsWith grammar simply."""
-    Keyword = StringParser(keyword, KeywordSegment)
-    grammar = StartsWith(Keyword)
-    with RootParseContext(dialect=fresh_ansi_dialect) as ctx:
-        with caplog.at_level(logging.DEBUG, logger="sqlfluff.parser"):
-            m = grammar.match(seg_list, parse_context=ctx)
-            assert bool(m) is match_truthy
+def test__parser__grammar_startswith_a():
+    """Test the StartsWith grammar fails when no terminator supplied."""
+    Keyword = StringParser("foo", KeywordSegment)
+    with pytest.raises(AssertionError):
+        StartsWith(Keyword)
 
 
 @pytest.mark.parametrize(
