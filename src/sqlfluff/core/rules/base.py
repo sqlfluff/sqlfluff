@@ -1147,7 +1147,7 @@ class RuleSet:
         self._validate_config_options(config)
         # Find all valid groups for ruleset
         valid_groups = set(
-            [group for _, attrs in self._register.items() for group in attrs["groups"]]
+            [group for attrs in self._register.values() for group in attrs["groups"]]
         )
         # default the allowlist to all the rules if not set
         allowlist = config.get("rule_allowlist") or list(self._register.keys())
