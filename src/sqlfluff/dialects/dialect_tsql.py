@@ -470,6 +470,10 @@ class StatementSegment(ansi.StatementSegment):
             Ref("BreakStatement"),
             Ref("ContinueStatement"),
             Ref("WaitForStatementSegment"),
+            Ref("OpenCursorStatementSegment"),
+            Ref("CloseCursorStatementSegment"),
+            Ref("DeallocateCursorStatementSegment"),
+            Ref("FetchCursorStatementSegment"),
         ],
         remove=[
             Ref("CreateModelStatementSegment"),
@@ -3824,4 +3828,60 @@ class CreateTypeStatementSegment(BaseSegment):
                 ),
             ),
         ),
+    )
+
+
+class OpenCursorStatementSegment(BaseSegment):
+    """An `OPEN` cursor statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/language-elements/open-transact-sql?view=sql-server-ver15
+    """
+
+    type = "open_cursor_statement"
+    match_grammar: Matchable = Sequence(
+        "OPEN",
+        Sequence(Ref.keyword("GLOBAL", optional=True), Ref("ParameterNameSegment")),
+    )
+
+
+class CloseCursorStatementSegment(BaseSegment):
+    """A `CLOSE` cursor statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/language-elements/close-transact-sql?view=sql-server-ver15
+    """
+
+    type = "close_cursor_statement"
+    match_grammar: Matchable = Sequence(
+        "CLOSE",
+        Sequence(Ref.keyword("GLOBAL", optional=True), Ref("ParameterNameSegment")),
+    )
+
+
+class DeallocateCursorStatementSegment(BaseSegment):
+    """A `DEALLOCATE` cursor statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/language-elements/deallocate-transact-sql?view=sql-server-ver15
+    """
+
+    type = "deallocate_cursor_statement"
+    match_grammar: Matchable = Sequence(
+        "DEALLOCATE",
+        Sequence(Ref.keyword("GLOBAL", optional=True), Ref("ParameterNameSegment")),
+    )
+
+
+class FetchCursorStatementSegment(BaseSegment):
+    """A `FETCH` cursor statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/language-elements/fetch-transact-sql?view=sql-server-ver15
+    """
+
+    type = "fetch_cursor_statement"
+    match_grammar: Matchable = Sequence(
+        "FETCH",
+        OneOf("NEXT", "PRIOR", "FIRST", "LAST", optional=True),
+        "FROM",
+        Ref.keyword("GLOBAL", optional=True),
+        Ref("ParameterNameSegment"),
+        Sequence("INTO", Ref("ParameterNameSegment"), optional=True),
     )

@@ -262,6 +262,7 @@ UNRESERVED_KEYWORDS = [
     "FILESTREAM_ON",
     "FILTER",
     "FIPS_FLAGGER",
+    "FIRST",
     "FMTONLY",
     "FOLLOWING",
     "FORCE",
@@ -294,6 +295,7 @@ UNRESERVED_KEYWORDS = [
     # but could break TSQL parsing to add there
     "LABEL",
     "LANGUAGE",
+    "LAST",
     "LEVEL",
     "LOAD",  # listed as reserved but functionally unreserved
     "LOCATION",
