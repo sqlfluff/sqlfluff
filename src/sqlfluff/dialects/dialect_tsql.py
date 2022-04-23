@@ -3832,7 +3832,7 @@ class CreateTypeStatementSegment(BaseSegment):
 
 
 class OpenCursorStatementSegment(BaseSegment):
-    """An `OPEN` cursor statement
+    """An `OPEN` cursor statement.
 
     https://docs.microsoft.com/en-us/sql/t-sql/language-elements/open-transact-sql?view=sql-server-ver15
     """
@@ -3844,7 +3844,7 @@ class OpenCursorStatementSegment(BaseSegment):
 
 
 class CloseCursorStatementSegment(BaseSegment):
-    """A `CLOSE` cursor statement
+    """A `CLOSE` cursor statement.
 
     https://docs.microsoft.com/en-us/sql/t-sql/language-elements/close-transact-sql?view=sql-server-ver15
     """
@@ -3857,7 +3857,7 @@ class CloseCursorStatementSegment(BaseSegment):
 
 
 class DeallocateCursorStatementSegment(BaseSegment):
-    """A `DEALLOCATE` cursor statement
+    """A `DEALLOCATE` cursor statement.
 
     https://docs.microsoft.com/en-us/sql/t-sql/language-elements/deallocate-transact-sql?view=sql-server-ver15
     """
@@ -3870,7 +3870,7 @@ class DeallocateCursorStatementSegment(BaseSegment):
 
 
 class FetchCursorStatementSegment(BaseSegment):
-    """A `FETCH` cursor statement
+    """A `FETCH` cursor statement.
 
     https://docs.microsoft.com/en-us/sql/t-sql/language-elements/fetch-transact-sql?view=sql-server-ver15
     """
