@@ -21,6 +21,7 @@ Major changes include:
 * Many bug fixes and dialect improvements
 
 ## What’s Changed
+* Redshift: Fix CREATE TABLE column constraints and COPY [#3151](https://github.com/sqlfluff/sqlfluff/pull/3151) [@tunetheweb](https://github.com/tunetheweb)
 * New Rule L064: Consistent usage of preferred quotes for quoted literals [#3118](https://github.com/sqlfluff/sqlfluff/pull/3118) [@dmohns](https://github.com/dmohns)
 * L025 bug fix: stop incorrectly flagging on nested inner joins [#3145](https://github.com/sqlfluff/sqlfluff/pull/3145) [@tunetheweb](https://github.com/tunetheweb)
 * T-SQL: Add labels, as well as `GRANT`/`DENY`/`REVOKE` [#3149](https://github.com/sqlfluff/sqlfluff/pull/3149) [@tunetheweb](https://github.com/tunetheweb)
