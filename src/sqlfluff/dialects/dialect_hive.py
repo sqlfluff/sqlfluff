@@ -135,6 +135,12 @@ hive_dialect.add(
             )
         ),
     ),
+    BackQuotedIdentifierSegment=NamedParser(
+        "back_quote",
+        CodeSegment,
+        name="quoted_identifier",
+        type="identifier",
+    ),
 )
 
 # https://cwiki.apache.org/confluence/display/hive/languagemanual+joins
@@ -158,13 +164,10 @@ hive_dialect.replace(
     ),
     SimpleArrayTypeGrammar=Ref.keyword("ARRAY"),
     TrimParametersGrammar=Nothing(),
-    SingleQuotedIdentifierSegment=OneOf(
-        NamedParser(
-            "single_quote", CodeSegment, name="quoted_identifier", type="identifier"
-        ),
-        NamedParser(
-            "back_quote", CodeSegment, name="quoted_identifier", type="identifier"
-        ),
+    SingleIdentifierGrammar=ansi_dialect.get_grammar("SingleIdentifierGrammar").copy(
+        insert=[
+            Ref("BackQuotedIdentifierSegment"),
+        ]
     ),
 )
 
