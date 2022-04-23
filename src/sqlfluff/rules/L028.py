@@ -99,34 +99,35 @@ class Rule_L028(BaseRule):
         return None
 
     def _visit_queries(self, query: Query) -> Iterator[LintResult]:
-        select_info = query.selectables[0].select_info
-        # How many table names are visible from here? If more than one then do
-        # nothing.
-        if len(select_info.table_aliases) == 1:
-            fixable = True
-            # :TRICKY: Subqueries in the column list of a SELECT can see tables
-            # in the FROM list of the containing query. Thus, count tables at
-            # the *parent* query level.
-            table_search_root = query.parent if query.parent else query
-            query_list = SelectCrawler.get(
-                table_search_root, table_search_root.selectables[0].selectable
-            )
-            filtered_query_list = [q for q in query_list if isinstance(q, str)]
-            if len(filtered_query_list) != 1:
-                # If more than one table name is visible, check for and report
-                # potential lint warnings, but don't generate fixes, because
-                # fixes are unsafe if there's more than one table visible.
-                fixable = False
-            yield from _check_references(
-                select_info.table_aliases,
-                select_info.standalone_aliases,
-                select_info.reference_buffer,
-                select_info.col_aliases,
-                self.single_table_references,  # type: ignore
-                self._is_struct_dialect,
-                self._fix_inconsistent_to,
-                fixable,
-            )
+        if query.selectables:
+            select_info = query.selectables[0].select_info
+            # How many table names are visible from here? If more than one then do
+            # nothing.
+            if not select_info or len(select_info.table_aliases) == 1:
+                fixable = True
+                # :TRICKY: Subqueries in the column list of a SELECT can see tables
+                # in the FROM list of the containing query. Thus, count tables at
+                # the *parent* query level.
+                table_search_root = query.parent if query.parent else query
+                query_list = SelectCrawler.get(
+                    table_search_root, table_search_root.selectables[0].selectable
+                )
+                filtered_query_list = [q for q in query_list if isinstance(q, str)]
+                if len(filtered_query_list) != 1:
+                    # If more than one table name is visible, check for and report
+                    # potential lint warnings, but don't generate fixes, because
+                    # fixes are unsafe if there's more than one table visible.
+                    fixable = False
+                yield from _check_references(
+                    select_info.table_aliases,
+                    select_info.standalone_aliases,
+                    select_info.reference_buffer,
+                    select_info.col_aliases,
+                    self.single_table_references,  # type: ignore
+                    self._is_struct_dialect,
+                    self._fix_inconsistent_to,
+                    fixable,
+                )
         for child in query.children:
             yield from self._visit_queries(child)
 
