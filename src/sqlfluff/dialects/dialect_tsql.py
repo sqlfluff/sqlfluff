@@ -3767,3 +3767,36 @@ class AccessStatementSegment(BaseSegment):
             ),
         ),
     )
+
+
+class CreateTypeStatementSegment(BaseSegment):
+    """A `CREATE TYPE` statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-type-transact-sql?view=sql-server-ver15
+    """
+
+    type = "create_type_statement"
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        "TYPE",
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Sequence("FROM", Ref("ObjectReferenceSegment")),
+            Sequence(
+                "AS",
+                "TABLE",
+                Sequence(
+                    Bracketed(
+                        Delimited(
+                            OneOf(
+                                Ref("TableConstraintSegment"),
+                                Ref("ColumnDefinitionSegment"),
+                                Ref("TableIndexSegment"),
+                            ),
+                            allow_trailing=True,
+                        )
+                    ),
+                ),
+            ),
+        ),
+    )
