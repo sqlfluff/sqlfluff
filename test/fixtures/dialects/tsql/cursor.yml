@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b98e87cc09a631c60893db0a5e68fb29b1746361f7ae20791fa502c7f3cad13b
+_hash: d91bd3512ff360ad02a3c06c3af9bc9a56a8862ab45f6c07e2285498baca142d
 file:
   batch:
   - statement:
@@ -49,6 +49,23 @@ file:
       open_cursor_statement:
         keyword: OPEN
         parameter: '@pointy'
+  - statement_terminator: ;
+  - statement:
+      fetch_cursor_statement:
+      - keyword: FETCH
+      - keyword: FIRST
+      - keyword: FROM
+      - parameter: '@pointy'
+      - keyword: into
+      - parameter: '@result'
+  - statement_terminator: ;
+  - statement:
+      fetch_cursor_statement:
+      - keyword: FETCH
+      - keyword: NEXT
+      - keyword: FROM
+      - keyword: GLOBAL
+      - parameter: '@pointy'
   - statement_terminator: ;
   - statement:
       close_cursor_statement:

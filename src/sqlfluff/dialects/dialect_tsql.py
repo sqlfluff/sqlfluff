@@ -473,6 +473,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("OpenCursorStatementSegment"),
             Ref("CloseCursorStatementSegment"),
             Ref("DeallocateCursorStatementSegment"),
+            Ref("FetchCursorStatementSegment"),
         ],
         remove=[
             Ref("CreateModelStatementSegment"),
@@ -3865,4 +3866,21 @@ class DeallocateCursorStatementSegment(BaseSegment):
     match_grammar: Matchable = Sequence(
         "DEALLOCATE",
         Sequence(Sequence("GLOBAL", optional=True), Ref("ParameterNameSegment")),
+    )
+
+
+class FetchCursorStatementSegment(BaseSegment):
+    """A `FETCH` cursor statement
+
+    https://docs.microsoft.com/en-us/sql/t-sql/language-elements/fetch-transact-sql?view=sql-server-ver15
+    """
+
+    type = "fetch_cursor_statement"
+    match_grammar: Matchable = Sequence(
+        "FETCH",
+        OneOf("NEXT", "PRIOR", "FIRST", "LAST", optional=True),
+        "FROM",
+        Sequence("GLOBAL", optional=True),
+        Ref("ParameterNameSegment"),
+        Sequence("INTO", Ref("ParameterNameSegment"), optional=True),
     )

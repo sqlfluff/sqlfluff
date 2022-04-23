@@ -3,6 +3,9 @@ SELECT column_a, column_b FROM some_table WHERE column_a IS NOT NULL ORDER BY co
 
 OPEN @pointy;
 
+FETCH FIRST FROM @pointy into @result;
+FETCH NEXT FROM GLOBAL @pointy;
+
 CLOSE GLOBAL @pointy;
 
 DEALLOCATE @pointy;
