@@ -201,12 +201,13 @@ class JinjaTemplater(PythonTemplater):
         for elem in tree.iter_child_nodes():
             yield from cls._crawl_tree(elem, variable_names, raw)
         # Then assess self
-        if isinstance(tree, jinja2.nodes.Name) and tree.name in variable_names:
-            line_no = tree.lineno
+        if isinstance(tree, jinja2.nodes.Name) and tree.name in variable_names: # type: ignore
+            line_no: int = tree.lineno # type: ignore
+            tree_name: str = tree.name # type: ignore
             line = raw.split("\n")[line_no - 1]
-            pos = line.index(tree.name) + 1
+            pos = line.index(tree_name) + 1
             yield SQLTemplaterError(
-                f"Undefined jinja template variable: {tree.name!r}",
+                f"Undefined jinja template variable: {tree_name!r}",
                 line_no=line_no,
                 line_pos=pos,
             )
