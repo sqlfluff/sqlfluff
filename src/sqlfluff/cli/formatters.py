@@ -56,12 +56,12 @@ def split_string_on_spaces(s: str, line_length: int = 100) -> List[str]:
 
 def format_violation(violation: SQLBaseError, max_line_length: int = 90) -> str:
     """Format a violation."""
-    if not isinstance(violation, SQLBaseError): # pragma: no cover
+    if not isinstance(violation, SQLBaseError):  # pragma: no cover
         raise ValueError(f"Unexpected violation format: {violation}")
-    
+
     desc: str = violation.desc()
-    line_elem = "   -"  if violation.line_no is None else f"{violation.line_no:4d}"
-    pos_elem = "   -"  if violation.line_pos is None else f"{violation.line_pos:4d}"
+    line_elem = "   -" if violation.line_no is None else f"{violation.line_no:4d}"
+    pos_elem = "   -" if violation.line_pos is None else f"{violation.line_pos:4d}"
 
     if violation.ignore:
         desc = "IGNORE: " + desc  # pragma: no cover

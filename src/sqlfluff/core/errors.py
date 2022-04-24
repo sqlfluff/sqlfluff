@@ -43,7 +43,7 @@ class SQLBaseError(ValueError):
         """
         if hasattr(self, "rule"):
             return getattr(self, "rule").code
-        
+
         return self._code or "????"
 
     def desc(self) -> str:
@@ -57,8 +57,8 @@ class SQLBaseError(ValueError):
         if hasattr(self, "description") and getattr(self, "description", None):
             # This can only override if it's present AND
             # if it's non-null.
-            return getattr(self, "description", None)
-        
+            return getattr(self, "description")
+
         if hasattr(self, "rule"):
             return getattr(self, "rule").description
 
@@ -68,8 +68,8 @@ class SQLBaseError(ValueError):
 
         if len(self.args) == 1:
             return self.args[0]
-        
-        return self.__class__.__name__
+
+        return self.__class__.__name__  # pragma: no cover
 
     def get_info_dict(self):
         """Return a dict of properties.
