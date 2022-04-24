@@ -381,7 +381,6 @@ class JinjaTemplater(PythonTemplater):
         try:
             # NB: Passing no context. Everything is loaded when the template is loaded.
             out_str = template.render()
-            assert out_str, "TypeGuard"
             # Slice the file once rendered.
             raw_sliced, sliced_file, out_str = self.slice_file(
                 in_str,
