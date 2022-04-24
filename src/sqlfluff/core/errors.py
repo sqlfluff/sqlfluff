@@ -34,7 +34,7 @@ class SQLBaseError(ValueError):
         """Should this error be considered fixable?"""
         return False
 
-    def rule_code(self):
+    def rule_code(self) -> str:
         """Fetch the code of the rule which cause this error.
 
         NB: This only returns a real code for some subclasses of
@@ -42,11 +42,11 @@ class SQLBaseError(ValueError):
         returns a placeholder value which can be used instead.
         """
         if hasattr(self, "rule"):
-            return self.rule.code
-        else:
-            return self._code or "????"
+            return getattr(self, "rule").code
+        
+        return self._code or "????"
 
-    def desc(self):
+    def desc(self) -> str:
         """Fetch a description of this violation.
 
         NB: For violations which don't directly implement a rule
@@ -54,20 +54,22 @@ class SQLBaseError(ValueError):
         caused the violation. Optionally some errors may have their
         description set directly.
         """
-        if hasattr(self, "description") and self.description:
+        if hasattr(self, "description") and getattr(self, "description", None):
             # This can only override if it's present AND
             # if it's non-null.
-            return self.description
-        elif hasattr(self, "rule"):
-            return self.rule.description
-        else:
-            # Return the first element - probably a string message
-            if len(self.args) > 1:  # pragma: no cover TODO?
-                return self.args
-            elif len(self.args) == 1:
-                return self.args[0]
-            else:  # pragma: no cover TODO?
-                return self.__class__.__name__
+            return getattr(self, "description", None)
+        
+        if hasattr(self, "rule"):
+            return getattr(self, "rule").description
+
+        # Return the first element - probably a string message
+        if len(self.args) > 1 and isinstance(self.args, str):  # pragma: no cover TODO?
+            return self.args
+
+        if len(self.args) == 1:
+            return self.args[0]
+        
+        return self.__class__.__name__
 
     def get_info_dict(self):
         """Return a dict of properties.
