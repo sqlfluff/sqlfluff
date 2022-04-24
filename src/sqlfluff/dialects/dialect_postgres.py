@@ -400,6 +400,11 @@ postgres_dialect.replace(
         "OVERLAPS",
         "RETURNING",
     ),
+    Accessor_Grammar=AnyNumberOf(
+        Ref("ArrayAccessorSegment"),
+        # Add in semi structured expressions
+        Ref("SemiStructuredAccessorSegment"),
+    ),
 )
 
 
@@ -890,6 +895,27 @@ class WellKnownTextGeometrySegment(BaseSegment):
                 )
             ),
         ),
+    )
+
+
+class SemiStructuredAccessorSegment(BaseSegment):
+    """A semi-structured data accessor segment."""
+
+    type = "semi_structured_expression"
+    match_grammar = Sequence(
+        Ref("DotSegment"),
+        Ref("SingleIdentifierGrammar"),
+        Ref("ArrayAccessorSegment", optional=True),
+        AnyNumberOf(
+            Sequence(
+                Ref("DotSegment"),
+                Ref("SingleIdentifierGrammar"),
+                allow_gaps=True,
+            ),
+            Ref("ArrayAccessorSegment", optional=True),
+            allow_gaps=True,
+        ),
+        allow_gaps=True,
     )
 
 
