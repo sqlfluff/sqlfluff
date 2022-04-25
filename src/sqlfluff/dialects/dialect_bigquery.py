@@ -7,7 +7,6 @@ https://cloud.google.com/bigquery/docs/reference/standard-sql/lexical#string_and
 """
 
 import itertools
-from ssl import Options
 
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
