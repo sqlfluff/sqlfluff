@@ -21,7 +21,6 @@ import logging
 import pathlib
 import regex
 from typing import (
-    Sequence,
     cast,
     Iterable,
     Iterator,
@@ -1080,6 +1079,9 @@ class RuleSet:
             )
 
         try:
+            assert (
+                "all" in cls.groups
+            ), "Rule {!r} must belong to the 'all' group".format(code)
             groups = cls.groups
         except AttributeError:
 
@@ -1098,7 +1100,7 @@ class RuleSet:
         return cls
 
     def _expand_config_rule_group_list(
-        self, rule_list: List[str], valid_groups: Sequence[str]
+        self, rule_list: List[str], valid_groups: Set[str]
     ) -> List[str]:
         expanded_rule_list: List[str] = []
         for r in rule_list:
@@ -1146,7 +1148,7 @@ class RuleSet:
         # Validate all generic rule configs
         self._validate_config_options(config)
         # Find all valid groups for ruleset
-        valid_groups = set(
+        valid_groups: Set[str] = set(
             [group for attrs in self._register.values() for group in attrs["groups"]]
         )
         # default the allowlist to all the rules if not set
