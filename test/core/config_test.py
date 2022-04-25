@@ -281,6 +281,18 @@ def test__config__rules_set_to_none():
         assert ("L010", 12, 10) in violations[k]
 
 
+def test__config__rules_group_with_exclude():
+    """Test linting when a rules group is selected and rules are excluded."""
+    lntr = Linter(
+        config=FluffConfig.from_path("test/fixtures/config/rules_group_with_exclude")
+    )
+    lnt = lntr.lint_path("test/fixtures/config/rules_group_with_exclude/test.sql")
+    violations = lnt.check_tuples(by_path=True)
+    for k in violations:
+        assert ("L010", 15, 1) in violations[k]
+        assert "L019" not in [c[0] for c in violations[k]]
+
+
 def test__config__get_section():
     """Test FluffConfig.get_section method."""
     cfg = FluffConfig(config_b)
