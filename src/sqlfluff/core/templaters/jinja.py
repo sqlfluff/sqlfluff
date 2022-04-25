@@ -201,9 +201,12 @@ class JinjaTemplater(PythonTemplater):
         for elem in tree.iter_child_nodes():
             yield from cls._crawl_tree(elem, variable_names, raw)
         # Then assess self
-        if isinstance(tree, jinja2.nodes.Name) and tree.name in variable_names:
-            line_no: int = tree.lineno
-            tree_name: str = tree.name
+        if (
+            isinstance(tree, jinja2.nodes.Name)
+            and getattr(tree, "name") in variable_names
+        ):
+            line_no: int = getattr(tree, "lineno")
+            tree_name: str = getattr(tree, "name")
             line = raw.split("\n")[line_no - 1]
             pos = line.index(tree_name) + 1
             yield SQLTemplaterError(
