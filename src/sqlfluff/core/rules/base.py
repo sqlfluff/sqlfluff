@@ -1154,12 +1154,13 @@ class RuleSet:
         # default the allowlist to all the rules if not set
         allowlist = config.get("rule_allowlist") or list(self._register.keys())
         denylist = config.get("rule_denylist") or []
+        valid_rules_and_groups = list(self._register) + list(valid_groups)
 
         allowlisted_unknown_rule_codes = [
             r
             for r in allowlist
             # Add valid groups to the register when searching for invalid rules _only_
-            if not fnmatch.filter({**self._register, **dict.fromkeys(valid_groups)}, r)
+            if not fnmatch.filter(valid_rules_and_groups, r)
         ]
         if any(allowlisted_unknown_rule_codes):
             rules_logger.warning(
