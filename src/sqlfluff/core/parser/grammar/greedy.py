@@ -62,7 +62,9 @@ class GreedyUntil(BaseGrammar):
         seg_buff = segments
         seg_bank = ()  # Empty tuple
         # If no terminators then just return the whole thing.
-        if matchers == [None]:
+        # Shouldn't really happen as GreedyMatch is everything
+        # and StartsWith has mandatory terminator
+        if matchers == [None]:  # pragma: no cover
             return MatchResult.from_matched(segments)
 
         while True:
@@ -161,6 +163,10 @@ class StartsWith(GreedyUntil):
         self.target = self._resolve_ref(target)
         self.terminator = self._resolve_ref(kwargs.pop("terminator", None))
         self.include_terminator = kwargs.pop("include_terminator", False)
+
+        # StartsWith should only be used with a terminator
+        assert self.terminator
+
         super().__init__(*args, **kwargs)
 
     @cached_method_for_parse_context
