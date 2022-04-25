@@ -203,10 +203,10 @@ class JinjaTemplater(PythonTemplater):
         # Then assess self
         if (
             isinstance(tree, jinja2.nodes.Name)
-            and tree.name in variable_names  # type: ignore
+            and getattr(tree, "name") in variable_names
         ):
-            line_no: int = tree.lineno  # type: ignore
-            tree_name: str = tree.name  # type: ignore
+            line_no: int = getattr(tree, "lineno")
+            tree_name: str = getattr(tree, "name")
             line = raw.split("\n")[line_no - 1]
             pos = line.index(tree_name) + 1
             yield SQLTemplaterError(

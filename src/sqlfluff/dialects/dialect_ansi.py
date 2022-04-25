@@ -1201,19 +1201,20 @@ class FromExpressionElementSegment(BaseSegment):
 
         # If not return the object name (or None if there isn't one)
         if ref:
+            references: List = list(ref.iter_raw_references())
             # Return the last element of the reference.
-            penultimate_ref: ObjectReferenceSegment.ObjectReferencePart = list(
-                ref.iter_raw_references()
-            )[-1]
-            return AliasInfo(
-                penultimate_ref.part,
-                penultimate_ref.segments[0],
-                False,
-                self,
-                None,
-                ref,
-            )
-        # No references or alias, return None
+            if references:
+                penultimate_ref: ObjectReferenceSegment.ObjectReferencePart = (
+                    references[-1]
+                )
+                return AliasInfo(
+                    penultimate_ref.part,
+                    penultimate_ref.segments[0],
+                    False,
+                    self,
+                    None,
+                    ref,
+                )  # No references or alias, return None
         return None
 
 
