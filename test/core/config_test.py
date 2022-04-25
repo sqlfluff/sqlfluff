@@ -265,6 +265,22 @@ def test__config__glob_include_config_tests():
         assert "L044" not in [c[0] for c in violations[k]]
 
 
+def test__config__rules_set_to_none():
+    """Test linting when rules are set to 'None'.
+
+    Ensure that all rules are still run.
+    """
+    lntr = Linter(
+        config=FluffConfig.from_path("test/fixtures/config/rules_set_to_none")
+    )
+    lnt = lntr.lint_path("test/fixtures/config/rules_set_to_none/test.sql")
+    violations = lnt.check_tuples(by_path=True)
+    for k in violations:
+        assert ("L050", 1, 1) in violations[k]
+        assert ("L044", 12, 1) in violations[k]
+        assert ("L010", 12, 10) in violations[k]
+
+
 def test__config__get_section():
     """Test FluffConfig.get_section method."""
     cfg = FluffConfig(config_b)
