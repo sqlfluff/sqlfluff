@@ -671,8 +671,7 @@ class LimitClauseSegment(BaseSegment):
     """A `LIMIT` clause like in `SELECT`."""
 
     type = "limit_clause"
-    match_grammar = StartsWith("LIMIT")
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "LIMIT",
         OneOf(
             Sequence(  # offset, count
@@ -720,8 +719,7 @@ class CreateSchemaStatementSegment(BaseSegment):
     is_dml = False
     is_dql = False
     is_dcl = False
-    match_grammar = StartsWith(Sequence("CREATE", "SCHEMA"))
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "CREATE",
         "SCHEMA",
         Ref("IfNotExistsGrammar", optional=True),
@@ -740,8 +738,7 @@ class CreateVirtualSchemaStatementSegment(BaseSegment):
     is_dml = False
     is_dql = False
     is_dcl = False
-    match_grammar = StartsWith(Sequence("CREATE", "VIRTUAL", "SCHEMA"))
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "CREATE",
         "VIRTUAL",
         "SCHEMA",
@@ -772,8 +769,7 @@ class AlterSchemaStatementSegment(BaseSegment):
     is_dml = False
     is_dql = False
     is_dcl = False
-    match_grammar = StartsWith(Sequence("ALTER", "SCHEMA"))
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "ALTER",
         "SCHEMA",
         Ref("SchemaReferenceSegment"),
@@ -801,8 +797,7 @@ class AlterVirtualSchemaStatementSegment(BaseSegment):
     is_dml = False
     is_dql = False
     is_dcl = False
-    match_grammar = StartsWith(Sequence("ALTER", "VIRTUAL", "SCHEMA"))
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "ALTER",
         "VIRTUAL",
         "SCHEMA",
@@ -876,15 +871,7 @@ class CreateViewStatementSegment(BaseSegment):
     is_dml = False
     is_dql = False
     is_dcl = False
-    match_grammar = StartsWith(
-        Sequence(
-            "CREATE",
-            Ref("OrReplaceGrammar", optional=True),
-            Ref.keyword("FORCE", optional=True),
-            "VIEW",
-        )
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "CREATE",
         Ref("OrReplaceGrammar", optional=True),
         Ref.keyword("FORCE", optional=True),
@@ -942,10 +929,7 @@ class CreateTableStatementSegment(BaseSegment):
     is_dml = False
     is_dql = False
     is_dcl = False
-    match_grammar = StartsWith(
-        Sequence("CREATE", Ref("OrReplaceGrammar", optional=True), "TABLE")
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "CREATE",
         Ref("OrReplaceGrammar", optional=True),
         "TABLE",
@@ -1310,8 +1294,7 @@ class AlterTableStatementSegment(BaseSegment):
     is_dml = False
     is_dql = False
     is_dcl = False
-    match_grammar = StartsWith(Sequence("ALTER", "TABLE"))
-    parse_grammar = OneOf(
+    match_grammar = OneOf(
         Ref("AlterTableColumnSegment"),
         Ref("AlterTableConstraintSegment"),
         Ref("AlterTableDistributePartitionSegment"),
@@ -1527,9 +1510,7 @@ class DropTableStatementSegment(BaseSegment):
     is_dql = False
     is_dcl = False
 
-    match_grammar = StartsWith(Sequence("DROP", "TABLE"))
-
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "DROP",
         "TABLE",
         Ref("IfExistsGrammar", optional=True),
@@ -1564,8 +1545,7 @@ class RenameStatementSegment(BaseSegment):
     is_dml = False
     is_dql = False
     is_dcl = False
-    match_grammar = StartsWith("RENAME")
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "RENAME",
         OneOf(
             "SCHEMA",
@@ -1602,8 +1582,7 @@ class CommentStatementSegment(BaseSegment):
     is_dml = False
     is_dql = False
     is_dcl = False
-    match_grammar = StartsWith(Sequence("COMMENT", "ON"))
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "COMMENT",
         "ON",
         OneOf(
@@ -1654,8 +1633,7 @@ class InsertStatementSegment(BaseSegment):
     is_dql = False
     is_dcl = False
 
-    match_grammar = StartsWith("INSERT")
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "INSERT",
         Ref.keyword("INTO", optional=True),
         Ref("TableReferenceSegment"),
@@ -1872,8 +1850,7 @@ class DeleteStatementSegment(BaseSegment):
     is_dql = False
     is_dcl = False
 
-    match_grammar = StartsWith("DELETE")
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "DELETE",
         Ref("StarSegment", optional=True),
         "FROM",
@@ -1899,8 +1876,7 @@ class TruncateStatementSegment(BaseSegment):
     is_dql = False
     is_dcl = False
 
-    match_grammar = StartsWith(Sequence("TRUNCATE", "TABLE"))
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "TRUNCATE",
         "TABLE",
         Ref("TableReferenceSegment"),
@@ -1923,8 +1899,7 @@ class ImportStatementSegment(BaseSegment):
     is_dql = False
     is_dcl = False
 
-    match_grammar = StartsWith("IMPORT")
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "IMPORT",
         Sequence(
             "INTO",
@@ -1957,8 +1932,7 @@ class ExportStatementSegment(BaseSegment):
     is_dml = True
     is_dql = False
     is_dcl = False
-    match_grammar = StartsWith("EXPORT")
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "EXPORT",
         OneOf(
             Sequence(
@@ -2136,8 +2110,7 @@ class ImportFromExportIntoScriptSegment(BaseSegment):
     """`IMPORT` from / `EXPORT` to a executed database script."""
 
     type = "import_script"
-    match_grammar = StartsWith("SCRIPT")
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "SCRIPT",
         Ref("ObjectReferenceSegment"),
         Sequence("AT", Ref("ConnectionDefinition"), optional=True),
@@ -2160,10 +2133,7 @@ class ImportErrorsClauseSegment(BaseSegment):
     """`ERRORS` clause."""
 
     type = "import_errors_clause"
-    match_grammar = StartsWith(
-        "ERRORS",
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "ERRORS",
         "INTO",
         Ref("ImportErrorDestinationSegment"),
@@ -2208,8 +2178,7 @@ class RejectClauseSegment(BaseSegment):
     """`REJECT` clause within an import / export statement."""
 
     type = "reject_clause"
-    match_grammar = StartsWith("REJECT")
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "REJECT",
         "LIMIT",
         OneOf(
@@ -2370,10 +2339,7 @@ class AlterUserStatementSegment(BaseSegment):
     is_dql = False
     is_dcl = True
 
-    match_grammar = StartsWith(
-        Sequence("ALTER", "USER"),
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "ALTER",
         "USER",
         Ref("SingleIdentifierGrammar"),
@@ -2426,8 +2392,7 @@ class UserKerberosAuthSegment(BaseSegment):
     """user kerberos authentification."""
 
     type = "kerberos_auth"
-    match_grammar = StartsWith(Sequence("BY", "KERBEROS"))
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "BY",
         "KERBEROS",
         "PRINCIPAL",
@@ -2439,8 +2404,7 @@ class UserLDAPAuthSegment(BaseSegment):
     """user ldap authentification."""
 
     type = "ldap_auth"
-    match_grammar = StartsWith(Sequence("AT", "LDAP"))
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "AT",
         "LDAP",
         "AS",
@@ -2580,10 +2544,7 @@ class AlterRoleStatementSegment(BaseSegment):
     is_dql = False
     is_dcl = True
 
-    match_grammar = StartsWith(
-        Sequence("ALTER", "ROLE"),
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "ALTER",
         "ROLE",
         Ref("SingleIdentifierGrammar"),
@@ -2632,10 +2593,7 @@ class CreateConnectionSegment(BaseSegment):
     is_dql = False
     is_dcl = True
 
-    match_grammar = StartsWith(
-        Sequence("CREATE", Ref("OrReplaceGrammar", optional=True), "CONNECTION"),
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "CREATE",
         Ref("OrReplaceGrammar", optional=True),
         "CONNECTION",
@@ -2658,10 +2616,7 @@ class AlterConnectionSegment(BaseSegment):
     is_dql = False
     is_dcl = True
 
-    match_grammar = StartsWith(
-        Sequence("ALTER", "CONNECTION"),
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "ALTER",
         "CONNECTION",
         Ref("NakedIdentifierSegment"),
@@ -2729,10 +2684,7 @@ class AccessStatementSegment(BaseSegment):
     is_dql = False
     is_dcl = True
 
-    match_grammar = StartsWith(
-        OneOf("GRANT", "REVOKE"),
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         OneOf("GRANT", "REVOKE"),
         OneOf(
             Ref("GrantRevokeSystemPrivilegesSegment"),
@@ -3123,8 +3075,7 @@ class KillSegment(BaseSegment):
     """`KILL` statement."""
 
     type = "kill_statement"
-    match_grammar = StartsWith("KILL")
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "KILL",
         OneOf(
             Sequence("SESSION", OneOf("CURRENT_SESSION", Ref("NumericLiteralSegment"))),
@@ -3144,8 +3095,7 @@ class TruncateAuditLogsSegment(BaseSegment):
     """`TRUNCATE AUDIT LOGS` statement."""
 
     type = "truncate_audit_logs_statement"
-    match_grammar = StartsWith(Sequence("TRUNCATE", "AUDIT", "LOGS"))
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "TRUNCATE",
         "AUDIT",
         "LOGS",

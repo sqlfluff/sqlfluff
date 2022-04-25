@@ -730,9 +730,7 @@ class AlterFunctionStatementSegment(BaseSegment):
 
     type = "alter_function_statement"
 
-    match_grammar = StartsWith(Sequence("ALTER", "FUNCTION"))
-
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "ALTER",
         "FUNCTION",
         Delimited(
@@ -1808,9 +1806,7 @@ class CreateMaterializedViewStatementSegment(BaseSegment):
 
     type = "create_materialized_view_statement"
 
-    match_grammar = StartsWith(Sequence("CREATE", "MATERIALIZED", "VIEW"))
-
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "CREATE",
         "MATERIALIZED",
         "VIEW",
@@ -1855,9 +1851,7 @@ class AlterMaterializedViewStatementSegment(BaseSegment):
 
     type = "alter_materialized_view_statement"
 
-    match_grammar = StartsWith(Sequence("ALTER", "MATERIALIZED", "VIEW"))
-
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "ALTER",
         "MATERIALIZED",
         "VIEW",
@@ -1983,9 +1977,7 @@ class RefreshMaterializedViewStatementSegment(BaseSegment):
 
     type = "refresh_materialized_view_statement"
 
-    match_grammar = StartsWith(Sequence("REFRESH", "MATERIALIZED", "VIEW"))
-
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "REFRESH",
         "MATERIALIZED",
         "VIEW",
@@ -2003,9 +1995,7 @@ class DropMaterializedViewStatementSegment(BaseSegment):
 
     type = "drop_materialized_view_statement"
 
-    match_grammar = StartsWith(Sequence("DROP", "MATERIALIZED", "VIEW"))
-
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "DROP",
         "MATERIALIZED",
         "VIEW",
@@ -2023,9 +2013,7 @@ class AlterViewStatementSegment(BaseSegment):
 
     type = "alter_view_statement"
 
-    match_grammar = StartsWith(Sequence("ALTER", "VIEW"))
-
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "ALTER",
         "VIEW",
         Ref("IfExistsGrammar", optional=True),
@@ -2097,9 +2085,7 @@ class CreateDatabaseStatementSegment(ansi.CreateDatabaseStatementSegment):
     As specified in https://www.postgresql.org/docs/14/sql-createdatabase.html
     """
 
-    match_grammar = StartsWith(Sequence("CREATE", "DATABASE"))
-
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "CREATE",
         "DATABASE",
         Ref("DatabaseReferenceSegment"),
@@ -2174,9 +2160,7 @@ class AlterDatabaseStatementSegment(BaseSegment):
 
     type = "alter_database_statement"
 
-    match_grammar = StartsWith(Sequence("ALTER", "DATABASE"))
-
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "ALTER",
         "DATABASE",
         Ref("DatabaseReferenceSegment"),
@@ -2229,9 +2213,7 @@ class DropDatabaseStatementSegment(ansi.DropDatabaseStatementSegment):
     As specified in https://www.postgresql.org/docs/14/sql-dropdatabase.html
     """
 
-    match_grammar = StartsWith(Sequence("DROP", "DATABASE"))
-
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "DROP",
         "DATABASE",
         Sequence("IF", "EXISTS", optional=True),
@@ -2674,8 +2656,7 @@ class CommentOnStatementSegment(BaseSegment):
 
     type = "comment_on_statement"
 
-    match_grammar = StartsWith(Sequence("COMMENT", "ON"))
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "COMMENT",
         "ON",
         Sequence(
@@ -3445,8 +3426,7 @@ class InsertStatementSegment(ansi.InsertStatementSegment):
     https://www.postgresql.org/docs/14/sql-insert.html
     """
 
-    match_grammar = ansi.InsertStatementSegment.match_grammar
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "INSERT",
         "INTO",
         Ref("TableReferenceSegment"),
@@ -3529,8 +3509,7 @@ class CreatePolicyStatementSegment(BaseSegment):
     """
 
     type = "create_policy_statement"
-    match_grammar = StartsWith(Sequence("CREATE", "POLICY"))
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "CREATE",
         "POLICY",
         Ref("ObjectReferenceSegment"),
@@ -3565,8 +3544,7 @@ class DropPolicyStatementSegment(BaseSegment):
     """
 
     type = "drop_policy_statement"
-    match_grammar = StartsWith(Sequence("DROP", "POLICY"))
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "DROP",
         "POLICY",
         Ref("IfExistsGrammar", optional=True),
@@ -3886,8 +3864,7 @@ class DeleteStatementSegment(ansi.DeleteStatementSegment):
     https://www.postgresql.org/docs/14/sql-delete.html
     """
 
-    match_grammar = ansi.DeleteStatementSegment.match_grammar
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "DELETE",
         "FROM",
         Ref.keyword("ONLY", optional=True),
