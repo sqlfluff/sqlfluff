@@ -1,4 +1,5 @@
 EXPORT DATA
+WITH CONNECTION PROJECT_ID.LOCATION.CONNECTION_ID
 OPTIONS(
     uri='gs://bucket/folder/*.csv',
     format='CSV',
@@ -7,6 +8,18 @@ OPTIONS(
     field_delimiter=';'
   )
 AS SELECT field1, field2 FROM mydataset.table1 ORDER BY field1;
+
+EXPORT DATA
+WITH CONNECTION `PROJECT_ID.LOCATION.CONNECTION_ID`
+OPTIONS(
+    uri='gs://bucket/folder/*.csv',
+    format='CSV',
+    overwrite=true,
+    header=true,
+    field_delimiter=';'
+  )
+AS SELECT field1, field2 FROM mydataset.table1 ORDER BY field1;
+
 
 EXPORT DATA OPTIONS(
   uri='gs://bucket/folder/*.csv',

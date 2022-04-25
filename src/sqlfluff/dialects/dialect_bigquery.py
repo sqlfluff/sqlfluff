@@ -1373,7 +1373,7 @@ class ExportStatementSegment(BaseSegment):
     match_grammar: Matchable = Sequence(
         "EXPORT",
         "DATA",
-        Sequence("WITH", "CONNECTION", Bracketed(Anything()), optional=True),
+        Sequence("WITH", "CONNECTION", Ref("ObjectReferenceSegment"), optional=True),
         "OPTIONS",
         Bracketed(
             Delimited(
