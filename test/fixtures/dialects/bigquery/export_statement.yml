@@ -1,0 +1,228 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 303389cdfb41a34e8fa99cb5b740a68f4e8b7e434e60892e3df31c26203798af
+file:
+- statement:
+    export_statement:
+    - keyword: EXPORT
+    - keyword: DATA
+    - keyword: OPTIONS
+    - bracketed:
+      - start_bracket: (
+      - raw: uri
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - literal: "'gs://bucket/folder/*.csv'"
+      - comma: ','
+      - raw: format
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - literal: "'CSV'"
+      - comma: ','
+      - raw: overwrite
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: 'true'
+      - comma: ','
+      - raw: header
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: 'true'
+      - comma: ','
+      - raw: field_delimiter
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - literal: "';'"
+      - end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              identifier: field1
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: field2
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - identifier: mydataset
+                - dot: .
+                - identifier: table1
+        orderby_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+            identifier: field1
+- statement_terminator: ;
+- statement:
+    export_statement:
+    - keyword: EXPORT
+    - keyword: DATA
+    - keyword: OPTIONS
+    - bracketed:
+      - start_bracket: (
+      - raw: uri
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - literal: "'gs://bucket/folder/*.csv'"
+      - comma: ','
+      - raw: format
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - literal: "'CSV'"
+      - comma: ','
+      - raw: overwrite
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: 'true'
+      - comma: ','
+      - raw: header
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: 'true'
+      - comma: ','
+      - raw: field_delimiter
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - literal: "';'"
+      - end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              identifier: field1
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: field2
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - identifier: mydataset
+                - dot: .
+                - identifier: table1
+        orderby_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+            identifier: field1
+        limit_clause:
+          keyword: LIMIT
+          literal: '10'
+- statement_terminator: ;
+- statement:
+    export_statement:
+    - keyword: EXPORT
+    - keyword: DATA
+    - keyword: OPTIONS
+    - bracketed:
+      - start_bracket: (
+      - raw: uri
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - literal: "'gs://bucket/folder/*'"
+      - comma: ','
+      - raw: format
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - literal: "'AVRO'"
+      - comma: ','
+      - raw: compression
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - literal: "'SNAPPY'"
+      - end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              identifier: field1
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: field2
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - identifier: mydataset
+                - dot: .
+                - identifier: table1
+        orderby_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+            identifier: field1
+        limit_clause:
+          keyword: LIMIT
+          literal: '10'
+- statement_terminator: ;
+- statement:
+    export_statement:
+    - keyword: EXPORT
+    - keyword: DATA
+    - keyword: OPTIONS
+    - bracketed:
+      - start_bracket: (
+      - raw: uri
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - literal: "'gs://bucket/folder/*'"
+      - comma: ','
+      - raw: format
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - literal: "'PARQUET'"
+      - comma: ','
+      - raw: overwrite
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: 'true'
+      - end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              identifier: field1
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: field2
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - identifier: mydataset
+                - dot: .
+                - identifier: table1
+        orderby_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+            identifier: field1
+        limit_clause:
+          keyword: LIMIT
+          literal: '10'
+- statement_terminator: ;

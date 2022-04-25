@@ -7,6 +7,7 @@ https://cloud.google.com/bigquery/docs/reference/standard-sql/lexical#string_and
 """
 
 import itertools
+from ssl import Options
 
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
@@ -348,7 +349,11 @@ class StatementSegment(ansi.StatementSegment):
 
     match_grammar = ansi.StatementSegment.match_grammar
     parse_grammar = ansi.StatementSegment.parse_grammar.copy(
-        insert=[Ref("DeclareStatementSegment"), Ref("SetStatementSegment")],
+        insert=[
+            Ref("DeclareStatementSegment"),
+            Ref("SetStatementSegment"),
+            Ref("ExportStatementSegment"),
+        ],
     )
 
 
@@ -1356,4 +1361,50 @@ class MergeInsertClauseSegment(ansi.MergeInsertClauseSegment):
             Dedent,
         ),
         Sequence("INSERT", "ROW"),
+    )
+
+
+class ExportStatementSegment(BaseSegment):
+    """`EXPORT` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/other-statements#export_data_statement
+    """
+
+    type = "export_statement"
+    match_grammar: Matchable = Sequence(
+        "EXPORT",
+        "DATA",
+        Sequence("WITH", "CONNECTION", Bracketed(Anything()), optional=True),
+        "OPTIONS",
+        Bracketed(
+            Delimited(
+                # String options
+                Sequence(
+                    OneOf(
+                        StringParser("compression", CodeSegment, name="export_option"),
+                        StringParser(
+                            "field_delimiter", CodeSegment, name="export_option"
+                        ),
+                        StringParser("format", CodeSegment, name="export_option"),
+                        StringParser("uri", CodeSegment, name="export_option"),
+                    ),
+                    Ref("EqualsSegment"),
+                    Ref("QuotedLiteralSegment"),
+                ),
+                # Bool options
+                Sequence(
+                    OneOf(
+                        StringParser("header", CodeSegment, name="export_option"),
+                        StringParser("overwrite", CodeSegment, name="export_option"),
+                        StringParser(
+                            "use_avro_logical_types", CodeSegment, name="export_option"
+                        ),
+                    ),
+                    Ref("EqualsSegment"),
+                    OneOf("TRUE", "FALSE"),
+                ),
+            ),
+        ),
+        "AS",
+        Ref("SelectStatementSegment"),
     )
