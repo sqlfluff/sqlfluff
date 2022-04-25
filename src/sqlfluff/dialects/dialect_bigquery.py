@@ -1378,25 +1378,62 @@ class ExportStatementSegment(BaseSegment):
         Bracketed(
             Delimited(
                 # String options
+                # Note: adding as own type, rather than keywords as convention with
+                # Bigquery, as per the docs, is to put Keywords in uppercase, and these
+                # in lowercase.
                 Sequence(
                     OneOf(
-                        StringParser("compression", CodeSegment, name="export_option"),
                         StringParser(
-                            "field_delimiter", CodeSegment, name="export_option"
+                            "compression",
+                            CodeSegment,
+                            name="export_option",
+                            type="export_option",
                         ),
-                        StringParser("format", CodeSegment, name="export_option"),
-                        StringParser("uri", CodeSegment, name="export_option"),
+                        StringParser(
+                            "field_delimiter",
+                            CodeSegment,
+                            name="export_option",
+                            type="export_option",
+                        ),
+                        StringParser(
+                            "format",
+                            CodeSegment,
+                            name="export_option",
+                            type="export_option",
+                        ),
+                        StringParser(
+                            "uri",
+                            CodeSegment,
+                            name="export_option",
+                            type="export_option",
+                        ),
                     ),
                     Ref("EqualsSegment"),
                     Ref("QuotedLiteralSegment"),
                 ),
                 # Bool options
+                # Note: adding as own type, rather than keywords as convention with
+                # Bigquery, as per the docs, is to put Keywords in uppercase, and these
+                # in lowercase.
                 Sequence(
                     OneOf(
-                        StringParser("header", CodeSegment, name="export_option"),
-                        StringParser("overwrite", CodeSegment, name="export_option"),
                         StringParser(
-                            "use_avro_logical_types", CodeSegment, name="export_option"
+                            "header",
+                            CodeSegment,
+                            name="export_option",
+                            type="export_option",
+                        ),
+                        StringParser(
+                            "overwrite",
+                            CodeSegment,
+                            name="export_option",
+                            type="export_option",
+                        ),
+                        StringParser(
+                            "use_avro_logical_types",
+                            CodeSegment,
+                            name="export_option",
+                            type="export_option",
                         ),
                     ),
                     Ref("EqualsSegment"),

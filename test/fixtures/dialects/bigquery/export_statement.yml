@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 60fc6c7bce3697efc8ae912ed01175617199d44264c863a6b00becf23bc704f6
+_hash: 8367396677ce124ad2cb90e42ee999d782c9826377a7da5622accb234b3377a8
 file:
 - statement:
     export_statement:
@@ -20,27 +20,27 @@ file:
     - keyword: OPTIONS
     - bracketed:
       - start_bracket: (
-      - raw: uri
+      - export_option: uri
       - comparison_operator:
           raw_comparison_operator: '='
       - literal: "'gs://bucket/folder/*.csv'"
       - comma: ','
-      - raw: format
+      - export_option: format
       - comparison_operator:
           raw_comparison_operator: '='
       - literal: "'CSV'"
       - comma: ','
-      - raw: overwrite
+      - export_option: overwrite
       - comparison_operator:
           raw_comparison_operator: '='
       - keyword: 'true'
       - comma: ','
-      - raw: header
+      - export_option: header
       - comparison_operator:
           raw_comparison_operator: '='
       - keyword: 'true'
       - comma: ','
-      - raw: field_delimiter
+      - export_option: field_delimiter
       - comparison_operator:
           raw_comparison_operator: '='
       - literal: "';'"
@@ -82,27 +82,27 @@ file:
     - keyword: OPTIONS
     - bracketed:
       - start_bracket: (
-      - raw: uri
+      - export_option: uri
       - comparison_operator:
           raw_comparison_operator: '='
       - literal: "'gs://bucket/folder/*.csv'"
       - comma: ','
-      - raw: format
+      - export_option: format
       - comparison_operator:
           raw_comparison_operator: '='
       - literal: "'CSV'"
       - comma: ','
-      - raw: overwrite
+      - export_option: overwrite
       - comparison_operator:
           raw_comparison_operator: '='
       - keyword: 'true'
       - comma: ','
-      - raw: header
+      - export_option: header
       - comparison_operator:
           raw_comparison_operator: '='
       - keyword: 'true'
       - comma: ','
-      - raw: field_delimiter
+      - export_option: field_delimiter
       - comparison_operator:
           raw_comparison_operator: '='
       - literal: "';'"
@@ -140,27 +140,27 @@ file:
     - keyword: OPTIONS
     - bracketed:
       - start_bracket: (
-      - raw: uri
+      - export_option: uri
       - comparison_operator:
           raw_comparison_operator: '='
       - literal: "'gs://bucket/folder/*.csv'"
       - comma: ','
-      - raw: format
+      - export_option: format
       - comparison_operator:
           raw_comparison_operator: '='
       - literal: "'CSV'"
       - comma: ','
-      - raw: overwrite
+      - export_option: overwrite
       - comparison_operator:
           raw_comparison_operator: '='
       - keyword: 'true'
       - comma: ','
-      - raw: header
+      - export_option: header
       - comparison_operator:
           raw_comparison_operator: '='
       - keyword: 'true'
       - comma: ','
-      - raw: field_delimiter
+      - export_option: field_delimiter
       - comparison_operator:
           raw_comparison_operator: '='
       - literal: "';'"
@@ -201,17 +201,17 @@ file:
     - keyword: OPTIONS
     - bracketed:
       - start_bracket: (
-      - raw: uri
+      - export_option: uri
       - comparison_operator:
           raw_comparison_operator: '='
       - literal: "'gs://bucket/folder/*'"
       - comma: ','
-      - raw: format
+      - export_option: format
       - comparison_operator:
           raw_comparison_operator: '='
       - literal: "'AVRO'"
       - comma: ','
-      - raw: compression
+      - export_option: compression
       - comparison_operator:
           raw_comparison_operator: '='
       - literal: "'SNAPPY'"
@@ -252,17 +252,17 @@ file:
     - keyword: OPTIONS
     - bracketed:
       - start_bracket: (
-      - raw: uri
+      - export_option: uri
       - comparison_operator:
           raw_comparison_operator: '='
       - literal: "'gs://bucket/folder/*'"
       - comma: ','
-      - raw: format
+      - export_option: format
       - comparison_operator:
           raw_comparison_operator: '='
       - literal: "'PARQUET'"
       - comma: ','
-      - raw: overwrite
+      - export_option: overwrite
       - comparison_operator:
           raw_comparison_operator: '='
       - keyword: 'true'
