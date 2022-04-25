@@ -1256,44 +1256,40 @@ def test_encoding(encoding_in, encoding_out):
         )
 
 
-def test_cli_pass_on_correct_encoding_argument():
+@pytest.mark.parametrize(
+    "encoding,method,expect_success",
+    [
+        ("utf-8", "command-line", False),
+        ("utf-8-SIG", "command-line", True),
+        ("utf-8", "config-file", False),
+        ("utf-8-SIG", "config-file", True),
+    ],
+)
+def test_cli_encoding(encoding, method, expect_success, tmpdir):
     """Try loading a utf-8-SIG encoded file using the correct encoding via the cli."""
+    sql_path = "test/fixtures/cli/encoding_test.sql"
+    if method == "command-line":
+        options = [sql_path, "--encoding", encoding]
+    else:
+        assert method == "config-file"
+        with open(str(tmpdir / ".sqlfluff"), "w") as f:
+            print(f"[sqlfluff]\ndialect=ansi\nencoding = {encoding}", file=f)
+        shutil.copy(sql_path, tmpdir)
+        options = [str(tmpdir / "encoding_test.sql")]
     result = invoke_assert_code(
         ret_code=65,
         args=[
             lint,
-            [
-                "test/fixtures/cli/encoding_test.sql",
-                "--encoding",
-                "utf-8-SIG",
-            ],
+            options,
         ],
     )
     raw_output = repr(result.output)
 
-    # Incorrect encoding raises paring and lexer errors.
-    assert r"L:   1 | P:   1 |  LXR |" not in raw_output
-    assert r"L:   1 | P:   1 |  PRS |" not in raw_output
-
-
-def test_cli_fail_on_wrong_encoding_argument():
-    """Try loading a utf-8-SIG encoded file using the wrong encoding via the cli."""
-    result = invoke_assert_code(
-        ret_code=65,
-        args=[
-            lint,
-            [
-                "test/fixtures/cli/encoding_test.sql",
-                "--encoding",
-                "utf-8",
-            ],
-        ],
-    )
-    raw_output = repr(result.output)
-
-    # Incorrect encoding raises paring and lexer errors.
-    assert r"L:   1 | P:   1 |  LXR |" in raw_output
-    assert r"L:   1 | P:   1 |  PRS |" in raw_output
+    # Incorrect encoding raises parsing and lexer errors.
+    success1 = r"L:   1 | P:   1 |  LXR |" not in raw_output
+    success2 = r"L:   1 | P:   1 |  PRS |" not in raw_output
+    assert success1 == expect_success
+    assert success2 == expect_success
 
 
 def test_cli_no_disable_noqa_flag():
