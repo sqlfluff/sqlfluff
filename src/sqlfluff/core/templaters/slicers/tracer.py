@@ -251,7 +251,10 @@ class JinjaAnalyzer:
                     f"{self.env.block_end_string}"
                 )
             except TemplateSyntaxError as e:
-                if "Unexpected end of template" in e.message:
+                if (
+                    isinstance(e.message, str)
+                    and "Unexpected end of template" in e.message
+                ):
                     # It was opening a block, thus we're inside a set or macro.
                     self.inside_set_or_macro = True
                 else:
