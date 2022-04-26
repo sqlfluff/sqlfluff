@@ -2786,10 +2786,7 @@ class CreateFileFormatSegment(BaseSegment):
         Ref("ObjectReferenceSegment"),
         # Non-delimited works fine.
         # TODO: Allow below segments to be delimited.
-        "TYPE",
-        Ref("EqualsSegment"),
-        Ref("FileType"),
-        AnySetOf(
+        OneOf(
             Ref("CsvFileFormatTypeOptions"),  # TODO: Add Other File Formats.
         ),
         Ref("CommentEqualsClauseSegment", optional=True),
@@ -2804,7 +2801,13 @@ class CsvFileFormatTypeOptions(BaseSegment):
 
     type = "csv_file_format_type_options"
 
-    match_grammar = AnySetOf(
+    # Snowflake allows repeated arguments to be passed so AnyNumberOf() is appropriate.
+    # AnyNumberOf() also helps resolve the issue that passed arguments can be delimited,
+    # non-delimited, or a mixture of both.
+    # We include Ref("CommaSegment") to allow for the mixture of non/delimited arguments.
+    match_grammar = AnyNumberOf(
+        # Documentation suggests that TYPE = {} is required but it is actually optional.
+        Sequence("TYPE", Ref("EqualsSegment"), "CSV"),
         Sequence(
             "COMPRESSION",
             Ref("EqualsSegment"),
@@ -2888,6 +2891,7 @@ class CsvFileFormatTypeOptions(BaseSegment):
                 Ref("QuotedLiteralSegment"),
             ),
         ),
+        Ref("CommaSegment"),
     )
 
 
@@ -2910,6 +2914,9 @@ class FileFormatSegment(BaseSegment):
                     Ref("EqualsSegment"),
                     OneOf(Ref("NakedIdentifierSegment"), Ref("QuotedLiteralSegment")),
                 ),
+                # OneOf(
+                #     Ref("CsvFileFormatTypeOptions")
+                # ),
                 Sequence(
                     "TYPE",
                     Ref("EqualsSegment"),
