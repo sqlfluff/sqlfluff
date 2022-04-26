@@ -1201,19 +1201,20 @@ class FromExpressionElementSegment(BaseSegment):
 
         # If not return the object name (or None if there isn't one)
         if ref:
+            references: List = list(ref.iter_raw_references())
             # Return the last element of the reference.
-            penultimate_ref: ObjectReferenceSegment.ObjectReferencePart = list(
-                ref.iter_raw_references()
-            )[-1]
-            return AliasInfo(
-                penultimate_ref.part,
-                penultimate_ref.segments[0],
-                False,
-                self,
-                None,
-                ref,
-            )
-        # No references or alias, return None
+            if references:
+                penultimate_ref: ObjectReferenceSegment.ObjectReferencePart = (
+                    references[-1]
+                )
+                return AliasInfo(
+                    penultimate_ref.part,
+                    penultimate_ref.segments[0],
+                    False,
+                    self,
+                    None,
+                    ref,
+                )  # No references or alias, return None
         return None
 
 
@@ -2028,10 +2029,7 @@ class OverlapsClauseSegment(BaseSegment):
     """An `OVERLAPS` clause like in `SELECT."""
 
     type = "overlaps_clause"
-    match_grammar: Matchable = StartsWith(
-        "OVERLAPS",
-    )
-    parse_grammar: Optional[Matchable] = Sequence(
+    match_grammar: Matchable = Sequence(
         "OVERLAPS",
         OneOf(
             Sequence(
@@ -2295,8 +2293,7 @@ class InsertStatementSegment(BaseSegment):
     """An `INSERT` statement."""
 
     type = "insert_statement"
-    match_grammar: Matchable = StartsWith("INSERT")
-    parse_grammar: Optional[Matchable] = Sequence(
+    match_grammar: Matchable = Sequence(
         "INSERT",
         # Maybe OVERWRITE is just snowflake?
         # (It's also Hive but that has full insert grammar implementation)
@@ -3066,8 +3063,7 @@ class DeleteStatementSegment(BaseSegment):
     type = "delete_statement"
     # match grammar. This one makes sense in the context of knowing that it's
     # definitely a statement, we just don't know what type yet.
-    match_grammar: Matchable = StartsWith("DELETE")
-    parse_grammar: Optional[Matchable] = Sequence(
+    match_grammar: Matchable = Sequence(
         "DELETE",
         Ref("FromClauseSegment"),
         Ref("WhereClauseSegment", optional=True),
@@ -3468,9 +3464,7 @@ class DescribeStatementSegment(BaseSegment):
     """
 
     type = "describe_statement"
-    match_grammar: Matchable = StartsWith("DESCRIBE")
-
-    parse_grammar: Optional[Matchable] = Sequence(
+    match_grammar: Matchable = Sequence(
         "DESCRIBE",
         Ref("NakedIdentifierSegment"),
         Ref("ObjectReferenceSegment"),

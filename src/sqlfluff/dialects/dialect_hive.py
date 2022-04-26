@@ -8,7 +8,6 @@ from sqlfluff.core.parser import (
     OneOf,
     Bracketed,
     Delimited,
-    StartsWith,
     NamedParser,
     Nothing,
     SymbolSegment,
@@ -199,16 +198,7 @@ class CreateTableStatementSegment(BaseSegment):
     """
 
     type = "create_table_statement"
-    match_grammar = StartsWith(
-        Sequence(
-            "CREATE",
-            Ref.keyword("TEMPORARY", optional=True),
-            Ref.keyword("EXTERNAL", optional=True),
-            "TABLE",
-        )
-    )
-
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "CREATE",
         Ref.keyword("TEMPORARY", optional=True),
         Ref.keyword("EXTERNAL", optional=True),
@@ -489,8 +479,7 @@ class TruncateStatementSegment(BaseSegment):
 
     type = "truncate_table"
 
-    match_grammar = StartsWith("TRUNCATE")
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "TRUNCATE",
         Ref.keyword("TABLE", optional=True),
         Ref("TableReferenceSegment"),
@@ -526,8 +515,7 @@ class InsertStatementSegment(BaseSegment):
     """
 
     type = "insert_statement"
-    match_grammar = StartsWith("INSERT")
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "INSERT",
         OneOf(
             Sequence(

@@ -3686,10 +3686,7 @@ class AlterUserStatementSegment(BaseSegment):
 
     type = "alter_user_statement"
 
-    match_grammar = StartsWith(
-        Sequence("ALTER", "USER"),
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "ALTER",
         "USER",
         Sequence("IF", "EXISTS", optional=True),
@@ -4570,7 +4567,7 @@ class RemoveStatementSegment(BaseSegment):
         Sequence(
             "PATTERN",
             Ref("EqualsSegment"),
-            Ref("QuotedLiteralSegment"),
+            OneOf(Ref("QuotedLiteralSegment"), Ref("ReferencedVariableNameSegment")),
             optional=True,
         ),
     )
