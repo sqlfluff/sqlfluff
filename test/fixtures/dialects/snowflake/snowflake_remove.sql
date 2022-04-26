@@ -9,3 +9,5 @@ remove @%orders;
 rm @~ pattern='.*jun.*';
 
 REMOVE @foo.bar PATTERN = '\w';
+
+RM @foo.foo PATTERN=$bar;
