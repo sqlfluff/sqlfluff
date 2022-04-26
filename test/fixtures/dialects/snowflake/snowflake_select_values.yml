@@ -1,0 +1,94 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 338e58d5380acf9d2ce36f87dda8cd0947c4cf3197286dbdcb3324b2130405c4
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            bracketed:
+              start_bracket: (
+              table_expression:
+                values_clause:
+                - keyword: values
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                      literal: '1'
+                  - comma: ','
+                  - expression:
+                      literal: "'one'"
+                  - end_bracket: )
+                - comma: ','
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                      literal: '2'
+                  - comma: ','
+                  - expression:
+                      literal: "'two'"
+                  - end_bracket: )
+                - comma: ','
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                      literal: '3'
+                  - comma: ','
+                  - expression:
+                      literal: "'three'"
+                  - end_bracket: )
+              end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              values_clause:
+              - keyword: values
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                    literal: '1'
+                - comma: ','
+                - expression:
+                    literal: "'one'"
+                - end_bracket: )
+              - comma: ','
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                    literal: '2'
+                - comma: ','
+                - expression:
+                    literal: "'two'"
+                - end_bracket: )
+              - comma: ','
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                    literal: '3'
+                - comma: ','
+                - expression:
+                    literal: "'three'"
+                - end_bracket: )
+- statement_terminator: ;

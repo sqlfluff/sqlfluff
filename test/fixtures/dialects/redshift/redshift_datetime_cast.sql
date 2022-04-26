@@ -39,5 +39,8 @@ SELECT
     raw_data."end"::TIMESTAMPTZ AT TIME ZONE 'UTC' AS ended_at,
     raw_data.created::TIMESTAMPTZ AT TIME ZONE 'UTC' AS created_at,
     raw_data.identifier[0].value::VARCHAR AS communication_request_fhir_reference_origin,
-    extension_extraction.database_reference
+    extension_extraction.database_reference,
+    GETDATE() AT TIME ZONE 'UTC',
+    (GETDATE() AT TIME ZONE 'UTC') AT TIME ZONE 'AEST',
+    ((GETDATE() AT TIME ZONE 'UTC') AT TIME ZONE 'AEST')
 FROM raw_data

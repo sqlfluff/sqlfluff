@@ -1,26 +1,33 @@
 """Implementation of Rule L028."""
 
-from typing import List, Optional, Set
+from typing import Iterator, List, Optional, Set
 
 from sqlfluff.core.dialects.common import AliasInfo, ColumnAliasInfo
 from sqlfluff.core.parser.segments.base import BaseSegment
 from sqlfluff.core.parser.segments.raw import CodeSegment, SymbolSegment
-from sqlfluff.core.rules.base import LintFix, LintResult, EvalResultType, RuleContext
+from sqlfluff.core.rules.analysis.select_crawler import Query, SelectCrawler
+from sqlfluff.core.rules.base import (
+    BaseRule,
+    LintFix,
+    LintResult,
+    EvalResultType,
+    RuleContext,
+)
+from sqlfluff.core.rules.functional import sp
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
 )
-from sqlfluff.rules.L020 import Rule_L020
 
 
 @document_configuration
 @document_fix_compatible
-class Rule_L028(Rule_L020):
+class Rule_L028(BaseRule):
     """References should be consistent in statements with a single table.
 
     .. note::
         For BigQuery, Hive and Redshift this rule is disabled by default.
-        This is due to historical false positives assocaited with STRUCT data types.
+        This is due to historical false positives associated with STRUCT data types.
         This default behaviour may be changed in the future.
         The rule can be enabled with the ``force_enable = True`` flag.
 
@@ -66,28 +73,6 @@ class Rule_L028(Rule_L020):
     # This could be turned into an option
     _fix_inconsistent_to = "qualified"
 
-    def _lint_references_and_aliases(
-        self,
-        table_aliases,
-        standalone_aliases,
-        references,
-        col_aliases,
-        using_cols,
-        parent_select,
-    ):
-        """Iterate through references and check consistency."""
-        self.single_table_references: str
-
-        return _generate_fixes(
-            table_aliases,
-            standalone_aliases,
-            references,
-            col_aliases,
-            self.single_table_references,
-            self._is_struct_dialect,
-            self._fix_inconsistent_to,
-        )
-
     def _eval(self, context: RuleContext) -> EvalResultType:
         """Override base class for dialects that use structs, or SELECT aliases."""
         # Config type hints
@@ -103,10 +88,55 @@ class Rule_L028(Rule_L020):
         if context.dialect.name in self._dialects_with_structs:
             self._is_struct_dialect = True
 
-        return super()._eval(context=context)
+        start_types = ["select_statement", "set_expression", "with_compound_statement"]
+        if context.segment.is_type(
+            *start_types
+        ) and not context.functional.parent_stack.any(sp.is_type(*start_types)):
+            crawler = SelectCrawler(context.segment, context.dialect)
+            if crawler.query_tree:
+                # Recursively visit and check each query in the tree.
+                return list(self._visit_queries(crawler.query_tree))
+        return None
+
+    def _visit_queries(self, query: Query) -> Iterator[LintResult]:
+        if query.selectables:
+            select_info = query.selectables[0].select_info
+            # How many table names are visible from here? If more than one then do
+            # nothing.
+            if select_info and len(select_info.table_aliases) == 1:
+                fixable = True
+                # :TRICKY: Subqueries in the column list of a SELECT can see tables
+                # in the FROM list of the containing query. Thus, count tables at
+                # the *parent* query level.
+                table_search_root = query.parent if query.parent else query
+                query_list = (
+                    SelectCrawler.get(
+                        table_search_root, table_search_root.selectables[0].selectable
+                    )
+                    if table_search_root.selectables
+                    else []
+                )
+                filtered_query_list = [q for q in query_list if isinstance(q, str)]
+                if len(filtered_query_list) != 1:
+                    # If more than one table name is visible, check for and report
+                    # potential lint warnings, but don't generate fixes, because
+                    # fixes are unsafe if there's more than one table visible.
+                    fixable = False
+                yield from _check_references(
+                    select_info.table_aliases,
+                    select_info.standalone_aliases,
+                    select_info.reference_buffer,
+                    select_info.col_aliases,
+                    self.single_table_references,  # type: ignore
+                    self._is_struct_dialect,
+                    self._fix_inconsistent_to,
+                    fixable,
+                )
+        for child in query.children:
+            yield from self._visit_queries(child)
 
 
-def _generate_fixes(
+def _check_references(
     table_aliases: List[AliasInfo],
     standalone_aliases: List[str],
     references: List[BaseSegment],
@@ -114,14 +144,10 @@ def _generate_fixes(
     single_table_references: str,
     is_struct_dialect: bool,
     fix_inconsistent_to: Optional[str],
-) -> Optional[List[LintResult]]:
+    fixable: bool,
+) -> Iterator[LintResult]:
     """Iterate through references and check consistency."""
-    # How many aliases are there? If more than one then abort.
-    if len(table_aliases) != 1:
-        return None
-
     # A buffer to keep any violations.
-    violation_buff: List[LintResult] = []
     col_alias_names: List[str] = [c.alias_identifier_name for c in col_aliases]
     table_ref_str: str = table_aliases[0].ref_str
     # Check all the references that we have.
@@ -141,6 +167,7 @@ def _generate_fixes(
             table_ref_str,
             col_alias_names,
             seen_ref_types,
+            fixable,
         )
 
         seen_ref_types.add(this_ref_type)
@@ -150,7 +177,7 @@ def _generate_fixes(
         if fix_inconsistent_to and single_table_references == "consistent":
             # If we found a "consistent" error but we have a fix directive,
             # recurse with a different single_table_references value
-            return _generate_fixes(
+            yield from _check_references(
                 table_aliases,
                 standalone_aliases,
                 references,
@@ -159,11 +186,10 @@ def _generate_fixes(
                 single_table_references=fix_inconsistent_to,
                 is_struct_dialect=is_struct_dialect,
                 fix_inconsistent_to=None,
+                fixable=fixable,
             )
 
-        violation_buff.append(lint_res)
-
-    return violation_buff or None
+        yield lint_res
 
 
 def _validate_one_reference(
@@ -174,6 +200,7 @@ def _validate_one_reference(
     table_ref_str: str,
     col_alias_names: List[str],
     seen_ref_types: Set[str],
+    fixable: bool,
 ) -> Optional[LintResult]:
     # We skip any unqualified wildcard references (i.e. *). They shouldn't
     # count.
@@ -205,7 +232,7 @@ def _validate_one_reference(
     if single_table_references != this_ref_type:
         if single_table_references == "unqualified":
             # If this is qualified we must have a "table", "."" at least
-            fixes = [LintFix.delete(el) for el in ref.segments[:2]]
+            fixes = [LintFix.delete(el) for el in ref.segments[:2]] if fixable else None
             return LintResult(
                 anchor=ref,
                 fixes=fixes,
@@ -213,19 +240,21 @@ def _validate_one_reference(
                 "select.".format(this_ref_type.capitalize(), ref.raw),
             )
 
-        fixes = [
-            LintFix.create_before(
-                ref.segments[0] if len(ref.segments) else ref,
-                edit_segments=[
-                    CodeSegment(
-                        raw=table_ref_str,
-                        name="naked_identifier",
-                        type="identifier",
-                    ),
-                    SymbolSegment(raw=".", type="symbol", name="dot"),
-                ],
-            )
-        ]
+        fixes = None
+        if fixable:
+            fixes = [
+                LintFix.create_before(
+                    ref.segments[0] if len(ref.segments) else ref,
+                    edit_segments=[
+                        CodeSegment(
+                            raw=table_ref_str,
+                            name="naked_identifier",
+                            type="identifier",
+                        ),
+                        SymbolSegment(raw=".", type="symbol", name="dot"),
+                    ],
+                )
+            ]
         return LintResult(
             anchor=ref,
             fixes=fixes,

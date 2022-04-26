@@ -348,7 +348,11 @@ class StatementSegment(ansi.StatementSegment):
 
     match_grammar = ansi.StatementSegment.match_grammar
     parse_grammar = ansi.StatementSegment.parse_grammar.copy(
-        insert=[Ref("DeclareStatementSegment"), Ref("SetStatementSegment")],
+        insert=[
+            Ref("DeclareStatementSegment"),
+            Ref("SetStatementSegment"),
+            Ref("ExportStatementSegment"),
+        ],
     )
 
 
@@ -488,7 +492,6 @@ class FunctionSegment(ansi.FunctionSegment):
                     Ref("DatetimeUnitSegment"),
                     "FROM",
                     Ref("ExpressionSegment"),
-                    Ref("TimeZoneGrammar", optional=True),
                 ),
             ),
             Sequence(
@@ -981,8 +984,7 @@ class SetStatementSegment(BaseSegment):
     """
 
     type = "set_segment"
-    match_grammar = StartsWith("SET")
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "SET",
         OneOf(
             Ref("NakedIdentifierSegment"),
@@ -1252,13 +1254,20 @@ class InsertStatementSegment(ansi.InsertStatementSegment):
     N.B. not a complete implementation.
     """
 
-    match_grammar = ansi.InsertStatementSegment.match_grammar
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "INSERT",
         Ref.keyword("INTO", optional=True),
         Ref("TableReferenceSegment"),
-        Ref("BracketedColumnReferenceListGrammar", optional=True),
-        Ref("SelectableGrammar"),
+        OneOf(
+            # As SelectableGrammar can be bracketed too, the parse gets confused
+            # so we need slightly odd syntax here to allow those to parse (rather
+            # than just add optional=True to BracketedColumnReferenceListGrammar).
+            Ref("SelectableGrammar"),
+            Sequence(
+                Ref("BracketedColumnReferenceListGrammar"),
+                Ref("SelectableGrammar"),
+            ),
+        ),
     )
 
 
@@ -1351,4 +1360,87 @@ class MergeInsertClauseSegment(ansi.MergeInsertClauseSegment):
             Dedent,
         ),
         Sequence("INSERT", "ROW"),
+    )
+
+
+class ExportStatementSegment(BaseSegment):
+    """`EXPORT` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/other-statements#export_data_statement
+    """
+
+    type = "export_statement"
+    match_grammar: Matchable = Sequence(
+        "EXPORT",
+        "DATA",
+        Sequence("WITH", "CONNECTION", Ref("ObjectReferenceSegment"), optional=True),
+        "OPTIONS",
+        Bracketed(
+            Delimited(
+                # String options
+                # Note: adding as own type, rather than keywords as convention with
+                # Bigquery, as per the docs, is to put Keywords in uppercase, and these
+                # in lowercase.
+                Sequence(
+                    OneOf(
+                        StringParser(
+                            "compression",
+                            CodeSegment,
+                            name="export_option",
+                            type="export_option",
+                        ),
+                        StringParser(
+                            "field_delimiter",
+                            CodeSegment,
+                            name="export_option",
+                            type="export_option",
+                        ),
+                        StringParser(
+                            "format",
+                            CodeSegment,
+                            name="export_option",
+                            type="export_option",
+                        ),
+                        StringParser(
+                            "uri",
+                            CodeSegment,
+                            name="export_option",
+                            type="export_option",
+                        ),
+                    ),
+                    Ref("EqualsSegment"),
+                    Ref("QuotedLiteralSegment"),
+                ),
+                # Bool options
+                # Note: adding as own type, rather than keywords as convention with
+                # Bigquery, as per the docs, is to put Keywords in uppercase, and these
+                # in lowercase.
+                Sequence(
+                    OneOf(
+                        StringParser(
+                            "header",
+                            CodeSegment,
+                            name="export_option",
+                            type="export_option",
+                        ),
+                        StringParser(
+                            "overwrite",
+                            CodeSegment,
+                            name="export_option",
+                            type="export_option",
+                        ),
+                        StringParser(
+                            "use_avro_logical_types",
+                            CodeSegment,
+                            name="export_option",
+                            type="export_option",
+                        ),
+                    ),
+                    Ref("EqualsSegment"),
+                    OneOf("TRUE", "FALSE"),
+                ),
+            ),
+        ),
+        "AS",
+        Ref("SelectStatementSegment"),
     )

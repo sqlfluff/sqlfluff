@@ -96,6 +96,13 @@ snowflake_dialect.add(
     FunctionAssignerSegment=StringParser(
         "->", SymbolSegment, name="function_assigner", type="function_assigner"
     ),
+    QuotedStarSegment=StringParser(
+        "'*'",
+        CodeSegment,
+        name="quoted_star",
+        type="identifier",
+        trim_chars=("'",),
+    ),
     NakedSemiStructuredElementSegment=RegexParser(
         r"[A-Z0-9_]*",
         CodeSegment,
@@ -914,30 +921,22 @@ class FromExpressionElementSegment(ansi.FromExpressionElementSegment):
     """A table expression."""
 
     type = "from_expression_element"
-    match_grammar = StartsWith(
-        Sequence(
-            Ref("PreTableFunctionKeywordsGrammar", optional=True),
-            OptionallyBracketed(Ref("TableExpressionSegment")),
-            Ref(
-                "AliasExpressionSegment",
-                exclude=OneOf(
-                    Ref("SamplingExpressionSegment"),
-                    Ref("ChangesClauseSegment"),
-                    Ref("JoinLikeClauseGrammar"),
-                ),
-                optional=True,
+    match_grammar = Sequence(
+        Ref("PreTableFunctionKeywordsGrammar", optional=True),
+        OptionallyBracketed(Ref("TableExpressionSegment")),
+        Ref(
+            "AliasExpressionSegment",
+            exclude=OneOf(
+                Ref("SamplingExpressionSegment"),
+                Ref("ChangesClauseSegment"),
+                Ref("JoinLikeClauseGrammar"),
             ),
-            # https://cloud.google.com/bigquery/docs/reference/standard-sql/arrays#flattening_arrays
-            Sequence("WITH", "OFFSET", Ref("AliasExpressionSegment"), optional=True),
-            Ref("SamplingExpressionSegment", optional=True),
-            Ref("PostTableExpressionGrammar", optional=True),
+            optional=True,
         ),
-        terminator=OneOf(
-            Ref("JoinClauseSegment"),
-            Ref("JoinLikeClauseGrammar"),
-            Ref("JoinOnConditionSegment"),
-            Ref("CommaSegment"),
-        ),
+        # https://cloud.google.com/bigquery/docs/reference/standard-sql/arrays#flattening_arrays
+        Sequence("WITH", "OFFSET", Ref("AliasExpressionSegment"), optional=True),
+        Ref("SamplingExpressionSegment", optional=True),
+        Ref("PostTableExpressionGrammar", optional=True),
     )
 
 
@@ -2529,6 +2528,53 @@ class CreateStatementSegment(BaseSegment):
         ),
         Ref("IfNotExistsGrammar", optional=True),
         Ref("ObjectReferenceSegment"),
+        # Next set are Storage Integration statements
+        # https://docs.snowflake.com/en/sql-reference/sql/create-storage-integration.html
+        AnySetOf(
+            Sequence("TYPE", Ref("EqualsSegment"), "EXTERNAL_STAGE"),
+            Sequence("ENABLED", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
+            OneOf(
+                Ref("S3StorageIntegrationParameters"),
+                Ref("GCSStorageIntegrationParameters"),
+                Ref("AzureStorageIntegrationParameters"),
+            ),
+            Sequence(
+                "STORAGE_ALLOWED_LOCATIONS",
+                Ref("EqualsSegment"),
+                OneOf(
+                    Bracketed(
+                        Delimited(
+                            OneOf(
+                                Ref("S3Path"),
+                                Ref("GCSPath"),
+                                Ref("AzureBlobStoragePath"),
+                            )
+                        )
+                    ),
+                    Bracketed(
+                        Ref("QuotedStarSegment"),
+                    ),
+                ),
+            ),
+            Sequence(
+                "STORAGE_BLOCKED_LOCATIONS",
+                Ref("EqualsSegment"),
+                Bracketed(
+                    Delimited(
+                        OneOf(
+                            Ref("S3Path"),
+                            Ref("GCSPath"),
+                            Ref("AzureBlobStoragePath"),
+                        )
+                    )
+                ),
+            ),
+            Sequence(
+                "COMMENT",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
+        ),
         # Next set are Pipe statements
         # https://docs.snowflake.com/en/sql-reference/sql/create-pipe.html
         Sequence(
@@ -3002,7 +3048,7 @@ class TableExpressionSegment(ansi.TableExpressionSegment):
         Ref("TableReferenceSegment"),
         # Nested Selects
         Bracketed(Ref("SelectableGrammar")),
-        # Values clause?
+        Ref("ValuesClauseSegment"),
         Ref("StagePath"),
     )
 
@@ -3069,6 +3115,55 @@ class StorageLocation(BaseSegment):
 
     match_grammar = OneOf(
         Ref("StagePath"), Ref("S3Path"), Ref("GCSPath"), Ref("AzureBlobStoragePath")
+    )
+
+
+class S3StorageIntegrationParameters(BaseSegment):
+    """Parameters for an S3 Storage Integration in Snowflake.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-storage-integration.html
+    """
+
+    name = "s3_storage_integration_parameters"
+    type = "storage_integration_parameters"
+
+    match_grammar = AnySetOf(
+        Sequence("STORAGE_PROVIDER", Ref("EqualsSegment"), "S3"),
+        Sequence(
+            "STORAGE_AWS_ROLE_ARN", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")
+        ),
+        Sequence(
+            "STORAGE_AWS_OBJECT_ACL",
+            Ref("EqualsSegment"),
+            StringParser("'bucket-owner-full-control'", CodeSegment, type="literal"),
+        ),
+    )
+
+
+class GCSStorageIntegrationParameters(BaseSegment):
+    """Parameters for a GCS Storage Integration in Snowflake.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-storage-integration.html
+    """
+
+    name = "gcs_storage_integration_parameters"
+    type = "storage_integration_parameters"
+
+    match_grammar = Sequence("STORAGE_PROVIDER", Ref("EqualsSegment"), "GCS")
+
+
+class AzureStorageIntegrationParameters(BaseSegment):
+    """Parameters for an Azure Storage Integration in Snowflake.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-storage-integration.html
+    """
+
+    name = "azure_storage_integration_parameters"
+    type = "storage_integration_parameters"
+
+    match_grammar = AnySetOf(
+        Sequence("STORAGE_PROVIDER", Ref("EqualsSegment"), "AZURE"),
+        Sequence("AZURE_TENANT_ID", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")),
     )
 
 
@@ -3719,10 +3814,7 @@ class AlterUserStatementSegment(BaseSegment):
 
     type = "alter_user_statement"
 
-    match_grammar = StartsWith(
-        Sequence("ALTER", "USER"),
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "ALTER",
         "USER",
         Sequence("IF", "EXISTS", optional=True),

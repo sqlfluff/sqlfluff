@@ -5,6 +5,7 @@ import json
 import os
 import pathlib
 import shutil
+import stat
 import tempfile
 import textwrap
 from unittest.mock import MagicMock, patch
@@ -476,6 +477,9 @@ def generic_roundtrip_test(
     with open(filepath, mode="w", encoding=input_file_encoding) as dest_file:
         for line in source_file:
             dest_file.write(line)
+    status = os.stat(filepath)
+    assert stat.S_ISREG(status.st_mode)
+    old_mode = stat.S_IMODE(status.st_mode)
     # Check that we first detect the issue
     invoke_assert_code(
         ret_code=65, args=[lint, ["--dialect=ansi", "--rules", rulestring, filepath]]
@@ -499,6 +503,11 @@ def generic_roundtrip_test(
         with open(filepath, mode="rb") as f:
             data = f.read()
         assert chardet.detect(data)["encoding"] == output_file_encoding
+    # Also check the file mode was preserved.
+    status = os.stat(filepath)
+    assert stat.S_ISREG(status.st_mode)
+    new_mode = stat.S_IMODE(status.st_mode)
+    assert new_mode == old_mode
     shutil.rmtree(tempdir_path)
 
 
@@ -967,10 +976,13 @@ def test__cli__command_fail_nice_not_found(command):
     assert "could not be accessed" in result.output
 
 
-@pytest.mark.parametrize("serialize", ["yaml", "json", "github-annotation"])
+@pytest.mark.parametrize(
+    "serialize",
+    ["human", "yaml", "json", "github-annotation", "github-annotation-native"],
+)
 @pytest.mark.parametrize("write_file", [None, "outfile"])
 def test__cli__command_lint_serialize_multiple_files(serialize, write_file, tmp_path):
-    """Check the general format of JSON output for multiple files.
+    """Test the output output formats for multiple files.
 
     This tests runs both stdout checking and file checking.
     """
@@ -985,9 +997,11 @@ def test__cli__command_lint_serialize_multiple_files(serialize, write_file, tmp_
     )
 
     if write_file:
-        target_file = os.path.join(
-            tmp_path, write_file + (".yaml" if serialize == "yaml" else ".json")
-        )
+        ext = {
+            "human": ".txt",
+            "yaml": ".yaml",
+        }
+        target_file = os.path.join(tmp_path, write_file + ext.get(serialize, ".json"))
         cmd_args += ("--write-output", target_file)
 
     # note the file is in here twice. two files = two payloads.
@@ -1002,7 +1016,9 @@ def test__cli__command_lint_serialize_multiple_files(serialize, write_file, tmp_
     else:
         result_payload = result.output
 
-    if serialize == "json":
+    if serialize == "human":
+        assert len(result_payload.split("\n")) == 29 if write_file else 30
+    elif serialize == "json":
         result = json.loads(result_payload)
         assert len(result) == 2
     elif serialize == "yaml":
@@ -1012,6 +1028,12 @@ def test__cli__command_lint_serialize_multiple_files(serialize, write_file, tmp_
         result = json.loads(result_payload)
         filepaths = {r["file"] for r in result}
         assert len(filepaths) == 1
+    elif serialize == "github-annotation-native":
+        result = result_payload.split("\n")
+        # SQLFluff produces trailing newline
+        if result[-1] == "":
+            del result[-1]
+        assert len(result) == 24
     else:
         raise Exception
 
@@ -1124,6 +1146,89 @@ def test__cli__command_lint_serialize_github_annotation():
     ]
 
 
+def test__cli__command_lint_serialize_github_annotation_native():
+    """Test format of github-annotation output."""
+    fpath = "test/fixtures/linter/identifier_capitalisation.sql"
+    # Normalise paths to control for OS variance
+    fpath_normalised = os.path.normpath(fpath)
+
+    result = invoke_assert_code(
+        args=[
+            lint,
+            (
+                fpath,
+                "--format",
+                "github-annotation-native",
+                "--annotation-level",
+                "error",
+                "--disable_progress_bar",
+            ),
+        ],
+        ret_code=65,
+    )
+
+    assert result.output == "\n".join(
+        [
+            f"::error title=SQLFluff,file={fpath_normalised},line=1,col=1::"
+            "L036: Select targets should be on a new line unless there is only one "
+            "select target.",
+            f"::error title=SQLFluff,file={fpath_normalised},line=2,col=5::"
+            "L027: Unqualified reference 'foo' found in select with more than one "
+            "referenced table/view.",
+            f"::error title=SQLFluff,file={fpath_normalised},line=3,col=5::"
+            "L012: Implicit/explicit aliasing of columns.",
+            f"::error title=SQLFluff,file={fpath_normalised},line=3,col=5::"
+            "L014: Unquoted identifiers must be consistently lower case.",
+            f"::error title=SQLFluff,file={fpath_normalised},line=4,col=1::"
+            "L010: Keywords must be consistently lower case.",
+            f"::error title=SQLFluff,file={fpath_normalised},line=4,col=12::"
+            "L014: Unquoted identifiers must be consistently lower case.",
+            f"::error title=SQLFluff,file={fpath_normalised},line=4,col=18::"
+            "L014: Unquoted identifiers must be consistently lower case.",
+            "",  # SQLFluff produces trailing newline
+        ]
+    )
+
+
+@pytest.mark.parametrize("serialize", ["github-annotation", "github-annotation-native"])
+def test__cli__command_lint_serialize_annotation_level_error_failure_equivalent(
+    serialize,
+):
+    """Test format of github-annotation output."""
+    fpath = "test/fixtures/linter/identifier_capitalisation.sql"
+    result_error = invoke_assert_code(
+        args=[
+            lint,
+            (
+                fpath,
+                "--format",
+                serialize,
+                "--annotation-level",
+                "error",
+                "--disable_progress_bar",
+            ),
+        ],
+        ret_code=65,
+    )
+
+    result_failure = invoke_assert_code(
+        args=[
+            lint,
+            (
+                fpath,
+                "--format",
+                serialize,
+                "--annotation-level",
+                "failure",
+                "--disable_progress_bar",
+            ),
+        ],
+        ret_code=65,
+    )
+
+    assert result_error.output == result_failure.output
+
+
 def test___main___help():
     """Test that the CLI can be access via __main__."""
     # nonzero exit is good enough
@@ -1151,44 +1256,40 @@ def test_encoding(encoding_in, encoding_out):
         )
 
 
-def test_cli_pass_on_correct_encoding_argument():
+@pytest.mark.parametrize(
+    "encoding,method,expect_success",
+    [
+        ("utf-8", "command-line", False),
+        ("utf-8-SIG", "command-line", True),
+        ("utf-8", "config-file", False),
+        ("utf-8-SIG", "config-file", True),
+    ],
+)
+def test_cli_encoding(encoding, method, expect_success, tmpdir):
     """Try loading a utf-8-SIG encoded file using the correct encoding via the cli."""
+    sql_path = "test/fixtures/cli/encoding_test.sql"
+    if method == "command-line":
+        options = [sql_path, "--encoding", encoding]
+    else:
+        assert method == "config-file"
+        with open(str(tmpdir / ".sqlfluff"), "w") as f:
+            print(f"[sqlfluff]\ndialect=ansi\nencoding = {encoding}", file=f)
+        shutil.copy(sql_path, tmpdir)
+        options = [str(tmpdir / "encoding_test.sql")]
     result = invoke_assert_code(
         ret_code=65,
         args=[
             lint,
-            [
-                "test/fixtures/cli/encoding_test.sql",
-                "--encoding",
-                "utf-8-SIG",
-            ],
+            options,
         ],
     )
     raw_output = repr(result.output)
 
-    # Incorrect encoding raises paring and lexer errors.
-    assert r"L:   1 | P:   1 |  LXR |" not in raw_output
-    assert r"L:   1 | P:   1 |  PRS |" not in raw_output
-
-
-def test_cli_fail_on_wrong_encoding_argument():
-    """Try loading a utf-8-SIG encoded file using the wrong encoding via the cli."""
-    result = invoke_assert_code(
-        ret_code=65,
-        args=[
-            lint,
-            [
-                "test/fixtures/cli/encoding_test.sql",
-                "--encoding",
-                "utf-8",
-            ],
-        ],
-    )
-    raw_output = repr(result.output)
-
-    # Incorrect encoding raises paring and lexer errors.
-    assert r"L:   1 | P:   1 |  LXR |" in raw_output
-    assert r"L:   1 | P:   1 |  PRS |" in raw_output
+    # Incorrect encoding raises parsing and lexer errors.
+    success1 = r"L:   1 | P:   1 |  LXR |" not in raw_output
+    success2 = r"L:   1 | P:   1 |  PRS |" not in raw_output
+    assert success1 == expect_success
+    assert success2 == expect_success
 
 
 def test_cli_no_disable_noqa_flag():

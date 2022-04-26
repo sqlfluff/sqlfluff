@@ -3,10 +3,10 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a0a51abbd9867a6f0b5ce7f8d76fac606521e9986e6ac6d08b66e80a16564bdb
+_hash: 633d8376ff1aba52ccad087dd1b5afa28bcfa17d302935eaa4c0ed7f22370b32
 file:
   batch:
-    statement:
+  - statement:
       delete_statement:
         keyword: DELETE
         table_reference:
@@ -62,3 +62,27 @@ file:
               raw_comparison_operator: '='
             literal: '1'
         statement_terminator: ;
+  - statement:
+      delete_statement:
+        keyword: DELETE
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: dodos
+              post_table_expression:
+                keyword: WITH
+                bracketed:
+                  start_bracket: (
+                  query_hint_segment:
+                    keyword: NOLOCK
+                  end_bracket: )
+        output_clause:
+        - keyword: OUTPUT
+        - column_reference:
+            identifier: age
+        - keyword: INTO
+        - table_reference:
+            identifier: ages

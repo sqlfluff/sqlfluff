@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6c471b062659bfa4cdd16019e38e5c1ac53a16df7333c2f20eb2b63f5c6fb1f5
+_hash: 107b92d6e0fc3978121b3b9bcb3abb21c66fd9106f8dd1afac4dd490903914fd
 file:
 - statement:
     insert_statement:
@@ -53,4 +53,28 @@ file:
         - expression:
             literal: "'F. Scott Fitzgerald'"
         - end_bracket: )
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        identifier: '`project.dataset.table`'
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    identifier: table1
+        end_bracket: )
 - statement_terminator: ;

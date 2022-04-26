@@ -59,7 +59,7 @@ class Rule_L010(BaseRule):
         ("parenttype", "datetime_type_identifier"),
         ("parenttype", "primitive_type"),
     ]
-    config_keywords = ["capitalisation_policy", "ignore_words"]
+    config_keywords = ["capitalisation_policy", "ignore_words", "ignore_words_regex"]
     # Human readable target elem for description
     _description_elem = "Keywords"
 
@@ -71,6 +71,9 @@ class Rule_L010(BaseRule):
         for what the possible case is.
 
         """
+        # Config type hints
+        self.ignore_words_regex: str
+
         # Skip if not an element of the specified type/name
         parent: Optional[BaseSegment] = (
             context.parent_stack[-1] if context.parent_stack else None
@@ -98,6 +101,12 @@ class Rule_L010(BaseRule):
 
         # Skip if in ignore list
         if ignore_words_list and context.segment.raw.lower() in ignore_words_list:
+            return LintResult(memory=context.memory)
+
+        # Skip if matches ignore regex
+        if self.ignore_words_regex and regex.search(
+            self.ignore_words_regex, context.segment.raw
+        ):
             return LintResult(memory=context.memory)
 
         # Skip if templated.

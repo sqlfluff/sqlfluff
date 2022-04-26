@@ -15,7 +15,6 @@ from sqlfluff.core.parser import (
     Delimited,
     Nothing,
     OptionallyBracketed,
-    Matchable,
 )
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.dialects.dialect_redshift_keywords import (
@@ -160,6 +159,27 @@ redshift_dialect.replace(
         ),
         Ref("AliasExpressionSegment", optional=True),
     ),
+    ColumnReferenceSegment=Delimited(
+        Sequence(
+            ansi.ColumnReferenceSegment,
+            AnyNumberOf(Ref("ArrayAccessorSegment")),
+        ),
+        delimiter=OneOf(
+            Ref("DotSegment"), Sequence(Ref("DotSegment"), Ref("DotSegment"))
+        ),
+        terminator=OneOf(
+            "ON",
+            "AS",
+            "USING",
+            Ref("CommaSegment"),
+            Ref("CastOperatorSegment"),
+            Ref("BinaryOperatorGrammar"),
+            Ref("ColonSegment"),
+            Ref("DelimiterGrammar"),
+            Ref("JoinLikeClauseGrammar"),
+        ),
+        allow_gaps=False,
+    ),
 )
 
 
@@ -199,43 +219,6 @@ redshift_dialect.add(
         "ZSTD",
     ),
 )
-
-
-# need to ignore type due to mypy rules on type variables
-# see https://mypy.readthedocs.io/en/stable/common_issues.html#variables-vs-type-aliases
-# for details
-class ColumnReferenceSegment(ObjectReferenceSegment):
-    """A reference to column, field or alias.
-
-    Adjusted to support column references for Redshift's SUPER data type
-    (https://docs.aws.amazon.com/redshift/latest/dg/super-overview.html), which
-    uses a subset of the PartiQL language (https://partiql.org/) to reference
-    columns.
-    """
-
-    type = "column_reference"
-    match_grammar: Matchable = Delimited(
-        Sequence(
-            Ref("SingleIdentifierGrammar"),
-            AnyNumberOf(Ref("ArrayAccessorSegment")),
-            Ref("TimeZoneGrammar", optional=True),
-        ),
-        delimiter=OneOf(
-            Ref("DotSegment"), Sequence(Ref("DotSegment"), Ref("DotSegment"))
-        ),
-        terminator=OneOf(
-            "ON",
-            "AS",
-            "USING",
-            Ref("CommaSegment"),
-            Ref("CastOperatorSegment"),
-            Ref("BinaryOperatorGrammar"),
-            Ref("ColonSegment"),
-            Ref("DelimiterGrammar"),
-            Ref("JoinLikeClauseGrammar"),
-        ),
-        allow_gaps=False,
-    )
 
 
 class FromUnpivotExpressionSegment(BaseSegment):
@@ -374,10 +357,7 @@ class DatatypeSegment(BaseSegment):
             "BPCHAR",
             "TEXT",
         ),
-        Sequence(
-            Ref("DateTimeTypeIdentifier"),
-            Ref("TimeZoneGrammar", optional=True),
-        ),
+        Ref("DateTimeTypeIdentifier"),
         # INTERVAL is a data type *only* for conversion operations
         "INTERVAL",
         # boolean types
@@ -643,8 +623,11 @@ class CreateTableStatementSegment(BaseSegment):
                     Sequence(
                         Ref("ColumnReferenceSegment"),
                         Ref("DatatypeSegment"),
-                        AnyNumberOf(Ref("ColumnAttributeSegment"), optional=True),
-                        AnyNumberOf(Ref("ColumnConstraintSegment"), optional=True),
+                        AnyNumberOf(
+                            Ref("ColumnAttributeSegment"),
+                            Ref("ColumnConstraintSegment"),
+                            optional=True,
+                        ),
                     ),
                     Ref("TableConstraintSegment", optional=True),
                 ),
@@ -1254,7 +1237,7 @@ class CopyStatementSegment(postgres.CopyStatementSegment):
             Sequence(
                 "ACCEPTINVCHARS",
                 Ref.keyword("AS", optional=True),
-                Ref("QuotedLiteralSegment"),
+                Ref("QuotedLiteralSegment", optional=True),
                 optional=True,
             ),
             Ref.keyword("BLANKSASNULL", optional=True),
@@ -1286,7 +1269,7 @@ class CopyStatementSegment(postgres.CopyStatementSegment):
             Sequence(
                 "IGNOREHEADER",
                 Ref.keyword("AS", optional=True),
-                Ref("QuotedLiteralSegment"),
+                Ref("LiteralGrammar"),
                 optional=True,
             ),
             Sequence(

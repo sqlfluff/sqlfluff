@@ -375,6 +375,7 @@ ansi_dialect.add(
         Ref("BitwiseLShiftSegment"),
         Ref("BitwiseRShiftSegment"),
     ),
+    SignedSegmentGrammar=OneOf(Ref("PositiveSegment"), Ref("NegativeSegment")),
     StringBinaryOperatorGrammar=OneOf(Ref("ConcatSegment")),
     BooleanBinaryOperatorGrammar=OneOf(
         Ref("AndKeywordSegment"), Ref("OrKeywordSegment")
@@ -930,7 +931,7 @@ class QualifiedNumericLiteralSegment(BaseSegment):
 
     type = "numeric_literal"
     match_grammar: Matchable = Sequence(
-        OneOf(Ref("PlusSegment"), Ref("MinusSegment")),
+        Ref("SignedSegmentGrammar"),
         Ref("NumericLiteralSegment"),
         allow_gaps=False,
     )
@@ -1200,19 +1201,20 @@ class FromExpressionElementSegment(BaseSegment):
 
         # If not return the object name (or None if there isn't one)
         if ref:
+            references: List = list(ref.iter_raw_references())
             # Return the last element of the reference.
-            penultimate_ref: ObjectReferenceSegment.ObjectReferencePart = list(
-                ref.iter_raw_references()
-            )[-1]
-            return AliasInfo(
-                penultimate_ref.part,
-                penultimate_ref.segments[0],
-                False,
-                self,
-                None,
-                ref,
-            )
-        # No references or alias, return None
+            if references:
+                penultimate_ref: ObjectReferenceSegment.ObjectReferencePart = (
+                    references[-1]
+                )
+                return AliasInfo(
+                    penultimate_ref.part,
+                    penultimate_ref.segments[0],
+                    False,
+                    self,
+                    None,
+                    ref,
+                )  # No references or alias, return None
         return None
 
 
@@ -1459,7 +1461,10 @@ class JoinClauseSegment(BaseSegment):
             buff.append((from_expression, alias))
 
         # In some dialects, like TSQL, join clauses can have nested join clauses
-        for join_clause in self.recursive_crawl("join_clause"):
+        # recurse into them - but not if part of a sub-select statement (see #3144)
+        for join_clause in self.recursive_crawl(
+            "join_clause", no_recursive_seg_type="select_statement"
+        ):
             if join_clause is self:
                 # If the starting segment itself matches the list of types we're
                 # searching for, recursive_crawl() will return it. Skip that.
@@ -1611,8 +1616,7 @@ ansi_dialect.add(
             Ref("Expression_C_Grammar"),
             Sequence(
                 OneOf(
-                    Ref("PositiveSegment"),
-                    Ref("NegativeSegment"),
+                    Ref("SignedSegmentGrammar"),
                     # Ref('TildeSegment'),
                     "NOT",
                     "PRIOR",
@@ -1690,10 +1694,7 @@ ansi_dialect.add(
         OneOf(
             Ref("Expression_C_Grammar"),
             Sequence(
-                OneOf(
-                    Ref("PositiveSegment"),
-                    Ref("NegativeSegment"),
-                ),
+                Ref("SignedSegmentGrammar"),
                 Ref("Expression_B_Grammar"),
             ),
         ),
@@ -1718,7 +1719,7 @@ ansi_dialect.add(
                 Ref("Expression_D_Grammar"),
                 Ref("CaseExpressionSegment"),
             ),
-            AnyNumberOf(Ref("ShorthandCastSegment")),
+            AnyNumberOf(Ref("ShorthandCastSegment"), Ref("TimeZoneGrammar")),
         ),
     ),
     # Expression_D_Grammar
@@ -2028,10 +2029,7 @@ class OverlapsClauseSegment(BaseSegment):
     """An `OVERLAPS` clause like in `SELECT."""
 
     type = "overlaps_clause"
-    match_grammar: Matchable = StartsWith(
-        "OVERLAPS",
-    )
-    parse_grammar: Optional[Matchable] = Sequence(
+    match_grammar: Matchable = Sequence(
         "OVERLAPS",
         OneOf(
             Sequence(
@@ -2242,8 +2240,7 @@ class WithCompoundStatementSegment(BaseSegment):
 
     type = "with_compound_statement"
     # match grammar
-    match_grammar: Matchable = StartsWith("WITH")
-    parse_grammar: Optional[Matchable] = Sequence(
+    match_grammar: Matchable = Sequence(
         "WITH",
         Ref.keyword("RECURSIVE", optional=True),
         Conditional(Indent, indented_ctes=True),
@@ -2296,16 +2293,23 @@ class InsertStatementSegment(BaseSegment):
     """An `INSERT` statement."""
 
     type = "insert_statement"
-    match_grammar: Matchable = StartsWith("INSERT")
-    parse_grammar: Optional[Matchable] = Sequence(
+    match_grammar: Matchable = Sequence(
         "INSERT",
         # Maybe OVERWRITE is just snowflake?
         # (It's also Hive but that has full insert grammar implementation)
         Ref.keyword("OVERWRITE", optional=True),
         "INTO",
         Ref("TableReferenceSegment"),
-        Ref("BracketedColumnReferenceListGrammar", optional=True),
-        Ref("SelectableGrammar"),
+        OneOf(
+            # As SelectableGrammar can be bracketed too, the parse gets confused
+            # so we need slightly odd syntax here to allow those to parse (rather
+            # than just add optional=True to BracketedColumnReferenceListGrammar).
+            Ref("SelectableGrammar"),
+            Sequence(
+                Ref("BracketedColumnReferenceListGrammar"),
+                Ref("SelectableGrammar"),
+            ),
+        ),
     )
 
 
@@ -3059,8 +3063,7 @@ class DeleteStatementSegment(BaseSegment):
     type = "delete_statement"
     # match grammar. This one makes sense in the context of knowing that it's
     # definitely a statement, we just don't know what type yet.
-    match_grammar: Matchable = StartsWith("DELETE")
-    parse_grammar: Optional[Matchable] = Sequence(
+    match_grammar: Matchable = Sequence(
         "DELETE",
         Ref("FromClauseSegment"),
         Ref("WhereClauseSegment", optional=True),
@@ -3461,9 +3464,7 @@ class DescribeStatementSegment(BaseSegment):
     """
 
     type = "describe_statement"
-    match_grammar: Matchable = StartsWith("DESCRIBE")
-
-    parse_grammar: Optional[Matchable] = Sequence(
+    match_grammar: Matchable = Sequence(
         "DESCRIBE",
         Ref("NakedIdentifierSegment"),
         Ref("ObjectReferenceSegment"),
