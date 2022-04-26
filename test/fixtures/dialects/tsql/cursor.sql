@@ -1,11 +1,11 @@
-DECLARE @pointy CURSOR LOCAL FORWARD_ONLY READ_ONLY FOR
+DECLARE pointy CURSOR LOCAL FORWARD_ONLY READ_ONLY FOR
 SELECT column_a, column_b FROM some_table WHERE column_a IS NOT NULL ORDER BY column_b
 
-OPEN @pointy;
+OPEN pointy;
 
 FETCH FIRST FROM @pointy into @result;
-FETCH NEXT FROM GLOBAL @pointy;
+FETCH NEXT FROM GLOBAL pointy;
 
-CLOSE GLOBAL @pointy;
+CLOSE GLOBAL pointy;
 
-DEALLOCATE @pointy;
+DEALLOCATE pointy;
