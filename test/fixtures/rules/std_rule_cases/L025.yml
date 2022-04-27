@@ -258,7 +258,8 @@ test_pass_bigquery_nested_inner_join:
       dialect: bigquery
 
 test_pass_snowflake_flatten_function:
-  # Tests a fix for issue 3178.
+  # Tests a fix for issue 3178. Table functions are special, don't remove their
+  # aliases, even if unused.
   pass_str: |
     SELECT
         r.rec:foo::string,
