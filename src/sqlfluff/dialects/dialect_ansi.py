@@ -483,6 +483,15 @@ ansi_dialect.add(
         "WINDOW",
         "OVERLAPS",
     ),
+    OrderByClauseTerminators=OneOf(
+        "LIMIT",
+        "HAVING",
+        "QUALIFY",
+        # For window functions
+        "WINDOW",
+        Ref("FrameClauseUnitGrammar"),
+        "SEPARATOR",
+    ),
     PrimaryKeyGrammar=Sequence("PRIMARY", "KEY"),
     ForeignKeyGrammar=Sequence("FOREIGN", "KEY"),
     UniqueKeyGrammar=Sequence("UNIQUE"),
@@ -1924,15 +1933,7 @@ class OrderByClauseSegment(BaseSegment):
     type = "orderby_clause"
     match_grammar: Matchable = StartsWith(
         Sequence("ORDER", "BY"),
-        terminator=OneOf(
-            "LIMIT",
-            "HAVING",
-            "QUALIFY",
-            # For window functions
-            "WINDOW",
-            Ref("FrameClauseUnitGrammar"),
-            "SEPARATOR",
-        ),
+        terminator=Ref("OrderByClauseTerminators"),
     )
     parse_grammar: Optional[Matchable] = Sequence(
         "ORDER",
