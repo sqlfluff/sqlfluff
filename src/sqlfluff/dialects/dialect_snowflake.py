@@ -1783,7 +1783,7 @@ class CreateFunctionStatementSegment(BaseSegment):
         ),
         Sequence("NOT", "NULL", optional=True),
         OneOf("VOLATILE", "IMMUTABLE", optional=True),
-        Sequence("LANGUAGE", "JAVASCRIPT", optional=True),
+        Sequence("LANGUAGE", OneOf("JAVASCRIPT", "SQL"), optional=True),
         OneOf(
             Sequence("CALLED", "ON", "NULL", "INPUT"),
             Sequence("RETURNS", "NULL", "ON", "NULL", "INPUT"),

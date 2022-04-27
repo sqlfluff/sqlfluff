@@ -32,3 +32,13 @@ CREATE SECURE FUNCTION js_factorial(d double)
     return result;
   }
   ';
+
+CREATE FUNCTION simple_table_function ()
+  RETURNS TABLE (x INTEGER, y INTEGER)
+  LANGUAGE SQL
+  AS
+  $$
+    SELECT 1, 2
+    UNION ALL
+    SELECT 3, 4
+  $$;
