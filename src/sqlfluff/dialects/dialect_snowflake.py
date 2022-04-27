@@ -86,6 +86,10 @@ snowflake_dialect.sets("bracket_pairs").add(
     ("exclude", "StartExcludeBracketSegment", "EndExcludeBracketSegment", True)
 )
 
+# In Snowflake, FLATTEN() returns a "value table".
+# https://docs.snowflake.com/en/user-guide/json-basics-tutorial-flatten.html
+snowflake_dialect.sets("value_table_functions").update(["flatten"])
+
 snowflake_dialect.add(
     # In snowflake, these are case sensitive even though they're not quoted
     # so they need a different `name` and `type` so they're not picked up

@@ -257,3 +257,15 @@ test_pass_bigquery_nested_inner_join:
   configs:
     core:
       dialect: bigquery
+
+test_pass_snowflake_flatten_function:
+  # Tests a fix for issue 3178, where FLATTEN() was not recognized as a table
+  # function, and L025 was deleting the alias.
+  pass_str: |
+    SELECT
+        r.rec:foo::string,
+        value:bar::string
+    FROM foo.bar AS r, LATERAL FLATTEN(input => rec:result) AS x
+  configs:
+    core:
+      dialect: snowflake
