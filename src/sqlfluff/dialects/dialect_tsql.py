@@ -696,6 +696,7 @@ class SelectStatementSegment(BaseSegment):
             Ref("OrderByClauseSegment", optional=True),
             Ref("OptionClauseSegment", optional=True),
             Ref("DelimiterGrammar", optional=True),
+            Ref("ForXmlSegment", optional=True),
         ]
     )
 
@@ -3903,4 +3904,27 @@ class FetchCursorStatementSegment(BaseSegment):
             Ref("ParameterNameSegment"),
         ),
         Sequence("INTO", Delimited(Ref("ParameterNameSegment")), optional=True),
+    )
+
+
+class ForXmlSegment(BaseSegment):
+    """A segment for `FOR XML` in `SELECT` statements.
+
+    https://docs.microsoft.com/en-us/sql/relational-databases/xml/for-xml-sql-server?view=sql-server-2017
+    """
+
+    type = "for_xml_segment"
+    match_grammar: Matchable = Sequence(
+        "FOR",
+        "XML",
+        OneOf(
+            Sequence(
+                "RAW", Bracketed(Ref("SingleQuotedIdentifierSegment"), optional=True)
+            ),
+            Ref.keyword("AUTO"),
+            Ref.keyword("EXPLICIT"),
+            Sequence(
+                "PATH", Bracketed(Ref("SingleQuotedIdentifierSegment"), optional=True)
+            ),
+        ),
     )
