@@ -280,3 +280,14 @@ test_unfixable_ambiguous_reference_subquery:
     )
     FROM
         (SELECT * FROM some_table) AS my_alias
+
+test_pass_snowflake_flatten_function:
+  # Tests a fix for issue 3178.
+  pass_str: |
+    SELECT
+        r.rec:foo::string,
+        value:bar::string
+    FROM foo.bar AS r, LATERAL FLATTEN(input => rec:result)
+  configs:
+    core:
+      dialect: snowflake

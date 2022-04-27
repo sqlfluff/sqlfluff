@@ -257,14 +257,18 @@ test_pass_bigquery_nested_inner_join:
     core:
       dialect: bigquery
 
-test_pass_snowflake_flatten_function:
-  # Tests a fix for issue 3178. Table functions are special, don't remove their
-  # aliases, even if unused.
-  pass_str: |
+test_fail_snowflake_flatten_function:
+  # Tests a fix for issue 3178.
+  fail_str: |
     SELECT
         r.rec:foo::string,
         value:bar::string
     FROM foo.bar AS r, LATERAL FLATTEN(input => rec:result) AS x
+  fix_str: |
+    SELECT
+        r.rec:foo::string,
+        value:bar::string
+    FROM foo.bar AS r, LATERAL FLATTEN(input => rec:result)
   configs:
     core:
       dialect: snowflake

@@ -1184,6 +1184,8 @@ class FromExpressionElementSegment(BaseSegment):
                 segment containing it, and whether it's an alias.
 
         """
+        # if "flatten" in self.raw.lower():
+        #     import pdb; pdb.set_trace()
         alias_expression = self.get_child("alias_expression")
         tbl_expression = self.get_child("table_expression")
         if not tbl_expression:  # pragma: no cover
@@ -1225,8 +1227,17 @@ class FromExpressionElementSegment(BaseSegment):
                     None,
                     ref,
                     tbl_expression,
-                )  # No references or alias, return None
-        return None
+                )
+        # No references or alias
+        return AliasInfo(
+            "",
+            None,
+            False,
+            self,
+            None,
+            ref,
+            tbl_expression,
+        )
 
 
 class FromExpressionSegment(BaseSegment):
