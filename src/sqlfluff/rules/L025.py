@@ -4,7 +4,10 @@ from dataclasses import dataclass, field
 from typing import cast, List, Set
 
 from sqlfluff.core.dialects.base import Dialect
-from sqlfluff.core.rules.analysis.select import get_select_statement_info
+from sqlfluff.core.rules.analysis.select import (
+    get_select_statement_info,
+    has_table_function,
+)
 from sqlfluff.core.rules.analysis.select_crawler import (
     Query as SelectCrawlerQuery,
     SelectCrawler,
@@ -78,8 +81,16 @@ class Rule_L025(BaseRule):
             alias: AliasInfo
             for alias in query.aliases:
                 if alias.aliased and alias.ref_str not in query.tbl_refs:
-                    # Unused alias. Report and fix.
-                    violations.append(self._report_unused_alias(alias))
+                    # Don't warn or remove aliases for table functions, e.g.
+                    # Snowflake FLATTEN(). They are special because unlike real
+                    # "tables", they don't have a natural name to fall back to
+                    # if the alias is removed. Also, removing them can in turn
+                    # trigger false positives with L028.
+                    if not alias.table_expression or not has_table_function(
+                        alias.table_expression, context.dialect
+                    ):
+                        # Unused alias. Report and fix.
+                        violations.append(self._report_unused_alias(alias))
         return violations or None
 
     @classmethod
