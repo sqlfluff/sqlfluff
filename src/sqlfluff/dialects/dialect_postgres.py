@@ -3902,3 +3902,97 @@ class DeleteStatementSegment(ansi.DeleteStatementSegment):
             optional=True,
         ),
     )
+
+
+class SetClauseSegment(BaseSegment):
+    """SQL 1992 set clause.
+
+    <set clause> ::=
+              <object column> <equals operator> <update source>
+
+         <update source> ::=
+                <value expression>
+              | <null specification>
+              | DEFAULT
+
+         <object column> ::= <column name>
+    """
+
+    type = "set_clause"
+
+    match_grammar: Matchable = Sequence(
+        OneOf(
+            Sequence(
+                Ref("ColumnReferenceSegment"),
+                Ref("EqualsSegment"),
+                OneOf(
+                    Ref("LiteralGrammar"),
+                    Ref("BareFunctionSegment"),
+                    Ref("FunctionSegment"),
+                    Ref("ColumnReferenceSegment"),
+                    Ref("ExpressionSegment"),
+                    "DEFAULT",
+                ),
+                AnyNumberOf(Ref("ShorthandCastSegment")),
+            ),
+            Sequence(
+                Bracketed(
+                    Delimited(
+                        Ref("ColumnReferenceSegment"),
+                    ),
+                ),
+                Ref("EqualsSegment"),
+                Bracketed(
+                    Delimited(
+                        Sequence(
+                            OneOf(
+                                Ref("LiteralGrammar"),
+                                Ref("BareFunctionSegment"),
+                                Ref("FunctionSegment"),
+                                Ref("ColumnReferenceSegment"),
+                                Ref("ExpressionSegment"),
+                                "DEFAULT",
+                            ),
+                            AnyNumberOf(Ref("ShorthandCastSegment")),
+                        ),
+                    ),
+                ),
+            ),
+        ),
+    )
+
+
+class UpdateStatementSegment(BaseSegment):
+    """An `Update` statement.
+
+    https://www.postgresql.org/docs/current/sql-update.html
+    """
+
+    type = "update_statement"
+    match_grammar: Matchable = Sequence(
+        # TODO add [ WITH [ RECURSIVE ] with_query [, ...] ]
+        "UPDATE",
+        Ref.keyword("ONLY", optional=True),
+        Ref("TableReferenceSegment"),
+        # SET is not a resevered word in all dialects (e.g. RedShift)
+        # So specifically exclude as an allowed implict alias to avoid parsing errors
+        Ref("AliasExpressionSegment", exclude=Ref.keyword("SET"), optional=True),
+        Ref("SetClauseListSegment"),
+        Ref("FromClauseSegment", optional=True),
+        OneOf(
+            Sequence("WHERE", "CURRENT", "OF", Ref("ObjectReferenceSegment")),
+            Ref("WhereClauseSegment"),
+            optional=True,
+        ),
+        Sequence(
+            "RETURNING",
+            OneOf(
+                Ref("StarSegment"),
+                Delimited(
+                    Ref("ExpressionSegment"),
+                    Ref("AliasExpressionSegment", optional=True),
+                ),
+            ),
+            optional=True,
+        ),
+    )
