@@ -716,6 +716,10 @@ def test_cli_fix_even_unparsable(
         assert method == "config-file"
         with open(str(tmpdir / ".sqlfluff"), "w") as f:
             print(f"[sqlfluff]\nfix_even_unparsable = {fix_even_unparsable}", file=f)
+    # TRICKY: Switch current directory to the one with the SQL file. Otherwise,
+    # the setting doesn't work. That's because SQLFluff reads it in
+    # sqlfluff.cli.commands.fix(), prior to reading any file-specific settings
+    # (down in sqlfluff.core.linter.Linter._load_raw_file_and_config()).
     monkeypatch.chdir(str(tmpdir))
     invoke_assert_code(
         ret_code=0 if fix_even_unparsable else 1,
