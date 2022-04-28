@@ -241,3 +241,21 @@ test_pass_dollar_quoted_strings_are_ignored:
       L064:
         force_enable: True
         preferred_quoted_literal_style: single_quotes
+
+test_pass_date_constructor_strings_are_ignored_1:
+  # Test that we dont interfere with date constructor strings
+  pass_str: |
+    SELECT
+        "quoted string",
+        DATE'some string'
+
+test_pass_date_constructor_strings_are_ignored_2:
+  # Test that we dont interfere with date constructor strings
+  pass_str: |
+    SELECT
+        DATE'some string'
+  configs:
+    rules:
+      L064:
+        force_enable: True
+        preferred_quoted_literal_style: double_quotes

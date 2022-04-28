@@ -176,7 +176,12 @@ mysql_dialect.replace(
             optional=True,
         ),
         OneOf(
-            Ref("QuotedLiteralSegment"),
+            NamedParser(
+                "single_quote",
+                CodeSegment,
+                name="date_constructor_literal",
+                type="literal",
+            ),
             Ref("NumericLiteralSegment"),
         ),
     ),
