@@ -129,3 +129,19 @@ AS
     HAVING col > 2
 )
 WITH DATA;
+
+CREATE MATERIALIZED VIEW my_mat_view
+TABLESPACE pg_default
+AS
+SELECT
+    table_1.field_1,
+    table_1.field_2
+FROM table_1
+UNION
+SELECT
+    table_2.field_1,
+    table_2.field_2
+FROM table_2
+
+ORDER BY field_1, field_2
+WITH DATA;
