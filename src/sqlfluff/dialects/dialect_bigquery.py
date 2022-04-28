@@ -205,6 +205,9 @@ bigquery_dialect.replace(
             Delimited(  # Comma-separated list of field names/types
                 Sequence(
                     OneOf(
+                        # ParameterNames can look like Datatypes so can't use
+                        # Optional=True here and instead do a OneOf in order
+                        # with DataType only first, followed by both.
                         Ref("DatatypeSegment"),
                         Sequence(
                             Ref("ParameterNameSegment"),
