@@ -189,7 +189,7 @@ ansi_dialect.sets("bracket_pairs").update(
 )
 
 # Set the value table functions. These are functions that, if they appear as
-# an item in "FROM', are treated as returning a COLUMN, not a TABLE. Apparently,
+# an item in "FROM", are treated as returning a COLUMN, not a TABLE. Apparently,
 # among dialects supported by SQLFluff, only BigQuery has this concept, but this
 # set is defined in the ANSI dialect because:
 # - It impacts core linter rules (see L020 and several other rules that subclass
@@ -1180,7 +1180,7 @@ class FromExpressionElementSegment(BaseSegment):
         Ref("PostTableExpressionGrammar", optional=True),
     )
 
-    def get_eventual_alias(self) -> Optional[AliasInfo]:
+    def get_eventual_alias(self) -> AliasInfo:
         """Return the eventual table name referred to by this table expression.
 
         Returns:
@@ -1223,8 +1223,16 @@ class FromExpressionElementSegment(BaseSegment):
                     self,
                     None,
                     ref,
-                )  # No references or alias, return None
-        return None
+                )
+        # No references or alias
+        return AliasInfo(
+            "",
+            None,
+            False,
+            self,
+            None,
+            ref,
+        )
 
 
 class FromExpressionSegment(BaseSegment):
