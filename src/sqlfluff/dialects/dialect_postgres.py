@@ -400,6 +400,16 @@ postgres_dialect.replace(
         "OVERLAPS",
         "RETURNING",
     ),
+    OrderByClauseTerminators=OneOf(
+        "LIMIT",
+        "HAVING",
+        "QUALIFY",
+        # For window functions
+        "WINDOW",
+        Ref("FrameClauseUnitGrammar"),
+        "SEPARATOR",
+        Sequence("WITH", "DATA"),
+    ),
     Accessor_Grammar=AnyNumberOf(
         Ref("ArrayAccessorSegment"),
         # Add in semi structured expressions
