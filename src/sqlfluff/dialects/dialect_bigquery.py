@@ -157,8 +157,13 @@ bigquery_dialect.add(
             Ref("BaseExpressionElementGrammar"),
         ),
     ),
-    DateDatePart=StringParser(
-        "DATE", SymbolSegment, name="date_part", type="date_part"
+    ExtendedDatetimeUnitSegment=SegmentGenerator(
+        lambda dialect: RegexParser(
+            r"^(" + r"|".join(dialect.sets("extended_datetime_units")) + r")$",
+            CodeSegment,
+            name="date_part",
+            type="date_part",
+        )
     ),
 )
 
@@ -259,6 +264,9 @@ bigquery_dialect.sets("datetime_units").update(
         "SUNDAY",
     ]
 )
+
+# Add additional datetime units only recognised in some functions (e.g. extract)
+bigquery_dialect.sets("extended_datetime_units").update(["DATE", "DATETIME", "TIME"])
 
 bigquery_dialect.sets("date_part_function_name").clear()
 bigquery_dialect.sets("date_part_function_name").update(
@@ -494,7 +502,7 @@ class FunctionSegment(ansi.FunctionSegment):
                 Bracketed(
                     OneOf(
                         Ref("DatetimeUnitSegment"),
-                        Ref("DateDatePart"),
+                        Ref("ExtendedDatetimeUnitSegment"),
                     ),
                     "FROM",
                     Ref("ExpressionSegment"),
