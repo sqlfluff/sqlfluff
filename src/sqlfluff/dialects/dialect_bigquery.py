@@ -157,6 +157,9 @@ bigquery_dialect.add(
             Ref("BaseExpressionElementGrammar"),
         ),
     ),
+    DateDatePart=StringParser(
+        "DATE", SymbolSegment, name="date_part", type="date_part"
+    ),
 )
 
 
@@ -239,7 +242,6 @@ bigquery_dialect.sets("datetime_units").update(
         "MINUTE",
         "HOUR",
         "DAY",
-        "DATE",
         "DAYOFWEEK",
         "DAYOFYEAR",
         "WEEK",
@@ -490,7 +492,10 @@ class FunctionSegment(ansi.FunctionSegment):
                 # BigQuery EXTRACT allows optional TimeZone
                 Ref("ExtractFunctionNameSegment"),
                 Bracketed(
-                    Ref("DatetimeUnitSegment"),
+                    OneOf(
+                        Ref("DatetimeUnitSegment"),
+                        Ref("DateDatePart"),
+                    ),
                     "FROM",
                     Ref("ExpressionSegment"),
                 ),
