@@ -2800,7 +2800,7 @@ class AlterMaterializedViewStatementSegment(BaseSegment):
             Sequence(
                 OneOf("SET", "UNSET"),
                 OneOf(
-                    Ref.keyword("SECURE"),
+                    "SECURE",
                     Ref("CommentEqualsClauseSegment"),
                     Ref("TagEqualsSegment"),
                 ),
