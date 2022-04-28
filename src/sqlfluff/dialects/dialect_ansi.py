@@ -393,8 +393,13 @@ ansi_dialect.add(
     ),
     # hookpoint for other dialects
     # e.g. EXASOL str to date cast with DATE '2021-01-01'
+    # Give it a different type as needs to be single quotes and
+    # should not be changed by rules (e.g. rule L064)
     DateTimeLiteralGrammar=Sequence(
-        OneOf("DATE", "TIME", "TIMESTAMP", "INTERVAL"), Ref("QuotedLiteralSegment")
+        OneOf("DATE", "TIME", "TIMESTAMP", "INTERVAL"),
+        NamedParser(
+            "single_quote", CodeSegment, name="date_constructor_literal", type="literal"
+        ),
     ),
     # Hookpoint for other dialects
     # e.g. INTO is optional in BIGQUERY

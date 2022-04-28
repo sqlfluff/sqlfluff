@@ -1802,7 +1802,7 @@ class DropExtensionStatementSegment(BaseSegment):
     match_grammar: Matchable = Sequence(
         "DROP",
         "EXTENSION",
-        Ref("IfNotExistsGrammar", optional=True),
+        Ref("IfExistsGrammar", optional=True),
         Ref("ExtensionReferenceSegment"),
         OneOf("CASCADE", "RESTRICT", optional=True),
     )
