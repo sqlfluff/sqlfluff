@@ -282,7 +282,8 @@ test_unfixable_ambiguous_reference_subquery:
         (SELECT * FROM some_table) AS my_alias
 
 test_pass_snowflake_flatten_function:
-  # Tests a fix for issue 3178.
+  # Tests a fix for issue 3178. This query passes because the second column
+  # could refer to either 'r' or the table returned by FLATTEN().
   pass_str: |
     SELECT
         r.rec:foo::string,

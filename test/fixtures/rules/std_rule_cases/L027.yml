@@ -258,12 +258,25 @@ test_pass_column_name_from_unnest_bigquery:
     core:
       dialect: bigquery
 
-test_fail_table_plus_flatten_snowflake:
+test_fail_table_plus_flatten_snowflake_1:
+  # FLATTEN() returns a table, thus there are two tables, thus lint failure
   fail_str: |
     SELECT
         r.rec:foo::string AS foo,
         value:bar::string AS bar
     FROM foo.bar AS r, LATERAL FLATTEN(input => rec:result) AS x
+  configs:
+    core:
+      dialect: snowflake
+
+test_fail_table_plus_flatten_snowflake_2:
+  # FLATTEN() returns a table, thus there are two tables, thus lint failure,
+  # even though there's no alias provided for FLATTEN()
+  fail_str: |
+    SELECT
+        r.rec:foo::string AS foo,
+        value:bar::string AS bar
+    FROM foo.bar AS r, LATERAL FLATTEN(input => rec:result)
   configs:
     core:
       dialect: snowflake
