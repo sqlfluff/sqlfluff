@@ -239,6 +239,7 @@ bigquery_dialect.sets("datetime_units").update(
         "MINUTE",
         "HOUR",
         "DAY",
+        "DATE",
         "DAYOFWEEK",
         "DAYOFYEAR",
         "WEEK",
