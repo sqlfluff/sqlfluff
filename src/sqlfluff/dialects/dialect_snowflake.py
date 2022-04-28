@@ -518,6 +518,18 @@ snowflake_dialect.replace(
         "WINDOW",
         "OVERLAPS",
     ),
+    OrderByClauseTerminators=OneOf(
+        "LIMIT",
+        "HAVING",
+        "QUALIFY",
+        # For window functions
+        "WINDOW",
+        Ref("FrameClauseUnitGrammar"),
+        "SEPARATOR",
+        "FETCH",
+        "OFFSET",
+        "MEASURES",
+    ),
     TrimParametersGrammar=Nothing(),
 )
 
@@ -1743,7 +1755,7 @@ class CreateProcedureStatementSegment(BaseSegment):
         Ref("DatatypeSegment"),
         Sequence("NOT", "NULL", optional=True),
         "LANGUAGE",
-        "JAVASCRIPT",
+        OneOf("JAVASCRIPT", "SQL"),
         OneOf(
             Sequence("CALLED", "ON", "NULL", "INPUT"),
             Sequence("RETURNS", "NULL", "ON", "NULL", "INPUT"),
@@ -1783,7 +1795,7 @@ class CreateFunctionStatementSegment(BaseSegment):
         ),
         Sequence("NOT", "NULL", optional=True),
         OneOf("VOLATILE", "IMMUTABLE", optional=True),
-        Sequence("LANGUAGE", "JAVASCRIPT", optional=True),
+        Sequence("LANGUAGE", OneOf("JAVASCRIPT", "SQL"), optional=True),
         OneOf(
             Sequence("CALLED", "ON", "NULL", "INPUT"),
             Sequence("RETURNS", "NULL", "ON", "NULL", "INPUT"),
@@ -4517,9 +4529,6 @@ class OrderByClauseSegment(ansi.OrderByClauseSegment):
     """
 
     match_grammar = ansi.OrderByClauseSegment.match_grammar.copy()
-    match_grammar.terminator = match_grammar.terminator.copy(  # type: ignore
-        insert=[Ref.keyword("FETCH"), Ref.keyword("OFFSET"), Ref.keyword("MEASURES")],
-    )
     parse_grammar = Sequence(
         "ORDER",
         "BY",
