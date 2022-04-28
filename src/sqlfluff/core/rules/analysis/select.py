@@ -114,7 +114,7 @@ def get_aliases_from_select(segment, dialect=None):
     table_aliases = []
     standalone_aliases = _get_pivot_table_columns(segment, dialect)
     for table_expr, alias_info in aliases:
-        if has_value_table_function(table_expr, dialect):
+        if _has_value_table_function(table_expr, dialect):
             if alias_info[0] not in standalone_aliases:
                 standalone_aliases.append(alias_info[0])
         elif alias_info not in table_aliases:
@@ -123,29 +123,20 @@ def get_aliases_from_select(segment, dialect=None):
     return table_aliases, standalone_aliases
 
 
-def _has_special_function(table_expr: BaseSegment, dialect: Dialect, set_name: str):
+def _has_value_table_function(table_expr, dialect):
     if not dialect:
-        # We need the dialect to get the set of function names. If we don't have
-        # it, assume the clause does not have a function like this.
+        # We need the dialect to get the value table function names. If
+        # we don't have it, assume the clause does not have a value table
+        # function.
         return False  # pragma: no cover
 
     for function_name in table_expr.recursive_crawl("function_name"):
         # Other rules can increase whitespace in the function name, so use strip to
         # remove
         # See: https://github.com/sqlfluff/sqlfluff/issues/1304
-        if function_name.raw.lower().strip() in dialect.sets(set_name):
+        if function_name.raw.lower().strip() in dialect.sets("value_table_functions"):
             return True
     return False
-
-
-def has_table_function(table_expr: BaseSegment, dialect: Dialect):
-    """Is the "table" coming from a table function?"""
-    return _has_special_function(table_expr, dialect, "table_functions")
-
-
-def has_value_table_function(table_expr: BaseSegment, dialect: Dialect):
-    """Is the "table" coming from a value table function?"""
-    return _has_special_function(table_expr, dialect, "value_table_functions")
 
 
 def _get_pivot_table_columns(segment, dialect):
