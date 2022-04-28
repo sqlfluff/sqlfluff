@@ -1238,7 +1238,7 @@ class BaseSegment:
 
     @staticmethod
     def _log_apply_fixes_check_issue(message, *args):  # pragma: no cover
-        linter_logger.critical(message, *args)
+        linter_logger.critical(message, exc_info=True, *args)
 
     def iter_patches(
         self, templated_file: TemplatedFile
