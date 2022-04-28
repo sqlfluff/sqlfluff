@@ -4,9 +4,7 @@ from dataclasses import dataclass, field
 from typing import cast, List, Set
 
 from sqlfluff.core.dialects.base import Dialect
-from sqlfluff.core.rules.analysis.select import (
-    get_select_statement_info,
-)
+from sqlfluff.core.rules.analysis.select import get_select_statement_info
 from sqlfluff.core.rules.analysis.select_crawler import (
     Query as SelectCrawlerQuery,
     SelectCrawler,

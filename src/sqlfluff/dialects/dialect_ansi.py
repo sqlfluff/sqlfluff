@@ -1196,12 +1196,7 @@ class FromExpressionElementSegment(BaseSegment):
             segment = alias_expression.get_child("identifier")
             if segment:
                 return AliasInfo(
-                    segment.raw,
-                    segment,
-                    True,
-                    self,
-                    alias_expression,
-                    ref,
+                    segment.raw, segment, True, self, alias_expression, ref
                 )
 
         # If not return the object name (or None if there isn't one)
