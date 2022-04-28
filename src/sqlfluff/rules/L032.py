@@ -91,12 +91,17 @@ class Rule_L032(BaseRule):
             return unfixable_result
 
         select_info = get_select_statement_info(parent_select, context.dialect)
-        if not select_info or len(select_info.table_aliases) < 2:  # pragma: no cover
+        table_aliases = [
+            ta
+            for ta in (select_info.table_aliases if select_info else [])
+            if ta.ref_str
+        ]
+        if len(table_aliases) < 2:
             return unfixable_result
 
         to_delete, insert_after_anchor = _extract_deletion_sequence_and_anchor(segment)
 
-        table_a, table_b = select_info.table_aliases[:2]
+        table_a, table_b = table_aliases[:2]
         edit_segments = [
             KeywordSegment(raw="ON"),
             WhitespaceSegment(raw=" "),

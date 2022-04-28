@@ -11,7 +11,7 @@ class SelectStatementColumnsAndTables(NamedTuple):
 
     select_statement: BaseSegment
     table_aliases: List[AliasInfo]
-    standalone_aliases: List[str]
+    standalone_aliases: List[str]  # value table function aliases
     reference_buffer: List[BaseSegment]
     select_targets: List[BaseSegment]
     col_aliases: List[ColumnAliasInfo]
@@ -117,7 +117,7 @@ def get_aliases_from_select(segment, dialect=None):
         if _has_value_table_function(table_expr, dialect):
             if alias_info[0] not in standalone_aliases:
                 standalone_aliases.append(alias_info[0])
-        elif alias_info not in standalone_aliases:
+        elif alias_info not in table_aliases:
             table_aliases.append(alias_info)
 
     return table_aliases, standalone_aliases
