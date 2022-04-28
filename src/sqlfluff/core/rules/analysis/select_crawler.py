@@ -64,7 +64,6 @@ class Selectable:
                 self.selectable,
                 alias_expression[0] if alias_expression else None,
                 None,
-                None,
             )
 
             return SelectStatementColumnsAndTables(
