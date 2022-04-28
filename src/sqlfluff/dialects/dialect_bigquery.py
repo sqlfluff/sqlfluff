@@ -207,7 +207,12 @@ bigquery_dialect.replace(
         ),
         RegexParser(r"`[^`]*`", CodeSegment, name="parameter", type="parameter"),
     ),
-    DateTimeLiteralGrammar=Nothing(),
+    DateTimeLiteralGrammar=Sequence(
+        OneOf("DATE", "DATETIME", "TIME", "TIMESTAMP"),
+        NamedParser(
+            "single_quote", CodeSegment, name="date_constructor_literal", type="literal"
+        ),
+    ),
     JoinLikeClauseGrammar=Sequence(
         AnyNumberOf(
             Ref("FromPivotExpressionSegment"),
@@ -407,7 +412,6 @@ bigquery_dialect.replace(
     LiteralGrammar=ansi_dialect.get_grammar("LiteralGrammar").copy(
         insert=[
             Ref("DoubleQuotedLiteralSegment"),
-            Ref("LiteralCoercionSegment"),
             Ref("ParameterizedSegment"),
         ]
     ),
@@ -761,27 +765,6 @@ class NamedArgumentSegment(BaseSegment):
         Ref("NakedIdentifierSegment"),
         Ref("RightArrowSegment"),
         Ref("ExpressionSegment"),
-    )
-
-
-class LiteralCoercionSegment(BaseSegment):
-    """A casting operation with a type name preceding a string literal.
-
-    BigQuery allows string literals to be explicitly coerced to one of the
-    following 4 types:
-    - DATE
-    - DATETIME
-    - TIME
-    - TIMESTAMP
-
-    https://cloud.google.com/bigquery/docs/reference/standard-sql/conversion_rules#literal_coercion
-
-    """
-
-    type = "cast_expression"
-    match_grammar = Sequence(
-        OneOf("DATE", "DATETIME", "TIME", "TIMESTAMP"),
-        Ref("QuotedLiteralSegment"),
     )
 
 

@@ -282,7 +282,10 @@ exasol_dialect.replace(
         Ref("CommentClauseSegment"),
     ),
     DateTimeLiteralGrammar=Sequence(
-        OneOf("DATE", "TIMESTAMP"), Ref("QuotedLiteralSegment")
+        OneOf("DATE", "TIMESTAMP"),
+        NamedParser(
+            "single_quote", CodeSegment, name="date_constructor_literal", type="literal"
+        ),
     ),
     CharCharacterSetGrammar=OneOf(
         "UTF8",
