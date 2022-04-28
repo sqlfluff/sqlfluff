@@ -674,6 +674,7 @@ def do_fixes(lnt, result, formatter=None, **kwargs):
 @click.option(
     "--FIX-EVEN-UNPARSABLE",
     is_flag=True,
+    default=None,
     help=(
         "Enables fixing of files that have templating or parse errors. "
         "Note that the similar-sounding '--ignore' or 'noqa' features merely "

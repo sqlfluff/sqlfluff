@@ -687,6 +687,55 @@ def test__cli__fix_error_handling_behavior(sql, fix_args, fixed, exit_code, tmpd
             assert not fixed_path.is_file()
 
 
+@pytest.mark.parametrize(
+    "method,fix_even_unparsable",
+    [
+        ("command-line", False),
+        ("command-line", True),
+        ("config-file", False),
+        ("config-file", True),
+    ],
+)
+def test_cli_fix_even_unparsable(
+    method: str, fix_even_unparsable: bool, monkeypatch, tmpdir
+):
+    """Test the fix_even_unparsable option works from cmd line and config."""
+    sql_path = "test/fixtures/cli/fix_even_unparsable.sql"
+    shutil.copy(sql_path, tmpdir)
+    options = [
+        "--dialect",
+        "ansi",
+        "-f",
+        "--fixed-suffix=FIXED",
+        str(tmpdir / "fix_even_unparsable.sql"),
+    ]
+    if method == "command-line":
+        if fix_even_unparsable:
+            options.append("--FIX-EVEN-UNPARSABLE")
+    else:
+        assert method == "config-file"
+        with open(str(tmpdir / ".sqlfluff"), "w") as f:
+            print(f"[sqlfluff]\nfix_even_unparsable = {fix_even_unparsable}", file=f)
+    monkeypatch.chdir(str(tmpdir))
+    invoke_assert_code(
+        ret_code=0 if fix_even_unparsable else 1,
+        args=[
+            fix,
+            options,
+        ],
+    )
+    fixed_path = str(tmpdir / "fix_even_unparsableFIXED.sql")
+    if fix_even_unparsable:
+        with open(fixed_path, "r") as f:
+            fixed_sql = f.read()
+            assert (
+                fixed_sql
+                == "SELECT my_col\nFROM my_schema.my_table\nWHERE processdate ! 3\n"
+            )
+    else:
+        assert not os.path.isfile(fixed_path)
+
+
 _old_eval = BaseRule._eval
 _fix_counter = 0
 
