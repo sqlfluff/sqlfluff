@@ -1171,7 +1171,7 @@ class FromExpressionElementSegment(BaseSegment):
         Ref("PostTableExpressionGrammar", optional=True),
     )
 
-    def get_eventual_alias(self) -> Optional[AliasInfo]:
+    def get_eventual_alias(self) -> AliasInfo:
         """Return the eventual table name referred to by this table expression.
 
         Returns:
