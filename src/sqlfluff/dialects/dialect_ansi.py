@@ -510,6 +510,7 @@ ansi_dialect.add(
     ),
     # This is a placeholder for other dialects.
     SimpleArrayTypeGrammar=Nothing(),
+    StructTypeGrammar=Nothing(),
     BaseExpressionElementGrammar=OneOf(
         Ref("LiteralGrammar"),
         Ref("BareFunctionSegment"),
@@ -1782,6 +1783,10 @@ ansi_dialect.add(
             ),
             Sequence(
                 Ref("SimpleArrayTypeGrammar", optional=True), Ref("ArrayLiteralSegment")
+            ),
+            Sequence(
+                Ref("StructTypeGrammar"),
+                Bracketed(Delimited(Ref("ExpressionSegment"))),
             ),
             Sequence(
                 Ref("DatatypeSegment"),
