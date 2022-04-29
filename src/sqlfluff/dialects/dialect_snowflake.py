@@ -518,6 +518,18 @@ snowflake_dialect.replace(
         "WINDOW",
         "OVERLAPS",
     ),
+    OrderByClauseTerminators=OneOf(
+        "LIMIT",
+        "HAVING",
+        "QUALIFY",
+        # For window functions
+        "WINDOW",
+        Ref("FrameClauseUnitGrammar"),
+        "SEPARATOR",
+        "FETCH",
+        "OFFSET",
+        "MEASURES",
+    ),
     TrimParametersGrammar=Nothing(),
 )
 
@@ -831,6 +843,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CommentStatementSegment"),
             Ref("CallStatementSegment"),
             Ref("AlterViewStatementSegment"),
+            Ref("AlterMaterializedViewStatementSegment"),
             Ref("RemoveStatementSegment"),
         ],
         remove=[
@@ -1743,7 +1756,7 @@ class CreateProcedureStatementSegment(BaseSegment):
         Ref("DatatypeSegment"),
         Sequence("NOT", "NULL", optional=True),
         "LANGUAGE",
-        "JAVASCRIPT",
+        OneOf("JAVASCRIPT", "SQL"),
         OneOf(
             Sequence("CALLED", "ON", "NULL", "INPUT"),
             Sequence("RETURNS", "NULL", "ON", "NULL", "INPUT"),
@@ -1783,7 +1796,7 @@ class CreateFunctionStatementSegment(BaseSegment):
         ),
         Sequence("NOT", "NULL", optional=True),
         OneOf("VOLATILE", "IMMUTABLE", optional=True),
-        Sequence("LANGUAGE", "JAVASCRIPT", optional=True),
+        Sequence("LANGUAGE", OneOf("JAVASCRIPT", "SQL"), optional=True),
         OneOf(
             Sequence("CALLED", "ON", "NULL", "INPUT"),
             Sequence("RETURNS", "NULL", "ON", "NULL", "INPUT"),
@@ -2757,6 +2770,39 @@ class AlterViewStatementSegment(BaseSegment):
                             Delimited(Ref("NakedIdentifierSegment")),
                         ),
                     ),
+                ),
+            ),
+        ),
+    )
+
+
+class AlterMaterializedViewStatementSegment(BaseSegment):
+    """An `ALTER MATERIALIZED VIEW` statement, specifically for Snowflake's dialect.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-materialized-view.html
+    """
+
+    type = "alter_materialized_view_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "MATERIALIZED",
+        "VIEW",
+        Ref("TableReferenceSegment"),
+        OneOf(
+            Sequence("RENAME", "TO", Ref("TableReferenceSegment")),
+            Sequence("CLUSTER", "BY", Delimited(Ref("ExpressionSegment"))),
+            Sequence("DROP", "CLUSTERING", "KEY"),
+            Sequence("SUSPEND", "RECLUSTER"),
+            Sequence("RESUME", "RECLUSTER"),
+            "SUSPEND",
+            "RESUME",
+            Sequence(
+                OneOf("SET", "UNSET"),
+                OneOf(
+                    "SECURE",
+                    Ref("CommentEqualsClauseSegment"),
+                    Ref("TagEqualsSegment"),
                 ),
             ),
         ),
@@ -4517,9 +4563,6 @@ class OrderByClauseSegment(ansi.OrderByClauseSegment):
     """
 
     match_grammar = ansi.OrderByClauseSegment.match_grammar.copy()
-    match_grammar.terminator = match_grammar.terminator.copy(  # type: ignore
-        insert=[Ref.keyword("FETCH"), Ref.keyword("OFFSET"), Ref.keyword("MEASURES")],
-    )
     parse_grammar = Sequence(
         "ORDER",
         "BY",

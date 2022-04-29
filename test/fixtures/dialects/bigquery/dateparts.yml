@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 960219436396013d5dded2cb5d4d9d6ac614e8a14bbde1cd4853c470224486ae
+_hash: 6132a980a091e5dedb2de9ce980fc2642a7f744228213a5a20cf00a4a8ab5a60
 file:
   statement:
     select_statement:
@@ -219,6 +219,41 @@ file:
           alias_expression:
             keyword: AS
             identifier: week
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: DATE
+              keyword: FROM
+              expression:
+                column_reference:
+                  identifier: col1
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: week
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: DATE
+              keyword: FROM
+              expression:
+                function:
+                  function_name:
+                    function_name_identifier: TIMESTAMP_SECONDS
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      literal: '1651135778'
+                    end_bracket: )
+              end_bracket: )
       - comma: ','
       from_clause:
         keyword: FROM

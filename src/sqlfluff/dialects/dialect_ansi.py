@@ -189,7 +189,7 @@ ansi_dialect.sets("bracket_pairs").update(
 )
 
 # Set the value table functions. These are functions that, if they appear as
-# an item in "FROM', are treated as returning a COLUMN, not a TABLE. Apparently,
+# an item in "FROM", are treated as returning a COLUMN, not a TABLE. Apparently,
 # among dialects supported by SQLFluff, only BigQuery has this concept, but this
 # set is defined in the ANSI dialect because:
 # - It impacts core linter rules (see L020 and several other rules that subclass
@@ -393,8 +393,13 @@ ansi_dialect.add(
     ),
     # hookpoint for other dialects
     # e.g. EXASOL str to date cast with DATE '2021-01-01'
+    # Give it a different type as needs to be single quotes and
+    # should not be changed by rules (e.g. rule L064)
     DateTimeLiteralGrammar=Sequence(
-        OneOf("DATE", "TIME", "TIMESTAMP", "INTERVAL"), Ref("QuotedLiteralSegment")
+        OneOf("DATE", "TIME", "TIMESTAMP", "INTERVAL"),
+        NamedParser(
+            "single_quote", CodeSegment, name="date_constructor_literal", type="literal"
+        ),
     ),
     # Hookpoint for other dialects
     # e.g. INTO is optional in BIGQUERY
@@ -482,6 +487,15 @@ ansi_dialect.add(
         "QUALIFY",
         "WINDOW",
         "OVERLAPS",
+    ),
+    OrderByClauseTerminators=OneOf(
+        "LIMIT",
+        "HAVING",
+        "QUALIFY",
+        # For window functions
+        "WINDOW",
+        Ref("FrameClauseUnitGrammar"),
+        "SEPARATOR",
     ),
     PrimaryKeyGrammar=Sequence("PRIMARY", "KEY"),
     ForeignKeyGrammar=Sequence("FOREIGN", "KEY"),
@@ -1171,7 +1185,7 @@ class FromExpressionElementSegment(BaseSegment):
         Ref("PostTableExpressionGrammar", optional=True),
     )
 
-    def get_eventual_alias(self) -> Optional[AliasInfo]:
+    def get_eventual_alias(self) -> AliasInfo:
         """Return the eventual table name referred to by this table expression.
 
         Returns:
@@ -1214,8 +1228,16 @@ class FromExpressionElementSegment(BaseSegment):
                     self,
                     None,
                     ref,
-                )  # No references or alias, return None
-        return None
+                )
+        # No references or alias
+        return AliasInfo(
+            "",
+            None,
+            False,
+            self,
+            None,
+            ref,
+        )
 
 
 class FromExpressionSegment(BaseSegment):
@@ -1924,15 +1946,7 @@ class OrderByClauseSegment(BaseSegment):
     type = "orderby_clause"
     match_grammar: Matchable = StartsWith(
         Sequence("ORDER", "BY"),
-        terminator=OneOf(
-            "LIMIT",
-            "HAVING",
-            "QUALIFY",
-            # For window functions
-            "WINDOW",
-            Ref("FrameClauseUnitGrammar"),
-            "SEPARATOR",
-        ),
+        terminator=Ref("OrderByClauseTerminators"),
     )
     parse_grammar: Optional[Matchable] = Sequence(
         "ORDER",

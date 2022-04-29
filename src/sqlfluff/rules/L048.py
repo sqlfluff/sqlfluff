@@ -39,6 +39,7 @@ class Rule_L048(Rule_L006):
 
     _target_elems: List[Tuple[str, str]] = [
         ("name", "quoted_literal"),
+        ("name", "date_constructor_literal"),
     ]
 
     @staticmethod

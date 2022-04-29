@@ -157,6 +157,14 @@ bigquery_dialect.add(
             Ref("BaseExpressionElementGrammar"),
         ),
     ),
+    ExtendedDatetimeUnitSegment=SegmentGenerator(
+        lambda dialect: RegexParser(
+            r"^(" + r"|".join(dialect.sets("extended_datetime_units")) + r")$",
+            CodeSegment,
+            name="date_part",
+            type="date_part",
+        )
+    ),
 )
 
 
@@ -199,7 +207,12 @@ bigquery_dialect.replace(
         ),
         RegexParser(r"`[^`]*`", CodeSegment, name="parameter", type="parameter"),
     ),
-    DateTimeLiteralGrammar=Nothing(),
+    DateTimeLiteralGrammar=Sequence(
+        OneOf("DATE", "DATETIME", "TIME", "TIMESTAMP"),
+        NamedParser(
+            "single_quote", CodeSegment, name="date_constructor_literal", type="literal"
+        ),
+    ),
     JoinLikeClauseGrammar=Sequence(
         AnyNumberOf(
             Ref("FromPivotExpressionSegment"),
@@ -256,6 +269,9 @@ bigquery_dialect.sets("datetime_units").update(
         "SUNDAY",
     ]
 )
+
+# Add additional datetime units only recognised in some functions (e.g. extract)
+bigquery_dialect.sets("extended_datetime_units").update(["DATE", "DATETIME", "TIME"])
 
 bigquery_dialect.sets("date_part_function_name").clear()
 bigquery_dialect.sets("date_part_function_name").update(
@@ -396,7 +412,6 @@ bigquery_dialect.replace(
     LiteralGrammar=ansi_dialect.get_grammar("LiteralGrammar").copy(
         insert=[
             Ref("DoubleQuotedLiteralSegment"),
-            Ref("LiteralCoercionSegment"),
             Ref("ParameterizedSegment"),
         ]
     ),
@@ -489,7 +504,10 @@ class FunctionSegment(ansi.FunctionSegment):
                 # BigQuery EXTRACT allows optional TimeZone
                 Ref("ExtractFunctionNameSegment"),
                 Bracketed(
-                    Ref("DatetimeUnitSegment"),
+                    OneOf(
+                        Ref("DatetimeUnitSegment"),
+                        Ref("ExtendedDatetimeUnitSegment"),
+                    ),
                     "FROM",
                     Ref("ExpressionSegment"),
                 ),
@@ -747,27 +765,6 @@ class NamedArgumentSegment(BaseSegment):
         Ref("NakedIdentifierSegment"),
         Ref("RightArrowSegment"),
         Ref("ExpressionSegment"),
-    )
-
-
-class LiteralCoercionSegment(BaseSegment):
-    """A casting operation with a type name preceding a string literal.
-
-    BigQuery allows string literals to be explicitly coerced to one of the
-    following 4 types:
-    - DATE
-    - DATETIME
-    - TIME
-    - TIMESTAMP
-
-    https://cloud.google.com/bigquery/docs/reference/standard-sql/conversion_rules#literal_coercion
-
-    """
-
-    type = "cast_expression"
-    match_grammar = Sequence(
-        OneOf("DATE", "DATETIME", "TIME", "TIMESTAMP"),
-        Ref("QuotedLiteralSegment"),
     )
 
 
