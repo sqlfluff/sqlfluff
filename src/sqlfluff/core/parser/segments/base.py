@@ -13,6 +13,7 @@ from collections.abc import MutableSet
 from copy import deepcopy
 from dataclasses import dataclass, field, replace
 from io import StringIO
+from itertools import takewhile
 from typing import (
     Any,
     Callable,
@@ -1196,26 +1197,30 @@ class BaseSegment:
                 seg_buffer.append(s)
                 seg_buffer.extend(after)
 
-            # Reform into a new segment
             before = []
             after = []
             if fixes_applied and not r.can_start_end_non_code:
                 idx_non_code = self._find_start_or_end_non_code(seg_buffer)
+                # Did the fixes leave misplaced segments?
                 if idx_non_code is not None:
+                    # Yes. Fix the misplaced segments: Do not include them
+                    # in the new segment's children. Instead, return them to the
+                    # caller, which will place them *adjacent to* the new
+                    # segment, in effect, bubbling them up to the tree to a
+                    # valid location.
                     save_seg_buffer = list(seg_buffer)
-                    # If there are non-code segments at the beginning or end,
-                    # pull them out and bubble them up the tree.
-                    for seg in seg_buffer:
-                        if not self._is_code_or_meta(seg):
-                            before.append(seg)
-                        else:
-                            break
+                    before.extend(
+                        takewhile(
+                            lambda seg: not self._is_code_or_meta(seg), seg_buffer
+                        )
+                    )
                     seg_buffer = seg_buffer[len(before) :]
-                    for seg in reversed(seg_buffer):
-                        if not self._is_code_or_meta(seg):
-                            after.append(seg)
-                        else:
-                            break
+                    after.extend(
+                        takewhile(
+                            lambda seg: not self._is_code_or_meta(seg),
+                            reversed(seg_buffer),
+                        )
+                    )
                     after.reverse()
                     seg_buffer = seg_buffer[: len(seg_buffer) - len(after)]
                     assert before + seg_buffer + after == save_seg_buffer
@@ -1227,6 +1232,7 @@ class BaseSegment:
                         before,
                         after,
                     )
+            # Reform into a new segment
             r = r.__class__(
                 # Realign the segments within
                 segments=self._position_segments(
