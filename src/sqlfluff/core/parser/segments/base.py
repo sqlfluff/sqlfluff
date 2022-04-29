@@ -1000,7 +1000,7 @@ class BaseSegment:
             else:
                 pre_nc = ()
                 post_nc = ()
-                idx_non_code = self._find_start_or_end_non_code()
+                idx_non_code = self._find_start_or_end_non_code(segments)
                 if idx_non_code is not None:  # pragma: no cover
                     raise ValueError(
                         f"Segment {self} {'starts' if idx_non_code == 0 else 'ends'} "
@@ -1085,16 +1085,18 @@ class BaseSegment:
     def _is_code_or_meta(segment: "BaseSegment") -> bool:
         return segment.is_code or segment.is_meta
 
-    def _find_start_or_end_non_code(self) -> Optional[int]:
+    @classmethod
+    def _find_start_or_end_non_code(cls, segments) -> Optional[int]:
         """If segment's first/last child is non-code, return index."""
-        segments = self.segments
         if segments:
             for idx in [0, -1]:
-                if not self._is_code_or_meta(segments[idx]):  # pragma: no cover
+                if not cls._is_code_or_meta(segments[idx]):  # pragma: no cover
                     return idx
         return None
 
-    def apply_fixes(self, dialect, rule_code: str, fixes: Dict) -> "BaseSegment":
+    def apply_fixes(
+        self, dialect, rule_code: str, fixes: Dict
+    ) -> Tuple["BaseSegment", List["BaseSegment"], List["BaseSegment"]]:
         """Apply an iterable of fixes to this segment.
 
         Used in applying fixes if we're fixing linting errors.
@@ -1184,10 +1186,37 @@ class BaseSegment:
             seg_queue = seg_buffer
             seg_buffer = []
             for seg in seg_queue:
-                s = seg.apply_fixes(dialect, rule_code, fixes)
+                s, before, after = seg.apply_fixes(dialect, rule_code, fixes)
+                # 'before' and 'after' will usually be empty. Only used when
+                # lower-level fixes left 'seg' with non-code (usually
+                # whitespace) segments as the first or last children. This is
+                # generally not allowed (see the can_start_end_non_code field),
+                # and these segments need to be "bubbled up" the tree.
+                seg_buffer.extend(before)
                 seg_buffer.append(s)
+                seg_buffer.extend(after)
 
             # Reform into a new segment
+            before = []
+            after = []
+            if fixes_applied and not r.can_start_end_non_code:
+                idx_non_code = self._find_start_or_end_non_code(seg_buffer)
+                if idx_non_code is not None:
+                    # If there are non-code segments at the beginning or end,
+                    # pull them out and bubble them up the tree.
+                    for seg in seg_buffer:
+                        if not self._is_code_or_meta(seg):
+                            before.append(seg)
+                        else:
+                            break
+                    seg_buffer = seg_buffer[len(before) :]
+                    for seg in reversed(seg_buffer):
+                        if not self._is_code_or_meta(seg):
+                            after.append(seg)
+                        else:
+                            break
+                    after.reverse()
+                    seg_buffer = seg_buffer[: -len(after)]
             r = r.__class__(
                 # Realign the segments within
                 segments=self._position_segments(
@@ -1199,10 +1228,11 @@ class BaseSegment:
             )
             if fixes_applied:
                 self._validate_segment_after_fixes(rule_code, dialect, fixes_applied, r)
-            # Return the new segment.
-            return r
+            # Return the new segment and any non-code that needs to bubble up
+            # the tree.
+            return r, before, after
         else:
-            return self
+            return self, [], []
 
     @classmethod
     def compute_anchor_edit_info(cls, fixes) -> Dict[int, AnchorEditInfo]:

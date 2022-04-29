@@ -592,7 +592,7 @@ class Linter:
                             # This is the happy path. We have fixes, now we want to
                             # apply them.
                             last_fixes = fixes
-                            new_tree = tree.apply_fixes(
+                            new_tree, _, _ = tree.apply_fixes(
                                 config.get("dialect_obj"), crawler.code, anchor_info
                             )
                             # Check for infinite loops
