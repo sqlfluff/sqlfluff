@@ -12,8 +12,8 @@ WHEN MATCHED THEN
         birth_date = people10mupdates.birth_date,
         ssn = people10mupdates.ssn,
         salary = people10mupdates.salary
-WHEN NOT MATCHED
-    THEN INSERT (
+WHEN NOT MATCHED THEN
+    INSERT (
         id,
         first_name,
         middle_name,
@@ -37,18 +37,20 @@ WHEN NOT MATCHED
 -- data deduplication
 MERGE INTO logs
 USING new_deduped_logs
-ON logs.unique_id = new_deduped_logs.unique_id
-WHEN NOT MATCHED
-    THEN INSERT *;
+    ON logs.unique_id = new_deduped_logs.unique_id
+WHEN NOT MATCHED THEN
+    INSERT *;
 
 -- data deduplication with additional predicate
 MERGE INTO
     logs
 USING
     new_deduped_logs
-ON logs.unique_id = new_deduped_logs.unique_id AND logs.date > current_date() - INTERVAL 7 DAYS
-WHEN NOT MATCHED AND new_deduped_logs.date > current_date() - INTERVAL 7 DAYS
-    THEN INSERT *;
+    ON logs.unique_id = new_deduped_logs.unique_id AND
+       logs.date > current_date() - INTERVAL 7 DAYS
+WHEN NOT MATCHED AND
+new_deduped_logs.date > current_date() - INTERVAL 7 DAYS THEN
+    INSERT *;
 
 -- SCD Type 2 using MERGE
 MERGE INTO
@@ -68,8 +70,8 @@ USING (
 ) staged_updates
 ON customers.customer_id = merge_unique_key
 WHEN MATCHED
-    AND customers.current = TRUE
-    AND customers.address != staged_updates.address THEN
+AND customers.current = TRUE
+AND customers.address != staged_updates.address THEN
     UPDATE SET current = FALSE, end_date = staged_updates.effective_date
 WHEN NOT MATCHED THEN
     INSERT(
@@ -91,13 +93,13 @@ WHEN NOT MATCHED THEN
 MERGE INTO target t
 USING (
     SELECT
-        unique_key,
-        latest.new_value AS new_value,
-        latest.deleted AS deleted
+        changes.unique_key,
+        changes.latest.new_value AS new_value,
+        changes.latest.deleted AS deleted
     FROM (
         SELECT
             unique_key,
-            max(struct(time, newValue, deleted)) AS latest
+            max(struct(change_time, new_value, deleted)) AS latest
         FROM changes
         GROUP BY unique_key
     )
