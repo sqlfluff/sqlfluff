@@ -700,14 +700,22 @@ def test_cli_fix_even_unparsable(
     method: str, fix_even_unparsable: bool, monkeypatch, tmpdir
 ):
     """Test the fix_even_unparsable option works from cmd line and config."""
-    sql_path = "test/fixtures/cli/fix_even_unparsable.sql"
-    shutil.copy(sql_path, tmpdir)
+    sql_filename = "fix_even_unparsable.sql"
+    sql_path = str(tmpdir / sql_filename)
+    with open(sql_path, "w") as f:
+        print(
+            """SELECT my_col
+FROM my_schema.my_table
+where processdate ! 3
+""",
+            file=f,
+        )
     options = [
         "--dialect",
         "ansi",
         "-f",
         "--fixed-suffix=FIXED",
-        str(tmpdir / "fix_even_unparsable.sql"),
+        sql_path,
     ]
     if method == "command-line":
         if fix_even_unparsable:
@@ -734,7 +742,10 @@ def test_cli_fix_even_unparsable(
             fixed_sql = f.read()
             assert (
                 fixed_sql
-                == "SELECT my_col\nFROM my_schema.my_table\nWHERE processdate ! 3\n"
+                == """SELECT my_col
+FROM my_schema.my_table
+WHERE processdate ! 3
+"""
             )
     else:
         assert not os.path.isfile(fixed_path)
