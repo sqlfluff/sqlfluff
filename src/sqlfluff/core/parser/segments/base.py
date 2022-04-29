@@ -895,7 +895,12 @@ class BaseSegment:
             for seg in self.segments:
                 yield from seg.recursive_crawl_all(reverse=reverse)
 
-    def recursive_crawl(self, *seg_type: str, recurse_into: bool = True):
+    def recursive_crawl(
+        self,
+        *seg_type: str,
+        recurse_into: bool = True,
+        no_recursive_seg_type: str = None,
+    ):
         """Recursively crawl for segments of a given type.
 
         Args:
@@ -903,6 +908,8 @@ class BaseSegment:
                 to look for.
             recurse_into: :obj:`bool`: When an element of type "seg_type" is
                 found, whether to recurse into it.
+            no_recursive_seg_type: obj: `str`: a type of segment
+                not to recurse further into.
         """
         # Check this segment
         if self.is_type(*seg_type):
@@ -913,7 +920,12 @@ class BaseSegment:
         if recurse_into or not match:
             # Recurse
             for seg in self.segments:
-                yield from seg.recursive_crawl(*seg_type, recurse_into=recurse_into)
+                if not seg.is_type(no_recursive_seg_type):
+                    yield from seg.recursive_crawl(
+                        *seg_type,
+                        recurse_into=recurse_into,
+                        no_recursive_seg_type=no_recursive_seg_type,
+                    )
 
     def path_to(self, other):
         """Given a segment which is assumed within self, get the intermediate segments.
@@ -1226,7 +1238,7 @@ class BaseSegment:
 
     @staticmethod
     def _log_apply_fixes_check_issue(message, *args):  # pragma: no cover
-        linter_logger.critical(message, *args)
+        linter_logger.critical(message, exc_info=True, *args)
 
     def iter_patches(
         self, templated_file: TemplatedFile

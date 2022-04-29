@@ -663,7 +663,7 @@ class BaseRule:
             new_lerrs: List[SQLLintError] = []
             new_fixes: List[LintFix] = []
 
-            if res is None:
+            if res is None or res == []:
                 # Assume this means no problems (also means no memory)
                 pass
             elif isinstance(res, LintResult):

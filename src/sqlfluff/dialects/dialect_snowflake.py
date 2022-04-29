@@ -518,6 +518,18 @@ snowflake_dialect.replace(
         "WINDOW",
         "OVERLAPS",
     ),
+    OrderByClauseTerminators=OneOf(
+        "LIMIT",
+        "HAVING",
+        "QUALIFY",
+        # For window functions
+        "WINDOW",
+        Ref("FrameClauseUnitGrammar"),
+        "SEPARATOR",
+        "FETCH",
+        "OFFSET",
+        "MEASURES",
+    ),
     TrimParametersGrammar=Nothing(),
 )
 
@@ -831,6 +843,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CommentStatementSegment"),
             Ref("CallStatementSegment"),
             Ref("AlterViewStatementSegment"),
+            Ref("AlterMaterializedViewStatementSegment"),
             Ref("RemoveStatementSegment"),
         ],
         remove=[
@@ -913,30 +926,22 @@ class FromExpressionElementSegment(ansi.FromExpressionElementSegment):
     """A table expression."""
 
     type = "from_expression_element"
-    match_grammar = StartsWith(
-        Sequence(
-            Ref("PreTableFunctionKeywordsGrammar", optional=True),
-            OptionallyBracketed(Ref("TableExpressionSegment")),
-            Ref(
-                "AliasExpressionSegment",
-                exclude=OneOf(
-                    Ref("SamplingExpressionSegment"),
-                    Ref("ChangesClauseSegment"),
-                    Ref("JoinLikeClauseGrammar"),
-                ),
-                optional=True,
+    match_grammar = Sequence(
+        Ref("PreTableFunctionKeywordsGrammar", optional=True),
+        OptionallyBracketed(Ref("TableExpressionSegment")),
+        Ref(
+            "AliasExpressionSegment",
+            exclude=OneOf(
+                Ref("SamplingExpressionSegment"),
+                Ref("ChangesClauseSegment"),
+                Ref("JoinLikeClauseGrammar"),
             ),
-            # https://cloud.google.com/bigquery/docs/reference/standard-sql/arrays#flattening_arrays
-            Sequence("WITH", "OFFSET", Ref("AliasExpressionSegment"), optional=True),
-            Ref("SamplingExpressionSegment", optional=True),
-            Ref("PostTableExpressionGrammar", optional=True),
+            optional=True,
         ),
-        terminator=OneOf(
-            Ref("JoinClauseSegment"),
-            Ref("JoinLikeClauseGrammar"),
-            Ref("JoinOnConditionSegment"),
-            Ref("CommaSegment"),
-        ),
+        # https://cloud.google.com/bigquery/docs/reference/standard-sql/arrays#flattening_arrays
+        Sequence("WITH", "OFFSET", Ref("AliasExpressionSegment"), optional=True),
+        Ref("SamplingExpressionSegment", optional=True),
+        Ref("PostTableExpressionGrammar", optional=True),
     )
 
 
@@ -1751,7 +1756,7 @@ class CreateProcedureStatementSegment(BaseSegment):
         Ref("DatatypeSegment"),
         Sequence("NOT", "NULL", optional=True),
         "LANGUAGE",
-        "JAVASCRIPT",
+        OneOf("JAVASCRIPT", "SQL"),
         OneOf(
             Sequence("CALLED", "ON", "NULL", "INPUT"),
             Sequence("RETURNS", "NULL", "ON", "NULL", "INPUT"),
@@ -1791,7 +1796,7 @@ class CreateFunctionStatementSegment(BaseSegment):
         ),
         Sequence("NOT", "NULL", optional=True),
         OneOf("VOLATILE", "IMMUTABLE", optional=True),
-        Sequence("LANGUAGE", "JAVASCRIPT", optional=True),
+        Sequence("LANGUAGE", OneOf("JAVASCRIPT", "SQL"), optional=True),
         OneOf(
             Sequence("CALLED", "ON", "NULL", "INPUT"),
             Sequence("RETURNS", "NULL", "ON", "NULL", "INPUT"),
@@ -2771,6 +2776,39 @@ class AlterViewStatementSegment(BaseSegment):
     )
 
 
+class AlterMaterializedViewStatementSegment(BaseSegment):
+    """An `ALTER MATERIALIZED VIEW` statement, specifically for Snowflake's dialect.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-materialized-view.html
+    """
+
+    type = "alter_materialized_view_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "MATERIALIZED",
+        "VIEW",
+        Ref("TableReferenceSegment"),
+        OneOf(
+            Sequence("RENAME", "TO", Ref("TableReferenceSegment")),
+            Sequence("CLUSTER", "BY", Delimited(Ref("ExpressionSegment"))),
+            Sequence("DROP", "CLUSTERING", "KEY"),
+            Sequence("SUSPEND", "RECLUSTER"),
+            Sequence("RESUME", "RECLUSTER"),
+            "SUSPEND",
+            "RESUME",
+            Sequence(
+                OneOf("SET", "UNSET"),
+                OneOf(
+                    "SECURE",
+                    Ref("CommentEqualsClauseSegment"),
+                    Ref("TagEqualsSegment"),
+                ),
+            ),
+        ),
+    )
+
+
 class FileFormatSegment(BaseSegment):
     """A Snowflake FILE_FORMAT Segment.
 
@@ -2928,7 +2966,7 @@ class TableExpressionSegment(ansi.TableExpressionSegment):
         Ref("TableReferenceSegment"),
         # Nested Selects
         Bracketed(Ref("SelectableGrammar")),
-        # Values clause?
+        Ref("ValuesClauseSegment"),
         Ref("StagePath"),
     )
 
@@ -3694,10 +3732,7 @@ class AlterUserStatementSegment(BaseSegment):
 
     type = "alter_user_statement"
 
-    match_grammar = StartsWith(
-        Sequence("ALTER", "USER"),
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "ALTER",
         "USER",
         Sequence("IF", "EXISTS", optional=True),
@@ -4528,9 +4563,6 @@ class OrderByClauseSegment(ansi.OrderByClauseSegment):
     """
 
     match_grammar = ansi.OrderByClauseSegment.match_grammar.copy()
-    match_grammar.terminator = match_grammar.terminator.copy(  # type: ignore
-        insert=[Ref.keyword("FETCH"), Ref.keyword("OFFSET"), Ref.keyword("MEASURES")],
-    )
     parse_grammar = Sequence(
         "ORDER",
         "BY",
@@ -4578,7 +4610,7 @@ class RemoveStatementSegment(BaseSegment):
         Sequence(
             "PATTERN",
             Ref("EqualsSegment"),
-            Ref("QuotedLiteralSegment"),
+            OneOf(Ref("QuotedLiteralSegment"), Ref("ReferencedVariableNameSegment")),
             optional=True,
         ),
     )

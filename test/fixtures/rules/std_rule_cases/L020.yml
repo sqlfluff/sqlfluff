@@ -43,3 +43,11 @@ test_pass_bigquery_function:
   configs:
     core:
       dialect: bigquery
+
+test_pass_tsql_table_variable:
+  pass_str: |
+    select @someVar = someColumn
+    from @someTableVar
+  configs:
+    core:
+      dialect: tsql

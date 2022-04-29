@@ -143,8 +143,7 @@ class BteqStatementSegment(BaseSegment):
     """
 
     type = "bteq_statement"
-    match_grammar = StartsWith(Ref("DotSegment"))
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         Ref("DotSegment"),
         Ref("BteqKeyWordSegment"),
         AnyNumberOf(

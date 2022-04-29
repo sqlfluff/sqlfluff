@@ -1,0 +1,105 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: e6a575613121122202d2ed58afd9c844e14c3374ee9a30a92e42a200c8608358
+file:
+- statement:
+    delete_statement:
+      keyword: DELETE
+      object_reference:
+      - identifier: dataset
+      - dot: .
+      - identifier: Inventory
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            identifier: quantity
+          comparison_operator:
+            raw_comparison_operator: '='
+          literal: '0'
+- statement_terminator: ;
+- statement:
+    delete_statement:
+      keyword: DELETE
+      object_reference:
+      - identifier: dataset
+      - dot: .
+      - identifier: Inventory
+      alias_expression:
+        identifier: i
+      where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+          - identifier: i
+          - dot: .
+          - identifier: product
+        - keyword: NOT
+        - keyword: IN
+        - bracketed:
+            start_bracket: (
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  column_reference:
+                    identifier: product
+              from_clause:
+                keyword: from
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                      - identifier: dataset
+                      - dot: .
+                      - identifier: NewArrivals
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    delete_statement:
+      keyword: DELETE
+      object_reference:
+      - identifier: dataset
+      - dot: .
+      - identifier: Inventory
+      where_clause:
+        keyword: WHERE
+        expression:
+        - keyword: NOT
+        - keyword: EXISTS
+        - bracketed:
+            start_bracket: (
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  wildcard_expression:
+                    wildcard_identifier:
+                      star: '*'
+              from_clause:
+                keyword: from
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                      - identifier: dataset
+                      - dot: .
+                      - identifier: NewArrivals
+              where_clause:
+                keyword: WHERE
+                expression:
+                - column_reference:
+                  - identifier: Inventory
+                  - dot: .
+                  - identifier: product
+                - comparison_operator:
+                    raw_comparison_operator: '='
+                - column_reference:
+                  - identifier: NewArrivals
+                  - dot: .
+                  - identifier: product
+            end_bracket: )
+- statement_terminator: ;

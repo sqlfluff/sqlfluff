@@ -1,0 +1,139 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 26e98484e7efd942e9865e0639c293dc32afc4d77f9a002887ef51070757ef97
+file:
+- statement:
+    alter_materialized_view_statement:
+    - keyword: alter
+    - keyword: materialized
+    - keyword: view
+    - table_reference:
+        identifier: table1_mv
+    - keyword: rename
+    - keyword: to
+    - table_reference:
+        identifier: my_mv
+- statement_terminator: ;
+- statement:
+    alter_materialized_view_statement:
+    - keyword: alter
+    - keyword: materialized
+    - keyword: view
+    - table_reference:
+        identifier: my_mv
+    - keyword: cluster
+    - keyword: by
+    - expression:
+        bracketed:
+          start_bracket: (
+          expression:
+            column_reference:
+              identifier: i
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_materialized_view_statement:
+    - keyword: alter
+    - keyword: materialized
+    - keyword: view
+    - table_reference:
+        identifier: my_mv
+    - keyword: suspend
+    - keyword: recluster
+- statement_terminator: ;
+- statement:
+    alter_materialized_view_statement:
+    - keyword: alter
+    - keyword: materialized
+    - keyword: view
+    - table_reference:
+        identifier: my_mv
+    - keyword: resume
+    - keyword: recluster
+- statement_terminator: ;
+- statement:
+    alter_materialized_view_statement:
+    - keyword: alter
+    - keyword: materialized
+    - keyword: view
+    - table_reference:
+        identifier: my_mv
+    - keyword: suspend
+- statement_terminator: ;
+- statement:
+    alter_materialized_view_statement:
+    - keyword: alter
+    - keyword: materialized
+    - keyword: view
+    - table_reference:
+        identifier: my_mv
+    - keyword: resume
+- statement_terminator: ;
+- statement:
+    alter_materialized_view_statement:
+    - keyword: alter
+    - keyword: materialized
+    - keyword: view
+    - table_reference:
+        identifier: my_mv
+    - keyword: drop
+    - keyword: clustering
+    - keyword: key
+- statement_terminator: ;
+- statement:
+    alter_materialized_view_statement:
+    - keyword: alter
+    - keyword: materialized
+    - keyword: view
+    - table_reference:
+        identifier: mv1
+    - keyword: set
+    - keyword: secure
+- statement_terminator: ;
+- statement:
+    alter_materialized_view_statement:
+    - keyword: alter
+    - keyword: materialized
+    - keyword: view
+    - table_reference:
+        identifier: mv1
+    - keyword: set
+    - comment_equals_clause:
+        keyword: comment
+        comparison_operator:
+          raw_comparison_operator: '='
+        literal: "'Sample view'"
+- statement_terminator: ;
+- statement:
+    alter_materialized_view_statement:
+    - keyword: alter
+    - keyword: materialized
+    - keyword: view
+    - table_reference:
+        identifier: mv1
+    - keyword: set
+    - tag_equals:
+        keyword: tag
+        identifier: my_tag
+        comparison_operator:
+          raw_comparison_operator: '='
+        literal: "'my tag'"
+- statement_terminator: ;
+- statement:
+    alter_materialized_view_statement:
+    - keyword: alter
+    - keyword: materialized
+    - keyword: view
+    - table_reference:
+        identifier: mv1
+    - keyword: unset
+    - tag_equals:
+        keyword: tag
+        identifier: my_tag
+        comparison_operator:
+          raw_comparison_operator: '='
+        literal: "'not my tag anymore'"
+- statement_terminator: ;
