@@ -1000,21 +1000,12 @@ class BaseSegment:
             else:
                 pre_nc = ()
                 post_nc = ()
-                if (not segments[0].is_code) and (
-                    not segments[0].is_meta
-                ):  # pragma: no cover
+                idx_non_code = self.find_start_or_end_non_code()
+                if idx_non_code is not None:  # pragma: no cover
                     raise ValueError(
-                        "Segment {} starts with non code segment: {!r}.\n{!r}".format(
-                            self, segments[0].raw, segments
-                        )
-                    )
-                if (not segments[-1].is_code) and (
-                    not segments[-1].is_meta
-                ):  # pragma: no cover
-                    raise ValueError(
-                        "Segment {} ends with non code segment: {!r}.\n{!r}".format(
-                            self, segments[-1].raw, segments
-                        )
+                        f"Segment {self} {'starts' if idx_non_code == 0 else 'ends'} "
+                        f"with non code segment: "
+                        f"{segments[idx_non_code].raw!r}.\n{segments!r}"
                     )
 
             # NOTE: No match_depth kwarg, because this is the start of the matching.
@@ -1089,6 +1080,17 @@ class BaseSegment:
                 )
 
         return self
+
+    def find_start_or_end_non_code(self) -> Optional[int]:
+        """If segment's first/last child is non-code, return index."""
+        segments = self.segments
+        if segments:
+            for idx in [0, -1]:
+                if (not segments[idx].is_code) and (
+                    not segments[idx].is_meta
+                ):  # pragma: no cover
+                    return idx
+        return None
 
     def apply_fixes(self, dialect, rule_code: str, fixes: Dict) -> "BaseSegment":
         """Apply an iterable of fixes to this segment.
