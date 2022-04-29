@@ -1000,7 +1000,7 @@ class BaseSegment:
             else:
                 pre_nc = ()
                 post_nc = ()
-                idx_non_code = self.find_start_or_end_non_code()
+                idx_non_code = self._find_start_or_end_non_code()
                 if idx_non_code is not None:  # pragma: no cover
                     raise ValueError(
                         f"Segment {self} {'starts' if idx_non_code == 0 else 'ends'} "
@@ -1081,14 +1081,16 @@ class BaseSegment:
 
         return self
 
-    def find_start_or_end_non_code(self) -> Optional[int]:
+    @staticmethod
+    def _is_code_or_meta(segment: "BaseSegment") -> bool:
+        return segment.is_code or segment.is_meta
+
+    def _find_start_or_end_non_code(self) -> Optional[int]:
         """If segment's first/last child is non-code, return index."""
         segments = self.segments
         if segments:
             for idx in [0, -1]:
-                if (not segments[idx].is_code) and (
-                    not segments[idx].is_meta
-                ):  # pragma: no cover
+                if not self._is_code_or_meta(segments[idx]):  # pragma: no cover
                     return idx
         return None
 
