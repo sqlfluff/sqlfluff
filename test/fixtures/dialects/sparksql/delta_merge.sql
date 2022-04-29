@@ -46,10 +46,10 @@ MERGE INTO
     logs
 USING
     new_deduped_logs
-    ON logs.unique_id = new_deduped_logs.unique_id AND
-       logs.date > current_date() - INTERVAL 7 DAYS
-WHEN NOT MATCHED AND
-new_deduped_logs.date > current_date() - INTERVAL 7 DAYS THEN
+    ON logs.unique_id = new_deduped_logs.unique_id
+       AND logs.date > current_date() - INTERVAL 7 DAYS
+WHEN NOT MATCHED
+AND new_deduped_logs.date > current_date() - INTERVAL 7 DAYS THEN
     INSERT *;
 
 -- SCD Type 2 using MERGE
