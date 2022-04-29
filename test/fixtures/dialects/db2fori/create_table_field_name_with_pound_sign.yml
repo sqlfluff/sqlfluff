@@ -1,0 +1,49 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+
+
+# ::TODO:: run python test/generate_parse_fixture_yml.py
+# ::TODO:: figure out why when I run the command above I get the exception:
+# Match Pattern Received:
+# 	filter=* dialect=all new-only=False
+# Found 961 file(s) to generate
+# multiprocessing.pool.RemoteTraceback: 
+# """
+# Traceback (most recent call last):
+#   File "/home/me/miniconda3/lib/python3.9/multiprocessing/pool.py", line 125, in worker
+#     result = (True, func(*args, **kwds))
+#   File "/home/me/Desktop/Projects/sqlfluff/test/generate_parse_fixture_yml.py", line 73, in generate_one_parse_fixture
+#     raise SQLParseError(f"Could not parse: {f.name}")
+# sqlfluff.core.errors.SQLParseError: Could not parse: test/fixtures/dialects/postgres/postgres_select.yml
+# """
+
+# The above exception was the direct cause of the following exception:
+
+# Traceback (most recent call last):
+#   File "/home/me/Desktop/Projects/sqlfluff/test/generate_parse_fixture_yml.py", line 159, in <module>
+#     main()
+#   File "/home/me/Desktop/Projects/sqlfluff/test/generate_parse_fixture_yml.py", line 155, in main
+#     generate_parse_fixtures()
+#   File "/home/me/miniconda3/lib/python3.9/site-packages/click/core.py", line 1130, in __call__
+#     return self.main(*args, **kwargs)
+#   File "/home/me/miniconda3/lib/python3.9/site-packages/click/core.py", line 1055, in main
+#     rv = self.invoke(ctx)
+#   File "/home/me/miniconda3/lib/python3.9/site-packages/click/core.py", line 1404, in invoke
+#     return ctx.invoke(self.callback, **ctx.params)
+#   File "/home/me/miniconda3/lib/python3.9/site-packages/click/core.py", line 760, in invoke
+#     return __callback(*args, **kwargs)
+#   File "/home/me/Desktop/Projects/sqlfluff/test/generate_parse_fixture_yml.py", line 149, in generate_parse_fixtures
+#     distribute_work(parse_success_examples, generate_one_parse_fixture)
+#   File "/home/me/Desktop/Projects/sqlfluff/test/generate_parse_fixture_yml.py", line 22, in distribute_work
+#     for _ in pool.imap_unordered(work_fn, work_items):
+#   File "/home/me/miniconda3/lib/python3.9/multiprocessing/pool.py", line 870, in next
+#     raise value
+#   File "/home/me/miniconda3/lib/python3.9/multiprocessing/pool.py", line 125, in worker
+#     result = (True, func(*args, **kwds))
+#   File "/home/me/Desktop/Projects/sqlfluff/test/generate_parse_fixture_yml.py", line 73, in generate_one_parse_fixture
+#     raise SQLParseError(f"Could not parse: {f.name}")
+# sqlfluff.core.errors.SQLParseError: Could not parse: test/fixtures/dialects/postgres/postgres_select.yml
+

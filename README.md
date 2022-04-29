@@ -21,6 +21,7 @@ Although SQL is reasonably consistent in its implementations, there are several 
 
 - ANSI SQL - this is the base version and on occasion may not strictly follow the ANSI/ISO SQL definition
 - [BigQuery](https://cloud.google.com/bigquery/)
+- [Db2 for i](https://www.ibm.com/docs/en/i/7.4?topic=overview-db2-i)
 - [Exasol](https://www.exasol.com/)
 - [Hive](https://hive.apache.org/)
 - [MySQL](https://www.mysql.com/)
