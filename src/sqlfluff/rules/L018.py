@@ -2,13 +2,19 @@
 
 from typing import cast
 
-from sqlfluff.core.parser import NewlineSegment, PositionMarker, WhitespaceSegment
+from sqlfluff.core.parser import (
+    IdentitySet,
+    NewlineSegment,
+    PositionMarker,
+    WhitespaceSegment,
+)
 
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.doc_decorators import (
     document_fix_compatible,
     document_configuration,
 )
+from sqlfluff.core.rules.functional import sp
 
 
 @document_fix_compatible
@@ -89,16 +95,24 @@ class Rule_L018(BaseRule):
                 indent_size = len(indent_str)
                 return indent_size, indent_str
 
-            balance = 0
             with_indent, with_indent_str = indent_size_up_to(raw_stack_buff)
+            cte_end_brackets = IdentitySet()
+            for cte in context.functional.segment.children(
+                sp.is_type("common_table_expression")
+            ).iterate_segments():
+                cte_end_brackets.add(
+                    cte.children()
+                    .last(sp.is_type("bracketed"))
+                    .children()
+                    .last(sp.is_name("end_bracket"))[0]
+                )
             for seg in context.segment.iter_segments(
                 expanding=["common_table_expression", "bracketed"], pass_through=True
             ):
                 if seg.name == "start_bracket":
-                    balance += 1
+                    pass
                 elif seg.name == "end_bracket":
-                    balance -= 1
-                    if balance == 0:
+                    if seg in cte_end_brackets:
                         closing_bracket_indent, _ = indent_size_up_to(raw_stack_buff)
                         indent_diff = closing_bracket_indent - with_indent
                         # Is indent of closing bracket not the same as
