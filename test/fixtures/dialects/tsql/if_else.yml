@@ -3,10 +3,10 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4cf4e475c018f2f5231d6d6024d6bf466380a8fce69d77a9df8d46ac6ddaf8e2
+_hash: 74bad0d28ff18bdd2b6afaa5af6ddbaa8ebce2f71fc9a7368d9e6395cbcc4e93
 file:
   batch:
-    statement:
+  - statement:
       if_then_statement:
       - if_clause:
           keyword: IF
@@ -114,3 +114,54 @@ file:
                 comparison_operator:
                   raw_comparison_operator: '='
                 literal: '1'
+  - statement:
+      if_then_statement:
+        if_clause:
+          keyword: if
+          expression:
+            keyword: exists
+            bracketed:
+              start_bracket: (
+              set_expression:
+              - select_statement:
+                  select_clause:
+                    keyword: select
+                    select_clause_element:
+                      wildcard_expression:
+                        wildcard_identifier:
+                          star: '*'
+                  from_clause:
+                    keyword: from
+                    from_expression:
+                      from_expression_element:
+                        table_expression:
+                          table_reference:
+                            identifier: '#a'
+              - set_operator:
+                - keyword: union
+                - keyword: all
+              - select_statement:
+                  select_clause:
+                    keyword: select
+                    select_clause_element:
+                      wildcard_expression:
+                        wildcard_identifier:
+                          star: '*'
+                  from_clause:
+                    keyword: from
+                    from_expression:
+                      from_expression_element:
+                        table_expression:
+                          table_reference:
+                            identifier: '#b'
+              end_bracket: )
+        statement:
+          set_segment:
+            keyword: set
+            parameter: '@var'
+            assignment_operator:
+              comparison_operator:
+                raw_comparison_operator: '='
+            expression:
+              literal: '1'
+            statement_terminator: ;
