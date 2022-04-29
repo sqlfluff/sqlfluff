@@ -1090,7 +1090,7 @@ class BaseSegment:
 
         return self
 
-    def apply_fixes(self, dialect, rule_code, fixes):
+    def apply_fixes(self, dialect, rule_code: str, fixes: Dict) -> "BaseSegment":
         """Apply an iterable of fixes to this segment.
 
         Used in applying fixes if we're fixing linting errors.
@@ -1180,7 +1180,7 @@ class BaseSegment:
             seg_queue = seg_buffer
             seg_buffer = []
             for seg in seg_queue:
-                s, fixes = seg.apply_fixes(dialect, rule_code, fixes)
+                s = seg.apply_fixes(dialect, rule_code, fixes)
                 seg_buffer.append(s)
 
             # Reform into a new segment
@@ -1195,10 +1195,10 @@ class BaseSegment:
             )
             if fixes_applied:
                 self._validate_segment_after_fixes(rule_code, dialect, fixes_applied, r)
-            # Return the new segment with any unused fixes.
-            return r, fixes
+            # Return the new segment.
+            return r
         else:
-            return self, fixes
+            return self
 
     @classmethod
     def compute_anchor_edit_info(cls, fixes) -> Dict[int, AnchorEditInfo]:
