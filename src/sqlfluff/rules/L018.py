@@ -96,6 +96,8 @@ class Rule_L018(BaseRule):
                 return indent_size, indent_str
 
             with_indent, with_indent_str = indent_size_up_to(raw_stack_buff)
+            # Find the end brackets for the CTE *query* (i.e. ignore optional
+            # list of CTE columns).
             cte_end_brackets = IdentitySet()
             for cte in context.functional.segment.children(
                 sp.is_type("common_table_expression")
