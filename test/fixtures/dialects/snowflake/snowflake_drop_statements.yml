@@ -1,0 +1,550 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: cb02a5d6b3a0fe270cadd7f60fc7d42f32df147f1d15557f65c6b7469cc6e14c
+file:
+- statement:
+    drop_connection_statement:
+    - keyword: DROP
+    - keyword: CONNECTION
+    - object_reference:
+      - identifier: MY_SCHEMA
+      - dot: .
+      - identifier: T1
+- statement_terminator: ;
+- statement:
+    drop_connection_statement:
+    - keyword: DROP
+    - keyword: CONNECTION
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+      - identifier: MY_SCHEMA
+      - dot: .
+      - identifier: T1
+- statement_terminator: ;
+- statement:
+    drop_database_statement:
+    - keyword: DROP
+    - keyword: DATABASE
+    - database_reference:
+        identifier: MYTESTDB2
+- statement_terminator: ;
+- statement:
+    drop_database_statement:
+    - keyword: DROP
+    - keyword: DATABASE
+    - keyword: IF
+    - keyword: EXISTS
+    - database_reference:
+        identifier: MYTESTDB2
+- statement_terminator: ;
+- statement:
+    drop_database_statement:
+    - keyword: DROP
+    - keyword: DATABASE
+    - keyword: IF
+    - keyword: EXISTS
+    - database_reference:
+        identifier: MYTESTDB2
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+    drop_external_table_statement:
+    - keyword: DROP
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - table_reference:
+      - identifier: MY_SCHEMA
+      - dot: .
+      - identifier: T1
+- statement_terminator: ;
+- statement:
+    drop_external_table_statement:
+    - keyword: DROP
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+      - identifier: MY_SCHEMA
+      - dot: .
+      - identifier: T1
+- statement_terminator: ;
+- statement:
+    drop_external_table_statement:
+    - keyword: DROP
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+      - identifier: MY_SCHEMA
+      - dot: .
+      - identifier: T1
+    - keyword: RESTRICT
+- statement_terminator: ;
+- statement:
+    drop_file_format_statement:
+    - keyword: DROP
+    - keyword: FILE
+    - keyword: FORMAT
+    - object_reference:
+      - identifier: MY_SCHEMA
+      - dot: .
+      - identifier: MY_FORMAT
+- statement_terminator: ;
+- statement:
+    drop_file_format_statement:
+    - keyword: DROP
+    - keyword: FILE
+    - keyword: FORMAT
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+      - identifier: MY_SCHEMA
+      - dot: .
+      - identifier: MY_FORMAT
+- statement_terminator: ;
+- statement:
+    drop_function_statement:
+    - keyword: DROP
+    - keyword: FUNCTION
+    - function_name:
+        identifier: MY_SCHEMA
+        dot: .
+        function_name_identifier: MY_FUNCTION
+    - function_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - data_type:
+            data_type_identifier: NUMBER
+        - comma: ','
+        - data_type:
+            data_type_identifier: NUMBER
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    drop_function_statement:
+    - keyword: DROP
+    - keyword: FUNCTION
+    - keyword: IF
+    - keyword: EXISTS
+    - function_name:
+        identifier: MY_SCHEMA
+        dot: .
+        function_name_identifier: MY_FUNCTION
+    - function_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - data_type:
+            data_type_identifier: NUMBER
+        - comma: ','
+        - data_type:
+            data_type_identifier: NUMBER
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    drop_integration_statement:
+    - keyword: DROP
+    - keyword: INTEGRATION
+    - object_reference:
+        identifier: T2
+- statement_terminator: ;
+- statement:
+    drop_integration_statement:
+    - keyword: DROP
+    - keyword: API
+    - keyword: INTEGRATION
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+        identifier: T2
+- statement_terminator: ;
+- statement:
+    drop_managed_account_statement:
+    - keyword: DROP
+    - keyword: MANAGED
+    - keyword: ACCOUNT
+    - identifier: READER_ACCT1
+- statement_terminator: ;
+- statement:
+    drop_masking_policy_statement:
+    - keyword: DROP
+    - keyword: MASKING
+    - keyword: POLICY
+    - identifier: SSN_MASK
+- statement_terminator: ;
+- statement:
+    drop_materialized_view_statement:
+    - keyword: DROP
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+      - identifier: MY_SCHEMA
+      - dot: .
+      - identifier: MV1
+- statement_terminator: ;
+- statement:
+    drop_materialized_view_statement:
+    - keyword: DROP
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+      - identifier: MY_SCHEMA
+      - dot: .
+      - identifier: MV1
+- statement_terminator: ;
+- statement:
+    drop_network_policy_statement:
+    - keyword: DROP
+    - keyword: NETWORK
+    - keyword: POLICY
+    - identifier: MY_POLICY
+- statement_terminator: ;
+- statement:
+    drop_network_policy_statement:
+    - keyword: DROP
+    - keyword: NETWORK
+    - keyword: POLICY
+    - keyword: IF
+    - keyword: EXISTS
+    - identifier: MY_POLICY
+- statement_terminator: ;
+- statement:
+    drop_pipe_statement:
+    - keyword: DROP
+    - keyword: PIPE
+    - object_reference:
+      - identifier: MY_SCHEMA
+      - dot: .
+      - identifier: MYPIPE
+- statement_terminator: ;
+- statement:
+    drop_pipe_statement:
+    - keyword: DROP
+    - keyword: PIPE
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+      - identifier: MY_SCHEMA
+      - dot: .
+      - identifier: MYPIPE
+- statement_terminator: ;
+- statement:
+    drop_procedure_statement:
+    - keyword: DROP
+    - keyword: PROCEDURE
+    - function_name:
+        identifier: MY_SCHEMA
+        dot: .
+        function_name_identifier: ADD_ACCOUNTING_USER
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          data_type:
+            data_type_identifier: VARCHAR
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    drop_procedure_statement:
+    - keyword: DROP
+    - keyword: PROCEDURE
+    - keyword: IF
+    - keyword: EXISTS
+    - function_name:
+        identifier: MY_SCHEMA
+        dot: .
+        function_name_identifier: ADD_ACCOUNTING_USER
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          data_type:
+            data_type_identifier: VARCHAR
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    drop_resource_monitor_statement:
+    - keyword: DROP
+    - keyword: RESOURCE
+    - keyword: MONITOR
+    - object_reference:
+        identifier: MY_MONITOR_RESOURCE
+- statement_terminator: ;
+- statement:
+    drop_role_statement:
+    - keyword: DROP
+    - keyword: ROLE
+    - identifier: MYROLE
+- statement_terminator: ;
+- statement:
+    drop_role_statement:
+    - keyword: DROP
+    - keyword: ROLE
+    - keyword: IF
+    - keyword: EXISTS
+    - identifier: MYROLE
+- statement_terminator: ;
+- statement:
+    drop_row_access_statement:
+    - keyword: DROP
+    - keyword: ROW
+    - keyword: ACCESS
+    - keyword: POLICY
+    - object_reference:
+        identifier: RAP_TABLE_EMPLOYEE_INFO
+- statement_terminator: ;
+- statement:
+    drop_row_access_statement:
+    - keyword: DROP
+    - keyword: ROW
+    - keyword: ACCESS
+    - keyword: POLICY
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+        identifier: RAP_TABLE_EMPLOYEE_INFO
+- statement_terminator: ;
+- statement:
+    drop_schema_statement:
+    - keyword: DROP
+    - keyword: SCHEMA
+    - schema_reference:
+        identifier: MY_SCHEMA
+- statement_terminator: ;
+- statement:
+    drop_schema_statement:
+    - keyword: DROP
+    - keyword: SCHEMA
+    - keyword: IF
+    - keyword: EXISTS
+    - schema_reference:
+        identifier: MY_SCHEMA
+- statement_terminator: ;
+- statement:
+    drop_schema_statement:
+    - keyword: DROP
+    - keyword: SCHEMA
+    - keyword: IF
+    - keyword: EXISTS
+    - schema_reference:
+        identifier: MY_SCHEMA
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+    drop_sequence_statement:
+    - keyword: DROP
+    - keyword: SEQUENCE
+    - sequence_reference:
+      - identifier: MY_SCHEMA
+      - dot: .
+      - identifier: INVOICE_SEQUENCE_NUMBER
+- statement_terminator: ;
+- statement:
+    drop_sequence_statement:
+    - keyword: DROP
+    - keyword: SEQUENCE
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+      - identifier: MY_SCHEMA
+      - dot: .
+      - identifier: INVOICE_SEQUENCE_NUMBER
+- statement_terminator: ;
+- statement:
+    drop_sequence_statement:
+    - keyword: DROP
+    - keyword: SEQUENCE
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+      - identifier: MY_SCHEMA
+      - dot: .
+      - identifier: INVOICE_SEQUENCE_NUMBER
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+    drop_session_policy_statement:
+    - keyword: DROP
+    - keyword: SESSION
+    - keyword: POLICY
+    - identifier: SESSION_POLICY_PRODUCTION_1
+- statement_terminator: ;
+- statement:
+    drop_session_policy_statement:
+    - keyword: DROP
+    - keyword: SESSION
+    - keyword: POLICY
+    - keyword: IF
+    - keyword: EXISTS
+    - identifier: SESSION_POLICY_PRODUCTION_1
+- statement_terminator: ;
+- statement:
+    drop_share_statement:
+    - keyword: DROP
+    - keyword: SHARE
+    - object_reference:
+        identifier: SALES_S
+- statement_terminator: ;
+- statement:
+    drop_stage_statement:
+    - keyword: DROP
+    - keyword: STAGE
+    - object_reference:
+      - identifier: MY_SCHEMA
+      - dot: .
+      - identifier: MY_STAGE
+- statement_terminator: ;
+- statement:
+    drop_stage_statement:
+    - keyword: DROP
+    - keyword: STAGE
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+      - identifier: MY_SCHEMA
+      - dot: .
+      - identifier: MY_STAGE
+- statement_terminator: ;
+- statement:
+    drop_stream_statement:
+    - keyword: DROP
+    - keyword: STREAM
+    - object_reference:
+      - identifier: MY_SCHEMA
+      - dot: .
+      - identifier: T2
+- statement_terminator: ;
+- statement:
+    drop_stream_statement:
+    - keyword: DROP
+    - keyword: STREAM
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+      - identifier: MY_SCHEMA
+      - dot: .
+      - identifier: T2
+- statement_terminator: ;
+- statement:
+    drop_table_statement:
+    - keyword: DROP
+    - keyword: TABLE
+    - table_reference:
+      - identifier: MY_SCHEMA
+      - dot: .
+      - identifier: T2
+- statement_terminator: ;
+- statement:
+    drop_table_statement:
+    - keyword: DROP
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+      - identifier: MY_SCHEMA
+      - dot: .
+      - identifier: T2
+- statement_terminator: ;
+- statement:
+    drop_table_statement:
+    - keyword: DROP
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+      - identifier: MY_SCHEMA
+      - dot: .
+      - identifier: T2
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+    drop_tag_statement:
+    - keyword: DROP
+    - keyword: TAG
+    - object_reference:
+        identifier: COST_CENTER
+- statement_terminator: ;
+- statement:
+    drop_tag_statement:
+    - keyword: DROP
+    - keyword: TAG
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+        identifier: COST_CENTER
+- statement_terminator: ;
+- statement:
+    drop_task_statement:
+    - keyword: DROP
+    - keyword: TASK
+    - object_reference:
+      - identifier: MY_SCHEAM
+      - dot: .
+      - identifier: T2
+- statement_terminator: ;
+- statement:
+    drop_task_statement:
+    - keyword: DROP
+    - keyword: TASK
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+      - identifier: MY_SCHEAM
+      - dot: .
+      - identifier: T2
+- statement_terminator: ;
+- statement:
+    drop_user_statement:
+    - keyword: DROP
+    - keyword: USER
+    - object_reference:
+        identifier: USER1
+- statement_terminator: ;
+- statement:
+    drop_user_statement:
+    - keyword: DROP
+    - keyword: USER
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+        identifier: USER1
+- statement_terminator: ;
+- statement:
+    drop_view_statement:
+    - keyword: DROP
+    - keyword: VIEW
+    - table_reference:
+      - identifier: MY_SCHEMA
+      - dot: .
+      - identifier: MY_VIEW
+- statement_terminator: ;
+- statement:
+    drop_view_statement:
+    - keyword: DROP
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+      - identifier: MY_SCHEMA
+      - dot: .
+      - identifier: MY_VIEW
+- statement_terminator: ;
+- statement:
+    drop_warehouse_statement:
+    - keyword: DROP
+    - keyword: WAREHOUSE
+    - identifier: MY_WAREHOUSE
+- statement_terminator: ;
+- statement:
+    drop_warehouse_statement:
+    - keyword: DROP
+    - keyword: WAREHOUSE
+    - keyword: IF
+    - keyword: EXISTS
+    - identifier: MY_WAREHOUSE
+- statement_terminator: ;

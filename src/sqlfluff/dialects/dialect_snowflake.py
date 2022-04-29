@@ -845,6 +845,26 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterViewStatementSegment"),
             Ref("AlterMaterializedViewStatementSegment"),
             Ref("RemoveStatementSegment"),
+            Ref("DropProcedureStatement"),
+            Ref("DropExternalTableStatement"),
+            Ref("DropFileFormatStatement"),
+            Ref("DropConnectionStatement"),
+            Ref("DropIntegrationStatement"),
+            Ref("DropManagedAccountStatement"),
+            Ref("DropMaskingPolicyStatement"),
+            Ref("DropMaterializedViewStatement"),
+            Ref("DropNetworkPolicyStatement"),
+            Ref("DropPipeStatement"),
+            Ref("DropResourceMonitorStatement"),
+            Ref("DropRowAccessPolicyStatement"),
+            Ref("DropSequenceStatement"),
+            Ref("DropSessionPolicyStatement"),
+            Ref("DropShareStatement"),
+            Ref("DropStageStatement"),
+            Ref("DropStreamStatement"),
+            Ref("DropTagStatement"),
+            Ref("DropTaskStatement"),
+            Ref("DropWarehouseStatement"),
         ],
         remove=[
             Ref("CreateTypeStatementSegment"),
@@ -4613,4 +4633,316 @@ class RemoveStatementSegment(BaseSegment):
             OneOf(Ref("QuotedLiteralSegment"), Ref("ReferencedVariableNameSegment")),
             optional=True,
         ),
+    )
+
+
+class DropProcedureStatement(BaseSegment):
+    """A snowflake `DROP PROCEDURE ...` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/drop-procedure.html
+    """
+
+    type = "drop_procedure_statement"
+    match_grammar = Sequence(
+        "DROP",
+        "PROCEDURE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("FunctionNameSegment"),
+        Ref("FunctionParameterListGrammar"),
+    )
+
+
+class DropExternalTableStatement(BaseSegment):
+    """A snowflake `DROP EXTERNAL TABLE ...` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/drop-external-table.html
+    """
+
+    type = "drop_external_table_statement"
+    match_grammar = Sequence(
+        "DROP",
+        "EXTERNAL",
+        "TABLE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        Ref("DropBehaviorGrammar", optional=True),
+    )
+
+
+class DropConnectionStatement(BaseSegment):
+    """A snowflake `DROP CONNECTION ...` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/drop-connection.html
+    """
+
+    type = "drop_connection_statement"
+    match_grammar = Sequence(
+        "DROP",
+        "CONNECTION",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+    )
+
+
+class DropFileFormatStatement(BaseSegment):
+    """A snowflake `DROP FILE FORMAT ...` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/drop-file-format.html
+    """
+
+    type = "drop_file_format_statement"
+    match_grammar = Sequence(
+        "DROP",
+        "FILE",
+        "FORMAT",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+    )
+
+
+class DropIntegrationStatement(BaseSegment):
+    """A snowflake `DROP INTEGRATION ...` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/drop-integration.html
+    """
+
+    type = "drop_integration_statement"
+    match_grammar = Sequence(
+        "DROP",
+        OneOf("API", "NOTIFICATION", "SECURITY", "STORAGE", optional=True),
+        "INTEGRATION",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+    )
+
+
+class DropFunctionStatementSegment(BaseSegment):
+    """A `DROP FUNCTION` statement."""
+
+    type = "drop_function_statement"
+
+    match_grammar = Sequence(
+        "DROP",
+        Ref.keyword("EXTERNAL", optional=True),
+        "FUNCTION",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("FunctionNameSegment"),
+        Ref("FunctionParameterListGrammar"),
+    )
+
+
+class DropManagedAccountStatement(BaseSegment):
+    """A snowflake `DROP MANAGED ACCOUNT ...` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/drop-managed-account.html
+    """
+
+    type = "drop_managed_account_statement"
+    match_grammar = Sequence(
+        "DROP", "MANAGED", "ACCOUNT", Ref("SingleIdentifierGrammar")
+    )
+
+
+class DropMaskingPolicyStatement(BaseSegment):
+    """A snowflake `DROP MASKING POLICY ...` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/drop-masking-policy.html
+    """
+
+    type = "drop_masking_policy_statement"
+    match_grammar = Sequence(
+        "DROP", "MASKING", "POLICY", Ref("SingleIdentifierGrammar")
+    )
+
+
+class DropMaterializedViewStatement(BaseSegment):
+    """A snowflake `DROP MATERIALIZED VIEW ...` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/drop-materialized-view.html
+    """
+
+    type = "drop_materialized_view_statement"
+    match_grammar = Sequence(
+        "DROP",
+        "MATERIALIZED",
+        "VIEW",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+    )
+
+
+class DropNetworkPolicyStatement(BaseSegment):
+    """A snowflake `DROP NETWORK POLICY ...` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/drop-network-policy.html
+    """
+
+    type = "drop_network_policy_statement"
+    match_grammar = Sequence(
+        "DROP",
+        "NETWORK",
+        "POLICY",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("SingleIdentifierGrammar"),
+    )
+
+
+class DropPipeStatement(BaseSegment):
+    """A snowflake `DROP PIPE ...` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/drop-pipe.html
+    """
+
+    type = "drop_pipe_statement"
+    match_grammar = Sequence(
+        "DROP",
+        "PIPE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+    )
+
+
+class DropResourceMonitorStatement(BaseSegment):
+    """A snowflake `DROP RESOURCE MONITOR ...` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/drop-resource-monitor.html
+    """
+
+    type = "drop_resource_monitor_statement"
+    match_grammar = Sequence(
+        "DROP", "RESOURCE", "MONITOR", Ref("ObjectReferenceSegment")
+    )
+
+
+class DropRowAccessPolicyStatement(BaseSegment):
+    """A snowflake `DROP ROW ACCESS POLICY ...` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/drop-row-access-policy.html
+    """
+
+    type = "drop_row_access_statement"
+    match_grammar = Sequence(
+        "DROP",
+        "ROW",
+        "ACCESS",
+        "POLICY",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+    )
+
+
+class DropSequenceStatement(BaseSegment):
+    """A snowflake `DROP SEQUENCE ...` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/drop-sequence.html
+    """
+
+    type = "drop_sequence_statement"
+    match_grammar = Sequence(
+        "DROP",
+        "SEQUENCE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        Ref("DropBehaviorGrammar", optional=True),
+    )
+
+
+class DropSessionPolicyStatement(BaseSegment):
+    """A snowflake `DROP SEQUENCE ...` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/drop-session-policy.html
+    """
+
+    type = "drop_session_policy_statement"
+    match_grammar = Sequence(
+        "DROP",
+        "SESSION",
+        "POLICY",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("SingleIdentifierGrammar"),
+    )
+
+
+class DropShareStatement(BaseSegment):
+    """A snowflake `DROP SHARE ...` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/drop-share.html
+    """
+
+    type = "drop_share_statement"
+    match_grammar = Sequence("DROP", "SHARE", Ref("ObjectReferenceSegment"))
+
+
+class DropStageStatement(BaseSegment):
+    """A snowflake `DROP STAGE ...` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/drop-stage.html
+    """
+
+    type = "drop_stage_statement"
+    match_grammar = Sequence(
+        "DROP",
+        "STAGE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+    )
+
+
+class DropStreamStatement(BaseSegment):
+    """A snowflake `DROP STREAM ...` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/drop-stream.html
+    """
+
+    type = "drop_stream_statement"
+    match_grammar = Sequence(
+        "DROP",
+        "STREAM",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+    )
+
+
+class DropTagStatement(BaseSegment):
+    """A snowflake `DROP TAG ...` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/drop-tag.html
+    """
+
+    type = "drop_tag_statement"
+    match_grammar = Sequence(
+        "DROP",
+        "TAG",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+    )
+
+
+class DropTaskStatement(BaseSegment):
+    """A snowflake `DROP TASK ...` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/drop-task.html
+    """
+
+    type = "drop_task_statement"
+    match_grammar = Sequence(
+        "DROP",
+        "TASK",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+    )
+
+
+class DropWarehouseStatement(BaseSegment):
+    """A snowflake `DROP WAREHOUSE ...` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/drop-warehouse.html
+    """
+
+    type = "drop_warehouse_statement"
+    match_grammar = Sequence(
+        "DROP",
+        "WAREHOUSE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("SingleIdentifierGrammar"),
     )
