@@ -1734,7 +1734,7 @@ ansi_dialect.add(
     # Expression_C_Grammar
     # https://www.cockroachlabs.com/docs/v20.2/sql-grammar.htm#c_expr
     Expression_C_Grammar=OneOf(
-        Sequence("EXISTS", Bracketed(Ref("SelectStatementSegment"))),
+        Sequence("EXISTS", Bracketed(Ref("SelectableGrammar"))),
         # should be first priority, otherwise EXISTS() would be matched as a function
         Sequence(
             OneOf(
