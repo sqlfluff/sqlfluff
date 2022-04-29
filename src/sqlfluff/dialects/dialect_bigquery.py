@@ -1362,6 +1362,24 @@ class MergeInsertClauseSegment(ansi.MergeInsertClauseSegment):
     )
 
 
+class DeleteStatementSegment(BaseSegment):
+    """A `DELETE` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/dml-syntax#delete_statement
+    """
+
+    type = "delete_statement"
+    # match grammar. This one makes sense in the context of knowing that it's
+    # definitely a statement, we just don't know what type yet.
+    match_grammar: Matchable = Sequence(
+        "DELETE",
+        Ref.keyword("FROM", optional=True),
+        Ref("ObjectReferenceSegment"),
+        Ref("AliasExpressionSegment", optional=True),
+        Ref("WhereClauseSegment", optional=True),
+    )
+
+
 class ExportStatementSegment(BaseSegment):
     """`EXPORT` statement.
 
