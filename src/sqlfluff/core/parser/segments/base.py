@@ -1090,7 +1090,7 @@ class BaseSegment:
         """If segment's first/last child is non-code, return index."""
         if segments:
             for idx in [0, -1]:
-                if not cls._is_code_or_meta(segments[idx]):  # pragma: no cover
+                if not cls._is_code_or_meta(segments[idx]):
                     return idx
         return None
 
@@ -1202,6 +1202,7 @@ class BaseSegment:
             if fixes_applied and not r.can_start_end_non_code:
                 idx_non_code = self._find_start_or_end_non_code(seg_buffer)
                 if idx_non_code is not None:
+                    save_seg_buffer = list(seg_buffer)
                     # If there are non-code segments at the beginning or end,
                     # pull them out and bubble them up the tree.
                     for seg in seg_buffer:
@@ -1216,7 +1217,16 @@ class BaseSegment:
                         else:
                             break
                     after.reverse()
-                    seg_buffer = seg_buffer[: -len(after)]
+                    seg_buffer = seg_buffer[: len(seg_buffer) - len(after)]
+                    assert before + seg_buffer + after == save_seg_buffer
+                    linter_logger.debug(
+                        "After applying fixes, segment %s violated "
+                        "'can_start_end_non_code=False' constraint. Autofixing, "
+                        "before=%s, after=%s",
+                        self,
+                        before,
+                        after,
+                    )
             r = r.__class__(
                 # Realign the segments within
                 segments=self._position_segments(
