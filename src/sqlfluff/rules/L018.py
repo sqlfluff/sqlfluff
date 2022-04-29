@@ -102,12 +102,14 @@ class Rule_L018(BaseRule):
             for cte in context.functional.segment.children(
                 sp.is_type("common_table_expression")
             ).iterate_segments():
-                cte_end_brackets.add(
+                cte_end_bracket = cte_end_brackets.add(
                     cte.children()
                     .last(sp.is_type("bracketed"))
                     .children()
-                    .last(sp.is_name("end_bracket"))[0]
+                    .last(sp.is_name("end_bracket"))
                 )
+                if cte_end_bracket:
+                    cte_end_brackets.add(cte_end_bracket[0])
             for seg in context.segment.iter_segments(
                 expanding=["common_table_expression", "bracketed"], pass_through=True
             ):
