@@ -751,7 +751,7 @@ def fix(
             )
             click.echo(
                 colorize(
-                    "Use --fix-even-unparsable' to attempt to fix the SQL anyway.",
+                    "Use --FIX-EVEN-UNPARSABLE' to attempt to fix the SQL anyway.",
                     Color.red,
                 ),
                 err=True,
