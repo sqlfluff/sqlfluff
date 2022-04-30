@@ -970,3 +970,27 @@ test_fail_hanging_indents_fix_mixed_indents:
     rules:
       L003:
         hanging_indents: False
+
+test_pass_indented_procedure_parameters:
+  pass_str: |
+    CREATE OR ALTER PROCEDURE some_procedure
+        @param1 int
+    AS SELECT * FROM dbo
+  configs:
+    core:
+      dialect: tsql
+
+test_fail_unindented_procedure_parameters:
+  fail_str: |
+    CREATE OR ALTER PROCEDURE someOtherProcedure
+    @param1 nvarchar(100),
+    @param2 nvarchar(20)
+    AS SELECT * FROM dbo
+  fix_str: |
+    CREATE OR ALTER PROCEDURE someOtherProcedure
+        @param1 nvarchar(100),
+        @param2 nvarchar(20)
+    AS SELECT * FROM dbo
+  configs:
+    core:
+      dialect: tsql
