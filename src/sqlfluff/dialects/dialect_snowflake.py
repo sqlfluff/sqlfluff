@@ -2777,44 +2777,115 @@ class CreateFileFormatSegment(BaseSegment):
     """
 
     type = "create_file_format_segment"
-
     match_grammar = Sequence(
         "CREATE",
         Ref("OrReplaceGrammar", optional=True),
         Sequence("FILE", "FORMAT"),
         Ref("IfNotExistsGrammar", optional=True),
         Ref("ObjectReferenceSegment"),
-        # Non-delimited works fine.
-        # TODO: Allow below segments to be delimited.
-        OneOf(
-            Ref("CsvFileFormatTypeOptions"),  # TODO: Add Other File Formats.
+        Sequence(
+            "TYPE",
+            Ref("EqualsSegment"),
+            OneOf(
+                Sequence(
+                    "CSV",
+                    OneOf(
+                        Sequence(
+                            Ref("CommaSegment"),
+                            Delimited(Ref("CsvFileFormatTypeParameters")),
+                            Ref("CommaSegment", optional=True),
+                        ),
+                        AnyNumberOf(Ref("CsvFileFormatTypeParameters")),
+                        optional=True,
+                    ),
+                ),
+                Sequence(
+                    "JSON",
+                    OneOf(
+                        Sequence(
+                            Ref("CommaSegment"),
+                            Delimited(Ref("JsonFileFormatTypeParameters")),
+                            Ref("CommaSegment", optional=True),
+                        ),
+                        AnyNumberOf(Ref("JsonFileFormatTypeParameters")),
+                        optional=True,
+                    ),
+                ),
+                Sequence(
+                    "AVRO",
+                    OneOf(
+                        Sequence(
+                            Ref("CommaSegment"),
+                            Delimited(Ref("AvroFileFormatTypeParameters")),
+                            Ref("CommaSegment", optional=True),
+                        ),
+                        AnyNumberOf(Ref("AvroFileFormatTypeParameters")),
+                        optional=True,
+                    ),
+                ),
+                Sequence(
+                    "ORC",
+                    OneOf(
+                        Sequence(
+                            Ref("CommaSegment"),
+                            Delimited(Ref("OrcFileFormatTypeParameters")),
+                            Ref("CommaSegment", optional=True),
+                        ),
+                        AnyNumberOf(Ref("OrcFileFormatTypeParameters")),
+                        optional=True,
+                    ),
+                ),
+                Sequence(
+                    "PARQUET",
+                    OneOf(
+                        Sequence(
+                            Ref("CommaSegment"),
+                            Delimited(Ref("ParquetFileFormatTypeParameters")),
+                            Ref("CommaSegment", optional=True),
+                        ),
+                        AnyNumberOf(Ref("ParquetFileFormatTypeParameters")),
+                        optional=True,
+                    ),
+                ),
+                Sequence(
+                    "XML",
+                    OneOf(
+                        Sequence(
+                            Ref("CommaSegment"),
+                            Delimited(Ref("XmlFileFormatTypeParameters")),
+                            Ref("CommaSegment", optional=True),
+                        ),
+                        AnyNumberOf(Ref("XmlFileFormatTypeParameters")),
+                        optional=True,
+                    ),
+                ),
+            ),
         ),
         Ref("CommentEqualsClauseSegment", optional=True),
     )
 
 
-class CsvFileFormatTypeOptions(BaseSegment):
+class CsvFileFormatTypeParameters(BaseSegment):
     """A Snowflake File Format Type Options segment for CSV.
 
     https://docs.snowflake.com/en/sql-reference/sql/create-file-format.html
     """
 
-    type = "csv_file_format_type_options"
+    type = "csv_file_format_type_parameters"
 
-    # Snowflake allows repeated arguments to be passed so AnyNumberOf() is appropriate.
-    # AnyNumberOf() also helps resolve the issue that passed arguments can be delimited,
-    # non-delimited, or a mixture of both.
-    # We include Ref("CommaSegment") to allow for the mixture of non/delimited arguments.
-    match_grammar = AnyNumberOf(
-        # Documentation suggests that TYPE = {} is required but it is actually optional.
-        Sequence("TYPE", Ref("EqualsSegment"), "CSV"),
+    match_grammar = OneOf(
         Sequence(
             "COMPRESSION",
             Ref("EqualsSegment"),
-            # Remove OneOf().
             OneOf(
+                "AUTO",
+                "GZIP",
+                "BZ2",
+                "BROTLI",
+                "ZSTD",
+                "DEFLATE",
+                "RAW_DEFLATE",
                 "NONE",
-                Ref("NakedIdentifierSegment"),  # TODO: Replace this with keywords.
             ),
         ),
         Sequence(
@@ -2891,7 +2962,190 @@ class CsvFileFormatTypeOptions(BaseSegment):
                 Ref("QuotedLiteralSegment"),
             ),
         ),
-        Ref("CommaSegment"),
+    )
+
+
+class JsonFileFormatTypeParameters(BaseSegment):
+    """A Snowflake File Format Type Options segment for JSON.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-file-format.html
+    """
+
+    type = "json_file_format_type_parameters"
+
+    match_grammar = OneOf(
+        Sequence(
+            "COMPRESSION",
+            Ref("EqualsSegment"),
+            OneOf(
+                "AUTO",
+                "GZIP",
+                "BZ2",
+                "BROTLI",
+                "ZSTD",
+                "DEFLATE",
+                "RAW_DEFLATE",
+                "NONE",
+            ),
+        ),
+        Sequence(
+            "DATE_FORMAT",
+            Ref("EqualsSegment"),
+            OneOf(Ref("QuotedLiteralSegment"), "AUTO"),
+        ),
+        Sequence(
+            "TIME_FORMAT",
+            Ref("EqualsSegment"),
+            OneOf(Ref("QuotedLiteralSegment"), "AUTO"),
+        ),
+        Sequence(
+            "TIMESTAMP_FORMAT",
+            Ref("EqualsSegment"),
+            OneOf(Ref("QuotedLiteralSegment"), "AUTO"),
+        ),
+        Sequence("BINARY_FORMAT", Ref("EqualsSegment"), OneOf("HEX", "BASE64", "UTF8")),
+        Sequence("TRIM_SPACE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
+        Sequence(
+            "NULL_IF",
+            Ref("EqualsSegment"),
+            Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
+        ),
+        Sequence("FILE_EXTENSION", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")),
+        Sequence("ENABLE_OCTAL", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
+        Sequence("ALLOW_DUPLICATE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
+        Sequence(
+            "STRIP_OUTER_ARRAY", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
+        ),
+        Sequence(
+            "STRIP_NULL_VALUES", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
+        ),
+        Sequence(
+            "REPLACE_INVALID_CHARACTERS",
+            Ref("EqualsSegment"),
+            Ref("BooleanLiteralGrammar"),
+        ),
+        Sequence(
+            "IGNORE_UTF8_ERRORS", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
+        ),
+        Sequence(
+            "SKIP_BYTE_ORDER_MARK", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
+        ),
+    )
+
+
+class AvroFileFormatTypeParameters(BaseSegment):
+    """A Snowflake File Format Type Options segment for AVRO.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-file-format.html
+    """
+
+    type = "avro_file_format_type_parameters"
+
+    match_grammar = OneOf(
+        Sequence(
+            "COMPRESSION",
+            Ref("EqualsSegment"),
+            OneOf(
+                "AUTO",
+                "GZIP",
+                "BZ2",
+                "BROTLI",
+                "ZSTD",
+                "DEFLATE",
+                "RAW_DEFLATE",
+                "NONE",
+            ),
+        ),
+        Sequence("TRIM_SPACE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
+        Sequence(
+            "NULL_IF",
+            Ref("EqualsSegment"),
+            Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
+        ),
+    )
+
+
+class OrcFileFormatTypeParameters(BaseSegment):
+    """A Snowflake File Format Type Options segment for ORC.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-file-format.html
+    """
+
+    type = "orc_file_format_type_parameters"
+
+    match_grammar = OneOf(
+        Sequence("TRIM_SPACE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
+        Sequence(
+            "NULL_IF",
+            Ref("EqualsSegment"),
+            Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
+        ),
+    )
+
+
+class ParquetFileFormatTypeParameters(BaseSegment):
+    """A Snowflake File Format Type Options segment for PARQUET.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-file-format.html
+    """
+
+    type = "parquet_file_format_type_parameters"
+
+    match_grammar = OneOf(
+        Sequence(
+            "COMPRESSION", Ref("EqualsSegment"), OneOf("AUTO", "LZO", "SNAPPY", "NONE")
+        ),
+        Sequence(
+            "SNAPPY_COMPRESSION", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
+        ),
+        Sequence("TRIM_SPACE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
+        Sequence(
+            "NULL_IF",
+            Ref("EqualsSegment"),
+            Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
+        ),
+    )
+
+
+class XmlFileFormatTypeParameters(BaseSegment):
+    """A Snowflake File Format Type Options segment for XML.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-file-format.html
+    """
+
+    type = "xml_file_format_type_parameters"
+
+    match_grammar = OneOf(
+        Sequence(
+            "COMPRESSION",
+            Ref("EqualsSegment"),
+            OneOf(
+                "AUTO",
+                "GZIP",
+                "BZ2",
+                "BROTLI",
+                "ZSTD",
+                "DEFLATE",
+                "RAW_DEFLATE",
+                "NONE",
+            ),
+        ),
+        Sequence(
+            "IGNORE_UTF8_ERRORS", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
+        ),
+        Sequence("PRESERVE_SPACE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
+        Sequence(
+            "STRIP_OUTER_ELEMENT", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
+        ),
+        Sequence(
+            "DISABLE_SNOWFLAKE_DATA", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
+        ),
+        Sequence(
+            "DISABLE_AUTO_CONVERT", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
+        ),
+        Sequence(
+            "SKIP_BYTE_ORDER_MARK", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
+        ),
     )
 
 
