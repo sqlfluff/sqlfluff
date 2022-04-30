@@ -3918,13 +3918,9 @@ class ForXmlSegment(BaseSegment):
         "FOR",
         "XML",
         OneOf(
-            Sequence(
-                "RAW", Bracketed(Ref("SingleQuotedIdentifierSegment"), optional=True)
-            ),
-            Ref.keyword("AUTO"),
-            Ref.keyword("EXPLICIT"),
-            Sequence(
-                "PATH", Bracketed(Ref("SingleQuotedIdentifierSegment"), optional=True)
-            ),
+            Sequence("RAW", Bracketed(Ref("QuotedLiteralSegment"), optional=True)),
+            "AUTO",
+            "EXPLICIT",
+            Sequence("PATH", Bracketed(Ref("QuotedLiteralSegment"), optional=True)),
         ),
     )
