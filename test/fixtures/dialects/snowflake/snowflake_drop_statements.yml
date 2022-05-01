@@ -3,10 +3,10 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: cb02a5d6b3a0fe270cadd7f60fc7d42f32df147f1d15557f65c6b7469cc6e14c
+_hash: 243c3c039933bfedfdf925f528525e71b963ee62e187ad6ffd3ea70ccc8744d4
 file:
 - statement:
-    drop_connection_statement:
+    drop_object_statement:
     - keyword: DROP
     - keyword: CONNECTION
     - object_reference:
@@ -15,7 +15,7 @@ file:
       - identifier: T1
 - statement_terminator: ;
 - statement:
-    drop_connection_statement:
+    drop_object_statement:
     - keyword: DROP
     - keyword: CONNECTION
     - keyword: IF
@@ -87,7 +87,7 @@ file:
     - keyword: RESTRICT
 - statement_terminator: ;
 - statement:
-    drop_file_format_statement:
+    drop_object_statement:
     - keyword: DROP
     - keyword: FILE
     - keyword: FORMAT
@@ -97,7 +97,7 @@ file:
       - identifier: MY_FORMAT
 - statement_terminator: ;
 - statement:
-    drop_file_format_statement:
+    drop_object_statement:
     - keyword: DROP
     - keyword: FILE
     - keyword: FORMAT
@@ -147,14 +147,14 @@ file:
         - end_bracket: )
 - statement_terminator: ;
 - statement:
-    drop_integration_statement:
+    drop_object_statement:
     - keyword: DROP
     - keyword: INTEGRATION
     - object_reference:
         identifier: T2
 - statement_terminator: ;
 - statement:
-    drop_integration_statement:
+    drop_object_statement:
     - keyword: DROP
     - keyword: API
     - keyword: INTEGRATION
@@ -164,14 +164,14 @@ file:
         identifier: T2
 - statement_terminator: ;
 - statement:
-    drop_managed_account_statement:
+    drop_object_statement:
     - keyword: DROP
     - keyword: MANAGED
     - keyword: ACCOUNT
     - identifier: READER_ACCT1
 - statement_terminator: ;
 - statement:
-    drop_masking_policy_statement:
+    drop_object_statement:
     - keyword: DROP
     - keyword: MASKING
     - keyword: POLICY
@@ -200,14 +200,14 @@ file:
       - identifier: MV1
 - statement_terminator: ;
 - statement:
-    drop_network_policy_statement:
+    drop_object_statement:
     - keyword: DROP
     - keyword: NETWORK
     - keyword: POLICY
     - identifier: MY_POLICY
 - statement_terminator: ;
 - statement:
-    drop_network_policy_statement:
+    drop_object_statement:
     - keyword: DROP
     - keyword: NETWORK
     - keyword: POLICY
@@ -216,7 +216,7 @@ file:
     - identifier: MY_POLICY
 - statement_terminator: ;
 - statement:
-    drop_pipe_statement:
+    drop_object_statement:
     - keyword: DROP
     - keyword: PIPE
     - object_reference:
@@ -225,7 +225,7 @@ file:
       - identifier: MYPIPE
 - statement_terminator: ;
 - statement:
-    drop_pipe_statement:
+    drop_object_statement:
     - keyword: DROP
     - keyword: PIPE
     - keyword: IF
@@ -268,7 +268,7 @@ file:
           end_bracket: )
 - statement_terminator: ;
 - statement:
-    drop_resource_monitor_statement:
+    drop_object_statement:
     - keyword: DROP
     - keyword: RESOURCE
     - keyword: MONITOR
@@ -290,7 +290,7 @@ file:
     - identifier: MYROLE
 - statement_terminator: ;
 - statement:
-    drop_row_access_statement:
+    drop_object_statement:
     - keyword: DROP
     - keyword: ROW
     - keyword: ACCESS
@@ -299,7 +299,7 @@ file:
         identifier: RAP_TABLE_EMPLOYEE_INFO
 - statement_terminator: ;
 - statement:
-    drop_row_access_statement:
+    drop_object_statement:
     - keyword: DROP
     - keyword: ROW
     - keyword: ACCESS
@@ -345,7 +345,7 @@ file:
       - identifier: INVOICE_SEQUENCE_NUMBER
 - statement_terminator: ;
 - statement:
-    drop_sequence_statement:
+    drop_object_statement:
     - keyword: DROP
     - keyword: SEQUENCE
     - keyword: IF
@@ -356,7 +356,7 @@ file:
       - identifier: INVOICE_SEQUENCE_NUMBER
 - statement_terminator: ;
 - statement:
-    drop_sequence_statement:
+    drop_object_statement:
     - keyword: DROP
     - keyword: SEQUENCE
     - keyword: IF
@@ -368,14 +368,14 @@ file:
     - keyword: CASCADE
 - statement_terminator: ;
 - statement:
-    drop_session_policy_statement:
+    drop_object_statement:
     - keyword: DROP
     - keyword: SESSION
     - keyword: POLICY
     - identifier: SESSION_POLICY_PRODUCTION_1
 - statement_terminator: ;
 - statement:
-    drop_session_policy_statement:
+    drop_object_statement:
     - keyword: DROP
     - keyword: SESSION
     - keyword: POLICY
@@ -384,14 +384,14 @@ file:
     - identifier: SESSION_POLICY_PRODUCTION_1
 - statement_terminator: ;
 - statement:
-    drop_share_statement:
+    drop_object_statement:
     - keyword: DROP
     - keyword: SHARE
     - object_reference:
         identifier: SALES_S
 - statement_terminator: ;
 - statement:
-    drop_stage_statement:
+    drop_object_statement:
     - keyword: DROP
     - keyword: STAGE
     - object_reference:
@@ -400,7 +400,7 @@ file:
       - identifier: MY_STAGE
 - statement_terminator: ;
 - statement:
-    drop_stage_statement:
+    drop_object_statement:
     - keyword: DROP
     - keyword: STAGE
     - keyword: IF
@@ -411,7 +411,7 @@ file:
       - identifier: MY_STAGE
 - statement_terminator: ;
 - statement:
-    drop_stream_statement:
+    drop_object_statement:
     - keyword: DROP
     - keyword: STREAM
     - object_reference:
@@ -420,7 +420,7 @@ file:
       - identifier: T2
 - statement_terminator: ;
 - statement:
-    drop_stream_statement:
+    drop_object_statement:
     - keyword: DROP
     - keyword: STREAM
     - keyword: IF
@@ -463,14 +463,14 @@ file:
     - keyword: CASCADE
 - statement_terminator: ;
 - statement:
-    drop_tag_statement:
+    drop_object_statement:
     - keyword: DROP
     - keyword: TAG
     - object_reference:
         identifier: COST_CENTER
 - statement_terminator: ;
 - statement:
-    drop_tag_statement:
+    drop_object_statement:
     - keyword: DROP
     - keyword: TAG
     - keyword: IF
@@ -479,7 +479,7 @@ file:
         identifier: COST_CENTER
 - statement_terminator: ;
 - statement:
-    drop_task_statement:
+    drop_object_statement:
     - keyword: DROP
     - keyword: TASK
     - object_reference:
@@ -488,7 +488,7 @@ file:
       - identifier: T2
 - statement_terminator: ;
 - statement:
-    drop_task_statement:
+    drop_object_statement:
     - keyword: DROP
     - keyword: TASK
     - keyword: IF
@@ -535,13 +535,13 @@ file:
       - identifier: MY_VIEW
 - statement_terminator: ;
 - statement:
-    drop_warehouse_statement:
+    drop_object_statement:
     - keyword: DROP
     - keyword: WAREHOUSE
     - identifier: MY_WAREHOUSE
 - statement_terminator: ;
 - statement:
-    drop_warehouse_statement:
+    drop_object_statement:
     - keyword: DROP
     - keyword: WAREHOUSE
     - keyword: IF
