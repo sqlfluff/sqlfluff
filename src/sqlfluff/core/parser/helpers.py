@@ -32,7 +32,7 @@ def check_still_complete(
         segment = unmatched_segments[0] if unmatched_segments else None
         raise SQLParseError(
             f"Could not parse: {current_str}",
-            segment,
+            segment=segment,
         )
     return True
 
