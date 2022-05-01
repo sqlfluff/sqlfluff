@@ -352,6 +352,15 @@ def test__cli__command_lint_parse(command):
             ),
             1,
         ),
+        # Template syntax error in macro file
+        (
+            (
+                lint,
+                ["test/fixtures/cli/unknown_jinja_tag/test.sql", "-vvvvvvv"],
+                "y",
+            ),
+            65,
+        ),
     ],
 )
 def test__cli__command_lint_parse_with_retcode(command, ret_code):
