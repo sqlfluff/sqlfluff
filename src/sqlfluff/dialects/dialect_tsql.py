@@ -1818,7 +1818,9 @@ class CreateProcedureStatementSegment(BaseSegment):
         Sequence("OR", "ALTER", optional=True),
         OneOf("PROCEDURE", "PROC"),
         Ref("ObjectReferenceSegment"),
+        Indent,
         Ref("ProcedureParameterListGrammar", optional=True),
+        Dedent,
         "AS",
         Ref("ProcedureDefinitionGrammar"),
     )
