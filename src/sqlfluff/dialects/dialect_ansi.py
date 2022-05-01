@@ -1390,7 +1390,7 @@ class SelectClauseSegment(BaseSegment):
 
     type = "select_clause"
     match_grammar: Matchable = StartsWith(
-        Sequence("SELECT", Ref("WildcardExpressionSegment", optional=True)),
+        "SELECT",
         terminator=OneOf(
             "FROM",
             "WHERE",
