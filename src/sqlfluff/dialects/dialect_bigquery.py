@@ -199,6 +199,30 @@ bigquery_dialect.replace(
             bracket_pairs_set="angle_bracket_pairs",
         ),
     ),
+    StructTypeGrammar=Sequence(
+        "STRUCT",
+        Bracketed(
+            Delimited(  # Comma-separated list of field names/types
+                Sequence(
+                    OneOf(
+                        # ParameterNames can look like Datatypes so can't use
+                        # Optional=True here and instead do a OneOf in order
+                        # with DataType only first, followed by both.
+                        Ref("DatatypeSegment"),
+                        Sequence(
+                            Ref("ParameterNameSegment"),
+                            Ref("DatatypeSegment"),
+                        ),
+                    ),
+                    Ref("OptionsSegment", optional=True),
+                ),
+                delimiter=Ref("CommaSegment"),
+                bracket_pairs_set="angle_bracket_pairs",
+            ),
+            bracket_type="angle",
+            bracket_pairs_set="angle_bracket_pairs",
+        ),
+    ),
     # BigQuery allows underscore in parameter names, and also anything if quoted in
     # backticks
     ParameterNameSegment=OneOf(
@@ -683,30 +707,8 @@ class DatatypeSegment(ansi.DatatypeSegment):
     match_grammar = OneOf(  # Parameter type
         Ref("DatatypeIdentifierSegment"),  # Simple type
         Sequence("ANY", "TYPE"),  # SQL UDFs can specify this "type"
-        Sequence(
-            "ARRAY",
-            Bracketed(
-                Ref("DatatypeSegment"),
-                bracket_type="angle",
-                bracket_pairs_set="angle_bracket_pairs",
-            ),
-        ),
-        Sequence(
-            "STRUCT",
-            Bracketed(
-                Delimited(  # Comma-separated list of field names/types
-                    Sequence(
-                        Ref("ParameterNameSegment"),
-                        Ref("DatatypeSegment"),
-                        Ref("OptionsSegment", optional=True),
-                    ),
-                    delimiter=Ref("CommaSegment"),
-                    bracket_pairs_set="angle_bracket_pairs",
-                ),
-                bracket_type="angle",
-                bracket_pairs_set="angle_bracket_pairs",
-            ),
-        ),
+        Ref("SimpleArrayTypeGrammar"),
+        Ref("StructTypeGrammar"),
     )
 
 
@@ -1357,6 +1359,24 @@ class MergeInsertClauseSegment(ansi.MergeInsertClauseSegment):
             Dedent,
         ),
         Sequence("INSERT", "ROW"),
+    )
+
+
+class DeleteStatementSegment(BaseSegment):
+    """A `DELETE` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/dml-syntax#delete_statement
+    """
+
+    type = "delete_statement"
+    # match grammar. This one makes sense in the context of knowing that it's
+    # definitely a statement, we just don't know what type yet.
+    match_grammar: Matchable = Sequence(
+        "DELETE",
+        Ref.keyword("FROM", optional=True),
+        Ref("ObjectReferenceSegment"),
+        Ref("AliasExpressionSegment", optional=True),
+        Ref("WhereClauseSegment", optional=True),
     )
 
 
