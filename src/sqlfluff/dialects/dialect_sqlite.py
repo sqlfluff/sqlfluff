@@ -4,10 +4,11 @@ https://www.sqlite.org/
 """
 
 from sqlfluff.core.parser import (
+    BaseSegment,
+    Matchable,
     OneOf,
     Ref,
     Sequence,
-    BaseSegment,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -30,4 +31,21 @@ class TableEndClauseSegment(BaseSegment):
     """
 
     type = "table_end_clause_segment"
-    match_grammar = Sequence("WITHOUT", "ROWID")
+    match_grammar: Matchable = Sequence("WITHOUT", "ROWID")
+
+
+class IndexColumnDefinitionSegment(BaseSegment):
+    """A column definition for CREATE INDEX.
+
+    Overriden from ANSI to allow expressions
+    https://www.sqlite.org/expridx.html.
+    """
+
+    type = "index_column_definition"
+    match_grammar: Matchable = Sequence(
+        OneOf(
+            Ref("SingleIdentifierGrammar"),  # Column name
+            Ref("ExpressionSegment"),  # Expression for simple functions
+        ),
+        OneOf("ASC", "DESC", optional=True),
+    )

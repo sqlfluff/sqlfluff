@@ -1,0 +1,81 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: d73f0a4dd4b2c9fc14f23e762cd23d1e2538616b6b111451093aa8679bee5e30
+file:
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - index_reference:
+        identifier: li1
+    - keyword: 'ON'
+    - table_reference:
+        identifier: entries_data
+    - bracketed:
+      - start_bracket: (
+      - index_column_definition:
+          identifier: id
+      - comma: ','
+      - index_column_definition:
+          expression:
+            function:
+              function_name:
+                function_name_identifier: LENGTH
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    identifier: chunk
+                end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - index_reference:
+        identifier: acctchng_magnitude
+    - keyword: 'ON'
+    - table_reference:
+        identifier: account_change
+    - bracketed:
+      - start_bracket: (
+      - index_column_definition:
+          identifier: acct_no
+      - comma: ','
+      - index_column_definition:
+          expression:
+            function:
+              function_name:
+                function_name_identifier: abs
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    identifier: amt
+                end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - index_reference:
+        identifier: t2xy
+    - keyword: 'ON'
+    - table_reference:
+        identifier: t2
+    - bracketed:
+        start_bracket: (
+        index_column_definition:
+          expression:
+          - column_reference:
+              identifier: x
+          - binary_operator: +
+          - column_reference:
+              identifier: y
+        end_bracket: )
+- statement_terminator: ;
