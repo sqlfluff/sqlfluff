@@ -845,26 +845,26 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterViewStatementSegment"),
             Ref("AlterMaterializedViewStatementSegment"),
             Ref("RemoveStatementSegment"),
-            Ref("DropProcedureStatement"),
-            Ref("DropExternalTableStatement"),
-            Ref("DropFileFormatStatement"),
-            Ref("DropConnectionStatement"),
-            Ref("DropIntegrationStatement"),
-            Ref("DropManagedAccountStatement"),
-            Ref("DropMaskingPolicyStatement"),
-            Ref("DropMaterializedViewStatement"),
-            Ref("DropNetworkPolicyStatement"),
-            Ref("DropPipeStatement"),
-            Ref("DropResourceMonitorStatement"),
-            Ref("DropRowAccessPolicyStatement"),
-            Ref("DropSequenceStatement"),
-            Ref("DropSessionPolicyStatement"),
-            Ref("DropShareStatement"),
-            Ref("DropStageStatement"),
-            Ref("DropStreamStatement"),
-            Ref("DropTagStatement"),
-            Ref("DropTaskStatement"),
-            Ref("DropWarehouseStatement"),
+            Ref("DropProcedureStatementSegment"),
+            Ref("DropExternalTableStatementSegment"),
+            Ref("DropFileFormatStatementSegment"),
+            Ref("DropConnectionStatementSegment"),
+            Ref("DropIntegrationStatementSegment"),
+            Ref("DropManagedAccountStatementSegment"),
+            Ref("DropMaskingPolicyStatementSegment"),
+            Ref("DropMaterializedViewStatementSegment"),
+            Ref("DropNetworkPolicyStatementSegment"),
+            Ref("DropPipeStatementSegment"),
+            Ref("DropResourceMonitorStatementSegment"),
+            Ref("DropRowAccessPolicyStatementSegment"),
+            Ref("DropSequenceStatementSegment"),
+            Ref("DropSessionPolicyStatementSegment"),
+            Ref("DropShareStatementSegment"),
+            Ref("DropStageStatementSegment"),
+            Ref("DropStreamStatementSegment"),
+            Ref("DropTagStatementSegment"),
+            Ref("DropTaskStatementSegment"),
+            Ref("DropWarehouseStatementSegment"),
         ],
         remove=[
             Ref("CreateTypeStatementSegment"),
@@ -4636,7 +4636,7 @@ class RemoveStatementSegment(BaseSegment):
     )
 
 
-class DropProcedureStatement(BaseSegment):
+class DropProcedureStatementSegment(BaseSegment):
     """A snowflake `DROP PROCEDURE ...` statement.
 
     https://docs.snowflake.com/en/sql-reference/sql/drop-procedure.html
@@ -4652,7 +4652,7 @@ class DropProcedureStatement(BaseSegment):
     )
 
 
-class DropExternalTableStatement(BaseSegment):
+class DropExternalTableStatementSegment(BaseSegment):
     """A snowflake `DROP EXTERNAL TABLE ...` statement.
 
     https://docs.snowflake.com/en/sql-reference/sql/drop-external-table.html
@@ -4669,7 +4669,7 @@ class DropExternalTableStatement(BaseSegment):
     )
 
 
-class DropConnectionStatement(BaseSegment):
+class DropConnectionStatementSegment(BaseSegment):
     """A snowflake `DROP CONNECTION ...` statement.
 
     https://docs.snowflake.com/en/sql-reference/sql/drop-connection.html
@@ -4684,7 +4684,7 @@ class DropConnectionStatement(BaseSegment):
     )
 
 
-class DropFileFormatStatement(BaseSegment):
+class DropFileFormatStatementSegment(BaseSegment):
     """A snowflake `DROP FILE FORMAT ...` statement.
 
     https://docs.snowflake.com/en/sql-reference/sql/drop-file-format.html
@@ -4700,7 +4700,7 @@ class DropFileFormatStatement(BaseSegment):
     )
 
 
-class DropIntegrationStatement(BaseSegment):
+class DropIntegrationStatementSegment(BaseSegment):
     """A snowflake `DROP INTEGRATION ...` statement.
 
     https://docs.snowflake.com/en/sql-reference/sql/drop-integration.html
@@ -4731,7 +4731,7 @@ class DropFunctionStatementSegment(BaseSegment):
     )
 
 
-class DropManagedAccountStatement(BaseSegment):
+class DropManagedAccountStatementSegment(BaseSegment):
     """A snowflake `DROP MANAGED ACCOUNT ...` statement.
 
     https://docs.snowflake.com/en/sql-reference/sql/drop-managed-account.html
@@ -4743,7 +4743,7 @@ class DropManagedAccountStatement(BaseSegment):
     )
 
 
-class DropMaskingPolicyStatement(BaseSegment):
+class DropMaskingPolicyStatementSegment(BaseSegment):
     """A snowflake `DROP MASKING POLICY ...` statement.
 
     https://docs.snowflake.com/en/sql-reference/sql/drop-masking-policy.html
@@ -4755,7 +4755,7 @@ class DropMaskingPolicyStatement(BaseSegment):
     )
 
 
-class DropMaterializedViewStatement(BaseSegment):
+class DropMaterializedViewStatementSegment(BaseSegment):
     """A snowflake `DROP MATERIALIZED VIEW ...` statement.
 
     https://docs.snowflake.com/en/sql-reference/sql/drop-materialized-view.html
@@ -4771,7 +4771,7 @@ class DropMaterializedViewStatement(BaseSegment):
     )
 
 
-class DropNetworkPolicyStatement(BaseSegment):
+class DropNetworkPolicyStatementSegment(BaseSegment):
     """A snowflake `DROP NETWORK POLICY ...` statement.
 
     https://docs.snowflake.com/en/sql-reference/sql/drop-network-policy.html
@@ -4787,7 +4787,7 @@ class DropNetworkPolicyStatement(BaseSegment):
     )
 
 
-class DropPipeStatement(BaseSegment):
+class DropPipeStatementSegment(BaseSegment):
     """A snowflake `DROP PIPE ...` statement.
 
     https://docs.snowflake.com/en/sql-reference/sql/drop-pipe.html
@@ -4802,7 +4802,7 @@ class DropPipeStatement(BaseSegment):
     )
 
 
-class DropResourceMonitorStatement(BaseSegment):
+class DropResourceMonitorStatementSegment(BaseSegment):
     """A snowflake `DROP RESOURCE MONITOR ...` statement.
 
     https://docs.snowflake.com/en/sql-reference/sql/drop-resource-monitor.html
@@ -4814,7 +4814,7 @@ class DropResourceMonitorStatement(BaseSegment):
     )
 
 
-class DropRowAccessPolicyStatement(BaseSegment):
+class DropRowAccessPolicyStatementSegment(BaseSegment):
     """A snowflake `DROP ROW ACCESS POLICY ...` statement.
 
     https://docs.snowflake.com/en/sql-reference/sql/drop-row-access-policy.html
@@ -4831,7 +4831,7 @@ class DropRowAccessPolicyStatement(BaseSegment):
     )
 
 
-class DropSequenceStatement(BaseSegment):
+class DropSequenceStatementSegment(BaseSegment):
     """A snowflake `DROP SEQUENCE ...` statement.
 
     https://docs.snowflake.com/en/sql-reference/sql/drop-sequence.html
@@ -4847,7 +4847,7 @@ class DropSequenceStatement(BaseSegment):
     )
 
 
-class DropSessionPolicyStatement(BaseSegment):
+class DropSessionPolicyStatementSegment(BaseSegment):
     """A snowflake `DROP SEQUENCE ...` statement.
 
     https://docs.snowflake.com/en/sql-reference/sql/drop-session-policy.html
@@ -4863,7 +4863,7 @@ class DropSessionPolicyStatement(BaseSegment):
     )
 
 
-class DropShareStatement(BaseSegment):
+class DropShareStatementSegment(BaseSegment):
     """A snowflake `DROP SHARE ...` statement.
 
     https://docs.snowflake.com/en/sql-reference/sql/drop-share.html
@@ -4873,7 +4873,7 @@ class DropShareStatement(BaseSegment):
     match_grammar = Sequence("DROP", "SHARE", Ref("ObjectReferenceSegment"))
 
 
-class DropStageStatement(BaseSegment):
+class DropStageStatementSegment(BaseSegment):
     """A snowflake `DROP STAGE ...` statement.
 
     https://docs.snowflake.com/en/sql-reference/sql/drop-stage.html
@@ -4888,7 +4888,7 @@ class DropStageStatement(BaseSegment):
     )
 
 
-class DropStreamStatement(BaseSegment):
+class DropStreamStatementSegment(BaseSegment):
     """A snowflake `DROP STREAM ...` statement.
 
     https://docs.snowflake.com/en/sql-reference/sql/drop-stream.html
@@ -4903,7 +4903,7 @@ class DropStreamStatement(BaseSegment):
     )
 
 
-class DropTagStatement(BaseSegment):
+class DropTagStatementSegment(BaseSegment):
     """A snowflake `DROP TAG ...` statement.
 
     https://docs.snowflake.com/en/sql-reference/sql/drop-tag.html
@@ -4918,7 +4918,7 @@ class DropTagStatement(BaseSegment):
     )
 
 
-class DropTaskStatement(BaseSegment):
+class DropTaskStatementSegment(BaseSegment):
     """A snowflake `DROP TASK ...` statement.
 
     https://docs.snowflake.com/en/sql-reference/sql/drop-task.html
@@ -4933,7 +4933,7 @@ class DropTaskStatement(BaseSegment):
     )
 
 
-class DropWarehouseStatement(BaseSegment):
+class DropWarehouseStatementSegment(BaseSegment):
     """A snowflake `DROP WAREHOUSE ...` statement.
 
     https://docs.snowflake.com/en/sql-reference/sql/drop-warehouse.html
