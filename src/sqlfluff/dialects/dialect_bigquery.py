@@ -392,6 +392,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DeclareStatementSegment"),
             Ref("SetStatementSegment"),
             Ref("ExportStatementSegment"),
+            Ref("CreateExternalTableStatementSegment"),
         ],
     )
 
@@ -1113,6 +1114,51 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
             "AS",
             OptionallyBracketed(Ref("SelectableGrammar")),
             optional=True,
+        ),
+    )
+
+
+class CreateExternalTableStatementSegment(BaseSegment):
+    """A `CREATE EXTERNAL TABLE` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#create_external_table_statement
+    """
+
+    type = "create_external_table_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Sequence("OR", "REPLACE", optional=True),
+        "EXTERNAL",
+        "TABLE",
+        Sequence("IF", "NOT", "EXISTS", optional=True),
+        Ref("TableReferenceSegment"),
+        Bracketed(
+            Delimited(
+                Ref("ColumnDefinitionSegment"),
+                allow_trailing=True,
+            ),
+            optional=True,
+        ),
+        # Although not specified in the BigQuery documentation optinal arguments for
+        # CREATE EXTERNAL TABLE statements can be ordered arbitrarily.
+        AnyNumberOf(
+            # connection names have the same rules as table names in BigQuery
+            Sequence("WITH", "CONNECTION", Ref("TableReferenceSegment"), optional=True),
+            Sequence(
+                "WITH",
+                "PARTITION",
+                "COLUMNS",
+                Bracketed(
+                    Delimited(
+                        Ref("ColumnDefinitionSegment"),
+                        allow_trailing=True,
+                    ),
+                    optional=True,
+                ),
+                optional=True,
+            ),
+            Ref("OptionsSegment", optional=True),
         ),
     )
 
