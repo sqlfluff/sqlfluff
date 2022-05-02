@@ -68,7 +68,7 @@ Db2
 
 The dialect for `Db2`_.
 
-.. _`Db2`: https://en.wikipedia.org/wiki/IBM_Db2
+.. _`Db2`: https://www.ibm.com/analytics/db2
 
 .. _exasol_dialect_ref:
 

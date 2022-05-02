@@ -8,7 +8,7 @@ from sqlfluff.core.parser import (
     RegexParser,
     CodeSegment,
     RegexLexer,
-    CommentSegment
+    CommentSegment,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -16,6 +16,7 @@ from sqlfluff.core.dialects import load_raw_dialect
 ansi_dialect = load_raw_dialect("ansi")
 
 db2_dialect = ansi_dialect.copy_as("db2")
+
 
 db2_dialect.replace(
     # Db2 allows # in field names, and doesn't use it as a comment
