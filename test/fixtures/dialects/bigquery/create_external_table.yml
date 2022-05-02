@@ -1,0 +1,224 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 6d1404ebfe14a5fd852203ceac26218f8d3145b542c794933357bb1cca8057a5
+file:
+- statement:
+    create_external_table_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - table_reference:
+      - identifier: dataset
+      - dot: .
+      - identifier: CsvTable
+    - options_segment:
+        keyword: OPTIONS
+        bracketed:
+        - start_bracket: (
+        - parameter: format
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - literal: "'CSV'"
+        - comma: ','
+        - parameter: uris
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - expression:
+            array_literal:
+            - start_square_bracket: '['
+            - expression:
+                literal: "'gs://bucket/path1.csv'"
+            - comma: ','
+            - expression:
+                literal: "'gs://bucket/path2.csv'"
+            - end_square_bracket: ']'
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_external_table_statement:
+    - keyword: CREATE
+    - binary_operator: OR
+    - keyword: REPLACE
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - table_reference:
+      - identifier: dataset
+      - dot: .
+      - identifier: CsvTable
+    - bracketed:
+      - start_bracket: (
+      - identifier: x
+      - data_type:
+          data_type_identifier: INT64
+      - comma: ','
+      - identifier: y
+      - data_type:
+          data_type_identifier: STRING
+      - end_bracket: )
+    - options_segment:
+        keyword: OPTIONS
+        bracketed:
+        - start_bracket: (
+        - parameter: format
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - literal: "'CSV'"
+        - comma: ','
+        - parameter: uris
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - expression:
+            array_literal:
+              start_square_bracket: '['
+              expression:
+                literal: "'gs://bucket/path1.csv'"
+              end_square_bracket: ']'
+        - comma: ','
+        - parameter: field_delimiter
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - literal: "'|'"
+        - comma: ','
+        - parameter: max_bad_records
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - literal: '5'
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_external_table_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - table_reference:
+      - identifier: dataset
+      - dot: .
+      - identifier: AutoHivePartitionedTable
+    - keyword: WITH
+    - keyword: PARTITION
+    - keyword: COLUMNS
+    - options_segment:
+        keyword: OPTIONS
+        bracketed:
+        - start_bracket: (
+        - parameter: uris
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - expression:
+            array_literal:
+              start_square_bracket: '['
+              expression:
+                literal: "'gs://bucket/path/*'"
+              end_square_bracket: ']'
+        - comma: ','
+        - parameter: format
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+            identifier: csv
+        - comma: ','
+        - parameter: hive_partition_uri_prefix
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - literal: "'gs://bucket/path'"
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_external_table_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - table_reference:
+      - identifier: dataset
+      - dot: .
+      - identifier: CustomHivePartitionedTable
+    - keyword: WITH
+    - keyword: PARTITION
+    - keyword: COLUMNS
+    - bracketed:
+      - start_bracket: (
+      - identifier: field_1
+      - data_type:
+          data_type_identifier: STRING
+      - comma: ','
+      - identifier: field_2
+      - data_type:
+          data_type_identifier: INT64
+      - end_bracket: )
+    - options_segment:
+        keyword: OPTIONS
+        bracketed:
+        - start_bracket: (
+        - parameter: uris
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - expression:
+            array_literal:
+              start_square_bracket: '['
+              expression:
+                literal: "'gs://bucket/path/*'"
+              end_square_bracket: ']'
+        - comma: ','
+        - parameter: format
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+            identifier: csv
+        - comma: ','
+        - parameter: hive_partition_uri_prefix
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - literal: "'gs://bucket/path'"
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_external_table_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - table_reference:
+      - identifier: dataset
+      - dot: .
+      - identifier: CustomHivePartitionedTable
+    - options_segment:
+        keyword: OPTIONS
+        bracketed:
+        - start_bracket: (
+        - parameter: uris
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - expression:
+            array_literal:
+              start_square_bracket: '['
+              expression:
+                literal: "'gs://bucket/path/*'"
+              end_square_bracket: ']'
+        - comma: ','
+        - parameter: format
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+            identifier: csv
+        - comma: ','
+        - parameter: hive_partition_uri_prefix
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - literal: "'gs://bucket/path'"
+        - end_bracket: )
+    - keyword: WITH
+    - keyword: PARTITION
+    - keyword: COLUMNS
+    - bracketed:
+      - start_bracket: (
+      - identifier: field_1
+      - data_type:
+          data_type_identifier: STRING
+      - comma: ','
+      - identifier: field_2
+      - data_type:
+          data_type_identifier: INT64
+      - end_bracket: )
+- statement_terminator: ;
