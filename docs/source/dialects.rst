@@ -61,14 +61,14 @@ The dialect for `Google BigQuery`_.
 
 .. _`Google BigQuery`: https://cloud.google.com/bigquery/
 
-.. _db2fori_dialect_ref:
+.. _db2_dialect_ref:
 
-Db2 for i
+Db2
 ------
 
-The dialect for `Db2fori`_.
+The dialect for `Db2`_.
 
-.. _`Db2fori`: https://www.ibm.com/docs/en/i/7.4?topic=overview-db2-i
+.. _`Db2`: https://en.wikipedia.org/wiki/IBM_Db2
 
 .. _exasol_dialect_ref:
 

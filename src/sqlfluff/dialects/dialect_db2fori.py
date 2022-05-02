@@ -1,4 +1,4 @@
-"""The Db2 for i dialect.
+"""The Db2 dialect.
 
 https://www.ibm.com/docs/en/i/7.4?topic=overview-db2-i
 """
@@ -15,10 +15,10 @@ from sqlfluff.core.dialects import load_raw_dialect
 
 ansi_dialect = load_raw_dialect("ansi")
 
-db2fori_dialect = ansi_dialect.copy_as("db2fori")
+db2_dialect = ansi_dialect.copy_as("db2")
 
-db2fori_dialect.replace(
-    # Db2 for i allows # in field names, and doesn't use it as a comment
+db2_dialect.replace(
+    # Db2 allows # in field names, and doesn't use it as a comment
     NakedIdentifierSegment=SegmentGenerator(
         # Generate the anti template from the set of reserved keywords
         lambda dialect: RegexParser(
@@ -32,7 +32,7 @@ db2fori_dialect.replace(
 )
 
 
-db2fori_dialect.patch_lexer_matchers(
+db2_dialect.patch_lexer_matchers(
     [
         # Patching comments to remove hash comments
         RegexLexer(
@@ -41,13 +41,13 @@ db2fori_dialect.patch_lexer_matchers(
             CommentSegment,
             segment_kwargs={"trim_start": ("--")},
         ),
-        # In Db2 for i, the only escape character is ' for single quote strings
+        # In Db2, the only escape character is ' for single quote strings
         RegexLexer(
             "single_quote", r"(?s)('')+?(?!')|('.*?(?<!')(?:'')*'(?!'))", CodeSegment
         ),
-        # In Db2 for i, there is no escape character for double quote strings
+        # In Db2, there is no escape character for double quote strings
         RegexLexer("double_quote", r'(?s)".+?"', CodeSegment),
-        # In Db2 for i, a field could have a # pound/hash sign
+        # In Db2, a field could have a # pound/hash sign
         RegexLexer("code", r"[0-9a-zA-Z_#]+", CodeSegment),
     ]
 )
