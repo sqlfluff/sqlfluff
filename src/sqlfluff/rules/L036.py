@@ -391,30 +391,6 @@ class Rule_L036(BaseRule):
                 ),
             ]
 
-            between_newline_and_select_target = select_children.select(
-                start_seg=select_children[select_targets_info.first_new_line_idx],
-                stop_seg=select_children[select_targets_info.first_select_target_idx],
-            )
-            # If there are additional newlines (blank lines) between the first
-            # newline and the first SELECT column, delete those. This avoids
-            # introducing parse errors with the fix. (For more context, see the
-            # area of code reporting "ends with non code segment" in
-            # BaseSegment.parse(). If we see still see issues with this, we may
-            # need to look for a more sophisticated, robust solution, e.g.
-            # moving these segments "up" the parse tree, similar to the logic in
-            # BaseRule._adjust_anchors_for_fixes().
-            if between_newline_and_select_target.all(sp.is_type("newline")):
-                deletes_and_replaces = IdentitySet(
-                    fix.anchor
-                    for fix in fixes
-                    if fix.edit_type in ("delete", "replace")
-                )
-                fixes += [
-                    LintFix.delete(seg)
-                    for seg in between_newline_and_select_target
-                    if seg not in deletes_and_replaces
-                ]
-
             return LintResult(
                 anchor=select_clause.get(),
                 fixes=fixes,

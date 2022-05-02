@@ -1,2 +1,3 @@
 set cutoff = (select foo
+
 );

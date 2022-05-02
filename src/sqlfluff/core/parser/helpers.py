@@ -29,9 +29,10 @@ def check_still_complete(
     current_str = join_segments_raw(matched_segments + unmatched_segments)
 
     if initial_str != current_str:  # pragma: no cover
+        segment = unmatched_segments[0] if unmatched_segments else None
         raise SQLParseError(
             f"Could not parse: {current_str}",
-            segment=unmatched_segments[0],
+            segment=segment,
         )
     return True
 
