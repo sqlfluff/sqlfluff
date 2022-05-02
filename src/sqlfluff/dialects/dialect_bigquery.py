@@ -1134,12 +1134,9 @@ class CreateExternalTableStatementSegment(BaseSegment):
         Sequence("IF", "NOT", "EXISTS", optional=True),
         Ref("TableReferenceSegment"),
         Bracketed(
-            # Columns and comment syntax:
             Delimited(
-                Sequence(
-                    Ref("SingleIdentifierGrammar"),
-                    Ref("DatatypeSegment"),
-                ),
+                Ref("ColumnDefinitionSegment"),
+                allow_trailing=True,
             ),
             optional=True,
         ),
@@ -1153,12 +1150,9 @@ class CreateExternalTableStatementSegment(BaseSegment):
                 "PARTITION",
                 "COLUMNS",
                 Bracketed(
-                    # Columns and comment syntax:
                     Delimited(
-                        Sequence(
-                            Ref("SingleIdentifierGrammar"),
-                            Ref("DatatypeSegment"),
-                        ),
+                        Ref("ColumnDefinitionSegment"),
+                        allow_trailing=True,
                     ),
                     optional=True,
                 ),

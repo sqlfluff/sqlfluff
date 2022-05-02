@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6d1404ebfe14a5fd852203ceac26218f8d3145b542c794933357bb1cca8057a5
+_hash: 0c2f3a7a3b93848acdd335417abf311e5d04862c12c90639bff8a6b7d1a5bd30
 file:
 - statement:
     create_external_table_statement:
@@ -50,13 +50,15 @@ file:
       - identifier: CsvTable
     - bracketed:
       - start_bracket: (
-      - identifier: x
-      - data_type:
-          data_type_identifier: INT64
+      - column_definition:
+          identifier: x
+          data_type:
+            data_type_identifier: INT64
       - comma: ','
-      - identifier: y
-      - data_type:
-          data_type_identifier: STRING
+      - column_definition:
+          identifier: y
+          data_type:
+            data_type_identifier: STRING
       - end_bracket: )
     - options_segment:
         keyword: OPTIONS
@@ -140,13 +142,15 @@ file:
     - keyword: COLUMNS
     - bracketed:
       - start_bracket: (
-      - identifier: field_1
-      - data_type:
-          data_type_identifier: STRING
+      - column_definition:
+          identifier: field_1
+          data_type:
+            data_type_identifier: STRING
       - comma: ','
-      - identifier: field_2
-      - data_type:
-          data_type_identifier: INT64
+      - column_definition:
+          identifier: field_2
+          data_type:
+            data_type_identifier: INT64
       - end_bracket: )
     - options_segment:
         keyword: OPTIONS
@@ -213,12 +217,14 @@ file:
     - keyword: COLUMNS
     - bracketed:
       - start_bracket: (
-      - identifier: field_1
-      - data_type:
-          data_type_identifier: STRING
+      - column_definition:
+          identifier: field_1
+          data_type:
+            data_type_identifier: STRING
       - comma: ','
-      - identifier: field_2
-      - data_type:
-          data_type_identifier: INT64
+      - column_definition:
+          identifier: field_2
+          data_type:
+            data_type_identifier: INT64
       - end_bracket: )
 - statement_terminator: ;
