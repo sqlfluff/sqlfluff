@@ -1,2 +1,2 @@
 [sqlfluff]
-dialect = sqlite
+dialect = db2
