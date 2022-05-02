@@ -37,7 +37,7 @@ class TableEndClauseSegment(BaseSegment):
 class IndexColumnDefinitionSegment(BaseSegment):
     """A column definition for CREATE INDEX.
 
-    Overriden from ANSI to allow expressions
+    Overridden from ANSI to allow expressions
     https://www.sqlite.org/expridx.html.
     """
 
