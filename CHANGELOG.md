@@ -9,9 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfluff/sqlfluff/releases) and will be copied in here on each release (please remember to update the issues and contributors to links!). There is no need to manually edit this file going forward.
 -->
 
-## [::TODO:: add release #] - ::TODO:: add release date
-* Add Db2 for i dialect [<::TODO::put pr # here>](https://github.com/sqlfluff/sqlfluff/pull/<::TODO::put pr # here>) [@ddresslerlegalplans](https://github.com/ddresslerlegalplans)
-
 ## [0.13.0] - 2022-04-22
 
 ## Highlights
