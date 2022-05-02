@@ -1,0 +1,2 @@
+[sqlfluff:templater:jinja]
+apply_airflow_builtins = True

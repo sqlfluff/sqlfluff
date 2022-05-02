@@ -1,0 +1,32 @@
+file:
+    statement:
+        select_statement:
+            select_clause:
+                keyword:                                      'SELECT'
+                [META] indent:
+                newline:                                      '\n'
+                whitespace:                                   '    '
+                select_clause_element:
+                    literal:                                  "'2022-05-02'"
+                comma:                                        ','
+                newline:                                      '\n'
+                whitespace:                                   '    '
+                select_clause_element:
+                    literal:                                  "'20220502'"
+                comma:                                        ','
+                newline:                                      '\n'
+                whitespace:                                   '    '
+                select_clause_element:
+                    literal:                                  "'2022-05-02T15:35:04.607751+00:00'"
+                comma:                                        ','
+                newline:                                      '\n'
+                whitespace:                                   '    '
+                select_clause_element:
+                    literal:                                  "'20220502T153504'"
+                comma:                                        ','
+                newline:                                      '\n'
+                whitespace:                                   '    '
+                select_clause_element:
+                    literal:                                  "'20220502T153504.607751+0000'"
+            [META] dedent:
+    newline:                                                  '\n'
