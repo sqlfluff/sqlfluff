@@ -12,7 +12,7 @@ for the rule itself, with all the other mechanics abstracted away.
 Core Rules
 __________
 
-Certain rules are belong to the :code:`core` rule group. In order for
+Certain rules belong to the :code:`core` rule group. In order for
 a rule to be designated as :code:`core`, it must meet the following
 criteria:
 
@@ -21,7 +21,7 @@ criteria:
 * Could detect a syntax issue
 * Isn’t too opinionated toward one style (e.g. the :code:`dbt` style guide)
 
-Core rules can also make it easier to rollout SQLFluff to a team by
+Core rules can also make it easier to roll out SQLFluff to a team by
 only needing to follow a 'common sense' subset of rules, rather
 than wasting time debating the finer points of other more
 opinionated rules.
