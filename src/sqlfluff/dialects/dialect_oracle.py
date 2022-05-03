@@ -15,7 +15,6 @@ from sqlfluff.core.parser import (
     Ref,
     RegexLexer,
     Sequence,
-    StartsWith,
     StringLexer,
     StringParser,
     SymbolSegment,
@@ -133,9 +132,7 @@ class CommentStatementSegment(BaseSegment):
 
     type = "comment_statement"
 
-    match_grammar = StartsWith(Sequence("COMMENT", "ON"))
-
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "COMMENT",
         "ON",
         Sequence(

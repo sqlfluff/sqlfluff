@@ -445,6 +445,7 @@ class StatementSegment(ansi.StatementSegment):
         insert=[
             Ref("IfExpressionStatement"),
             Ref("DeclareStatementSegment"),
+            Ref("DeclareCursorStatementSegment"),
             Ref("SetStatementSegment"),
             Ref("AlterTableSwitchStatementSegment"),
             Ref("PrintStatementSegment"),
@@ -469,6 +470,10 @@ class StatementSegment(ansi.StatementSegment):
             Ref("BreakStatement"),
             Ref("ContinueStatement"),
             Ref("WaitForStatementSegment"),
+            Ref("OpenCursorStatementSegment"),
+            Ref("CloseCursorStatementSegment"),
+            Ref("DeallocateCursorStatementSegment"),
+            Ref("FetchCursorStatementSegment"),
         ],
         remove=[
             Ref("CreateModelStatementSegment"),
@@ -639,7 +644,9 @@ class InsertStatementSegment(BaseSegment):
         "INSERT",
         Ref.keyword("INTO", optional=True),
         Ref("TableReferenceSegment"),
+        Ref("PostTableExpressionGrammar", optional=True),
         Ref("BracketedColumnReferenceListGrammar", optional=True),
+        Ref("OutputClauseSegment", optional=True),
         OneOf(Ref("SelectableGrammar"), Ref("ExecuteScriptSegment")),
     )
 
@@ -689,6 +696,7 @@ class SelectStatementSegment(BaseSegment):
             Ref("OrderByClauseSegment", optional=True),
             Ref("OptionClauseSegment", optional=True),
             Ref("DelimiterGrammar", optional=True),
+            Ref("ForXmlSegment", optional=True),
         ]
     )
 
@@ -1201,6 +1209,27 @@ class DeclareStatementSegment(BaseSegment):
         ),
         Dedent,
         Ref("DelimiterGrammar", optional=True),
+    )
+
+
+class DeclareCursorStatementSegment(BaseSegment):
+    """Declaration of a cursor.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/language-elements/declare-cursor-transact-sql?view=sql-server-ver15
+    """
+
+    type = "declare_segment"
+    match_grammar = Sequence(
+        "DECLARE",
+        Ref("NakedIdentifierSegment"),
+        "CURSOR",
+        OneOf("LOCAL", "GLOBAL", optional=True),
+        OneOf("FORWARD_ONLY", "SCROLL", optional=True),
+        OneOf("STATIC", "KEYSET", "DYNAMIC", "FAST_FORWARD", optional=True),
+        OneOf("READ_ONLY", "SCROLL_LOCKS", "OPTIMISTIC", optional=True),
+        Sequence("TYPE_WARNING", optional=True),
+        "FOR",
+        Ref("SelectStatementSegment"),
     )
 
 
@@ -1789,7 +1818,9 @@ class CreateProcedureStatementSegment(BaseSegment):
         Sequence("OR", "ALTER", optional=True),
         OneOf("PROCEDURE", "PROC"),
         Ref("ObjectReferenceSegment"),
+        Indent,
         Ref("ProcedureParameterListGrammar", optional=True),
+        Dedent,
         "AS",
         Ref("ProcedureDefinitionGrammar"),
     )
@@ -2653,6 +2684,8 @@ class DeleteStatementSegment(BaseSegment):
         "DELETE",
         Ref("TableReferenceSegment", optional=True),  # Azure Synapse Analytics-specific
         Ref("FromClauseSegment"),
+        Ref("PostTableExpressionGrammar", optional=True),
+        Ref("OutputClauseSegment", optional=True),
         Ref("WhereClauseSegment", optional=True),
         Ref("DelimiterGrammar", optional=True),
     )
@@ -2860,6 +2893,7 @@ class UpdateStatementSegment(BaseSegment):
         Ref("PostTableExpressionGrammar", optional=True),
         Ref("SetClauseListSegment"),
         Dedent,
+        Ref("OutputClauseSegment", optional=True),
         Ref("FromClauseSegment", optional=True),
         Ref("WhereClauseSegment", optional=True),
         Ref("OptionClauseSegment", optional=True),
@@ -3763,5 +3797,132 @@ class AccessStatementSegment(BaseSegment):
                 Ref("ObjectReferenceSegment", optional=True),
                 optional=True,
             ),
+        ),
+    )
+
+
+class CreateTypeStatementSegment(BaseSegment):
+    """A `CREATE TYPE` statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-type-transact-sql?view=sql-server-ver15
+    """
+
+    type = "create_type_statement"
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        "TYPE",
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Sequence("FROM", Ref("ObjectReferenceSegment")),
+            Sequence(
+                "AS",
+                "TABLE",
+                Sequence(
+                    Bracketed(
+                        Delimited(
+                            OneOf(
+                                Ref("TableConstraintSegment"),
+                                Ref("ColumnDefinitionSegment"),
+                                Ref("TableIndexSegment"),
+                            ),
+                            allow_trailing=True,
+                        )
+                    ),
+                ),
+            ),
+        ),
+    )
+
+
+class OpenCursorStatementSegment(BaseSegment):
+    """An `OPEN` cursor statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/language-elements/open-transact-sql?view=sql-server-ver15
+    """
+
+    type = "open_cursor_statement"
+    match_grammar: Matchable = Sequence(
+        "OPEN",
+        OneOf(
+            Sequence(
+                Ref.keyword("GLOBAL", optional=True), Ref("NakedIdentifierSegment")
+            ),
+            Ref("ParameterNameSegment"),
+        ),
+    )
+
+
+class CloseCursorStatementSegment(BaseSegment):
+    """A `CLOSE` cursor statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/language-elements/close-transact-sql?view=sql-server-ver15
+    """
+
+    type = "close_cursor_statement"
+    match_grammar: Matchable = Sequence(
+        "CLOSE",
+        OneOf(
+            Sequence(
+                Ref.keyword("GLOBAL", optional=True), Ref("NakedIdentifierSegment")
+            ),
+            Ref("ParameterNameSegment"),
+        ),
+    )
+
+
+class DeallocateCursorStatementSegment(BaseSegment):
+    """A `DEALLOCATE` cursor statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/language-elements/deallocate-transact-sql?view=sql-server-ver15
+    """
+
+    type = "deallocate_cursor_statement"
+    match_grammar: Matchable = Sequence(
+        "DEALLOCATE",
+        OneOf(
+            Sequence(
+                Ref.keyword("GLOBAL", optional=True), Ref("NakedIdentifierSegment")
+            ),
+            Ref("ParameterNameSegment"),
+        ),
+    )
+
+
+class FetchCursorStatementSegment(BaseSegment):
+    """A `FETCH` cursor statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/language-elements/fetch-transact-sql?view=sql-server-ver15
+    """
+
+    type = "fetch_cursor_statement"
+    match_grammar: Matchable = Sequence(
+        "FETCH",
+        OneOf("NEXT", "PRIOR", "FIRST", "LAST", optional=True),
+        "FROM",
+        OneOf(
+            Sequence(
+                Ref.keyword("GLOBAL", optional=True), Ref("NakedIdentifierSegment")
+            ),
+            Ref("ParameterNameSegment"),
+        ),
+        Sequence("INTO", Delimited(Ref("ParameterNameSegment")), optional=True),
+    )
+
+
+class ForXmlSegment(BaseSegment):
+    """A segment for `FOR XML` in `SELECT` statements.
+
+    https://docs.microsoft.com/en-us/sql/relational-databases/xml/for-xml-sql-server?view=sql-server-2017
+    """
+
+    type = "for_xml_segment"
+    match_grammar: Matchable = Sequence(
+        "FOR",
+        "XML",
+        OneOf(
+            Sequence("RAW", Bracketed(Ref("QuotedLiteralSegment"), optional=True)),
+            "AUTO",
+            "EXPLICIT",
+            Sequence("PATH", Bracketed(Ref("QuotedLiteralSegment"), optional=True)),
         ),
     )

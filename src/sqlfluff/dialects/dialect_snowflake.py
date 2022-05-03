@@ -518,6 +518,18 @@ snowflake_dialect.replace(
         "WINDOW",
         "OVERLAPS",
     ),
+    OrderByClauseTerminators=OneOf(
+        "LIMIT",
+        "HAVING",
+        "QUALIFY",
+        # For window functions
+        "WINDOW",
+        Ref("FrameClauseUnitGrammar"),
+        "SEPARATOR",
+        "FETCH",
+        "OFFSET",
+        "MEASURES",
+    ),
     TrimParametersGrammar=Nothing(),
 )
 
@@ -831,7 +843,12 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CommentStatementSegment"),
             Ref("CallStatementSegment"),
             Ref("AlterViewStatementSegment"),
+            Ref("AlterMaterializedViewStatementSegment"),
             Ref("RemoveStatementSegment"),
+            Ref("DropProcedureStatementSegment"),
+            Ref("DropExternalTableStatementSegment"),
+            Ref("DropMaterializedViewStatementSegment"),
+            Ref("DropObjectStatementSegment"),
         ],
         remove=[
             Ref("CreateTypeStatementSegment"),
@@ -1743,7 +1760,7 @@ class CreateProcedureStatementSegment(BaseSegment):
         Ref("DatatypeSegment"),
         Sequence("NOT", "NULL", optional=True),
         "LANGUAGE",
-        "JAVASCRIPT",
+        OneOf("JAVASCRIPT", "SQL"),
         OneOf(
             Sequence("CALLED", "ON", "NULL", "INPUT"),
             Sequence("RETURNS", "NULL", "ON", "NULL", "INPUT"),
@@ -1783,7 +1800,7 @@ class CreateFunctionStatementSegment(BaseSegment):
         ),
         Sequence("NOT", "NULL", optional=True),
         OneOf("VOLATILE", "IMMUTABLE", optional=True),
-        Sequence("LANGUAGE", "JAVASCRIPT", optional=True),
+        Sequence("LANGUAGE", OneOf("JAVASCRIPT", "SQL"), optional=True),
         OneOf(
             Sequence("CALLED", "ON", "NULL", "INPUT"),
             Sequence("RETURNS", "NULL", "ON", "NULL", "INPUT"),
@@ -2763,6 +2780,39 @@ class AlterViewStatementSegment(BaseSegment):
     )
 
 
+class AlterMaterializedViewStatementSegment(BaseSegment):
+    """An `ALTER MATERIALIZED VIEW` statement, specifically for Snowflake's dialect.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-materialized-view.html
+    """
+
+    type = "alter_materialized_view_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "MATERIALIZED",
+        "VIEW",
+        Ref("TableReferenceSegment"),
+        OneOf(
+            Sequence("RENAME", "TO", Ref("TableReferenceSegment")),
+            Sequence("CLUSTER", "BY", Delimited(Ref("ExpressionSegment"))),
+            Sequence("DROP", "CLUSTERING", "KEY"),
+            Sequence("SUSPEND", "RECLUSTER"),
+            Sequence("RESUME", "RECLUSTER"),
+            "SUSPEND",
+            "RESUME",
+            Sequence(
+                OneOf("SET", "UNSET"),
+                OneOf(
+                    "SECURE",
+                    Ref("CommentEqualsClauseSegment"),
+                    Ref("TagEqualsSegment"),
+                ),
+            ),
+        ),
+    )
+
+
 class FileFormatSegment(BaseSegment):
     """A Snowflake FILE_FORMAT Segment.
 
@@ -3686,10 +3736,7 @@ class AlterUserStatementSegment(BaseSegment):
 
     type = "alter_user_statement"
 
-    match_grammar = StartsWith(
-        Sequence("ALTER", "USER"),
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "ALTER",
         "USER",
         Sequence("IF", "EXISTS", optional=True),
@@ -4520,9 +4567,6 @@ class OrderByClauseSegment(ansi.OrderByClauseSegment):
     """
 
     match_grammar = ansi.OrderByClauseSegment.match_grammar.copy()
-    match_grammar.terminator = match_grammar.terminator.copy(  # type: ignore
-        insert=[Ref.keyword("FETCH"), Ref.keyword("OFFSET"), Ref.keyword("MEASURES")],
-    )
     parse_grammar = Sequence(
         "ORDER",
         "BY",
@@ -4570,7 +4614,134 @@ class RemoveStatementSegment(BaseSegment):
         Sequence(
             "PATTERN",
             Ref("EqualsSegment"),
-            Ref("QuotedLiteralSegment"),
+            OneOf(Ref("QuotedLiteralSegment"), Ref("ReferencedVariableNameSegment")),
             optional=True,
+        ),
+    )
+
+
+class DropProcedureStatementSegment(BaseSegment):
+    """A snowflake `DROP PROCEDURE ...` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/drop-procedure.html
+    """
+
+    type = "drop_procedure_statement"
+    match_grammar = Sequence(
+        "DROP",
+        "PROCEDURE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("FunctionNameSegment"),
+        Ref("FunctionParameterListGrammar"),
+    )
+
+
+class DropExternalTableStatementSegment(BaseSegment):
+    """A snowflake `DROP EXTERNAL TABLE ...` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/drop-external-table.html
+    """
+
+    type = "drop_external_table_statement"
+    match_grammar = Sequence(
+        "DROP",
+        "EXTERNAL",
+        "TABLE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        Ref("DropBehaviorGrammar", optional=True),
+    )
+
+
+class DropFunctionStatementSegment(BaseSegment):
+    """A `DROP FUNCTION` statement."""
+
+    type = "drop_function_statement"
+
+    match_grammar = Sequence(
+        "DROP",
+        Ref.keyword("EXTERNAL", optional=True),
+        "FUNCTION",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("FunctionNameSegment"),
+        Ref("FunctionParameterListGrammar"),
+    )
+
+
+class DropMaterializedViewStatementSegment(BaseSegment):
+    """A snowflake `DROP MATERIALIZED VIEW ...` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/drop-materialized-view.html
+    """
+
+    type = "drop_materialized_view_statement"
+    match_grammar = Sequence(
+        "DROP",
+        "MATERIALIZED",
+        "VIEW",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+    )
+
+
+class DropObjectStatementSegment(BaseSegment):
+    """A snowflake `DROP <object> ...` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/drop.html
+    """
+
+    type = "drop_object_statement"
+    match_grammar = Sequence(
+        "DROP",
+        OneOf(
+            Sequence(
+                OneOf(
+                    "CONNECTION",
+                    Sequence("FILE", "FORMAT"),
+                    Sequence(
+                        OneOf(
+                            "API", "NOTIFICATION", "SECURITY", "STORAGE", optional=True
+                        ),
+                        "INTEGRATION",
+                    ),
+                    "PIPE",
+                    Sequence("ROW", "ACCESS", "POLICY"),
+                    "STAGE",
+                    "STREAM",
+                    "TAG",
+                    "TASK",
+                ),
+                Ref("IfExistsGrammar", optional=True),
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                OneOf(Sequence("RESOURCE", "MONITOR"), "SHARE"),
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                OneOf(
+                    Sequence("MANAGED", "ACCOUNT"),
+                    Sequence("MASKING", "POLICY"),
+                ),
+                Ref("SingleIdentifierGrammar"),
+            ),
+            Sequence(
+                OneOf(
+                    Sequence("NETWORK", "POLICY"),
+                ),
+                Ref("IfExistsGrammar", optional=True),
+                Ref("SingleIdentifierGrammar"),
+            ),
+            Sequence(
+                OneOf("WAREHOUSE", Sequence("SESSION", "POLICY")),
+                Ref("IfExistsGrammar", optional=True),
+                Ref("SingleIdentifierGrammar"),
+            ),
+            Sequence(
+                "SEQUENCE",
+                Ref("IfExistsGrammar", optional=True),
+                Ref("ObjectReferenceSegment"),
+                Ref("DropBehaviorGrammar", optional=True),
+            ),
         ),
     )

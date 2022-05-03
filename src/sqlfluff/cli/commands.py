@@ -247,7 +247,7 @@ def core_options(f: Callable) -> Callable:
     )(f)
     f = click.option(
         "--encoding",
-        default="autodetect",
+        default=None,
         help=(
             "Specify encoding to use when reading and writing files. Defaults to "
             "autodetect."
@@ -674,6 +674,7 @@ def do_fixes(lnt, result, formatter=None, **kwargs):
 @click.option(
     "--FIX-EVEN-UNPARSABLE",
     is_flag=True,
+    default=None,
     help=(
         "Enables fixing of files that have templating or parse errors. "
         "Note that the similar-sounding '--ignore' or 'noqa' features merely "
@@ -750,7 +751,7 @@ def fix(
             )
             click.echo(
                 colorize(
-                    "Use --fix-even-unparsable' to attempt to fix the SQL anyway.",
+                    "Use --FIX-EVEN-UNPARSABLE' to attempt to fix the SQL anyway.",
                     Color.red,
                 ),
                 err=True,

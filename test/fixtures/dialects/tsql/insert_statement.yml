@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f465eec05c05b4bf79660102b8a89df6d4799d4b35c85cf175d921d6c57bcfe8
+_hash: 09086fc0eaf36a2101673087de8442bde4d6f46fa5065c5b18a1f3026f0d5693
 file:
 - batch:
     statement:
@@ -393,6 +393,21 @@ file:
         - identifier: HumanResources
         - dot: .
         - identifier: NewEmployee
+      - post_table_expression:
+          keyword: WITH
+          bracketed:
+            start_bracket: (
+            query_hint_segment:
+              keyword: TABLOCK
+            end_bracket: )
+      - output_clause:
+        - keyword: OUTPUT
+        - wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+        - keyword: INTO
+        - table_reference:
+            identifier: Results
       - execute_script_statement:
           keyword: EXEC
           object_reference:

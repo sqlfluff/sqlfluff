@@ -8,12 +8,12 @@ from sqlfluff.core.parser import (
     OneOf,
     Bracketed,
     Delimited,
-    StartsWith,
     NamedParser,
     Nothing,
     SymbolSegment,
     StringParser,
     OptionallyBracketed,
+    RegexParser,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -135,6 +135,12 @@ hive_dialect.add(
             )
         ),
     ),
+    BackQuotedIdentifierSegment=NamedParser(
+        "back_quote",
+        CodeSegment,
+        name="quoted_identifier",
+        type="identifier",
+    ),
 )
 
 # https://cwiki.apache.org/confluence/display/hive/languagemanual+joins
@@ -143,6 +149,7 @@ hive_dialect.replace(
     QuotedLiteralSegment=OneOf(
         NamedParser("single_quote", CodeSegment, name="quoted_literal", type="literal"),
         NamedParser("double_quote", CodeSegment, name="quoted_literal", type="literal"),
+        NamedParser("back_quote", CodeSegment, name="quoted_literal", type="literal"),
     ),
     LiteralGrammar=OneOf(
         Ref("QuotedLiteralSegment"),
@@ -157,6 +164,11 @@ hive_dialect.replace(
     ),
     SimpleArrayTypeGrammar=Ref.keyword("ARRAY"),
     TrimParametersGrammar=Nothing(),
+    SingleIdentifierGrammar=ansi_dialect.get_grammar("SingleIdentifierGrammar").copy(
+        insert=[
+            Ref("BackQuotedIdentifierSegment"),
+        ]
+    ),
 )
 
 
@@ -186,16 +198,7 @@ class CreateTableStatementSegment(BaseSegment):
     """
 
     type = "create_table_statement"
-    match_grammar = StartsWith(
-        Sequence(
-            "CREATE",
-            Ref.keyword("TEMPORARY", optional=True),
-            Ref.keyword("EXTERNAL", optional=True),
-            "TABLE",
-        )
-    )
-
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "CREATE",
         Ref.keyword("TEMPORARY", optional=True),
         Ref.keyword("EXTERNAL", optional=True),
@@ -476,8 +479,7 @@ class TruncateStatementSegment(BaseSegment):
 
     type = "truncate_table"
 
-    match_grammar = StartsWith("TRUNCATE")
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "TRUNCATE",
         Ref.keyword("TABLE", optional=True),
         Ref("TableReferenceSegment"),
@@ -513,8 +515,7 @@ class InsertStatementSegment(BaseSegment):
     """
 
     type = "insert_statement"
-    match_grammar = StartsWith("INSERT")
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "INSERT",
         OneOf(
             Sequence(
@@ -711,5 +712,47 @@ class FunctionSegment(BaseSegment):
                 ),
             ),
             Ref("PostFunctionGrammar", optional=True),
+        ),
+    )
+
+
+class SamplingExpressionSegment(BaseSegment):
+    """A sampling expression."""
+
+    type = "sample_expression"
+    match_grammar = Sequence(
+        "TABLESAMPLE",
+        Bracketed(
+            OneOf(
+                Sequence(
+                    "BUCKET",
+                    Ref("NumericLiteralSegment"),
+                    "OUT",
+                    "OF",
+                    Ref("NumericLiteralSegment"),
+                    Sequence(
+                        "ON",
+                        OneOf(
+                            Ref("SingleIdentifierGrammar"),
+                            Ref("FunctionSegment"),
+                        ),
+                        optional=True,
+                    ),
+                ),
+                Sequence(
+                    Ref("NumericLiteralSegment"),
+                    OneOf("PERCENT", "ROWS", optional=True),
+                ),
+                RegexParser(
+                    r"\d+[bBkKmMgG]",
+                    CodeSegment,
+                    name="byte_length_literal",
+                    type="byte_length_literal",
+                ),
+            ),
+        ),
+        Ref(
+            "AliasExpressionSegment",
+            optional=True,
         ),
     )

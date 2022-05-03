@@ -1,0 +1,149 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 87f2457cf4ab2d51acb4b6e20f7a9cb456cc7166fabd050bfc4b6a1a6f3437b6
+file:
+  batch:
+  - statement:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              identifier: ProductModelID
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: Name
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - identifier: Production
+                - dot: .
+                - identifier: ProductModel
+        where_clause:
+          keyword: WHERE
+          expression:
+          - column_reference:
+              identifier: ProductModelID
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - literal: '122'
+          - binary_operator: or
+          - column_reference:
+              identifier: ProductModelID
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - literal: '119'
+        for_xml_segment:
+        - keyword: FOR
+        - keyword: XML
+        - keyword: RAW
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              identifier: ProductPhotoID
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: ThumbNailPhoto
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - identifier: Production
+                - dot: .
+                - identifier: ProductPhoto
+        where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+              identifier: ProductPhotoID
+            comparison_operator:
+              raw_comparison_operator: '='
+            literal: '70'
+        for_xml_segment:
+        - keyword: FOR
+        - keyword: XML
+        - keyword: AUTO
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            literal: '1'
+            alias_expression:
+              keyword: as
+              identifier: Tag
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - identifier: HumanResources
+                - dot: .
+                - identifier: Employee
+              alias_expression:
+                keyword: AS
+                identifier: E
+        for_xml_segment:
+        - keyword: FOR
+        - keyword: XML
+        - keyword: EXPLICIT
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              identifier: ProductModelID
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: Name
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - identifier: Production
+                - dot: .
+                - identifier: ProductModel
+        where_clause:
+          keyword: WHERE
+          expression:
+          - column_reference:
+              identifier: ProductModelID
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - literal: '122'
+          - binary_operator: OR
+          - column_reference:
+              identifier: ProductModelID
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - literal: '119'
+        for_xml_segment:
+        - keyword: FOR
+        - keyword: XML
+        - keyword: PATH
+        - bracketed:
+            start_bracket: (
+            literal: "'root'"
+            end_bracket: )
+  - statement_terminator: ;
