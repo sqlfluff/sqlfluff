@@ -18,7 +18,7 @@ criteria:
 
 * Stable
 * Applies to most dialects
-* Could detect a parsing issue
+* Could detect a syntax issue
 * Isn’t too opinionated toward one style (e.g. the :code:`dbt` style guide)
 
 Core rules can also make it easier to rollout SQLFluff to a team by
