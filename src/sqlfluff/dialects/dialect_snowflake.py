@@ -144,6 +144,14 @@ snowflake_dialect.add(
         name="warehouse_size",
         type="warehouse_size",
     ),
+    # We use a RegexParser instead of keywords as the arguments are optionally quoted.
+    CompressionType=RegexParser(
+        r"'?AUTO'?|'?GZIP'?|'?BZ2'?|'?BROTLI'?|'?ZSTD'?|'?DEFLATE'?|'?RAW_DEFLATE'?|"
+        r"'?LZO'?|'?NONE'?|'?SNAPPY'?",
+        CodeSegment,
+        name="compression_type",
+        type="compression_type",
+    ),
     ValidationModeOptionSegment=RegexParser(
         r"'?RETURN_(?:\d+_ROWS|ERRORS|ALL_ERRORS)'?",
         CodeSegment,
@@ -361,12 +369,6 @@ snowflake_dialect.add(
             ),
         ),
         Ref("DollarSegment", optional=True),
-    ),
-    CompressionTypeGrammar=OneOf(
-        "NONE",
-        "GZIP",
-        "DEFLATE",
-        "AUTO",
     ),
     ContextHeadersGrammar=OneOf(
         "CURRENT_ACCOUNT",
@@ -1867,7 +1869,7 @@ class AlterFunctionStatementSegment(BaseSegment):
                     Sequence(
                         "COMPRESSION",
                         Ref("EqualsSegment"),
-                        Ref("CompressionTypeGrammar"),
+                        Ref("CompressionType"),
                     ),
                     "SECURE",
                     Sequence(
@@ -1961,7 +1963,7 @@ class CreateExternalFunctionStatementSegment(BaseSegment):
         Sequence(
             "COMPRESSION",
             Ref("EqualsSegment"),
-            Ref("CompressionTypeGrammar"),
+            Ref("CompressionType"),
             optional=True,
         ),
         Sequence(
@@ -2815,19 +2817,20 @@ class CsvFileFormatTypeParameters(BaseSegment):
     type = "csv_file_format_type_parameters"
 
     _file_format_type_parameter = OneOf(
-        Sequence("TYPE", Ref("EqualsSegment"), "CSV"),
+        Sequence(
+            "TYPE",
+            Ref("EqualsSegment"),
+            RegexParser(
+                r"'?CSV'?",
+                CodeSegment,
+                name="csv_file_type",
+                type="file_type",
+            ),
+        ),
         Sequence(
             "COMPRESSION",
             Ref("EqualsSegment"),
-            OneOf(
-                "AUTO",
-                "GZIP",
-                "BZ2",
-                "BROTLI",
-                "ZSTD",
-                "DEFLATE",
-                "RAW_DEFLATE",
-                "NONE",
+            Ref("CompressionType"),
             ),
         ),
         Sequence(
@@ -2920,19 +2923,20 @@ class JsonFileFormatTypeParameters(BaseSegment):
     type = "json_file_format_type_parameters"
 
     _file_format_type_parameter = OneOf(
-        Sequence("TYPE", Ref("EqualsSegment"), "JSON"),
+        Sequence(
+            "TYPE",
+            Ref("EqualsSegment"),
+            RegexParser(
+                r"'?JSON'?",
+                CodeSegment,
+                name="json_file_type",
+                type="file_type",
+            ),
+        ),
         Sequence(
             "COMPRESSION",
             Ref("EqualsSegment"),
-            OneOf(
-                "AUTO",
-                "GZIP",
-                "BZ2",
-                "BROTLI",
-                "ZSTD",
-                "DEFLATE",
-                "RAW_DEFLATE",
-                "NONE",
+            Ref("CompressionType"),
             ),
         ),
         Sequence(
@@ -2993,21 +2997,17 @@ class AvroFileFormatTypeParameters(BaseSegment):
     type = "avro_file_format_type_parameters"
 
     _file_format_type_parameter = OneOf(
-        Sequence("TYPE", Ref("EqualsSegment"), "AVRO"),
         Sequence(
-            "COMPRESSION",
+            "TYPE",
             Ref("EqualsSegment"),
-            OneOf(
-                "AUTO",
-                "GZIP",
-                "BZ2",
-                "BROTLI",
-                "ZSTD",
-                "DEFLATE",
-                "RAW_DEFLATE",
-                "NONE",
+            RegexParser(
+                r"'?AVRO'?",
+                CodeSegment,
+                name="avro_file_type",
+                type="file_type",
             ),
         ),
+        Sequence("COMPRESSION", Ref("EqualsSegment"), Ref("CompressionType")),
         Sequence("TRIM_SPACE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
         Sequence(
             "NULL_IF",
@@ -3030,7 +3030,16 @@ class OrcFileFormatTypeParameters(BaseSegment):
     type = "orc_file_format_type_parameters"
 
     _file_format_type_parameter = OneOf(
-        Sequence("TYPE", Ref("EqualsSegment"), "ORC"),
+        Sequence(
+            "TYPE",
+            Ref("EqualsSegment"),
+            RegexParser(
+                r"'?ORC'?",
+                CodeSegment,
+                name="orc_file_type",
+                type="file_type",
+            ),
+        ),
         Sequence("TRIM_SPACE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
         Sequence(
             "NULL_IF",
@@ -3053,9 +3062,18 @@ class ParquetFileFormatTypeParameters(BaseSegment):
     type = "parquet_file_format_type_parameters"
 
     _file_format_type_parameter = OneOf(
-        Sequence("TYPE", Ref("EqualsSegment"), "PARQUET"),
         Sequence(
-            "COMPRESSION", Ref("EqualsSegment"), OneOf("AUTO", "LZO", "SNAPPY", "NONE")
+            "TYPE",
+            Ref("EqualsSegment"),
+            RegexParser(
+                r"'?PARQUET'?",
+                CodeSegment,
+                name="parquet_file_type",
+                type="file_type",
+            ),
+        ),
+        Sequence(
+            "COMPRESSION", Ref("EqualsSegment"), Ref("CompressionType"),
         ),
         Sequence(
             "SNAPPY_COMPRESSION", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
@@ -3082,20 +3100,20 @@ class XmlFileFormatTypeParameters(BaseSegment):
     type = "xml_file_format_type_parameters"
 
     _file_format_type_parameter = OneOf(
-        Sequence("TYPE", Ref("EqualsSegment"), "XML"),
+        Sequence(
+            "TYPE",
+            Ref("EqualsSegment"),
+            RegexParser(
+                r"'?XML'?",
+                CodeSegment,
+                name="json_file_type",
+                type="file_type",
+            ),
+        ),
         Sequence(
             "COMPRESSION",
             Ref("EqualsSegment"),
-            OneOf(
-                "AUTO",
-                "GZIP",
-                "BZ2",
-                "BROTLI",
-                "ZSTD",
-                "DEFLATE",
-                "RAW_DEFLATE",
-                "NONE",
-            ),
+            Ref("CompressionType"),
         ),
         Sequence(
             "IGNORE_UTF8_ERRORS", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")

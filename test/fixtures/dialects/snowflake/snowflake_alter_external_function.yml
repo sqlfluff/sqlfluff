@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0358ab911af6b71a0be4d7af8cf4f370cd07e767576a85199ca407ced21de539
+_hash: 1d7c2573a734efd0064283ccdf3e3034b30d01e841ceb3c597ec17f52ab29387
 file:
 - statement:
     alter_function_statement:
@@ -108,7 +108,7 @@ file:
     - keyword: COMPRESSION
     - comparison_operator:
         raw_comparison_operator: '='
-    - keyword: GZIP
+    - compression_type: GZIP
 - statement_terminator: ;
 - statement:
     alter_function_statement:

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9396e7c7b8f6c8cc368ede657010047edd1f6a4adf79ccbc184d23a4907170b9
+_hash: bb01b4d7c0a76675c82caef4cd42bdce2e17d7dece694e1c9186b6ea5df962a6
 file:
 - statement:
     copy_into_statement:
@@ -30,10 +30,11 @@ file:
     - file_format_segment:
         bracketed:
           start_bracket: (
-          keyword: type
-          comparison_operator:
-            raw_comparison_operator: '='
-          file_type: csv
+          csv_file_format_type_parameters:
+            keyword: type
+            comparison_operator:
+              raw_comparison_operator: '='
+            file_type: csv
           end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -72,10 +73,11 @@ file:
     - file_format_segment:
         bracketed:
           start_bracket: (
-          keyword: type
-          comparison_operator:
-            raw_comparison_operator: '='
-          file_type: "'CSV'"
+          csv_file_format_type_parameters:
+            keyword: type
+            comparison_operator:
+              raw_comparison_operator: '='
+            file_type: "'CSV'"
           end_bracket: )
     - keyword: pattern
     - comparison_operator:
@@ -243,10 +245,11 @@ file:
     - file_format_segment:
         bracketed:
           start_bracket: (
-          keyword: TYPE
-          comparison_operator:
-            raw_comparison_operator: '='
-          file_type: JSON
+          json_file_format_type_parameters:
+            keyword: TYPE
+            comparison_operator:
+              raw_comparison_operator: '='
+            file_type: JSON
           end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -278,10 +281,11 @@ file:
     - file_format_segment:
         bracketed:
           start_bracket: (
-          keyword: TYPE
-          comparison_operator:
-            raw_comparison_operator: '='
-          file_type: JSON
+          json_file_format_type_parameters:
+            keyword: TYPE
+            comparison_operator:
+              raw_comparison_operator: '='
+            file_type: JSON
           end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -299,15 +303,15 @@ file:
     - file_format_segment:
         bracketed:
           start_bracket: (
-          keyword: type
-          comparison_operator:
-            raw_comparison_operator: '='
-          file_type: csv
-          format_type_options_segment:
-            identifier: SKIP_HEADER
-            comparison_operator:
+          csv_file_format_type_parameters:
+          - keyword: type
+          - comparison_operator:
               raw_comparison_operator: '='
-            literal: '1'
+          - file_type: csv
+          - keyword: SKIP_HEADER
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - integer_segment: '1'
           end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -330,10 +334,11 @@ file:
     - file_format_segment:
         bracketed:
           start_bracket: (
-          keyword: TYPE
-          comparison_operator:
-            raw_comparison_operator: '='
-          file_type: JSON
+          json_file_format_type_parameters:
+            keyword: TYPE
+            comparison_operator:
+              raw_comparison_operator: '='
+            file_type: JSON
           end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -356,9 +361,10 @@ file:
     - file_format_segment:
         bracketed:
           start_bracket: (
-          keyword: TYPE
-          comparison_operator:
-            raw_comparison_operator: '='
-          file_type: JSON
+          json_file_format_type_parameters:
+            keyword: TYPE
+            comparison_operator:
+              raw_comparison_operator: '='
+            file_type: JSON
           end_bracket: )
 - statement_terminator: ;

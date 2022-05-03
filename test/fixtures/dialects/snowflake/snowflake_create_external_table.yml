@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b86d44d8bf634ff0cfeb708325bb13a4312c57e630591cd280dc65fb33a3be72
+_hash: 59fc6bc91c644d6db61648ec2483bda268f3ec5bffe578e456f892bef55d4f09
 file:
 - statement:
     create_external_table_statement:
@@ -25,10 +25,11 @@ file:
     - file_format_segment:
         bracketed:
           start_bracket: (
-          keyword: type
-          comparison_operator:
-            raw_comparison_operator: '='
-          file_type: json
+          json_file_format_type_parameters:
+            keyword: type
+            comparison_operator:
+              raw_comparison_operator: '='
+            file_type: json
           end_bracket: )
     - keyword: aws_sns_topic
     - comparison_operator:
@@ -59,10 +60,11 @@ file:
     - file_format_segment:
         bracketed:
           start_bracket: (
-          keyword: type
-          comparison_operator:
-            raw_comparison_operator: '='
-          file_type: parquet
+          parquet_file_format_type_parameters:
+            keyword: type
+            comparison_operator:
+              raw_comparison_operator: '='
+            file_type: parquet
           end_bracket: )
     - keyword: pattern
     - comparison_operator:
@@ -496,14 +498,14 @@ file:
     - file_format_segment:
         bracketed:
           start_bracket: (
-          keyword: TYPE
-          comparison_operator:
-            raw_comparison_operator: '='
-          file_type: "'CSV'"
-          format_type_options_segment:
-            identifier: FIELD_OPTIONALLY_ENCLOSED_BY
-            comparison_operator:
+          csv_file_format_type_parameters:
+          - keyword: TYPE
+          - comparison_operator:
               raw_comparison_operator: '='
-            literal: "'\"'"
+          - file_type: "'CSV'"
+          - keyword: FIELD_OPTIONALLY_ENCLOSED_BY
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - literal: "'\"'"
           end_bracket: )
 - statement_terminator: ;
