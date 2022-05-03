@@ -23,8 +23,12 @@ criteria:
 
 Core rules can also make it easier to roll out SQLFluff to a team by
 only needing to follow a 'common sense' subset of rules, rather
-than wasting time debating the finer points of other more
+than spending time debating the finer points of other more
 opinionated rules.
+
+We believe teams will eventually want to enforce more than just
+the core rules, and we encourage everyone to explore all the rules
+and customize a rule set that best suites their organization.
 
 See the :ref:`config` section for more information on how to enable
 only :code:`core` rules by default.
