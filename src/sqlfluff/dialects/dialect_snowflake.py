@@ -2783,85 +2783,26 @@ class CreateFileFormatSegment(BaseSegment):
         Sequence("FILE", "FORMAT"),
         Ref("IfNotExistsGrammar", optional=True),
         Ref("ObjectReferenceSegment"),
-        Sequence(
-            "TYPE",
-            Ref("EqualsSegment"),
-            OneOf(
-                Sequence(
-                    "CSV",
-                    OneOf(
-                        Sequence(
-                            Ref("CommaSegment"),
-                            Delimited(Ref("CsvFileFormatTypeParameters")),
-                            Ref("CommaSegment", optional=True),
-                        ),
-                        AnyNumberOf(Ref("CsvFileFormatTypeParameters")),
-                        optional=True,
-                    ),
-                ),
-                Sequence(
-                    "JSON",
-                    OneOf(
-                        Sequence(
-                            Ref("CommaSegment"),
-                            Delimited(Ref("JsonFileFormatTypeParameters")),
-                            Ref("CommaSegment", optional=True),
-                        ),
-                        AnyNumberOf(Ref("JsonFileFormatTypeParameters")),
-                        optional=True,
-                    ),
-                ),
-                Sequence(
-                    "AVRO",
-                    OneOf(
-                        Sequence(
-                            Ref("CommaSegment"),
-                            Delimited(Ref("AvroFileFormatTypeParameters")),
-                            Ref("CommaSegment", optional=True),
-                        ),
-                        AnyNumberOf(Ref("AvroFileFormatTypeParameters")),
-                        optional=True,
-                    ),
-                ),
-                Sequence(
-                    "ORC",
-                    OneOf(
-                        Sequence(
-                            Ref("CommaSegment"),
-                            Delimited(Ref("OrcFileFormatTypeParameters")),
-                            Ref("CommaSegment", optional=True),
-                        ),
-                        AnyNumberOf(Ref("OrcFileFormatTypeParameters")),
-                        optional=True,
-                    ),
-                ),
-                Sequence(
-                    "PARQUET",
-                    OneOf(
-                        Sequence(
-                            Ref("CommaSegment"),
-                            Delimited(Ref("ParquetFileFormatTypeParameters")),
-                            Ref("CommaSegment", optional=True),
-                        ),
-                        AnyNumberOf(Ref("ParquetFileFormatTypeParameters")),
-                        optional=True,
-                    ),
-                ),
-                Sequence(
-                    "XML",
-                    OneOf(
-                        Sequence(
-                            Ref("CommaSegment"),
-                            Delimited(Ref("XmlFileFormatTypeParameters")),
-                            Ref("CommaSegment", optional=True),
-                        ),
-                        AnyNumberOf(Ref("XmlFileFormatTypeParameters")),
-                        optional=True,
-                    ),
-                ),
-            ),
+        # TYPE = <FILE_FORMAT> is included in below parameter segments.
+        # It is valid syntax to have TYPE = <FILE_FORMAT> after other parameters.
+        # Below parameters are either Delimited/AnyNumberOf.
+        # Snowflake does allow mixed but this is not supported.
+        # @TODO: Update below when an OptionallyDelimited Class is available.
+        OneOf(
+            Ref("CsvFileFormatTypeParameters"),
+            Ref("JsonFileFormatTypeParameters"),
+            Ref("AvroFileFormatTypeParameters"),
+            Ref("OrcFileFormatTypeParameters"),
+            Ref("ParquetFileFormatTypeParameters"),
+            Ref("XmlFileFormatTypeParameters"),
         ),
-        Ref("CommentEqualsClauseSegment", optional=True),
+        Sequence(
+            # Use a Sequence and include an optional CommaSegment here.
+            # This allows a preceding comma when above parameters are delimited.
+            Ref("CommaSegment", optional=True),
+            Ref("CommentEqualsClauseSegment"),
+            optional=True,
+        ),
     )
 
 
@@ -2873,7 +2814,8 @@ class CsvFileFormatTypeParameters(BaseSegment):
 
     type = "csv_file_format_type_parameters"
 
-    match_grammar = OneOf(
+    _file_format_type_parameter = OneOf(
+        Sequence("TYPE", Ref("EqualsSegment"), "CSV"),
         Sequence(
             "COMPRESSION",
             Ref("EqualsSegment"),
@@ -2964,6 +2906,10 @@ class CsvFileFormatTypeParameters(BaseSegment):
         ),
     )
 
+    match_grammar = OneOf(
+        Delimited(_file_format_type_parameter), AnyNumberOf(_file_format_type_parameter)
+    )
+
 
 class JsonFileFormatTypeParameters(BaseSegment):
     """A Snowflake File Format Type Options segment for JSON.
@@ -2973,7 +2919,8 @@ class JsonFileFormatTypeParameters(BaseSegment):
 
     type = "json_file_format_type_parameters"
 
-    match_grammar = OneOf(
+    _file_format_type_parameter = OneOf(
+        Sequence("TYPE", Ref("EqualsSegment"), "JSON"),
         Sequence(
             "COMPRESSION",
             Ref("EqualsSegment"),
@@ -3032,6 +2979,10 @@ class JsonFileFormatTypeParameters(BaseSegment):
         ),
     )
 
+    match_grammar = OneOf(
+        Delimited(_file_format_type_parameter), AnyNumberOf(_file_format_type_parameter)
+    )
+
 
 class AvroFileFormatTypeParameters(BaseSegment):
     """A Snowflake File Format Type Options segment for AVRO.
@@ -3041,7 +2992,8 @@ class AvroFileFormatTypeParameters(BaseSegment):
 
     type = "avro_file_format_type_parameters"
 
-    match_grammar = OneOf(
+    _file_format_type_parameter = OneOf(
+        Sequence("TYPE", Ref("EqualsSegment"), "AVRO"),
         Sequence(
             "COMPRESSION",
             Ref("EqualsSegment"),
@@ -3064,6 +3016,10 @@ class AvroFileFormatTypeParameters(BaseSegment):
         ),
     )
 
+    match_grammar = OneOf(
+        Delimited(_file_format_type_parameter), AnyNumberOf(_file_format_type_parameter)
+    )
+
 
 class OrcFileFormatTypeParameters(BaseSegment):
     """A Snowflake File Format Type Options segment for ORC.
@@ -3073,13 +3029,18 @@ class OrcFileFormatTypeParameters(BaseSegment):
 
     type = "orc_file_format_type_parameters"
 
-    match_grammar = OneOf(
+    _file_format_type_parameter = OneOf(
+        Sequence("TYPE", Ref("EqualsSegment"), "ORC"),
         Sequence("TRIM_SPACE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
         Sequence(
             "NULL_IF",
             Ref("EqualsSegment"),
             Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
         ),
+    )
+
+    match_grammar = OneOf(
+        Delimited(_file_format_type_parameter), AnyNumberOf(_file_format_type_parameter)
     )
 
 
@@ -3091,7 +3052,8 @@ class ParquetFileFormatTypeParameters(BaseSegment):
 
     type = "parquet_file_format_type_parameters"
 
-    match_grammar = OneOf(
+    _file_format_type_parameter = OneOf(
+        Sequence("TYPE", Ref("EqualsSegment"), "PARQUET"),
         Sequence(
             "COMPRESSION", Ref("EqualsSegment"), OneOf("AUTO", "LZO", "SNAPPY", "NONE")
         ),
@@ -3106,6 +3068,10 @@ class ParquetFileFormatTypeParameters(BaseSegment):
         ),
     )
 
+    match_grammar = OneOf(
+        Delimited(_file_format_type_parameter), AnyNumberOf(_file_format_type_parameter)
+    )
+
 
 class XmlFileFormatTypeParameters(BaseSegment):
     """A Snowflake File Format Type Options segment for XML.
@@ -3115,7 +3081,8 @@ class XmlFileFormatTypeParameters(BaseSegment):
 
     type = "xml_file_format_type_parameters"
 
-    match_grammar = OneOf(
+    _file_format_type_parameter = OneOf(
+        Sequence("TYPE", Ref("EqualsSegment"), "XML"),
         Sequence(
             "COMPRESSION",
             Ref("EqualsSegment"),
@@ -3148,6 +3115,10 @@ class XmlFileFormatTypeParameters(BaseSegment):
         ),
     )
 
+    match_grammar = OneOf(
+        Delimited(_file_format_type_parameter), AnyNumberOf(_file_format_type_parameter)
+    )
+
 
 class FileFormatSegment(BaseSegment):
     """A Snowflake FILE_FORMAT Segment.
@@ -3168,43 +3139,14 @@ class FileFormatSegment(BaseSegment):
                     Ref("EqualsSegment"),
                     OneOf(Ref("NakedIdentifierSegment"), Ref("QuotedLiteralSegment")),
                 ),
-                # OneOf(
-                #     Ref("CsvFileFormatTypeOptions")
-                # ),
-                Sequence(
-                    "TYPE",
-                    Ref("EqualsSegment"),
-                    Ref("FileType"),
-                    # formatTypeOptions - To Do to make this more specific
-                    Ref("FormatTypeOptionsSegment", optional=True),
+                OneOf(
+                    Ref("CsvFileFormatTypeParameters"),
+                    Ref("JsonFileFormatTypeParameters"),
+                    Ref("AvroFileFormatTypeParameters"),
+                    Ref("OrcFileFormatTypeParameters"),
+                    Ref("ParquetFileFormatTypeParameters"),
+                    Ref("XmlFileFormatTypeParameters"),
                 ),
-            ),
-        ),
-    )
-
-
-class FormatTypeOptionsSegment(BaseSegment):
-    """A snowflake `formatTypeOptions` Segment.
-
-    https://docs.snowflake.com/en/sql-reference/sql/create-table.html
-    https://docs.snowflake.com/en/sql-reference/sql/create-external-table.html
-    https://docs.snowflake.com/en/sql-reference/sql/create-stage.html
-    """
-
-    type = "format_type_options_segment"
-
-    match_grammar = AnyNumberOf(
-        # formatTypeOptions - To Do to make this more specific
-        Ref("NakedIdentifierSegment"),
-        Ref("EqualsSegment"),
-        OneOf(
-            Ref("NakedIdentifierSegment"),
-            Ref("QuotedLiteralSegment"),
-            Ref("NumericLiteralSegment"),
-            Bracketed(
-                Delimited(
-                    Ref("QuotedLiteralSegment"),
-                )
             ),
         ),
     )
