@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4c335cbed2e987284fd671fcddffa6959d127df5951e05e956a0daf0b7771164
+_hash: 6d4bcce063ce04990911a976249842f7a0932275f0761823582071cc9b1228f3
 file:
 - statement:
     create_function_statement:
@@ -111,4 +111,33 @@ file:
     - udf_body: "'\n  if (D <= 0) {\n    return 1;\n  } else {\n    var result = 1;\n\
         \    for (var i = 2; i <= D; i++) {\n      result = result * i;\n    }\n \
         \   return result;\n  }\n  '"
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: simple_table_function
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - keyword: RETURNS
+    - keyword: TABLE
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          identifier: x
+          data_type:
+            data_type_identifier: INTEGER
+      - comma: ','
+      - column_definition:
+          identifier: y
+          data_type:
+            data_type_identifier: INTEGER
+      - end_bracket: )
+    - keyword: LANGUAGE
+    - keyword: SQL
+    - keyword: AS
+    - udf_body: "$$\n    SELECT 1, 2\n    UNION ALL\n    SELECT 3, 4\n  $$"
 - statement_terminator: ;

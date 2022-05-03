@@ -118,7 +118,7 @@ class GreedyUntil(BaseGrammar):
                     # a requirement, then we can't use it. Carry on...
                     if not allowable_match:
                         # Update our buffers and continue onward
-                        seg_bank = pre + mat.matched_segments
+                        seg_bank = seg_bank + pre + mat.matched_segments
                         seg_buff = mat.unmatched_segments
                         # Loop around, don't return yet
                         continue

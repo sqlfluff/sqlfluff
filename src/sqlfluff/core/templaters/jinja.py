@@ -78,9 +78,17 @@ class JinjaTemplater(PythonTemplater):
                 with open(path_entry) as opened_file:
                     template = opened_file.read()
                 # Update the context with macros from the file.
-                macro_ctx.update(
-                    cls._extract_macros_from_template(template, env=env, ctx=ctx)
-                )
+                try:
+                    macro_ctx.update(
+                        cls._extract_macros_from_template(template, env=env, ctx=ctx)
+                    )
+                except TemplateSyntaxError as err:
+                    raise SQLTemplaterError(
+                        f"Error in Jinja macro file {os.path.relpath(path_entry)}: "
+                        f"{err.message}",
+                        line_no=err.lineno,
+                        line_pos=1,
+                    ) from err
             else:
                 # It's a directory. Iterate through files in it and extract from them.
                 for dirpath, _, files in os.walk(path_entry):
@@ -327,9 +335,12 @@ class JinjaTemplater(PythonTemplater):
                 "object."
             )
 
-        env, live_context, make_template = self.template_builder(
-            fname=fname, config=config
-        )
+        try:
+            env, live_context, make_template = self.template_builder(
+                fname=fname, config=config
+            )
+        except SQLTemplaterError as err:
+            return None, [err]
 
         # Load the template, passing the global context.
         try:

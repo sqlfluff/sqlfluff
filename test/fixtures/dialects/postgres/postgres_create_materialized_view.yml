@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ea3de80765439ccc19377c65e12876ecdfea6567514def316c7c2918d8b61301
+_hash: d6ff3a18f404cf99e333bb99a0debee787101ab1a0545f9e5a94d23b882fc11a
 file:
 - statement:
     create_materialized_view_statement:
@@ -603,6 +603,74 @@ file:
                 raw_comparison_operator: '>'
               literal: '2'
         end_bracket: )
+    - with_data_clause:
+      - keyword: WITH
+      - keyword: DATA
+- statement_terminator: ;
+- statement:
+    create_materialized_view_statement:
+    - keyword: CREATE
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        identifier: my_mat_view
+    - keyword: TABLESPACE
+    - tablespace_reference:
+        identifier: pg_default
+    - keyword: AS
+    - set_expression:
+      - select_statement:
+          select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+              column_reference:
+              - identifier: table_1
+              - dot: .
+              - identifier: field_1
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+              - identifier: table_1
+              - dot: .
+              - identifier: field_2
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    identifier: table_1
+      - set_operator:
+          keyword: UNION
+      - select_statement:
+          select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+              column_reference:
+              - identifier: table_2
+              - dot: .
+              - identifier: field_1
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+              - identifier: table_2
+              - dot: .
+              - identifier: field_2
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    identifier: table_2
+      - orderby_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+            identifier: field_1
+        - comma: ','
+        - column_reference:
+            identifier: field_2
     - with_data_clause:
       - keyword: WITH
       - keyword: DATA

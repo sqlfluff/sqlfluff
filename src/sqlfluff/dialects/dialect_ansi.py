@@ -189,7 +189,7 @@ ansi_dialect.sets("bracket_pairs").update(
 )
 
 # Set the value table functions. These are functions that, if they appear as
-# an item in "FROM', are treated as returning a COLUMN, not a TABLE. Apparently,
+# an item in "FROM", are treated as returning a COLUMN, not a TABLE. Apparently,
 # among dialects supported by SQLFluff, only BigQuery has this concept, but this
 # set is defined in the ANSI dialect because:
 # - It impacts core linter rules (see L020 and several other rules that subclass
@@ -393,8 +393,13 @@ ansi_dialect.add(
     ),
     # hookpoint for other dialects
     # e.g. EXASOL str to date cast with DATE '2021-01-01'
+    # Give it a different type as needs to be single quotes and
+    # should not be changed by rules (e.g. rule L064)
     DateTimeLiteralGrammar=Sequence(
-        OneOf("DATE", "TIME", "TIMESTAMP", "INTERVAL"), Ref("QuotedLiteralSegment")
+        OneOf("DATE", "TIME", "TIMESTAMP", "INTERVAL"),
+        NamedParser(
+            "single_quote", CodeSegment, name="date_constructor_literal", type="literal"
+        ),
     ),
     # Hookpoint for other dialects
     # e.g. INTO is optional in BIGQUERY
@@ -483,6 +488,15 @@ ansi_dialect.add(
         "WINDOW",
         "OVERLAPS",
     ),
+    OrderByClauseTerminators=OneOf(
+        "LIMIT",
+        "HAVING",
+        "QUALIFY",
+        # For window functions
+        "WINDOW",
+        Ref("FrameClauseUnitGrammar"),
+        "SEPARATOR",
+    ),
     PrimaryKeyGrammar=Sequence("PRIMARY", "KEY"),
     ForeignKeyGrammar=Sequence("FOREIGN", "KEY"),
     UniqueKeyGrammar=Sequence("UNIQUE"),
@@ -496,6 +510,7 @@ ansi_dialect.add(
     ),
     # This is a placeholder for other dialects.
     SimpleArrayTypeGrammar=Nothing(),
+    StructTypeGrammar=Nothing(),
     BaseExpressionElementGrammar=OneOf(
         Ref("LiteralGrammar"),
         Ref("BareFunctionSegment"),
@@ -667,7 +682,11 @@ class DatatypeSegment(BaseSegment):
                 # There may be no brackets for some data types
                 optional=True,
             ),
-            Ref("CharCharacterSetGrammar", optional=True),
+            OneOf(
+                "UNSIGNED",  # UNSIGNED MySQL
+                Ref("CharCharacterSetGrammar"),
+                optional=True,
+            ),
         ),
     )
 
@@ -1171,7 +1190,7 @@ class FromExpressionElementSegment(BaseSegment):
         Ref("PostTableExpressionGrammar", optional=True),
     )
 
-    def get_eventual_alias(self) -> Optional[AliasInfo]:
+    def get_eventual_alias(self) -> AliasInfo:
         """Return the eventual table name referred to by this table expression.
 
         Returns:
@@ -1214,8 +1233,16 @@ class FromExpressionElementSegment(BaseSegment):
                     self,
                     None,
                     ref,
-                )  # No references or alias, return None
-        return None
+                )
+        # No references or alias
+        return AliasInfo(
+            "",
+            None,
+            False,
+            self,
+            None,
+            ref,
+        )
 
 
 class FromExpressionSegment(BaseSegment):
@@ -1367,7 +1394,7 @@ class SelectClauseSegment(BaseSegment):
 
     type = "select_clause"
     match_grammar: Matchable = StartsWith(
-        Sequence("SELECT", Ref("WildcardExpressionSegment", optional=True)),
+        "SELECT",
         terminator=OneOf(
             "FROM",
             "WHERE",
@@ -1712,7 +1739,7 @@ ansi_dialect.add(
     # Expression_C_Grammar
     # https://www.cockroachlabs.com/docs/v20.2/sql-grammar.htm#c_expr
     Expression_C_Grammar=OneOf(
-        Sequence("EXISTS", Bracketed(Ref("SelectStatementSegment"))),
+        Sequence("EXISTS", Bracketed(Ref("SelectableGrammar"))),
         # should be first priority, otherwise EXISTS() would be matched as a function
         Sequence(
             OneOf(
@@ -1760,6 +1787,10 @@ ansi_dialect.add(
             ),
             Sequence(
                 Ref("SimpleArrayTypeGrammar", optional=True), Ref("ArrayLiteralSegment")
+            ),
+            Sequence(
+                Ref("StructTypeGrammar"),
+                Bracketed(Delimited(Ref("ExpressionSegment"))),
             ),
             Sequence(
                 Ref("DatatypeSegment"),
@@ -1924,15 +1955,7 @@ class OrderByClauseSegment(BaseSegment):
     type = "orderby_clause"
     match_grammar: Matchable = StartsWith(
         Sequence("ORDER", "BY"),
-        terminator=OneOf(
-            "LIMIT",
-            "HAVING",
-            "QUALIFY",
-            # For window functions
-            "WINDOW",
-            Ref("FrameClauseUnitGrammar"),
-            "SEPARATOR",
-        ),
+        terminator=Ref("OrderByClauseTerminators"),
     )
     parse_grammar: Optional[Matchable] = Sequence(
         "ORDER",
@@ -2473,7 +2496,6 @@ class ColumnConstraintSegment(BaseSegment):
             Ref("PrimaryKeyGrammar"),
             Ref("UniqueKeyGrammar"),  # UNIQUE
             "AUTO_INCREMENT",  # AUTO_INCREMENT (MySQL)
-            "UNSIGNED",  # UNSIGNED (MySQL)
             Ref("ReferenceDefinitionGrammar"),  # REFERENCES reftable [ ( refcolumn) ]x
             Ref("CommentClauseSegment"),
         ),
@@ -2778,9 +2800,10 @@ class DropTableStatementSegment(BaseSegment):
 
     match_grammar: Matchable = Sequence(
         "DROP",
+        Ref("TemporaryGrammar", optional=True),
         "TABLE",
         Ref("IfExistsGrammar", optional=True),
-        Ref("TableReferenceSegment"),
+        Delimited(Ref("TableReferenceSegment")),
         Ref("DropBehaviorGrammar", optional=True),
     )
 

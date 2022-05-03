@@ -435,6 +435,7 @@ tsql_dialect.replace(
         Ref.keyword("INTO", optional=True),
     ),
     TrimParametersGrammar=Nothing(),
+    TemporaryGrammar=Nothing(),
 )
 
 
@@ -696,6 +697,7 @@ class SelectStatementSegment(BaseSegment):
             Ref("OrderByClauseSegment", optional=True),
             Ref("OptionClauseSegment", optional=True),
             Ref("DelimiterGrammar", optional=True),
+            Ref("ForXmlSegment", optional=True),
         ]
     )
 
@@ -1220,7 +1222,7 @@ class DeclareCursorStatementSegment(BaseSegment):
     type = "declare_segment"
     match_grammar = Sequence(
         "DECLARE",
-        Ref("ParameterNameSegment"),
+        Ref("NakedIdentifierSegment"),
         "CURSOR",
         OneOf("LOCAL", "GLOBAL", optional=True),
         OneOf("FORWARD_ONLY", "SCROLL", optional=True),
@@ -1817,7 +1819,9 @@ class CreateProcedureStatementSegment(BaseSegment):
         Sequence("OR", "ALTER", optional=True),
         OneOf("PROCEDURE", "PROC"),
         Ref("ObjectReferenceSegment"),
+        Indent,
         Ref("ProcedureParameterListGrammar", optional=True),
+        Dedent,
         "AS",
         Ref("ProcedureDefinitionGrammar"),
     )
@@ -3840,7 +3844,12 @@ class OpenCursorStatementSegment(BaseSegment):
     type = "open_cursor_statement"
     match_grammar: Matchable = Sequence(
         "OPEN",
-        Sequence(Ref.keyword("GLOBAL", optional=True), Ref("ParameterNameSegment")),
+        OneOf(
+            Sequence(
+                Ref.keyword("GLOBAL", optional=True), Ref("NakedIdentifierSegment")
+            ),
+            Ref("ParameterNameSegment"),
+        ),
     )
 
 
@@ -3853,7 +3862,12 @@ class CloseCursorStatementSegment(BaseSegment):
     type = "close_cursor_statement"
     match_grammar: Matchable = Sequence(
         "CLOSE",
-        Sequence(Ref.keyword("GLOBAL", optional=True), Ref("ParameterNameSegment")),
+        OneOf(
+            Sequence(
+                Ref.keyword("GLOBAL", optional=True), Ref("NakedIdentifierSegment")
+            ),
+            Ref("ParameterNameSegment"),
+        ),
     )
 
 
@@ -3866,7 +3880,12 @@ class DeallocateCursorStatementSegment(BaseSegment):
     type = "deallocate_cursor_statement"
     match_grammar: Matchable = Sequence(
         "DEALLOCATE",
-        Sequence(Ref.keyword("GLOBAL", optional=True), Ref("ParameterNameSegment")),
+        OneOf(
+            Sequence(
+                Ref.keyword("GLOBAL", optional=True), Ref("NakedIdentifierSegment")
+            ),
+            Ref("ParameterNameSegment"),
+        ),
     )
 
 
@@ -3881,7 +3900,30 @@ class FetchCursorStatementSegment(BaseSegment):
         "FETCH",
         OneOf("NEXT", "PRIOR", "FIRST", "LAST", optional=True),
         "FROM",
-        Ref.keyword("GLOBAL", optional=True),
-        Ref("ParameterNameSegment"),
-        Sequence("INTO", Ref("ParameterNameSegment"), optional=True),
+        OneOf(
+            Sequence(
+                Ref.keyword("GLOBAL", optional=True), Ref("NakedIdentifierSegment")
+            ),
+            Ref("ParameterNameSegment"),
+        ),
+        Sequence("INTO", Delimited(Ref("ParameterNameSegment")), optional=True),
+    )
+
+
+class ForXmlSegment(BaseSegment):
+    """A segment for `FOR XML` in `SELECT` statements.
+
+    https://docs.microsoft.com/en-us/sql/relational-databases/xml/for-xml-sql-server?view=sql-server-2017
+    """
+
+    type = "for_xml_segment"
+    match_grammar: Matchable = Sequence(
+        "FOR",
+        "XML",
+        OneOf(
+            Sequence("RAW", Bracketed(Ref("QuotedLiteralSegment"), optional=True)),
+            "AUTO",
+            "EXPLICIT",
+            Sequence("PATH", Bracketed(Ref("QuotedLiteralSegment"), optional=True)),
+        ),
     )
