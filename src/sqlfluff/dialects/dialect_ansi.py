@@ -682,7 +682,11 @@ class DatatypeSegment(BaseSegment):
                 # There may be no brackets for some data types
                 optional=True,
             ),
-            Ref("CharCharacterSetGrammar", optional=True),
+            OneOf(
+                "UNSIGNED",  # UNSIGNED MySQL
+                Ref("CharCharacterSetGrammar"),
+                optional=True,
+            ),
         ),
     )
 
@@ -2492,7 +2496,6 @@ class ColumnConstraintSegment(BaseSegment):
             Ref("PrimaryKeyGrammar"),
             Ref("UniqueKeyGrammar"),  # UNIQUE
             "AUTO_INCREMENT",  # AUTO_INCREMENT (MySQL)
-            "UNSIGNED",  # UNSIGNED (MySQL)
             Ref("ReferenceDefinitionGrammar"),  # REFERENCES reftable [ ( refcolumn) ]x
             Ref("CommentClauseSegment"),
         ),
@@ -2797,9 +2800,10 @@ class DropTableStatementSegment(BaseSegment):
 
     match_grammar: Matchable = Sequence(
         "DROP",
+        Ref("TemporaryGrammar", optional=True),
         "TABLE",
         Ref("IfExistsGrammar", optional=True),
-        Ref("TableReferenceSegment"),
+        Delimited(Ref("TableReferenceSegment")),
         Ref("DropBehaviorGrammar", optional=True),
     )
 
