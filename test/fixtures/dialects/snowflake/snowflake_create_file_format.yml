@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: cb703b8f3e22455f711c47272e5aad3808b1dcd6fd616e5d8a3fe2369c210134
+_hash: 86dd4c9113752e97514f23e61e353cbac83b7d18f307e2c39222be85f3e1a2fa
 file:
 - statement:
     create_file_format_segment:
@@ -36,7 +36,7 @@ file:
       - keyword: COMPRESSION
       - comparison_operator:
           raw_comparison_operator: '='
-      - keyword: AUTO
+      - compression_type: AUTO
       - comma: ','
       - keyword: RECORD_DELIMITER
       - comparison_operator:
@@ -151,7 +151,7 @@ file:
       - keyword: COMPRESSION
       - comparison_operator:
           raw_comparison_operator: '='
-      - keyword: GZIP
+      - compression_type: GZIP
       - keyword: RECORD_DELIMITER
       - comparison_operator:
           raw_comparison_operator: '='
@@ -253,7 +253,7 @@ file:
       - keyword: COMPRESSION
       - comparison_operator:
           raw_comparison_operator: '='
-      - keyword: AUTO
+      - compression_type: AUTO
       - comma: ','
       - keyword: DATE_FORMAT
       - comparison_operator:
@@ -348,7 +348,7 @@ file:
       - keyword: COMPRESSION
       - comparison_operator:
           raw_comparison_operator: '='
-      - keyword: GZIP
+      - compression_type: GZIP
       - keyword: DATE_FORMAT
       - comparison_operator:
           raw_comparison_operator: '='
@@ -571,7 +571,7 @@ file:
       - keyword: COMPRESSION
       - comparison_operator:
           raw_comparison_operator: '='
-      - keyword: SNAPPY
+      - compression_type: SNAPPY
       - comma: ','
       - keyword: SNAPPY_COMPRESSION
       - comparison_operator:
@@ -611,7 +611,7 @@ file:
       - keyword: COMPRESSION
       - comparison_operator:
           raw_comparison_operator: '='
-      - keyword: AUTO
+      - compression_type: AUTO
       - keyword: SNAPPY_COMPRESSION
       - comparison_operator:
           raw_comparison_operator: '='
@@ -653,7 +653,7 @@ file:
       - keyword: COMPRESSION
       - comparison_operator:
           raw_comparison_operator: '='
-      - keyword: AUTO
+      - compression_type: AUTO
       - comma: ','
       - keyword: IGNORE_UTF8_ERRORS
       - comparison_operator:
@@ -703,7 +703,7 @@ file:
       - keyword: COMPRESSION
       - comparison_operator:
           raw_comparison_operator: '='
-      - keyword: GZIP
+      - compression_type: GZIP
       - keyword: IGNORE_UTF8_ERRORS
       - comparison_operator:
           raw_comparison_operator: '='

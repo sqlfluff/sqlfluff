@@ -2788,6 +2788,7 @@ class AlterViewStatementSegment(BaseSegment):
         ),
     )
 
+
 class AlterMaterializedViewStatementSegment(BaseSegment):
     """An `ALTER MATERIALIZED VIEW` statement, specifically for Snowflake's dialect.
 
@@ -2880,7 +2881,6 @@ class CsvFileFormatTypeParameters(BaseSegment):
             "COMPRESSION",
             Ref("EqualsSegment"),
             Ref("CompressionType"),
-            ),
         ),
         Sequence(
             "RECORD_DELIMITER",
@@ -2986,7 +2986,6 @@ class JsonFileFormatTypeParameters(BaseSegment):
             "COMPRESSION",
             Ref("EqualsSegment"),
             Ref("CompressionType"),
-            ),
         ),
         Sequence(
             "DATE_FORMAT",
@@ -3122,7 +3121,9 @@ class ParquetFileFormatTypeParameters(BaseSegment):
             ),
         ),
         Sequence(
-            "COMPRESSION", Ref("EqualsSegment"), Ref("CompressionType"),
+            "COMPRESSION",
+            Ref("EqualsSegment"),
+            Ref("CompressionType"),
         ),
         Sequence(
             "SNAPPY_COMPRESSION", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
