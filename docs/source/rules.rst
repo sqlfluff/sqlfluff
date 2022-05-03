@@ -22,9 +22,9 @@ criteria:
 * Isn’t too opinionated toward one style (e.g. the :code:`dbt` style guide)
 
 Core rules can also make it easier to roll out SQLFluff to a team by
-only needing to follow a 'common sense' subset of rules, rather
-than spending time debating the finer points of other more
-opinionated rules.
+only needing to follow a 'common sense' subset of rules initially,
+rather than spending time understanding and configuring all the
+rules, some of which your team may not necessarily agree with.
 
 We believe teams will eventually want to enforce more than just
 the core rules, and we encourage everyone to explore all the rules
