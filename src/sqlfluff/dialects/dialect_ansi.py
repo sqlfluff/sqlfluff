@@ -2800,9 +2800,10 @@ class DropTableStatementSegment(BaseSegment):
 
     match_grammar: Matchable = Sequence(
         "DROP",
+        Ref("TemporaryGrammar", optional=True),
         "TABLE",
         Ref("IfExistsGrammar", optional=True),
-        Ref("TableReferenceSegment"),
+        Delimited(Ref("TableReferenceSegment")),
         Ref("DropBehaviorGrammar", optional=True),
     )
 
