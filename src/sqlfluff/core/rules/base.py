@@ -1083,14 +1083,14 @@ class RuleSet:
                 "all" in cls.groups
             ), "Rule {!r} must belong to the 'all' group".format(code)
             groups = cls.groups
-        except AttributeError:
+        except AttributeError as attr_err:
 
             raise AttributeError(
                 (
                     "Rule {!r} doesn't belong to any rule groups. "
                     "All rules must belong to at least one group"
                 ).format(code)
-            )
+            ) from attr_err
 
         self._register[code] = dict(
             code=code, description=description, groups=groups, cls=cls
