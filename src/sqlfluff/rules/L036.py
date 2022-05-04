@@ -403,8 +403,14 @@ class Rule_L036(BaseRule):
                     ),
                 ]
             else:
-                # Currently not autofixed due to newline-related trickiness.
-                # Could be supported later if/when we have time.
+                # The SELECT is followed by a comment on the same line. In order
+                # to autofix this, we'd need to move the select target between
+                # SELECT and the comment and potentially delete the entire line
+                # where the select target was (if it is now empty). This is
+                # *fairly tricky and complex*, in part because the newline on
+                # the select target's line is several levels higher in the
+                # parser tree. Hence, we currently don't autofix this. Could be
+                # autofixed in the future if/when we have the time.
                 fixes = []
             return LintResult(
                 anchor=select_clause.get(),
