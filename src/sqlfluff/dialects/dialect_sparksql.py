@@ -879,14 +879,6 @@ class CreateFunctionStatementSegment(ansi.CreateFunctionStatementSegment):
         Sequence("OR", "REPLACE", optional=True),
         Ref("TemporaryGrammar", optional=True),
         "FUNCTION",
-        Anything(),
-    )
-
-    parse_grammar = Sequence(
-        "CREATE",
-        Sequence("OR", "REPLACE", optional=True),
-        Ref("TemporaryGrammar", optional=True),
-        "FUNCTION",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("FunctionNameIdentifierSegment"),
         "AS",

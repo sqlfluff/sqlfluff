@@ -669,14 +669,6 @@ class CreateFunctionStatementSegment(ansi.CreateFunctionStatementSegment):
         Sequence("OR", "REPLACE", optional=True),
         Ref("TemporaryGrammar", optional=True),
         "FUNCTION",
-        Anything(),
-    )
-
-    parse_grammar = Sequence(
-        "CREATE",
-        Sequence("OR", "REPLACE", optional=True),
-        Ref("TemporaryGrammar", optional=True),
-        "FUNCTION",
         Sequence("IF", "NOT", "EXISTS", optional=True),
         Ref("FunctionNameSegment"),
         Ref("FunctionParameterListGrammar"),
@@ -1065,11 +1057,6 @@ class SelectClauseModifierSegment(ansi.SelectClauseModifierSegment):
     """Things that come after SELECT but before the columns."""
 
     match_grammar = OneOf(
-        Sequence("DISTINCT", Sequence("ON", Bracketed(Anything()), optional=True)),
-        "ALL",
-    )
-
-    parse_grammar = OneOf(
         Sequence(
             "DISTINCT",
             Sequence(
@@ -3267,9 +3254,7 @@ class AlterTriggerStatementSegment(BaseSegment):
 
     type = "alter_trigger"
 
-    match_grammar = Sequence("ALTER", "TRIGGER", Anything())
-
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "ALTER",
         "TRIGGER",
         Ref("TriggerReferenceSegment"),
@@ -3294,9 +3279,7 @@ class DropTriggerStatementSegment(ansi.DropTriggerStatementSegment):
     As Specified in https://www.postgresql.org/docs/14/sql-droptrigger.html
     """
 
-    match_grammar = Sequence("DROP", "TRIGGER", Anything())
-
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "DROP",
         "TRIGGER",
         Sequence("IF", "EXISTS", optional=True),

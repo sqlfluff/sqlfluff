@@ -1099,9 +1099,7 @@ class FromAtExpressionSegment(BaseSegment):
     """An AT expression."""
 
     type = "from_at_expression"
-    match_grammar = Sequence("AT", Bracketed(Anything()))
-
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "AT",
         Bracketed(
             OneOf("TIMESTAMP", "OFFSET", "STATEMENT"),
