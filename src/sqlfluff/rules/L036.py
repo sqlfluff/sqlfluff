@@ -403,19 +403,9 @@ class Rule_L036(BaseRule):
                     ),
                 ]
             else:
-                fixes += [
-                    LintFix.delete(seg)
-                    for seg in select_children[
-                        select_targets_info.select_idx
-                        + 1 : select_targets_info.comment_after_select_idx
-                    ].select(sp.is_type("whitespace"))
-                ]
-                fixes += [
-                    LintFix.create_before(
-                        select_children[select_targets_info.comment_after_select_idx],
-                        insert_buff + [WhitespaceSegment()],
-                    )
-                ]
+                # Currently not autofixed due to newline-related trickiness.
+                # Could be supported later if/when we have time.
+                fixes = []
             return LintResult(
                 anchor=select_clause.get(),
                 fixes=fixes,
