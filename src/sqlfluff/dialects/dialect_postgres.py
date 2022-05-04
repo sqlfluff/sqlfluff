@@ -3160,6 +3160,9 @@ class StatementSegment(ansi.StatementSegment):
             Ref("SetStatementSegment"),
             Ref("CreatePolicyStatementSegment"),
             Ref("DropPolicyStatementSegment"),
+            Ref("CreateDomainStatementSegment"),
+            Ref("AlterDomainStatementSegment"),
+            Ref("DropDomainStatementSegment"),
             Ref("CreateMaterializedViewStatementSegment"),
             Ref("AlterMaterializedViewStatementSegment"),
             Ref("DropMaterializedViewStatementSegment"),
@@ -3294,9 +3297,7 @@ class DropTriggerStatementSegment(ansi.DropTriggerStatementSegment):
     As Specified in https://www.postgresql.org/docs/14/sql-droptrigger.html
     """
 
-    match_grammar = Sequence("DROP", "TRIGGER", Anything())
-
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "DROP",
         "TRIGGER",
         Sequence("IF", "EXISTS", optional=True),
@@ -3544,6 +3545,130 @@ class CreatePolicyStatementSegment(BaseSegment):
         ),
         Sequence("USING", Bracketed(Ref("ExpressionSegment")), optional=True),
         Sequence("WITH", "CHECK", Bracketed(Ref("ExpressionSegment")), optional=True),
+    )
+
+
+class CreateDomainStatementSegment(BaseSegment):
+    """A `CREATE Domain` statement.
+
+    As Specified in https://www.postgresql.org/docs/current/sql-createdomain.html
+    """
+
+    type = "create_domain_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        "DOMAIN",
+        Ref("ObjectReferenceSegment"),
+        Sequence("AS", optional=True),
+        Ref("DatatypeSegment"),
+        Sequence("COLLATE", Ref("ObjectReferenceSegment"), optional=True),
+        Sequence("DEFAULT", Ref("ExpressionSegment"), optional=True),
+        Sequence(
+            Sequence(
+                "CONSTRAINT",
+                Ref("ObjectReferenceSegment"),
+                optional=True,
+            ),
+            OneOf(
+                Sequence(Ref.keyword("NOT", optional=True), "NULL"),
+                Sequence("CHECK", Ref("ExpressionSegment")),
+            ),
+            optional=True,
+        ),
+    )
+
+
+class AlterDomainStatementSegment(BaseSegment):
+    """An `ALTER DOMAIN` statement.
+
+    As Specified in https://www.postgresql.org/docs/current/sql-alterdomain.html
+    """
+
+    type = "alter_domain_statement"
+    match_grammar: Matchable = Sequence(
+        "ALTER",
+        "DOMAIN",
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Sequence(
+                "SET",
+                "DEFAULT",
+                Ref("ExpressionSegment"),
+            ),
+            Sequence(
+                "DROP",
+                "DEFAULT",
+            ),
+            Sequence(OneOf("SET", "DROP"), "NOT", "NULL"),
+            Sequence(
+                "ADD",
+                Sequence(
+                    "CONSTRAINT",
+                    Ref("ObjectReferenceSegment"),
+                    optional=True,
+                ),
+                OneOf(
+                    Sequence(Ref.keyword("NOT", optional=True), "NULL"),
+                    Sequence("CHECK", Ref("ExpressionSegment")),
+                ),
+                Sequence("NOT", "VALID", optional=True),
+            ),
+            Sequence(
+                "DROP",
+                "CONSTRAINT",
+                Ref("IfExistsGrammar", optional=True),
+                Ref("ObjectReferenceSegment"),
+                OneOf("RESTRICT", "CASCADE", optional=True),
+            ),
+            Sequence(
+                "RENAME",
+                "CONSTRAINT",
+                Ref("ObjectReferenceSegment"),
+                "TO",
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "VALIDATE",
+                "CONSTRAINT",
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "OWNER",
+                "TO",
+                OneOf(
+                    Ref("ObjectReferenceSegment"),
+                    "CURRENT_ROLE",
+                    "CURRENT_USER",
+                    "SESSION_USER",
+                ),
+            ),
+            Sequence(
+                "RENAME",
+                "TO",
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "SET",
+                "SCHEMA",
+                Ref("ObjectReferenceSegment"),
+            ),
+        ),
+    )
+
+
+class DropDomainStatementSegment(BaseSegment):
+    """Drop Domain Statement.
+
+    As Specified in https://www.postgresql.org/docs/current/sql-dropdomain.html
+    """
+
+    type = "drop_domain_statement"
+    match_grammar = Sequence(
+        "DROP",
+        "DOMAIN",
+        Ref("IfExistsGrammar", optional=True),
+        Delimited(Ref("ObjectReferenceSegment")),
+        Ref("DropBehaviorGrammar", optional=True),
     )
 
 
