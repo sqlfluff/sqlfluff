@@ -263,14 +263,9 @@ class Rule_L036(BaseRule):
                         """Cleans up by moving leftover select_clause segments.
 
                         Context: Some of the other fixes we make in
-                        _eval_single_select_target_element() leave the
-                        select_clause in an illegal state -- a select_clause's
-                        *rightmost children cannot be whitespace or comments*.
-                        This function addresses that by moving these segments
-                        up the parse tree to an ancestor segment chosen by
-                        _choose_anchor_segment(). After these fixes are applied,
-                        these segments may, for example, be *siblings* of
-                        select_clause.
+                        _eval_single_select_target_element() leave leftover
+                        child segments that need to be moved to become
+                        *siblings* of the select_clause.
                         """
                         start_seg = (
                             modifier[0]

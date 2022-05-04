@@ -73,6 +73,13 @@ test_multiple_select_targets_trailing_whitespace_after_select:
   # TRICKY: Use explicit newlines to preserve the trailing space after "SELECT".
   pass_str: "SELECT \n    a,\n    b\nFROM t\n"
 
+test_single_select_with_comment_after_select:
+  fail_str: |
+    SELECT --some comment
+    a
+  fix_str: |
+    SELECT a --some comment
+
 test_comment_between_select_and_single_select_target:
   fail_str: |
     SELECT
