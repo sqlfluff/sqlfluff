@@ -1,15 +1,16 @@
 """Tests for templaters."""
 
+import datetime
 import logging
 from typing import List, NamedTuple
+from unittest.mock import patch
 
 import pytest
 
+from sqlfluff.core import FluffConfig, Linter
 from sqlfluff.core.templaters import JinjaTemplater
 from sqlfluff.core.templaters.base import RawFileSlice, TemplatedFile
 from sqlfluff.core.templaters.jinja import JinjaAnalyzer
-from sqlfluff.core import Linter, FluffConfig
-
 
 JINJA_STRING = (
     "SELECT * FROM {% for c in blah %}{{c}}{% if not loop.last %}, "
@@ -600,6 +601,46 @@ def test__templater_full(subpath, code_only, include_meta, yaml_loader, caplog):
     # Log the templater and lexer throughout this test
     caplog.set_level(logging.DEBUG, logger="sqlfluff.templater")
     caplog.set_level(logging.DEBUG, logger="sqlfluff.lexer")
+
+    assert_structure(
+        yaml_loader,
+        "test/fixtures/templater/" + subpath,
+        code_only=code_only,
+        include_meta=include_meta,
+    )
+
+
+@pytest.mark.parametrize(
+    "subpath,code_only,include_meta",
+    [
+        # Test Airflow builtins
+        ("jinja_q_airflow_builtins/airflow_builtins_filters", True, False),
+        ("jinja_q_airflow_builtins/airflow_builtins_macros", True, False),
+    ],
+)
+@patch("random.random", autospec=True)
+@patch("uuid.uuid4", autospec=True)
+@patch("datetime.datetime", wraps=datetime.datetime)
+def test__templater_full_jinja(
+    mock_datetime,
+    mock_uuid4,
+    mock_random,
+    subpath,
+    code_only,
+    include_meta,
+    yaml_loader,
+    caplog,
+):
+    """Check structure can be parsed from jinja templated files."""
+    # Log the templater and lexer throughout this test
+    caplog.set_level(logging.DEBUG, logger="sqlfluff.templater")
+    caplog.set_level(logging.DEBUG, logger="sqlfluff.lexer")
+
+    mock_datetime.now.return_value = datetime.datetime(
+        2006, 6, 14, 8, 30, tzinfo=datetime.timezone.utc
+    )
+    mock_uuid4.return_value = "00000000-0000-0000-0000-000000000000"
+    mock_random.return_value = 0.5
 
     assert_structure(
         yaml_loader,

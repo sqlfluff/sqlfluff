@@ -1,37 +1,22 @@
 file:
-    statement:
-        select_statement:
-            select_clause:
-                keyword:                                      'SELECT'
-                [META] indent:
-                newline:                                      '\n'
-                whitespace:                                   '    '
-                select_clause_element:
-                    literal:                                  "'2022-05-02'"
-                comma:                                        ','
-                newline:                                      '\n'
-                whitespace:                                   '    '
-                select_clause_element:
-                    literal:                                  "'2022-05-07'"
-                comma:                                        ','
-                newline:                                      '\n'
-                whitespace:                                   '    '
-                select_clause_element:
-                    literal:                                  "'01-01-15'"
-                comma:                                        ','
-                newline:                                      '\n'
-                whitespace:                                   '    '
-                select_clause_element:
-                    literal:                                  "'2015-01-05'"
-                comma:                                        ','
-                newline:                                      '\n'
-                whitespace:                                   '    '
-                select_clause_element:
-                    literal:                                  "'0.8592790307126834'"
-                comma:                                        ','
-                newline:                                      '\n'
-                whitespace:                                   '    '
-                select_clause_element:
-                    literal:                                  "'d570e9c9-8e47-4d1a-8a21-a70df4f3eddb'"
-            [META] dedent:
-    newline:                                                  '\n'
+  statement:
+    select_statement:
+      select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            literal: "'2006-06-14'"
+        - comma: ","
+        - select_clause_element:
+            literal: "'2006-06-19'"
+        - comma: ","
+        - select_clause_element:
+            literal: "'01-01-15'"
+        - comma: ","
+        - select_clause_element:
+            literal: "'2015-01-05'"
+        - comma: ","
+        - select_clause_element:
+            literal: "'0.5'"
+        - comma: ","
+        - select_clause_element:
+            literal: "'00000000-0000-0000-0000-000000000000'"
