@@ -301,12 +301,7 @@ class Rule_L036(BaseRule):
                         ]
                         fixes_.append(
                             LintFix.create_after(
-                                self._choose_anchor_segment(
-                                    context,
-                                    "create_after",
-                                    select_clause[0],
-                                    filter_meta=True,
-                                ),
+                                select_clause[0],
                                 ([NewlineSegment()] if add_newline else [])
                                 + list(move_after_select_clause),
                             )
