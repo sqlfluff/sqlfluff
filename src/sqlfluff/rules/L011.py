@@ -1,5 +1,5 @@
 """Implementation of Rule L011."""
-from typing import List, Optional, Union
+from typing import List, Optional, Tuple, Union
 
 from sqlfluff.core.parser import (
     WhitespaceSegment,
@@ -43,6 +43,7 @@ class Rule_L011(BaseRule):
 
     """
 
+    groups: Tuple[str, ...] = ("all",)
     config_keywords = ["aliasing"]
 
     _target_elems = ("from_expression_element",)

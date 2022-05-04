@@ -57,6 +57,7 @@ class Rule_L052(BaseRule):
         FROM foo;
     """
 
+    groups = ("all",)
     config_keywords = ["multiline_newline", "require_final_semicolon"]
     needs_raw_stack = True
 

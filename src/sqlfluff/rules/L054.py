@@ -83,6 +83,7 @@ class Rule_L054(BaseRule):
             1, 2;
     """
 
+    groups = ("all", "core")
     config_keywords = ["group_by_and_order_by_style"]
     _ignore_types: List[str] = ["withingroup_clause", "window_specification"]
 

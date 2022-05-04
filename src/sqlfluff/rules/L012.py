@@ -35,6 +35,7 @@ class Rule_L012(Rule_L011):
 
     """
 
+    groups = ("all", "core")
     config_keywords = ["aliasing"]
 
     _target_elems = ("select_clause_element",)

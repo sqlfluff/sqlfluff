@@ -42,6 +42,8 @@ class Rule_L037(BaseRule):
         ORDER BY a ASC, b DESC
     """
 
+    groups = ("all",)
+
     @staticmethod
     def _get_orderby_info(segment: BaseSegment) -> List[OrderByColumnInfo]:
         assert segment.is_type("orderby_clause")

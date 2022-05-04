@@ -31,6 +31,8 @@ class Rule_L017(BaseRule):
 
     """
 
+    groups = ("all", "core")
+
     def _eval(self, context: RuleContext) -> LintResult:
         """Function name not immediately followed by bracket.
 

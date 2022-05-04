@@ -30,6 +30,7 @@ class Rule_L024(Rule_L023):
         LEFT JOIN zoo USING (a)
     """
 
+    groups = ("all", "core")
     expected_mother_segment_type = "join_clause"
     pre_segment_identifier = ("name", "using")
     post_segment_identifier = ("type", "bracketed")

@@ -33,6 +33,8 @@ class Rule_L021(BaseRule):
         FROM foo
     """
 
+    groups = ("all", "core")
+
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Ambiguous use of DISTINCT in select statement with GROUP BY."""
         segment = context.functional.segment

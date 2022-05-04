@@ -191,6 +191,7 @@ class Rule_L003(BaseRule):
 
     """
 
+    groups = ("all", "core")
     targets_templated = True
     _works_on_unparsable = False
     needs_raw_stack = True

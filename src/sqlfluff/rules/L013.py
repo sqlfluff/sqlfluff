@@ -35,6 +35,7 @@ class Rule_L013(BaseRule):
 
     """
 
+    groups = ("all", "core")
     config_keywords = ["allow_scalar"]
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:

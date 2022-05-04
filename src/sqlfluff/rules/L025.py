@@ -60,6 +60,8 @@ class Rule_L025(BaseRule):
 
     """
 
+    groups = ("all", "core")
+
     def _eval(self, context: RuleContext) -> EvalResultType:
         violations: List[LintResult] = []
         if context.segment.is_type("select_statement"):

@@ -40,6 +40,8 @@ class Rule_L045(BaseRule):
         FROM cte1
     """
 
+    groups = ("all", "core")
+
     @classmethod
     def _visit_sources(cls, query: Query):
         for selectable in query.selectables:

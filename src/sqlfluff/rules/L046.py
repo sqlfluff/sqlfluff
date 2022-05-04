@@ -32,6 +32,7 @@ class Rule_L046(BaseRule):
         }};
     """
 
+    groups = ("all", "core")
     targets_templated = True
 
     @staticmethod

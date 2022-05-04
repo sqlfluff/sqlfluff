@@ -50,6 +50,7 @@ class Rule_L018(BaseRule):
 
     """
 
+    groups = ("all", "core")
     _works_on_unparsable = False
     needs_raw_stack = True
     config_keywords = ["tab_space_size"]
