@@ -91,8 +91,7 @@ class Rule_L036(BaseRule):
         select_targets = children.select(sp.is_type("select_clause_element"))
         first_select_target_idx = children.find(select_targets.get())
         selects = children.select(sp.is_keyword("select"))
-        assert selects
-        select_idx = children.find(selects.get())
+        select_idx = children.find(selects.get()) if selects else -1
         newlines = children.select(sp.is_type("newline"))
         first_new_line_idx = children.find(newlines.get()) if newlines else -1
         comment_after_select_idx = -1
