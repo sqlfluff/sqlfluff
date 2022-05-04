@@ -19,6 +19,7 @@ class SelectTargetsInfo(NamedTuple):
     first_new_line_idx: int
     first_select_target_idx: int
     first_whitespace_idx: int
+    comment_after_select_idx: int
     select_targets: List[BaseSegment]
     from_segment: Optional[BaseSegment]
     pre_from_whitespace: List[BaseSegment]
@@ -90,9 +91,26 @@ class Rule_L036(BaseRule):
         select_targets = children.select(sp.is_type("select_clause_element"))
         first_select_target_idx = children.find(select_targets.get())
         selects = children.select(sp.is_keyword("select"))
+        assert selects
         select_idx = children.find(selects.get())
         newlines = children.select(sp.is_type("newline"))
-        first_new_line_idx = children.find(newlines.get())
+        first_new_line_idx = children.find(newlines.get()) if newlines else -1
+        comment_after_select_idx = -1
+        if newlines:
+            comment_after_select = children.select(
+                sp.is_type("comment"),
+                start_seg=selects.get(),
+                stop_seg=newlines.get(),
+                loop_while=sp.or_(
+                    sp.is_type("comment"), sp.is_type("whitespace"), sp.is_meta()
+                ),
+            )
+            if comment_after_select:
+                comment_after_select_idx = (
+                    children.find(comment_after_select.get())
+                    if comment_after_select
+                    else -1
+                )
         first_whitespace_idx = -1
         if first_new_line_idx != -1:
             # TRICKY: Ignore whitespace prior to the first newline, e.g. if
@@ -113,6 +131,7 @@ class Rule_L036(BaseRule):
             first_new_line_idx,
             first_select_target_idx,
             first_whitespace_idx,
+            comment_after_select_idx,
             select_targets,
             from_segment,
             list(pre_from_whitespace),
@@ -374,15 +393,29 @@ class Rule_L036(BaseRule):
                             ],
                         )
 
-            fixes += [
-                # Insert the select_clause in place of the first newline in the
-                # Select statement
-                LintFix.replace(
-                    select_children[select_targets_info.first_new_line_idx],
-                    insert_buff,
-                ),
-            ]
-
+            if select_targets_info.comment_after_select_idx == -1:
+                fixes += [
+                    # Insert the select_clause in place of the first newline in the
+                    # Select statement
+                    LintFix.replace(
+                        select_children[select_targets_info.first_new_line_idx],
+                        insert_buff,
+                    ),
+                ]
+            else:
+                fixes += [
+                    LintFix.delete(seg)
+                    for seg in select_children[
+                        select_targets_info.select_idx
+                        + 1 : select_targets_info.comment_after_select_idx
+                    ].select(sp.is_type("whitespace"))
+                ]
+                fixes += [
+                    LintFix.create_before(
+                        select_children[select_targets_info.comment_after_select_idx],
+                        insert_buff + [WhitespaceSegment()],
+                    )
+                ]
             return LintResult(
                 anchor=select_clause.get(),
                 fixes=fixes,
