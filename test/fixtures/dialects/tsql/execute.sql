@@ -29,3 +29,7 @@ EXEC @pRes = dbo.ProcTestDefaults;
 EXEC @pRes = dbo.ProcTestDefaults @p1 = DEFAULT;
 EXECUTE @pRes = dbo.ProcTestDefaults;
 EXECUTE @pRes = dbo.ProcTestDefaults @p1 = DEFAULT;
+
+-- Executing statement from a variable
+DECLARE @statement nvarchar(max) = 'SELECT 1'
+EXEC (@statement)
