@@ -3307,6 +3307,43 @@ class CreateTypeStatementSegment(BaseSegment):
     )
 
 
+class AlterTypeStatementSegment(BaseSegment):
+    """An `ALTER TYPE` statement.
+
+    This is based around the Postgres syntax.
+    https://www.postgresql.org/docs/current/sql-createtype.html
+    """
+
+    type = "alter_type_statement"
+    match_grammar: Matchable = Sequence(
+        "ALTER",
+        "TYPE",
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Sequence(
+                "OWNER",
+                "TO",
+                OneOf(
+                    "CURRENT_USER",
+                    "SESSION_USER",
+                    "CURRENT_ROLE",
+                    Ref("ObjectReferenceSegment"),
+                ),
+            ),
+            Sequence(
+                "RENAME",
+                "TO",
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "SET",
+                "SCHEMA",
+                Ref("SchemaReferenceSegment"),
+            ),
+        ),
+    )
+
+
 class CreateUserStatementSegment(BaseSegment):
     """A `CREATE USER` statement.
 
@@ -3405,6 +3442,7 @@ class StatementSegment(BaseSegment):
         Ref("AccessStatementSegment"),
         Ref("CreateTableStatementSegment"),
         Ref("CreateTypeStatementSegment"),
+        Ref("AlterTypeStatementSegment"),
         Ref("CreateRoleStatementSegment"),
         Ref("DropRoleStatementSegment"),
         Ref("AlterTableStatementSegment"),
