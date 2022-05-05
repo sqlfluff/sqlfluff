@@ -3208,14 +3208,6 @@ class CreateFunctionStatementSegment(BaseSegment):
         Ref("OrReplaceGrammar", optional=True),
         Ref("TemporaryGrammar", optional=True),
         "FUNCTION",
-        Anything(),
-    )
-
-    parse_grammar: Optional[Matchable] = Sequence(
-        "CREATE",
-        Ref("OrReplaceGrammar", optional=True),
-        Ref("TemporaryGrammar", optional=True),
-        "FUNCTION",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("FunctionNameSegment"),
         Ref("FunctionParameterListGrammar"),
@@ -3291,27 +3283,6 @@ class CreateModelStatementSegment(BaseSegment):
         ),
         "AS",
         Ref("SelectableGrammar"),
-    )
-
-
-class CreateTypeStatementSegment(BaseSegment):
-    """A `CREATE TYPE` statement.
-
-    This is based around the Postgres syntax.
-    https://www.postgresql.org/docs/current/sql-createtype.html
-
-    Note: This is relatively permissive currently
-    and does not lint the syntax strictly, to allow
-    for some deviation between dialects.
-    """
-
-    type = "create_type_statement"
-    match_grammar: Matchable = Sequence(
-        "CREATE",
-        "TYPE",
-        Ref("ObjectReferenceSegment"),
-        Sequence("AS", OneOf("ENUM", "RANGE", optional=True), optional=True),
-        Bracketed(Delimited(Anything()), optional=True),
     )
 
 
@@ -3412,7 +3383,6 @@ class StatementSegment(BaseSegment):
         Ref("TruncateStatementSegment"),
         Ref("AccessStatementSegment"),
         Ref("CreateTableStatementSegment"),
-        Ref("CreateTypeStatementSegment"),
         Ref("CreateRoleStatementSegment"),
         Ref("DropRoleStatementSegment"),
         Ref("AlterTableStatementSegment"),

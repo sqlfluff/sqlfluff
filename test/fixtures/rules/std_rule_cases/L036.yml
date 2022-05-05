@@ -1,14 +1,14 @@
 rule: L036
 
-test_single_select_target_and_no_new_line_between_select_and_select_target:
+test_single_select_target_and_no_newline_between_select_and_select_target:
   pass_str: select * from x
 
-test_single_select_target_and_new_line_after_select_target:
+test_single_select_target_and_newline_after_select_target:
   pass_str: |
     select *
     from x
 
-test_single_select_target_and_new_line_before_select_target:
+test_single_select_target_and_newline_before_select_target:
   fail_str: |
       select
           a
@@ -17,7 +17,7 @@ test_single_select_target_and_new_line_before_select_target:
     select a
     from x
 
-test_multiple_select_targets_on_new_lines_and_new_line_after_select:
+test_multiple_select_targets_on_newlines_and_newline_after_select:
   pass_str: |
     select
         a,
@@ -25,13 +25,13 @@ test_multiple_select_targets_on_new_lines_and_new_line_after_select:
         c
     from x
 
-test_single_wildcard_select_target_and_new_line_before_select_target:
+test_single_wildcard_select_target_and_newline_before_select_target:
   pass_str: |
     select
         *
     from x
 
-test_single_wildcard_select_target_and_new_line_before_select_target_plus_from_on_same_line:
+test_single_wildcard_select_target_and_newline_before_select_target_plus_from_on_same_line:
   fail_str: |
     select
         * from x
@@ -72,6 +72,13 @@ test_multiple_select_target_plus_from_clause_on_the_same_line:
 test_multiple_select_targets_trailing_whitespace_after_select:
   # TRICKY: Use explicit newlines to preserve the trailing space after "SELECT".
   pass_str: "SELECT \n    a,\n    b\nFROM t\n"
+
+test_single_select_with_comment_after_select:
+  # Currently not autofixed because dealing with the comment is tricky.
+  # Could be supported later.
+  fail_str: |
+    SELECT --some comment
+    a
 
 test_comment_between_select_and_single_select_target:
   fail_str: |
