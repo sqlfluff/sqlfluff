@@ -25,7 +25,7 @@ class Rule_L059(BaseRule):
     unnecessary, except for reserved keywords and special characters in identifiers.
 
     .. note::
-       This rule is disabled by default for Snowflake because it allow quotes as
+       This rule is disabled by default for Snowflake because it allows quotes as
        part of the column name. In other words, ``date`` and ``"date"`` are two
        different columns.
 
