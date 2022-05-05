@@ -1200,9 +1200,7 @@ class FromPivotExpressionSegment(BaseSegment):
     """
 
     type = "from_pivot_expression"
-    match_grammar = Sequence("PIVOT", Bracketed(Anything()))
-
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "PIVOT",
         Bracketed(
             Delimited(
