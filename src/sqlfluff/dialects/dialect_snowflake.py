@@ -868,7 +868,6 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateFileFormatSegment"),
         ],
         remove=[
-            Ref("CreateTypeStatementSegment"),
             Ref("CreateIndexStatementSegment"),
             Ref("DropIndexStatementSegment"),
         ],

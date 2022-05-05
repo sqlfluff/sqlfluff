@@ -3173,6 +3173,8 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterRoleStatementSegment"),
             Ref("CreateExtensionStatementSegment"),
             Ref("DropExtensionStatementSegment"),
+            Ref("CreateTypeStatementSegment"),
+            Ref("AlterTypeStatementSegment"),
         ],
     )
 
@@ -4114,5 +4116,57 @@ class UpdateStatementSegment(BaseSegment):
                 ),
             ),
             optional=True,
+        ),
+    )
+
+
+class CreateTypeStatementSegment(BaseSegment):
+    """A `CREATE TYPE` statement.
+
+    https://www.postgresql.org/docs/current/sql-createtype.html
+    """
+
+    type = "create_type_statement"
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        "TYPE",
+        Ref("ObjectReferenceSegment"),
+        Sequence("AS", OneOf("ENUM", "RANGE", optional=True), optional=True),
+        Bracketed(Delimited(Anything()), optional=True),
+    )
+
+
+class AlterTypeStatementSegment(BaseSegment):
+    """An `ALTER TYPE` statement.
+
+    https://www.postgresql.org/docs/current/sql-createtype.html
+    """
+
+    type = "alter_type_statement"
+    match_grammar: Matchable = Sequence(
+        "ALTER",
+        "TYPE",
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Sequence(
+                "OWNER",
+                "TO",
+                OneOf(
+                    "CURRENT_USER",
+                    "SESSION_USER",
+                    "CURRENT_ROLE",
+                    Ref("ObjectReferenceSegment"),
+                ),
+            ),
+            Sequence(
+                "RENAME",
+                "TO",
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "SET",
+                "SCHEMA",
+                Ref("SchemaReferenceSegment"),
+            ),
         ),
     )

@@ -475,6 +475,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CloseCursorStatementSegment"),
             Ref("DeallocateCursorStatementSegment"),
             Ref("FetchCursorStatementSegment"),
+            Ref("CreateTypeStatementSegment"),
         ],
         remove=[
             Ref("CreateModelStatementSegment"),
