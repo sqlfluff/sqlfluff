@@ -19,6 +19,14 @@ Major changes include:
 * Many bugs fixes and dialect improvements
 
 ## What’s Changed
+* Postgres: Add `ALTER TYPE` support [#3265](https://github.com/sqlfluff/sqlfluff/pull/3265) [@greg-finley](https://github.com/greg-finley)
+* Bug fix: L036 handle single-column `SELECT` with comment on same line as `SELECT` keyword [#3259](https://github.com/sqlfluff/sqlfluff/pull/3259) [@barrywhart](https://github.com/barrywhart)
+* Put working example in the README [#3261](https://github.com/sqlfluff/sqlfluff/pull/3261) [@greg-finley](https://github.com/greg-finley)
+* Snowflake: Add `CREATE FILE FORMAT` Support [#3104](https://github.com/sqlfluff/sqlfluff/pull/3104) [@jmc-bbk](https://github.com/jmc-bbk)
+* Bug fix: Disable L059 in snowflake dialect [#3260](https://github.com/sqlfluff/sqlfluff/pull/3260) [@barrywhart](https://github.com/barrywhart)
+* Remove redundant `Anything()` from `match_grammars` [#3258](https://github.com/sqlfluff/sqlfluff/pull/3258) [@tunetheweb](https://github.com/tunetheweb)
+* Postgres: Add `DOMAIN` support [#3257](https://github.com/sqlfluff/sqlfluff/pull/3257) [@tunetheweb](https://github.com/tunetheweb)
+* T-SQL: Allow optional brackets with `EXECUTE` [#3255](https://github.com/sqlfluff/sqlfluff/pull/3255) [@pguyot](https://github.com/pguyot)
 * Add rule groups and a core rules group [#3142](https://github.com/sqlfluff/sqlfluff/pull/3142) [@pwildenhain](https://github.com/pwildenhain)
 * MySQL: Better `UNSIGNED` support [#3250](https://github.com/sqlfluff/sqlfluff/pull/3250) [@tunetheweb](https://github.com/tunetheweb)
 * MySQL (and others): Support `DROP TEMPORARY TABLE` [#3251](https://github.com/sqlfluff/sqlfluff/pull/3251) [@tunetheweb](https://github.com/tunetheweb)
@@ -70,6 +78,8 @@ Major changes include:
 
 ## New Contributors
 * [@ddresslerlegalplans](https://github.com/ddresslerlegalplans) made their first contribution in [#3231](https://github.com/sqlfluff/sqlfluff/pull/3231)
+* [@greg-finley](https://github.com/greg-finley) made their first contribution in [#3261](https://github.com/sqlfluff/sqlfluff/pull/3261)
+
 
 ## [0.13.0] - 2022-04-22
 
