@@ -2879,12 +2879,12 @@ class CsvFileFormatTypeParameters(BaseSegment):
             Ref("EqualsSegment"),
             OneOf(
                 StringParser(
-                    r"'CSV'",
+                    "'CSV'",
                     CodeSegment,
                     type="file_type",
                 ),
                 StringParser(
-                    r"CSV",
+                    "CSV",
                     CodeSegment,
                     type="file_type",
                 ),
@@ -2990,12 +2990,12 @@ class JsonFileFormatTypeParameters(BaseSegment):
             Ref("EqualsSegment"),
             OneOf(
                 StringParser(
-                    r"'JSON'",
+                    "'JSON'",
                     CodeSegment,
                     type="file_type",
                 ),
                 StringParser(
-                    r"JSON",
+                    "JSON",
                     CodeSegment,
                     type="file_type",
                 ),
@@ -3069,12 +3069,12 @@ class AvroFileFormatTypeParameters(BaseSegment):
             Ref("EqualsSegment"),
             OneOf(
                 StringParser(
-                    r"'AVRO'",
+                    "'AVRO'",
                     CodeSegment,
                     type="file_type",
                 ),
                 StringParser(
-                    r"AVRO",
+                    "AVRO",
                     CodeSegment,
                     type="file_type",
                 ),
@@ -3108,12 +3108,12 @@ class OrcFileFormatTypeParameters(BaseSegment):
             Ref("EqualsSegment"),
             OneOf(
                 StringParser(
-                    r"'ORC'",
+                    "'ORC'",
                     CodeSegment,
                     type="file_type",
                 ),
                 StringParser(
-                    r"ORC",
+                    "ORC",
                     CodeSegment,
                     type="file_type",
                 ),
@@ -3146,12 +3146,12 @@ class ParquetFileFormatTypeParameters(BaseSegment):
             Ref("EqualsSegment"),
             OneOf(
                 StringParser(
-                    r"'PARQUET'",
+                    "'PARQUET'",
                     CodeSegment,
                     type="file_type",
                 ),
                 StringParser(
-                    r"PARQUET",
+                    "PARQUET",
                     CodeSegment,
                     type="file_type",
                 ),
@@ -3192,12 +3192,12 @@ class XmlFileFormatTypeParameters(BaseSegment):
             Ref("EqualsSegment"),
             OneOf(
                 StringParser(
-                    r"'XML'",
+                    "'XML'",
                     CodeSegment,
                     type="file_type",
                 ),
                 StringParser(
-                    r"XML",
+                    "XML",
                     CodeSegment,
                     type="file_type",
                 ),
