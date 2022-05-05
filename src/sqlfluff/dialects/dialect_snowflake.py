@@ -254,8 +254,8 @@ snowflake_dialect.add(
         # An unquoted integer that can be passed as an argument to Snowflake functions.
         r"[0-9]+",
         CodeSegment,
-        name="integer_segment",
-        type="integer_segment",
+        name="integer_literal",
+        type="literal",
     ),
     GroupByContentsGrammar=Delimited(
         OneOf(
