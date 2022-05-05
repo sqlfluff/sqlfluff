@@ -24,6 +24,13 @@ class Rule_L059(BaseRule):
     When ``prefer_quoted_identifiers = False`` (default behaviour), the quotes are
     unnecessary, except for reserved keywords and special characters in identifiers.
 
+    .. note::
+       This rule is disabled by default for Snowflake because it allows quotes as
+       part of the column name. In other words, ``date`` and ``"date"`` are two
+       different columns.
+
+       It can be enabled with the ``force_enable = True`` flag.
+
     **Anti-pattern**
 
     In this example, a valid unquoted identifier,
@@ -75,7 +82,9 @@ class Rule_L059(BaseRule):
         "prefer_quoted_identifiers",
         "ignore_words",
         "ignore_words_regex",
+        "force_enable",
     ]
+    _dialects_allowing_quotes_in_column_names = ["snowflake"]
 
     # Ignore "password_auth" type to allow quotes around passwords within
     # `CREATE USER` statements in Exasol dialect.
@@ -87,6 +96,17 @@ class Rule_L059(BaseRule):
         self.prefer_quoted_identifiers: bool
         self.ignore_words: str
         self.ignore_words_regex: str
+        self.force_enable: bool
+        # Some dialects allow quotes as PART OF the column name. In other words,
+        # these are two different columns:
+        # - date
+        # - "date"
+        # For safety, disable this rule by default in those dialects.
+        if (
+            context.dialect.name in self._dialects_allowing_quotes_in_column_names
+            and not self.force_enable
+        ):
+            return LintResult()
 
         # Ignore some segment types
         if context.functional.parent_stack.any(sp.is_type(*self._ignore_types)):
