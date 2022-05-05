@@ -61,6 +61,7 @@ class Rule_L064(BaseRule):
 
     """
 
+    groups = ("all",)
     config_keywords = ["preferred_quoted_literal_style", "force_enable"]
     _dialects_with_double_quoted_strings = [
         "bigquery",

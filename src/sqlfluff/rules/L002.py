@@ -41,6 +41,7 @@ class Rule_L002(BaseRule):
 
     """
 
+    groups = ("all", "core")
     config_keywords = ["tab_space_size"]
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:

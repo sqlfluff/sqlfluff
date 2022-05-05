@@ -56,6 +56,8 @@ class Rule_L032(BaseRule):
 
     """
 
+    groups = ("all",)
+
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Look for USING in a join clause."""
         segment = context.functional.segment

@@ -39,6 +39,8 @@ class Rule_L060(BaseRule):
 
     """
 
+    groups = ("all",)
+
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Use ``COALESCE`` instead of ``IFNULL`` or ``NVL``."""
         # We only care about function names.

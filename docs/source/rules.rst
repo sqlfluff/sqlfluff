@@ -9,6 +9,30 @@ a particular rule or set of rules. The intent is that the definition of
 each specific rule should be really streamlined and only contain the logic
 for the rule itself, with all the other mechanics abstracted away.
 
+Core Rules
+__________
+
+Certain rules belong to the :code:`core` rule group. In order for
+a rule to be designated as :code:`core`, it must meet the following
+criteria:
+
+* Stable
+* Applies to most dialects
+* Could detect a syntax issue
+* Isn’t too opinionated toward one style (e.g. the :code:`dbt` style guide)
+
+Core rules can also make it easier to roll out SQLFluff to a team by
+only needing to follow a 'common sense' subset of rules initially,
+rather than spending time understanding and configuring all the
+rules, some of which your team may not necessarily agree with.
+
+We believe teams will eventually want to enforce more than just
+the core rules, and we encourage everyone to explore all the rules
+and customize a rule set that best suites their organization.
+
+See the :ref:`config` section for more information on how to enable
+only :code:`core` rules by default.
+
 Specific Rules
 --------------
 

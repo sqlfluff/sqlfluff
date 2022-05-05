@@ -43,6 +43,7 @@ class Rule_L051(BaseRule):
         INNER JOIN baz;
     """
 
+    groups = ("all",)
     config_keywords = ["fully_qualify_join_types"]
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:

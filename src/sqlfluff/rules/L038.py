@@ -42,6 +42,7 @@ class Rule_L038(BaseRule):
         FROM foo
     """
 
+    groups = ("all", "core")
     config_keywords = ["select_clause_trailing_comma"]
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:

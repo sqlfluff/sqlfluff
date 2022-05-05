@@ -75,6 +75,7 @@ class Rule_L042(BaseRule):
 
     """
 
+    groups = ("all",)
     config_keywords = ["forbid_subquery_in"]
 
     _config_mapping = {

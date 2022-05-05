@@ -38,6 +38,7 @@ class Rule_L023(BaseRule):
         SELECT a FROM plop
     """
 
+    groups = ("all", "core")
     expected_mother_segment_type = "with_compound_statement"
     pre_segment_identifier = ("name", "as")
     post_segment_identifier = ("type", "bracketed")

@@ -38,6 +38,8 @@ class Rule_L033(BaseRule):
 
     """
 
+    groups = ("all", "core")
+
     def _eval(self, context: RuleContext) -> LintResult:
         """Look for UNION keyword not immediately followed by DISTINCT or ALL.
 

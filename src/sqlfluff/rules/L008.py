@@ -38,6 +38,8 @@ class Rule_L008(BaseRule):
         WHERE a IN ('plop',•'zoo')
     """
 
+    groups = ("all", "core")
+
     def _get_subsequent_whitespace(
         self,
         context,

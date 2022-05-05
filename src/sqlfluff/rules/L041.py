@@ -33,6 +33,8 @@ class Rule_L041(BaseRule):
 
     """
 
+    groups = ("all", "core")
+
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Select clause modifiers must appear on same line as SELECT."""
         # We only care about select_clause.

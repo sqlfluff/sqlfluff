@@ -38,6 +38,8 @@ class Rule_L005(BaseRule):
         FROM foo
     """
 
+    groups = ("all", "core")
+
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Commas should not have whitespace directly before them."""
         anchor: Optional[RawSegment] = context.raw_segment_pre

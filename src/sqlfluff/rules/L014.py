@@ -67,6 +67,7 @@ class Rule_L014(Rule_L010):
 
     """
 
+    groups = ("all", "core")
     lint_phase = "post"
     _target_elems: List[Tuple[str, str]] = [
         ("name", "naked_identifier"),

@@ -33,6 +33,8 @@ class Rule_L015(BaseRule):
 
     """
 
+    groups = ("all", "core")
+
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Looking for DISTINCT before a bracket.
 

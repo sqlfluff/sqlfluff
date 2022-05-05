@@ -41,6 +41,7 @@ class Rule_L022(BaseRule):
 
     """
 
+    groups = ("all", "core")
     config_keywords = ["comma_style"]
 
     def _eval(self, context: RuleContext) -> Optional[List[LintResult]]:

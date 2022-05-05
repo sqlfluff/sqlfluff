@@ -64,6 +64,7 @@ class Rule_L028(BaseRule):
 
     """
 
+    groups = ("all",)
     config_keywords = [
         "single_table_references",
         "force_enable",

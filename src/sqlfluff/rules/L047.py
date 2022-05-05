@@ -57,6 +57,7 @@ class Rule_L047(BaseRule):
 
     """
 
+    groups = ("all", "core")
     config_keywords = ["prefer_count_1", "prefer_count_0"]
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:

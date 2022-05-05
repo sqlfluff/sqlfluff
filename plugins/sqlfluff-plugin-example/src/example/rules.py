@@ -69,6 +69,7 @@ class Rule_Example_L001(BaseRule):
     """
 
     config_keywords = ["forbidden_columns"]
+    groups = ("all",)
 
     def __init__(self, *args, **kwargs):
         """Overwrite __init__ to set config."""
