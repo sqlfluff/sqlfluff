@@ -145,18 +145,6 @@ snowflake_dialect.add(
         type="warehouse_size",
     ),
     # # We use a RegexParser instead of keywords as the arguments are optionally quoted.
-    # CompressionType=RegexParser(
-    #     r"'?AUTO'?|'?GZIP'?|'?BZ2'?|'?BROTLI'?|'?ZSTD'?|'?DEFLATE'?|'?RAW_DEFLATE'?|"
-    #     r"'?LZO'?|'?NONE'?|'?SNAPPY'?",
-    #     CodeSegment,
-    #     name="compression_type",
-    #     type="compression_type",
-    # ),
-    # CompressionType=RegexParser(
-    #         r"'(AUTO|GZIP|BZ2|BROTLI|ZSTD|DEFLATE|RAW_DEFLATE|LZO|NONE|SNAPPY)'",
-    #         name="compression_type",
-    #         type="compression_type",
-    # ),
     CompressionType=OneOf(
         RegexParser(
             r"'(AUTO|GZIP|BZ2|BROTLI|ZSTD|DEFLATE|RAW_DEFLATE|LZO|NONE|SNAPPY)'",
