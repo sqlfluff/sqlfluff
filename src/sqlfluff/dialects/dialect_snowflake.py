@@ -144,7 +144,7 @@ snowflake_dialect.add(
         name="warehouse_size",
         type="warehouse_size",
     ),
-    # # We use a RegexParser instead of keywords as the arguments are optionally quoted.
+    # We use a RegexParser instead of keywords as the arguments are optionally quoted.
     CompressionType=OneOf(
         RegexParser(
             r"'(AUTO|GZIP|BZ2|BROTLI|ZSTD|DEFLATE|RAW_DEFLATE|LZO|NONE|SNAPPY)'",
