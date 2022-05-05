@@ -19,6 +19,7 @@ class SelectTargetsInfo(NamedTuple):
     first_new_line_idx: int
     first_select_target_idx: int
     first_whitespace_idx: int
+    comment_after_select_idx: int
     select_targets: List[BaseSegment]
     from_segment: Optional[BaseSegment]
     pre_from_whitespace: List[BaseSegment]
@@ -90,9 +91,25 @@ class Rule_L036(BaseRule):
         select_targets = children.select(sp.is_type("select_clause_element"))
         first_select_target_idx = children.find(select_targets.get())
         selects = children.select(sp.is_keyword("select"))
-        select_idx = children.find(selects.get())
+        select_idx = children.find(selects.get()) if selects else -1
         newlines = children.select(sp.is_type("newline"))
-        first_new_line_idx = children.find(newlines.get())
+        first_new_line_idx = children.find(newlines.get()) if newlines else -1
+        comment_after_select_idx = -1
+        if newlines:
+            comment_after_select = children.select(
+                sp.is_type("comment"),
+                start_seg=selects.get(),
+                stop_seg=newlines.get(),
+                loop_while=sp.or_(
+                    sp.is_type("comment"), sp.is_type("whitespace"), sp.is_meta()
+                ),
+            )
+            if comment_after_select:
+                comment_after_select_idx = (
+                    children.find(comment_after_select.get())
+                    if comment_after_select
+                    else -1
+                )
         first_whitespace_idx = -1
         if first_new_line_idx != -1:
             # TRICKY: Ignore whitespace prior to the first newline, e.g. if
@@ -113,6 +130,7 @@ class Rule_L036(BaseRule):
             first_new_line_idx,
             first_select_target_idx,
             first_whitespace_idx,
+            comment_after_select_idx,
             select_targets,
             from_segment,
             list(pre_from_whitespace),
@@ -263,14 +281,9 @@ class Rule_L036(BaseRule):
                         """Cleans up by moving leftover select_clause segments.
 
                         Context: Some of the other fixes we make in
-                        _eval_single_select_target_element() leave the
-                        select_clause in an illegal state -- a select_clause's
-                        *rightmost children cannot be whitespace or comments*.
-                        This function addresses that by moving these segments
-                        up the parse tree to an ancestor segment chosen by
-                        _choose_anchor_segment(). After these fixes are applied,
-                        these segments may, for example, be *siblings* of
-                        select_clause.
+                        _eval_single_select_target_element() leave leftover
+                        child segments that need to be moved to become
+                        *siblings* of the select_clause.
                         """
                         start_seg = (
                             modifier[0]
@@ -301,12 +314,7 @@ class Rule_L036(BaseRule):
                         ]
                         fixes_.append(
                             LintFix.create_after(
-                                self._choose_anchor_segment(
-                                    context,
-                                    "create_after",
-                                    select_clause[0],
-                                    filter_meta=True,
-                                ),
+                                select_clause[0],
                                 ([NewlineSegment()] if add_newline else [])
                                 + list(move_after_select_clause),
                             )
@@ -384,15 +392,25 @@ class Rule_L036(BaseRule):
                             ],
                         )
 
-            fixes += [
-                # Insert the select_clause in place of the first newline in the
-                # Select statement
-                LintFix.replace(
-                    select_children[select_targets_info.first_new_line_idx],
-                    insert_buff,
-                ),
-            ]
-
+            if select_targets_info.comment_after_select_idx == -1:
+                fixes += [
+                    # Insert the select_clause in place of the first newline in the
+                    # Select statement
+                    LintFix.replace(
+                        select_children[select_targets_info.first_new_line_idx],
+                        insert_buff,
+                    ),
+                ]
+            else:
+                # The SELECT is followed by a comment on the same line. In order
+                # to autofix this, we'd need to move the select target between
+                # SELECT and the comment and potentially delete the entire line
+                # where the select target was (if it is now empty). This is
+                # *fairly tricky and complex*, in part because the newline on
+                # the select target's line is several levels higher in the
+                # parser tree. Hence, we currently don't autofix this. Could be
+                # autofixed in the future if/when we have the time.
+                fixes = []
             return LintResult(
                 anchor=select_clause.get(),
                 fixes=fixes,
