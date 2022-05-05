@@ -144,13 +144,32 @@ snowflake_dialect.add(
         name="warehouse_size",
         type="warehouse_size",
     ),
-    # We use a RegexParser instead of keywords as the arguments are optionally quoted.
-    CompressionType=RegexParser(
-        r"'?AUTO'?|'?GZIP'?|'?BZ2'?|'?BROTLI'?|'?ZSTD'?|'?DEFLATE'?|'?RAW_DEFLATE'?|"
-        r"'?LZO'?|'?NONE'?|'?SNAPPY'?",
-        CodeSegment,
-        name="compression_type",
-        type="compression_type",
+    # # We use a RegexParser instead of keywords as the arguments are optionally quoted.
+    # CompressionType=RegexParser(
+    #     r"'?AUTO'?|'?GZIP'?|'?BZ2'?|'?BROTLI'?|'?ZSTD'?|'?DEFLATE'?|'?RAW_DEFLATE'?|"
+    #     r"'?LZO'?|'?NONE'?|'?SNAPPY'?",
+    #     CodeSegment,
+    #     name="compression_type",
+    #     type="compression_type",
+    # ),
+    # CompressionType=RegexParser(
+    #         r"'(AUTO|GZIP|BZ2|BROTLI|ZSTD|DEFLATE|RAW_DEFLATE|LZO|NONE|SNAPPY)'",
+    #         name="compression_type",
+    #         type="compression_type",
+    # ),
+    CompressionType=OneOf(
+        RegexParser(
+            r"'(AUTO|GZIP|BZ2|BROTLI|ZSTD|DEFLATE|RAW_DEFLATE|LZO|NONE|SNAPPY)'",
+            CodeSegment,
+            name="compression_type",
+            type="keyword",
+        ),
+        RegexParser(
+            r"(AUTO|GZIP|BZ2|BROTLI|ZSTD|DEFLATE|RAW_DEFLATE|LZO|NONE|SNAPPY)",
+            CodeSegment,
+            name="compression_type",
+            type="keyword",
+        ),
     ),
     ValidationModeOptionSegment=RegexParser(
         r"'?RETURN_(?:\d+_ROWS|ERRORS|ALL_ERRORS)'?",
@@ -2870,11 +2889,17 @@ class CsvFileFormatTypeParameters(BaseSegment):
         Sequence(
             "TYPE",
             Ref("EqualsSegment"),
-            RegexParser(
-                r"'?CSV'?",
-                CodeSegment,
-                name="csv_file_type",
-                type="file_type",
+            OneOf(
+                StringParser(
+                    r"'CSV'",
+                    CodeSegment,
+                    type="file_type",
+                ),
+                StringParser(
+                    r"CSV",
+                    CodeSegment,
+                    type="file_type",
+                ),
             ),
         ),
         Sequence(
@@ -2975,11 +3000,17 @@ class JsonFileFormatTypeParameters(BaseSegment):
         Sequence(
             "TYPE",
             Ref("EqualsSegment"),
-            RegexParser(
-                r"'?JSON'?",
-                CodeSegment,
-                name="json_file_type",
-                type="file_type",
+            OneOf(
+                StringParser(
+                    r"'JSON'",
+                    CodeSegment,
+                    type="file_type",
+                ),
+                StringParser(
+                    r"JSON",
+                    CodeSegment,
+                    type="file_type",
+                ),
             ),
         ),
         Sequence(
@@ -3048,11 +3079,17 @@ class AvroFileFormatTypeParameters(BaseSegment):
         Sequence(
             "TYPE",
             Ref("EqualsSegment"),
-            RegexParser(
-                r"'?AVRO'?",
-                CodeSegment,
-                name="avro_file_type",
-                type="file_type",
+            OneOf(
+                StringParser(
+                    r"'AVRO'",
+                    CodeSegment,
+                    type="file_type",
+                ),
+                StringParser(
+                    r"AVRO",
+                    CodeSegment,
+                    type="file_type",
+                ),
             ),
         ),
         Sequence("COMPRESSION", Ref("EqualsSegment"), Ref("CompressionType")),
@@ -3081,11 +3118,17 @@ class OrcFileFormatTypeParameters(BaseSegment):
         Sequence(
             "TYPE",
             Ref("EqualsSegment"),
-            RegexParser(
-                r"'?ORC'?",
-                CodeSegment,
-                name="orc_file_type",
-                type="file_type",
+            OneOf(
+                StringParser(
+                    r"'ORC'",
+                    CodeSegment,
+                    type="file_type",
+                ),
+                StringParser(
+                    r"ORC",
+                    CodeSegment,
+                    type="file_type",
+                ),
             ),
         ),
         Sequence("TRIM_SPACE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
@@ -3113,11 +3156,17 @@ class ParquetFileFormatTypeParameters(BaseSegment):
         Sequence(
             "TYPE",
             Ref("EqualsSegment"),
-            RegexParser(
-                r"'?PARQUET'?",
-                CodeSegment,
-                name="parquet_file_type",
-                type="file_type",
+            OneOf(
+                StringParser(
+                    r"'PARQUET'",
+                    CodeSegment,
+                    type="file_type",
+                ),
+                StringParser(
+                    r"PARQUET",
+                    CodeSegment,
+                    type="file_type",
+                ),
             ),
         ),
         Sequence(
@@ -3153,11 +3202,17 @@ class XmlFileFormatTypeParameters(BaseSegment):
         Sequence(
             "TYPE",
             Ref("EqualsSegment"),
-            RegexParser(
-                r"'?XML'?",
-                CodeSegment,
-                name="json_file_type",
-                type="file_type",
+            OneOf(
+                StringParser(
+                    r"'XML'",
+                    CodeSegment,
+                    type="file_type",
+                ),
+                StringParser(
+                    r"XML",
+                    CodeSegment,
+                    type="file_type",
+                ),
             ),
         ),
         Sequence(
