@@ -616,6 +616,7 @@ def test__templater_full(subpath, code_only, include_meta, yaml_loader, caplog):
         # Test Airflow builtins
         ("jinja_q_airflow_builtins/airflow_builtins_filters", True, False),
         ("jinja_q_airflow_builtins/airflow_builtins_macros", True, False),
+        ("jinja_q_airflow_builtins/airflow_builtins_variables", True, False),
     ],
 )
 @patch("random.random", autospec=True)

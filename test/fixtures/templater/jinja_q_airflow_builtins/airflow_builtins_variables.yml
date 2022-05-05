@@ -1,87 +1,52 @@
 file:
-    statement:
-        select_statement:
-            select_clause:
-                keyword:                                      'SELECT'
-                [META] indent:
-                newline:                                      '\n'
-                whitespace:                                   '    '
-                select_clause_element:
-                    literal:                                  "'2022-05-02T15:36:37.822176+00:00'"
-                comma:                                        ','
-                newline:                                      '\n'
-                whitespace:                                   '    '
-                select_clause_element:
-                    literal:                                  "'20220502T153637.822176+0000'"
-                comma:                                        ','
-                newline:                                      '\n'
-                whitespace:                                   '    '
-                select_clause_element:
-                    literal:                                  "'20220502T153637'"
-                comma:                                        ','
-                newline:                                      '\n'
-                whitespace:                                   '    '
-                select_clause_element:
-                    literal:                                  "'2022-05-01 17:36:37.822211'"
-                comma:                                        ','
-                newline:                                      '\n'
-                whitespace:                                   '    '
-                select_clause_element:
-                    literal:                                  "'20220501T173637.822211'"
-                comma:                                        ','
-                newline:                                      '\n'
-                whitespace:                                   '    '
-                select_clause_element:
-                    literal:                                  "'sample_dag'"
-                comma:                                        ','
-                newline:                                      '\n'
-                whitespace:                                   '    '
-                select_clause_element:
-                    literal:                                  "'False'"
-                comma:                                        ','
-                newline:                                      '\n'
-                whitespace:                                   '    '
-                select_clause_element:
-                    literal:                                  "'sample_dag__sample_task__19700101'"
-                comma:                                        ','
-                newline:                                      '\n'
-                whitespace:                                   '    '
-                select_clause_element:
-                    literal:                                  "'sample_dag__sample_task__19700101'"
-                comma:                                        ','
-                newline:                                      '\n'
-                whitespace:                                   '    '
-                select_clause_element:
-                    literal:                                  "'sample_dag'"
-                comma:                                        ','
-                newline:                                      '\n'
-                whitespace:                                   '    '
-                select_clause_element:
-                    literal:                                  "'sample_task'"
-                comma:                                        ','
-                newline:                                      '\n'
-                whitespace:                                   '    '
-                select_clause_element:
-                    literal:                                  "'sample_dag__sample_task__19700101'"
-                comma:                                        ','
-                newline:                                      '\n'
-                whitespace:                                   '    '
-                select_clause_element:
-                    literal:                                  "'sample_dag__run_id'"
-                comma:                                        ','
-                newline:                                      '\n'
-                whitespace:                                   '    '
-                select_clause_element:
-                    literal:                                  "'sample_dag'"
-                comma:                                        ','
-                newline:                                      '\n'
-                whitespace:                                   '    '
-                select_clause_element:
-                    literal:                                  "'sample_dag__run_id'"
-                comma:                                        ','
-                newline:                                      '\n'
-                whitespace:                                   '    '
-                select_clause_element:
-                    literal:                                  "'2022-05-02 15:36:37.822176+00:00'"
-            [META] dedent:
-    newline:                                                  '\n'
+  statement:
+    select_statement:
+      select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            literal: "'2006-06-14T08:30:00+00:00'"
+        - comma: ","
+        - select_clause_element:
+            literal: "'20060614T083000+0000'"
+        - comma: ","
+        - select_clause_element:
+            literal: "'20060614T083000'"
+        - comma: ","
+        - select_clause_element:
+            literal: "'2006-06-13 08:30:00+00:00'"
+        - comma: ","
+        - select_clause_element:
+            literal: "'20060613T083000+0000'"
+        - comma: ","
+        - select_clause_element:
+            literal: "'sample_dag'"
+        - comma: ","
+        - select_clause_element:
+            literal: "'False'"
+        - comma: ","
+        - select_clause_element:
+            literal: "'sample_dag__sample_task__19700101'"
+        - comma: ","
+        - select_clause_element:
+            literal: "'sample_dag__sample_task__19700101'"
+        - comma: ","
+        - select_clause_element:
+            literal: "'sample_dag'"
+        - comma: ","
+        - select_clause_element:
+            literal: "'sample_task'"
+        - comma: ","
+        - select_clause_element:
+            literal: "'sample_dag__sample_task__19700101'"
+        - comma: ","
+        - select_clause_element:
+            literal: "'sample_dag__run_id'"
+        - comma: ","
+        - select_clause_element:
+            literal: "'sample_dag'"
+        - comma: ","
+        - select_clause_element:
+            literal: "'sample_dag__run_id'"
+        - comma: ","
+        - select_clause_element:
+            literal: "'2006-06-14 08:30:00+00:00'"

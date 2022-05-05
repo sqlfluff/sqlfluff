@@ -7,6 +7,9 @@ file:
             literal: "'2006-06-14'"
         - comma: ","
         - select_clause_element:
+            literal: "'2006-06-14'"
+        - comma: ","
+        - select_clause_element:
             literal: "'2006-06-19'"
         - comma: ","
         - select_clause_element:
