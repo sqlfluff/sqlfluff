@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9419529af7a78150df6722b8a13acb7d6226ceefbb06c70387503097afdfb4ff
+_hash: 3f0f12d9b8a24f90c42913f161066fea277e95f6c8eb6413885ffbb7ecde45fb
 file:
 - statement:
     create_external_function_statement:
@@ -89,7 +89,7 @@ file:
     - keyword: COMPRESSION
     - comparison_operator:
         raw_comparison_operator: '='
-    - compression_type: NONE
+    - keyword: NONE
     - keyword: REQUEST_TRANSLATOR
     - comparison_operator:
         raw_comparison_operator: '='
@@ -169,7 +169,7 @@ file:
     - keyword: COMPRESSION
     - comparison_operator:
         raw_comparison_operator: '='
-    - compression_type: NONE
+    - keyword: NONE
     - keyword: REQUEST_TRANSLATOR
     - comparison_operator:
         raw_comparison_operator: '='
@@ -252,7 +252,7 @@ file:
     - keyword: COMPRESSION
     - comparison_operator:
         raw_comparison_operator: '='
-    - compression_type: NONE
+    - keyword: NONE
     - keyword: REQUEST_TRANSLATOR
     - comparison_operator:
         raw_comparison_operator: '='
