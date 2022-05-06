@@ -99,6 +99,7 @@ mysql_dialect.sets("unreserved_keywords").update(
         "RELAY",
         "STATUS",
         "USER_RESOURCES",
+        "CHANNEL",
     ]
 )
 mysql_dialect.sets("reserved_keywords").update(
@@ -1864,7 +1865,13 @@ class FlushStatementSegment(BaseSegment):
             "LOGS",
             "PRIVILEGES",
             "OPTIMIZER_COSTS",
-            Sequence("RELAY", "LOGS"),  # [FOR CHANNEL channel]
+            Sequence(
+                "RELAY",
+                "LOGS",
+                Sequence(
+                    "FOR", "CHANNEL", Ref("ObjectReferenceSegment"), optional=True
+                ),
+            ),
             Sequence("SLOW", "LOGS"),
             "STATUS",
             "USER_RESOURCES",
