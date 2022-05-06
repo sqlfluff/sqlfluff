@@ -2358,7 +2358,7 @@ class MergeStatementSegment(BaseSegment):
                 Bracketed(
                     Ref("SelectableGrammar"),
                 ),
-                Ref("AliasExpressionSegment"),
+                Ref("AliasExpressionSegment", optional=True),
             ),
         ),
         Dedent,
