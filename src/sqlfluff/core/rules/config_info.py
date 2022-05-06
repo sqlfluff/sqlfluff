@@ -95,6 +95,9 @@ STANDARD_CONFIG_INFO_DICT = {
             " when linting line lengths?"
         ),
     },
+    "ignore_schemas": {
+        "definition": ("Comme separated list of schemas to ignore from rule"),
+    },
     "ignore_words": {
         "definition": ("Comma separated list of words to ignore from rule"),
     },

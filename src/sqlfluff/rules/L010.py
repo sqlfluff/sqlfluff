@@ -9,6 +9,7 @@ from sqlfluff.core.rules.doc_decorators import (
     document_fix_compatible,
     document_configuration,
 )
+from sqlfluff.dialects import dialect_ansi as ansi
 
 
 @document_fix_compatible
@@ -60,7 +61,12 @@ class Rule_L010(BaseRule):
         ("parenttype", "datetime_type_identifier"),
         ("parenttype", "primitive_type"),
     ]
-    config_keywords = ["capitalisation_policy", "ignore_words", "ignore_words_regex"]
+    config_keywords = [
+        "capitalisation_policy",
+        "ignore_words",
+        "ignore_words_regex",
+        "ignore_schemas",
+    ]
     # Human readable target elem for description
     _description_elem = "Keywords"
 
@@ -107,6 +113,17 @@ class Rule_L010(BaseRule):
         # Skip if matches ignore regex
         if self.ignore_words_regex and regex.search(
             self.ignore_words_regex, context.segment.raw
+        ):
+            return LintResult(memory=context.memory)
+
+        parent: Optional[BaseSegment] = (
+            context.parent_stack[-1] if context.parent_stack else None
+        )
+        if (
+            self.ignore_schemas
+            and parent
+            and isinstance(parent, ansi.ObjectReferenceSegment)
+            and parent.get_child("identifier") in self.ignore_schemas
         ):
             return LintResult(memory=context.memory)
 

@@ -177,3 +177,11 @@ test_fail_bigquery_week:
     rules:
       L010:
         capitalisation_policy: upper
+
+test_pass_ignore_schema:
+  pass_str: |
+    SELECT ignoreme.AhAhAhAh FROM dbo
+  configs:
+    rules:
+      L010:
+        ignore_schemas: ignoreme
