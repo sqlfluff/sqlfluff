@@ -10,7 +10,7 @@ each specific rule should be really streamlined and only contain the logic
 for the rule itself, with all the other mechanics abstracted away.
 
 Core Rules
-__________
+----------
 
 Certain rules belong to the :code:`core` rule group. In order for
 a rule to be designated as :code:`core`, it must meet the following

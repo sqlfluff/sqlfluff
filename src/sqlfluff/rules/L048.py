@@ -3,11 +3,12 @@
 from typing import Tuple, List
 
 from sqlfluff.core.parser import BaseSegment
-from sqlfluff.core.rules.doc_decorators import document_fix_compatible
+from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
 
 from sqlfluff.rules.L006 import Rule_L006
 
 
+@document_groups
 @document_fix_compatible
 class Rule_L048(Rule_L006):
     """Quoted literals should be surrounded by a single whitespace.

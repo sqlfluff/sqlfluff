@@ -9,6 +9,7 @@ from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix, RuleContext
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
+    document_groups,
 )
 from sqlfluff.core.rules.functional import Segments, sp
 
@@ -22,8 +23,9 @@ class SegmentMoveContext(NamedTuple):
     whitespace_deletions: Segments
 
 
-@document_configuration
+@document_groups
 @document_fix_compatible
+@document_configuration
 class Rule_L052(BaseRule):
     """Statements must end with a semi-colon.
 

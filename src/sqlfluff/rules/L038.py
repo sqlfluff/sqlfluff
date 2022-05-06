@@ -6,13 +6,15 @@ from sqlfluff.core.parser import BaseSegment, SymbolSegment
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
 import sqlfluff.core.rules.functional.segment_predicates as sp
 from sqlfluff.core.rules.doc_decorators import (
-    document_fix_compatible,
     document_configuration,
+    document_fix_compatible,
+    document_groups,
 )
 
 
-@document_configuration
+@document_groups
 @document_fix_compatible
+@document_configuration
 class Rule_L038(BaseRule):
     """Trailing commas within select clause.
 

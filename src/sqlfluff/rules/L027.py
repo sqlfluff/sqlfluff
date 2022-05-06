@@ -2,8 +2,10 @@
 
 from sqlfluff.core.rules.base import LintResult
 from sqlfluff.rules.L020 import Rule_L020
+from sqlfluff.core.rules.doc_decorators import document_groups
 
 
+@document_groups
 class Rule_L027(Rule_L020):
     """References should be qualified if select has more than one referenced table/view.
 
