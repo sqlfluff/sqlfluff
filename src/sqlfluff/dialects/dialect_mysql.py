@@ -100,6 +100,7 @@ mysql_dialect.sets("unreserved_keywords").update(
         "STATUS",
         "USER_RESOURCES",
         "CHANNEL",
+        "EXPORT",
     ]
 )
 mysql_dialect.sets("reserved_keywords").update(
@@ -1856,25 +1857,42 @@ class FlushStatementSegment(BaseSegment):
             "LOCAL",
             optional=True,
         ),
-        Delimited(
-            Sequence("BINARY", "LOGS"),
-            Sequence("ENGINE", "LOGS"),
-            Sequence("ERROR", "LOGS"),
-            Sequence("GENERAL", "LOGS"),
-            "HOSTS",
-            "LOGS",
-            "PRIVILEGES",
-            "OPTIMIZER_COSTS",
-            Sequence(
-                "RELAY",
+        OneOf(
+            Delimited(
+                Sequence("BINARY", "LOGS"),
+                Sequence("ENGINE", "LOGS"),
+                Sequence("ERROR", "LOGS"),
+                Sequence("GENERAL", "LOGS"),
+                "HOSTS",
                 "LOGS",
+                "PRIVILEGES",
+                "OPTIMIZER_COSTS",
                 Sequence(
-                    "FOR", "CHANNEL", Ref("ObjectReferenceSegment"), optional=True
+                    "RELAY",
+                    "LOGS",
+                    Sequence(
+                        "FOR", "CHANNEL", Ref("ObjectReferenceSegment"), optional=True
+                    ),
                 ),
+                Sequence("SLOW", "LOGS"),
+                "STATUS",
+                "USER_RESOURCES",
             ),
-            Sequence("SLOW", "LOGS"),
-            "STATUS",
-            "USER_RESOURCES",
+            Sequence(
+                "TABLES",
+                Sequence(
+                    Delimited(Ref("TableReferenceSegment"), terminator="WITH"),
+                    optional=True,
+                ),
+                Sequence("WITH", "READ", "LOCK", optional=True),
+            ),
+            Sequence(
+                "TABLES",
+                Sequence(
+                    Delimited(Ref("TableReferenceSegment"), terminator="FOR"),
+                    optional=False,
+                ),
+                Sequence("FOR", "EXPORT", optional=True),
+            ),
         ),
-        # TABLE stuff
     )

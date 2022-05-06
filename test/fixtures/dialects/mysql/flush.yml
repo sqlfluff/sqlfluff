@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 868996eef3a533ce90610668c22c9ce9be25726ba3f2e18aab405eeaf7a0540e
+_hash: 801cf0f380d56aedb024a307209a5f0d16164f721546c2c62d161a9dae7c6c64
 file:
 - statement:
     flush_statement:
@@ -55,4 +55,65 @@ file:
     - keyword: CHANNEL
     - object_reference:
         identifier: my_channel
+- statement_terminator: ;
+- statement:
+    flush_statement:
+    - keyword: FLUSH
+    - keyword: TABLES
+- statement_terminator: ;
+- statement:
+    flush_statement:
+    - keyword: FLUSH
+    - keyword: TABLES
+    - keyword: WITH
+    - keyword: READ
+    - keyword: LOCK
+- statement_terminator: ;
+- statement:
+    flush_statement:
+    - keyword: FLUSH
+    - keyword: TABLES
+    - table_reference:
+        identifier: table1
+- statement_terminator: ;
+- statement:
+    flush_statement:
+    - keyword: FLUSH
+    - keyword: TABLES
+    - table_reference:
+        identifier: table1
+    - comma: ','
+    - table_reference:
+      - identifier: '`foo`'
+      - dot: .
+      - identifier: '`bar`'
+- statement_terminator: ;
+- statement:
+    flush_statement:
+    - keyword: FLUSH
+    - keyword: TABLES
+    - table_reference:
+        identifier: table1
+    - comma: ','
+    - table_reference:
+      - identifier: '`foo`'
+      - dot: .
+      - identifier: '`bar`'
+    - keyword: WITH
+    - keyword: READ
+    - keyword: LOCK
+- statement_terminator: ;
+- statement:
+    flush_statement:
+    - keyword: FLUSH
+    - keyword: TABLES
+    - table_reference:
+        identifier: table1
+    - comma: ','
+    - table_reference:
+      - identifier: '`foo`'
+      - dot: .
+      - identifier: '`bar`'
+    - keyword: FOR
+    - keyword: EXPORT
 - statement_terminator: ;
