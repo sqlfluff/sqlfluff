@@ -31,3 +31,9 @@ test_fail_templated_segment_contains_leading_literal:
   configs:
     core:
       dialect: bigquery
+
+test_fail_segment_contains_multiple_templated_slices_last_one_bad:
+  fail_str: CREATE TABLE `{{ "project" }}.{{ "dataset" }}.{{"table"}}`
+  configs:
+    core:
+      dialect: bigquery
