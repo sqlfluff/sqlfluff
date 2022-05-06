@@ -7,7 +7,7 @@ from sqlfluff.testing.rules import (
     rules__test_helper,
     get_rule_from_set,
 )
-from sqlfluff.core.rules.doc_decorators import is_fix_compatible
+from sqlfluff.core.rules.doc_decorators import is_fix_compatible, is_documenting_groups
 from sqlfluff.core.config import FluffConfig
 
 ids, test_cases = load_test_cases(
@@ -27,6 +27,9 @@ def test__rule_test_case(test_case, caplog):
                 rule
             ), f"Rule {test_case.rule} returned fixes but does not specify "
             '"@document_fix_compatible".'
+            assert is_documenting_groups(
+                rule
+            ), f'Rule {test_case.rule} does not specify "@document_groups".'
 
 
 def test__rule_test_global_config():

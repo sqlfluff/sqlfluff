@@ -8,6 +8,7 @@ import sqlfluff.core.rules.functional.segment_predicates as sp
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
+    document_groups,
 )
 from sqlfluff.core.rules.functional.segments import Segments
 
@@ -17,6 +18,7 @@ before_description = "Operators near newlines should be before, not after the ne
 
 @document_fix_compatible
 @document_configuration
+@document_groups
 class Rule_L007(BaseRule):
     """Operators should follow a standard for being before/after newlines.
 

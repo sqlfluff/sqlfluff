@@ -6,7 +6,7 @@ from sqlfluff.core.parser import WhitespaceSegment, KeywordSegment
 
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.parser import BaseSegment
-from sqlfluff.core.rules.doc_decorators import document_fix_compatible
+from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
 
 
 class OrderByColumnInfo(NamedTuple):
@@ -17,6 +17,7 @@ class OrderByColumnInfo(NamedTuple):
 
 
 @document_fix_compatible
+@document_groups
 class Rule_L037(BaseRule):
     """Ambiguous ordering directions for columns in order by clause.
 

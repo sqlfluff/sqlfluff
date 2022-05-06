@@ -3,8 +3,10 @@ from typing import Optional
 
 from sqlfluff.core.rules.base import BaseRule, LintResult, RuleContext
 import sqlfluff.core.rules.functional.segment_predicates as sp
+from sqlfluff.core.rules.doc_decorators import document_groups
 
 
+@document_groups
 class Rule_L021(BaseRule):
     """Ambiguous use of ``DISTINCT`` in a ``SELECT`` statement with ``GROUP BY``.
 

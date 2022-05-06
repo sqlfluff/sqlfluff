@@ -5,10 +5,11 @@ from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.functional import Segments
 import sqlfluff.core.rules.functional.segment_predicates as sp
 import sqlfluff.core.rules.functional.raw_file_slice_predicates as rsp
-from sqlfluff.core.rules.doc_decorators import document_fix_compatible
+from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
 
 
 @document_fix_compatible
+@document_groups
 class Rule_L050(BaseRule):
     """Files must not begin with newlines or whitespace.
 

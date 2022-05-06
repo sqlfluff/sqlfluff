@@ -5,6 +5,7 @@ from sqlfluff.core.rules.base import rules_logger  # noqa
 import re
 
 
+CORE_RULE = "    This rule is a Core SQLFluff rule."
 FIX_COMPATIBLE = "    This rule is ``sqlfluff fix`` compatible."
 
 
@@ -25,6 +26,27 @@ def document_fix_compatible(cls):
 def is_fix_compatible(cls) -> bool:  # pragma: no cover TODO?
     """Return whether the rule is documented as fixable."""
     return FIX_COMPATIBLE in cls.__doc__
+
+
+def document_groups(cls):
+    """Mark the rule as fixable in the documentation."""
+    # Match `**Anti-pattern**`, `.. note::` and `**Configuration**`,
+    # then insert fix_compatible before the first occurrences.
+    # We match `**Configuration**` here to make it work in all order of doc decorators
+    pattern = re.compile(
+        "(\\s{4}\\*\\*Anti-pattern\\*\\*|\\s{4}\\.\\. note::|"
+        "\\s{4}\\*\\*Configuration\\*\\*)",
+        flags=re.MULTILINE,
+    )
+
+    groups_docs = "\n    **Groups**: " + ", ".join(cls.groups) + "\n"
+    cls.__doc__ = pattern.sub(f"\n\n{groups_docs}\n\n\\1", cls.__doc__, count=1)
+    return cls
+
+
+def is_documenting_groups(cls) -> bool:  # pragma: no cover TODO?
+    """Return whether the rule groups are documented."""
+    return "\n    **Groups**: " in cls.__doc__
 
 
 def document_configuration(cls, ruleset="std"):

@@ -12,10 +12,11 @@ from sqlfluff.core.rules.base import (
     RuleContext,
     EvalResultType,
 )
-from sqlfluff.core.rules.doc_decorators import document_fix_compatible
+from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
 
 
 @document_fix_compatible
+@document_groups
 class Rule_L006(BaseRule):
     """Operators should be surrounded by a single whitespace.
 

@@ -12,14 +12,16 @@ from sqlfluff.core.parser import (
 from sqlfluff.core.rules.base import LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.functional import sp
 from sqlfluff.core.rules.doc_decorators import (
-    document_fix_compatible,
     document_configuration,
+    document_fix_compatible,
+    document_groups,
 )
 from sqlfluff.rules.L003 import Rule_L003
 
 
 @document_fix_compatible
 @document_configuration
+@document_groups
 class Rule_L016(Rule_L003):
     """Line is too long."""
 

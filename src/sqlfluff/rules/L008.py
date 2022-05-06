@@ -4,13 +4,14 @@ from typing import Optional, Tuple
 from sqlfluff.core.parser import WhitespaceSegment
 
 from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix, RuleContext
-from sqlfluff.core.rules.doc_decorators import document_fix_compatible
+from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
 import sqlfluff.core.rules.functional.segment_predicates as sp
 
 from sqlfluff.core.parser.segments.base import BaseSegment
 
 
 @document_fix_compatible
+@document_groups
 class Rule_L008(BaseRule):
     """Commas should be followed by a single whitespace unless followed by a comment.
 

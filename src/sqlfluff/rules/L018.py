@@ -11,14 +11,16 @@ from sqlfluff.core.parser import (
 
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.doc_decorators import (
-    document_fix_compatible,
     document_configuration,
+    document_fix_compatible,
+    document_groups,
 )
 from sqlfluff.core.rules.functional import sp
 
 
 @document_fix_compatible
 @document_configuration
+@document_groups
 class Rule_L018(BaseRule):
     """``WITH`` clause closing bracket should be aligned with ``WITH`` keyword.
 

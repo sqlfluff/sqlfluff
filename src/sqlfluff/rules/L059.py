@@ -9,12 +9,14 @@ from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
+    document_groups,
 )
 import sqlfluff.core.rules.functional.segment_predicates as sp
 
 
 @document_configuration
 @document_fix_compatible
+@document_groups
 class Rule_L059(BaseRule):
     """Unnecessary quoted identifier.
 

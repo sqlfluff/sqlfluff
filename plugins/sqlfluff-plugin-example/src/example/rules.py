@@ -7,8 +7,9 @@ from sqlfluff.core.rules.base import (
     RuleContext,
 )
 from sqlfluff.core.rules.doc_decorators import (
-    document_fix_compatible,
     document_configuration,
+    document_fix_compatible,
+    document_groups,
 )
 from typing import List
 import os.path
@@ -42,6 +43,7 @@ def get_configs_info() -> dict:
 # to be displayed in the sqlfluff docs
 @document_fix_compatible
 @document_configuration
+@document_groups
 class Rule_Example_L001(BaseRule):
     """ORDER BY on these columns is forbidden!
 
@@ -68,8 +70,8 @@ class Rule_Example_L001(BaseRule):
         ORDER BY bar
     """
 
-    config_keywords = ["forbidden_columns"]
     groups = ("all",)
+    config_keywords = ["forbidden_columns"]
 
     def __init__(self, *args, **kwargs):
         """Overwrite __init__ to set config."""

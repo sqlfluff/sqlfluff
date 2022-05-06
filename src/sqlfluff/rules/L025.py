@@ -16,7 +16,7 @@ from sqlfluff.core.rules.base import (
     RuleContext,
     EvalResultType,
 )
-from sqlfluff.core.rules.doc_decorators import document_fix_compatible
+from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
 from sqlfluff.core.rules.functional import Segments, sp
 from sqlfluff.core.dialects.common import AliasInfo
 
@@ -30,6 +30,7 @@ class L025Query(SelectCrawlerQuery):
 
 
 @document_fix_compatible
+@document_groups
 class Rule_L025(BaseRule):
     """Tables should not be aliased if that alias is not used.
 

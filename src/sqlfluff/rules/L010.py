@@ -6,13 +6,15 @@ from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix, RuleContext
 from sqlfluff.core.rules.config_info import get_config_info
 from sqlfluff.core.rules.doc_decorators import (
-    document_fix_compatible,
     document_configuration,
+    document_fix_compatible,
+    document_groups,
 )
 
 
 @document_fix_compatible
 @document_configuration
+@document_groups
 class Rule_L010(BaseRule):
     """Inconsistent capitalisation of keywords.
 

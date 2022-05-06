@@ -8,8 +8,9 @@ from sqlfluff.core.parser.segments import BaseSegment
 from sqlfluff.core.rules.functional import rsp, sp, Segments
 from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix, RuleContext
 from sqlfluff.core.rules.doc_decorators import (
-    document_fix_compatible,
     document_configuration,
+    document_fix_compatible,
+    document_groups,
 )
 from sqlfluff.core.templaters import TemplatedFile
 from sqlfluff.core.templaters.base import RawFileSlice
@@ -160,6 +161,7 @@ class _Memory:
 
 @document_fix_compatible
 @document_configuration
+@document_groups
 class Rule_L003(BaseRule):
     """Indentation not consistent with previous lines.
 

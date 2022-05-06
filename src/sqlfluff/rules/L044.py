@@ -4,6 +4,7 @@ from typing import Optional
 from sqlfluff.core.rules.analysis.select_crawler import Query, SelectCrawler
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules.base import BaseRule, LintResult, RuleContext
+from sqlfluff.core.rules.doc_decorators import document_groups
 from sqlfluff.core.rules.functional import sp
 
 
@@ -14,6 +15,7 @@ class RuleFailure(Exception):
         self.anchor: BaseSegment = anchor
 
 
+@document_groups
 class Rule_L044(BaseRule):
     """Query produces an unknown number of result columns.
 

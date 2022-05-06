@@ -3,10 +3,11 @@ from typing import List, Optional
 
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
-from sqlfluff.core.rules.doc_decorators import document_fix_compatible
+from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
 
 
 @document_fix_compatible
+@document_groups
 class Rule_L034(BaseRule):
     """Select wildcards then simple targets before calculations and aggregates.
 

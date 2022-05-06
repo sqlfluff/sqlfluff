@@ -8,7 +8,7 @@ from sqlfluff.core.parser.segments.raw import (
     WhitespaceSegment,
 )
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
-from sqlfluff.core.rules.doc_decorators import document_fix_compatible
+from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
 import sqlfluff.core.rules.functional.segment_predicates as sp
 from sqlfluff.core.rules.functional.segments import Segments
 from sqlfluff.core.rules.analysis.select import get_select_statement_info
@@ -16,6 +16,7 @@ from sqlfluff.dialects.dialect_ansi import ColumnReferenceSegment
 
 
 @document_fix_compatible
+@document_groups
 class Rule_L032(BaseRule):
     """Prefer specifying join keys instead of using ``USING``.
 

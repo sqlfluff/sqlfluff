@@ -7,6 +7,7 @@ from sqlfluff.core.rules.base import LintResult, RuleContext
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
+    document_groups,
 )
 from sqlfluff.rules.L010 import Rule_L010
 
@@ -32,6 +33,7 @@ def identifiers_policy_applicable(
 
 @document_configuration
 @document_fix_compatible
+@document_groups
 class Rule_L014(Rule_L010):
     """Inconsistent capitalisation of unquoted identifiers.
 

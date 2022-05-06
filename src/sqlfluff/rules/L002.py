@@ -5,11 +5,13 @@ from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix, RuleContext
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
+    document_groups,
 )
 
 
 @document_configuration
 @document_fix_compatible
+@document_groups
 class Rule_L002(BaseRule):
     """Mixed Tabs and Spaces in single whitespace.
 

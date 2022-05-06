@@ -5,13 +5,15 @@ from sqlfluff.core.parser import NewlineSegment
 
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.doc_decorators import (
-    document_fix_compatible,
     document_configuration,
+    document_fix_compatible,
+    document_groups,
 )
 
 
 @document_fix_compatible
 @document_configuration
+@document_groups
 class Rule_L022(BaseRule):
     """Blank line expected but not found after CTE closing bracket.
 

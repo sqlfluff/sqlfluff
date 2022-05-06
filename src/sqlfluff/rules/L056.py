@@ -2,8 +2,10 @@
 from typing import Optional
 
 from sqlfluff.core.rules.base import BaseRule, LintResult, RuleContext
+from sqlfluff.core.rules.doc_decorators import document_groups
 
 
+@document_groups
 class Rule_L056(BaseRule):
     r"""``SP_`` prefix should not be used for user-defined stored procedures in T-SQL.
 

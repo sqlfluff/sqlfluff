@@ -9,11 +9,13 @@ from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
+    document_groups,
 )
 
 
 @document_configuration
 @document_fix_compatible
+@document_groups
 class Rule_L064(BaseRule):
     r"""Consistent usage of preferred quotes for quoted literals.
 

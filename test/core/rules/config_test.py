@@ -7,6 +7,7 @@ from sqlfluff.core.rules import get_ruleset
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
+    document_groups,
 )
 from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.parser import WhitespaceSegment
@@ -27,6 +28,7 @@ class Rule_T042(BaseRule):
 
 
 @document_fix_compatible
+@document_groups
 class Rule_T001(BaseRule):
     """A deliberately malicious rule.
 

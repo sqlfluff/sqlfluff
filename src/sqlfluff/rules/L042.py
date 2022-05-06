@@ -18,6 +18,7 @@ from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
+    document_groups,
 )
 from sqlfluff.core.rules.functional.segment_predicates import is_name, is_type
 from sqlfluff.core.rules.functional.segments import Segments
@@ -38,6 +39,7 @@ class _NestedSubQuerySummary(NamedTuple):
 
 @document_fix_compatible
 @document_configuration
+@document_groups
 class Rule_L042(BaseRule):
     """Join/From clauses should not contain subqueries. Use CTEs instead.
 
