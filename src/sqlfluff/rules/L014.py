@@ -31,9 +31,9 @@ def identifiers_policy_applicable(
     return False
 
 
-@document_configuration
 @document_groups
 @document_fix_compatible
+@document_configuration
 class Rule_L014(Rule_L010):
     """Inconsistent capitalisation of unquoted identifiers.
 

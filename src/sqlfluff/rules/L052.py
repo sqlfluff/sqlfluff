@@ -23,9 +23,9 @@ class SegmentMoveContext(NamedTuple):
     whitespace_deletions: Segments
 
 
-@document_configuration
 @document_groups
 @document_fix_compatible
+@document_configuration
 class Rule_L052(BaseRule):
     """Statements must end with a semi-colon.
 

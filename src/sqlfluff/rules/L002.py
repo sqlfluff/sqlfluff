@@ -9,9 +9,9 @@ from sqlfluff.core.rules.doc_decorators import (
 )
 
 
-@document_configuration
 @document_groups
 @document_fix_compatible
+@document_configuration
 class Rule_L002(BaseRule):
     """Mixed Tabs and Spaces in single whitespace.
 
