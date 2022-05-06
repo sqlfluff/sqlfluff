@@ -726,11 +726,18 @@ test_pass_ignore_templated_whitespace_4:
         {{ "      c2\n" }} AS other_id
     FROM my_table
 
-test_pass_ignore_templated_newline:
+test_pass_ignore_templated_newline_not_last_line:
   pass_str: |
     select *
     from {{ "\n\nmy_table" }}
+    inner join
+        my_table2
+        using (id)
 
+test_pass_ignore_templated_newline_last_line:
+  pass_str: |
+    select *
+    from {{ "\n\nmy_table" }}
 
 test_fail_fix_template_indentation_1:
   fail_str: |
