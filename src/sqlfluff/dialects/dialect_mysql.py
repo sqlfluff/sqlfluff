@@ -82,6 +82,7 @@ mysql_dialect.sets("unreserved_keywords").update(
     [
         "QUICK",
         "FAST",
+        "SLOW",
         "MEDIUM",
         "EXTENDED",
         "CHANGED",
@@ -92,6 +93,12 @@ mysql_dialect.sets("unreserved_keywords").update(
         "REPAIR",
         "DUPLICATE",
         "NOW",
+        "ENGINE",
+        "ERROR",
+        "OPTIMIZER_COSTS",
+        "RELAY",
+        "STATUS",
+        "USER_RESOURCES",
     ]
 )
 mysql_dialect.sets("reserved_keywords").update(
@@ -694,6 +701,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("OptimizeTableStatementSegment"),
             Ref("UpsertClauseListSegment"),
             Ref("InsertRowAliasSegment"),
+            Ref("FlushStatementSegment"),
         ],
     )
 
@@ -1830,4 +1838,36 @@ class UpdateStatementSegment(BaseSegment):
         Ref("WhereClauseSegment", optional=True),
         Ref("OrderByClauseSegment", optional=True),
         Ref("LimitClauseSegment", optional=True),
+    )
+
+
+class FlushStatementSegment(BaseSegment):
+    """A `Flush` statement.
+
+    As per https://dev.mysql.com/doc/refman/8.0/en/flush.html
+    """
+
+    type = "flush_statement"
+    match_grammar: Matchable = Sequence(
+        "FLUSH",
+        OneOf(
+            "NO_WRITE_TO_BINLOG",
+            "LOCAL",
+            optional=True,
+        ),
+        Delimited(
+            Sequence("BINARY", "LOGS"),
+            Sequence("ENGINE", "LOGS"),
+            Sequence("ERROR", "LOGS"),
+            Sequence("GENERAL", "LOGS"),
+            "HOSTS",
+            "LOGS",
+            "PRIVILEGES",
+            "OPTIMIZER_COSTS",
+            Sequence("RELAY", "LOGS"),  # [FOR CHANNEL channel]
+            Sequence("SLOW", "LOGS"),
+            "STATUS",
+            "USER_RESOURCES",
+        ),
+        # TABLE stuff
     )
