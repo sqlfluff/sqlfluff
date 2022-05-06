@@ -10,8 +10,8 @@ import sqlfluff.core.rules.functional.segment_predicates as sp
 from sqlfluff.core.parser.segments.base import BaseSegment
 
 
-@document_fix_compatible
 @document_groups
+@document_fix_compatible
 class Rule_L008(BaseRule):
     """Commas should be followed by a single whitespace unless followed by a comment.
 

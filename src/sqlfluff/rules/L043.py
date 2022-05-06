@@ -13,8 +13,8 @@ from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document
 from sqlfluff.core.rules.functional import Segments, sp
 
 
-@document_fix_compatible
 @document_groups
+@document_fix_compatible
 class Rule_L043(BaseRule):
     """Unnecessary ``CASE`` statement.
 

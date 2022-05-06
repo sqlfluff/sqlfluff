@@ -25,8 +25,8 @@ class SelectTargetsInfo(NamedTuple):
     pre_from_whitespace: List[BaseSegment]
 
 
-@document_fix_compatible
 @document_groups
+@document_fix_compatible
 class Rule_L036(BaseRule):
     """Select targets should be on a new line unless there is only one select target.
 

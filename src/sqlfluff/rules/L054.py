@@ -6,8 +6,8 @@ from sqlfluff.core.rules.doc_decorators import document_configuration, document_
 import sqlfluff.core.rules.functional.segment_predicates as sp
 
 
-@document_configuration
 @document_groups
+@document_configuration
 class Rule_L054(BaseRule):
     """Inconsistent column references in ``GROUP BY/ORDER BY`` clauses.
 

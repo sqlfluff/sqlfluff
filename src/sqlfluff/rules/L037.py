@@ -16,8 +16,8 @@ class OrderByColumnInfo(NamedTuple):
     order: Optional[str]  # One of 'ASC'/'DESC'/None
 
 
-@document_fix_compatible
 @document_groups
+@document_fix_compatible
 class Rule_L037(BaseRule):
     """Ambiguous ordering directions for columns in order by clause.
 

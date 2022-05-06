@@ -23,9 +23,9 @@ class TableAliasInfo(NamedTuple):
     alias_identifier_ref: BaseSegment
 
 
+@document_groups
 @document_fix_compatible
 @document_configuration
-@document_groups
 class Rule_L031(BaseRule):
     """Avoid table aliases in from clauses and join conditions.
 

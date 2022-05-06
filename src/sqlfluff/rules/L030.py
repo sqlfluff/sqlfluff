@@ -11,8 +11,8 @@ from sqlfluff.rules.L010 import Rule_L010
 
 
 @document_configuration
-@document_fix_compatible
 @document_groups
+@document_fix_compatible
 class Rule_L030(Rule_L010):
     """Inconsistent capitalisation of function names.
 

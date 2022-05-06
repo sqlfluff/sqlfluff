@@ -37,9 +37,9 @@ class _NestedSubQuerySummary(NamedTuple):
     subquery: BaseSegment
 
 
+@document_groups
 @document_fix_compatible
 @document_configuration
-@document_groups
 class Rule_L042(BaseRule):
     """Join/From clauses should not contain subqueries. Use CTEs instead.
 

@@ -15,8 +15,8 @@ from sqlfluff.core.rules.analysis.select import get_select_statement_info
 from sqlfluff.dialects.dialect_ansi import ColumnReferenceSegment
 
 
-@document_fix_compatible
 @document_groups
+@document_fix_compatible
 class Rule_L032(BaseRule):
     """Prefer specifying join keys instead of using ``USING``.
 

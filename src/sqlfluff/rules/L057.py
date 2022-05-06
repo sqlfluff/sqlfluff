@@ -7,8 +7,8 @@ from sqlfluff.core.rules.doc_decorators import document_configuration, document_
 from sqlfluff.rules.L014 import identifiers_policy_applicable
 
 
-@document_configuration
 @document_groups
+@document_configuration
 class Rule_L057(BaseRule):
     """Do not use special characters in identifiers.
 

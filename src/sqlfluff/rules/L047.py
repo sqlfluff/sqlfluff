@@ -11,8 +11,8 @@ import sqlfluff.core.rules.functional.segment_predicates as sp
 
 
 @document_configuration
-@document_fix_compatible
 @document_groups
+@document_fix_compatible
 class Rule_L047(BaseRule):
     """Use consistent syntax to express "count number of rows".
 

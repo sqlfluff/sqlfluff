@@ -6,8 +6,8 @@ from sqlfluff.core.rules.doc_decorators import document_configuration, document_
 from sqlfluff.core.rules.base import LintResult, RuleContext
 
 
-@document_configuration
 @document_groups
+@document_configuration
 class Rule_L012(Rule_L011):
     """Implicit/explicit aliasing of columns.
 

@@ -5,8 +5,8 @@ from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document
 from sqlfluff.rules.L023 import Rule_L023
 
 
-@document_fix_compatible
 @document_groups
+@document_fix_compatible
 class Rule_L024(Rule_L023):
     """Single whitespace expected after ``USING`` in ``JOIN`` clause.
 

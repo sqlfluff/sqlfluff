@@ -11,9 +11,9 @@ from sqlfluff.core.rules.doc_decorators import (
 )
 
 
+@document_groups
 @document_fix_compatible
 @document_configuration
-@document_groups
 class Rule_L022(BaseRule):
     """Blank line expected but not found after CTE closing bracket.
 

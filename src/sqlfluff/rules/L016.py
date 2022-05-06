@@ -19,9 +19,9 @@ from sqlfluff.core.rules.doc_decorators import (
 from sqlfluff.rules.L003 import Rule_L003
 
 
+@document_groups
 @document_fix_compatible
 @document_configuration
-@document_groups
 class Rule_L016(Rule_L003):
     """Line is too long."""
 

@@ -10,9 +10,9 @@ from sqlfluff.core.rules.doc_decorators import (
 )
 
 
+@document_groups
 @document_fix_compatible
 @document_configuration
-@document_groups
 class Rule_L051(BaseRule):
     """Join clauses should be fully qualified.
 

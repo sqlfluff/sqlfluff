@@ -8,8 +8,8 @@ from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
 
 
-@document_fix_compatible
 @document_groups
+@document_fix_compatible
 class Rule_L023(BaseRule):
     """Single whitespace expected after ``AS`` in ``WITH`` clause.
 

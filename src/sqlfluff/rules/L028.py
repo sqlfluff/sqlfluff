@@ -22,8 +22,8 @@ from sqlfluff.core.rules.doc_decorators import (
 
 
 @document_configuration
-@document_fix_compatible
 @document_groups
+@document_fix_compatible
 class Rule_L028(BaseRule):
     """References should be consistent in statements with a single table.
 

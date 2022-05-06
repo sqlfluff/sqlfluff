@@ -16,9 +16,9 @@ after_description = "Operators near newlines should be after, not before the new
 before_description = "Operators near newlines should be before, not after the newline"
 
 
+@document_groups
 @document_fix_compatible
 @document_configuration
-@document_groups
 class Rule_L007(BaseRule):
     """Operators should follow a standard for being before/after newlines.
 

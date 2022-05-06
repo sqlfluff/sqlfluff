@@ -8,8 +8,8 @@ from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document
 from sqlfluff.rules.L006 import Rule_L006
 
 
-@document_fix_compatible
 @document_groups
+@document_fix_compatible
 class Rule_L048(Rule_L006):
     """Quoted literals should be surrounded by a single whitespace.
 

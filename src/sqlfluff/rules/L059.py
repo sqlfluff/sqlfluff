@@ -15,8 +15,8 @@ import sqlfluff.core.rules.functional.segment_predicates as sp
 
 
 @document_configuration
-@document_fix_compatible
 @document_groups
+@document_fix_compatible
 class Rule_L059(BaseRule):
     """Unnecessary quoted identifier.
 

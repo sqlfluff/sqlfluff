@@ -30,8 +30,8 @@ def get_last_segment(segment: Segments) -> Tuple[List[BaseSegment], Segments]:
             return parent_stack, segment
 
 
-@document_fix_compatible
 @document_groups
+@document_fix_compatible
 class Rule_L009(BaseRule):
     """Files must end with a single trailing newline.
 

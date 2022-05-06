@@ -6,8 +6,8 @@ from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document
 import sqlfluff.core.rules.functional.segment_predicates as sp
 
 
-@document_fix_compatible
 @document_groups
+@document_fix_compatible
 class Rule_L035(BaseRule):
     """Do not specify ``else null`` in a case when statement (redundant).
 

@@ -7,8 +7,8 @@ import sqlfluff.core.rules.functional.segment_predicates as sp
 from sqlfluff.core.rules.functional.segments import Segments
 
 
-@document_configuration
 @document_groups
+@document_configuration
 class Rule_L013(BaseRule):
     """Column expression without alias. Use explicit `AS` clause.
 

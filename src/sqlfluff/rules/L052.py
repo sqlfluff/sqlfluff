@@ -24,8 +24,8 @@ class SegmentMoveContext(NamedTuple):
 
 
 @document_configuration
-@document_fix_compatible
 @document_groups
+@document_fix_compatible
 class Rule_L052(BaseRule):
     """Statements must end with a semi-colon.
 

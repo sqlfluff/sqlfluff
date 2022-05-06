@@ -6,8 +6,8 @@ from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document
 from sqlfluff.core.rules.functional import sp
 
 
-@document_fix_compatible
 @document_groups
+@document_fix_compatible
 class Rule_L058(BaseRule):
     """Nested ``CASE`` statement in ``ELSE`` clause could be flattened.
 

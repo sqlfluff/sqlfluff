@@ -29,8 +29,8 @@ class L025Query(SelectCrawlerQuery):
     tbl_refs: Set[str] = field(default_factory=set)
 
 
-@document_fix_compatible
 @document_groups
+@document_fix_compatible
 class Rule_L025(BaseRule):
     """Tables should not be aliased if that alias is not used.
 

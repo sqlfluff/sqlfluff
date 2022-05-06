@@ -18,9 +18,9 @@ from sqlfluff.core.rules.doc_decorators import (
 from sqlfluff.core.rules.functional import sp
 
 
+@document_groups
 @document_fix_compatible
 @document_configuration
-@document_groups
 class Rule_L018(BaseRule):
     """``WITH`` clause closing bracket should be aligned with ``WITH`` keyword.
 

@@ -159,9 +159,9 @@ class _Memory:
         return self.hanging_lines.union(self.problem_lines)
 
 
+@document_groups
 @document_fix_compatible
 @document_configuration
-@document_groups
 class Rule_L003(BaseRule):
     """Indentation not consistent with previous lines.
 

@@ -5,8 +5,8 @@ from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document
 import sqlfluff.core.rules.functional.segment_predicates as sp
 
 
-@document_fix_compatible
 @document_groups
+@document_fix_compatible
 class Rule_L017(BaseRule):
     """Function name not immediately followed by parenthesis.
 

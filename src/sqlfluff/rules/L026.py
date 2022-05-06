@@ -26,8 +26,8 @@ class L026Query(SelectCrawlerQuery):
     aliases: List[AliasInfo] = field(default_factory=list)
 
 
-@document_configuration
 @document_groups
+@document_configuration
 class Rule_L026(BaseRule):
     """References cannot reference objects not present in ``FROM`` clause.
 
