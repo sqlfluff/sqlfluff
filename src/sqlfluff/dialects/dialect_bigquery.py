@@ -1508,5 +1508,5 @@ class ExportStatementSegment(BaseSegment):
             ),
         ),
         "AS",
-        Ref("SelectStatementSegment"),
+        Ref("SelectableGrammar"),
     )
