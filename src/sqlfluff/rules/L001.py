@@ -1,9 +1,13 @@
 """Implementation of Rule L001."""
 from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix, RuleContext
 from sqlfluff.core.rules.functional import segment_predicates as sp
-from sqlfluff.core.rules.doc_decorators import document_fix_compatible
+from sqlfluff.core.rules.doc_decorators import (
+    document_fix_compatible,
+    document_groups,
+)
 
 
+@document_groups
 @document_fix_compatible
 class Rule_L001(BaseRule):
     """Unnecessary trailing whitespace.

@@ -40,3 +40,18 @@ EXPORT DATA OPTIONS(
   format='PARQUET',
   overwrite=true) AS
 SELECT field1, field2 FROM mydataset.table1 ORDER BY field1 LIMIT 10;
+
+EXPORT DATA OPTIONS(
+  uri='gs://bucket/folder/*.csv',
+  format='CSV',
+  overwrite=true,
+  header=true,
+  field_delimiter=';') AS
+WITH cte AS (
+    SELECT field1, field2
+    FROM mydataset.table1
+    ORDER BY field1
+    LIMIT 10
+)
+SELECT *
+FROM cte;

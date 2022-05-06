@@ -1092,6 +1092,11 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
         "TABLE",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
+        Sequence(
+            OneOf("COPY", "LIKE"),
+            Ref("TableReferenceSegment"),
+            optional=True,
+        ),
         # Column list
         Sequence(
             Bracketed(
@@ -1503,5 +1508,5 @@ class ExportStatementSegment(BaseSegment):
             ),
         ),
         "AS",
-        Ref("SelectStatementSegment"),
+        Ref("SelectableGrammar"),
     )

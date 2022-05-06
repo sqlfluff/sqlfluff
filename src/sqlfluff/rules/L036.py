@@ -7,7 +7,7 @@ from sqlfluff.core.parser import WhitespaceSegment
 from sqlfluff.core.parser import BaseSegment, NewlineSegment
 from sqlfluff.core.parser.segments.base import IdentitySet
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
-from sqlfluff.core.rules.doc_decorators import document_fix_compatible
+from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
 from sqlfluff.core.rules.functional import Segments
 import sqlfluff.core.rules.functional.segment_predicates as sp
 
@@ -25,6 +25,7 @@ class SelectTargetsInfo(NamedTuple):
     pre_from_whitespace: List[BaseSegment]
 
 
+@document_groups
 @document_fix_compatible
 class Rule_L036(BaseRule):
     """Select targets should be on a new line unless there is only one select target.

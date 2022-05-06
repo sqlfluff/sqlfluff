@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: be29d8eac88d4901f217f6c10a4a05d5d0ef6900f788d32cb5ce9789bca03892
+_hash: a3da3d358eeaf5a5c0f9c7e2f4dbee4a0e0384f5381c798a8ccd721dbe895c70
 file:
 - statement:
     merge_statement:
@@ -767,3 +767,50 @@ file:
                   - dot: .
                   - identifier: quantity
 - statement_terminator: ;
+- statement:
+    merge_statement:
+    - keyword: MERGE
+    - table_reference:
+      - identifier: dataset
+      - dot: .
+      - identifier: NewArrivals
+    - keyword: USING
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                  - identifier: dataset
+                  - dot: .
+                  - identifier: NewArrivals
+          where_clause:
+            keyword: WHERE
+            expression:
+              column_reference:
+                identifier: warehouse
+              comparison_operator:
+              - raw_comparison_operator: <
+              - raw_comparison_operator: '>'
+              literal: "'warehouse #2'"
+        end_bracket: )
+    - join_on_condition:
+        keyword: 'ON'
+        expression:
+          literal: 'FALSE'
+    - merge_match:
+        merge_when_matched_clause:
+        - keyword: WHEN
+        - keyword: MATCHED
+        - keyword: THEN
+        - merge_delete_clause:
+            keyword: DELETE

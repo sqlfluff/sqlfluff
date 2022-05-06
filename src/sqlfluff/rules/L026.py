@@ -14,7 +14,7 @@ from sqlfluff.core.rules.base import (
     RuleContext,
     EvalResultType,
 )
-from sqlfluff.core.rules.doc_decorators import document_configuration
+from sqlfluff.core.rules.doc_decorators import document_configuration, document_groups
 from sqlfluff.core.rules.functional import sp
 from sqlfluff.core.rules.reference import object_ref_matches_table
 
@@ -26,6 +26,7 @@ class L026Query(SelectCrawlerQuery):
     aliases: List[AliasInfo] = field(default_factory=list)
 
 
+@document_groups
 @document_configuration
 class Rule_L026(BaseRule):
     """References cannot reference objects not present in ``FROM`` clause.
