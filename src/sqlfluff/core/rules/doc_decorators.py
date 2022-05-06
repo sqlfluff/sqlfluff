@@ -5,7 +5,6 @@ from sqlfluff.core.rules.base import rules_logger  # noqa
 import re
 
 
-CORE_RULE = "    This rule is a Core SQLFluff rule."
 FIX_COMPATIBLE = "    This rule is ``sqlfluff fix`` compatible."
 
 
@@ -23,7 +22,7 @@ def document_fix_compatible(cls):
     return cls
 
 
-def is_fix_compatible(cls) -> bool:  # pragma: no cover TODO?
+def is_fix_compatible(cls) -> bool:
     """Return whether the rule is documented as fixable."""
     return FIX_COMPATIBLE in cls.__doc__
 
@@ -46,7 +45,7 @@ def document_groups(cls):
     return cls
 
 
-def is_documenting_groups(cls) -> bool:  # pragma: no cover TODO?
+def is_documenting_groups(cls) -> bool:
     """Return whether the rule groups are documented."""
     return "\n    **Groups**: " in cls.__doc__
 
