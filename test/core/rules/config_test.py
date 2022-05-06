@@ -6,6 +6,7 @@ from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix
 from sqlfluff.core.rules import get_ruleset
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
+    document_fix_compatible,
     document_groups,
 )
 from sqlfluff.core.config import FluffConfig
@@ -27,7 +28,7 @@ class Rule_T042(BaseRule):
 
 
 @document_groups
-@document_configuration
+@document_fix_compatible
 class Rule_T001(BaseRule):
     """A deliberately malicious rule.
 
