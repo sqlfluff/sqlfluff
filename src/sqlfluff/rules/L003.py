@@ -246,6 +246,7 @@ class Rule_L003(BaseRule):
                     if line_no == target_line_no:
                         memory.start_process_raw_idx += idx + 1
                         memory.line_no = line_no
+                        working_state.templated_line = elem.is_templated
                 continue
 
             working_state.line_buffer.append(elem)
