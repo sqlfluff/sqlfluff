@@ -14,7 +14,7 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 ## Highlights
 Major changes include:
 * Addition of "rule groups" (currently `core` and `all`) to allow ease of turning on and off groups of rules.
-* Addition of `db2` dialects
+* Addition of `db2` dialect
 * PRS errors are now highlighted in red.
 * Many bugs fixes and dialect improvements
 
