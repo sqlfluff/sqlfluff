@@ -3,7 +3,7 @@ from typing import List, Optional, Tuple
 
 from sqlfluff.core.parser import BaseSegment, NewlineSegment
 from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix, RuleContext
-from sqlfluff.core.rules.doc_decorators import document_fix_compatible
+from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
 from sqlfluff.core.rules.functional import Segments, sp, tsp
 
 
@@ -30,6 +30,7 @@ def get_last_segment(segment: Segments) -> Tuple[List[BaseSegment], Segments]:
             return parent_stack, segment
 
 
+@document_groups
 @document_fix_compatible
 class Rule_L009(BaseRule):
     """Files must end with a single trailing newline.

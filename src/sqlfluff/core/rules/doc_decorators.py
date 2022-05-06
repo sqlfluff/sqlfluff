@@ -22,9 +22,32 @@ def document_fix_compatible(cls):
     return cls
 
 
-def is_fix_compatible(cls) -> bool:  # pragma: no cover TODO?
+def is_fix_compatible(cls) -> bool:
     """Return whether the rule is documented as fixable."""
     return FIX_COMPATIBLE in cls.__doc__
+
+
+def document_groups(cls):
+    """Mark the rule as fixable in the documentation."""
+    # Match `**Anti-pattern**`, `.. note::` and `**Configuration**`,
+    # then insert group documentation    before the first occurrences.
+    # We match `**Configuration**` here to make it work in all order of doc decorators
+    pattern = re.compile(
+        "(\\s{4}\\*\\*Anti-pattern\\*\\*|\\s{4}\\.\\. note::|"
+        "\\s\\s{4}\\*\\*Configuration\\*\\*)",
+        flags=re.MULTILINE,
+    )
+
+    groups_docs = (
+        "\n    **Groups**: ``" + "``, ``".join(getattr(cls, "groups")) + "``\n"
+    )
+    cls.__doc__ = pattern.sub(f"\n\n{groups_docs}\n\n\\1", cls.__doc__, count=1)
+    return cls
+
+
+def is_documenting_groups(cls) -> bool:
+    """Return whether the rule groups are documented."""
+    return "\n    **Groups**: " in cls.__doc__
 
 
 def document_configuration(cls, ruleset="std"):

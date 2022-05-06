@@ -5,12 +5,14 @@ from typing import Tuple, List
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
+    document_groups,
 )
 from sqlfluff.rules.L010 import Rule_L010
 
 
-@document_configuration
+@document_groups
 @document_fix_compatible
+@document_configuration
 class Rule_L040(Rule_L010):
     """Inconsistent capitalisation of boolean/null literal.
 
