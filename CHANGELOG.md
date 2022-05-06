@@ -19,6 +19,12 @@ Major changes include:
 * Many bugs fixes and dialect improvements
 
 ## What’s Changed
+* Allow optional `AS` in `MERGE` statements using `SELECT` [#3276](https://github.com/sqlfluff/sqlfluff/pull/3276) [@tunetheweb](https://github.com/tunetheweb)
+* Add groups each rule is in to Rules documentation [#3272](https://github.com/sqlfluff/sqlfluff/pull/3272) [@tunetheweb](https://github.com/tunetheweb)
+* BigQuery: Enhanced `EXPORT DATA` statement [#3267](https://github.com/sqlfluff/sqlfluff/pull/3267) [@tunetheweb](https://github.com/tunetheweb)
+* BigQuery: `CREATE TABLE` support for `COPY` and `LIKE` [#3266](https://github.com/sqlfluff/sqlfluff/pull/3266) [@tunetheweb](https://github.com/tunetheweb)
+* Improve error on missing keywords [#3268](https://github.com/sqlfluff/sqlfluff/pull/3268) [@greg-finley](https://github.com/greg-finley)
+* MySQL: Add `FLUSH` support [#3269](https://github.com/sqlfluff/sqlfluff/pull/3269) [@greg-finley](https://github.com/greg-finley)
 * Postgres: Add `ALTER TYPE` support [#3265](https://github.com/sqlfluff/sqlfluff/pull/3265) [@greg-finley](https://github.com/greg-finley)
 * Bug fix: L036 handle single-column `SELECT` with comment on same line as `SELECT` keyword [#3259](https://github.com/sqlfluff/sqlfluff/pull/3259) [@barrywhart](https://github.com/barrywhart)
 * Put working example in the README [#3261](https://github.com/sqlfluff/sqlfluff/pull/3261) [@greg-finley](https://github.com/greg-finley)
