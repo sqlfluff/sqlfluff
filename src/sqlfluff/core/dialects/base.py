@@ -263,9 +263,19 @@ class Dialect:
                     )
                 )
         else:  # pragma: no cover
+            if name.endswith("KeywordSegment"):
+                keyword_tip = (
+                    " Perhaps specify the keyword? "
+                    "https://github.com/sqlfluff/sqlfluff/wiki/Contributing-Dialect-Changes#keywords"  # noqa E501
+                )
+            else:
+                keyword_tip = ""
             raise RuntimeError(
-                "Grammar refers to {!r} which was not found in the {} dialect".format(
-                    name, self.name
+                (
+                    "Grammar refers to "
+                    "{!r} which was not found in the {} dialect.{}".format(
+                        name, self.name, keyword_tip
+                    )
                 )
             )
 
