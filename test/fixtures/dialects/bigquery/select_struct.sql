@@ -30,4 +30,10 @@ FROM
   UNNEST(ARRAY<STRUCT<col_1 STRING, col_2 STRING>>[
       ('hello','world'),
       ('hi', 'there')
-      ])
+      ]);
+
+SELECT
+  STRUCT<int64>(5),
+  STRUCT<date>("2011-05-05"),
+  STRUCT<x int64, y string>(1, t.str_col),
+  STRUCT<int64>(int_col);

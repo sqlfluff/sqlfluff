@@ -2,10 +2,11 @@
 from typing import Optional
 
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
-from sqlfluff.core.rules.doc_decorators import document_fix_compatible
+from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
 import sqlfluff.core.rules.functional.segment_predicates as sp
 
 
+@document_groups
 @document_fix_compatible
 class Rule_L035(BaseRule):
     """Do not specify ``else null`` in a case when statement (redundant).
@@ -35,6 +36,8 @@ class Rule_L035(BaseRule):
             end
         from x
     """
+
+    groups = ("all",)
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Find rule violations and provide fixes.

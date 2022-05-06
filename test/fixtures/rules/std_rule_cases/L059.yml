@@ -278,6 +278,22 @@ test_pass_ignore_lists_mixed_case:
       L059:
         ignore_words: foo
 
+test_pass_ignore_words_regex:
+  pass_str:
+    SELECT 123 AS "foo";
+  configs:
+    rules:
+      L059:
+        ignore_words_regex: ^fo
+
+test_pass_ignore_words_regex_mixed_case:
+  pass_str:
+    SELECT 123 AS "Foo";
+  configs:
+    rules:
+      L059:
+        ignore_words_regex: ^Fo
+
 test_pass_ignore_if:
   pass_str:
     DROP TABLE IF EXISTS "example";
@@ -310,3 +326,34 @@ test_pass_insert_overwrite_directory:
   configs:
     core:
       dialect: sparksql
+
+test_fail_quoted_column_ansi:
+  fail_str: |
+    SELECT d."date"
+    FROM d
+  fix_str: |
+    SELECT d.date
+    FROM d
+
+test_pass_quoted_column_snowflake:
+  # The rule is disabled by default in Snowflake.
+  pass_str: |
+    SELECT d."date"
+    FROM d
+  configs:
+    core:
+      dialect: snowflake
+
+test_fail_quoted_column_snowflake_force_enable:
+  fail_str: |
+    SELECT d."date"
+    FROM d
+  fix_str: |
+    SELECT d.date
+    FROM d
+  configs:
+    core:
+      dialect: snowflake
+    rules:
+      L059:
+        force_enable: true

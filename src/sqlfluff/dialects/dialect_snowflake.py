@@ -96,6 +96,13 @@ snowflake_dialect.add(
     FunctionAssignerSegment=StringParser(
         "->", SymbolSegment, name="function_assigner", type="function_assigner"
     ),
+    QuotedStarSegment=StringParser(
+        "'*'",
+        CodeSegment,
+        name="quoted_star",
+        type="identifier",
+        trim_chars=("'",),
+    ),
     NakedSemiStructuredElementSegment=RegexParser(
         r"[A-Z0-9_]*",
         CodeSegment,
@@ -136,6 +143,21 @@ snowflake_dialect.add(
         CodeSegment,
         name="warehouse_size",
         type="warehouse_size",
+    ),
+    # We use a RegexParser instead of keywords as the arguments are optionally quoted.
+    CompressionType=OneOf(
+        RegexParser(
+            r"'(AUTO|GZIP|BZ2|BROTLI|ZSTD|DEFLATE|RAW_DEFLATE|LZO|NONE|SNAPPY)'",
+            CodeSegment,
+            name="compression_type",
+            type="keyword",
+        ),
+        RegexParser(
+            r"(AUTO|GZIP|BZ2|BROTLI|ZSTD|DEFLATE|RAW_DEFLATE|LZO|NONE|SNAPPY)",
+            CodeSegment,
+            name="compression_type",
+            type="keyword",
+        ),
     ),
     ValidationModeOptionSegment=RegexParser(
         r"'?RETURN_(?:\d+_ROWS|ERRORS|ALL_ERRORS)'?",
@@ -227,6 +249,13 @@ snowflake_dialect.add(
         CodeSegment,
         name="file_type",
         type="file_type",
+    ),
+    IntegerSegment=RegexParser(
+        # An unquoted integer that can be passed as an argument to Snowflake functions.
+        r"[0-9]+",
+        CodeSegment,
+        name="integer_literal",
+        type="literal",
     ),
     GroupByContentsGrammar=Delimited(
         OneOf(
@@ -347,12 +376,6 @@ snowflake_dialect.add(
             ),
         ),
         Ref("DollarSegment", optional=True),
-    ),
-    CompressionTypeGrammar=OneOf(
-        "NONE",
-        "GZIP",
-        "DEFLATE",
-        "AUTO",
     ),
     ContextHeadersGrammar=OneOf(
         "CURRENT_ACCOUNT",
@@ -510,6 +533,18 @@ snowflake_dialect.replace(
         "QUALIFY",
         "WINDOW",
         "OVERLAPS",
+    ),
+    OrderByClauseTerminators=OneOf(
+        "LIMIT",
+        "HAVING",
+        "QUALIFY",
+        # For window functions
+        "WINDOW",
+        Ref("FrameClauseUnitGrammar"),
+        "SEPARATOR",
+        "FETCH",
+        "OFFSET",
+        "MEASURES",
     ),
     TrimParametersGrammar=Nothing(),
 )
@@ -824,10 +859,15 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CommentStatementSegment"),
             Ref("CallStatementSegment"),
             Ref("AlterViewStatementSegment"),
+            Ref("AlterMaterializedViewStatementSegment"),
             Ref("RemoveStatementSegment"),
+            Ref("DropProcedureStatementSegment"),
+            Ref("DropExternalTableStatementSegment"),
+            Ref("DropMaterializedViewStatementSegment"),
+            Ref("DropObjectStatementSegment"),
+            Ref("CreateFileFormatSegment"),
         ],
         remove=[
-            Ref("CreateTypeStatementSegment"),
             Ref("CreateIndexStatementSegment"),
             Ref("DropIndexStatementSegment"),
         ],
@@ -906,30 +946,22 @@ class FromExpressionElementSegment(ansi.FromExpressionElementSegment):
     """A table expression."""
 
     type = "from_expression_element"
-    match_grammar = StartsWith(
-        Sequence(
-            Ref("PreTableFunctionKeywordsGrammar", optional=True),
-            OptionallyBracketed(Ref("TableExpressionSegment")),
-            Ref(
-                "AliasExpressionSegment",
-                exclude=OneOf(
-                    Ref("SamplingExpressionSegment"),
-                    Ref("ChangesClauseSegment"),
-                    Ref("JoinLikeClauseGrammar"),
-                ),
-                optional=True,
+    match_grammar = Sequence(
+        Ref("PreTableFunctionKeywordsGrammar", optional=True),
+        OptionallyBracketed(Ref("TableExpressionSegment")),
+        Ref(
+            "AliasExpressionSegment",
+            exclude=OneOf(
+                Ref("SamplingExpressionSegment"),
+                Ref("ChangesClauseSegment"),
+                Ref("JoinLikeClauseGrammar"),
             ),
-            # https://cloud.google.com/bigquery/docs/reference/standard-sql/arrays#flattening_arrays
-            Sequence("WITH", "OFFSET", Ref("AliasExpressionSegment"), optional=True),
-            Ref("SamplingExpressionSegment", optional=True),
-            Ref("PostTableExpressionGrammar", optional=True),
+            optional=True,
         ),
-        terminator=OneOf(
-            Ref("JoinClauseSegment"),
-            Ref("JoinLikeClauseGrammar"),
-            Ref("JoinOnConditionSegment"),
-            Ref("CommaSegment"),
-        ),
+        # https://cloud.google.com/bigquery/docs/reference/standard-sql/arrays#flattening_arrays
+        Sequence("WITH", "OFFSET", Ref("AliasExpressionSegment"), optional=True),
+        Ref("SamplingExpressionSegment", optional=True),
+        Ref("PostTableExpressionGrammar", optional=True),
     )
 
 
@@ -1083,9 +1115,7 @@ class FromAtExpressionSegment(BaseSegment):
     """An AT expression."""
 
     type = "from_at_expression"
-    match_grammar = Sequence("AT", Bracketed(Anything()))
-
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "AT",
         Bracketed(
             OneOf("TIMESTAMP", "OFFSET", "STATEMENT"),
@@ -1744,7 +1774,7 @@ class CreateProcedureStatementSegment(BaseSegment):
         Ref("DatatypeSegment"),
         Sequence("NOT", "NULL", optional=True),
         "LANGUAGE",
-        "JAVASCRIPT",
+        OneOf("JAVASCRIPT", "SQL"),
         OneOf(
             Sequence("CALLED", "ON", "NULL", "INPUT"),
             Sequence("RETURNS", "NULL", "ON", "NULL", "INPUT"),
@@ -1784,7 +1814,7 @@ class CreateFunctionStatementSegment(BaseSegment):
         ),
         Sequence("NOT", "NULL", optional=True),
         OneOf("VOLATILE", "IMMUTABLE", optional=True),
-        Sequence("LANGUAGE", "JAVASCRIPT", optional=True),
+        Sequence("LANGUAGE", OneOf("JAVASCRIPT", "SQL"), optional=True),
         OneOf(
             Sequence("CALLED", "ON", "NULL", "INPUT"),
             Sequence("RETURNS", "NULL", "ON", "NULL", "INPUT"),
@@ -1860,7 +1890,7 @@ class AlterFunctionStatementSegment(BaseSegment):
                     Sequence(
                         "COMPRESSION",
                         Ref("EqualsSegment"),
-                        Ref("CompressionTypeGrammar"),
+                        Ref("CompressionType"),
                     ),
                     "SECURE",
                     Sequence(
@@ -1954,7 +1984,7 @@ class CreateExternalFunctionStatementSegment(BaseSegment):
         Sequence(
             "COMPRESSION",
             Ref("EqualsSegment"),
-            Ref("CompressionTypeGrammar"),
+            Ref("CompressionType"),
             optional=True,
         ),
         Sequence(
@@ -2518,10 +2548,56 @@ class CreateStatementSegment(BaseSegment):
             # Objects that also support clone
             "DATABASE",
             "SEQUENCE",
-            Sequence("FILE", "FORMAT"),
         ),
         Ref("IfNotExistsGrammar", optional=True),
         Ref("ObjectReferenceSegment"),
+        # Next set are Storage Integration statements
+        # https://docs.snowflake.com/en/sql-reference/sql/create-storage-integration.html
+        AnySetOf(
+            Sequence("TYPE", Ref("EqualsSegment"), "EXTERNAL_STAGE"),
+            Sequence("ENABLED", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
+            OneOf(
+                Ref("S3StorageIntegrationParameters"),
+                Ref("GCSStorageIntegrationParameters"),
+                Ref("AzureStorageIntegrationParameters"),
+            ),
+            Sequence(
+                "STORAGE_ALLOWED_LOCATIONS",
+                Ref("EqualsSegment"),
+                OneOf(
+                    Bracketed(
+                        Delimited(
+                            OneOf(
+                                Ref("S3Path"),
+                                Ref("GCSPath"),
+                                Ref("AzureBlobStoragePath"),
+                            )
+                        )
+                    ),
+                    Bracketed(
+                        Ref("QuotedStarSegment"),
+                    ),
+                ),
+            ),
+            Sequence(
+                "STORAGE_BLOCKED_LOCATIONS",
+                Ref("EqualsSegment"),
+                Bracketed(
+                    Delimited(
+                        OneOf(
+                            Ref("S3Path"),
+                            Ref("GCSPath"),
+                            Ref("AzureBlobStoragePath"),
+                        )
+                    )
+                ),
+            ),
+            Sequence(
+                "COMMENT",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
+        ),
         # Next set are Pipe statements
         # https://docs.snowflake.com/en/sql-reference/sql/create-pipe.html
         Sequence(
@@ -2717,6 +2793,441 @@ class AlterViewStatementSegment(BaseSegment):
     )
 
 
+class AlterMaterializedViewStatementSegment(BaseSegment):
+    """An `ALTER MATERIALIZED VIEW` statement, specifically for Snowflake's dialect.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-materialized-view.html
+    """
+
+    type = "alter_materialized_view_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "MATERIALIZED",
+        "VIEW",
+        Ref("TableReferenceSegment"),
+        OneOf(
+            Sequence("RENAME", "TO", Ref("TableReferenceSegment")),
+            Sequence("CLUSTER", "BY", Delimited(Ref("ExpressionSegment"))),
+            Sequence("DROP", "CLUSTERING", "KEY"),
+            Sequence("SUSPEND", "RECLUSTER"),
+            Sequence("RESUME", "RECLUSTER"),
+            "SUSPEND",
+            "RESUME",
+            Sequence(
+                OneOf("SET", "UNSET"),
+                OneOf(
+                    "SECURE",
+                    Ref("CommentEqualsClauseSegment"),
+                    Ref("TagEqualsSegment"),
+                ),
+            ),
+        ),
+    )
+
+
+class CreateFileFormatSegment(BaseSegment):
+    """A snowflake `CREATE FILE FORMAT` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-file-format.html
+    """
+
+    type = "create_file_format_segment"
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        Sequence("FILE", "FORMAT"),
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        # TYPE = <FILE_FORMAT> is included in below parameter segments.
+        # It is valid syntax to have TYPE = <FILE_FORMAT> after other parameters.
+        # Below parameters are either Delimited/AnyNumberOf.
+        # Snowflake does allow mixed but this is not supported.
+        # @TODO: Update below when an OptionallyDelimited Class is available.
+        OneOf(
+            Ref("CsvFileFormatTypeParameters"),
+            Ref("JsonFileFormatTypeParameters"),
+            Ref("AvroFileFormatTypeParameters"),
+            Ref("OrcFileFormatTypeParameters"),
+            Ref("ParquetFileFormatTypeParameters"),
+            Ref("XmlFileFormatTypeParameters"),
+        ),
+        Sequence(
+            # Use a Sequence and include an optional CommaSegment here.
+            # This allows a preceding comma when above parameters are delimited.
+            Ref("CommaSegment", optional=True),
+            Ref("CommentEqualsClauseSegment"),
+            optional=True,
+        ),
+    )
+
+
+class CsvFileFormatTypeParameters(BaseSegment):
+    """A Snowflake File Format Type Options segment for CSV.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-file-format.html
+    """
+
+    type = "csv_file_format_type_parameters"
+
+    _file_format_type_parameter = OneOf(
+        Sequence(
+            "TYPE",
+            Ref("EqualsSegment"),
+            OneOf(
+                StringParser(
+                    "'CSV'",
+                    CodeSegment,
+                    type="file_type",
+                ),
+                StringParser(
+                    "CSV",
+                    CodeSegment,
+                    type="file_type",
+                ),
+            ),
+        ),
+        Sequence(
+            "COMPRESSION",
+            Ref("EqualsSegment"),
+            Ref("CompressionType"),
+        ),
+        Sequence(
+            "RECORD_DELIMITER",
+            Ref("EqualsSegment"),
+            OneOf("NONE", Ref("QuotedLiteralSegment")),
+        ),
+        Sequence(
+            "FIELD_DELIMITER",
+            Ref("EqualsSegment"),
+            OneOf("NONE", Ref("QuotedLiteralSegment")),
+        ),
+        Sequence("FILE_EXTENSION", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")),
+        Sequence(
+            "SKIP_HEADER",
+            Ref("EqualsSegment"),
+            Ref("IntegerSegment"),
+        ),
+        Sequence(
+            "SKIP_BLANK_LINES", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
+        ),
+        Sequence(
+            "DATE_FORMAT",
+            Ref("EqualsSegment"),
+            OneOf("AUTO", Ref("QuotedLiteralSegment")),
+        ),
+        Sequence(
+            "TIME_FORMAT",
+            Ref("EqualsSegment"),
+            OneOf("AUTO", Ref("QuotedLiteralSegment")),
+        ),
+        Sequence(
+            "TIMESTAMP_FORMAT",
+            Ref("EqualsSegment"),
+            OneOf("AUTO", Ref("QuotedLiteralSegment")),
+        ),
+        Sequence("BINARY_FORMAT", Ref("EqualsSegment"), OneOf("HEX", "BASE64", "UTF8")),
+        Sequence("TRIM_SPACE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
+        Sequence(
+            "FIELD_OPTIONALLY_ENCLOSED_BY",
+            Ref("EqualsSegment"),
+            OneOf(
+                "NONE",
+                Ref("QuotedLiteralSegment"),
+            ),
+        ),
+        Sequence(
+            "NULL_IF",
+            Ref("EqualsSegment"),
+            Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
+        ),
+        Sequence(
+            "ERROR_ON_COLUMN_COUNT_MISMATCH",
+            Ref("EqualsSegment"),
+            Ref("BooleanLiteralGrammar"),
+        ),
+        Sequence(
+            "REPLACE_INVALID_CHARACTERS",
+            Ref("EqualsSegment"),
+            Ref("BooleanLiteralGrammar"),
+        ),
+        Sequence("VALIDATE_UTF8", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
+        Sequence(
+            "EMPTY_FIELD_AS_NULL", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
+        ),
+        Sequence(
+            "SKIP_BYTE_ORDER_MARK", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
+        ),
+        Sequence(
+            "ENCODING",
+            Ref("EqualsSegment"),
+            OneOf(
+                "UTF8",
+                Ref("QuotedLiteralSegment"),
+            ),
+        ),
+    )
+
+    match_grammar = OneOf(
+        Delimited(_file_format_type_parameter), AnyNumberOf(_file_format_type_parameter)
+    )
+
+
+class JsonFileFormatTypeParameters(BaseSegment):
+    """A Snowflake File Format Type Options segment for JSON.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-file-format.html
+    """
+
+    type = "json_file_format_type_parameters"
+
+    _file_format_type_parameter = OneOf(
+        Sequence(
+            "TYPE",
+            Ref("EqualsSegment"),
+            OneOf(
+                StringParser(
+                    "'JSON'",
+                    CodeSegment,
+                    type="file_type",
+                ),
+                StringParser(
+                    "JSON",
+                    CodeSegment,
+                    type="file_type",
+                ),
+            ),
+        ),
+        Sequence(
+            "COMPRESSION",
+            Ref("EqualsSegment"),
+            Ref("CompressionType"),
+        ),
+        Sequence(
+            "DATE_FORMAT",
+            Ref("EqualsSegment"),
+            OneOf(Ref("QuotedLiteralSegment"), "AUTO"),
+        ),
+        Sequence(
+            "TIME_FORMAT",
+            Ref("EqualsSegment"),
+            OneOf(Ref("QuotedLiteralSegment"), "AUTO"),
+        ),
+        Sequence(
+            "TIMESTAMP_FORMAT",
+            Ref("EqualsSegment"),
+            OneOf(Ref("QuotedLiteralSegment"), "AUTO"),
+        ),
+        Sequence("BINARY_FORMAT", Ref("EqualsSegment"), OneOf("HEX", "BASE64", "UTF8")),
+        Sequence("TRIM_SPACE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
+        Sequence(
+            "NULL_IF",
+            Ref("EqualsSegment"),
+            Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
+        ),
+        Sequence("FILE_EXTENSION", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")),
+        Sequence("ENABLE_OCTAL", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
+        Sequence("ALLOW_DUPLICATE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
+        Sequence(
+            "STRIP_OUTER_ARRAY", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
+        ),
+        Sequence(
+            "STRIP_NULL_VALUES", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
+        ),
+        Sequence(
+            "REPLACE_INVALID_CHARACTERS",
+            Ref("EqualsSegment"),
+            Ref("BooleanLiteralGrammar"),
+        ),
+        Sequence(
+            "IGNORE_UTF8_ERRORS", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
+        ),
+        Sequence(
+            "SKIP_BYTE_ORDER_MARK", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
+        ),
+    )
+
+    match_grammar = OneOf(
+        Delimited(_file_format_type_parameter), AnyNumberOf(_file_format_type_parameter)
+    )
+
+
+class AvroFileFormatTypeParameters(BaseSegment):
+    """A Snowflake File Format Type Options segment for AVRO.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-file-format.html
+    """
+
+    type = "avro_file_format_type_parameters"
+
+    _file_format_type_parameter = OneOf(
+        Sequence(
+            "TYPE",
+            Ref("EqualsSegment"),
+            OneOf(
+                StringParser(
+                    "'AVRO'",
+                    CodeSegment,
+                    type="file_type",
+                ),
+                StringParser(
+                    "AVRO",
+                    CodeSegment,
+                    type="file_type",
+                ),
+            ),
+        ),
+        Sequence("COMPRESSION", Ref("EqualsSegment"), Ref("CompressionType")),
+        Sequence("TRIM_SPACE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
+        Sequence(
+            "NULL_IF",
+            Ref("EqualsSegment"),
+            Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
+        ),
+    )
+
+    match_grammar = OneOf(
+        Delimited(_file_format_type_parameter), AnyNumberOf(_file_format_type_parameter)
+    )
+
+
+class OrcFileFormatTypeParameters(BaseSegment):
+    """A Snowflake File Format Type Options segment for ORC.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-file-format.html
+    """
+
+    type = "orc_file_format_type_parameters"
+
+    _file_format_type_parameter = OneOf(
+        Sequence(
+            "TYPE",
+            Ref("EqualsSegment"),
+            OneOf(
+                StringParser(
+                    "'ORC'",
+                    CodeSegment,
+                    type="file_type",
+                ),
+                StringParser(
+                    "ORC",
+                    CodeSegment,
+                    type="file_type",
+                ),
+            ),
+        ),
+        Sequence("TRIM_SPACE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
+        Sequence(
+            "NULL_IF",
+            Ref("EqualsSegment"),
+            Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
+        ),
+    )
+
+    match_grammar = OneOf(
+        Delimited(_file_format_type_parameter), AnyNumberOf(_file_format_type_parameter)
+    )
+
+
+class ParquetFileFormatTypeParameters(BaseSegment):
+    """A Snowflake File Format Type Options segment for PARQUET.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-file-format.html
+    """
+
+    type = "parquet_file_format_type_parameters"
+
+    _file_format_type_parameter = OneOf(
+        Sequence(
+            "TYPE",
+            Ref("EqualsSegment"),
+            OneOf(
+                StringParser(
+                    "'PARQUET'",
+                    CodeSegment,
+                    type="file_type",
+                ),
+                StringParser(
+                    "PARQUET",
+                    CodeSegment,
+                    type="file_type",
+                ),
+            ),
+        ),
+        Sequence(
+            "COMPRESSION",
+            Ref("EqualsSegment"),
+            Ref("CompressionType"),
+        ),
+        Sequence(
+            "SNAPPY_COMPRESSION", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
+        ),
+        Sequence("TRIM_SPACE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
+        Sequence(
+            "NULL_IF",
+            Ref("EqualsSegment"),
+            Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
+        ),
+    )
+
+    match_grammar = OneOf(
+        Delimited(_file_format_type_parameter), AnyNumberOf(_file_format_type_parameter)
+    )
+
+
+class XmlFileFormatTypeParameters(BaseSegment):
+    """A Snowflake File Format Type Options segment for XML.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-file-format.html
+    """
+
+    type = "xml_file_format_type_parameters"
+
+    _file_format_type_parameter = OneOf(
+        Sequence(
+            "TYPE",
+            Ref("EqualsSegment"),
+            OneOf(
+                StringParser(
+                    "'XML'",
+                    CodeSegment,
+                    type="file_type",
+                ),
+                StringParser(
+                    "XML",
+                    CodeSegment,
+                    type="file_type",
+                ),
+            ),
+        ),
+        Sequence(
+            "COMPRESSION",
+            Ref("EqualsSegment"),
+            Ref("CompressionType"),
+        ),
+        Sequence(
+            "IGNORE_UTF8_ERRORS", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
+        ),
+        Sequence("PRESERVE_SPACE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
+        Sequence(
+            "STRIP_OUTER_ELEMENT", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
+        ),
+        Sequence(
+            "DISABLE_SNOWFLAKE_DATA", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
+        ),
+        Sequence(
+            "DISABLE_AUTO_CONVERT", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
+        ),
+        Sequence(
+            "SKIP_BYTE_ORDER_MARK", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
+        ),
+    )
+
+    match_grammar = OneOf(
+        Delimited(_file_format_type_parameter), AnyNumberOf(_file_format_type_parameter)
+    )
+
+
 class FileFormatSegment(BaseSegment):
     """A Snowflake FILE_FORMAT Segment.
 
@@ -2736,40 +3247,14 @@ class FileFormatSegment(BaseSegment):
                     Ref("EqualsSegment"),
                     OneOf(Ref("NakedIdentifierSegment"), Ref("QuotedLiteralSegment")),
                 ),
-                Sequence(
-                    "TYPE",
-                    Ref("EqualsSegment"),
-                    Ref("FileType"),
-                    # formatTypeOptions - To Do to make this more specific
-                    Ref("FormatTypeOptionsSegment", optional=True),
+                OneOf(
+                    Ref("CsvFileFormatTypeParameters"),
+                    Ref("JsonFileFormatTypeParameters"),
+                    Ref("AvroFileFormatTypeParameters"),
+                    Ref("OrcFileFormatTypeParameters"),
+                    Ref("ParquetFileFormatTypeParameters"),
+                    Ref("XmlFileFormatTypeParameters"),
                 ),
-            ),
-        ),
-    )
-
-
-class FormatTypeOptionsSegment(BaseSegment):
-    """A snowflake `formatTypeOptions` Segment.
-
-    https://docs.snowflake.com/en/sql-reference/sql/create-table.html
-    https://docs.snowflake.com/en/sql-reference/sql/create-external-table.html
-    https://docs.snowflake.com/en/sql-reference/sql/create-stage.html
-    """
-
-    type = "format_type_options_segment"
-
-    match_grammar = AnyNumberOf(
-        # formatTypeOptions - To Do to make this more specific
-        Ref("NakedIdentifierSegment"),
-        Ref("EqualsSegment"),
-        OneOf(
-            Ref("NakedIdentifierSegment"),
-            Ref("QuotedLiteralSegment"),
-            Ref("NumericLiteralSegment"),
-            Bracketed(
-                Delimited(
-                    Ref("QuotedLiteralSegment"),
-                )
             ),
         ),
     )
@@ -2874,7 +3359,7 @@ class TableExpressionSegment(ansi.TableExpressionSegment):
         Ref("TableReferenceSegment"),
         # Nested Selects
         Bracketed(Ref("SelectableGrammar")),
-        # Values clause?
+        Ref("ValuesClauseSegment"),
         Ref("StagePath"),
     )
 
@@ -2941,6 +3426,55 @@ class StorageLocation(BaseSegment):
 
     match_grammar = OneOf(
         Ref("StagePath"), Ref("S3Path"), Ref("GCSPath"), Ref("AzureBlobStoragePath")
+    )
+
+
+class S3StorageIntegrationParameters(BaseSegment):
+    """Parameters for an S3 Storage Integration in Snowflake.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-storage-integration.html
+    """
+
+    name = "s3_storage_integration_parameters"
+    type = "storage_integration_parameters"
+
+    match_grammar = AnySetOf(
+        Sequence("STORAGE_PROVIDER", Ref("EqualsSegment"), "S3"),
+        Sequence(
+            "STORAGE_AWS_ROLE_ARN", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")
+        ),
+        Sequence(
+            "STORAGE_AWS_OBJECT_ACL",
+            Ref("EqualsSegment"),
+            StringParser("'bucket-owner-full-control'", CodeSegment, type="literal"),
+        ),
+    )
+
+
+class GCSStorageIntegrationParameters(BaseSegment):
+    """Parameters for a GCS Storage Integration in Snowflake.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-storage-integration.html
+    """
+
+    name = "gcs_storage_integration_parameters"
+    type = "storage_integration_parameters"
+
+    match_grammar = Sequence("STORAGE_PROVIDER", Ref("EqualsSegment"), "GCS")
+
+
+class AzureStorageIntegrationParameters(BaseSegment):
+    """Parameters for an Azure Storage Integration in Snowflake.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-storage-integration.html
+    """
+
+    name = "azure_storage_integration_parameters"
+    type = "storage_integration_parameters"
+
+    match_grammar = AnySetOf(
+        Sequence("STORAGE_PROVIDER", Ref("EqualsSegment"), "AZURE"),
+        Sequence("AZURE_TENANT_ID", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")),
     )
 
 
@@ -3591,10 +4125,7 @@ class AlterUserStatementSegment(BaseSegment):
 
     type = "alter_user_statement"
 
-    match_grammar = StartsWith(
-        Sequence("ALTER", "USER"),
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "ALTER",
         "USER",
         Sequence("IF", "EXISTS", optional=True),
@@ -4425,9 +4956,6 @@ class OrderByClauseSegment(ansi.OrderByClauseSegment):
     """
 
     match_grammar = ansi.OrderByClauseSegment.match_grammar.copy()
-    match_grammar.terminator = match_grammar.terminator.copy(  # type: ignore
-        insert=[Ref.keyword("FETCH"), Ref.keyword("OFFSET"), Ref.keyword("MEASURES")],
-    )
     parse_grammar = Sequence(
         "ORDER",
         "BY",
@@ -4475,7 +5003,134 @@ class RemoveStatementSegment(BaseSegment):
         Sequence(
             "PATTERN",
             Ref("EqualsSegment"),
-            Ref("QuotedLiteralSegment"),
+            OneOf(Ref("QuotedLiteralSegment"), Ref("ReferencedVariableNameSegment")),
             optional=True,
+        ),
+    )
+
+
+class DropProcedureStatementSegment(BaseSegment):
+    """A snowflake `DROP PROCEDURE ...` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/drop-procedure.html
+    """
+
+    type = "drop_procedure_statement"
+    match_grammar = Sequence(
+        "DROP",
+        "PROCEDURE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("FunctionNameSegment"),
+        Ref("FunctionParameterListGrammar"),
+    )
+
+
+class DropExternalTableStatementSegment(BaseSegment):
+    """A snowflake `DROP EXTERNAL TABLE ...` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/drop-external-table.html
+    """
+
+    type = "drop_external_table_statement"
+    match_grammar = Sequence(
+        "DROP",
+        "EXTERNAL",
+        "TABLE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        Ref("DropBehaviorGrammar", optional=True),
+    )
+
+
+class DropFunctionStatementSegment(BaseSegment):
+    """A `DROP FUNCTION` statement."""
+
+    type = "drop_function_statement"
+
+    match_grammar = Sequence(
+        "DROP",
+        Ref.keyword("EXTERNAL", optional=True),
+        "FUNCTION",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("FunctionNameSegment"),
+        Ref("FunctionParameterListGrammar"),
+    )
+
+
+class DropMaterializedViewStatementSegment(BaseSegment):
+    """A snowflake `DROP MATERIALIZED VIEW ...` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/drop-materialized-view.html
+    """
+
+    type = "drop_materialized_view_statement"
+    match_grammar = Sequence(
+        "DROP",
+        "MATERIALIZED",
+        "VIEW",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+    )
+
+
+class DropObjectStatementSegment(BaseSegment):
+    """A snowflake `DROP <object> ...` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/drop.html
+    """
+
+    type = "drop_object_statement"
+    match_grammar = Sequence(
+        "DROP",
+        OneOf(
+            Sequence(
+                OneOf(
+                    "CONNECTION",
+                    Sequence("FILE", "FORMAT"),
+                    Sequence(
+                        OneOf(
+                            "API", "NOTIFICATION", "SECURITY", "STORAGE", optional=True
+                        ),
+                        "INTEGRATION",
+                    ),
+                    "PIPE",
+                    Sequence("ROW", "ACCESS", "POLICY"),
+                    "STAGE",
+                    "STREAM",
+                    "TAG",
+                    "TASK",
+                ),
+                Ref("IfExistsGrammar", optional=True),
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                OneOf(Sequence("RESOURCE", "MONITOR"), "SHARE"),
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                OneOf(
+                    Sequence("MANAGED", "ACCOUNT"),
+                    Sequence("MASKING", "POLICY"),
+                ),
+                Ref("SingleIdentifierGrammar"),
+            ),
+            Sequence(
+                OneOf(
+                    Sequence("NETWORK", "POLICY"),
+                ),
+                Ref("IfExistsGrammar", optional=True),
+                Ref("SingleIdentifierGrammar"),
+            ),
+            Sequence(
+                OneOf("WAREHOUSE", Sequence("SESSION", "POLICY")),
+                Ref("IfExistsGrammar", optional=True),
+                Ref("SingleIdentifierGrammar"),
+            ),
+            Sequence(
+                "SEQUENCE",
+                Ref("IfExistsGrammar", optional=True),
+                Ref("ObjectReferenceSegment"),
+                Ref("DropBehaviorGrammar", optional=True),
+            ),
         ),
     )

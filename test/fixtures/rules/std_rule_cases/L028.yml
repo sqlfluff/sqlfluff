@@ -270,3 +270,25 @@ test_pass_tsql_pivot:
   configs:
     core:
       dialect: tsql
+
+test_unfixable_ambiguous_reference_subquery:
+  fail_str: |
+    SELECT (
+        SELECT other_table.other_table_field_1
+        FROM other_table
+        WHERE other_table.id = field_2
+    )
+    FROM
+        (SELECT * FROM some_table) AS my_alias
+
+test_pass_snowflake_flatten_function:
+  # Tests a fix for issue 3178. This query passes because the second column
+  # could refer to either 'r' or the table returned by FLATTEN().
+  pass_str: |
+    SELECT
+        r.rec:foo::string,
+        value:bar::string
+    FROM foo.bar AS r, LATERAL FLATTEN(input => rec:result)
+  configs:
+    core:
+      dialect: snowflake

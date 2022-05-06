@@ -1,8 +1,10 @@
 """Implementation of Rule L045."""
 from sqlfluff.core.rules.base import BaseRule, EvalResultType, LintResult, RuleContext
 from sqlfluff.core.rules.analysis.select_crawler import Query, SelectCrawler
+from sqlfluff.core.rules.doc_decorators import document_groups
 
 
+@document_groups
 class Rule_L045(BaseRule):
     """Query defines a CTE (common-table expression) but does not use it.
 
@@ -39,6 +41,8 @@ class Rule_L045(BaseRule):
         SELECT *
         FROM cte1
     """
+
+    groups = ("all", "core")
 
     @classmethod
     def _visit_sources(cls, query: Query):

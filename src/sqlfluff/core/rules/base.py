@@ -20,7 +20,17 @@ import fnmatch
 import logging
 import pathlib
 import regex
-from typing import cast, Iterable, Iterator, Optional, List, Set, Tuple, Union, Any
+from typing import (
+    cast,
+    Iterable,
+    Iterator,
+    Optional,
+    List,
+    Set,
+    Tuple,
+    Union,
+    Any,
+)
 from collections import namedtuple
 from dataclasses import dataclass, field
 
@@ -258,51 +268,54 @@ class LintFix:
         """Create edit segments after the supplied anchor segment."""
         return cls("create_after", anchor_segment, edit_segments, source)
 
-    def has_template_conflicts(self, templated_file: TemplatedFile) -> bool:
-        """Does this fix conflict with (i.e. touch) templated code?"""
+    def get_fix_slices(
+        self, templated_file: TemplatedFile, within_only: bool
+    ) -> Set[RawFileSlice]:
+        """Returns slices touched by the fix."""
         # Goal: Find the raw slices touched by the fix. Two cases, based on
         # edit type:
-        # 1. "delete", "replace": Raw slices touching the anchor segment. If
-        #    ANY are templated, discard the fix.
+        # 1. "delete", "replace": Raw slices touching the anchor segment.
         # 2. "create_before", "create_after": Raw slices encompassing the two
         #    character positions surrounding the insertion point (**NOT** the
         #    whole anchor segment, because we're not *touching* the anchor
-        #    segment, we're inserting **RELATIVE** to it. If ALL are templated,
-        #    discard the fix.
+        #    segment, we're inserting **RELATIVE** to it.
         assert self.anchor.pos_marker
         anchor_slice = self.anchor.pos_marker.templated_slice
         templated_slices = [anchor_slice]
-        check_fn = any
 
+        # If "within_only" is set for a "create_*" fix, the slice should only
+        # include the area of code "within" the area of insertion, not the other
+        # side.
+        adjust_boundary = 1 if not within_only else 0
         if self.edit_type == "create_before":
             # Consider the first position of the anchor segment and the
             # position just before it.
             templated_slices = [
-                slice(anchor_slice.start, anchor_slice.start + 1),
-                slice(anchor_slice.start - 1, anchor_slice.start),
+                slice(anchor_slice.start - 1, anchor_slice.start + adjust_boundary),
             ]
-            check_fn = all
         elif self.edit_type == "create_after":
             # Consider the last position of the anchor segment and the
             # character just after it.
             templated_slices = [
-                slice(anchor_slice.stop - 1, anchor_slice.stop),
-                slice(anchor_slice.stop, anchor_slice.stop + 1),
+                slice(anchor_slice.stop - adjust_boundary, anchor_slice.stop + 1),
             ]
-            check_fn = all
         # TRICKY: For creations at the end of the file, there won't be an
         # existing slice. In this case, the function adds file_end_slice to the
         # result, as a sort of placeholder or sentinel value. We pass a literal
         # slice for "file_end_slice" so that later in this function, the LintFix
         # is interpreted as literal code. Otherwise, it could be interpreted as
         # a fix to *templated* code and incorrectly discarded.
-        fix_slices = self._raw_slices_from_templated_slices(
+        return self._raw_slices_from_templated_slices(
             templated_file,
             templated_slices,
             file_end_slice=RawFileSlice("", "literal", -1),
         )
 
-        # We have the fix slices. Now check for conflicts.
+    def has_template_conflicts(self, templated_file: TemplatedFile) -> bool:
+        """Based on the fix slices, should we discard the fix?"""
+        # Given fix slices, check for conflicts.
+        check_fn = all if self.edit_type in ("create_before", "create_after") else any
+        fix_slices = self.get_fix_slices(templated_file, within_only=False)
         result = check_fn(fs.slice_type == "templated" for fs in fix_slices)
         if result or not self.source:
             return result
@@ -660,7 +673,7 @@ class BaseRule:
             new_lerrs: List[SQLLintError] = []
             new_fixes: List[LintFix] = []
 
-            if res is None:
+            if res is None or res == []:
                 # Assume this means no problems (also means no memory)
                 pass
             elif isinstance(res, LintResult):
@@ -803,7 +816,7 @@ class BaseRule:
         target_tuples: List[Tuple[str, str]],
         parent: Optional[BaseSegment] = None,
     ):
-        """Does the given segment match any of the given type tuples."""
+        """Does the given segment match any of the given type tuples?"""
         if seg.name in [elem[1] for elem in target_tuples if elem[0] == "name"]:
             return True
         elif seg.is_type(*[elem[1] for elem in target_tuples if elem[0] == "type"]):
@@ -839,17 +852,7 @@ class BaseRule:
         if not lint_result.fixes or not templated_file:
             return
 
-        # Get the set of slices touched by any of the fixes.
-        fix_slices: Set[RawFileSlice] = set()
-        for fix in lint_result.fixes:
-            if fix.anchor:
-                assert fix.anchor.pos_marker
-                fix_slices.update(
-                    templated_file.raw_slices_spanning_source_slice(
-                        fix.anchor.pos_marker.source_slice
-                    )
-                )
-
+        # Check for fixes that touch templated code.
         for fix in lint_result.fixes:
             if fix.has_template_conflicts(templated_file):
                 linter_logger.info(
@@ -858,6 +861,25 @@ class BaseRule:
                 )
                 lint_result.fixes = []
                 return
+
+        # Issue 3079: Fixes that span multiple template blocks are bad. Don't
+        # permit them.
+        block_indices: Set[int] = set()
+        for fix in lint_result.fixes:
+            fix_slices = fix.get_fix_slices(templated_file, within_only=True)
+            for fix_slice in fix_slices:
+                # Ignore fix slices that exist only in the source. For purposes
+                # of this check, it's not meaningful to say that a fix "touched"
+                # one of these.
+                if not fix_slice.is_source_only_slice():
+                    block_indices.add(fix_slice.block_idx)
+        if len(block_indices) > 1:
+            linter_logger.info(
+                "      * Discarding fixes that span multiple template blocks: %s",
+                lint_result.fixes,
+            )
+            lint_result.fixes = []
+            return
 
     @classmethod
     def _adjust_anchors_for_fixes(cls, context, lint_result):
@@ -1055,10 +1077,44 @@ class RuleSet:
                     code, self.name
                 )
             )
-        self._register[code] = dict(code=code, description=description, cls=cls)
+
+        try:
+            assert (
+                "all" in cls.groups
+            ), "Rule {!r} must belong to the 'all' group".format(code)
+            groups = cls.groups
+        except AttributeError as attr_err:
+
+            raise AttributeError(
+                (
+                    "Rule {!r} doesn't belong to any rule groups. "
+                    "All rules must belong to at least one group"
+                ).format(code)
+            ) from attr_err
+
+        self._register[code] = dict(
+            code=code, description=description, groups=groups, cls=cls
+        )
 
         # Make sure we actually return the original class
         return cls
+
+    def _expand_config_rule_group_list(
+        self, rule_list: List[str], valid_groups: Set[str]
+    ) -> List[str]:
+        expanded_rule_list: List[str] = []
+        for r in rule_list:
+            if r in valid_groups:
+                rules_in_group = [
+                    rule
+                    for rule, rule_dict in self._register.items()
+                    if r in rule_dict["groups"]
+                ]
+                expanded_rule_list.extend(rules_in_group)
+            else:
+                expanded_rule_list.extend(r)
+
+        return expanded_rule_list
 
     def _expand_config_rule_glob_list(self, glob_list: List[str]) -> List[str]:
         """Expand a list of rule globs into a list of rule codes.
@@ -1091,12 +1147,20 @@ class RuleSet:
         """
         # Validate all generic rule configs
         self._validate_config_options(config)
+        # Find all valid groups for ruleset
+        valid_groups: Set[str] = set(
+            [group for attrs in self._register.values() for group in attrs["groups"]]
+        )
         # default the allowlist to all the rules if not set
         allowlist = config.get("rule_allowlist") or list(self._register.keys())
         denylist = config.get("rule_denylist") or []
+        valid_rules_and_groups = list(self._register) + list(valid_groups)
 
         allowlisted_unknown_rule_codes = [
-            r for r in allowlist if not fnmatch.filter(self._register, r)
+            r
+            for r in allowlist
+            # Add valid groups to the register when searching for invalid rules _only_
+            if not fnmatch.filter(valid_rules_and_groups, r)
         ]
         if any(allowlisted_unknown_rule_codes):
             rules_logger.warning(
@@ -1106,7 +1170,9 @@ class RuleSet:
             )
 
         denylisted_unknown_rule_codes = [
-            r for r in denylist if not fnmatch.filter(self._register, r)
+            r
+            for r in denylist
+            if not fnmatch.filter({**self._register, **dict.fromkeys(valid_groups)}, r)
         ]
         if any(denylisted_unknown_rule_codes):  # pragma: no cover
             rules_logger.warning(
@@ -1118,8 +1184,12 @@ class RuleSet:
         keylist = sorted(self._register.keys())
 
         # First we expand the allowlist and denylist globs
-        expanded_allowlist = self._expand_config_rule_glob_list(allowlist)
-        expanded_denylist = self._expand_config_rule_glob_list(denylist)
+        expanded_allowlist = self._expand_config_rule_glob_list(
+            allowlist
+        ) + self._expand_config_rule_group_list(allowlist, valid_groups)
+        expanded_denylist = self._expand_config_rule_glob_list(
+            denylist
+        ) + self._expand_config_rule_group_list(denylist, valid_groups)
 
         # Then we filter the rules
         keylist = [

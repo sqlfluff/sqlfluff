@@ -3,9 +3,10 @@ from typing import List, Optional
 
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
-from sqlfluff.core.rules.doc_decorators import document_fix_compatible
+from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
 
 
+@document_groups
 @document_fix_compatible
 class Rule_L034(BaseRule):
     """Select wildcards then simple targets before calculations and aggregates.
@@ -36,6 +37,8 @@ class Rule_L034(BaseRule):
         from x
 
     """
+
+    groups = ("all",)
 
     def _validate(self, i: int, segment: BaseSegment) -> None:
         # Check if we've seen a more complex select target element already

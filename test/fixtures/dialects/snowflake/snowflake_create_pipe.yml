@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 84269561a9f5f2478599502da3e4c4cb283d48fa6f36d1b8cde2393eabe64b09
+_hash: 7b5eeee5a29eb28bb18e4bc4ee1e16652629475bdf4743ccf56b6faa30bb14a8
 file:
   statement:
     create_statement:
@@ -40,9 +40,10 @@ file:
       - file_format_segment:
           bracketed:
             start_bracket: (
-            keyword: type
-            comparison_operator:
-              raw_comparison_operator: '='
-            file_type: "'JSON'"
+            json_file_format_type_parameters:
+              keyword: type
+              comparison_operator:
+                raw_comparison_operator: '='
+              file_type: "'JSON'"
             end_bracket: )
   statement_terminator: ;

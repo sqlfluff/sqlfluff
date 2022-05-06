@@ -362,7 +362,6 @@ postgres_dialect.replace(
     ColumnReferenceSegment=Sequence(
         ansi.ColumnReferenceSegment,
         Ref("ArrayAccessorSegment", optional=True),
-        Ref("TimeZoneGrammar", optional=True),
     ),
     # Postgres supports the non-standard ISNULL and NONNULL comparison operators. See
     # https://www.postgresql.org/docs/14/functions-comparison.html
@@ -400,6 +399,21 @@ postgres_dialect.replace(
         "WINDOW",
         "OVERLAPS",
         "RETURNING",
+    ),
+    OrderByClauseTerminators=OneOf(
+        "LIMIT",
+        "HAVING",
+        "QUALIFY",
+        # For window functions
+        "WINDOW",
+        Ref("FrameClauseUnitGrammar"),
+        "SEPARATOR",
+        Sequence("WITH", "DATA"),
+    ),
+    Accessor_Grammar=AnyNumberOf(
+        Ref("ArrayAccessorSegment"),
+        # Add in semi structured expressions
+        Ref("SemiStructuredAccessorSegment"),
     ),
 )
 
@@ -515,13 +529,12 @@ class DateTimeTypeIdentifier(BaseSegment):
 
 
 class DateTimeLiteralGrammar(BaseSegment):
-    """Literal Date Time with optional casting to Time Zone."""
+    """Literal Date Time."""
 
     type = "datetime_literal"
     match_grammar = Sequence(
         Ref("DateTimeTypeIdentifier"),
         Ref("QuotedLiteralSegment"),
-        Ref("TimeZoneGrammar", optional=True),
     )
 
 
@@ -541,10 +554,7 @@ class DatatypeSegment(ansi.DatatypeSegment):
         ),
         OneOf(
             Ref("WellKnownTextGeometrySegment"),
-            Sequence(
-                Ref("DateTimeTypeIdentifier"),
-                Ref("TimeZoneGrammar", optional=True),
-            ),
+            Ref("DateTimeTypeIdentifier"),
             Sequence(
                 OneOf(
                     # numeric types
@@ -659,14 +669,6 @@ class CreateFunctionStatementSegment(ansi.CreateFunctionStatementSegment):
         Sequence("OR", "REPLACE", optional=True),
         Ref("TemporaryGrammar", optional=True),
         "FUNCTION",
-        Anything(),
-    )
-
-    parse_grammar = Sequence(
-        "CREATE",
-        Sequence("OR", "REPLACE", optional=True),
-        Ref("TemporaryGrammar", optional=True),
-        "FUNCTION",
         Sequence("IF", "NOT", "EXISTS", optional=True),
         Ref("FunctionNameSegment"),
         Ref("FunctionParameterListGrammar"),
@@ -730,9 +732,7 @@ class AlterFunctionStatementSegment(BaseSegment):
 
     type = "alter_function_statement"
 
-    match_grammar = StartsWith(Sequence("ALTER", "FUNCTION"))
-
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "ALTER",
         "FUNCTION",
         Delimited(
@@ -900,6 +900,27 @@ class WellKnownTextGeometrySegment(BaseSegment):
     )
 
 
+class SemiStructuredAccessorSegment(BaseSegment):
+    """A semi-structured data accessor segment."""
+
+    type = "semi_structured_expression"
+    match_grammar = Sequence(
+        Ref("DotSegment"),
+        Ref("SingleIdentifierGrammar"),
+        Ref("ArrayAccessorSegment", optional=True),
+        AnyNumberOf(
+            Sequence(
+                Ref("DotSegment"),
+                Ref("SingleIdentifierGrammar"),
+                allow_gaps=True,
+            ),
+            Ref("ArrayAccessorSegment", optional=True),
+            allow_gaps=True,
+        ),
+        allow_gaps=True,
+    )
+
+
 class FunctionDefinitionGrammar(ansi.FunctionDefinitionGrammar):
     """This is the body of a `CREATE FUNCTION AS` statement.
 
@@ -1017,7 +1038,7 @@ class SelectClauseSegment(ansi.SelectClauseSegment):
     """Overrides ANSI to allow INTO as a terminator."""
 
     match_grammar = StartsWith(
-        Sequence("SELECT", Ref("WildcardExpressionSegment", optional=True)),
+        "SELECT",
         terminator=OneOf(
             "INTO",
             "FROM",
@@ -1036,11 +1057,6 @@ class SelectClauseModifierSegment(ansi.SelectClauseModifierSegment):
     """Things that come after SELECT but before the columns."""
 
     match_grammar = OneOf(
-        Sequence("DISTINCT", Sequence("ON", Bracketed(Anything()), optional=True)),
-        "ALL",
-    )
-
-    parse_grammar = OneOf(
         Sequence(
             "DISTINCT",
             Sequence(
@@ -1773,7 +1789,7 @@ class DropExtensionStatementSegment(BaseSegment):
     match_grammar: Matchable = Sequence(
         "DROP",
         "EXTENSION",
-        Ref("IfNotExistsGrammar", optional=True),
+        Ref("IfExistsGrammar", optional=True),
         Ref("ExtensionReferenceSegment"),
         OneOf("CASCADE", "RESTRICT", optional=True),
     )
@@ -1787,9 +1803,7 @@ class CreateMaterializedViewStatementSegment(BaseSegment):
 
     type = "create_materialized_view_statement"
 
-    match_grammar = StartsWith(Sequence("CREATE", "MATERIALIZED", "VIEW"))
-
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "CREATE",
         "MATERIALIZED",
         "VIEW",
@@ -1834,9 +1848,7 @@ class AlterMaterializedViewStatementSegment(BaseSegment):
 
     type = "alter_materialized_view_statement"
 
-    match_grammar = StartsWith(Sequence("ALTER", "MATERIALIZED", "VIEW"))
-
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "ALTER",
         "MATERIALIZED",
         "VIEW",
@@ -1962,9 +1974,7 @@ class RefreshMaterializedViewStatementSegment(BaseSegment):
 
     type = "refresh_materialized_view_statement"
 
-    match_grammar = StartsWith(Sequence("REFRESH", "MATERIALIZED", "VIEW"))
-
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "REFRESH",
         "MATERIALIZED",
         "VIEW",
@@ -1982,9 +1992,7 @@ class DropMaterializedViewStatementSegment(BaseSegment):
 
     type = "drop_materialized_view_statement"
 
-    match_grammar = StartsWith(Sequence("DROP", "MATERIALIZED", "VIEW"))
-
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "DROP",
         "MATERIALIZED",
         "VIEW",
@@ -2002,9 +2010,7 @@ class AlterViewStatementSegment(BaseSegment):
 
     type = "alter_view_statement"
 
-    match_grammar = StartsWith(Sequence("ALTER", "VIEW"))
-
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "ALTER",
         "VIEW",
         Ref("IfExistsGrammar", optional=True),
@@ -2076,9 +2082,7 @@ class CreateDatabaseStatementSegment(ansi.CreateDatabaseStatementSegment):
     As specified in https://www.postgresql.org/docs/14/sql-createdatabase.html
     """
 
-    match_grammar = StartsWith(Sequence("CREATE", "DATABASE"))
-
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "CREATE",
         "DATABASE",
         Ref("DatabaseReferenceSegment"),
@@ -2153,9 +2157,7 @@ class AlterDatabaseStatementSegment(BaseSegment):
 
     type = "alter_database_statement"
 
-    match_grammar = StartsWith(Sequence("ALTER", "DATABASE"))
-
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "ALTER",
         "DATABASE",
         Ref("DatabaseReferenceSegment"),
@@ -2208,9 +2210,7 @@ class DropDatabaseStatementSegment(ansi.DropDatabaseStatementSegment):
     As specified in https://www.postgresql.org/docs/14/sql-dropdatabase.html
     """
 
-    match_grammar = StartsWith(Sequence("DROP", "DATABASE"))
-
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "DROP",
         "DATABASE",
         Sequence("IF", "EXISTS", optional=True),
@@ -2653,8 +2653,7 @@ class CommentOnStatementSegment(BaseSegment):
 
     type = "comment_on_statement"
 
-    match_grammar = StartsWith(Sequence("COMMENT", "ON"))
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "COMMENT",
         "ON",
         Sequence(
@@ -3148,6 +3147,9 @@ class StatementSegment(ansi.StatementSegment):
             Ref("SetStatementSegment"),
             Ref("CreatePolicyStatementSegment"),
             Ref("DropPolicyStatementSegment"),
+            Ref("CreateDomainStatementSegment"),
+            Ref("AlterDomainStatementSegment"),
+            Ref("DropDomainStatementSegment"),
             Ref("CreateMaterializedViewStatementSegment"),
             Ref("AlterMaterializedViewStatementSegment"),
             Ref("DropMaterializedViewStatementSegment"),
@@ -3171,6 +3173,8 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterRoleStatementSegment"),
             Ref("CreateExtensionStatementSegment"),
             Ref("DropExtensionStatementSegment"),
+            Ref("CreateTypeStatementSegment"),
+            Ref("AlterTypeStatementSegment"),
         ],
     )
 
@@ -3255,9 +3259,7 @@ class AlterTriggerStatementSegment(BaseSegment):
 
     type = "alter_trigger"
 
-    match_grammar = Sequence("ALTER", "TRIGGER", Anything())
-
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "ALTER",
         "TRIGGER",
         Ref("TriggerReferenceSegment"),
@@ -3282,9 +3284,7 @@ class DropTriggerStatementSegment(ansi.DropTriggerStatementSegment):
     As Specified in https://www.postgresql.org/docs/14/sql-droptrigger.html
     """
 
-    match_grammar = Sequence("DROP", "TRIGGER", Anything())
-
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "DROP",
         "TRIGGER",
         Sequence("IF", "EXISTS", optional=True),
@@ -3424,8 +3424,7 @@ class InsertStatementSegment(ansi.InsertStatementSegment):
     https://www.postgresql.org/docs/14/sql-insert.html
     """
 
-    match_grammar = ansi.InsertStatementSegment.match_grammar
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "INSERT",
         "INTO",
         Ref("TableReferenceSegment"),
@@ -3508,8 +3507,7 @@ class CreatePolicyStatementSegment(BaseSegment):
     """
 
     type = "create_policy_statement"
-    match_grammar = StartsWith(Sequence("CREATE", "POLICY"))
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "CREATE",
         "POLICY",
         Ref("ObjectReferenceSegment"),
@@ -3537,6 +3535,130 @@ class CreatePolicyStatementSegment(BaseSegment):
     )
 
 
+class CreateDomainStatementSegment(BaseSegment):
+    """A `CREATE Domain` statement.
+
+    As Specified in https://www.postgresql.org/docs/current/sql-createdomain.html
+    """
+
+    type = "create_domain_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        "DOMAIN",
+        Ref("ObjectReferenceSegment"),
+        Sequence("AS", optional=True),
+        Ref("DatatypeSegment"),
+        Sequence("COLLATE", Ref("ObjectReferenceSegment"), optional=True),
+        Sequence("DEFAULT", Ref("ExpressionSegment"), optional=True),
+        Sequence(
+            Sequence(
+                "CONSTRAINT",
+                Ref("ObjectReferenceSegment"),
+                optional=True,
+            ),
+            OneOf(
+                Sequence(Ref.keyword("NOT", optional=True), "NULL"),
+                Sequence("CHECK", Ref("ExpressionSegment")),
+            ),
+            optional=True,
+        ),
+    )
+
+
+class AlterDomainStatementSegment(BaseSegment):
+    """An `ALTER DOMAIN` statement.
+
+    As Specified in https://www.postgresql.org/docs/current/sql-alterdomain.html
+    """
+
+    type = "alter_domain_statement"
+    match_grammar: Matchable = Sequence(
+        "ALTER",
+        "DOMAIN",
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Sequence(
+                "SET",
+                "DEFAULT",
+                Ref("ExpressionSegment"),
+            ),
+            Sequence(
+                "DROP",
+                "DEFAULT",
+            ),
+            Sequence(OneOf("SET", "DROP"), "NOT", "NULL"),
+            Sequence(
+                "ADD",
+                Sequence(
+                    "CONSTRAINT",
+                    Ref("ObjectReferenceSegment"),
+                    optional=True,
+                ),
+                OneOf(
+                    Sequence(Ref.keyword("NOT", optional=True), "NULL"),
+                    Sequence("CHECK", Ref("ExpressionSegment")),
+                ),
+                Sequence("NOT", "VALID", optional=True),
+            ),
+            Sequence(
+                "DROP",
+                "CONSTRAINT",
+                Ref("IfExistsGrammar", optional=True),
+                Ref("ObjectReferenceSegment"),
+                OneOf("RESTRICT", "CASCADE", optional=True),
+            ),
+            Sequence(
+                "RENAME",
+                "CONSTRAINT",
+                Ref("ObjectReferenceSegment"),
+                "TO",
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "VALIDATE",
+                "CONSTRAINT",
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "OWNER",
+                "TO",
+                OneOf(
+                    Ref("ObjectReferenceSegment"),
+                    "CURRENT_ROLE",
+                    "CURRENT_USER",
+                    "SESSION_USER",
+                ),
+            ),
+            Sequence(
+                "RENAME",
+                "TO",
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "SET",
+                "SCHEMA",
+                Ref("ObjectReferenceSegment"),
+            ),
+        ),
+    )
+
+
+class DropDomainStatementSegment(BaseSegment):
+    """Drop Domain Statement.
+
+    As Specified in https://www.postgresql.org/docs/current/sql-dropdomain.html
+    """
+
+    type = "drop_domain_statement"
+    match_grammar = Sequence(
+        "DROP",
+        "DOMAIN",
+        Ref("IfExistsGrammar", optional=True),
+        Delimited(Ref("ObjectReferenceSegment")),
+        Ref("DropBehaviorGrammar", optional=True),
+    )
+
+
 class DropPolicyStatementSegment(BaseSegment):
     """A `DROP POLICY` statement.
 
@@ -3544,8 +3666,7 @@ class DropPolicyStatementSegment(BaseSegment):
     """
 
     type = "drop_policy_statement"
-    match_grammar = StartsWith(Sequence("DROP", "POLICY"))
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "DROP",
         "POLICY",
         Ref("IfExistsGrammar", optional=True),
@@ -3865,8 +3986,7 @@ class DeleteStatementSegment(ansi.DeleteStatementSegment):
     https://www.postgresql.org/docs/14/sql-delete.html
     """
 
-    match_grammar = ansi.DeleteStatementSegment.match_grammar
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "DELETE",
         "FROM",
         Ref.keyword("ONLY", optional=True),
@@ -3902,5 +4022,151 @@ class DeleteStatementSegment(ansi.DeleteStatementSegment):
                 ),
             ),
             optional=True,
+        ),
+    )
+
+
+class SetClauseSegment(BaseSegment):
+    """SQL 1992 set clause.
+
+    <set clause> ::=
+              <object column> <equals operator> <update source>
+
+         <update source> ::=
+                <value expression>
+              | <null specification>
+              | DEFAULT
+
+         <object column> ::= <column name>
+    """
+
+    type = "set_clause"
+
+    match_grammar: Matchable = Sequence(
+        OneOf(
+            Sequence(
+                Ref("ColumnReferenceSegment"),
+                Ref("EqualsSegment"),
+                OneOf(
+                    Ref("LiteralGrammar"),
+                    Ref("BareFunctionSegment"),
+                    Ref("FunctionSegment"),
+                    Ref("ColumnReferenceSegment"),
+                    Ref("ExpressionSegment"),
+                    "DEFAULT",
+                ),
+                AnyNumberOf(Ref("ShorthandCastSegment")),
+            ),
+            Sequence(
+                Bracketed(
+                    Delimited(
+                        Ref("ColumnReferenceSegment"),
+                    ),
+                ),
+                Ref("EqualsSegment"),
+                Bracketed(
+                    Delimited(
+                        Sequence(
+                            OneOf(
+                                Ref("LiteralGrammar"),
+                                Ref("BareFunctionSegment"),
+                                Ref("FunctionSegment"),
+                                Ref("ColumnReferenceSegment"),
+                                Ref("ExpressionSegment"),
+                                "DEFAULT",
+                            ),
+                            AnyNumberOf(Ref("ShorthandCastSegment")),
+                        ),
+                    ),
+                ),
+            ),
+        ),
+    )
+
+
+class UpdateStatementSegment(BaseSegment):
+    """An `Update` statement.
+
+    https://www.postgresql.org/docs/current/sql-update.html
+    """
+
+    type = "update_statement"
+    match_grammar: Matchable = Sequence(
+        # TODO add [ WITH [ RECURSIVE ] with_query [, ...] ]
+        "UPDATE",
+        Ref.keyword("ONLY", optional=True),
+        Ref("TableReferenceSegment"),
+        # SET is not a resevered word in all dialects (e.g. RedShift)
+        # So specifically exclude as an allowed implict alias to avoid parsing errors
+        Ref("AliasExpressionSegment", exclude=Ref.keyword("SET"), optional=True),
+        Ref("SetClauseListSegment"),
+        Ref("FromClauseSegment", optional=True),
+        OneOf(
+            Sequence("WHERE", "CURRENT", "OF", Ref("ObjectReferenceSegment")),
+            Ref("WhereClauseSegment"),
+            optional=True,
+        ),
+        Sequence(
+            "RETURNING",
+            OneOf(
+                Ref("StarSegment"),
+                Delimited(
+                    Ref("ExpressionSegment"),
+                    Ref("AliasExpressionSegment", optional=True),
+                ),
+            ),
+            optional=True,
+        ),
+    )
+
+
+class CreateTypeStatementSegment(BaseSegment):
+    """A `CREATE TYPE` statement.
+
+    https://www.postgresql.org/docs/current/sql-createtype.html
+    """
+
+    type = "create_type_statement"
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        "TYPE",
+        Ref("ObjectReferenceSegment"),
+        Sequence("AS", OneOf("ENUM", "RANGE", optional=True), optional=True),
+        Bracketed(Delimited(Anything()), optional=True),
+    )
+
+
+class AlterTypeStatementSegment(BaseSegment):
+    """An `ALTER TYPE` statement.
+
+    https://www.postgresql.org/docs/current/sql-createtype.html
+    """
+
+    type = "alter_type_statement"
+    match_grammar: Matchable = Sequence(
+        "ALTER",
+        "TYPE",
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Sequence(
+                "OWNER",
+                "TO",
+                OneOf(
+                    "CURRENT_USER",
+                    "SESSION_USER",
+                    "CURRENT_ROLE",
+                    Ref("ObjectReferenceSegment"),
+                ),
+            ),
+            Sequence(
+                "RENAME",
+                "TO",
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "SET",
+                "SCHEMA",
+                Ref("SchemaReferenceSegment"),
+            ),
         ),
     )

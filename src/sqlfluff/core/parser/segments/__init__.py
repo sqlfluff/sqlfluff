@@ -5,6 +5,7 @@ from sqlfluff.core.parser.segments.base import (
     BaseFileSegment,
     UnparsableSegment,
     BracketedSegment,
+    IdentitySet,
 )
 from sqlfluff.core.parser.segments.generator import SegmentGenerator
 from sqlfluff.core.parser.segments.raw import (
@@ -45,4 +46,5 @@ __all__ = (
     "Indent",
     "Dedent",
     "TemplateSegment",
+    "IdentitySet",
 )

@@ -5,12 +5,14 @@ from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
+    document_groups,
 )
 import sqlfluff.core.rules.functional.segment_predicates as sp
 
 
-@document_configuration
+@document_groups
 @document_fix_compatible
+@document_configuration
 class Rule_L047(BaseRule):
     """Use consistent syntax to express "count number of rows".
 
@@ -57,6 +59,7 @@ class Rule_L047(BaseRule):
 
     """
 
+    groups = ("all", "core")
     config_keywords = ["prefer_count_1", "prefer_count_0"]
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:

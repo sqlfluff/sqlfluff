@@ -189,7 +189,7 @@ ansi_dialect.sets("bracket_pairs").update(
 )
 
 # Set the value table functions. These are functions that, if they appear as
-# an item in "FROM', are treated as returning a COLUMN, not a TABLE. Apparently,
+# an item in "FROM", are treated as returning a COLUMN, not a TABLE. Apparently,
 # among dialects supported by SQLFluff, only BigQuery has this concept, but this
 # set is defined in the ANSI dialect because:
 # - It impacts core linter rules (see L020 and several other rules that subclass
@@ -375,6 +375,7 @@ ansi_dialect.add(
         Ref("BitwiseLShiftSegment"),
         Ref("BitwiseRShiftSegment"),
     ),
+    SignedSegmentGrammar=OneOf(Ref("PositiveSegment"), Ref("NegativeSegment")),
     StringBinaryOperatorGrammar=OneOf(Ref("ConcatSegment")),
     BooleanBinaryOperatorGrammar=OneOf(
         Ref("AndKeywordSegment"), Ref("OrKeywordSegment")
@@ -392,8 +393,13 @@ ansi_dialect.add(
     ),
     # hookpoint for other dialects
     # e.g. EXASOL str to date cast with DATE '2021-01-01'
+    # Give it a different type as needs to be single quotes and
+    # should not be changed by rules (e.g. rule L064)
     DateTimeLiteralGrammar=Sequence(
-        OneOf("DATE", "TIME", "TIMESTAMP", "INTERVAL"), Ref("QuotedLiteralSegment")
+        OneOf("DATE", "TIME", "TIMESTAMP", "INTERVAL"),
+        NamedParser(
+            "single_quote", CodeSegment, name="date_constructor_literal", type="literal"
+        ),
     ),
     # Hookpoint for other dialects
     # e.g. INTO is optional in BIGQUERY
@@ -482,6 +488,15 @@ ansi_dialect.add(
         "WINDOW",
         "OVERLAPS",
     ),
+    OrderByClauseTerminators=OneOf(
+        "LIMIT",
+        "HAVING",
+        "QUALIFY",
+        # For window functions
+        "WINDOW",
+        Ref("FrameClauseUnitGrammar"),
+        "SEPARATOR",
+    ),
     PrimaryKeyGrammar=Sequence("PRIMARY", "KEY"),
     ForeignKeyGrammar=Sequence("FOREIGN", "KEY"),
     UniqueKeyGrammar=Sequence("UNIQUE"),
@@ -495,6 +510,7 @@ ansi_dialect.add(
     ),
     # This is a placeholder for other dialects.
     SimpleArrayTypeGrammar=Nothing(),
+    StructTypeGrammar=Nothing(),
     BaseExpressionElementGrammar=OneOf(
         Ref("LiteralGrammar"),
         Ref("BareFunctionSegment"),
@@ -666,7 +682,11 @@ class DatatypeSegment(BaseSegment):
                 # There may be no brackets for some data types
                 optional=True,
             ),
-            Ref("CharCharacterSetGrammar", optional=True),
+            OneOf(
+                "UNSIGNED",  # UNSIGNED MySQL
+                Ref("CharCharacterSetGrammar"),
+                optional=True,
+            ),
         ),
     )
 
@@ -930,7 +950,7 @@ class QualifiedNumericLiteralSegment(BaseSegment):
 
     type = "numeric_literal"
     match_grammar: Matchable = Sequence(
-        OneOf(Ref("PlusSegment"), Ref("MinusSegment")),
+        Ref("SignedSegmentGrammar"),
         Ref("NumericLiteralSegment"),
         allow_gaps=False,
     )
@@ -1170,7 +1190,7 @@ class FromExpressionElementSegment(BaseSegment):
         Ref("PostTableExpressionGrammar", optional=True),
     )
 
-    def get_eventual_alias(self) -> Optional[AliasInfo]:
+    def get_eventual_alias(self) -> AliasInfo:
         """Return the eventual table name referred to by this table expression.
 
         Returns:
@@ -1200,20 +1220,29 @@ class FromExpressionElementSegment(BaseSegment):
 
         # If not return the object name (or None if there isn't one)
         if ref:
+            references: List = list(ref.iter_raw_references())
             # Return the last element of the reference.
-            penultimate_ref: ObjectReferenceSegment.ObjectReferencePart = list(
-                ref.iter_raw_references()
-            )[-1]
-            return AliasInfo(
-                penultimate_ref.part,
-                penultimate_ref.segments[0],
-                False,
-                self,
-                None,
-                ref,
-            )
-        # No references or alias, return None
-        return None
+            if references:
+                penultimate_ref: ObjectReferenceSegment.ObjectReferencePart = (
+                    references[-1]
+                )
+                return AliasInfo(
+                    penultimate_ref.part,
+                    penultimate_ref.segments[0],
+                    False,
+                    self,
+                    None,
+                    ref,
+                )
+        # No references or alias
+        return AliasInfo(
+            "",
+            None,
+            False,
+            self,
+            None,
+            ref,
+        )
 
 
 class FromExpressionSegment(BaseSegment):
@@ -1365,7 +1394,7 @@ class SelectClauseSegment(BaseSegment):
 
     type = "select_clause"
     match_grammar: Matchable = StartsWith(
-        Sequence("SELECT", Ref("WildcardExpressionSegment", optional=True)),
+        "SELECT",
         terminator=OneOf(
             "FROM",
             "WHERE",
@@ -1459,7 +1488,10 @@ class JoinClauseSegment(BaseSegment):
             buff.append((from_expression, alias))
 
         # In some dialects, like TSQL, join clauses can have nested join clauses
-        for join_clause in self.recursive_crawl("join_clause"):
+        # recurse into them - but not if part of a sub-select statement (see #3144)
+        for join_clause in self.recursive_crawl(
+            "join_clause", no_recursive_seg_type="select_statement"
+        ):
             if join_clause is self:
                 # If the starting segment itself matches the list of types we're
                 # searching for, recursive_crawl() will return it. Skip that.
@@ -1611,8 +1643,7 @@ ansi_dialect.add(
             Ref("Expression_C_Grammar"),
             Sequence(
                 OneOf(
-                    Ref("PositiveSegment"),
-                    Ref("NegativeSegment"),
+                    Ref("SignedSegmentGrammar"),
                     # Ref('TildeSegment'),
                     "NOT",
                     "PRIOR",
@@ -1690,10 +1721,7 @@ ansi_dialect.add(
         OneOf(
             Ref("Expression_C_Grammar"),
             Sequence(
-                OneOf(
-                    Ref("PositiveSegment"),
-                    Ref("NegativeSegment"),
-                ),
+                Ref("SignedSegmentGrammar"),
                 Ref("Expression_B_Grammar"),
             ),
         ),
@@ -1711,14 +1739,14 @@ ansi_dialect.add(
     # Expression_C_Grammar
     # https://www.cockroachlabs.com/docs/v20.2/sql-grammar.htm#c_expr
     Expression_C_Grammar=OneOf(
-        Sequence("EXISTS", Bracketed(Ref("SelectStatementSegment"))),
+        Sequence("EXISTS", Bracketed(Ref("SelectableGrammar"))),
         # should be first priority, otherwise EXISTS() would be matched as a function
         Sequence(
             OneOf(
                 Ref("Expression_D_Grammar"),
                 Ref("CaseExpressionSegment"),
             ),
-            AnyNumberOf(Ref("ShorthandCastSegment")),
+            AnyNumberOf(Ref("ShorthandCastSegment"), Ref("TimeZoneGrammar")),
         ),
     ),
     # Expression_D_Grammar
@@ -1759,6 +1787,10 @@ ansi_dialect.add(
             ),
             Sequence(
                 Ref("SimpleArrayTypeGrammar", optional=True), Ref("ArrayLiteralSegment")
+            ),
+            Sequence(
+                Ref("StructTypeGrammar"),
+                Bracketed(Delimited(Ref("ExpressionSegment"))),
             ),
             Sequence(
                 Ref("DatatypeSegment"),
@@ -1923,15 +1955,7 @@ class OrderByClauseSegment(BaseSegment):
     type = "orderby_clause"
     match_grammar: Matchable = StartsWith(
         Sequence("ORDER", "BY"),
-        terminator=OneOf(
-            "LIMIT",
-            "HAVING",
-            "QUALIFY",
-            # For window functions
-            "WINDOW",
-            Ref("FrameClauseUnitGrammar"),
-            "SEPARATOR",
-        ),
+        terminator=Ref("OrderByClauseTerminators"),
     )
     parse_grammar: Optional[Matchable] = Sequence(
         "ORDER",
@@ -2028,10 +2052,7 @@ class OverlapsClauseSegment(BaseSegment):
     """An `OVERLAPS` clause like in `SELECT."""
 
     type = "overlaps_clause"
-    match_grammar: Matchable = StartsWith(
-        "OVERLAPS",
-    )
-    parse_grammar: Optional[Matchable] = Sequence(
+    match_grammar: Matchable = Sequence(
         "OVERLAPS",
         OneOf(
             Sequence(
@@ -2242,8 +2263,7 @@ class WithCompoundStatementSegment(BaseSegment):
 
     type = "with_compound_statement"
     # match grammar
-    match_grammar: Matchable = StartsWith("WITH")
-    parse_grammar: Optional[Matchable] = Sequence(
+    match_grammar: Matchable = Sequence(
         "WITH",
         Ref.keyword("RECURSIVE", optional=True),
         Conditional(Indent, indented_ctes=True),
@@ -2296,16 +2316,23 @@ class InsertStatementSegment(BaseSegment):
     """An `INSERT` statement."""
 
     type = "insert_statement"
-    match_grammar: Matchable = StartsWith("INSERT")
-    parse_grammar: Optional[Matchable] = Sequence(
+    match_grammar: Matchable = Sequence(
         "INSERT",
         # Maybe OVERWRITE is just snowflake?
         # (It's also Hive but that has full insert grammar implementation)
         Ref.keyword("OVERWRITE", optional=True),
         "INTO",
         Ref("TableReferenceSegment"),
-        Ref("BracketedColumnReferenceListGrammar", optional=True),
-        Ref("SelectableGrammar"),
+        OneOf(
+            # As SelectableGrammar can be bracketed too, the parse gets confused
+            # so we need slightly odd syntax here to allow those to parse (rather
+            # than just add optional=True to BracketedColumnReferenceListGrammar).
+            Ref("SelectableGrammar"),
+            Sequence(
+                Ref("BracketedColumnReferenceListGrammar"),
+                Ref("SelectableGrammar"),
+            ),
+        ),
     )
 
 
@@ -2331,7 +2358,7 @@ class MergeStatementSegment(BaseSegment):
                 Bracketed(
                     Ref("SelectableGrammar"),
                 ),
-                Ref("AliasExpressionSegment"),
+                Ref("AliasExpressionSegment", optional=True),
             ),
         ),
         Dedent,
@@ -2469,7 +2496,6 @@ class ColumnConstraintSegment(BaseSegment):
             Ref("PrimaryKeyGrammar"),
             Ref("UniqueKeyGrammar"),  # UNIQUE
             "AUTO_INCREMENT",  # AUTO_INCREMENT (MySQL)
-            "UNSIGNED",  # UNSIGNED (MySQL)
             Ref("ReferenceDefinitionGrammar"),  # REFERENCES reftable [ ( refcolumn) ]x
             Ref("CommentClauseSegment"),
         ),
@@ -2774,9 +2800,10 @@ class DropTableStatementSegment(BaseSegment):
 
     match_grammar: Matchable = Sequence(
         "DROP",
+        Ref("TemporaryGrammar", optional=True),
         "TABLE",
         Ref("IfExistsGrammar", optional=True),
-        Ref("TableReferenceSegment"),
+        Delimited(Ref("TableReferenceSegment")),
         Ref("DropBehaviorGrammar", optional=True),
     )
 
@@ -3059,8 +3086,7 @@ class DeleteStatementSegment(BaseSegment):
     type = "delete_statement"
     # match grammar. This one makes sense in the context of knowing that it's
     # definitely a statement, we just don't know what type yet.
-    match_grammar: Matchable = StartsWith("DELETE")
-    parse_grammar: Optional[Matchable] = Sequence(
+    match_grammar: Matchable = Sequence(
         "DELETE",
         Ref("FromClauseSegment"),
         Ref("WhereClauseSegment", optional=True),
@@ -3182,14 +3208,6 @@ class CreateFunctionStatementSegment(BaseSegment):
         Ref("OrReplaceGrammar", optional=True),
         Ref("TemporaryGrammar", optional=True),
         "FUNCTION",
-        Anything(),
-    )
-
-    parse_grammar: Optional[Matchable] = Sequence(
-        "CREATE",
-        Ref("OrReplaceGrammar", optional=True),
-        Ref("TemporaryGrammar", optional=True),
-        "FUNCTION",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("FunctionNameSegment"),
         Ref("FunctionParameterListGrammar"),
@@ -3265,27 +3283,6 @@ class CreateModelStatementSegment(BaseSegment):
         ),
         "AS",
         Ref("SelectableGrammar"),
-    )
-
-
-class CreateTypeStatementSegment(BaseSegment):
-    """A `CREATE TYPE` statement.
-
-    This is based around the Postgres syntax.
-    https://www.postgresql.org/docs/current/sql-createtype.html
-
-    Note: This is relatively permissive currently
-    and does not lint the syntax strictly, to allow
-    for some deviation between dialects.
-    """
-
-    type = "create_type_statement"
-    match_grammar: Matchable = Sequence(
-        "CREATE",
-        "TYPE",
-        Ref("ObjectReferenceSegment"),
-        Sequence("AS", OneOf("ENUM", "RANGE", optional=True), optional=True),
-        Bracketed(Delimited(Anything()), optional=True),
     )
 
 
@@ -3386,7 +3383,6 @@ class StatementSegment(BaseSegment):
         Ref("TruncateStatementSegment"),
         Ref("AccessStatementSegment"),
         Ref("CreateTableStatementSegment"),
-        Ref("CreateTypeStatementSegment"),
         Ref("CreateRoleStatementSegment"),
         Ref("DropRoleStatementSegment"),
         Ref("AlterTableStatementSegment"),
@@ -3461,9 +3457,7 @@ class DescribeStatementSegment(BaseSegment):
     """
 
     type = "describe_statement"
-    match_grammar: Matchable = StartsWith("DESCRIBE")
-
-    parse_grammar: Optional[Matchable] = Sequence(
+    match_grammar: Matchable = Sequence(
         "DESCRIBE",
         Ref("NakedIdentifierSegment"),
         Ref("ObjectReferenceSegment"),

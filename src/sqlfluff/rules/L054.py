@@ -2,12 +2,11 @@
 from typing import Optional, List
 
 from sqlfluff.core.rules.base import BaseRule, LintResult, RuleContext
-from sqlfluff.core.rules.doc_decorators import (
-    document_configuration,
-)
+from sqlfluff.core.rules.doc_decorators import document_configuration, document_groups
 import sqlfluff.core.rules.functional.segment_predicates as sp
 
 
+@document_groups
 @document_configuration
 class Rule_L054(BaseRule):
     """Inconsistent column references in ``GROUP BY/ORDER BY`` clauses.
@@ -83,6 +82,7 @@ class Rule_L054(BaseRule):
             1, 2;
     """
 
+    groups = ("all", "core")
     config_keywords = ["group_by_and_order_by_style"]
     _ignore_types: List[str] = ["withingroup_clause", "window_specification"]
 

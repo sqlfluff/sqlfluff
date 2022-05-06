@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5fba4f0d03b1fdc822ee34a5bcd92329068ceba814f0431df751ad0d935b2d83
+_hash: d305549a336d86c4845edee893b67618bf1bcf8d830d74082bdd3ff242902486
 file:
   statement:
     select_statement:
@@ -27,7 +27,7 @@ file:
         - comparison_operator:
             raw_comparison_operator: '>'
         - numeric_literal:
-            binary_operator: '-'
+            sign_indicator: '-'
             literal: '2147483648'
         - binary_operator: AND
         - column_reference:
@@ -47,7 +47,7 @@ file:
         - comparison_operator:
             raw_comparison_operator: '>'
         - numeric_literal:
-            binary_operator: '-'
+            sign_indicator: '-'
             literal: 32y
         - binary_operator: AND
         - column_reference:
@@ -55,7 +55,7 @@ file:
         - comparison_operator:
             raw_comparison_operator: '>'
         - numeric_literal:
-            binary_operator: '-'
+            sign_indicator: '-'
             literal: 32Y
         - binary_operator: AND
         - column_reference:
@@ -81,7 +81,7 @@ file:
         - comparison_operator:
             raw_comparison_operator: '>'
         - numeric_literal:
-            binary_operator: '-'
+            sign_indicator: '-'
             literal: '0.1234567'
         - binary_operator: AND
         - column_reference:
@@ -89,7 +89,7 @@ file:
         - comparison_operator:
             raw_comparison_operator: '>'
         - numeric_literal:
-            binary_operator: '-'
+            sign_indicator: '-'
             literal: '.1234567'
         - binary_operator: AND
         - column_reference:
@@ -97,7 +97,7 @@ file:
         - comparison_operator:
             raw_comparison_operator: '>'
         - numeric_literal:
-            binary_operator: '-'
+            sign_indicator: '-'
             literal: '123.'
         - binary_operator: AND
         - column_reference:
@@ -141,7 +141,7 @@ file:
         - comparison_operator:
             raw_comparison_operator: '>'
         - numeric_literal:
-            binary_operator: '-'
+            sign_indicator: '-'
             literal: 5bd
         - binary_operator: AND
         - column_reference:
@@ -149,7 +149,7 @@ file:
         - comparison_operator:
             raw_comparison_operator: '>'
         - numeric_literal:
-            binary_operator: '-'
+            sign_indicator: '-'
             literal: 5BD
         - binary_operator: AND
         - column_reference:
@@ -169,7 +169,7 @@ file:
         - comparison_operator:
             raw_comparison_operator: '>'
         - numeric_literal:
-            binary_operator: '-'
+            sign_indicator: '-'
             literal: .1234567e+2bd
         - binary_operator: AND
         - column_reference:
@@ -177,7 +177,7 @@ file:
         - comparison_operator:
             raw_comparison_operator: '>'
         - numeric_literal:
-            binary_operator: '-'
+            sign_indicator: '-'
             literal: .1234567E+2BD
         - binary_operator: AND
         - column_reference:
@@ -185,7 +185,7 @@ file:
         - comparison_operator:
             raw_comparison_operator: '>'
         - numeric_literal:
-            binary_operator: +
+            sign_indicator: +
             literal: '3.e+3'
         - binary_operator: AND
         - column_reference:
@@ -193,7 +193,7 @@ file:
         - comparison_operator:
             raw_comparison_operator: '>'
         - numeric_literal:
-            binary_operator: +
+            sign_indicator: +
             literal: '3.E+3'
         - binary_operator: AND
         - column_reference:
@@ -201,7 +201,7 @@ file:
         - comparison_operator:
             raw_comparison_operator: '>'
         - numeric_literal:
-            binary_operator: '-'
+            sign_indicator: '-'
             literal: 3.E-3D
         - binary_operator: AND
         - column_reference:
@@ -209,5 +209,5 @@ file:
         - comparison_operator:
             raw_comparison_operator: '>'
         - numeric_literal:
-            binary_operator: '-'
+            sign_indicator: '-'
             literal: 3.e-3d

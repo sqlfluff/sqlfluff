@@ -13,6 +13,7 @@ from collections.abc import MutableSet
 from copy import deepcopy
 from dataclasses import dataclass, field, replace
 from io import StringIO
+from itertools import takewhile
 from typing import (
     Any,
     Callable,
@@ -895,7 +896,12 @@ class BaseSegment:
             for seg in self.segments:
                 yield from seg.recursive_crawl_all(reverse=reverse)
 
-    def recursive_crawl(self, *seg_type: str, recurse_into: bool = True):
+    def recursive_crawl(
+        self,
+        *seg_type: str,
+        recurse_into: bool = True,
+        no_recursive_seg_type: str = None,
+    ):
         """Recursively crawl for segments of a given type.
 
         Args:
@@ -903,6 +909,8 @@ class BaseSegment:
                 to look for.
             recurse_into: :obj:`bool`: When an element of type "seg_type" is
                 found, whether to recurse into it.
+            no_recursive_seg_type: obj: `str`: a type of segment
+                not to recurse further into.
         """
         # Check this segment
         if self.is_type(*seg_type):
@@ -913,7 +921,12 @@ class BaseSegment:
         if recurse_into or not match:
             # Recurse
             for seg in self.segments:
-                yield from seg.recursive_crawl(*seg_type, recurse_into=recurse_into)
+                if not seg.is_type(no_recursive_seg_type):
+                    yield from seg.recursive_crawl(
+                        *seg_type,
+                        recurse_into=recurse_into,
+                        no_recursive_seg_type=no_recursive_seg_type,
+                    )
 
     def path_to(self, other):
         """Given a segment which is assumed within self, get the intermediate segments.
@@ -988,21 +1001,12 @@ class BaseSegment:
             else:
                 pre_nc = ()
                 post_nc = ()
-                if (not segments[0].is_code) and (
-                    not segments[0].is_meta
-                ):  # pragma: no cover
+                idx_non_code = self._find_start_or_end_non_code(segments)
+                if idx_non_code is not None:  # pragma: no cover
                     raise ValueError(
-                        "Segment {} starts with non code segment: {!r}.\n{!r}".format(
-                            self, segments[0].raw, segments
-                        )
-                    )
-                if (not segments[-1].is_code) and (
-                    not segments[-1].is_meta
-                ):  # pragma: no cover
-                    raise ValueError(
-                        "Segment {} ends with non code segment: {!r}.\n{!r}".format(
-                            self, segments[-1].raw, segments
-                        )
+                        f"Segment {self} {'starts' if idx_non_code == 0 else 'ends'} "
+                        f"with non code segment: "
+                        f"{segments[idx_non_code].raw!r}.\n{segments!r}"
                     )
 
             # NOTE: No match_depth kwarg, because this is the start of the matching.
@@ -1078,7 +1082,22 @@ class BaseSegment:
 
         return self
 
-    def apply_fixes(self, dialect, rule_code, fixes):
+    @staticmethod
+    def _is_code_or_meta(segment: "BaseSegment") -> bool:
+        return segment.is_code or segment.is_meta
+
+    @classmethod
+    def _find_start_or_end_non_code(cls, segments) -> Optional[int]:
+        """If segment's first/last child is non-code, return index."""
+        if segments:
+            for idx in [0, -1]:
+                if not cls._is_code_or_meta(segments[idx]):
+                    return idx
+        return None
+
+    def apply_fixes(
+        self, dialect, rule_code: str, fixes: Dict
+    ) -> Tuple["BaseSegment", List["BaseSegment"], List["BaseSegment"]]:
         """Apply an iterable of fixes to this segment.
 
         Used in applying fixes if we're fixing linting errors.
@@ -1168,9 +1187,51 @@ class BaseSegment:
             seg_queue = seg_buffer
             seg_buffer = []
             for seg in seg_queue:
-                s, fixes = seg.apply_fixes(dialect, rule_code, fixes)
+                s, before, after = seg.apply_fixes(dialect, rule_code, fixes)
+                # 'before' and 'after' will usually be empty. Only used when
+                # lower-level fixes left 'seg' with non-code (usually
+                # whitespace) segments as the first or last children. This is
+                # generally not allowed (see the can_start_end_non_code field),
+                # and these segments need to be "bubbled up" the tree.
+                seg_buffer.extend(before)
                 seg_buffer.append(s)
+                seg_buffer.extend(after)
 
+            before = []
+            after = []
+            if fixes_applied and not r.can_start_end_non_code:
+                idx_non_code = self._find_start_or_end_non_code(seg_buffer)
+                # Did the fixes leave misplaced segments?
+                if idx_non_code is not None:
+                    # Yes. Fix the misplaced segments: Do not include them
+                    # in the new segment's children. Instead, return them to the
+                    # caller, which will place them *adjacent to* the new
+                    # segment, in effect, bubbling them up to the tree to a
+                    # valid location.
+                    save_seg_buffer = list(seg_buffer)
+                    before.extend(
+                        takewhile(
+                            lambda seg: not self._is_code_or_meta(seg), seg_buffer
+                        )
+                    )
+                    seg_buffer = seg_buffer[len(before) :]
+                    after.extend(
+                        takewhile(
+                            lambda seg: not self._is_code_or_meta(seg),
+                            reversed(seg_buffer),
+                        )
+                    )
+                    after.reverse()
+                    seg_buffer = seg_buffer[: len(seg_buffer) - len(after)]
+                    assert before + seg_buffer + after == save_seg_buffer
+                    linter_logger.debug(
+                        "After applying fixes, segment %s violated "
+                        "'can_start_end_non_code=False' constraint. Autofixing, "
+                        "before=%s, after=%s",
+                        self,
+                        before,
+                        after,
+                    )
             # Reform into a new segment
             r = r.__class__(
                 # Realign the segments within
@@ -1183,10 +1244,11 @@ class BaseSegment:
             )
             if fixes_applied:
                 self._validate_segment_after_fixes(rule_code, dialect, fixes_applied, r)
-            # Return the new segment with any unused fixes.
-            return r, fixes
+            # Return the new segment and any non-code that needs to bubble up
+            # the tree.
+            return r, before, after
         else:
-            return self, fixes
+            return self, [], []
 
     @classmethod
     def compute_anchor_edit_info(cls, fixes) -> Dict[int, AnchorEditInfo]:
@@ -1226,7 +1288,7 @@ class BaseSegment:
 
     @staticmethod
     def _log_apply_fixes_check_issue(message, *args):  # pragma: no cover
-        linter_logger.critical(message, *args)
+        linter_logger.critical(message, exc_info=True, *args)
 
     def iter_patches(
         self, templated_file: TemplatedFile

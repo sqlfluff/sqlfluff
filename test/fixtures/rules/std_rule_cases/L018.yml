@@ -50,3 +50,12 @@ test_move_parenthesis_to_next_line:
 
     select cte_1.foo
     from cte_1
+
+test_pass_cte_with_column_list:
+  # Issue 2851: Ignore the CTE column list, only check the query.
+  pass_str: |
+    with
+    search_path (node_ids, total_time) as (
+        select 1
+    )
+    select * from search_path

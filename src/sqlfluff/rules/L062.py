@@ -3,9 +3,10 @@
 from typing import Optional
 
 from sqlfluff.core.rules.base import BaseRule, LintResult, RuleContext
-from sqlfluff.core.rules.doc_decorators import document_configuration
+from sqlfluff.core.rules.doc_decorators import document_configuration, document_groups
 
 
+@document_groups
 @document_configuration
 class Rule_L062(BaseRule):
     """Block a list of configurable words from being used.
@@ -45,6 +46,7 @@ class Rule_L062(BaseRule):
 
     """
 
+    groups = ("all",)
     config_keywords = [
         "blocked_words",
     ]

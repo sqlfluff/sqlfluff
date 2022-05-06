@@ -4,9 +4,10 @@ from typing import Optional
 from sqlfluff.core.parser.segments.base import IdentitySet
 from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix, RuleContext
 from sqlfluff.core.rules.functional import Segments, sp
-from sqlfluff.core.rules.doc_decorators import document_fix_compatible
+from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
 
 
+@document_groups
 @document_fix_compatible
 class Rule_L053(BaseRule):
     """Top-level statements should not be wrapped in brackets.
@@ -45,6 +46,8 @@ class Rule_L053(BaseRule):
             foo
         FROM (SELECT * FROM bar)
     """
+
+    groups = ("all",)
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Top-level statements should not be wrapped in brackets."""

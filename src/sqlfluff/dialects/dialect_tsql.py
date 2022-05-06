@@ -256,11 +256,31 @@ tsql_dialect.replace(
         Ref("DatatypeSegment"),
         Sequence(Ref("EqualsSegment"), Ref("ExpressionSegment"), optional=True),
     ),
-    FunctionNameIdentifierSegment=RegexParser(
-        r"[A-Z][A-Z0-9_]*|\[[A-Z][A-Z0-9_]*\]",
-        CodeSegment,
-        name="function_name_identifier",
-        type="function_name_identifier",
+    FunctionNameIdentifierSegment=SegmentGenerator(
+        # Generate the anti template from the set of reserved keywords
+        # minus the function names that are reserved words.
+        lambda dialect: RegexParser(
+            r"[A-Z][A-Z0-9_]*|\[[A-Z][A-Z0-9_]*\]",
+            CodeSegment,
+            name="function_name_identifier",
+            type="function_name_identifier",
+            anti_template=r"^("
+            + r"|".join(
+                dialect.sets("reserved_keywords")
+                - {
+                    "COALESCE",
+                    "CONVERT",
+                    "CURRENT_TIMESTAMP",
+                    "CURRENT_USER",
+                    "LEFT",
+                    "NULLIF",
+                    "RIGHT",
+                    "SESSION_USER",
+                    "SYSTEM_USER",
+                }
+            )
+            + r")$",
+        )
     ),
     # Override ANSI IsClauseGrammar to remove TSQL non-keyword NAN
     IsClauseGrammar=OneOf(
@@ -415,6 +435,7 @@ tsql_dialect.replace(
         Ref.keyword("INTO", optional=True),
     ),
     TrimParametersGrammar=Nothing(),
+    TemporaryGrammar=Nothing(),
 )
 
 
@@ -425,6 +446,7 @@ class StatementSegment(ansi.StatementSegment):
         insert=[
             Ref("IfExpressionStatement"),
             Ref("DeclareStatementSegment"),
+            Ref("DeclareCursorStatementSegment"),
             Ref("SetStatementSegment"),
             Ref("AlterTableSwitchStatementSegment"),
             Ref("PrintStatementSegment"),
@@ -443,11 +465,17 @@ class StatementSegment(ansi.StatementSegment):
             Ref("RaiserrorStatementSegment"),
             Ref("ReturnStatementSegment"),
             Ref("GotoStatement"),
+            Ref("LabelStatementSegment"),
             Ref("DisableTriggerStatementSegment"),
             Ref("WhileExpressionStatement"),
             Ref("BreakStatement"),
             Ref("ContinueStatement"),
             Ref("WaitForStatementSegment"),
+            Ref("OpenCursorStatementSegment"),
+            Ref("CloseCursorStatementSegment"),
+            Ref("DeallocateCursorStatementSegment"),
+            Ref("FetchCursorStatementSegment"),
+            Ref("CreateTypeStatementSegment"),
         ],
         remove=[
             Ref("CreateModelStatementSegment"),
@@ -618,7 +646,9 @@ class InsertStatementSegment(BaseSegment):
         "INSERT",
         Ref.keyword("INTO", optional=True),
         Ref("TableReferenceSegment"),
+        Ref("PostTableExpressionGrammar", optional=True),
         Ref("BracketedColumnReferenceListGrammar", optional=True),
+        Ref("OutputClauseSegment", optional=True),
         OneOf(Ref("SelectableGrammar"), Ref("ExecuteScriptSegment")),
     )
 
@@ -668,6 +698,7 @@ class SelectStatementSegment(BaseSegment):
             Ref("OrderByClauseSegment", optional=True),
             Ref("OptionClauseSegment", optional=True),
             Ref("DelimiterGrammar", optional=True),
+            Ref("ForXmlSegment", optional=True),
         ]
     )
 
@@ -1183,6 +1214,27 @@ class DeclareStatementSegment(BaseSegment):
     )
 
 
+class DeclareCursorStatementSegment(BaseSegment):
+    """Declaration of a cursor.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/language-elements/declare-cursor-transact-sql?view=sql-server-ver15
+    """
+
+    type = "declare_segment"
+    match_grammar = Sequence(
+        "DECLARE",
+        Ref("NakedIdentifierSegment"),
+        "CURSOR",
+        OneOf("LOCAL", "GLOBAL", optional=True),
+        OneOf("FORWARD_ONLY", "SCROLL", optional=True),
+        OneOf("STATIC", "KEYSET", "DYNAMIC", "FAST_FORWARD", optional=True),
+        OneOf("READ_ONLY", "SCROLL_LOCKS", "OPTIMISTIC", optional=True),
+        Sequence("TYPE_WARNING", optional=True),
+        "FOR",
+        Ref("SelectStatementSegment"),
+    )
+
+
 class GoStatementSegment(BaseSegment):
     """GO signals the end of a batch of Transact-SQL statements.
 
@@ -1215,6 +1267,7 @@ class DatatypeSegment(BaseSegment):
         ),
         Bracketed(
             OneOf(
+                "MAX",
                 Delimited(Ref("ExpressionSegment")),
                 # The brackets might be empty for some cases...
                 optional=True,
@@ -1767,7 +1820,9 @@ class CreateProcedureStatementSegment(BaseSegment):
         Sequence("OR", "ALTER", optional=True),
         OneOf("PROCEDURE", "PROC"),
         Ref("ObjectReferenceSegment"),
+        Indent,
         Ref("ProcedureParameterListGrammar", optional=True),
+        Dedent,
         "AS",
         Ref("ProcedureDefinitionGrammar"),
     )
@@ -1846,7 +1901,7 @@ class ConvertFunctionNameSegment(BaseSegment):
     """
 
     type = "function_name"
-    match_grammar = Sequence("CONVERT")
+    match_grammar = OneOf("CONVERT", "TRY_CONVERT")
 
 
 class CastFunctionNameSegment(BaseSegment):
@@ -2166,11 +2221,19 @@ class AlterTableStatementSegment(BaseSegment):
                     Ref("ColumnReferenceSegment"),
                 ),
                 Sequence(
+                    Sequence(
+                        "WITH",
+                        "CHECK",
+                        optional=True,
+                    ),
                     "ADD",
                     Ref("TableConstraintSegment"),
                 ),
                 Sequence(
-                    "DROP",
+                    OneOf(
+                        "CHECK",
+                        "DROP",
+                    ),
                     "CONSTRAINT",
                     Ref("ObjectReferenceSegment"),
                 ),
@@ -2481,9 +2544,9 @@ class TransactionStatementSegment(BaseSegment):
 
     type = "transaction_statement"
     match_grammar = OneOf(
-        # [ BEGIN | SAVE ] [ TRANSACTION | TRAN ]
+        # [ BEGIN | SAVE ] [ TRANSACTION | TRAN ] [ <Name> | <Variable> ]
         # COMMIT [ TRANSACTION | TRAN | WORK ]
-        # ROLLBACK [ TRANSACTION | TRAN | WORK ]
+        # ROLLBACK [ TRANSACTION | TRAN | WORK ] [ <Name> | <Variable> ]
         # https://docs.microsoft.com/en-us/sql/t-sql/language-elements/begin-transaction-transact-sql?view=sql-server-ver15
         Sequence(
             "BEGIN",
@@ -2495,11 +2558,28 @@ class TransactionStatementSegment(BaseSegment):
         ),
         Sequence(
             OneOf("COMMIT", "ROLLBACK"),
-            OneOf(Ref("TransactionGrammar"), "WORK", optional=True),
+            Ref("TransactionGrammar", optional=True),
+            OneOf(
+                Ref("SingleIdentifierGrammar"),
+                Ref("VariableIdentifierSegment"),
+                optional=True,
+            ),
             Ref("DelimiterGrammar", optional=True),
         ),
         Sequence(
-            "SAVE", Ref("TransactionGrammar"), Ref("DelimiterGrammar", optional=True)
+            OneOf("COMMIT", "ROLLBACK"),
+            Sequence("WORK", optional=True),
+            Ref("DelimiterGrammar", optional=True),
+        ),
+        Sequence(
+            "SAVE",
+            Ref("TransactionGrammar"),
+            OneOf(
+                Ref("SingleIdentifierGrammar"),
+                Ref("VariableIdentifierSegment"),
+                optional=True,
+            ),
+            Ref("DelimiterGrammar", optional=True),
         ),
     )
 
@@ -2606,6 +2686,8 @@ class DeleteStatementSegment(BaseSegment):
         "DELETE",
         Ref("TableReferenceSegment", optional=True),  # Azure Synapse Analytics-specific
         Ref("FromClauseSegment"),
+        Ref("PostTableExpressionGrammar", optional=True),
+        Ref("OutputClauseSegment", optional=True),
         Ref("WhereClauseSegment", optional=True),
         Ref("DelimiterGrammar", optional=True),
     )
@@ -2813,6 +2895,7 @@ class UpdateStatementSegment(BaseSegment):
         Ref("PostTableExpressionGrammar", optional=True),
         Ref("SetClauseListSegment"),
         Dedent,
+        Ref("OutputClauseSegment", optional=True),
         Ref("FromClauseSegment", optional=True),
         Ref("WhereClauseSegment", optional=True),
         Ref("OptionClauseSegment", optional=True),
@@ -3107,7 +3190,7 @@ class ExecuteScriptSegment(BaseSegment):
     match_grammar = Sequence(
         OneOf("EXEC", "EXECUTE"),
         Sequence(Ref("ParameterNameSegment"), Ref("EqualsSegment"), optional=True),
-        Ref("ObjectReferenceSegment"),
+        OptionallyBracketed(Ref("ObjectReferenceSegment")),
         Indent,
         Sequence(
             Sequence(Ref("ParameterNameSegment"), Ref("EqualsSegment"), optional=True),
@@ -3520,5 +3603,328 @@ class DisableTriggerStatementSegment(BaseSegment):
             "ON",
             OneOf(Ref("ObjectReferenceSegment"), "DATABASE", Sequence("ALL", "SERVER")),
             optional=True,
+        ),
+    )
+
+
+class LabelStatementSegment(BaseSegment):
+    """Label Statement, for a GOTO statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/language-elements/goto-transact-sql?view=sql-server-ver15
+    """
+
+    type = "label_segment"
+
+    match_grammar: Matchable = Sequence(
+        Ref("NakedIdentifierSegment"), Ref("ColonSegment"), allow_gaps=False
+    )
+
+
+class AccessStatementSegment(BaseSegment):
+    """A `GRANT` or `REVOKE` statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/grant-transact-sql?view=sql-server-ver15
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/deny-transact-sql?view=sql-server-ver15
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/revoke-transact-sql?view=sql-server-ver15
+    """
+
+    type = "access_statement"
+
+    # Privileges that can be set on the account (specific to snowflake)
+    _global_permissions = OneOf(
+        Sequence(
+            "CREATE",
+            OneOf(
+                "ROLE",
+                "USER",
+                "WAREHOUSE",
+                "DATABASE",
+                "INTEGRATION",
+            ),
+        ),
+        Sequence("APPLY", "MASKING", "POLICY"),
+        "EXECUTE",
+    )
+
+    _schema_object_names = [
+        "TABLE",
+        "VIEW",
+        "FUNCTION",
+        "PROCEDURE",
+        "SEQUENCE",
+    ]
+
+    _schema_object_types = OneOf(
+        *_schema_object_names,
+        Sequence("EXTERNAL", "TABLE"),
+        Sequence("FILE", "FORMAT"),
+    )
+
+    # We reuse the object names above and simply append an `S` to the end of them to get
+    # plurals
+    _schema_object_types_plural = OneOf(
+        *[f"{object_name}S" for object_name in _schema_object_names]
+    )
+
+    _permissions = Sequence(
+        OneOf(
+            "ALTER",
+            "CONTROL",
+            "DELETE",
+            "EXECUTE",
+            "INSERT",
+            "RECEIVE",
+            "REFERENCES",
+            "SELECT",
+            Sequence("TAKE", "OWNERSHIP"),
+            "UPDATE",
+            Sequence("VIEW", "CHANGE", "TRACKING"),
+            Sequence("VIEW", "DEFINITION"),
+        ),
+        Ref("BracketedColumnReferenceListGrammar", optional=True),
+    )
+
+    # All of the object types that we can grant permissions on.
+    # This list will contain ansi sql objects as well as dialect specific ones.
+    _objects = Sequence(
+        OneOf(
+            "DATABASE",
+            "LANGUAGE",
+            "SCHEMA",
+            "ROLE",
+            "TYPE",
+            Sequence(
+                "FOREIGN",
+                OneOf("SERVER", Sequence("DATA", "WRAPPER")),
+            ),
+            Sequence("ALL", "SCHEMAS", "IN", "DATABASE"),
+            _schema_object_types,
+            Sequence("ALL", _schema_object_types_plural, "IN", "SCHEMA"),
+            optional=True,
+        ),
+        Delimited(Ref("ObjectReferenceSegment"), terminator=OneOf("TO", "FROM")),
+        Ref("FunctionParameterListGrammar", optional=True),
+    )
+
+    match_grammar: Matchable = OneOf(
+        # Based on https://www.postgresql.org/docs/13/sql-grant.html
+        # and https://docs.snowflake.com/en/sql-reference/sql/grant-privilege.html
+        Sequence(
+            "GRANT",
+            OneOf(
+                Sequence(
+                    Delimited(
+                        OneOf(_global_permissions, _permissions),
+                        delimiter=Ref("CommaSegment"),
+                        terminator="ON",
+                    ),
+                ),
+                Sequence("ALL", Ref.keyword("PRIVILEGES", optional=True)),
+            ),
+            "ON",
+            Sequence(
+                OneOf("LOGIN", "DATABASE", "OBJECT", "ROLE", "SCHEMA", "USER"),
+                Ref("CastOperatorSegment"),
+                optional=True,
+            ),
+            _objects,
+            "TO",
+            Delimited(
+                OneOf(Ref("ObjectReferenceSegment"), Ref("FunctionSegment")),
+                delimiter=Ref("CommaSegment"),
+            ),
+            OneOf(
+                Sequence("WITH", "GRANT", "OPTION"),
+                optional=True,
+            ),
+            Sequence(
+                "AS",
+                Ref("ObjectReferenceSegment"),
+                optional=True,
+            ),
+        ),
+        Sequence(
+            "DENY",
+            OneOf(
+                Delimited(
+                    OneOf(_global_permissions, _permissions),
+                    delimiter=Ref("CommaSegment"),
+                    terminator="ON",
+                ),
+                Sequence("ALL", Ref.keyword("PRIVILEGES", optional=True)),
+            ),
+            "ON",
+            Sequence(
+                OneOf("LOGIN", "DATABASE", "OBJECT", "ROLE", "SCHEMA", "USER"),
+                Ref("CastOperatorSegment"),
+                optional=True,
+            ),
+            _objects,
+            OneOf("TO"),
+            Delimited(
+                Ref("ObjectReferenceSegment"),
+                delimiter=Ref("CommaSegment"),
+            ),
+            Sequence(
+                Ref.keyword("CASCADE", optional=True),
+                Ref("ObjectReferenceSegment", optional=True),
+                optional=True,
+            ),
+        ),
+        Sequence(
+            "REVOKE",
+            Sequence("GRANT", "OPTION", "FOR", optional=True),
+            OneOf(
+                Delimited(
+                    OneOf(_global_permissions, _permissions),
+                    delimiter=Ref("CommaSegment"),
+                    terminator="ON",
+                ),
+                Sequence("ALL", Ref.keyword("PRIVILEGES", optional=True)),
+            ),
+            "ON",
+            Sequence(
+                OneOf("LOGIN", "DATABASE", "OBJECT", "ROLE", "SCHEMA", "USER"),
+                Ref("CastOperatorSegment"),
+                optional=True,
+            ),
+            _objects,
+            OneOf("TO", "FROM"),
+            Delimited(
+                Ref("ObjectReferenceSegment"),
+                delimiter=Ref("CommaSegment"),
+            ),
+            Sequence(
+                Ref.keyword("CASCADE", optional=True),
+                Ref("ObjectReferenceSegment", optional=True),
+                optional=True,
+            ),
+        ),
+    )
+
+
+class CreateTypeStatementSegment(BaseSegment):
+    """A `CREATE TYPE` statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-type-transact-sql?view=sql-server-ver15
+    """
+
+    type = "create_type_statement"
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        "TYPE",
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Sequence("FROM", Ref("ObjectReferenceSegment")),
+            Sequence(
+                "AS",
+                "TABLE",
+                Sequence(
+                    Bracketed(
+                        Delimited(
+                            OneOf(
+                                Ref("TableConstraintSegment"),
+                                Ref("ColumnDefinitionSegment"),
+                                Ref("TableIndexSegment"),
+                            ),
+                            allow_trailing=True,
+                        )
+                    ),
+                ),
+            ),
+        ),
+    )
+
+
+class OpenCursorStatementSegment(BaseSegment):
+    """An `OPEN` cursor statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/language-elements/open-transact-sql?view=sql-server-ver15
+    """
+
+    type = "open_cursor_statement"
+    match_grammar: Matchable = Sequence(
+        "OPEN",
+        OneOf(
+            Sequence(
+                Ref.keyword("GLOBAL", optional=True), Ref("NakedIdentifierSegment")
+            ),
+            Ref("ParameterNameSegment"),
+        ),
+    )
+
+
+class CloseCursorStatementSegment(BaseSegment):
+    """A `CLOSE` cursor statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/language-elements/close-transact-sql?view=sql-server-ver15
+    """
+
+    type = "close_cursor_statement"
+    match_grammar: Matchable = Sequence(
+        "CLOSE",
+        OneOf(
+            Sequence(
+                Ref.keyword("GLOBAL", optional=True), Ref("NakedIdentifierSegment")
+            ),
+            Ref("ParameterNameSegment"),
+        ),
+    )
+
+
+class DeallocateCursorStatementSegment(BaseSegment):
+    """A `DEALLOCATE` cursor statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/language-elements/deallocate-transact-sql?view=sql-server-ver15
+    """
+
+    type = "deallocate_cursor_statement"
+    match_grammar: Matchable = Sequence(
+        "DEALLOCATE",
+        OneOf(
+            Sequence(
+                Ref.keyword("GLOBAL", optional=True), Ref("NakedIdentifierSegment")
+            ),
+            Ref("ParameterNameSegment"),
+        ),
+    )
+
+
+class FetchCursorStatementSegment(BaseSegment):
+    """A `FETCH` cursor statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/language-elements/fetch-transact-sql?view=sql-server-ver15
+    """
+
+    type = "fetch_cursor_statement"
+    match_grammar: Matchable = Sequence(
+        "FETCH",
+        OneOf("NEXT", "PRIOR", "FIRST", "LAST", optional=True),
+        "FROM",
+        OneOf(
+            Sequence(
+                Ref.keyword("GLOBAL", optional=True), Ref("NakedIdentifierSegment")
+            ),
+            Ref("ParameterNameSegment"),
+        ),
+        Sequence("INTO", Delimited(Ref("ParameterNameSegment")), optional=True),
+    )
+
+
+class ForXmlSegment(BaseSegment):
+    """A segment for `FOR XML` in `SELECT` statements.
+
+    https://docs.microsoft.com/en-us/sql/relational-databases/xml/for-xml-sql-server?view=sql-server-2017
+    """
+
+    type = "for_xml_segment"
+    match_grammar: Matchable = Sequence(
+        "FOR",
+        "XML",
+        OneOf(
+            Sequence("RAW", Bracketed(Ref("QuotedLiteralSegment"), optional=True)),
+            "AUTO",
+            "EXPLICIT",
+            Sequence("PATH", Bracketed(Ref("QuotedLiteralSegment"), optional=True)),
         ),
     )

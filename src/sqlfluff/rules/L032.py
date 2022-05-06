@@ -8,13 +8,14 @@ from sqlfluff.core.parser.segments.raw import (
     WhitespaceSegment,
 )
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
-from sqlfluff.core.rules.doc_decorators import document_fix_compatible
+from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
 import sqlfluff.core.rules.functional.segment_predicates as sp
 from sqlfluff.core.rules.functional.segments import Segments
 from sqlfluff.core.rules.analysis.select import get_select_statement_info
 from sqlfluff.dialects.dialect_ansi import ColumnReferenceSegment
 
 
+@document_groups
 @document_fix_compatible
 class Rule_L032(BaseRule):
     """Prefer specifying join keys instead of using ``USING``.
@@ -56,6 +57,8 @@ class Rule_L032(BaseRule):
 
     """
 
+    groups = ("all",)
+
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Look for USING in a join clause."""
         segment = context.functional.segment
@@ -91,12 +94,17 @@ class Rule_L032(BaseRule):
             return unfixable_result
 
         select_info = get_select_statement_info(parent_select, context.dialect)
-        if not select_info or len(select_info.table_aliases) < 2:  # pragma: no cover
+        table_aliases = [
+            ta
+            for ta in (select_info.table_aliases if select_info else [])
+            if ta.ref_str
+        ]
+        if len(table_aliases) < 2:
             return unfixable_result
 
         to_delete, insert_after_anchor = _extract_deletion_sequence_and_anchor(segment)
 
-        table_a, table_b = select_info.table_aliases[:2]
+        table_a, table_b = table_aliases[:2]
         edit_segments = [
             KeywordSegment(raw="ON"),
             WhitespaceSegment(raw=" "),

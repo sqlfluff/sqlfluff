@@ -7,8 +7,9 @@ from sqlfluff.core.rules.base import (
     RuleContext,
 )
 from sqlfluff.core.rules.doc_decorators import (
-    document_fix_compatible,
     document_configuration,
+    document_fix_compatible,
+    document_groups,
 )
 from typing import List
 import os.path
@@ -40,6 +41,7 @@ def get_configs_info() -> dict:
 
 # These two decorators allow plugins
 # to be displayed in the sqlfluff docs
+@document_groups
 @document_fix_compatible
 @document_configuration
 class Rule_Example_L001(BaseRule):
@@ -68,6 +70,7 @@ class Rule_Example_L001(BaseRule):
         ORDER BY bar
     """
 
+    groups = ("all",)
     config_keywords = ["forbidden_columns"]
 
     def __init__(self, *args, **kwargs):

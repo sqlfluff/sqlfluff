@@ -1,11 +1,13 @@
 """Implementation of Rule L029."""
+import regex
 from typing import Optional, Tuple, List
 
 from sqlfluff.core.rules.base import BaseRule, LintResult, RuleContext
-from sqlfluff.core.rules.doc_decorators import document_configuration
+from sqlfluff.core.rules.doc_decorators import document_configuration, document_groups
 from sqlfluff.rules.L014 import identifiers_policy_applicable
 
 
+@document_groups
 @document_configuration
 class Rule_L029(BaseRule):
     """Keywords should not be used as identifiers.
@@ -41,6 +43,7 @@ class Rule_L029(BaseRule):
 
     """
 
+    groups = ("all",)
     # Binary operators behave like keywords too.
     _target_elems: List[Tuple[str, str]] = [
         ("name", "naked_identifier"),
@@ -51,10 +54,14 @@ class Rule_L029(BaseRule):
         "unquoted_identifiers_policy",
         "quoted_identifiers_policy",
         "ignore_words",
+        "ignore_words_regex",
     ]
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Keywords should not be used as identifiers."""
+        # Config type hints
+        self.ignore_words_regex: str
+
         # Skip if not an element of the specified type/name
         if not self.matches_target_tuples(context.segment, self._target_elems):
             return LintResult(memory=context.memory)
@@ -74,6 +81,12 @@ class Rule_L029(BaseRule):
 
         # Skip if in ignore list
         if ignore_words_list and context.segment.raw.lower() in ignore_words_list:
+            return LintResult(memory=context.memory)
+
+        # Skip if matches ignore regex
+        if self.ignore_words_regex and regex.search(
+            self.ignore_words_regex, context.segment.raw
+        ):
             return LintResult(memory=context.memory)
 
         if (

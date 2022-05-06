@@ -2,7 +2,7 @@
 
 
 from io import StringIO
-from typing import Callable, List, Union
+from typing import List, Union
 
 from sqlfluff.cli.helpers import (
     colorize,
@@ -12,6 +12,7 @@ from sqlfluff.cli.helpers import (
     get_python_implementation,
     pad_line,
 )
+from sqlfluff.cli.outputstream import OutputStream
 from sqlfluff.core import SQLBaseError, FluffConfig, Linter
 from sqlfluff.core.enums import Color
 from sqlfluff.core.linter import LintedFile
@@ -55,18 +56,12 @@ def split_string_on_spaces(s: str, line_length: int = 100) -> List[str]:
 
 def format_violation(violation: SQLBaseError, max_line_length: int = 90) -> str:
     """Format a violation."""
-    if isinstance(violation, SQLBaseError):
-        desc = violation.desc()
-        if violation.line_no is not None:
-            line_elem = f"{violation.line_no:4d}"
-        else:
-            line_elem = "   -"  # pragma: no cover
-        if violation.line_pos is not None:
-            pos_elem = f"{violation.line_pos:4d}"
-        else:
-            pos_elem = "   -"  # pragma: no cover
-    else:  # pragma: no cover
+    if not isinstance(violation, SQLBaseError):  # pragma: no cover
         raise ValueError(f"Unexpected violation format: {violation}")
+
+    desc: str = violation.desc()
+    line_elem = "   -" if violation.line_no is None else f"{violation.line_no:4d}"
+    pos_elem = "   -" if violation.line_pos is None else f"{violation.line_pos:4d}"
 
     if violation.ignore:
         desc = "IGNORE: " + desc  # pragma: no cover
@@ -74,12 +69,16 @@ def format_violation(violation: SQLBaseError, max_line_length: int = 90) -> str:
     split_desc = split_string_on_spaces(desc, line_length=max_line_length - 25)
 
     out_buff = ""
+    # Grey out the violation if we're ignoring it.
+    section_color: Color = Color.lightgrey if violation.ignore else Color.blue
     for idx, line in enumerate(split_desc):
         if idx == 0:
+            rule_code = violation.rule_code().rjust(4)
+            if "PRS" in rule_code:
+                section_color = Color.red
             out_buff += colorize(
-                f"L:{line_elem} | P:{pos_elem} | {violation.rule_code().rjust(4)} | ",
-                # Grey out the violation if we're ignoring it.
-                Color.lightgrey if violation.ignore else Color.blue,
+                f"L:{line_elem} | P:{pos_elem} | {rule_code} | ",
+                section_color,
             )
         else:
             out_buff += (
@@ -87,7 +86,7 @@ def format_violation(violation: SQLBaseError, max_line_length: int = 90) -> str:
                 + (" " * 23)
                 + colorize(
                     "| ",
-                    Color.lightgrey if violation.ignore else Color.blue,
+                    section_color,
                 )
             )
         out_buff += line
@@ -199,8 +198,8 @@ def format_dialect_warning():  # pragma: no cover
     )
 
 
-class CallbackFormatter:
-    """Formatter which uses a callback to output information.
+class OutputStreamFormatter:
+    """Formatter which writes to an OutputStream.
 
     On instantiation, this formatter accepts a function to
     dispatch messages. Each public method accepts an object
@@ -212,23 +211,20 @@ class CallbackFormatter:
 
 
     Args:
-        callback (:obj:`callable`): A callable which can be
-            be called with a string to be output.
-        verbosity (:obj:`int`): An integer specifying how
-            verbose the output should be.
-        filter_empty (:obj:`bool`): If True, empty messages
-            will not be dispatched.
-
+        output_stream: Output is sent here
+        verbosity: Specifies how verbose output should be
+        filter_empty: If True, empty messages will not be dispatched
+        output_line_length: Maximum line length
     """
 
     def __init__(
         self,
-        callback: Callable,
+        output_stream: OutputStream,
         verbosity: int = 0,
         filter_empty: bool = True,
         output_line_length: int = 80,
     ):
-        self._callback = callback
+        self._output_stream = output_stream
         self._verbosity = verbosity
         self._filter_empty = filter_empty
         self.output_line_length = output_line_length
@@ -240,7 +236,7 @@ class CallbackFormatter:
         """
         # The strip here is to filter out any empty messages
         if (not self._filter_empty) or s.strip(" \n\t"):
-            self._callback(s)
+            self._output_stream.write(s)
 
     def _format_config(self, linter: Linter) -> str:
         """Format the config of a `Linter`."""

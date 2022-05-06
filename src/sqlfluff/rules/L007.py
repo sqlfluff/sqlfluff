@@ -8,6 +8,7 @@ import sqlfluff.core.rules.functional.segment_predicates as sp
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
+    document_groups,
 )
 from sqlfluff.core.rules.functional.segments import Segments
 
@@ -15,6 +16,7 @@ after_description = "Operators near newlines should be after, not before the new
 before_description = "Operators near newlines should be before, not after the newline"
 
 
+@document_groups
 @document_fix_compatible
 @document_configuration
 class Rule_L007(BaseRule):
@@ -55,6 +57,7 @@ class Rule_L007(BaseRule):
         FROM foo
     """
 
+    groups = ("all",)
     config_keywords = ["operator_new_lines"]
 
     def _eval(self, context: RuleContext) -> Optional[List[LintResult]]:

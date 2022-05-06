@@ -3,8 +3,10 @@ from typing import Tuple
 
 from sqlfluff.core.rules.base import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.functional import rsp
+from sqlfluff.core.rules.doc_decorators import document_groups
 
 
+@document_groups
 class Rule_L046(BaseRule):
     """Jinja tags should have a single whitespace on either side.
 
@@ -32,6 +34,7 @@ class Rule_L046(BaseRule):
         }};
     """
 
+    groups = ("all", "core")
     targets_templated = True
 
     @staticmethod

@@ -4,11 +4,13 @@ from sqlfluff.core.parser.segments.raw import KeywordSegment, WhitespaceSegment
 
 from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix, RuleContext
 from sqlfluff.core.rules.doc_decorators import (
-    document_fix_compatible,
     document_configuration,
+    document_fix_compatible,
+    document_groups,
 )
 
 
+@document_groups
 @document_fix_compatible
 @document_configuration
 class Rule_L051(BaseRule):
@@ -43,6 +45,7 @@ class Rule_L051(BaseRule):
         INNER JOIN baz;
     """
 
+    groups = ("all",)
     config_keywords = ["fully_qualify_join_types"]
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:

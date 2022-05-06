@@ -8,6 +8,7 @@ from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
+    document_groups,
 )
 
 import sqlfluff.core.rules.functional.segment_predicates as sp
@@ -22,6 +23,7 @@ class TableAliasInfo(NamedTuple):
     alias_identifier_ref: BaseSegment
 
 
+@document_groups
 @document_fix_compatible
 @document_configuration
 class Rule_L031(BaseRule):
@@ -81,6 +83,7 @@ class Rule_L031(BaseRule):
 
     """
 
+    groups = ("all",)
     config_keywords = ["force_enable"]
     _dialects_disabled_by_default = ["bigquery"]
 

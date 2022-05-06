@@ -368,6 +368,32 @@ test_pass_ignore_lists_unquoted_mixed_case:
       L057:
         ignore_words: alias$
 
+test_pass_ignore_words_regex_unquoted:
+  pass_str:
+    SELECT a as alias$
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      L057:
+        ignore_words_regex: lias\$$
+
+test_pass_ignore_words_regex_quoted:
+  pass_str:
+    SELECT a as 'aliashash#'
+  configs:
+    rules:
+      L057:
+        ignore_words_regex: hash#$
+
+test_fail_ignore_words_regex_quoted_mixed_case:
+  fail_str:
+    SELECT a as 'aliasHash#'
+  configs:
+    rules:
+      L057:
+        ignore_words_regex: hash#$
+
 test_pass_special_chars_show_tblproperties:
   pass_str:
     SHOW TBLPROPERTIES customer ('created.date');

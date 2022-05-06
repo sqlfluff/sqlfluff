@@ -1,10 +1,11 @@
 """Implementation of Rule L017."""
 
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
-from sqlfluff.core.rules.doc_decorators import document_fix_compatible
+from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
 import sqlfluff.core.rules.functional.segment_predicates as sp
 
 
+@document_groups
 @document_fix_compatible
 class Rule_L017(BaseRule):
     """Function name not immediately followed by parenthesis.
@@ -30,6 +31,8 @@ class Rule_L017(BaseRule):
         FROM foo
 
     """
+
+    groups = ("all", "core")
 
     def _eval(self, context: RuleContext) -> LintResult:
         """Function name not immediately followed by bracket.

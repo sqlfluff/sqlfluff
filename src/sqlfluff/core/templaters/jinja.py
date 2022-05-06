@@ -3,7 +3,7 @@ import logging
 import os.path
 import pkgutil
 from functools import reduce
-from typing import Callable, Dict, List, Optional, Tuple
+from typing import Callable, Dict, Generator, List, Optional, Tuple
 
 import jinja2.nodes
 from jinja2 import (
@@ -17,7 +17,7 @@ from jinja2.environment import Template
 from jinja2.sandbox import SandboxedEnvironment
 
 from sqlfluff.core.config import FluffConfig
-from sqlfluff.core.errors import SQLTemplaterError
+from sqlfluff.core.errors import SQLBaseError, SQLTemplaterError
 from sqlfluff.core.templaters.base import (
     RawFileSlice,
     TemplatedFile,
@@ -78,9 +78,17 @@ class JinjaTemplater(PythonTemplater):
                 with open(path_entry) as opened_file:
                     template = opened_file.read()
                 # Update the context with macros from the file.
-                macro_ctx.update(
-                    cls._extract_macros_from_template(template, env=env, ctx=ctx)
-                )
+                try:
+                    macro_ctx.update(
+                        cls._extract_macros_from_template(template, env=env, ctx=ctx)
+                    )
+                except TemplateSyntaxError as err:
+                    raise SQLTemplaterError(
+                        f"Error in Jinja macro file {os.path.relpath(path_entry)}: "
+                        f"{err.message}",
+                        line_no=err.lineno,
+                        line_pos=1,
+                    ) from err
             else:
                 # It's a directory. Iterate through files in it and extract from them.
                 for dirpath, _, files in os.walk(path_entry):
@@ -193,18 +201,24 @@ class JinjaTemplater(PythonTemplater):
         return dbt_builtins
 
     @classmethod
-    def _crawl_tree(cls, tree, variable_names, raw):
+    def _crawl_tree(
+        cls, tree, variable_names, raw
+    ) -> Generator[SQLTemplaterError, None, None]:
         """Crawl the tree looking for occurrences of the undeclared values."""
         # First iterate through children
         for elem in tree.iter_child_nodes():
             yield from cls._crawl_tree(elem, variable_names, raw)
         # Then assess self
-        if isinstance(tree, jinja2.nodes.Name) and tree.name in variable_names:
-            line_no = tree.lineno
+        if (
+            isinstance(tree, jinja2.nodes.Name)
+            and getattr(tree, "name") in variable_names
+        ):
+            line_no: int = getattr(tree, "lineno")
+            tree_name: str = getattr(tree, "name")
             line = raw.split("\n")[line_no - 1]
-            pos = line.index(tree.name) + 1
+            pos = line.index(tree_name) + 1
             yield SQLTemplaterError(
-                f"Undefined jinja template variable: {tree.name!r}",
+                f"Undefined jinja template variable: {tree_name!r}",
                 line_no=line_no,
                 line_pos=pos,
             )
@@ -355,9 +369,12 @@ class JinjaTemplater(PythonTemplater):
                 "object."
             )
 
-        env, live_context, make_template = self.template_builder(
-            fname=fname, config=config
-        )
+        try:
+            env, live_context, make_template = self.template_builder(
+                fname=fname, config=config
+            )
+        except SQLTemplaterError as err:
+            return None, [err]
 
         # Load the template, passing the global context.
         try:
@@ -375,7 +392,7 @@ class JinjaTemplater(PythonTemplater):
                 ],
             )
 
-        violations = []
+        violations: List[SQLBaseError] = []
 
         # Attempt to identify any undeclared variables. The majority
         # will be found during the _crawl_tree step rather than this
@@ -422,8 +439,10 @@ class JinjaTemplater(PythonTemplater):
             )
             if undefined_variables:
                 # Lets go through and find out where they are:
-                for val in self._crawl_tree(syntax_tree, undefined_variables, in_str):
-                    violations.append(val)
+                for template_err_val in self._crawl_tree(
+                    syntax_tree, undefined_variables, in_str
+                ):
+                    violations.append(template_err_val)
             return (
                 TemplatedFile(
                     source_str=in_str,
@@ -436,21 +455,20 @@ class JinjaTemplater(PythonTemplater):
             )
         except (TemplateError, TypeError) as err:
             templater_logger.info("Unrecoverable Jinja Error: %s", err)
-            violations.append(
-                SQLTemplaterError(
-                    (
-                        "Unrecoverable failure in Jinja templating: {}. Have you "
-                        "configured your variables? "
-                        "https://docs.sqlfluff.com/en/latest/configuration.html"
-                    ).format(err),
-                    # We don't have actual line number information, but specify
-                    # line 1 so users can ignore with "noqa" if they want. (The
-                    # default is line 0, which can't be ignored because it's not
-                    # a valid line number.)
-                    line_no=1,
-                    line_pos=1,
-                )
+            template_err: SQLBaseError = SQLTemplaterError(
+                (
+                    "Unrecoverable failure in Jinja templating: {}. Have you "
+                    "configured your variables? "
+                    "https://docs.sqlfluff.com/en/latest/configuration.html"
+                ).format(err),
+                # We don't have actual line number information, but specify
+                # line 1 so users can ignore with "noqa" if they want. (The
+                # default is line 0, which can't be ignored because it's not
+                # a valid line number.)
+                line_no=1,
+                line_pos=1,
             )
+            violations.append(template_err)
             return None, violations
 
     def slice_file(
