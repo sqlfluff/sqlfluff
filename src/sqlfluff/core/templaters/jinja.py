@@ -2,10 +2,6 @@
 import logging
 import os.path
 import pkgutil
-import datetime
-import time
-import uuid
-import random
 from functools import reduce
 from typing import Callable, Dict, Generator, List, Optional, Tuple
 
@@ -123,13 +119,7 @@ class JinjaTemplater(PythonTemplater):
             )
         return macro_ctx
 
-    def _extract_libraries_from_config(self, config):
-        library_path = config.get_section(
-            (self.templater_selector, self.name, "library_path")
-        )
-        if not library_path:
-            return {}
-
+    def _extract_libraries_from_path(self, library_path: str):
         libraries = JinjaTemplater.Libraries()
 
         # If library_path has __init__.py we parse it as one module, else we parse it
@@ -172,6 +162,15 @@ class JinjaTemplater(PythonTemplater):
         # remove magic methods from result
         return {k: v for k, v in libraries.__dict__.items() if not k.startswith("__")}
 
+    def _extract_libraries_from_config(self, config):
+        library_path = config.get_section(
+            (self.templater_selector, self.name, "library_path")
+        )
+        if not library_path:
+            return {}
+
+        return self._extract_libraries_from_path(library_path=library_path)
+
     @staticmethod
     def _generate_dbt_builtins():
         """Generate the dbt builtins which are injected in the context."""
@@ -203,152 +202,6 @@ class JinjaTemplater(PythonTemplater):
             "this": ThisEmulator(),
         }
         return dbt_builtins
-
-    @staticmethod
-    def _generate_airflow_builtins():
-        """Generate the airflow builtins which are injected in the context.
-
-        https://airflow.apache.org/docs/apache-airflow/stable/templates-ref.html
-        """
-        # Copied from _generate_dbt_builtins
-        # This feels a bit wrong defining these here, they should probably
-        # be configurable somewhere sensible. But for now they're not.
-        # TODO: Come up with a better solution.
-
-        class DagEmulator:
-            """A class which emulates the `DAG` class from Airflow."""
-
-            dag_id = "sample_dag"
-            is_subdag = False
-
-            def __str__(self):
-                return self.dag_id
-
-        class DagRunEmulator:
-            """A class which emulates the `task` class from Airflow."""
-
-            dag_id = "sample_dag"
-            run_id = "sample_dag__run_id"
-            execution_date = datetime.datetime.now(datetime.timezone.utc)
-            logical_date = datetime.datetime.now(datetime.timezone.utc)
-            state = "SUCCESS"
-            is_backfill = False
-
-            def __str__(self):
-                return self.run_id
-
-        class TaskInstanceEmulator:
-            """A class which emulates the `task_instance` class from Airflow."""
-
-            dag_id = "sample_dag"
-            task_id = "sample_task"
-            ds_nodash = "19700101"
-
-            logical_date = datetime.datetime.now(datetime.timezone.utc)
-
-            def __str__(self):
-                return f"{self.dag_id}__{self.task_id}__{self.ds_nodash}"
-
-        # https://github.com/apache/airflow/blob/main/airflow/templates.py
-        def ds_filter(value):
-            return value.strftime("%Y-%m-%d")
-
-        def ds_nodash_filter(value):
-            return value.strftime("%Y%m%d")
-
-        def ts_filter(value):
-            return value.isoformat()
-
-        def ts_nodash_filter(value):
-            return value.strftime("%Y%m%dT%H%M%S")
-
-        def ts_nodash_with_tz_filter(value):
-            return value.isoformat().replace("-", "").replace(":", "")
-
-        # https://github.com/apache/airflow/blob/main/airflow/macros/__init__.py
-        def ds_add(ds: str, days: int) -> str:
-            """Add or subtract days from a YYYY-MM-DD.
-
-            :param ds: anchor date in ``YYYY-MM-DD`` format to add to
-            :param days: number of days to add to the ds, you can use negative values
-            >>> ds_add('2015-01-01', 5)
-            '2015-01-06'
-            >>> ds_add('2015-01-06', -5)
-            '2015-01-01'
-            """
-            if not days:
-                return str(ds)
-            dt = datetime.datetime.strptime(str(ds), "%Y-%m-%d") + datetime.timedelta(
-                days=days
-            )
-            return dt.strftime("%Y-%m-%d")
-
-        def ds_format(ds: str, input_format: str, output_format: str) -> str:
-            """Takes an input string and outputs another string.
-
-            As specified in the output format
-
-            :param ds: input string which contains a date
-            :param input_format: input string format. E.g. %Y-%m-%d
-            :param output_format: output string format  E.g. %Y-%m-%d
-            >>> ds_format('2015-01-01', "%Y-%m-%d", "%m-%d-%y")
-            '01-01-15'
-            >>> ds_format('1/5/2015', "%m/%d/%Y",  "%Y-%m-%d")
-            '2015-01-05'
-            """
-            return datetime.datetime.strptime(str(ds), input_format).strftime(
-                output_format
-            )
-
-        airflow_variables = {
-            "data_interval_start": datetime.datetime.now()
-            + datetime.timedelta(days=-1),
-            "data_interval_end": datetime.datetime.now(),
-            "ds": ds_filter(DagRunEmulator().logical_date),
-            "ds_nodash": ds_nodash_filter(DagRunEmulator().logical_date),
-            "ts": ts_filter(DagRunEmulator().logical_date),
-            "ts_nodash_with_tz": ts_nodash_with_tz_filter(
-                DagRunEmulator().logical_date
-            ),
-            "ts_nodash": ts_nodash_filter(DagRunEmulator().logical_date),
-            "task_instance_key_str": str(TaskInstanceEmulator()),
-            "task_instance": TaskInstanceEmulator(),
-            "dag": DagEmulator(),
-            "ti": TaskInstanceEmulator(),
-            "dag_run": DagRunEmulator(),
-            # Deprecated Airflow variables
-            "next_ds": datetime.date.today() + datetime.timedelta(days=1),
-            "prev_ds": datetime.date.today() + datetime.timedelta(days=-1),
-        }
-
-        airflow_macros = {
-            "macros": {
-                "datetime": datetime.datetime,
-                "timedelta": datetime.timedelta,
-                # dateutil requires `python-dateutil` which is not in SQLFluff
-                # requirements
-                # "dateutil": dateutil
-                "time": time,
-                "uuid": uuid,
-                "random": random.random,
-                # Airflow custom macros
-                # datetime_diff_for_humans requires `Pendulum`` which is not in SQLFluff
-                # requirements.
-                # "datetime_diff_for_humans": datetime_diff_for_humans,
-                "ds_add": ds_add,
-                "ds_format": ds_format,
-            }
-        }
-
-        airflow_filters = {
-            "ds": ds_filter,
-            "ds_nodash": ds_nodash_filter,
-            "ts": ts_filter,
-            "ts_nodash": ts_nodash_filter,
-            "ts_nodash_with_tz": ts_nodash_with_tz_filter,
-        }
-
-        return airflow_variables, airflow_macros, airflow_filters
 
     @classmethod
     def _crawl_tree(
@@ -421,27 +274,15 @@ class JinjaTemplater(PythonTemplater):
                 (self.templater_selector, self.name, "apply_airflow_builtins")
             )
             if apply_airflow_builtins:
-                # This feels a bit wrong defining these here, they should probably
-                # be configurable somewhere sensible. But for now they're not.
-                # TODO: Come up with a better solution.
-                (
-                    airflow_variables,
-                    airflow_macros,
-                    airflow_filters,
-                ) = self._generate_airflow_builtins()
+                live_context.update(
+                    self._extract_libraries_from_path(
+                        library_path="src/sqlfluff/core/templaters/builtins/airflow"
+                    )
+                )
 
-                for name in airflow_variables:
-                    # Only apply if it hasn't already been set at this stage.
-                    if name not in live_context:
-                        live_context[name] = airflow_variables[name]
-
-                for name in airflow_macros:
-                    # Only apply if it hasn't already been set at this stage.
-                    if name not in live_context:
-                        live_context[name] = airflow_macros[name]
-
-                for filter_name in airflow_filters:
-                    env.filters[filter_name] = airflow_filters[filter_name]
+                # TODO: Find a way to get filters to work when using library
+                # for filter_name in airflow_filters:
+                #     env.filters[filter_name] = airflow_filters[filter_name]
 
         # Load macros from path (if applicable)
         if config:

@@ -3,7 +3,6 @@ SELECT
     '{{ ts_nodash_with_tz }}',
     '{{ ts_nodash }}',
     '{{ data_interval_start }}',
-    '{{ data_interval_start | ts_nodash_with_tz }}',
     '{{ dag }}',
     '{{ dag.is_subdag }}',
     '{{ task_instance }}',
