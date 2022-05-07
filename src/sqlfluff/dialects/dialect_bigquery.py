@@ -199,6 +199,30 @@ bigquery_dialect.replace(
             bracket_pairs_set="angle_bracket_pairs",
         ),
     ),
+    StructTypeGrammar=Sequence(
+        "STRUCT",
+        Bracketed(
+            Delimited(  # Comma-separated list of field names/types
+                Sequence(
+                    OneOf(
+                        # ParameterNames can look like Datatypes so can't use
+                        # Optional=True here and instead do a OneOf in order
+                        # with DataType only first, followed by both.
+                        Ref("DatatypeSegment"),
+                        Sequence(
+                            Ref("ParameterNameSegment"),
+                            Ref("DatatypeSegment"),
+                        ),
+                    ),
+                    Ref("OptionsSegment", optional=True),
+                ),
+                delimiter=Ref("CommaSegment"),
+                bracket_pairs_set="angle_bracket_pairs",
+            ),
+            bracket_type="angle",
+            bracket_pairs_set="angle_bracket_pairs",
+        ),
+    ),
     # BigQuery allows underscore in parameter names, and also anything if quoted in
     # backticks
     ParameterNameSegment=OneOf(
@@ -368,6 +392,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DeclareStatementSegment"),
             Ref("SetStatementSegment"),
             Ref("ExportStatementSegment"),
+            Ref("CreateExternalTableStatementSegment"),
         ],
     )
 
@@ -683,30 +708,8 @@ class DatatypeSegment(ansi.DatatypeSegment):
     match_grammar = OneOf(  # Parameter type
         Ref("DatatypeIdentifierSegment"),  # Simple type
         Sequence("ANY", "TYPE"),  # SQL UDFs can specify this "type"
-        Sequence(
-            "ARRAY",
-            Bracketed(
-                Ref("DatatypeSegment"),
-                bracket_type="angle",
-                bracket_pairs_set="angle_bracket_pairs",
-            ),
-        ),
-        Sequence(
-            "STRUCT",
-            Bracketed(
-                Delimited(  # Comma-separated list of field names/types
-                    Sequence(
-                        Ref("ParameterNameSegment"),
-                        Ref("DatatypeSegment"),
-                        Ref("OptionsSegment", optional=True),
-                    ),
-                    delimiter=Ref("CommaSegment"),
-                    bracket_pairs_set="angle_bracket_pairs",
-                ),
-                bracket_type="angle",
-                bracket_pairs_set="angle_bracket_pairs",
-            ),
-        ),
+        Ref("SimpleArrayTypeGrammar"),
+        Ref("StructTypeGrammar"),
     )
 
 
@@ -1089,6 +1092,11 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
         "TABLE",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
+        Sequence(
+            OneOf("COPY", "LIKE"),
+            Ref("TableReferenceSegment"),
+            optional=True,
+        ),
         # Column list
         Sequence(
             Bracketed(
@@ -1111,6 +1119,51 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
             "AS",
             OptionallyBracketed(Ref("SelectableGrammar")),
             optional=True,
+        ),
+    )
+
+
+class CreateExternalTableStatementSegment(BaseSegment):
+    """A `CREATE EXTERNAL TABLE` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#create_external_table_statement
+    """
+
+    type = "create_external_table_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Sequence("OR", "REPLACE", optional=True),
+        "EXTERNAL",
+        "TABLE",
+        Sequence("IF", "NOT", "EXISTS", optional=True),
+        Ref("TableReferenceSegment"),
+        Bracketed(
+            Delimited(
+                Ref("ColumnDefinitionSegment"),
+                allow_trailing=True,
+            ),
+            optional=True,
+        ),
+        # Although not specified in the BigQuery documentation optinal arguments for
+        # CREATE EXTERNAL TABLE statements can be ordered arbitrarily.
+        AnyNumberOf(
+            # connection names have the same rules as table names in BigQuery
+            Sequence("WITH", "CONNECTION", Ref("TableReferenceSegment"), optional=True),
+            Sequence(
+                "WITH",
+                "PARTITION",
+                "COLUMNS",
+                Bracketed(
+                    Delimited(
+                        Ref("ColumnDefinitionSegment"),
+                        allow_trailing=True,
+                    ),
+                    optional=True,
+                ),
+                optional=True,
+            ),
+            Ref("OptionsSegment", optional=True),
         ),
     )
 
@@ -1152,9 +1205,7 @@ class FromPivotExpressionSegment(BaseSegment):
     """
 
     type = "from_pivot_expression"
-    match_grammar = Sequence("PIVOT", Bracketed(Anything()))
-
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "PIVOT",
         Bracketed(
             Delimited(
@@ -1360,6 +1411,24 @@ class MergeInsertClauseSegment(ansi.MergeInsertClauseSegment):
     )
 
 
+class DeleteStatementSegment(BaseSegment):
+    """A `DELETE` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/dml-syntax#delete_statement
+    """
+
+    type = "delete_statement"
+    # match grammar. This one makes sense in the context of knowing that it's
+    # definitely a statement, we just don't know what type yet.
+    match_grammar: Matchable = Sequence(
+        "DELETE",
+        Ref.keyword("FROM", optional=True),
+        Ref("ObjectReferenceSegment"),
+        Ref("AliasExpressionSegment", optional=True),
+        Ref("WhereClauseSegment", optional=True),
+    )
+
+
 class ExportStatementSegment(BaseSegment):
     """`EXPORT` statement.
 
@@ -1439,5 +1508,5 @@ class ExportStatementSegment(BaseSegment):
             ),
         ),
         "AS",
-        Ref("SelectStatementSegment"),
+        Ref("SelectableGrammar"),
     )

@@ -78,3 +78,10 @@ USING dataset.newarrivals s
 ON t.product = s.product
 WHEN NOT MATCHED BY SOURCE THEN
     UPDATE SET quantity = t.quantity + s.quantity;
+
+-- Merge using Select without alias
+MERGE dataset.NewArrivals
+USING (SELECT * FROM dataset.NewArrivals WHERE warehouse <> 'warehouse #2')
+ON FALSE
+WHEN MATCHED THEN
+  DELETE

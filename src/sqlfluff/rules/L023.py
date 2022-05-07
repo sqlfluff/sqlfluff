@@ -5,9 +5,10 @@ from typing import Optional, List
 from sqlfluff.core.parser import BaseSegment, WhitespaceSegment
 
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
-from sqlfluff.core.rules.doc_decorators import document_fix_compatible
+from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
 
 
+@document_groups
 @document_fix_compatible
 class Rule_L023(BaseRule):
     """Single whitespace expected after ``AS`` in ``WITH`` clause.
@@ -38,6 +39,7 @@ class Rule_L023(BaseRule):
         SELECT a FROM plop
     """
 
+    groups = ("all", "core")
     expected_mother_segment_type = "with_compound_statement"
     pre_segment_identifier = ("name", "as")
     post_segment_identifier = ("type", "bracketed")

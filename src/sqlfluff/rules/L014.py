@@ -7,6 +7,7 @@ from sqlfluff.core.rules.base import LintResult, RuleContext
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
+    document_groups,
 )
 from sqlfluff.rules.L010 import Rule_L010
 
@@ -30,8 +31,9 @@ def identifiers_policy_applicable(
     return False
 
 
-@document_configuration
+@document_groups
 @document_fix_compatible
+@document_configuration
 class Rule_L014(Rule_L010):
     """Inconsistent capitalisation of unquoted identifiers.
 
@@ -67,6 +69,7 @@ class Rule_L014(Rule_L010):
 
     """
 
+    groups = ("all", "core")
     lint_phase = "post"
     _target_elems: List[Tuple[str, str]] = [
         ("name", "naked_identifier"),

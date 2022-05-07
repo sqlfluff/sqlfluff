@@ -435,6 +435,7 @@ tsql_dialect.replace(
         Ref.keyword("INTO", optional=True),
     ),
     TrimParametersGrammar=Nothing(),
+    TemporaryGrammar=Nothing(),
 )
 
 
@@ -474,6 +475,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CloseCursorStatementSegment"),
             Ref("DeallocateCursorStatementSegment"),
             Ref("FetchCursorStatementSegment"),
+            Ref("CreateTypeStatementSegment"),
         ],
         remove=[
             Ref("CreateModelStatementSegment"),
@@ -1818,7 +1820,9 @@ class CreateProcedureStatementSegment(BaseSegment):
         Sequence("OR", "ALTER", optional=True),
         OneOf("PROCEDURE", "PROC"),
         Ref("ObjectReferenceSegment"),
+        Indent,
         Ref("ProcedureParameterListGrammar", optional=True),
+        Dedent,
         "AS",
         Ref("ProcedureDefinitionGrammar"),
     )
@@ -3186,7 +3190,7 @@ class ExecuteScriptSegment(BaseSegment):
     match_grammar = Sequence(
         OneOf("EXEC", "EXECUTE"),
         Sequence(Ref("ParameterNameSegment"), Ref("EqualsSegment"), optional=True),
-        Ref("ObjectReferenceSegment"),
+        OptionallyBracketed(Ref("ObjectReferenceSegment")),
         Indent,
         Sequence(
             Sequence(Ref("ParameterNameSegment"), Ref("EqualsSegment"), optional=True),
@@ -3918,13 +3922,9 @@ class ForXmlSegment(BaseSegment):
         "FOR",
         "XML",
         OneOf(
-            Sequence(
-                "RAW", Bracketed(Ref("SingleQuotedIdentifierSegment"), optional=True)
-            ),
-            Ref.keyword("AUTO"),
-            Ref.keyword("EXPLICIT"),
-            Sequence(
-                "PATH", Bracketed(Ref("SingleQuotedIdentifierSegment"), optional=True)
-            ),
+            Sequence("RAW", Bracketed(Ref("QuotedLiteralSegment"), optional=True)),
+            "AUTO",
+            "EXPLICIT",
+            Sequence("PATH", Bracketed(Ref("QuotedLiteralSegment"), optional=True)),
         ),
     )

@@ -2,8 +2,10 @@
 from typing import Optional
 
 from sqlfluff.core.rules.base import BaseRule, LintResult, RuleContext
+from sqlfluff.core.rules.doc_decorators import document_groups
 
 
+@document_groups
 class Rule_L055(BaseRule):
     """Use ``LEFT JOIN`` instead of ``RIGHT JOIN``.
 
@@ -35,6 +37,8 @@ class Rule_L055(BaseRule):
         LEFT JOIN foo
             ON foo.bar_id = bar.id;
     """
+
+    groups = ("all",)
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Use LEFT JOIN instead of RIGHT JOIN."""

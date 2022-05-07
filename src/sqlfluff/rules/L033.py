@@ -5,8 +5,10 @@ from sqlfluff.core.parser import (
 )
 
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
+from sqlfluff.core.rules.doc_decorators import document_groups
 
 
+@document_groups
 class Rule_L033(BaseRule):
     """``UNION [DISTINCT|ALL]`` is preferred over just ``UNION``.
 
@@ -37,6 +39,8 @@ class Rule_L033(BaseRule):
         SELECT a, b FROM table_2
 
     """
+
+    groups = ("all", "core")
 
     def _eval(self, context: RuleContext) -> LintResult:
         """Look for UNION keyword not immediately followed by DISTINCT or ALL.

@@ -5,11 +5,13 @@ from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix, RuleContext
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
+    document_groups,
 )
 
 
-@document_configuration
+@document_groups
 @document_fix_compatible
+@document_configuration
 class Rule_L002(BaseRule):
     """Mixed Tabs and Spaces in single whitespace.
 
@@ -41,6 +43,7 @@ class Rule_L002(BaseRule):
 
     """
 
+    groups = ("all", "core")
     config_keywords = ["tab_space_size"]
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:

@@ -173,6 +173,17 @@ If both :code:`exclude_rules` and :code:`rules` have non-empty value, then the
 excluded rules are removed from the rules list. This allows for example
 enabling common rules on top level but excluding some on subdirectory level.
 
+Rules can also be enabled/disabled by their grouping. Right now, the only
+rule grouping is :code:`core`. This will enable (or disable) a select group
+of rules that have been deemed 'core rules'.
+
+.. code-block:: cfg
+
+    [sqlfluff]
+    rules = core
+
+More information about 'core rules' can be found in the :ref:`ruleref`.
+
 Additionally, some rules have a special :code:`force_enable` configuration
 option, which allows to enable the given rule even for dialects where it is
 disabled by default. The rules that support this can be found in the

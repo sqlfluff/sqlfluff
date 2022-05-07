@@ -7,6 +7,7 @@ from sqlfluff.core.rules import get_ruleset
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
+    document_groups,
 )
 from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.parser import WhitespaceSegment
@@ -20,10 +21,13 @@ from sqlfluff.core.rules.loader import get_rules_from_path
 class Rule_T042(BaseRule):
     """A dummy rule."""
 
+    groups = ("all",)
+
     def _eval(self, context):
         pass
 
 
+@document_groups
 @document_fix_compatible
 class Rule_T001(BaseRule):
     """A deliberately malicious rule.
@@ -32,6 +36,8 @@ class Rule_T001(BaseRule):
 
     Blah blah
     """
+
+    groups = ("all",)
 
     def _eval(self, context):
         """Stars make newlines."""
@@ -117,6 +123,8 @@ def test_rule_exception_is_caught_to_validation():
     class Rule_T000(BaseRule):
         """Rule that throws an exception."""
 
+        groups = ("all",)
+
         def _eval(self, segment, parent_stack, **kwargs):
             raise Exception("Catch me or I'll deny any linting results from you")
 
@@ -126,6 +134,31 @@ def test_rule_exception_is_caught_to_validation():
     )
 
     assert linter.lint_string("select 1").check_tuples() == [("T000", 1, 1)]
+
+
+def test_rule_must_belong_to_all_group():
+    """Assert correct 'groups' config for rule."""
+    std_rule_set = get_ruleset()
+
+    with pytest.raises(AttributeError):
+
+        @std_rule_set.register
+        class Rule_T000(BaseRule):
+            """Badly configured rule, no groups attribute."""
+
+            def _eval(self, segment, parent_stack, **kwargs):
+                pass
+
+    with pytest.raises(AssertionError):
+
+        @std_rule_set.register
+        class Rule_T001(BaseRule):
+            """Badly configured rule, no 'all' group."""
+
+            groups = ()
+
+            def _eval(self, segment, parent_stack, **kwargs):
+                pass
 
 
 def test_std_rule_import_fail_bad_naming():

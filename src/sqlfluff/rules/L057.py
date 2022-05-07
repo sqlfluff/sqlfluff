@@ -3,12 +3,11 @@ import regex
 from typing import Optional
 
 from sqlfluff.core.rules.base import BaseRule, LintResult, RuleContext
-from sqlfluff.core.rules.doc_decorators import (
-    document_configuration,
-)
+from sqlfluff.core.rules.doc_decorators import document_configuration, document_groups
 from sqlfluff.rules.L014 import identifiers_policy_applicable
 
 
+@document_groups
 @document_configuration
 class Rule_L057(BaseRule):
     """Do not use special characters in identifiers.
@@ -43,6 +42,7 @@ class Rule_L057(BaseRule):
 
     """
 
+    groups = ("all",)
     config_keywords = [
         "quoted_identifiers_policy",
         "unquoted_identifiers_policy",

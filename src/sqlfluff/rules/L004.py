@@ -2,11 +2,13 @@
 from sqlfluff.core.parser import WhitespaceSegment
 from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix, RuleContext
 from sqlfluff.core.rules.doc_decorators import (
-    document_fix_compatible,
     document_configuration,
+    document_fix_compatible,
+    document_groups,
 )
 
 
+@document_groups
 @document_fix_compatible
 @document_configuration
 class Rule_L004(BaseRule):
@@ -44,6 +46,7 @@ class Rule_L004(BaseRule):
         from foo
     """
 
+    groups = ("all", "core")
     config_keywords = ["indent_unit", "tab_space_size"]
 
     # TODO fix indents after text:

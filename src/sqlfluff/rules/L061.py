@@ -4,10 +4,11 @@ from typing import Optional
 
 from sqlfluff.core.parser.segments.raw import CodeSegment
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
-from sqlfluff.core.rules.doc_decorators import document_fix_compatible
+from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
 from sqlfluff.core.rules.functional import sp
 
 
+@document_groups
 @document_fix_compatible
 class Rule_L061(BaseRule):
     """Use ``!=`` instead of ``<>`` for "not equal to" comparisons.
@@ -30,6 +31,8 @@ class Rule_L061(BaseRule):
         SELECT * FROM X WHERE 1 != 2;
 
     """
+
+    groups = ("all",)
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Use ``!=`` instead of ``<>`` for "not equal to" comparison."""

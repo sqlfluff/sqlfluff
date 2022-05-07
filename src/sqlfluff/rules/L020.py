@@ -1,14 +1,16 @@
 """Implementation of Rule L020."""
 
 import itertools
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 from sqlfluff.core.dialects.common import AliasInfo, ColumnAliasInfo
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules.base import BaseRule, LintResult, RuleContext, EvalResultType
 from sqlfluff.core.rules.analysis.select import get_select_statement_info
+from sqlfluff.core.rules.doc_decorators import document_groups
 
 
+@document_groups
 class Rule_L020(BaseRule):
     """Table aliases should be unique within each clause.
 
@@ -57,6 +59,8 @@ class Rule_L020(BaseRule):
             2021.foo AS f2
 
     """
+
+    groups: Tuple[str, ...] = ("all", "core")
 
     def _lint_references_and_aliases(
         self,

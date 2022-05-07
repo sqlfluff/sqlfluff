@@ -726,6 +726,19 @@ test_pass_ignore_templated_whitespace_4:
         {{ "      c2\n" }} AS other_id
     FROM my_table
 
+test_pass_ignore_templated_newline_not_last_line:
+  pass_str: |
+    select *
+    from {{ "\n\nmy_table" }}
+    inner join
+        my_table2
+        using (id)
+
+test_pass_ignore_templated_newline_last_line:
+  pass_str: |
+    select *
+    from {{ "\n\nmy_table" }}
+
 test_fail_fix_template_indentation_1:
   fail_str: |
     SELECT
@@ -970,3 +983,27 @@ test_fail_hanging_indents_fix_mixed_indents:
     rules:
       L003:
         hanging_indents: False
+
+test_pass_indented_procedure_parameters:
+  pass_str: |
+    CREATE OR ALTER PROCEDURE some_procedure
+        @param1 int
+    AS SELECT * FROM dbo
+  configs:
+    core:
+      dialect: tsql
+
+test_fail_unindented_procedure_parameters:
+  fail_str: |
+    CREATE OR ALTER PROCEDURE someOtherProcedure
+    @param1 nvarchar(100),
+    @param2 nvarchar(20)
+    AS SELECT * FROM dbo
+  fix_str: |
+    CREATE OR ALTER PROCEDURE someOtherProcedure
+        @param1 nvarchar(100),
+        @param2 nvarchar(20)
+    AS SELECT * FROM dbo
+  configs:
+    core:
+      dialect: tsql

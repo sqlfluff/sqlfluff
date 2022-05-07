@@ -5,12 +5,14 @@ from typing import List, Tuple
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
+    document_groups,
 )
 from sqlfluff.rules.L010 import Rule_L010
 
 
-@document_configuration
+@document_groups
 @document_fix_compatible
+@document_configuration
 class Rule_L030(Rule_L010):
     """Inconsistent capitalisation of function names.
 
@@ -38,6 +40,7 @@ class Rule_L030(Rule_L010):
 
     """
 
+    groups = ("all", "core")
     lint_phase = "post"
     _target_elems: List[Tuple[str, str]] = [
         ("type", "function_name_identifier"),

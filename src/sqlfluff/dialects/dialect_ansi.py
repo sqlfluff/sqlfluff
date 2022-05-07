@@ -510,6 +510,7 @@ ansi_dialect.add(
     ),
     # This is a placeholder for other dialects.
     SimpleArrayTypeGrammar=Nothing(),
+    StructTypeGrammar=Nothing(),
     BaseExpressionElementGrammar=OneOf(
         Ref("LiteralGrammar"),
         Ref("BareFunctionSegment"),
@@ -681,7 +682,11 @@ class DatatypeSegment(BaseSegment):
                 # There may be no brackets for some data types
                 optional=True,
             ),
-            Ref("CharCharacterSetGrammar", optional=True),
+            OneOf(
+                "UNSIGNED",  # UNSIGNED MySQL
+                Ref("CharCharacterSetGrammar"),
+                optional=True,
+            ),
         ),
     )
 
@@ -1389,7 +1394,7 @@ class SelectClauseSegment(BaseSegment):
 
     type = "select_clause"
     match_grammar: Matchable = StartsWith(
-        Sequence("SELECT", Ref("WildcardExpressionSegment", optional=True)),
+        "SELECT",
         terminator=OneOf(
             "FROM",
             "WHERE",
@@ -1734,7 +1739,7 @@ ansi_dialect.add(
     # Expression_C_Grammar
     # https://www.cockroachlabs.com/docs/v20.2/sql-grammar.htm#c_expr
     Expression_C_Grammar=OneOf(
-        Sequence("EXISTS", Bracketed(Ref("SelectStatementSegment"))),
+        Sequence("EXISTS", Bracketed(Ref("SelectableGrammar"))),
         # should be first priority, otherwise EXISTS() would be matched as a function
         Sequence(
             OneOf(
@@ -1782,6 +1787,10 @@ ansi_dialect.add(
             ),
             Sequence(
                 Ref("SimpleArrayTypeGrammar", optional=True), Ref("ArrayLiteralSegment")
+            ),
+            Sequence(
+                Ref("StructTypeGrammar"),
+                Bracketed(Delimited(Ref("ExpressionSegment"))),
             ),
             Sequence(
                 Ref("DatatypeSegment"),
@@ -2349,7 +2358,7 @@ class MergeStatementSegment(BaseSegment):
                 Bracketed(
                     Ref("SelectableGrammar"),
                 ),
-                Ref("AliasExpressionSegment"),
+                Ref("AliasExpressionSegment", optional=True),
             ),
         ),
         Dedent,
@@ -2487,7 +2496,6 @@ class ColumnConstraintSegment(BaseSegment):
             Ref("PrimaryKeyGrammar"),
             Ref("UniqueKeyGrammar"),  # UNIQUE
             "AUTO_INCREMENT",  # AUTO_INCREMENT (MySQL)
-            "UNSIGNED",  # UNSIGNED (MySQL)
             Ref("ReferenceDefinitionGrammar"),  # REFERENCES reftable [ ( refcolumn) ]x
             Ref("CommentClauseSegment"),
         ),
@@ -2792,9 +2800,10 @@ class DropTableStatementSegment(BaseSegment):
 
     match_grammar: Matchable = Sequence(
         "DROP",
+        Ref("TemporaryGrammar", optional=True),
         "TABLE",
         Ref("IfExistsGrammar", optional=True),
-        Ref("TableReferenceSegment"),
+        Delimited(Ref("TableReferenceSegment")),
         Ref("DropBehaviorGrammar", optional=True),
     )
 
@@ -3199,14 +3208,6 @@ class CreateFunctionStatementSegment(BaseSegment):
         Ref("OrReplaceGrammar", optional=True),
         Ref("TemporaryGrammar", optional=True),
         "FUNCTION",
-        Anything(),
-    )
-
-    parse_grammar: Optional[Matchable] = Sequence(
-        "CREATE",
-        Ref("OrReplaceGrammar", optional=True),
-        Ref("TemporaryGrammar", optional=True),
-        "FUNCTION",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("FunctionNameSegment"),
         Ref("FunctionParameterListGrammar"),
@@ -3282,27 +3283,6 @@ class CreateModelStatementSegment(BaseSegment):
         ),
         "AS",
         Ref("SelectableGrammar"),
-    )
-
-
-class CreateTypeStatementSegment(BaseSegment):
-    """A `CREATE TYPE` statement.
-
-    This is based around the Postgres syntax.
-    https://www.postgresql.org/docs/current/sql-createtype.html
-
-    Note: This is relatively permissive currently
-    and does not lint the syntax strictly, to allow
-    for some deviation between dialects.
-    """
-
-    type = "create_type_statement"
-    match_grammar: Matchable = Sequence(
-        "CREATE",
-        "TYPE",
-        Ref("ObjectReferenceSegment"),
-        Sequence("AS", OneOf("ENUM", "RANGE", optional=True), optional=True),
-        Bracketed(Delimited(Anything()), optional=True),
     )
 
 
@@ -3403,7 +3383,6 @@ class StatementSegment(BaseSegment):
         Ref("TruncateStatementSegment"),
         Ref("AccessStatementSegment"),
         Ref("CreateTableStatementSegment"),
-        Ref("CreateTypeStatementSegment"),
         Ref("CreateRoleStatementSegment"),
         Ref("DropRoleStatementSegment"),
         Ref("AlterTableStatementSegment"),

@@ -2,10 +2,11 @@
 from typing import Optional
 
 from sqlfluff.rules.L011 import Rule_L011
-from sqlfluff.core.rules.doc_decorators import document_configuration
+from sqlfluff.core.rules.doc_decorators import document_configuration, document_groups
 from sqlfluff.core.rules.base import LintResult, RuleContext
 
 
+@document_groups
 @document_configuration
 class Rule_L012(Rule_L011):
     """Implicit/explicit aliasing of columns.
@@ -35,6 +36,7 @@ class Rule_L012(Rule_L011):
 
     """
 
+    groups = ("all", "core")
     config_keywords = ["aliasing"]
 
     _target_elems = ("select_clause_element",)

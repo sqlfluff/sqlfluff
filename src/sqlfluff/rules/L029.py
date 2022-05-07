@@ -3,10 +3,11 @@ import regex
 from typing import Optional, Tuple, List
 
 from sqlfluff.core.rules.base import BaseRule, LintResult, RuleContext
-from sqlfluff.core.rules.doc_decorators import document_configuration
+from sqlfluff.core.rules.doc_decorators import document_configuration, document_groups
 from sqlfluff.rules.L014 import identifiers_policy_applicable
 
 
+@document_groups
 @document_configuration
 class Rule_L029(BaseRule):
     """Keywords should not be used as identifiers.
@@ -42,6 +43,7 @@ class Rule_L029(BaseRule):
 
     """
 
+    groups = ("all",)
     # Binary operators behave like keywords too.
     _target_elems: List[Tuple[str, str]] = [
         ("name", "naked_identifier"),

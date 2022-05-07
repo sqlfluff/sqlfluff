@@ -21,6 +21,7 @@ Although SQL is reasonably consistent in its implementations, there are several 
 
 - ANSI SQL - this is the base version and on occasion may not strictly follow the ANSI/ISO SQL definition
 - [BigQuery](https://cloud.google.com/bigquery/)
+- [Db2](https://www.ibm.com/analytics/db2)
 - [Exasol](https://www.exasol.com/)
 - [Hive](https://hive.apache.org/)
 - [MySQL](https://www.mysql.com/)
@@ -54,11 +55,13 @@ To get started, install the package and run `sqlfluff lint` or `sqlfluff fix`.
 ```shell
 $ pip install sqlfluff
 $ echo "  SELECT a  +  b FROM tbl;  " > test.sql
-$ sqlfluff lint test.sql
-== [test.sql] FAIL
-L:   1 | P:   1 | L003 | Single indentation uses a number of spaces not a multiple of 4
-L:   1 | P:  14 | L006 | Operators should be surrounded by a single space unless at the start/end of a line
-L:   1 | P:  27 | L001 | Unnecessary trailing whitespace
+$ sqlfluff lint test.sql --dialect ansi
+== [test.sql] FAIL                                                                                                                                       
+L:   1 | P:   1 | L050 | Files must not begin with newlines or whitespace.
+L:   1 | P:   3 | L003 | First line has unexpected indent
+L:   1 | P:  11 | L039 | Unnecessary whitespace found.
+L:   1 | P:  14 | L039 | Unnecessary whitespace found.
+L:   1 | P:  27 | L001 | Unnecessary trailing whitespace.
 ```
 
 Alternatively, you can use the [**Official SQLFluff Docker Image**](https://hub.docker.com/r/sqlfluff/sqlfluff) or have a play using [**SQLFluff online**](https://online.sqlfluff.com/).

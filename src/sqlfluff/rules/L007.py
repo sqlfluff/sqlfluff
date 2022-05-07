@@ -1,6 +1,6 @@
 """Implementation of Rule L007."""
 import copy
-from typing import List, Optional
+from typing import List
 from sqlfluff.core.parser.segments.base import BaseSegment
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
 import sqlfluff.core.rules.functional.segment_predicates as sp
@@ -8,6 +8,7 @@ import sqlfluff.core.rules.functional.segment_predicates as sp
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
+    document_groups,
 )
 from sqlfluff.core.rules.functional.segments import Segments
 
@@ -15,6 +16,7 @@ after_description = "Operators near newlines should be after, not before the new
 before_description = "Operators near newlines should be before, not after the newline"
 
 
+@document_groups
 @document_fix_compatible
 @document_configuration
 class Rule_L007(BaseRule):
@@ -55,9 +57,10 @@ class Rule_L007(BaseRule):
         FROM foo
     """
 
+    groups = ("all",)
     config_keywords = ["operator_new_lines"]
 
-    def _eval(self, context: RuleContext) -> Optional[List[LintResult]]:
+    def _eval(self, context: RuleContext) -> List[LintResult]:
         """Operators should follow a standard for being before/after newlines.
 
         We use the memory to keep track of whitespace up to now, and
@@ -95,6 +98,19 @@ class Rule_L007(BaseRule):
             ):
                 continue
 
+            # If the operator is on a line by itself, that's okay regardless of
+            # the 'operator_new_lines' setting.
+            newline_after_operator = expr.select(
+                sp.or_(sp.is_code(), sp.is_type("newline")), start_seg=operator
+            ).first(sp.is_type("newline"))
+            newline_before_operator = (
+                expr.reversed()
+                .select(sp.or_(sp.is_code(), sp.is_type("newline")), start_seg=operator)
+                .first(sp.is_type("newline"))
+            )
+            if newline_after_operator and newline_before_operator:
+                continue
+
             insert_anchor = anchor_list.last().get()
             assert insert_anchor, "Insert Anchor must be present"
             lint_res = _generate_fixes(
@@ -105,8 +121,6 @@ class Rule_L007(BaseRule):
             )
             results.append(lint_res)
 
-        if len(results) == 0:
-            return None
         return results
 
 

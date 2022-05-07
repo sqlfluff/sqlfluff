@@ -8,8 +8,9 @@ from sqlfluff.core.parser.segments import BaseSegment
 from sqlfluff.core.rules.functional import rsp, sp, Segments
 from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix, RuleContext
 from sqlfluff.core.rules.doc_decorators import (
-    document_fix_compatible,
     document_configuration,
+    document_fix_compatible,
+    document_groups,
 )
 from sqlfluff.core.templaters import TemplatedFile
 from sqlfluff.core.templaters.base import RawFileSlice
@@ -158,6 +159,7 @@ class _Memory:
         return self.hanging_lines.union(self.problem_lines)
 
 
+@document_groups
 @document_fix_compatible
 @document_configuration
 class Rule_L003(BaseRule):
@@ -191,6 +193,7 @@ class Rule_L003(BaseRule):
 
     """
 
+    groups = ("all", "core")
     targets_templated = True
     _works_on_unparsable = False
     needs_raw_stack = True
@@ -243,6 +246,7 @@ class Rule_L003(BaseRule):
                     if line_no == target_line_no:
                         memory.start_process_raw_idx += idx + 1
                         memory.line_no = line_no
+                        working_state.templated_line = elem.is_templated
                 continue
 
             working_state.line_buffer.append(elem)

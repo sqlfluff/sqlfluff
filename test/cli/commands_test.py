@@ -352,6 +352,15 @@ def test__cli__command_lint_parse(command):
             ),
             1,
         ),
+        # Template syntax error in macro file
+        (
+            (
+                lint,
+                ["test/fixtures/cli/unknown_jinja_tag/test.sql", "-vvvvvvv"],
+                "y",
+            ),
+            65,
+        ),
     ],
 )
 def test__cli__command_lint_parse_with_retcode(command, ret_code):
@@ -685,6 +694,70 @@ def test__cli__fix_error_handling_behavior(sql, fix_args, fixed, exit_code, tmpd
             # fixes for this file. To confirm this, we verify that the output
             # file WAS NOT EVEN CREATED.
             assert not fixed_path.is_file()
+
+
+@pytest.mark.parametrize(
+    "method,fix_even_unparsable",
+    [
+        ("command-line", False),
+        ("command-line", True),
+        ("config-file", False),
+        ("config-file", True),
+    ],
+)
+def test_cli_fix_even_unparsable(
+    method: str, fix_even_unparsable: bool, monkeypatch, tmpdir
+):
+    """Test the fix_even_unparsable option works from cmd line and config."""
+    sql_filename = "fix_even_unparsable.sql"
+    sql_path = str(tmpdir / sql_filename)
+    with open(sql_path, "w") as f:
+        print(
+            """SELECT my_col
+FROM my_schema.my_table
+where processdate ! 3
+""",
+            file=f,
+        )
+    options = [
+        "--dialect",
+        "ansi",
+        "-f",
+        "--fixed-suffix=FIXED",
+        sql_path,
+    ]
+    if method == "command-line":
+        if fix_even_unparsable:
+            options.append("--FIX-EVEN-UNPARSABLE")
+    else:
+        assert method == "config-file"
+        with open(str(tmpdir / ".sqlfluff"), "w") as f:
+            print(f"[sqlfluff]\nfix_even_unparsable = {fix_even_unparsable}", file=f)
+    # TRICKY: Switch current directory to the one with the SQL file. Otherwise,
+    # the setting doesn't work. That's because SQLFluff reads it in
+    # sqlfluff.cli.commands.fix(), prior to reading any file-specific settings
+    # (down in sqlfluff.core.linter.Linter._load_raw_file_and_config()).
+    monkeypatch.chdir(str(tmpdir))
+    invoke_assert_code(
+        ret_code=0 if fix_even_unparsable else 1,
+        args=[
+            fix,
+            options,
+        ],
+    )
+    fixed_path = str(tmpdir / "fix_even_unparsableFIXED.sql")
+    if fix_even_unparsable:
+        with open(fixed_path, "r") as f:
+            fixed_sql = f.read()
+            assert (
+                fixed_sql
+                == """SELECT my_col
+FROM my_schema.my_table
+WHERE processdate ! 3
+"""
+            )
+    else:
+        assert not os.path.isfile(fixed_path)
 
 
 _old_eval = BaseRule._eval
