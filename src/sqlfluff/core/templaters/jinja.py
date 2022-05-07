@@ -274,9 +274,11 @@ class JinjaTemplater(PythonTemplater):
                 (self.templater_selector, self.name, "apply_airflow_builtins")
             )
             if apply_airflow_builtins:
+                import sqlfluff.core.templaters.builtins.airflow as airflow_builtins
+
                 live_context.update(
                     self._extract_libraries_from_path(
-                        library_path="src/sqlfluff/core/templaters/builtins/airflow"
+                        library_path=airflow_builtins.__path__[0]
                     )
                 )
 

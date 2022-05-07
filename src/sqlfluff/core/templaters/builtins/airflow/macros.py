@@ -1,3 +1,7 @@
+"""Generate the airflow builtins macros which are injected in the context.
+
+https://airflow.apache.org/docs/apache-airflow/stable/templates-ref.html
+"""
 import datetime as dt
 import time as t
 import uuid as u
@@ -17,8 +21,9 @@ def ds_add(ds: str, days: int) -> str:
     """
     if not days:
         return str(ds)
-    datetime = dt.datetime.strptime(str(ds), "%Y-%m-%d") + dt.timedelta(days=days)
-    return datetime.strftime("%Y-%m-%d")
+    return dt.datetime.strptime(str(ds), "%Y-%m-%d") + dt.timedelta(days=days).strftime(
+        "%Y-%m-%d"
+    )
 
 
 def ds_format(ds: str, input_format: str, output_format: str) -> str:
