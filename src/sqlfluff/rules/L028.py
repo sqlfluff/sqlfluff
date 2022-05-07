@@ -217,6 +217,11 @@ def _validate_one_reference(
     if ref.raw in standalone_aliases:
         return None
 
+    # Oddball case: tsql table variables can't be used to qualify references.
+    # This appears here as an empty string for table_ref_str.
+    if not table_ref_str:
+        return None
+
     # Certain dialects allow use of SELECT alias in WHERE clauses
     if ref.raw in col_alias_names:
         return None
