@@ -3,11 +3,12 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: cff5659c8b0f6bb35342b34173a855d912a127bb5db8f875b9322a147141af49
+_hash: a0c014a09408ddbe280e1faaf85393c575fad22c7d25d1aeaae461e2bd6993bd
 file:
 - statement:
     transaction_statement:
-      identifier: blocks
+      identifier:
+        identifier: blocks
       colon: ':'
       keyword: BEGIN
       statement:
@@ -20,5 +21,6 @@ file:
 - statement:
     transaction_statement:
       keyword: END
-      identifier: blocks
+      identifier:
+        identifier: blocks
 - statement_terminator: '~'

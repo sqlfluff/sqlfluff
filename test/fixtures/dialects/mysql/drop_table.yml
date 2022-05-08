@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 489096c4b2a759bd1eb5aa9ab4129c8d30a6117ac69cf52dab295a513c77bed3
+_hash: 1144cde2e8c86a6f040aa6cb8971d3666488ab0ed2aceedcfb7bf9a8958c429d
 file:
 - statement:
     drop_table_statement:
@@ -13,7 +13,8 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - table_reference:
-        identifier: t
+        identifier:
+          identifier: t
 - statement_terminator: ;
 - statement:
     drop_table_statement:
@@ -23,10 +24,12 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - table_reference:
-        identifier: t
+        identifier:
+          identifier: t
     - comma: ','
     - table_reference:
-        identifier: t2
+        identifier:
+          identifier: t2
 - statement_terminator: ;
 - statement:
     drop_table_statement:
@@ -35,7 +38,8 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - table_reference:
-        identifier: t
+        identifier:
+          identifier: t
     - keyword: RESTRICT
 - statement_terminator: ;
 - statement:
@@ -45,6 +49,7 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - table_reference:
-        identifier: t
+        identifier:
+          identifier: t
     - keyword: CASCADE
 - statement_terminator: ;

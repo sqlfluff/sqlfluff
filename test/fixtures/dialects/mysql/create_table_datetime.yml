@@ -3,18 +3,20 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bfdca649a237349a55e8915062675688d0d019bbb510fd6f75b8bf4b736fb80e
+_hash: 97f6aef0d7f80b6ffb844aedcf6bbc436a5a3f67fb181036731c3405ae985c2f
 file:
   statement:
     create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: '`foo`'
+        identifier:
+          identifier: '`foo`'
     - bracketed:
       - start_bracket: (
       - column_definition:
-        - identifier: created_date
+        - identifier:
+            identifier: created_date
         - keyword: DATETIME
         - keyword: DEFAULT
         - keyword: CURRENT_TIMESTAMP
@@ -23,7 +25,8 @@ file:
           - keyword: 'NULL'
       - comma: ','
       - column_definition:
-        - identifier: ts1
+        - identifier:
+            identifier: ts1
         - keyword: TIMESTAMP
         - keyword: DEFAULT
         - keyword: CURRENT_TIMESTAMP
@@ -32,7 +35,8 @@ file:
         - keyword: CURRENT_TIMESTAMP
       - comma: ','
       - column_definition:
-        - identifier: dt1
+        - identifier:
+            identifier: dt1
         - keyword: DATETIME
         - keyword: DEFAULT
         - keyword: CURRENT_TIMESTAMP
@@ -41,31 +45,36 @@ file:
         - keyword: CURRENT_TIMESTAMP
       - comma: ','
       - column_definition:
-        - identifier: ts2
+        - identifier:
+            identifier: ts2
         - keyword: TIMESTAMP
         - keyword: DEFAULT
         - keyword: CURRENT_TIMESTAMP
       - comma: ','
       - column_definition:
-        - identifier: dt2
+        - identifier:
+            identifier: dt2
         - keyword: DATETIME
         - keyword: DEFAULT
         - keyword: CURRENT_TIMESTAMP
       - comma: ','
       - column_definition:
-        - identifier: ts3
+        - identifier:
+            identifier: ts3
         - keyword: TIMESTAMP
         - keyword: DEFAULT
         - literal: '0'
       - comma: ','
       - column_definition:
-        - identifier: dt3
+        - identifier:
+            identifier: dt3
         - keyword: DATETIME
         - keyword: DEFAULT
         - literal: '0'
       - comma: ','
       - column_definition:
-        - identifier: ts4
+        - identifier:
+            identifier: ts4
         - keyword: TIMESTAMP
         - keyword: DEFAULT
         - literal: '0'
@@ -74,7 +83,8 @@ file:
         - keyword: CURRENT_TIMESTAMP
       - comma: ','
       - column_definition:
-        - identifier: dt4
+        - identifier:
+            identifier: dt4
         - keyword: DATETIME
         - keyword: DEFAULT
         - literal: '0'
@@ -83,14 +93,16 @@ file:
         - keyword: CURRENT_TIMESTAMP
       - comma: ','
       - column_definition:
-        - identifier: ts5
+        - identifier:
+            identifier: ts5
         - keyword: TIMESTAMP
         - keyword: 'ON'
         - keyword: UPDATE
         - keyword: CURRENT_TIMESTAMP
       - comma: ','
       - column_definition:
-        - identifier: ts6
+        - identifier:
+            identifier: ts6
         - keyword: TIMESTAMP
         - keyword: 'NULL'
         - keyword: 'ON'
@@ -98,14 +110,16 @@ file:
         - keyword: CURRENT_TIMESTAMP
       - comma: ','
       - column_definition:
-        - identifier: dt5
+        - identifier:
+            identifier: dt5
         - keyword: DATETIME
         - keyword: 'ON'
         - keyword: UPDATE
         - keyword: CURRENT_TIMESTAMP
       - comma: ','
       - column_definition:
-        - identifier: dt6
+        - identifier:
+            identifier: dt6
         - keyword: DATETIME
         - keyword: NOT
         - keyword: 'NULL'
@@ -114,7 +128,8 @@ file:
         - keyword: CURRENT_TIMESTAMP
       - comma: ','
       - column_definition:
-        - identifier: ts7
+        - identifier:
+            identifier: ts7
         - keyword: TIMESTAMP
         - bracketed:
             start_bracket: (
@@ -135,7 +150,8 @@ file:
             end_bracket: )
       - comma: ','
       - column_definition:
-        - identifier: ts8
+        - identifier:
+            identifier: ts8
         - keyword: TIMESTAMP
         - keyword: 'NULL'
         - keyword: DEFAULT
@@ -143,21 +159,24 @@ file:
             keyword: 'NULL'
       - comma: ','
       - column_definition:
-        - identifier: ts9
+        - identifier:
+            identifier: ts9
         - keyword: TIMESTAMP
         - keyword: 'NULL'
         - keyword: DEFAULT
         - literal: '0'
       - comma: ','
       - column_definition:
-        - identifier: ts10
+        - identifier:
+            identifier: ts10
         - keyword: TIMESTAMP
         - keyword: 'NULL'
         - keyword: DEFAULT
         - keyword: CURRENT_TIMESTAMP
       - comma: ','
       - column_definition:
-        - identifier: ts11
+        - identifier:
+            identifier: ts11
         - keyword: TIMESTAMP
         - keyword: 'NULL'
         - keyword: DEFAULT
@@ -167,21 +186,24 @@ file:
             end_bracket: )
       - comma: ','
       - column_definition:
-        - identifier: ts12
+        - identifier:
+            identifier: ts12
         - keyword: TIMESTAMP
         - keyword: 'NULL'
         - keyword: DEFAULT
         - literal: "'0000-00-00 00:00:00'"
       - comma: ','
       - column_definition:
-        - identifier: ts13
+        - identifier:
+            identifier: ts13
         - keyword: TIMESTAMP
         - keyword: 'NULL'
         - keyword: DEFAULT
         - keyword: NOW
       - comma: ','
       - column_definition:
-        - identifier: ts14
+        - identifier:
+            identifier: ts14
         - keyword: TIMESTAMP
         - keyword: 'NULL'
         - keyword: DEFAULT

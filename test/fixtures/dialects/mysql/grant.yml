@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c074c766b1a1c47f1af7be8496c8ca089107822ad8231319c033bd8188d671d0
+_hash: 5a44aaa29851967d0dde09d2d33053a34da20761597b7239636428fc5f32fd30
 file:
 - statement:
     access_statement:
@@ -19,10 +19,12 @@ file:
     - keyword: REFERENCES
     - keyword: 'ON'
     - object_reference:
-        identifier: prj_table
+        identifier:
+          identifier: prj_table
     - keyword: TO
     - object_reference:
-        identifier: prj_svc
+        identifier:
+          identifier: prj_svc
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -38,10 +40,12 @@ file:
     - keyword: REFERENCES
     - keyword: 'ON'
     - object_reference:
-        identifier: prj_table
+        identifier:
+          identifier: prj_table
     - keyword: TO
     - object_reference:
-        identifier: "'prj_svc'"
+        identifier:
+          identifier: "'prj_svc'"
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -57,10 +61,12 @@ file:
     - keyword: REFERENCES
     - keyword: 'ON'
     - object_reference:
-        identifier: prj_table
+        identifier:
+          identifier: prj_table
     - keyword: TO
     - object_reference:
-        literal: '"prj_svc"'
+        identifier:
+          literal: '"prj_svc"'
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -76,10 +82,12 @@ file:
     - keyword: REFERENCES
     - keyword: 'ON'
     - object_reference:
-        identifier: prj_table
+        identifier:
+          identifier: prj_table
     - keyword: TO
     - object_reference:
-        identifier: '`prj_svc`'
+        identifier:
+          identifier: '`prj_svc`'
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -95,12 +103,15 @@ file:
     - keyword: REFERENCES
     - keyword: 'ON'
     - object_reference:
-        identifier: prj_table
+        identifier:
+          identifier: prj_table
     - keyword: TO
     - object_reference:
-      - identifier: "'prj_svc'"
+      - identifier:
+          identifier: "'prj_svc'"
       - literal: '@'
-      - identifier: "'%'"
+      - identifier:
+          identifier: "'%'"
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -116,12 +127,15 @@ file:
     - keyword: REFERENCES
     - keyword: 'ON'
     - object_reference:
-        identifier: prj_table
+        identifier:
+          identifier: prj_table
     - keyword: TO
     - object_reference:
-      - literal: '"prj_svc"'
+      - identifier:
+          literal: '"prj_svc"'
       - literal: '@'
-      - literal: '"%"'
+      - identifier:
+          literal: '"%"'
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -137,10 +151,13 @@ file:
     - keyword: REFERENCES
     - keyword: 'ON'
     - object_reference:
-        identifier: prj_table
+        identifier:
+          identifier: prj_table
     - keyword: TO
     - object_reference:
-      - identifier: '`prj_svc`'
+      - identifier:
+          identifier: '`prj_svc`'
       - literal: '@'
-      - identifier: '`%`'
+      - identifier:
+          identifier: '`%`'
 - statement_terminator: ;

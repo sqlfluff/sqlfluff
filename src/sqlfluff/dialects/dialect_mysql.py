@@ -568,18 +568,26 @@ mysql_dialect.add(
     ),
 )
 
-"""Format for user and role names. Overwrite SingleIdentifierGrammar below to allow
-two single_identifier_segment separated by an at sign.
+
+class SingleIdentifierSegment(BaseSegment):
+    """A SingleIdentifierSegment.
+
+    Override the default SingleIdentifierGrammar to allow two of these segments
+    separated by an at sign.
+
     https://dev.mysql.com/doc/refman/8.0/en/account-names.html
     https://dev.mysql.com/doc/refman/8.0/en/role-names.html
-"""
-single_identifier_segment = ansi_dialect.get_grammar("SingleIdentifierGrammar").copy(
-    insert=[
-        Ref("SessionVariableNameSegment"),
-        Ref("SingleQuotedIdentifierSegment"),
-        Ref("DoubleQuotedLiteralSegment"),
-    ]
-)
+    """
+
+    type = "identifier"
+    match_grammar: Matchable = ansi_dialect.get_grammar("SingleIdentifierGrammar").copy(
+        insert=[
+            Ref("SessionVariableNameSegment"),
+            Ref("SingleQuotedIdentifierSegment"),
+            Ref("DoubleQuotedLiteralSegment"),
+        ]
+    )
+
 
 mysql_dialect.replace(
     DelimiterGrammar=OneOf(Ref("SemicolonSegment"), Ref("TildeSegment")),
@@ -590,10 +598,10 @@ mysql_dialect.replace(
         r"`?[A-Za-z0-9_]*`?", CodeSegment, name="parameter", type="parameter"
     ),
     SingleIdentifierGrammar=Sequence(
-        single_identifier_segment,
+        Ref("SingleIdentifierSegment"),
         Sequence(
             Ref("AtSignLiteralSegment"),
-            single_identifier_segment,
+            Ref("SingleIdentifierSegment"),
             optional=True,
         ),
     ),

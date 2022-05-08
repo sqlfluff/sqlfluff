@@ -3,24 +3,27 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 406e7e85cdbb509f2cb17ecc2f0bf6ff14029b697beaf891850eb087952c6669
+_hash: 8ab6482335b92fba0be48070003385e2071d8c1ba405072d35dfade2d794a57b
 file:
 - statement:
     repair_table_statement:
     - keyword: REPAIR
     - keyword: TABLE
     - table_reference:
-        identifier: some_table
+        identifier:
+          identifier: some_table
 - statement_terminator: ;
 - statement:
     repair_table_statement:
     - keyword: REPAIR
     - keyword: TABLE
     - table_reference:
-        identifier: some_table1
+        identifier:
+          identifier: some_table1
     - comma: ','
     - table_reference:
-        identifier: some_table2
+        identifier:
+          identifier: some_table2
 - statement_terminator: ;
 - statement:
     repair_table_statement:
@@ -28,7 +31,8 @@ file:
     - keyword: NO_WRITE_TO_BINLOG
     - keyword: TABLE
     - table_reference:
-        identifier: some_table
+        identifier:
+          identifier: some_table
 - statement_terminator: ;
 - statement:
     repair_table_statement:
@@ -36,10 +40,12 @@ file:
     - keyword: NO_WRITE_TO_BINLOG
     - keyword: TABLE
     - table_reference:
-        identifier: some_table1
+        identifier:
+          identifier: some_table1
     - comma: ','
     - table_reference:
-        identifier: some_table2
+        identifier:
+          identifier: some_table2
 - statement_terminator: ;
 - statement:
     repair_table_statement:
@@ -47,7 +53,8 @@ file:
     - keyword: LOCAL
     - keyword: TABLE
     - table_reference:
-        identifier: some_table
+        identifier:
+          identifier: some_table
 - statement_terminator: ;
 - statement:
     repair_table_statement:
@@ -55,17 +62,20 @@ file:
     - keyword: LOCAL
     - keyword: TABLE
     - table_reference:
-        identifier: some_table1
+        identifier:
+          identifier: some_table1
     - comma: ','
     - table_reference:
-        identifier: some_table2
+        identifier:
+          identifier: some_table2
 - statement_terminator: ;
 - statement:
     repair_table_statement:
     - keyword: REPAIR
     - keyword: TABLE
     - table_reference:
-        identifier: some_table
+        identifier:
+          identifier: some_table
     - keyword: QUICK
 - statement_terminator: ;
 - statement:
@@ -73,7 +83,8 @@ file:
     - keyword: REPAIR
     - keyword: TABLE
     - table_reference:
-        identifier: some_table
+        identifier:
+          identifier: some_table
     - keyword: EXTENDED
 - statement_terminator: ;
 - statement:
@@ -81,7 +92,8 @@ file:
     - keyword: REPAIR
     - keyword: TABLE
     - table_reference:
-        identifier: some_table
+        identifier:
+          identifier: some_table
     - keyword: USE_FRM
 - statement_terminator: ;
 - statement:
@@ -89,7 +101,8 @@ file:
     - keyword: REPAIR
     - keyword: TABLE
     - table_reference:
-        identifier: some_table
+        identifier:
+          identifier: some_table
     - keyword: QUICK
     - keyword: EXTENDED
     - keyword: USE_FRM

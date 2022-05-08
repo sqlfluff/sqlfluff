@@ -3,14 +3,15 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 85f5b46e54013f0debf3166086327dec0d1cf5ae109a202cd8c516c2654f44b5
+_hash: f2008c0e764fffcf4b05efef0a67718fb2cbc4fffff8491378708c2579dc24f2
 file:
 - statement:
     checksum_table_statement:
     - keyword: CHECKSUM
     - keyword: TABLE
     - table_reference:
-        identifier: some_table
+        identifier:
+          identifier: some_table
     - keyword: QUICK
 - statement_terminator: ;
 - statement:
@@ -18,10 +19,12 @@ file:
     - keyword: CHECKSUM
     - keyword: TABLE
     - table_reference:
-        identifier: some_table1
+        identifier:
+          identifier: some_table1
     - comma: ','
     - table_reference:
-        identifier: some_table2
+        identifier:
+          identifier: some_table2
     - keyword: QUICK
 - statement_terminator: ;
 - statement:
@@ -29,7 +32,8 @@ file:
     - keyword: CHECKSUM
     - keyword: TABLE
     - table_reference:
-        identifier: some_table
+        identifier:
+          identifier: some_table
     - keyword: EXTENDED
 - statement_terminator: ;
 - statement:
@@ -37,9 +41,11 @@ file:
     - keyword: CHECKSUM
     - keyword: TABLE
     - table_reference:
-        identifier: some_table1
+        identifier:
+          identifier: some_table1
     - comma: ','
     - table_reference:
-        identifier: some_table2
+        identifier:
+          identifier: some_table2
     - keyword: EXTENDED
 - statement_terminator: ;

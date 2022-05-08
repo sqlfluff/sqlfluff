@@ -3,17 +3,20 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7b977cad48e80f4e8561b8a39a62c4a866aba31d0a841dfa6fd7ff0ca5522cdb
+_hash: e9167ebe656ee9282e9c03fa926c7d9b7ec06486f616afaa0fc7d4800b50e787
 file:
   statement:
     drop_index_statement:
     - keyword: DROP
     - keyword: INDEX
     - index_reference:
-        identifier: '`test`'
+        identifier:
+          identifier: '`test`'
     - keyword: 'ON'
     - table_reference:
-      - identifier: '`table`'
+      - identifier:
+          identifier: '`table`'
       - dot: .
-      - identifier: '`foo`'
+      - identifier:
+          identifier: '`foo`'
   statement_terminator: ;

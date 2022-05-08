@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2c5cdac10fa821a8248a1e50a8acb902e01753b4acf0cd090cb5e2e56fcb415b
+_hash: 122e1080af63e18bb91570ed670dcd0016ae77bb7ff8a159778c0d0dd89a1faf
 file:
   statement:
     select_statement:
@@ -19,9 +19,11 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                identifier:
+                  identifier: t1
             alias_expression:
-              identifier: test
+              identifier:
+                identifier: test
       index_hint_clause:
       - keyword: USE
       - keyword: INDEX
@@ -31,6 +33,7 @@ file:
       - bracketed:
           start_bracket: (
           object_reference:
-            identifier: i2
+            identifier:
+              identifier: i2
           end_bracket: )
   statement_terminator: ;

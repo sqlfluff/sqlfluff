@@ -3,19 +3,21 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a6f4d8da0cb3c82489e41d755a30c1ce6c8021a8fe63ada4756a1554b3ae191b
+_hash: 1ac330dc10cc2fc68dfe2e51206c57d104ec22ee2e0c405756feaacb40bbfab4
 file:
 - statement:
     while_statement:
     - keyword: while
     - expression:
       - column_reference:
-          identifier: _cnt
+          identifier:
+            identifier: _cnt
       - comparison_operator:
         - raw_comparison_operator: <
         - raw_comparison_operator: '='
       - column_reference:
-          identifier: _max_cnt
+          identifier:
+            identifier: _max_cnt
     - keyword: do
     - statement:
         set_statement:
@@ -30,5 +32,6 @@ file:
 - statement:
     transaction_statement:
       keyword: end
-      identifier: while
+      identifier:
+        identifier: while
 - statement_terminator: ;

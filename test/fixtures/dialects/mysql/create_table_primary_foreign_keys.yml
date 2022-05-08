@@ -3,18 +3,20 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a7e6ee4002e34cd0bf6e6fc4b5da58e4a854942de3243a78394494e3964c05c0
+_hash: cc2c096b9bcc9ffc97645e07a2e91c98e5dfb6391a68fba40302dd7a58832e09
 file:
 - statement:
     create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: parent
+        identifier:
+          identifier: parent
     - bracketed:
         start_bracket: (
         column_definition:
-          identifier: id
+          identifier:
+            identifier: id
           data_type:
             data_type_identifier: INT
           column_constraint_segment:
@@ -27,7 +29,8 @@ file:
         - bracketed:
             start_bracket: (
             column_reference:
-              identifier: id
+              identifier:
+                identifier: id
             end_bracket: )
         end_bracket: )
 - statement_terminator: ;
@@ -36,28 +39,33 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: child
+        identifier:
+          identifier: child
     - bracketed:
       - start_bracket: (
       - column_definition:
-          identifier: id
+          identifier:
+            identifier: id
           data_type:
             data_type_identifier: INT
       - comma: ','
       - column_definition:
-          identifier: parent_id
+          identifier:
+            identifier: parent_id
           data_type:
             data_type_identifier: INT
       - comma: ','
       - column_definition:
-          identifier: INDEX
+          identifier:
+            identifier: INDEX
           data_type:
             data_type_identifier: par_ind
             bracketed:
               start_bracket: (
               expression:
                 column_reference:
-                  identifier: parent_id
+                  identifier:
+                    identifier: parent_id
               end_bracket: )
       - comma: ','
       - table_constraint:
@@ -66,15 +74,18 @@ file:
         - bracketed:
             start_bracket: (
             column_reference:
-              identifier: parent_id
+              identifier:
+                identifier: parent_id
             end_bracket: )
         - keyword: REFERENCES
         - column_reference:
-            identifier: parent
+            identifier:
+              identifier: parent
         - bracketed:
             start_bracket: (
             column_reference:
-              identifier: id
+              identifier:
+                identifier: id
             end_bracket: )
         - keyword: 'ON'
         - keyword: DELETE
@@ -86,11 +97,13 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: product
+        identifier:
+          identifier: product
     - bracketed:
       - start_bracket: (
       - column_definition:
-          identifier: category
+          identifier:
+            identifier: category
           data_type:
             data_type_identifier: INT
           column_constraint_segment:
@@ -98,7 +111,8 @@ file:
           - keyword: 'NULL'
       - comma: ','
       - column_definition:
-          identifier: id
+          identifier:
+            identifier: id
           data_type:
             data_type_identifier: INT
           column_constraint_segment:
@@ -106,7 +120,8 @@ file:
           - keyword: 'NULL'
       - comma: ','
       - column_definition:
-          identifier: price
+          identifier:
+            identifier: price
           data_type:
             data_type_identifier: DECIMAL
       - comma: ','
@@ -116,10 +131,12 @@ file:
         - bracketed:
           - start_bracket: (
           - column_reference:
-              identifier: category
+              identifier:
+                identifier: category
           - comma: ','
           - column_reference:
-              identifier: id
+              identifier:
+                identifier: id
           - end_bracket: )
       - end_bracket: )
 - statement_terminator: ;
@@ -128,11 +145,13 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: customer
+        identifier:
+          identifier: customer
     - bracketed:
         start_bracket: (
         column_definition:
-          identifier: id
+          identifier:
+            identifier: id
           data_type:
             data_type_identifier: INT
           column_constraint_segment:
@@ -145,7 +164,8 @@ file:
         - bracketed:
             start_bracket: (
             column_reference:
-              identifier: id
+              identifier:
+                identifier: id
             end_bracket: )
         end_bracket: )
 - statement_terminator: ;
@@ -154,11 +174,13 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: product_order
+        identifier:
+          identifier: product_order
     - bracketed:
       - start_bracket: (
       - column_definition:
-          identifier: product_category
+          identifier:
+            identifier: product_category
           data_type:
             data_type_identifier: INT
           column_constraint_segment:
@@ -166,7 +188,8 @@ file:
           - keyword: 'NULL'
       - comma: ','
       - column_definition:
-          identifier: product_id
+          identifier:
+            identifier: product_id
           data_type:
             data_type_identifier: INT
           column_constraint_segment:
@@ -174,7 +197,8 @@ file:
           - keyword: 'NULL'
       - comma: ','
       - column_definition:
-          identifier: customer_id
+          identifier:
+            identifier: customer_id
           data_type:
             data_type_identifier: INT
           column_constraint_segment:
@@ -188,7 +212,8 @@ file:
             start_bracket: (
             expression:
               column_reference:
-                identifier: 'no'
+                identifier:
+                  identifier: 'no'
             end_bracket: )
       - comma: ','
       - table_constraint:
@@ -197,21 +222,26 @@ file:
         - bracketed:
           - start_bracket: (
           - column_reference:
-              identifier: product_category
+              identifier:
+                identifier: product_category
           - comma: ','
           - column_reference:
-              identifier: product_id
+              identifier:
+                identifier: product_id
           - end_bracket: )
         - keyword: REFERENCES
         - column_reference:
-            identifier: product
+            identifier:
+              identifier: product
         - bracketed:
           - start_bracket: (
           - column_reference:
-              identifier: category
+              identifier:
+                identifier: category
           - comma: ','
           - column_reference:
-              identifier: id
+              identifier:
+                identifier: id
           - end_bracket: )
         - keyword: 'ON'
         - keyword: UPDATE
@@ -226,15 +256,18 @@ file:
         - bracketed:
             start_bracket: (
             column_reference:
-              identifier: customer_id
+              identifier:
+                identifier: customer_id
             end_bracket: )
         - keyword: REFERENCES
         - column_reference:
-            identifier: customer
+            identifier:
+              identifier: customer
         - bracketed:
             start_bracket: (
             column_reference:
-              identifier: id
+              identifier:
+                identifier: id
             end_bracket: )
       - end_bracket: )
 - statement_terminator: ;
@@ -243,11 +276,13 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: source_tag_assoc
+        identifier:
+          identifier: source_tag_assoc
     - bracketed:
       - start_bracket: (
       - column_definition:
-          identifier: source_id
+          identifier:
+            identifier: source_id
           data_type:
             data_type_identifier: INT
             keyword: UNSIGNED
@@ -256,7 +291,8 @@ file:
           - keyword: 'NULL'
       - comma: ','
       - column_definition:
-          identifier: tag_id
+          identifier:
+            identifier: tag_id
           data_type:
             data_type_identifier: INT
             keyword: UNSIGNED
@@ -270,10 +306,12 @@ file:
         - bracketed:
           - start_bracket: (
           - column_reference:
-              identifier: source_id
+              identifier:
+                identifier: source_id
           - comma: ','
           - column_reference:
-              identifier: tag_id
+              identifier:
+                identifier: tag_id
           - end_bracket: )
       - comma: ','
       - table_constraint:
@@ -283,15 +321,18 @@ file:
             start_bracket: (
             expression:
               column_reference:
-                identifier: source_id
+                identifier:
+                  identifier: source_id
             end_bracket: )
         - keyword: REFERENCES
         - column_reference:
-            identifier: source
+            identifier:
+              identifier: source
         - bracketed:
             start_bracket: (
             column_reference:
-              identifier: id
+              identifier:
+                identifier: id
             end_bracket: )
         - keyword: 'ON'
         - keyword: DELETE
@@ -303,15 +344,18 @@ file:
         - bracketed:
             start_bracket: (
             column_reference:
-              identifier: tag_id
+              identifier:
+                identifier: tag_id
             end_bracket: )
         - keyword: REFERENCES
         - column_reference:
-            identifier: source_tag
+            identifier:
+              identifier: source_tag
         - bracketed:
             start_bracket: (
             column_reference:
-              identifier: id
+              identifier:
+                identifier: id
             end_bracket: )
         - keyword: 'ON'
         - keyword: DELETE
