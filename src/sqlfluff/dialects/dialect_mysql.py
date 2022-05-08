@@ -577,10 +577,22 @@ mysql_dialect.replace(
         r"`?[A-Za-z0-9_]*`?", CodeSegment, name="parameter", type="parameter"
     ),
     SingleIdentifierGrammar=Sequence(
-        Ref("SingleIdentifierSegment"),
+        OneOf(
+            Ref("NakedIdentifierSegment"),
+            Ref("QuotedIdentifierSegment"),
+            Ref("SessionVariableNameSegment"),
+            Ref("SingleQuotedIdentifierSegment"),
+            Ref("DoubleQuotedLiteralSegment"),
+        ),
         Sequence(
             Ref("AtSignLiteralSegment"),
-            Ref("SingleIdentifierSegment"),
+            OneOf(
+                Ref("NakedIdentifierSegment"),
+                Ref("QuotedIdentifierSegment"),
+                Ref("SessionVariableNameSegment"),
+                Ref("SingleQuotedIdentifierSegment"),
+                Ref("DoubleQuotedLiteralSegment"),
+            ),
             optional=True,
         ),
     ),
