@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 82219f5da78c20324699cb100b7ee630dfc9e22318cbb05b30bec251112a456a
+_hash: 29bbbad5f865af360d629bd828fc9c690d913e55e1237d8f5698f3eeb73abf9b
 file:
 - statement:
     access_statement:
@@ -21,7 +21,7 @@ file:
     - object_reference:
         identifier: prj_table
     - keyword: TO
-    - object_reference:
+    - role_reference:
         identifier: prj_svc
 - statement_terminator: ;
 - statement:
@@ -40,7 +40,7 @@ file:
     - object_reference:
         identifier: prj_table
     - keyword: TO
-    - object_reference:
+    - role_reference:
         identifier: "'prj_svc'"
 - statement_terminator: ;
 - statement:
@@ -59,7 +59,7 @@ file:
     - object_reference:
         identifier: prj_table
     - keyword: TO
-    - object_reference:
+    - role_reference:
         literal: '"prj_svc"'
 - statement_terminator: ;
 - statement:
@@ -78,7 +78,7 @@ file:
     - object_reference:
         identifier: prj_table
     - keyword: TO
-    - object_reference:
+    - role_reference:
         identifier: '`prj_svc`'
 - statement_terminator: ;
 - statement:
@@ -97,7 +97,7 @@ file:
     - object_reference:
         identifier: prj_table
     - keyword: TO
-    - object_reference:
+    - role_reference:
       - identifier: "'prj_svc'"
       - literal: '@'
       - identifier: "'%'"
@@ -118,7 +118,7 @@ file:
     - object_reference:
         identifier: prj_table
     - keyword: TO
-    - object_reference:
+    - role_reference:
       - literal: '"prj_svc"'
       - literal: '@'
       - literal: '"%"'
@@ -139,7 +139,7 @@ file:
     - object_reference:
         identifier: prj_table
     - keyword: TO
-    - object_reference:
+    - role_reference:
       - identifier: '`prj_svc`'
       - literal: '@'
       - identifier: '`%`'
@@ -160,7 +160,7 @@ file:
     - object_reference:
         identifier: prj_table
     - keyword: TO
-    - object_reference:
+    - role_reference:
       - identifier: '`prj_svc`'
       - literal: '@'
       - identifier: '`%`'

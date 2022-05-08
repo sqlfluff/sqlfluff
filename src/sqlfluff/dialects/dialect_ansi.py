@@ -837,7 +837,7 @@ class IndexReferenceSegment(ObjectReferenceSegment):
 
 
 class RoleReferenceSegment(ObjectReferenceSegment):
-    """A reference to a role."""
+    """A reference to a role, user, or account."""
 
     type = "role_reference"
 
@@ -2831,7 +2831,7 @@ class DropUserStatementSegment(BaseSegment):
         "DROP",
         "USER",
         Ref("IfExistsGrammar", optional=True),
-        Ref("ObjectReferenceSegment"),
+        Ref("RoleReferenceSegment"),
     )
 
 
@@ -3029,7 +3029,7 @@ class AccessStatementSegment(BaseSegment):
             "TO",
             OneOf("GROUP", "USER", "ROLE", "SHARE", optional=True),
             Delimited(
-                OneOf(Ref("ObjectReferenceSegment"), Ref("FunctionSegment"), "PUBLIC"),
+                OneOf(Ref("RoleReferenceSegment"), Ref("FunctionSegment"), "PUBLIC"),
                 delimiter=Ref("CommaSegment"),
             ),
             OneOf(
@@ -3297,7 +3297,7 @@ class CreateUserStatementSegment(BaseSegment):
     match_grammar: Matchable = Sequence(
         "CREATE",
         "USER",
-        Ref("ObjectReferenceSegment"),
+        Ref("RoleReferenceSegment"),
     )
 
 

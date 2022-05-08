@@ -594,16 +594,15 @@ mysql_dialect.insert_lexer_matchers(
 )
 
 
-class ObjectReferenceSegment(ansi.ObjectReferenceSegment):
-    """A reference to an object.
+class RoleReferenceSegment(ansi.RoleReferenceSegment):
+    """A reference to an account, role, or user.
 
-    Override ANSI to allow account names and role names as objects as well:
     https://dev.mysql.com/doc/refman/8.0/en/account-names.html
     https://dev.mysql.com/doc/refman/8.0/en/role-names.html
     """
 
     match_grammar: Matchable = OneOf(
-        ansi.ObjectReferenceSegment.match_grammar,
+        ansi.RoleReferenceSegment.match_grammar,
         Sequence(
             OneOf(
                 Ref("NakedIdentifierSegment"),
@@ -1033,7 +1032,7 @@ class DefinerSegment(BaseSegment):
     match_grammar = Sequence(
         "DEFINER",
         Ref("EqualsSegment"),
-        Ref("ObjectReferenceSegment"),
+        Ref("RoleReferenceSegment"),
     )
 
 

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: cf8ee6e9f790d90ee0bef093f8874bda64b18448a5a7d109c854c19d5889264e
+_hash: a0551bdd958630185eb3b313d43377dd2fd89cbf126a5f8010eb466bfff6bb5c
 file:
 - statement:
     access_statement:
@@ -17,7 +17,7 @@ file:
       - identifier: MY_SCHEMA
     - keyword: TO
     - keyword: ROLE
-    - object_reference:
+    - role_reference:
         identifier: MY_ROLE
 - statement_terminator: ;
 - statement:
@@ -28,7 +28,7 @@ file:
         identifier: MY_ROLE
     - keyword: TO
     - keyword: ROLE
-    - object_reference:
+    - role_reference:
         identifier: MY_OTHER_ROLE
 - statement_terminator: ;
 - statement:
@@ -40,7 +40,7 @@ file:
     - object_reference:
         identifier: external_oauth_1
     - keyword: to
-    - object_reference:
+    - role_reference:
         identifier: role1
 - statement_terminator: ;
 - statement:
@@ -55,7 +55,7 @@ file:
       - identifier: mytable
     - keyword: to
     - keyword: role
-    - object_reference:
+    - role_reference:
         identifier: analyst
 - statement_terminator: ;
 - statement:
@@ -71,7 +71,7 @@ file:
         identifier: public
     - keyword: to
     - keyword: role
-    - object_reference:
+    - role_reference:
         identifier: analyst
 - statement_terminator: ;
 - statement:
@@ -89,7 +89,7 @@ file:
       - identifier: public
     - keyword: to
     - keyword: role
-    - object_reference:
+    - role_reference:
         identifier: analyst
 - statement_terminator: ;
 - statement:
@@ -107,7 +107,7 @@ file:
       - identifier: public
     - keyword: to
     - keyword: role
-    - object_reference:
+    - role_reference:
         identifier: analyst
     - keyword: copy
     - keyword: current
@@ -140,7 +140,7 @@ file:
         identifier: TEST_ROLE
     - keyword: TO
     - keyword: ROLE
-    - object_reference:
+    - role_reference:
         identifier: DIFFERENT_ROLE
 - statement_terminator: ;
 - statement:
