@@ -3730,7 +3730,7 @@ class AccessStatementSegment(BaseSegment):
             _objects,
             "TO",
             Delimited(
-                OneOf(Ref("ObjectReferenceSegment"), Ref("FunctionSegment")),
+                OneOf(Ref("RoleReferenceSegment"), Ref("FunctionSegment")),
                 delimiter=Ref("CommaSegment"),
             ),
             OneOf(
@@ -3762,7 +3762,7 @@ class AccessStatementSegment(BaseSegment):
             _objects,
             OneOf("TO"),
             Delimited(
-                Ref("ObjectReferenceSegment"),
+                Ref("RoleReferenceSegment"),
                 delimiter=Ref("CommaSegment"),
             ),
             Sequence(
@@ -3791,7 +3791,7 @@ class AccessStatementSegment(BaseSegment):
             _objects,
             OneOf("TO", "FROM"),
             Delimited(
-                Ref("ObjectReferenceSegment"),
+                Ref("RoleReferenceSegment"),
                 delimiter=Ref("CommaSegment"),
             ),
             Sequence(

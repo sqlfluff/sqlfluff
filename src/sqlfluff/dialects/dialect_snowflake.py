@@ -4129,7 +4129,7 @@ class AlterUserStatementSegment(BaseSegment):
         "ALTER",
         "USER",
         Sequence("IF", "EXISTS", optional=True),
-        Ref("ObjectReferenceSegment"),
+        Ref("RoleReferenceSegment"),
         OneOf(
             Sequence("RENAME", "TO", Ref("ObjectReferenceSegment")),
             Sequence("RESET", "PASSWORD"),
@@ -4199,7 +4199,7 @@ class CreateRoleStatementSegment(ansi.CreateRoleStatementSegment):
             "EXISTS",
             optional=True,
         ),
-        Ref("ObjectReferenceSegment"),
+        Ref("RoleReferenceSegment"),
         Sequence(
             "COMMENT",
             Ref("EqualsSegment"),

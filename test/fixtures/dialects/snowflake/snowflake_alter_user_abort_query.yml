@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 15aad0d6bb2655e9d6ecbe351f9a6883a552d5ba792431655c99b39b5237f7a6
+_hash: 9b6b669df37857de12f976614efebc2cff68ace2939e1de5da45d89fa7f4a932
 file:
   statement:
     alter_user_statement:
@@ -11,7 +11,7 @@ file:
     - keyword: USER
     - keyword: IF
     - keyword: EXISTS
-    - object_reference:
+    - role_reference:
         identifier: my_user
     - keyword: ABORT
     - keyword: ALL

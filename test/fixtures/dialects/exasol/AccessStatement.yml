@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a15381d99e414e6ff362f6af8dcf168819558d4a43be0c961d2a4a0f91d2ec96
+_hash: eef3c596ee5cfc250d0532a84f0fbb94ca6ffc4d2bc5e4521b6ddcc4bb6023e4
 file:
 - statement:
     access_statement:
@@ -78,11 +78,14 @@ file:
     access_statement:
       keyword: GRANT
       grant_revoke_roles:
-      - identifier: role1
+      - role_reference:
+          identifier: role1
       - keyword: TO
-      - identifier: user1
+      - role_reference:
+          identifier: user1
       - comma: ','
-      - identifier: user2
+      - role_reference:
+          identifier: user2
       - keyword: WITH
       - keyword: ADMIN
       - keyword: OPTION
@@ -91,9 +94,11 @@ file:
     access_statement:
       keyword: GRANT
       grant_revoke_roles:
-      - identifier: role2
+      - role_reference:
+          identifier: role2
       - keyword: TO
-      - identifier: role1
+      - role_reference:
+          identifier: role1
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -221,11 +226,14 @@ file:
     access_statement:
       keyword: REVOKE
       grant_revoke_roles:
-      - identifier: role1
+      - role_reference:
+          identifier: role1
       - keyword: FROM
-      - identifier: user1
+      - role_reference:
+          identifier: user1
       - comma: ','
-      - identifier: user2
+      - role_reference:
+          identifier: user2
 - statement_terminator: ;
 - statement:
     access_statement:

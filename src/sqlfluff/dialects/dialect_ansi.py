@@ -3312,7 +3312,7 @@ class CreateRoleStatementSegment(BaseSegment):
     match_grammar: Matchable = Sequence(
         "CREATE",
         "ROLE",
-        Ref("ObjectReferenceSegment"),
+        Ref("RoleReferenceSegment"),
     )
 
 
