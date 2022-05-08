@@ -579,7 +579,7 @@ class SingleIdentifierSegment(BaseSegment):
     https://dev.mysql.com/doc/refman/8.0/en/role-names.html
     """
 
-    type = "identifier"
+    type = "single_identifier"
     match_grammar: Matchable = ansi_dialect.get_grammar("SingleIdentifierGrammar").copy(
         insert=[
             Ref("SessionVariableNameSegment"),

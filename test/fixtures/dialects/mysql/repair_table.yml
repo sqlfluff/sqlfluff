@@ -3,14 +3,14 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8ab6482335b92fba0be48070003385e2071d8c1ba405072d35dfade2d794a57b
+_hash: 1a92988ad09bc1ec20de732248ab5ad282529137e7aa084e0d2fbefafa7af146
 file:
 - statement:
     repair_table_statement:
     - keyword: REPAIR
     - keyword: TABLE
     - table_reference:
-        identifier:
+        single_identifier:
           identifier: some_table
 - statement_terminator: ;
 - statement:
@@ -18,11 +18,11 @@ file:
     - keyword: REPAIR
     - keyword: TABLE
     - table_reference:
-        identifier:
+        single_identifier:
           identifier: some_table1
     - comma: ','
     - table_reference:
-        identifier:
+        single_identifier:
           identifier: some_table2
 - statement_terminator: ;
 - statement:
@@ -31,7 +31,7 @@ file:
     - keyword: NO_WRITE_TO_BINLOG
     - keyword: TABLE
     - table_reference:
-        identifier:
+        single_identifier:
           identifier: some_table
 - statement_terminator: ;
 - statement:
@@ -40,11 +40,11 @@ file:
     - keyword: NO_WRITE_TO_BINLOG
     - keyword: TABLE
     - table_reference:
-        identifier:
+        single_identifier:
           identifier: some_table1
     - comma: ','
     - table_reference:
-        identifier:
+        single_identifier:
           identifier: some_table2
 - statement_terminator: ;
 - statement:
@@ -53,7 +53,7 @@ file:
     - keyword: LOCAL
     - keyword: TABLE
     - table_reference:
-        identifier:
+        single_identifier:
           identifier: some_table
 - statement_terminator: ;
 - statement:
@@ -62,11 +62,11 @@ file:
     - keyword: LOCAL
     - keyword: TABLE
     - table_reference:
-        identifier:
+        single_identifier:
           identifier: some_table1
     - comma: ','
     - table_reference:
-        identifier:
+        single_identifier:
           identifier: some_table2
 - statement_terminator: ;
 - statement:
@@ -74,7 +74,7 @@ file:
     - keyword: REPAIR
     - keyword: TABLE
     - table_reference:
-        identifier:
+        single_identifier:
           identifier: some_table
     - keyword: QUICK
 - statement_terminator: ;
@@ -83,7 +83,7 @@ file:
     - keyword: REPAIR
     - keyword: TABLE
     - table_reference:
-        identifier:
+        single_identifier:
           identifier: some_table
     - keyword: EXTENDED
 - statement_terminator: ;
@@ -92,7 +92,7 @@ file:
     - keyword: REPAIR
     - keyword: TABLE
     - table_reference:
-        identifier:
+        single_identifier:
           identifier: some_table
     - keyword: USE_FRM
 - statement_terminator: ;
@@ -101,7 +101,7 @@ file:
     - keyword: REPAIR
     - keyword: TABLE
     - table_reference:
-        identifier:
+        single_identifier:
           identifier: some_table
     - keyword: QUICK
     - keyword: EXTENDED

@@ -3,14 +3,14 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: de7210b130ec5d0036fd699bbdeb27505a6e422823028ac9df1ed4679a0ed215
+_hash: 5cec6cd6f77249dd1bcf4f4c3b38ce19e46d0ddf0f823f2ed8011f3cbfd7a7ab
 file:
 - statement:
     optimize_table_statement:
     - keyword: OPTIMIZE
     - keyword: TABLE
     - table_reference:
-        identifier:
+        single_identifier:
           identifier: some_table
 - statement_terminator: ;
 - statement:
@@ -18,11 +18,11 @@ file:
     - keyword: OPTIMIZE
     - keyword: TABLE
     - table_reference:
-        identifier:
+        single_identifier:
           identifier: some_table1
     - comma: ','
     - table_reference:
-        identifier:
+        single_identifier:
           identifier: some_table2
 - statement_terminator: ;
 - statement:
@@ -31,7 +31,7 @@ file:
     - keyword: NO_WRITE_TO_BINLOG
     - keyword: TABLE
     - table_reference:
-        identifier:
+        single_identifier:
           identifier: some_table
 - statement_terminator: ;
 - statement:
@@ -40,11 +40,11 @@ file:
     - keyword: NO_WRITE_TO_BINLOG
     - keyword: TABLE
     - table_reference:
-        identifier:
+        single_identifier:
           identifier: some_table1
     - comma: ','
     - table_reference:
-        identifier:
+        single_identifier:
           identifier: some_table2
 - statement_terminator: ;
 - statement:
@@ -53,7 +53,7 @@ file:
     - keyword: LOCAL
     - keyword: TABLE
     - table_reference:
-        identifier:
+        single_identifier:
           identifier: some_table
 - statement_terminator: ;
 - statement:
@@ -62,10 +62,10 @@ file:
     - keyword: LOCAL
     - keyword: TABLE
     - table_reference:
-        identifier:
+        single_identifier:
           identifier: some_table1
     - comma: ','
     - table_reference:
-        identifier:
+        single_identifier:
           identifier: some_table2
 - statement_terminator: ;

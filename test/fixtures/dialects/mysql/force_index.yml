@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9b934b64ef1db445e3f2b6d04fd228a97cd8ec58ccc02123089e8b0fd9256097
+_hash: 1f9a6bd380d2656d4bc42f4e794c67471545101af442b29f6bd3598462364637
 file:
   statement:
     select_statement:
@@ -19,7 +19,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier:
+                single_identifier:
                   identifier: onetable
       index_hint_clause:
       - keyword: FORCE
@@ -27,7 +27,7 @@ file:
       - bracketed:
           start_bracket: (
           object_reference:
-            identifier:
+            single_identifier:
               identifier: idx_index
           end_bracket: )
   statement_terminator: ;

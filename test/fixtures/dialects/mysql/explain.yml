@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4674068d3ec5b19ff46eb3e585471ea696aba914f3037e5b646b07dc9a7ed10f
+_hash: 1a44a2806d60aa52700025bd305acff5ba3e62cbe3a7f8e0c85941ae370a55c0
 file:
 - statement:
     explain_statement:
@@ -23,13 +23,13 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier:
+                single_identifier:
                   identifier: tbl
         set_clause_list:
           keyword: set
           set_clause:
             column_reference:
-              identifier:
+              single_identifier:
                 identifier: foo
             comparison_operator:
               raw_comparison_operator: '='
@@ -38,7 +38,7 @@ file:
           keyword: where
           expression:
             column_reference:
-              identifier:
+              single_identifier:
                 identifier: bar
             comparison_operator:
               raw_comparison_operator: '='
@@ -55,13 +55,13 @@ file:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier:
+                  single_identifier:
                     identifier: tbl
         where_clause:
           keyword: where
           expression:
             column_reference:
-              identifier:
+              single_identifier:
                 identifier: foo
             comparison_operator:
               raw_comparison_operator: '='
@@ -74,12 +74,12 @@ file:
       - keyword: insert
       - keyword: into
       - table_reference:
-          identifier:
+          single_identifier:
             identifier: tbl
       - bracketed:
           start_bracket: (
           column_reference:
-            identifier:
+            single_identifier:
               identifier: col1
           end_bracket: )
       - values_clause:

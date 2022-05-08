@@ -3,11 +3,11 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 73acfe62acd170c6245f5c2e53d4a3215cf6a17864f6441168b66b1475868681
+_hash: d4264bcff656e5598af06ada332bd4d340090a72aaba015e9bf4a35a3aae93a3
 file:
   statement:
     cursor_open_close_segment:
       keyword: CLOSE
-      identifier:
+      single_identifier:
         identifier: curcursor
   statement_terminator: ;

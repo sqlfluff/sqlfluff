@@ -3,27 +3,27 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0655d8b1d067cfd8e793a3e965282ae122532d6f09131250e6817a13df9c6502
+_hash: ac8e4e99da190ee1fe195421a2b7dec0934f86d6fec6307ce46629c68f0eaf12
 file:
 - statement:
     insert_statement:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-        identifier:
+        single_identifier:
           identifier: t1
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier:
+          single_identifier:
             identifier: a
       - comma: ','
       - column_reference:
-          identifier:
+          single_identifier:
             identifier: b
       - comma: ','
       - column_reference:
-          identifier:
+          single_identifier:
             identifier: c
       - end_bracket: )
     - values_clause:
@@ -57,7 +57,7 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-        identifier:
+        single_identifier:
           identifier: t1
     - select_statement:
         select_clause:
@@ -78,21 +78,21 @@ file:
                     - keyword: SELECT
                     - select_clause_element:
                         column_reference:
-                          identifier:
+                          single_identifier:
                             identifier: c
                     - comma: ','
                     - select_clause_element:
                         expression:
                         - column_reference:
-                            identifier:
+                            single_identifier:
                               identifier: c
                         - binary_operator: +
                         - column_reference:
-                            identifier:
+                            single_identifier:
                               identifier: d
                         alias_expression:
                           keyword: AS
-                          identifier:
+                          single_identifier:
                             identifier: e
                     from_clause:
                       keyword: FROM
@@ -100,12 +100,12 @@ file:
                         from_expression_element:
                           table_expression:
                             table_reference:
-                              identifier:
+                              single_identifier:
                                 identifier: t2
                   end_bracket: )
               alias_expression:
                 keyword: AS
-                identifier:
+                single_identifier:
                   identifier: dt
 - statement_terminator: ;
 - statement:
@@ -113,20 +113,20 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-        identifier:
+        single_identifier:
           identifier: t1
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier:
+          single_identifier:
             identifier: a
       - comma: ','
       - column_reference:
-          identifier:
+          single_identifier:
             identifier: b
       - comma: ','
       - column_reference:
-          identifier:
+          single_identifier:
             identifier: c
       - end_bracket: )
     - values_clause:
@@ -156,7 +156,7 @@ file:
         - end_bracket: )
     - insert_row_alias:
         keyword: AS
-        identifier:
+        single_identifier:
           identifier: t2
     - upsert_clause_list:
       - keyword: 'ON'
@@ -165,23 +165,23 @@ file:
       - keyword: UPDATE
       - set_clause:
           column_reference:
-            identifier:
+            single_identifier:
               identifier: c
           comparison_operator:
             raw_comparison_operator: '='
           expression:
           - column_reference:
-            - identifier:
+            - single_identifier:
                 identifier: t2
             - dot: .
-            - identifier:
+            - single_identifier:
                 identifier: a
           - binary_operator: +
           - column_reference:
-            - identifier:
+            - single_identifier:
                 identifier: t2
             - dot: .
-            - identifier:
+            - single_identifier:
                 identifier: b
 - statement_terminator: ;
 - statement:
@@ -189,20 +189,20 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-        identifier:
+        single_identifier:
           identifier: t1
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier:
+          single_identifier:
             identifier: a
       - comma: ','
       - column_reference:
-          identifier:
+          single_identifier:
             identifier: b
       - comma: ','
       - column_reference:
-          identifier:
+          single_identifier:
             identifier: c
       - end_bracket: )
     - values_clause:
@@ -232,18 +232,18 @@ file:
         - end_bracket: )
     - insert_row_alias:
         keyword: AS
-        identifier:
+        single_identifier:
           identifier: t2
         bracketed:
           start_bracket: (
           identifier_list:
-          - identifier:
+          - single_identifier:
               identifier: m
           - comma: ','
-          - identifier:
+          - single_identifier:
               identifier: n
           - comma: ','
-          - identifier:
+          - single_identifier:
               identifier: p
           end_bracket: )
     - upsert_clause_list:
@@ -253,17 +253,17 @@ file:
       - keyword: UPDATE
       - set_clause:
           column_reference:
-            identifier:
+            single_identifier:
               identifier: c
           comparison_operator:
             raw_comparison_operator: '='
           expression:
           - column_reference:
-              identifier:
+              single_identifier:
                 identifier: m
           - binary_operator: +
           - column_reference:
-              identifier:
+              single_identifier:
                 identifier: n
 - statement_terminator: ;
 - statement:
@@ -271,7 +271,7 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-        identifier:
+        single_identifier:
           identifier: t1
     - select_statement:
         select_clause:
@@ -292,21 +292,21 @@ file:
                     - keyword: SELECT
                     - select_clause_element:
                         column_reference:
-                          identifier:
+                          single_identifier:
                             identifier: c
                     - comma: ','
                     - select_clause_element:
                         expression:
                         - column_reference:
-                            identifier:
+                            single_identifier:
                               identifier: c
                         - binary_operator: +
                         - column_reference:
-                            identifier:
+                            single_identifier:
                               identifier: d
                         alias_expression:
                           keyword: AS
-                          identifier:
+                          single_identifier:
                             identifier: e
                     from_clause:
                       keyword: FROM
@@ -314,12 +314,12 @@ file:
                         from_expression_element:
                           table_expression:
                             table_reference:
-                              identifier:
+                              single_identifier:
                                 identifier: t2
                   end_bracket: )
               alias_expression:
                 keyword: AS
-                identifier:
+                single_identifier:
                   identifier: dt
     - upsert_clause_list:
       - keyword: 'ON'
@@ -328,12 +328,12 @@ file:
       - keyword: UPDATE
       - set_clause:
         - column_reference:
-            identifier:
+            single_identifier:
               identifier: b
         - comparison_operator:
             raw_comparison_operator: '='
         - column_reference:
-            identifier:
+            single_identifier:
               identifier: e
 - statement_terminator: ;
 - statement:
@@ -341,7 +341,7 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-        identifier:
+        single_identifier:
           identifier: t1
     - select_statement:
         select_clause:
@@ -362,21 +362,21 @@ file:
                     - keyword: SELECT
                     - select_clause_element:
                         column_reference:
-                          identifier:
+                          single_identifier:
                             identifier: c
                     - comma: ','
                     - select_clause_element:
                         expression:
                         - column_reference:
-                            identifier:
+                            single_identifier:
                               identifier: c
                         - binary_operator: +
                         - column_reference:
-                            identifier:
+                            single_identifier:
                               identifier: d
                         alias_expression:
                           keyword: AS
-                          identifier:
+                          single_identifier:
                             identifier: e
                     from_clause:
                       keyword: FROM
@@ -384,7 +384,7 @@ file:
                         from_expression_element:
                           table_expression:
                             table_reference:
-                              identifier:
+                              single_identifier:
                                 identifier: t2
                   end_bracket: )
     - upsert_clause_list:
@@ -394,12 +394,12 @@ file:
       - keyword: UPDATE
       - set_clause:
         - column_reference:
-            identifier:
+            single_identifier:
               identifier: b
         - comparison_operator:
             raw_comparison_operator: '='
         - column_reference:
-            identifier:
+            single_identifier:
               identifier: e
 - statement_terminator: ;
 - statement:
@@ -407,40 +407,40 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-        identifier:
+        single_identifier:
           identifier: t1
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier:
+          single_identifier:
             identifier: a
       - comma: ','
       - column_reference:
-          identifier:
+          single_identifier:
             identifier: b
       - comma: ','
       - column_reference:
-          identifier:
+          single_identifier:
             identifier: c
       - end_bracket: )
     - keyword: TABLE
     - table_reference:
-        identifier:
+        single_identifier:
           identifier: t2
     - insert_row_alias:
         keyword: as
-        identifier:
+        single_identifier:
           identifier: t3
         bracketed:
           start_bracket: (
           identifier_list:
-          - identifier:
+          - single_identifier:
               identifier: m
           - comma: ','
-          - identifier:
+          - single_identifier:
               identifier: n
           - comma: ','
-          - identifier:
+          - single_identifier:
               identifier: p
           end_bracket: )
     - upsert_clause_list:
@@ -450,17 +450,17 @@ file:
       - keyword: UPDATE
       - set_clause:
           column_reference:
-            identifier:
+            single_identifier:
               identifier: b
           comparison_operator:
             raw_comparison_operator: '='
           expression:
           - column_reference:
-              identifier:
+              single_identifier:
                 identifier: n
           - binary_operator: +
           - column_reference:
-              identifier:
+              single_identifier:
                 identifier: p
 - statement_terminator: ;
 - statement:
@@ -468,13 +468,13 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-        identifier:
+        single_identifier:
           identifier: t1
     - set_clause_list:
       - keyword: SET
       - set_clause:
           column_reference:
-            identifier:
+            single_identifier:
               identifier: a
           comparison_operator:
             raw_comparison_operator: '='
@@ -482,7 +482,7 @@ file:
       - comma: ','
       - set_clause:
           column_reference:
-            identifier:
+            single_identifier:
               identifier: b
           comparison_operator:
             raw_comparison_operator: '='
@@ -490,14 +490,14 @@ file:
       - comma: ','
       - set_clause:
           column_reference:
-            identifier:
+            single_identifier:
               identifier: c
           comparison_operator:
             raw_comparison_operator: '='
           literal: '3'
     - insert_row_alias:
         keyword: AS
-        identifier:
+        single_identifier:
           identifier: t2
     - upsert_clause_list:
       - keyword: 'ON'
@@ -506,23 +506,23 @@ file:
       - keyword: UPDATE
       - set_clause:
           column_reference:
-            identifier:
+            single_identifier:
               identifier: c
           comparison_operator:
             raw_comparison_operator: '='
           expression:
           - column_reference:
-            - identifier:
+            - single_identifier:
                 identifier: t2
             - dot: .
-            - identifier:
+            - single_identifier:
                 identifier: a
           - binary_operator: +
           - column_reference:
-            - identifier:
+            - single_identifier:
                 identifier: t2
             - dot: .
-            - identifier:
+            - single_identifier:
                 identifier: b
 - statement_terminator: ;
 - statement:
@@ -530,13 +530,13 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-        identifier:
+        single_identifier:
           identifier: t1
     - set_clause_list:
       - keyword: SET
       - set_clause:
           column_reference:
-            identifier:
+            single_identifier:
               identifier: a
           comparison_operator:
             raw_comparison_operator: '='
@@ -544,7 +544,7 @@ file:
       - comma: ','
       - set_clause:
           column_reference:
-            identifier:
+            single_identifier:
               identifier: b
           comparison_operator:
             raw_comparison_operator: '='
@@ -552,25 +552,25 @@ file:
       - comma: ','
       - set_clause:
           column_reference:
-            identifier:
+            single_identifier:
               identifier: c
           comparison_operator:
             raw_comparison_operator: '='
           literal: '3'
     - insert_row_alias:
         keyword: AS
-        identifier:
+        single_identifier:
           identifier: t2
         bracketed:
           start_bracket: (
           identifier_list:
-          - identifier:
+          - single_identifier:
               identifier: m
           - comma: ','
-          - identifier:
+          - single_identifier:
               identifier: n
           - comma: ','
-          - identifier:
+          - single_identifier:
               identifier: p
           end_bracket: )
     - upsert_clause_list:
@@ -580,31 +580,31 @@ file:
       - keyword: UPDATE
       - set_clause:
           column_reference:
-            identifier:
+            single_identifier:
               identifier: c
           comparison_operator:
             raw_comparison_operator: '='
           expression:
           - column_reference:
-              identifier:
+              single_identifier:
                 identifier: m
           - binary_operator: +
           - column_reference:
-              identifier:
+              single_identifier:
                 identifier: n
       - comma: ','
       - set_clause:
           column_reference:
-            identifier:
+            single_identifier:
               identifier: b
           comparison_operator:
             raw_comparison_operator: '='
           expression:
           - column_reference:
-              identifier:
+              single_identifier:
                 identifier: n
           - binary_operator: +
           - column_reference:
-              identifier:
+              single_identifier:
                 identifier: p
 - statement_terminator: ;

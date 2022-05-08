@@ -3,19 +3,19 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 22917dcb516c8c33a2c1f07d0a1b6b0e99b9a239cfddaf8130978476b77b7eba
+_hash: 26ee3fe53a1cbd63408debef6ae08aec5289b3f821fadc59c3be41fda6d756c7
 file:
 - statement:
     alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier:
+        single_identifier:
           identifier: '`users`'
     - keyword: MODIFY
     - keyword: COLUMN
     - column_definition:
-        identifier:
+        single_identifier:
           identifier: '`name`'
         data_type:
           data_type_identifier: varchar
@@ -36,12 +36,12 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier:
+        single_identifier:
           identifier: '`users`'
     - keyword: RENAME
     - keyword: TO
     - table_reference:
-        identifier:
+        single_identifier:
           identifier: '`user`'
 - statement_terminator: ;
 - statement:
@@ -49,12 +49,12 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier:
+        single_identifier:
           identifier: '`user`'
     - keyword: RENAME
     - keyword: AS
     - table_reference:
-        identifier:
+        single_identifier:
           identifier: '`users`'
 - statement_terminator: ;
 - statement:
@@ -62,11 +62,11 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier:
+        single_identifier:
           identifier: '`users`'
     - keyword: RENAME
     - table_reference:
-        identifier:
+        single_identifier:
           identifier: '`user`'
 - statement_terminator: ;
 - statement:
@@ -74,15 +74,15 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier:
+        single_identifier:
           identifier: '`users`'
     - keyword: CHANGE
     - keyword: COLUMN
     - column_reference:
-        identifier:
+        single_identifier:
           identifier: '`birthday`'
     - column_definition:
-      - identifier:
+      - single_identifier:
           identifier: '`date_of_birth`'
       - data_type:
           data_type_identifier: INT
@@ -102,15 +102,15 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier:
+        single_identifier:
           identifier: '`users`'
     - keyword: CHANGE
     - keyword: COLUMN
     - column_reference:
-        identifier:
+        single_identifier:
           identifier: '`birthday`'
     - column_definition:
-        identifier:
+        single_identifier:
           identifier: '`date_of_birth`'
         data_type:
           data_type_identifier: INT
@@ -128,15 +128,15 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier:
+        single_identifier:
           identifier: '`users`'
     - keyword: CHANGE
     - keyword: COLUMN
     - column_reference:
-        identifier:
+        single_identifier:
           identifier: '`birthday`'
     - column_definition:
-        identifier:
+        single_identifier:
           identifier: '`date_of_birth`'
         data_type:
           data_type_identifier: INT
@@ -152,15 +152,15 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier:
+        single_identifier:
           identifier: '`users`'
     - keyword: CHANGE
     - keyword: COLUMN
     - column_reference:
-        identifier:
+        single_identifier:
           identifier: '`birthday`'
     - column_definition:
-        identifier:
+        single_identifier:
           identifier: '`date_of_birth`'
         data_type:
           data_type_identifier: INT
@@ -171,7 +171,7 @@ file:
             end_bracket: )
     - keyword: AFTER
     - column_reference:
-        identifier:
+        single_identifier:
           identifier: '`name`'
 - statement_terminator: ;
 - statement:
@@ -179,12 +179,12 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier:
+        single_identifier:
           identifier: '`users`'
     - keyword: DROP
     - keyword: COLUMN
     - column_reference:
-        identifier:
+        single_identifier:
           identifier: '`age`'
 - statement_terminator: ;
 - statement:
@@ -192,28 +192,28 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - identifier:
+      - single_identifier:
           identifier: '`foo`'
       - dot: .
-      - identifier:
+      - single_identifier:
           identifier: '`bar`'
     - keyword: ADD
     - keyword: UNIQUE
     - index_reference:
-        identifier:
+        single_identifier:
           identifier: '`index_name`'
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier:
+          single_identifier:
             identifier: '`col_1`'
       - comma: ','
       - column_reference:
-          identifier:
+          single_identifier:
             identifier: '`col_2`'
       - comma: ','
       - column_reference:
-          identifier:
+          single_identifier:
             identifier: '`col_3`'
       - end_bracket: )
 - statement_terminator: ;
@@ -222,28 +222,28 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - identifier:
+      - single_identifier:
           identifier: '`foo`'
       - dot: .
-      - identifier:
+      - single_identifier:
           identifier: '`bar`'
     - keyword: ADD
     - keyword: INDEX
     - index_reference:
-        identifier:
+        single_identifier:
           identifier: '`index_name`'
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier:
+          single_identifier:
             identifier: '`col_1`'
       - comma: ','
       - column_reference:
-          identifier:
+          single_identifier:
             identifier: '`col_2`'
       - comma: ','
       - column_reference:
-          identifier:
+          single_identifier:
             identifier: '`col_3`'
       - end_bracket: )
 - statement_terminator: ;
@@ -252,13 +252,13 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - identifier:
+      - single_identifier:
           identifier: '`foo`'
       - dot: .
-      - identifier:
+      - single_identifier:
           identifier: '`bar`'
     - keyword: DROP
     - keyword: INDEX
     - index_reference:
-        identifier:
+        single_identifier:
           identifier: '`index_name`'

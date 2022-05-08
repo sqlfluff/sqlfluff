@@ -3,14 +3,14 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0ad9b4da4c04d604ea8b1e057935073849e054b4045134df95023d2f078f463d
+_hash: 02b6f89829bda1ef5e2af8c7b11b4fa6441374d3516dab18d498aa9c3d1a05d1
 file:
 - statement:
     check_table_statement:
     - keyword: CHECK
     - keyword: TABLE
     - table_reference:
-        identifier:
+        single_identifier:
           identifier: some_table
     - keyword: FOR
     - keyword: UPGRADE
@@ -20,11 +20,11 @@ file:
     - keyword: CHECK
     - keyword: TABLE
     - table_reference:
-        identifier:
+        single_identifier:
           identifier: some_table1
     - comma: ','
     - table_reference:
-        identifier:
+        single_identifier:
           identifier: some_table2
     - keyword: FOR
     - keyword: UPGRADE
@@ -34,7 +34,7 @@ file:
     - keyword: CHECK
     - keyword: TABLE
     - table_reference:
-        identifier:
+        single_identifier:
           identifier: some_table
     - keyword: QUICK
 - statement_terminator: ;
@@ -43,11 +43,11 @@ file:
     - keyword: CHECK
     - keyword: TABLE
     - table_reference:
-        identifier:
+        single_identifier:
           identifier: some_table1
     - comma: ','
     - table_reference:
-        identifier:
+        single_identifier:
           identifier: some_table2
     - keyword: QUICK
 - statement_terminator: ;
@@ -56,7 +56,7 @@ file:
     - keyword: CHECK
     - keyword: TABLE
     - table_reference:
-        identifier:
+        single_identifier:
           identifier: some_table
     - keyword: FAST
 - statement_terminator: ;
@@ -65,11 +65,11 @@ file:
     - keyword: CHECK
     - keyword: TABLE
     - table_reference:
-        identifier:
+        single_identifier:
           identifier: some_table1
     - comma: ','
     - table_reference:
-        identifier:
+        single_identifier:
           identifier: some_table2
     - keyword: FAST
 - statement_terminator: ;
@@ -78,7 +78,7 @@ file:
     - keyword: CHECK
     - keyword: TABLE
     - table_reference:
-        identifier:
+        single_identifier:
           identifier: some_table
     - keyword: MEDIUM
 - statement_terminator: ;
@@ -87,11 +87,11 @@ file:
     - keyword: CHECK
     - keyword: TABLE
     - table_reference:
-        identifier:
+        single_identifier:
           identifier: some_table1
     - comma: ','
     - table_reference:
-        identifier:
+        single_identifier:
           identifier: some_table2
     - keyword: MEDIUM
 - statement_terminator: ;
@@ -100,7 +100,7 @@ file:
     - keyword: CHECK
     - keyword: TABLE
     - table_reference:
-        identifier:
+        single_identifier:
           identifier: some_table
     - keyword: EXTENDED
 - statement_terminator: ;
@@ -109,11 +109,11 @@ file:
     - keyword: CHECK
     - keyword: TABLE
     - table_reference:
-        identifier:
+        single_identifier:
           identifier: some_table1
     - comma: ','
     - table_reference:
-        identifier:
+        single_identifier:
           identifier: some_table2
     - keyword: EXTENDED
 - statement_terminator: ;
@@ -122,7 +122,7 @@ file:
     - keyword: CHECK
     - keyword: TABLE
     - table_reference:
-        identifier:
+        single_identifier:
           identifier: some_table
     - keyword: CHANGED
 - statement_terminator: ;
@@ -131,11 +131,11 @@ file:
     - keyword: CHECK
     - keyword: TABLE
     - table_reference:
-        identifier:
+        single_identifier:
           identifier: some_table1
     - comma: ','
     - table_reference:
-        identifier:
+        single_identifier:
           identifier: some_table2
     - keyword: CHANGED
 - statement_terminator: ;
@@ -144,7 +144,7 @@ file:
     - keyword: CHECK
     - keyword: TABLE
     - table_reference:
-        identifier:
+        single_identifier:
           identifier: some_table
     - keyword: FAST
     - keyword: QUICK

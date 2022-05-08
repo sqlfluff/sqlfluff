@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: adfc89d96bb00db5f5c2815f16cdfd3634cad5d0610b76a158a336d350bff51f
+_hash: 23c80dd4fca9cf845c8630db7590ba90f8bd6158f45b36131b21b2909aac39fa
 file:
 - statement:
     if_then_statement:
@@ -32,7 +32,7 @@ file:
                       from_expression_element:
                         table_expression:
                           table_reference:
-                            identifier:
+                            single_identifier:
                               identifier: table
               end_bracket: )
             comparison_operator:
@@ -58,6 +58,6 @@ file:
 - statement:
     transaction_statement:
       keyword: end
-      identifier:
+      single_identifier:
         identifier: if
 - statement_terminator: ;

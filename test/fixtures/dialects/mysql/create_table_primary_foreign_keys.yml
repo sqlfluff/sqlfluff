@@ -3,19 +3,19 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: cc2c096b9bcc9ffc97645e07a2e91c98e5dfb6391a68fba40302dd7a58832e09
+_hash: 2e1fbcbb0aaa0c979f5c27822b0d52928b2b778612aa4411851ff013e01da555
 file:
 - statement:
     create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier:
+        single_identifier:
           identifier: parent
     - bracketed:
         start_bracket: (
         column_definition:
-          identifier:
+          single_identifier:
             identifier: id
           data_type:
             data_type_identifier: INT
@@ -29,7 +29,7 @@ file:
         - bracketed:
             start_bracket: (
             column_reference:
-              identifier:
+              single_identifier:
                 identifier: id
             end_bracket: )
         end_bracket: )
@@ -39,24 +39,24 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier:
+        single_identifier:
           identifier: child
     - bracketed:
       - start_bracket: (
       - column_definition:
-          identifier:
+          single_identifier:
             identifier: id
           data_type:
             data_type_identifier: INT
       - comma: ','
       - column_definition:
-          identifier:
+          single_identifier:
             identifier: parent_id
           data_type:
             data_type_identifier: INT
       - comma: ','
       - column_definition:
-          identifier:
+          single_identifier:
             identifier: INDEX
           data_type:
             data_type_identifier: par_ind
@@ -64,7 +64,7 @@ file:
               start_bracket: (
               expression:
                 column_reference:
-                  identifier:
+                  single_identifier:
                     identifier: parent_id
               end_bracket: )
       - comma: ','
@@ -74,17 +74,17 @@ file:
         - bracketed:
             start_bracket: (
             column_reference:
-              identifier:
+              single_identifier:
                 identifier: parent_id
             end_bracket: )
         - keyword: REFERENCES
         - column_reference:
-            identifier:
+            single_identifier:
               identifier: parent
         - bracketed:
             start_bracket: (
             column_reference:
-              identifier:
+              single_identifier:
                 identifier: id
             end_bracket: )
         - keyword: 'ON'
@@ -97,12 +97,12 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier:
+        single_identifier:
           identifier: product
     - bracketed:
       - start_bracket: (
       - column_definition:
-          identifier:
+          single_identifier:
             identifier: category
           data_type:
             data_type_identifier: INT
@@ -111,7 +111,7 @@ file:
           - keyword: 'NULL'
       - comma: ','
       - column_definition:
-          identifier:
+          single_identifier:
             identifier: id
           data_type:
             data_type_identifier: INT
@@ -120,7 +120,7 @@ file:
           - keyword: 'NULL'
       - comma: ','
       - column_definition:
-          identifier:
+          single_identifier:
             identifier: price
           data_type:
             data_type_identifier: DECIMAL
@@ -131,11 +131,11 @@ file:
         - bracketed:
           - start_bracket: (
           - column_reference:
-              identifier:
+              single_identifier:
                 identifier: category
           - comma: ','
           - column_reference:
-              identifier:
+              single_identifier:
                 identifier: id
           - end_bracket: )
       - end_bracket: )
@@ -145,12 +145,12 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier:
+        single_identifier:
           identifier: customer
     - bracketed:
         start_bracket: (
         column_definition:
-          identifier:
+          single_identifier:
             identifier: id
           data_type:
             data_type_identifier: INT
@@ -164,7 +164,7 @@ file:
         - bracketed:
             start_bracket: (
             column_reference:
-              identifier:
+              single_identifier:
                 identifier: id
             end_bracket: )
         end_bracket: )
@@ -174,12 +174,12 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier:
+        single_identifier:
           identifier: product_order
     - bracketed:
       - start_bracket: (
       - column_definition:
-          identifier:
+          single_identifier:
             identifier: product_category
           data_type:
             data_type_identifier: INT
@@ -188,7 +188,7 @@ file:
           - keyword: 'NULL'
       - comma: ','
       - column_definition:
-          identifier:
+          single_identifier:
             identifier: product_id
           data_type:
             data_type_identifier: INT
@@ -197,7 +197,7 @@ file:
           - keyword: 'NULL'
       - comma: ','
       - column_definition:
-          identifier:
+          single_identifier:
             identifier: customer_id
           data_type:
             data_type_identifier: INT
@@ -212,7 +212,7 @@ file:
             start_bracket: (
             expression:
               column_reference:
-                identifier:
+                single_identifier:
                   identifier: 'no'
             end_bracket: )
       - comma: ','
@@ -222,25 +222,25 @@ file:
         - bracketed:
           - start_bracket: (
           - column_reference:
-              identifier:
+              single_identifier:
                 identifier: product_category
           - comma: ','
           - column_reference:
-              identifier:
+              single_identifier:
                 identifier: product_id
           - end_bracket: )
         - keyword: REFERENCES
         - column_reference:
-            identifier:
+            single_identifier:
               identifier: product
         - bracketed:
           - start_bracket: (
           - column_reference:
-              identifier:
+              single_identifier:
                 identifier: category
           - comma: ','
           - column_reference:
-              identifier:
+              single_identifier:
                 identifier: id
           - end_bracket: )
         - keyword: 'ON'
@@ -256,17 +256,17 @@ file:
         - bracketed:
             start_bracket: (
             column_reference:
-              identifier:
+              single_identifier:
                 identifier: customer_id
             end_bracket: )
         - keyword: REFERENCES
         - column_reference:
-            identifier:
+            single_identifier:
               identifier: customer
         - bracketed:
             start_bracket: (
             column_reference:
-              identifier:
+              single_identifier:
                 identifier: id
             end_bracket: )
       - end_bracket: )
@@ -276,12 +276,12 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier:
+        single_identifier:
           identifier: source_tag_assoc
     - bracketed:
       - start_bracket: (
       - column_definition:
-          identifier:
+          single_identifier:
             identifier: source_id
           data_type:
             data_type_identifier: INT
@@ -291,7 +291,7 @@ file:
           - keyword: 'NULL'
       - comma: ','
       - column_definition:
-          identifier:
+          single_identifier:
             identifier: tag_id
           data_type:
             data_type_identifier: INT
@@ -306,11 +306,11 @@ file:
         - bracketed:
           - start_bracket: (
           - column_reference:
-              identifier:
+              single_identifier:
                 identifier: source_id
           - comma: ','
           - column_reference:
-              identifier:
+              single_identifier:
                 identifier: tag_id
           - end_bracket: )
       - comma: ','
@@ -321,17 +321,17 @@ file:
             start_bracket: (
             expression:
               column_reference:
-                identifier:
+                single_identifier:
                   identifier: source_id
             end_bracket: )
         - keyword: REFERENCES
         - column_reference:
-            identifier:
+            single_identifier:
               identifier: source
         - bracketed:
             start_bracket: (
             column_reference:
-              identifier:
+              single_identifier:
                 identifier: id
             end_bracket: )
         - keyword: 'ON'
@@ -344,17 +344,17 @@ file:
         - bracketed:
             start_bracket: (
             column_reference:
-              identifier:
+              single_identifier:
                 identifier: tag_id
             end_bracket: )
         - keyword: REFERENCES
         - column_reference:
-            identifier:
+            single_identifier:
               identifier: source_tag
         - bracketed:
             start_bracket: (
             column_reference:
-              identifier:
+              single_identifier:
                 identifier: id
             end_bracket: )
         - keyword: 'ON'
