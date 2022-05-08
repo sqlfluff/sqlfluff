@@ -3,18 +3,19 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 62acb49cd406b6de44feae6687de9fddfe89613bd6f4e4b9901849b75e7c2d59
+_hash: 77e323ea3bb848c5edf4900efe05584de536a92b2076697b345dd32cf5fb5fc2
 file:
 - statement:
     create_function_statement:
     - keyword: CREATE
     - definer_segment:
-      - keyword: DEFINER
-      - comparison_operator:
+        keyword: DEFINER
+        comparison_operator:
           raw_comparison_operator: '='
-      - identifier: '`test`'
-      - literal: '@'
-      - identifier: '`%`'
+        object_reference:
+        - identifier: '`test`'
+        - literal: '@'
+        - identifier: '`%`'
     - keyword: FUNCTION
     - function_name:
         identifier: '`testfunction`'

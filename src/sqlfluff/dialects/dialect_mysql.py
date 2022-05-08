@@ -576,30 +576,40 @@ mysql_dialect.replace(
     ParameterNameSegment=RegexParser(
         r"`?[A-Za-z0-9_]*`?", CodeSegment, name="parameter", type="parameter"
     ),
-    SingleIdentifierGrammar=OneOf(
-        Ref("SessionVariableNameSegment"),
+    SingleIdentifierGrammar=ansi_dialect.get_grammar("SingleIdentifierGrammar").copy(
+        insert=[Ref("SessionVariableNameSegment")]
+    ),
+)
+
+
+class ObjectReferenceSegment(ansi.ObjectReferenceSegment):
+    """A reference to an object.
+
+    https://dev.mysql.com/doc/refman/8.0/en/account-names.html
+    https://dev.mysql.com/doc/refman/8.0/en/role-names.html
+    """
+
+    match_grammar: Matchable = Sequence(
         # https://dev.mysql.com/doc/refman/8.0/en/account-names.html
         # https://dev.mysql.com/doc/refman/8.0/en/role-names.html
+        OneOf(
+            Ref("NakedIdentifierSegment"),
+            Ref("QuotedIdentifierSegment"),
+            Ref("SingleQuotedIdentifierSegment"),
+            Ref("DoubleQuotedLiteralSegment"),
+        ),
         Sequence(
+            Ref("AtSignLiteralSegment"),
             OneOf(
                 Ref("NakedIdentifierSegment"),
                 Ref("QuotedIdentifierSegment"),
                 Ref("SingleQuotedIdentifierSegment"),
                 Ref("DoubleQuotedLiteralSegment"),
             ),
-            Sequence(
-                Ref("AtSignLiteralSegment"),
-                OneOf(
-                    Ref("NakedIdentifierSegment"),
-                    Ref("QuotedIdentifierSegment"),
-                    Ref("SingleQuotedIdentifierSegment"),
-                    Ref("DoubleQuotedLiteralSegment"),
-                ),
-                optional=True,
-            ),
+            optional=True,
         ),
-    ),
-)
+    )
+
 
 mysql_dialect.insert_lexer_matchers(
     [
@@ -1019,7 +1029,7 @@ class DefinerSegment(BaseSegment):
     match_grammar = Sequence(
         "DEFINER",
         Ref("EqualsSegment"),
-        Ref("SingleIdentifierGrammar"),
+        Ref("ObjectReferenceSegment"),
     )
 
 
