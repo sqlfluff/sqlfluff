@@ -597,6 +597,7 @@ mysql_dialect.insert_lexer_matchers(
 class ObjectReferenceSegment(ansi.ObjectReferenceSegment):
     """A reference to an object.
 
+    Override ANSI to allow account names and role names as objects as well:
     https://dev.mysql.com/doc/refman/8.0/en/account-names.html
     https://dev.mysql.com/doc/refman/8.0/en/role-names.html
     """
