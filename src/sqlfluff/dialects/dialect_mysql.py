@@ -524,15 +524,6 @@ class IntervalExpressionSegment(BaseSegment):
 
 
 mysql_dialect.add(
-    DoubleForwardSlashSegment=StringParser(
-        "//", SymbolSegment, name="doubleforwardslash", type="statement_terminator"
-    ),
-    DoubleDollarSignSegment=StringParser(
-        "$$", SymbolSegment, name="doubledollarsign", type="statement_terminator"
-    ),
-    AtSignSignSegment=StringParser(
-        "@", SymbolSegment, name="at_sign", type="user_designator"
-    ),
     OutputParameterSegment=StringParser(
         "OUT", SymbolSegment, name="inputparameter", type="parameter_direction"
     ),
@@ -590,6 +581,7 @@ mysql_dialect.replace(
     ),
 )
 
+
 mysql_dialect.insert_lexer_matchers(
     [
         RegexLexer(
@@ -600,6 +592,38 @@ mysql_dialect.insert_lexer_matchers(
     ],
     before="code",
 )
+
+
+class RoleReferenceSegment(ansi.RoleReferenceSegment):
+    """A reference to an account, role, or user.
+
+    https://dev.mysql.com/doc/refman/8.0/en/account-names.html
+    https://dev.mysql.com/doc/refman/8.0/en/role-names.html
+    """
+
+    match_grammar: Matchable = OneOf(
+        ansi.RoleReferenceSegment.match_grammar,
+        Sequence(
+            OneOf(
+                Ref("NakedIdentifierSegment"),
+                Ref("QuotedIdentifierSegment"),
+                Ref("SingleQuotedIdentifierSegment"),
+                Ref("DoubleQuotedLiteralSegment"),
+            ),
+            Sequence(
+                Ref("AtSignLiteralSegment"),
+                OneOf(
+                    Ref("NakedIdentifierSegment"),
+                    Ref("QuotedIdentifierSegment"),
+                    Ref("SingleQuotedIdentifierSegment"),
+                    Ref("DoubleQuotedLiteralSegment"),
+                ),
+                optional=True,
+                allow_gaps=False,
+            ),
+            allow_gaps=True,
+        ),
+    )
 
 
 class DeclareStatement(BaseSegment):
@@ -1008,9 +1032,7 @@ class DefinerSegment(BaseSegment):
     match_grammar = Sequence(
         "DEFINER",
         Ref("EqualsSegment"),
-        Ref("SingleIdentifierGrammar"),
-        Ref("AtSignLiteralSegment"),
-        Ref("SingleIdentifierGrammar"),
+        Ref("RoleReferenceSegment"),
     )
 
 
