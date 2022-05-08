@@ -604,8 +604,6 @@ class ObjectReferenceSegment(ansi.ObjectReferenceSegment):
     match_grammar: Matchable = OneOf(
         ansi.ObjectReferenceSegment.match_grammar,
         Sequence(
-            # https://dev.mysql.com/doc/refman/8.0/en/account-names.html
-            # https://dev.mysql.com/doc/refman/8.0/en/role-names.html
             OneOf(
                 Ref("NakedIdentifierSegment"),
                 Ref("QuotedIdentifierSegment"),
