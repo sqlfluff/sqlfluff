@@ -619,7 +619,9 @@ class ObjectReferenceSegment(ansi.ObjectReferenceSegment):
                     Ref("DoubleQuotedLiteralSegment"),
                 ),
                 optional=True,
+                allow_gaps=False,
             ),
+            allow_gaps=True,
         ),
     )
 
