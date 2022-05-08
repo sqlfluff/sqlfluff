@@ -3,19 +3,17 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2bd51824d04acf589719d61f96837cefc06e398b42115e4569c69a751092cf14
+_hash: 6d785c4bb5f484e913ace5ae9c1981a2f228c7986783ae66aa49296427c9c652
 file:
 - statement:
     drop_index_statement:
     - keyword: DROP
     - keyword: INDEX
     - index_reference:
-        single_identifier:
-          identifier: '`test`'
+        identifier: '`test`'
     - keyword: 'ON'
     - table_reference:
-        single_identifier:
-          identifier: '`table`'
+        identifier: '`table`'
     - keyword: LOCK
     - comparison_operator:
         raw_comparison_operator: '='
@@ -26,12 +24,10 @@ file:
     - keyword: DROP
     - keyword: INDEX
     - index_reference:
-        single_identifier:
-          identifier: '`test`'
+        identifier: '`test`'
     - keyword: 'ON'
     - table_reference:
-        single_identifier:
-          identifier: '`table`'
+        identifier: '`table`'
     - keyword: LOCK
     - comparison_operator:
         raw_comparison_operator: '='
@@ -42,12 +38,10 @@ file:
     - keyword: DROP
     - keyword: INDEX
     - index_reference:
-        single_identifier:
-          identifier: '`test`'
+        identifier: '`test`'
     - keyword: 'ON'
     - table_reference:
-        single_identifier:
-          identifier: '`table`'
+        identifier: '`table`'
     - keyword: LOCK
     - comparison_operator:
         raw_comparison_operator: '='
@@ -58,12 +52,10 @@ file:
     - keyword: DROP
     - keyword: INDEX
     - index_reference:
-        single_identifier:
-          identifier: '`test`'
+        identifier: '`test`'
     - keyword: 'ON'
     - table_reference:
-        single_identifier:
-          identifier: '`table`'
+        identifier: '`table`'
     - keyword: LOCK
     - comparison_operator:
         raw_comparison_operator: '='
@@ -74,12 +66,10 @@ file:
     - keyword: DROP
     - keyword: INDEX
     - index_reference:
-        single_identifier:
-          identifier: '`test`'
+        identifier: '`test`'
     - keyword: 'ON'
     - table_reference:
-        single_identifier:
-          identifier: '`table`'
+        identifier: '`table`'
     - keyword: LOCK
     - keyword: DEFAULT
 - statement_terminator: ;
@@ -88,12 +78,10 @@ file:
     - keyword: DROP
     - keyword: INDEX
     - index_reference:
-        single_identifier:
-          identifier: '`test`'
+        identifier: '`test`'
     - keyword: 'ON'
     - table_reference:
-        single_identifier:
-          identifier: '`table`'
+        identifier: '`table`'
     - keyword: LOCK
     - keyword: NONE
 - statement_terminator: ;
@@ -102,12 +90,10 @@ file:
     - keyword: DROP
     - keyword: INDEX
     - index_reference:
-        single_identifier:
-          identifier: '`test`'
+        identifier: '`test`'
     - keyword: 'ON'
     - table_reference:
-        single_identifier:
-          identifier: '`table`'
+        identifier: '`table`'
     - keyword: LOCK
     - keyword: SHARED
 - statement_terminator: ;
@@ -116,12 +102,10 @@ file:
     - keyword: DROP
     - keyword: INDEX
     - index_reference:
-        single_identifier:
-          identifier: '`test`'
+        identifier: '`test`'
     - keyword: 'ON'
     - table_reference:
-        single_identifier:
-          identifier: '`table`'
+        identifier: '`table`'
     - keyword: LOCK
     - keyword: EXCLUSIVE
 - statement_terminator: ;

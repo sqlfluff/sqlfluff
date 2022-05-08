@@ -576,24 +576,25 @@ mysql_dialect.replace(
     ParameterNameSegment=RegexParser(
         r"`?[A-Za-z0-9_]*`?", CodeSegment, name="parameter", type="parameter"
     ),
-    SingleIdentifierGrammar=Sequence(
-        OneOf(
-            Ref("NakedIdentifierSegment"),
-            Ref("QuotedIdentifierSegment"),
-            Ref("SessionVariableNameSegment"),
-            Ref("SingleQuotedIdentifierSegment"),
-            Ref("DoubleQuotedLiteralSegment"),
-        ),
+    SingleIdentifierGrammar=OneOf(
+        Ref("SessionVariableNameSegment"),
         Sequence(
-            Ref("AtSignLiteralSegment"),
             OneOf(
                 Ref("NakedIdentifierSegment"),
                 Ref("QuotedIdentifierSegment"),
-                Ref("SessionVariableNameSegment"),
                 Ref("SingleQuotedIdentifierSegment"),
                 Ref("DoubleQuotedLiteralSegment"),
             ),
-            optional=True,
+            Sequence(
+                Ref("AtSignLiteralSegment"),
+                OneOf(
+                    Ref("NakedIdentifierSegment"),
+                    Ref("QuotedIdentifierSegment"),
+                    Ref("SingleQuotedIdentifierSegment"),
+                    Ref("DoubleQuotedLiteralSegment"),
+                ),
+                optional=True,
+            ),
         ),
     ),
 )

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 586fe04d4fb17c3b85421aa500a4b4078155522c9316ca5fb93e9fba515b7dbf
+_hash: 25ad7b14b830a454258aa6ff9ae06b6593925ec6c671785b0283e7731dac63cc
 file:
   statement:
     select_statement:
@@ -11,6 +11,5 @@ file:
         keyword: select
         select_clause_element:
           column_reference:
-            single_identifier:
-              identifier: test2
+            identifier: test2
   statement_terminator: ;

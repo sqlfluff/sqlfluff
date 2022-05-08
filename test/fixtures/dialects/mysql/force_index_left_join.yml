@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: cdf7555141e47edb5694bea57614cbf3c0aaa3ca557038339e50435d7d4de2dc
+_hash: 9c25c079c0ff6461ed28c30c4a889e9f29f5a2cb8b0dd21cac9426f68f0f1a6d
 file:
   statement:
     select_statement:
@@ -11,59 +11,48 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - single_identifier:
-              identifier: onetable
+          - identifier: onetable
           - dot: .
-          - single_identifier:
-              identifier: f1
+          - identifier: f1
       - comma: ','
       - select_clause_element:
           column_reference:
-          - single_identifier:
-              identifier: twotable
+          - identifier: twotable
           - dot: .
-          - single_identifier:
-              identifier: f1
+          - identifier: f1
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                single_identifier:
-                  identifier: onetable
+                identifier: onetable
           join_clause:
           - keyword: left
           - keyword: join
           - from_expression_element:
               table_expression:
                 table_reference:
-                  single_identifier:
-                    identifier: twotable
+                  identifier: twotable
       index_hint_clause:
       - keyword: FORCE
       - keyword: INDEX
       - bracketed:
           start_bracket: (
           object_reference:
-            single_identifier:
-              identifier: idx_index
+            identifier: idx_index
           end_bracket: )
       - join_on_condition:
           keyword: 'on'
           expression:
           - column_reference:
-            - single_identifier:
-                identifier: onetable
+            - identifier: onetable
             - dot: .
-            - single_identifier:
-                identifier: f1
+            - identifier: f1
           - comparison_operator:
               raw_comparison_operator: '='
           - column_reference:
-            - single_identifier:
-                identifier: twotable
+            - identifier: twotable
             - dot: .
-            - single_identifier:
-                identifier: f1
+            - identifier: f1
   statement_terminator: ;

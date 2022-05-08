@@ -3,20 +3,18 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 34800c9449e863cc722bde194f54064572f9225ee4fff69fd23ded6e0db4411c
+_hash: 2a461692811ad1b011d37d3a66002a6b1993994fea82550bf86b35ed37834118
 file:
   statement:
     create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        single_identifier:
-          identifier: a
+        identifier: a
     - bracketed:
       - start_bracket: (
       - column_definition:
-          single_identifier:
-            identifier: a
+          identifier: a
           data_type:
             data_type_identifier: INT
           column_constraint_segment:
@@ -28,21 +26,18 @@ file:
           bracketed:
             start_bracket: (
             column_reference:
-              single_identifier:
-                identifier: a
+              identifier: a
             end_bracket: )
       - comma: ','
       - table_constraint:
           keyword: UNIQUE
           object_reference:
-            single_identifier:
-              identifier: idx_c
+            identifier: idx_c
           bracketed:
             start_bracket: (
             expression:
               column_reference:
-                single_identifier:
-                  identifier: a
+                identifier: a
             end_bracket: )
       - comma: ','
       - table_constraint:
@@ -52,21 +47,18 @@ file:
             start_bracket: (
             expression:
               column_reference:
-                single_identifier:
-                  identifier: a
+                identifier: a
             end_bracket: )
       - comma: ','
       - table_constraint:
         - keyword: UNIQUE
         - keyword: KEY
         - object_reference:
-            single_identifier:
-              identifier: idx_a
+            identifier: idx_a
         - bracketed:
             start_bracket: (
             column_reference:
-              single_identifier:
-                identifier: a
+              identifier: a
             end_bracket: )
       - comma: ','
       - table_constraint:
@@ -76,20 +68,17 @@ file:
             start_bracket: (
             expression:
               column_reference:
-                single_identifier:
-                  identifier: a
+                identifier: a
             end_bracket: )
       - comma: ','
       - table_constraint:
         - keyword: UNIQUE
         - keyword: INDEX
         - object_reference:
-            single_identifier:
-              identifier: idx_b
+            identifier: idx_b
         - bracketed:
             start_bracket: (
             column_reference:
-              single_identifier:
-                identifier: a
+              identifier: a
             end_bracket: )
       - end_bracket: )

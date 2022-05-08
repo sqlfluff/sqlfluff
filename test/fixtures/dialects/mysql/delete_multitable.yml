@@ -3,44 +3,38 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 724ecc6be7a1b1dd918d6c5981b1dd1e9401720a4d86d3cf6d59620f73ac9de4
+_hash: 7e8e25230b7bb4701fec6377de0003673787f75e5bf9a02ba791ae7f89927149
 file:
 - statement:
     delete_statement:
       keyword: DELETE
       table_reference:
-        single_identifier:
-          identifier: a
+        identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                single_identifier:
-                  identifier: a
+                identifier: a
           join_clause:
           - keyword: JOIN
           - from_expression_element:
               table_expression:
                 table_reference:
-                  single_identifier:
-                    identifier: b
+                  identifier: b
           - keyword: USING
           - bracketed:
               start_bracket: (
-              single_identifier:
-                identifier: id
+              identifier: id
               end_bracket: )
       where_clause:
         keyword: WHERE
         expression:
           column_reference:
-          - single_identifier:
-              identifier: b
+          - identifier: b
           - dot: .
-          - single_identifier:
-              identifier: name
+          - identifier: name
           comparison_operator:
             raw_comparison_operator: '='
           literal: "'example'"
@@ -54,14 +48,12 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                single_identifier:
-                  identifier: somelog
+                identifier: somelog
       where_clause:
         keyword: WHERE
         expression:
           column_reference:
-            single_identifier:
-              identifier: user
+            identifier: user
           comparison_operator:
             raw_comparison_operator: '='
           literal: "'jcole'"
@@ -69,8 +61,7 @@ file:
       - keyword: ORDER
       - keyword: BY
       - column_reference:
-          single_identifier:
-            identifier: timestamp_column
+          identifier: timestamp_column
       limit_clause:
         keyword: LIMIT
         literal: '1'
@@ -82,38 +73,32 @@ file:
     - keyword: QUICK
     - keyword: IGNORE
     - table_reference:
-        single_identifier:
-          identifier: a
+        identifier: a
     - from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                single_identifier:
-                  identifier: a
+                identifier: a
           join_clause:
           - keyword: JOIN
           - from_expression_element:
               table_expression:
                 table_reference:
-                  single_identifier:
-                    identifier: b
+                  identifier: b
           - keyword: USING
           - bracketed:
               start_bracket: (
-              single_identifier:
-                identifier: id
+              identifier: id
               end_bracket: )
     - where_clause:
         keyword: WHERE
         expression:
           column_reference:
-          - single_identifier:
-              identifier: b
+          - identifier: b
           - dot: .
-          - single_identifier:
-              identifier: name
+          - identifier: name
           comparison_operator:
             raw_comparison_operator: '='
           literal: "'example'"
@@ -127,25 +112,21 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                single_identifier:
-                  identifier: a
+                identifier: a
       partition_clause:
         keyword: PARTITION
         bracketed:
           start_bracket: (
           object_reference:
-            single_identifier:
-              identifier: p
+            identifier: p
           end_bracket: )
       where_clause:
         keyword: WHERE
         expression:
           column_reference:
-          - single_identifier:
-              identifier: b
+          - identifier: b
           - dot: .
-          - single_identifier:
-              identifier: name
+          - identifier: name
           comparison_operator:
             raw_comparison_operator: '='
           literal: "'example'"
@@ -154,68 +135,55 @@ file:
     delete_statement:
     - keyword: DELETE
     - table_reference:
-        single_identifier:
-          identifier: t1
+        identifier: t1
     - comma: ','
     - table_reference:
-        single_identifier:
-          identifier: t2
+        identifier: t2
     - from_clause:
         keyword: FROM
         from_expression:
         - from_expression_element:
             table_expression:
               table_reference:
-                single_identifier:
-                  identifier: t1
+                identifier: t1
         - join_clause:
           - keyword: INNER
           - keyword: JOIN
           - from_expression_element:
               table_expression:
                 table_reference:
-                  single_identifier:
-                    identifier: t2
+                  identifier: t2
         - join_clause:
           - keyword: INNER
           - keyword: JOIN
           - from_expression_element:
               table_expression:
                 table_reference:
-                  single_identifier:
-                    identifier: t3
+                  identifier: t3
     - where_clause:
         keyword: WHERE
         expression:
         - column_reference:
-          - single_identifier:
-              identifier: t1
+          - identifier: t1
           - dot: .
-          - single_identifier:
-              identifier: id
+          - identifier: id
         - comparison_operator:
             raw_comparison_operator: '='
         - column_reference:
-          - single_identifier:
-              identifier: t2
+          - identifier: t2
           - dot: .
-          - single_identifier:
-              identifier: id
+          - identifier: id
         - binary_operator: AND
         - column_reference:
-          - single_identifier:
-              identifier: t2
+          - identifier: t2
           - dot: .
-          - single_identifier:
-              identifier: id
+          - identifier: id
         - comparison_operator:
             raw_comparison_operator: '='
         - column_reference:
-          - single_identifier:
-              identifier: t3
+          - identifier: t3
           - dot: .
-          - single_identifier:
-              identifier: id
+          - identifier: id
 - statement_terminator: ;
 - statement:
     delete_statement:
@@ -224,136 +192,110 @@ file:
     - keyword: QUICK
     - keyword: IGNORE
     - table_reference:
-        single_identifier:
-          identifier: t1
+        identifier: t1
     - comma: ','
     - table_reference:
-        single_identifier:
-          identifier: t2
+        identifier: t2
     - from_clause:
         keyword: FROM
         from_expression:
         - from_expression_element:
             table_expression:
               table_reference:
-                single_identifier:
-                  identifier: t1
+                identifier: t1
         - join_clause:
           - keyword: INNER
           - keyword: JOIN
           - from_expression_element:
               table_expression:
                 table_reference:
-                  single_identifier:
-                    identifier: t2
+                  identifier: t2
         - join_clause:
           - keyword: INNER
           - keyword: JOIN
           - from_expression_element:
               table_expression:
                 table_reference:
-                  single_identifier:
-                    identifier: t3
+                  identifier: t3
     - where_clause:
         keyword: WHERE
         expression:
         - column_reference:
-          - single_identifier:
-              identifier: t1
+          - identifier: t1
           - dot: .
-          - single_identifier:
-              identifier: id
+          - identifier: id
         - comparison_operator:
             raw_comparison_operator: '='
         - column_reference:
-          - single_identifier:
-              identifier: t2
+          - identifier: t2
           - dot: .
-          - single_identifier:
-              identifier: id
+          - identifier: id
         - binary_operator: AND
         - column_reference:
-          - single_identifier:
-              identifier: t2
+          - identifier: t2
           - dot: .
-          - single_identifier:
-              identifier: id
+          - identifier: id
         - comparison_operator:
             raw_comparison_operator: '='
         - column_reference:
-          - single_identifier:
-              identifier: t3
+          - identifier: t3
           - dot: .
-          - single_identifier:
-              identifier: id
+          - identifier: id
 - statement_terminator: ;
 - statement:
     delete_statement:
     - keyword: DELETE
     - keyword: FROM
     - table_reference:
-        single_identifier:
-          identifier: t1
+        identifier: t1
     - comma: ','
     - table_reference:
-        single_identifier:
-          identifier: t2
+        identifier: t2
     - using_clause:
         keyword: USING
         from_expression:
         - from_expression_element:
             table_expression:
               table_reference:
-                single_identifier:
-                  identifier: t1
+                identifier: t1
         - join_clause:
           - keyword: INNER
           - keyword: JOIN
           - from_expression_element:
               table_expression:
                 table_reference:
-                  single_identifier:
-                    identifier: t2
+                  identifier: t2
         - join_clause:
           - keyword: INNER
           - keyword: JOIN
           - from_expression_element:
               table_expression:
                 table_reference:
-                  single_identifier:
-                    identifier: t3
+                  identifier: t3
     - where_clause:
         keyword: WHERE
         expression:
         - column_reference:
-          - single_identifier:
-              identifier: t1
+          - identifier: t1
           - dot: .
-          - single_identifier:
-              identifier: id
+          - identifier: id
         - comparison_operator:
             raw_comparison_operator: '='
         - column_reference:
-          - single_identifier:
-              identifier: t2
+          - identifier: t2
           - dot: .
-          - single_identifier:
-              identifier: id
+          - identifier: id
         - binary_operator: AND
         - column_reference:
-          - single_identifier:
-              identifier: t2
+          - identifier: t2
           - dot: .
-          - single_identifier:
-              identifier: id
+          - identifier: id
         - comparison_operator:
             raw_comparison_operator: '='
         - column_reference:
-          - single_identifier:
-              identifier: t3
+          - identifier: t3
           - dot: .
-          - single_identifier:
-              identifier: id
+          - identifier: id
 - statement_terminator: ;
 - statement:
     delete_statement:
@@ -363,118 +305,95 @@ file:
     - keyword: IGNORE
     - keyword: FROM
     - table_reference:
-        single_identifier:
-          identifier: t1
+        identifier: t1
     - comma: ','
     - table_reference:
-        single_identifier:
-          identifier: t2
+        identifier: t2
     - using_clause:
         keyword: USING
         from_expression:
         - from_expression_element:
             table_expression:
               table_reference:
-                single_identifier:
-                  identifier: t1
+                identifier: t1
         - join_clause:
           - keyword: INNER
           - keyword: JOIN
           - from_expression_element:
               table_expression:
                 table_reference:
-                  single_identifier:
-                    identifier: t2
+                  identifier: t2
         - join_clause:
           - keyword: INNER
           - keyword: JOIN
           - from_expression_element:
               table_expression:
                 table_reference:
-                  single_identifier:
-                    identifier: t3
+                  identifier: t3
     - where_clause:
         keyword: WHERE
         expression:
         - column_reference:
-          - single_identifier:
-              identifier: t1
+          - identifier: t1
           - dot: .
-          - single_identifier:
-              identifier: id
+          - identifier: id
         - comparison_operator:
             raw_comparison_operator: '='
         - column_reference:
-          - single_identifier:
-              identifier: t2
+          - identifier: t2
           - dot: .
-          - single_identifier:
-              identifier: id
+          - identifier: id
         - binary_operator: AND
         - column_reference:
-          - single_identifier:
-              identifier: t2
+          - identifier: t2
           - dot: .
-          - single_identifier:
-              identifier: id
+          - identifier: id
         - comparison_operator:
             raw_comparison_operator: '='
         - column_reference:
-          - single_identifier:
-              identifier: t3
+          - identifier: t3
           - dot: .
-          - single_identifier:
-              identifier: id
+          - identifier: id
 - statement_terminator: ;
 - statement:
     delete_statement:
     - keyword: DELETE
     - table_reference:
-        single_identifier:
-          identifier: a1
+        identifier: a1
     - comma: ','
     - table_reference:
-        single_identifier:
-          identifier: a2
+        identifier: a2
     - from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                single_identifier:
-                  identifier: t1
+                identifier: t1
             alias_expression:
               keyword: AS
-              single_identifier:
-                identifier: a1
+              identifier: a1
           join_clause:
           - keyword: INNER
           - keyword: JOIN
           - from_expression_element:
               table_expression:
                 table_reference:
-                  single_identifier:
-                    identifier: t2
+                  identifier: t2
               alias_expression:
                 keyword: AS
-                single_identifier:
-                  identifier: a2
+                identifier: a2
     - where_clause:
         keyword: WHERE
         expression:
         - column_reference:
-          - single_identifier:
-              identifier: a1
+          - identifier: a1
           - dot: .
-          - single_identifier:
-              identifier: id
+          - identifier: id
         - comparison_operator:
             raw_comparison_operator: '='
         - column_reference:
-          - single_identifier:
-              identifier: a2
+          - identifier: a2
           - dot: .
-          - single_identifier:
-              identifier: id
+          - identifier: id
 - statement_terminator: ;

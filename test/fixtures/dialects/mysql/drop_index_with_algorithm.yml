@@ -3,22 +3,19 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0952721034b2a5c9a34d8b61d6f00584489e2c84a38e4e61cf746c7668aafd32
+_hash: 8ade8d079d6d80d5ee80bb36e1aefbefcda81ff79a073931242afef279ba1b9e
 file:
 - statement:
     drop_index_statement:
     - keyword: DROP
     - keyword: INDEX
     - index_reference:
-        single_identifier:
-          identifier: '`test`'
+        identifier: '`test`'
     - keyword: 'ON'
     - table_reference:
-      - single_identifier:
-          identifier: '`table`'
+      - identifier: '`table`'
       - dot: .
-      - single_identifier:
-          identifier: '`foo`'
+      - identifier: '`foo`'
     - keyword: ALGORITHM
     - comparison_operator:
         raw_comparison_operator: '='
@@ -29,15 +26,12 @@ file:
     - keyword: DROP
     - keyword: INDEX
     - index_reference:
-        single_identifier:
-          identifier: '`test`'
+        identifier: '`test`'
     - keyword: 'ON'
     - table_reference:
-      - single_identifier:
-          identifier: '`table`'
+      - identifier: '`table`'
       - dot: .
-      - single_identifier:
-          identifier: '`foo`'
+      - identifier: '`foo`'
     - keyword: ALGORITHM
     - comparison_operator:
         raw_comparison_operator: '='
@@ -48,15 +42,12 @@ file:
     - keyword: DROP
     - keyword: INDEX
     - index_reference:
-        single_identifier:
-          identifier: '`test`'
+        identifier: '`test`'
     - keyword: 'ON'
     - table_reference:
-      - single_identifier:
-          identifier: '`table`'
+      - identifier: '`table`'
       - dot: .
-      - single_identifier:
-          identifier: '`foo`'
+      - identifier: '`foo`'
     - keyword: ALGORITHM
     - comparison_operator:
         raw_comparison_operator: '='
@@ -67,15 +58,12 @@ file:
     - keyword: DROP
     - keyword: INDEX
     - index_reference:
-        single_identifier:
-          identifier: '`test`'
+        identifier: '`test`'
     - keyword: 'ON'
     - table_reference:
-      - single_identifier:
-          identifier: '`table`'
+      - identifier: '`table`'
       - dot: .
-      - single_identifier:
-          identifier: '`foo`'
+      - identifier: '`foo`'
     - keyword: ALGORITHM
     - keyword: DEFAULT
 - statement_terminator: ;
@@ -84,15 +72,12 @@ file:
     - keyword: DROP
     - keyword: INDEX
     - index_reference:
-        single_identifier:
-          identifier: '`test`'
+        identifier: '`test`'
     - keyword: 'ON'
     - table_reference:
-      - single_identifier:
-          identifier: '`table`'
+      - identifier: '`table`'
       - dot: .
-      - single_identifier:
-          identifier: '`foo`'
+      - identifier: '`foo`'
     - keyword: ALGORITHM
     - keyword: INPLACE
 - statement_terminator: ;
@@ -101,15 +86,12 @@ file:
     - keyword: DROP
     - keyword: INDEX
     - index_reference:
-        single_identifier:
-          identifier: '`test`'
+        identifier: '`test`'
     - keyword: 'ON'
     - table_reference:
-      - single_identifier:
-          identifier: '`table`'
+      - identifier: '`table`'
       - dot: .
-      - single_identifier:
-          identifier: '`foo`'
+      - identifier: '`foo`'
     - keyword: ALGORITHM
     - keyword: COPY
 - statement_terminator: ;

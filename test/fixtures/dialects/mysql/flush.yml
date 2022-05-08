@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2ef5fc398c765639e2de2bfc980c715ad37b4e0a110692752cc5db5d29b8ca8a
+_hash: 801cf0f380d56aedb024a307209a5f0d16164f721546c2c62d161a9dae7c6c64
 file:
 - statement:
     flush_statement:
@@ -54,8 +54,7 @@ file:
     - keyword: FOR
     - keyword: CHANNEL
     - object_reference:
-        single_identifier:
-          identifier: my_channel
+        identifier: my_channel
 - statement_terminator: ;
 - statement:
     flush_statement:
@@ -75,38 +74,31 @@ file:
     - keyword: FLUSH
     - keyword: TABLES
     - table_reference:
-        single_identifier:
-          identifier: table1
+        identifier: table1
 - statement_terminator: ;
 - statement:
     flush_statement:
     - keyword: FLUSH
     - keyword: TABLES
     - table_reference:
-        single_identifier:
-          identifier: table1
+        identifier: table1
     - comma: ','
     - table_reference:
-      - single_identifier:
-          identifier: '`foo`'
+      - identifier: '`foo`'
       - dot: .
-      - single_identifier:
-          identifier: '`bar`'
+      - identifier: '`bar`'
 - statement_terminator: ;
 - statement:
     flush_statement:
     - keyword: FLUSH
     - keyword: TABLES
     - table_reference:
-        single_identifier:
-          identifier: table1
+        identifier: table1
     - comma: ','
     - table_reference:
-      - single_identifier:
-          identifier: '`foo`'
+      - identifier: '`foo`'
       - dot: .
-      - single_identifier:
-          identifier: '`bar`'
+      - identifier: '`bar`'
     - keyword: WITH
     - keyword: READ
     - keyword: LOCK
@@ -116,15 +108,12 @@ file:
     - keyword: FLUSH
     - keyword: TABLES
     - table_reference:
-        single_identifier:
-          identifier: table1
+        identifier: table1
     - comma: ','
     - table_reference:
-      - single_identifier:
-          identifier: '`foo`'
+      - identifier: '`foo`'
       - dot: .
-      - single_identifier:
-          identifier: '`bar`'
+      - identifier: '`bar`'
     - keyword: FOR
     - keyword: EXPORT
 - statement_terminator: ;

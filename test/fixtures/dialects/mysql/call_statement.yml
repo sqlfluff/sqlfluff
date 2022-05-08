@@ -3,13 +3,12 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8d00ceabc5729a8765b2a951883c5069687d1d5b6cd39bdced2992570f01b385
+_hash: a85b5b82f18f089cfd48289d16017d3fd90909445b2c3c863ad3814db2984f4d
 file:
   statement:
     call_segment:
       keyword: CALL
-      single_identifier:
-        identifier: somefunction
+      identifier: somefunction
       bracketed:
         start_bracket: (
         literal: "'a'"

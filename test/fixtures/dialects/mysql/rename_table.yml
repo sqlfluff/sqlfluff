@@ -3,37 +3,31 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 296054877aae096ecf75a95ec3cca87ab724cbfbfb5e1c141d520dd1394a6b75
+_hash: 35d8fe3a09bff9c94b970575e42ed1151b0da0a2c8627f21a8d98725ffebc9dd
 file:
 - statement:
     rename_table_statement:
     - keyword: RENAME
     - keyword: TABLE
     - table_reference:
-        single_identifier:
-          identifier: old_table
+        identifier: old_table
     - keyword: TO
     - table_reference:
-        single_identifier:
-          identifier: new_table
+        identifier: new_table
 - statement_terminator: ;
 - statement:
     rename_table_statement:
     - keyword: RENAME
     - keyword: TABLE
     - table_reference:
-        single_identifier:
-          identifier: old_table1
+        identifier: old_table1
     - keyword: TO
     - table_reference:
-        single_identifier:
-          identifier: new_table1
+        identifier: new_table1
     - comma: ','
     - table_reference:
-        single_identifier:
-          identifier: old_table2
+        identifier: old_table2
     - keyword: TO
     - table_reference:
-        single_identifier:
-          identifier: new_table2
+        identifier: new_table2
 - statement_terminator: ;
