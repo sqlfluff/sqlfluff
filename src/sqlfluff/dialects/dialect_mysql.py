@@ -582,6 +582,18 @@ mysql_dialect.replace(
 )
 
 
+mysql_dialect.insert_lexer_matchers(
+    [
+        RegexLexer(
+            "at_sign",
+            r"[@][a-zA-Z0-9_]*",
+            CodeSegment,
+        ),
+    ],
+    before="code",
+)
+
+
 class ObjectReferenceSegment(ansi.ObjectReferenceSegment):
     """A reference to an object.
 
@@ -609,18 +621,6 @@ class ObjectReferenceSegment(ansi.ObjectReferenceSegment):
             optional=True,
         ),
     )
-
-
-mysql_dialect.insert_lexer_matchers(
-    [
-        RegexLexer(
-            "at_sign",
-            r"[@][a-zA-Z0-9_]*",
-            CodeSegment,
-        ),
-    ],
-    before="code",
-)
 
 
 class DeclareStatement(BaseSegment):
