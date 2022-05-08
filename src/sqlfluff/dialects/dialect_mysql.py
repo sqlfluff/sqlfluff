@@ -568,27 +568,6 @@ mysql_dialect.add(
     ),
 )
 
-
-class SingleIdentifierSegment(BaseSegment):
-    """A SingleIdentifierSegment.
-
-    Override the default SingleIdentifierGrammar to allow two of these segments
-    separated by an at sign.
-
-    https://dev.mysql.com/doc/refman/8.0/en/account-names.html
-    https://dev.mysql.com/doc/refman/8.0/en/role-names.html
-    """
-
-    type = "single_identifier"
-    match_grammar: Matchable = ansi_dialect.get_grammar("SingleIdentifierGrammar").copy(
-        insert=[
-            Ref("SessionVariableNameSegment"),
-            Ref("SingleQuotedIdentifierSegment"),
-            Ref("DoubleQuotedLiteralSegment"),
-        ]
-    )
-
-
 mysql_dialect.replace(
     DelimiterGrammar=OneOf(Ref("SemicolonSegment"), Ref("TildeSegment")),
     TildeSegment=StringParser(
