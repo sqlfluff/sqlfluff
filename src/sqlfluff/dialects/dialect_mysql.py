@@ -568,6 +568,19 @@ mysql_dialect.add(
     ),
 )
 
+"""Format for user and role names. Overwrite SingleIdentifierGrammar below to allow
+two single_identifier_segment separated by an at sign.
+    https://dev.mysql.com/doc/refman/8.0/en/account-names.html
+    https://dev.mysql.com/doc/refman/8.0/en/role-names.html
+"""
+single_identifier_segment = ansi_dialect.get_grammar("SingleIdentifierGrammar").copy(
+    insert=[
+        Ref("SessionVariableNameSegment"),
+        Ref("SingleQuotedIdentifierSegment"),
+        Ref("DoubleQuotedLiteralSegment"),
+    ]
+)
+
 mysql_dialect.replace(
     DelimiterGrammar=OneOf(Ref("SemicolonSegment"), Ref("TildeSegment")),
     TildeSegment=StringParser(
@@ -576,12 +589,13 @@ mysql_dialect.replace(
     ParameterNameSegment=RegexParser(
         r"`?[A-Za-z0-9_]*`?", CodeSegment, name="parameter", type="parameter"
     ),
-    SingleIdentifierGrammar=ansi_dialect.get_grammar("SingleIdentifierGrammar").copy(
-        insert=[
-            Ref("SessionVariableNameSegment"),
-            Ref("SingleQuotedIdentifierSegment"),
-            Ref("DoubleQuotedLiteralSegment"),
-        ]
+    SingleIdentifierGrammar=Sequence(
+        single_identifier_segment,
+        Sequence(
+            Ref("AtSignLiteralSegment"),
+            single_identifier_segment,
+            optional=True,
+        ),
     ),
 )
 
@@ -1003,8 +1017,6 @@ class DefinerSegment(BaseSegment):
     match_grammar = Sequence(
         "DEFINER",
         Ref("EqualsSegment"),
-        Ref("SingleIdentifierGrammar"),
-        Ref("AtSignLiteralSegment"),
         Ref("SingleIdentifierGrammar"),
     )
 

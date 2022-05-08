@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0e06e0fc59e5fe5267eddb8fac30e7e91059c21c0d142792c106d40c8d6c9247
+_hash: c074c766b1a1c47f1af7be8496c8ca089107822ad8231319c033bd8188d671d0
 file:
 - statement:
     access_statement:
@@ -80,4 +80,67 @@ file:
     - keyword: TO
     - object_reference:
         identifier: '`prj_svc`'
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: INSERT
+    - comma: ','
+    - keyword: UPDATE
+    - comma: ','
+    - keyword: DELETE
+    - comma: ','
+    - keyword: SELECT
+    - comma: ','
+    - keyword: REFERENCES
+    - keyword: 'ON'
+    - object_reference:
+        identifier: prj_table
+    - keyword: TO
+    - object_reference:
+      - identifier: "'prj_svc'"
+      - literal: '@'
+      - identifier: "'%'"
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: INSERT
+    - comma: ','
+    - keyword: UPDATE
+    - comma: ','
+    - keyword: DELETE
+    - comma: ','
+    - keyword: SELECT
+    - comma: ','
+    - keyword: REFERENCES
+    - keyword: 'ON'
+    - object_reference:
+        identifier: prj_table
+    - keyword: TO
+    - object_reference:
+      - literal: '"prj_svc"'
+      - literal: '@'
+      - literal: '"%"'
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: INSERT
+    - comma: ','
+    - keyword: UPDATE
+    - comma: ','
+    - keyword: DELETE
+    - comma: ','
+    - keyword: SELECT
+    - comma: ','
+    - keyword: REFERENCES
+    - keyword: 'ON'
+    - object_reference:
+        identifier: prj_table
+    - keyword: TO
+    - object_reference:
+      - identifier: '`prj_svc`'
+      - literal: '@'
+      - identifier: '`%`'
 - statement_terminator: ;
