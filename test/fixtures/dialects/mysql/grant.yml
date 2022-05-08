@@ -1,0 +1,83 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 0e06e0fc59e5fe5267eddb8fac30e7e91059c21c0d142792c106d40c8d6c9247
+file:
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: INSERT
+    - comma: ','
+    - keyword: UPDATE
+    - comma: ','
+    - keyword: DELETE
+    - comma: ','
+    - keyword: SELECT
+    - comma: ','
+    - keyword: REFERENCES
+    - keyword: 'ON'
+    - object_reference:
+        identifier: prj_table
+    - keyword: TO
+    - object_reference:
+        identifier: prj_svc
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: INSERT
+    - comma: ','
+    - keyword: UPDATE
+    - comma: ','
+    - keyword: DELETE
+    - comma: ','
+    - keyword: SELECT
+    - comma: ','
+    - keyword: REFERENCES
+    - keyword: 'ON'
+    - object_reference:
+        identifier: prj_table
+    - keyword: TO
+    - object_reference:
+        identifier: "'prj_svc'"
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: INSERT
+    - comma: ','
+    - keyword: UPDATE
+    - comma: ','
+    - keyword: DELETE
+    - comma: ','
+    - keyword: SELECT
+    - comma: ','
+    - keyword: REFERENCES
+    - keyword: 'ON'
+    - object_reference:
+        identifier: prj_table
+    - keyword: TO
+    - object_reference:
+        literal: '"prj_svc"'
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: INSERT
+    - comma: ','
+    - keyword: UPDATE
+    - comma: ','
+    - keyword: DELETE
+    - comma: ','
+    - keyword: SELECT
+    - comma: ','
+    - keyword: REFERENCES
+    - keyword: 'ON'
+    - object_reference:
+        identifier: prj_table
+    - keyword: TO
+    - object_reference:
+        identifier: '`prj_svc`'
+- statement_terminator: ;

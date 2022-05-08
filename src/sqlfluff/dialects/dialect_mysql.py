@@ -524,15 +524,6 @@ class IntervalExpressionSegment(BaseSegment):
 
 
 mysql_dialect.add(
-    DoubleForwardSlashSegment=StringParser(
-        "//", SymbolSegment, name="doubleforwardslash", type="statement_terminator"
-    ),
-    DoubleDollarSignSegment=StringParser(
-        "$$", SymbolSegment, name="doubledollarsign", type="statement_terminator"
-    ),
-    AtSignSignSegment=StringParser(
-        "@", SymbolSegment, name="at_sign", type="user_designator"
-    ),
     OutputParameterSegment=StringParser(
         "OUT", SymbolSegment, name="inputparameter", type="parameter_direction"
     ),
@@ -586,7 +577,11 @@ mysql_dialect.replace(
         r"`?[A-Za-z0-9_]*`?", CodeSegment, name="parameter", type="parameter"
     ),
     SingleIdentifierGrammar=ansi_dialect.get_grammar("SingleIdentifierGrammar").copy(
-        insert=[Ref("SessionVariableNameSegment")]
+        insert=[
+            Ref("SessionVariableNameSegment"),
+            Ref("SingleQuotedIdentifierSegment"),
+            Ref("DoubleQuotedLiteralSegment"),
+        ]
     ),
 )
 
