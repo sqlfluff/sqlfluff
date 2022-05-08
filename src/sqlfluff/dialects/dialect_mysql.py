@@ -601,28 +601,25 @@ class RoleReferenceSegment(ansi.RoleReferenceSegment):
     https://dev.mysql.com/doc/refman/8.0/en/role-names.html
     """
 
-    match_grammar: Matchable = OneOf(
-        ansi.RoleReferenceSegment.match_grammar,
+    match_grammar: Matchable = Sequence(
+        OneOf(
+            Ref("NakedIdentifierSegment"),
+            Ref("QuotedIdentifierSegment"),
+            Ref("SingleQuotedIdentifierSegment"),
+            Ref("DoubleQuotedLiteralSegment"),
+        ),
         Sequence(
+            Ref("AtSignLiteralSegment"),
             OneOf(
                 Ref("NakedIdentifierSegment"),
                 Ref("QuotedIdentifierSegment"),
                 Ref("SingleQuotedIdentifierSegment"),
                 Ref("DoubleQuotedLiteralSegment"),
             ),
-            Sequence(
-                Ref("AtSignLiteralSegment"),
-                OneOf(
-                    Ref("NakedIdentifierSegment"),
-                    Ref("QuotedIdentifierSegment"),
-                    Ref("SingleQuotedIdentifierSegment"),
-                    Ref("DoubleQuotedLiteralSegment"),
-                ),
-                optional=True,
-                allow_gaps=False,
-            ),
-            allow_gaps=True,
+            optional=True,
+            allow_gaps=False,
         ),
+        allow_gaps=True,
     )
 
 
