@@ -601,24 +601,27 @@ class ObjectReferenceSegment(ansi.ObjectReferenceSegment):
     https://dev.mysql.com/doc/refman/8.0/en/role-names.html
     """
 
-    match_grammar: Matchable = Sequence(
-        # https://dev.mysql.com/doc/refman/8.0/en/account-names.html
-        # https://dev.mysql.com/doc/refman/8.0/en/role-names.html
-        OneOf(
-            Ref("NakedIdentifierSegment"),
-            Ref("QuotedIdentifierSegment"),
-            Ref("SingleQuotedIdentifierSegment"),
-            Ref("DoubleQuotedLiteralSegment"),
-        ),
+    match_grammar: Matchable = OneOf(
+        ansi.ObjectReferenceSegment.match_grammar,
         Sequence(
-            Ref("AtSignLiteralSegment"),
+            # https://dev.mysql.com/doc/refman/8.0/en/account-names.html
+            # https://dev.mysql.com/doc/refman/8.0/en/role-names.html
             OneOf(
                 Ref("NakedIdentifierSegment"),
                 Ref("QuotedIdentifierSegment"),
                 Ref("SingleQuotedIdentifierSegment"),
                 Ref("DoubleQuotedLiteralSegment"),
             ),
-            optional=True,
+            Sequence(
+                Ref("AtSignLiteralSegment"),
+                OneOf(
+                    Ref("NakedIdentifierSegment"),
+                    Ref("QuotedIdentifierSegment"),
+                    Ref("SingleQuotedIdentifierSegment"),
+                    Ref("DoubleQuotedLiteralSegment"),
+                ),
+                optional=True,
+            ),
         ),
     )
 
