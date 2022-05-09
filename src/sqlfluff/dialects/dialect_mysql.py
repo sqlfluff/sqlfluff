@@ -373,7 +373,12 @@ class CreateUserStatementSegment(ansi.CreateUserStatementSegment):
             Sequence(
                 Ref("RoleReferenceSegment"), Delimited(_auth_option, delimiter="AND")
             ),
-            delimiter=Ref("CommaSegment"),
+        ),
+        Sequence(
+            "DEFAULT",
+            "ROLE",
+            Delimited(Ref("RoleReferenceSegment")),
+            optional=True,
         ),
     )
 
