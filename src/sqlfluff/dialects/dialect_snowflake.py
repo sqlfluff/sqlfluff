@@ -866,6 +866,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DropMaterializedViewStatementSegment"),
             Ref("DropObjectStatementSegment"),
             Ref("CreateFileFormatSegment"),
+            Ref("ListStatementSegment"),
         ],
         remove=[
             Ref("CreateIndexStatementSegment"),
@@ -5137,5 +5138,22 @@ class DropObjectStatementSegment(BaseSegment):
                 Ref("ObjectReferenceSegment"),
                 Ref("DropBehaviorGrammar", optional=True),
             ),
+        ),
+    )
+
+
+class ListStatementSegment(BaseSegment):
+    """A snowflake `LIST @<stage> ...` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/list.html
+    """
+
+    type = "list_statement"
+
+    match_grammar = Sequence(
+        OneOf("LIST", "LS"),
+        Ref("StagePath"),
+        Sequence(
+            "PATTERN", Ref("EqualsSegment"), Ref("QuotedLiteralSegment"), optional=True
         ),
     )
