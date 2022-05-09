@@ -435,9 +435,12 @@ class CreateUserStatementSegment(ansi.CreateUserStatementSegment):
         ),
         Sequence("WITH", Delimited(_resource_option), optional=True),
         Sequence(_password_option, optional=True),
-        # lock_option
-        # comment
-        # attribute
+        Sequence("ACCOUNT", OneOf("UNLOCK", "LOCK"), optional=True),
+        Sequence(
+            OneOf("COMMENT", "ATTRIBUTE"),
+            Ref("SingleQuotedIdentifierSegment"),
+            optional=True,
+        ),
     )
 
 
