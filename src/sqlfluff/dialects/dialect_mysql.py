@@ -210,17 +210,20 @@ mysql_dialect.replace(
             Ref("NumericLiteralSegment"),
         ),
     ),
-    QuotedLiteralSegment=AnyNumberOf(
-        # MySQL allows whitespace-concatenated string literals (#1488).
-        # Since these string literals can have comments between them,
-        # we use grammar to handle this.
-        NamedParser(
-            "single_quote",
-            CodeSegment,
-            name="quoted_literal",
-            type="literal",
+    QuotedLiteralSegment=OneOf(
+        AnyNumberOf(
+            # MySQL allows whitespace-concatenated string literals (#1488).
+            # Since these string literals can have comments between them,
+            # we use grammar to handle this.
+            NamedParser(
+                "single_quote",
+                CodeSegment,
+                name="quoted_literal",
+                type="literal",
+            ),
+            min_times=1,
         ),
-        min_times=1,
+        Ref("DoubleQuotedLiteralSegment"),
     ),
     UniqueKeyGrammar=Sequence(
         "UNIQUE",
@@ -346,9 +349,7 @@ class CreateUserStatementSegment(ansi.CreateUserStatementSegment):
     https://dev.mysql.com/doc/refman/8.0/en/create-user.html
     """
 
-    _string_literal = OneOf(
-        Ref("QuotedLiteralSegment"), Ref("DoubleQuotedLiteralSegment")
-    )
+    _string_literal = OneOf(Ref("QuotedLiteralSegment"))
 
     _random_password = Sequence("RANDOM", "PASSWORD")
     _auth_plugin = Ref("ObjectReferenceSegment")
