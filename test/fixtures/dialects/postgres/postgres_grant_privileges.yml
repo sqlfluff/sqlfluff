@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e53719c9a38eb0112c74b63b68a96a9464329a57c4136e8a85c19fbbc443abdb
+_hash: 2d675f1120dcace997b9110e9c01c0f33b8e68e752bfd3369d13fa0062986480
 file:
 - statement:
     access_statement:
@@ -14,7 +14,7 @@ file:
     - object_reference:
         identifier: api
     - keyword: TO
-    - object_reference:
+    - role_reference:
         identifier: web_anon
 - statement_terminator: ;
 - statement:
@@ -28,7 +28,7 @@ file:
       - dot: .
       - identifier: test
     - keyword: TO
-    - object_reference:
+    - role_reference:
         identifier: web_anon
 - statement_terminator: ;
 - statement:
@@ -37,7 +37,7 @@ file:
     - object_reference:
         identifier: web_anon
     - keyword: TO
-    - object_reference:
+    - role_reference:
         identifier: my_user
 - statement_terminator: ;
 - statement:
@@ -55,7 +55,7 @@ file:
     - object_reference:
         identifier: my_db
     - keyword: TO
-    - object_reference:
+    - role_reference:
         identifier: app
 - statement_terminator: ;
 - statement:
@@ -70,7 +70,7 @@ file:
     - object_reference:
         identifier: my_schema
     - keyword: TO
-    - object_reference:
+    - role_reference:
         identifier: app
 - statement_terminator: ;
 - statement:
@@ -82,7 +82,7 @@ file:
     - object_reference:
         identifier: my_domain
     - keyword: TO
-    - object_reference:
+    - role_reference:
         identifier: my_user
 - statement_terminator: ;
 - statement:
@@ -96,7 +96,7 @@ file:
     - object_reference:
         identifier: my_fdw
     - keyword: TO
-    - object_reference:
+    - role_reference:
         identifier: my_user
 - statement_terminator: ;
 - statement:
@@ -109,7 +109,7 @@ file:
     - object_reference:
         identifier: fs
     - keyword: TO
-    - object_reference:
+    - role_reference:
         identifier: my_user
 - statement_terminator: ;
 - statement:
@@ -121,7 +121,7 @@ file:
     - object_reference:
         identifier: fn
     - keyword: TO
-    - object_reference:
+    - role_reference:
         identifier: my_user
 - statement_terminator: ;
 - statement:
@@ -133,7 +133,7 @@ file:
     - object_reference:
         identifier: fn
     - keyword: TO
-    - object_reference:
+    - role_reference:
         identifier: my_user
 - statement_terminator: ;
 - statement:
@@ -148,7 +148,7 @@ file:
     - object_reference:
         identifier: my_schema
     - keyword: TO
-    - object_reference:
+    - role_reference:
         identifier: my_user
 - statement_terminator: ;
 - statement:
@@ -163,7 +163,7 @@ file:
     - object_reference:
         identifier: my_schema
     - keyword: TO
-    - object_reference:
+    - role_reference:
         identifier: my_user
 - statement_terminator: ;
 - statement:
@@ -178,7 +178,7 @@ file:
     - object_reference:
         identifier: my_schema
     - keyword: TO
-    - object_reference:
+    - role_reference:
         identifier: my_user
 - statement_terminator: ;
 - statement:
@@ -190,7 +190,7 @@ file:
     - object_reference:
         identifier: my_lang
     - keyword: TO
-    - object_reference:
+    - role_reference:
         identifier: my_user
 - statement_terminator: ;
 - statement:
@@ -202,7 +202,7 @@ file:
     - keyword: OBJECT
     - literal: '564182'
     - keyword: TO
-    - object_reference:
+    - role_reference:
         identifier: my_user
 - statement_terminator: ;
 - statement:
@@ -214,7 +214,7 @@ file:
     - object_reference:
         identifier: my_tblspc
     - keyword: TO
-    - object_reference:
+    - role_reference:
         identifier: my_user
 - statement_terminator: ;
 - statement:
@@ -226,7 +226,7 @@ file:
     - object_reference:
         identifier: my_type
     - keyword: TO
-    - object_reference:
+    - role_reference:
         identifier: my_role
 - statement_terminator: ;
 - statement:
@@ -235,7 +235,7 @@ file:
     - object_reference:
         identifier: my_user
     - keyword: TO
-    - object_reference:
+    - role_reference:
         identifier: my_group
     - keyword: WITH
     - keyword: ADMIN
@@ -250,7 +250,7 @@ file:
     - object_reference:
         identifier: my_user
     - keyword: TO
-    - object_reference:
+    - role_reference:
         identifier: my_group
     - keyword: GRANTED
     - keyword: BY
@@ -262,7 +262,7 @@ file:
     - object_reference:
         identifier: my_user
     - keyword: TO
-    - object_reference:
+    - role_reference:
         identifier: my_group
     - keyword: WITH
     - keyword: ADMIN
@@ -287,7 +287,7 @@ file:
     - object_reference:
         identifier: my_db
     - keyword: TO
-    - object_reference:
+    - role_reference:
         identifier: xyz
 - statement_terminator: ;
 - statement:
@@ -305,10 +305,10 @@ file:
     - object_reference:
         identifier: my_db
     - keyword: TO
-    - object_reference:
+    - role_reference:
         identifier: my_user
     - comma: ','
-    - object_reference:
+    - role_reference:
         identifier: my_other_user
     - keyword: WITH
     - keyword: GRANT
@@ -322,10 +322,10 @@ file:
     - object_reference:
         identifier: abc
     - keyword: TO
-    - object_reference:
+    - role_reference:
         identifier: xyz
     - comma: ','
-    - object_reference:
+    - role_reference:
         identifier: mno
 - statement_terminator: ;
 - statement:
@@ -340,9 +340,9 @@ file:
     - object_reference:
         identifier: my_schema
     - keyword: TO
-    - object_reference:
+    - role_reference:
         identifier: my_user
     - comma: ','
-    - object_reference:
+    - role_reference:
         identifier: my_other_user
 - statement_terminator: ;
