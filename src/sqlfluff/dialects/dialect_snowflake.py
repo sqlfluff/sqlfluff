@@ -5147,10 +5147,7 @@ class ListStatementSegment(BaseSegment):
     type = "list_statement"
 
     match_grammar = Sequence(
-        OneOf(
-            "LIST",
-            "LS"
-        ),
+        OneOf("LIST", "LS"),
         Ref("StagePath"),
         Sequence(
             "PATTERN", Ref("EqualsSegment"), Ref("QuotedLiteralSegment"), optional=True
