@@ -101,6 +101,7 @@ mysql_dialect.sets("unreserved_keywords").update(
         "USER_RESOURCES",
         "CHANNEL",
         "EXPORT",
+        "RANDOM",
     ]
 )
 mysql_dialect.sets("reserved_keywords").update(
@@ -311,6 +312,43 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                 ),
             ),
         ],
+    )
+
+
+class CreateUserStatementSegment(ansi.CreateUserStatementSegment):
+    """`CREATE USER` statement.
+
+    https://dev.mysql.com/doc/refman/8.0/en/create-user.html
+    """
+
+    auth_option = Sequence(
+        "IDENTIFIED",
+        OneOf(
+            Sequence(
+                "BY",
+                OneOf(
+                    Sequence("RANDOM", "PASSWORD"),
+                    Ref("SingleQuotedIdentifierSegment"),
+                ),
+            ),
+            Sequence(
+                "WITH",
+                Ref("ObjectReferenceSegment"),
+                Sequence("AS", Ref("SingleQuotedIdentifierSegment"), optional=True),
+            ),
+        ),
+    )
+
+    match_grammar = Sequence(
+        "CREATE",
+        "USER",
+        Ref("IfNotExistsGrammar", optional=True),
+        Delimited(
+            Sequence(
+                Ref("RoleReferenceSegment"), Delimited(auth_option, delimiter="AND")
+            ),
+            delimiter=Ref("CommaSegment"),
+        ),
     )
 
 
