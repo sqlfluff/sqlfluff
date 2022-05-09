@@ -66,3 +66,8 @@ CREATE OR REPLACE STAGE foo.bar
     STORAGE_INTEGRATION = foo
     FILE_FORMAT = foo.bar.baz
 ;
+CREATE OR REPLACE STAGE foo.bar
+  URL = 's3://foobar'
+  STORAGE_INTEGRATION = foo
+  FILE_FORMAT = (FORMAT_NAME = foo.bar.baz)
+;

@@ -3237,7 +3237,6 @@ class FileFormatSegment(BaseSegment):
     """
 
     type = "file_format_segment"
-
     match_grammar = OneOf(
         OneOf(
             Ref("QuotedLiteralSegment"),
@@ -3249,8 +3248,8 @@ class FileFormatSegment(BaseSegment):
                     "FORMAT_NAME",
                     Ref("EqualsSegment"),
                     OneOf(
-                        Ref("NakedIdentifierSegment"),
                         Ref("QuotedLiteralSegment"),
+                        Ref("ObjectReferenceSegment"),
                     ),
                 ),
                 OneOf(
