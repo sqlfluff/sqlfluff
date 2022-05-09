@@ -101,6 +101,22 @@ mysql_dialect.sets("unreserved_keywords").update(
         "USER_RESOURCES",
         "CHANNEL",
         "EXPORT",
+        "RANDOM",
+        "FAILED_LOGIN_ATTEMPTS",
+        "PASSWORD_LOCK_TIME",
+        "EXPIRE",
+        "NEVER",
+        "HISTORY",
+        "REUSE",
+        "CIPHER",
+        "ISSUER",
+        "SUBJECT",
+        "MAX_QUERIES_PER_HOUR",
+        "MAX_UPDATES_PER_HOUR",
+        "MAX_CONNECTIONS_PER_HOUR",
+        "MAX_USER_CONNECTIONS",
+        "AUTHENTICATION",
+        "OPTIONAL",
     ]
 )
 mysql_dialect.sets("reserved_keywords").update(
@@ -194,17 +210,20 @@ mysql_dialect.replace(
             Ref("NumericLiteralSegment"),
         ),
     ),
-    QuotedLiteralSegment=AnyNumberOf(
-        # MySQL allows whitespace-concatenated string literals (#1488).
-        # Since these string literals can have comments between them,
-        # we use grammar to handle this.
-        NamedParser(
-            "single_quote",
-            CodeSegment,
-            name="quoted_literal",
-            type="literal",
+    QuotedLiteralSegment=OneOf(
+        AnyNumberOf(
+            # MySQL allows whitespace-concatenated string literals (#1488).
+            # Since these string literals can have comments between them,
+            # we use grammar to handle this.
+            NamedParser(
+                "single_quote",
+                CodeSegment,
+                name="quoted_literal",
+                type="literal",
+            ),
+            min_times=1,
         ),
-        min_times=1,
+        Ref("DoubleQuotedLiteralSegment"),
     ),
     UniqueKeyGrammar=Sequence(
         "UNIQUE",
@@ -212,6 +231,16 @@ mysql_dialect.replace(
     ),
     # Odd syntax, but pr
     CharCharacterSetGrammar=Ref.keyword("BINARY"),
+    DelimiterGrammar=OneOf(Ref("SemicolonSegment"), Ref("TildeSegment")),
+    TildeSegment=StringParser(
+        "~", SymbolSegment, name="tilde", type="statement_terminator"
+    ),
+    ParameterNameSegment=RegexParser(
+        r"`?[A-Za-z0-9_]*`?", CodeSegment, name="parameter", type="parameter"
+    ),
+    SingleIdentifierGrammar=ansi_dialect.get_grammar("SingleIdentifierGrammar").copy(
+        insert=[Ref("SessionVariableNameSegment")]
+    ),
 )
 
 mysql_dialect.add(
@@ -311,6 +340,164 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                 ),
             ),
         ],
+    )
+
+
+class CreateUserStatementSegment(ansi.CreateUserStatementSegment):
+    """`CREATE USER` statement.
+
+    https://dev.mysql.com/doc/refman/8.0/en/create-user.html
+    """
+
+    match_grammar = Sequence(
+        "CREATE",
+        "USER",
+        Ref("IfNotExistsGrammar", optional=True),
+        Delimited(
+            Sequence(
+                Ref("RoleReferenceSegment"),
+                Sequence(
+                    Delimited(
+                        Sequence(
+                            "IDENTIFIED",
+                            OneOf(
+                                Sequence(
+                                    "BY",
+                                    OneOf(
+                                        Sequence("RANDOM", "PASSWORD"),
+                                        Ref("QuotedLiteralSegment"),
+                                    ),
+                                ),
+                                Sequence(
+                                    "WITH",
+                                    Ref("ObjectReferenceSegment"),
+                                    Sequence(
+                                        OneOf(
+                                            Sequence(
+                                                "BY",
+                                                OneOf(
+                                                    Sequence("RANDOM", "PASSWORD"),
+                                                    Ref("QuotedLiteralSegment"),
+                                                ),
+                                            ),
+                                            Sequence("AS", Ref("QuotedLiteralSegment")),
+                                            Sequence(
+                                                "INITIAL",
+                                                "AUTHENTICATION",
+                                                "IDENTIFIED",
+                                                OneOf(
+                                                    Sequence(
+                                                        "BY",
+                                                        OneOf(
+                                                            Sequence(
+                                                                "RANDOM", "PASSWORD"
+                                                            ),
+                                                            Ref("QuotedLiteralSegment"),
+                                                        ),
+                                                    ),
+                                                    Sequence(
+                                                        "WITH",
+                                                        Ref("ObjectReferenceSegment"),
+                                                        "AS",
+                                                        Ref("QuotedLiteralSegment"),
+                                                    ),
+                                                ),
+                                            ),
+                                        ),
+                                        optional=True,
+                                    ),
+                                ),
+                            ),
+                        ),
+                        delimiter="AND",
+                    ),
+                    optional=True,
+                ),
+            ),
+        ),
+        Sequence(
+            "DEFAULT",
+            "ROLE",
+            Delimited(Ref("RoleReferenceSegment")),
+            optional=True,
+        ),
+        Sequence(
+            "REQUIRE",
+            OneOf(
+                "NONE",
+                Delimited(
+                    OneOf(
+                        "SSL",
+                        "X509",
+                        Sequence("CIPHER", Ref("QuotedLiteralSegment")),
+                        Sequence("ISSUER", Ref("QuotedLiteralSegment")),
+                        Sequence("SUBJECT", Ref("QuotedLiteralSegment")),
+                    ),
+                    delimiter="AND",
+                ),
+            ),
+            optional=True,
+        ),
+        Sequence(
+            "WITH",
+            AnyNumberOf(
+                Sequence(
+                    OneOf(
+                        "MAX_QUERIES_PER_HOUR",
+                        "MAX_UPDATES_PER_HOUR",
+                        "MAX_CONNECTIONS_PER_HOUR",
+                        "MAX_USER_CONNECTIONS",
+                    ),
+                    Ref("NumericLiteralSegment"),
+                )
+            ),
+            optional=True,
+        ),
+        Sequence(
+            AnyNumberOf(
+                Sequence(
+                    "PASSWORD",
+                    "EXPIRE",
+                    Sequence(
+                        OneOf(
+                            "DEFAULT",
+                            "NEVER",
+                            Sequence("INTERVAL", Ref("NumericLiteralSegment"), "DAY"),
+                        ),
+                        optional=True,
+                    ),
+                ),
+                Sequence(
+                    "PASSWORD",
+                    "HISTORY",
+                    OneOf("DEFAULT", Ref("NumericLiteralSegment")),
+                ),
+                Sequence(
+                    "PASSWORD",
+                    "REUSE",
+                    "INTERVAL",
+                    OneOf("DEFAULT", Sequence(Ref("NumericLiteralSegment"), "DAY")),
+                ),
+                Sequence(
+                    "PASSWORD",
+                    "REQUIRE",
+                    "CURRENT",
+                    Sequence(OneOf("DEFAULT", "OPTIONAL"), optional=True),
+                ),
+                Sequence("FAILED_LOGIN_ATTEMPTS", Ref("NumericLiteralSegment")),
+                Sequence(
+                    "PASSWORD_LOCK_TIME",
+                    OneOf(Ref("NumericLiteralSegment"), "UNBOUNDED"),
+                ),
+            ),
+            optional=True,
+        ),
+        Sequence("ACCOUNT", OneOf("UNLOCK", "LOCK"), optional=True),
+        Sequence(
+            OneOf("COMMENT", "ATTRIBUTE"),
+            Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
     )
 
 
@@ -565,19 +752,6 @@ mysql_dialect.add(
         # the correct capitalisation policy.
         OneOf("ON", "OFF"),
         OneOf("TRUE", "FALSE"),
-    ),
-)
-
-mysql_dialect.replace(
-    DelimiterGrammar=OneOf(Ref("SemicolonSegment"), Ref("TildeSegment")),
-    TildeSegment=StringParser(
-        "~", SymbolSegment, name="tilde", type="statement_terminator"
-    ),
-    ParameterNameSegment=RegexParser(
-        r"`?[A-Za-z0-9_]*`?", CodeSegment, name="parameter", type="parameter"
-    ),
-    SingleIdentifierGrammar=ansi_dialect.get_grammar("SingleIdentifierGrammar").copy(
-        insert=[Ref("SessionVariableNameSegment")]
     ),
 )
 
