@@ -116,6 +116,7 @@ mysql_dialect.sets("unreserved_keywords").update(
         "MAX_CONNECTIONS_PER_HOUR",
         "MAX_USER_CONNECTIONS",
         "AUTHENTICATION",
+        "OPTIONAL",
     ]
 )
 mysql_dialect.sets("reserved_keywords").update(
@@ -347,12 +348,14 @@ class CreateUserStatementSegment(ansi.CreateUserStatementSegment):
         "INITIAL",
         "AUTHENTICATION",
         "IDENTIFIED",
-        OneOf(Sequence("BY", OneOf(_random_password, _auth_string))),
-        Sequence(
-            "WITH",
-            _auth_plugin,
-            "AS",
-            _auth_string,
+        OneOf(
+            Sequence("BY", OneOf(_random_password, _auth_string)),
+            Sequence(
+                "WITH",
+                _auth_plugin,
+                "AS",
+                _auth_string,
+            ),
         ),
     )
 
@@ -399,7 +402,7 @@ class CreateUserStatementSegment(ansi.CreateUserStatementSegment):
         Ref("NumericLiteralSegment"),
     )
 
-    _password_option = OneOf(
+    _password_option = AnyNumberOf(
         Sequence(
             "PASSWORD",
             "EXPIRE",
@@ -437,7 +440,8 @@ class CreateUserStatementSegment(ansi.CreateUserStatementSegment):
         Ref("IfNotExistsGrammar", optional=True),
         Delimited(
             Sequence(
-                Ref("RoleReferenceSegment"), Delimited(_auth_option, delimiter="AND")
+                Ref("RoleReferenceSegment"),
+                Sequence(Delimited(_auth_option, delimiter="AND"), optional=True),
             ),
         ),
         Sequence(
@@ -451,7 +455,7 @@ class CreateUserStatementSegment(ansi.CreateUserStatementSegment):
             OneOf("NONE", Delimited(_tls_option, delimiter="AND")),
             optional=True,
         ),
-        Sequence("WITH", Delimited(_resource_option), optional=True),
+        Sequence("WITH", AnyNumberOf(_resource_option), optional=True),
         Sequence(_password_option, optional=True),
         Sequence("ACCOUNT", OneOf("UNLOCK", "LOCK"), optional=True),
         Sequence(
