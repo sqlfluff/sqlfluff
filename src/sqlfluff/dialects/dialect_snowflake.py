@@ -5137,7 +5137,6 @@ class DropObjectStatementSegment(BaseSegment):
     )
 
 
-#  Ref("ListStatementSegment")
 class ListStatementSegment(BaseSegment):
     """A snowflake `LIST @<stage> ...` statement.
 
