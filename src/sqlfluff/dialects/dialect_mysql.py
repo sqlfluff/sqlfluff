@@ -228,6 +228,16 @@ mysql_dialect.replace(
     ),
     # Odd syntax, but pr
     CharCharacterSetGrammar=Ref.keyword("BINARY"),
+    DelimiterGrammar=OneOf(Ref("SemicolonSegment"), Ref("TildeSegment")),
+    TildeSegment=StringParser(
+        "~", SymbolSegment, name="tilde", type="statement_terminator"
+    ),
+    ParameterNameSegment=RegexParser(
+        r"`?[A-Za-z0-9_]*`?", CodeSegment, name="parameter", type="parameter"
+    ),
+    SingleIdentifierGrammar=ansi_dialect.get_grammar("SingleIdentifierGrammar").copy(
+        insert=[Ref("SessionVariableNameSegment")]
+    ),
 )
 
 mysql_dialect.add(
@@ -717,19 +727,6 @@ mysql_dialect.add(
         # the correct capitalisation policy.
         OneOf("ON", "OFF"),
         OneOf("TRUE", "FALSE"),
-    ),
-)
-
-mysql_dialect.replace(
-    DelimiterGrammar=OneOf(Ref("SemicolonSegment"), Ref("TildeSegment")),
-    TildeSegment=StringParser(
-        "~", SymbolSegment, name="tilde", type="statement_terminator"
-    ),
-    ParameterNameSegment=RegexParser(
-        r"`?[A-Za-z0-9_]*`?", CodeSegment, name="parameter", type="parameter"
-    ),
-    SingleIdentifierGrammar=ansi_dialect.get_grammar("SingleIdentifierGrammar").copy(
-        insert=[Ref("SessionVariableNameSegment")]
     ),
 )
 
