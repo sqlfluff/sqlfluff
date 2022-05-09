@@ -352,17 +352,23 @@ class CreateUserStatementSegment(ansi.CreateUserStatementSegment):
                     OneOf(
                         Sequence(
                             "BY",
-                            OneOf(
-                                _random_password, Ref("SingleQuotedIdentifierSegment")
-                            ),
+                            OneOf(_random_password, _auth_string),
                         ),
-                        Sequence("AS", Ref("SingleQuotedIdentifierSegment")),
+                        Sequence("AS", _auth_string),
                         _initial_auth_option,
                     ),
                     optional=True,
                 ),
             ),
         ),
+    )
+
+    _tls_option = OneOf(
+        "SSL",
+        "X509",
+        Sequence("CIPHER", Ref("SingleQuotedIdentifierSegment")),
+        Sequence("ISSUER", Ref("SingleQuotedIdentifierSegment")),
+        Sequence("SUBJECT", Ref("SingleQuotedIdentifierSegment")),
     )
 
     match_grammar = Sequence(
@@ -378,6 +384,11 @@ class CreateUserStatementSegment(ansi.CreateUserStatementSegment):
             "DEFAULT",
             "ROLE",
             Delimited(Ref("RoleReferenceSegment")),
+            optional=True,
+        ),
+        Sequence(
+            "REQUIRE",
+            OneOf("NONE", Delimited(_tls_option, delimiter="AND")),
             optional=True,
         ),
     )
