@@ -371,6 +371,16 @@ class CreateUserStatementSegment(ansi.CreateUserStatementSegment):
         Sequence("SUBJECT", Ref("SingleQuotedIdentifierSegment")),
     )
 
+    _resource_option = Sequence(
+        OneOf(
+            "MAX_QUERIES_PER_HOUR",
+            "MAX_UPDATES_PER_HOUR",
+            "MAX_CONNECTIONS_PER_HOUR",
+            "MAX_USER_CONNECTIONS",
+        ),
+        Ref("NumericLiteralSegment"),
+    )
+
     match_grammar = Sequence(
         "CREATE",
         "USER",
@@ -391,6 +401,7 @@ class CreateUserStatementSegment(ansi.CreateUserStatementSegment):
             OneOf("NONE", Delimited(_tls_option, delimiter="AND")),
             optional=True,
         ),
+        Sequence("WITH", Delimited(_resource_option), optional=True),
     )
 
 
