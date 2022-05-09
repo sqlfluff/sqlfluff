@@ -102,6 +102,20 @@ mysql_dialect.sets("unreserved_keywords").update(
         "CHANNEL",
         "EXPORT",
         "RANDOM",
+        "FAILED_LOGIN_ATTEMPTS",
+        "PASSWORD_LOCK_TIME",
+        "EXPIRE",
+        "NEVER",
+        "HISTORY",
+        "REUSE",
+        "CIPHER",
+        "ISSUER",
+        "SUBJECT",
+        "MAX_QUERIES_PER_HOUR",
+        "MAX_UPDATES_PER_HOUR",
+        "MAX_CONNECTIONS_PER_HOUR",
+        "MAX_USER_CONNECTIONS",
+        "AUTHENTICATION",
     ]
 )
 mysql_dialect.sets("reserved_keywords").update(
