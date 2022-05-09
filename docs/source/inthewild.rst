@@ -72,7 +72,7 @@ Just add a section below by raising a PR on GitHub by
 - Core Analytics Team from `Typeform <https://www.typeform.com/>`_ and
   `videoask <https://www.videoask.com/>`_ uses SQLFluff in the production
   `dbt <http://www.getdbt.com/>`_ project for building our datawarehouse
-  layer for both products: 
+  layer for both products:
 
   - We use it locally in our day to day work, helping us to write cleaner code.
   - We added SQLFluff to our CI processes, so during a PR we can check that any
