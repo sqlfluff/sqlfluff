@@ -321,20 +321,46 @@ class CreateUserStatementSegment(ansi.CreateUserStatementSegment):
     https://dev.mysql.com/doc/refman/8.0/en/create-user.html
     """
 
-    auth_option = Sequence(
+    _random_password = Sequence("RANDOM", "PASSWORD")
+    _auth_plugin = Ref("ObjectReferenceSegment")
+    _auth_string = Ref("SingleQuotedIdentifierSegment")
+
+    _initial_auth_option = Sequence(
+        "INITIAL",
+        "AUTHENTICATION",
+        "IDENTIFIED",
+        OneOf(Sequence("BY", OneOf(_random_password, _auth_string))),
+        Sequence(
+            "WITH",
+            _auth_plugin,
+            "AS",
+            _auth_string,
+        ),
+    )
+
+    _auth_option = Sequence(
         "IDENTIFIED",
         OneOf(
             Sequence(
                 "BY",
-                OneOf(
-                    Sequence("RANDOM", "PASSWORD"),
-                    Ref("SingleQuotedIdentifierSegment"),
-                ),
+                OneOf(_random_password, _auth_string),
             ),
             Sequence(
                 "WITH",
-                Ref("ObjectReferenceSegment"),
-                Sequence("AS", Ref("SingleQuotedIdentifierSegment"), optional=True),
+                _auth_plugin,
+                Sequence(
+                    OneOf(
+                        Sequence(
+                            "BY",
+                            OneOf(
+                                _random_password, Ref("SingleQuotedIdentifierSegment")
+                            ),
+                        ),
+                        Sequence("AS", Ref("SingleQuotedIdentifierSegment")),
+                        _initial_auth_option,
+                    ),
+                    optional=True,
+                ),
             ),
         ),
     )
@@ -345,7 +371,7 @@ class CreateUserStatementSegment(ansi.CreateUserStatementSegment):
         Ref("IfNotExistsGrammar", optional=True),
         Delimited(
             Sequence(
-                Ref("RoleReferenceSegment"), Delimited(auth_option, delimiter="AND")
+                Ref("RoleReferenceSegment"), Delimited(_auth_option, delimiter="AND")
             ),
             delimiter=Ref("CommaSegment"),
         ),
