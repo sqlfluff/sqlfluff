@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 59d5da5e33f8aaadada01d04892fc436cba32428b1013572f7d90250c22185e4
+_hash: 5b31b8e1575ad443be3088446877cbc8d145ad6e98121d69a96abd8a840466b6
 file:
 - statement:
     create_stage_statement:
@@ -71,7 +71,8 @@ file:
     - comparison_operator:
         raw_comparison_operator: '='
     - file_format_segment:
-        identifier: my_csv_format
+        object_reference:
+          identifier: my_csv_format
 - statement_terminator: ;
 - statement:
     create_stage_statement:
@@ -93,7 +94,8 @@ file:
     - comparison_operator:
         raw_comparison_operator: '='
     - file_format_segment:
-        identifier: myformat
+        object_reference:
+          identifier: myformat
 - statement_terminator: ;
 - statement:
     create_stage_statement:
@@ -389,7 +391,8 @@ file:
     - comparison_operator:
         raw_comparison_operator: '='
     - file_format_segment:
-        identifier: my_csv_format
+        object_reference:
+          identifier: my_csv_format
 - statement_terminator: ;
 - statement:
     create_stage_statement:
@@ -425,4 +428,35 @@ file:
           raw_comparison_operator: '='
       - literal: "'MY_NOTIFICATION_INT'"
       - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_stage_statement:
+    - keyword: CREATE
+    - binary_operator: OR
+    - keyword: REPLACE
+    - keyword: STAGE
+    - object_reference:
+      - identifier: foo
+      - dot: .
+      - identifier: bar
+    - keyword: URL
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bucket_path: "'s3://foobar'"
+    - stage_parameters:
+        keyword: STORAGE_INTEGRATION
+        comparison_operator:
+          raw_comparison_operator: '='
+        object_reference:
+          identifier: foo
+    - keyword: FILE_FORMAT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - file_format_segment:
+        object_reference:
+        - identifier: foo
+        - dot: .
+        - identifier: bar
+        - dot: .
+        - identifier: baz
 - statement_terminator: ;

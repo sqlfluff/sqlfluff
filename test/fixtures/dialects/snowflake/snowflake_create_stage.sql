@@ -61,3 +61,8 @@ CREATE STAGE mystage
     AUTO_REFRESH = true
     NOTIFICATION_INTEGRATION = 'MY_NOTIFICATION_INT'
   );
+CREATE OR REPLACE STAGE foo.bar
+    URL = 's3://foobar'
+    STORAGE_INTEGRATION = foo
+    FILE_FORMAT = foo.bar.baz
+;

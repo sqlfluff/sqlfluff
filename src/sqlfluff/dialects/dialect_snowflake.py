@@ -3239,13 +3239,19 @@ class FileFormatSegment(BaseSegment):
     type = "file_format_segment"
 
     match_grammar = OneOf(
-        OneOf(Ref("NakedIdentifierSegment"), Ref("QuotedLiteralSegment")),
+        OneOf(
+            Ref("QuotedLiteralSegment"),
+            Ref("ObjectReferenceSegment"),
+        ),
         Bracketed(
             OneOf(
                 Sequence(
                     "FORMAT_NAME",
                     Ref("EqualsSegment"),
-                    OneOf(Ref("NakedIdentifierSegment"), Ref("QuotedLiteralSegment")),
+                    OneOf(
+                        Ref("NakedIdentifierSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
                 ),
                 OneOf(
                     Ref("CsvFileFormatTypeParameters"),
