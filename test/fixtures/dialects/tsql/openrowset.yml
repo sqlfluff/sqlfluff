@@ -1,0 +1,246 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 48b092c4656aec4c6f3f765ce1da48bb1a78e1cbddd5210ad4ee88644a435491
+file:
+- batch:
+    statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                identifier: a
+                dot: .
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                openrowset_segment:
+                  keyword: OPENROWSET
+                  bracketed:
+                  - start_bracket: (
+                  - literal: "'Microsoft.Jet.OLEDB.4.0'"
+                  - comma: ','
+                  - literal: "'C:\\SAMPLES\\Northwind.mdb'"
+                  - statement_terminator: ;
+                  - literal: "'admin'"
+                  - statement_terminator: ;
+                  - literal: "'password'"
+                  - comma: ','
+                  - table_reference:
+                      identifier: Customers
+                  - end_bracket: )
+              alias_expression:
+                keyword: AS
+                identifier: a
+          statement_terminator: ;
+- go_statement:
+    keyword: GO
+- batch:
+    statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                identifier: d
+                dot: .
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                openrowset_segment:
+                  keyword: OPENROWSET
+                  bracketed:
+                  - start_bracket: (
+                  - literal: "'SQLNCLI'"
+                  - comma: ','
+                  - literal: "'Server=Seattle1;Trusted_Connection=yes;'"
+                  - comma: ','
+                  - table_reference:
+                      identifier: Department
+                  - end_bracket: )
+              alias_expression:
+                keyword: AS
+                identifier: d
+          statement_terminator: ;
+- go_statement:
+    keyword: GO
+- batch:
+    statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                identifier: d
+                dot: .
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                openrowset_segment:
+                  keyword: OPENROWSET
+                  bracketed:
+                  - start_bracket: (
+                  - literal: "'SQLNCLI'"
+                  - comma: ','
+                  - literal: "'Server=Seattle1;Trusted_Connection=yes;'"
+                  - comma: ','
+                  - table_reference:
+                    - identifier: AdventureWorks2012
+                    - dot: .
+                    - identifier: HumanResources
+                    - dot: .
+                    - identifier: Department
+                  - end_bracket: )
+              alias_expression:
+                keyword: AS
+                identifier: d
+          statement_terminator: ;
+- go_statement:
+    keyword: GO
+- batch:
+    statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                identifier: a
+                dot: .
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                openrowset_segment:
+                  keyword: OPENROWSET
+                  bracketed:
+                  - start_bracket: (
+                  - literal: "'SQLNCLI'"
+                  - comma: ','
+                  - literal: "'Server=Seattle1;Trusted_Connection=yes;'"
+                  - comma: ','
+                  - literal: "'SELECT TOP 10 GroupName, Name\n     FROM AdventureWorks2012.HumanResources.Department'"
+                  - end_bracket: )
+              alias_expression:
+                keyword: AS
+                identifier: a
+          statement_terminator: ;
+- go_statement:
+    keyword: GO
+- batch:
+    statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                openrowset_segment:
+                  keyword: OPENROWSET
+                  bracketed:
+                  - start_bracket: (
+                  - keyword: BULK
+                  - literal: "'C:\\DATA\\inv-2017-01-19.csv'"
+                  - comma: ','
+                  - keyword: SINGLE_CLOB
+                  - end_bracket: )
+              alias_expression:
+                keyword: AS
+                identifier: DATA
+          statement_terminator: ;
+- go_statement:
+    keyword: GO
+- batch:
+    statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                openrowset_segment:
+                  keyword: OPENROWSET
+                  bracketed:
+                  - start_bracket: (
+                  - keyword: BULK
+                  - literal: "N'C:\\Text1.txt'"
+                  - comma: ','
+                  - keyword: SINGLE_NCLOB
+                  - end_bracket: )
+              alias_expression:
+                keyword: AS
+                identifier: Document
+          statement_terminator: ;
+- go_statement:
+    keyword: GO
+- batch:
+    statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                openrowset_segment:
+                  keyword: OPENROWSET
+                  bracketed:
+                  - start_bracket: (
+                  - keyword: BULK
+                  - literal: "N'D:\\XChange\\test-csv.csv'"
+                  - comma: ','
+                  - keyword: FORMATFILE
+                  - comparison_operator:
+                      raw_comparison_operator: '='
+                  - literal: "N'D:\\XChange\\test-csv.fmt'"
+                  - comma: ','
+                  - keyword: FIRSTROW
+                  - comparison_operator:
+                      raw_comparison_operator: '='
+                  - literal: '2'
+                  - comma: ','
+                  - keyword: FORMAT
+                  - comparison_operator:
+                      raw_comparison_operator: '='
+                  - literal: "'CSV'"
+                  - end_bracket: )
+              alias_expression:
+                keyword: AS
+                identifier: cars
+          statement_terminator: ;
+- go_statement:
+    keyword: GO
