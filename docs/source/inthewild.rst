@@ -69,3 +69,11 @@ Just add a section below by raising a PR on GitHub by
   our dbt models as well as several other SQL heavy projects. Locally we use
   SQLFluff with pre-commit and have also integrated it into our CI/CD
   pipelines.
+- Core Analytics Team from `Typeform <https://www.typeform.com/>`_ and
+  `videoask <https://www.videoask.com/>`_ uses SQLFluff in the production
+  `dbt <http://www.getdbt.com/>`_ project for building our datawarehouse
+  layer for both products: 
+
+  - We use it locally in our day to day work, helping us to write cleaner code.
+  - We added SQLFuff to our CI processes, so during a PR we check that any new or
+    modified sql file has a consistent and easy-read format.
