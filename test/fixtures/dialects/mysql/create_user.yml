@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 919554e2c05cb6c42c0e01378e2e3ced4f996562223b35c5e6cdcd8921edffcf
+_hash: 9ba65c9cd4e4366db172a80c9d6b1f8b92c610739392e73fae528275cf9f69a6
 file:
   statement:
     create_user_statement:
@@ -16,5 +16,5 @@ file:
     - object_reference:
         identifier: AWSAuthenticationPlugin
     - keyword: AS
-    - identifier: "'RDS'"
+    - literal: "'RDS'"
   statement_terminator: ;

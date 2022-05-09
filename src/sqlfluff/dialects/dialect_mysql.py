@@ -321,9 +321,13 @@ class CreateUserStatementSegment(ansi.CreateUserStatementSegment):
     https://dev.mysql.com/doc/refman/8.0/en/create-user.html
     """
 
+    _string_literal = OneOf(
+        Ref("QuotedLiteralSegment"), Ref("DoubleQuotedLiteralSegment")
+    )
+
     _random_password = Sequence("RANDOM", "PASSWORD")
     _auth_plugin = Ref("ObjectReferenceSegment")
-    _auth_string = Ref("SingleQuotedIdentifierSegment")
+    _auth_string = _string_literal
 
     _initial_auth_option = Sequence(
         "INITIAL",
@@ -366,9 +370,9 @@ class CreateUserStatementSegment(ansi.CreateUserStatementSegment):
     _tls_option = OneOf(
         "SSL",
         "X509",
-        Sequence("CIPHER", Ref("SingleQuotedIdentifierSegment")),
-        Sequence("ISSUER", Ref("SingleQuotedIdentifierSegment")),
-        Sequence("SUBJECT", Ref("SingleQuotedIdentifierSegment")),
+        Sequence("CIPHER", _string_literal),
+        Sequence("ISSUER", _string_literal),
+        Sequence("SUBJECT", _string_literal),
     )
 
     _resource_option = Sequence(
@@ -438,7 +442,7 @@ class CreateUserStatementSegment(ansi.CreateUserStatementSegment):
         Sequence("ACCOUNT", OneOf("UNLOCK", "LOCK"), optional=True),
         Sequence(
             OneOf("COMMENT", "ATTRIBUTE"),
-            Ref("SingleQuotedIdentifierSegment"),
+            _string_literal,
             optional=True,
         ),
     )
