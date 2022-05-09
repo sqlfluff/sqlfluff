@@ -48,7 +48,7 @@ class Rule_L011(BaseRule):
     groups: Tuple[str, ...] = ("all",)
     config_keywords = ["aliasing"]
 
-    _target_elems = ("from_expression_element",)
+    _target_elems = ("from_expression_element", "merge_statement")
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Implicit aliasing of table/column not allowed. Use explicit `AS` clause.
