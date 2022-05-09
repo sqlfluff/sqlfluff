@@ -24,6 +24,7 @@ from sqlfluff.core.parser import (
     CommentSegment,
     SegmentGenerator,
     Conditional,
+    AnySetOf,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -345,8 +346,6 @@ tsql_dialect.replace(
         Sequence("GROUP", "BY"),
         Sequence("ORDER", "BY"),
         "HAVING",
-        "PIVOT",
-        "UNPIVOT",
         Ref("SetOperatorSegment"),
         Ref("WithNoSchemaBindingClauseSegment"),
         Ref("DelimiterGrammar"),
@@ -444,6 +443,12 @@ tsql_dialect.replace(
     ),
     TrimParametersGrammar=Nothing(),
     TemporaryGrammar=Nothing(),
+    JoinLikeClauseGrammar=Sequence(
+        AnySetOf(
+            Ref("PivotUnpivotStatementSegment"),
+            min_times=1,
+        ),
+    ),
 )
 
 
@@ -635,7 +640,6 @@ class UnorderedSelectStatementSegment(BaseSegment):
         Dedent,
         Ref("IntoTableSegment", optional=True),
         Ref("FromClauseSegment", optional=True),
-        Ref("PivotUnpivotStatementSegment", optional=True),
         Ref("WhereClauseSegment", optional=True),
         Ref("GroupByClauseSegment", optional=True),
         Ref("HavingClauseSegment", optional=True),
