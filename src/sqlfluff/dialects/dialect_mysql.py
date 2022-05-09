@@ -349,102 +349,6 @@ class CreateUserStatementSegment(ansi.CreateUserStatementSegment):
     https://dev.mysql.com/doc/refman/8.0/en/create-user.html
     """
 
-    _string_literal = OneOf(Ref("QuotedLiteralSegment"))
-
-    _random_password = Sequence("RANDOM", "PASSWORD")
-    _auth_plugin = Ref("ObjectReferenceSegment")
-    _auth_string = _string_literal
-
-    _initial_auth_option = Sequence(
-        "INITIAL",
-        "AUTHENTICATION",
-        "IDENTIFIED",
-        OneOf(
-            Sequence("BY", OneOf(_random_password, _auth_string)),
-            Sequence(
-                "WITH",
-                _auth_plugin,
-                "AS",
-                _auth_string,
-            ),
-        ),
-    )
-
-    _auth_option = Sequence(
-        "IDENTIFIED",
-        OneOf(
-            Sequence(
-                "BY",
-                OneOf(_random_password, _auth_string),
-            ),
-            Sequence(
-                "WITH",
-                _auth_plugin,
-                Sequence(
-                    OneOf(
-                        Sequence(
-                            "BY",
-                            OneOf(_random_password, _auth_string),
-                        ),
-                        Sequence("AS", _auth_string),
-                        _initial_auth_option,
-                    ),
-                    optional=True,
-                ),
-            ),
-        ),
-    )
-
-    _tls_option = OneOf(
-        "SSL",
-        "X509",
-        Sequence("CIPHER", _string_literal),
-        Sequence("ISSUER", _string_literal),
-        Sequence("SUBJECT", _string_literal),
-    )
-
-    _resource_option = Sequence(
-        OneOf(
-            "MAX_QUERIES_PER_HOUR",
-            "MAX_UPDATES_PER_HOUR",
-            "MAX_CONNECTIONS_PER_HOUR",
-            "MAX_USER_CONNECTIONS",
-        ),
-        Ref("NumericLiteralSegment"),
-    )
-
-    _password_option = AnyNumberOf(
-        Sequence(
-            "PASSWORD",
-            "EXPIRE",
-            Sequence(
-                OneOf(
-                    "DEFAULT",
-                    "NEVER",
-                    Sequence("INTERVAL", Ref("NumericLiteralSegment"), "DAY"),
-                ),
-                optional=True,
-            ),
-        ),
-        Sequence("PASSWORD", "HISTORY", OneOf("DEFAULT", Ref("NumericLiteralSegment"))),
-        Sequence(
-            "PASSWORD",
-            "REUSE",
-            "INTERVAL",
-            OneOf("DEFAULT", Sequence(Ref("NumericLiteralSegment"), "DAY")),
-        ),
-        Sequence(
-            "PASSWORD",
-            "REQUIRE",
-            "CURRENT",
-            Sequence(OneOf("DEFAULT", "OPTIONAL"), optional=True),
-        ),
-        Sequence("FAILED_LOGIN_ATTEMPTS", Ref("NumericLiteralSegment")),
-        Sequence(
-            "PASSWORD_LOCK_TIME", OneOf(Ref("NumericLiteralSegment"), "UNBOUNDED")
-        ),
-    )
-
     match_grammar = Sequence(
         "CREATE",
         "USER",
@@ -452,7 +356,63 @@ class CreateUserStatementSegment(ansi.CreateUserStatementSegment):
         Delimited(
             Sequence(
                 Ref("RoleReferenceSegment"),
-                Sequence(Delimited(_auth_option, delimiter="AND"), optional=True),
+                Sequence(
+                    Delimited(
+                        Sequence(
+                            "IDENTIFIED",
+                            OneOf(
+                                Sequence(
+                                    "BY",
+                                    OneOf(
+                                        Sequence("RANDOM", "PASSWORD"),
+                                        Ref("QuotedLiteralSegment"),
+                                    ),
+                                ),
+                                Sequence(
+                                    "WITH",
+                                    Ref("ObjectReferenceSegment"),
+                                    Sequence(
+                                        OneOf(
+                                            Sequence(
+                                                "BY",
+                                                OneOf(
+                                                    Sequence("RANDOM", "PASSWORD"),
+                                                    Ref("QuotedLiteralSegment"),
+                                                ),
+                                            ),
+                                            Sequence("AS", Ref("QuotedLiteralSegment")),
+                                            Sequence(
+                                                "INITIAL",
+                                                "AUTHENTICATION",
+                                                "IDENTIFIED",
+                                                OneOf(
+                                                    Sequence(
+                                                        "BY",
+                                                        OneOf(
+                                                            Sequence(
+                                                                "RANDOM", "PASSWORD"
+                                                            ),
+                                                            Ref("QuotedLiteralSegment"),
+                                                        ),
+                                                    ),
+                                                    Sequence(
+                                                        "WITH",
+                                                        Ref("ObjectReferenceSegment"),
+                                                        "AS",
+                                                        Ref("QuotedLiteralSegment"),
+                                                    ),
+                                                ),
+                                            ),
+                                        ),
+                                        optional=True,
+                                    ),
+                                ),
+                            ),
+                        ),
+                        delimiter="AND",
+                    ),
+                    optional=True,
+                ),
             ),
         ),
         Sequence(
@@ -463,15 +423,79 @@ class CreateUserStatementSegment(ansi.CreateUserStatementSegment):
         ),
         Sequence(
             "REQUIRE",
-            OneOf("NONE", Delimited(_tls_option, delimiter="AND")),
+            OneOf(
+                "NONE",
+                Delimited(
+                    OneOf(
+                        "SSL",
+                        "X509",
+                        Sequence("CIPHER", Ref("QuotedLiteralSegment")),
+                        Sequence("ISSUER", Ref("QuotedLiteralSegment")),
+                        Sequence("SUBJECT", Ref("QuotedLiteralSegment")),
+                    ),
+                    delimiter="AND",
+                ),
+            ),
             optional=True,
         ),
-        Sequence("WITH", AnyNumberOf(_resource_option), optional=True),
-        Sequence(_password_option, optional=True),
+        Sequence(
+            "WITH",
+            AnyNumberOf(
+                Sequence(
+                    OneOf(
+                        "MAX_QUERIES_PER_HOUR",
+                        "MAX_UPDATES_PER_HOUR",
+                        "MAX_CONNECTIONS_PER_HOUR",
+                        "MAX_USER_CONNECTIONS",
+                    ),
+                    Ref("NumericLiteralSegment"),
+                )
+            ),
+            optional=True,
+        ),
+        Sequence(
+            AnyNumberOf(
+                Sequence(
+                    "PASSWORD",
+                    "EXPIRE",
+                    Sequence(
+                        OneOf(
+                            "DEFAULT",
+                            "NEVER",
+                            Sequence("INTERVAL", Ref("NumericLiteralSegment"), "DAY"),
+                        ),
+                        optional=True,
+                    ),
+                ),
+                Sequence(
+                    "PASSWORD",
+                    "HISTORY",
+                    OneOf("DEFAULT", Ref("NumericLiteralSegment")),
+                ),
+                Sequence(
+                    "PASSWORD",
+                    "REUSE",
+                    "INTERVAL",
+                    OneOf("DEFAULT", Sequence(Ref("NumericLiteralSegment"), "DAY")),
+                ),
+                Sequence(
+                    "PASSWORD",
+                    "REQUIRE",
+                    "CURRENT",
+                    Sequence(OneOf("DEFAULT", "OPTIONAL"), optional=True),
+                ),
+                Sequence("FAILED_LOGIN_ATTEMPTS", Ref("NumericLiteralSegment")),
+                Sequence(
+                    "PASSWORD_LOCK_TIME",
+                    OneOf(Ref("NumericLiteralSegment"), "UNBOUNDED"),
+                ),
+            ),
+            optional=True,
+        ),
         Sequence("ACCOUNT", OneOf("UNLOCK", "LOCK"), optional=True),
         Sequence(
             OneOf("COMMENT", "ATTRIBUTE"),
-            _string_literal,
+            Ref("QuotedLiteralSegment"),
             optional=True,
         ),
     )
