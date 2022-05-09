@@ -75,5 +75,5 @@ Just add a section below by raising a PR on GitHub by
   layer for both products: 
 
   - We use it locally in our day to day work, helping us to write cleaner code.
-  - We added SQLFuff to our CI processes, so during a PR we check that any new or
-    modified sql file has a consistent and easy-read format.
+  - We added SQLFluff to our CI processes, so during a PR we can check that any
+    new or modified sql file has a consistent and easy-to-read format.
