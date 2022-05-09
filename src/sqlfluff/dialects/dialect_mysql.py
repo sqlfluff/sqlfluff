@@ -381,6 +381,38 @@ class CreateUserStatementSegment(ansi.CreateUserStatementSegment):
         Ref("NumericLiteralSegment"),
     )
 
+    _password_option = OneOf(
+        Sequence(
+            "PASSWORD",
+            "EXPIRE",
+            Sequence(
+                OneOf(
+                    "DEFAULT",
+                    "NEVER",
+                    Sequence("INTERVAL", Ref("NumericLiteralSegment"), "DAY"),
+                ),
+                optional=True,
+            ),
+        ),
+        Sequence("PASSWORD", "HISTORY", OneOf("DEFAULT", Ref("NumericLiteralSegment"))),
+        Sequence(
+            "PASSWORD",
+            "REUSE",
+            "INTERVAL",
+            OneOf("DEFAULT", Sequence(Ref("NumericLiteralSegment"), "DAY")),
+        ),
+        Sequence(
+            "PASSWORD",
+            "REQUIRE",
+            "CURRENT",
+            Sequence(OneOf("DEFAULT", "OPTIONAL"), optional=True),
+        ),
+        Sequence("FAILED_LOGIN_ATTEMPTS", Ref("NumericLiteralSegment")),
+        Sequence(
+            "PASSWORD_LOCK_TIME", OneOf(Ref("NumericLiteralSegment"), "UNBOUNDED")
+        ),
+    )
+
     match_grammar = Sequence(
         "CREATE",
         "USER",
@@ -402,6 +434,10 @@ class CreateUserStatementSegment(ansi.CreateUserStatementSegment):
             optional=True,
         ),
         Sequence("WITH", Delimited(_resource_option), optional=True),
+        Sequence(_password_option, optional=True),
+        # lock_option
+        # comment
+        # attribute
     )
 
 
