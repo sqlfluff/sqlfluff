@@ -48,7 +48,10 @@ class Rule_L011(BaseRule):
     groups: Tuple[str, ...] = ("all",)
     config_keywords = ["aliasing"]
 
-    _target_elems = ("from_expression_element", "merge_statement")
+    _target_elems: List[Tuple[str, str]] = [
+        ("type", "from_expression_element"),
+        ("type", "merge_statement"),
+    ]
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Implicit aliasing of table/column not allowed. Use explicit `AS` clause.
@@ -61,7 +64,8 @@ class Rule_L011(BaseRule):
         fixes = []
 
         if context.segment.is_type("alias_expression"):
-            if context.parent_stack[-1].is_type(*self._target_elems):
+            # if context.parent_stack[-1].is_type(*self._target_elems):
+            if self.matches_target_tuples(context.parent_stack[-1], self._target_elems):
                 if any(e.name.lower() == "as" for e in context.segment.segments):
                     if self.aliasing == "implicit":
                         if context.segment.segments[0].name.lower() == "as":
