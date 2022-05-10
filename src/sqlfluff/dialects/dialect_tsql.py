@@ -443,11 +443,9 @@ tsql_dialect.replace(
     ),
     TrimParametersGrammar=Nothing(),
     TemporaryGrammar=Nothing(),
-    JoinLikeClauseGrammar=Sequence(
-        AnySetOf(
-            Ref("PivotUnpivotStatementSegment"),
-            min_times=1,
-        ),
+    JoinLikeClauseGrammar=AnySetOf(
+        Ref("PivotUnpivotStatementSegment"),
+        min_times=1,
     ),
 )
 
