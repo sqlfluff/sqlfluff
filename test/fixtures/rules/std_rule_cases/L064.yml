@@ -259,3 +259,36 @@ test_pass_date_constructor_strings_are_ignored_2:
       L064:
         force_enable: True
         preferred_quoted_literal_style: double_quotes
+
+test_pass_templated_strings:
+  pass_str: |
+    SELECT "{{ 'a string' }}"
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      L064:
+        preferred_quoted_literal_style: double_quotes
+
+test_fail_templated_strings:
+  fail_str: |
+    SELECT '{{ "a string" }}'
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      L064:
+        preferred_quoted_literal_style: double_quotes
+
+test_fail_templated_strings_inside_blocks:
+  fail_str: |
+    SELECT
+        {% if true %}
+        '{{ "another_templated_string" }}'
+        {% endif %}
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      L064:
+        preferred_quoted_literal_style: double_quotes

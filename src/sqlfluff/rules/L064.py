@@ -11,6 +11,7 @@ from sqlfluff.core.rules.doc_decorators import (
     document_fix_compatible,
     document_groups,
 )
+from sqlfluff.core.rules.functional import rsp
 
 
 @document_groups
@@ -65,6 +66,7 @@ class Rule_L064(BaseRule):
 
     groups = ("all",)
     config_keywords = ["preferred_quoted_literal_style", "force_enable"]
+    targets_templated = True
     _dialects_with_double_quoted_strings = [
         "bigquery",
         "hive",
@@ -101,6 +103,17 @@ class Rule_L064(BaseRule):
             or context.dialect.name in self._dialects_with_double_quoted_strings
         ):
             return LintResult(memory=context.memory)
+
+        # This rule can also cover quoted literals that are partially templated.
+        # I.e. when the quotes characters are _not_ part of the template we can
+        # meanigfully apply this rule.
+        templated_raw_slices = context.functional.segment.raw_slices.select(
+            rsp.is_slice_type("templated")
+        )
+        for raw_slice in templated_raw_slices:
+            # quotes are part of a template, nothing we can do
+            if context.segment.pos_marker.source_str() == raw_slice.raw:
+                return None
 
         # If quoting style is set to consistent we use the quoting style of the first
         # quoted_literal that we encounter.
