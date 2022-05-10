@@ -3,13 +3,14 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e7dfd2812835391d1f97ca7c196dd923c26a2f7989e36cf8632bdb1a8522e41f
+_hash: c233cde2d8a4be3f3effa0dd38bd4a558068b75daf937fae7a81591a6f4c67cb
 file:
 - statement:
     create_user_statement:
     - keyword: CREATE
     - keyword: USER
-    - identifier: user_1
+    - role_reference:
+        identifier: user_1
     - keyword: IDENTIFIED
     - password_auth:
         keyword: BY
@@ -19,7 +20,8 @@ file:
     create_user_statement:
     - keyword: CREATE
     - keyword: USER
-    - identifier: user_2
+    - role_reference:
+        identifier: user_2
     - keyword: IDENTIFIED
     - ldap_auth:
       - keyword: AT
@@ -31,7 +33,8 @@ file:
     create_user_statement:
     - keyword: CREATE
     - keyword: USER
-    - identifier: user_3
+    - role_reference:
+        identifier: user_3
     - keyword: IDENTIFIED
     - kerberos_auth:
       - keyword: BY
@@ -43,7 +46,8 @@ file:
     create_user_statement:
     - keyword: CREATE
     - keyword: USER
-    - identifier: oidctestuser
+    - role_reference:
+        identifier: oidctestuser
     - keyword: IDENTIFIED
     - openid_auth:
       - keyword: BY

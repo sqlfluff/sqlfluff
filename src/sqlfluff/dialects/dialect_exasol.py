@@ -2318,7 +2318,7 @@ class CreateUserStatementSegment(ansi.CreateUserStatementSegment):
     match_grammar = Sequence(
         "CREATE",
         "USER",
-        Ref("SingleIdentifierGrammar"),
+        Ref("RoleReferenceSegment"),
         "IDENTIFIED",
         OneOf(
             Ref("UserPasswordAuthSegment"),
@@ -2345,7 +2345,7 @@ class AlterUserStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "ALTER",
         "USER",
-        Ref("SingleIdentifierGrammar"),
+        Ref("RoleReferenceSegment"),
         OneOf(
             Sequence(
                 "IDENTIFIED",
@@ -2443,7 +2443,7 @@ class DropUserStatementSegment(ansi.DropUserStatementSegment):
         "DROP",
         "USER",
         Ref("IfExistsGrammar", optional=True),
-        Ref("SingleIdentifierGrammar"),
+        Ref("RoleReferenceSegment"),
         Ref.keyword("CASCADE", optional=True),
     )
 
@@ -2530,7 +2530,7 @@ class CreateRoleStatementSegment(ansi.CreateRoleStatementSegment):
     match_grammar = Sequence(
         "CREATE",
         "ROLE",
-        Ref("SingleIdentifierGrammar"),
+        Ref("RoleReferenceSegment"),
     )
 
 
@@ -2550,7 +2550,7 @@ class AlterRoleStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "ALTER",
         "ROLE",
-        Ref("SingleIdentifierGrammar"),
+        Ref("RoleReferenceSegment"),
         "SET",
         Sequence(
             "CONSUMER_GROUP",
@@ -2575,7 +2575,7 @@ class DropRoleStatementSegment(ansi.DropRoleStatementSegment):
         "DROP",
         "ROLE",
         Ref("IfExistsGrammar", optional=True),
-        Ref("SingleIdentifierGrammar"),
+        Ref("RoleReferenceSegment"),
         Ref.keyword("CASCADE", optional=True),
     )
 
@@ -2763,10 +2763,10 @@ class GrantRevokeRolesSegment(BaseSegment):
     match_grammar = Sequence(
         OneOf(
             Sequence("ALL", "ROLES"),  # Revoke only
-            Delimited(Ref("SingleIdentifierGrammar"), terminator=OneOf("TO", "FROM")),
+            Delimited(Ref("RoleReferenceSegment"), terminator=OneOf("TO", "FROM")),
         ),
         OneOf("TO", "FROM"),
-        Delimited(Ref("SingleIdentifierGrammar")),
+        Delimited(Ref("RoleReferenceSegment")),
         Sequence("WITH", "ADMIN", "OPTION", optional=True),  # Grant only
     )
 
