@@ -879,7 +879,6 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CallStatementSegment"),
             Ref("AlterViewStatementSegment"),
             Ref("AlterMaterializedViewStatementSegment"),
-            Ref("RemoveStatementSegment"),
             Ref("DropProcedureStatementSegment"),
             Ref("DropExternalTableStatementSegment"),
             Ref("DropMaterializedViewStatementSegment"),
