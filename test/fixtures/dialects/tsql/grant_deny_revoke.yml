@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 53d71d07668d7560c035dbde99ef9fb6e5bc37aa25430bef1e1096d2335f5056
+_hash: 908b929740fdc0861b50699b76b236963a55f4a015128286232da105b5831c8e
 file:
 - batch:
     statement:
@@ -18,7 +18,7 @@ file:
         - dot: .
         - identifier: Address
       - keyword: TO
-      - object_reference:
+      - role_reference:
           identifier: RosaQdM
     statement_terminator: ;
 - go_statement:
@@ -42,7 +42,7 @@ file:
         - dot: .
         - identifier: uspUpdateEmployeeHireInfo
       - keyword: TO
-      - object_reference:
+      - role_reference:
           identifier: Recruiting11
   - statement_terminator: ;
 - go_statement:
@@ -65,7 +65,7 @@ file:
         - dot: .
         - identifier: vEmployee
       - keyword: TO
-      - object_reference:
+      - role_reference:
           identifier: Wanida
       - keyword: WITH
       - keyword: GRANT
@@ -84,7 +84,7 @@ file:
         - dot: .
         - identifier: Address
       - keyword: TO
-      - object_reference:
+      - role_reference:
           identifier: RosaQdM
     statement_terminator: ;
 - go_statement:
@@ -100,7 +100,7 @@ file:
         - dot: .
         - identifier: Address
       - keyword: TO
-      - object_reference:
+      - role_reference:
           identifier: '[AdventureWorks2012\RosaQdM]'
     statement_terminator: ;
 - go_statement:
@@ -110,7 +110,7 @@ file:
       create_role_statement:
       - keyword: CREATE
       - keyword: ROLE
-      - object_reference:
+      - role_reference:
           identifier: newrole
   - statement_terminator: ;
   - statement:
@@ -123,7 +123,7 @@ file:
         - dot: .
         - identifier: uspGetBillOfMaterials
       - keyword: TO
-      - object_reference:
+      - role_reference:
           identifier: newrole
   - statement_terminator: ;
 - go_statement:
@@ -139,7 +139,7 @@ file:
       - object_reference:
           identifier: Sales
       - keyword: TO
-      - object_reference:
+      - role_reference:
           identifier: Vendors
     statement_terminator: ;
 - go_statement:
@@ -155,7 +155,7 @@ file:
       - object_reference:
           identifier: Sales
       - keyword: TO
-      - object_reference:
+      - role_reference:
           identifier: Vendors
     statement_terminator: ;
 - go_statement:
@@ -173,7 +173,7 @@ file:
         - dot: .
         - identifier: Address
       - keyword: TO
-      - object_reference:
+      - role_reference:
           identifier: RosaQdM
     statement_terminator: ;
 - go_statement:
@@ -191,7 +191,7 @@ file:
         - dot: .
         - identifier: uspUpdateEmployeeHireInfo
       - keyword: TO
-      - object_reference:
+      - role_reference:
           identifier: Recruiting11
     statement_terminator: ;
 - go_statement:
@@ -214,7 +214,7 @@ file:
         - dot: .
         - identifier: vEmployee
       - keyword: TO
-      - object_reference:
+      - role_reference:
           identifier: Wanida
       - keyword: CASCADE
     statement_terminator: ;

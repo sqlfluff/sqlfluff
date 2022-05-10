@@ -1103,7 +1103,7 @@ class CreateRoleStatementSegment(ansi.CreateRoleStatementSegment):
     match_grammar = Sequence(
         "CREATE",
         OneOf("ROLE", "USER"),
-        Ref("ObjectReferenceSegment"),
+        Ref("RoleReferenceSegment"),
         Sequence(
             Ref.keyword("WITH", optional=True),
             AnySetOf(
@@ -1159,7 +1159,7 @@ class AlterRoleStatementSegment(BaseSegment):
                 ),
                 optional=True,
             ),
-            Sequence("RENAME", "TO", Ref("ObjectReferenceSegment"), optional=True),
+            Sequence("RENAME", "TO", Ref("RoleReferenceSegment"), optional=True),
             Sequence(
                 Sequence(
                     "IN",
@@ -2596,7 +2596,7 @@ class AlterDefaultPrivilegesToFromRolesSegment(BaseSegment):
     match_grammar = OneOf(
         Sequence(
             Ref.keyword("GROUP", optional=True),
-            Ref("ObjectReferenceSegment"),
+            Ref("RoleReferenceSegment"),
         ),
         "PUBLIC",
     )

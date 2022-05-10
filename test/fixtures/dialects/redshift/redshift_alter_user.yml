@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 28ef26b5f980694569c84486afda1739b41b1e127ac75bb0a9e54d733c8c4cff
+_hash: 6b7c68c4495ef3699e903bbebbba82a7ad37ddd933003eb496521eb99a773442
 file:
 - statement:
     alter_role_statement:
@@ -43,7 +43,7 @@ file:
     alter_user_statement:
     - keyword: alter
     - keyword: user
-    - object_reference:
+    - role_reference:
         identifier: '"dbuser"'
     - keyword: reset
     - object_reference:
@@ -53,7 +53,7 @@ file:
     alter_user_statement:
     - keyword: alter
     - keyword: user
-    - object_reference:
+    - role_reference:
         identifier: '"dbuser"'
     - keyword: with
     - keyword: reset
@@ -64,7 +64,7 @@ file:
     alter_user_statement:
     - keyword: alter
     - keyword: user
-    - object_reference:
+    - role_reference:
         identifier: admin
     - keyword: createuser
 - statement_terminator: ;
@@ -72,7 +72,7 @@ file:
     alter_user_statement:
     - keyword: alter
     - keyword: user
-    - object_reference:
+    - role_reference:
         identifier: admin
     - keyword: with
     - keyword: createuser
@@ -81,7 +81,7 @@ file:
     alter_user_statement:
     - keyword: alter
     - keyword: user
-    - object_reference:
+    - role_reference:
         identifier: admin
     - keyword: nocreateuser
 - statement_terminator: ;
@@ -89,7 +89,7 @@ file:
     alter_user_statement:
     - keyword: alter
     - keyword: user
-    - object_reference:
+    - role_reference:
         identifier: admin
     - keyword: with
     - keyword: nocreateuser
@@ -98,7 +98,7 @@ file:
     alter_user_statement:
     - keyword: alter
     - keyword: user
-    - object_reference:
+    - role_reference:
         identifier: admin
     - keyword: syslog
     - keyword: access
@@ -108,7 +108,7 @@ file:
     alter_user_statement:
     - keyword: alter
     - keyword: user
-    - object_reference:
+    - role_reference:
         identifier: admin
     - keyword: with
     - keyword: syslog
@@ -119,7 +119,7 @@ file:
     alter_user_statement:
     - keyword: alter
     - keyword: user
-    - object_reference:
+    - role_reference:
         identifier: admin
     - keyword: syslog
     - keyword: access
@@ -129,7 +129,7 @@ file:
     alter_user_statement:
     - keyword: alter
     - keyword: user
-    - object_reference:
+    - role_reference:
         identifier: admin
     - keyword: with
     - keyword: syslog
@@ -159,7 +159,7 @@ file:
     alter_user_statement:
     - keyword: alter
     - keyword: user
-    - object_reference:
+    - role_reference:
         identifier: iam_superuser
     - keyword: password
     - keyword: DISABLE
@@ -168,7 +168,7 @@ file:
     alter_user_statement:
     - keyword: alter
     - keyword: user
-    - object_reference:
+    - role_reference:
         identifier: iam_superuser
     - keyword: with
     - keyword: password
@@ -207,14 +207,14 @@ file:
         identifier: admin
     - keyword: rename
     - keyword: to
-    - object_reference:
+    - role_reference:
         identifier: sysadmin
 - statement_terminator: ;
 - statement:
     alter_user_statement:
     - keyword: alter
     - keyword: user
-    - object_reference:
+    - role_reference:
         identifier: admin
     - keyword: with
     - keyword: rename
@@ -247,7 +247,7 @@ file:
     alter_user_statement:
     - keyword: alter
     - keyword: user
-    - object_reference:
+    - role_reference:
         identifier: admin
     - keyword: connection
     - keyword: limit
@@ -257,7 +257,7 @@ file:
     alter_user_statement:
     - keyword: alter
     - keyword: user
-    - object_reference:
+    - role_reference:
         identifier: admin
     - keyword: with
     - keyword: connection
@@ -268,7 +268,7 @@ file:
     alter_user_statement:
     - keyword: alter
     - keyword: user
-    - object_reference:
+    - role_reference:
         identifier: dbuser
     - keyword: session
     - keyword: timeout
@@ -278,7 +278,7 @@ file:
     alter_user_statement:
     - keyword: alter
     - keyword: user
-    - object_reference:
+    - role_reference:
         identifier: dbuser
     - keyword: with
     - keyword: session
@@ -289,7 +289,7 @@ file:
     alter_user_statement:
     - keyword: alter
     - keyword: user
-    - object_reference:
+    - role_reference:
         identifier: dbuser
     - keyword: reset
     - keyword: session
@@ -299,7 +299,7 @@ file:
     alter_user_statement:
     - keyword: alter
     - keyword: user
-    - object_reference:
+    - role_reference:
         identifier: dbuser
     - keyword: with
     - keyword: reset
@@ -310,7 +310,7 @@ file:
     alter_user_statement:
     - keyword: alter
     - keyword: user
-    - object_reference:
+    - role_reference:
         identifier: dbuser
     - keyword: set
     - object_reference:
@@ -322,7 +322,7 @@ file:
     alter_user_statement:
     - keyword: alter
     - keyword: user
-    - object_reference:
+    - role_reference:
         identifier: dbuser
     - keyword: with
     - keyword: set
@@ -348,7 +348,7 @@ file:
     alter_user_statement:
     - keyword: alter
     - keyword: user
-    - object_reference:
+    - role_reference:
         identifier: dbuser
     - keyword: with
     - keyword: set
@@ -374,7 +374,7 @@ file:
     alter_user_statement:
     - keyword: alter
     - keyword: user
-    - object_reference:
+    - role_reference:
         identifier: dbuser
     - keyword: with
     - keyword: set
@@ -400,7 +400,7 @@ file:
     alter_user_statement:
     - keyword: alter
     - keyword: user
-    - object_reference:
+    - role_reference:
         identifier: dbuser
     - keyword: with
     - keyword: set
@@ -414,7 +414,7 @@ file:
     alter_user_statement:
     - keyword: alter
     - keyword: user
-    - object_reference:
+    - role_reference:
         identifier: dbuser
     - keyword: reset
     - object_reference:
@@ -424,7 +424,7 @@ file:
     alter_user_statement:
     - keyword: alter
     - keyword: user
-    - object_reference:
+    - role_reference:
         identifier: dbuser
     - keyword: with
     - keyword: reset

@@ -3,13 +3,14 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 58f0f47b74fde009b07b503fe4bcaccd06662393493edcae607f79d81a63f28e
+_hash: 19a4b60bb37fe240999f4b2764857ed37d5b55f8fc02c5650924adb22c8a4c7c
 file:
 - statement:
     alter_user_statement:
     - keyword: ALTER
     - keyword: USER
-    - identifier: user_1
+    - role_reference:
+        identifier: user_1
     - keyword: IDENTIFIED
     - password_auth:
         keyword: BY
@@ -21,7 +22,8 @@ file:
     alter_user_statement:
     - keyword: ALTER
     - keyword: USER
-    - identifier: user_1
+    - role_reference:
+        identifier: user_1
     - keyword: IDENTIFIED
     - password_auth:
         keyword: BY
@@ -31,7 +33,8 @@ file:
     alter_user_statement:
     - keyword: ALTER
     - keyword: USER
-    - identifier: user_2
+    - role_reference:
+        identifier: user_2
     - keyword: IDENTIFIED
     - ldap_auth:
       - keyword: AT
@@ -43,7 +46,8 @@ file:
     alter_user_statement:
     - keyword: ALTER
     - keyword: USER
-    - identifier: user_3
+    - role_reference:
+        identifier: user_3
     - keyword: PASSWORD_EXPIRY_POLICY
     - comparison_operator:
         raw_comparison_operator: '='
@@ -53,7 +57,8 @@ file:
     alter_user_statement:
     - keyword: ALTER
     - keyword: USER
-    - identifier: user_4
+    - role_reference:
+        identifier: user_4
     - keyword: PASSWORD
     - keyword: EXPIRE
 - statement_terminator: ;
@@ -61,7 +66,8 @@ file:
     alter_user_statement:
     - keyword: ALTER
     - keyword: USER
-    - identifier: user_5
+    - role_reference:
+        identifier: user_5
     - keyword: RESET
     - keyword: FAILED
     - keyword: LOGIN
@@ -71,7 +77,8 @@ file:
     alter_user_statement:
     - keyword: ALTER
     - keyword: USER
-    - identifier: userx
+    - role_reference:
+        identifier: userx
     - keyword: SET
     - keyword: CONSUMER_GROUP
     - comparison_operator:
@@ -82,7 +89,8 @@ file:
     alter_user_statement:
     - keyword: ALTER
     - keyword: USER
-    - identifier: userx
+    - role_reference:
+        identifier: userx
     - keyword: SET
     - keyword: CONSUMER_GROUP
     - comparison_operator:
@@ -93,7 +101,8 @@ file:
     alter_user_statement:
     - keyword: ALTER
     - keyword: USER
-    - identifier: '"ADMIN"'
+    - role_reference:
+        identifier: '"ADMIN"'
     - keyword: SET
     - keyword: CONSUMER_GROUP
     - comparison_operator:
@@ -104,7 +113,8 @@ file:
     alter_user_statement:
     - keyword: ALTER
     - keyword: USER
-    - identifier: '[admin]'
+    - role_reference:
+        identifier: '[admin]'
     - keyword: SET
     - keyword: CONSUMER_GROUP
     - comparison_operator:
@@ -115,7 +125,8 @@ file:
     alter_user_statement:
     - keyword: ALTER
     - keyword: USER
-    - identifier: '"ADMIN"'
+    - role_reference:
+        identifier: '"ADMIN"'
     - keyword: SET
     - keyword: CONSUMER_GROUP
     - comparison_operator:
@@ -126,7 +137,8 @@ file:
     alter_user_statement:
     - keyword: ALTER
     - keyword: USER
-    - identifier: oidctestuser
+    - role_reference:
+        identifier: oidctestuser
     - keyword: IDENTIFIED
     - openid_auth:
       - keyword: BY
