@@ -75,7 +75,9 @@ snowflake_dialect.insert_lexer_matchers(
             CodeSegment,
         ),
         RegexLexer(
-            "inline_dollar_sign", r"(?=.*\$)[a-zA-Z_][a-zA-Z0-9_$]*", CodeSegment
+            "inline_dollar_sign",
+            r"[a-zA-Z_][a-zA-Z0-9_$]*\$[a-zA-Z0-9_$]*",
+            CodeSegment,
         ),
         RegexLexer(
             # For use with https://docs.snowflake.com/en/sql-reference/sql/get.html
