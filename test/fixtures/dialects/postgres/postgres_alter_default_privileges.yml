@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 17f73969bbd1a396f88dddb195a4ff53f2593c5f381a79ffb0d63e99176ccd1c
+_hash: 4828a1f2c71718c34ad6e707dbbc9c43f22e51a6b64e98f283ab5260ded3b804
 file:
 - statement:
     alter_default_privileges_statement:
@@ -23,7 +23,7 @@ file:
           keyword: TABLES
       - keyword: TO
       - alter_default_privileges_to_from_roles:
-          object_reference:
+          role_reference:
             identifier: my_group
 - statement_terminator: ;
 - statement:
@@ -48,7 +48,7 @@ file:
           keyword: TABLES
       - keyword: TO
       - alter_default_privileges_to_from_roles:
-          object_reference:
+          role_reference:
             identifier: my_group
 - statement_terminator: ;
 - statement:
@@ -69,7 +69,7 @@ file:
           keyword: TABLES
       - keyword: TO
       - alter_default_privileges_to_from_roles:
-          object_reference:
+          role_reference:
             identifier: my_group
 - statement_terminator: ;
 - statement:
@@ -97,7 +97,7 @@ file:
           keyword: TABLES
       - keyword: TO
       - alter_default_privileges_to_from_roles:
-          object_reference:
+          role_reference:
             identifier: my_group
       - keyword: WITH
       - keyword: GRANT
@@ -125,7 +125,7 @@ file:
       - keyword: TO
       - alter_default_privileges_to_from_roles:
           keyword: GROUP
-          object_reference:
+          role_reference:
             identifier: my_group
 - statement_terminator: ;
 - statement:
@@ -148,7 +148,7 @@ file:
           keyword: TABLES
       - keyword: TO
       - alter_default_privileges_to_from_roles:
-          object_reference:
+          role_reference:
             identifier: PUBLIC
 - statement_terminator: ;
 - statement:
@@ -170,12 +170,12 @@ file:
       - keyword: TO
       - alter_default_privileges_to_from_roles:
           keyword: GROUP
-          object_reference:
+          role_reference:
             identifier: my_group
       - comma: ','
       - alter_default_privileges_to_from_roles:
           keyword: GROUP
-          object_reference:
+          role_reference:
             identifier: your_group
 - statement_terminator: ;
 - statement:
@@ -196,7 +196,7 @@ file:
           keyword: ROUTINES
       - keyword: TO
       - alter_default_privileges_to_from_roles:
-          object_reference:
+          role_reference:
             identifier: my_group
 - statement_terminator: ;
 - statement:
@@ -214,7 +214,7 @@ file:
           keyword: FUNCTIONS
       - keyword: TO
       - alter_default_privileges_to_from_roles:
-          object_reference:
+          role_reference:
             identifier: my_group
 - statement_terminator: ;
 - statement:
@@ -238,12 +238,12 @@ file:
           keyword: TYPES
       - keyword: TO
       - alter_default_privileges_to_from_roles:
-          object_reference:
+          role_reference:
             identifier: my_group
       - comma: ','
       - alter_default_privileges_to_from_roles:
           keyword: GROUP
-          object_reference:
+          role_reference:
             identifier: your_group
 - statement_terminator: ;
 - statement:
@@ -264,7 +264,7 @@ file:
           keyword: SCHEMAS
       - keyword: TO
       - alter_default_privileges_to_from_roles:
-          object_reference:
+          role_reference:
             identifier: my_group
 - statement_terminator: ;
 - statement:
@@ -285,7 +285,7 @@ file:
           keyword: SCHEMAS
       - keyword: TO
       - alter_default_privileges_to_from_roles:
-          object_reference:
+          role_reference:
             identifier: my_group
 - statement_terminator: ;
 - statement:
@@ -329,11 +329,11 @@ file:
       - keyword: TO
       - alter_default_privileges_to_from_roles:
           keyword: GROUP
-          object_reference:
+          role_reference:
             identifier: my_group
       - comma: ','
       - alter_default_privileges_to_from_roles:
-          object_reference:
+          role_reference:
             identifier: PUBLIC
       - keyword: WITH
       - keyword: GRANT
@@ -357,7 +357,7 @@ file:
           keyword: TABLES
       - keyword: FROM
       - alter_default_privileges_to_from_roles:
-          object_reference:
+          role_reference:
             identifier: my_group
 - statement_terminator: ;
 - statement:
@@ -383,7 +383,7 @@ file:
       - keyword: FROM
       - alter_default_privileges_to_from_roles:
           keyword: GROUP
-          object_reference:
+          role_reference:
             identifier: my_group
 - statement_terminator: ;
 - statement:
@@ -411,7 +411,7 @@ file:
           keyword: TABLES
       - keyword: FROM
       - alter_default_privileges_to_from_roles:
-          object_reference:
+          role_reference:
             identifier: PUBLIC
       - keyword: CASCADE
 - statement_terminator: ;
@@ -445,7 +445,7 @@ file:
           keyword: TABLES
       - keyword: FROM
       - alter_default_privileges_to_from_roles:
-          object_reference:
+          role_reference:
             identifier: PUBLIC
       - keyword: RESTRICT
 - statement_terminator: ;
@@ -471,7 +471,7 @@ file:
           keyword: SEQUENCES
       - keyword: FROM
       - alter_default_privileges_to_from_roles:
-          object_reference:
+          role_reference:
             identifier: my_group
 - statement_terminator: ;
 - statement:
@@ -492,7 +492,7 @@ file:
           keyword: FUNCTIONS
       - keyword: FROM
       - alter_default_privileges_to_from_roles:
-          object_reference:
+          role_reference:
             identifier: my_group
 - statement_terminator: ;
 - statement:
@@ -509,7 +509,7 @@ file:
           keyword: ROUTINES
       - keyword: FROM
       - alter_default_privileges_to_from_roles:
-          object_reference:
+          role_reference:
             identifier: my_group
 - statement_terminator: ;
 - statement:
@@ -533,12 +533,12 @@ file:
           keyword: TYPES
       - keyword: FROM
       - alter_default_privileges_to_from_roles:
-          object_reference:
+          role_reference:
             identifier: my_group
       - comma: ','
       - alter_default_privileges_to_from_roles:
           keyword: GROUP
-          object_reference:
+          role_reference:
             identifier: your_group
 - statement_terminator: ;
 - statement:
@@ -561,7 +561,7 @@ file:
           keyword: TYPES
       - keyword: FROM
       - alter_default_privileges_to_from_roles:
-          object_reference:
+          role_reference:
             identifier: my_group
 - statement_terminator: ;
 - statement:
@@ -605,11 +605,11 @@ file:
       - keyword: FROM
       - alter_default_privileges_to_from_roles:
           keyword: GROUP
-          object_reference:
+          role_reference:
             identifier: my_group
       - comma: ','
       - alter_default_privileges_to_from_roles:
-          object_reference:
+          role_reference:
             identifier: PUBLIC
       - keyword: CASCADE
 - statement_terminator: ;

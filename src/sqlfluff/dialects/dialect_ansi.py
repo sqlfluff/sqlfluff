@@ -840,6 +840,7 @@ class RoleReferenceSegment(ObjectReferenceSegment):
     """A reference to a role, user, or account."""
 
     type = "role_reference"
+    match_grammar: Matchable = Ref("SingleIdentifierGrammar")
 
 
 class TablespaceReferenceSegment(ObjectReferenceSegment):
@@ -3312,7 +3313,7 @@ class CreateRoleStatementSegment(BaseSegment):
     match_grammar: Matchable = Sequence(
         "CREATE",
         "ROLE",
-        Ref("ObjectReferenceSegment"),
+        Ref("RoleReferenceSegment"),
     )
 
 
