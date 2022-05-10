@@ -1,0 +1,239 @@
+==== sqlfluff ====
+sqlfluff:               0.13.1 python:                  3.8.9
+implementation:        cpython verbosity:                   4
+dialect:             snowflake templater:               jinja
+
+== Raw Config:
+core:                                   
+    dialect:            snowflake           
+    disable_noqa:       False               
+    encoding:           autodetect          
+    exclude_rules:      L011,L016,L031,L034,L035,L059
+    fix_even_unparsable:False               
+    ignore:             []                  
+    ignore_templated_areas:True                
+    nocolor:            False               
+    output_line_length: 120                 
+    recurse:            True                
+    runaway_limit:      10                  
+    sql_file_exts:      .sql,.sql.j2,.dml,.ddl
+    templater:          jinja               
+    verbose:            4                   
+indentation:                            
+    indented_ctes:      False               
+    indented_joins:     False               
+    indented_using_on:  True                
+    template_blocks_indent:True                
+rules:                                  
+    allow_scalar:       True                
+    comma_style:        leading             
+    indent_unit:        space               
+    max_line_length:    120                 
+    single_table_references:consistent          
+    tab_space_size:     2                   
+    unquoted_identifiers_policy:all                 
+    Example_L001:                           
+        forbidden_columns:  bar, baaz           
+    L003:                                   
+        hanging_indents:    False               
+        lint_templated_tokens:True                
+    L007:                                   
+        operator_new_lines: after               
+    L010:                                   
+        capitalisation_policy:upper               
+    L011:                                   
+        aliasing:           implicit            
+    L012:                                   
+        aliasing:           explicit            
+    L013:                                   
+        allow_scalar:       False               
+    L014:                                   
+        extended_capitalisation_policy:lower               
+    L016:                                   
+        ignore_comment_clauses:False               
+        ignore_comment_lines:False               
+    L026:                                   
+        force_enable:       False               
+    L028:                                   
+        force_enable:       False               
+    L029:                                   
+        unquoted_identifiers_policy:aliases             
+    L030:                                   
+        capitalisation_policy:upper               
+        extended_capitalisation_policy:upper               
+    L031:                                   
+        force_enable:       False               
+    L038:                                   
+        select_clause_trailing_comma:forbid              
+    L040:                                   
+        capitalisation_policy:consistent          
+    L042:                                   
+        forbid_subquery_in: join                
+    L047:                                   
+        prefer_count_0:     False               
+        prefer_count_1:     False               
+    L051:                                   
+        fully_qualify_join_types:inner               
+    L052:                                   
+        multiline_newline:  True                
+        require_final_semicolon:True                
+    L054:                                   
+        group_by_and_order_by_style:consistent          
+    L057:                                   
+        additional_allowed_characters:""                  
+        allow_space_in_identifier:False               
+        quoted_identifiers_policy:all                 
+        unquoted_identifiers_policy:all                 
+    L059:                                   
+        force_enable:       False               
+        ignore_words:       date                
+        prefer_quoted_identifiers:False               
+    L062:                                   
+    L063:                                   
+        extended_capitalisation_policy:consistent          
+    L064:                                   
+        force_enable:       False               
+        preferred_quoted_literal_style:consistent          
+templater:                              
+    unwrap_wrapped_queries:True                
+    jinja:                                  
+        apply_dbt_builtins: True                
+        macros:                                 
+            dbt_config:         {% macro config() %}{% for k in kwargs %}{% endfor %}{% endmacro %}
+            dbt_is_incremental: {% macro is_incremental() %}True{% endmacro %}
+            dbt_ref:            {% macro ref(model_ref) %}{{model_ref}}{% endmacro %}
+            dbt_source:         {% macro source(source_name, table) %}{{source_name}}_{{table}}{% endmacro %}
+            dbt_var:            {% macro var(variable, default='') %}item{% endmacro %}
+
+=== [ path: test.sql ] ===
+
+== [test.sql] TEMPLATING
+INFO       TEMPLATING RAW [jinja] (test.sql)
+INFO       Slicing File Template
+DEBUG          Raw String: 'put file:///tmp/data/orders_*01.csv @%orderstiny_ext auto_compress=false;\n'
+DEBUG          Templated String: 'put file:///tmp/data/orders_*01.csv @%orderstiny_ext auto_compress=false;\n'
+== [test.sql] PARSING
+INFO       LEXING RAW (test.sql)
+INFO       Elements to Segments.
+INFO       Source-only slices: []
+DEBUG        0, TemplateElement(raw='put', template_slice=slice(0, 3, None), matcher=<RegexLexer: code>), slice(0, 3, None), 'put'
+DEBUG        1, TemplateElement(raw=' ', template_slice=slice(3, 4, None), matcher=<RegexLexer: whitespace>), slice(3, 4, None), ' '
+DEBUG        2, TemplateElement(raw='file:///tmp/data/orders_', template_slice=slice(4, 28, None), matcher=<RegexLexer: unquoted_file_path>), slice(4, 28, None), 'file:///tmp/data/orders_'
+DEBUG        3, TemplateElement(raw='*', template_slice=slice(28, 29, None), matcher=<StringLexer: star>), slice(28, 29, None), '*'
+DEBUG        4, TemplateElement(raw='01.', template_slice=slice(29, 32, None), matcher=<RegexLexer: numeric_literal>), slice(29, 32, None), '01.'
+DEBUG        5, TemplateElement(raw='csv', template_slice=slice(32, 35, None), matcher=<RegexLexer: code>), slice(32, 35, None), 'csv'
+DEBUG        6, TemplateElement(raw=' ', template_slice=slice(35, 36, None), matcher=<RegexLexer: whitespace>), slice(35, 36, None), ' '
+DEBUG        7, TemplateElement(raw='@%orderstiny_ext', template_slice=slice(36, 52, None), matcher=<RegexLexer: stage_path>), slice(36, 52, None), '@%orderstiny_ext'
+DEBUG        8, TemplateElement(raw=' ', template_slice=slice(52, 53, None), matcher=<RegexLexer: whitespace>), slice(52, 53, None), ' '
+DEBUG        9, TemplateElement(raw='auto_compress', template_slice=slice(53, 66, None), matcher=<RegexLexer: code>), slice(53, 66, None), 'auto_compress'
+DEBUG        10, TemplateElement(raw='=', template_slice=slice(66, 67, None), matcher=<StringLexer: equals>), slice(66, 67, None), '='
+DEBUG        11, TemplateElement(raw='false', template_slice=slice(67, 72, None), matcher=<RegexLexer: code>), slice(67, 72, None), 'false'
+DEBUG        12, TemplateElement(raw=';', template_slice=slice(72, 73, None), matcher=<StringLexer: semicolon>), slice(72, 73, None), ';'
+DEBUG        13, TemplateElement(raw='\n', template_slice=slice(73, 74, None), matcher=<RegexLexer: newline>), slice(73, 74, None), '\n'
+INFO       Lexed tokens: ['put', ' ', 'file:///tmp/data/orders_', '*', '01.', 'csv', ' ', '@%orderstiny_ext', ' ', 'auto_compress', '=', 'false', ';', '\n']
+INFO       PARSING (test.sql)
+INFO       [PD:0  MD:2 ]	..StatementSegment                                	Greed.match OUT     	+   	[match=<MatchResult 12/13: 'put file:///tmp..._compress=false'>, seg="'put file:///tmp/data...'"]
+INFO       [PD:0  MD:1 ]	.FileSegment                                      	AnyNu.match PRN     	    	[ns=0, ps=0, ms=1, pruned=[], opts=[<Ref: DelimiterGrammar>]]
+INFO       [PD:0  MD:1 ]	.FileSegment                                      	AnyNu.match PRN     	    	[ns=0, ps=0, ms=1, pruned=[], opts=[<Ref: DelimiterGrammar>]]
+INFO       [PD:0  MD:1 ]	.FileSegment                                      	AnyNu.match OUT     	++  	[match=<MatchResult 1/1: ';'>, seg="';'"]
+INFO       [PD:0  MD:1 ]	.FileSegment                                      	AnyNu.match PRN     	    	[ns=0, ps=0, ms=1, pruned=[], opts=[<Ref: DelimiterGrammar>]]
+INFO       [PD:0  MD:1 ]	.FileSegment                                      	AnyNu.match PRN     	    	[ns=0, ps=0, ms=1, pruned=[], opts=[<Ref: DelimiterGrammar>]]
+INFO       [PD:0  MD:1 ]	.FileSegment                                      	AnyNu.match OUT     	++  	[match=<MatchResult 1/1: ';'>, seg="';'"]
+INFO       [PD:0  MD:0 ]	FileSegment                                       	Delim.match OUT     	++  	[match=<MatchResult 2/2: 'put file:///tmp...compress=false;'>, seg="'put file:///tmp/data...'"]
+INFO       
+###
+#
+# Parse Depth 1. Expanding: StatementSegment: 'put file:///tmp/data/orders_*01.csv @%or...'
+#
+###
+INFO       [PD:1  MD:0 ]	StatementSegment                                  	OneOf.match PRN     	    	[ns=0, ps=73, ms=1, pruned=[<Ref: SelectableGrammar>, <Ref: MergeStatementSegment>, <Ref: InsertStatementSegment>, <Ref: TransactionStatementSegment>, <Ref: DropTableStatementSegment>, <Ref: DropViewStatementSegment>, <Ref: CreateUserStatementSegment>, <Ref: DropUserStatementSegment>, <Ref: TruncateStatementSegment>, <Ref: AccessStatementSegment>, <Ref: CreateTableStatementSegment>, <Ref: CreateRoleStatementSegment>, <Ref: DropRoleStatementSegment>, <Ref: AlterTableStatementSegment>, <Ref: CreateSchemaStatementSegment>, <Ref: SetSchemaStatementSegment>, <Ref: DropSchemaStatementSegment>, <Ref: DropTypeStatementSegment>, <Ref: CreateDatabaseStatementSegment>, <Ref: DropDatabaseStatementSegment>, <Ref: CreateViewStatementSegment>, <Ref: DeleteStatementSegment>, <Ref: UpdateStatementSegment>, <Ref: CreateFunctionStatementSegment>, <Ref: DropFunctionStatementSegment>, <Ref: CreateModelStatementSegment>, <Ref: DropModelStatementSegment>, <Ref: DescribeStatementSegment>, <Ref: UseStatementSegment>, <Ref: ExplainStatementSegment>, <Ref: CreateSequenceStatementSegment>, <Ref: AlterSequenceStatementSegment>, <Ref: DropSequenceStatementSegment>, <Ref: CreateTriggerStatementSegment>, <Ref: DropTriggerStatementSegment>, <Ref: CreateStatementSegment>, <Ref: CreateTaskSegment>, <Ref: CreateCloneStatementSegment>, <Ref: CreateProcedureStatementSegment>, <Ref: ShowStatementSegment>, <Ref: AlterUserStatementSegment>, <Ref: AlterSessionStatementSegment>, <Ref: AlterTaskStatementSegment>, <Ref: SetAssignmentStatementSegment>, <Ref: CallStoredProcedureSegment>, <Ref: MergeStatementSegment>, <Ref: CopyIntoTableStatementSegment>, <Ref: AlterWarehouseStatementSegment>, <Ref: CreateExternalTableSegment>, <Ref: AlterExternalTableStatementSegment>, <Ref: CreateSchemaStatementSegment>, <Ref: AlterSchemaStatementSegment>, <Ref: CreateFunctionStatementSegment>, <Ref: AlterFunctionStatementSegment>, <Ref: CreateExternalFunctionStatementSegment>, <Ref: CreateStageSegment>, <Ref: AlterStageSegment>, <Ref: CreateStreamStatementSegment>, <Ref: AlterStreamStatementSegment>, <Ref: UnsetStatementSegment>, <Ref: UndropStatementSegment>, <Ref: CommentStatementSegment>, <Ref: CallStatementSegment>, <Ref: AlterViewStatementSegment>, <Ref: AlterMaterializedViewStatementSegment>, <Ref: RemoveStatementSegment>, <Ref: DropProcedureStatementSegment>, <Ref: DropExternalTableStatementSegment>, <Ref: DropMaterializedViewStatementSegment>, <Ref: DropObjectStatementSegment>, <Ref: CreateFileFormatSegment>, <Ref: ListStatementSegment>, <Ref: GetStatementSegment>], opts=[<Ref: PutStatementSegment>]]
+INFO       [PD:1  MD:0 ]	StatementSegment                                  	OneOf.match PRN     	    	[ns=0, ps=73, ms=1, pruned=[<Ref: SelectableGrammar>, <Ref: MergeStatementSegment>, <Ref: InsertStatementSegment>, <Ref: TransactionStatementSegment>, <Ref: DropTableStatementSegment>, <Ref: DropViewStatementSegment>, <Ref: CreateUserStatementSegment>, <Ref: DropUserStatementSegment>, <Ref: TruncateStatementSegment>, <Ref: AccessStatementSegment>, <Ref: CreateTableStatementSegment>, <Ref: CreateRoleStatementSegment>, <Ref: DropRoleStatementSegment>, <Ref: AlterTableStatementSegment>, <Ref: CreateSchemaStatementSegment>, <Ref: SetSchemaStatementSegment>, <Ref: DropSchemaStatementSegment>, <Ref: DropTypeStatementSegment>, <Ref: CreateDatabaseStatementSegment>, <Ref: DropDatabaseStatementSegment>, <Ref: CreateViewStatementSegment>, <Ref: DeleteStatementSegment>, <Ref: UpdateStatementSegment>, <Ref: CreateFunctionStatementSegment>, <Ref: DropFunctionStatementSegment>, <Ref: CreateModelStatementSegment>, <Ref: DropModelStatementSegment>, <Ref: DescribeStatementSegment>, <Ref: UseStatementSegment>, <Ref: ExplainStatementSegment>, <Ref: CreateSequenceStatementSegment>, <Ref: AlterSequenceStatementSegment>, <Ref: DropSequenceStatementSegment>, <Ref: CreateTriggerStatementSegment>, <Ref: DropTriggerStatementSegment>, <Ref: CreateStatementSegment>, <Ref: CreateTaskSegment>, <Ref: CreateCloneStatementSegment>, <Ref: CreateProcedureStatementSegment>, <Ref: ShowStatementSegment>, <Ref: AlterUserStatementSegment>, <Ref: AlterSessionStatementSegment>, <Ref: AlterTaskStatementSegment>, <Ref: SetAssignmentStatementSegment>, <Ref: CallStoredProcedureSegment>, <Ref: MergeStatementSegment>, <Ref: CopyIntoTableStatementSegment>, <Ref: AlterWarehouseStatementSegment>, <Ref: CreateExternalTableSegment>, <Ref: AlterExternalTableStatementSegment>, <Ref: CreateSchemaStatementSegment>, <Ref: AlterSchemaStatementSegment>, <Ref: CreateFunctionStatementSegment>, <Ref: AlterFunctionStatementSegment>, <Ref: CreateExternalFunctionStatementSegment>, <Ref: CreateStageSegment>, <Ref: AlterStageSegment>, <Ref: CreateStreamStatementSegment>, <Ref: AlterStreamStatementSegment>, <Ref: UnsetStatementSegment>, <Ref: UndropStatementSegment>, <Ref: CommentStatementSegment>, <Ref: CallStatementSegment>, <Ref: AlterViewStatementSegment>, <Ref: AlterMaterializedViewStatementSegment>, <Ref: RemoveStatementSegment>, <Ref: DropProcedureStatementSegment>, <Ref: DropExternalTableStatementSegment>, <Ref: DropMaterializedViewStatementSegment>, <Ref: DropObjectStatementSegment>, <Ref: CreateFileFormatSegment>, <Ref: ListStatementSegment>, <Ref: GetStatementSegment>], opts=[<Ref: PutStatementSegment>]]
+INFO       [PD:1  MD:3 ]	...PutStatementSegment                            	OneOf.match PRN     	    	[ns=2, ps=0, ms=0, pruned=[], opts=[<Ref: UnquotedFilePath>, <Ref: QuotedLiteralSegment>]]
+INFO       [PD:1  MD:3 ]	...PutStatementSegment                            	OneOf.match PRN     	    	[ns=2, ps=0, ms=0, pruned=[], opts=[<Ref: UnquotedFilePath>, <Ref: QuotedLiteralSegment>]]
+INFO       [PD:1  MD:4 ]	....QuotedLiteralSegment                          	OneOf.match PRN     	    	[ns=2, ps=0, ms=0, pruned=[], opts=[<sqlfluff.core.parser.parsers.NamedParser object at 0x106d28a00>, <sqlfluff.core.parser.parsers.NamedParser object at 0x106d28a30>]]
+INFO       [PD:1  MD:4 ]	....QuotedLiteralSegment                          	OneOf.match PRN     	    	[ns=2, ps=0, ms=0, pruned=[], opts=[<sqlfluff.core.parser.parsers.NamedParser object at 0x106d28a00>, <sqlfluff.core.parser.parsers.NamedParser object at 0x106d28a30>]]
+INFO       [PD:1  MD:4 ]	....QuotedLiteralSegment                          	OneOf.match OUT     	    	[match=<MatchResult 0/10: ''>, seg="'file:///tmp/data/ord...'"]
+INFO       [PD:1  MD:3 ]	...PutStatementSegment                            	OneOf.match OUT     	+   	[match=<MatchResult 1/10: 'file:///tmp/data/orders_'>, seg="'file:///tmp/data/ord...'"]
+INFO       [PD:1  MD:2 ]	..PutStatementSegment                             	Seque.match OUT     	    	[match=<MatchResult 0/12: ''>, seg="'put file:///tmp/data...'"]
+INFO       [PD:1  MD:0 ]	StatementSegment                                  	OneOf.match OUT     	    	[match=<MatchResult 0/12: ''>, seg="'put file:///tmp/data...'"]
+INFO       [PD:2] Skipping expansion of <UnparsableSegment: ([L:  1, P:  1])>...
+INFO       [PD:1] Skipping expansion of <SymbolSegment: ([L:  1, P: 73]) ';'>...
+INFO       [PD:1] Skipping expansion of <NewlineSegment: ([L:  1, P: 74]) '\n'>...
+INFO       
+###
+#
+# Parsed Tree:
+#
+###
+INFO       
+[L:  1, P:  1]      |file:
+[L:  1, P:  1]      |    statement:
+[L:  1, P:  1]      |        unparsable:                                           !! Expected: 'StatementSegment'
+[L:  1, P:  1]      |            raw:                                              'put'
+[L:  1, P:  4]      |            whitespace:                                       ' '
+[L:  1, P:  5]      |            raw:                                              'file:///tmp/data/orders_'
+[L:  1, P: 29]      |            raw:                                              '*'
+[L:  1, P: 30]      |            raw:                                              '01.'
+[L:  1, P: 33]      |            raw:                                              'csv'
+[L:  1, P: 36]      |            whitespace:                                       ' '
+[L:  1, P: 37]      |            raw:                                              '@%orderstiny_ext'
+[L:  1, P: 53]      |            whitespace:                                       ' '
+[L:  1, P: 54]      |            raw:                                              'auto_compress'
+[L:  1, P: 67]      |            raw:                                              '='
+[L:  1, P: 68]      |            raw:                                              'false'
+[L:  1, P: 73]      |    statement_terminator:                                     ';'
+[L:  1, P: 74]      |    newline:                                                  '\n'
+
+INFO       Found unparsable segment...
+INFO       [L:  1, P:  1]      |unparsable:                                                   !! Expected: 'StatementSegment'
+[L:  1, P:  1]      |    raw:                                                      'put'
+[L:  1, P:  4]      |    whitespace:                                               ' '
+[L:  1, P:  5]      |    raw:                                                      'file:///tmp/data/orders_'
+[L:  1, P: 29]      |    raw:                                                      '*'
+[L:  1, P: 30]      |    raw:                                                      '01.'
+[L:  1, P: 33]      |    raw:                                                      'csv'
+[L:  1, P: 36]      |    whitespace:                                               ' '
+[L:  1, P: 37]      |    raw:                                                      '@%orderstiny_ext'
+[L:  1, P: 53]      |    whitespace:                                               ' '
+[L:  1, P: 54]      |    raw:                                                      'auto_compress'
+[L:  1, P: 67]      |    raw:                                                      '='
+[L:  1, P: 68]      |    raw:                                                      'false'
+
+[L:  1, P:  1]      |file:
+[L:  1, P:  1]      |    statement:
+[L:  1, P:  1]      |        unparsable:                                           !! Expected: 'StatementSegment'
+[L:  1, P:  1]      |            raw:                                              'put'
+[L:  1, P:  4]      |            whitespace:                                       ' '
+[L:  1, P:  5]      |            raw:                                              'file:///tmp/data/orders_'
+[L:  1, P: 29]      |            raw:                                              '*'
+[L:  1, P: 30]      |            raw:                                              '01.'
+[L:  1, P: 33]      |            raw:                                              'csv'
+[L:  1, P: 36]      |            whitespace:                                       ' '
+[L:  1, P: 37]      |            raw:                                              '@%orderstiny_ext'
+[L:  1, P: 53]      |            whitespace:                                       ' '
+[L:  1, P: 54]      |            raw:                                              'auto_compress'
+[L:  1, P: 67]      |            raw:                                              '='
+[L:  1, P: 68]      |            raw:                                              'false'
+[L:  1, P: 73]      |    statement_terminator:                                     ';'
+[L:  1, P: 74]      |    newline:                                                  '\n'
+
+==== parsing violations ====
+L:   1 | P:   1 |  PRS | Line 1, Position 1: Found unparsable section: 'put
+                       | file:///tmp/data/orders_*01.csv @%or...'
+==== timings ====
+templating:     0.01 lexing:         0.00
+parsing:        0.01
+==== overall timings ====
+Clock time:     0.02
+=== templating ===
+cnt:               1 sum:            0.01
+min:            0.01 max:            0.01
+avg:            0.01
+=== lexing ===
+cnt:               1 sum:            0.00
+min:            0.00 max:            0.00
+avg:            0.00
+=== parsing ===
+cnt:               1 sum:            0.01
+min:            0.01 max:            0.01
+avg:            0.01
