@@ -260,7 +260,7 @@ test_pass_date_constructor_strings_are_ignored_2:
         force_enable: True
         preferred_quoted_literal_style: double_quotes
 
-test_pass_templated_strings:
+test_pass_partially_templated_quoted_literals_simple:
   pass_str: |
     SELECT "{{ 'a string' }}"
   configs:
@@ -270,7 +270,7 @@ test_pass_templated_strings:
       L064:
         preferred_quoted_literal_style: double_quotes
 
-test_fail_templated_strings:
+test_fail_partially_templated_quoted_literals_simple:
   fail_str: |
     SELECT '{{ "a string" }}'
   configs:
@@ -280,12 +280,42 @@ test_fail_templated_strings:
       L064:
         preferred_quoted_literal_style: double_quotes
 
-test_fail_templated_strings_inside_blocks:
+test_pass_partially_templated_quoted_literals_complex:
+  pass_str: |
+    SELECT "this_is_a_lintable_{{ 'string' }}"
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      L064:
+        preferred_quoted_literal_style: double_quotes
+
+test_fail_partially_templated_quoted_literals_complex:
+  fail_str: |
+    SELECT 'this_is_a_lintable_{{ "string" }}'
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      L064:
+        preferred_quoted_literal_style: double_quotes
+
+test_fail_partially_templated_quoted_literals_inside_blocks:
   fail_str: |
     SELECT
         {% if true %}
         '{{ "another_templated_string" }}'
         {% endif %}
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      L064:
+        preferred_quoted_literal_style: double_quotes
+
+test_pass_fully_templated_quoted_literals_are_ignored:
+  pass_str: |
+    SELECT {{ "'a_non_litable_string'" }}
   configs:
     core:
       dialect: bigquery
