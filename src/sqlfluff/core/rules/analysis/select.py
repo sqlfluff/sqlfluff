@@ -145,7 +145,7 @@ def _get_pivot_table_columns(segment, dialect):
         # we don't have it, assume the clause does not have a pivot table
         return []  # pragma: no cover
 
-    fc = segment.get_child("from_pivot_expression")
+    fc = segment.recursive_crawl("from_pivot_expression")
     if not fc:
         # If there's no pivot clause then just abort.
         return []
