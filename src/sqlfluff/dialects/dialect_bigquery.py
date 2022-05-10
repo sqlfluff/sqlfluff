@@ -746,6 +746,22 @@ class TypelessStructSegment(ansi.TypelessStructSegment):
         ),
     )
 
+    # Workaround: https://github.com/sqlfluff/sqlfluff/issues/3277
+    # There is a weird issue where sometimes typeless structs are parsed as typed
+    # structs and trigger false-positives of L063 when `parse_grammar` is not set.
+    # Follow the linked issue for progress on this issue.
+    parse_grammar = Sequence(
+        "STRUCT",
+        Bracketed(
+            Delimited(
+                Sequence(
+                    Ref("BaseExpressionElementGrammar"),
+                    Ref("AliasExpressionSegment", optional=True),
+                ),
+            ),
+        ),
+    )
+
 
 class TupleSegment(BaseSegment):
     """Expression to construct a TUPLE.
