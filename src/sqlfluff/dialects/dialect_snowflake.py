@@ -74,7 +74,17 @@ snowflake_dialect.insert_lexer_matchers(
             r"[$][a-zA-Z0-9_.]*",
             CodeSegment,
         ),
-        RegexLexer("inline_dollar_sign", r"[a-zA-Z_][a-zA-Z0-9_$]*", CodeSegment),
+        RegexLexer(
+            "inline_dollar_sign", r"(?=.*\$)[a-zA-Z_][a-zA-Z0-9_$]*", CodeSegment
+        ),
+        RegexLexer(
+            # For use with https://docs.snowflake.com/en/sql-reference/sql/get.html
+            # Accepts unquoted file paths that begin file://.
+            # Unquoted file paths cannot include special characters.
+            "unquoted_file_path",
+            r"file://(?:[a-zA-Z]+:|/)+(?:[0-9a-zA-Z\\/_-]+)(?:\.[0-9a-zA-Z]+)?",
+            CodeSegment,
+        ),
         StringLexer("question_mark", "?", CodeSegment),
         StringLexer("exclude_bracket_open", "{-", CodeSegment),
         StringLexer("exclude_bracket_close", "-}", CodeSegment),
@@ -220,17 +230,11 @@ snowflake_dialect.add(
         name="azure_blob_storage_path",
         type="bucket_path",
     ),
-    WindowsFilePath=RegexParser(
-        # Must include file:// as per Snowflake documentation.
-        # https://docs.snowflake.com/en/sql-reference/sql/get.html
-        # https://www.oreilly.com/library/view/regular-expressions-cookbook/9781449327453/ch08s18.html
-        r"'file://[a-zA-Z]:\\(?:[^\\/:*?\"<>|\r\n]+\\)*[^\\/:*?\"<>|\r\n]*'",
+    UnquotedFilePath=NamedParser(
+        "unquoted_file_path",
         CodeSegment,
-        name="windows_file_path",
-        type="file_path",
-    ),
-    UnixFilePath=RegexParser(
-        r"'file://[^\0]+'", CodeSegment, name="unix_file_path", type="file_path'"
+        name="unquoted_file_path",
+        type="unquoted_file_path",
     ),
     SnowflakeEncryptionOption=RegexParser(
         r"'SNOWFLAKE_FULL'|'SNOWFLAKE_SSE'",
@@ -5184,8 +5188,8 @@ class GetStatementSegment(BaseSegment):
         "GET",
         Ref("StagePath"),
         OneOf(
-            Ref("WindowsFilePath"),
-            Ref("UnixFilePath"),
+            Ref("UnquotedFilePath"),
+            Ref("QuotedLiteralSegment"),
         ),
         AnySetOf(
             Sequence(
