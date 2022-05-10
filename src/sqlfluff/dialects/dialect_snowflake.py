@@ -220,6 +220,18 @@ snowflake_dialect.add(
         name="azure_blob_storage_path",
         type="bucket_path",
     ),
+    WindowsFilePath=RegexParser(
+        # Must include file:// as per Snowflake documentation.
+        # https://docs.snowflake.com/en/sql-reference/sql/get.html
+        # https://www.oreilly.com/library/view/regular-expressions-cookbook/9781449327453/ch08s18.html
+        r"'file://[a-zA-Z]:\\(?:[^\\/:*?\"<>|\r\n]+\\)*[^\\/:*?\"<>|\r\n]*'",
+        CodeSegment,
+        name="windows_file_path",
+        type="file_path",
+    ),
+    UnixFilePath=RegexParser(
+        r"'file://[^\0]+", CodeSegment, name="unix_file_path", type="file_path'"
+    ),
     SnowflakeEncryptionOption=RegexParser(
         r"'SNOWFLAKE_FULL'|'SNOWFLAKE_SSE'",
         CodeSegment,
@@ -867,6 +879,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DropObjectStatementSegment"),
             Ref("CreateFileFormatSegment"),
             Ref("ListStatementSegment"),
+            Ref("GetStatementSegment"),
         ],
         remove=[
             Ref("CreateIndexStatementSegment"),
@@ -5155,5 +5168,35 @@ class ListStatementSegment(BaseSegment):
         Ref("StagePath"),
         Sequence(
             "PATTERN", Ref("EqualsSegment"), Ref("QuotedLiteralSegment"), optional=True
+        ),
+    )
+
+
+class GetStatementSegment(BaseSegment):
+    """A snowflake `GET @<stage> ...` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/get.html
+    """
+
+    type = "get_statement"
+
+    match_grammar = Sequence(
+        "GET",
+        Ref("StagePath"),
+        OneOf(
+            Ref("WindowsFilePath"),
+            Ref("UnixFilePath"),
+        ),
+        AnySetOf(
+            Sequence(
+                "PARALLEL",
+                Ref("EqualsSegment"),
+                Ref("IntegerSegment"),
+            ),
+            Sequence(
+                "PATTERN",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
         ),
     )
