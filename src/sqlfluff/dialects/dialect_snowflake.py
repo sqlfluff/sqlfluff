@@ -74,7 +74,19 @@ snowflake_dialect.insert_lexer_matchers(
             r"[$][a-zA-Z0-9_.]*",
             CodeSegment,
         ),
-        RegexLexer("inline_dollar_sign", r"[a-zA-Z_][a-zA-Z0-9_$]*", CodeSegment),
+        RegexLexer(
+            "inline_dollar_sign",
+            r"[a-zA-Z_][a-zA-Z0-9_$]*\$[a-zA-Z0-9_$]*",
+            CodeSegment,
+        ),
+        RegexLexer(
+            # For use with https://docs.snowflake.com/en/sql-reference/sql/get.html
+            # Accepts unquoted file paths that begin file://.
+            # Unquoted file paths cannot include special characters.
+            "unquoted_file_path",
+            r"file://(?:[a-zA-Z]+:|/)+(?:[0-9a-zA-Z\\/_-]+)(?:\.[0-9a-zA-Z]+)?",
+            CodeSegment,
+        ),
         StringLexer("question_mark", "?", CodeSegment),
         StringLexer("exclude_bracket_open", "{-", CodeSegment),
         StringLexer("exclude_bracket_close", "-}", CodeSegment),
@@ -219,6 +231,12 @@ snowflake_dialect.add(
         CodeSegment,
         name="azure_blob_storage_path",
         type="bucket_path",
+    ),
+    UnquotedFilePath=NamedParser(
+        "unquoted_file_path",
+        CodeSegment,
+        name="unquoted_file_path",
+        type="unquoted_file_path",
     ),
     SnowflakeEncryptionOption=RegexParser(
         r"'SNOWFLAKE_FULL'|'SNOWFLAKE_SSE'",
@@ -868,6 +886,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DropObjectStatementSegment"),
             Ref("CreateFileFormatSegment"),
             Ref("ListStatementSegment"),
+            Ref("GetStatementSegment"),
         ],
         remove=[
             Ref("CreateIndexStatementSegment"),
@@ -5208,5 +5227,35 @@ class ListStatementSegment(BaseSegment):
         Ref("StagePath"),
         Sequence(
             "PATTERN", Ref("EqualsSegment"), Ref("QuotedLiteralSegment"), optional=True
+        ),
+    )
+
+
+class GetStatementSegment(BaseSegment):
+    """A snowflake `GET @<stage> ...` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/get.html
+    """
+
+    type = "get_statement"
+
+    match_grammar = Sequence(
+        "GET",
+        Ref("StagePath"),
+        OneOf(
+            Ref("UnquotedFilePath"),
+            Ref("QuotedLiteralSegment"),
+        ),
+        AnySetOf(
+            Sequence(
+                "PARALLEL",
+                Ref("EqualsSegment"),
+                Ref("IntegerSegment"),
+            ),
+            Sequence(
+                "PATTERN",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
         ),
     )
