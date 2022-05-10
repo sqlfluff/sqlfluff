@@ -887,6 +887,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateFileFormatSegment"),
             Ref("ListStatementSegment"),
             Ref("GetStatementSegment"),
+            Ref("RemoveStatementSegment"),
         ],
         remove=[
             Ref("CreateIndexStatementSegment"),
@@ -5067,26 +5068,6 @@ class HavingClauseSegment(ansi.HavingClauseSegment):
     parse_grammar = ansi.HavingClauseSegment.parse_grammar
 
 
-class RemoveStatementSegment(BaseSegment):
-    """A Remove Statement.
-
-    As per https://docs.snowflake.com/en/sql-reference/sql/remove.html
-    """
-
-    type = "remove_statement"
-
-    match_grammar = Sequence(
-        OneOf("REMOVE", "RM"),
-        Ref("ObjectReferenceSegment"),
-        Sequence(
-            "PATTERN",
-            Ref("EqualsSegment"),
-            OneOf(Ref("QuotedLiteralSegment"), Ref("ReferencedVariableNameSegment")),
-            optional=True,
-        ),
-    )
-
-
 class DropProcedureStatementSegment(BaseSegment):
     """A snowflake `DROP PROCEDURE ...` statement.
 
@@ -5255,7 +5236,32 @@ class GetStatementSegment(BaseSegment):
             Sequence(
                 "PATTERN",
                 Ref("EqualsSegment"),
-                Ref("QuotedLiteralSegment"),
+                OneOf(
+                    Ref("QuotedLiteralSegment"), Ref("ReferencedVariableNameSegment")
+                ),
             ),
+        ),
+    )
+
+
+class RemoveStatementSegment(BaseSegment):
+    """A snowflake `REMOVE @<stage> ...` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/remove.html
+    """
+
+    type = "remove_statement"
+
+    match_grammar = Sequence(
+        OneOf(
+            "REMOVE",
+            "RM",
+        ),
+        Ref("StagePath"),
+        Sequence(
+            "PATTERN",
+            Ref("EqualsSegment"),
+            OneOf(Ref("QuotedLiteralSegment"), Ref("ReferencedVariableNameSegment")),
+            optional=True,
         ),
     )
