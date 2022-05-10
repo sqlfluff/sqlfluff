@@ -159,13 +159,15 @@ snowflake_dialect.add(
     # We use a RegexParser instead of keywords as the arguments are optionally quoted.
     CompressionType=OneOf(
         RegexParser(
-            r"'(AUTO|AUTO_DETECT|GZIP|BZ2|BROTLI|ZSTD|DEFLATE|RAW_DEFLATE|LZO|NONE|SNAPPY)'",
+            r"'(AUTO|AUTO_DETECT|GZIP|BZ2|BROTLI|ZSTD|DEFLATE|RAW_DEFLATE|LZO|NONE"
+            r"|SNAPPY)'",
             CodeSegment,
             name="compression_type",
             type="keyword",
         ),
         RegexParser(
-            r"(AUTO|AUTO_DETECT|GZIP|BZ2|BROTLI|ZSTD|DEFLATE|RAW_DEFLATE|LZO|NONE|SNAPPY)",
+            r"(AUTO|AUTO_DETECT|GZIP|BZ2|BROTLI|ZSTD|DEFLATE|RAW_DEFLATE|LZO|NONE"
+            r"|SNAPPY)",
             CodeSegment,
             name="compression_type",
             type="keyword",
@@ -5289,14 +5291,12 @@ class PutStatementSegment(BaseSegment):
                 Ref("BooleanLiteralGrammar"),
             ),
             Sequence(
-                "SOURCE_COMPRESSION",
-                Ref("EqualsSegment"),
-                Ref("CompressionType")
+                "SOURCE_COMPRESSION", Ref("EqualsSegment"), Ref("CompressionType")
             ),
             Sequence(
                 "OVERWRITE",
                 Ref("EqualsSegment"),
                 Ref("BooleanLiteralGrammar"),
-            )
+            ),
         ),
     )
