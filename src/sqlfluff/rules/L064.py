@@ -12,6 +12,7 @@ from sqlfluff.core.rules.doc_decorators import (
     document_groups,
 )
 from sqlfluff.core.rules.functional import rsp
+from sqlfluff.core.parser.markers import PositionMarker
 
 
 @document_groups
@@ -111,8 +112,11 @@ class Rule_L064(BaseRule):
             rsp.is_slice_type("templated")
         )
         for raw_slice in templated_raw_slices:
+            pos_marker = context.segment.pos_marker
+            # This is to make mypy happy. Probably there is a better way of doing it?
+            assert isinstance(pos_marker, PositionMarker)
             # quotes are part of a template, nothing we can do
-            if context.segment.pos_marker.source_str() == raw_slice.raw:
+            if pos_marker.source_str() == raw_slice.raw:
                 return None
 
         # If quoting style is set to consistent we use the quoting style of the first
