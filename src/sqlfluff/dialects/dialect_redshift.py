@@ -1829,7 +1829,7 @@ class CreateUserStatementSegment(ansi.CreateUserStatementSegment):
     match_grammar = Sequence(
         "CREATE",
         "USER",
-        Ref("ObjectReferenceSegment"),
+        Ref("RoleReferenceSegment"),
         Ref.keyword("WITH", optional=True),
         "PASSWORD",
         OneOf(Ref("QuotedLiteralSegment"), "DISABLE"),
@@ -1903,7 +1903,7 @@ class AlterUserStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "ALTER",
         "USER",
-        Ref("ObjectReferenceSegment"),
+        Ref("RoleReferenceSegment"),
         Ref.keyword("WITH", optional=True),
         AnySetOf(
             OneOf(
