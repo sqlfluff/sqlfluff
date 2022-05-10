@@ -84,7 +84,7 @@ snowflake_dialect.insert_lexer_matchers(
             # Accepts unquoted file paths that begin file://.
             # Unquoted file paths cannot include special characters.
             "unquoted_file_path",
-            r"file://(?:[a-zA-Z]+:|/)+(?:[0-9a-zA-Z\\/_-]+)(?:\.[0-9a-zA-Z]+)?",
+            r"file://(?:[a-zA-Z]+:|/)+(?:[0-9a-zA-Z\\/_*?-]+)(?:\.[0-9a-zA-Z]+)?",
             CodeSegment,
         ),
         StringLexer("question_mark", "?", CodeSegment),
@@ -159,13 +159,15 @@ snowflake_dialect.add(
     # We use a RegexParser instead of keywords as the arguments are optionally quoted.
     CompressionType=OneOf(
         RegexParser(
-            r"'(AUTO|GZIP|BZ2|BROTLI|ZSTD|DEFLATE|RAW_DEFLATE|LZO|NONE|SNAPPY)'",
+            r"'(AUTO|AUTO_DETECT|GZIP|BZ2|BROTLI|ZSTD|DEFLATE|RAW_DEFLATE|LZO|NONE"
+            r"|SNAPPY)'",
             CodeSegment,
             name="compression_type",
             type="keyword",
         ),
         RegexParser(
-            r"(AUTO|GZIP|BZ2|BROTLI|ZSTD|DEFLATE|RAW_DEFLATE|LZO|NONE|SNAPPY)",
+            r"(AUTO|AUTO_DETECT|GZIP|BZ2|BROTLI|ZSTD|DEFLATE|RAW_DEFLATE|LZO|NONE"
+            r"|SNAPPY)",
             CodeSegment,
             name="compression_type",
             type="keyword",
@@ -886,6 +888,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateFileFormatSegment"),
             Ref("ListStatementSegment"),
             Ref("GetStatementSegment"),
+            Ref("PutStatementSegment"),
             Ref("RemoveStatementSegment"),
         ],
         remove=[
@@ -5238,6 +5241,44 @@ class GetStatementSegment(BaseSegment):
                 OneOf(
                     Ref("QuotedLiteralSegment"), Ref("ReferencedVariableNameSegment")
                 ),
+            ),
+        ),
+    )
+
+
+class PutStatementSegment(BaseSegment):
+    """A snowflake `PUT ...` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/put.html
+    """
+
+    type = "put_statement"
+
+    match_grammar = Sequence(
+        "PUT",
+        OneOf(
+            Ref("UnquotedFilePath"),
+            Ref("QuotedLiteralSegment"),
+        ),
+        Ref("StagePath"),
+        AnySetOf(
+            Sequence(
+                "PARALLEL",
+                Ref("EqualsSegment"),
+                Ref("IntegerSegment"),
+            ),
+            Sequence(
+                "AUTO_COMPRESS",
+                Ref("EqualsSegment"),
+                Ref("BooleanLiteralGrammar"),
+            ),
+            Sequence(
+                "SOURCE_COMPRESSION", Ref("EqualsSegment"), Ref("CompressionType")
+            ),
+            Sequence(
+                "OVERWRITE",
+                Ref("EqualsSegment"),
+                Ref("BooleanLiteralGrammar"),
             ),
         ),
     )
