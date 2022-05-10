@@ -1,0 +1,154 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 41b982e8244800218b342abf1bd594c54c0eba76fa46920a9b6874d2b31f0804
+file:
+- statement:
+    alter_external_table_statement:
+    - keyword: alter
+    - keyword: external
+    - keyword: table
+    - table_reference:
+        identifier: foo
+    - keyword: refresh
+- statement_terminator: ;
+- statement:
+    alter_external_table_statement:
+    - keyword: alter
+    - keyword: external
+    - keyword: table
+    - table_reference:
+        identifier: foo
+    - keyword: refresh
+    - literal: "'2018/08/05/'"
+- statement_terminator: ;
+- statement:
+    alter_external_table_statement:
+    - keyword: alter
+    - keyword: external
+    - keyword: table
+    - table_reference:
+        identifier: foo
+    - keyword: add
+    - keyword: files
+    - bracketed:
+      - start_bracket: (
+      - literal: "'foo/bar.json.gz'"
+      - comma: ','
+      - literal: "'bar/foo.json.gz'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_external_table_statement:
+    - keyword: alter
+    - keyword: external
+    - keyword: table
+    - table_reference:
+        identifier: foo
+    - keyword: remove
+    - keyword: files
+    - bracketed:
+      - start_bracket: (
+      - literal: "'foo/bar.json.gz'"
+      - comma: ','
+      - literal: "'bar/foo.json.gz'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_external_table_statement:
+    - keyword: alter
+    - keyword: external
+    - keyword: table
+    - table_reference:
+        identifier: foo
+    - keyword: add
+    - keyword: partition
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          identifier: foo
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - literal: "'baz'"
+      - comma: ','
+      - column_reference:
+          identifier: bar
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - literal: "'bar'"
+      - comma: ','
+      - column_reference:
+          identifier: baz
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - literal: "'foo'"
+      - end_bracket: )
+    - keyword: location
+    - literal: "'2022/01'"
+- statement_terminator: ;
+- statement:
+    alter_external_table_statement:
+    - keyword: alter
+    - keyword: external
+    - keyword: table
+    - table_reference:
+        identifier: foo
+    - keyword: drop
+    - keyword: partition
+    - keyword: location
+    - literal: "'2022/01'"
+- statement_terminator: ;
+- statement:
+    alter_external_table_statement:
+    - keyword: alter
+    - keyword: external
+    - keyword: table
+    - keyword: if
+    - keyword: exists
+    - table_reference:
+        identifier: foo
+    - keyword: set
+    - keyword: auto_refresh
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - literal: 'true'
+- statement_terminator: ;
+- statement:
+    alter_external_table_statement:
+    - keyword: alter
+    - keyword: external
+    - keyword: table
+    - keyword: if
+    - keyword: exists
+    - table_reference:
+        identifier: foo
+    - keyword: set
+    - tag_equals:
+      - keyword: tag
+      - identifier: foo
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - literal: "'foo'"
+      - comma: ','
+      - identifier: bar
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - literal: "'bar'"
+- statement_terminator: ;
+- statement:
+    alter_external_table_statement:
+    - keyword: alter
+    - keyword: external
+    - keyword: table
+    - table_reference:
+        identifier: foo
+    - keyword: unset
+    - tag_equals:
+        keyword: tag
+        identifier: foo
+        comparison_operator:
+          raw_comparison_operator: '='
+        literal: "'foo'"
+- statement_terminator: ;
