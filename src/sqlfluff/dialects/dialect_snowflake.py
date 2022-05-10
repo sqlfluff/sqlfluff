@@ -230,7 +230,7 @@ snowflake_dialect.add(
         type="file_path",
     ),
     UnixFilePath=RegexParser(
-        r"'file://[^\0]+", CodeSegment, name="unix_file_path", type="file_path'"
+        r"'file://[^\0]+'", CodeSegment, name="unix_file_path", type="file_path'"
     ),
     SnowflakeEncryptionOption=RegexParser(
         r"'SNOWFLAKE_FULL'|'SNOWFLAKE_SSE'",
