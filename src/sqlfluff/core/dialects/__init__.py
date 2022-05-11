@@ -31,6 +31,7 @@ _dialect_lookup = {
     "postgres": ("dialect_postgres", "postgres_dialect"),
     "redshift": ("dialect_redshift", "redshift_dialect"),
     "snowflake": ("dialect_snowflake", "snowflake_dialect"),
+    "soql": ("dialect_soql", "soql_dialect"),
     "sqlite": ("dialect_sqlite", "sqlite_dialect"),
     "teradata": ("dialect_teradata", "teradata_dialect"),
     "tsql": ("dialect_tsql", "tsql_dialect"),

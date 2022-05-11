@@ -29,6 +29,7 @@ Although SQL is reasonably consistent in its implementations, there are several 
 - [PostgreSQL](https://www.postgresql.org/) (aka Postgres)
 - [Redshift](https://docs.aws.amazon.com/redshift/index.html)
 - [Snowflake](https://www.snowflake.com/)
+- [SOQL](https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_soql.htm)
 - [SparkSQL](https://spark.apache.org/docs/latest/)
 - [SQLite](https://www.sqlite.org/)
 - [Teradata](https://www.teradata.com/)
@@ -56,7 +57,7 @@ To get started, install the package and run `sqlfluff lint` or `sqlfluff fix`.
 $ pip install sqlfluff
 $ echo "  SELECT a  +  b FROM tbl;  " > test.sql
 $ sqlfluff lint test.sql --dialect ansi
-== [test.sql] FAIL                                                                                                                                       
+== [test.sql] FAIL
 L:   1 | P:   1 | L050 | Files must not begin with newlines or whitespace.
 L:   1 | P:   3 | L003 | First line has unexpected indent
 L:   1 | P:  11 | L039 | Unnecessary whitespace found.
