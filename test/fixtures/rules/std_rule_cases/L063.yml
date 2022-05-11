@@ -146,3 +146,19 @@ test_pass_bigquery_struct_params:
     rules:
       L063:
         extended_capitalisation_policy: upper
+
+# See https://github.com/sqlfluff/sqlfluff/issues/3277
+test_pass_typless_structs_dont_trigger_rule:
+  pass_str: |
+    SELECT
+        STRUCT(
+            some_field,
+            some_other_field
+        ) AS col
+    FROM table
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      L063:
+        extended_capitalisation_policy: upper
