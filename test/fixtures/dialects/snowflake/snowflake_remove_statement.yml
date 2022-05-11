@@ -3,37 +3,32 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: cd9e811f34be07f4341d3fa91a2fe72783752db69c3efcc4b2837a210159829c
+_hash: deb4b22c0981eb20895bccf5538bfb155205703fb77ef13e8d1adbfb6873488b
 file:
 - statement:
     remove_statement:
       keyword: rm
-      object_reference:
-        identifier: '@%mytable/myobject'
+      identifier: '@%mytable/myobject'
 - statement_terminator: ;
 - statement:
     remove_statement:
       keyword: rm
-      object_reference:
-        identifier: '@%mytable/myobject/'
+      identifier: '@%mytable/myobject/'
 - statement_terminator: ;
 - statement:
     remove_statement:
       keyword: remove
-      object_reference:
-        identifier: '@mystage/path1/subpath2'
+      identifier: '@mystage/path1/subpath2'
 - statement_terminator: ;
 - statement:
     remove_statement:
       keyword: remove
-      object_reference:
-        identifier: '@%orders'
+      identifier: '@%orders'
 - statement_terminator: ;
 - statement:
     remove_statement:
     - keyword: rm
-    - object_reference:
-        identifier: '@~'
+    - identifier: '@~'
     - keyword: pattern
     - comparison_operator:
         raw_comparison_operator: '='
@@ -42,8 +37,7 @@ file:
 - statement:
     remove_statement:
     - keyword: REMOVE
-    - object_reference:
-        identifier: '@foo.bar'
+    - identifier: '@foo.bar'
     - keyword: PATTERN
     - comparison_operator:
         raw_comparison_operator: '='
@@ -52,8 +46,7 @@ file:
 - statement:
     remove_statement:
     - keyword: RM
-    - object_reference:
-        identifier: '@foo.foo'
+    - identifier: '@foo.foo'
     - keyword: PATTERN
     - comparison_operator:
         raw_comparison_operator: '='

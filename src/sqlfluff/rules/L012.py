@@ -39,7 +39,9 @@ class Rule_L012(Rule_L011):
     groups = ("all", "core")
     config_keywords = ["aliasing"]
 
-    _target_elems = ("select_clause_element",)
+    _target_elems = [
+        ("type", "select_clause_element"),
+    ]
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         # T-SQL supports alternative alias expressions for L012

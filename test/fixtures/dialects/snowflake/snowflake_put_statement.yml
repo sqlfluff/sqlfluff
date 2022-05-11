@@ -1,0 +1,73 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 5297c300123f7b72060554d80452255de0eead61757abbf794f5eb5fff4d4e78
+file:
+- statement:
+    put_statement:
+      keyword: put
+      unquoted_file_path: file:///tmp/data/mydata.csv
+      identifier: '@my_int_stage'
+- statement_terminator: ;
+- statement:
+    put_statement:
+    - keyword: put
+    - unquoted_file_path: file:///tmp/data/orders_001.csv
+    - identifier: '@%orderstiny_ext'
+    - keyword: auto_compress
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - literal: 'false'
+- statement_terminator: ;
+- statement:
+    put_statement:
+    - keyword: put
+    - unquoted_file_path: file:///tmp/data/orders_*01.csv
+    - identifier: '@%orderstiny_ext'
+    - keyword: auto_compress
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - literal: 'false'
+- statement_terminator: ;
+- statement:
+    put_statement:
+    - keyword: put
+    - unquoted_file_path: file://c:\temp\data\mydata.csv
+    - identifier: '@~'
+    - keyword: auto_compress
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - literal: 'true'
+- statement_terminator: ;
+- statement:
+    put_statement:
+    - keyword: put
+    - unquoted_file_path: file://c:\temp\data\mydata.csv
+    - identifier: '@~'
+    - keyword: parallel
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - literal: '1'
+- statement_terminator: ;
+- statement:
+    put_statement:
+    - keyword: put
+    - unquoted_file_path: file://c:\temp\data\mydata.csv
+    - identifier: '@~'
+    - keyword: source_compression
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: "'auto_detect'"
+- statement_terminator: ;
+- statement:
+    put_statement:
+    - keyword: put
+    - unquoted_file_path: file://c:\temp\data\mydata.csv
+    - identifier: '@~'
+    - keyword: overwrite
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - literal: 'true'
+- statement_terminator: ;

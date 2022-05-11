@@ -74,7 +74,19 @@ snowflake_dialect.insert_lexer_matchers(
             r"[$][a-zA-Z0-9_.]*",
             CodeSegment,
         ),
-        RegexLexer("inline_dollar_sign", r"[a-zA-Z_][a-zA-Z0-9_$]*", CodeSegment),
+        RegexLexer(
+            "inline_dollar_sign",
+            r"[a-zA-Z_][a-zA-Z0-9_$]*\$[a-zA-Z0-9_$]*",
+            CodeSegment,
+        ),
+        RegexLexer(
+            # For use with https://docs.snowflake.com/en/sql-reference/sql/get.html
+            # Accepts unquoted file paths that begin file://.
+            # Unquoted file paths cannot include special characters.
+            "unquoted_file_path",
+            r"file://(?:[a-zA-Z]+:|/)+(?:[0-9a-zA-Z\\/_*?-]+)(?:\.[0-9a-zA-Z]+)?",
+            CodeSegment,
+        ),
         StringLexer("question_mark", "?", CodeSegment),
         StringLexer("exclude_bracket_open", "{-", CodeSegment),
         StringLexer("exclude_bracket_close", "-}", CodeSegment),
@@ -147,13 +159,15 @@ snowflake_dialect.add(
     # We use a RegexParser instead of keywords as the arguments are optionally quoted.
     CompressionType=OneOf(
         RegexParser(
-            r"'(AUTO|GZIP|BZ2|BROTLI|ZSTD|DEFLATE|RAW_DEFLATE|LZO|NONE|SNAPPY)'",
+            r"'(AUTO|AUTO_DETECT|GZIP|BZ2|BROTLI|ZSTD|DEFLATE|RAW_DEFLATE|LZO|NONE"
+            r"|SNAPPY)'",
             CodeSegment,
             name="compression_type",
             type="keyword",
         ),
         RegexParser(
-            r"(AUTO|GZIP|BZ2|BROTLI|ZSTD|DEFLATE|RAW_DEFLATE|LZO|NONE|SNAPPY)",
+            r"(AUTO|AUTO_DETECT|GZIP|BZ2|BROTLI|ZSTD|DEFLATE|RAW_DEFLATE|LZO|NONE"
+            r"|SNAPPY)",
             CodeSegment,
             name="compression_type",
             type="keyword",
@@ -219,6 +233,12 @@ snowflake_dialect.add(
         CodeSegment,
         name="azure_blob_storage_path",
         type="bucket_path",
+    ),
+    UnquotedFilePath=NamedParser(
+        "unquoted_file_path",
+        CodeSegment,
+        name="unquoted_file_path",
+        type="unquoted_file_path",
     ),
     SnowflakeEncryptionOption=RegexParser(
         r"'SNOWFLAKE_FULL'|'SNOWFLAKE_SSE'",
@@ -845,6 +865,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CopyIntoTableStatementSegment"),
             Ref("AlterWarehouseStatementSegment"),
             Ref("CreateExternalTableSegment"),
+            Ref("AlterExternalTableStatementSegment"),
             Ref("CreateSchemaStatementSegment"),
             Ref("AlterSchemaStatementSegment"),
             Ref("CreateFunctionStatementSegment"),
@@ -860,13 +881,15 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CallStatementSegment"),
             Ref("AlterViewStatementSegment"),
             Ref("AlterMaterializedViewStatementSegment"),
-            Ref("RemoveStatementSegment"),
             Ref("DropProcedureStatementSegment"),
             Ref("DropExternalTableStatementSegment"),
             Ref("DropMaterializedViewStatementSegment"),
             Ref("DropObjectStatementSegment"),
             Ref("CreateFileFormatSegment"),
             Ref("ListStatementSegment"),
+            Ref("GetStatementSegment"),
+            Ref("PutStatementSegment"),
+            Ref("RemoveStatementSegment"),
         ],
         remove=[
             Ref("CreateIndexStatementSegment"),
@@ -1653,6 +1676,58 @@ class AlterWarehouseStatementSegment(BaseSegment):
                     Delimited(Ref("NakedIdentifierSegment")),
                     Sequence("TAG", Delimited(Ref("NakedIdentifierSegment"))),
                 ),
+            ),
+        ),
+    )
+
+
+class AlterExternalTableStatementSegment(BaseSegment):
+    """An `ALTER EXTERNAL TABLE` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-external-table.html
+    """
+
+    type = "alter_external_table_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "EXTERNAL",
+        "TABLE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        OneOf(
+            Sequence("REFRESH", Ref("QuotedLiteralSegment", optional=True)),
+            Sequence(
+                OneOf("ADD", "REMOVE"),
+                "FILES",
+                Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
+            ),
+            Sequence(
+                "SET",
+                Sequence(
+                    "AUTO_REFRESH",
+                    Ref("EqualsSegment"),
+                    Ref("BooleanLiteralGrammar"),
+                    optional=True,
+                ),
+                Ref("TagEqualsSegment", optional=True),
+            ),
+            Sequence("UNSET", Ref("TagEqualsSegment")),
+            Sequence("DROP", "PARTITION", "LOCATION", Ref("QuotedLiteralSegment")),
+            Sequence(
+                "ADD",
+                "PARTITION",
+                Bracketed(
+                    Delimited(
+                        Sequence(
+                            Ref("ColumnReferenceSegment"),
+                            Ref("EqualsSegment"),
+                            Ref("QuotedLiteralSegment"),
+                        ),
+                    ),
+                ),
+                "LOCATION",
+                Ref("QuotedLiteralSegment"),
             ),
         ),
     )
@@ -4995,26 +5070,6 @@ class HavingClauseSegment(ansi.HavingClauseSegment):
     parse_grammar = ansi.HavingClauseSegment.parse_grammar
 
 
-class RemoveStatementSegment(BaseSegment):
-    """A Remove Statement.
-
-    As per https://docs.snowflake.com/en/sql-reference/sql/remove.html
-    """
-
-    type = "remove_statement"
-
-    match_grammar = Sequence(
-        OneOf("REMOVE", "RM"),
-        Ref("ObjectReferenceSegment"),
-        Sequence(
-            "PATTERN",
-            Ref("EqualsSegment"),
-            OneOf(Ref("QuotedLiteralSegment"), Ref("ReferencedVariableNameSegment")),
-            optional=True,
-        ),
-    )
-
-
 class DropProcedureStatementSegment(BaseSegment):
     """A snowflake `DROP PROCEDURE ...` statement.
 
@@ -5155,5 +5210,98 @@ class ListStatementSegment(BaseSegment):
         Ref("StagePath"),
         Sequence(
             "PATTERN", Ref("EqualsSegment"), Ref("QuotedLiteralSegment"), optional=True
+        ),
+    )
+
+
+class GetStatementSegment(BaseSegment):
+    """A snowflake `GET @<stage> ...` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/get.html
+    """
+
+    type = "get_statement"
+
+    match_grammar = Sequence(
+        "GET",
+        Ref("StagePath"),
+        OneOf(
+            Ref("UnquotedFilePath"),
+            Ref("QuotedLiteralSegment"),
+        ),
+        AnySetOf(
+            Sequence(
+                "PARALLEL",
+                Ref("EqualsSegment"),
+                Ref("IntegerSegment"),
+            ),
+            Sequence(
+                "PATTERN",
+                Ref("EqualsSegment"),
+                OneOf(
+                    Ref("QuotedLiteralSegment"), Ref("ReferencedVariableNameSegment")
+                ),
+            ),
+        ),
+    )
+
+
+class PutStatementSegment(BaseSegment):
+    """A snowflake `PUT ...` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/put.html
+    """
+
+    type = "put_statement"
+
+    match_grammar = Sequence(
+        "PUT",
+        OneOf(
+            Ref("UnquotedFilePath"),
+            Ref("QuotedLiteralSegment"),
+        ),
+        Ref("StagePath"),
+        AnySetOf(
+            Sequence(
+                "PARALLEL",
+                Ref("EqualsSegment"),
+                Ref("IntegerSegment"),
+            ),
+            Sequence(
+                "AUTO_COMPRESS",
+                Ref("EqualsSegment"),
+                Ref("BooleanLiteralGrammar"),
+            ),
+            Sequence(
+                "SOURCE_COMPRESSION", Ref("EqualsSegment"), Ref("CompressionType")
+            ),
+            Sequence(
+                "OVERWRITE",
+                Ref("EqualsSegment"),
+                Ref("BooleanLiteralGrammar"),
+            ),
+        ),
+    )
+
+
+class RemoveStatementSegment(BaseSegment):
+    """A snowflake `REMOVE @<stage> ...` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/remove.html
+    """
+
+    type = "remove_statement"
+
+    match_grammar = Sequence(
+        OneOf(
+            "REMOVE",
+            "RM",
+        ),
+        Ref("StagePath"),
+        Sequence(
+            "PATTERN",
+            Ref("EqualsSegment"),
+            OneOf(Ref("QuotedLiteralSegment"), Ref("ReferencedVariableNameSegment")),
+            optional=True,
         ),
     )
