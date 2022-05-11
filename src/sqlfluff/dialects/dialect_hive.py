@@ -828,7 +828,11 @@ class SelectClauseSegment(ansi.SelectClauseSegment):
 
     match_grammar = ansi.SelectClauseSegment.match_grammar.copy()
     match_grammar.terminator = match_grammar.terminator.copy(  # type: ignore
-        insert=[Ref.keyword("CLUSTER"), Ref.keyword("DISTRIBUTE"), Ref.keyword("SORT")],
+        insert=[
+            Sequence("CLUSTER", "BY"),
+            Sequence("DISTRIBUTE", "BY"),
+            Sequence("SORT", "BY"),
+        ],
         before=Ref.keyword("LIMIT"),
     )
     parse_grammar = ansi.SelectClauseSegment.parse_grammar.copy()
@@ -839,7 +843,11 @@ class GroupByClauseSegment(ansi.GroupByClauseSegment):
 
     match_grammar = ansi.GroupByClauseSegment.match_grammar.copy()
     match_grammar.terminator = match_grammar.terminator.copy(  # type: ignore
-        insert=[Ref.keyword("CLUSTER"), Ref.keyword("DISTRIBUTE"), Ref.keyword("SORT")],
+        insert=[
+            Sequence("CLUSTER", "BY"),
+            Sequence("DISTRIBUTE", "BY"),
+            Sequence("SORT", "BY"),
+        ],
         before=Ref.keyword("LIMIT"),
     )
     parse_grammar = ansi.GroupByClauseSegment.parse_grammar
@@ -850,7 +858,11 @@ class HavingClauseSegment(ansi.HavingClauseSegment):
 
     match_grammar = ansi.HavingClauseSegment.match_grammar.copy()
     match_grammar.terminator = match_grammar.terminator.copy(  # type: ignore
-        insert=[Ref.keyword("CLUSTER"), Ref.keyword("DISTRIBUTE"), Ref.keyword("SORT")],
+        insert=[
+            Sequence("CLUSTER", "BY"),
+            Sequence("DISTRIBUTE", "BY"),
+            Sequence("SORT", "BY"),
+        ],
         before=Ref.keyword("LIMIT"),
     )
     parse_grammar = ansi.HavingClauseSegment.parse_grammar
@@ -867,6 +879,21 @@ class SetExpressionSegment(ansi.SetExpressionSegment):
         ],
         before=Ref("LimitClauseSegment", optional=True),
     )
+
+
+class PartitionClauseSegment(ansi.PartitionClauseSegment):
+    """Overriding SetExpressionSegment to allow for additional segment parsing."""
+
+    match_grammar = ansi.PartitionClauseSegment.match_grammar.copy()
+    match_grammar.terminator = match_grammar.terminator.copy(  # type: ignore
+        insert=[
+            Sequence("CLUSTER", "BY"),
+            Sequence("DISTRIBUTE", "BY"),
+            Sequence("SORT", "BY"),
+        ],
+        before=Ref("FrameClauseUnitGrammar"),
+    )
+    parse_grammar = ansi.PartitionClauseSegment.parse_grammar
 
 
 class OrderByClauseSegment(ansi.OrderByClauseSegment):
