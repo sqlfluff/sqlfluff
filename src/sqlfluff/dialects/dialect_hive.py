@@ -796,7 +796,7 @@ class SamplingExpressionSegment(BaseSegment):
 class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     """Enhance unordered SELECT statement to include CLUSTER, DISTRIBUTE, SORT BY."""
 
-    match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar
+    match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar.copy()
     match_grammar.terminator = match_grammar.terminator.copy(  # type: ignore
         insert=[
             Ref("ClusterByClauseSegment"),
@@ -806,13 +806,13 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
         before=Ref("LimitClauseSegment"),
     )
 
-    parse_grammar = ansi.UnorderedSelectStatementSegment.parse_grammar
+    parse_grammar = ansi.UnorderedSelectStatementSegment.parse_grammar.copy()
 
 
 class SelectStatementSegment(ansi.SelectStatementSegment):
     """Overriding SelectStatementSegment to allow for additional segment parsing."""
 
-    match_grammar = ansi.SelectStatementSegment.match_grammar
+    match_grammar = ansi.SelectStatementSegment.match_grammar.copy()
     parse_grammar = ansi.SelectStatementSegment.parse_grammar.copy(
         insert=[
             Ref("ClusterByClauseSegment", optional=True),
@@ -826,18 +826,18 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
 class SelectClauseSegment(ansi.SelectClauseSegment):
     """Overriding SelectClauseSegment to allow for additional segment parsing."""
 
-    match_grammar = ansi.SelectClauseSegment.match_grammar
+    match_grammar = ansi.SelectClauseSegment.match_grammar.copy()
     match_grammar.terminator = match_grammar.terminator.copy(  # type: ignore
         insert=[Ref.keyword("CLUSTER"), Ref.keyword("DISTRIBUTE"), Ref.keyword("SORT")],
         before=Ref.keyword("LIMIT"),
     )
-    parse_grammar = ansi.SelectClauseSegment.parse_grammar
+    parse_grammar = ansi.SelectClauseSegment.parse_grammar.copy()
 
 
 class GroupByClauseSegment(ansi.GroupByClauseSegment):
     """Overriding GroupByClauseSegment to allow for additional segment parsing."""
 
-    match_grammar = ansi.GroupByClauseSegment.match_grammar
+    match_grammar = ansi.GroupByClauseSegment.match_grammar.copy()
     match_grammar.terminator = match_grammar.terminator.copy(  # type: ignore
         insert=[Ref.keyword("CLUSTER"), Ref.keyword("DISTRIBUTE"), Ref.keyword("SORT")],
         before=Ref.keyword("LIMIT"),
@@ -848,7 +848,7 @@ class GroupByClauseSegment(ansi.GroupByClauseSegment):
 class HavingClauseSegment(ansi.HavingClauseSegment):
     """Overriding HavingClauseSegment to allow for additional segment parsing."""
 
-    match_grammar = ansi.HavingClauseSegment.match_grammar
+    match_grammar = ansi.HavingClauseSegment.match_grammar.copy()
     match_grammar.terminator = match_grammar.terminator.copy(  # type: ignore
         insert=[Ref.keyword("CLUSTER"), Ref.keyword("DISTRIBUTE"), Ref.keyword("SORT")],
         before=Ref.keyword("LIMIT"),
@@ -872,7 +872,7 @@ class SetExpressionSegment(ansi.SetExpressionSegment):
 class OrderByClauseSegment(ansi.OrderByClauseSegment):
     """A `ORDER BY` clause like in `SELECT`."""
 
-    match_grammar = ansi.OrderByClauseSegment.match_grammar
+    match_grammar = ansi.OrderByClauseSegment.match_grammar.copy()
     match_grammar.terminator = OneOf(  # type: ignore
         "CLUSTER",
         "DISTRIBUTE",
