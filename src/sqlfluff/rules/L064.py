@@ -113,11 +113,11 @@ class Rule_L064(BaseRule):
         )
         for raw_slice in templated_raw_slices:
             pos_marker = context.segment.pos_marker
-            # This is to make mypy happy. Probably there is a better way of doing it?
+            # This is to make mypy happy.
             assert isinstance(pos_marker, PositionMarker)
             # quotes are part of a template, nothing we can do
             if pos_marker.source_str() == raw_slice.raw:
-                return None
+                return LintResult(memory=context.memory)
 
         # If quoting style is set to consistent we use the quoting style of the first
         # quoted_literal that we encounter.
