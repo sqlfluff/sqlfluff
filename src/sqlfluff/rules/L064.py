@@ -115,8 +115,19 @@ class Rule_L064(BaseRule):
             pos_marker = context.segment.pos_marker
             # This is to make mypy happy.
             assert isinstance(pos_marker, PositionMarker)
-            # quotes are part of a template, nothing we can do
-            if pos_marker.source_str() == raw_slice.raw:
+
+            # Check whether the quote characters are inside the template.
+            # For the leading quote we need to account for string prefix characters.
+            leading_quote_inside_template = pos_marker.source_str()[:2].lstrip(
+                self._string_prefix_chars
+            )[0] not in ['"', "'"]
+            trailing_quote_inside_template = pos_marker.source_str()[-1] not in [
+                '"',
+                "'",
+            ]
+
+            # quotes are not entirely outside of a template, nothing we can do
+            if leading_quote_inside_template or trailing_quote_inside_template:
                 return LintResult(memory=context.memory)
 
         # If quoting style is set to consistent we use the quoting style of the first

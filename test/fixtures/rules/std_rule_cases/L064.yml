@@ -260,6 +260,28 @@ test_pass_date_constructor_strings_are_ignored_2:
         force_enable: True
         preferred_quoted_literal_style: double_quotes
 
+test_pass_empty_string:
+  pass_str: |
+    SELECT ""
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      L064:
+        preferred_quoted_literal_style: double_quotes
+
+test_fail_empty_string:
+  fail_str: |
+    SELECT ''
+  fix_str: |
+    SELECT ""
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      L064:
+        preferred_quoted_literal_style: double_quotes
+
 test_pass_partially_templated_quoted_literals_simple:
   pass_str: |
     SELECT "{{ 'a string' }}"
@@ -300,6 +322,26 @@ test_fail_partially_templated_quoted_literals_complex:
       L064:
         preferred_quoted_literal_style: double_quotes
 
+test_pass_partially_templated_quoted_literals_with_multiple_templates:
+  pass_str: |
+    SELECT "this_{{ 'is' }}_{{ 'a_lintable' }}_{{ 'string' }}"
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      L064:
+        preferred_quoted_literal_style: double_quotes
+
+test_fail_partially_templated_quoted_literals_with_multiple_templates:
+  fail_str: |
+    SELECT 'this_{{ "is" }}_{{ "a_lintable" }}_{{ "string" }}'
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      L064:
+        preferred_quoted_literal_style: double_quotes
+
 test_fail_partially_templated_quoted_literals_inside_blocks:
   fail_str: |
     SELECT
@@ -315,7 +357,39 @@ test_fail_partially_templated_quoted_literals_inside_blocks:
 
 test_pass_fully_templated_quoted_literals_are_ignored:
   pass_str: |
-    SELECT {{ "'a_non_litable_string'" }}
+    SELECT {{ "'a_non_lintable_string'" }}
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      L064:
+        preferred_quoted_literal_style: double_quotes
+
+test_pass_partially_templated_literals_are_ignored_when_some_quotes_are_inside_the_template_1:
+  pass_str: |
+    SELECT '{{ "string' FROM table1" }}
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      L064:
+        preferred_quoted_literal_style: double_quotes
+
+test_pass_partially_templated_literals_are_ignored_when_some_quotes_are_inside_the_template_2:
+  pass_str: |
+    {{ "SELECT 'stri" -}}ng' FROM table1
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      L064:
+        preferred_quoted_literal_style: double_quotes
+
+test_pass_prefix_chars_are_correctly_detected_as_unlintable:
+  pass_str: |
+    SELECT
+      r{{ "''" }},
+      r{{ "'project' FROM table1" }}
   configs:
     core:
       dialect: bigquery
