@@ -3,6 +3,8 @@
 https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_soql.htm
 """
 
+from sqlfluff.dialects import dialect_ansi as ansi
+from sqlfluff.core.parser import Ref
 from sqlfluff.core.dialects import load_raw_dialect
 
 ansi_dialect = load_raw_dialect("ansi")
@@ -42,3 +44,13 @@ date_literals = [
 soql_dialect.sets("reserved_keywords").update(date_literals)
 
 soql_dialect.sets("bare_functions").update(date_literals)
+
+
+class StatementSegment(ansi.StatementSegment):
+    """SOQL seems to only support SELECT statements.
+
+    https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_soql.htm
+    """
+
+    match_grammar = Ref("SelectableGrammar")
+    parse_grammar = Ref("SelectableGrammar")
