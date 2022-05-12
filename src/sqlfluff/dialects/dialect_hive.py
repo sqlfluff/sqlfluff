@@ -1,4 +1,5 @@
 """The Hive dialect."""
+from typing import Optional
 
 from sqlfluff.core.parser import (
     AnyNumberOf,
@@ -14,6 +15,10 @@ from sqlfluff.core.parser import (
     StringParser,
     OptionallyBracketed,
     RegexParser,
+    Matchable,
+    StartsWith,
+    Indent,
+    Dedent,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -168,6 +173,36 @@ hive_dialect.replace(
         insert=[
             Ref("BackQuotedIdentifierSegment"),
         ]
+    ),
+    SelectClauseElementTerminatorGrammar=ansi_dialect.get_grammar(
+        "SelectClauseElementTerminatorGrammar"
+    ).copy(
+        insert=[
+            Sequence("CLUSTER", "BY"),
+            Sequence("DISTRIBUTE", "BY"),
+            Sequence("SORT", "BY"),
+        ],
+        before=Sequence("ORDER", "BY"),
+    ),
+    FromClauseTerminatorGrammar=ansi_dialect.get_grammar(
+        "FromClauseTerminatorGrammar"
+    ).copy(
+        insert=[
+            Sequence("CLUSTER", "BY"),
+            Sequence("DISTRIBUTE", "BY"),
+            Sequence("SORT", "BY"),
+        ],
+        before=Sequence("ORDER", "BY"),
+    ),
+    WhereClauseTerminatorGrammar=ansi_dialect.get_grammar(
+        "WhereClauseTerminatorGrammar"
+    ).copy(
+        insert=[
+            Sequence("CLUSTER", "BY"),
+            Sequence("DISTRIBUTE", "BY"),
+            Sequence("SORT", "BY"),
+        ],
+        before=Sequence("ORDER", "BY"),
     ),
 )
 
@@ -755,4 +790,217 @@ class SamplingExpressionSegment(BaseSegment):
             "AliasExpressionSegment",
             optional=True,
         ),
+    )
+
+
+class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
+    """Enhance unordered SELECT statement to include CLUSTER, DISTRIBUTE, SORT BY."""
+
+    match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar.copy()
+    match_grammar.terminator = match_grammar.terminator.copy(  # type: ignore
+        insert=[
+            Ref("ClusterByClauseSegment"),
+            Ref("DistributeByClauseSegment"),
+            Ref("SortByClauseSegment"),
+        ],
+        before=Ref("LimitClauseSegment"),
+    )
+
+    parse_grammar = ansi.UnorderedSelectStatementSegment.parse_grammar.copy()
+
+
+class SelectStatementSegment(ansi.SelectStatementSegment):
+    """Overriding SelectStatementSegment to allow for additional segment parsing."""
+
+    match_grammar = ansi.SelectStatementSegment.match_grammar.copy()
+    parse_grammar = ansi.SelectStatementSegment.parse_grammar.copy(
+        insert=[
+            Ref("ClusterByClauseSegment", optional=True),
+            Ref("DistributeByClauseSegment", optional=True),
+            Ref("SortByClauseSegment", optional=True),
+        ],
+        before=Ref("LimitClauseSegment", optional=True),
+    )
+
+
+class SelectClauseSegment(ansi.SelectClauseSegment):
+    """Overriding SelectClauseSegment to allow for additional segment parsing."""
+
+    match_grammar = ansi.SelectClauseSegment.match_grammar.copy()
+    match_grammar.terminator = match_grammar.terminator.copy(  # type: ignore
+        insert=[
+            Sequence("CLUSTER", "BY"),
+            Sequence("DISTRIBUTE", "BY"),
+            Sequence("SORT", "BY"),
+        ],
+        before=Ref.keyword("LIMIT"),
+    )
+    parse_grammar = ansi.SelectClauseSegment.parse_grammar.copy()
+
+
+class GroupByClauseSegment(ansi.GroupByClauseSegment):
+    """Overriding GroupByClauseSegment to allow for additional segment parsing."""
+
+    match_grammar = ansi.GroupByClauseSegment.match_grammar.copy()
+    match_grammar.terminator = match_grammar.terminator.copy(  # type: ignore
+        insert=[
+            Sequence("CLUSTER", "BY"),
+            Sequence("DISTRIBUTE", "BY"),
+            Sequence("SORT", "BY"),
+        ],
+        before=Ref.keyword("LIMIT"),
+    )
+    parse_grammar = ansi.GroupByClauseSegment.parse_grammar
+
+
+class HavingClauseSegment(ansi.HavingClauseSegment):
+    """Overriding HavingClauseSegment to allow for additional segment parsing."""
+
+    match_grammar = ansi.HavingClauseSegment.match_grammar.copy()
+    match_grammar.terminator = match_grammar.terminator.copy(  # type: ignore
+        insert=[
+            Sequence("CLUSTER", "BY"),
+            Sequence("DISTRIBUTE", "BY"),
+            Sequence("SORT", "BY"),
+        ],
+        before=Ref.keyword("LIMIT"),
+    )
+    parse_grammar = ansi.HavingClauseSegment.parse_grammar
+
+
+class SetExpressionSegment(ansi.SetExpressionSegment):
+    """Overriding SetExpressionSegment to allow for additional segment parsing."""
+
+    match_grammar = ansi.SetExpressionSegment.match_grammar.copy(
+        insert=[
+            Ref("ClusterByClauseSegment", optional=True),
+            Ref("DistributeByClauseSegment", optional=True),
+            Ref("SortByClauseSegment", optional=True),
+        ],
+        before=Ref("LimitClauseSegment", optional=True),
+    )
+
+
+class PartitionClauseSegment(ansi.PartitionClauseSegment):
+    """Overriding SetExpressionSegment to allow for additional segment parsing."""
+
+    match_grammar = ansi.PartitionClauseSegment.match_grammar.copy()
+    match_grammar.terminator = match_grammar.terminator.copy(  # type: ignore
+        insert=[
+            Sequence("CLUSTER", "BY"),
+            Sequence("DISTRIBUTE", "BY"),
+            Sequence("SORT", "BY"),
+        ],
+        before=Ref("FrameClauseUnitGrammar"),
+    )
+    parse_grammar = ansi.PartitionClauseSegment.parse_grammar
+
+
+class OrderByClauseSegment(ansi.OrderByClauseSegment):
+    """A `ORDER BY` clause like in `SELECT`."""
+
+    match_grammar = ansi.OrderByClauseSegment.match_grammar.copy()
+    match_grammar.terminator = OneOf(  # type: ignore
+        "CLUSTER",
+        "DISTRIBUTE",
+        "SORT",
+        "LIMIT",
+        "HAVING",
+        "QUALIFY",
+        # For window functions
+        "WINDOW",
+        Ref("FrameClauseUnitGrammar"),
+        "SEPARATOR",
+    )
+    parse_grammar = ansi.OrderByClauseSegment.parse_grammar
+
+
+class ClusterByClauseSegment(ansi.OrderByClauseSegment):
+    """A `CLUSTER BY` clause like in `SELECT`."""
+
+    type = "clusterby_clause"
+    match_grammar: Matchable = StartsWith(
+        Sequence("CLUSTER", "BY"),
+        terminator=ansi.OrderByClauseSegment.match_grammar.terminator,  # type: ignore
+    )
+    parse_grammar: Optional[Matchable] = Sequence(
+        "CLUSTER",
+        "BY",
+        Indent,
+        Delimited(
+            Sequence(
+                OneOf(
+                    Ref("ColumnReferenceSegment"),
+                    Ref("NumericLiteralSegment"),
+                    Ref("ExpressionSegment"),
+                ),
+            ),
+            terminator=OneOf(Ref.keyword("LIMIT"), Ref("FrameClauseUnitGrammar")),
+        ),
+        Dedent,
+    )
+
+
+class DistributeByClauseSegment(ansi.OrderByClauseSegment):
+    """A `DISTRIBUTE BY` clause like in `SELECT`."""
+
+    type = "distributeby_clause"
+    match_grammar: Matchable = StartsWith(
+        Sequence("DISTRIBUTE", "BY"),
+        terminator=OneOf(
+            "SORT",
+            "LIMIT",
+            "HAVING",
+            "QUALIFY",
+            # For window functions
+            "WINDOW",
+            Ref("FrameClauseUnitGrammar"),
+            "SEPARATOR",
+        ),
+    )
+    parse_grammar: Optional[Matchable] = Sequence(
+        "DISTRIBUTE",
+        "BY",
+        Indent,
+        Delimited(
+            Sequence(
+                OneOf(
+                    Ref("ColumnReferenceSegment"),
+                    Ref("NumericLiteralSegment"),
+                    Ref("ExpressionSegment"),
+                ),
+            ),
+            terminator=OneOf(
+                Ref.keyword("LIMIT"), Ref("FrameClauseUnitGrammar"), Ref.keyword("SORT")
+            ),
+        ),
+        Dedent,
+    )
+
+
+class SortByClauseSegment(ansi.OrderByClauseSegment):
+    """A `SORT BY` clause like in `SELECT`."""
+
+    type = "sortby_clause"
+    match_grammar: Matchable = StartsWith(
+        Sequence("SORT", "BY"),
+        terminator=ansi.OrderByClauseSegment.match_grammar.terminator,  # type: ignore
+    )
+    parse_grammar: Optional[Matchable] = Sequence(
+        "SORT",
+        "BY",
+        Indent,
+        Delimited(
+            Sequence(
+                OneOf(
+                    Ref("ColumnReferenceSegment"),
+                    Ref("NumericLiteralSegment"),
+                    Ref("ExpressionSegment"),
+                ),
+                OneOf("ASC", "DESC", optional=True),
+                Sequence("NULLS", OneOf("FIRST", "LAST"), optional=True),
+            ),
+            terminator=OneOf(Ref.keyword("LIMIT"), Ref("FrameClauseUnitGrammar")),
+        ),
+        Dedent,
     )
