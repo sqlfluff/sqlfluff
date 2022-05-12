@@ -1114,6 +1114,20 @@ class SetAssignmentStatementSegment(BaseSegment):
 
     match_grammar = Sequence(
         "SET",
+        Sequence(
+            Delimited(
+                Ref("SetStatementElementSegment"), terminator=Ref("SemicolonSegment")
+            )
+        ),
+    )
+
+
+class SetStatementElementSegment(BaseSegment):
+    """A SET statement variable declaration."""
+
+    type = "set_statement_element"
+
+    match_grammar = Sequence(
         OneOf(Ref("SessionVariableNameSegment"), Ref("LocalVariableNameSegment")),
         Ref("EqualsSegment"),
         AnyNumberOf(

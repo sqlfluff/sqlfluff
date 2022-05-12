@@ -3,53 +3,59 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f5a859bc75f6b63c6c5c7fbf8ebe8f7d0a248c0674ca8469ad493e7cacd0ca14
+_hash: b066306fa0916c07552400296d6e6a2a31c0ea07089184ace797422bf14253b4
 file:
 - statement:
     set_statement:
-    - keyword: SET
-    - variable: some_bool_param
-    - comparison_operator:
-        raw_comparison_operator: '='
-    - keyword: 'ON'
+      keyword: SET
+      set_statement_element:
+        variable: some_bool_param
+        comparison_operator:
+          raw_comparison_operator: '='
+        keyword: 'ON'
 - statement_terminator: ;
 - statement:
     set_statement:
-    - keyword: SET
-    - variable: some_bool_param
-    - comparison_operator:
-        raw_comparison_operator: '='
-    - keyword: 'OFF'
+      keyword: SET
+      set_statement_element:
+        variable: some_bool_param
+        comparison_operator:
+          raw_comparison_operator: '='
+        keyword: 'OFF'
 - statement_terminator: ;
 - statement:
     set_statement:
-    - keyword: SET
-    - variable: some_bool_param
-    - comparison_operator:
-        raw_comparison_operator: '='
-    - keyword: 'TRUE'
+      keyword: SET
+      set_statement_element:
+        variable: some_bool_param
+        comparison_operator:
+          raw_comparison_operator: '='
+        keyword: 'TRUE'
 - statement_terminator: ;
 - statement:
     set_statement:
-    - keyword: SET
-    - variable: some_bool_param
-    - comparison_operator:
-        raw_comparison_operator: '='
-    - keyword: 'FALSE'
+      keyword: SET
+      set_statement_element:
+        variable: some_bool_param
+        comparison_operator:
+          raw_comparison_operator: '='
+        keyword: 'FALSE'
 - statement_terminator: ;
 - statement:
     set_statement:
-    - keyword: SET
-    - variable: some_bool_param
-    - comparison_operator:
-        raw_comparison_operator: '='
-    - variable: '0'
+      keyword: SET
+      set_statement_element:
+      - variable: some_bool_param
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - variable: '0'
 - statement_terminator: ;
 - statement:
     set_statement:
-    - keyword: SET
-    - variable: some_bool_param
-    - comparison_operator:
-        raw_comparison_operator: '='
-    - variable: '1'
+      keyword: SET
+      set_statement_element:
+      - variable: some_bool_param
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - variable: '1'
 - statement_terminator: ;
