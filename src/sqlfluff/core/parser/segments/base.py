@@ -1199,9 +1199,9 @@ class BaseSegment:
 
             before = []
             after = []
-            if fixes_applied and not r.can_start_end_non_code:
+            if not r.can_start_end_non_code:
                 idx_non_code = self._find_start_or_end_non_code(seg_buffer)
-                # Did the fixes leave misplaced segments?
+                # Are there misplaced segments from a fix?
                 if idx_non_code is not None:
                     # Yes. Fix the misplaced segments: Do not include them
                     # in the new segment's children. Instead, return them to the
