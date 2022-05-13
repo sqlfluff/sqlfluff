@@ -29,14 +29,3 @@ def test_non_selects_unparseable(raw: str) -> None:
     result = lnt.lint_string(raw)
     assert len(result.violations) == 1
     assert isinstance(result.violations[0], SQLParseError)
-
-
-def test_ignore_unreferenced_object() -> None:
-    """SOQL often has an implicit relationship between objects."""
-    cfg = FluffConfig(configs={"core": {"dialect": "soql"}})
-    lnt = Linter(config=cfg)
-    result = lnt.lint_string(
-        """SELECT Account.Name FROM Contact
-    """
-    )
-    assert result.num_violations() == 0
