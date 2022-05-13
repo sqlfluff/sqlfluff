@@ -1129,7 +1129,7 @@ class PartitionClauseSegment(BaseSegment):
     type = "partitionby_clause"
     match_grammar: Matchable = StartsWith(
         "PARTITION",
-        terminator=OneOf("ORDER", Ref("FrameClauseUnitGrammar")),
+        terminator=OneOf(Sequence("ORDER", "BY"), Ref("FrameClauseUnitGrammar")),
         enforce_whitespace_preceding_terminator=True,
     )
     parse_grammar: Optional[Matchable] = Sequence(
@@ -1989,7 +1989,9 @@ class GroupByClauseSegment(BaseSegment):
     type = "groupby_clause"
     match_grammar: Matchable = StartsWith(
         Sequence("GROUP", "BY"),
-        terminator=OneOf("ORDER", "LIMIT", "HAVING", "QUALIFY", "WINDOW"),
+        terminator=OneOf(
+            Sequence("ORDER", "BY"), "LIMIT", "HAVING", "QUALIFY", "WINDOW"
+        ),
         enforce_whitespace_preceding_terminator=True,
     )
     parse_grammar: Optional[Matchable] = Sequence(
@@ -2004,7 +2006,9 @@ class GroupByClauseSegment(BaseSegment):
                 # Can `GROUP BY coalesce(col, 1)`
                 Ref("ExpressionSegment"),
             ),
-            terminator=OneOf("ORDER", "LIMIT", "HAVING", "QUALIFY", "WINDOW"),
+            terminator=OneOf(
+                Sequence("ORDER", "BY"), "LIMIT", "HAVING", "QUALIFY", "WINDOW"
+            ),
         ),
         Dedent,
     )
@@ -2016,7 +2020,7 @@ class HavingClauseSegment(BaseSegment):
     type = "having_clause"
     match_grammar: Matchable = StartsWith(
         "HAVING",
-        terminator=OneOf("ORDER", "LIMIT", "QUALIFY", "WINDOW"),
+        terminator=OneOf(Sequence("ORDER", "BY"), "LIMIT", "QUALIFY", "WINDOW"),
         enforce_whitespace_preceding_terminator=True,
     )
     parse_grammar: Optional[Matchable] = Sequence(

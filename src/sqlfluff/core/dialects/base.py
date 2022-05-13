@@ -1,6 +1,6 @@
 """Defines the base dialect class."""
 
-from typing import Union, Type
+from typing import Set, Union, Type
 
 from sqlfluff.core.parser import (
     KeywordSegment,
@@ -89,7 +89,7 @@ class Dialect:
         expanded_copy.expanded = True
         return expanded_copy
 
-    def sets(self, label):
+    def sets(self, label) -> Set:
         """Allows access to sets belonging to this dialect.
 
         These sets belong to the dialect and are copied for sub

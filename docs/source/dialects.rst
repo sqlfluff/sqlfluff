@@ -137,6 +137,15 @@ inherited from :ref:`postgres_dialect_ref`.
 
 .. _`Snowflake`: https://docs.snowflake.com/en/sql-reference.html
 
+.. _soql_dialect_ref:
+
+SOQL
+----
+
+The dialect for `SOQL`_ (Salesforce Object Query Language).
+
+.. _`SOQL`: https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_soql.htm
+
 .. _sparksql_dialect_ref:
 
 SparkSQL
