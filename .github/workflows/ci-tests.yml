@@ -26,7 +26,7 @@ jobs:
         jobs: [ 'linting', 'doclinting', 'docbuild', 'yamllint' ]
     name: ${{ matrix.jobs }} tests
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
@@ -44,7 +44,7 @@ jobs:
         python-version: [ '3.7', '3.8', '3.9', '3.10' ]
     name: Python ${{ matrix.python-version }} tests
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
@@ -66,7 +66,7 @@ jobs:
         jobs: [ 'bench', 'mypy' ]
     name: ${{ matrix.jobs }} tests
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
@@ -83,7 +83,7 @@ jobs:
     runs-on: ubuntu-latest
     name: example tests
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
@@ -123,7 +123,7 @@ jobs:
         dbt-version: [ 'dbt020', 'dbt021', 'dbt100' ]
     name: DBT Plugin ${{ matrix.dbt-version }} tests
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
@@ -146,7 +146,7 @@ jobs:
       run: |
         git config --global core.autocrlf false
         git config --global core.eol lf
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
@@ -187,7 +187,7 @@ jobs:
       run: |
         git config --global core.autocrlf false
         git config --global core.eol lf
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
@@ -217,7 +217,7 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: '3.10'
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Install dependencies
       run: |
         pip install .
