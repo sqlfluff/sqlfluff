@@ -1,6 +1,7 @@
 """Implementation of Rule L065."""
 from typing import List
 from sqlfluff.core.parser import NewlineSegment
+from sqlfluff.core.parser.segments.base import BaseSegment
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
 import sqlfluff.core.rules.functional.segment_predicates as sp
 
@@ -72,10 +73,10 @@ class Rule_L065(BaseRule):
             newline_before_set_operator = res["before"].first(sp.is_type("newline"))
             newline_after_set_operator = res["after"].first(sp.is_type("newline"))
 
-            # In the case of when there is no newline at all in the preceeding/following
-            # segments this is the directly preceeding/following whitespace character
-            preceeding_whitespace = res["before"].first(sp.is_whitespace()).get()
-            following_whitespace = res["after"].first(sp.is_whitespace()).get()
+            # If there is a whitespace directly preceeding/following the set operator we
+            # are replacing it with a newline later.
+            preceeding_whitespace = res["before"].first(sp.is_type("whitespace")).get()
+            following_whitespace = res["after"].first(sp.is_type("whitespace")).get()
 
             if newline_before_set_operator and newline_after_set_operator:
                 continue
@@ -87,15 +88,7 @@ class Rule_L065(BaseRule):
                             "Set operators should be surrounded by newlines. "
                             f"Missing newline before set operator {set_operator.raw}."
                         ),
-                        fixes=[
-                            LintFix.replace(
-                                anchor_segment=preceeding_whitespace,
-                                # TODO: Should we also add WhitespaceSegment( ... )
-                                # here to deal with indentation? or leave this to other
-                                # rules?
-                                edit_segments=[NewlineSegment()],
-                            )
-                        ],
+                        fixes=_generate_fixes(whitespace_segment=preceeding_whitespace),
                     )
                 )
             elif newline_before_set_operator and not newline_after_set_operator:
@@ -106,15 +99,7 @@ class Rule_L065(BaseRule):
                             "Set operators should be surrounded by newlines. "
                             f"Missing newline after set operator {set_operator.raw}."
                         ),
-                        fixes=[
-                            LintFix.replace(
-                                anchor_segment=following_whitespace,
-                                # TODO: Should we also add WhitespaceSegment( ... )
-                                # here to deal with indentation? or leave this to other
-                                # rules?
-                                edit_segments=[NewlineSegment()],
-                            )
-                        ],
+                        fixes=_generate_fixes(whitespace_segment=following_whitespace),
                     )
                 )
             else:
@@ -126,23 +111,29 @@ class Rule_L065(BaseRule):
                             "Missing newline before and after set operator "
                             f"{set_operator.raw}."
                         ),
-                        fixes=[
-                            LintFix.replace(
-                                anchor_segment=preceeding_whitespace,
-                                # TODO: Should we also add WhitespaceSegment( ... )
-                                # here to deal with indentation? or leave this to other
-                                # rules?
-                                edit_segments=[NewlineSegment()],
-                            ),
-                            LintFix.replace(
-                                anchor_segment=following_whitespace,
-                                # TODO: Should we also add WhitespaceSegment( ... )
-                                # here to deal with indentation? or leave this to other
-                                # rules?
-                                edit_segments=[NewlineSegment()],
-                            ),
-                        ],
+                        fixes=(
+                            _generate_fixes(whitespace_segment=preceeding_whitespace)
+                            + _generate_fixes(whitespace_segment=following_whitespace)
+                        ),
                     )
                 )
 
         return results
+
+
+def _generate_fixes(
+    whitespace_segment: BaseSegment,
+) -> LintFix:
+
+    if whitespace_segment:
+        return [
+            LintFix.replace(
+                anchor_segment=whitespace_segment,
+                # TODO: Should we also add WhitespaceSegment( ... )
+                # here to deal with indentation? or leave this to other
+                # rules?
+                edit_segments=[NewlineSegment()],
+            )
+        ]
+    else:
+        return []
