@@ -33,8 +33,8 @@ class Rule_L026(BaseRule):
 
     .. note::
        This rule is disabled by default for BigQuery, Hive, Redshift, SOQL, and SparkSQL
-       due to the use of structs and lateral views which trigger false positives.
-       It can be enabled with the ``force_enable = True`` flag.
+       due to the support of things like structs and lateral views which trigger false
+       positives. It can be enabled with the ``force_enable = True`` flag.
 
     **Anti-pattern**
 
