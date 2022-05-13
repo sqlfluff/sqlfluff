@@ -66,7 +66,7 @@ class Rule_L026(BaseRule):
         self.force_enable: bool
 
         if (
-            context.dialect.name in ["bigquery", "hive", "redshift", "sparksql"]
+            context.dialect.name in ["bigquery", "hive", "redshift", "soql", "sparksql"]
             and not self.force_enable
         ):
             return LintResult()
