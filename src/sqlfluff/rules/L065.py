@@ -1,14 +1,11 @@
 """Implementation of Rule L065."""
-from typing import List
+from typing import List, Optional
+
+import sqlfluff.core.rules.functional.segment_predicates as sp
 from sqlfluff.core.parser import NewlineSegment
 from sqlfluff.core.parser.segments.base import BaseSegment
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
-import sqlfluff.core.rules.functional.segment_predicates as sp
-
-from sqlfluff.core.rules.doc_decorators import (
-    document_fix_compatible,
-    document_groups,
-)
+from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
 
 
 @document_groups
@@ -111,10 +108,11 @@ class Rule_L065(BaseRule):
                             "Missing newline before and after set operator "
                             f"{set_operator.raw}."
                         ),
-                        fixes=(
-                            _generate_fixes(whitespace_segment=preceeding_whitespace)
-                            + _generate_fixes(whitespace_segment=following_whitespace)
-                        ),
+                        # FIXME: Not sure how to make mypy happy here...
+                        fixes=[  # type: ignore
+                            *_generate_fixes(whitespace_segment=preceeding_whitespace),
+                            *_generate_fixes(whitespace_segment=following_whitespace),
+                        ],
                     )
                 )
 
@@ -123,7 +121,7 @@ class Rule_L065(BaseRule):
 
 def _generate_fixes(
     whitespace_segment: BaseSegment,
-) -> LintFix:
+) -> Optional[List[LintFix]]:
 
     if whitespace_segment:
         return [
