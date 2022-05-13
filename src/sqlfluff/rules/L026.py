@@ -60,13 +60,14 @@ class Rule_L026(BaseRule):
 
     groups = ("all", "core")
     config_keywords = ["force_enable"]
+    _dialects_disabled_by_default = ["bigquery", "hive", "redshift", "soql", "sparksql"]
 
     def _eval(self, context: RuleContext) -> EvalResultType:
         # Config type hints
         self.force_enable: bool
 
         if (
-            context.dialect.name in ["bigquery", "hive", "redshift", "soql", "sparksql"]
+            context.dialect.name in self._dialects_disabled_by_default
             and not self.force_enable
         ):
             return LintResult()
