@@ -476,7 +476,6 @@ class ForInStatementSegment(BaseSegment):
         Dedent,
         "END",
         "FOR",
-        # Ref("DelimiterGrammar", optional=True),
     )
 
 
