@@ -76,7 +76,8 @@ same folder that you're currently in with the following content:
     SELECT a+b  AS foo,
     c AS bar from my_table
 
-You can then run :code:`sqlfluff lint test.sql --dialect ansi` to lint this file.
+You can then run :code:`sqlfluff lint test.sql --dialect ansi` to lint this
+file.
 
 .. code-block:: text
 
