@@ -19,6 +19,7 @@ DO
   SELECT record.word, record.word_count;
 END FOR;
 
+-- With Assert
 FOR user IN (
     SELECT
         group1,
