@@ -432,7 +432,21 @@ class StatementSegment(ansi.StatementSegment):
             Ref("SetStatementSegment"),
             Ref("ExportStatementSegment"),
             Ref("CreateExternalTableStatementSegment"),
+            Ref("AssertStatementSegment"),
         ],
+    )
+
+
+class AssertStatementSegment(BaseSegment):
+    """ASSERT segment.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/debugging-statements
+    """
+
+    type = "assert_statement"
+    match_grammar: Matchable = Sequence(
+        "ASSERT",
+        Ref("ExpressionSegment"),
     )
 
 

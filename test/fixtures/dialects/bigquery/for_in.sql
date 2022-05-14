@@ -18,3 +18,13 @@ DO
   SELECT record.word, record.word_count;
   SELECT record.word, record.word_count;
 END FOR;
+
+FOR user IN (
+    SELECT
+        group1,
+	    count(*) as count
+    FROM `database.user`
+)
+DO
+	ASSERT (COUNT > 0);
+END FOR;
