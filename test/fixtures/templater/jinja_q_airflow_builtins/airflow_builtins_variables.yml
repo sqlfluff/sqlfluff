@@ -16,9 +16,6 @@ file:
             literal: "'2006-06-13 08:30:00+00:00'"
         - comma: ","
         - select_clause_element:
-            literal: "'20060613T083000+0000'"
-        - comma: ","
-        - select_clause_element:
             literal: "'sample_dag'"
         - comma: ","
         - select_clause_element:

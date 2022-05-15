@@ -28,10 +28,11 @@ def ts_nodash_with_tz(value):
     return value.isoformat().replace("-", "").replace(":", "")
 
 
-airflow_filters = {
-    "ds": ds,
-    "ds_nodash": ds_nodash,
-    "ts": ts,
-    "ts_nodash": ts_nodash,
-    "ts_nodash_with_tz": ts_nodash_with_tz,
-}
+def generate_jinja_filters():
+    return {
+        "ds": ds,
+        "ds_nodash": ds_nodash,
+        "ts": ts,
+        "ts_nodash": ts_nodash,
+        "ts_nodash_with_tz": ts_nodash_with_tz,
+    }

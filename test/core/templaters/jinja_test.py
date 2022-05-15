@@ -614,8 +614,7 @@ def test__templater_full(subpath, code_only, include_meta, yaml_loader, caplog):
     "subpath,code_only,include_meta",
     [
         # Test Airflow builtins
-        # TODO: Find a way to get filters to work when using library
-        # ("jinja_q_airflow_builtins/airflow_builtins_filters", True, False),
+        ("jinja_q_airflow_builtins/airflow_builtins_filters", True, False),
         ("jinja_q_airflow_builtins/airflow_builtins_macros", True, False),
         ("jinja_q_airflow_builtins/airflow_builtins_variables", True, False),
     ],

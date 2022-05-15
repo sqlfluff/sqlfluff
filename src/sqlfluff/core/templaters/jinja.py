@@ -282,9 +282,8 @@ class JinjaTemplater(PythonTemplater):
                     )
                 )
 
-                # TODO: Find a way to get filters to work when using library
-                # for filter_name in airflow_filters:
-                #     env.filters[filter_name] = airflow_filters[filter_name]
+                # TODO: Find a netter way to get filters to work when using library
+                env.filters.update(airflow_builtins.filters.generate_jinja_filters())
 
         # Load macros from path (if applicable)
         if config:
