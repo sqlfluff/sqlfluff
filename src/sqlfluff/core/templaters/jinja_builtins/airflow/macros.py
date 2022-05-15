@@ -21,7 +21,7 @@ def ds_add(ds: str, days: int) -> str:
     """
     if not days:
         return str(ds)
-    return dt.datetime.strptime(str(ds), "%Y-%m-%d") + dt.timedelta(days=days).strftime(
+    return (dt.datetime.strptime(str(ds), "%Y-%m-%d") + dt.timedelta(days=days)).strftime(
         "%Y-%m-%d"
     )
 

@@ -4,7 +4,7 @@ https://airflow.apache.org/docs/apache-airflow/stable/templates-ref.html
 """
 import datetime
 
-import sqlfluff.core.templaters.builtins.airflow.filters as filters
+import sqlfluff.core.templaters.jinja_builtins.airflow.filters as filters
 
 
 class DagEmulator:
