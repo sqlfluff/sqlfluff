@@ -2,6 +2,8 @@
 
 https://airflow.apache.org/docs/apache-airflow/stable/templates-ref.html
 """
+
+
 # https://github.com/apache/airflow/blob/main/airflow/templates.py
 def ds(value):
     """Airflow builtin filter ds."""
@@ -29,6 +31,7 @@ def ts_nodash_with_tz(value):
 
 
 def generate_jinja_filters():
+    """Returns Airflow Jinja filters."""
     return {
         "ds": ds,
         "ds_nodash": ds_nodash,
