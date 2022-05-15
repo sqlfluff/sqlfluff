@@ -4,13 +4,13 @@ file:
       select_clause:
         - keyword: SELECT
         - select_clause_element:
-            literal: "'2006-06-14'"
+            literal: "'2006-06-13'"
         - comma: ","
         - select_clause_element:
-            literal: "'2006-06-14'"
+            literal: "'2006-06-13'"
         - comma: ","
         - select_clause_element:
-            literal: "'2006-06-19'"
+            literal: "'2006-06-18'"
         - comma: ","
         - select_clause_element:
             literal: "'01-01-15'"
