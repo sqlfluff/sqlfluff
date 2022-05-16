@@ -3,17 +3,15 @@
 https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_soql.htm
 """
 
-from sqlfluff.core.parser.grammar.anyof import OneOf
-from sqlfluff.core.parser.grammar.sequence import Sequence
 from sqlfluff.dialects import dialect_ansi as ansi
-from sqlfluff.core.parser import BaseSegment, Ref
+from sqlfluff.core.parser import BaseSegment, OneOf, Ref, Sequence
 from sqlfluff.core.dialects import load_raw_dialect
 
 ansi_dialect = load_raw_dialect("ansi")
 
 soql_dialect = ansi_dialect.copy_as("soql")
 
-date_literals = [
+date_literals = {
     "YESTERDAY",
     "TODAY",
     "TOMORROW",
@@ -37,9 +35,9 @@ date_literals = [
     "THIS_FISCAL_YEAR",
     "LAST_FISCAL_YEAR",
     "NEXT_FISCAL_YEAR",
-]
+}
 
-date_n_literals = [
+date_n_literals = {
     "LAST_N_DAYS",
     "NEXT_N_DAYS",
     "LAST_N_WEEKS",
@@ -54,9 +52,9 @@ date_n_literals = [
     "NEXT_N_FISCAL_QUARTERS",
     "LAST_N_FISCAL_YEARS",
     "NEXT_N_FISCAL_YEARS",
-]
+}
 
-soql_dialect.sets("reserved_keywords").update(date_literals + date_n_literals)
+soql_dialect.sets("reserved_keywords").update(date_literals | date_n_literals)
 
 soql_dialect.sets("bare_functions").update(date_literals)
 
