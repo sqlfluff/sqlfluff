@@ -26,11 +26,6 @@ jobs:
           }
           sed -i "s/-->/-->\n\n## [${{ github.event.inputs.newVersionNumber }}] - $(date +%F)\n\n## Highlights\n\n## What’s Changed\n\n## New Contributors/" ./CHANGELOG.md
 
-      - name: Commit
-        run: |
-          git add .
-          git commit -m "Bump to version ${{ github.event.inputs.newVersionNumber }}"
-
       - name: Create pull request
         uses: peter-evans/create-pull-request@v4
         with:
