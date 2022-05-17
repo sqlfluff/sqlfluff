@@ -4177,7 +4177,6 @@ class AlterSchemaStatementSegment(BaseSegment):
     """An `ALTER SCHEMA` statement.
 
     https://www.postgresql.org/docs/current/sql-alterschema.html
-
     """
 
     type = "alter_schema_statement"
