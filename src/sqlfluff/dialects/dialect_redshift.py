@@ -13,6 +13,7 @@ from sqlfluff.core.parser import (
     Bracketed,
     BaseSegment,
     Delimited,
+    Matchable,
     Nothing,
     OptionallyBracketed,
 )
@@ -2032,5 +2033,21 @@ class TransactionStatementSegment(BaseSegment):
             Sequence("READ", "ONLY"),
             Sequence("READ", "WRITE"),
             optional=True,
+        ),
+    )
+
+
+class LockTableStatementSegment(BaseSegment):
+    """An `LOCK TABLE` statement.
+
+    https://www.postgresql.org/docs/14/sql-lock.html
+    """
+
+    type = "lock_table_statement"
+    match_grammar: Matchable = Sequence(
+        "LOCK",
+        Ref.keyword("TABLE", optional=True),
+        Delimited(
+            Ref("TableReferenceSegment"),
         ),
     )

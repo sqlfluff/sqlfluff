@@ -3175,6 +3175,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DropExtensionStatementSegment"),
             Ref("CreateTypeStatementSegment"),
             Ref("AlterTypeStatementSegment"),
+            Ref("LockTableStatementSegment"),
         ],
     )
 
@@ -4169,4 +4170,40 @@ class AlterTypeStatementSegment(BaseSegment):
                 Ref("SchemaReferenceSegment"),
             ),
         ),
+    )
+
+
+class LockTableStatementSegment(BaseSegment):
+    """An `LOCK TABLE` statement.
+
+    https://www.postgresql.org/docs/14/sql-lock.html
+    """
+
+    type = "lock_table_statement"
+    match_grammar: Matchable = Sequence(
+        "LOCK",
+        Ref.keyword("TABLE", optional=True),
+        Ref.keyword("ONLY", optional=True),
+        OneOf(
+            Delimited(
+                Ref("TableReferenceSegment"),
+            ),
+            Ref("StarSegment"),
+        ),
+        Sequence(
+            "IN",
+            OneOf(
+                Sequence("ACCESS", "SHARE"),
+                Sequence("ROW", "SHARE"),
+                Sequence("ROW", "EXCLUSIVE"),
+                Sequence("SHARE", "UPDATE", "EXCLUSIVE"),
+                "SHARE",
+                Sequence("SHARE", "ROW", "EXCLUSIVE"),
+                "EXCLUSIVE",
+                Sequence("ACCESS", "EXCLUSIVE"),
+            ),
+            "MODE",
+            optional=True,
+        ),
+        Ref.keyword("NOWAIT", optional=True),
     )
