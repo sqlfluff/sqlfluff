@@ -20,9 +20,10 @@ jobs:
           sed -i -e '/version =/ s/= .*/= ${{ github.event.inputs.newVersionNumber }}/' ./setup.cfg
           sed -i -e '/stable_version =/ s/= .*/= ${{ github.event.inputs.newVersionNumber }}/' ./setup.cfg
 
-      - name: Push to feature branch
+      - name: Commit
         run: |
-          git checkout -b prep-${{ github.event.inputs.newVersionNumber }}
           git add .
           git commit -m "Bump to version ${{ github.event.inputs.newVersionNumber }}"
-          git push --set-upstream origin prep-${{ github.event.inputs.newVersionNumber }}
+
+      - name: Create pull request
+        uses: peter-evans/create-pull-request@v4
