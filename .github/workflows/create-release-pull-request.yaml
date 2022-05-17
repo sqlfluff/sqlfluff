@@ -20,6 +20,13 @@ jobs:
           sed -i -e '/version =/ s/= .*/= ${{ github.event.inputs.newVersionNumber }}/' ./setup.cfg
           sed -i -e '/stable_version =/ s/= .*/= ${{ github.event.inputs.newVersionNumber }}/' ./setup.cfg
 
+      - name: Start Changelog entry
+        run: |
+          function dt {
+            date +'%Y-%m-%d'
+          }
+          sed -i "s/-->/-->\n\n## [${{ github.event.inputs.newVersionNumber }}] - $(date +%F)\n\n## Highlights\n\n## What’s Changed\n\n## New Contributors/" ./CHANGELOG.md
+
       - name: Commit
         run: |
           git add .
