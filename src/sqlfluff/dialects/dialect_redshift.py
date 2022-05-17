@@ -218,6 +218,20 @@ redshift_dialect.add(
         "TEXT32K",
         "ZSTD",
     ),
+    QuotaGrammar=Sequence(
+        "QUOTA",
+        OneOf(
+            Sequence(
+                Ref("NumericLiteralSegment"),
+                OneOf(
+                    "MB",
+                    "GB",
+                    "TB",
+                ),
+            ),
+            "UNLIMITED",
+        ),
+    ),
 )
 
 
@@ -1358,21 +1372,7 @@ class CreateSchemaStatementSegment(BaseSegment):
                 Ref("ObjectReferenceSegment"),
             ),
         ),
-        Sequence(
-            "QUOTA",
-            OneOf(
-                Sequence(
-                    Ref("NumericLiteralSegment"),
-                    OneOf(
-                        "MB",
-                        "GB",
-                        "TB",
-                    ),
-                ),
-                "UNLIMITED",
-            ),
-            optional=True,
-        ),
+        Ref("QuotaGrammar", optional=True),
     )
 
 
@@ -2032,5 +2032,32 @@ class TransactionStatementSegment(BaseSegment):
             Sequence("READ", "ONLY"),
             Sequence("READ", "WRITE"),
             optional=True,
+        ),
+    )
+
+
+class AlterSchemaStatementSegment(BaseSegment):
+    """An `ALTER SCHEMA` statement.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_ALTER_SCHEMA.html
+    """
+
+    type = "alter_schema_statement"
+    match_grammar = Sequence(
+        "ALTER",
+        "SCHEMA",
+        Ref("SchemaReferenceSegment"),
+        OneOf(
+            Sequence(
+                "RENAME",
+                "TO",
+                Ref("SchemaReferenceSegment"),
+            ),
+            Sequence(
+                "OWNER",
+                "TO",
+                Ref("RoleReferenceSegment"),
+            ),
+            Ref("QuotaGrammar"),
         ),
     )
