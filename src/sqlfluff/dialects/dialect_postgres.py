@@ -3175,6 +3175,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DropExtensionStatementSegment"),
             Ref("CreateTypeStatementSegment"),
             Ref("AlterTypeStatementSegment"),
+            Ref("AlterSchemaStatementSegment"),
         ],
     )
 
@@ -3245,8 +3246,7 @@ class CreateTriggerStatementSegment(ansi.CreateTriggerStatementSegment):
         Sequence(
             "EXECUTE",
             OneOf("FUNCTION", "PROCEDURE"),
-            Ref("FunctionNameIdentifierSegment"),
-            Bracketed(Ref("FunctionContentsGrammar", optional=True)),
+            Ref("FunctionSegment"),
         ),
     )
 
@@ -4167,6 +4167,32 @@ class AlterTypeStatementSegment(BaseSegment):
                 "SET",
                 "SCHEMA",
                 Ref("SchemaReferenceSegment"),
+            ),
+        ),
+    )
+
+
+class AlterSchemaStatementSegment(BaseSegment):
+    """An `ALTER SCHEMA` statement.
+
+    https://www.postgresql.org/docs/current/sql-alterschema.html
+    """
+
+    type = "alter_schema_statement"
+    match_grammar = Sequence(
+        "ALTER",
+        "SCHEMA",
+        Ref("SchemaReferenceSegment"),
+        OneOf(
+            Sequence(
+                "RENAME",
+                "TO",
+                Ref("SchemaReferenceSegment"),
+            ),
+            Sequence(
+                "OWNER",
+                "TO",
+                Ref("RoleReferenceSegment"),
             ),
         ),
     )
