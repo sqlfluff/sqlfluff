@@ -22,8 +22,6 @@ jobs:
 
       - name: Push to feature branch
         run: |
-          git config --global user.email "you@example.com"
-          git config --global user.name "Your Name"
           git checkout -b prep-${{ github.event.inputs.newVersionNumber }}
           git add .
           git commit -m "Bump to version ${{ github.event.inputs.newVersionNumber }}"
