@@ -3245,8 +3245,7 @@ class CreateTriggerStatementSegment(ansi.CreateTriggerStatementSegment):
         Sequence(
             "EXECUTE",
             OneOf("FUNCTION", "PROCEDURE"),
-            Ref("FunctionNameIdentifierSegment"),
-            Bracketed(Ref("FunctionContentsGrammar", optional=True)),
+            Ref("FunctionSegment"),
         ),
     )
 
