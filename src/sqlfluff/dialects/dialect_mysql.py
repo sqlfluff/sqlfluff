@@ -179,7 +179,15 @@ mysql_dialect.replace(
             Ref("ForClauseSegment"),
             Ref("SetOperatorSegment"),
             Ref("WithNoSchemaBindingClauseSegment"),
+            Ref("IntoClauseSegment"),
         ]
+    ),
+    WhereClauseTerminatorGrammar=ansi_dialect.get_grammar(
+        "WhereClauseTerminatorGrammar"
+    ).copy(
+        insert=[
+            Ref("IntoClauseSegment"),
+        ],
     ),
     BaseExpressionElementGrammar=ansi_dialect.get_grammar(
         "BaseExpressionElementGrammar"
@@ -1240,7 +1248,11 @@ class IntoClauseSegment(BaseSegment):
 
     type = "into_clause"
 
-    match_grammar = Sequence(
+    match_grammar = StartsWith(
+        "INTO", terminator=Ref("SelectClauseElementTerminatorGrammar")
+    )
+
+    parse_grammar = Sequence(
         "INTO",
         OneOf(
             Delimited(
@@ -1365,6 +1377,7 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
             Ref("OrderByClauseSegment", optional=True),
             Ref("LimitClauseSegment", optional=True),
             Ref("NamedWindowSegment", optional=True),
+            Ref("IntoClauseSegment", optional=True),
         ]
     )
 

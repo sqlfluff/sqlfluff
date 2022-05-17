@@ -3,17 +3,74 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: af6a3c93db87a9756c30e05157976e3ac27cdbafde3dfc84a85b495fd3d74669
+_hash: 7971e52058bb6d0d720922722e84b65c71fe0045665419892dc380dcd4ceedfd
 file:
-  statement:
+- statement:
     select_statement:
       select_clause:
         keyword: select
         select_clause_element:
           literal: '1'
       into_clause:
-      - keyword: into
-      - variable: '@dumpfile'
-      - variable: from
-      - variable: table
-  statement_terminator: ;
+        keyword: into
+        variable: '@dumpfile'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: table
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+            identifier: name
+      into_clause:
+        keyword: INTO
+        variable: '@name'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            identifier: id
+          comparison_operator:
+            raw_comparison_operator: '='
+          literal: '1'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+            identifier: name
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            identifier: id
+          comparison_operator:
+            raw_comparison_operator: '='
+          literal: '1'
+      into_clause:
+        keyword: INTO
+        variable: '@name'
+- statement_terminator: ;
