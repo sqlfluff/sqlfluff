@@ -36,6 +36,7 @@ jobs:
           title: Prep version ${{ github.event.inputs.newVersionNumber }}
           body: |
             Prepare version ${{ github.event.inputs.newVersionNumber }}
+
             Please add all merged changes from [Release Draft][1] to
             the CHANGELOG.md file
 
