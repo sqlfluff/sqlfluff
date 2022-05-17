@@ -1114,17 +1114,23 @@ class SetAssignmentStatementSegment(BaseSegment):
 
     match_grammar = Sequence(
         "SET",
-        OneOf(Ref("SessionVariableNameSegment"), Ref("LocalVariableNameSegment")),
-        Ref("EqualsSegment"),
-        AnyNumberOf(
-            Ref("QuotedLiteralSegment"),
-            Ref("DoubleQuotedLiteralSegment"),
-            Ref("SessionVariableNameSegment"),
-            # Match boolean keywords before local variables.
-            Ref("BooleanDynamicSystemVariablesGrammar"),
-            Ref("LocalVariableNameSegment"),
-            Ref("FunctionSegment"),
-            Ref("ArithmeticBinaryOperatorGrammar"),
+        Delimited(
+            Sequence(
+                OneOf(
+                    Ref("SessionVariableNameSegment"), Ref("LocalVariableNameSegment")
+                ),
+                Ref("EqualsSegment"),
+                AnyNumberOf(
+                    Ref("QuotedLiteralSegment"),
+                    Ref("DoubleQuotedLiteralSegment"),
+                    Ref("SessionVariableNameSegment"),
+                    # Match boolean keywords before local variables.
+                    Ref("BooleanDynamicSystemVariablesGrammar"),
+                    Ref("LocalVariableNameSegment"),
+                    Ref("FunctionSegment"),
+                    Ref("ArithmeticBinaryOperatorGrammar"),
+                ),
+            ),
         ),
     )
 
