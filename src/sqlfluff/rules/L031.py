@@ -31,7 +31,7 @@ class Rule_L031(BaseRule):
 
     .. note::
        This rule was taken from the `dbt Style Guide
-       <https://github.com/dbt-labs/corp/blob/master/dbt_style_guide.md>`_
+       <https://github.com/dbt-labs/corp/blob/main/dbt_style_guide.md>`_
        which notes that:
 
         Avoid table aliases in join conditions (especially initialisms) - it's

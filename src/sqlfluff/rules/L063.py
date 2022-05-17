@@ -18,40 +18,26 @@ class Rule_L063(Rule_L010):
 
     **Anti-pattern**
 
-    In this example, ``null`` and ``false`` are in lower-case whereas ``TRUE`` is in
-    upper-case.
+    In this example, ``int`` and ``unsigned`` are in lower-case whereas
+    ``VARCHAR`` is in upper-case.
 
     .. code-block:: sql
 
-        select
-            a,
-            null,
-            TRUE,
-            false
-        from foo
+        CREATE TABLE t (
+            a int unsigned,
+            b VARCHAR(15)
+        );
 
     **Best practice**
 
-    Ensure all literal ``null``/``true``/``false`` literals are consistently
-    upper or lower case
+    Ensure all datatypes are consistently upper or lower case
 
     .. code-block:: sql
 
-        select
-            a,
-            NULL,
-            TRUE,
-            FALSE
-        from foo
-
-        -- Also good
-
-        select
-            a,
-            null,
-            true,
-            false
-        from foo
+        CREATE TABLE t (
+            a INT UNSIGNED,
+            b VARCHAR(15)
+        );
 
     """
 
