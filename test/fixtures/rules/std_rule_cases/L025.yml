@@ -272,3 +272,16 @@ test_fail_snowflake_flatten_function:
   configs:
     core:
       dialect: snowflake
+
+
+test_pass_snowflake_values:
+  # Tests a fix for issue 3301.
+  pass_str: |
+    SELECT
+      thing_1
+      , thing_2
+    FROM VALUES
+      ( 'foo', 'bar')
+      , ( 'foo', 'bar')
+      my_table_alias(thing_1, thing_2)
+    ;
