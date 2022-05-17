@@ -4198,3 +4198,4 @@ class AlterSchemaStatementSegment(BaseSegment):
             ),
         ),
     )
+   
