@@ -234,7 +234,7 @@ to indentation. However, if you have other versions of indentation which are
 supported by published style guides, then please submit an issue on GitHub
 to have that variation supported by *SQLFluff*.
 
-.. _`dbt Labs SQL style guide`: https://github.com/dbt-labs/corp/blob/master/dbt_style_guide.md
+.. _`dbt Labs SQL style guide`: https://github.com/dbt-labs/corp/blob/main/dbt_style_guide.md
 .. _`Mozilla SQL style guide`: https://docs.telemetry.mozilla.org/concepts/sql_style.html#joins
 .. _`Baron Schwartz`: https://www.xaprb.com/blog/2006/04/26/sql-coding-standards/
 .. _`Rule L018`: ./rules.html#sqlfluff.core.rules.Rule_L018
