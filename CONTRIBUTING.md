@@ -236,9 +236,9 @@ whenever a new release is published to GitHub.
 
 #### Release checklist:
 
-The [release page](https://github.com/sqlfluff/sqlfluff/releases) shows maintainers all merges since last release. Once we have a long enough list, we should prepare a release, following below checklist:
+The [release page](https://github.com/sqlfluff/sqlfluff/releases) shows maintainers all merges since last release. Once we have a long enough list, we should prepare a release. We should follow the below checklist, part of which is automated by the ["Create release pull request" GitHub Action](https://github.com/sqlfluff/sqlfluff/.github/workflows/create-release-pull-request.yaml):
 
-- [ ] Change the version in `setup.cfg` and `plugins/sqlfluff-templator-dbt/setup.cfg`
+- [ ] Change the version in `setup.cfg` and `plugins/sqlfluff-templater-dbt/setup.cfg`
 - [ ] Update the stable_version in the `[sqlfluff_docs]` section of `setup.cfg`
 - [ ] Copy the draft releases from https://github.com/sqlfluff/sqlfluff/releases to [CHANGELOG.md](CHANGELOG.md). These draft release notes have been created by a GitHub Action on each PR merge.
 - [ ] If you pretend to create a new draft in GitHub and hit "Auto Generate Release Notes", then it will basically recreate these notes (though in a slightly different format), but also add a nice "First contributors" section, so can copy that "First contributors" section too and then abandon that new draft ([an issues](https://github.com/release-drafter/release-drafter/issues/1001) has been raised to ask for this in Release Drafter GitHub Action).
