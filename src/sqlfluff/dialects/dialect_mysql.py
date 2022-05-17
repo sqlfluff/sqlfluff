@@ -25,6 +25,7 @@ from sqlfluff.core.parser import (
     Matchable,
 )
 from sqlfluff.core.dialects import load_raw_dialect
+from sqlfluff.core.parser.lexer import StringLexer
 from sqlfluff.dialects import dialect_ansi as ansi
 
 ansi_dialect = load_raw_dialect("ansi")
@@ -249,6 +250,20 @@ mysql_dialect.replace(
     SingleIdentifierGrammar=ansi_dialect.get_grammar("SingleIdentifierGrammar").copy(
         insert=[Ref("SessionVariableNameSegment")]
     ),
+    ArithmeticBinaryOperatorGrammar=OneOf(
+        Ref("PlusSegment"),
+        Ref("MinusSegment"),
+        Ref("DivideSegment"),
+        Ref("MultiplySegment"),
+        Ref("ModuloSegment"),
+        Ref("BitwiseAndSegment"),
+        Ref("BitwiseOrSegment"),
+        Ref("BitwiseXorSegment"),
+        Ref("LogicalXorSegment"),
+        Ref("BitwiseLShiftSegment"),
+        Ref("BitwiseRShiftSegment"),
+        Ref("AmpersandAmpersandSegment"),
+    ),
 )
 
 mysql_dialect.add(
@@ -266,6 +281,12 @@ mysql_dialect.add(
         type="literal",
         trim_chars=("@",),
     ),
+    AmpersandAmpersandSegment=StringParser(
+        "&&", SymbolSegment, name="ampersand_ampersand", type="ampersand_ampersand"
+    ),
+    LogicalXorSegment=StringParser(
+        "xor", SymbolSegment, name="logical_xor", type="logical_xor"
+    )
 )
 
 
@@ -773,6 +794,14 @@ mysql_dialect.insert_lexer_matchers(
         ),
     ],
     before="code",
+)
+
+
+mysql_dialect.insert_lexer_matchers(
+    [
+        StringLexer("ampersand_ampersand", "&&", CodeSegment),
+    ],
+    before="ampersand"
 )
 
 
