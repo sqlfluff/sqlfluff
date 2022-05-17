@@ -142,6 +142,7 @@ def test__templater_raw():
             FROM users_data
             WHERE (city_id) IN $city_id
             AND date > $date
+            OR date = ${date}
             """,
             "dollar",
             """
@@ -149,6 +150,7 @@ def test__templater_raw():
             FROM users_data
             WHERE (city_id) IN (1, 2, 3, 45)
             AND date > '2020-10-01'
+            OR date = '2020-10-01'
             """,
             dict(
                 city_id="(1, 2, 3, 45)",

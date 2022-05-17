@@ -29,8 +29,10 @@ KNOWN_STYLES = {
     "pyformat": regex.compile(
         r"(?<![:\w\x5c])%\((?P<param_name>[\w_]+)\)s", regex.UNICODE
     ),
-    # e.g. WHERE bla = $name
-    "dollar": regex.compile(r"(?<![:\w\x5c])\$(?P<param_name>[\w_]+)", regex.UNICODE),
+    # e.g. WHERE bla = $name or WHERE bla = ${name}
+    "dollar": regex.compile(
+        r"(?<![:\w\x5c])\${?(?P<param_name>[\w_]+)}?", regex.UNICODE
+    ),
     # e.g. WHERE bla = ?
     "question_mark": regex.compile(r"(?<![:\w\x5c])\?", regex.UNICODE),
     # e.g. WHERE bla = $3
