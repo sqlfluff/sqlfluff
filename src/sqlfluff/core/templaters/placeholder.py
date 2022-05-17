@@ -148,7 +148,7 @@ class PlaceholderTemplater(RawTemplater):
                 param_name = found_param["param_name"]
             last_literal_length = span[0] - last_pos_raw
             try:
-                replacement = context[param_name]
+                replacement = str(context[param_name])
             except KeyError as err:
                 # TODO: Add a url here so people can get more help.
                 raise SQLTemplaterError(

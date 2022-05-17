@@ -123,6 +123,7 @@ def test__templater_raw():
             FROM users_data
             WHERE (city_id) IN %(city_id)s
             AND date > %(date)s
+            LIMIT %(limit)s
             """,
             "pyformat",
             """
@@ -130,11 +131,9 @@ def test__templater_raw():
             FROM users_data
             WHERE (city_id) IN (1, 2, 3, 45)
             AND date > '2020-10-01'
+            LIMIT 15
             """,
-            dict(
-                city_id="(1, 2, 3, 45)",
-                date="'2020-10-01'",
-            ),
+            dict(city_id="(1, 2, 3, 45)", date="'2020-10-01'", limit=15),
         ),
         (
             """
