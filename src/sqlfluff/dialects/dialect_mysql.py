@@ -253,12 +253,18 @@ mysql_dialect.replace(
     ),
     AndKeywordSegment=OneOf(
         StringParser("AND", KeywordSegment, type="binary_operator"),
-        StringParser("&&", CodeSegment, name="double_ampersand", type="binary_operator"),
+        StringParser(
+            "&&", CodeSegment, name="double_ampersand", type="binary_operator"
+        ),
     ),
     OrKeywordSegment=OneOf(
         StringParser("OR", KeywordSegment, type="binary_operator"),
         StringParser("||", CodeSegment, name="double_pipe", type="binary_operator"),
         StringParser("XOR", KeywordSegment, type="binary_operator"),
+    ),
+    NotKeywordSegment=OneOf(
+        StringParser("not", KeywordSegment, type="keyword"),
+        StringParser("!", KeywordSegment, type="keyword"),
     ),
 )
 

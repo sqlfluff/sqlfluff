@@ -416,6 +416,7 @@ ansi_dialect.add(
     ),
     AndKeywordSegment=StringParser("and", KeywordSegment, type="binary_operator"),
     OrKeywordSegment=StringParser("or", KeywordSegment, type="binary_operator"),
+    NotKeywordSegment=StringParser("not", KeywordSegment, type="keyword"),
     # This is a placeholder for other dialects.
     PreTableFunctionKeywordsGrammar=Nothing(),
     BinaryOperatorGrammar=OneOf(
@@ -1646,11 +1647,11 @@ ansi_dialect.add(
                 OneOf(
                     Ref("SignedSegmentGrammar"),
                     # Ref('TildeSegment'),
-                    "NOT",
+                    Ref("NotKeywordSegment"),
                     "PRIOR",
                     # used in CONNECT BY clauses (EXASOL, Snowflake, Postgres...)
                 ),
-                Ref("Expression_C_Grammar"),
+                Ref("Expression_A_Grammar"),
             ),
         ),
         AnyNumberOf(
