@@ -31,7 +31,7 @@ jobs:
           echo $LATEST_DRAFT_RELEASE
           RELEASE_TEXT=$(gh release view $LATEST_DRAFT_RELEASE | sed '1,/^--$/d')
           echo $RELEASE_TEXT
-          sed -i "s/<!--Start Of Releases (DO NOT DELETE THIS LINE)-->/<!--Start Of Releases (DO NOT DELETE THIS LINE)-->\n\n## [${{ github.event.inputs.newVersionNumber }}] - $(date +%F)\n\n$(RELEASE_TEXT)/" ./CHANGELOG.md
+          sed -i "s/<!--Start Of Releases (DO NOT DELETE THIS LINE)-->/<!--Start Of Releases (DO NOT DELETE THIS LINE)-->\n\n## [${{ github.event.inputs.newVersionNumber }}] - $(date +%F)\n\n$RELEASE_TEXT/" ./CHANGELOG.md
 
       - name: Create pull request
         uses: peter-evans/create-pull-request@v4
