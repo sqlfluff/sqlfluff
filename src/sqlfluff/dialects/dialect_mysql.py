@@ -286,7 +286,7 @@ mysql_dialect.add(
     ),
     LogicalXorSegment=StringParser(
         "xor", SymbolSegment, name="logical_xor", type="logical_xor"
-    )
+    ),
 )
 
 
@@ -801,7 +801,7 @@ mysql_dialect.insert_lexer_matchers(
     [
         StringLexer("ampersand_ampersand", "&&", CodeSegment),
     ],
-    before="ampersand"
+    before="ampersand",
 )
 
 
