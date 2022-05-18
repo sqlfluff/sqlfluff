@@ -21,9 +21,6 @@ jobs:
 
       - name: Start Changelog entry
         run: |
-          function dt {
-            date +'%Y-%m-%d'
-          }
           echo ${{ secrets.GITHUB_TOKEN }} | gh auth login --with-token
           RELEASE_LIST=(gh release list)
           echo $RELEASE_LIST
@@ -31,7 +28,7 @@ jobs:
           echo $LATEST_DRAFT_RELEASE
           RELEASE_TEXT=$(gh release view $LATEST_DRAFT_RELEASE | sed '1,/^--$/d')
           echo $RELEASE_TEXT
-          sed -i "s/<!--Start Of Releases (DO NOT DELETE THIS LINE)-->/<!--Start Of Releases (DO NOT DELETE THIS LINE)-->\n\n## [${{ github.event.inputs.newVersionNumber }}] - $(date +%F)\n\n$RELEASE_TEXT/" ./CHANGELOG.md
+          sed -i "s/<!--Start Of Releases (DO NOT DELETE THIS LINE)-->/<!--Start Of Releases (DO NOT DELETE THIS LINE)-->\n\n## [${{ github.event.inputs.newVersionNumber }}] - $(date +%F)\n\n$(echo $RELEASE_TEXT)/" ./CHANGELOG.md
 
       - name: Create pull request
         uses: peter-evans/create-pull-request@v4
