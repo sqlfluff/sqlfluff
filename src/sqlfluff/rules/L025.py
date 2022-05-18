@@ -80,6 +80,15 @@ class Rule_L025(BaseRule):
 
             alias: AliasInfo
             for alias in query.aliases:
+
+                # Skip alias for values clauses
+                if alias.from_expression_element:
+                    table_expression = alias.from_expression_element.get_child(
+                        "table_expression"
+                    )
+                    if table_expression and table_expression.get_child("values_clause"):
+                        continue
+
                 if alias.aliased and alias.ref_str not in query.tbl_refs:
                     # Unused alias. Report and fix.
                     violations.append(self._report_unused_alias(alias))

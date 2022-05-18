@@ -21,6 +21,8 @@ templater_logger = logging.getLogger("sqlfluff.templater")
 KNOWN_STYLES = {
     # e.g. WHERE bla = :name
     "colon": regex.compile(r"(?<![:\w\x5c]):(?P<param_name>\w+)(?!:)", regex.UNICODE),
+    # e.g. WHERE bla = table:name - use with caution as more prone to false positives
+    "colon_nospaces": regex.compile(r":(?P<param_name>\w+)", regex.UNICODE),
     # e.g. WHERE bla = :2
     "numeric_colon": regex.compile(
         r"(?<![:\w\x5c]):(?P<param_name>\d+)", regex.UNICODE
@@ -29,8 +31,10 @@ KNOWN_STYLES = {
     "pyformat": regex.compile(
         r"(?<![:\w\x5c])%\((?P<param_name>[\w_]+)\)s", regex.UNICODE
     ),
-    # e.g. WHERE bla = $name
-    "dollar": regex.compile(r"(?<![:\w\x5c])\$(?P<param_name>[\w_]+)", regex.UNICODE),
+    # e.g. WHERE bla = $name or WHERE bla = ${name}
+    "dollar": regex.compile(
+        r"(?<![:\w\x5c])\${?(?P<param_name>[\w_]+)}?", regex.UNICODE
+    ),
     # e.g. WHERE bla = ?
     "question_mark": regex.compile(r"(?<![:\w\x5c])\?", regex.UNICODE),
     # e.g. WHERE bla = $3
@@ -146,7 +150,7 @@ class PlaceholderTemplater(RawTemplater):
                 param_name = found_param["param_name"]
             last_literal_length = span[0] - last_pos_raw
             try:
-                replacement = context[param_name]
+                replacement = str(context[param_name])
             except KeyError as err:
                 # TODO: Add a url here so people can get more help.
                 raise SQLTemplaterError(
