@@ -1,0 +1,50 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 3f4c8f3526ae1d28a5fbfc6d9d2072dc5c30e2251b1df4cb00765a681d5a023a
+file:
+- statement:
+    call_statement:
+      keyword: CALL
+      procedure_name:
+        identifier: mydataset
+        dot: .
+        procedure_name_identifier: create_customer
+      bracketed:
+        start_bracket: (
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    declare_segment:
+      keyword: DECLARE
+      identifier: retCode
+      data_type:
+        data_type_identifier: INT64
+- statement_terminator: ;
+- statement:
+    call_statement:
+      keyword: CALL
+      procedure_name:
+        identifier: mySchema
+        dot: .
+        procedure_name_identifier: UpdateSomeTables
+      bracketed:
+      - start_bracket: (
+      - expression:
+          literal: "'someAccountId'"
+      - comma: ','
+      - expression:
+          column_reference:
+            identifier: retCode
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+            identifier: retCode
+- statement_terminator: ;

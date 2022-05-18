@@ -167,6 +167,30 @@ bigquery_dialect.add(
             type="date_part",
         )
     ),
+    ProcedureNameIdentifierSegment=OneOf(
+        # In BigQuery struct() has a special syntax, so we don't treat it as a function
+        RegexParser(
+            r"[A-Z_][A-Z0-9_]*",
+            CodeSegment,
+            name="procedure_name_identifier",
+            type="procedure_name_identifier",
+            anti_template=r"STRUCT",
+        ),
+        RegexParser(
+            r"`[^`]*`",
+            CodeSegment,
+            name="procedure_name_identifier",
+            type="procedure_name_identifier",
+        ),
+    ),
+    ProcedureParameterGrammar=OneOf(
+        Sequence(
+            OneOf("IN", "OUT", "INOUT", optional=True),
+            Ref("ParameterNameSegment", optional=True),
+            OneOf(Sequence("ANY", "TYPE"), Ref("DatatypeSegment")),
+        ),
+        OneOf(Sequence("ANY", "TYPE"), Ref("DatatypeSegment")),
+    ),
 )
 
 
@@ -391,6 +415,7 @@ class MultiStatementSegment(BaseSegment):
     type = "multi_statement_segment"
     match_grammar: Matchable = OneOf(
         Ref("ForInStatementSegment"),
+        Ref("CreateProcedureStatementSegment"),
     )
 
 
@@ -433,6 +458,9 @@ class StatementSegment(ansi.StatementSegment):
             Ref("ExportStatementSegment"),
             Ref("CreateExternalTableStatementSegment"),
             Ref("AssertStatementSegment"),
+            Ref("CallStatementSegment"),
+            Ref("ReturnStatementSegment"),
+            Ref("RaiseStatementSegment"),
         ],
     )
 
@@ -1120,6 +1148,7 @@ class SetStatementSegment(BaseSegment):
                     )
                 ),
                 Ref("ArrayLiteralSegment"),
+                Ref("ExpressionSegment"),
             ),
         ),
     )
@@ -1621,4 +1650,143 @@ class ExportStatementSegment(BaseSegment):
         ),
         "AS",
         Ref("SelectableGrammar"),
+    )
+
+
+class ProcedureNameSegment(BaseSegment):
+    """Prcoedure name, including any prefix bits, e.g. project or schema."""
+
+    type = "procedure_name"
+    match_grammar: Matchable = Sequence(
+        # Project name, schema identifier, etc.
+        AnyNumberOf(
+            Sequence(
+                Ref("SingleIdentifierGrammar"),
+                Ref("DotSegment"),
+            ),
+        ),
+        # Base prcoedure name
+        OneOf(
+            Ref("ProcedureNameIdentifierSegment"),
+            Ref("QuotedIdentifierSegment"),
+        ),
+        allow_gaps=False,
+    )
+
+
+class ProcedureParameterListGrammar(BaseSegment):
+    """The parameters for a function ie. `(string, number)`."""
+
+    # Function parameter list. Note that the only difference from the ANSI
+    # grammar is that BigQuery provides overrides bracket_pairs_set.
+    type = "procedure_parameter_list"
+    match_grammar = Bracketed(
+        Delimited(
+            Ref("ProcedureParameterGrammar"),
+            delimiter=Ref("CommaSegment"),
+            bracket_pairs_set="angle_bracket_pairs",
+            optional=True,
+        )
+    )
+
+
+class ProcedureStatements(BaseSegment):
+    """Statements within a CREATE PROCEDURE statement.
+
+    https://cloud.google.com/bigquery/docs/procedures
+    """
+
+    type = "procedure_statements"
+    match_grammar = GreedyUntil("END")
+    parse_grammar = AnyNumberOf(
+        Sequence(
+            Ref("StatementSegment"),
+            Ref("DelimiterGrammar"),
+        ),
+    )
+
+
+class CreateProcedureStatementSegment(BaseSegment):
+    """A `CREATE PROCEDURE` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#create_procedure
+    """
+
+    type = "create_procedure_statement"
+
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        "PROCEDURE",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("ProcedureNameSegment"),
+        Ref("ProcedureParameterListGrammar"),
+        Sequence(
+            "OPTIONS",
+            "strict_mode",
+            StringParser(
+                "strict_mode", CodeSegment, name="strict_mode", type="procedure_option"
+            ),
+            Ref("EqualsSegment"),
+            Ref("BooleanLiteralGrammar"),
+            optional=True,
+        ),
+        "BEGIN",
+        Indent,
+        Ref("ProcedureStatements"),
+        Dedent,
+        "END",
+    )
+
+
+class CallStatementSegment(BaseSegment):
+    """A `CALL` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/procedural-language#call
+    """
+
+    type = "call_statement"
+
+    match_grammar: Matchable = Sequence(
+        "CALL",
+        Ref("ProcedureNameSegment"),
+        Bracketed(
+            Delimited(
+                Ref("ExpressionSegment"),
+                optional=True,
+            ),
+        ),
+    )
+
+
+class ReturnStatementSegment(BaseSegment):
+    """A `RETURN` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/procedural-language#return
+    """
+
+    type = "return_statement"
+
+    match_grammar: Matchable = Sequence(
+        "RETURN",
+    )
+
+
+class RaiseStatementSegment(BaseSegment):
+    """A `RAISE` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/procedural-language#raise
+    """
+
+    type = "raise_statement"
+
+    match_grammar: Matchable = Sequence(
+        "RAISE",
+        Sequence(
+            "USING",
+            "MESSAGE",
+            Ref("EqualsSegment"),
+            Ref("ExpressionSegment"),
+            optional=True,
+        ),
     )
