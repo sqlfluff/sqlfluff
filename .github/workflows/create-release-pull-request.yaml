@@ -26,9 +26,10 @@ jobs:
           echo $RELEASE_LIST
           LATEST_DRAFT_RELEASE=$(echo $RELEASE_LIST | grep Draft | head -n1 | awk '{print $1;}')
           echo $LATEST_DRAFT_RELEASE
-          printf "\n##[${{ github.event.inputs.newVersionNumber }}] - $(date +%F)\n" > notes.txt
-          gh release view $LATEST_DRAFT_RELEASE | sed '1,/^--$/d' >> notes.txt
+          echo "" > notes.txt
+          echo "##[${{ github.event.inputs.newVersionNumber }}] - $(date +%F)" >> notes.txt
           echo "" >> notes.txt
+          gh release view $LATEST_DRAFT_RELEASE | sed '1,/^--$/d' >> notes.txt
           cat notes.txt
           sed -i -e '/DO NOT DELETE THIS LINE/r./notes.txt' CHANGELOG.md
           rm notes.txt
