@@ -1,4 +1,4 @@
--- SELECT !1;
+SELECT !1;
 SELECT 1 && 1;
 SELECT 1 && 0;
 SELECT 1 XOR 1;
