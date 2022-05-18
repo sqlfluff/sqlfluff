@@ -82,6 +82,20 @@ def test__templater_raw():
         (
             """
             SELECT user_mail, city_id
+            FROM users_data:table_suffix
+            """,
+            "colon_nospace",
+            """
+            SELECT user_mail, city_id
+            FROM users_data42
+            """,
+            dict(
+                table_suffix="42",
+            ),
+        ),
+        (
+            """
+            SELECT user_mail, city_id
             FROM users_data
             WHERE (city_id) IN ?
             AND date > ?
@@ -226,6 +240,7 @@ def test__templater_raw():
         "colon_simple_substitution",
         "colon_accept_block_at_end",
         "colon_tuple_substitution",
+        "colon_nospaces",
         "question_mark",
         "numeric_colon",
         "pyformat",
