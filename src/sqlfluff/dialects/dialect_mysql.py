@@ -264,7 +264,7 @@ mysql_dialect.replace(
     ),
     NotGrammar=OneOf(
         StringParser("NOT", KeywordSegment, type="keyword"),
-        StringParser("!", CodeSegment, type="not_operator"),
+        StringParser("!", CodeSegment, name="not_operator" type="not_operator"),
     ),
 )
 
