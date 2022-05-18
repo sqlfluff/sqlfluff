@@ -32,5 +32,5 @@ jobs:
           gh release list
           LATEST_DRAFT_RELEASE=$(gh release list | grep Draft | head -n1 | awk '{print $1;}')
           echo $LATEST_DRAFT_RELEASE
-          RELEASE_TEXT=$(gh release view $LATEST_DRAFT_RELEASE)
+          RELEASE_TEXT=$(gh release view $LATEST_DRAFT_RELEASE | sed '1,/^--$/d')
           echo $RELEASE_TEXT
