@@ -1665,7 +1665,7 @@ class ProcedureNameSegment(BaseSegment):
                 Ref("DotSegment"),
             ),
         ),
-        # Base prcoedure name
+        # Base procedure name
         OneOf(
             Ref("ProcedureNameIdentifierSegment"),
             Ref("QuotedIdentifierSegment"),
@@ -1674,11 +1674,10 @@ class ProcedureNameSegment(BaseSegment):
     )
 
 
-class ProcedureParameterListGrammar(BaseSegment):
-    """The parameters for a function ie. `(string, number)`."""
+class ProcedureParameterListSegment(BaseSegment):
+    """The parameters for a prcoedure ie. `(string, number)`."""
 
-    # Function parameter list. Note that the only difference from the ANSI
-    # grammar is that BigQuery provides overrides bracket_pairs_set.
+    # Procedure parameter list (based on FunctionsParameterListGrammar)
     type = "procedure_parameter_list"
     match_grammar = Bracketed(
         Delimited(
