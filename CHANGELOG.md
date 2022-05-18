@@ -10,6 +10,55 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
+##[0.13.2] - 2022-05-18
+
+## Highlights
+
+## What’s Changed
+
+* Postgres and Redshift: Support `LOCK [TABLE]` (#3350) @tunetheweb
+* Placeholder updates: Allow optional braces in dollar placeholders, add `colon_nospaces`, and cast to string (#3354) @tunetheweb
+* BigQuery: Basic `FOR..IN..DO...END FOR` support (#3340) @tunetheweb
+* L025: exclude `VALUES` clauses (#3358) @tunetheweb
+* GitHub Actions: Update existing PR on new runs (#3367) @greg-finley
+* GitHub Actions: Copy draft release notes to CHANGELOG (#3360) @greg-finley
+* GitHub Action to set version number (#3347) @greg-finley
+* Postgres and Redshift: support `ALTER SCHEMA` (#3346) @mdahlman
+* MySQL: better `SELECT..INTO` support (#3351) @tunetheweb
+* Postgres: support better function calls in `CREATE TRIGGER` (#3349) @tunetheweb
+* Misc rule doc updates (#3352) @tunetheweb
+* Snowflake: Move `CASE` keyword to Unreserved list (#3353) @tunetheweb
+* MySQL: Added support for multiple variables in `SET` statement. (#3328) @cgkoutzigiannis
+* SOQL: Support date_n_literal (#3344) @greg-finley
+* Update Docs: Getting Started and Index (#3339) @mdahlman
+* SOQL: Disable L026 rule (#3338) @greg-finley
+* Fix critical parse error logged after L003 fix (#3337) @barrywhart
+* SOQL: Disallow non-`SELECT` statements (#3329) @greg-finley
+* ci: bump github actions (#3336) @Fdawgs
+* Start SOQL dialect (#3312) @greg-finley
+* Hive: support `CLUSTER`, `DISTRIBUTE`, `SORT BY` (#3304) @barunpuri
+* Fix typo in Configuration documentation (#3319) @mdahlman
+* L011: Support `MERGE` statements (#3292) @tunetheweb
+* BigQuery: Add workaround to fix false-positves of L063 (#3306) @dmohns
+* Snowflake: `REMOVE` statement rework (#3308) @jmc-bbk
+* Snowflake: `PUT` statement (#3307) @jmc-bbk
+* Snowflake: `GET` statement (#3305) @jmc-bbk
+* Snowflake: Support `ALTER EXTERNAL TABLE` (#3302) @jmc-bbk
+* T-SQL: Fix `PIVOT` placement (#3298) @jpers36
+* Cleanup role references (#3287) @tunetheweb
+* Adding Typeform and videoask into inthewild.rst (#3296) @omonereo-tf
+* Snowflake: LIST statement enhancement (#3295) @jmc-bbk
+* MySQL: Support `Create User` (#3289) @greg-finley
+* Snowflake: CREATE STAGE grammar enhancement for file formats (#3293) @jmc-bbk
+* T-SQL: Complete support for delete statement (#3285) @pguyot
+* MySQL: Support account names (#3286) @greg-finley
+* L028: In tsql dialect, table variables cannot be used to qualify references (#3283) @barrywhart
+* L007: An operator on a line by itself is okay (#3281) @barrywhart
+* L046 (spaces around Jinja tags) should check all slices in a segment (#3279) @barrywhart
+* L003 bug fix: Not ignoring templated newline (#3278) @barrywhart
+
+## New Contributors
+
 ## [0.13.1] - 2022-05-06
 
 ## Highlights
