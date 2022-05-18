@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 91a7d355990b3d3473f2a43d8e64c26bd658e52fe4f99a065cebfbae5e67a02c
+_hash: 3977d567e424f9c9bb08feddc83f8e9f1217ec82cff8b77a86730ac35c51dde9
 file:
 - statement:
     create_stream_statement:
@@ -64,10 +64,11 @@ file:
           keyword: offset
           parameter_assigner: =>
           expression:
-          - sign_indicator: '-'
-          - literal: '60'
-          - binary_operator: '*'
-          - literal: '5'
+            numeric_literal:
+              sign_indicator: '-'
+              literal: '60'
+            binary_operator: '*'
+            literal: '5'
           end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -135,7 +136,7 @@ file:
 - statement:
     create_stream_statement:
     - keyword: create
-    - binary_operator: or
+    - keyword: or
     - keyword: replace
     - keyword: stream
     - object_reference:
@@ -162,7 +163,7 @@ file:
 - statement:
     create_stream_statement:
     - keyword: CREATE
-    - binary_operator: OR
+    - keyword: OR
     - keyword: REPLACE
     - keyword: STREAM
     - object_reference:
@@ -190,7 +191,7 @@ file:
 - statement:
     create_stream_statement:
     - keyword: CREATE
-    - binary_operator: OR
+    - keyword: OR
     - keyword: REPLACE
     - keyword: STREAM
     - object_reference:

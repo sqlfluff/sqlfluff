@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 25f98e03f7bb5285fd55635b63f2304603af7b5e25583b065db56b35792accc6
+_hash: e35bb9a4bed032276b4921fd4f9c2f6f3206df30dec1ce0ffda9e754b0a48f29
 file:
 - batch:
     statement:
@@ -347,7 +347,7 @@ file:
           - keyword: matched
           - keyword: by
           - keyword: target
-          - binary_operator: and
+          - keyword: and
           - expression:
             - column_reference:
               - identifier: src
@@ -415,7 +415,7 @@ file:
           - keyword: matched
           - keyword: by
           - keyword: source
-          - binary_operator: and
+          - keyword: and
           - expression:
               column_reference:
                 identifier: s_id
@@ -705,7 +705,7 @@ file:
         - merge_when_matched_clause:
           - keyword: WHEN
           - keyword: MATCHED
-          - binary_operator: AND
+          - keyword: AND
           - expression:
             - column_reference:
               - identifier: tgt
@@ -876,7 +876,7 @@ file:
                       - identifier: OrderDate
                     - keyword: BETWEEN
                     - literal: "'20030701'"
-                    - binary_operator: AND
+                    - keyword: AND
                     - literal: "'20030731'"
             groupby_clause:
             - keyword: GROUP
@@ -911,7 +911,7 @@ file:
         - merge_when_matched_clause:
           - keyword: WHEN
           - keyword: MATCHED
-          - binary_operator: AND
+          - keyword: AND
           - expression:
             - column_reference:
               - identifier: pi
@@ -952,7 +952,7 @@ file:
         - merge_when_matched_clause:
           - keyword: WHEN
           - keyword: MATCHED
-          - binary_operator: AND
+          - keyword: AND
           - expression:
             - column_reference:
               - identifier: pi

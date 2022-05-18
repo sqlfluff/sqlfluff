@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ad945086fa6197691cb043860c01534e7f560d83add9e5a6aecaadc2df59e9f8
+_hash: 3ac59f8ad587e1e90df819902166ea2c0f7eef429f32587286b0d51ddde1bcfa
 file:
 - statement:
     create_view_statement:
@@ -93,7 +93,7 @@ file:
 - statement:
     create_view_statement:
     - keyword: CREATE
-    - binary_operator: OR
+    - keyword: OR
     - keyword: REPLACE
     - keyword: VIEW
     - table_reference:
@@ -125,7 +125,7 @@ file:
 - statement:
     create_view_statement:
     - keyword: CREATE
-    - binary_operator: OR
+    - keyword: OR
     - keyword: REPLACE
     - keyword: SECURE
     - keyword: RECURSIVE
@@ -162,7 +162,7 @@ file:
 - statement:
     create_view_statement:
     - keyword: CREATE
-    - binary_operator: OR
+    - keyword: OR
     - keyword: REPLACE
     - keyword: VIEW
     - table_reference:
@@ -196,7 +196,7 @@ file:
 - statement:
     create_view_statement:
     - keyword: CREATE
-    - binary_operator: OR
+    - keyword: OR
     - keyword: REPLACE
     - keyword: VIEW
     - table_reference:
@@ -240,7 +240,7 @@ file:
 - statement:
     create_view_statement:
     - keyword: CREATE
-    - binary_operator: OR
+    - keyword: OR
     - keyword: REPLACE
     - keyword: VIEW
     - table_reference:
@@ -278,7 +278,7 @@ file:
 - statement:
     create_view_statement:
     - keyword: CREATE
-    - binary_operator: OR
+    - keyword: OR
     - keyword: REPLACE
     - keyword: SECURE
     - keyword: RECURSIVE
@@ -367,7 +367,7 @@ file:
 - statement:
     create_view_statement:
     - keyword: CREATE
-    - binary_operator: OR
+    - keyword: OR
     - keyword: REPLACE
     - keyword: VIEW
     - table_reference:

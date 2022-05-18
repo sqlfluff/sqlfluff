@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 115dd644f563eed286ff83892a5dd04db884f4bf6268923342d12bc60896b121
+_hash: b32081a8f262a043f0ce05142c2dad75fa535560762e77d80a75c0c1677d4e78
 file:
 - statement:
     select_statement:
@@ -13,7 +13,7 @@ file:
         - keyword: normalize
         - keyword: 'on'
         - keyword: meets
-        - binary_operator: or
+        - keyword: or
         - keyword: overlaps
       - select_clause_element:
           column_reference:
@@ -62,7 +62,7 @@ file:
         - keyword: NORMALIZE
         - keyword: 'ON'
         - keyword: MEETS
-        - binary_operator: OR
+        - keyword: OR
         - keyword: OVERLAPS
       - select_clause_element:
           column_reference:
@@ -160,7 +160,7 @@ file:
         - keyword: NORMALIZE
         - keyword: 'ON'
         - keyword: OVERLAPS
-        - binary_operator: OR
+        - keyword: OR
         - keyword: MEETS
       - select_clause_element:
           column_reference:
