@@ -2395,7 +2395,7 @@ class MergeMatchedClauseSegment(BaseSegment):
     match_grammar: Matchable = Sequence(
         "WHEN",
         "MATCHED",
-        Sequence("AND", Ref("ExpressionSegment"), optional=True),
+        Sequence(Ref("AndGrammar"), Ref("ExpressionSegment"), optional=True),
         "THEN",
         Indent,
         OneOf(

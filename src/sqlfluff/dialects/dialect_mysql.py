@@ -801,6 +801,14 @@ mysql_dialect.insert_lexer_matchers(
 )
 
 
+mysql_dialect.insert_lexer_matchers(
+    [
+        StringLexer("vertical_bar_vertical_bar", "||", CodeSegment),
+    ],
+    before="vertical_bar",
+)
+
+
 class RoleReferenceSegment(ansi.RoleReferenceSegment):
     """A reference to an account, role, or user.
 
