@@ -1719,7 +1719,7 @@ class CreateProcedureStatementSegment(BaseSegment):
         "PROCEDURE",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("ProcedureNameSegment"),
-        Ref("ProcedureParameterListGrammar"),
+        Ref("ProcedureParameterListSegment"),
         Sequence(
             "OPTIONS",
             "strict_mode",
