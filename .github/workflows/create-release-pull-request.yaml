@@ -25,3 +25,7 @@ jobs:
             date +'%Y-%m-%d'
           }
           sed -i "s/<!--Start Of Releases (DO NOT DELETE THIS LINE)-->/<!--Start Of Releases (DO NOT DELETE THIS LINE)-->\n\n## [${{ github.event.inputs.newVersionNumber }}] - $(date +%F)\n\n## Highlights\n\n## What’s Changed\n\n## New Contributors/" ./CHANGELOG.md
+
+      - name: List releases
+        run: |
+          gh release list
