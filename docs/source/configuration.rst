@@ -276,7 +276,7 @@ A few common styles are supported:
     -- colon
     WHERE bla = :my_name
 
-    -- colon_nospace
+    -- colon_nospaces
     -- (use with caution as more prone to false positives)
     WHERE bla = table:my_name
 

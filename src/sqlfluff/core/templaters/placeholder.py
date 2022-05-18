@@ -22,7 +22,7 @@ KNOWN_STYLES = {
     # e.g. WHERE bla = :name
     "colon": regex.compile(r"(?<![:\w\x5c]):(?P<param_name>\w+)(?!:)", regex.UNICODE),
     # e.g. WHERE bla = table:name - use with caution as more prone to false positives
-    "colon_nospace": regex.compile(r":(?P<param_name>\w+)", regex.UNICODE),
+    "colon_nospaces": regex.compile(r":(?P<param_name>\w+)", regex.UNICODE),
     # e.g. WHERE bla = :2
     "numeric_colon": regex.compile(
         r"(?<![:\w\x5c]):(?P<param_name>\d+)", regex.UNICODE

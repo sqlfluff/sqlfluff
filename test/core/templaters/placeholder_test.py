@@ -84,7 +84,7 @@ def test__templater_raw():
             SELECT user_mail, city_id
             FROM users_data:table_suffix
             """,
-            "colon_nospace",
+            "colon_nospaces",
             """
             SELECT user_mail, city_id
             FROM users_data42
