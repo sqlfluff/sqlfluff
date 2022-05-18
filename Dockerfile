@@ -1,6 +1,6 @@
 FROM python:3.9-slim-bullseye
 
-# Set separate working directory for easy debugging.
+# Set separate working directory for easier debugging.
 WORKDIR /app
 
 # Create virtual environment.
