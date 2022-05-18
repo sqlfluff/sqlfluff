@@ -14,10 +14,11 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 ## Highlights
 Major changes include:
-* Fix bug causing L003 to report indentation errors for templated code
+* Fix bug causing L003 to report indentation errors for templated code - sorry we know that one's caused many of you some grief :-(
 * Initial support of SOQL (Salesforce Object Query Language).
+* Additional Placeholder templating options.
 * Start of BigQuery procedural language support (starting simple `FOR` statements and `CREATE PROCEDURE` statements).
-* Many more dialect improvements and bug fixes
+* Many more dialect improvements and bug fixes.
 
 ## What’s Changed
 
