@@ -26,6 +26,7 @@ from sqlfluff.core.parser import (
 )
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser.lexer import StringLexer
+from sqlfluff.core.parser.segments.raw import KeywordSegment
 from sqlfluff.dialects import dialect_ansi as ansi
 
 ansi_dialect = load_raw_dialect("ansi")
@@ -250,19 +251,14 @@ mysql_dialect.replace(
     SingleIdentifierGrammar=ansi_dialect.get_grammar("SingleIdentifierGrammar").copy(
         insert=[Ref("SessionVariableNameSegment")]
     ),
-    ArithmeticBinaryOperatorGrammar=OneOf(
-        Ref("PlusSegment"),
-        Ref("MinusSegment"),
-        Ref("DivideSegment"),
-        Ref("MultiplySegment"),
-        Ref("ModuloSegment"),
-        Ref("BitwiseAndSegment"),
-        Ref("BitwiseOrSegment"),
-        Ref("BitwiseXorSegment"),
-        Ref("LogicalXorSegment"),
-        Ref("BitwiseLShiftSegment"),
-        Ref("BitwiseRShiftSegment"),
-        Ref("AmpersandAmpersandSegment"),
+    AndKeywordSegment=OneOf(
+        StringParser("AND", KeywordSegment, type="binary_operator"),
+        StringParser("&&", CodeSegment, name="double_ampersand", type="binary_operator"),
+    ),
+    OrKeywordSegment=OneOf(
+        StringParser("OR", KeywordSegment, type="binary_operator"),
+        StringParser("||", CodeSegment, name="double_pipe", type="binary_operator"),
+        StringParser("XOR", KeywordSegment, type="binary_operator"),
     ),
 )
 
@@ -280,12 +276,6 @@ mysql_dialect.add(
         name="at_sign_literal",
         type="literal",
         trim_chars=("@",),
-    ),
-    AmpersandAmpersandSegment=StringParser(
-        "&&", SymbolSegment, name="ampersand_ampersand", type="ampersand_ampersand"
-    ),
-    LogicalXorSegment=StringParser(
-        "xor", SymbolSegment, name="logical_xor", type="logical_xor"
     ),
 )
 
