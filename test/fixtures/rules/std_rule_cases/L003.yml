@@ -726,6 +726,19 @@ test_pass_ignore_templated_whitespace_4:
         {{ "      c2\n" }} AS other_id
     FROM my_table
 
+test_pass_ignore_templated_newline_not_last_line:
+  pass_str: |
+    select *
+    from {{ "\n\nmy_table" }}
+    inner join
+        my_table2
+        using (id)
+
+test_pass_ignore_templated_newline_last_line:
+  pass_str: |
+    select *
+    from {{ "\n\nmy_table" }}
+
 test_fail_fix_template_indentation_1:
   fail_str: |
     SELECT
@@ -991,6 +1004,25 @@ test_fail_unindented_procedure_parameters:
         @param1 nvarchar(100),
         @param2 nvarchar(20)
     AS SELECT * FROM dbo
+  configs:
+    core:
+      dialect: tsql
+
+
+test_tsql_bubble_up_newline_after_fix:
+  # Tests issue 3303, where an L003 fix leaves a newline as the final child
+  # segment that has to be "bubbled up" two levels to avoid violating the
+  # _is_code_or_meta() check in core/parser/segments/base.py.
+  fail_str: |
+    create procedure name as
+    begin
+    drop table if exists #something
+      end
+  fix_str: |
+    create procedure name as
+    begin
+        drop table if exists #something
+    end
   configs:
     core:
       dialect: tsql

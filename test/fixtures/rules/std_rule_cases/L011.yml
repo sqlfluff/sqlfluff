@@ -72,3 +72,57 @@ test_fail_implicit_alias_implicit_newline:
     rules:
       L011:
         aliasing: implicit
+
+test_fail_default_explicit_alias_merge:
+  # Add whitespace when fixing implicit aliasing
+  fail_str: |
+    MERGE dataset.inventory t
+    USING dataset.newarrivals s
+        ON t.product = s.product
+    WHEN MATCHED THEN
+        UPDATE SET quantity = t.quantity + s.quantity;
+  fix_str: |
+    MERGE dataset.inventory AS t
+    USING dataset.newarrivals AS s
+        ON t.product = s.product
+    WHEN MATCHED THEN
+        UPDATE SET quantity = t.quantity + s.quantity;
+  configs:
+    core:
+      dialect: bigquery
+
+test_fail_explicit_alias_merge:
+  # Add whitespace when fixing implicit aliasing
+  fail_str: |
+    MERGE dataset.inventory t
+    USING dataset.newarrivals s
+        ON t.product = s.product
+    WHEN MATCHED THEN
+        UPDATE SET quantity = t.quantity + s.quantity;
+  fix_str: |
+    MERGE dataset.inventory AS t
+    USING dataset.newarrivals AS s
+        ON t.product = s.product
+    WHEN MATCHED THEN
+        UPDATE SET quantity = t.quantity + s.quantity;
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      L011:
+        aliasing: explicit
+
+test_pass_implicit_alias_merge:
+  # Add whitespace when fixing implicit aliasing
+  pass_str: |
+    MERGE dataset.inventory t
+    USING dataset.newarrivals s
+        ON t.product = s.product
+    WHEN MATCHED THEN
+        UPDATE SET quantity = t.quantity + s.quantity;
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      L011:
+        aliasing: implicit

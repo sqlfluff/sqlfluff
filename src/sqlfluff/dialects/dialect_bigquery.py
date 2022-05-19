@@ -12,11 +12,13 @@ from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
     Anything,
+    BaseFileSegment,
     BaseSegment,
     Bracketed,
     CodeSegment,
     Dedent,
     Delimited,
+    GreedyUntil,
     Indent,
     KeywordSegment,
     Matchable,
@@ -383,6 +385,43 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     )
 
 
+class MultiStatementSegment(BaseSegment):
+    """Overriding StatementSegment to allow for additional segment parsing."""
+
+    type = "multi_statement_segment"
+    match_grammar: Matchable = OneOf(
+        Ref("ForInStatementSegment"),
+    )
+
+
+class FileSegment(BaseFileSegment):
+    """A segment representing a whole file or script.
+
+    This is also the default "root" segment of the dialect,
+    and so is usually instantiated directly. It therefore
+    has no match_grammar.
+    """
+
+    # NB: We don't need a match_grammar here because we're
+    # going straight into instantiating it directly usually.
+    parse_grammar = Sequence(
+        Sequence(
+            OneOf(
+                Ref("MultiStatementSegment"),
+                Ref("StatementSegment"),
+            ),
+        ),
+        AnyNumberOf(
+            Ref("DelimiterGrammar"),
+            OneOf(
+                Ref("MultiStatementSegment"),
+                Ref("StatementSegment"),
+            ),
+        ),
+        Ref("DelimiterGrammar", optional=True),
+    )
+
+
 class StatementSegment(ansi.StatementSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
 
@@ -393,7 +432,64 @@ class StatementSegment(ansi.StatementSegment):
             Ref("SetStatementSegment"),
             Ref("ExportStatementSegment"),
             Ref("CreateExternalTableStatementSegment"),
+            Ref("AssertStatementSegment"),
         ],
+    )
+
+
+class AssertStatementSegment(BaseSegment):
+    """ASSERT segment.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/debugging-statements
+    """
+
+    type = "assert_statement"
+    match_grammar: Matchable = Sequence(
+        "ASSERT",
+        Ref("ExpressionSegment"),
+    )
+
+
+class ForInStatements(BaseSegment):
+    """Statements within a FOR..IN...DO...END FOR statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/procedural-language#for-in
+    """
+
+    type = "for_in_statement"
+    match_grammar = GreedyUntil(Sequence("END", "FOR"))
+    parse_grammar = AnyNumberOf(
+        Sequence(
+            Ref("StatementSegment"),
+            Ref("DelimiterGrammar"),
+        ),
+    )
+
+
+class ForInStatementSegment(BaseSegment):
+    """FOR..IN...DO...END FOR statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/procedural-language#for-in
+    """
+
+    type = "for_in_statement"
+    match_grammar = StartsWith(
+        "FOR", terminator=Sequence("END", "FOR"), include_terminator=True
+    )
+    parse_grammar = Sequence(
+        # match_grammar = Sequence(
+        "FOR",
+        Ref("SingleIdentifierGrammar"),
+        "IN",
+        Indent,
+        Ref("SelectableGrammar"),
+        Dedent,
+        "DO",
+        Indent,
+        Ref("ForInStatements"),
+        Dedent,
+        "END",
+        "FOR",
     )
 
 
@@ -735,6 +831,22 @@ class TypelessStructSegment(ansi.TypelessStructSegment):
     """
 
     match_grammar = Sequence(
+        "STRUCT",
+        Bracketed(
+            Delimited(
+                Sequence(
+                    Ref("BaseExpressionElementGrammar"),
+                    Ref("AliasExpressionSegment", optional=True),
+                ),
+            ),
+        ),
+    )
+
+    # Workaround: https://github.com/sqlfluff/sqlfluff/issues/3277
+    # There is a weird issue where sometimes typeless structs are parsed as typed
+    # structs and trigger false-positives of L063 when `parse_grammar` is not set.
+    # Follow the linked issue for progress on this issue.
+    parse_grammar = Sequence(
         "STRUCT",
         Bracketed(
             Delimited(

@@ -258,3 +258,10 @@ test_parenthesized_join_clauses_do_not_flag:
   configs:
     core:
       dialect: tsql
+
+test_soql_ignore_rule:
+  pass_str: |
+    SELECT Account.Name FROM Contact
+  configs:
+    core:
+      dialect: soql

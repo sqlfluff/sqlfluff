@@ -1,7 +1,7 @@
 """Implementation of Rule L046."""
 from typing import Tuple
 
-from sqlfluff.core.rules.base import BaseRule, LintResult, RuleContext
+from sqlfluff.core.rules.base import BaseRule, EvalResultType, LintResult, RuleContext
 from sqlfluff.core.rules.functional import rsp
 from sqlfluff.core.rules.doc_decorators import document_groups
 
@@ -54,18 +54,24 @@ class Rule_L046(BaseRule):
         pos = main.find(inner)
         return main[:pos], inner, main[pos + len(inner) :]
 
-    def _eval(self, context: RuleContext) -> LintResult:
+    def _eval(self, context: RuleContext) -> EvalResultType:
         """Look for non-literal segments."""
         assert context.segment.pos_marker
         if context.segment.is_raw() and not context.segment.pos_marker.is_literal():
+            if not context.memory:
+                memory = set()
+            else:
+                memory = context.memory
+
             # Does it actually look like a tag?
             templated_raw_slices = context.functional.segment.raw_slices.select(
                 rsp.is_slice_type("templated")
             )
+            result = []
             for raw_slice in templated_raw_slices:
                 src_raw = raw_slice.raw
                 if not src_raw or src_raw[0] != "{" or src_raw[-1] != "}":
-                    return LintResult(memory=context.memory)  # pragma: no cover
+                    continue  # pragma: no cover
 
                 # Dedupe using a memory of source indexes.
                 # This is important because several positions in the
@@ -73,11 +79,7 @@ class Rule_L046(BaseRule):
                 # source file and we only want to get one violation.
                 src_idx = raw_slice.source_idx
                 if context.memory and src_idx in context.memory:
-                    return LintResult(memory=context.memory)
-                if not context.memory:
-                    memory = set()
-                else:
-                    memory = context.memory
+                    continue
                 memory.add(src_idx)
 
                 # Get the inner section
@@ -88,10 +90,19 @@ class Rule_L046(BaseRule):
 
                 # Check the initial whitespace.
                 if not ws_pre or (ws_pre != " " and "\n" not in ws_pre):
-                    return LintResult(memory=memory, anchor=context.segment)
+                    result.append(
+                        LintResult(
+                            memory=memory,
+                            anchor=context.segment,
+                            description=f"Jinja tags should have a single "
+                            f"whitespace on either side: {src_raw}",
+                        )
+                    )
                 # Check latter whitespace.
-                if not ws_post or (ws_post != " " and "\n" not in ws_post):
-                    return LintResult(memory=memory, anchor=context.segment)
-
+                elif not ws_post or (ws_post != " " and "\n" not in ws_post):
+                    result.append(LintResult(memory=memory, anchor=context.segment))
+            if result:
+                return result
+            else:
                 return LintResult(memory=memory)
         return LintResult(memory=context.memory)

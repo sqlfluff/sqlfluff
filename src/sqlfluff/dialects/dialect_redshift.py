@@ -13,6 +13,7 @@ from sqlfluff.core.parser import (
     Bracketed,
     BaseSegment,
     Delimited,
+    Matchable,
     Nothing,
     OptionallyBracketed,
 )
@@ -217,6 +218,20 @@ redshift_dialect.add(
         "TEXT255",
         "TEXT32K",
         "ZSTD",
+    ),
+    QuotaGrammar=Sequence(
+        "QUOTA",
+        OneOf(
+            Sequence(
+                Ref("NumericLiteralSegment"),
+                OneOf(
+                    "MB",
+                    "GB",
+                    "TB",
+                ),
+            ),
+            "UNLIMITED",
+        ),
     ),
 )
 
@@ -1358,21 +1373,7 @@ class CreateSchemaStatementSegment(BaseSegment):
                 Ref("ObjectReferenceSegment"),
             ),
         ),
-        Sequence(
-            "QUOTA",
-            OneOf(
-                Sequence(
-                    Ref("NumericLiteralSegment"),
-                    OneOf(
-                        "MB",
-                        "GB",
-                        "TB",
-                    ),
-                ),
-                "UNLIMITED",
-            ),
-            optional=True,
-        ),
+        Ref("QuotaGrammar", optional=True),
     )
 
 
@@ -1829,7 +1830,7 @@ class CreateUserStatementSegment(ansi.CreateUserStatementSegment):
     match_grammar = Sequence(
         "CREATE",
         "USER",
-        Ref("ObjectReferenceSegment"),
+        Ref("RoleReferenceSegment"),
         Ref.keyword("WITH", optional=True),
         "PASSWORD",
         OneOf(Ref("QuotedLiteralSegment"), "DISABLE"),
@@ -1903,7 +1904,7 @@ class AlterUserStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "ALTER",
         "USER",
-        Ref("ObjectReferenceSegment"),
+        Ref("RoleReferenceSegment"),
         Ref.keyword("WITH", optional=True),
         AnySetOf(
             OneOf(
@@ -2032,5 +2033,48 @@ class TransactionStatementSegment(BaseSegment):
             Sequence("READ", "ONLY"),
             Sequence("READ", "WRITE"),
             optional=True,
+        ),
+    )
+
+
+class AlterSchemaStatementSegment(BaseSegment):
+    """An `ALTER SCHEMA` statement.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_ALTER_SCHEMA.html
+    """
+
+    type = "alter_schema_statement"
+    match_grammar = Sequence(
+        "ALTER",
+        "SCHEMA",
+        Ref("SchemaReferenceSegment"),
+        OneOf(
+            Sequence(
+                "RENAME",
+                "TO",
+                Ref("SchemaReferenceSegment"),
+            ),
+            Sequence(
+                "OWNER",
+                "TO",
+                Ref("RoleReferenceSegment"),
+            ),
+            Ref("QuotaGrammar"),
+        ),
+    )
+
+
+class LockTableStatementSegment(BaseSegment):
+    """An `LOCK TABLE` statement.
+
+    https://www.postgresql.org/docs/14/sql-lock.html
+    """
+
+    type = "lock_table_statement"
+    match_grammar: Matchable = Sequence(
+        "LOCK",
+        Ref.keyword("TABLE", optional=True),
+        Delimited(
+            Ref("TableReferenceSegment"),
         ),
     )

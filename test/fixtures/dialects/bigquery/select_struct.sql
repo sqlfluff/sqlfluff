@@ -37,3 +37,12 @@ SELECT
   STRUCT<date>("2011-05-05"),
   STRUCT<x int64, y string>(1, t.str_col),
   STRUCT<int64>(int_col);
+
+-- This is to test typeless struct fields are not mistakenly considered as
+-- data types, see https://github.com/sqlfluff/sqlfluff/issues/3277
+SELECT
+  STRUCT(
+    some_field,
+    some_other_field
+  ) AS col
+FROM table;

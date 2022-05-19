@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 83109c48c23d6565c4a497d5e965b7b11d58babfdaa8438304d7c696e9b9637f
+_hash: f30d7235053d1a412d480ad1d7bd66218f11c0776b472427b95d8d1624d77bc8
 file:
 - statement:
     access_statement:
@@ -16,7 +16,7 @@ file:
     - object_reference:
         identifier: my_table2
     - keyword: TO
-    - object_reference:
+    - role_reference:
         identifier: public
 - statement_terminator: ;
 - statement:
@@ -30,7 +30,7 @@ file:
     - object_reference:
         identifier: my_table2
     - keyword: TO
-    - object_reference:
+    - role_reference:
         identifier: '"public"'
 - statement_terminator: ;
 - statement:
@@ -46,7 +46,7 @@ file:
     - object_reference:
         identifier: my_table2
     - keyword: TO
-    - object_reference:
+    - role_reference:
         identifier: public
 - statement_terminator: ;
 - statement:
@@ -62,7 +62,7 @@ file:
     - object_reference:
         identifier: my_table2
     - keyword: TO
-    - object_reference:
+    - role_reference:
         identifier: '"public"'
 - statement_terminator: ;
 - statement:
@@ -80,7 +80,7 @@ file:
     - object_reference:
         identifier: my_table2
     - keyword: TO
-    - object_reference:
+    - role_reference:
         identifier: public
 - statement_terminator: ;
 - statement:
@@ -98,7 +98,7 @@ file:
     - object_reference:
         identifier: my_table2
     - keyword: TO
-    - object_reference:
+    - role_reference:
         identifier: '"public"'
 - statement_terminator: ;
 - statement:
@@ -118,7 +118,7 @@ file:
     - object_reference:
         identifier: my_table2
     - keyword: TO
-    - object_reference:
+    - role_reference:
         identifier: public
 - statement_terminator: ;
 - statement:
@@ -138,6 +138,6 @@ file:
     - object_reference:
         identifier: my_table2
     - keyword: TO
-    - object_reference:
+    - role_reference:
         identifier: '"public"'
 - statement_terminator: ;

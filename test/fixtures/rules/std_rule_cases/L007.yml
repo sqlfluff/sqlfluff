@@ -136,3 +136,11 @@ fails_templated_code_non_templated_newline:
     where
         a =
             {{ binary_literal("0000") }}
+
+passes_operator_alone_on_line:
+  # Special case: An operator on a line by itself is always okay.
+  pass_str: |
+    SELECT
+      'asdf'
+      ||
+      'jklm'

@@ -24,6 +24,7 @@ from sqlfluff.core.parser import (
     CommentSegment,
     SegmentGenerator,
     Conditional,
+    AnySetOf,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -188,6 +189,10 @@ tsql_dialect.add(
     QuotedLiteralSegmentWithN=NamedParser(
         "single_quote_with_n", CodeSegment, name="quoted_literal", type="literal"
     ),
+    QuotedLiteralSegmentOptWithN=OneOf(
+        Ref("QuotedLiteralSegment"),
+        Ref("QuotedLiteralSegmentWithN"),
+    ),
     TransactionGrammar=OneOf(
         "TRANSACTION",
         "TRAN",
@@ -202,6 +207,15 @@ tsql_dialect.add(
     OneOrMoreStatementsGrammar=AnyNumberOf(
         Ref("StatementAndDelimiterGrammar"),
         min_times=1,
+    ),
+    TopPercentGrammar=Sequence(
+        "TOP",
+        OptionallyBracketed(Ref("ExpressionSegment")),
+        Ref.keyword("PERCENT", optional=True),
+    ),
+    CursorNameGrammar=OneOf(
+        Sequence(Ref.keyword("GLOBAL", optional=True), Ref("NakedIdentifierSegment")),
+        Ref("ParameterNameSegment"),
     ),
 )
 
@@ -332,8 +346,6 @@ tsql_dialect.replace(
         Sequence("GROUP", "BY"),
         Sequence("ORDER", "BY"),
         "HAVING",
-        "PIVOT",
-        "UNPIVOT",
         Ref("SetOperatorSegment"),
         Ref("WithNoSchemaBindingClauseSegment"),
         Ref("DelimiterGrammar"),
@@ -426,16 +438,15 @@ tsql_dialect.replace(
     ),
     MergeIntoLiteralGrammar=Sequence(
         "MERGE",
-        Sequence(
-            "TOP",
-            OptionallyBracketed(Ref("ExpressionSegment")),
-            Ref.keyword("PERCENT", optional=True),
-            optional=True,
-        ),
+        Ref("TopPercentGrammar", optional=True),
         Ref.keyword("INTO", optional=True),
     ),
     TrimParametersGrammar=Nothing(),
     TemporaryGrammar=Nothing(),
+    JoinLikeClauseGrammar=AnySetOf(
+        Ref("PivotUnpivotStatementSegment"),
+        min_times=1,
+    ),
 )
 
 
@@ -627,7 +638,6 @@ class UnorderedSelectStatementSegment(BaseSegment):
         Dedent,
         Ref("IntoTableSegment", optional=True),
         Ref("FromClauseSegment", optional=True),
-        Ref("PivotUnpivotStatementSegment", optional=True),
         Ref("WhereClauseSegment", optional=True),
         Ref("GroupByClauseSegment", optional=True),
         Ref("HavingClauseSegment", optional=True),
@@ -2671,6 +2681,117 @@ class FileSegment(BaseFileSegment):
     )
 
 
+class OpenRowSetSegment(BaseSegment):
+    """A `OPENROWSET` segment.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/functions/openrowset-transact-sql?view=sql-server-ver15
+    """
+
+    type = "openrowset_segment"
+    match_grammar = Sequence(
+        "OPENROWSET",
+        Bracketed(
+            OneOf(
+                Sequence(
+                    Ref("QuotedLiteralSegment"),
+                    Ref("CommaSegment"),
+                    OneOf(
+                        Sequence(
+                            Ref("QuotedLiteralSegment"),
+                            Ref("DelimiterGrammar"),
+                            Ref("QuotedLiteralSegment"),
+                            Ref("DelimiterGrammar"),
+                            Ref("QuotedLiteralSegment"),
+                        ),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Ref("CommaSegment"),
+                    OneOf(
+                        Ref("TableReferenceSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                ),
+                Sequence(
+                    "BULK",
+                    Ref("QuotedLiteralSegmentOptWithN"),
+                    Ref("CommaSegment"),
+                    OneOf(
+                        Sequence(
+                            "FORMATFILE",
+                            Ref("EqualsSegment"),
+                            Ref("QuotedLiteralSegmentOptWithN"),
+                            Ref("CommaSegment"),
+                            Delimited(
+                                AnyNumberOf(
+                                    Sequence(
+                                        "DATASOURCE",
+                                        Ref("EqualsSegment"),
+                                        Ref("QuotedLiteralSegmentOptWithN"),
+                                    ),
+                                    Sequence(
+                                        "ERRORFILE",
+                                        Ref("EqualsSegment"),
+                                        Ref("QuotedLiteralSegmentOptWithN"),
+                                    ),
+                                    Sequence(
+                                        "ERRORFILE_DATA_SOURCE",
+                                        Ref("EqualsSegment"),
+                                        Ref("QuotedLiteralSegmentOptWithN"),
+                                    ),
+                                    Sequence(
+                                        "MAXERRORS",
+                                        Ref("EqualsSegment"),
+                                        Ref("NumericLiteralSegment"),
+                                    ),
+                                    Sequence(
+                                        "FIRSTROW",
+                                        Ref("EqualsSegment"),
+                                        Ref("NumericLiteralSegment"),
+                                    ),
+                                    Sequence(
+                                        "LASTROW",
+                                        Ref("EqualsSegment"),
+                                        Ref("NumericLiteralSegment"),
+                                    ),
+                                    Sequence(
+                                        "CODEPAGE",
+                                        Ref("EqualsSegment"),
+                                        Ref("QuotedLiteralSegment"),
+                                    ),
+                                    Sequence(
+                                        "FORMAT",
+                                        Ref("EqualsSegment"),
+                                        Ref("QuotedLiteralSegment"),
+                                    ),
+                                    Sequence(
+                                        "FIELDQUOTE",
+                                        Ref("EqualsSegment"),
+                                        Ref("QuotedLiteralSegmentOptWithN"),
+                                    ),
+                                    Sequence(
+                                        "FORMATFILE",
+                                        Ref("EqualsSegment"),
+                                        Ref("QuotedLiteralSegmentOptWithN"),
+                                    ),
+                                    Sequence(
+                                        "FORMATFILE_DATA_SOURCE",
+                                        Ref("EqualsSegment"),
+                                        Ref("QuotedLiteralSegmentOptWithN"),
+                                    ),
+                                ),
+                                optional=True,
+                            ),
+                        ),
+                        "SINGLE_BLOB",
+                        "SINGLE_CLOB",
+                        "SINGLE_NCLOB",
+                    ),
+                ),
+            ),
+        ),
+    )
+
+
 class DeleteStatementSegment(BaseSegment):
     """A `DELETE` statement.
 
@@ -2684,11 +2805,59 @@ class DeleteStatementSegment(BaseSegment):
     # definitely a statement, we just don't know what type yet.
     match_grammar = Sequence(
         "DELETE",
-        Ref("TableReferenceSegment", optional=True),  # Azure Synapse Analytics-specific
-        Ref("FromClauseSegment"),
-        Ref("PostTableExpressionGrammar", optional=True),
-        Ref("OutputClauseSegment", optional=True),
-        Ref("WhereClauseSegment", optional=True),
+        OneOf(
+            Sequence(
+                Ref("TopPercentGrammar", optional=True),
+                Ref.keyword("FROM", optional=True),
+                OneOf(
+                    Sequence(
+                        Sequence(
+                            "OPENDATASOURCE",
+                            Bracketed(
+                                Ref("QuotedLiteralSegment"),
+                                Ref("CommaSegment"),
+                                Ref("QuotedLiteralSegment"),
+                            ),
+                            Ref("DotSegment"),
+                            optional=True,
+                        ),
+                        Ref("TableReferenceSegment"),
+                        Ref("PostTableExpressionGrammar", optional=True),
+                    ),
+                    Sequence(
+                        "OPENQUERY",
+                        Bracketed(
+                            Ref("NakedIdentifierSegment"),
+                            Ref("CommaSegment"),
+                            Ref("QuotedLiteralSegment"),
+                        ),
+                    ),
+                    Ref("OpenRowSetSegment"),
+                ),
+                Ref("OutputClauseSegment", optional=True),
+                Ref("FromClauseSegment", optional=True),
+                OneOf(
+                    Ref("WhereClauseSegment"),
+                    Sequence(
+                        "WHERE",
+                        "CURRENT",
+                        "OF",
+                        Ref("CursorNameGrammar"),
+                    ),
+                    optional=True,
+                ),
+            ),
+            # Azure Synapse Analytics-specific
+            Sequence(
+                "FROM",
+                Ref("TableReferenceSegment"),
+                "JOIN",
+                Ref("TableReferenceSegment"),
+                Ref("JoinOnConditionSegment"),
+                Ref("WhereClauseSegment", optional=True),
+            ),
+        ),
+        Ref("OptionClauseSegment", optional=True),
         Ref("DelimiterGrammar", optional=True),
     )
 
@@ -2732,6 +2901,7 @@ class TableExpressionSegment(BaseSegment):
         Ref("ValuesClauseSegment"),
         Ref("BareFunctionSegment"),
         Ref("FunctionSegment"),
+        Ref("OpenRowSetSegment"),
         Ref("TableReferenceSegment"),
         # Nested Selects
         Bracketed(Ref("SelectableGrammar")),
@@ -2956,7 +3126,7 @@ class OptionClauseSegment(BaseSegment):
 
     type = "option_clause"
     match_grammar = Sequence(
-        Sequence("OPTION", optional=True),
+        "OPTION",
         Bracketed(
             Delimited(Ref("QueryHintSegment")),
         ),
@@ -2974,7 +3144,7 @@ class QueryHintSegment(BaseSegment):
         Sequence(  # Azure Synapse Analytics specific
             "LABEL",
             Ref("EqualsSegment"),
-            Ref("QuotedLiteralSegment"),
+            Ref("QuotedLiteralSegmentOptWithN"),
         ),
         Sequence(
             OneOf("HASH", "ORDER"),
@@ -3048,7 +3218,7 @@ class QueryHintSegment(BaseSegment):
         Sequence(
             "USE",
             "PLAN",
-            OneOf(Ref("QuotedLiteralSegment"), Ref("QuotedLiteralSegmentWithN")),
+            Ref("QuotedLiteralSegmentOptWithN"),
         ),
         Sequence(
             "TABLE",
@@ -3730,7 +3900,7 @@ class AccessStatementSegment(BaseSegment):
             _objects,
             "TO",
             Delimited(
-                OneOf(Ref("ObjectReferenceSegment"), Ref("FunctionSegment")),
+                OneOf(Ref("RoleReferenceSegment"), Ref("FunctionSegment")),
                 delimiter=Ref("CommaSegment"),
             ),
             OneOf(
@@ -3762,7 +3932,7 @@ class AccessStatementSegment(BaseSegment):
             _objects,
             OneOf("TO"),
             Delimited(
-                Ref("ObjectReferenceSegment"),
+                Ref("RoleReferenceSegment"),
                 delimiter=Ref("CommaSegment"),
             ),
             Sequence(
@@ -3791,7 +3961,7 @@ class AccessStatementSegment(BaseSegment):
             _objects,
             OneOf("TO", "FROM"),
             Delimited(
-                Ref("ObjectReferenceSegment"),
+                Ref("RoleReferenceSegment"),
                 delimiter=Ref("CommaSegment"),
             ),
             Sequence(
@@ -3845,12 +4015,7 @@ class OpenCursorStatementSegment(BaseSegment):
     type = "open_cursor_statement"
     match_grammar: Matchable = Sequence(
         "OPEN",
-        OneOf(
-            Sequence(
-                Ref.keyword("GLOBAL", optional=True), Ref("NakedIdentifierSegment")
-            ),
-            Ref("ParameterNameSegment"),
-        ),
+        Ref("CursorNameGrammar"),
     )
 
 
@@ -3863,12 +4028,7 @@ class CloseCursorStatementSegment(BaseSegment):
     type = "close_cursor_statement"
     match_grammar: Matchable = Sequence(
         "CLOSE",
-        OneOf(
-            Sequence(
-                Ref.keyword("GLOBAL", optional=True), Ref("NakedIdentifierSegment")
-            ),
-            Ref("ParameterNameSegment"),
-        ),
+        Ref("CursorNameGrammar"),
     )
 
 
@@ -3881,12 +4041,7 @@ class DeallocateCursorStatementSegment(BaseSegment):
     type = "deallocate_cursor_statement"
     match_grammar: Matchable = Sequence(
         "DEALLOCATE",
-        OneOf(
-            Sequence(
-                Ref.keyword("GLOBAL", optional=True), Ref("NakedIdentifierSegment")
-            ),
-            Ref("ParameterNameSegment"),
-        ),
+        Ref("CursorNameGrammar"),
     )
 
 
@@ -3901,12 +4056,7 @@ class FetchCursorStatementSegment(BaseSegment):
         "FETCH",
         OneOf("NEXT", "PRIOR", "FIRST", "LAST", optional=True),
         "FROM",
-        OneOf(
-            Sequence(
-                Ref.keyword("GLOBAL", optional=True), Ref("NakedIdentifierSegment")
-            ),
-            Ref("ParameterNameSegment"),
-        ),
+        Ref("CursorNameGrammar"),
         Sequence("INTO", Delimited(Ref("ParameterNameSegment")), optional=True),
     )
 

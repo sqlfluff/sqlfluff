@@ -837,9 +837,10 @@ class IndexReferenceSegment(ObjectReferenceSegment):
 
 
 class RoleReferenceSegment(ObjectReferenceSegment):
-    """A reference to a role."""
+    """A reference to a role, user, or account."""
 
     type = "role_reference"
+    match_grammar: Matchable = Ref("SingleIdentifierGrammar")
 
 
 class TablespaceReferenceSegment(ObjectReferenceSegment):
@@ -1128,7 +1129,7 @@ class PartitionClauseSegment(BaseSegment):
     type = "partitionby_clause"
     match_grammar: Matchable = StartsWith(
         "PARTITION",
-        terminator=OneOf("ORDER", Ref("FrameClauseUnitGrammar")),
+        terminator=OneOf(Sequence("ORDER", "BY"), Ref("FrameClauseUnitGrammar")),
         enforce_whitespace_preceding_terminator=True,
     )
     parse_grammar: Optional[Matchable] = Sequence(
@@ -1988,7 +1989,9 @@ class GroupByClauseSegment(BaseSegment):
     type = "groupby_clause"
     match_grammar: Matchable = StartsWith(
         Sequence("GROUP", "BY"),
-        terminator=OneOf("ORDER", "LIMIT", "HAVING", "QUALIFY", "WINDOW"),
+        terminator=OneOf(
+            Sequence("ORDER", "BY"), "LIMIT", "HAVING", "QUALIFY", "WINDOW"
+        ),
         enforce_whitespace_preceding_terminator=True,
     )
     parse_grammar: Optional[Matchable] = Sequence(
@@ -2003,7 +2006,9 @@ class GroupByClauseSegment(BaseSegment):
                 # Can `GROUP BY coalesce(col, 1)`
                 Ref("ExpressionSegment"),
             ),
-            terminator=OneOf("ORDER", "LIMIT", "HAVING", "QUALIFY", "WINDOW"),
+            terminator=OneOf(
+                Sequence("ORDER", "BY"), "LIMIT", "HAVING", "QUALIFY", "WINDOW"
+            ),
         ),
         Dedent,
     )
@@ -2015,7 +2020,7 @@ class HavingClauseSegment(BaseSegment):
     type = "having_clause"
     match_grammar: Matchable = StartsWith(
         "HAVING",
-        terminator=OneOf("ORDER", "LIMIT", "QUALIFY", "WINDOW"),
+        terminator=OneOf(Sequence("ORDER", "BY"), "LIMIT", "QUALIFY", "WINDOW"),
         enforce_whitespace_preceding_terminator=True,
     )
     parse_grammar: Optional[Matchable] = Sequence(
@@ -2831,7 +2836,7 @@ class DropUserStatementSegment(BaseSegment):
         "DROP",
         "USER",
         Ref("IfExistsGrammar", optional=True),
-        Ref("ObjectReferenceSegment"),
+        Ref("RoleReferenceSegment"),
     )
 
 
@@ -3029,7 +3034,7 @@ class AccessStatementSegment(BaseSegment):
             "TO",
             OneOf("GROUP", "USER", "ROLE", "SHARE", optional=True),
             Delimited(
-                OneOf(Ref("ObjectReferenceSegment"), Ref("FunctionSegment"), "PUBLIC"),
+                OneOf(Ref("RoleReferenceSegment"), Ref("FunctionSegment"), "PUBLIC"),
                 delimiter=Ref("CommaSegment"),
             ),
             OneOf(
@@ -3297,7 +3302,7 @@ class CreateUserStatementSegment(BaseSegment):
     match_grammar: Matchable = Sequence(
         "CREATE",
         "USER",
-        Ref("ObjectReferenceSegment"),
+        Ref("RoleReferenceSegment"),
     )
 
 
@@ -3312,7 +3317,7 @@ class CreateRoleStatementSegment(BaseSegment):
     match_grammar: Matchable = Sequence(
         "CREATE",
         "ROLE",
-        Ref("ObjectReferenceSegment"),
+        Ref("RoleReferenceSegment"),
     )
 
 

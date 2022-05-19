@@ -3,13 +3,13 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5ba67ae516de43f28161a2962848830299bb533cd41d2e4e625d03c2e6ca3668
+_hash: 766bca9e34e0578026eb8ff548bbe569aea09d6eec6f4718208f392b77b53bd6
 file:
 - statement:
     create_role_statement:
     - keyword: CREATE
     - keyword: USER
-    - object_reference:
+    - role_reference:
         identifier: foo_role
     - keyword: WITH
     - keyword: SUPERUSER
@@ -24,14 +24,14 @@ file:
     create_user_statement:
     - keyword: CREATE
     - keyword: USER
-    - object_reference:
+    - role_reference:
         identifier: foo_role
 - statement_terminator: ;
 - statement:
     create_role_statement:
     - keyword: CREATE
     - keyword: USER
-    - object_reference:
+    - role_reference:
         identifier: frank
     - keyword: WITH
     - keyword: CONNECTION
@@ -42,7 +42,7 @@ file:
     create_role_statement:
     - keyword: CREATE
     - keyword: USER
-    - object_reference:
+    - role_reference:
         identifier: frank
     - keyword: WITH
     - keyword: IN
@@ -54,7 +54,7 @@ file:
     create_role_statement:
     - keyword: CREATE
     - keyword: USER
-    - object_reference:
+    - role_reference:
         identifier: frank
     - keyword: WITH
     - keyword: SUPERUSER
@@ -65,7 +65,7 @@ file:
     create_role_statement:
     - keyword: CREATE
     - keyword: USER
-    - object_reference:
+    - role_reference:
         identifier: frank
     - keyword: WITH
     - keyword: INHERIT
@@ -77,7 +77,7 @@ file:
     create_role_statement:
     - keyword: CREATE
     - keyword: USER
-    - object_reference:
+    - role_reference:
         identifier: davide
     - keyword: WITH
     - keyword: PASSWORD
@@ -87,7 +87,7 @@ file:
     create_role_statement:
     - keyword: CREATE
     - keyword: USER
-    - object_reference:
+    - role_reference:
         identifier: miriam
     - keyword: WITH
     - keyword: LOGIN
@@ -101,7 +101,7 @@ file:
     create_role_statement:
     - keyword: CREATE
     - keyword: ROLE
-    - object_reference:
+    - role_reference:
         identifier: foo_role
     - keyword: WITH
     - keyword: SUPERUSER
@@ -116,14 +116,14 @@ file:
     create_role_statement:
     - keyword: CREATE
     - keyword: ROLE
-    - object_reference:
+    - role_reference:
         identifier: foo_role
 - statement_terminator: ;
 - statement:
     create_role_statement:
     - keyword: CREATE
     - keyword: ROLE
-    - object_reference:
+    - role_reference:
         identifier: frank
     - keyword: WITH
     - keyword: CONNECTION
@@ -134,7 +134,7 @@ file:
     create_role_statement:
     - keyword: CREATE
     - keyword: ROLE
-    - object_reference:
+    - role_reference:
         identifier: frank
     - keyword: WITH
     - keyword: IN
@@ -146,7 +146,7 @@ file:
     create_role_statement:
     - keyword: CREATE
     - keyword: ROLE
-    - object_reference:
+    - role_reference:
         identifier: frank
     - keyword: WITH
     - keyword: SUPERUSER
@@ -157,7 +157,7 @@ file:
     create_role_statement:
     - keyword: CREATE
     - keyword: ROLE
-    - object_reference:
+    - role_reference:
         identifier: frank
     - keyword: WITH
     - keyword: INHERIT
@@ -169,7 +169,7 @@ file:
     create_role_statement:
     - keyword: CREATE
     - keyword: ROLE
-    - object_reference:
+    - role_reference:
         identifier: davide
     - keyword: WITH
     - keyword: PASSWORD
@@ -179,7 +179,7 @@ file:
     create_role_statement:
     - keyword: CREATE
     - keyword: ROLE
-    - object_reference:
+    - role_reference:
         identifier: miriam
     - keyword: WITH
     - keyword: LOGIN

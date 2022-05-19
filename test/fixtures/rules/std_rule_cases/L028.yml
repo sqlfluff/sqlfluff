@@ -292,3 +292,14 @@ test_pass_snowflake_flatten_function:
   configs:
     core:
       dialect: snowflake
+
+
+passes_tql_table_variable:
+  # Issue 3243
+  pass_str: select a, b from @tablevar
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      L028:
+        single_table_references: qualified

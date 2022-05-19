@@ -3,13 +3,13 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 34ae3480c4706854f8d10be8b0e2c118962d35a996e0fdd197b101a50492b8b2
+_hash: 75ac79c99279e253b01b6d78ba5b72f42e7f153be2dd859a1240ee6567dcd99d
 file:
 - statement:
     create_user_statement:
     - keyword: CREATE
     - keyword: USER
-    - object_reference:
+    - role_reference:
         identifier: user1
     - keyword: PASSWORD
     - literal: "'md5153c434b4b77c89e6b94f12c5393af5b'"
@@ -18,7 +18,7 @@ file:
     create_user_statement:
     - keyword: CREATE
     - keyword: USER
-    - object_reference:
+    - role_reference:
         identifier: admin
     - keyword: WITH
     - keyword: PASSWORD
@@ -28,7 +28,7 @@ file:
     create_user_statement:
     - keyword: CREATE
     - keyword: USER
-    - object_reference:
+    - role_reference:
         identifier: lazy
     - keyword: PASSWORD
     - keyword: DISABLE
@@ -37,7 +37,7 @@ file:
     create_user_statement:
     - keyword: CREATE
     - keyword: USER
-    - object_reference:
+    - role_reference:
         identifier: lazy
     - keyword: WITH
     - keyword: PASSWORD
@@ -47,7 +47,7 @@ file:
     create_user_statement:
     - keyword: CREATE
     - keyword: USER
-    - object_reference:
+    - role_reference:
         identifier: '"lazy"'
     - keyword: WITH
     - keyword: PASSWORD
@@ -57,7 +57,7 @@ file:
     create_user_statement:
     - keyword: CREATE
     - keyword: USER
-    - object_reference:
+    - role_reference:
         identifier: user1
     - keyword: PASSWORD
     - literal: "'md5153c434b4b77c89e6b94f12c5393af5b'"
@@ -67,7 +67,7 @@ file:
     create_user_statement:
     - keyword: CREATE
     - keyword: USER
-    - object_reference:
+    - role_reference:
         identifier: user1
     - keyword: PASSWORD
     - literal: "'md5153c434b4b77c89e6b94f12c5393af5b'"
@@ -77,7 +77,7 @@ file:
     create_user_statement:
     - keyword: CREATE
     - keyword: USER
-    - object_reference:
+    - role_reference:
         identifier: user1
     - keyword: PASSWORD
     - literal: "'md5153c434b4b77c89e6b94f12c5393af5b'"
@@ -87,7 +87,7 @@ file:
     create_user_statement:
     - keyword: CREATE
     - keyword: USER
-    - object_reference:
+    - role_reference:
         identifier: user1
     - keyword: PASSWORD
     - literal: "'md5153c434b4b77c89e6b94f12c5393af5b'"
@@ -97,7 +97,7 @@ file:
     create_user_statement:
     - keyword: CREATE
     - keyword: USER
-    - object_reference:
+    - role_reference:
         identifier: user1
     - keyword: PASSWORD
     - literal: "'md5153c434b4b77c89e6b94f12c5393af5b'"
@@ -109,7 +109,7 @@ file:
     create_user_statement:
     - keyword: CREATE
     - keyword: USER
-    - object_reference:
+    - role_reference:
         identifier: user1
     - keyword: PASSWORD
     - literal: "'md5153c434b4b77c89e6b94f12c5393af5b'"
@@ -121,7 +121,7 @@ file:
     create_user_statement:
     - keyword: CREATE
     - keyword: USER
-    - object_reference:
+    - role_reference:
         identifier: user1
     - keyword: PASSWORD
     - literal: "'md5153c434b4b77c89e6b94f12c5393af5b'"
@@ -134,7 +134,7 @@ file:
     create_user_statement:
     - keyword: CREATE
     - keyword: USER
-    - object_reference:
+    - role_reference:
         identifier: user1
     - keyword: PASSWORD
     - literal: "'md5153c434b4b77c89e6b94f12c5393af5b'"
@@ -150,7 +150,7 @@ file:
     create_user_statement:
     - keyword: CREATE
     - keyword: USER
-    - object_reference:
+    - role_reference:
         identifier: user1
     - keyword: PASSWORD
     - literal: "'md5153c434b4b77c89e6b94f12c5393af5b'"
@@ -162,7 +162,7 @@ file:
     create_user_statement:
     - keyword: CREATE
     - keyword: USER
-    - object_reference:
+    - role_reference:
         identifier: user1
     - keyword: PASSWORD
     - literal: "'md5153c434b4b77c89e6b94f12c5393af5b'"
@@ -174,7 +174,7 @@ file:
     create_user_statement:
     - keyword: CREATE
     - keyword: USER
-    - object_reference:
+    - role_reference:
         identifier: user1
     - keyword: PASSWORD
     - literal: "'md5153c434b4b77c89e6b94f12c5393af5b'"
@@ -186,7 +186,7 @@ file:
     create_user_statement:
     - keyword: CREATE
     - keyword: USER
-    - object_reference:
+    - role_reference:
         identifier: user1
     - keyword: PASSWORD
     - literal: "'md5153c434b4b77c89e6b94f12c5393af5b'"

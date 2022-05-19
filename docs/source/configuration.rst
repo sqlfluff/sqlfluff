@@ -13,7 +13,7 @@ the :ref:`cliref`.
 
 For file based configuration *SQLFluff* will look for the following
 files in order. Later files will (if found) will be used to overwrite
-any vales read from earlier files.
+any values read from earlier files.
 
 - :code:`setup.cfg`
 - :code:`tox.ini`
@@ -276,6 +276,10 @@ A few common styles are supported:
     -- colon
     WHERE bla = :my_name
 
+    -- colon_nospaces
+    -- (use with caution as more prone to false positives)
+    WHERE bla = table:my_name
+
     -- numeric_colon
     WHERE bla = :2
 
@@ -289,7 +293,7 @@ A few common styles are supported:
     WHERE bla = ?
 
     -- numeric_dollar
-    WHERE bla = $3
+    WHERE bla = $3 or WHERE bla = ${3}
 
     -- percent
     WHERE bla = %s
