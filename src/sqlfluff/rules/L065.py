@@ -136,4 +136,11 @@ def _generate_fixes(
             )
         ]
     else:
+        # We should rarely reach here as set operators are always surrounded by either
+        # WhitespaceSegment or NewlineSegment.
+        # However, in exceptional cases the WhitespaceSegment might be enclosed in the
+        # surrounding segment hierachy and not accessible by the rule logic.
+        # At the time of writing this is true for `tsql` as covered in the test
+        # `test_fail_autofix_in_tsql_disabled`. If we encounter such case, we skip
+        # fixing.
         return []
