@@ -22,6 +22,9 @@ Major changes include:
 
 ## What’s Changed
 
+* L064: Apply preferred quote-style for partially templated quoted literals [#3300](https://github.com/sqlfluff/sqlfluff/pull/3300) [@dmohns](https://github.com/dmohns)
+* BigQuery: Support Stored Procedures [#3369](https://github.com/sqlfluff/sqlfluff/pull/3369) [@tunetheweb](https://github.com/tunetheweb)
+* MySQL extra Boolean operators (`&&`, `||`, `!`) [#3359](https://github.com/sqlfluff/sqlfluff/pull/3359) [@mdahlman](https://github.com/mdahlman)
 * Postgres and Redshift: Support `LOCK [TABLE]` [#3350](https://github.com/sqlfluff/sqlfluff/pull/3350) [@tunetheweb](https://github.com/tunetheweb)
 * Placeholder updates: Allow optional braces in dollar placeholders, add `colon_nospaces`, and cast to string [#3354](https://github.com/sqlfluff/sqlfluff/pull/3354) [@tunetheweb](https://github.com/tunetheweb)
 * BigQuery: Basic `FOR..IN..DO...END FOR` support [#3340](https://github.com/sqlfluff/sqlfluff/pull/3340) [@tunetheweb](https://github.com/tunetheweb)
