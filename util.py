@@ -121,5 +121,21 @@ def benchmark(cmd, runs, from_file):
         click.echo("Run {:>5}: {}".format(f"#{run_no}", all_results[run_no]))
 
 
+@cli.command()
+@click.option("--new_version_num")
+def replace_version(new_version_num):
+    """Change version number in the cfg files."""
+    for filename in ["setup.cfg", "plugins/sqlfluff-templater-dbt/setup.cfg"]:
+        input_file = open(filename, "r").readlines()
+        write_file = open(filename, "w")
+        for line in input_file:
+            for key in ["stable_version", "version"]:
+                if line.startswith(key):
+                    line = f"{key} = {new_version_num}\n"
+                    break
+            write_file.write(line)
+        write_file.close()
+
+
 if __name__ == "__main__":
     cli()
