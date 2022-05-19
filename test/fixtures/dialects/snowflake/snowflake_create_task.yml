@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e595e0e7b018b17388c84bca8946e8adb1a1b1e954836a237ab92cc38f64fb9e
+_hash: ec9d42b15628824d95fd46d5486345a798957f38bdaa20137eb8bc76088bfecf
 file:
 - statement:
     create_task_statement:
@@ -91,7 +91,7 @@ file:
 - statement:
     create_task_statement:
     - keyword: CREATE
-    - binary_operator: OR
+    - keyword: OR
     - keyword: REPLACE
     - keyword: TASK
     - keyword: IF
@@ -177,7 +177,7 @@ file:
 - statement:
     create_task_statement:
     - keyword: CREATE
-    - binary_operator: OR
+    - keyword: OR
     - keyword: REPLACE
     - keyword: TASK
     - object_reference:
@@ -264,7 +264,7 @@ file:
 - statement:
     create_task_statement:
     - keyword: CREATE
-    - binary_operator: OR
+    - keyword: OR
     - keyword: REPLACE
     - keyword: TASK
     - object_reference:
@@ -409,7 +409,7 @@ file:
 - statement:
     create_task_statement:
     - keyword: CREATE
-    - binary_operator: OR
+    - keyword: OR
     - keyword: REPLACE
     - keyword: TASK
     - object_reference:
@@ -442,7 +442,7 @@ file:
 - statement:
     create_task_statement:
     - keyword: CREATE
-    - binary_operator: OR
+    - keyword: OR
     - keyword: REPLACE
     - keyword: TASK
     - object_reference:

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bfc13046446901db6d3c6984b2532b7dceb1124cfb11f03b6c2be89ef587fe3e
+_hash: 4ca969c383d33e82f607e6195c33857f7054d2734c62033976901c4533336182
 file:
 - statement:
     create_file_format_segment:
@@ -21,7 +21,7 @@ file:
 - statement:
     create_file_format_segment:
     - keyword: CREATE
-    - binary_operator: OR
+    - keyword: OR
     - keyword: REPLACE
     - keyword: FILE
     - keyword: FORMAT
@@ -238,7 +238,7 @@ file:
 - statement:
     create_file_format_segment:
     - keyword: CREATE
-    - binary_operator: OR
+    - keyword: OR
     - keyword: REPLACE
     - keyword: FILE
     - keyword: FORMAT
@@ -419,7 +419,7 @@ file:
 - statement:
     create_file_format_segment:
     - keyword: CREATE
-    - binary_operator: OR
+    - keyword: OR
     - keyword: REPLACE
     - keyword: FILE
     - keyword: FORMAT
@@ -492,7 +492,7 @@ file:
 - statement:
     create_file_format_segment:
     - keyword: CREATE
-    - binary_operator: OR
+    - keyword: OR
     - keyword: REPLACE
     - keyword: FILE
     - keyword: FORMAT
@@ -556,7 +556,7 @@ file:
 - statement:
     create_file_format_segment:
     - keyword: CREATE
-    - binary_operator: OR
+    - keyword: OR
     - keyword: REPLACE
     - keyword: FILE
     - keyword: FORMAT
@@ -638,7 +638,7 @@ file:
 - statement:
     create_file_format_segment:
     - keyword: CREATE
-    - binary_operator: OR
+    - keyword: OR
     - keyword: REPLACE
     - keyword: FILE
     - keyword: FORMAT

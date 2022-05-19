@@ -11,6 +11,8 @@ from sqlfluff.core.rules.doc_decorators import (
     document_fix_compatible,
     document_groups,
 )
+from sqlfluff.core.rules.functional import rsp
+from sqlfluff.core.parser.markers import PositionMarker
 
 
 @document_groups
@@ -65,6 +67,7 @@ class Rule_L064(BaseRule):
 
     groups = ("all",)
     config_keywords = ["preferred_quoted_literal_style", "force_enable"]
+    targets_templated = True
     _dialects_with_double_quoted_strings = [
         "bigquery",
         "hive",
@@ -101,6 +104,31 @@ class Rule_L064(BaseRule):
             or context.dialect.name in self._dialects_with_double_quoted_strings
         ):
             return LintResult(memory=context.memory)
+
+        # This rule can also cover quoted literals that are partially templated.
+        # I.e. when the quotes characters are _not_ part of the template we can
+        # meaningfully apply this rule.
+        templated_raw_slices = context.functional.segment.raw_slices.select(
+            rsp.is_slice_type("templated")
+        )
+        for raw_slice in templated_raw_slices:
+            pos_marker = context.segment.pos_marker
+            # This is to make mypy happy.
+            assert isinstance(pos_marker, PositionMarker)
+
+            # Check whether the quote characters are inside the template.
+            # For the leading quote we need to account for string prefix characters.
+            leading_quote_inside_template = pos_marker.source_str()[:2].lstrip(
+                self._string_prefix_chars
+            )[0] not in ['"', "'"]
+            trailing_quote_inside_template = pos_marker.source_str()[-1] not in [
+                '"',
+                "'",
+            ]
+
+            # quotes are not entirely outside of a template, nothing we can do
+            if leading_quote_inside_template or trailing_quote_inside_template:
+                return LintResult(memory=context.memory)
 
         # If quoting style is set to consistent we use the quoting style of the first
         # quoted_literal that we encounter.

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6f73ff2654c4a54f26ffee0eb19f317f64501c6a1b365c6a9e1640c3f5d72e35
+_hash: d8d8db26faca9bbe874dae57c7d92b131a71509e5f68ef916f6db7029fee0e5c
 file:
 - statement:
     create_table_statement:
@@ -435,7 +435,7 @@ file:
 - statement:
     create_table_statement:
     - keyword: create
-    - binary_operator: or
+    - keyword: or
     - keyword: replace
     - keyword: table
     - table_reference:
@@ -768,7 +768,7 @@ file:
 - statement:
     create_table_statement:
     - keyword: create
-    - binary_operator: or
+    - keyword: or
     - keyword: replace
     - keyword: table
     - table_reference:

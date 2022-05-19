@@ -3,12 +3,12 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b04edc64283ab093c837f7b9389344bdd5ce606fb27fd68c054de59941b9ba2b
+_hash: 7f0b81cf4a1527c73ef8dda3e04ff1c0525d5012d52a488fff1fe08503249542
 file:
 - statement:
     create_procedure_statement:
     - keyword: create
-    - binary_operator: or
+    - keyword: or
     - keyword: replace
     - keyword: procedure
     - function_name:
@@ -30,7 +30,7 @@ file:
 - statement:
     create_procedure_statement:
     - keyword: create
-    - binary_operator: or
+    - keyword: or
     - keyword: replace
     - keyword: procedure
     - function_name:
@@ -62,7 +62,7 @@ file:
 - statement:
     create_procedure_statement:
     - keyword: CREATE
-    - binary_operator: OR
+    - keyword: OR
     - keyword: REPLACE
     - keyword: PROCEDURE
     - function_name:

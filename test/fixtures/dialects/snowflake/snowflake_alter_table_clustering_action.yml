@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 581f2eae3170c297b982407b869efadfe68a60d8e08a23d654bd844e25670868
+_hash: 1654993b6f91dbaa9d065df4ed5c1b23dbd25684f78651715dbbc8c79064470a
 file:
 - statement:
     alter_table_statement:
@@ -131,7 +131,7 @@ file:
               expression:
                 literal: "'2016-01-01'"
               end_bracket: )
-          - binary_operator: AND
+          - keyword: AND
           - bracketed:
               start_bracket: (
               expression:
@@ -161,7 +161,7 @@ file:
               expression:
                 literal: "'2016-01-01'"
               end_bracket: )
-          - binary_operator: AND
+          - keyword: AND
           - bracketed:
               start_bracket: (
               expression:

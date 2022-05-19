@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1c0fc61756d0d8509c104c93fe1eeffd39e95418cfd355724aba33b7cc2b1e6f
+_hash: c3424f0f873bcffe7728200843926de76f3dc0cd2fefc3c4ed5f551109f00bca
 file:
 - statement:
     create_role_statement:
@@ -22,7 +22,7 @@ file:
 - statement:
     create_role_statement:
     - keyword: CREATE
-    - binary_operator: OR
+    - keyword: OR
     - keyword: REPLACE
     - keyword: ROLE
     - keyword: IF
