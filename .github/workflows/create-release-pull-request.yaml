@@ -12,12 +12,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.10'
 
-      - name: Replace version
+      - name: Install dependencies
         run: |
-          sed -i -e '/version =/ s/= .*/= ${{ github.event.inputs.newVersionNumber }}/' ./plugins/sqlfluff-templater-dbt/setup.cfg
-          sed -i -e '/version =/ s/= .*/= ${{ github.event.inputs.newVersionNumber }}/' ./setup.cfg
-          sed -i -e '/stable_version =/ s/= .*/= ${{ github.event.inputs.newVersionNumber }}/' ./setup.cfg
+          pip install requests click pyyaml
+
+      - name: Prepare release
+        run: |
+          python util.py prepare-release --new_version_num=${{ github.event.inputs.newVersionNumber }}
 
       - name: Start Changelog entry
         run: |
