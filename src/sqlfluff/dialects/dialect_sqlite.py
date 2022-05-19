@@ -18,7 +18,9 @@ ansi_dialect = load_raw_dialect("ansi")
 sqlite_dialect = ansi_dialect.copy_as("sqlite")
 
 sqlite_dialect.replace(
-    BooleanBinaryOperatorGrammar=OneOf(Ref("AndGrammar"), Ref("OrGrammar"), "REGEXP"),
+    BooleanBinaryOperatorGrammar=OneOf(
+        Ref("AndOperatorGrammar"), Ref("OrOperatorGrammar"), "REGEXP"
+    ),
 )
 
 

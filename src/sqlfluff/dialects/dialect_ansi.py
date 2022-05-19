@@ -377,7 +377,9 @@ ansi_dialect.add(
     ),
     SignedSegmentGrammar=OneOf(Ref("PositiveSegment"), Ref("NegativeSegment")),
     StringBinaryOperatorGrammar=OneOf(Ref("ConcatSegment")),
-    BooleanBinaryOperatorGrammar=OneOf(Ref("AndGrammar"), Ref("OrGrammar")),
+    BooleanBinaryOperatorGrammar=OneOf(
+        Ref("AndOperatorGrammar"), Ref("OrOperatorGrammar")
+    ),
     ComparisonOperatorGrammar=OneOf(
         Ref("EqualsSegment"),
         Ref("GreaterThanSegment"),
@@ -412,9 +414,10 @@ ansi_dialect.add(
         Ref("NullLiteralSegment"),
         Ref("DateTimeLiteralGrammar"),
     ),
-    AndGrammar=StringParser("AND", KeywordSegment, type="binary_operator"),
-    OrGrammar=StringParser("OR", KeywordSegment, type="binary_operator"),
-    NotGrammar=StringParser("NOT", KeywordSegment, type="keyword"),
+    AndKeywordSegment=StringParser("AND", KeywordSegment, type="keyword"),
+    AndOperatorGrammar=StringParser("AND", KeywordSegment, type="binary_operator"),
+    OrOperatorGrammar=StringParser("OR", KeywordSegment, type="binary_operator"),
+    NotOperatorGrammar=StringParser("NOT", KeywordSegment, type="keyword"),
     # This is a placeholder for other dialects.
     PreTableFunctionKeywordsGrammar=Nothing(),
     BinaryOperatorGrammar=OneOf(
@@ -1645,7 +1648,7 @@ ansi_dialect.add(
                 OneOf(
                     Ref("SignedSegmentGrammar"),
                     # Ref('TildeSegment'),
-                    Ref("NotGrammar"),
+                    Ref("NotOperatorGrammar"),
                     "PRIOR",
                     # used in CONNECT BY clauses (EXASOL, Snowflake, Postgres...)
                 ),
@@ -2395,7 +2398,7 @@ class MergeMatchedClauseSegment(BaseSegment):
     match_grammar: Matchable = Sequence(
         "WHEN",
         "MATCHED",
-        Sequence(Ref("AndGrammar"), Ref("ExpressionSegment"), optional=True),
+        Sequence("AND", Ref("ExpressionSegment"), optional=True),
         "THEN",
         Indent,
         OneOf(

@@ -251,18 +251,18 @@ mysql_dialect.replace(
     SingleIdentifierGrammar=ansi_dialect.get_grammar("SingleIdentifierGrammar").copy(
         insert=[Ref("SessionVariableNameSegment")]
     ),
-    AndGrammar=OneOf(
+    AndOperatorGrammar=OneOf(
         StringParser("AND", KeywordSegment, type="binary_operator"),
         StringParser(
             "&&", CodeSegment, name="double_ampersand", type="binary_operator"
         ),
     ),
-    OrGrammar=OneOf(
+    OrOperatorGrammar=OneOf(
         StringParser("OR", KeywordSegment, type="binary_operator"),
         StringParser("||", CodeSegment, name="double_pipe", type="binary_operator"),
         StringParser("XOR", KeywordSegment, type="binary_operator"),
     ),
-    NotGrammar=OneOf(
+    NotOperatorGrammar=OneOf(
         StringParser("NOT", KeywordSegment, type="keyword"),
         StringParser("!", CodeSegment, name="not_operator", type="not_operator"),
     ),
