@@ -3,11 +3,11 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 70f36d312dbe47ed4887fcaa2afefc1809d19c811fb112e81453aef672ff03fb
+_hash: 86784a218718ec1870247ec1a3b586b7bdef8ba4fad2f464d3e89da0e455e594
 file:
   statement:
     transaction_statement:
     - keyword: rollback
-    - binary_operator: and
+    - keyword: and
     - keyword: 'no'
     - keyword: chain
