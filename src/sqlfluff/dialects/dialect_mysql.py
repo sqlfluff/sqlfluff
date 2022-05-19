@@ -50,132 +50,32 @@ mysql_dialect.patch_lexer_matchers(
     ]
 )
 
-# Reserve USE, FORCE & IGNORE
-mysql_dialect.sets("unreserved_keywords").difference_update(
-    [
-        "BTREE",
-        "FORCE",
-        "HASH",
-        "IGNORE",
-        "INVISIBLE",
-        "KEY_BLOCK_SIZE",
-        "PARSER",
-        "USE",
-        "SQL_BUFFER_RESULT",
-        "SQL_NO_CACHE",
-        "SQL_CACHE",
-        "DUMPFILE",
-        "SKIP",
-        "LOCKED",
-        "CLASS_ORIGIN",
-        "SUBCLASS_ORIGIN",
-        "RETURNED_SQLSTATE",
-        "MESSAGE_TEXT",
-        "MYSQL_ERRNO",
-        "CONSTRAINT_CATALOG",
-        "CONSTRAINT_SCHEMA",
-        "CONSTRAINT_NAME",
-        "CATALOG_NAME",
-        "SCHEMA_NAME",
-        "TABLE_NAME",
-        "COLUMN_NAME",
-        "CURSOR_NAME",
-        "STACKED",
-        "VISIBLE",
-    ]
-)
-mysql_dialect.sets("unreserved_keywords").update(
-    [
-        "QUICK",
-        "FAST",
-        "SLOW",
-        "MEDIUM",
-        "EXTENDED",
-        "CHANGED",
-        "UPGRADE",
-        "HISTOGRAM",
-        "BUCKETS",
-        "USE_FRM",
-        "REPAIR",
-        "DUPLICATE",
-        "NOW",
-        "ENGINE",
-        "ERROR",
-        "OPTIMIZER_COSTS",
-        "RELAY",
-        "STATUS",
-        "USER_RESOURCES",
-        "CHANNEL",
-        "EXPORT",
-        "RANDOM",
-        "FAILED_LOGIN_ATTEMPTS",
-        "PASSWORD_LOCK_TIME",
-        "EXPIRE",
-        "NEVER",
-        "HISTORY",
-        "REUSE",
-        "CIPHER",
-        "ISSUER",
-        "SUBJECT",
-        "MAX_QUERIES_PER_HOUR",
-        "MAX_UPDATES_PER_HOUR",
-        "MAX_CONNECTIONS_PER_HOUR",
-        "MAX_USER_CONNECTIONS",
-        "AUTHENTICATION",
-        "OPTIONAL",
-        "HELP",  # HELP was previously incorrectly included as a reserved keyword
-        "SQL_BUFFER_RESULT",  # previously incorrectly included as a reserved keyword
-        "SQL_CACHE",  # previously incorrectly included as a reserved keyword
-        "SQL_NO_CACHE",  # previously incorrectly included as a reserved keyword
-    ]
-)
-# mysql_dialect.sets("reserved_keywords").update(
-#     [
-#         "HELP",
-#         "FORCE",
-#         "IGNORE",
-#         "USE",
-#         "SQL_BUFFER_RESULT",
-#         "SQL_NO_CACHE",
-#         "SQL_CACHE",
-#         "DUMPFILE",
-#         "SKIP",
-#         "LOCKED",
-#         "CLASS_ORIGIN",
-#         "SUBCLASS_ORIGIN",
-#         "RETURNED_SQLSTATE",
-#         "MESSAGE_TEXT",
-#         "MYSQL_ERRNO",
-#         "CONSTRAINT_CATALOG",
-#         "CONSTRAINT_SCHEMA",
-#         "CONSTRAINT_NAME",
-#         "CATALOG_NAME",
-#         "SCHEMA_NAME",
-#         "TABLE_NAME",
-#         "COLUMN_NAME",
-#         "CURSOR_NAME",
-#         "STACKED",
-#         "ALGORITHM",
-#         "LOCK",
-#         "DEFAULT",
-#         "INPLACE",
-#         "COPY",
-#         "NONE",
-#         "SHARED",
-#         "EXCLUSIVE",
-#         "MASTER",
-#     ]
-# )
 # Set Keywords
-# bigquery_dialect.sets("unreserved_keywords").clear()
+# Do not clear unreserved keywords inherited from ansi. Just add MySQL keywords.
 mysql_dialect.sets("unreserved_keywords").update(
     [n.strip().upper() for n in mysql_unreserved_keywords.split("\n")]
+)
+
+# These are not MySQL keywords. But SQLFluff needs them.
+mysql_dialect.sets("unreserved_keywords").update(
+    [
+        "NOW",
+        "SHARED",
+        "INPLACE",
+    ]
 )
 
 mysql_dialect.sets("reserved_keywords").clear()
 mysql_dialect.sets("reserved_keywords").update(
     [n.strip().upper() for n in mysql_reserved_keywords.split("\n")]
 )
+# Remove these to avoid issue in interval.sql
+mysql_dialect.sets("reserved_keywords").difference_update(
+    ["MINUTE_SECOND", "SECOND_MICROSECOND"]
+)
+# Remove this to avoid issue in create_table_primary_foreign_keys.sql
+mysql_dialect.sets("reserved_keywords").difference_update(["INDEX"])
+
 
 mysql_dialect.replace(
     QuotedIdentifierSegment=NamedParser(
@@ -1257,6 +1157,7 @@ class IfExpressionStatement(BaseSegment):
             Ref("StatementSegment"),
         ),
         Sequence("ELSE", Ref("StatementSegment"), optional=True),
+        Sequence("END", "IF"),
     )
 
 
