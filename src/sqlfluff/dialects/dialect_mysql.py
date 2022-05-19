@@ -795,7 +795,7 @@ mysql_dialect.insert_lexer_matchers(
 
 mysql_dialect.insert_lexer_matchers(
     [
-        StringLexer("ampersand_ampersand", "&&", CodeSegment),
+        StringLexer("double_ampersand", "&&", CodeSegment),
     ],
     before="ampersand",
 )
@@ -803,7 +803,7 @@ mysql_dialect.insert_lexer_matchers(
 
 mysql_dialect.insert_lexer_matchers(
     [
-        StringLexer("vertical_bar_vertical_bar", "||", CodeSegment),
+        StringLexer("double_vertical_bar", "||", CodeSegment),
     ],
     before="vertical_bar",
 )

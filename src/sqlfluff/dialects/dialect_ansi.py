@@ -414,7 +414,6 @@ ansi_dialect.add(
         Ref("NullLiteralSegment"),
         Ref("DateTimeLiteralGrammar"),
     ),
-    AndKeywordSegment=StringParser("AND", KeywordSegment, type="keyword"),
     AndOperatorGrammar=StringParser("AND", KeywordSegment, type="binary_operator"),
     OrOperatorGrammar=StringParser("OR", KeywordSegment, type="binary_operator"),
     NotOperatorGrammar=StringParser("NOT", KeywordSegment, type="keyword"),
