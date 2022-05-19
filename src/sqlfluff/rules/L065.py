@@ -1,5 +1,5 @@
 """Implementation of Rule L065."""
-from typing import List, Optional
+from typing import List, Optional, Iterable
 
 import sqlfluff.core.rules.functional.segment_predicates as sp
 from sqlfluff.core.parser import NewlineSegment
@@ -100,6 +100,21 @@ class Rule_L065(BaseRule):
                     )
                 )
             else:
+                preceeding_whitespace_fixes = _generate_fixes(
+                    whitespace_segment=preceeding_whitespace
+                )
+                following_whitespace_fixes = _generate_fixes(
+                    whitespace_segment=following_whitespace
+                )
+
+                # make mypy happy
+                assert isinstance(preceeding_whitespace_fixes, Iterable)
+                assert isinstance(following_whitespace_fixes, Iterable)
+
+                fixes = []
+                fixes.extend(preceeding_whitespace_fixes)
+                fixes.extend(following_whitespace_fixes)
+
                 results.append(
                     LintResult(
                         anchor=set_operator,
@@ -108,11 +123,7 @@ class Rule_L065(BaseRule):
                             "Missing newline before and after set operator "
                             f"{set_operator.raw}."
                         ),
-                        # FIXME: Not sure how to make mypy happy here...
-                        fixes=[  # type: ignore
-                            *_generate_fixes(whitespace_segment=preceeding_whitespace),
-                            *_generate_fixes(whitespace_segment=following_whitespace),
-                        ],
+                        fixes=fixes,
                     )
                 )
 
