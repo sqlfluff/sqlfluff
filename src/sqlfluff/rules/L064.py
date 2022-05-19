@@ -107,7 +107,7 @@ class Rule_L064(BaseRule):
 
         # This rule can also cover quoted literals that are partially templated.
         # I.e. when the quotes characters are _not_ part of the template we can
-        # meanigfully apply this rule.
+        # meaningfully apply this rule.
         templated_raw_slices = context.functional.segment.raw_slices.select(
             rsp.is_slice_type("templated")
         )
