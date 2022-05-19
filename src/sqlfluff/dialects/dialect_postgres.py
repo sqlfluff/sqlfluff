@@ -3175,6 +3175,8 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DropExtensionStatementSegment"),
             Ref("CreateTypeStatementSegment"),
             Ref("AlterTypeStatementSegment"),
+            Ref("AlterSchemaStatementSegment"),
+            Ref("LockTableStatementSegment"),
         ],
     )
 
@@ -3245,8 +3247,7 @@ class CreateTriggerStatementSegment(ansi.CreateTriggerStatementSegment):
         Sequence(
             "EXECUTE",
             OneOf("FUNCTION", "PROCEDURE"),
-            Ref("FunctionNameIdentifierSegment"),
-            Bracketed(Ref("FunctionContentsGrammar", optional=True)),
+            Ref("FunctionSegment"),
         ),
     )
 
@@ -4169,4 +4170,66 @@ class AlterTypeStatementSegment(BaseSegment):
                 Ref("SchemaReferenceSegment"),
             ),
         ),
+    )
+
+
+class AlterSchemaStatementSegment(BaseSegment):
+    """An `ALTER SCHEMA` statement.
+
+    https://www.postgresql.org/docs/current/sql-alterschema.html
+    """
+
+    type = "alter_schema_statement"
+    match_grammar = Sequence(
+        "ALTER",
+        "SCHEMA",
+        Ref("SchemaReferenceSegment"),
+        OneOf(
+            Sequence(
+                "RENAME",
+                "TO",
+                Ref("SchemaReferenceSegment"),
+            ),
+            Sequence(
+                "OWNER",
+                "TO",
+                Ref("RoleReferenceSegment"),
+            ),
+        ),
+    )
+
+
+class LockTableStatementSegment(BaseSegment):
+    """An `LOCK TABLE` statement.
+
+    https://www.postgresql.org/docs/14/sql-lock.html
+    """
+
+    type = "lock_table_statement"
+    match_grammar: Matchable = Sequence(
+        "LOCK",
+        Ref.keyword("TABLE", optional=True),
+        Ref.keyword("ONLY", optional=True),
+        OneOf(
+            Delimited(
+                Ref("TableReferenceSegment"),
+            ),
+            Ref("StarSegment"),
+        ),
+        Sequence(
+            "IN",
+            OneOf(
+                Sequence("ACCESS", "SHARE"),
+                Sequence("ROW", "SHARE"),
+                Sequence("ROW", "EXCLUSIVE"),
+                Sequence("SHARE", "UPDATE", "EXCLUSIVE"),
+                "SHARE",
+                Sequence("SHARE", "ROW", "EXCLUSIVE"),
+                "EXCLUSIVE",
+                Sequence("ACCESS", "EXCLUSIVE"),
+            ),
+            "MODE",
+            optional=True,
+        ),
+        Ref.keyword("NOWAIT", optional=True),
     )

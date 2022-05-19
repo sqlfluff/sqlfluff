@@ -21,14 +21,17 @@ class Rule_L032(BaseRule):
     """Prefer specifying join keys instead of using ``USING``.
 
     .. note::
-       This rule was taken from the `dbt Style Guide
-       <https://github.com/dbt-labs/corp/blob/master/dbt_style_guide.md>`_
+       This rule was originally taken from the `dbt Style Guide
+       <https://github.com/dbt-labs/corp/blob/ main/dbt_style_guide.md>`_
        which notes that:
 
         Certain warehouses have inconsistencies in ``USING``
         results (specifically Snowflake).
 
-       Other users may prefer to disable this rule.
+       In fact `dbt removed it from their style guide in February 2022
+       <https://github.com/dbt-labs/corp/pull/58>`_. However, some like the
+       rule, so for now we will keep it in SQLFluff, but encourage those that
+       do not find value in the rule, to turn it off.
 
     **Anti-pattern**
 
