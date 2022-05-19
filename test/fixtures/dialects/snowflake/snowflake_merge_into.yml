@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b6669741d2f2f6aad1aaf1e6a18c6541ba5fc55433650fc8ae5672a4e184b8a5
+_hash: ce2402672f7611c69d91fac42ead573d2a75b8466155ba5715ae269e96c77f40
 file:
 - statement:
     alter_table_statement:
@@ -93,7 +93,7 @@ file:
         merge_when_matched_clause:
         - keyword: when
         - keyword: matched
-        - binary_operator: and
+        - keyword: and
         - expression:
             column_reference:
             - identifier: t2
@@ -133,7 +133,7 @@ file:
         - keyword: when
         - keyword: not
         - keyword: matched
-        - binary_operator: and
+        - keyword: and
         - expression:
             column_reference:
             - identifier: t2

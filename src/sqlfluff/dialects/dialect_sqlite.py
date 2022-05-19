@@ -19,7 +19,7 @@ sqlite_dialect = ansi_dialect.copy_as("sqlite")
 
 sqlite_dialect.replace(
     BooleanBinaryOperatorGrammar=OneOf(
-        Ref("AndKeywordSegment"), Ref("OrKeywordSegment"), "REGEXP"
+        Ref("AndOperatorGrammar"), Ref("OrOperatorGrammar"), "REGEXP"
     ),
 )
 

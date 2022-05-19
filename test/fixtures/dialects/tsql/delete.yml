@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: dc313693a14c495bc5634b5d7961e0d3067c3b5fa2837a4454f2e583fbfc1e23
+_hash: e9931611e4bf0103c9f5e13e92f94422353c617e8373e33f9248f127c02f029c
 file:
 - batch:
     statement:
@@ -52,7 +52,7 @@ file:
               identifier: StandardCost
           - keyword: BETWEEN
           - literal: '12.00'
-          - binary_operator: AND
+          - keyword: AND
           - literal: '14.00'
           - binary_operator: AND
           - column_reference:
@@ -654,6 +654,6 @@ file:
             - identifier: ProductModelID
           - keyword: BETWEEN
           - literal: '120'
-          - binary_operator: and
+          - keyword: and
           - literal: '130'
         statement_terminator: ;

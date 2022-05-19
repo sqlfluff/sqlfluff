@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 960211fdf9ee9601c9c9d0f06620deb695cb8ea3a319b5ea480bbb36d7b65e85
+_hash: 678bda90d41620898d67908a9acc156c4b6a5e1da9ab33d2a8c7ab89b83751de
 file:
 - statement:
     create_trigger:
@@ -185,7 +185,7 @@ file:
 - statement:
     create_trigger:
     - keyword: CREATE
-    - binary_operator: OR
+    - keyword: OR
     - keyword: REPLACE
     - keyword: CONSTRAINT
     - keyword: TRIGGER
@@ -250,7 +250,7 @@ file:
         identifier: check_update
     - keyword: BEFORE
     - keyword: INSERT
-    - binary_operator: OR
+    - keyword: OR
     - keyword: UPDATE
     - keyword: 'ON'
     - table_reference:
@@ -270,7 +270,7 @@ file:
 - statement:
     create_trigger:
     - keyword: CREATE
-    - binary_operator: OR
+    - keyword: OR
     - keyword: REPLACE
     - keyword: TRIGGER
     - trigger_reference:
@@ -301,7 +301,7 @@ file:
 - statement:
     create_trigger:
     - keyword: CREATE
-    - binary_operator: OR
+    - keyword: OR
     - keyword: REPLACE
     - keyword: TRIGGER
     - trigger_reference:
@@ -314,7 +314,7 @@ file:
     - comma: ','
     - column_reference:
         identifier: transactions
-    - binary_operator: OR
+    - keyword: OR
     - keyword: TRUNCATE
     - keyword: 'ON'
     - table_reference:
@@ -334,7 +334,7 @@ file:
 - statement:
     create_trigger:
     - keyword: CREATE
-    - binary_operator: OR
+    - keyword: OR
     - keyword: REPLACE
     - keyword: TRIGGER
     - trigger_reference:

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e37d8151b0873e9083d1ac467a974a194f7f4d225fba9a64b7cd53ed4e3cde27
+_hash: 7c961272e2670e248bc27c91e0ab1c2093e9b025c2741a39a5da962e6d14e040
 file:
 - statement:
     select_statement:
@@ -189,7 +189,7 @@ file:
                   - parameterized_expression:
                       literal: '@query_parameter'
                   - keyword: PRECEDING
-                  - binary_operator: AND
+                  - keyword: AND
                   - keyword: CURRENT
                   - keyword: ROW
                 end_bracket: )

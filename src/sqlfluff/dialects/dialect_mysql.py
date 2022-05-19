@@ -5,24 +5,26 @@ https://dev.mysql.com/doc/refman/8.0/en/differences-from-ansi.html
 """
 
 from sqlfluff.core.parser import (
-    BaseSegment,
-    Ref,
     AnyNumberOf,
-    Sequence,
-    OneOf,
+    AnySetOf,
+    Anything,
+    BaseSegment,
     Bracketed,
-    RegexLexer,
-    CommentSegment,
-    NamedParser,
     CodeSegment,
+    CommentSegment,
+    Delimited,
+    KeywordSegment,
+    Matchable,
+    NamedParser,
+    OneOf,
+    Ref,
+    RegexLexer,
+    RegexParser,
+    Sequence,
     StartsWith,
+    StringLexer,
     StringParser,
     SymbolSegment,
-    Delimited,
-    RegexParser,
-    Anything,
-    AnySetOf,
-    Matchable,
 )
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.dialects import dialect_ansi as ansi
@@ -248,6 +250,21 @@ mysql_dialect.replace(
     ),
     SingleIdentifierGrammar=ansi_dialect.get_grammar("SingleIdentifierGrammar").copy(
         insert=[Ref("SessionVariableNameSegment")]
+    ),
+    AndOperatorGrammar=OneOf(
+        StringParser("AND", KeywordSegment, type="binary_operator"),
+        StringParser(
+            "&&", CodeSegment, name="double_ampersand", type="binary_operator"
+        ),
+    ),
+    OrOperatorGrammar=OneOf(
+        StringParser("OR", KeywordSegment, type="binary_operator"),
+        StringParser("||", CodeSegment, name="double_pipe", type="binary_operator"),
+        StringParser("XOR", KeywordSegment, type="binary_operator"),
+    ),
+    NotOperatorGrammar=OneOf(
+        StringParser("NOT", KeywordSegment, type="keyword"),
+        StringParser("!", CodeSegment, name="not_operator", type="not_operator"),
     ),
 )
 
@@ -773,6 +790,22 @@ mysql_dialect.insert_lexer_matchers(
         ),
     ],
     before="code",
+)
+
+
+mysql_dialect.insert_lexer_matchers(
+    [
+        StringLexer("double_ampersand", "&&", CodeSegment),
+    ],
+    before="ampersand",
+)
+
+
+mysql_dialect.insert_lexer_matchers(
+    [
+        StringLexer("double_vertical_bar", "||", CodeSegment),
+    ],
+    before="vertical_bar",
 )
 
 
