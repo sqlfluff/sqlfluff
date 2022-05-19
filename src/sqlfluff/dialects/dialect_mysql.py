@@ -4,6 +4,7 @@ For now the only change is the parsing of comments.
 https://dev.mysql.com/doc/refman/8.0/en/differences-from-ansi.html
 """
 
+from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
     AnySetOf,
@@ -26,7 +27,10 @@ from sqlfluff.core.parser import (
     StringParser,
     SymbolSegment,
 )
-from sqlfluff.core.dialects import load_raw_dialect
+from sqlfluff.dialects.dialect_mysql_keywords import (
+    mysql_reserved_keywords,
+    mysql_unreserved_keywords,
+)
 from sqlfluff.dialects import dialect_ansi as ansi
 
 ansi_dialect = load_raw_dialect("ansi")
@@ -119,44 +123,58 @@ mysql_dialect.sets("unreserved_keywords").update(
         "MAX_USER_CONNECTIONS",
         "AUTHENTICATION",
         "OPTIONAL",
+        "HELP",  # HELP was previously incorrectly included as a reserved keyword
+        "SQL_BUFFER_RESULT",  # previously incorrectly included as a reserved keyword
+        "SQL_CACHE",  # previously incorrectly included as a reserved keyword
+        "SQL_NO_CACHE",  # previously incorrectly included as a reserved keyword
     ]
 )
+# mysql_dialect.sets("reserved_keywords").update(
+#     [
+#         "HELP",
+#         "FORCE",
+#         "IGNORE",
+#         "USE",
+#         "SQL_BUFFER_RESULT",
+#         "SQL_NO_CACHE",
+#         "SQL_CACHE",
+#         "DUMPFILE",
+#         "SKIP",
+#         "LOCKED",
+#         "CLASS_ORIGIN",
+#         "SUBCLASS_ORIGIN",
+#         "RETURNED_SQLSTATE",
+#         "MESSAGE_TEXT",
+#         "MYSQL_ERRNO",
+#         "CONSTRAINT_CATALOG",
+#         "CONSTRAINT_SCHEMA",
+#         "CONSTRAINT_NAME",
+#         "CATALOG_NAME",
+#         "SCHEMA_NAME",
+#         "TABLE_NAME",
+#         "COLUMN_NAME",
+#         "CURSOR_NAME",
+#         "STACKED",
+#         "ALGORITHM",
+#         "LOCK",
+#         "DEFAULT",
+#         "INPLACE",
+#         "COPY",
+#         "NONE",
+#         "SHARED",
+#         "EXCLUSIVE",
+#         "MASTER",
+#     ]
+# )
+# Set Keywords
+# bigquery_dialect.sets("unreserved_keywords").clear()
+mysql_dialect.sets("unreserved_keywords").update(
+    [n.strip().upper() for n in mysql_unreserved_keywords.split("\n")]
+)
+
+mysql_dialect.sets("reserved_keywords").clear()
 mysql_dialect.sets("reserved_keywords").update(
-    [
-        "HELP",
-        "FORCE",
-        "IGNORE",
-        "USE",
-        "SQL_BUFFER_RESULT",
-        "SQL_NO_CACHE",
-        "SQL_CACHE",
-        "DUMPFILE",
-        "SKIP",
-        "LOCKED",
-        "CLASS_ORIGIN",
-        "SUBCLASS_ORIGIN",
-        "RETURNED_SQLSTATE",
-        "MESSAGE_TEXT",
-        "MYSQL_ERRNO",
-        "CONSTRAINT_CATALOG",
-        "CONSTRAINT_SCHEMA",
-        "CONSTRAINT_NAME",
-        "CATALOG_NAME",
-        "SCHEMA_NAME",
-        "TABLE_NAME",
-        "COLUMN_NAME",
-        "CURSOR_NAME",
-        "STACKED",
-        "ALGORITHM",
-        "LOCK",
-        "DEFAULT",
-        "INPLACE",
-        "COPY",
-        "NONE",
-        "SHARED",
-        "EXCLUSIVE",
-        "MASTER",
-    ]
+    [n.strip().upper() for n in mysql_reserved_keywords.split("\n")]
 )
 
 mysql_dialect.replace(
