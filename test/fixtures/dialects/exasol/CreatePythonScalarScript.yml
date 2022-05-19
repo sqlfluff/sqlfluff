@@ -3,12 +3,12 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b2cf99629ea4e09b094519c22308f6a8c4ce166b8f2c550759c55004a3d2c962
+_hash: 096038deac08576cf9d78c8236d64340cdebeeba27966d33204b0c413c1e84bd
 file:
   statement:
     create_udf_script:
     - keyword: CREATE
-    - binary_operator: OR
+    - keyword: OR
     - keyword: REPLACE
     - identifier: PYTHON3
     - keyword: SCALAR

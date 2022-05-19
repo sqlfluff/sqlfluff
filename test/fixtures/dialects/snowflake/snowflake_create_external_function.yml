@@ -3,12 +3,12 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3f0f12d9b8a24f90c42913f161066fea277e95f6c8eb6413885ffbb7ecde45fb
+_hash: 7dd3cbb7d1d92610bd65366f672bd2e61bb7137852875e03df0f1173e41d9dd7
 file:
 - statement:
     create_external_function_statement:
     - keyword: CREATE
-    - binary_operator: OR
+    - keyword: OR
     - keyword: REPLACE
     - keyword: EXTERNAL
     - keyword: FUNCTION
@@ -34,7 +34,7 @@ file:
 - statement:
     create_external_function_statement:
     - keyword: CREATE
-    - binary_operator: OR
+    - keyword: OR
     - keyword: REPLACE
     - keyword: EXTERNAL
     - keyword: FUNCTION
@@ -110,7 +110,7 @@ file:
 - statement:
     create_external_function_statement:
     - keyword: CREATE
-    - binary_operator: OR
+    - keyword: OR
     - keyword: REPLACE
     - keyword: EXTERNAL
     - keyword: FUNCTION
@@ -190,7 +190,7 @@ file:
 - statement:
     create_external_function_statement:
     - keyword: CREATE
-    - binary_operator: OR
+    - keyword: OR
     - keyword: REPLACE
     - keyword: EXTERNAL
     - keyword: FUNCTION

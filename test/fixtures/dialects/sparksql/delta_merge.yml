@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8af8bf6ac6788045f203ead88b2a5ab69522c1d8e99813fbed47709fda319527
+_hash: ce9e9f1939c690a78a038f601ff3f5251ef9ad9a180b89b1b91790ec2c2f4195
 file:
 - statement:
     merge_statement:
@@ -280,7 +280,7 @@ file:
         - keyword: WHEN
         - keyword: NOT
         - keyword: MATCHED
-        - binary_operator: AND
+        - keyword: AND
         - expression:
             column_reference:
             - identifier: new_deduped_logs
@@ -426,7 +426,7 @@ file:
         merge_when_matched_clause:
         - keyword: WHEN
         - keyword: MATCHED
-        - binary_operator: AND
+        - keyword: AND
         - expression:
           - column_reference:
             - identifier: customers
@@ -636,7 +636,7 @@ file:
       - merge_when_matched_clause:
         - keyword: WHEN
         - keyword: MATCHED
-        - binary_operator: AND
+        - keyword: AND
         - expression:
             column_reference:
             - identifier: s
@@ -679,7 +679,7 @@ file:
         - keyword: WHEN
         - keyword: NOT
         - keyword: MATCHED
-        - binary_operator: AND
+        - keyword: AND
         - expression:
             column_reference:
             - identifier: s
