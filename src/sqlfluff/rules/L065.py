@@ -127,9 +127,11 @@ def _generate_fixes(
         return [
             LintFix.replace(
                 anchor_segment=whitespace_segment,
-                # TODO: Should we also add WhitespaceSegment( ... )
-                # here to deal with indentation? or leave this to other
-                # rules?
+                # NB: Currently we are just inserting a Newline here. This alone will
+                # produce not properly indented SQL. We rely on L003 to deal with
+                # indentation later.
+                # As a future improvement we could maybe add WhitespaceSegment( ... )
+                # here directly.
                 edit_segments=[NewlineSegment()],
             )
         ]

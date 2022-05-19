@@ -36,6 +36,10 @@ test_pass_multiple_newlines_are_allowed:
 
       SELECT 'b'
 
+# The autofix of L065 doesn't respect indentation of the surrounding query.
+# Hence, the fix result of only L065 looks ugly. But L003 will fix the indentation
+# in a second step.
+# See the test blow.
 test_fail_fix_works_in_subqueries:
   fail_str: |
       SELECT * FROM (
@@ -50,6 +54,17 @@ test_fail_fix_works_in_subqueries:
           SELECT 'h'
           UNION ALL
       SELECT 'j'
+      )
+
+# Test autofix after L003 passes L065
+test_pass_fix_works_in_subqueries_after_L003_fix:
+  pass_str: |
+      SELECT * FROM (
+          SELECT 'g'
+          UNION ALL
+          SELECT 'h'
+          UNION ALL
+          SELECT 'j'
       )
 
 test_fail_simple_fix_union_before_and_after:
