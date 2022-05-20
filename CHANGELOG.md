@@ -18,10 +18,12 @@ Major changes include:
 * Initial support of SOQL (Salesforce Object Query Language).
 * Additional Placeholder templating options.
 * Start of BigQuery procedural language support (starting simple `FOR` statements and `CREATE PROCEDURE` statements).
+* New rule L065 to put set operators onto new lines.
 * Many more dialect improvements and bug fixes.
 
 ## What’s Changed
 
+* L065: Add rule for set operators surrounded by newlines [#3330](https://github.com/sqlfluff/sqlfluff/pull/3330) [@dmohns](https://github.com/dmohns)
 * L064: Apply preferred quote-style for partially templated quoted literals [#3300](https://github.com/sqlfluff/sqlfluff/pull/3300) [@dmohns](https://github.com/dmohns)
 * BigQuery: Support Stored Procedures [#3369](https://github.com/sqlfluff/sqlfluff/pull/3369) [@tunetheweb](https://github.com/tunetheweb)
 * MySQL extra Boolean operators (`&&`, `||`, `!`) [#3359](https://github.com/sqlfluff/sqlfluff/pull/3359) [@mdahlman](https://github.com/mdahlman)
