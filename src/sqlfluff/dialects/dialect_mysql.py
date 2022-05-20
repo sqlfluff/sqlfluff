@@ -51,12 +51,13 @@ mysql_dialect.patch_lexer_matchers(
 )
 
 # Set Keywords
-# Do not clear unreserved keywords inherited from ansi. Just add MySQL keywords.
+# Do not clear inherited unreserved ansi keywords. Too many are needed to parse well.
+# Just add MySQL unreserved keywords.
 mysql_dialect.sets("unreserved_keywords").update(
     [n.strip().upper() for n in mysql_unreserved_keywords.split("\n")]
 )
 
-# These are not MySQL keywords. But SQLFluff needs them.
+# These are not MySQL keywords, but SQLFluff needs them to parse well.
 mysql_dialect.sets("unreserved_keywords").update(
     [
         "NOW",
@@ -69,11 +70,13 @@ mysql_dialect.sets("reserved_keywords").clear()
 mysql_dialect.sets("reserved_keywords").update(
     [n.strip().upper() for n in mysql_reserved_keywords.split("\n")]
 )
-# Remove these to avoid issue in interval.sql
+
+# Remove these reserved keywords to avoid issue in interval.sql
 mysql_dialect.sets("reserved_keywords").difference_update(
     ["MINUTE_SECOND", "SECOND_MICROSECOND"]
 )
-# Remove this to avoid issue in create_table_primary_foreign_keys.sql
+
+# Remove this reserved keyword to avoid issue in create_table_primary_foreign_keys.sql
 mysql_dialect.sets("reserved_keywords").difference_update(["INDEX"])
 
 
