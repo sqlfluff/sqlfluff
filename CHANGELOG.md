@@ -23,6 +23,8 @@ Major changes include:
 
 ## What’s Changed
 
+* All dialects: Allow `RESPECT NULLS`/`IGNORE NULLS` in window functions [#3376](https://github.com/sqlfluff/sqlfluff/pull/3376) [@tunetheweb](https://github.com/tunetheweb)
+* Postgres: correct `RETURNS TABLE` column type [#3379](https://github.com/sqlfluff/sqlfluff/pull/3379) [@tunetheweb](https://github.com/tunetheweb)
 * L065: Add rule for set operators surrounded by newlines [#3330](https://github.com/sqlfluff/sqlfluff/pull/3330) [@dmohns](https://github.com/dmohns)
 * L064: Apply preferred quote-style for partially templated quoted literals [#3300](https://github.com/sqlfluff/sqlfluff/pull/3300) [@dmohns](https://github.com/dmohns)
 * BigQuery: Support Stored Procedures [#3369](https://github.com/sqlfluff/sqlfluff/pull/3369) [@tunetheweb](https://github.com/tunetheweb)
