@@ -57,21 +57,13 @@ mysql_dialect.sets("unreserved_keywords").update(
     [n.strip().upper() for n in mysql_unreserved_keywords.split("\n")]
 )
 
-# These are not MySQL keywords, but SQLFluff needs them to parse well.
-mysql_dialect.sets("unreserved_keywords").update(
-    [
-        "NOW",
-        "SHARED",
-        "INPLACE",
-    ]
-)
-
 mysql_dialect.sets("reserved_keywords").clear()
 mysql_dialect.sets("reserved_keywords").update(
     [n.strip().upper() for n in mysql_reserved_keywords.split("\n")]
 )
 
 # Remove these reserved keywords to avoid issue in interval.sql
+# TODO - resolve this properly
 mysql_dialect.sets("reserved_keywords").difference_update(
     ["MINUTE_SECOND", "SECOND_MICROSECOND"]
 )

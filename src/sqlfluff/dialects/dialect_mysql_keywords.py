@@ -780,3 +780,9 @@ XML
 YEAR
 ZONE
 """
+
+# These are not MySQL keywords, but SQLFluff needs them to parse well.
+mysql_unreserved_keywords += """NOW
+SHARED
+INPLACE
+"""
