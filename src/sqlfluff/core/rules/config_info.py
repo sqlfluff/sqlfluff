@@ -185,6 +185,18 @@ STANDARD_CONFIG_INFO_DICT = {
             "in the file."
         ),
     },
+    "min_alias_length": {
+        "validation": range(1000),
+        "definition": (
+            "The minimum length of an alias to allow without raising a violation."
+        ),
+    },
+    "max_alias_length": {
+        "validation": range(1000),
+        "definition": (
+            "The maximum length of an alias to allow without raising a violation."
+        ),
+    }
 }
 
 
