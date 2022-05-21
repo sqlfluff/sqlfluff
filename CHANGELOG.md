@@ -10,6 +10,73 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
+##[0.13.2] - 2022-05-20
+
+## Highlights
+Major changes include:
+* Fix bug causing L003 to report indentation errors for templated code - sorry we know that one's caused many of you some grief :-(
+* Initial support of SOQL (Salesforce Object Query Language).
+* Additional Placeholder templating options.
+* Start of BigQuery procedural language support (starting simple `FOR` statements and `CREATE PROCEDURE` statements).
+* New rule L065 to put set operators onto new lines.
+* Many more dialect improvements and bug fixes.
+
+## What’s Changed
+
+* All dialects: Allow `RESPECT NULLS`/`IGNORE NULLS` in window functions [#3376](https://github.com/sqlfluff/sqlfluff/pull/3376) [@tunetheweb](https://github.com/tunetheweb)
+* Postgres: correct `RETURNS TABLE` column type [#3379](https://github.com/sqlfluff/sqlfluff/pull/3379) [@tunetheweb](https://github.com/tunetheweb)
+* L065: Add rule for set operators surrounded by newlines [#3330](https://github.com/sqlfluff/sqlfluff/pull/3330) [@dmohns](https://github.com/dmohns)
+* L064: Apply preferred quote-style for partially templated quoted literals [#3300](https://github.com/sqlfluff/sqlfluff/pull/3300) [@dmohns](https://github.com/dmohns)
+* BigQuery: Support Stored Procedures [#3369](https://github.com/sqlfluff/sqlfluff/pull/3369) [@tunetheweb](https://github.com/tunetheweb)
+* MySQL extra Boolean operators (`&&`, `||`, `!`) [#3359](https://github.com/sqlfluff/sqlfluff/pull/3359) [@mdahlman](https://github.com/mdahlman)
+* Postgres and Redshift: Support `LOCK [TABLE]` [#3350](https://github.com/sqlfluff/sqlfluff/pull/3350) [@tunetheweb](https://github.com/tunetheweb)
+* Placeholder updates: Allow optional braces in dollar placeholders, add `colon_nospaces`, and cast to string [#3354](https://github.com/sqlfluff/sqlfluff/pull/3354) [@tunetheweb](https://github.com/tunetheweb)
+* BigQuery: Basic `FOR..IN..DO...END FOR` support [#3340](https://github.com/sqlfluff/sqlfluff/pull/3340) [@tunetheweb](https://github.com/tunetheweb)
+* L025: exclude `VALUES` clauses [#3358](https://github.com/sqlfluff/sqlfluff/pull/3358) [@tunetheweb](https://github.com/tunetheweb)
+* GitHub Actions: Update existing PR on new runs [#3367](https://github.com/sqlfluff/sqlfluff/pull/3367) [@greg-finley](https://github.com/greg-finley)
+* GitHub Actions: Copy draft release notes to CHANGELOG [#3360](https://github.com/sqlfluff/sqlfluff/pull/3360) [@greg-finley](https://github.com/greg-finley)
+* GitHub Action to set version number [#3347](https://github.com/sqlfluff/sqlfluff/pull/3347) [@greg-finley](https://github.com/greg-finley)
+* Postgres and Redshift: support `ALTER SCHEMA` [#3346](https://github.com/sqlfluff/sqlfluff/pull/3346) [@mdahlman](https://github.com/mdahlman)
+* MySQL: better `SELECT..INTO` support [#3351](https://github.com/sqlfluff/sqlfluff/pull/3351) [@tunetheweb](https://github.com/tunetheweb)
+* Postgres: support better function calls in `CREATE TRIGGER` [#3349](https://github.com/sqlfluff/sqlfluff/pull/3349) [@tunetheweb](https://github.com/tunetheweb)
+* Misc rule doc updates [#3352](https://github.com/sqlfluff/sqlfluff/pull/3352) [@tunetheweb](https://github.com/tunetheweb)
+* Snowflake: Move `CASE` keyword to Unreserved list [#3353](https://github.com/sqlfluff/sqlfluff/pull/3353) [@tunetheweb](https://github.com/tunetheweb)
+* MySQL: Added support for multiple variables in `SET` statement. [#3328](https://github.com/sqlfluff/sqlfluff/pull/3328) [@cgkoutzigiannis](https://github.com/cgkoutzigiannis)
+* SOQL: Support `date_n_literal` [#3344](https://github.com/sqlfluff/sqlfluff/pull/3344) [@greg-finley](https://github.com/greg-finley)
+* Update Docs: Getting Started and Index [#3339](https://github.com/sqlfluff/sqlfluff/pull/3339) [@mdahlman](https://github.com/mdahlman)
+* SOQL: Disable L026 rule [#3338](https://github.com/sqlfluff/sqlfluff/pull/3338) [@greg-finley](https://github.com/greg-finley)
+* Fix critical parse error logged after L003 fix [#3337](https://github.com/sqlfluff/sqlfluff/pull/3337) [@barrywhart](https://github.com/barrywhart)
+* SOQL: Disallow non-`SELECT` statements [#3329](https://github.com/sqlfluff/sqlfluff/pull/3329) [@greg-finley](https://github.com/greg-finley)
+* ci: bump github actions [#3336](https://github.com/sqlfluff/sqlfluff/pull/3336) [@Fdawgs](https://github.com/Fdawgs)
+* Start SOQL dialect [#3312](https://github.com/sqlfluff/sqlfluff/pull/3312) [@greg-finley](https://github.com/greg-finley)
+* Hive: support `CLUSTER`, `DISTRIBUTE`, `SORT BY` [#3304](https://github.com/sqlfluff/sqlfluff/pull/3304) [@barunpuri](https://github.com/barunpuri)
+* Fix typo in Configuration documentation [#3319](https://github.com/sqlfluff/sqlfluff/pull/3319) [@mdahlman](https://github.com/mdahlman)
+* L011: Support `MERGE` statements [#3292](https://github.com/sqlfluff/sqlfluff/pull/3292) [@tunetheweb](https://github.com/tunetheweb)
+* BigQuery: Add workaround to fix false-positves of L063 [#3306](https://github.com/sqlfluff/sqlfluff/pull/3306) [@dmohns](https://github.com/dmohns)
+* Snowflake: `REMOVE` statement rework [#3308](https://github.com/sqlfluff/sqlfluff/pull/3308) [@jmc-bbk](https://github.com/jmc-bbk)
+* Snowflake: `PUT` statement [#3307](https://github.com/sqlfluff/sqlfluff/pull/3307) [@jmc-bbk](https://github.com/jmc-bbk)
+* Snowflake: `GET` statement [#3305](https://github.com/sqlfluff/sqlfluff/pull/3305) [@jmc-bbk](https://github.com/jmc-bbk)
+* Snowflake: Support `ALTER EXTERNAL TABLE` [#3302](https://github.com/sqlfluff/sqlfluff/pull/3302) [@jmc-bbk](https://github.com/jmc-bbk)
+* T-SQL: Fix `PIVOT` placement [#3298](https://github.com/sqlfluff/sqlfluff/pull/3298) [@jpers36](https://github.com/jpers36)
+* Cleanup role references [#3287](https://github.com/sqlfluff/sqlfluff/pull/3287) [@tunetheweb](https://github.com/tunetheweb)
+* Adding Typeform and videoask into inthewild.rst [#3296](https://github.com/sqlfluff/sqlfluff/pull/3296) [@omonereo-tf](https://github.com/omonereo-tf)
+* Snowflake: `LIST` statement enhancement [#3295](https://github.com/sqlfluff/sqlfluff/pull/3295) [@jmc-bbk](https://github.com/jmc-bbk)
+* MySQL: Support `CREATE USER` [#3289](https://github.com/sqlfluff/sqlfluff/pull/3289) [@greg-finley](https://github.com/greg-finley)
+* Snowflake: CREATE STAGE grammar enhancement for file formats [#3293](https://github.com/sqlfluff/sqlfluff/pull/3293) [@jmc-bbk](https://github.com/jmc-bbk)
+* T-SQL: Complete support for `DELETE` statement [#3285](https://github.com/sqlfluff/sqlfluff/pull/3285) [@pguyot](https://github.com/pguyot)
+* MySQL: Support account names [#3286](https://github.com/sqlfluff/sqlfluff/pull/3286) [@greg-finley](https://github.com/greg-finley)
+* L028: In T-SQL dialect, table variables cannot be used to qualify references [#3283](https://github.com/sqlfluff/sqlfluff/pull/3283) [@barrywhart](https://github.com/barrywhart)
+* L007: An operator on a line by itself is okay [#3281](https://github.com/sqlfluff/sqlfluff/pull/3281) [@barrywhart](https://github.com/barrywhart)
+* L046 (spaces around Jinja tags) should check all slices in a segment [#3279](https://github.com/sqlfluff/sqlfluff/pull/3279) [@barrywhart](https://github.com/barrywhart)
+* L003 bug fix: Not ignoring templated newline [#3278](https://github.com/sqlfluff/sqlfluff/pull/3278) [@barrywhart](https://github.com/barrywhart)
+
+## New Contributors
+
+* [@omonereo-tf](https://github.com/omonereo-tf) made their first contribution in [#3296](https://github.com/sqlfluff/sqlfluff/pull/3296)
+* [@mdahlman](https://github.com/mdahlman) made their first contribution in [#3319](https://github.com/sqlfluff/sqlfluff/pull/3319)
+* [@cgkoutzigiannis](https://github.com/cgkoutzigiannis) made their first contribution in [#3328](https://github.com/sqlfluff/sqlfluff/pull/3328)
+
+
 ## [0.13.1] - 2022-05-06
 
 ## Highlights

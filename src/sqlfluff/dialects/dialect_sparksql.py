@@ -1631,27 +1631,6 @@ class LateralViewClauseSegment(BaseSegment):
     )
 
 
-class OverClauseSegment(ansi.OverClauseSegment):
-    """An OVER clause for window functions.
-
-    Enhance from ANSI dialect to allow for specification of
-    [{IGNORE | RESPECT} NULLS]
-
-    https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-window.html
-    """
-
-    match_grammar = Sequence(
-        Sequence(OneOf("IGNORE", "RESPECT"), "NULLS", optional=True),
-        "OVER",
-        OneOf(
-            Ref("SingleIdentifierGrammar"),  # Window name
-            Bracketed(
-                Ref("WindowSpecificationSegment", optional=True),
-            ),
-        ),
-    )
-
-
 class PivotClauseSegment(BaseSegment):
     """A `PIVOT` clause as using in FROM clause.
 
