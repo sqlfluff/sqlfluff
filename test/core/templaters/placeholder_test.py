@@ -94,7 +94,8 @@ def test__templater_raw():
             ),
         ),
         (
-            # Postgres uses double-colons for type casts (see https://www.postgresql.org/docs/current/sql-expressions.html#SQL-SYNTAX-TYPE-CASTS).
+            # Postgres uses double-colons for type casts , see
+            # https://www.postgresql.org/docs/current/sql-expressions.html#SQL-SYNTAX-TYPE-CASTS
             # This test ensures we don't confuse them with colon placeholders.
             """
             SELECT user_mail, city_id, joined::date
