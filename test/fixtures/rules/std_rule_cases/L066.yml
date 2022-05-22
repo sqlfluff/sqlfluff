@@ -18,7 +18,6 @@ test_fail_alias_too_short:
     FROM users as u
     JOIN customers as c on u.id = c.user_id
     JOIN orders as o on u.id = o.user_id;
-
   configs:
     rules:
       L066:
@@ -34,7 +33,6 @@ test_fail_alias_too_long:
     FROM users as u
     JOIN customers as customers_customers_customers on u.id = customers_customers_customers.user_id
     JOIN orders as o on u.id = o.user_id;
-
   configs:
     rules:
       L066:
@@ -50,7 +48,6 @@ test_fail_alias_min_and_max:
     FROM users as u
     JOIN customers as customers_customers_customers on u.id = customers_customers_customers.user_id
     JOIN orders as o on u.id = o.user_id;
-
   configs:
     rules:
       L066:
