@@ -33,18 +33,18 @@ class Rule_L066(BaseRule):
 
     .. code-block:: sql
 
-    SELECT
-        SUM(orders.amount) as order_amount,
-    FROM orders
+        SELECT
+            SUM(orders.amount) as order_amount,
+        FROM orders
 
-    SELECT
-        replacement_orders.amount,
-        previous_orders.amount
-    FROM
-        orders AS replacement_orders
-    JOIN
-        orders AS previous_orders
-        ON replacement_orders.id = previous_orders.replacement_id
+        SELECT
+            replacement_orders.amount,
+            previous_orders.amount
+        FROM
+            orders AS replacement_orders
+        JOIN
+            orders AS previous_orders
+            ON replacement_orders.id = previous_orders.replacement_id
     """
 
     groups = ("all",)
