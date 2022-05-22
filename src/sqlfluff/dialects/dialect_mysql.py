@@ -69,6 +69,7 @@ mysql_dialect.sets("reserved_keywords").difference_update(
 )
 
 # Remove this reserved keyword to avoid issue in create_table_primary_foreign_keys.sql
+# TODO - resolve this properly
 mysql_dialect.sets("reserved_keywords").difference_update(["INDEX"])
 
 
