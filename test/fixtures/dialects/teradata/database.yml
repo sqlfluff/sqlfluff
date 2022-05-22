@@ -1,0 +1,13 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 2695b2fd679f94e693ecee7eb6c9d733569424087d1a642fe4d6d3774e9908c0
+file:
+  statement:
+    database_statement:
+      keyword: DATABASE
+      database_reference:
+        identifier: database1
+  statement_terminator: ;
