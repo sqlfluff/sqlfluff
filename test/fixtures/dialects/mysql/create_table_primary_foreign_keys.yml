@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a7e6ee4002e34cd0bf6e6fc4b5da58e4a854942de3243a78394494e3964c05c0
+_hash: 351dbc1bcb5d9eb84e833017b8a094a86a0187661cef2ff0d3626b2b455af7ed
 file:
 - statement:
     create_table_statement:
@@ -186,9 +186,8 @@ file:
         - keyword: KEY
         - bracketed:
             start_bracket: (
-            expression:
-              column_reference:
-                identifier: 'no'
+            column_reference:
+              identifier: 'no'
             end_bracket: )
       - comma: ','
       - table_constraint:
@@ -281,9 +280,8 @@ file:
         - keyword: KEY
         - bracketed:
             start_bracket: (
-            expression:
-              column_reference:
-                identifier: source_id
+            column_reference:
+              identifier: source_id
             end_bracket: )
         - keyword: REFERENCES
         - column_reference:
