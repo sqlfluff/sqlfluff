@@ -46,6 +46,7 @@ class Rule_L066(BaseRule):
             orders AS previous_orders
             ON replacement_orders.id = previous_orders.replacement_id
     """
+
     groups = ("all",)
     config_keywords = ["min_alias_length", "max_alias_length"]
 
@@ -55,7 +56,6 @@ class Rule_L066(BaseRule):
         Find base table, table expressions in join, and other expressions in select
         clause and decide if it's needed to report them.
         """
-
         self.min_alias_length: Optional[int]
         self.max_alias_length: Optional[int]
 
@@ -80,7 +80,11 @@ class Rule_L066(BaseRule):
         for from_expression_element in from_expression_elements:
 
             table_expression = from_expression_element.get_child("table_expression")
-            table_ref = table_expression.get_child("object_reference") if table_expression else None
+            table_ref = (
+                table_expression.get_child("object_reference")
+                if table_expression
+                else None
+            )
 
             # If the from_expression_element has no object_reference - skip it
             # An example case is a lateral flatten, where we have a function segment

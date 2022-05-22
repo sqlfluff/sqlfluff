@@ -196,7 +196,7 @@ STANDARD_CONFIG_INFO_DICT = {
         "definition": (
             "The maximum length of an alias to allow without raising a violation."
         ),
-    }
+    },
 }
 
 
