@@ -46,7 +46,6 @@ class Rule_L066(BaseRule):
             orders AS previous_orders
             ON replacement_orders.id = previous_orders.replacement_id
     """
-
     groups = ("all",)
     config_keywords = ["min_alias_length", "max_alias_length"]
 
@@ -81,7 +80,7 @@ class Rule_L066(BaseRule):
         for from_expression_element in from_expression_elements:
 
             table_expression = from_expression_element.get_child("table_expression")
-            table_ref = table_expression.get_child("object_reference")
+            table_ref = table_expression.get_child("object_reference") if table_expression else None
 
             # If the from_expression_element has no object_reference - skip it
             # An example case is a lateral flatten, where we have a function segment
@@ -102,10 +101,8 @@ class Rule_L066(BaseRule):
                         LintResult(
                             anchor=alias_identifier_ref,
                             description=(
-                                "Aliases should be at least {} character(s) in length.".format(
-                                    self.min_alias_length
-                                )
-                            ),
+                                "Aliases should be at least {} character(s) long."
+                            ).format(self.min_alias_length),
                         )
                     )
 
@@ -115,10 +112,8 @@ class Rule_L066(BaseRule):
                         LintResult(
                             anchor=alias_identifier_ref,
                             description=(
-                                "Aliases should be no more than {} character(s) in length.".format(
-                                    self.max_alias_length
-                                )
-                            ),
+                                "Aliases should be no more than {} character(s) long."
+                            ).format(self.max_alias_length),
                         )
                     )
 

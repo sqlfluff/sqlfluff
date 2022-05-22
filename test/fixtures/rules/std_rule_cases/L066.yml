@@ -64,7 +64,6 @@ test_pass_with_config:
     FROM users
     JOIN customers as customers_customers_customers on users.id = customers_customers_customers.user_id
     JOIN orders as latest_orders on users.id = latest_orders.user_id;
-
   configs:
     rules:
       L066:
