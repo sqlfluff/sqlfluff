@@ -1,1 +1,1 @@
-SELECT 1 FROM table FOR UPDATE OF test1, test2;
+SELECT 1 FROM table1 FOR UPDATE OF test1, test2;
