@@ -94,6 +94,23 @@ def test__templater_raw():
             ),
         ),
         (
+            # Postgres uses double-colons for type casts , see
+            # https://www.postgresql.org/docs/current/sql-expressions.html#SQL-SYNTAX-TYPE-CASTS
+            # This test ensures we don't confuse them with colon placeholders.
+            """
+            SELECT user_mail, city_id, joined::date
+            FROM users_data:table_suffix
+            """,
+            "colon_nospaces",
+            """
+            SELECT user_mail, city_id, joined::date
+            FROM users_data42
+            """,
+            dict(
+                table_suffix="42",
+            ),
+        ),
+        (
             """
             SELECT user_mail, city_id
             FROM users_data
@@ -241,6 +258,7 @@ def test__templater_raw():
         "colon_accept_block_at_end",
         "colon_tuple_substitution",
         "colon_nospaces",
+        "colon_nospaces_double_colon_ignored",
         "question_mark",
         "numeric_colon",
         "pyformat",
