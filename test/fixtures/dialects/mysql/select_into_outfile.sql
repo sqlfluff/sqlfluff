@@ -1,1 +1,1 @@
-select * into outfile 'a' from table;
+select * into outfile 'a' from table1;
