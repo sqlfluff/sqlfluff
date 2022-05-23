@@ -551,6 +551,121 @@ class ColumnConstraintSegment(BaseSegment):
     )
 
 
+class AlterTableActionSegment(BaseSegment):
+    """Alter Table Action Segment.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_ALTER_TABLE.html
+    """
+
+    type = "alter_table_action_segment"
+
+    match_grammar = OneOf(
+        Sequence(
+            "ADD",
+            Ref("TableConstraintSegment"),
+            Sequence("NOT", "VALID", optional=True),
+        ),
+        Sequence("VALIDATE", "CONSTRAINT", Ref("ParameterNameSegment")),
+        Sequence(
+            "DROP",
+            "CONSTRAINT",
+            Ref("ParameterNameSegment"),
+            Ref("DropBehaviorGrammar", optional=True),
+        ),
+        Sequence(
+            "OWNER",
+            "TO",
+            OneOf(
+                OneOf(Ref("ParameterNameSegment"), Ref("QuotedIdentifierSegment")),
+            ),
+        ),
+        Sequence(
+            "RENAME",
+            "TO",
+            OneOf(
+                OneOf(Ref("ParameterNameSegment"), Ref("QuotedIdentifierSegment")),
+            ),
+        ),
+        Sequence(
+            "RENAME",
+            "COLUMN",
+            "TO",
+            OneOf(
+                Ref("ColumnReferenceSegment"),
+            ),
+        ),
+        Sequence(
+            "ALTER",
+            Ref.keyword("COLUMN", optional=True),
+            Ref("ColumnReferenceSegment"),
+            OneOf(
+                Sequence(
+                    "TYPE",
+                    Ref("DatatypeSegment"),
+                ),
+                Sequence(
+                    "ENCODE",
+                    Delimited(
+                        Ref("ColumnEncodingGrammar"),
+                    ),
+                ),
+            ),
+        ),
+        Sequence(
+            "ALTER",
+            "DISTKEY",
+            Ref("ColumnReferenceSegment"),
+        ),
+        Sequence(
+            "ALTER",
+            "DISTSTYLE",
+            OneOf(
+                "ALL",
+                "EVEN",
+                Sequence("KEY", "DISTKEY", Ref("ColumnReferenceSegment")),
+                "AUTO",
+            ),
+        ),
+        Sequence(
+            "ALTER",
+            Ref.keyword("COMPOUND", optional=True),
+            "SORTKEY",
+            Bracketed(
+                Delimited(
+                    Ref("ColumnReferenceSegment"),
+                ),
+            ),
+        ),
+        Sequence(
+            "ALTER",
+            "SORTKEY",
+            OneOf(
+                "AUTO",
+                "NONE",
+            ),
+        ),
+        Sequence(
+            "ALTER",
+            "ENCODE",
+            "AUTO",
+        ),
+        Sequence(
+            "ADD",
+            Ref.keyword("COLUMN", optional=True),
+            Ref("ColumnReferenceSegment"),
+            Ref("DatatypeSegment"),
+            Sequence("COLLATE", Ref("QuotedLiteralSegment"), optional=True),
+            AnyNumberOf(Ref("ColumnConstraintSegment")),
+        ),
+        Sequence(
+            "DROP",
+            Ref.keyword("COLUMN", optional=True),
+            Ref("ColumnReferenceSegment"),
+            Ref("DropBehaviorGrammar", optional=True),
+        ),
+    )
+
+
 class TableAttributeSegment(BaseSegment):
     """Redshift specific table attributes.
 
