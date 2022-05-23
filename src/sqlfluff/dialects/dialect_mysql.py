@@ -1084,6 +1084,7 @@ class SetAssignmentStatementSegment(BaseSegment):
                     Ref("LocalVariableNameSegment"),
                     Ref("FunctionSegment"),
                     Ref("ArithmeticBinaryOperatorGrammar"),
+                    Ref("ExpressionSegment"),
                 ),
             ),
         ),
