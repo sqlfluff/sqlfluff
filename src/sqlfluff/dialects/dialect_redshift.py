@@ -542,7 +542,7 @@ class ColumnConstraintSegment(BaseSegment):
 
     match_grammar = AnySetOf(
         OneOf(Sequence("NOT", "NULL"), "NULL"),
-        OneOf("UNIQUE", Sequence("PRIMARY", "KEY")),
+        OneOf("UNIQUE", Ref("PrimaryKeyGrammar")),
         Sequence(
             "REFERENCES",
             Ref("TableReferenceSegment"),
@@ -585,20 +585,25 @@ class TableConstraintSegment(BaseSegment):
 
     type = "table_constraint"
 
-    match_grammar = AnySetOf(
-        Sequence("UNIQUE", Bracketed(Delimited(Ref("ColumnReferenceSegment")))),
-        Sequence(
-            "PRIMARY",
-            "KEY",
-            Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+    match_grammar = Sequence(
+        Sequence(  # [ CONSTRAINT <Constraint name> ]
+            "CONSTRAINT", Ref("ObjectReferenceSegment"), optional=True
         ),
-        Sequence(
-            "FOREIGN",
-            "KEY",
-            Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
-            "REFERENCES",
-            Ref("TableReferenceSegment"),
-            Sequence(Bracketed(Ref("ColumnReferenceSegment"))),
+        OneOf(
+            Sequence("UNIQUE", Bracketed(Delimited(Ref("ColumnReferenceSegment")))),
+            Sequence(
+                "PRIMARY",
+                "KEY",
+                Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+            ),
+            Sequence(
+                "FOREIGN",
+                "KEY",
+                Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+                "REFERENCES",
+                Ref("TableReferenceSegment"),
+                Sequence(Bracketed(Ref("ColumnReferenceSegment"))),
+            ),
         ),
     )
 
