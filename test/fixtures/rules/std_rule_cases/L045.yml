@@ -248,3 +248,23 @@ test_fail_query_uses_templating:
 
     SELECT var_bar
     FROM {{ ref('issue_2235') }}
+
+test_pass_update_cte:
+  pass_str: |
+    WITH cte AS (
+        SELECT
+            id,
+            name,
+            description
+        FROM table1
+    )
+
+    UPDATE table2
+    SET
+        name = cte.name,
+        description = cte.description
+    FROM cte
+    WHERE table2.id = cte.id;
+  configs:
+    core:
+      dialect: postgres
