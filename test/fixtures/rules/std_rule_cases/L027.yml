@@ -318,7 +318,6 @@ test_pass_ignore_words_regex_column_name:
 test_pass_ignore_words_regex_bigquery_declare_example:
   pass_str:
     DECLARE _test INT64 DEFAULT 42;
-
     SELECT _test
     FROM t_table1
     LEFT JOIN t_table_2
