@@ -1,1 +1,1 @@
-select * from table PARTITION(part1);
+select * from table1 PARTITION(part1);

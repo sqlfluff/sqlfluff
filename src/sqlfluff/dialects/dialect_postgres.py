@@ -682,7 +682,8 @@ class CreateFunctionStatementSegment(ansi.CreateFunctionStatementSegment):
                             OneOf(
                                 Ref("DatatypeSegment"),
                                 Sequence(
-                                    Ref("ParameterNameSegment"), Ref("DatatypeSegment")
+                                    Ref("ColumnReferenceSegment"),
+                                    Ref("DatatypeSegment"),
                                 ),
                             ),
                             delimiter=Ref("CommaSegment"),
