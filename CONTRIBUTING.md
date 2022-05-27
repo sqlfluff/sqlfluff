@@ -236,7 +236,7 @@ whenever a new release is published to GitHub.
 
 #### Release checklist:
 
-The [release page](https://github.com/sqlfluff/sqlfluff/releases) shows maintainers all merges since last release. Once we have a long enough list, we should prepare a release. We should follow the below checklist, part of which is automated by the ["Create release pull request" GitHub Action](https://github.com/sqlfluff/sqlfluff/.github/workflows/create-release-pull-request.yaml) (which is safe to run multiple times as more code is merged into the release):
+The [release page](https://github.com/sqlfluff/sqlfluff/releases) shows maintainers all merges since last release. Once we have a long enough list, we should prepare a release. We should follow the below checklist, part of which is automated by the ["Create release pull request" GitHub Action](https://github.com/sqlfluff/sqlfluff/.github/workflows/create-release-pull-request.yaml) (which can be run multiple times as more PRs are merged into the release):
 
 - [ ] Change the version in `setup.cfg` and `plugins/sqlfluff-templater-dbt/setup.cfg`
 - [ ] Update the stable_version in the `[sqlfluff_docs]` section of `setup.cfg`
