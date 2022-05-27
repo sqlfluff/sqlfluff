@@ -10,6 +10,7 @@ NB: This is not part of the core sqlfluff code.
 
 import shutil
 import os
+from typing import List
 import click
 import time
 import subprocess
@@ -140,7 +141,8 @@ def prepare_release(new_version_num):
         raise ValueError("No draft release found!")
 
     input_changelog = open("CHANGELOG.md").readlines()
-    write_changelog = open("CHANGELOG.md", "w")
+
+    potential_new_contributors: List[str] = []
 
     # Linkify the PRs and authors
     draft_body_parts = latest_draft_release["body"].split("\r\n")
@@ -150,8 +152,16 @@ def prepare_release(new_version_num):
             r"[#\1](https://github.com/sqlfluff/sqlfluff/pull/\1) [@\2](https://github.com/\2)",  # noqa E501
             p,
         )
+        new_contrib_string = re.sub(
+            r".*\(#([0-9]*)\) @([^ ]*)$",
+            r"* [@\2](https://github.com/\2) made their first contribution in [#\1](https://github.com/sqlfluff/sqlfluff/pull/\1)",  # noqa E501
+            p,
+        )
+        if new_contrib_string.startswith("* "):
+            potential_new_contributors.append(new_contrib_string)
     draft_body = "\r\n".join(draft_body_parts)
 
+    write_changelog = open("CHANGELOG.md", "w")
     for i, line in enumerate(input_changelog):
         write_changelog.write(line)
         if "DO NOT DELETE THIS LINE" in line:
