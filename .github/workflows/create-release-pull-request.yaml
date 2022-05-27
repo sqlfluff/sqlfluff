@@ -26,6 +26,7 @@ jobs:
           python util.py prepare-release --new_version_num=${{ github.event.inputs.newVersionNumber }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY_OWNER: ${{ secrets.GITHUB_REPOSITORY_OWNER }}
 
       - name: Create pull request
         uses: peter-evans/create-pull-request@v4
