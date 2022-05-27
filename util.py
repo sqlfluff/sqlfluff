@@ -167,11 +167,11 @@ def prepare_release(new_version_num):
     # Find the first commit for each contributor in this release
     potential_new_contributors.reverse()
     seen_contributors = set()
-    potential_new_contributor_lines = []
+    deduped_potential_new_contributors = []
     for c in potential_new_contributors:
         if c["name"] not in seen_contributors:
             seen_contributors.add(c["name"])
-            potential_new_contributor_lines.append(c["line"])
+            deduped_potential_new_contributors.append(c)
 
     input_changelog = open("CHANGELOG.md").readlines()
     write_changelog = open("CHANGELOG.md", "w")
@@ -218,8 +218,13 @@ def prepare_release(new_version_num):
                 )
                 write_changelog.write(whats_changed_text)
                 write_changelog.write("\n## New Contributors\n")
-                # TODO: Make sure new contributors don't exist in the changelog yet
-                write_changelog.write("\n".join(potential_new_contributor_lines))
+                # Ensure contributor names don't appear in input_changelog list
+                new_contributor_lines = []
+                input_changelog_str = "".join(input_changelog)
+                for c in deduped_potential_new_contributors:
+                    if c["name"] not in input_changelog_str:
+                        new_contributor_lines.append(c["line"])
+                write_changelog.write("\n".join(new_contributor_lines))
                 write_changelog.write("\n")
 
     write_changelog.close()
