@@ -10,7 +10,6 @@ NB: This is not part of the core sqlfluff code.
 
 import shutil
 import os
-from typing import List
 import click
 import time
 import subprocess
@@ -140,12 +139,9 @@ def prepare_release(new_version_num):
     if not latest_draft_release:
         raise ValueError("No draft release found!")
 
-    input_changelog = open("CHANGELOG.md").readlines()
-
-    potential_new_contributors: List[str] = []
-
     # Linkify the PRs and authors
     draft_body_parts = latest_draft_release["body"].split("\r\n")
+    potential_new_contributors = []
     for i, p in enumerate(draft_body_parts):
         draft_body_parts[i] = re.sub(
             r"\(#([0-9]*)\) @([^ ]*)$",
@@ -158,9 +154,22 @@ def prepare_release(new_version_num):
             p,
         )
         if new_contrib_string.startswith("* "):
-            potential_new_contributors.append(new_contrib_string)
-    draft_body = "\r\n".join(draft_body_parts)
+            new_contrib_name = re.sub(r"\* \[(.*?)\].*", r"\1", new_contrib_string)
+            potential_new_contributors.append(
+                {"name": new_contrib_name, "line": new_contrib_string}
+            )
+    whats_changed_text = "\r\n".join(draft_body_parts)
 
+    # Find the first commit for each contributor in this release
+    potential_new_contributors.reverse()
+    seen_contributors = set()
+    potential_new_contributor_lines = []
+    for c in potential_new_contributors:
+        if c["name"] not in seen_contributors:
+            seen_contributors.add(c["name"])
+            potential_new_contributor_lines.append(c["line"])
+
+    input_changelog = open("CHANGELOG.md").readlines()
     write_changelog = open("CHANGELOG.md", "w")
     for i, line in enumerate(input_changelog):
         write_changelog.write(line)
@@ -193,14 +202,21 @@ def prepare_release(new_version_num):
                 del input_changelog[
                     existing_whats_changed_start:existing_whats_changed_end
                 ]
-                input_changelog[existing_whats_changed_start] = draft_body + "\n"
+                input_changelog[existing_whats_changed_start] = (
+                    whats_changed_text + "\n"
+                )
+                # TODO: Delete new contributors section and scan prior changelog
+                # entries to figure out who real new contributors are
 
             else:
                 write_changelog.write(
                     f"\n##[{new_version_num}] - {time.strftime('%Y-%m-%d')}\n\n## Highlights\n\n"  # noqa E501
                 )
-                write_changelog.write(draft_body)
+                write_changelog.write(whats_changed_text)
                 write_changelog.write("\n## New Contributors\n")
+                # TODO: Make sure new contributors don't exist in the changelog yet
+                write_changelog.write("\n".join(potential_new_contributor_lines))
+                write_changelog.write("\n")
 
     write_changelog.close()
 
