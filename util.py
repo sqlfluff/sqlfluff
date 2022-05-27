@@ -194,30 +194,39 @@ def prepare_release(new_version_num):
                     )
                     + existing_entry_start
                 )
-                existing_whats_changed_end = (
+                existing_new_contributors_end = (
                     next(
                         j
                         for j, line in enumerate(remaining_changelog)
-                        if line.startswith("## New Contributors")
+                        if line.startswith("##[")
                     )
                     + existing_entry_start
                     - 1
                 )
                 del input_changelog[
-                    existing_whats_changed_start:existing_whats_changed_end
+                    existing_whats_changed_start:existing_new_contributors_end
                 ]
+
+                # Now that we've cleared the prior release entry, we will accurately
+                # find if contributors have been previously mentioned in the changelog
+                new_contributor_lines = []
+                input_changelog_str = "".join(input_changelog)
+                for c in deduped_potential_new_contributors:
+                    if c["name"] not in input_changelog_str:
+                        new_contributor_lines.append(c["line"])
                 input_changelog[existing_whats_changed_start] = (
-                    whats_changed_text + "\n"
+                    whats_changed_text
+                    + "\n\n## New Contributors\n"
+                    + "\n".join(new_contributor_lines)
+                    + "\n"
                 )
-                # TODO: Delete new contributors section and scan prior changelog
-                # entries to figure out who real new contributors are
 
             else:
                 write_changelog.write(
                     f"\n##[{new_version_num}] - {time.strftime('%Y-%m-%d')}\n\n## Highlights\n\n"  # noqa E501
                 )
                 write_changelog.write(whats_changed_text)
-                write_changelog.write("\n## New Contributors\n")
+                write_changelog.write("\n## New Contributors\n\n")
                 # Ensure contributor names don't appear in input_changelog list
                 new_contributor_lines = []
                 input_changelog_str = "".join(input_changelog)
