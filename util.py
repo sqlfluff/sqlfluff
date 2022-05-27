@@ -16,6 +16,7 @@ import subprocess
 import sys
 import yaml
 import requests
+from ghapi.all import GhApi
 
 
 @click.group()
@@ -125,6 +126,32 @@ def benchmark(cmd, runs, from_file):
 @click.option("--new_version_num")
 def prepare_release(new_version_num):
     """Change version number in the cfg files."""
+    api = GhApi(owner="greg-finley", repo="sqlfluff", token=os.environ["GITHUB_TOKEN"])
+    releases = api.repos.list_releases()
+
+    latest_draft_release = None
+    for rel in releases:
+        if rel["draft"]:
+            latest_draft_release = rel
+            break
+
+    if not latest_draft_release:
+        raise ValueError("No draft release found!")
+
+    input_changelog = open("CHANGELOG.md").readlines()
+    write_changelog = open("CHANGELOG.md", "w")
+
+    for line in input_changelog:
+        write_changelog.write(line)
+        if "DO NOT DELETE THIS LINE" in line:
+            write_changelog.write(
+                f"\n##[{new_version_num}] - {time.strftime('%Y-%m-%d')}\n## Highlights\n\n"  # noqa E501
+            )
+            write_changelog.write(latest_draft_release["body"])
+            write_changelog.write("\n## New Contributors\n\n")
+
+    write_changelog.close()
+
     for filename in ["setup.cfg", "plugins/sqlfluff-templater-dbt/setup.cfg"]:
         input_file = open(filename, "r").readlines()
         write_file = open(filename, "w")
