@@ -184,7 +184,8 @@ def prepare_release(new_version_num):
                 input_changelog[
                     existing_entry_start
                 ] = f"##[{new_version_num}] - {time.strftime('%Y-%m-%d')}\n"
-                # Replace the existing What’s Changed section
+
+                # Delete the existing What’s Changed and New Contributors sections
                 remaining_changelog = input_changelog[existing_entry_start:]
                 existing_whats_changed_start = (
                     next(
@@ -194,23 +195,36 @@ def prepare_release(new_version_num):
                     )
                     + existing_entry_start
                 )
-                existing_new_contributors_end = (
+                existing_new_contributors_start = (
                     next(
                         j
                         for j, line in enumerate(remaining_changelog)
-                        if line.startswith("##[")
+                        if line.startswith("## New Contributors")
                     )
                     + existing_entry_start
+                )
+                existing_new_contributors_length = (
+                    next(
+                        j
+                        for j, line in enumerate(
+                            input_changelog[existing_new_contributors_start:]
+                        )
+                        if line.startswith("##[")
+                    )
                     - 1
                 )
+
                 del input_changelog[
-                    existing_whats_changed_start:existing_new_contributors_end
+                    existing_whats_changed_start : existing_new_contributors_start
+                    + existing_new_contributors_length
                 ]
 
-                # Now that we've cleared the prior release entry, we will accurately
+                # Now that we've cleared the previous sections, we will accurately
                 # find if contributors have been previously mentioned in the changelog
                 new_contributor_lines = []
-                input_changelog_str = "".join(input_changelog)
+                input_changelog_str = "".join(
+                    input_changelog[existing_whats_changed_start:]
+                )
                 for c in deduped_potential_new_contributors:
                     if c["name"] not in input_changelog_str:
                         new_contributor_lines.append(c["line"])
@@ -218,7 +232,7 @@ def prepare_release(new_version_num):
                     whats_changed_text
                     + "\n\n## New Contributors\n"
                     + "\n".join(new_contributor_lines)
-                    + "\n"
+                    + "\n\n"
                 )
 
             else:
