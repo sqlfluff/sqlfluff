@@ -16,6 +16,7 @@ import subprocess
 import sys
 import yaml
 import requests
+import re
 from ghapi.all import GhApi
 
 
@@ -141,14 +142,29 @@ def prepare_release(new_version_num):
     input_changelog = open("CHANGELOG.md").readlines()
     write_changelog = open("CHANGELOG.md", "w")
 
-    for line in input_changelog:
+    draft_body_parts = latest_draft_release["body"].split("\r\n")
+    for i, p in enumerate(draft_body_parts):
+        draft_body_parts[i] = re.sub(
+            r"\(#([0-9]*)\) @([^ ]*)$",
+            r"[#\1](https://github.com/sqlfluff/sqlfluff/pull/\1) [@\2](https://github.com/\2)",  # noqa E501
+            p,
+        )
+    draft_body = "\r\n".join(draft_body_parts)
+
+    for i, line in enumerate(input_changelog):
         write_changelog.write(line)
         if "DO NOT DELETE THIS LINE" in line:
-            write_changelog.write(
-                f"\n##[{new_version_num}] - {time.strftime('%Y-%m-%d')}\n## Highlights\n\n"  # noqa E501
-            )
-            write_changelog.write(latest_draft_release["body"])
-            write_changelog.write("\n## New Contributors\n\n")
+            # If the release is already in the changelog, update it
+            if f"##[{new_version_num}]" in input_changelog[i + 2]:
+                input_changelog[
+                    i + 2
+                ] = f"##[{new_version_num}] - {time.strftime('%Y-%m-%d')}\n"
+            else:
+                write_changelog.write(
+                    f"\n##[{new_version_num}] - {time.strftime('%Y-%m-%d')}\n\n## Highlights\n\n"  # noqa E501
+                )
+                write_changelog.write(draft_body)
+                write_changelog.write("\n## New Contributors\n")
 
     write_changelog.close()
 
