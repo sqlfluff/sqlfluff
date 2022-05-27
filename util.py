@@ -142,6 +142,7 @@ def prepare_release(new_version_num):
     input_changelog = open("CHANGELOG.md").readlines()
     write_changelog = open("CHANGELOG.md", "w")
 
+    # Linkify the PRs and authors
     draft_body_parts = latest_draft_release["body"].split("\r\n")
     for i, p in enumerate(draft_body_parts):
         draft_body_parts[i] = re.sub(
@@ -154,11 +155,36 @@ def prepare_release(new_version_num):
     for i, line in enumerate(input_changelog):
         write_changelog.write(line)
         if "DO NOT DELETE THIS LINE" in line:
+            existing_entry_start = i + 2
             # If the release is already in the changelog, update it
-            if f"##[{new_version_num}]" in input_changelog[i + 2]:
+            if f"##[{new_version_num}]" in input_changelog[existing_entry_start]:
                 input_changelog[
-                    i + 2
+                    existing_entry_start
                 ] = f"##[{new_version_num}] - {time.strftime('%Y-%m-%d')}\n"
+                # Replace the existing What’s Changed section
+                remaining_changelog = input_changelog[existing_entry_start:]
+                existing_whats_changed_start = (
+                    next(
+                        j
+                        for j, line in enumerate(remaining_changelog)
+                        if line.startswith("## What’s Changed")
+                    )
+                    + existing_entry_start
+                )
+                existing_whats_changed_end = (
+                    next(
+                        j
+                        for j, line in enumerate(remaining_changelog)
+                        if line.startswith("## New Contributors")
+                    )
+                    + existing_entry_start
+                    - 1
+                )
+                del input_changelog[
+                    existing_whats_changed_start:existing_whats_changed_end
+                ]
+                input_changelog[existing_whats_changed_start] = draft_body + "\n"
+
             else:
                 write_changelog.write(
                     f"\n##[{new_version_num}] - {time.strftime('%Y-%m-%d')}\n\n## Highlights\n\n"  # noqa E501
