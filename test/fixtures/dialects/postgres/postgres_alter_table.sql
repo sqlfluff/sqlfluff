@@ -60,6 +60,9 @@ ALTER TABLE distributors ADD CONSTRAINT zipchk CHECK (char_length(zipcode) = 5) 
 
 ALTER TABLE distributors DROP CONSTRAINT zipchk;
 
+-- constraints can optionally have their names double-quoted
+ALTER TABLE distributors DROP CONSTRAINT "zipchk";
+
 ALTER TABLE ONLY distributors DROP CONSTRAINT zipchk;
 
 ALTER TABLE distributors ADD CONSTRAINT distfk FOREIGN KEY (address) REFERENCES addresses (address);
