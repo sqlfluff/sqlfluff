@@ -1199,7 +1199,7 @@ class BaseSegment:
 
             before = []
             after = []
-            if not r.can_start_end_non_code:
+            if not r.can_start_end_non_code and r.parse_grammar:
                 idx_non_code = self._find_start_or_end_non_code(seg_buffer)
                 # Are there misplaced segments from a fix?
                 if idx_non_code is not None:
