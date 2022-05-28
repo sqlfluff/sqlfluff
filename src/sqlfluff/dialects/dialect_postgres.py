@@ -240,7 +240,7 @@ postgres_dialect.replace(
         )
     ),
     ParameterNameSegment=RegexParser(
-        r"[A-Z_][A-Z0-9_$]*", CodeSegment, name="parameter", type="parameter"
+        r'[A-Z_][A-Z0-9_$]*|"[^"]*"', CodeSegment, name="parameter", type="parameter"
     ),
     FunctionNameIdentifierSegment=RegexParser(
         r"[A-Z_][A-Z0-9_$]*",
@@ -477,7 +477,6 @@ class PsqlVariableGrammar(BaseSegment):
             OneOf(
                 Ref("ParameterNameSegment"),
                 Ref("QuotedLiteralSegment"),
-                Ref("QuotedIdentifierSegment"),
             ),
         )
     )
@@ -1742,7 +1741,7 @@ class AlterTableActionSegment(BaseSegment):
             "OWNER",
             "TO",
             OneOf(
-                OneOf(Ref("ParameterNameSegment"), Ref("QuotedIdentifierSegment")),
+                Ref("ParameterNameSegment"),
                 "CURRENT_ROLE",
                 "CURRENT_USER",
                 "SESSION_USER",
