@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4140e61b55beec0689cfe104cdc27723bd067ed2e5e199e2f54548a0acc3a721
+_hash: e62ea5caf64bfb7a80de1613c0950ae34219e4938e3b5ab51e4b0b6f2381580e
 file:
 - statement:
     create_index_statement:
@@ -242,4 +242,24 @@ file:
         column_reference:
           identifier: quantity
         end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - index_reference:
+        identifier: super_idx
+    - keyword: 'ON'
+    - table_reference:
+        identifier: super_table
+    - keyword: USING
+    - function:
+        function_name:
+          function_name_identifier: BTREE
+        bracketed:
+          start_bracket: (
+          index_column_definition:
+            identifier: super_column
+            keyword: DESC
+          end_bracket: )
 - statement_terminator: ;
