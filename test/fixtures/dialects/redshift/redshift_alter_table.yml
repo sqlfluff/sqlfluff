@@ -1,0 +1,318 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 1d4d0e6da207670465d878eb8f0162e9bb80934e9a36ce22029c38e4f72e8407
+file:
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        identifier: example_table
+    - alter_table_action_segment:
+        keyword: ADD
+        table_constraint:
+        - keyword: CONSTRAINT
+        - object_reference:
+            identifier: example_name
+        - keyword: PRIMARY
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              identifier: example_sk
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: alter
+    - keyword: table
+    - table_reference:
+        identifier: users
+    - alter_table_action_segment:
+      - keyword: rename
+      - keyword: to
+      - parameter: users_bkup
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: alter
+    - keyword: table
+    - table_reference:
+        identifier: venue
+    - alter_table_action_segment:
+      - keyword: owner
+      - keyword: to
+      - parameter: dwuser
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: alter
+    - keyword: table
+    - table_reference:
+        identifier: vdate
+    - alter_table_action_segment:
+      - keyword: owner
+      - keyword: to
+      - parameter: vuser
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: alter
+    - keyword: table
+    - table_reference:
+        identifier: venue
+    - keyword: rename
+    - keyword: column
+    - column_reference:
+        identifier: venueseats
+    - keyword: to
+    - column_reference:
+        identifier: venuesize
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: alter
+    - keyword: table
+    - table_reference:
+        identifier: category
+    - alter_table_action_segment:
+      - keyword: drop
+      - keyword: constraint
+      - parameter: category_pkey
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: alter
+    - keyword: table
+    - table_reference:
+        identifier: event
+    - alter_table_action_segment:
+      - keyword: alter
+      - keyword: column
+      - column_reference:
+          identifier: eventname
+      - keyword: type
+      - data_type:
+          keyword: varchar
+          bracketed:
+            start_bracket: (
+            literal: '300'
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        identifier: t1
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          identifier: c0
+      - data_type:
+          keyword: int
+      - column_attribute_segment:
+        - keyword: encode
+        - keyword: lzo
+      - comma: ','
+      - column_reference:
+          identifier: c1
+      - data_type:
+          keyword: bigint
+      - column_attribute_segment:
+        - keyword: encode
+        - keyword: zstd
+      - comma: ','
+      - column_reference:
+          identifier: c2
+      - data_type:
+          keyword: varchar
+          bracketed:
+            start_bracket: (
+            literal: '16'
+            end_bracket: )
+      - column_attribute_segment:
+        - keyword: encode
+        - keyword: lzo
+      - comma: ','
+      - column_reference:
+          identifier: c3
+      - data_type:
+          keyword: varchar
+          bracketed:
+            start_bracket: (
+            literal: '32'
+            end_bracket: )
+      - column_attribute_segment:
+        - keyword: encode
+        - keyword: zstd
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: alter
+    - keyword: table
+    - table_reference:
+        identifier: t1
+    - alter_table_action_segment:
+      - keyword: alter
+      - keyword: column
+      - column_reference:
+          identifier: c0
+      - keyword: encode
+      - keyword: az64
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: alter
+    - keyword: table
+    - table_reference:
+        identifier: t1
+    - alter_table_action_segment:
+      - keyword: alter
+      - keyword: column
+      - column_reference:
+          identifier: c1
+      - keyword: encode
+      - keyword: az64
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: alter
+    - keyword: table
+    - table_reference:
+        identifier: t1
+    - alter_table_action_segment:
+      - keyword: alter
+      - keyword: column
+      - column_reference:
+          identifier: c2
+      - keyword: encode
+      - keyword: bytedict
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: alter
+    - keyword: table
+    - table_reference:
+        identifier: t1
+    - alter_table_action_segment:
+      - keyword: alter
+      - keyword: column
+      - column_reference:
+          identifier: c3
+      - keyword: encode
+      - keyword: runlength
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: alter
+    - keyword: table
+    - table_reference:
+        identifier: inventory
+    - alter_table_action_segment:
+      - keyword: alter
+      - keyword: diststyle
+      - keyword: key
+      - keyword: distkey
+      - column_reference:
+          identifier: inv_warehouse_sk
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: alter
+    - keyword: table
+    - table_reference:
+        identifier: inventory
+    - alter_table_action_segment:
+      - keyword: alter
+      - keyword: distkey
+      - column_reference:
+          identifier: inv_item_sk
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: alter
+    - keyword: table
+    - table_reference:
+        identifier: inventory
+    - alter_table_action_segment:
+      - keyword: alter
+      - keyword: diststyle
+      - keyword: all
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: alter
+    - keyword: table
+    - table_reference:
+        identifier: t1
+    - alter_table_action_segment:
+      - keyword: alter
+      - keyword: sortkey
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            identifier: c0
+        - comma: ','
+        - column_reference:
+            identifier: c1
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: alter
+    - keyword: table
+    - table_reference:
+        identifier: t1
+    - alter_table_action_segment:
+      - keyword: alter
+      - keyword: sortkey
+      - keyword: none
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: alter
+    - keyword: table
+    - table_reference:
+        identifier: t1
+    - alter_table_action_segment:
+      - keyword: alter
+      - keyword: sortkey
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            identifier: c0
+        - comma: ','
+        - column_reference:
+            identifier: c1
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: alter
+    - keyword: table
+    - table_reference:
+        identifier: t1
+    - alter_table_action_segment:
+      - keyword: alter
+      - keyword: encode
+      - keyword: auto
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: alter
+    - keyword: table
+    - table_reference:
+        identifier: t2
+    - alter_table_action_segment:
+      - keyword: alter
+      - keyword: column
+      - column_reference:
+          identifier: c0
+      - keyword: encode
+      - keyword: lzo
+- statement_terminator: ;
