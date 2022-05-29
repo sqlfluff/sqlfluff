@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6dd4491aff1ef376638cb3cc10ca2b974c08e581a8cf6a693ba8d248f3fab435
+_hash: 260221447c164df9e45d25f8cbcfd2ebd6668e05fb24c12d50a73b672be56f59
 file:
 - statement:
     create_function_statement:
@@ -697,4 +697,55 @@ file:
         language_clause:
           keyword: LANGUAGE
           identifier: SQL
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: create
+    - keyword: function
+    - function_name:
+        function_name_identifier: test2
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: x
+          data_type:
+            datetime_type_identifier:
+              keyword: date
+          comparison_operator:
+            raw_comparison_operator: '='
+          expression:
+            bare_function: current_date
+          end_bracket: )
+    - keyword: returns
+    - data_type:
+        datetime_type_identifier:
+          keyword: date
+    - function_definition:
+        keyword: as
+        literal: "$$\n  begin\n    return x;\n  end;\n$$"
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: create
+    - keyword: function
+    - function_name:
+        function_name_identifier: test3
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: x
+          data_type:
+            datetime_type_identifier:
+              keyword: date
+          keyword: default
+          expression:
+            bare_function: current_date
+          end_bracket: )
+    - keyword: returns
+    - data_type:
+        datetime_type_identifier:
+          keyword: date
+    - function_definition:
+        keyword: as
+        literal: "$$\n  begin\n    return x;\n  end;\n$$"
 - statement_terminator: ;

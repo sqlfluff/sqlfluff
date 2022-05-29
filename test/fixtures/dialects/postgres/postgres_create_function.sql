@@ -125,3 +125,23 @@ CREATE FUNCTION _add(integer, integer) RETURNS integer
 CREATE FUNCTION _$add(integer, integer) RETURNS integer
     AS 'select $1 + $2;'
     LANGUAGE SQL;
+
+create function test2(
+  x date = current_date
+)
+returns date
+as $$
+  begin
+    return x;
+  end;
+$$;
+
+create function test3(
+  x date default current_date
+)
+returns date
+as $$
+  begin
+    return x;
+  end;
+$$;
