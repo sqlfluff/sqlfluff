@@ -2421,7 +2421,7 @@ class TableConstraintUsingIndexSegment(BaseSegment):
             "CONSTRAINT", Ref("ObjectReferenceSegment"), optional=True
         ),
         Sequence(
-            OneOf("UNIQUE", Sequence("PRIMARY", "KEY")),
+            OneOf("UNIQUE", Ref("PrimaryKeyGrammar")),
             "USING",
             "INDEX",
             Ref("IndexReferenceSegment"),
