@@ -1009,6 +1009,7 @@ ansi_dialect.add(
             ),
         ),
         Sequence(OneOf("IGNORE", "RESPECT"), "NULLS"),
+        Ref("IndexColumnDefinitionSegment"),
     ),
     PostFunctionGrammar=OneOf(
         # Optional OVER suffix for window functions.
