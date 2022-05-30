@@ -89,7 +89,7 @@ class Rule_L044(BaseRule):
         # wildcard columns in the select targets. If every wildcard evdentually
         # resolves to a query without wildcards, all is well. Otherwise, warn.
         if not query.selectables:
-            return
+            return  # pragma: no cover
         for selectable in query.selectables:
             self.logger.debug(f"Analyzing query: {selectable.selectable.raw}")
             for wildcard in selectable.get_wildcard_info():
