@@ -203,8 +203,12 @@ class Dialect:
                                     f"Cannot replace {n!r} because it needs "
                                     f"to define '{grammar}'"
                                 )
-            elif grammars.intersection(set(self._library[n].__dict__)) == {"match_grammar"}:
-                raise ValueError(f"{n!r} defines 'match_grammar' but not 'parse_grammar'")
+            elif grammars.intersection(set(self._library[n].__dict__)) == {
+                "match_grammar"
+            }:
+                raise ValueError(
+                    f"{n!r} defines 'match_grammar' but not 'parse_grammar'"
+                )
 
             self._library[n] = cls
 
