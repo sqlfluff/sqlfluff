@@ -699,33 +699,31 @@ class FunctionNameSegment(ansi.FunctionNameSegment):
     """
 
     type = "function_name"
-    match_grammar: Matchable = OneOf(
-        # Snowflake's IDENTIFIER pseudo-function
-        # https://docs.snowflake.com/en/sql-reference/identifier-literal.html
-        Sequence(
-            "IDENTIFIER",
-            Bracketed(
-                OneOf(
-                    Ref("SingleQuotedIdentifierSegment"),
-                    Ref("ReferencedVariableNameSegment"),
+    match_grammar: Matchable = Sequence(
+        # Project name, schema identifier, etc.
+        AnyNumberOf(
+            Sequence(
+                Ref("SingleIdentifierGrammar"),
+                Ref("DotSegment"),
+            ),
+        ),
+        # Base function name
+        OneOf(
+            Ref("FunctionNameIdentifierSegment"),
+            Ref("QuotedIdentifierSegment"),
+            # Snowflake's IDENTIFIER pseudo-function
+            # https://docs.snowflake.com/en/sql-reference/identifier-literal.html
+            Sequence(
+                "IDENTIFIER",
+                Bracketed(
+                    OneOf(
+                        Ref("SingleQuotedIdentifierSegment"),
+                        Ref("ReferencedVariableNameSegment"),
+                    ),
                 ),
             ),
         ),
-        Sequence(
-            # Project name, schema identifier, etc.
-            AnyNumberOf(
-                Sequence(
-                    Ref("SingleIdentifierGrammar"),
-                    Ref("DotSegment"),
-                ),
-            ),
-            # Base function name
-            OneOf(
-                Ref("FunctionNameIdentifierSegment"),
-                Ref("QuotedIdentifierSegment"),
-            ),
-            allow_gaps=False,
-        ),
+        allow_gaps=False,
     )
 
 
