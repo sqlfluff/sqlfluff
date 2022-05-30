@@ -498,7 +498,7 @@ class StatementSegment(ansi.StatementSegment):
     parse_grammar = match_grammar
 
 
-class GreaterThanOrEqualToSegment(BaseSegment):
+class GreaterThanOrEqualToSegment(ansi.GreaterThanOrEqualToSegment):
     """Greater than or equal to operator.
 
     N.B. Patching to add !< and
@@ -519,7 +519,7 @@ class GreaterThanOrEqualToSegment(BaseSegment):
     )
 
 
-class LessThanOrEqualToSegment(BaseSegment):
+class LessThanOrEqualToSegment(ansi.LessThanOrEqualToSegment):
     """Greater than or equal to operator.
 
     N.B. Patching to add !> and
@@ -540,7 +540,7 @@ class LessThanOrEqualToSegment(BaseSegment):
     )
 
 
-class NotEqualToSegment(BaseSegment):
+class NotEqualToSegment(ansi.NotEqualToSegment):
     """Not equal to operator.
 
     N.B. Patching to allow spaces between operators.
@@ -591,7 +591,7 @@ class AltAliasExpressionSegment(BaseSegment):
     )
 
 
-class SelectClauseModifierSegment(BaseSegment):
+class SelectClauseModifierSegment(ansi.SelectClauseModifierSegment):
     """Things that come after SELECT but before the columns."""
 
     type = "select_clause_modifier"
@@ -617,6 +617,7 @@ class SelectClauseSegment(BaseSegment):
 
     type = "select_clause"
     match_grammar = Ref("SelectClauseSegmentGrammar")
+    parse_grammar = Ref("SelectClauseSegmentGrammar")
 
 
 class UnorderedSelectStatementSegment(BaseSegment):
@@ -644,7 +645,7 @@ class UnorderedSelectStatementSegment(BaseSegment):
     )
 
 
-class InsertStatementSegment(BaseSegment):
+class InsertStatementSegment(ansi.InsertStatementSegment):
     """An `INSERT` statement.
 
     Overriding ANSI definition to remove StartsWith logic that doesn't handle optional
@@ -663,7 +664,7 @@ class InsertStatementSegment(BaseSegment):
     )
 
 
-class WithCompoundStatementSegment(BaseSegment):
+class WithCompoundStatementSegment(ansi.WithCompoundStatementSegment):
     """A `SELECT` statement preceded by a selection of `WITH` clauses.
 
     `WITH tab (col1,col2) AS (SELECT a,b FROM x)`
@@ -740,7 +741,7 @@ class WhereClauseSegment(BaseSegment):
     )
 
 
-class CreateIndexStatementSegment(BaseSegment):
+class CreateIndexStatementSegment(ansi.CreateIndexStatementSegment):
     """A `CREATE INDEX` or `CREATE STATISTICS` statement.
 
     https://docs.microsoft.com/en-us/sql/t-sql/statements/create-index-transact-sql?view=sql-server-ver15
@@ -1256,7 +1257,7 @@ class GoStatementSegment(BaseSegment):
     match_grammar = Ref.keyword("GO")
 
 
-class DatatypeSegment(BaseSegment):
+class DatatypeSegment(ansi.DatatypeSegment):
     """A data type segment.
 
     Updated for Transact-SQL to allow bracketed data types with bracketed schemas.
@@ -1289,7 +1290,7 @@ class DatatypeSegment(BaseSegment):
     )
 
 
-class CreateSequenceOptionsSegment(BaseSegment):
+class CreateSequenceOptionsSegment(ansi.CreateSequenceOptionsSegment):
     """Options for Create Sequence statement.
 
     https://docs.microsoft.com/en-us/sql/t-sql/statements/create-sequence-transact-sql?view=sql-server-ver15
@@ -1444,7 +1445,7 @@ class WaitForStatementSegment(BaseSegment):
     )
 
 
-class ColumnConstraintSegment(BaseSegment):
+class ColumnConstraintSegment(ansi.ColumnConstraintSegment):
     """A column option; each CREATE TABLE column can have 0 or more."""
 
     type = "column_constraint_segment"
@@ -1520,7 +1521,7 @@ class ColumnConstraintSegment(BaseSegment):
     )
 
 
-class FunctionParameterListGrammar(BaseSegment):
+class FunctionParameterListGrammar(ansi.FunctionParameterListGrammar):
     """The parameters for a function ie.
 
     `(@city_name NVARCHAR(30), @postal_code NVARCHAR(15))`.
@@ -1538,7 +1539,7 @@ class FunctionParameterListGrammar(BaseSegment):
     )
 
 
-class CreateFunctionStatementSegment(BaseSegment):
+class CreateFunctionStatementSegment(ansi.CreateFunctionStatementSegment):
     """A `CREATE FUNCTION` statement.
 
     This version in the TSQL dialect should be a "common subset" of the
@@ -1622,7 +1623,7 @@ class FunctionOptionSegment(BaseSegment):
     )
 
 
-class DropFunctionStatementSegment(BaseSegment):
+class DropFunctionStatementSegment(ansi.DropFunctionStatementSegment):
     """A `DROP FUNCTION` statement.
 
     https://docs.microsoft.com/en-us/sql/t-sql/statements/drop-function-transact-sql?view=sql-server-ver15
@@ -1867,7 +1868,7 @@ class ProcedureDefinitionGrammar(BaseSegment):
     match_grammar = Ref("OneOrMoreStatementsGrammar")
 
 
-class CreateViewStatementSegment(BaseSegment):
+class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
     """A `CREATE VIEW` statement.
 
     Adjusted to allow CREATE OR ALTER instead of CREATE OR REPLACE.
@@ -1892,7 +1893,7 @@ class CreateViewStatementSegment(BaseSegment):
     )
 
 
-class MLTableExpressionSegment(BaseSegment):
+class MLTableExpressionSegment(ansi.MLTableExpressionSegment):
     """An ML table expression.
 
     Not present in T-SQL.
@@ -2049,7 +2050,7 @@ class PartitionSchemeClause(BaseSegment):
     )
 
 
-class FunctionSegment(BaseSegment):
+class FunctionSegment(ansi.FunctionSegment):
     """A scalar or aggregate function.
 
     Maybe in the future we should distinguish between
@@ -2150,7 +2151,7 @@ class FunctionSegment(BaseSegment):
     )
 
 
-class CreateTableStatementSegment(BaseSegment):
+class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
     """A `CREATE TABLE` statement."""
 
     type = "create_table_statement"
@@ -2195,7 +2196,7 @@ class CreateTableStatementSegment(BaseSegment):
     parse_grammar = match_grammar
 
 
-class AlterTableStatementSegment(BaseSegment):
+class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
     """An `ALTER TABLE` statement.
 
     https://docs.microsoft.com/en-us/sql/t-sql/statements/alter-table-transact-sql?view=sql-server-ver15
@@ -2258,7 +2259,7 @@ class AlterTableStatementSegment(BaseSegment):
     )
 
 
-class TableConstraintSegment(BaseSegment):
+class TableConstraintSegment(ansi.TableConstraintSegment):
     """A table constraint, e.g. for CREATE TABLE."""
 
     # https://docs.microsoft.com/en-us/sql/t-sql/statements/create-table-transact-sql?view=sql-server-ver15
@@ -2549,7 +2550,7 @@ class CreateTableAsSelectStatementSegment(BaseSegment):
     )
 
 
-class TransactionStatementSegment(BaseSegment):
+class TransactionStatementSegment(ansi.TransactionStatementSegment):
     """A `COMMIT`, `ROLLBACK` or `TRANSACTION` statement."""
 
     type = "transaction_statement"
@@ -2792,7 +2793,7 @@ class OpenRowSetSegment(BaseSegment):
     )
 
 
-class DeleteStatementSegment(BaseSegment):
+class DeleteStatementSegment(ansi.DeleteStatementSegment):
     """A `DELETE` statement.
 
     https://docs.microsoft.com/en-us/sql/t-sql/statements/delete-transact-sql?view=sql-server-ver15
@@ -2889,7 +2890,7 @@ class FromClauseSegment(BaseSegment):
     get_eventual_aliases = ansi.FromClauseSegment.get_eventual_aliases
 
 
-class TableExpressionSegment(BaseSegment):
+class TableExpressionSegment(ansi.TableExpressionSegment):
     """The main table expression e.g. within a FROM clause.
 
     In SQL standard, as well as T-SQL, table expressions (`table reference` in SQL
@@ -3050,7 +3051,7 @@ class DropUserStatementSegment(ansi.DropUserStatementSegment):
     )
 
 
-class UpdateStatementSegment(BaseSegment):
+class UpdateStatementSegment(ansi.UpdateStatementSegment):
     """An `Update` statement.
 
     UPDATE <table name> SET <set clause list> [ WHERE <search condition> ]
@@ -3073,7 +3074,7 @@ class UpdateStatementSegment(BaseSegment):
     )
 
 
-class SetClauseListSegment(BaseSegment):
+class SetClauseListSegment(ansi.SetClauseListSegment):
     """set clause list.
 
     Overriding ANSI to remove Delimited
@@ -3092,7 +3093,7 @@ class SetClauseListSegment(BaseSegment):
     )
 
 
-class SetClauseSegment(BaseSegment):
+class SetClauseSegment(ansi.SetClauseSegment):
     """Set clause.
 
     Overriding ANSI to allow for ExpressionSegment on the right
@@ -3312,7 +3313,7 @@ class TableHintSegment(BaseSegment):
     )
 
 
-class SetOperatorSegment(BaseSegment):
+class SetOperatorSegment(ansi.SetOperatorSegment):
     """A set operator such as Union, Except or Intersect.
 
     Override ANSI to remove TSQL non-keyword MINUS.
@@ -3326,7 +3327,7 @@ class SetOperatorSegment(BaseSegment):
     )
 
 
-class SetExpressionSegment(BaseSegment):
+class SetExpressionSegment(ansi.SetExpressionSegment):
     """A set expression with either Union, Minus, Except or Intersect.
 
     Overriding ANSI to include OPTION clause.
@@ -3391,7 +3392,7 @@ class ExecuteScriptSegment(BaseSegment):
     )
 
 
-class CreateSchemaStatementSegment(BaseSegment):
+class CreateSchemaStatementSegment(ansi.CreateSchemaStatementSegment):
     """A `CREATE SCHEMA` statement.
 
     Overriding ANSI to allow for AUTHORIZATION clause
@@ -3419,7 +3420,7 @@ class CreateSchemaStatementSegment(BaseSegment):
     )
 
 
-class MergeMatchSegment(BaseSegment):
+class MergeMatchSegment(ansi.MergeMatchSegment):
     """Contains dialect specific merge operations."""
 
     type = "merge_match"
@@ -3434,7 +3435,7 @@ class MergeMatchSegment(BaseSegment):
     )
 
 
-class MergeMatchedClauseSegment(BaseSegment):
+class MergeMatchedClauseSegment(ansi.MergeMatchedClauseSegment):
     """The `WHEN MATCHED` clause within a `MERGE` statement."""
 
     type = "merge_when_matched_clause"
@@ -3457,7 +3458,7 @@ class MergeMatchedClauseSegment(BaseSegment):
     )
 
 
-class MergeNotMatchedClauseSegment(BaseSegment):
+class MergeNotMatchedClauseSegment(ansi.MergeNotMatchedClauseSegment):
     """The `WHEN NOT MATCHED` clause within a `MERGE` statement."""
 
     type = "merge_when_not_matched_clause"
@@ -3492,7 +3493,7 @@ class MergeNotMatchedClauseSegment(BaseSegment):
     )
 
 
-class MergeInsertClauseSegment(BaseSegment):
+class MergeInsertClauseSegment(ansi.MergeInsertClauseSegment):
     """`INSERT` clause within the `MERGE` statement."""
 
     type = "merge_insert_clause"
@@ -3639,7 +3640,7 @@ class RaiserrorStatementSegment(BaseSegment):
     )
 
 
-class WindowSpecificationSegment(BaseSegment):
+class WindowSpecificationSegment(ansi.WindowSpecificationSegment):
     """Window specification within OVER(...).
 
     Overriding ANSI to remove window name option not supported by TSQL
@@ -3665,7 +3666,7 @@ class GotoStatement(BaseSegment):
     match_grammar = Sequence("GOTO", Ref("SingleIdentifierGrammar"))
 
 
-class CreateTriggerStatementSegment(BaseSegment):
+class CreateTriggerStatementSegment(ansi.CreateTriggerStatementSegment):
     """Create Trigger Statement.
 
     https://docs.microsoft.com/en-us/sql/t-sql/statements/create-trigger-transact-sql?view=sql-server-ver15
@@ -3737,7 +3738,7 @@ class CreateTriggerStatementSegment(BaseSegment):
     )
 
 
-class DropTriggerStatementSegment(BaseSegment):
+class DropTriggerStatementSegment(ansi.DropTriggerStatementSegment):
     """Drop Trigger Statement.
 
     https://docs.microsoft.com/en-us/sql/t-sql/statements/drop-trigger-transact-sql?view=sql-server-ver15
@@ -3790,7 +3791,7 @@ class LabelStatementSegment(BaseSegment):
     )
 
 
-class AccessStatementSegment(BaseSegment):
+class AccessStatementSegment(ansi.AccessStatementSegment):
     """A `GRANT` or `REVOKE` statement.
 
     https://docs.microsoft.com/en-us/sql/t-sql/statements/grant-transact-sql?view=sql-server-ver15
