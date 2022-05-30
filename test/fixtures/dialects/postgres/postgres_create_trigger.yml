@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ed4290657654ca348736c324ecec6c10ce2429627be604c367cf924bf95ea666
+_hash: 678bda90d41620898d67908a9acc156c4b6a5e1da9ab33d2a8c7ab89b83751de
 file:
 - statement:
     create_trigger:
@@ -18,13 +18,15 @@ file:
         identifier: bar
     - keyword: EXECUTE
     - keyword: FUNCTION
-    - function_name_identifier: proc
-    - bracketed:
-        start_bracket: (
-        expression:
-          column_reference:
-            identifier: args
-        end_bracket: )
+    - function:
+        function_name:
+          function_name_identifier: proc
+        bracketed:
+          start_bracket: (
+          expression:
+            column_reference:
+              identifier: args
+          end_bracket: )
 - statement_terminator: ;
 - statement:
     create_trigger:
@@ -39,13 +41,15 @@ file:
         identifier: bar
     - keyword: EXECUTE
     - keyword: FUNCTION
-    - function_name_identifier: proc
-    - bracketed:
-        start_bracket: (
-        expression:
-          column_reference:
-            identifier: args
-        end_bracket: )
+    - function:
+        function_name:
+          function_name_identifier: proc
+        bracketed:
+          start_bracket: (
+          expression:
+            column_reference:
+              identifier: args
+          end_bracket: )
 - statement_terminator: ;
 - statement:
     create_trigger:
@@ -66,13 +70,15 @@ file:
         identifier: bar
     - keyword: EXECUTE
     - keyword: FUNCTION
-    - function_name_identifier: proc
-    - bracketed:
-        start_bracket: (
-        expression:
-          column_reference:
-            identifier: args
-        end_bracket: )
+    - function:
+        function_name:
+          function_name_identifier: proc
+        bracketed:
+          start_bracket: (
+          expression:
+            column_reference:
+              identifier: args
+          end_bracket: )
 - statement_terminator: ;
 - statement:
     create_trigger:
@@ -97,13 +103,50 @@ file:
     - keyword: STATEMENT
     - keyword: EXECUTE
     - keyword: FUNCTION
-    - function_name_identifier: proc
-    - bracketed:
-        start_bracket: (
-        expression:
-          column_reference:
-            identifier: args
-        end_bracket: )
+    - function:
+        function_name:
+          function_name_identifier: proc
+        bracketed:
+          start_bracket: (
+          expression:
+            column_reference:
+              identifier: args
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_trigger:
+    - keyword: CREATE
+    - keyword: TRIGGER
+    - trigger_reference:
+        identifier: foo
+    - keyword: INSTEAD
+    - keyword: OF
+    - keyword: DELETE
+    - keyword: 'ON'
+    - table_reference:
+        identifier: bar
+    - keyword: FROM
+    - table_reference:
+        identifier: baz
+    - keyword: DEFERRABLE
+    - keyword: INITIALLY
+    - keyword: DEFERRED
+    - keyword: FOR
+    - keyword: EACH
+    - keyword: STATEMENT
+    - keyword: EXECUTE
+    - keyword: FUNCTION
+    - function:
+        function_name:
+          identifier: schema
+          dot: .
+          function_name_identifier: proc
+        bracketed:
+          start_bracket: (
+          expression:
+            column_reference:
+              identifier: args
+          end_bracket: )
 - statement_terminator: ;
 - statement:
     create_trigger:
@@ -129,18 +172,20 @@ file:
         end_bracket: )
     - keyword: EXECUTE
     - keyword: FUNCTION
-    - function_name_identifier: proc
-    - bracketed:
-        start_bracket: (
-        expression:
-          column_reference:
-            identifier: args
-        end_bracket: )
+    - function:
+        function_name:
+          function_name_identifier: proc
+        bracketed:
+          start_bracket: (
+          expression:
+            column_reference:
+              identifier: args
+          end_bracket: )
 - statement_terminator: ;
 - statement:
     create_trigger:
     - keyword: CREATE
-    - binary_operator: OR
+    - keyword: OR
     - keyword: REPLACE
     - keyword: CONSTRAINT
     - keyword: TRIGGER
@@ -153,13 +198,15 @@ file:
         identifier: bar
     - keyword: EXECUTE
     - keyword: FUNCTION
-    - function_name_identifier: proc
-    - bracketed:
-        start_bracket: (
-        expression:
-          column_reference:
-            identifier: args
-        end_bracket: )
+    - function:
+        function_name:
+          function_name_identifier: proc
+        bracketed:
+          start_bracket: (
+          expression:
+            column_reference:
+              identifier: args
+          end_bracket: )
 - statement_terminator: ;
 - statement:
     create_trigger:
@@ -185,13 +232,15 @@ file:
         identifier: new_table
     - keyword: EXECUTE
     - keyword: PROCEDURE
-    - function_name_identifier: proc
-    - bracketed:
-        start_bracket: (
-        expression:
-          column_reference:
-            identifier: args
-        end_bracket: )
+    - function:
+        function_name:
+          function_name_identifier: proc
+        bracketed:
+          start_bracket: (
+          expression:
+            column_reference:
+              identifier: args
+          end_bracket: )
 - statement_terminator: ;
 - statement:
     create_trigger:
@@ -201,7 +250,7 @@ file:
         identifier: check_update
     - keyword: BEFORE
     - keyword: INSERT
-    - binary_operator: OR
+    - keyword: OR
     - keyword: UPDATE
     - keyword: 'ON'
     - table_reference:
@@ -211,15 +260,17 @@ file:
     - keyword: ROW
     - keyword: EXECUTE
     - keyword: FUNCTION
-    - function_name_identifier: check_account_update
-    - bracketed:
-        start_bracket: (
-        end_bracket: )
+    - function:
+        function_name:
+          function_name_identifier: check_account_update
+        bracketed:
+          start_bracket: (
+          end_bracket: )
 - statement_terminator: ;
 - statement:
     create_trigger:
     - keyword: CREATE
-    - binary_operator: OR
+    - keyword: OR
     - keyword: REPLACE
     - keyword: TRIGGER
     - trigger_reference:
@@ -240,15 +291,17 @@ file:
     - keyword: ROW
     - keyword: EXECUTE
     - keyword: FUNCTION
-    - function_name_identifier: check_account_update
-    - bracketed:
-        start_bracket: (
-        end_bracket: )
+    - function:
+        function_name:
+          function_name_identifier: check_account_update
+        bracketed:
+          start_bracket: (
+          end_bracket: )
 - statement_terminator: ;
 - statement:
     create_trigger:
     - keyword: CREATE
-    - binary_operator: OR
+    - keyword: OR
     - keyword: REPLACE
     - keyword: TRIGGER
     - trigger_reference:
@@ -261,7 +314,7 @@ file:
     - comma: ','
     - column_reference:
         identifier: transactions
-    - binary_operator: OR
+    - keyword: OR
     - keyword: TRUNCATE
     - keyword: 'ON'
     - table_reference:
@@ -271,15 +324,17 @@ file:
     - keyword: ROW
     - keyword: EXECUTE
     - keyword: FUNCTION
-    - function_name_identifier: check_account_update
-    - bracketed:
-        start_bracket: (
-        end_bracket: )
+    - function:
+        function_name:
+          function_name_identifier: check_account_update
+        bracketed:
+          start_bracket: (
+          end_bracket: )
 - statement_terminator: ;
 - statement:
     create_trigger:
     - keyword: CREATE
-    - binary_operator: OR
+    - keyword: OR
     - keyword: REPLACE
     - keyword: TRIGGER
     - trigger_reference:
@@ -297,10 +352,12 @@ file:
     - keyword: ROW
     - keyword: EXECUTE
     - keyword: FUNCTION
-    - function_name_identifier: check_account_update
-    - bracketed:
-        start_bracket: (
-        end_bracket: )
+    - function:
+        function_name:
+          function_name_identifier: check_account_update
+        bracketed:
+          start_bracket: (
+          end_bracket: )
 - statement_terminator: ;
 - statement:
     create_trigger:
@@ -334,10 +391,12 @@ file:
         end_bracket: )
     - keyword: EXECUTE
     - keyword: FUNCTION
-    - function_name_identifier: check_account_update
-    - bracketed:
-        start_bracket: (
-        end_bracket: )
+    - function:
+        function_name:
+          function_name_identifier: check_account_update
+        bracketed:
+          start_bracket: (
+          end_bracket: )
 - statement_terminator: ;
 - statement:
     create_trigger:
@@ -356,10 +415,12 @@ file:
     - keyword: ROW
     - keyword: EXECUTE
     - keyword: FUNCTION
-    - function_name_identifier: view_insert_row
-    - bracketed:
-        start_bracket: (
-        end_bracket: )
+    - function:
+        function_name:
+          function_name_identifier: view_insert_row
+        bracketed:
+          start_bracket: (
+          end_bracket: )
 - statement_terminator: ;
 - statement:
     create_trigger:
@@ -383,10 +444,12 @@ file:
     - keyword: STATEMENT
     - keyword: EXECUTE
     - keyword: FUNCTION
-    - function_name_identifier: check_transfer_balances_to_zero
-    - bracketed:
-        start_bracket: (
-        end_bracket: )
+    - function:
+        function_name:
+          function_name_identifier: check_transfer_balances_to_zero
+        bracketed:
+          start_bracket: (
+          end_bracket: )
 - statement_terminator: ;
 - statement:
     create_trigger:
@@ -415,10 +478,12 @@ file:
     - keyword: ROW
     - keyword: EXECUTE
     - keyword: FUNCTION
-    - function_name_identifier: check_matching_pairs
-    - bracketed:
-        start_bracket: (
-        end_bracket: )
+    - function:
+        function_name:
+          function_name_identifier: check_matching_pairs
+        bracketed:
+          start_bracket: (
+          end_bracket: )
 - statement_terminator: ;
 - statement:
     create_trigger:
@@ -450,8 +515,10 @@ file:
         end_bracket: )
     - keyword: EXECUTE
     - keyword: FUNCTION
-    - function_name_identifier: log_account_update
-    - bracketed:
-        start_bracket: (
-        end_bracket: )
+    - function:
+        function_name:
+          function_name_identifier: log_account_update
+        bracketed:
+          start_bracket: (
+          end_bracket: )
 - statement_terminator: ;

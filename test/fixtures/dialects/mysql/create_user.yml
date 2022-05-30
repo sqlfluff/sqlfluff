@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: fdff90fd283d2612216ebef91d1f7eb68a4b7bbb2b61d3de12de35a5a540da3b
+_hash: 538b2a4d64e1da8b602b4dbdc6e12cb32630bc08293fc47051a95bfb6b2c421c
 file:
 - statement:
     create_user_statement:
@@ -174,7 +174,7 @@ file:
         identifier: caching_sha2_password
     - keyword: BY
     - literal: "'sha2_password'"
-    - binary_operator: AND
+    - keyword: AND
     - keyword: IDENTIFIED
     - keyword: WITH
     - object_reference:
@@ -196,14 +196,14 @@ file:
         identifier: caching_sha2_password
     - keyword: BY
     - literal: "'sha2_password'"
-    - binary_operator: AND
+    - keyword: AND
     - keyword: IDENTIFIED
     - keyword: WITH
     - object_reference:
         identifier: authentication_ldap_sasl
     - keyword: AS
     - literal: "'uid=u1_ldap,ou=People,dc=example,dc=com'"
-    - binary_operator: AND
+    - keyword: AND
     - keyword: IDENTIFIED
     - keyword: WITH
     - object_reference:
@@ -324,10 +324,10 @@ file:
     - keyword: SUBJECT
     - literal: "'/C=SE/ST=Stockholm/L=Stockholm/\n    O=MySQL demo client certificate/\n\
         \    CN=client/emailAddress=client@example.com'"
-    - binary_operator: AND
+    - keyword: AND
     - keyword: ISSUER
     - literal: "'/C=SE/ST=Stockholm/L=Stockholm/\n    O=MySQL/CN=CA/emailAddress=ca@example.com'"
-    - binary_operator: AND
+    - keyword: AND
     - keyword: CIPHER
     - literal: "'EDH-RSA-DES-CBC3-SHA'"
 - statement_terminator: ;

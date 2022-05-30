@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 661fec748553bb70e243240ff837ce285c49f4cac8a4aa5002225d6939684b4f
+_hash: 260221447c164df9e45d25f8cbcfd2ebd6668e05fb24c12d50a73b672be56f59
 file:
 - statement:
     create_function_statement:
@@ -58,7 +58,7 @@ file:
 - statement:
     create_function_statement:
     - keyword: CREATE
-    - binary_operator: OR
+    - keyword: OR
     - keyword: REPLACE
     - keyword: FUNCTION
     - function_name:
@@ -84,7 +84,7 @@ file:
 - statement:
     create_function_statement:
     - keyword: CREATE
-    - binary_operator: OR
+    - keyword: OR
     - keyword: REPLACE
     - keyword: FUNCTION
     - function_name:
@@ -128,7 +128,7 @@ file:
 - statement:
     create_function_statement:
     - keyword: CREATE
-    - binary_operator: OR
+    - keyword: OR
     - keyword: REPLACE
     - keyword: FUNCTION
     - function_name:
@@ -181,7 +181,7 @@ file:
 - statement:
     create_function_statement:
     - keyword: CREATE
-    - binary_operator: OR
+    - keyword: OR
     - keyword: REPLACE
     - keyword: FUNCTION
     - function_name:
@@ -241,7 +241,7 @@ file:
 - statement:
     create_function_statement:
     - keyword: CREATE
-    - binary_operator: OR
+    - keyword: OR
     - keyword: REPLACE
     - keyword: FUNCTION
     - function_name:
@@ -392,11 +392,46 @@ file:
     - keyword: TABLE
     - bracketed:
       - start_bracket: (
-      - parameter: f1
+      - column_reference:
+          identifier: f1
       - data_type:
           keyword: int
       - comma: ','
-      - parameter: f2
+      - column_reference:
+          identifier: f2
+      - data_type:
+          keyword: text
+      - end_bracket: )
+    - function_definition:
+        keyword: AS
+        literal: "$$ SELECT $1, CAST($1 AS text) || ' is text' $$"
+        language_clause:
+          keyword: LANGUAGE
+          identifier: SQL
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: dup
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          data_type:
+            keyword: int
+          end_bracket: )
+    - keyword: RETURNS
+    - keyword: TABLE
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          identifier: '"f1"'
+      - data_type:
+          keyword: int
+      - comma: ','
+      - column_reference:
+          identifier: '"f2"'
       - data_type:
           keyword: text
       - end_bracket: )
@@ -555,7 +590,7 @@ file:
 - statement:
     create_function_statement:
     - keyword: CREATE
-    - binary_operator: OR
+    - keyword: OR
     - keyword: REPLACE
     - keyword: FUNCTION
     - function_name:
@@ -582,7 +617,7 @@ file:
 - statement:
     create_function_statement:
     - keyword: CREATE
-    - binary_operator: OR
+    - keyword: OR
     - keyword: REPLACE
     - keyword: FUNCTION
     - function_name:
@@ -662,4 +697,55 @@ file:
         language_clause:
           keyword: LANGUAGE
           identifier: SQL
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: create
+    - keyword: function
+    - function_name:
+        function_name_identifier: test2
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: x
+          data_type:
+            datetime_type_identifier:
+              keyword: date
+          comparison_operator:
+            raw_comparison_operator: '='
+          expression:
+            bare_function: current_date
+          end_bracket: )
+    - keyword: returns
+    - data_type:
+        datetime_type_identifier:
+          keyword: date
+    - function_definition:
+        keyword: as
+        literal: "$$\n  begin\n    return x;\n  end;\n$$"
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: create
+    - keyword: function
+    - function_name:
+        function_name_identifier: test3
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: x
+          data_type:
+            datetime_type_identifier:
+              keyword: date
+          keyword: default
+          expression:
+            bare_function: current_date
+          end_bracket: )
+    - keyword: returns
+    - data_type:
+        datetime_type_identifier:
+          keyword: date
+    - function_definition:
+        keyword: as
+        literal: "$$\n  begin\n    return x;\n  end;\n$$"
 - statement_terminator: ;

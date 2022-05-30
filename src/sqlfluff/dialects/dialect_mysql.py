@@ -4,27 +4,33 @@ For now the only change is the parsing of comments.
 https://dev.mysql.com/doc/refman/8.0/en/differences-from-ansi.html
 """
 
+from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
-    BaseSegment,
-    Ref,
     AnyNumberOf,
-    Sequence,
-    OneOf,
+    AnySetOf,
+    Anything,
+    BaseSegment,
     Bracketed,
-    RegexLexer,
-    CommentSegment,
-    NamedParser,
     CodeSegment,
+    CommentSegment,
+    Delimited,
+    KeywordSegment,
+    Matchable,
+    NamedParser,
+    OneOf,
+    Ref,
+    RegexLexer,
+    RegexParser,
+    Sequence,
     StartsWith,
+    StringLexer,
     StringParser,
     SymbolSegment,
-    Delimited,
-    RegexParser,
-    Anything,
-    AnySetOf,
-    Matchable,
 )
-from sqlfluff.core.dialects import load_raw_dialect
+from sqlfluff.dialects.dialect_mysql_keywords import (
+    mysql_reserved_keywords,
+    mysql_unreserved_keywords,
+)
 from sqlfluff.dialects import dialect_ansi as ansi
 
 ansi_dialect = load_raw_dialect("ansi")
@@ -44,118 +50,28 @@ mysql_dialect.patch_lexer_matchers(
     ]
 )
 
-# Reserve USE, FORCE & IGNORE
-mysql_dialect.sets("unreserved_keywords").difference_update(
-    [
-        "BTREE",
-        "FORCE",
-        "HASH",
-        "IGNORE",
-        "INVISIBLE",
-        "KEY_BLOCK_SIZE",
-        "PARSER",
-        "USE",
-        "SQL_BUFFER_RESULT",
-        "SQL_NO_CACHE",
-        "SQL_CACHE",
-        "DUMPFILE",
-        "SKIP",
-        "LOCKED",
-        "CLASS_ORIGIN",
-        "SUBCLASS_ORIGIN",
-        "RETURNED_SQLSTATE",
-        "MESSAGE_TEXT",
-        "MYSQL_ERRNO",
-        "CONSTRAINT_CATALOG",
-        "CONSTRAINT_SCHEMA",
-        "CONSTRAINT_NAME",
-        "CATALOG_NAME",
-        "SCHEMA_NAME",
-        "TABLE_NAME",
-        "COLUMN_NAME",
-        "CURSOR_NAME",
-        "STACKED",
-        "VISIBLE",
-    ]
-)
+# Set Keywords
+# Do not clear inherited unreserved ansi keywords. Too many are needed to parse well.
+# Just add MySQL unreserved keywords.
 mysql_dialect.sets("unreserved_keywords").update(
-    [
-        "QUICK",
-        "FAST",
-        "SLOW",
-        "MEDIUM",
-        "EXTENDED",
-        "CHANGED",
-        "UPGRADE",
-        "HISTOGRAM",
-        "BUCKETS",
-        "USE_FRM",
-        "REPAIR",
-        "DUPLICATE",
-        "NOW",
-        "ENGINE",
-        "ERROR",
-        "OPTIMIZER_COSTS",
-        "RELAY",
-        "STATUS",
-        "USER_RESOURCES",
-        "CHANNEL",
-        "EXPORT",
-        "RANDOM",
-        "FAILED_LOGIN_ATTEMPTS",
-        "PASSWORD_LOCK_TIME",
-        "EXPIRE",
-        "NEVER",
-        "HISTORY",
-        "REUSE",
-        "CIPHER",
-        "ISSUER",
-        "SUBJECT",
-        "MAX_QUERIES_PER_HOUR",
-        "MAX_UPDATES_PER_HOUR",
-        "MAX_CONNECTIONS_PER_HOUR",
-        "MAX_USER_CONNECTIONS",
-        "AUTHENTICATION",
-        "OPTIONAL",
-    ]
+    [n.strip().upper() for n in mysql_unreserved_keywords.split("\n")]
 )
+
+mysql_dialect.sets("reserved_keywords").clear()
 mysql_dialect.sets("reserved_keywords").update(
-    [
-        "HELP",
-        "FORCE",
-        "IGNORE",
-        "USE",
-        "SQL_BUFFER_RESULT",
-        "SQL_NO_CACHE",
-        "SQL_CACHE",
-        "DUMPFILE",
-        "SKIP",
-        "LOCKED",
-        "CLASS_ORIGIN",
-        "SUBCLASS_ORIGIN",
-        "RETURNED_SQLSTATE",
-        "MESSAGE_TEXT",
-        "MYSQL_ERRNO",
-        "CONSTRAINT_CATALOG",
-        "CONSTRAINT_SCHEMA",
-        "CONSTRAINT_NAME",
-        "CATALOG_NAME",
-        "SCHEMA_NAME",
-        "TABLE_NAME",
-        "COLUMN_NAME",
-        "CURSOR_NAME",
-        "STACKED",
-        "ALGORITHM",
-        "LOCK",
-        "DEFAULT",
-        "INPLACE",
-        "COPY",
-        "NONE",
-        "SHARED",
-        "EXCLUSIVE",
-        "MASTER",
-    ]
+    [n.strip().upper() for n in mysql_reserved_keywords.split("\n")]
 )
+
+# Remove these reserved keywords to avoid issue in interval.sql
+# TODO - resolve this properly
+mysql_dialect.sets("reserved_keywords").difference_update(
+    ["MINUTE_SECOND", "SECOND_MICROSECOND"]
+)
+
+# Remove this reserved keyword to avoid issue in create_table_primary_foreign_keys.sql
+# TODO - resolve this properly
+mysql_dialect.sets("reserved_keywords").difference_update(["INDEX"])
+
 
 mysql_dialect.replace(
     QuotedIdentifierSegment=NamedParser(
@@ -179,7 +95,15 @@ mysql_dialect.replace(
             Ref("ForClauseSegment"),
             Ref("SetOperatorSegment"),
             Ref("WithNoSchemaBindingClauseSegment"),
+            Ref("IntoClauseSegment"),
         ]
+    ),
+    WhereClauseTerminatorGrammar=ansi_dialect.get_grammar(
+        "WhereClauseTerminatorGrammar"
+    ).copy(
+        insert=[
+            Ref("IntoClauseSegment"),
+        ],
     ),
     BaseExpressionElementGrammar=ansi_dialect.get_grammar(
         "BaseExpressionElementGrammar"
@@ -240,6 +164,21 @@ mysql_dialect.replace(
     ),
     SingleIdentifierGrammar=ansi_dialect.get_grammar("SingleIdentifierGrammar").copy(
         insert=[Ref("SessionVariableNameSegment")]
+    ),
+    AndOperatorGrammar=OneOf(
+        StringParser("AND", KeywordSegment, type="binary_operator"),
+        StringParser(
+            "&&", CodeSegment, name="double_ampersand", type="binary_operator"
+        ),
+    ),
+    OrOperatorGrammar=OneOf(
+        StringParser("OR", KeywordSegment, type="binary_operator"),
+        StringParser("||", CodeSegment, name="double_pipe", type="binary_operator"),
+        StringParser("XOR", KeywordSegment, type="binary_operator"),
+    ),
+    NotOperatorGrammar=OneOf(
+        StringParser("NOT", KeywordSegment, type="keyword"),
+        StringParser("!", CodeSegment, name="not_operator", type="not_operator"),
     ),
 )
 
@@ -768,6 +707,22 @@ mysql_dialect.insert_lexer_matchers(
 )
 
 
+mysql_dialect.insert_lexer_matchers(
+    [
+        StringLexer("double_ampersand", "&&", CodeSegment),
+    ],
+    before="ampersand",
+)
+
+
+mysql_dialect.insert_lexer_matchers(
+    [
+        StringLexer("double_vertical_bar", "||", CodeSegment),
+    ],
+    before="vertical_bar",
+)
+
+
 class RoleReferenceSegment(ansi.RoleReferenceSegment):
     """A reference to an account, role, or user.
 
@@ -1114,17 +1069,24 @@ class SetAssignmentStatementSegment(BaseSegment):
 
     match_grammar = Sequence(
         "SET",
-        OneOf(Ref("SessionVariableNameSegment"), Ref("LocalVariableNameSegment")),
-        Ref("EqualsSegment"),
-        AnyNumberOf(
-            Ref("QuotedLiteralSegment"),
-            Ref("DoubleQuotedLiteralSegment"),
-            Ref("SessionVariableNameSegment"),
-            # Match boolean keywords before local variables.
-            Ref("BooleanDynamicSystemVariablesGrammar"),
-            Ref("LocalVariableNameSegment"),
-            Ref("FunctionSegment"),
-            Ref("ArithmeticBinaryOperatorGrammar"),
+        Delimited(
+            Sequence(
+                OneOf(
+                    Ref("SessionVariableNameSegment"), Ref("LocalVariableNameSegment")
+                ),
+                Ref("EqualsSegment"),
+                AnyNumberOf(
+                    Ref("QuotedLiteralSegment"),
+                    Ref("DoubleQuotedLiteralSegment"),
+                    Ref("SessionVariableNameSegment"),
+                    # Match boolean keywords before local variables.
+                    Ref("BooleanDynamicSystemVariablesGrammar"),
+                    Ref("LocalVariableNameSegment"),
+                    Ref("FunctionSegment"),
+                    Ref("ArithmeticBinaryOperatorGrammar"),
+                    Ref("ExpressionSegment"),
+                ),
+            ),
         ),
     )
 
@@ -1192,6 +1154,7 @@ class IfExpressionStatement(BaseSegment):
             Ref("StatementSegment"),
         ),
         Sequence("ELSE", Ref("StatementSegment"), optional=True),
+        Sequence("END", "IF"),
     )
 
 
@@ -1234,7 +1197,11 @@ class IntoClauseSegment(BaseSegment):
 
     type = "into_clause"
 
-    match_grammar = Sequence(
+    match_grammar = StartsWith(
+        "INTO", terminator=Ref("SelectClauseElementTerminatorGrammar")
+    )
+
+    parse_grammar = Sequence(
         "INTO",
         OneOf(
             Delimited(
@@ -1359,6 +1326,7 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
             Ref("OrderByClauseSegment", optional=True),
             Ref("LimitClauseSegment", optional=True),
             Ref("NamedWindowSegment", optional=True),
+            Ref("IntoClauseSegment", optional=True),
         ]
     )
 

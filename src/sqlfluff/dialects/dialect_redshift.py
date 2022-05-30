@@ -13,6 +13,7 @@ from sqlfluff.core.parser import (
     Bracketed,
     BaseSegment,
     Delimited,
+    Matchable,
     Nothing,
     OptionallyBracketed,
 )
@@ -217,6 +218,20 @@ redshift_dialect.add(
         "TEXT255",
         "TEXT32K",
         "ZSTD",
+    ),
+    QuotaGrammar=Sequence(
+        "QUOTA",
+        OneOf(
+            Sequence(
+                Ref("NumericLiteralSegment"),
+                OneOf(
+                    "MB",
+                    "GB",
+                    "TB",
+                ),
+            ),
+            "UNLIMITED",
+        ),
     ),
 )
 
@@ -527,11 +542,126 @@ class ColumnConstraintSegment(BaseSegment):
 
     match_grammar = AnySetOf(
         OneOf(Sequence("NOT", "NULL"), "NULL"),
-        OneOf("UNIQUE", Sequence("PRIMARY", "KEY")),
+        OneOf("UNIQUE", Ref("PrimaryKeyGrammar")),
         Sequence(
             "REFERENCES",
             Ref("TableReferenceSegment"),
             Bracketed(Ref("ColumnReferenceSegment"), optional=True),
+        ),
+    )
+
+
+class AlterTableActionSegment(BaseSegment):
+    """Alter Table Action Segment.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_ALTER_TABLE.html
+    """
+
+    type = "alter_table_action_segment"
+
+    match_grammar = OneOf(
+        Sequence(
+            "ADD",
+            Ref("TableConstraintSegment"),
+            Sequence("NOT", "VALID", optional=True),
+        ),
+        Sequence("VALIDATE", "CONSTRAINT", Ref("ParameterNameSegment")),
+        Sequence(
+            "DROP",
+            "CONSTRAINT",
+            Ref("ParameterNameSegment"),
+            Ref("DropBehaviorGrammar", optional=True),
+        ),
+        Sequence(
+            "OWNER",
+            "TO",
+            OneOf(
+                OneOf(Ref("ParameterNameSegment"), Ref("QuotedIdentifierSegment")),
+            ),
+        ),
+        Sequence(
+            "RENAME",
+            "TO",
+            OneOf(
+                OneOf(Ref("ParameterNameSegment"), Ref("QuotedIdentifierSegment")),
+            ),
+        ),
+        Sequence(
+            "RENAME",
+            "COLUMN",
+            "TO",
+            OneOf(
+                Ref("ColumnReferenceSegment"),
+            ),
+        ),
+        Sequence(
+            "ALTER",
+            Ref.keyword("COLUMN", optional=True),
+            Ref("ColumnReferenceSegment"),
+            OneOf(
+                Sequence(
+                    "TYPE",
+                    Ref("DatatypeSegment"),
+                ),
+                Sequence(
+                    "ENCODE",
+                    Delimited(
+                        Ref("ColumnEncodingGrammar"),
+                    ),
+                ),
+            ),
+        ),
+        Sequence(
+            "ALTER",
+            "DISTKEY",
+            Ref("ColumnReferenceSegment"),
+        ),
+        Sequence(
+            "ALTER",
+            "DISTSTYLE",
+            OneOf(
+                "ALL",
+                "EVEN",
+                Sequence("KEY", "DISTKEY", Ref("ColumnReferenceSegment")),
+                "AUTO",
+            ),
+        ),
+        Sequence(
+            "ALTER",
+            Ref.keyword("COMPOUND", optional=True),
+            "SORTKEY",
+            Bracketed(
+                Delimited(
+                    Ref("ColumnReferenceSegment"),
+                ),
+            ),
+        ),
+        Sequence(
+            "ALTER",
+            "SORTKEY",
+            OneOf(
+                "AUTO",
+                "NONE",
+            ),
+        ),
+        Sequence(
+            "ALTER",
+            "ENCODE",
+            "AUTO",
+        ),
+        Sequence(
+            "ADD",
+            Ref.keyword("COLUMN", optional=True),
+            Ref("ColumnReferenceSegment"),
+            Ref("DatatypeSegment"),
+            Sequence("COLLATE", Ref("QuotedLiteralSegment"), optional=True),
+            AnyNumberOf(Ref("ColumnConstraintSegment")),
+        ),
+        Sequence(
+            "DROP",
+            Ref.keyword("COLUMN", optional=True),
+            Ref("ColumnReferenceSegment"),
+            Ref("DropBehaviorGrammar", optional=True),
         ),
     )
 
@@ -570,20 +700,25 @@ class TableConstraintSegment(BaseSegment):
 
     type = "table_constraint"
 
-    match_grammar = AnySetOf(
-        Sequence("UNIQUE", Bracketed(Delimited(Ref("ColumnReferenceSegment")))),
-        Sequence(
-            "PRIMARY",
-            "KEY",
-            Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+    match_grammar = Sequence(
+        Sequence(  # [ CONSTRAINT <Constraint name> ]
+            "CONSTRAINT", Ref("ObjectReferenceSegment"), optional=True
         ),
-        Sequence(
-            "FOREIGN",
-            "KEY",
-            Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
-            "REFERENCES",
-            Ref("TableReferenceSegment"),
-            Sequence(Bracketed(Ref("ColumnReferenceSegment"))),
+        OneOf(
+            Sequence("UNIQUE", Bracketed(Delimited(Ref("ColumnReferenceSegment")))),
+            Sequence(
+                "PRIMARY",
+                "KEY",
+                Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+            ),
+            Sequence(
+                "FOREIGN",
+                "KEY",
+                Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+                "REFERENCES",
+                Ref("TableReferenceSegment"),
+                Sequence(Bracketed(Ref("ColumnReferenceSegment"))),
+            ),
         ),
     )
 
@@ -1358,21 +1493,7 @@ class CreateSchemaStatementSegment(BaseSegment):
                 Ref("ObjectReferenceSegment"),
             ),
         ),
-        Sequence(
-            "QUOTA",
-            OneOf(
-                Sequence(
-                    Ref("NumericLiteralSegment"),
-                    OneOf(
-                        "MB",
-                        "GB",
-                        "TB",
-                    ),
-                ),
-                "UNLIMITED",
-            ),
-            optional=True,
-        ),
+        Ref("QuotaGrammar", optional=True),
     )
 
 
@@ -2032,5 +2153,48 @@ class TransactionStatementSegment(BaseSegment):
             Sequence("READ", "ONLY"),
             Sequence("READ", "WRITE"),
             optional=True,
+        ),
+    )
+
+
+class AlterSchemaStatementSegment(BaseSegment):
+    """An `ALTER SCHEMA` statement.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_ALTER_SCHEMA.html
+    """
+
+    type = "alter_schema_statement"
+    match_grammar = Sequence(
+        "ALTER",
+        "SCHEMA",
+        Ref("SchemaReferenceSegment"),
+        OneOf(
+            Sequence(
+                "RENAME",
+                "TO",
+                Ref("SchemaReferenceSegment"),
+            ),
+            Sequence(
+                "OWNER",
+                "TO",
+                Ref("RoleReferenceSegment"),
+            ),
+            Ref("QuotaGrammar"),
+        ),
+    )
+
+
+class LockTableStatementSegment(BaseSegment):
+    """An `LOCK TABLE` statement.
+
+    https://www.postgresql.org/docs/14/sql-lock.html
+    """
+
+    type = "lock_table_statement"
+    match_grammar: Matchable = Sequence(
+        "LOCK",
+        Ref.keyword("TABLE", optional=True),
+        Delimited(
+            Ref("TableReferenceSegment"),
         ),
     )

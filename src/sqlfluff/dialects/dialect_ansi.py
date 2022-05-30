@@ -378,7 +378,7 @@ ansi_dialect.add(
     SignedSegmentGrammar=OneOf(Ref("PositiveSegment"), Ref("NegativeSegment")),
     StringBinaryOperatorGrammar=OneOf(Ref("ConcatSegment")),
     BooleanBinaryOperatorGrammar=OneOf(
-        Ref("AndKeywordSegment"), Ref("OrKeywordSegment")
+        Ref("AndOperatorGrammar"), Ref("OrOperatorGrammar")
     ),
     ComparisonOperatorGrammar=OneOf(
         Ref("EqualsSegment"),
@@ -414,8 +414,9 @@ ansi_dialect.add(
         Ref("NullLiteralSegment"),
         Ref("DateTimeLiteralGrammar"),
     ),
-    AndKeywordSegment=StringParser("and", KeywordSegment, type="binary_operator"),
-    OrKeywordSegment=StringParser("or", KeywordSegment, type="binary_operator"),
+    AndOperatorGrammar=StringParser("AND", KeywordSegment, type="binary_operator"),
+    OrOperatorGrammar=StringParser("OR", KeywordSegment, type="binary_operator"),
+    NotOperatorGrammar=StringParser("NOT", KeywordSegment, type="keyword"),
     # This is a placeholder for other dialects.
     PreTableFunctionKeywordsGrammar=Nothing(),
     BinaryOperatorGrammar=OneOf(
@@ -1008,6 +1009,7 @@ ansi_dialect.add(
             ),
         ),
         Sequence(OneOf("IGNORE", "RESPECT"), "NULLS"),
+        Ref("IndexColumnDefinitionSegment"),
     ),
     PostFunctionGrammar=OneOf(
         # Optional OVER suffix for window functions.
@@ -1025,6 +1027,7 @@ class OverClauseSegment(BaseSegment):
 
     type = "over_clause"
     match_grammar: Matchable = Sequence(
+        Sequence(OneOf("IGNORE", "RESPECT"), "NULLS", optional=True),
         "OVER",
         OneOf(
             Ref("SingleIdentifierGrammar"),  # Window name
@@ -1646,7 +1649,7 @@ ansi_dialect.add(
                 OneOf(
                     Ref("SignedSegmentGrammar"),
                     # Ref('TildeSegment'),
-                    "NOT",
+                    Ref("NotOperatorGrammar"),
                     "PRIOR",
                     # used in CONNECT BY clauses (EXASOL, Snowflake, Postgres...)
                 ),

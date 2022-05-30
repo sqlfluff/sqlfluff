@@ -9,20 +9,21 @@ Teradata Database SQL Data Definition Language Syntax and Examples
 """
 
 from sqlfluff.core.parser import (
+    AnyNumberOf,
+    Anything,
     BaseSegment,
+    Bracketed,
+    CodeSegment,
+    Dedent,
+    Delimited,
+    Indent,
+    Matchable,
+    OneOf,
+    OptionallyBracketed,
+    Ref,
+    RegexLexer,
     Sequence,
     StartsWith,
-    OneOf,
-    Delimited,
-    Bracketed,
-    AnyNumberOf,
-    Ref,
-    Anything,
-    RegexLexer,
-    CodeSegment,
-    Indent,
-    Dedent,
-    OptionallyBracketed,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -78,6 +79,7 @@ teradata_dialect.sets("unreserved_keywords").update(
         "RUN",
         "SAMPLE",
         "SEL",
+        "SS",
         "STAT",
         "SUMMARY",
         "THRESHOLD",
@@ -676,6 +678,8 @@ class StatementSegment(ansi.StatementSegment):
             Ref("TdRenameStatementSegment"),
             Ref("QualifyClauseSegment"),
             Ref("TdCommentStatementSegment"),
+            Ref("DatabaseStatementSegment"),
+            Ref("SetSessionStatementSegment"),
         ],
     )
 
@@ -805,3 +809,34 @@ class SelectClauseSegment(ansi.SelectClauseSegment):
         enforce_whitespace_preceding_terminator=True,
     )
     parse_grammar = ansi.SelectClauseSegment.parse_grammar
+
+
+class DatabaseStatementSegment(BaseSegment):
+    """A `DATABASE` statement.
+
+    https://docs.teradata.com/r/Teradata-Database-SQL-Data-Definition-Language-Syntax-and-Examples/December-2015/Database-Statements/DATABASE
+    """
+
+    type = "database_statement"
+    match_grammar: Matchable = Sequence(
+        "DATABASE",
+        Ref("DatabaseReferenceSegment"),
+    )
+
+
+# Limited to SET SESSION DATABASE for now.
+# Many other session parameters may be set via SET SESSION.
+class SetSessionStatementSegment(BaseSegment):
+    """A `SET SESSION` statement.
+
+    https://docs.teradata.com/r/Teradata-Database-SQL-Data-Definition-Language-Syntax-and-Examples/December-2015/Session-Statements/SET-SESSION-DATABASE
+    """
+
+    type = "set_session_statement"
+    match_grammar: Matchable = Sequence(
+        OneOf(
+            Sequence("SET", "SESSION"),
+            "SS",
+        ),
+        Ref("DatabaseStatementSegment"),
+    )

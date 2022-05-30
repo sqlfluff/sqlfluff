@@ -3,11 +3,11 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d8ff43cafb6e0e3e4ec2648705de4a8e6d796205d963092989809a3fec0301d7
+_hash: 3d10b732862da9211f19d4b99e56ea99c86b1a5156fc2fabe7b8deaff50c2b78
 file:
   statement:
     transaction_statement:
     - keyword: commit
-    - binary_operator: and
+    - keyword: and
     - keyword: 'no'
     - keyword: chain
