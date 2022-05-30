@@ -255,6 +255,7 @@ GZIP
 HEADERS
 HEX
 HISTORY
+IDENTIFIER
 IDENTITY
 IF
 IGNORE
@@ -528,8 +529,4 @@ WRITE
 XML
 ZONE
 ZSTD
-"""
-
-# These are not official Snowflake keywords, but SQLFluff needs them to parse well.
-snowflake_unreserved_keywords += """IDENTIFIER
 """
