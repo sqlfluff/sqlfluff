@@ -17,6 +17,7 @@ from sqlfluff.core.parser import (
     Dedent,
     Delimited,
     Indent,
+    Matchable,
     NamedParser,
     Nothing,
     OneOf,
@@ -31,6 +32,7 @@ from sqlfluff.core.parser import (
     StringParser,
     SymbolSegment,
 )
+from sqlfluff.core.parser.segments.base import BracketedSegment
 from sqlfluff.dialects.dialect_snowflake_keywords import (
     snowflake_reserved_keywords,
     snowflake_unreserved_keywords,
@@ -682,6 +684,171 @@ snowflake_dialect.sets("datetime_units").update(
 )
 
 
+class ObjectReferenceSegment(ansi.ObjectReferenceSegment):
+    """A reference to an object.
+
+    Overriding ObjectReferenceSegment to support Snowflake's IDENTIFIER pseudo-function.
+    """
+
+    type = "object_reference"
+    match_grammar: Matchable = OneOf(
+        # Snowflake's IDENTIFIER pseudo-function
+        # https://docs.snowflake.com/en/sql-reference/identifier-literal.html
+        Delimited(
+            Sequence(
+                "IDENTIFIER",
+                Bracketed(
+                    OneOf(
+                        Ref("SingleQuotedIdentifierSegment"),
+                        Ref("ReferencedVariableNameSegment"),
+                    ),
+                ),
+            ),
+        ),
+        # Copied from ansi.ObjectReferenceSegment
+        # match grammar (don't allow whitespace)
+        Delimited(
+            Ref("SingleIdentifierGrammar"),
+            delimiter=OneOf(
+                Ref("DotSegment"), Sequence(Ref("DotSegment"), Ref("DotSegment"))
+            ),
+            terminator=OneOf(
+                "ON",
+                "AS",
+                "USING",
+                Ref("CommaSegment"),
+                Ref("CastOperatorSegment"),
+                Ref("StartSquareBracketSegment"),
+                Ref("StartBracketSegment"),
+                Ref("BinaryOperatorGrammar"),
+                Ref("ColonSegment"),
+                Ref("DelimiterGrammar"),
+                Ref("JoinLikeClauseGrammar"),
+                BracketedSegment,
+            ),
+            allow_gaps=False,
+        ),
+    )
+
+
+class TableReferenceSegment(ObjectReferenceSegment):
+    """A reference to an table, CTE, subquery or alias.
+
+    Overriding to capture Snowflakes's override of ObjectReferenceSegment
+    """
+
+    type = "table_reference"
+
+
+class SchemaReferenceSegment(ObjectReferenceSegment):
+    """A reference to a schema.
+
+    Overriding to capture Snowflakes's override of ObjectReferenceSegment
+    """
+
+    type = "schema_reference"
+
+
+class DatabaseReferenceSegment(ObjectReferenceSegment):
+    """A reference to a database.
+
+    Overriding to capture Snowflakes's override of ObjectReferenceSegment
+    """
+
+    type = "database_reference"
+
+
+class IndexReferenceSegment(ObjectReferenceSegment):
+    """A reference to an index.
+
+    Overriding to capture Snowflakes's override of ObjectReferenceSegment
+    """
+
+    type = "index_reference"
+
+
+class ExtensionReferenceSegment(ObjectReferenceSegment):
+    """A reference to an extension.
+
+    Overriding to capture Snowflakes's override of ObjectReferenceSegment
+    """
+
+    type = "extension_reference"
+
+
+class ColumnReferenceSegment(ObjectReferenceSegment):
+    """A reference to column, field or alias.
+
+    Overriding to capture Snowflakes's override of ObjectReferenceSegment
+    """
+
+    type = "column_reference"
+
+
+class SequenceReferenceSegment(ObjectReferenceSegment):
+    """A reference to a sequence.
+
+    Overriding to capture Snowflakes's override of ObjectReferenceSegment
+    """
+
+    type = "sequence_reference"
+
+
+class FunctionNameSegment(ansi.FunctionNameSegment):
+    """Function name, including any prefix bits, e.g. project or schema.
+
+    Overriding FunctionNameSegment to support Snowflake's IDENTIFIER pseudo-function.
+    """
+
+    type = "function_name"
+    match_grammar: Matchable = OneOf(
+        # Snowflake's IDENTIFIER pseudo-function
+        # https://docs.snowflake.com/en/sql-reference/identifier-literal.html
+        Sequence(
+            "IDENTIFIER",
+            Bracketed(
+                OneOf(
+                    Ref("SingleQuotedIdentifierSegment"),
+                    Ref("ReferencedVariableNameSegment"),
+                ),
+            ),
+        ),
+        Sequence(
+            # Project name, schema identifier, etc.
+            AnyNumberOf(
+                Sequence(
+                    Ref("SingleIdentifierGrammar"),
+                    Ref("DotSegment"),
+                ),
+            ),
+            # Base function name
+            OneOf(
+                Ref("FunctionNameIdentifierSegment"),
+                Ref("QuotedIdentifierSegment"),
+            ),
+            allow_gaps=False,
+        ),
+    )
+
+
+class RoleReferenceSegment(ansi.RoleReferenceSegment):
+    """A reference to a role, user, or account."""
+
+    type = "role_reference"
+    match_grammar: Matchable = OneOf(
+        Sequence(
+            "IDENTIFIER",
+            Bracketed(
+                OneOf(
+                    Ref("SingleQuotedIdentifierSegment"),
+                    Ref("ReferencedVariableNameSegment"),
+                ),
+            ),
+        ),
+        Ref("SingleIdentifierGrammar"),
+    )
+
+
 class ConnectByClauseSegment(BaseSegment):
     """A `CONNECT BY` clause.
 
@@ -1314,7 +1481,7 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
         # will also match the set operator, but by starting with the whole
         # select clause rather than just the SELECT keyword, we normally
         # mitigate that here. But this isn't BigQuery! So we can be more
-        # efficient and just just the keyword.
+        # efficient and just use the keyword.
         "SELECT",
         terminator=Ref("SetOperatorSegment"),
     )

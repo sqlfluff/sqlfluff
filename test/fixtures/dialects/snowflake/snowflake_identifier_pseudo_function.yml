@@ -1,0 +1,201 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 6bd76af4ee80ae2b8426e93f444eaecb7564cf0f2825a351d4d959f956cd2875
+file:
+- statement:
+    use_statement:
+    - keyword: USE
+    - keyword: SCHEMA
+    - schema_reference:
+        keyword: identifier
+        bracketed:
+          start_bracket: (
+          identifier: "'my_schema'"
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    use_statement:
+    - keyword: USE
+    - keyword: SCHEMA
+    - schema_reference:
+        keyword: identifier
+        bracketed:
+          start_bracket: (
+          identifier: "'{{ params.schema_name }}'"
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_statement:
+    - keyword: create
+    - keyword: or
+    - keyword: replace
+    - keyword: database
+    - object_reference:
+        keyword: identifier
+        bracketed:
+          start_bracket: (
+          identifier: "'my_db'"
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_schema_statement:
+    - keyword: create
+    - keyword: or
+    - keyword: replace
+    - keyword: schema
+    - schema_reference:
+        keyword: identifier
+        bracketed:
+          start_bracket: (
+          identifier: "'my_schema'"
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: or
+    - keyword: replace
+    - keyword: table
+    - table_reference:
+        keyword: identifier
+        bracketed:
+          start_bracket: (
+          identifier: "'my_db.my_schema.my_table'"
+          end_bracket: )
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          identifier: c1
+          data_type:
+            data_type_identifier: number
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: or
+    - keyword: replace
+    - keyword: table
+    - table_reference:
+        keyword: identifier
+        bracketed:
+          start_bracket: (
+          identifier: "'\"my_table\"'"
+          end_bracket: )
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          identifier: c1
+          data_type:
+            data_type_identifier: number
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: show
+    - keyword: tables
+    - keyword: in
+    - keyword: schema
+    - object_reference:
+        keyword: identifier
+        bracketed:
+          start_bracket: (
+          identifier: "'my_schema'"
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    use_statement:
+    - keyword: use
+    - keyword: schema
+    - schema_reference:
+        keyword: identifier
+        bracketed:
+          start_bracket: (
+          variable: $schema_name
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: insert
+    - keyword: into
+    - table_reference:
+        keyword: identifier
+        bracketed:
+          start_bracket: (
+          variable: $table_name
+          end_bracket: )
+    - values_clause:
+      - keyword: values
+      - bracketed:
+          start_bracket: (
+          expression:
+            literal: '1'
+          end_bracket: )
+      - comma: ','
+      - bracketed:
+          start_bracket: (
+          expression:
+            literal: '2'
+          end_bracket: )
+      - comma: ','
+      - bracketed:
+          start_bracket: (
+          expression:
+            literal: '3'
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                keyword: identifier
+                bracketed:
+                  start_bracket: (
+                  variable: $table_name
+                  end_bracket: )
+      orderby_clause:
+      - keyword: order
+      - keyword: by
+      - literal: '1'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: speed_of_light
+            bracketed:
+              start_bracket: (
+              end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          function:
+            function_name:
+              keyword: identifier
+              bracketed:
+                start_bracket: (
+                variable: $my_function_name
+                end_bracket: )
+            bracketed:
+              start_bracket: (
+              end_bracket: )
+- statement_terminator: ;

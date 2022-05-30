@@ -1,4 +1,7 @@
-"""A list of all Snowflake SQL key words."""
+"""A list of all Snowflake SQL key words.
+
+https://docs.snowflake.com/en/sql-reference/reserved-keywords.html
+"""
 
 snowflake_reserved_keywords = """ALL
 ALTER
@@ -524,4 +527,9 @@ WRAPPER
 WRITE
 XML
 ZONE
-ZSTD"""
+ZSTD
+"""
+
+# These are not official Snowflake keywords, but SQLFluff needs them to parse well.
+snowflake_unreserved_keywords += """IDENTIFIER
+"""
