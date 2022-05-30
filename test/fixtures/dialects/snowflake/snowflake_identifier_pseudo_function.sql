@@ -20,6 +20,12 @@ insert into identifier($table_name) values (1), (2), (3);
 
 select * from identifier($table_name) order by 1;
 
+select * from identifier('my_table') order by 1;
+
 select speed_of_light();
 
 select identifier($my_function_name)();
+
+select identifier('my_function_name')();
+
+select identifier('my_function_name')(1, 2, 3);
