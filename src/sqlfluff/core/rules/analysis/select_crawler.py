@@ -246,7 +246,10 @@ class SelectCrawler:
             if event == "start":
                 # "start" means we're starting to process a new segment.
                 if path[-1].is_type(
-                    "set_expression", "select_statement", "values_clause"
+                    "set_expression",
+                    "select_statement",
+                    "values_clause",
+                    "update_statement",
                 ):
                     # Beginning a single "SELECT", a set, e.g.
                     # SELECT ... UNION ... SELECT; or a VALUES clause.
@@ -283,7 +286,9 @@ class SelectCrawler:
                                 dialect,
                                 cte_name_segment=cte_name_segment,
                             )
-                            if path[-1].is_type("select_statement", "values_clause"):
+                            if path[-1].is_type(
+                                "select_statement", "values_clause", "update_statement"
+                            ):
                                 # Add to the Query object we just created.
                                 query.selectables.append(Selectable(path[-1], dialect))
                             else:
@@ -306,7 +311,9 @@ class SelectCrawler:
                             if not any(
                                 seg.is_type("from_expression_element") for seg in path
                             ):
-                                if path[-1].is_type("select_statement"):
+                                if path[-1].is_type(
+                                    "select_statement", "update_statement"
+                                ):
                                     # Processing a select_statement. Add it to the
                                     # Query object on top of the stack.
                                     query_stack[-1].selectables.append(
