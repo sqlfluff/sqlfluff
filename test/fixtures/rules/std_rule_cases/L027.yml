@@ -292,3 +292,39 @@ test_pass_table_plus_flatten_snowflake_1:
   configs:
     core:
       dialect: snowflake
+
+test_pass_ignore_words_column_name:
+  pass_str: |
+    SELECT test1, test2
+    FROM t_table1
+    LEFT JOIN t_table_2
+        ON TRUE
+  configs:
+    rules:
+      L027:
+        ignore_words: test1,test2
+
+test_pass_ignore_words_regex_column_name:
+  pass_str: |
+    SELECT _test1, _test2
+    FROM t_table1
+    LEFT JOIN t_table_2
+        ON TRUE
+  configs:
+    rules:
+      L027:
+        ignore_words_regex: ^_
+
+test_pass_ignore_words_regex_bigquery_declare_example:
+  pass_str:
+    DECLARE _test INT64 DEFAULT 42;
+    SELECT _test
+    FROM t_table1
+    LEFT JOIN t_table_2
+        ON TRUE
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      L027:
+        ignore_words_regex: ^_

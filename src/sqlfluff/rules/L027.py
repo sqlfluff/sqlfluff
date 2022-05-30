@@ -1,11 +1,13 @@
 """Implementation of Rule L027."""
+import regex
 
 from sqlfluff.core.rules.base import LintResult
 from sqlfluff.rules.L020 import Rule_L020
-from sqlfluff.core.rules.doc_decorators import document_groups
+from sqlfluff.core.rules.doc_decorators import document_configuration, document_groups
 
 
 @document_groups
+@document_configuration
 class Rule_L027(Rule_L020):
     """References should be qualified if select has more than one referenced table/view.
 
@@ -45,13 +47,33 @@ class Rule_L027(Rule_L020):
         using_cols,
         parent_select,
     ):
+        # Config type hints
+        self.ignore_words_regex: str
+
         # Do we have more than one? If so, all references should be qualified.
         if len(table_aliases) <= 1:
             return None
+
+        # Get the ignore_words_list configuration.
+        try:
+            ignore_words_list = self.ignore_words_list
+        except AttributeError:
+            # First-time only, read the settings from configuration. This is
+            # very slow.
+            ignore_words_list = self._init_ignore_words_list()
+
         # A buffer to keep any violations.
         violation_buff = []
         # Check all the references that we have.
         for r in references:
+            # Skip if in ignore list
+            if ignore_words_list and r.raw.lower() in ignore_words_list:
+                continue
+
+            # Skip if matches ignore regex
+            if self.ignore_words_regex and regex.search(self.ignore_words_regex, r.raw):
+                continue
+
             this_ref_type = r.qualification()
             # Discard column aliases that
             # refer to the current column reference.
@@ -95,3 +117,15 @@ class Rule_L027(Rule_L020):
                 )
 
         return violation_buff or None
+
+    def _init_ignore_words_list(self):
+        """Called first time rule is evaluated to fetch & cache the policy."""
+        ignore_words_config: str = str(getattr(self, "ignore_words"))
+        if ignore_words_config and ignore_words_config != "None":
+            self.ignore_words_list = self.split_comma_separated_string(
+                ignore_words_config.lower()
+            )
+        else:
+            self.ignore_words_list = []
+
+        return self.ignore_words_list
