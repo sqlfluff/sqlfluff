@@ -1079,8 +1079,10 @@ def _print_out_violations_and_timing(
             output_stream.write("==== parsing violations ====")  # pragma: no cover
         for v in parsed_string.violations:
             output_stream.write(format_violation(v))  # pragma: no cover
-        if parsed_string.violations and parsed_string.config.get("dialect") == "ansi":
-            output_stream.write(format_dialect_warning())  # pragma: no cover
+        if parsed_string.violations:
+            output_stream.write(
+                format_dialect_warning(parsed_string.config.get("dialect"))
+            )  # pragma: no cover
 
         if verbose >= 2:
             output_stream.write("==== timings ====")
