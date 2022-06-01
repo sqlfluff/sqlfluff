@@ -1867,9 +1867,9 @@ class CreateCloneStatementSegment(BaseSegment):
             "TASK",
         ),
         Sequence("IF", "NOT", "EXISTS", optional=True),
-        Ref("SingleIdentifierGrammar"),
+        Ref("ObjectReferenceSegment"),
         "CLONE",
-        Ref("SingleIdentifierGrammar"),
+        Ref("ObjectReferenceSegment"),
         OneOf(
             Ref("FromAtExpressionSegment"),
             Ref("FromBeforeExpressionSegment"),
