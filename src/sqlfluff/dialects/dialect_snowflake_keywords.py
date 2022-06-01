@@ -1,4 +1,7 @@
-"""A list of all Snowflake SQL key words."""
+"""A list of all Snowflake SQL key words.
+
+https://docs.snowflake.com/en/sql-reference/reserved-keywords.html
+"""
 
 snowflake_reserved_keywords = """ALL
 ALTER
@@ -252,6 +255,7 @@ GZIP
 HEADERS
 HEX
 HISTORY
+IDENTIFIER
 IDENTITY
 IF
 IGNORE
@@ -524,4 +528,5 @@ WRAPPER
 WRITE
 XML
 ZONE
-ZSTD"""
+ZSTD
+"""
