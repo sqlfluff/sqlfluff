@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a0551bdd958630185eb3b313d43377dd2fd89cbf126a5f8010eb466bfff6bb5c
+_hash: 70925bba0f3f958a0e6026a0f9d82bbeed114964f7823918d5cfe5ac896b4488
 file:
 - statement:
     access_statement:
@@ -121,13 +121,11 @@ file:
         identifier: ROLENAME
     - keyword: TO
     - keyword: ROLE
-    - function:
-        function_name:
-          function_name_identifier: IDENTIFIER
+    - role_reference:
+        keyword: IDENTIFIER
         bracketed:
           start_bracket: (
-          expression:
-            variable: $THIS_ROLE
+          variable: $THIS_ROLE
           end_bracket: )
 - statement_terminator: ;
 - statement:
