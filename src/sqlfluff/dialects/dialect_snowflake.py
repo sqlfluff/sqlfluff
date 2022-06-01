@@ -17,6 +17,7 @@ from sqlfluff.core.parser import (
     Dedent,
     Delimited,
     Indent,
+    Matchable,
     NamedParser,
     Nothing,
     OneOf,
@@ -473,6 +474,15 @@ snowflake_dialect.replace(
         Ref("ColumnIndexIdentifierSegment"),
         Ref("ReferencedVariableNameSegment"),
         Ref("StagePath"),
+        Sequence(
+            "IDENTIFIER",
+            Bracketed(
+                OneOf(
+                    Ref("SingleQuotedIdentifierSegment"),
+                    Ref("ReferencedVariableNameSegment"),
+                ),
+            ),
+        ),
     ),
     PostFunctionGrammar=Sequence(
         Ref("WithinGroupClauseSegment", optional=True),
@@ -680,6 +690,41 @@ snowflake_dialect.sets("datetime_units").update(
         "TZM",
     ]
 )
+
+
+class FunctionNameSegment(ansi.FunctionNameSegment):
+    """Function name, including any prefix bits, e.g. project or schema.
+
+    Overriding FunctionNameSegment to support Snowflake's IDENTIFIER pseudo-function.
+    """
+
+    type = "function_name"
+    match_grammar: Matchable = Sequence(
+        # Project name, schema identifier, etc.
+        AnyNumberOf(
+            Sequence(
+                Ref("SingleIdentifierGrammar"),
+                Ref("DotSegment"),
+            ),
+        ),
+        # Base function name
+        OneOf(
+            Ref("FunctionNameIdentifierSegment"),
+            Ref("QuotedIdentifierSegment"),
+            # Snowflake's IDENTIFIER pseudo-function
+            # https://docs.snowflake.com/en/sql-reference/identifier-literal.html
+            Sequence(
+                "IDENTIFIER",
+                Bracketed(
+                    OneOf(
+                        Ref("SingleQuotedIdentifierSegment"),
+                        Ref("ReferencedVariableNameSegment"),
+                    ),
+                ),
+            ),
+        ),
+        allow_gaps=False,
+    )
 
 
 class ConnectByClauseSegment(BaseSegment):
@@ -1314,7 +1359,7 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
         # will also match the set operator, but by starting with the whole
         # select clause rather than just the SELECT keyword, we normally
         # mitigate that here. But this isn't BigQuery! So we can be more
-        # efficient and just just the keyword.
+        # efficient and just use the keyword.
         "SELECT",
         terminator=Ref("SetOperatorSegment"),
     )
