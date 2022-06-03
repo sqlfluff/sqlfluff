@@ -136,3 +136,25 @@ test_create_table_as_select_statements_ignored:
       FROM
         another_schema.another_table
     )
+
+test_pass_no_fix_implicit_column_references:
+  fail_str: |
+    SELECT
+        DATE_TRUNC('DAY', end_time) AS time_day,
+        b_field
+    FROM table_name
+    GROUP BY time_day, b_field
+  fix_str: |
+    SELECT
+        b_field,
+        DATE_TRUNC('DAY', end_time) AS time_day
+    FROM table_name
+    GROUP BY time_day, b_field
+
+test_fail_no_fix_implicit_column_references:
+  fail_str: |
+    SELECT
+        DATE_TRUNC('DAY', end_time) AS time_day,
+        b_field
+    FROM table_name
+    GROUP BY 1, 2

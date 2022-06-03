@@ -1,8 +1,14 @@
 """Implementation of Rule L034."""
-from typing import List, Optional
+from typing import Iterator, List, Optional
 
 from sqlfluff.core.parser import BaseSegment
-from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
+from sqlfluff.core.rules.base import (
+    BaseRule,
+    EvalResultType,
+    LintFix,
+    LintResult,
+    RuleContext,
+)
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
 
 
@@ -51,8 +57,7 @@ class Rule_L034(BaseRule):
         self.current_element_band: Optional[int] = i
         self.seen_band_elements[i].append(segment)
 
-    def _eval(self, context: RuleContext) -> Optional[List[LintResult]]:
-        self.violation_buff = []
+    def _eval(self, context: RuleContext) -> EvalResultType:
         self.violation_exists = False
         # Bands of select targets in order to be enforced
         select_element_order_preference = (
@@ -152,6 +157,11 @@ class Rule_L034(BaseRule):
                     self.seen_band_elements[-1].append(segment)
 
             if self.violation_exists:
+                if any(self._implicit_column_references(context.parent_stack[-1])):
+                    # If there are implicit column references (i.e. column
+                    # numbers), warn but don't fix, because it's much more
+                    # complex to autofix.
+                    return LintResult(anchor=select_clause_segment)
                 # Create a list of all the edit fixes
                 # We have to do this at the end of iterating through all the
                 # select_target_elements to get the order correct. This means we can't
@@ -180,7 +190,23 @@ class Rule_L034(BaseRule):
                 # Anchoring on the select statement segment ensures that
                 # select statements which include macro targets are ignored
                 # when ignore_templated_areas is set
-                lint_result = LintResult(anchor=select_clause_segment, fixes=fixes)
-                self.violation_buff = [lint_result]
+                return LintResult(anchor=select_clause_segment, fixes=fixes)
+        return None
 
-        return self.violation_buff or None
+    @classmethod
+    def _implicit_column_references(cls, segment: BaseSegment) -> Iterator[BaseSegment]:
+        """Yield any implicit ORDER BY or GROUP BY column references.
+
+        This function was adapted from similar code in L054.
+        """
+        _ignore_types: List[str] = ["withingroup_clause", "window_specification"]
+        if segment.is_type(*_ignore_types):
+            # Ignore Windowing clauses
+            return
+        if segment.is_type("groupby_clause", "orderby_clause"):
+            for seg in segment.segments:
+                if seg.name == "numeric_literal":
+                    yield segment
+        else:
+            for seg in segment.segments:
+                yield from cls._implicit_column_references(seg)
