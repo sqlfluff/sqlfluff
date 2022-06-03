@@ -23,6 +23,7 @@ from typing import (
     Tuple,
     Iterator,
     Union,
+    Sequence,
 )
 import logging
 
@@ -900,7 +901,7 @@ class BaseSegment:
         self,
         *seg_type: str,
         recurse_into: bool = True,
-        no_recursive_seg_type: str = None,
+        no_recursive_seg_types: Sequence[str] = None,
     ):
         """Recursively crawl for segments of a given type.
 
@@ -909,7 +910,7 @@ class BaseSegment:
                 to look for.
             recurse_into: :obj:`bool`: When an element of type "seg_type" is
                 found, whether to recurse into it.
-            no_recursive_seg_type: obj: `str`: a type of segment
+            no_recursive_seg_types: obj: `Sequence[str]`: segment types
                 not to recurse further into.
         """
         # Check this segment
@@ -921,11 +922,11 @@ class BaseSegment:
         if recurse_into or not match:
             # Recurse
             for seg in self.segments:
-                if not seg.is_type(no_recursive_seg_type):
+                if not seg.is_type(*no_recursive_seg_types):
                     yield from seg.recursive_crawl(
                         *seg_type,
                         recurse_into=recurse_into,
-                        no_recursive_seg_type=no_recursive_seg_type,
+                        no_recursive_seg_types=no_recursive_seg_types,
                     )
 
     def path_to(self, other):
