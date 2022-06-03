@@ -200,13 +200,11 @@ class Rule_L034(BaseRule):
         This function was adapted from similar code in L054.
         """
         _ignore_types: List[str] = ["withingroup_clause", "window_specification"]
-        if segment.is_type(*_ignore_types):
-            # Ignore Windowing clauses
-            return
-        if segment.is_type("groupby_clause", "orderby_clause"):
-            for seg in segment.segments:
-                if seg.name == "numeric_literal":
-                    yield segment
-        else:
-            for seg in segment.segments:
-                yield from cls._implicit_column_references(seg)
+        if not segment.is_type(*_ignore_types):  # Ignore Windowing clauses
+            if segment.is_type("groupby_clause", "orderby_clause"):
+                for seg in segment.segments:
+                    if seg.name == "numeric_literal":
+                        yield segment
+            else:
+                for seg in segment.segments:
+                    yield from cls._implicit_column_references(seg)
