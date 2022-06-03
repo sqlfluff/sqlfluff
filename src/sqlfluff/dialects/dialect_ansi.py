@@ -1494,7 +1494,7 @@ class JoinClauseSegment(BaseSegment):
         # In some dialects, like TSQL, join clauses can have nested join clauses
         # recurse into them - but not if part of a sub-select statement (see #3144)
         for join_clause in self.recursive_crawl(
-            "join_clause", no_recursive_seg_types=("select_statement",)
+            "join_clause", no_recursive_seg_type="select_statement"
         ):
             if join_clause is self:
                 # If the starting segment itself matches the list of types we're
