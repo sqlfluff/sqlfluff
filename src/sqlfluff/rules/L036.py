@@ -76,12 +76,13 @@ class Rule_L036(BaseRule):
     def _eval(self, context: RuleContext):
         if context.segment.is_type("select_clause"):
             select_targets_info = self._get_indexes(context)
-            if len(select_targets_info.select_targets) == 1:
+            has_wildcard = self._has_wildcard(context)
+            if len(select_targets_info.select_targets) == 1 and not has_wildcard:
                 return self._eval_single_select_target_element(
                     select_targets_info,
                     context,
                 )
-            elif len(select_targets_info.select_targets) > 1:
+            elif len(select_targets_info.select_targets):
                 return self._eval_multiple_select_target_elements(
                     select_targets_info, context.segment
                 )
@@ -446,3 +447,10 @@ class Rule_L036(BaseRule):
                 return LintResult(anchor=select_clause.get(), fixes=fixes)
 
         return None
+
+    def _has_wildcard(self, context: RuleContext) -> bool:
+        select_clause = context.functional.segment
+        wildcards = select_clause.children(
+            sp.is_type("select_clause_element")
+        ).children(sp.is_type("wildcard_expression"))
+        return bool(wildcards)
