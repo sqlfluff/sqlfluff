@@ -983,7 +983,7 @@ class BaseSegment:
             return self
 
         # Check the Parse Grammar
-        parse_grammar = parse_grammar or self.parse_grammar
+        parse_grammar = parse_grammar or self.parse_grammar or self.match_grammar
         if parse_grammar is None:
             # No parse grammar, go straight to expansion
             parse_context.logger.debug(
