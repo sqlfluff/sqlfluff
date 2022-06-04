@@ -162,7 +162,7 @@ class Rule_L034(BaseRule):
                 ):
                     # If there are implicit column references (i.e. column
                     # numbers), warn but don't fix, because it's much more
-                    # complex to autofix.
+                    # complicated to autofix.
                     return LintResult(anchor=select_clause_segment)
                 # Create a list of all the edit fixes
                 # We have to do this at the end of iterating through all the
