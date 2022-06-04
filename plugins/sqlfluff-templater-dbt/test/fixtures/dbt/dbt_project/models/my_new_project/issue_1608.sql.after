@@ -12,4 +12,6 @@ final as (
         cte_example
 )
 
-select * from final
+select
+    *
+from final
