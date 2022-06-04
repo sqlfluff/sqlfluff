@@ -62,7 +62,7 @@ test_single_wildcard_select_target_and_newline_before_select_target_1:
 test_single_wildcard_select_target_and_newline_before_select_target_2:
   pass_str: |
     select
-    *
+        *
     from x
   configs:
     rules:
