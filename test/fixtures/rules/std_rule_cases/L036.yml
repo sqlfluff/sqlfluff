@@ -3,15 +3,28 @@ rule: L036
 test_single_select_target_and_no_newline_between_select_and_select_target:
   pass_str: select a from x
 
-test_single_wildcard_select_target_and_no_newline_between_select_and_select_target:
+test_single_wildcard_select_target_and_no_newline_between_select_and_select_target_1:
   fail_str: |
     select * from x
   fix_str: |
     select
     *
     from x
+  configs:
+    rules:
+      L036:
+        wildcard_policy: multiple
 
-test_single_select_target_and_newline_after_select_target:
+test_single_wildcard_select_target_and_no_newline_between_select_and_select_target_2:
+  pass_str: |
+    select * from x
+
+test_single_select_target_and_newline_after_select_target_1:
+  pass_str: |
+    select *
+    from x
+
+test_single_select_target_and_newline_after_select_target_2:
   fail_str: |
     select *
     from x
@@ -19,6 +32,10 @@ test_single_select_target_and_newline_after_select_target:
     select
     *
     from x
+  configs:
+    rules:
+      L036:
+        wildcard_policy: multiple
 
 test_single_select_target_and_newline_before_select_target:
   fail_str: |
@@ -37,13 +54,22 @@ test_multiple_select_targets_on_newlines_and_newline_after_select:
         c
     from x
 
-test_single_wildcard_select_target_and_newline_before_select_target:
+test_single_wildcard_select_target_and_newline_before_select_target_1:
   pass_str: |
-    select
-        *
+    select *
     from x
 
-test_single_wildcard_select_target_and_newline_before_select_target_plus_from_on_same_line:
+test_single_wildcard_select_target_and_newline_before_select_target_2:
+  pass_str: |
+    select
+    *
+    from x
+  configs:
+    rules:
+      L036:
+        wildcard_policy: multiple
+
+test_single_wildcard_select_target_and_newline_before_select_target_plus_from_on_same_line_1:
   fail_str: |
     select
         * from x
@@ -51,6 +77,18 @@ test_single_wildcard_select_target_and_newline_before_select_target_plus_from_on
     select
         *
     from x
+  configs:
+    rules:
+      L036:
+        wildcard_policy: multiple
+
+test_single_wildcard_select_target_and_newline_before_select_target_plus_from_on_same_line_2:
+  fail_str: |
+    select
+        * from x
+  fix_str: |
+    select *
+        from x
 
 test_multiple_select_targets_all_on_the_same_line:
   fail_str: |

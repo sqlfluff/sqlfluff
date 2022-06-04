@@ -31,8 +31,9 @@ class Rule_L036(BaseRule):
     """Select targets should be on a new line unless there is only one select target.
 
     .. note::
-       A wildcard is (``SELECT *``) is not considered a single select target so
-       always requires a new line.
+       By default, a wildcard (e.g. ``SELECT *``) is considered a single select target.
+       If you want it to be treated as multiple select targets, configure
+       ``wildcard_policy = multiple``.
 
     **Anti-pattern**
 
@@ -72,8 +73,10 @@ class Rule_L036(BaseRule):
     """
 
     groups = ("all",)
+    config_keywords = ["wildcard_policy"]
 
     def _eval(self, context: RuleContext):
+        self.wildcard_policy: str
         if context.segment.is_type("select_clause"):
             select_targets_info = self._get_indexes(context)
             select_clause = context.functional.segment
@@ -81,7 +84,9 @@ class Rule_L036(BaseRule):
                 sp.is_type("select_clause_element")
             ).children(sp.is_type("wildcard_expression"))
             has_wildcard = bool(wildcards)
-            if len(select_targets_info.select_targets) == 1 and not has_wildcard:
+            if len(select_targets_info.select_targets) == 1 and (
+                not has_wildcard or self.wildcard_policy == "single"
+            ):
                 return self._eval_single_select_target_element(
                     select_targets_info,
                     context,
