@@ -76,12 +76,17 @@ class Rule_L036(BaseRule):
     def _eval(self, context: RuleContext):
         if context.segment.is_type("select_clause"):
             select_targets_info = self._get_indexes(context)
-            if len(select_targets_info.select_targets) == 1:
+            select_clause = context.functional.segment
+            wildcards = select_clause.children(
+                sp.is_type("select_clause_element")
+            ).children(sp.is_type("wildcard_expression"))
+            has_wildcard = bool(wildcards)
+            if len(select_targets_info.select_targets) == 1 and not has_wildcard:
                 return self._eval_single_select_target_element(
                     select_targets_info,
                     context,
                 )
-            elif len(select_targets_info.select_targets) > 1:
+            elif len(select_targets_info.select_targets):
                 return self._eval_multiple_select_target_elements(
                     select_targets_info, context.segment
                 )
@@ -195,18 +200,12 @@ class Rule_L036(BaseRule):
     ):
         select_clause = context.functional.segment
         parent_stack = context.parent_stack
-        wildcards = select_clause.children(
-            sp.is_type("select_clause_element")
-        ).children(sp.is_type("wildcard_expression"))
-        is_wildcard = bool(wildcards)
-        if is_wildcard:
-            wildcard_select_clause_element = wildcards[0]
 
         if (
             select_targets_info.select_idx
             < select_targets_info.first_new_line_idx
             < select_targets_info.first_select_target_idx
-        ) and (not is_wildcard):
+        ):
             # Do we have a modifier?
             select_children = select_clause.children()
             modifier: Optional[Segments]
@@ -416,33 +415,4 @@ class Rule_L036(BaseRule):
                 anchor=select_clause.get(),
                 fixes=fixes,
             )
-
-        # If we have a wildcard on the same line as the FROM keyword, but not the same
-        # line as the SELECT keyword, we need to move the FROM keyword to its own line.
-        # i.e.
-        # SELECT
-        #   * FROM foo
-        if select_targets_info.from_segment:
-            if (
-                is_wildcard
-                and (
-                    select_clause[0].pos_marker.working_line_no
-                    != select_targets_info.from_segment.pos_marker.working_line_no
-                )
-                and (
-                    wildcard_select_clause_element.pos_marker.working_line_no
-                    == select_targets_info.from_segment.pos_marker.working_line_no
-                )
-            ):
-                fixes = [
-                    LintFix.delete(ws) for ws in select_targets_info.pre_from_whitespace
-                ]
-                fixes.append(
-                    LintFix.create_before(
-                        select_targets_info.from_segment,
-                        [NewlineSegment()],
-                    )
-                )
-                return LintResult(anchor=select_clause.get(), fixes=fixes)
-
         return None
