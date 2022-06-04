@@ -1,4 +1,5 @@
 -- Issue #333
-select *
+select
+    *
 from table_a
 where ds = '{{ var("ds") }}'
