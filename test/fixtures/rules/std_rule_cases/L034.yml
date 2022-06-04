@@ -121,6 +121,21 @@ test_insert_statements_ignored:
     FROM
       another_schema.another_table
 
+test_merge_statements_ignored:
+  pass_str: |
+    MERGE INTO t
+    USING
+    (
+        SELECT
+            DATE_TRUNC('DAY', end_time) AS time_day,
+            b
+        FROM u
+    ) AS u ON (a = b)
+    WHEN MATCHED THEN
+    UPDATE SET a = b
+    WHEN NOT MATCHED THEN
+    INSERT (b) VALUES (c)
+
 test_create_table_as_select_statements_ignored:
   pass_str: |
     CREATE TABLE new_table AS (

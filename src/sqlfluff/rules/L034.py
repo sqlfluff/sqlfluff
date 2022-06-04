@@ -93,7 +93,7 @@ class Rule_L034(BaseRule):
             ):
                 return None
             if len(context.parent_stack) >= 3 and context.parent_stack[-3].is_type(
-                "create_table_statement"
+                "create_table_statement", "merge_statement"
             ):
                 return None
 
@@ -157,7 +157,9 @@ class Rule_L034(BaseRule):
                     self.seen_band_elements[-1].append(segment)
 
             if self.violation_exists:
-                if any(self._implicit_column_references(context.parent_stack[-1])):
+                if len(context.parent_stack) and any(
+                    self._implicit_column_references(context.parent_stack[-1])
+                ):
                     # If there are implicit column references (i.e. column
                     # numbers), warn but don't fix, because it's much more
                     # complex to autofix.
