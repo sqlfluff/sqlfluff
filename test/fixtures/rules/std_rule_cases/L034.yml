@@ -137,7 +137,7 @@ test_create_table_as_select_statements_ignored:
         another_schema.another_table
     )
 
-test_pass_no_fix_implicit_column_references:
+test_fail_fix_explicit_column_references_1:
   fail_str: |
     SELECT
         DATE_TRUNC('DAY', end_time) AS time_day,
@@ -150,6 +150,20 @@ test_pass_no_fix_implicit_column_references:
         DATE_TRUNC('DAY', end_time) AS time_day
     FROM table_name
     GROUP BY time_day, b_field
+
+test_fail_fix_explicit_column_references_2:
+  fail_str: |
+    SELECT
+        SUM(a_field) OVER (ORDER BY 1) AS a_field_window_sum,
+        b_field
+    FROM table_name
+    GROUP BY a_field_window_sum, b_field
+  fix_str: |
+    SELECT
+        b_field,
+        SUM(a_field) OVER (ORDER BY 1) AS a_field_window_sum
+    FROM table_name
+    GROUP BY a_field_window_sum, b_field
 
 test_fail_no_fix_implicit_column_references:
   fail_str: |
