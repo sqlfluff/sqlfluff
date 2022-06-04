@@ -45,7 +45,7 @@ mysql_dialect.patch_lexer_matchers(
             segment_kwargs={"trim_start": ("-- ", "#")},
         ),
         RegexLexer(
-            "single_quote", r"(?s)('')+?(?!')|('.*?(?<!')(?:'')*'(?!'))", CodeSegment
+            "single_quote", r"(?s)('')+?(?!')|('.*?(?<!'|\\)(?:'')*'(?!'))", CodeSegment
         ),
     ]
 )
