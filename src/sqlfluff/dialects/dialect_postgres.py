@@ -240,8 +240,12 @@ postgres_dialect.replace(
         )
     ),
     ParameterNameSegment=RegexParser(
-        r'[A-Z_][A-Z0-9_$]*|"[^"]*"', CodeSegment, name="parameter", type="parameter"
+        r'[A-Z_][A-Z0-9_$]*', CodeSegment, name="parameter", type="parameter"
     ),
+    QuotedParameterNameSegment=RegexParser(
+        r'"[^"]+"', CodeSegment, name="quoted_parameter", type="parameter"
+    ),
+    ParameterNameGrammar=OneOf(ParameterNameSegment, QuotedParameterNameSegment),
     FunctionNameIdentifierSegment=RegexParser(
         r"[A-Z_][A-Z0-9_$]*",
         CodeSegment,
