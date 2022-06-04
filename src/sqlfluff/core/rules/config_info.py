@@ -185,6 +185,10 @@ STANDARD_CONFIG_INFO_DICT = {
             "in the file."
         ),
     },
+    "wildcard_policy": {
+        "validation": ["single", "multiple"],
+        "definition": "Treatment of wildcards. Defaults to ``single``.",
+    },
 }
 
 
