@@ -1,11 +1,23 @@
 rule: L036
 
 test_single_select_target_and_no_newline_between_select_and_select_target:
-  pass_str: select * from x
+  pass_str: select a from x
+
+test_single_wildcard_select_target_and_no_newline_between_select_and_select_target:
+  fail_str: |
+    select * from x
+  fix_str: |
+    select
+    *
+    from x
 
 test_single_select_target_and_newline_after_select_target:
-  pass_str: |
+  fail_str: |
     select *
+    from x
+  fix_str: |
+    select
+    *
     from x
 
 test_single_select_target_and_newline_before_select_target:
