@@ -984,7 +984,7 @@ class BaseSegment:
 
         # Check the Parse Grammar
         parse_grammar = (
-            parse_grammar or self.parse_grammar or getattr(self, "match_grammar")
+            parse_grammar or self.parse_grammar or getattr(self, "match_grammar", None)
         )
         if parse_grammar is None:
             # No parse grammar, go straight to expansion
