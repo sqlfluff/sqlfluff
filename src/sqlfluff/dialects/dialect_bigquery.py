@@ -225,30 +225,6 @@ bigquery_dialect.replace(
             bracket_pairs_set="angle_bracket_pairs",
         ),
     ),
-    StructTypeGrammar=Sequence(
-        "STRUCT",
-        Bracketed(
-            Delimited(  # Comma-separated list of field names/types
-                Sequence(
-                    OneOf(
-                        # ParameterNames can look like Datatypes so can't use
-                        # Optional=True here and instead do a OneOf in order
-                        # with DataType only first, followed by both.
-                        Ref("DatatypeSegment"),
-                        Sequence(
-                            Ref("ParameterNameSegment"),
-                            Ref("DatatypeSegment"),
-                        ),
-                    ),
-                    Ref("OptionsSegment", optional=True),
-                ),
-                delimiter=Ref("CommaSegment"),
-                bracket_pairs_set="angle_bracket_pairs",
-            ),
-            bracket_type="angle",
-            bracket_pairs_set="angle_bracket_pairs",
-        ),
-    ),
     # BigQuery allows underscore in parameter names, and also anything if quoted in
     # backticks
     ParameterNameSegment=OneOf(
@@ -833,7 +809,7 @@ class DatatypeSegment(ansi.DatatypeSegment):
         Ref("DatatypeIdentifierSegment"),  # Simple type
         Sequence("ANY", "TYPE"),  # SQL UDFs can specify this "type"
         Ref("SimpleArrayTypeGrammar"),
-        Ref("StructTypeGrammar"),
+        Ref("StructTypeSegment"),
     )
 
 
@@ -852,6 +828,35 @@ class FunctionParameterListGrammar(ansi.FunctionParameterListGrammar):
     )
 
 
+class StructTypeSegment(ansi.StructTypeSegment):
+    """Expression to construct a STRUCT datatype."""
+
+    match_grammar = Sequence(
+        "STRUCT",
+        Bracketed(
+            Delimited(  # Comma-separated list of field names/types
+                Sequence(
+                    OneOf(
+                        # ParameterNames can look like Datatypes so can't use
+                        # Optional=True here and instead do a OneOf in order
+                        # with DataType only first, followed by both.
+                        Ref("DatatypeSegment"),
+                        Sequence(
+                            Ref("ParameterNameSegment"),
+                            Ref("DatatypeSegment"),
+                        ),
+                    ),
+                    Ref("OptionsSegment", optional=True),
+                ),
+                delimiter=Ref("CommaSegment"),
+                bracket_pairs_set="angle_bracket_pairs",
+            ),
+            bracket_type="angle",
+            bracket_pairs_set="angle_bracket_pairs",
+        ),
+    )
+
+
 class TypelessStructSegment(ansi.TypelessStructSegment):
     """Expression to construct a STRUCT with implicit types.
 
@@ -859,22 +864,6 @@ class TypelessStructSegment(ansi.TypelessStructSegment):
     """
 
     match_grammar = Sequence(
-        "STRUCT",
-        Bracketed(
-            Delimited(
-                Sequence(
-                    Ref("BaseExpressionElementGrammar"),
-                    Ref("AliasExpressionSegment", optional=True),
-                ),
-            ),
-        ),
-    )
-
-    # Workaround: https://github.com/sqlfluff/sqlfluff/issues/3277
-    # There is a weird issue where sometimes typeless structs are parsed as typed
-    # structs and trigger false-positives of L063 when `parse_grammar` is not set.
-    # Follow the linked issue for progress on this issue.
-    parse_grammar = Sequence(
         "STRUCT",
         Bracketed(
             Delimited(
