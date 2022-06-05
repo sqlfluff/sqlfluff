@@ -100,6 +100,28 @@ def test__cli__command_dialect():
     )
 
 
+def test__cli__command_parse_error_dialect_warning():
+    """Check parsing error raises the right warning."""
+    # For any parsing error there should be a non-zero exit code
+    # and a human-readable warning should be dislayed.
+    result = invoke_assert_code(
+        ret_code=66,
+        args=[
+            parse,
+            [
+                "-n",
+                "--dialect",
+                "postgres",
+                "test/fixtures/cli/fail_many.sql",
+            ],
+        ],
+    )
+    assert (
+        "WARNING: Parsing errors found and dialect is set to 'postgres'. "
+        "Have you configured your dialect correctly?" in result.stdout
+    )
+
+
 def test__cli__command_dialect_legacy():
     """Check the script raises the right exception on a legacy dialect."""
     result = invoke_assert_code(
