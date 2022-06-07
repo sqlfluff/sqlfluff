@@ -214,6 +214,25 @@ def test__templater_raw():
             """
             SELECT user_mail, city_id
             FROM users_data
+            WHERE (city_id) IN ${12}
+            AND date > ${90}
+            """,
+            "numeric_dollar",
+            """
+            SELECT user_mail, city_id
+            FROM users_data
+            WHERE (city_id) IN (1, 2, 3, 45)
+            AND date > '2020-10-01'
+            """,
+            {
+                "12": "(1, 2, 3, 45)",
+                "90": "'2020-10-01'",
+            },
+        ),
+        (
+            """
+            SELECT user_mail, city_id
+            FROM users_data
             WHERE (city_id) IN %s
             AND date > %s
             """,
@@ -264,6 +283,7 @@ def test__templater_raw():
         "pyformat",
         "dollar",
         "numeric_dollar",
+        "numeric_dollar_with_braces",
         "percent",
         "ampersand",
     ],
