@@ -514,7 +514,7 @@ class ColumnAttributeSegment(BaseSegment):
         Sequence("DEFAULT", Ref("ExpressionSegment")),
         Sequence(
             "IDENTITY",
-            Bracketed(Delimited(Ref("NumericLiteralSegment"))),
+            Bracketed(Delimited(Ref("NumericLiteralSegment")), optional=True),
         ),
         Sequence(
             "GENERATED",
@@ -522,7 +522,7 @@ class ColumnAttributeSegment(BaseSegment):
             "DEFAULT",
             "AS",
             "IDENTITY",
-            Bracketed(Delimited(Ref("NumericLiteralSegment"))),
+            Bracketed(Delimited(Ref("NumericLiteralSegment")), optional=True),
         ),
         Sequence("ENCODE", Ref("ColumnEncodingGrammar")),
         "DISTKEY",
