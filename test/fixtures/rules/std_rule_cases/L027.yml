@@ -221,43 +221,6 @@ test_pass_rowtype_with_join:
     core:
       dialect: hive
 
-test_fail_column_name_not_found_in_table_aliases_bigquery:
-  # qualified reference should actually exists in table aliases
-  fail_str: |
-    SELECT
-        a.bar,
-        b.foo,
-        this_is.some_struct.id
-    FROM
-        a LEFT JOIN b ON TRUE
-  configs:
-    core:
-      dialect: bigquery
-
-test_pass_column_name_is_a_struct_bigquery:
-  # check structs work as expected
-  pass_str: |
-    SELECT
-        a.bar,
-        b.this_is.some_struct.id
-    FROM
-        a LEFT JOIN b ON TRUE
-  configs:
-    core:
-      dialect: bigquery
-
-test_pass_column_name_from_unnest_bigquery:
-  # Check that we allow an table alias come from UNNEST statement
-  pass_str: |
-    SELECT
-        a.bar,
-        e.foo
-    FROM
-        a LEFT JOIN UNEST(a.events) AS e
-  configs:
-    core:
-      dialect: bigquery
-
 test_fail_table_plus_flatten_snowflake_1:
   # FLATTEN() returns a table, thus there are two tables, thus lint failure.
   fail_str: |
