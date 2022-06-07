@@ -291,3 +291,33 @@ test_pass_ignore_words_regex_bigquery_declare_example:
     rules:
       L027:
         ignore_words_regex: ^_
+
+test_pass_redshift:
+  # This was failing in issue 3380.
+  pass_str:
+    SELECT account.id
+    FROM salesforce_sd.account
+    INNER JOIN salesforce_sd."user" ON salesforce_sd."user".id = account.ownerid
+  configs:
+    core:
+      dialect: redshift
+
+test_pass_tsql:
+  # This was failing in issue 3380.
+  pass_str:
+    select
+        psc.col1
+    from
+        tbl1 as psc
+    where
+        exists
+        (
+            select 1 as data
+            from
+                tbl2 as pr
+            join tbl2 as c on c.cid = pr.cid
+            where
+                c.col1 = 'x'
+                and pr.col2 <= convert(date, getdate())
+                and pr.pid = psc.pid
+        )
