@@ -1060,6 +1060,23 @@ FROM SOME_TABLE
                 ("block_end", slice(27, 39, None), slice(13, 13, None)),
             ],
         ),
+        (
+            # Test for issue 3434: Handle {% block %}.
+            "SELECT {% block table_name %}block_contents{% endblock %} "
+            "FROM {{ self.table_name() }}\n",
+            None,
+            [
+                ("literal", slice(0, 7, None), slice(0, 7, None)),
+                ("literal", slice(29, 43, None), slice(7, 21, None)),
+                ("block_start", slice(7, 29, None), slice(21, 21, None)),
+                ("literal", slice(29, 43, None), slice(21, 21, None)),
+                ("block_end", slice(43, 57, None), slice(21, 21, None)),
+                ("literal", slice(57, 63, None), slice(21, 27, None)),
+                ("templated", slice(63, 86, None), slice(27, 27, None)),
+                ("literal", slice(29, 43, None), slice(27, 41, None)),
+                ("literal", slice(86, 87, None), slice(41, 42, None)),
+            ],
+        ),
     ],
 )
 def test__templater_jinja_slice_file(raw_file, override_context, result, caplog):
