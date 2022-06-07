@@ -4,6 +4,8 @@ import logging
 from bisect import bisect_left
 from typing import Dict, Iterator, List, Tuple, Optional, NamedTuple, Iterable
 
+from sqlfluff.core.errors import SQLTemplaterError, SQLTemplaterSkipFile
+
 # Instantiate the templater logger
 templater_logger = logging.getLogger("sqlfluff.templater")
 
@@ -132,14 +134,27 @@ class TemplatedFile:
             tfs: Optional[TemplatedFileSlice] = None
             for idx, tfs in enumerate(self.sliced_file):
                 if previous_slice:
-                    assert (
-                        tfs.templated_slice.start == previous_slice.templated_slice.stop
-                    )
+                    if tfs.templated_slice.start != previous_slice.templated_slice.stop:
+                        raise SQLTemplaterSkipFile(
+                            "Templated slices found to be non contigious. "
+                            f"{tfs.templated_slice} (starting"
+                            f" {repr(self.templated_str[tfs.templated_slice])})"
+                            f" does not follow {previous_slice.templated_slice} (starting"
+                            f" {repr(self.templated_str[previous_slice.templated_slice])})"
+                        )
                 else:
-                    assert tfs.templated_slice.start == 0
+                    if tfs.templated_slice.start != 0:
+                        raise SQLTemplaterSkipFile(
+                            "First Templated slice not started at index 0 "
+                            f"(found slice {tfs.templated_slice})"
+                        )
                 previous_slice = tfs
             if self.sliced_file and templated_str is not None:
-                assert tfs.templated_slice.stop == len(templated_str)
+                if tfs.templated_slice.stop != len(templated_str):
+                    raise SQLTemplaterSkipFile(
+                        "Length of templated file mismatch with final slice: "
+                        f"{len(templated_str)} != {tfs.templated_slice.stop}."
+                    )
 
     @classmethod
     def from_string(cls, raw):
