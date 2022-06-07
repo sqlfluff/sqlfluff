@@ -303,7 +303,7 @@ test_pass_redshift:
       dialect: redshift
 
 test_pass_tsql:
-  # This was failing in issue 3380.
+  # This was failing in issue 3342.
   pass_str:
     select
         psc.col1
@@ -321,3 +321,18 @@ test_pass_tsql:
                 and pr.col2 <= convert(date, getdate())
                 and pr.pid = psc.pid
         )
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_ansi:
+  # This was failing in issue 3055.
+  pass_str: |
+    SELECT my_col
+    FROM my_table
+    WHERE EXISTS (
+        SELECT 1
+        FROM other_table
+        INNER JOIN mapping_table ON (mapping_table.other_fk = other_table.id_pk)
+        WHERE mapping_table.kind = my_table.kind
+    )
