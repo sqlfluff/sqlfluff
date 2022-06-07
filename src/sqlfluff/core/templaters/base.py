@@ -135,7 +135,7 @@ class TemplatedFile:
             for idx, tfs in enumerate(self.sliced_file):
                 if previous_slice:
                     if tfs.templated_slice.start != previous_slice.templated_slice.stop:
-                        raise SQLTemplaterSkipFile(
+                        raise SQLTemplaterSkipFile(  # pragma: no cover
                             "Templated slices found to be non contigious. "
                             f"{tfs.templated_slice} (starting"
                             f" {self.templated_str[tfs.templated_slice]!r})"
@@ -146,14 +146,14 @@ class TemplatedFile:
                         )
                 else:
                     if tfs.templated_slice.start != 0:
-                        raise SQLTemplaterSkipFile(
+                        raise SQLTemplaterSkipFile(  # pragma: no cover
                             "First Templated slice not started at index 0 "
                             f"(found slice {tfs.templated_slice})"
                         )
                 previous_slice = tfs
             if self.sliced_file and templated_str is not None:
                 if tfs.templated_slice.stop != len(templated_str):
-                    raise SQLTemplaterSkipFile(
+                    raise SQLTemplaterSkipFile(  # pragma: no cover
                         "Length of templated file mismatch with final slice: "
                         f"{len(templated_str)} != {tfs.templated_slice.stop}."
                     )
