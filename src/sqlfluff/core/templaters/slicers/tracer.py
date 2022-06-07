@@ -40,7 +40,7 @@ class RawSliceInfo:
     unique_alternate_id: Optional[str]
     alternate_code: Optional[str]
     next_slice_indices: List[int] = field(default_factory=list)
-    inside_block: bool = field(default=False)
+    inside_block: bool = field(default=False)  # {% block %}
 
 
 class JinjaTracer:
@@ -106,8 +106,11 @@ class JinjaTracer:
                 self.raw_sliced[target_slice_idx]
             ].inside_block
             if not target_inside_block:
+                # Normal case: Walk through the template.
                 self.move_to_slice(target_slice_idx, slice_length)
             else:
+                # {% block %} executes code elsewhere in the template but does
+                # not move there. It's a bit like macro invocation.
                 self.record_trace(slice_length, target_slice_idx)
 
         # TRICKY: The 'append_to_templated' parameter is only used by the dbt
@@ -203,8 +206,8 @@ class JinjaAnalyzer:
 
         # Internal bookkeeping
         self.slice_id: int = 0
-        self.inside_set_or_macro: bool = False
-        self.inside_block = False
+        self.inside_set_or_macro: bool = False  # {% set %} or {% macro %}
+        self.inside_block = False  # {% block %}
         self.stack: List[int] = []
         self.idx_raw: int = 0
 
