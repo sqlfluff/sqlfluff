@@ -4,7 +4,7 @@ import logging
 from bisect import bisect_left
 from typing import Dict, Iterator, List, Tuple, Optional, NamedTuple, Iterable
 
-from sqlfluff.core.errors import SQLTemplaterError, SQLTemplaterSkipFile
+from sqlfluff.core.errors import SQLTemplaterSkipFile
 
 # Instantiate the templater logger
 templater_logger = logging.getLogger("sqlfluff.templater")
@@ -138,9 +138,11 @@ class TemplatedFile:
                         raise SQLTemplaterSkipFile(
                             "Templated slices found to be non contigious. "
                             f"{tfs.templated_slice} (starting"
-                            f" {repr(self.templated_str[tfs.templated_slice])})"
-                            f" does not follow {previous_slice.templated_slice} (starting"
-                            f" {repr(self.templated_str[previous_slice.templated_slice])})"
+                            f" {self.templated_str[tfs.templated_slice]!r})"
+                            f" does not follow {previous_slice.templated_slice} "
+                            "(starting "
+                            f"{self.templated_str[previous_slice.templated_slice]!r}"
+                            ")"
                         )
                 else:
                     if tfs.templated_slice.start != 0:
