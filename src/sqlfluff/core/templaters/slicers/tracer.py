@@ -236,7 +236,7 @@ class JinjaAnalyzer:
             unique_alternate_id, alternate_code, inside_block=self.inside_block
         )
 
-    def update_inside_set_or_macro(
+    def update_inside_set_or_macro_or_block(
         self, block_type: str, trimmed_parts: List[str]
     ) -> None:
         """Based on block tag, update whether we're in a set/macro section."""
@@ -249,11 +249,12 @@ class JinjaAnalyzer:
             # - {% set variable = value %}
             # - {% set variable %}value{% endset %}
             # https://jinja.palletsprojects.com/en/2.10.x/templates/#block-assignments
-            # When the second format is used, set the field
-            # 'inside_set_or_macro' to True. This info is used elsewhere,
-            # as other code inside these regions require special handling.
-            # (Generally speaking, JinjaAnalyzer ignores the contents of these
-            # blocks, treating them like opaque templated regions.)
+            # When the second format is used, set one of the fields
+            # 'inside_set_or_macro' or 'inside_block' to True. This info is
+            # used elsewhere, as other code inside these regions require
+            # special handling. (Generally speaking, JinjaAnalyzer ignores
+            # the contents of these blocks, treating them like opaque templated
+            # regions.)
             try:
                 # Entering a set/macro block. Build a source string consisting
                 # of just this one Jinja command and see if it parses. If so,
@@ -375,7 +376,7 @@ class JinjaAnalyzer:
                         raw_slice_info = self.track_templated(
                             m_open, m_close, tag_contents
                         )
-                self.update_inside_set_or_macro(block_type, tag_contents)
+                self.update_inside_set_or_macro_or_block(block_type, tag_contents)
                 m_strip_right = regex.search(
                     r"\s+$", raw, regex.MULTILINE | regex.DOTALL
                 )
