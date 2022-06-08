@@ -187,7 +187,7 @@ def format_dialects(dialect_readout, verbose=0):
     return text_buffer.getvalue()
 
 
-def format_dialect_warning(dialect):  # pragma: no cover
+def format_dialect_warning(dialect):
     """Output a warning for parsing errors."""
     return colorize(
         (

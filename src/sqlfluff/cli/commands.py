@@ -1082,7 +1082,7 @@ def _print_out_violations_and_timing(
         if parsed_string.violations:
             output_stream.write(
                 format_dialect_warning(parsed_string.config.get("dialect"))
-            )  # pragma: no cover
+            )
 
         if verbose >= 2:
             output_stream.write("==== timings ====")
