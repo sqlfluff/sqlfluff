@@ -26,3 +26,5 @@ SELECT 'foo' -- some comment
 'bar';
 
 SELECT 'foo' /*  some comment */ 'bar';
+
+UPDATE table1 SET column1 = 'baz\'s';
