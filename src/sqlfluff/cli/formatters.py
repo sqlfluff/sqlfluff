@@ -187,12 +187,12 @@ def format_dialects(dialect_readout, verbose=0):
     return text_buffer.getvalue()
 
 
-def format_dialect_warning():  # pragma: no cover
-    """Output a warning for parsing errors found on the ansi dialect."""
+def format_dialect_warning(dialect):
+    """Output a warning for parsing errors."""
     return colorize(
         (
             "WARNING: Parsing errors found and dialect is set to "
-            "'ansi'. Have you configured your dialect?"
+            f"'{dialect}'. Have you configured your dialect correctly?"
         ),
         Color.lightgrey,
     )
@@ -321,9 +321,9 @@ class OutputStreamFormatter:
             f"=== [{colorize(templater, Color.lightgrey)}] {message}"
         )  # pragma: no cover
 
-    def dispatch_dialect_warning(self) -> None:
+    def dispatch_dialect_warning(self, dialect) -> None:
         """Dispatch a warning for dialects."""
-        self._dispatch(format_dialect_warning())  # pragma: no cover
+        self._dispatch(format_dialect_warning(dialect))  # pragma: no cover
 
     def _format_file_violations(
         self, fname: str, violations: List[SQLBaseError]
