@@ -2609,8 +2609,9 @@ class IntervalExpressionSegment(ansi.IntervalExpressionSegment):
         ),
     )
 
+
 class VacuumStatementSegment(BaseSegment):
-    """ A `VACUUM` statement segment.
+    """A `VACUUM` statement segment.
 
     https://docs.delta.io/latest/delta-utility.html#remove-files-no-longer-referenced-by-a-delta-table
     """
@@ -2631,6 +2632,6 @@ class VacuumStatementSegment(BaseSegment):
                 "DRY",
                 "RUN",
             ),
-            optional = True,
+            optional=True,
         ),
     )
