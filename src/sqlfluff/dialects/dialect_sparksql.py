@@ -327,24 +327,6 @@ sparksql_dialect.add(
         ),
         allow_gaps=False,
     ),
-    RetainKeywordSegment=StringParser(
-        "RETAIN",
-        KeywordSegment,
-        name="retain",
-        type="retain_keyword",
-    ),
-    DryKeywordSegment=StringParser(
-        "DRY",
-        KeywordSegment,
-        name="dry",
-        type="dry_keyword",
-    ),
-    RunKeywordSegment=StringParser(
-        "RUN",
-        KeywordSegment,
-        name="run",
-        type="run_keyword",
-    ),
     # Add relevant Hive Grammar
     CommentGrammar=hive_dialect.get_grammar("CommentGrammar"),
     LocationGrammar=hive_dialect.get_grammar("LocationGrammar"),

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: abd15bc2fa99af4e3b81678c2f399db5afc4417420c9e11a575ebdcd2426de23
+_hash: c28f1106be5c6dfd0b714e0fd8748e93648dd6f84c1eae0eea3ba18275ee5ab9
 file:
 - statement:
     vacuum_statement:
@@ -26,20 +26,20 @@ file:
 - statement_terminator: ;
 - statement:
     vacuum_statement:
-      keyword: VACUUM
-      file_reference:
+    - keyword: VACUUM
+    - file_reference:
         keyword: DELTA
         dot: .
         identifier: '`/data/events/`'
-      retain_keyword: RETAIN
-      literal: '100'
-      date_part: HOURS
+    - keyword: RETAIN
+    - literal: '100'
+    - date_part: HOURS
 - statement_terminator: ;
 - statement:
     vacuum_statement:
-      keyword: VACUUM
-      table_reference:
+    - keyword: VACUUM
+    - table_reference:
         identifier: EVENTSTABLE
-      dry_keyword: DRY
-      run_keyword: RUN
+    - keyword: DRY
+    - keyword: RUN
 - statement_terminator: ;
