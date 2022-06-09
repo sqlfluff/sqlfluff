@@ -2608,3 +2608,29 @@ class IntervalExpressionSegment(ansi.IntervalExpressionSegment):
             Ref("QuotedLiteralSegment"),
         ),
     )
+
+class VacuumStatementSegment(BaseSegment):
+    """ A `VACUUM` statement segment.
+
+    https://docs.delta.io/latest/delta-utility.html#remove-files-no-longer-referenced-by-a-delta-table
+    """
+
+    match_grammar: Matchable = Sequence(
+        "VACUUM",
+        OneOf(
+            Ref("FileReferenceSegment"),
+            Ref("TableReferenceSegment"),
+        ),
+        OneOf(
+            Sequence(
+                "RETAIN",
+                Ref("NumericLiteralSegment"),
+                "HOURS",
+            ),
+            Sequence(
+                "DRY",
+                "RUN",
+            ),
+            optional = True,
+        ),
+    )
