@@ -6,7 +6,7 @@ and uses the Spark SQL syntax.
 
 Please make changes directly to the `sparksql` dialect.
 """
-from dialect_sparksql_keywords import (
+from sqlfluff.dialects.dialect_sparksql_keywords import (
     RESERVED_KEYWORDS as SPARKSQL_RESERVED_KEYWORDS,
     UNRESERVED_KEYWORDS as SPARKSQL_UNRESERVED_KEYWORDS,
 )
