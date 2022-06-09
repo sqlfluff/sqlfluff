@@ -723,11 +723,11 @@ class Linter:
             )
 
         # Safety flag for unset dialects
-        if parsed.config.get("dialect") == "ansi" and linted_file.get_violations(
+        if linted_file.get_violations(
             fixable=True if fix else None, types=SQLParseError
         ):
             if formatter:  # pragma: no cover TODO?
-                formatter.dispatch_dialect_warning()
+                formatter.dispatch_dialect_warning(parsed.config.get("dialect"))
 
         return linted_file
 

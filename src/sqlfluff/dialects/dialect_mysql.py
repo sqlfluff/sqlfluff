@@ -44,8 +44,19 @@ mysql_dialect.patch_lexer_matchers(
             CommentSegment,
             segment_kwargs={"trim_start": ("-- ", "#")},
         ),
+        # Pattern breakdown:
+        # (?s)                     DOTALL (dot matches newline)
+        #     ('')+?               group1 match consecutive single quotes
+        #     (?!')                negative lookahead single quote
+        #     |(                   group2 start
+        #         '.*?             single quote wildcard zero or more, lazy
+        #         (?<!'|\\)        negative lookbehind: no single quote or backslash
+        #         (?:'')*          non-capturing group: consecutive single quotes
+        #         '                single quote
+        #         (?!')            negative lookahead: not single quote
+        #     )                    group2 end
         RegexLexer(
-            "single_quote", r"(?s)('')+?(?!')|('.*?(?<!')(?:'')*'(?!'))", CodeSegment
+            "single_quote", r"(?s)('')+?(?!')|('.*?(?<!'|\\)(?:'')*'(?!'))", CodeSegment
         ),
     ]
 )

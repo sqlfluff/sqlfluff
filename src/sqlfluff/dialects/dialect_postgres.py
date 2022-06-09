@@ -352,7 +352,9 @@ postgres_dialect.replace(
             Sequence(Ref("ParameterNameSegment"), Ref("DatatypeSegment")),
         ),
         Sequence(
-            OneOf("DEFAULT", Ref("EqualsSegment")), Ref("LiteralGrammar"), optional=True
+            OneOf("DEFAULT", Ref("EqualsSegment")),
+            Ref("ExpressionSegment"),
+            optional=True,
         ),
     ),
     FrameClauseUnitGrammar=OneOf("RANGE", "ROWS", "GROUPS"),
@@ -2421,7 +2423,7 @@ class TableConstraintUsingIndexSegment(BaseSegment):
             "CONSTRAINT", Ref("ObjectReferenceSegment"), optional=True
         ),
         Sequence(
-            OneOf("UNIQUE", Sequence("PRIMARY", "KEY")),
+            OneOf("UNIQUE", Ref("PrimaryKeyGrammar")),
             "USING",
             "INDEX",
             Ref("IndexReferenceSegment"),

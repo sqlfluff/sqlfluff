@@ -99,7 +99,7 @@ class Rule_L054(BaseRule):
         if context.functional.parent_stack.any(sp.is_type(*self._ignore_types)):
             return LintResult(memory=context.memory)
 
-        # Look at child segments and map column references to either the implict or
+        # Look at child segments and map column references to either the implicit or
         # explicit category.
         # N.B. segment names are used as the numeric literal type is 'raw', so best to
         # be specific with the name.
