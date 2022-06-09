@@ -1,0 +1,45 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: abd15bc2fa99af4e3b81678c2f399db5afc4417420c9e11a575ebdcd2426de23
+file:
+- statement:
+    vacuum_statement:
+      keyword: VACUUM
+      table_reference:
+        identifier: EVENTSTABLE
+- statement_terminator: ;
+- statement:
+    vacuum_statement:
+      keyword: VACUUM
+      literal: "'/data/events'"
+- statement_terminator: ;
+- statement:
+    vacuum_statement:
+      keyword: VACUUM
+      file_reference:
+        keyword: DELTA
+        dot: .
+        identifier: '`/data/events/`'
+- statement_terminator: ;
+- statement:
+    vacuum_statement:
+      keyword: VACUUM
+      file_reference:
+        keyword: DELTA
+        dot: .
+        identifier: '`/data/events/`'
+      retain_keyword: RETAIN
+      literal: '100'
+      date_part: HOURS
+- statement_terminator: ;
+- statement:
+    vacuum_statement:
+      keyword: VACUUM
+      table_reference:
+        identifier: EVENTSTABLE
+      dry_keyword: DRY
+      run_keyword: RUN
+- statement_terminator: ;

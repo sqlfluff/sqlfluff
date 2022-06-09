@@ -327,6 +327,24 @@ sparksql_dialect.add(
         ),
         allow_gaps=False,
     ),
+    RetainKeywordSegment=StringParser(
+        "RETAIN",
+        KeywordSegment,
+        name="retain",
+        type="retain_keyword",
+    ),
+    DryKeywordSegment=StringParser(
+        "DRY",
+        KeywordSegment,
+        name="dry",
+        type="dry_keyword",
+    ),
+    RunKeywordSegment=StringParser(
+        "RUN",
+        KeywordSegment,
+        name="run",
+        type="run_keyword",
+    ),
     # Add relevant Hive Grammar
     CommentGrammar=hive_dialect.get_grammar("CommentGrammar"),
     LocationGrammar=hive_dialect.get_grammar("LocationGrammar"),
@@ -2229,6 +2247,8 @@ class StatementSegment(ansi.StatementSegment):
             # Data Retrieval Statements
             Ref("ClusterByClauseSegment"),
             Ref("DistributeByClauseSegment"),
+            # Delta Lake
+            Ref("VacuumStatementSegment"),
         ],
         remove=[
             Ref("TransactionStatementSegment"),
@@ -2616,9 +2636,12 @@ class VacuumStatementSegment(BaseSegment):
     https://docs.delta.io/latest/delta-utility.html#remove-files-no-longer-referenced-by-a-delta-table
     """
 
+    type = "vacuum_statement"
+
     match_grammar: Matchable = Sequence(
         "VACUUM",
         OneOf(
+            Ref("QuotedLiteralSegment"),
             Ref("FileReferenceSegment"),
             Ref("TableReferenceSegment"),
         ),
@@ -2626,7 +2649,7 @@ class VacuumStatementSegment(BaseSegment):
             Sequence(
                 "RETAIN",
                 Ref("NumericLiteralSegment"),
-                "HOURS",
+                Ref("DatetimeUnitSegment"),
             ),
             Sequence(
                 "DRY",
