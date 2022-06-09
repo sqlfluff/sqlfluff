@@ -12,6 +12,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - name: Abort if branch already exists
+        run: |
+            _check_branch=$(git ls-remote --heads origin prep-${{ github.event.inputs.newVersionNumber }})
+            if [[ -z ${_check_branch} ]]; then
+                echo "Release branch doesn't exist yet, continuing"
+            else
+                echo "Release branch already exists, aborting. Run the Python release script locally."
+                exit 1
+            fi
+
       - name: Set up Python
         uses: actions/setup-python@v3
         with:
