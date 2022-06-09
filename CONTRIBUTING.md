@@ -236,7 +236,18 @@ whenever a new release is published to GitHub.
 
 #### Release checklist:
 
-The [release page](https://github.com/sqlfluff/sqlfluff/releases) shows maintainers all merges since last release. Once we have a long enough list, we should prepare a release. We should follow the below checklist, part of which is automated by the ["Create release pull request" GitHub Action](https://github.com/sqlfluff/sqlfluff/.github/workflows/create-release-pull-request.yaml) (which can be run multiple times as more PRs are merged into the release):
+The [release page](https://github.com/sqlfluff/sqlfluff/releases) shows maintainers all merges since last release. Once we have a long enough list, we should prepare a release.
+
+A release PR can be created via the ["Create release pull request" GitHub Action](https://github.com/sqlfluff/sqlfluff/.github/workflows/create-release-pull-request.yaml). As further PRs are merged, we may need to rerun the release script again. Check out the release branch created by the GitHub Action and run the script. It will preserve any `Highlights` you have added and update the other sections with new contributions. It can be run as follows (you will need a [GitHub Personal Access Token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token) with "repo" permission):
+
+```shell
+source .venv/bin/activate
+export GITHUB_REPOSITORY_OWNER=sqlfluff
+export GITHUB_TOKEN=gho_xxxxxxxx # Change to your token with "repo" permissions.
+python util.py prepare-release --new_version_num=0.13.4 # Change to your release number
+```
+
+Below is the old list of release steps, but many are automated by the process described above.
 
 - [ ] Change the version in `setup.cfg` and `plugins/sqlfluff-templater-dbt/setup.cfg`
 - [ ] Update the stable_version in the `[sqlfluff_docs]` section of `setup.cfg`
