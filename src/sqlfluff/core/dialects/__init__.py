@@ -36,7 +36,7 @@ _dialect_lookup = {
     "teradata": ("dialect_teradata", "teradata_dialect"),
     "tsql": ("dialect_tsql", "tsql_dialect"),
     "sparksql": ("dialect_sparksql", "sparksql_dialect"),
-    "databricks": ("dialect_databricks", "databricks_dialect"),
+    "databricks": ("dialect_sparksql", "sparksql_dialect"),
 }
 
 _legacy_dialects = {
