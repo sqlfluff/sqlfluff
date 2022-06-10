@@ -23,7 +23,6 @@ Although SQL is reasonably consistent in its implementations, there are several 
 - [BigQuery](https://cloud.google.com/bigquery/)
 - [Databricks](https://databricks.com/)
 - [Db2](https://www.ibm.com/analytics/db2)
-- [Delta Lake](https://delta.io/)
 - [Exasol](https://www.exasol.com/)
 - [Hive](https://hive.apache.org/)
 - [MySQL](https://www.mysql.com/)
