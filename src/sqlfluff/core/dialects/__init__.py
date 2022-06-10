@@ -37,6 +37,7 @@ _dialect_lookup = {
     "tsql": ("dialect_tsql", "tsql_dialect"),
     "sparksql": ("dialect_sparksql", "sparksql_dialect"),
     "databricks": ("dialect_sparksql", "sparksql_dialect"),
+    "deltalake": ("dialect_sparksql", "sparksql_dialect"),
 }
 
 _legacy_dialects = {

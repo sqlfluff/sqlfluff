@@ -79,6 +79,15 @@ The dialect for `Db2`_.
 
 .. _`Db2`: https://www.ibm.com/analytics/db2
 
+.. _deltalake_dialect_ref:
+
+Delta Lake
+----------
+
+The dialect `Delta Lake`_ is an alias for the :ref:`sparksql_dialect_ref`.
+
+.. _`Delta Lake`: https://delta.io/
+
 .. _exasol_dialect_ref:
 
 Exasol
