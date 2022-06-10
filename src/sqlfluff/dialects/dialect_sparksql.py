@@ -2229,6 +2229,8 @@ class StatementSegment(ansi.StatementSegment):
             # Data Retrieval Statements
             Ref("ClusterByClauseSegment"),
             Ref("DistributeByClauseSegment"),
+            # Delta Lake
+            Ref("VacuumStatementSegment"),
         ],
         remove=[
             Ref("TransactionStatementSegment"),
@@ -2606,5 +2608,35 @@ class IntervalExpressionSegment(ansi.IntervalExpressionSegment):
                 Ref("IntervalLiteralSegment"),
             ),
             Ref("QuotedLiteralSegment"),
+        ),
+    )
+
+
+class VacuumStatementSegment(BaseSegment):
+    """A `VACUUM` statement segment.
+
+    https://docs.delta.io/latest/delta-utility.html#remove-files-no-longer-referenced-by-a-delta-table
+    """
+
+    type = "vacuum_statement"
+
+    match_grammar: Matchable = Sequence(
+        "VACUUM",
+        OneOf(
+            Ref("QuotedLiteralSegment"),
+            Ref("FileReferenceSegment"),
+            Ref("TableReferenceSegment"),
+        ),
+        OneOf(
+            Sequence(
+                "RETAIN",
+                Ref("NumericLiteralSegment"),
+                Ref("DatetimeUnitSegment"),
+            ),
+            Sequence(
+                "DRY",
+                "RUN",
+            ),
+            optional=True,
         ),
     )
