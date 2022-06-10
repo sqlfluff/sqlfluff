@@ -18,7 +18,7 @@ def dialect_shell_complete(ctx, param, incomplete):
     We use this over click.Choice as we want to internally
     handle error messages and codes for incorrect/outdated dialects.
     """
-    dialect_names = [e.name for e in list_dialects()]
+    dialect_names = [e.label for e in list_dialects()]
     return [
         completion.CompletionItem(name)
         for name in dialect_names
