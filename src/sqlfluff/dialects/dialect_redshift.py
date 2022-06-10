@@ -2200,22 +2200,15 @@ class LockTableStatementSegment(BaseSegment):
     )
 
 
-class TableExpressionSegment(BaseSegment):
+class TableExpressionSegment(ansi.TableExpressionSegment):
     """The main table expression e.g. within a FROM clause.
 
     Override to add Object unpivoting.
     """
 
-    type = "table_expression"
-    match_grammar: Matchable = OneOf(
-        Ref("ValuesClauseSegment"),
-        Ref("BareFunctionSegment"),
-        Ref("FunctionSegment"),
-        Ref("ObjectUnpivotSegment"),
-        Ref("TableReferenceSegment"),
-        # Nested Selects
-        Bracketed(Ref("SelectableGrammar")),
-        Bracketed(Ref("MergeStatementSegment")),
+    match_grammar = ansi.TableExpressionSegment.match_grammar.copy(
+        insert=[Ref("ObjectUnpivotSegment", optional=True)],
+        before=Ref("TableReferenceSegment", optional=True),
     )
 
 
