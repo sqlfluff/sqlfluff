@@ -238,7 +238,11 @@ whenever a new release is published to GitHub.
 
 The [release page](https://github.com/sqlfluff/sqlfluff/releases) shows maintainers all merges since last release. Once we have a long enough list, we should prepare a release.
 
-A release PR can be created via the ["Create release pull request" GitHub Action](https://github.com/sqlfluff/sqlfluff/.github/workflows/create-release-pull-request.yaml). As further PRs are merged, we may need to rerun the release script again. Check out the release branch created by the GitHub Action and run the script. It will preserve any `Highlights` you have added and update the other sections with new contributions. It can be run as follows (you will need a [GitHub Personal Access Token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token) with "repo" permission):
+A release PR can be created by maintainers via the ["Create release pull request" GitHub Action](https://github.com/sqlfluff/sqlfluff/.github/workflows/create-release-pull-request.yaml).
+
+As further PRs are merged, we may need to rerun the release script again (or alternatively just manually updating the branch). This can only be rerun locally (the GitHub Action will exit error if the branch already exists to prevent overwriting it).
+
+Check out the release branch created by the GitHub Action locally and run the script. It will preserve any `Highlights` you have added and update the other sections with new contributions. It can be run as follows (you will need a [GitHub Personal Access Token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token) with "repo" permission):
 
 ```shell
 source .venv/bin/activate
