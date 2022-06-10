@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6d785c4bb5f484e913ace5ae9c1981a2f228c7986783ae66aa49296427c9c652
+_hash: 12f5257c03665633271c56b374bdad11908afe3ae7d28ede72ceba0d3f9a8771
 file:
 - statement:
     drop_index_statement:
@@ -13,7 +13,7 @@ file:
         identifier: '`test`'
     - keyword: 'ON'
     - table_reference:
-        identifier: '`table`'
+        identifier: '`table1`'
     - keyword: LOCK
     - comparison_operator:
         raw_comparison_operator: '='
@@ -27,7 +27,7 @@ file:
         identifier: '`test`'
     - keyword: 'ON'
     - table_reference:
-        identifier: '`table`'
+        identifier: '`table1`'
     - keyword: LOCK
     - comparison_operator:
         raw_comparison_operator: '='
@@ -41,7 +41,7 @@ file:
         identifier: '`test`'
     - keyword: 'ON'
     - table_reference:
-        identifier: '`table`'
+        identifier: '`table1`'
     - keyword: LOCK
     - comparison_operator:
         raw_comparison_operator: '='
@@ -55,7 +55,7 @@ file:
         identifier: '`test`'
     - keyword: 'ON'
     - table_reference:
-        identifier: '`table`'
+        identifier: '`table1`'
     - keyword: LOCK
     - comparison_operator:
         raw_comparison_operator: '='
@@ -69,7 +69,7 @@ file:
         identifier: '`test`'
     - keyword: 'ON'
     - table_reference:
-        identifier: '`table`'
+        identifier: '`table1`'
     - keyword: LOCK
     - keyword: DEFAULT
 - statement_terminator: ;
@@ -81,7 +81,7 @@ file:
         identifier: '`test`'
     - keyword: 'ON'
     - table_reference:
-        identifier: '`table`'
+        identifier: '`table1`'
     - keyword: LOCK
     - keyword: NONE
 - statement_terminator: ;
@@ -93,7 +93,7 @@ file:
         identifier: '`test`'
     - keyword: 'ON'
     - table_reference:
-        identifier: '`table`'
+        identifier: '`table1`'
     - keyword: LOCK
     - keyword: SHARED
 - statement_terminator: ;
@@ -105,7 +105,7 @@ file:
         identifier: '`test`'
     - keyword: 'ON'
     - table_reference:
-        identifier: '`table`'
+        identifier: '`table1`'
     - keyword: LOCK
     - keyword: EXCLUSIVE
 - statement_terminator: ;

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8ade8d079d6d80d5ee80bb36e1aefbefcda81ff79a073931242afef279ba1b9e
+_hash: edf05f3b9eac9f0d15f1e2abbb85fefa54f69888cdda736e1b4adf6f86a5b6bc
 file:
 - statement:
     drop_index_statement:
@@ -13,7 +13,7 @@ file:
         identifier: '`test`'
     - keyword: 'ON'
     - table_reference:
-      - identifier: '`table`'
+      - identifier: '`table1`'
       - dot: .
       - identifier: '`foo`'
     - keyword: ALGORITHM
@@ -29,7 +29,7 @@ file:
         identifier: '`test`'
     - keyword: 'ON'
     - table_reference:
-      - identifier: '`table`'
+      - identifier: '`table1`'
       - dot: .
       - identifier: '`foo`'
     - keyword: ALGORITHM
@@ -45,7 +45,7 @@ file:
         identifier: '`test`'
     - keyword: 'ON'
     - table_reference:
-      - identifier: '`table`'
+      - identifier: '`table1`'
       - dot: .
       - identifier: '`foo`'
     - keyword: ALGORITHM
@@ -61,7 +61,7 @@ file:
         identifier: '`test`'
     - keyword: 'ON'
     - table_reference:
-      - identifier: '`table`'
+      - identifier: '`table1`'
       - dot: .
       - identifier: '`foo`'
     - keyword: ALGORITHM
@@ -75,7 +75,7 @@ file:
         identifier: '`test`'
     - keyword: 'ON'
     - table_reference:
-      - identifier: '`table`'
+      - identifier: '`table1`'
       - dot: .
       - identifier: '`foo`'
     - keyword: ALGORITHM
@@ -89,7 +89,7 @@ file:
         identifier: '`test`'
     - keyword: 'ON'
     - table_reference:
-      - identifier: '`table`'
+      - identifier: '`table1`'
       - dot: .
       - identifier: '`foo`'
     - keyword: ALGORITHM

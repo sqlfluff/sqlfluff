@@ -3,15 +3,69 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: cd75ed2c08475dec11a6995c52221ce6beb33fd0c9c4d9f2ddb24c2c3861ed73
+_hash: 082a96fc948a0732e51dea89daf65100cf3d033e5b684c7337a690fe365a626c
 file:
-  statement:
+- statement:
     set_statement:
-    - keyword: set
-    - variable: '@abc'
-    - comparison_operator:
+      keyword: set
+      variable: '@abc'
+      comparison_operator:
         raw_comparison_operator: '='
-    - variable: '1'
-    - binary_operator: +
-    - variable: '2'
-  statement_terminator: ;
+      expression:
+      - literal: '1'
+      - binary_operator: +
+      - literal: '2'
+- statement_terminator: ;
+- statement:
+    set_statement:
+      keyword: set
+      variable: '@abc'
+      comparison_operator:
+        raw_comparison_operator: '='
+      expression:
+        bracketed:
+          start_bracket: (
+          expression:
+            select_statement:
+              select_clause:
+                keyword: select
+                select_clause_element:
+                  literal: '1'
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    set_statement:
+      keyword: SET
+      variable: '@id'
+      comparison_operator:
+        raw_comparison_operator: '='
+      expression:
+        bracketed:
+          start_bracket: (
+          expression:
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  column_reference:
+                    identifier: id
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        identifier: table1
+              where_clause:
+                keyword: WHERE
+                expression:
+                  column_reference:
+                    identifier: field
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  literal: 'TRUE'
+              limit_clause:
+                keyword: LIMIT
+                literal: '1'
+          end_bracket: )
+- statement_terminator: ;

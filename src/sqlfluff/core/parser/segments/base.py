@@ -824,7 +824,7 @@ class BaseSegment:
         return [item for s in self.segments for item in s.raw_segments]
 
     def iter_segments(self, expanding=None, pass_through=False):
-        """Iterate raw segments, optionally expanding some chldren."""
+        """Iterate raw segments, optionally expanding some children."""
         for s in self.segments:
             if expanding and s.is_type(*expanding):
                 yield from s.iter_segments(
@@ -1199,7 +1199,12 @@ class BaseSegment:
 
             before = []
             after = []
-            if not r.can_start_end_non_code:
+            # If there's a parse grammar and this segment is not allowed to
+            # start or end with non-code, check for (and fix) misplaced
+            # segments. The reason for the parse grammar check is autofix if and
+            # only if parse() would've complained, and it has the same parse
+            # grammar check prior to checking can_start_end_non_code.
+            if r.parse_grammar and not r.can_start_end_non_code:
                 idx_non_code = self._find_start_or_end_non_code(seg_buffer)
                 # Are there misplaced segments from a fix?
                 if idx_non_code is not None:

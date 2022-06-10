@@ -358,7 +358,7 @@ def get_linter_and_formatter(
 @click.group(context_settings={"help_option_names": ["-h", "--help"]})
 @click.version_option()
 def cli():
-    """Sqlfluff is a modular sql linter for humans."""
+    """SQLFluff is a modular SQL linter for humans."""  # noqa D403
 
 
 @cli.command()
@@ -1079,8 +1079,10 @@ def _print_out_violations_and_timing(
             output_stream.write("==== parsing violations ====")  # pragma: no cover
         for v in parsed_string.violations:
             output_stream.write(format_violation(v))  # pragma: no cover
-        if parsed_string.violations and parsed_string.config.get("dialect") == "ansi":
-            output_stream.write(format_dialect_warning())  # pragma: no cover
+        if parsed_string.violations:
+            output_stream.write(
+                format_dialect_warning(parsed_string.config.get("dialect"))
+            )
 
         if verbose >= 2:
             output_stream.write("==== timings ====")

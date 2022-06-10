@@ -4,6 +4,7 @@ For now the only change is the parsing of comments.
 https://dev.mysql.com/doc/refman/8.0/en/differences-from-ansi.html
 """
 
+from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
     AnySetOf,
@@ -26,7 +27,10 @@ from sqlfluff.core.parser import (
     StringParser,
     SymbolSegment,
 )
-from sqlfluff.core.dialects import load_raw_dialect
+from sqlfluff.dialects.dialect_mysql_keywords import (
+    mysql_reserved_keywords,
+    mysql_unreserved_keywords,
+)
 from sqlfluff.dialects import dialect_ansi as ansi
 
 ansi_dialect = load_raw_dialect("ansi")
@@ -40,124 +44,45 @@ mysql_dialect.patch_lexer_matchers(
             CommentSegment,
             segment_kwargs={"trim_start": ("-- ", "#")},
         ),
+        # Pattern breakdown:
+        # (?s)                     DOTALL (dot matches newline)
+        #     ('')+?               group1 match consecutive single quotes
+        #     (?!')                negative lookahead single quote
+        #     |(                   group2 start
+        #         '.*?             single quote wildcard zero or more, lazy
+        #         (?<!'|\\)        negative lookbehind: no single quote or backslash
+        #         (?:'')*          non-capturing group: consecutive single quotes
+        #         '                single quote
+        #         (?!')            negative lookahead: not single quote
+        #     )                    group2 end
         RegexLexer(
-            "single_quote", r"(?s)('')+?(?!')|('.*?(?<!')(?:'')*'(?!'))", CodeSegment
+            "single_quote", r"(?s)('')+?(?!')|('.*?(?<!'|\\)(?:'')*'(?!'))", CodeSegment
         ),
     ]
 )
 
-# Reserve USE, FORCE & IGNORE
-mysql_dialect.sets("unreserved_keywords").difference_update(
-    [
-        "BTREE",
-        "FORCE",
-        "HASH",
-        "IGNORE",
-        "INVISIBLE",
-        "KEY_BLOCK_SIZE",
-        "PARSER",
-        "USE",
-        "SQL_BUFFER_RESULT",
-        "SQL_NO_CACHE",
-        "SQL_CACHE",
-        "DUMPFILE",
-        "SKIP",
-        "LOCKED",
-        "CLASS_ORIGIN",
-        "SUBCLASS_ORIGIN",
-        "RETURNED_SQLSTATE",
-        "MESSAGE_TEXT",
-        "MYSQL_ERRNO",
-        "CONSTRAINT_CATALOG",
-        "CONSTRAINT_SCHEMA",
-        "CONSTRAINT_NAME",
-        "CATALOG_NAME",
-        "SCHEMA_NAME",
-        "TABLE_NAME",
-        "COLUMN_NAME",
-        "CURSOR_NAME",
-        "STACKED",
-        "VISIBLE",
-    ]
-)
+# Set Keywords
+# Do not clear inherited unreserved ansi keywords. Too many are needed to parse well.
+# Just add MySQL unreserved keywords.
 mysql_dialect.sets("unreserved_keywords").update(
-    [
-        "QUICK",
-        "FAST",
-        "SLOW",
-        "MEDIUM",
-        "EXTENDED",
-        "CHANGED",
-        "UPGRADE",
-        "HISTOGRAM",
-        "BUCKETS",
-        "USE_FRM",
-        "REPAIR",
-        "DUPLICATE",
-        "NOW",
-        "ENGINE",
-        "ERROR",
-        "OPTIMIZER_COSTS",
-        "RELAY",
-        "STATUS",
-        "USER_RESOURCES",
-        "CHANNEL",
-        "EXPORT",
-        "RANDOM",
-        "FAILED_LOGIN_ATTEMPTS",
-        "PASSWORD_LOCK_TIME",
-        "EXPIRE",
-        "NEVER",
-        "HISTORY",
-        "REUSE",
-        "CIPHER",
-        "ISSUER",
-        "SUBJECT",
-        "MAX_QUERIES_PER_HOUR",
-        "MAX_UPDATES_PER_HOUR",
-        "MAX_CONNECTIONS_PER_HOUR",
-        "MAX_USER_CONNECTIONS",
-        "AUTHENTICATION",
-        "OPTIONAL",
-    ]
+    [n.strip().upper() for n in mysql_unreserved_keywords.split("\n")]
 )
+
+mysql_dialect.sets("reserved_keywords").clear()
 mysql_dialect.sets("reserved_keywords").update(
-    [
-        "HELP",
-        "FORCE",
-        "IGNORE",
-        "USE",
-        "SQL_BUFFER_RESULT",
-        "SQL_NO_CACHE",
-        "SQL_CACHE",
-        "DUMPFILE",
-        "SKIP",
-        "LOCKED",
-        "CLASS_ORIGIN",
-        "SUBCLASS_ORIGIN",
-        "RETURNED_SQLSTATE",
-        "MESSAGE_TEXT",
-        "MYSQL_ERRNO",
-        "CONSTRAINT_CATALOG",
-        "CONSTRAINT_SCHEMA",
-        "CONSTRAINT_NAME",
-        "CATALOG_NAME",
-        "SCHEMA_NAME",
-        "TABLE_NAME",
-        "COLUMN_NAME",
-        "CURSOR_NAME",
-        "STACKED",
-        "ALGORITHM",
-        "LOCK",
-        "DEFAULT",
-        "INPLACE",
-        "COPY",
-        "NONE",
-        "SHARED",
-        "EXCLUSIVE",
-        "MASTER",
-    ]
+    [n.strip().upper() for n in mysql_reserved_keywords.split("\n")]
 )
+
+# Remove these reserved keywords to avoid issue in interval.sql
+# TODO - resolve this properly
+mysql_dialect.sets("reserved_keywords").difference_update(
+    ["MINUTE_SECOND", "SECOND_MICROSECOND"]
+)
+
+# Remove this reserved keyword to avoid issue in create_table_primary_foreign_keys.sql
+# TODO - resolve this properly
+mysql_dialect.sets("reserved_keywords").difference_update(["INDEX"])
+
 
 mysql_dialect.replace(
     QuotedIdentifierSegment=NamedParser(
@@ -1170,6 +1095,7 @@ class SetAssignmentStatementSegment(BaseSegment):
                     Ref("LocalVariableNameSegment"),
                     Ref("FunctionSegment"),
                     Ref("ArithmeticBinaryOperatorGrammar"),
+                    Ref("ExpressionSegment"),
                 ),
             ),
         ),
@@ -1239,6 +1165,7 @@ class IfExpressionStatement(BaseSegment):
             Ref("StatementSegment"),
         ),
         Sequence("ELSE", Ref("StatementSegment"), optional=True),
+        Sequence("END", "IF"),
     )
 
 
