@@ -2198,3 +2198,39 @@ class LockTableStatementSegment(BaseSegment):
             Ref("TableReferenceSegment"),
         ),
     )
+
+
+class TableExpressionSegment(BaseSegment):
+    """The main table expression e.g. within a FROM clause.
+
+    Override to add Object unpivoting.
+    """
+
+    type = "table_expression"
+    match_grammar: Matchable = OneOf(
+        Ref("ValuesClauseSegment"),
+        Ref("BareFunctionSegment"),
+        Ref("FunctionSegment"),
+        Ref("ObjectUnpivotSegment"),
+        Ref("TableReferenceSegment"),
+        # Nested Selects
+        Bracketed(Ref("SelectableGrammar")),
+        Bracketed(Ref("MergeStatementSegment")),
+    )
+
+
+class ObjectUnpivotSegment(BaseSegment):
+    """Object unpivoting.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/query-super.html#unpivoting
+    """
+
+    type = "object_unpivoting"
+    match_grammar: Matchable = Sequence(
+        "UNPIVOT",
+        Ref("ObjectReferenceSegment"),
+        "AS",
+        Ref("SingleIdentifierGrammar"),
+        "AT",
+        Ref("SingleIdentifierGrammar"),
+    )
