@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f3a9262a39e4333eabb133952e5cde553f4f9849b402e74c20009bc81642036d
+_hash: d8383c9d4b1c369f29d57ac150cb0024ca6b5b9acdb7d16a549b5a213dc0c957
 file:
 - statement:
     alter_table_statement:
@@ -673,6 +673,17 @@ file:
     alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
+    - table_reference:
+        identifier: distributors
+    - alter_table_action_segment:
+      - keyword: DROP
+      - keyword: CONSTRAINT
+      - parameter: '"zipchk"'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
     - keyword: ONLY
     - table_reference:
         identifier: distributors
@@ -1205,7 +1216,7 @@ file:
     - alter_table_action_segment:
       - keyword: OWNER
       - keyword: TO
-      - identifier: '"ID"'
+      - parameter: '"ID"'
 - statement_terminator: ;
 - statement:
     alter_table_statement:

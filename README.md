@@ -21,6 +21,7 @@ Although SQL is reasonably consistent in its implementations, there are several 
 
 - ANSI SQL - this is the base version and on occasion may not strictly follow the ANSI/ISO SQL definition
 - [BigQuery](https://cloud.google.com/bigquery/)
+- [Databricks](https://databricks.com/) (note: currently this is just an alias for the `sparksql` dialect).
 - [Db2](https://www.ibm.com/analytics/db2)
 - [Exasol](https://www.exasol.com/)
 - [Hive](https://hive.apache.org/)
