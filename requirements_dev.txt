@@ -26,4 +26,5 @@ types-Jinja2
 types-regex
 # Requests is required for the util script
 requests
+ghapi
 yamllint
