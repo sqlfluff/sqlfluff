@@ -3486,7 +3486,24 @@ class TableExpressionSegment(ansi.TableExpressionSegment):
         # Nested Selects
         Bracketed(Ref("SelectableGrammar")),
         Ref("ValuesClauseSegment"),
-        Ref("StagePath"),
+        Sequence(
+            Ref("StagePath"),
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        "FILE_FORMAT",
+                        Ref("ParameterAssignerSegment"),
+                        Ref("FileFormatSegment"),
+                    ),
+                    Sequence(
+                        "PATTERN",
+                        Ref("ParameterAssignerSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                ),
+                optional=True,
+            ),
+        ),
     )
 
 
