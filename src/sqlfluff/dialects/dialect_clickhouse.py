@@ -22,6 +22,7 @@ clickhouse_dialect = ansi_dialect.copy_as("clickhouse")
 class CTEDefinitionSegment(ansi.CTEDefinitionSegment):
     """A CTE Definition from a WITH statement.
 
+    Overriden from ANSI to allow expression CTEs.
     https://clickhouse.com/docs/en/sql-reference/statements/select/with/
     """
 
