@@ -66,9 +66,9 @@ The dialect for `Google BigQuery`_.
 ClickHouse
 ----------
 
-The dialect for `CickHouse`_.
+The dialect for `ClickHouse`_.
 
-.. _`CickHouse`: https://clickhouse.com/
+.. _`ClickHouse`: https://clickhouse.com/
 
 .. _databricks_dialect_ref:
 
