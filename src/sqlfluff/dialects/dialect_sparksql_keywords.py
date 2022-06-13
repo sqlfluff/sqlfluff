@@ -282,6 +282,7 @@ UNRESERVED_KEYWORDS = [
     "XML",  # https://github.com/databricks/spark-xml
     # Delta Lake
     "DRY",
+    "HISTORY",
     "RETAIN",
     "RUN",
 ]
