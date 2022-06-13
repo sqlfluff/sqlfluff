@@ -1943,6 +1943,7 @@ class DescribeStatementSegment(BaseSegment):
                     Ref("StatementSegment"),
                 ),
             ),
+            exclude=Ref.keyword("HISTORY"),
         ),
     )
 
@@ -2231,6 +2232,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DistributeByClauseSegment"),
             # Delta Lake
             Ref("VacuumStatementSegment"),
+            Ref("DescribeHistoryStatementSegment"),
         ],
         remove=[
             Ref("TransactionStatementSegment"),
@@ -2639,4 +2641,24 @@ class VacuumStatementSegment(BaseSegment):
             ),
             optional=True,
         ),
+    )
+
+
+class DescribeHistoryStatementSegment(BaseSegment):
+    """A `DESCRIBE HISTORY` statement segment.
+
+    https://docs.delta.io/latest/delta-utility.html#retrieve-delta-table-history
+    """
+
+    type = "describe_history_statement"
+
+    match_grammar: Matchable = Sequence(
+        "DESCRIBE",
+        "HISTORY",
+        OneOf(
+            Ref("QuotedLiteralSegment"),
+            Ref("FileReferenceSegment"),
+            Ref("TableReferenceSegment"),
+        ),
+        Ref("LimitClauseSegment", optional=True),
     )
