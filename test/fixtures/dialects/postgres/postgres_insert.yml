@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 35976c6f45c6ee2a737cdfbfa6abed174e60583b3ac944771f04d773c5ed64bc
+_hash: 3844ba7a79bb56ca8928f9801fdae250c223753c4207f4f03935e208fab02984
 file:
 - statement:
     insert_statement:
@@ -679,4 +679,85 @@ file:
                     raw_comparison_operator: '='
                   literal: '1'
           end_bracket: )
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        identifier: megatable
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          identifier: megacolumn
+        end_bracket: )
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              bracketed:
+                start_bracket: (
+                table_expression:
+                  values_clause:
+                    keyword: VALUES
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        literal: "'megavalue'"
+                      end_bracket: )
+                end_bracket: )
+              alias_expression:
+                keyword: AS
+                identifier: tmp
+                bracketed:
+                  start_bracket: (
+                  identifier_list:
+                    identifier: megacolumn
+                  end_bracket: )
+        where_clause:
+          keyword: WHERE
+          expression:
+          - keyword: NOT
+          - keyword: EXISTS
+          - bracketed:
+              start_bracket: (
+              select_statement:
+                select_clause:
+                  keyword: SELECT
+                from_clause:
+                  keyword: FROM
+                  from_expression:
+                    from_expression_element:
+                      table_expression:
+                        table_reference:
+                          identifier: megatable
+                      alias_expression:
+                        keyword: AS
+                        identifier: mt
+                where_clause:
+                  keyword: WHERE
+                  expression:
+                  - column_reference:
+                    - identifier: mt
+                    - dot: .
+                    - identifier: megacolumn
+                  - comparison_operator:
+                      raw_comparison_operator: '='
+                  - column_reference:
+                    - identifier: tmp
+                    - dot: .
+                    - identifier: megacolumn
+              end_bracket: )
+    - keyword: 'ON'
+    - keyword: CONFLICT
+    - conflict_action:
+      - keyword: DO
+      - keyword: NOTHING
 - statement_terminator: ;

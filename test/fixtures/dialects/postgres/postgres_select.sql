@@ -59,3 +59,5 @@ SELECT a < b COLLATE "de_DE" FROM test1;
 SELECT a COLLATE "de_DE" < b FROM test1;
 
 SELECT * FROM test1 ORDER BY a || b COLLATE "fr_FR";
+
+SELECT FROM test1;
