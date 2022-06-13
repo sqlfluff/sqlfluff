@@ -4300,13 +4300,12 @@ class ColumnReferenceSegment(ObjectReferenceSegment):
         refs = list(self.iter_raw_references())
         if level == self.ObjectReferenceLevel.SCHEMA.value and len(refs) >= 3:
             return [refs[0]]  # pragma: no cover
-        if level == self.ObjectReferenceLevel.TABLE.value:
-            # One part: Could be a table, e.g. TO_JSON_STRING(t)
-            # Two parts: Could be dataset.table or table.column.
-            # Three parts: Could be table.column.struct or dataset.table.column.
-            # Four parts: dataset.table.column.struct
-            # Five parts: project.dataset.table.column.struct
+        if level == self.ObjectReferenceLevel.TABLE.value and len(refs) >= 2:
+            # Two parts: Could be schame.table or table.column.
+            # Three parts: Could be table.column.struct or schame.table.column.
+            # Four parts: schame.table.column.struct
             # So... return the first 3 parts.
+            print("BARRY:%s:" % refs[:3])
             return refs[:3]
         if (
             level == self.ObjectReferenceLevel.OBJECT.value and len(refs) >= 3
