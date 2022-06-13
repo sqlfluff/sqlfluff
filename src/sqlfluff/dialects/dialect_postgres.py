@@ -4247,7 +4247,7 @@ class ColumnReferenceSegment(ansi.ColumnReferenceSegment):
     """A reference to column, field or alias.
 
     We override this for Postgres to allow keywords in fully qualified
-    column names (using Full segments) and also to allow
+    column names (using Full segments) and also to allow array accessors.
     """
 
     type = "column_reference"
