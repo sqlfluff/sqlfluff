@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f0cb7aa1f2a9e80f989ced468d96f29f7b9572326bf8bc1a8da185711a7ba224
+_hash: 7aca8f8e1e189a2ec3338e2aa3a203639df79c68ab3cc153babbcd1b7ab13221
 file:
 - statement:
     select_statement:
@@ -134,40 +134,40 @@ file:
         expression:
         - column_reference:
             identifier: pay_by_quarter
-            array_accessor:
-              start_square_bracket: '['
-              literal: '1'
-              end_square_bracket: ']'
+        - array_accessor:
+            start_square_bracket: '['
+            literal: '1'
+            end_square_bracket: ']'
         - comparison_operator:
             raw_comparison_operator: '='
         - literal: '10000'
         - binary_operator: OR
         - column_reference:
             identifier: pay_by_quarter
-            array_accessor:
-              start_square_bracket: '['
-              literal: '2'
-              end_square_bracket: ']'
+        - array_accessor:
+            start_square_bracket: '['
+            literal: '2'
+            end_square_bracket: ']'
         - comparison_operator:
             raw_comparison_operator: '='
         - literal: '10000'
         - binary_operator: OR
         - column_reference:
             identifier: pay_by_quarter
-            array_accessor:
-              start_square_bracket: '['
-              literal: '3'
-              end_square_bracket: ']'
+        - array_accessor:
+            start_square_bracket: '['
+            literal: '3'
+            end_square_bracket: ']'
         - comparison_operator:
             raw_comparison_operator: '='
         - literal: '10000'
         - binary_operator: OR
         - column_reference:
             identifier: pay_by_quarter
-            array_accessor:
-              start_square_bracket: '['
-              literal: '4'
-              end_square_bracket: ']'
+        - array_accessor:
+            start_square_bracket: '['
+            literal: '4'
+            end_square_bracket: ']'
         - comparison_operator:
             raw_comparison_operator: '='
         - literal: '10000'
@@ -303,27 +303,28 @@ file:
         expression:
         - column_reference:
             identifier: pay_by_quarter
-            array_accessor:
-              start_square_bracket: '['
-              literal: '1'
-              end_square_bracket: ']'
+        - array_accessor:
+            start_square_bracket: '['
+            literal: '1'
+            end_square_bracket: ']'
         - comparison_operator:
           - raw_comparison_operator: <
           - raw_comparison_operator: '>'
         - column_reference:
             identifier: pay_by_quarter
-            array_accessor:
-              start_square_bracket: '['
-              literal: '2'
-              end_square_bracket: ']'
+        - array_accessor:
+            start_square_bracket: '['
+            literal: '2'
+            end_square_bracket: ']'
 - statement_terminator: ;
 - statement:
     select_statement:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          column_reference:
-            identifier: schedule
+          expression:
+            column_reference:
+              identifier: schedule
             array_accessor:
             - start_square_bracket: '['
             - literal: '1'
@@ -361,10 +362,10 @@ file:
         set_clause:
           column_reference:
             identifier: pay_by_quarter
-            array_accessor:
-              start_square_bracket: '['
-              literal: '4'
-              end_square_bracket: ']'
+          array_accessor:
+            start_square_bracket: '['
+            literal: '4'
+            end_square_bracket: ']'
           comparison_operator:
             raw_comparison_operator: '='
           literal: '15000'
@@ -387,12 +388,12 @@ file:
         set_clause:
           column_reference:
             identifier: pay_by_quarter
-            array_accessor:
-            - start_square_bracket: '['
-            - literal: '1'
-            - slice: ':'
-            - literal: '2'
-            - end_square_bracket: ']'
+          array_accessor:
+          - start_square_bracket: '['
+          - literal: '1'
+          - slice: ':'
+          - literal: '2'
+          - end_square_bracket: ']'
           comparison_operator:
             raw_comparison_operator: '='
           literal: "'{27000,27000}'"
@@ -555,8 +556,9 @@ file:
       select_clause:
       - keyword: SELECT
       - select_clause_element:
-          column_reference:
-            identifier: f1
+          expression:
+            column_reference:
+              identifier: f1
             array_accessor:
             - start_square_bracket: '['
             - literal: '1'
@@ -574,8 +576,9 @@ file:
             identifier: e1
       - comma: ','
       - select_clause_element:
-          column_reference:
-            identifier: f1
+          expression:
+            column_reference:
+              identifier: f1
             array_accessor:
             - start_square_bracket: '['
             - literal: '1'

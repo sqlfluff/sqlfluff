@@ -4055,6 +4055,7 @@ class SetClauseSegment(BaseSegment):
         OneOf(
             Sequence(
                 Ref("ColumnReferenceSegment"),
+                Ref("ArrayAccessorSegment", optional=True),
                 Ref("EqualsSegment"),
                 OneOf(
                     Ref("LiteralGrammar"),
@@ -4247,7 +4248,7 @@ class ColumnReferenceSegment(ansi.ColumnReferenceSegment):
     """A reference to column, field or alias.
 
     We override this for Postgres to allow keywords in fully qualified
-    column names (using Full segments) and also to allow array accessors.
+    column names (using Full segments).
     """
 
     type = "column_reference"
@@ -4279,6 +4280,5 @@ class ColumnReferenceSegment(ansi.ColumnReferenceSegment):
             allow_gaps=False,
             optional=True,
         ),
-        Ref("ArrayAccessorSegment", optional=True),
         allow_gaps=False,
     )
