@@ -220,6 +220,7 @@ postgres_dialect.add(
         Ref("QuotedIdentifierSegment"),
         Ref("NakedIdentifierFullSegment"),
     ),
+    CascadeRestrictGrammar=OneOf("CASCADE", "RESTRICT"),
 )
 
 postgres_dialect.replace(
@@ -676,7 +677,7 @@ class CreateFunctionStatementSegment(ansi.CreateFunctionStatementSegment):
         Sequence("OR", "REPLACE", optional=True),
         Ref("TemporaryGrammar", optional=True),
         "FUNCTION",
-        Sequence("IF", "NOT", "EXISTS", optional=True),
+        Ref("IfNotExistsGrammar", optional=True),
         Ref("FunctionNameSegment"),
         Ref("FunctionParameterListGrammar"),
         Sequence(  # Optional function return type
@@ -1495,7 +1496,7 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
         "TABLE",
         OneOf(
             Sequence(
-                Sequence("IF", "EXISTS", optional=True),
+                Ref("IfExistsGrammar", optional=True),
                 Ref.keyword("ONLY", optional=True),
                 Ref("TableReferenceSegment"),
                 Ref("StarSegment", optional=True),
@@ -1520,7 +1521,7 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                 ),
             ),
             Sequence(
-                Sequence("IF", "EXISTS", optional=True),
+                Ref("IfExistsGrammar", optional=True),
                 Ref("TableReferenceSegment"),
                 OneOf(
                     Sequence("RENAME", "TO", Ref("TableReferenceSegment")),
@@ -1577,7 +1578,7 @@ class AlterTableActionSegment(BaseSegment):
         Sequence(
             "ADD",
             Ref.keyword("COLUMN", optional=True),
-            Sequence("IF", "NOT", "EXISTS", optional=True),
+            Ref("IfNotExistsGrammar", optional=True),
             Ref("ColumnReferenceSegment"),
             Ref("DatatypeSegment"),
             Sequence("COLLATE", Ref("QuotedLiteralSegment"), optional=True),
@@ -1586,7 +1587,7 @@ class AlterTableActionSegment(BaseSegment):
         Sequence(
             "DROP",
             Ref.keyword("COLUMN", optional=True),
-            Sequence("IF", "EXISTS", optional=True),
+            Ref("IfExistsGrammar", optional=True),
             Ref("ColumnReferenceSegment"),
             Ref("DropBehaviorGrammar", optional=True),
         ),
@@ -1616,7 +1617,7 @@ class AlterTableActionSegment(BaseSegment):
                 ),
                 Sequence("DROP", "DEFAULT"),
                 Sequence(OneOf("SET", "DROP", optional=True), "NOT", "NULL"),
-                Sequence("DROP", "EXPRESSION", Sequence("IF", "EXISTS", optional=True)),
+                Sequence("DROP", "EXPRESSION", Ref("IfExistsGrammar", optional=True)),
                 Sequence(
                     "ADD",
                     "GENERATED",
@@ -1640,7 +1641,11 @@ class AlterTableActionSegment(BaseSegment):
                         ),
                     )
                 ),
-                Sequence("DROP", "IDENTITY", Sequence("IF", "EXISTS", optional=True)),
+                Sequence(
+                    "DROP",
+                    "IDENTITY",
+                    Ref("IfExistsGrammar", optional=True),
+                ),
                 Sequence("SET", "STATISTICS", Ref("NumericLiteralSegment")),
                 Sequence(
                     "SET",
@@ -1689,7 +1694,7 @@ class AlterTableActionSegment(BaseSegment):
         Sequence(
             "DROP",
             "CONSTRAINT",
-            Sequence("IF", "EXISTS", optional=True),
+            Ref("IfExistsGrammar", optional=True),
             Ref("ParameterNameSegment"),
             Ref("DropBehaviorGrammar", optional=True),
         ),
@@ -1799,7 +1804,7 @@ class DropExtensionStatementSegment(BaseSegment):
         "EXTENSION",
         Ref("IfExistsGrammar", optional=True),
         Ref("ExtensionReferenceSegment"),
-        OneOf("CASCADE", "RESTRICT", optional=True),
+        Ref("CascadeRestrictGrammar", optional=True),
     )
 
 
@@ -1862,7 +1867,7 @@ class AlterMaterializedViewStatementSegment(BaseSegment):
         "VIEW",
         OneOf(
             Sequence(
-                Sequence("IF", "EXISTS", optional=True),
+                Ref("IfExistsGrammar", optional=True),
                 Ref("TableReferenceSegment"),
                 OneOf(
                     Delimited(Ref("AlterMaterializedViewActionSegment")),
@@ -2004,7 +2009,7 @@ class DropMaterializedViewStatementSegment(BaseSegment):
         "DROP",
         "MATERIALIZED",
         "VIEW",
-        Sequence("IF", "EXISTS", optional=True),
+        Ref("IfExistsGrammar", optional=True),
         Delimited(Ref("TableReferenceSegment")),
         Ref("DropBehaviorGrammar", optional=True),
     )
@@ -2221,7 +2226,7 @@ class DropDatabaseStatementSegment(ansi.DropDatabaseStatementSegment):
     match_grammar = Sequence(
         "DROP",
         "DATABASE",
-        Sequence("IF", "EXISTS", optional=True),
+        Ref("IfExistsGrammar", optional=True),
         Ref("DatabaseReferenceSegment"),
         Sequence(
             Ref.keyword("WITH", optional=True),
@@ -3296,7 +3301,7 @@ class DropTriggerStatementSegment(ansi.DropTriggerStatementSegment):
     match_grammar = Sequence(
         "DROP",
         "TRIGGER",
-        Sequence("IF", "EXISTS", optional=True),
+        Ref("IfExistsGrammar", optional=True),
         Ref("TriggerReferenceSegment"),
         "ON",
         Ref("TableReferenceSegment"),
@@ -4177,6 +4182,58 @@ class AlterTypeStatementSegment(BaseSegment):
                 "SET",
                 "SCHEMA",
                 Ref("SchemaReferenceSegment"),
+            ),
+            Delimited(
+                Sequence(
+                    "ADD",
+                    "ATTRIBUTE",
+                    Ref("ColumnReferenceSegment"),
+                    Ref("DatatypeSegment"),
+                    Sequence(
+                        "COLLATE",
+                        Ref("QuotedLiteralSegment"),
+                        optional=True,
+                    ),
+                    Ref("CascadeRestrictGrammar", optional=True),
+                ),
+                Sequence(
+                    "ALTER",
+                    "ATTRIBUTE",
+                    Ref("ColumnReferenceSegment"),
+                    Sequence("SET", "DATA", optional=True),
+                    "TYPE",
+                    Ref("DatatypeSegment"),
+                    Sequence(
+                        "COLLATE",
+                        Ref("QuotedLiteralSegment"),
+                        optional=True,
+                    ),
+                    Ref("CascadeRestrictGrammar", optional=True),
+                ),
+                Sequence(
+                    "DROP",
+                    "ATTRIBUTE",
+                    Ref("IfExistsGrammar", optional=True),
+                    Ref("ColumnReferenceSegment"),
+                    Ref("CascadeRestrictGrammar", optional=True),
+                ),
+                Sequence(
+                    "RENAME",
+                    "ATTRIBUTE",
+                    Ref("ColumnReferenceSegment"),
+                    "TO",
+                    Ref("ColumnReferenceSegment"),
+                    Ref("CascadeRestrictGrammar", optional=True),
+                ),
+            ),
+            Sequence(
+                "ADD",
+                "VALUE",
+                Ref("IfNotExistsGrammar", optional=True),
+                Ref("QuotedLiteralSegment"),
+                Sequence(
+                    OneOf("BEFORE", "AFTER"), Ref("QuotedLiteralSegment"), optional=True
+                ),
             ),
         ),
     )
