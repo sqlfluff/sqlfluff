@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1c71b921cd92ba3e5b822c23712127d29ec8fd344ccf79ca8cedda448a9f3246
+_hash: c9a86e0454483ed2bdba4cb7d1cb4f9c1d7a03b66c36135655ff7799720aaefd
 file:
 - statement:
     alter_type_statement:
@@ -47,4 +47,92 @@ file:
     - keyword: SCHEMA
     - schema_reference:
         identifier: new_schema
+- statement_terminator: ;
+- statement:
+    alter_type_statement:
+    - keyword: ALTER
+    - keyword: TYPE
+    - object_reference:
+        identifier: compfoo
+    - keyword: ADD
+    - keyword: ATTRIBUTE
+    - column_reference:
+        identifier: f3
+    - data_type:
+        keyword: int
+    - comma: ','
+    - keyword: DROP
+    - keyword: ATTRIBUTE
+    - keyword: IF
+    - keyword: EXISTS
+    - column_reference:
+        identifier: f4
+    - comma: ','
+    - keyword: ALTER
+    - keyword: ATTRIBUTE
+    - column_reference:
+        identifier: f5
+    - keyword: TYPE
+    - data_type:
+        keyword: int
+- statement_terminator: ;
+- statement:
+    alter_type_statement:
+    - keyword: ALTER
+    - keyword: TYPE
+    - object_reference:
+        identifier: compfoo
+    - keyword: RENAME
+    - keyword: ATTRIBUTE
+    - column_reference:
+        identifier: f6
+    - keyword: TO
+    - column_reference:
+        identifier: f7
+- statement_terminator: ;
+- statement:
+    alter_type_statement:
+    - keyword: ALTER
+    - keyword: TYPE
+    - object_reference:
+        identifier: colors
+    - keyword: ADD
+    - keyword: VALUE
+    - literal: "'orange'"
+    - keyword: AFTER
+    - literal: "'red'"
+- statement_terminator: ;
+- statement:
+    alter_type_statement:
+    - keyword: ALTER
+    - keyword: TYPE
+    - object_reference:
+        identifier: foo
+    - keyword: ADD
+    - keyword: VALUE
+    - literal: "'baz'"
+- statement_terminator: ;
+- statement:
+    alter_type_statement:
+    - keyword: ALTER
+    - keyword: TYPE
+    - object_reference:
+        identifier: foo
+    - keyword: ADD
+    - keyword: VALUE
+    - literal: "'qux'"
+    - keyword: BEFORE
+    - literal: "'baz'"
+- statement_terminator: ;
+- statement:
+    alter_type_statement:
+    - keyword: ALTER
+    - keyword: TYPE
+    - object_reference:
+        identifier: foo
+    - keyword: ADD
+    - keyword: VALUE
+    - literal: "'quux'"
+    - keyword: AFTER
+    - literal: "'baz'"
 - statement_terminator: ;
