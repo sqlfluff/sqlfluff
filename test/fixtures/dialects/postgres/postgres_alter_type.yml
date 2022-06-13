@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1c71b921cd92ba3e5b822c23712127d29ec8fd344ccf79ca8cedda448a9f3246
+_hash: 015c63a3073dd8fbaa1e798f17b7b00db35bb016c798e4c43e821afba5aaefd2
 file:
 - statement:
     alter_type_statement:
@@ -47,4 +47,29 @@ file:
     - keyword: SCHEMA
     - schema_reference:
         identifier: new_schema
+- statement_terminator: ;
+- statement:
+    alter_type_statement:
+    - keyword: ALTER
+    - keyword: TYPE
+    - object_reference:
+        identifier: compfoo
+    - keyword: ADD
+    - keyword: ATTRIBUTE
+    - column_reference:
+        identifier: f3
+    - data_type:
+        keyword: int
+- statement_terminator: ;
+- statement:
+    alter_type_statement:
+    - keyword: ALTER
+    - keyword: TYPE
+    - object_reference:
+        identifier: colors
+    - keyword: ADD
+    - keyword: VALUE
+    - literal: "'orange'"
+    - keyword: AFTER
+    - literal: "'red'"
 - statement_terminator: ;

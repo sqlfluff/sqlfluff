@@ -4171,6 +4171,20 @@ class AlterTypeStatementSegment(BaseSegment):
                 "SCHEMA",
                 Ref("SchemaReferenceSegment"),
             ),
+            Sequence(
+                "ADD",
+                "ATTRIBUTE",
+                Ref("ColumnReferenceSegment"),
+                Ref("DatatypeSegment"),
+            ),
+            Sequence(
+                "ADD",
+                "VALUE",
+                Ref("QuotedLiteralSegment"),
+                Sequence(
+                    OneOf("BEFORE", "AFTER"), Ref("QuotedLiteralSegment"), optional=True
+                ),
+            ),
         ),
     )
 
