@@ -165,8 +165,7 @@ the current consensus, which is to *not* indent the :code:`JOIN` keyword,
 however this is one element which is configurable.
 
 By setting values in the :code:`sqlfluff:indentation` section of your config
-file you can control how this is parsed, for example you may work with an
-indentation similar to that of `Baron Schwartz`_.
+file you can control how this is parsed.
 
 By setting your config file to:
 
@@ -236,5 +235,4 @@ to have that variation supported by *SQLFluff*.
 
 .. _`dbt Labs SQL style guide`: https://github.com/dbt-labs/corp/blob/main/dbt_style_guide.md
 .. _`Mozilla SQL style guide`: https://docs.telemetry.mozilla.org/concepts/sql_style.html#joins
-.. _`Baron Schwartz`: https://www.xaprb.com/blog/2006/04/26/sql-coding-standards/
 .. _`Rule L018`: ./rules.html#sqlfluff.core.rules.Rule_L018
