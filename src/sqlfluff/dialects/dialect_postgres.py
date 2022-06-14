@@ -23,6 +23,7 @@ from sqlfluff.core.parser import (
     SymbolSegment,
     StartsWith,
 )
+from sqlfluff.core.parser.segments.base import BracketedSegment
 
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser.grammar.anyof import AnySetOf
@@ -207,6 +208,18 @@ postgres_dialect.add(
     MultilineConcatenateDelimiterGrammar=AnyNumberOf(
         Ref("MultilineConcatenateNewline"), min_times=1, allow_gaps=False
     ),
+    # Add a Full equivalent which also allow keywords
+    NakedIdentifierFullSegment=RegexParser(
+        r"[A-Z_][A-Z0-9_]*",
+        CodeSegment,
+        name="naked_identifier_all",
+        type="identifier",
+    ),
+    SingleIdentifierFullGrammar=OneOf(
+        Ref("NakedIdentifierSegment"),
+        Ref("QuotedIdentifierSegment"),
+        Ref("NakedIdentifierFullSegment"),
+    ),
     CascadeRestrictGrammar=OneOf("CASCADE", "RESTRICT"),
 )
 
@@ -359,13 +372,6 @@ postgres_dialect.replace(
         ),
     ),
     FrameClauseUnitGrammar=OneOf("RANGE", "ROWS", "GROUPS"),
-    # In Postgres, column references may be followed by a time zone cast in all cases.
-    # For more information, see
-    # https://www.postgresql.org/docs/11/functions-datetime.html
-    ColumnReferenceSegment=Sequence(
-        ansi.ColumnReferenceSegment,
-        Ref("ArrayAccessorSegment", optional=True),
-    ),
     # Postgres supports the non-standard ISNULL and NONNULL comparison operators. See
     # https://www.postgresql.org/docs/14/functions-comparison.html
     IsNullGrammar=Ref.keyword("ISNULL"),
@@ -4054,6 +4060,7 @@ class SetClauseSegment(BaseSegment):
         OneOf(
             Sequence(
                 Ref("ColumnReferenceSegment"),
+                Ref("ArrayAccessorSegment", optional=True),
                 Ref("EqualsSegment"),
                 OneOf(
                     Ref("LiteralGrammar"),
@@ -4291,4 +4298,44 @@ class LockTableStatementSegment(BaseSegment):
             optional=True,
         ),
         Ref.keyword("NOWAIT", optional=True),
+    )
+
+
+class ColumnReferenceSegment(ObjectReferenceSegment):
+    """A reference to column, field or alias.
+
+    We override this for Postgres to allow keywords in fully qualified column
+    names (using Full segments), similar to how this is done in BigQuery.
+    """
+
+    type = "column_reference"
+    match_grammar: Matchable = Sequence(
+        Ref("SingleIdentifierGrammar"),
+        Sequence(
+            OneOf(Ref("DotSegment"), Sequence(Ref("DotSegment"), Ref("DotSegment"))),
+            Delimited(
+                Ref("SingleIdentifierFullGrammar"),
+                delimiter=OneOf(
+                    Ref("DotSegment"), Sequence(Ref("DotSegment"), Ref("DotSegment"))
+                ),
+                terminator=OneOf(
+                    "ON",
+                    "AS",
+                    "USING",
+                    Ref("CommaSegment"),
+                    Ref("CastOperatorSegment"),
+                    Ref("StartSquareBracketSegment"),
+                    Ref("StartBracketSegment"),
+                    Ref("BinaryOperatorGrammar"),
+                    Ref("ColonSegment"),
+                    Ref("DelimiterGrammar"),
+                    Ref("JoinLikeClauseGrammar"),
+                    BracketedSegment,
+                ),
+                allow_gaps=False,
+            ),
+            allow_gaps=False,
+            optional=True,
+        ),
+        allow_gaps=False,
     )
