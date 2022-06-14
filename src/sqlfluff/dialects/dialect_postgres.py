@@ -386,6 +386,7 @@ postgres_dialect.replace(
         Indent,
         Delimited(
             Ref("SelectClauseElementSegment"),
+            # In Postgres you don't need an element so make it optional
             optional=True,
             allow_trailing=True,
         ),
@@ -1023,53 +1024,28 @@ class IntoClauseSegment(BaseSegment):
 class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     """Overrides ANSI Statement, to allow for SELECT INTO statements."""
 
-    match_grammar: Matchable = StartsWith(
-        # NB: In bigquery, the select clause may include an EXCEPT, which
-        # will also match the set operator, but by starting with the whole
-        # select clause rather than just the SELECT keyword, we mitigate that
-        # here.
-        Ref("SelectClauseSegment"),
-        terminator=OneOf(
-            Ref("SetOperatorSegment"),
-            Ref("WithNoSchemaBindingClauseSegment"),
-            Ref("WithDataClauseSegment"),
-            Ref("OrderByClauseSegment"),
-            Ref("LimitClauseSegment"),
-            Ref("NamedWindowSegment"),
+    match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar
+    match_grammar.terminator = match_grammar.terminator.copy(  # type: ignore
+        insert=[
             Sequence("ON", "CONFLICT"),
-        ),
-        enforce_whitespace_preceding_terminator=True,
+        ],
     )
-    parse_grammar = Sequence(
-        Ref("SelectClauseSegment"),
-        # Dedent for the indent in the select clause.
-        # It's here so that it can come AFTER any whitespace.
-        Dedent,
-        Ref("IntoClauseSegment", optional=True),
-        Ref("FromClauseSegment", optional=True),
-        Ref("WhereClauseSegment", optional=True),
-        Ref("GroupByClauseSegment", optional=True),
-        Ref("HavingClauseSegment", optional=True),
-        Ref("OverlapsClauseSegment", optional=True),
+    parse_grammar = ansi.UnorderedSelectStatementSegment.parse_grammar.copy(
+        insert=[
+            Ref("IntoClauseSegment", optional=True),
+        ],
+        before=Ref("FromClauseSegment", optional=True),
     )
 
 
 class SelectStatementSegment(ansi.SelectStatementSegment):
     """Overrides ANSI as the parse grammar copy needs to be reapplied."""
 
-    match_grammar: Matchable = StartsWith(
-        # NB: In bigquery, the select clause may include an EXCEPT, which
-        # will also match the set operator, but by starting with the whole
-        # select clause rather than just the SELECT keyword, we mitigate that
-        # here.
-        Ref("SelectClauseSegment"),
-        terminator=OneOf(
-            Ref("SetOperatorSegment"),
-            Ref("WithNoSchemaBindingClauseSegment"),
-            Ref("WithDataClauseSegment"),
+    match_grammar = ansi.SelectStatementSegment.match_grammar
+    match_grammar.terminator = match_grammar.terminator.copy(  # type: ignore
+        insert=[
             Sequence("ON", "CONFLICT"),
-        ),
-        enforce_whitespace_preceding_terminator=True,
+        ],
     )
     parse_grammar = UnorderedSelectStatementSegment.parse_grammar.copy(
         insert=[
