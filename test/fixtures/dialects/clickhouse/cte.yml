@@ -1,0 +1,336 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: f90ae55bc8af8b2e181e6066e356c3144e423b0be2a7e0974790b69a910aefb3
+file:
+- statement:
+    with_compound_statement:
+      keyword: with
+      common_table_expression:
+        expression:
+          bracketed:
+            start_bracket: (
+            expression:
+              select_statement:
+                select_clause:
+                  keyword: select
+                  select_clause_element:
+                    literal: '1'
+                    alias_expression:
+                      keyword: as
+                      identifier: p
+            end_bracket: )
+        keyword: as
+        identifier: test_param
+      select_statement:
+        select_clause:
+        - keyword: select
+        - select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: toString
+              bracketed:
+                start_bracket: (
+                expression:
+                  literal: '1'
+                end_bracket: )
+            alias_expression:
+              keyword: as
+              identifier: Test_string
+        - comma: ','
+        - select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: toDateTime64
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  literal: "'2022-05-25'"
+              - comma: ','
+              - expression:
+                  literal: '3'
+              - end_bracket: )
+            alias_expression:
+              keyword: as
+              identifier: Test_dateTime64
+        - comma: ','
+        - select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: ifNull
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  literal: 'null'
+              - comma: ','
+              - expression:
+                  literal: "'TestNull'"
+              - end_bracket: )
+            alias_expression:
+              keyword: as
+              identifier: testIf
+        - comma: ','
+        - select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: JSONExtractString
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  literal: "'{\"abc\": \"hello\"}'"
+              - comma: ','
+              - expression:
+                  literal: "'abc'"
+              - end_bracket: )
+            alias_expression:
+              keyword: as
+              identifier: testJSON
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: test_param
+            alias_expression:
+              keyword: as
+              identifier: param
+- statement_terminator: ;
+- statement:
+    with_compound_statement:
+      keyword: WITH
+      common_table_expression:
+        expression:
+          literal: "'2019-08-01 15:23:00'"
+        keyword: as
+        identifier: ts_upper_bound
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: hits
+        where_clause:
+          keyword: WHERE
+          expression:
+          - column_reference:
+              identifier: EventDate
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - function:
+              function_name:
+                function_name_identifier: toDate
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    identifier: ts_upper_bound
+                end_bracket: )
+          - binary_operator: AND
+          - column_reference:
+              identifier: EventTime
+          - comparison_operator:
+            - raw_comparison_operator: <
+            - raw_comparison_operator: '='
+          - column_reference:
+              identifier: ts_upper_bound
+- statement_terminator: ;
+- statement:
+    with_compound_statement:
+      keyword: WITH
+      common_table_expression:
+        expression:
+          function:
+            function_name:
+              function_name_identifier: sum
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  identifier: bytes
+              end_bracket: )
+        keyword: as
+        identifier: s
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: formatReadableSize
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    identifier: s
+                end_bracket: )
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: table
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - identifier: system
+                - dot: .
+                - identifier: parts
+        groupby_clause:
+        - keyword: GROUP
+        - keyword: BY
+        - column_reference:
+            identifier: table
+        orderby_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+            identifier: s
+- statement_terminator: ;
+- statement:
+    with_compound_statement:
+      keyword: WITH
+      common_table_expression:
+        expression:
+          bracketed:
+            start_bracket: (
+            expression:
+              select_statement:
+                select_clause:
+                  keyword: SELECT
+                  select_clause_element:
+                    function:
+                      function_name:
+                        function_name_identifier: sum
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                            identifier: bytes
+                        end_bracket: )
+                from_clause:
+                  keyword: FROM
+                  from_expression:
+                    from_expression_element:
+                      table_expression:
+                        table_reference:
+                        - identifier: system
+                        - dot: .
+                        - identifier: parts
+                where_clause:
+                  keyword: WHERE
+                  expression:
+                    column_reference:
+                      identifier: active
+            end_bracket: )
+        keyword: AS
+        identifier: total_disk_usage
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            expression:
+              bracketed:
+                start_bracket: (
+                expression:
+                  function:
+                    function_name:
+                      function_name_identifier: sum
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          identifier: bytes
+                      end_bracket: )
+                  binary_operator: /
+                  column_reference:
+                    identifier: total_disk_usage
+                end_bracket: )
+              binary_operator: '*'
+              literal: '100'
+            alias_expression:
+              keyword: AS
+              identifier: table_disk_usage
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: table
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - identifier: system
+                - dot: .
+                - identifier: parts
+        groupby_clause:
+        - keyword: GROUP
+        - keyword: BY
+        - column_reference:
+            identifier: table
+        orderby_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+            identifier: table_disk_usage
+        - keyword: DESC
+        limit_clause:
+          keyword: LIMIT
+          literal: '10'
+- statement_terminator: ;
+- statement:
+    with_compound_statement:
+      keyword: WITH
+      common_table_expression:
+        identifier: test1
+        keyword: AS
+        bracketed:
+          start_bracket: (
+          select_statement:
+            select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+                expression:
+                  column_reference:
+                    identifier: i
+                  binary_operator: +
+                  literal: '1'
+            - comma: ','
+            - select_clause_element:
+                expression:
+                  column_reference:
+                    identifier: j
+                  binary_operator: +
+                  literal: '1'
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      identifier: test1
+          end_bracket: )
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: test1
+- statement_terminator: ;
