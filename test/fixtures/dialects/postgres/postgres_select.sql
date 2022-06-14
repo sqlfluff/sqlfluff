@@ -60,5 +60,8 @@ SELECT a COLLATE "de_DE" < b FROM test1;
 
 SELECT * FROM test1 ORDER BY a || b COLLATE "fr_FR";
 
+-- Select elements are optional in Postgres
+SELECT FROM test1;
+
 -- keywords can be used as column names without quotes if qualified
 select id, start, periods.end from periods;

@@ -386,6 +386,20 @@ postgres_dialect.replace(
         Ref("CommaSegment"),
         Ref("SetOperatorSegment"),
     ),
+    SelectClauseSegmentGrammar=Sequence(
+        "SELECT",
+        Ref("SelectClauseModifierSegment", optional=True),
+        Indent,
+        Delimited(
+            Ref("SelectClauseElementSegment"),
+            # In Postgres you don't need an element so make it optional
+            optional=True,
+            allow_trailing=True,
+        ),
+        # NB: The Dedent for the indent above lives in the
+        # SelectStatementSegment so that it sits in the right
+        # place corresponding to the whitespace.
+    ),
     LiteralGrammar=OneOf(
         Ref("QuotedLiteralSegment"),
         Ref("NumericLiteralSegment"),
@@ -408,6 +422,7 @@ postgres_dialect.replace(
         "WINDOW",
         "OVERLAPS",
         "RETURNING",
+        Sequence("ON", "CONFLICT"),
     ),
     OrderByClauseTerminators=OneOf(
         "LIMIT",
@@ -1015,25 +1030,29 @@ class IntoClauseSegment(BaseSegment):
 class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     """Overrides ANSI Statement, to allow for SELECT INTO statements."""
 
-    match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar
-    parse_grammar = Sequence(
-        Ref("SelectClauseSegment"),
-        # Dedent for the indent in the select clause.
-        # It's here so that it can come AFTER any whitespace.
-        Dedent,
-        Ref("IntoClauseSegment", optional=True),
-        Ref("FromClauseSegment", optional=True),
-        Ref("WhereClauseSegment", optional=True),
-        Ref("GroupByClauseSegment", optional=True),
-        Ref("HavingClauseSegment", optional=True),
-        Ref("OverlapsClauseSegment", optional=True),
+    match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar.copy()
+    match_grammar.terminator = match_grammar.terminator.copy(  # type: ignore
+        insert=[
+            Sequence("ON", "CONFLICT"),
+        ],
+    )
+    parse_grammar = ansi.UnorderedSelectStatementSegment.parse_grammar.copy(
+        insert=[
+            Ref("IntoClauseSegment", optional=True),
+        ],
+        before=Ref("FromClauseSegment", optional=True),
     )
 
 
 class SelectStatementSegment(ansi.SelectStatementSegment):
     """Overrides ANSI as the parse grammar copy needs to be reapplied."""
 
-    match_grammar = ansi.SelectStatementSegment.match_grammar
+    match_grammar = ansi.SelectStatementSegment.match_grammar.copy()
+    match_grammar.terminator = match_grammar.terminator.copy(  # type: ignore
+        insert=[
+            Sequence("ON", "CONFLICT"),
+        ],
+    )
     parse_grammar = UnorderedSelectStatementSegment.parse_grammar.copy(
         insert=[
             Ref("OrderByClauseSegment", optional=True),
