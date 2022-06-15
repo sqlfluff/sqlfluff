@@ -396,6 +396,7 @@ class DatatypeSegment(BaseSegment):
                 optional=True,
             ),
         ),
+        "ANYELEMENT",
     )
 
 
