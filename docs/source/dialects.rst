@@ -61,6 +61,15 @@ The dialect for `Google BigQuery`_.
 
 .. _`Google BigQuery`: https://cloud.google.com/bigquery/
 
+.. _clickhouse_dialect_ref:
+
+ClickHouse
+----------
+
+The dialect for `ClickHouse`_.
+
+.. _`ClickHouse`: https://clickhouse.com/
+
 .. _databricks_dialect_ref:
 
 Databricks
