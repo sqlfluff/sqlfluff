@@ -173,8 +173,8 @@ def prepare_release(new_version_num):
             seen_contributors.add(c["name"])
             deduped_potential_new_contributors.append(c)
 
-    input_changelog = open("CHANGELOG.md").readlines()
-    write_changelog = open("CHANGELOG.md", "w")
+    input_changelog = open("CHANGELOG.md", encoding="utf8").readlines()
+    write_changelog = open("CHANGELOG.md", "w", encoding="utf8")
     for i, line in enumerate(input_changelog):
         write_changelog.write(line)
         if "DO NOT DELETE THIS LINE" in line:
