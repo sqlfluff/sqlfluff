@@ -14,6 +14,27 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 ## Highlights
 
+This is the first _stable_ release of SQLFluff 🎉🎉🎉.
+
+- _Does this mean there are no more bugs?_ **No.**
+- _Does this mean we're going to stop developing new features?_ **No.**
+- _Does this mean that this is a tool that is now broadly usable for many teams?_ **Yes.**
+
+We've intentionally chosen to release 1.0.0 at a time of relative stablity within SQLFluff and
+not at a time when new big structural changes are being made. This means that there's a good
+chance that this release is broadly usable. This also recognises that through the hard work
+of a _huge_ number of contibutors that we've built out this from a fringe tool, to something
+which gets over 500k downloads a month and over 4k stars on Github.
+
+There's still a lot to do, and some more exciting things on the horizon. If you want to be
+part of this and join the team of contributors, come and hang out in our [slack community](https://join.slack.com/t/sqlfluff/shared_invite/zt-o1f4x0e8-pZzarAIlQmKj_6ZwD16w0g)
+where people can help you get started. If you're a long time user, keep submitting bug
+reports and inputting on [issues on Github](https://github.com/sqlfluff/sqlfluff/issues).
+
+If you've never used SQLFluff before, or are hesitant about starting to use it in your day
+to day work, now might be a good time to try it. We have guides on how to [get started with the tool](https://docs.sqlfluff.com/en/stable/gettingstarted.html),
+and how to [get started with rolling out to a team](https://docs.sqlfluff.com/en/stable/teamrollout.html) in our docs.
+
 ## What’s Changed
 
 * Redshift: Add `ANYELEMENT` support [#3458](https://github.com/sqlfluff/sqlfluff/pull/3458) [@tunetheweb](https://github.com/tunetheweb)
