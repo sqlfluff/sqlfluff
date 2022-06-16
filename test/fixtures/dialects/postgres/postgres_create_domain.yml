@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ca51084f71d69e23ae2b5ae81e93a389717073adbad8bdbe51556d4edd4b183c
+_hash: b97b13b6d58597831556ee1950904e8f2ad5570b185f6efb42b9f1d73129e043
 file:
 - statement:
     create_domain_statement:
@@ -39,4 +39,57 @@ file:
     - keyword: as
     - data_type:
         keyword: text
+- statement_terminator: ;
+- statement:
+    create_domain_statement:
+    - keyword: CREATE
+    - keyword: DOMAIN
+    - object_reference:
+        identifier: mystr
+    - keyword: AS
+    - data_type:
+        keyword: text
+    - keyword: CONSTRAINT
+    - object_reference:
+        identifier: not_empty
+    - keyword: CHECK
+    - expression:
+        bracketed:
+          start_bracket: (
+          expression:
+            function:
+              function_name:
+                function_name_identifier: LENGTH
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    identifier: value
+                end_bracket: )
+            comparison_operator:
+              raw_comparison_operator: '>'
+            literal: '0'
+          end_bracket: )
+    - keyword: CONSTRAINT
+    - object_reference:
+        identifier: too_big
+    - keyword: CHECK
+    - expression:
+        bracketed:
+          start_bracket: (
+          expression:
+            function:
+              function_name:
+                function_name_identifier: LENGTH
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    identifier: value
+                end_bracket: )
+            comparison_operator:
+            - raw_comparison_operator: <
+            - raw_comparison_operator: '='
+            literal: '50000'
+          end_bracket: )
 - statement_terminator: ;
