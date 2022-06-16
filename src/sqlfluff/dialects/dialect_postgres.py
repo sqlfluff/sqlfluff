@@ -3583,17 +3583,18 @@ class CreateDomainStatementSegment(BaseSegment):
         Ref("DatatypeSegment"),
         Sequence("COLLATE", Ref("ObjectReferenceSegment"), optional=True),
         Sequence("DEFAULT", Ref("ExpressionSegment"), optional=True),
-        Sequence(
+        AnyNumberOf(
             Sequence(
-                "CONSTRAINT",
-                Ref("ObjectReferenceSegment"),
-                optional=True,
+                Sequence(
+                    "CONSTRAINT",
+                    Ref("ObjectReferenceSegment"),
+                    optional=True,
+                ),
+                OneOf(
+                    Sequence(Ref.keyword("NOT", optional=True), "NULL"),
+                    Sequence("CHECK", Ref("ExpressionSegment")),
+                ),
             ),
-            OneOf(
-                Sequence(Ref.keyword("NOT", optional=True), "NULL"),
-                Sequence("CHECK", Ref("ExpressionSegment")),
-            ),
-            optional=True,
         ),
     )
 
