@@ -144,7 +144,7 @@ def prepare_release(new_version_num):
         raise ValueError("No draft release found!")
 
     # Linkify the PRs and authors
-    draft_body_parts = latest_draft_release["body"].split("\r\n")
+    draft_body_parts = latest_draft_release["body"].split("\n")
     potential_new_contributors = []
     for i, p in enumerate(draft_body_parts):
         draft_body_parts[i] = re.sub(
@@ -162,7 +162,7 @@ def prepare_release(new_version_num):
             potential_new_contributors.append(
                 {"name": new_contrib_name, "line": new_contrib_string}
             )
-    whats_changed_text = "\r\n".join(draft_body_parts)
+    whats_changed_text = "\n".join(draft_body_parts)
 
     # Find the first commit for each contributor in this release
     potential_new_contributors.reverse()
