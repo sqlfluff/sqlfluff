@@ -188,7 +188,7 @@ postgres_dialect.sets("datetime_units").update(
 postgres_dialect.sets("date_part_function_name").clear()
 
 # In Postgres, UNNEST() returns a "value table", similar to BigQuery
-postgres_dialect.sets("value_table_functions").update(["unnest"])
+postgres_dialect.sets("value_table_functions").update(["UNNEST", "GENERATE_SERIES"])
 
 postgres_dialect.add(
     JsonOperatorSegment=NamedParser(

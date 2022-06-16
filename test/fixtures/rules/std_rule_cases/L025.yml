@@ -43,6 +43,18 @@ test_ignore_postgres_value_table_functions:
     core:
       dialect: postgres
 
+test_ignore_postgres_value_table_functions_generate_series:
+  # L025 fix with https://github.com/sqlfluff/sqlfluff/issues/3462
+  pass_str: |
+    SELECT
+      date_trunc('day', dd):: timestamp with time zone
+    FROM generate_series (
+        '2022-02-01'::timestamp , NOW()::timestamp , '1 day'::interval
+    ) dd ;
+  configs:
+    core:
+      dialect: postgres
+
 test_fail_table_alias_not_referenced_2:
   # Similar to test_1, but with implicit alias.
   fail_str: SELECT * FROM my_tbl foo
