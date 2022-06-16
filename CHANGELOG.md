@@ -10,12 +10,17 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
-##[1.0.0] - 2022-06-14
+##[1.0.0] - 2022-06-16
 
 ## Highlights
 
 ## What’s Changed
 
+* Redshift: Add `ANYELEMENT` support (#3458) @tunetheweb
+* Postgres: Optional select clause elements and better `ON CONFLICT` support (#3452) @tunetheweb
+* Add ClickHouse as a dialect (#3448) @tunetheweb
+* Postgres: allow keywords in qualified column references (#3450) @tunetheweb
+* Remove Baron Schwatz Dead Link (#3453) @tunetheweb
 * Postgres: Finish `ALTER TYPE` (#3451) @greg-finley
 * SparkSQL: Add Delta Syntax for `DESCRIBE HISTORY` statement (#3447) @R7L208
 * Snowflake: Support Stage data file parameters in `FROM` clauses (#3446) @tunetheweb
@@ -37,7 +42,7 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 * L036: Treat wildcard as multiple select targets (i.e. separate line) (#3422) @barrywhart
 * Snowflake: IDENTIFIER pseudo-function (#3409) @mdahlman
 * SNOWFLAKE: Fully referenced object names in clone statements (#3414) @mdahlman
-* Unpin coverage now issue 6.3 has been resolved (#3393) @tunetheweb
+* Unpin coverage now issue with 6.3 has been resolved (#3393) @tunetheweb
 * L045: handle `UPDATE` statements with CTEs (#3397) @tunetheweb
 * L027: Add support for `ignore_words` (#3398) @dmohns
 * Postgres: Allow `CREATE FUNCTION` to use Expressions in default values (#3408) @tunetheweb
@@ -51,8 +56,8 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 * Teradata: Database statement and Set Session Database [#3382](https://github.com/sqlfluff/sqlfluff/pull/3382) [@mdahlman
 ](https://github.com/mdahlman
 )
-## New Contributors
 
+## New Contributors
 
 
 ##[0.13.2] - 2022-05-20
