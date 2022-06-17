@@ -10,7 +10,7 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
-##[1.0.0] - 2022-06-16
+## [1.0.0] - 2022-06-16
 
 ## Highlights
 
@@ -28,8 +28,9 @@ which gets over 500k downloads a month and over 4k stars on Github.
 
 There's still a lot to do, and some more exciting things on the horizon. If you want to be
 part of this and join the team of contributors, come and hang out in our [slack community](https://join.slack.com/t/sqlfluff/shared_invite/zt-o1f4x0e8-pZzarAIlQmKj_6ZwD16w0g)
-where people can help you get started. If you're a long time user, keep submitting bug
-reports and inputting on [issues on Github](https://github.com/sqlfluff/sqlfluff/issues).
+or on our [twitter account](https://twitter.com/SQLFluff) where people can help you get
+started. If you're a long time user, keep submitting bug reports and inputting
+on [issues on Github](https://github.com/sqlfluff/sqlfluff/issues).
 
 If you've never used SQLFluff before, or are hesitant about starting to use it in your day
 to day work, now might be a good time to try it. We have guides on how to [get started with the tool](https://docs.sqlfluff.com/en/stable/gettingstarted.html),
@@ -80,7 +81,7 @@ and how to [get started with rolling out to a team](https://docs.sqlfluff.com/en
 * [@benji-york](https://github.com/benji-york) made their first contribution in [#3383](https://github.com/sqlfluff/sqlfluff/pull/3383)
 * [@menzenski](https://github.com/menzenski) made their first contribution in [#3430](https://github.com/sqlfluff/sqlfluff/pull/3430)
 
-##[0.13.2] - 2022-05-20
+## [0.13.2] - 2022-05-20
 
 ## Highlights
 Major changes include:
