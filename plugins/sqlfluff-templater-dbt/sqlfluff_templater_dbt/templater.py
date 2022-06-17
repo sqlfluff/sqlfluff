@@ -388,7 +388,7 @@ class DbtTemplater(JinjaTemplater):
                 raise SQLTemplaterSkipFile(
                     f"Skipped file {fname} because it is {skip_reason}"
                 )
-            raise RuntimeError(
+            raise SQLTemplaterSkipFile(
                 "File %s was not found in dbt project" % fname
             )  # pragma: no cover
         return results[0]
