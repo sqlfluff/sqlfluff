@@ -10,7 +10,7 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
-## [1.0.0] - 2022-06-16
+## [1.0.0] - 2022-06-17
 
 ## Highlights
 
@@ -38,6 +38,8 @@ and how to [get started with rolling out to a team](https://docs.sqlfluff.com/en
 
 ## What’s Changed
 
+* Postgres: treat `GENERATE_SERIES` as a value table function [#3463](https://github.com/sqlfluff/sqlfluff/pull/3463) [@tunetheweb](https://github.com/tunetheweb)
+* Postgres: Support multiple `CONSTRAINTS` in `CREATE DOMAIN` [#3460](https://github.com/sqlfluff/sqlfluff/pull/3460) [@tunetheweb](https://github.com/tunetheweb)
 * Redshift: Add `ANYELEMENT` support [#3458](https://github.com/sqlfluff/sqlfluff/pull/3458) [@tunetheweb](https://github.com/tunetheweb)
 * Postgres: Optional select clause elements and better `ON CONFLICT` support [#3452](https://github.com/sqlfluff/sqlfluff/pull/3452) [@tunetheweb](https://github.com/tunetheweb)
 * Add ClickHouse as a dialect [#3448](https://github.com/sqlfluff/sqlfluff/pull/3448) [@tunetheweb](https://github.com/tunetheweb)
@@ -76,6 +78,7 @@ and how to [get started with rolling out to a team](https://docs.sqlfluff.com/en
 * Capitalization in help message [#3385](https://github.com/sqlfluff/sqlfluff/pull/3385) [@mdahlman](https://github.com/mdahlman)
 * MySQL: Update keywords [#3381](https://github.com/sqlfluff/sqlfluff/pull/3381) [@mdahlman](https://github.com/mdahlman)
 * Teradata: Database statement and Set Session Database [#3382](https://github.com/sqlfluff/sqlfluff/pull/3382) [@mdahlman](https://github.com/mdahlman)
+
 
 ## New Contributors
 * [@benji-york](https://github.com/benji-york) made their first contribution in [#3383](https://github.com/sqlfluff/sqlfluff/pull/3383)
