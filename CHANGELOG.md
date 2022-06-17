@@ -20,10 +20,10 @@ This is the first _stable_ release of SQLFluff 🎉🎉🎉.
 - _Does this mean we're going to stop developing new features?_ **No.**
 - _Does this mean that this is a tool that is now broadly usable for many teams?_ **Yes.**
 
-We've intentionally chosen to release 1.0.0 at a time of relative stablity within SQLFluff and
+We've intentionally chosen to release 1.0.0 at a time of relative stability within SQLFluff and
 not at a time when new big structural changes are being made. This means that there's a good
 chance that this release is broadly usable. This also recognises that through the hard work
-of a _huge_ number of contibutors that we've built out this from a fringe tool, to something
+of a _huge_ number of contributors that we've built out this from a fringe tool, to something
 which gets over 500k downloads a month and over 4k stars on Github.
 
 There's still a lot to do, and some more exciting things on the horizon. If you want to be
