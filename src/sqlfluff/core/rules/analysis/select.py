@@ -16,6 +16,7 @@ class SelectStatementColumnsAndTables(NamedTuple):
     select_targets: List[BaseSegment]
     col_aliases: List[ColumnAliasInfo]
     using_cols: List[str]
+    from_expression: Optional[BaseSegment]
 
 
 def get_select_statement_info(
@@ -57,7 +58,9 @@ def get_select_statement_info(
     # from ON clauses.
     using_cols = []
     fc = segment.get_child("from_clause")
+    from_expression: Optional[BaseSegment] = None
     if fc:
+        from_expression = fc.get_child("from_expression")
         for join_clause in fc.recursive_crawl("join_clause"):
             seen_using = False
             for seg in join_clause.iter_segments():
@@ -93,6 +96,7 @@ def get_select_statement_info(
         select_targets=select_targets,
         col_aliases=col_aliases,
         using_cols=using_cols,
+        from_expression=from_expression,
     )
 
 

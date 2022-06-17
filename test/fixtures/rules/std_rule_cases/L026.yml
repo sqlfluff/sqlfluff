@@ -265,3 +265,14 @@ test_soql_ignore_rule:
   configs:
     core:
       dialect: soql
+
+test_postgres_standalone_alias:
+  pass_str: |
+    select
+        sc.col1 as colx
+        , pn.col1 as coly
+    from sch1.tbl1 as sc
+    cross join unnest(array[111, 222]) as pn(col1)
+  configs:
+    core:
+      dialect: postgres
