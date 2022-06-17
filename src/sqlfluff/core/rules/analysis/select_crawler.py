@@ -74,6 +74,7 @@ class Selectable:
                 select_targets=[],
                 col_aliases=[],
                 using_cols=[],
+                from_expression=None,
             )
 
     def get_wildcard_info(self) -> List[WildcardInfo]:
