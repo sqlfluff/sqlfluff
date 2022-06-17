@@ -38,6 +38,7 @@ and how to [get started with rolling out to a team](https://docs.sqlfluff.com/en
 
 ## What’s Changed
 
+* Swap to skip file if not found [#3464](https://github.com/sqlfluff/sqlfluff/pull/3464) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * Postgres: treat `GENERATE_SERIES` as a value table function [#3463](https://github.com/sqlfluff/sqlfluff/pull/3463) [@tunetheweb](https://github.com/tunetheweb)
 * Postgres: Support multiple `CONSTRAINTS` in `CREATE DOMAIN` [#3460](https://github.com/sqlfluff/sqlfluff/pull/3460) [@tunetheweb](https://github.com/tunetheweb)
 * Redshift: Add `ANYELEMENT` support [#3458](https://github.com/sqlfluff/sqlfluff/pull/3458) [@tunetheweb](https://github.com/tunetheweb)
