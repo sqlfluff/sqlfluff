@@ -343,7 +343,7 @@ bigquery_dialect.sets("date_part_function_name").update(
 
 # In BigQuery, UNNEST() returns a "value table".
 # https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax#value_tables
-bigquery_dialect.sets("value_table_functions").update(["unnest"])
+bigquery_dialect.sets("value_table_functions").update(["UNNEST"])
 
 # Bracket pairs (a set of tuples). Note that BigQuery inherits the default
 # "bracket_pairs" set from ANSI. Here, we're adding a different set of bracket

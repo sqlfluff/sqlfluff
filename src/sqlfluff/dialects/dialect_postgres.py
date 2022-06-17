@@ -188,7 +188,7 @@ postgres_dialect.sets("datetime_units").update(
 postgres_dialect.sets("date_part_function_name").clear()
 
 # In Postgres, UNNEST() returns a "value table", similar to BigQuery
-postgres_dialect.sets("value_table_functions").update(["unnest"])
+postgres_dialect.sets("value_table_functions").update(["UNNEST", "GENERATE_SERIES"])
 
 postgres_dialect.add(
     JsonOperatorSegment=NamedParser(
@@ -3583,17 +3583,18 @@ class CreateDomainStatementSegment(BaseSegment):
         Ref("DatatypeSegment"),
         Sequence("COLLATE", Ref("ObjectReferenceSegment"), optional=True),
         Sequence("DEFAULT", Ref("ExpressionSegment"), optional=True),
-        Sequence(
+        AnyNumberOf(
             Sequence(
-                "CONSTRAINT",
-                Ref("ObjectReferenceSegment"),
-                optional=True,
+                Sequence(
+                    "CONSTRAINT",
+                    Ref("ObjectReferenceSegment"),
+                    optional=True,
+                ),
+                OneOf(
+                    Sequence(Ref.keyword("NOT", optional=True), "NULL"),
+                    Sequence("CHECK", Ref("ExpressionSegment")),
+                ),
             ),
-            OneOf(
-                Sequence(Ref.keyword("NOT", optional=True), "NULL"),
-                Sequence("CHECK", Ref("ExpressionSegment")),
-            ),
-            optional=True,
         ),
     )
 
