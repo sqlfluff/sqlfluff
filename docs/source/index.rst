@@ -6,12 +6,6 @@ you're working with? Fluff is an extensible and modular linter designed
 to help you write good SQL and catch errors and bad SQL before it hits
 your database.
 
-.. note::
-
-    **SQLFluff** is still in an open Beta phase - expect potentially
-    non-backward compatible api changes to happen with releases
-    (particularly when major or minor version numbers increase).
-
 Notable changes:
 
 * **0.1.x** involved a major re-write of the parser, completely changing
@@ -40,6 +34,8 @@ Notable changes:
   rule L063.
 * **0.13.x** new rule for quoted literals, option to remove hanging indents in
   rule L003, and introduction of ``ignore_words_regex``.
+* **1.0.0** first *stable* release, no major changes to take advantage of a
+  point of relative stability.
 
 Want to see where and how people are using SQLFluff in their projects?
 Head over to :ref:`inthewildref` for inspiration.

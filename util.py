@@ -144,7 +144,7 @@ def prepare_release(new_version_num):
         raise ValueError("No draft release found!")
 
     # Linkify the PRs and authors
-    draft_body_parts = latest_draft_release["body"].split("\r\n")
+    draft_body_parts = latest_draft_release["body"].split("\n")
     potential_new_contributors = []
     for i, p in enumerate(draft_body_parts):
         draft_body_parts[i] = re.sub(
@@ -162,7 +162,7 @@ def prepare_release(new_version_num):
             potential_new_contributors.append(
                 {"name": new_contrib_name, "line": new_contrib_string}
             )
-    whats_changed_text = "\r\n".join(draft_body_parts)
+    whats_changed_text = "\n".join(draft_body_parts)
 
     # Find the first commit for each contributor in this release
     potential_new_contributors.reverse()
@@ -173,17 +173,17 @@ def prepare_release(new_version_num):
             seen_contributors.add(c["name"])
             deduped_potential_new_contributors.append(c)
 
-    input_changelog = open("CHANGELOG.md").readlines()
-    write_changelog = open("CHANGELOG.md", "w")
+    input_changelog = open("CHANGELOG.md", encoding="utf8").readlines()
+    write_changelog = open("CHANGELOG.md", "w", encoding="utf8")
     for i, line in enumerate(input_changelog):
         write_changelog.write(line)
         if "DO NOT DELETE THIS LINE" in line:
             existing_entry_start = i + 2
             # If the release is already in the changelog, update it
-            if f"##[{new_version_num}]" in input_changelog[existing_entry_start]:
+            if f"## [{new_version_num}]" in input_changelog[existing_entry_start]:
                 input_changelog[
                     existing_entry_start
-                ] = f"##[{new_version_num}] - {time.strftime('%Y-%m-%d')}\n"
+                ] = f"## [{new_version_num}] - {time.strftime('%Y-%m-%d')}\n"
 
                 # Delete the existing What’s Changed and New Contributors sections
                 remaining_changelog = input_changelog[existing_entry_start:]
@@ -209,7 +209,7 @@ def prepare_release(new_version_num):
                         for j, line in enumerate(
                             input_changelog[existing_new_contributors_start:]
                         )
-                        if line.startswith("##[")
+                        if line.startswith("## [")
                     )
                     - 1
                 )
@@ -237,7 +237,7 @@ def prepare_release(new_version_num):
 
             else:
                 write_changelog.write(
-                    f"\n##[{new_version_num}] - {time.strftime('%Y-%m-%d')}\n\n## Highlights\n\n"  # noqa E501
+                    f"\n## [{new_version_num}] - {time.strftime('%Y-%m-%d')}\n\n## Highlights\n\n"  # noqa E501
                 )
                 write_changelog.write(whats_changed_text)
                 write_changelog.write("\n## New Contributors\n\n")
