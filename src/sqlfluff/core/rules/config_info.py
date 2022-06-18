@@ -177,6 +177,11 @@ STANDARD_CONFIG_INFO_DICT = {
             "in statements."
         ),
     },
+    "blocked_regex": {
+        "definition": (
+            "Optional, regex of blocked pattern which should not be used in statements."
+        ),
+    },
     "preferred_quoted_literal_style": {
         "validation": ["consistent", "single_quotes", "double_quotes"],
         "definition": (
