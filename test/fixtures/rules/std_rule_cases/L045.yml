@@ -354,3 +354,51 @@ test_fail_nested_query:
         *
     FROM
         stage
+
+test_pass_nested_query_in_from_clause:
+  pass_str: |
+    WITH
+    foo AS (
+        SELECT
+            *
+        FROM
+            zipcode
+    ),
+
+    stage AS (
+        SELECT
+            *
+        FROM
+            (
+                SELECT * FROM foo
+            )
+    )
+
+    SELECT
+        *
+    FROM
+        stage
+
+test_fail_nested_query_in_from_clause:
+  fail_str: |
+    WITH
+    foo AS (
+        SELECT
+            *
+        FROM
+            zipcode
+    ),
+
+    stage AS (
+        SELECT
+            *
+        FROM
+            (
+                SELECT * FROM foofoo
+            )
+    )
+
+    SELECT
+        *
+    FROM
+        stage
