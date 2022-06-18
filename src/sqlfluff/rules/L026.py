@@ -125,7 +125,7 @@ class Rule_L026(BaseRule):
             if select_info:
                 # Record the available tables.
                 query.aliases += (
-                    select_info.table_aliases + select_info.value_table_aliases
+                    select_info.table_aliases + select_info.value_table_function_aliases
                 )
 
                 # Try and resolve each reference to a value in query.aliases (or

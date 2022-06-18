@@ -70,7 +70,7 @@ class Selectable:
                 select_statement=self.selectable,
                 table_aliases=[alias_info],
                 standalone_aliases=[],
-                value_table_aliases=[],
+                value_table_function_aliases=[],
                 reference_buffer=[],
                 select_targets=[],
                 col_aliases=[],

@@ -12,7 +12,7 @@ class SelectStatementColumnsAndTables(NamedTuple):
     select_statement: BaseSegment
     table_aliases: List[AliasInfo]
     standalone_aliases: List[str]
-    value_table_aliases: List[AliasInfo]
+    value_table_function_aliases: List[AliasInfo]
     reference_buffer: List[BaseSegment]
     select_targets: List[BaseSegment]
     col_aliases: List[ColumnAliasInfo]
@@ -24,14 +24,16 @@ def get_select_statement_info(
 ) -> Optional[SelectStatementColumnsAndTables]:
     """Analyze a select statement: targets, aliases, etc. Return info."""
     assert segment.is_type("select_statement")
-    table_aliases, standalone_aliases, value_table_aliases = get_aliases_from_select(
-        segment, dialect
-    )
+    (
+        table_aliases,
+        standalone_aliases,
+        value_table_function_aliases,
+    ) = get_aliases_from_select(segment, dialect)
     if (
         early_exit
         and not table_aliases
         and not standalone_aliases
-        and not value_table_aliases
+        and not value_table_function_aliases
     ):
         return None
 
@@ -97,7 +99,7 @@ def get_select_statement_info(
         select_statement=segment,
         table_aliases=table_aliases or [],
         standalone_aliases=standalone_aliases or [],
-        value_table_aliases=value_table_aliases or [],
+        value_table_function_aliases=value_table_function_aliases or [],
         reference_buffer=reference_buffer,
         select_targets=select_targets,
         col_aliases=col_aliases,

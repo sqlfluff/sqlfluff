@@ -108,7 +108,9 @@ class Rule_L028(BaseRule):
             # nothing.
             if (
                 select_info
-                and len(select_info.table_aliases + select_info.value_table_aliases)
+                and len(
+                    select_info.table_aliases + select_info.value_table_function_aliases
+                )
                 == 1
             ):
                 fixable = True
@@ -130,7 +132,8 @@ class Rule_L028(BaseRule):
                     # fixes are unsafe if there's more than one table visible.
                     fixable = False
                 yield from _check_references(
-                    select_info.table_aliases + select_info.value_table_aliases,
+                    select_info.table_aliases
+                    + select_info.value_table_function_aliases,
                     select_info.standalone_aliases,
                     select_info.reference_buffer,
                     select_info.col_aliases,
