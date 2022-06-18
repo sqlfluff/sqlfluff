@@ -1,5 +1,6 @@
 """Implementation of Rule L062."""
 
+import regex
 from typing import Optional
 
 from sqlfluff.core.rules.base import BaseRule, LintResult, RuleContext
@@ -49,14 +50,16 @@ class Rule_L062(BaseRule):
     groups = ("all",)
     config_keywords = [
         "blocked_words",
+        "blocked_regex",
     ]
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         # Config type hints
         self.blocked_words: Optional[str]
+        self.blocked_regex: Optional[str]
 
         # Exit early if no block list set
-        if not self.blocked_words:
+        if not self.blocked_words and not self.blocked_regex:
             return None
 
         # Get the ignore list configuration and cache it
@@ -77,6 +80,12 @@ class Rule_L062(BaseRule):
             return LintResult(
                 anchor=context.segment,
                 description=f"Use of blocked word '{context.segment.raw}'.",
+            )
+
+        if self.blocked_regex and regex.search(self.blocked_regex, context.segment.raw):
+            return LintResult(
+                anchor=context.segment,
+                description=f"Use of blocked regex '{context.segment.raw}'.",
             )
 
         return None
