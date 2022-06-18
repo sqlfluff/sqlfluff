@@ -70,11 +70,11 @@ class Selectable:
                 select_statement=self.selectable,
                 table_aliases=[alias_info],
                 standalone_aliases=[],
+                value_table_aliases=[],
                 reference_buffer=[],
                 select_targets=[],
                 col_aliases=[],
                 using_cols=[],
-                from_expression=None,
             )
 
     def get_wildcard_info(self) -> List[WildcardInfo]:

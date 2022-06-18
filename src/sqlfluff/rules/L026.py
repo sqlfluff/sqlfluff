@@ -124,14 +124,9 @@ class Rule_L026(BaseRule):
             select_info = selectable.select_info
             if select_info:
                 # Record the available tables.
-                query.aliases += select_info.table_aliases
-                if select_info.from_expression:
-                    query.aliases += [
-                        AliasInfo(
-                            sa, None, True, select_info.from_expression, None, None
-                        )
-                        for sa in select_info.standalone_aliases
-                    ]
+                query.aliases += (
+                    select_info.table_aliases + select_info.value_table_aliases
+                )
 
                 # Try and resolve each reference to a value in query.aliases (or
                 # in an ancestor query).

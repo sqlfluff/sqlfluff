@@ -11,12 +11,12 @@ class SelectStatementColumnsAndTables(NamedTuple):
 
     select_statement: BaseSegment
     table_aliases: List[AliasInfo]
-    standalone_aliases: List[str]  # value table function aliases
+    standalone_aliases: List[str]
+    value_table_aliases: List[AliasInfo]
     reference_buffer: List[BaseSegment]
     select_targets: List[BaseSegment]
     col_aliases: List[ColumnAliasInfo]
     using_cols: List[str]
-    from_expression: Optional[BaseSegment]
 
 
 def get_select_statement_info(
@@ -24,8 +24,15 @@ def get_select_statement_info(
 ) -> Optional[SelectStatementColumnsAndTables]:
     """Analyze a select statement: targets, aliases, etc. Return info."""
     assert segment.is_type("select_statement")
-    table_aliases, standalone_aliases = get_aliases_from_select(segment, dialect)
-    if early_exit and not table_aliases and not standalone_aliases:
+    table_aliases, standalone_aliases, value_table_aliases = get_aliases_from_select(
+        segment, dialect
+    )
+    if (
+        early_exit
+        and not table_aliases
+        and not standalone_aliases
+        and not value_table_aliases
+    ):
         return None
 
     # Iterate through all the references, both in the select clause, but also
@@ -58,9 +65,7 @@ def get_select_statement_info(
     # from ON clauses.
     using_cols = []
     fc = segment.get_child("from_clause")
-    from_expression: Optional[BaseSegment] = None
     if fc:
-        from_expression = fc.get_child("from_expression")
         for join_clause in fc.recursive_crawl("join_clause"):
             seen_using = False
             for seg in join_clause.iter_segments():
@@ -92,39 +97,41 @@ def get_select_statement_info(
         select_statement=segment,
         table_aliases=table_aliases or [],
         standalone_aliases=standalone_aliases or [],
+        value_table_aliases=value_table_aliases or [],
         reference_buffer=reference_buffer,
         select_targets=select_targets,
         col_aliases=col_aliases,
         using_cols=using_cols,
-        from_expression=from_expression,
     )
 
 
 def get_aliases_from_select(segment, dialect=None):
     """Gets the aliases referred to in the FROM clause.
 
-    Returns a tuple of two lists:
+    Returns a tuple of three lists:
     - Table aliases
+    - Standalone aliases
     - Value table function aliases
     """
     fc = segment.get_child("from_clause")
     if not fc:
         # If there's no from clause then just abort.
-        return None, None
+        return None, None, None
     aliases = fc.get_eventual_aliases()
 
     # We only want table aliases, so filter out aliases for value table
     # functions and pivot columns.
     table_aliases = []
+    value_table_aliases = []
     standalone_aliases = _get_pivot_table_columns(segment, dialect)
     for table_expr, alias_info in aliases:
         if _has_value_table_function(table_expr, dialect):
-            if alias_info[0] not in standalone_aliases:
-                standalone_aliases.append(alias_info[0])
+            if alias_info not in value_table_aliases:
+                value_table_aliases.append(alias_info)
         elif alias_info not in table_aliases:
             table_aliases.append(alias_info)
 
-    return table_aliases, standalone_aliases
+    return table_aliases, standalone_aliases, value_table_aliases
 
 
 def _has_value_table_function(table_expr, dialect):

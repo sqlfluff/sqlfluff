@@ -266,7 +266,7 @@ test_soql_ignore_rule:
     core:
       dialect: soql
 
-test_postgres_standalone_alias:
+test_postgres_value_table_alias:
   pass_str: |
     select
         sc.col1 as colx

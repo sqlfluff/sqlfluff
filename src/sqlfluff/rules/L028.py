@@ -106,7 +106,11 @@ class Rule_L028(BaseRule):
             select_info = query.selectables[0].select_info
             # How many table names are visible from here? If more than one then do
             # nothing.
-            if select_info and len(select_info.table_aliases) == 1:
+            if (
+                select_info
+                and len(select_info.table_aliases + select_info.value_table_aliases)
+                == 1
+            ):
                 fixable = True
                 # :TRICKY: Subqueries in the column list of a SELECT can see tables
                 # in the FROM list of the containing query. Thus, count tables at
@@ -126,7 +130,7 @@ class Rule_L028(BaseRule):
                     # fixes are unsafe if there's more than one table visible.
                     fixable = False
                 yield from _check_references(
-                    select_info.table_aliases,
+                    select_info.table_aliases + select_info.value_table_aliases,
                     select_info.standalone_aliases,
                     select_info.reference_buffer,
                     select_info.col_aliases,
