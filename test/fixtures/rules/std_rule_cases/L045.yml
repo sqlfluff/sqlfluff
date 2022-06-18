@@ -282,3 +282,75 @@ test_fail_nested_cte:
         select 1
     )
     select * from a
+
+test_pass_nested_query:
+  pass_str: |
+    WITH
+    foo AS (
+        SELECT
+            *
+        FROM
+            zipcode
+    ),
+
+    bar AS (
+        SELECT
+            *
+        FROM
+            county
+    ),
+
+    stage AS (
+        (SELECT
+            *
+        FROM
+            foo)
+
+            UNION ALL
+
+        (SELECT
+            *
+        FROM
+            bar)
+    )
+
+    SELECT
+        *
+    FROM
+        stage
+
+test_fail_nested_query:
+  fail_str: |
+    WITH
+    foo AS (
+        SELECT
+            *
+        FROM
+            zipcode
+    ),
+
+    bar AS (
+        SELECT
+            *
+        FROM
+            county
+    ),
+
+    stage AS (
+        (SELECT
+            *
+        FROM
+            foo)
+
+            UNION ALL
+
+        (SELECT
+            *
+        FROM
+            foo)
+    )
+
+    SELECT
+        *
+    FROM
+        stage

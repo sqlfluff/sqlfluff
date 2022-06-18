@@ -59,6 +59,8 @@ class Rule_L045(BaseRule):
             for source in query.crawl_sources(selectable.selectable, pop=True):
                 if isinstance(source, Query):
                     cls._visit_sources(source)
+        for child in query.children:
+            cls._visit_sources(child)
 
     def _eval(self, context: RuleContext) -> EvalResultType:
         result = []
