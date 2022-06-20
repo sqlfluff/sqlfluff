@@ -24,6 +24,7 @@ class L026Query(SelectCrawlerQuery):
     """SelectCrawler Query with custom L026 info."""
 
     aliases: List[AliasInfo] = field(default_factory=list)
+    standalone_aliases: List[str] = field(default_factory=list)
 
 
 @document_groups
@@ -125,6 +126,7 @@ class Rule_L026(BaseRule):
             if select_info:
                 # Record the available tables.
                 query.aliases += select_info.table_aliases
+                query.standalone_aliases += select_info.standalone_aliases
 
                 # Try and resolve each reference to a value in query.aliases (or
                 # in an ancestor query).
@@ -194,6 +196,8 @@ class Rule_L026(BaseRule):
         targets = []
         for alias in query.aliases:
             targets += self._alias_info_as_tuples(alias)
+        for standalone_alias in query.standalone_aliases:
+            targets.append((standalone_alias,))
         if not object_ref_matches_table(possible_references, targets):
             # No. Check the parent query, if there is one.
             if query.parent:
