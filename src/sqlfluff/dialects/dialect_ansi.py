@@ -1516,9 +1516,9 @@ class JoinOnConditionSegment(BaseSegment):
     type = "join_on_condition"
     match_grammar: Matchable = Sequence(
         "ON",
-        Indent,
+        Conditional(Indent, indented_on_contents=True),
         OptionallyBracketed(Ref("ExpressionSegment")),
-        Dedent,
+        Conditional(Dedent, indented_on_contents=True),
     )
 
 
