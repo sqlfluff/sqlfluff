@@ -207,6 +207,20 @@ being indented, in which case above SQL would become:
    JOIN another_table
    USING(a)
 
+There is also a similar :code:`indented_on_contents` config (defaulted to
+:code:`True`) which can be set to :code:`False` to align any :code:`AND` subsections
+of an :code:`ON` block with each other. If set to :code:`False` the SQL would become:
+
+.. code-block:: sql
+
+   SELECT
+      a,
+      b,
+   FROM my_table
+   JOIN another_table
+      ON condition1
+      AND condition2
+
 There is also a similar :code:`indented_ctes` config (defaulted to
 :code:`False`) which can be set to :code:`True` to enforce CTEs to be
 indented within the :code:`WITH` clause:
