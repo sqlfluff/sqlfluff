@@ -1518,7 +1518,7 @@ class JoinOnConditionSegment(BaseSegment):
         "ON",
         Conditional(Indent, indented_on_contents=True),
         OptionallyBracketed(Ref("ExpressionSegment")),
-        Conditional(Dedent, indented_on_contents=True)
+        Conditional(Dedent, indented_on_contents=True),
     )
 
 
