@@ -135,7 +135,6 @@ sparksql_dialect.sets("bare_functions").update(
         "CURRENT_DATE",
         "CURRENT_TIMESTAMP",
         "CURRENT_USER",
-        "symlink_format_manifest",
     ]
 )
 
@@ -2699,7 +2698,7 @@ class GenerateManifestFileStatementSegment(BaseSegment):
 
     match_grammar: Matchable = Sequence(
         "GENERATE",
-        Ref("BareFunctionSegment"),
+        "symlink_format_manifest",
         "FOR",
         "TABLE",
         OneOf(
