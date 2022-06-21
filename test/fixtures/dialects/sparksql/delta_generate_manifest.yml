@@ -1,0 +1,35 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 88368f13dfbfb76b725a5ac404392039ae9bf3479a89e4af6057f4b284c3599c
+file:
+- statement:
+    generate_manifest_file_statement:
+    - keyword: GENERATE
+    - bare_function: symlink_format_manifest
+    - keyword: FOR
+    - keyword: TABLE
+    - file_reference:
+        keyword: DELTA
+        dot: .
+        identifier: '`/data/events/`'
+- statement_terminator: ;
+- statement:
+    generate_manifest_file_statement:
+    - keyword: GENERATE
+    - bare_function: symlink_format_manifest
+    - keyword: FOR
+    - keyword: TABLE
+    - literal: "'/data/events/'"
+- statement_terminator: ;
+- statement:
+    generate_manifest_file_statement:
+    - keyword: GENERATE
+    - bare_function: symlink_format_manifest
+    - keyword: FOR
+    - keyword: TABLE
+    - table_reference:
+        identifier: events
+- statement_terminator: ;

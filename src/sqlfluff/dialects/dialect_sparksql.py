@@ -135,6 +135,7 @@ sparksql_dialect.sets("bare_functions").update(
         "CURRENT_DATE",
         "CURRENT_TIMESTAMP",
         "CURRENT_USER",
+        "symlink_format_manifest",
     ]
 )
 
@@ -2237,6 +2238,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("VacuumStatementSegment"),
             Ref("DescribeHistoryStatementSegment"),
             Ref("DescribeDetailStatementSegment"),
+            Ref("GenerateManifestFileStatementSegment"),
         ],
         remove=[
             Ref("TransactionStatementSegment"),
@@ -2679,6 +2681,27 @@ class DescribeDetailStatementSegment(BaseSegment):
     match_grammar: Matchable = Sequence(
         "DESCRIBE",
         "DETAIL",
+        OneOf(
+            Ref("QuotedLiteralSegment"),
+            Ref("FileReferenceSegment"),
+            Ref("TableReferenceSegment"),
+        ),
+    )
+
+
+class GenerateManifestFileStatementSegment(BaseSegment):
+    """A statement to `GENERATE` manifest files for a Delta Table.
+
+    https://docs.delta.io/latest/delta-utility.html#generate-a-manifest-file
+    """
+
+    type = "generate_manifest_file_statement"
+
+    match_grammar: Matchable = Sequence(
+        "GENERATE",
+        Ref("BareFunctionSegment"),
+        "FOR",
+        "TABLE",
         OneOf(
             Ref("QuotedLiteralSegment"),
             Ref("FileReferenceSegment"),
