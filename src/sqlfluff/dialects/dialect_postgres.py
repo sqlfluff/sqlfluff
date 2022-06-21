@@ -1109,13 +1109,120 @@ class WithinGroupClauseSegment(BaseSegment):
     match_grammar = Sequence(
         "WITHIN",
         "GROUP",
-        Bracketed(Anything(optional=True)),
+        Bracketed(Ref("OrderByClauseSegment", optional=True)),
     )
 
+
+class CubeRollupClauseSegment(BaseSegment):
+    """`CUBE` / `ROLLUP` clause within the `GROUP BY` clause.
+
+    https://www.postgresql.org/docs/current/queries-table-expressions.html#QUERIES-GROUPING-SETS
+    """
+
+    type = "cube_rollup_clause"
+    match_grammar = StartsWith(
+        OneOf("CUBE", "ROLLUP"),
+        terminator=OneOf(
+            "HAVING",
+            "QUALIFY",
+            Sequence("ORDER", "BY"),
+            "LIMIT",
+            "WINDOW",
+            Ref("SetOperatorSegment"),
+        ),
+    )
     parse_grammar = Sequence(
-        "WITHIN",
+        OneOf("CUBE", "ROLLUP"),
+        Bracketed(
+            Ref("GroupingExpressionList"),
+        ),
+    )
+
+
+class GroupingSetsClauseSegment(BaseSegment):
+    """`GROUPING SETS` clause within the `GROUP BY` clause.
+
+    https://www.postgresql.org/docs/current/queries-table-expressions.html#QUERIES-GROUPING-SETS
+    """
+
+    type = "grouping_sets_clause"
+    match_grammar = StartsWith(
+        Sequence("GROUPING", "SETS"),
+        terminator=OneOf(
+            "HAVING",
+            "QUALIFY",
+            Sequence("ORDER", "BY"),
+            "LIMIT",
+            "WINDOW",
+            Ref("SetOperatorSegment"),
+        ),
+    )
+    parse_grammar = Sequence(
+        "GROUPING",
+        "SETS",
+        Bracketed(
+            Delimited(
+                Ref("CubeRollupClauseSegment"),
+                Ref("GroupingExpressionList"),
+                Bracketed(),  # Allows empty parentheses
+            )
+        ),
+    )
+
+
+class GroupingExpressionList(BaseSegment):
+    """Grouping expression list within `CUBE` / `ROLLUP` `GROUPING SETS`."""
+
+    type = "grouping_expression_list"
+    match_grammar = Delimited(
+        OneOf(
+            Bracketed(Delimited(Ref("ExpressionSegment"))),
+            Ref("ExpressionSegment"),
+        )
+    )
+
+
+class GroupByClauseSegment(BaseSegment):
+    """A `GROUP BY` clause like in `SELECT`."""
+
+    type = "groupby_clause"
+    match_grammar = StartsWith(
+        Sequence("GROUP", "BY"),
+        terminator=OneOf(
+            Sequence("ORDER", "BY"),
+            "LIMIT",
+            "HAVING",
+            "QUALIFY",
+            "WINDOW",
+            Ref("SetOperatorSegment"),
+        ),
+        enforce_whitespace_preceding_terminator=True,
+    )
+    parse_grammar = Sequence(
         "GROUP",
-        Bracketed(Ref("OrderByClauseSegment", optional=True)),
+        "BY",
+        Indent,
+        Delimited(
+            OneOf(
+                Ref("ColumnReferenceSegment"),
+                # Can `GROUP BY 1`
+                Ref("NumericLiteralSegment"),
+                # Can `GROUP BY coalesce(col, 1)`
+                Ref("ExpressionSegment"),
+                Ref("CubeRollupClauseSegment"),
+                Ref("GroupingSetsClauseSegment"),
+                Bracketed(),  # Allows empty parentheses
+            ),
+            terminator=OneOf(
+                Sequence("ORDER", "BY"),
+                "LIMIT",
+                "HAVING",
+                "QUALIFY",
+                "WINDOW",
+                Ref("SetOperatorSegment"),
+            ),
+        ),
+        Dedent,
     )
 
 
