@@ -2698,7 +2698,7 @@ class GenerateManifestFileStatementSegment(BaseSegment):
 
     match_grammar: Matchable = Sequence(
         "GENERATE",
-        "symlink_format_manifest",
+        StringParser("symlink_format_manifest", CodeSegment, name="symlink_format_manifest"),
         "FOR",
         "TABLE",
         OneOf(
