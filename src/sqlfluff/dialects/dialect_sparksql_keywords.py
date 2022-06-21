@@ -287,5 +287,4 @@ UNRESERVED_KEYWORDS = [
     "HISTORY",
     "RETAIN",
     "RUN",
-    "symlink_format_manifest",
 ]
