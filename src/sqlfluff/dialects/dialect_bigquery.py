@@ -415,6 +415,10 @@ class MultiStatementSegment(BaseSegment):
     type = "multi_statement_segment"
     match_grammar: Matchable = OneOf(
         Ref("ForInStatementSegment"),
+        Ref("RepeatStatementSegment"),
+        Ref("WhileStatementSegment"),
+        Ref("LoopStatementSegment"),
+        Ref("IfStatementSegment"),
         Ref("CreateProcedureStatementSegment"),
     )
 
@@ -460,6 +464,9 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AssertStatementSegment"),
             Ref("CallStatementSegment"),
             Ref("ReturnStatementSegment"),
+            Ref("BreakStatementSegment"),
+            Ref("LeaveStatementSegment"),
+            Ref("ContinueStatementSegment"),
             Ref("RaiseStatementSegment"),
         ],
     )
@@ -478,17 +485,20 @@ class AssertStatementSegment(BaseSegment):
     )
 
 
-class ForInStatements(BaseSegment):
+class ForInStatementsSegment(BaseSegment):
     """Statements within a FOR..IN...DO...END FOR statement.
 
     https://cloud.google.com/bigquery/docs/reference/standard-sql/procedural-language#for-in
     """
 
-    type = "for_in_statement"
+    type = "for_in_statements"
     match_grammar = GreedyUntil(Sequence("END", "FOR"))
     parse_grammar = AnyNumberOf(
         Sequence(
-            Ref("StatementSegment"),
+            OneOf(
+                Ref("StatementSegment"),
+                Ref("MultiStatementSegment"),
+            ),
             Ref("DelimiterGrammar"),
         ),
     )
@@ -505,7 +515,6 @@ class ForInStatementSegment(BaseSegment):
         "FOR", terminator=Sequence("END", "FOR"), include_terminator=True
     )
     parse_grammar = Sequence(
-        # match_grammar = Sequence(
         "FOR",
         Ref("SingleIdentifierGrammar"),
         "IN",
@@ -514,10 +523,186 @@ class ForInStatementSegment(BaseSegment):
         Dedent,
         "DO",
         Indent,
-        Ref("ForInStatements"),
+        Ref("ForInStatementsSegment"),
         Dedent,
         "END",
         "FOR",
+    )
+
+
+class RepeatStatementsSegment(BaseSegment):
+    """Statements within a REPEAT...UNTIL... END REPEAT statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/procedural-language#repeat
+    """
+
+    type = "repeat_statements"
+    match_grammar = GreedyUntil(Ref.keyword("UNTIL"))
+    parse_grammar = AnyNumberOf(
+        Sequence(
+            OneOf(
+                Ref("StatementSegment"),
+                Ref("MultiStatementSegment"),
+            ),
+            Ref("DelimiterGrammar"),
+        ),
+    )
+
+
+class RepeatStatementSegment(BaseSegment):
+    """REPEAT...END REPEAT statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/procedural-language#repeat
+    """
+
+    type = "repeat_statement"
+    match_grammar = StartsWith(
+        "REPEAT", terminator=Sequence("END", "REPEAT"), include_terminator=True
+    )
+    parse_grammar = Sequence(
+        "REPEAT",
+        Indent,
+        Ref("RepeatStatementsSegment"),
+        "UNTIL",
+        Ref("ExpressionSegment"),
+        Dedent,
+        "END",
+        "REPEAT",
+    )
+
+
+class IfStatementsSegment(BaseSegment):
+    """Statements within a IF... END IF statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/procedural-language#if
+    """
+
+    type = "if_statements"
+    match_grammar = GreedyUntil(OneOf("ELSE", "ELSEIF", Sequence("END", "IF")))
+    parse_grammar = AnyNumberOf(
+        Sequence(
+            OneOf(
+                Ref("StatementSegment"),
+                Ref("MultiStatementSegment"),
+            ),
+            Ref("DelimiterGrammar"),
+        ),
+    )
+
+
+class IfStatementSegment(BaseSegment):
+    """IF...END IF statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/procedural-language#if
+    """
+
+    type = "if_statement"
+    match_grammar = StartsWith(
+        "IF", terminator=Sequence("END", "IF"), include_terminator=True
+    )
+    parse_grammar = Sequence(
+        "IF",
+        Ref("ExpressionSegment"),
+        "THEN",
+        Indent,
+        Ref("IfStatementsSegment"),
+        Dedent,
+        AnyNumberOf(
+            Sequence(
+                "ELSEIF",
+                Ref("ExpressionSegment"),
+                "THEN",
+                Indent,
+                Ref("IfStatementsSegment"),
+                Dedent,
+            ),
+        ),
+        Sequence(
+            "ELSE",
+            Indent,
+            Ref("IfStatementsSegment"),
+            Dedent,
+            optional=True,
+        ),
+        "END",
+        "IF",
+    )
+
+
+class LoopStatementsSegment(BaseSegment):
+    """Statements within a LOOP... END LOOP statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/procedural-language#loop
+    """
+
+    type = "loop_statements"
+    match_grammar = GreedyUntil(Sequence("END", "LOOP"))
+    parse_grammar = AnyNumberOf(
+        Sequence(
+            OneOf(
+                Ref("StatementSegment"),
+                Ref("MultiStatementSegment"),
+            ),
+            Ref("DelimiterGrammar"),
+        ),
+    )
+
+
+class LoopStatementSegment(BaseSegment):
+    """LOOP...END LOOP statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/procedural-language#loop
+    """
+
+    type = "loop_statement"
+    match_grammar = StartsWith(
+        "LOOP", terminator=Sequence("END", "LOOP"), include_terminator=True
+    )
+    parse_grammar = Sequence(
+        "LOOP",
+        Indent,
+        Ref("LoopStatementsSegment"),
+        Dedent,
+        "END",
+        "LOOP",
+    )
+
+
+class WhileStatementsSegment(BaseSegment):
+    """Statements within a WHILE... END WHILE statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/procedural-language#while
+    """
+
+    type = "while_statements"
+    match_grammar = GreedyUntil(Sequence("END", "WHILE"))
+    parse_grammar = AnyNumberOf(
+        Sequence(
+            Ref("StatementSegment"),
+            Ref("DelimiterGrammar"),
+        ),
+    )
+
+
+class WhileStatementSegment(BaseSegment):
+    """WHILE...END WHILE statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/procedural-language#while
+    """
+
+    type = "while_statement"
+    match_grammar = StartsWith(
+        "WHILE", terminator=Sequence("END", "WHILE"), include_terminator=True
+    )
+    parse_grammar = Sequence(
+        "WHILE",
+        Ref("ExpressionSegment"),
+        "DO",
+        Indent,
+        Ref("WhileStatementsSegment"),
+        Dedent,
+        "END",
+        "WHILE",
     )
 
 
@@ -1768,6 +1953,46 @@ class ReturnStatementSegment(BaseSegment):
 
     match_grammar: Matchable = Sequence(
         "RETURN",
+    )
+
+
+class BreakStatementSegment(BaseSegment):
+    """A `BREAK` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/procedural-language#break
+    """
+
+    type = "break_statement"
+
+    match_grammar: Matchable = Sequence(
+        "BREAK",
+    )
+
+
+class LeaveStatementSegment(BaseSegment):
+    """A `LEAVE` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/procedural-language#leave
+    """
+
+    type = "leave_statement"
+
+    match_grammar: Matchable = Sequence(
+        "LEAVE",
+    )
+
+
+class ContinueStatementSegment(BaseSegment):
+    """A `CONTINUE` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/procedural-language#continue
+    """
+
+    type = "continue_statement"
+
+    match_grammar: Matchable = OneOf(
+        "CONTINUE",
+        "ITERATE",
     )
 
 
