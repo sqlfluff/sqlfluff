@@ -201,3 +201,47 @@ test_pass_column_name_definition_multiple:
         cte_1.var,
         cte_2.var
     FROM cte_1, cte_2;
+
+test_fail_column_name_definition_newline:
+  fail_str: |
+    WITH
+    cte_1 (var) AS
+    (
+        SELECT 2
+    )
+    SELECT
+        cte_1.var,
+        cte_2.var
+    FROM cte_1, cte_2;
+  fix_str: |
+    WITH
+    cte_1 (var) AS
+    (
+        SELECT 2
+    )
+
+    SELECT
+        cte_1.var,
+        cte_2.var
+    FROM cte_1, cte_2;
+
+test_fail_column_name_definition_comment:
+  fail_str: |
+    WITH
+    cte_1 (var) AS /* random comment */ (
+        SELECT 2
+    )
+    SELECT
+        cte_1.var,
+        cte_2.var
+    FROM cte_1, cte_2;
+  fix_str: |
+    WITH
+    cte_1 (var) AS /* random comment */ (
+        SELECT 2
+    )
+
+    SELECT
+        cte_1.var,
+        cte_2.var
+    FROM cte_1, cte_2;

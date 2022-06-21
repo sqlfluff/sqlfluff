@@ -69,7 +69,7 @@ class Rule_L022(BaseRule):
                         (
                             s
                             for s in expanded_segments[:idx][::-1]
-                            if not s.is_type("whitespace")
+                            if not s.is_type("whitespace", "newline", "comment")
                         ),
                         None,
                     )
