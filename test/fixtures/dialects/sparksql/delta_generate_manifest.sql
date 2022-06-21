@@ -1,5 +1,5 @@
-GENERATE SYMLINK_FORMAT_MANIFEST FOR TABLE DELTA.`/data/events/`;
+GENERATE symlink_format_manifest FOR TABLE DELTA.`/data/events/`;
 
-GENERATE SYMLINK_FORMAT_MANIFEST FOR TABLE '/data/events/';
+GENERATE symlink_format_manifest FOR TABLE '/data/events/';
 
-GENERATE SYMLINK_FORMAT_MANIFEST FOR TABLE events;
+GENERATE symlink_format_manifest FOR TABLE events;
