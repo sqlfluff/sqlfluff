@@ -283,6 +283,7 @@ UNRESERVED_KEYWORDS = [
     # Delta Lake
     "DETAIL",
     "DRY",
+    "GENERATE",
     "HISTORY",
     "RETAIN",
     "RUN",
