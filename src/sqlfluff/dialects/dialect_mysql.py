@@ -21,6 +21,7 @@ from sqlfluff.core.parser import (
     Ref,
     RegexLexer,
     RegexParser,
+    SegmentGenerator,
     Sequence,
     StartsWith,
     StringLexer,
@@ -83,6 +84,8 @@ mysql_dialect.sets("reserved_keywords").difference_update(
 # TODO - resolve this properly
 mysql_dialect.sets("reserved_keywords").difference_update(["INDEX"])
 
+# Add the `VALUES` function name as a valid function.
+mysql_dialect.sets("values_function_name").update(["VALUES"])
 
 mysql_dialect.replace(
     QuotedIdentifierSegment=NamedParser(
@@ -207,6 +210,14 @@ mysql_dialect.add(
         name="at_sign_literal",
         type="literal",
         trim_chars=("@",),
+    ),
+    ValuesFunctionName=SegmentGenerator(
+        lambda dialect: RegexParser(
+            r"^(" + r"|".join(dialect.sets("values_function_name")) + r")$",
+            CodeSegment,
+            name="function_name_identifier",
+            type="function_name_identifier",
+        )
     ),
 )
 
@@ -447,6 +458,85 @@ class CreateUserStatementSegment(ansi.CreateUserStatementSegment):
             OneOf("COMMENT", "ATTRIBUTE"),
             Ref("QuotedLiteralSegment"),
             optional=True,
+        ),
+    )
+
+
+class ValuesFunctionNameSegment(BaseSegment):
+    """VALUES function name segment.
+
+    Need to be able to specify this as type function_name
+    so that linting rules identify it properly
+    """
+
+    type = "function_name"
+    match_grammar: Matchable = Ref("ValuesFunctionName")
+
+
+class FunctionSegment(BaseSegment):
+    """A scalar or aggregate function.
+
+    Maybe in the future we should distinguish between
+    aggregate functions and other functions. For now
+    we treat them the same because they look the same
+    for our purposes.
+
+    Modified in order to accept the `VALUES` MySQL
+    function.
+    """
+
+    type = "function"
+    match_grammar: Matchable = OneOf(
+        Sequence(
+            # Add VALUES function for MySQL
+            Sequence(
+                Ref("ValuesFunctionNameSegment"),
+                Bracketed(
+                    Ref(
+                        "ColumnReferenceSegment",
+                        ephemeral_name="ColumnReferenceSegment",
+                    ),
+                ),
+            ),
+        ),
+        Sequence(
+            # Treat functions which take date parts separately
+            # So those functions parse date parts as DatetimeUnitSegment
+            # rather than identifiers.
+            Sequence(
+                Ref("DatePartFunctionNameSegment"),
+                Bracketed(
+                    Delimited(
+                        Ref("DatetimeUnitSegment"),
+                        Ref(
+                            "FunctionContentsGrammar",
+                            # The brackets might be empty for some functions...
+                            optional=True,
+                            ephemeral_name="FunctionContentsGrammar",
+                        ),
+                    )
+                ),
+            ),
+        ),
+        Sequence(
+            Sequence(
+                Ref(
+                    "FunctionNameSegment",
+                    exclude=OneOf(
+                        Ref("DatePartFunctionNameSegment"),
+                        Ref("ValuesClauseSegment"),
+                    ),
+                ),
+                Bracketed(
+                    Ref(
+                        "FunctionContentsGrammar",
+                        # The brackets might be empty for some functions...
+                        optional=True,
+                        ephemeral_name="FunctionContentsGrammar",
+                    )
+                ),
+            ),
+            Ref("PostFunctionGrammar", optional=True),
         ),
     )
 
