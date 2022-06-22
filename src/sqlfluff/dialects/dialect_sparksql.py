@@ -2736,8 +2736,5 @@ class ConvertToDeltaStatementSegment(BaseSegment):
         "DELTA",
         Ref("FileReferenceSegment"),
         Sequence("NO", "STATISTICS", optional=True),
-        Ref(
-            "PartitionSpecGrammar",
-            optional=True,
-        ),
+        Ref("PartitionSpecGrammar", optional=True),
     )
