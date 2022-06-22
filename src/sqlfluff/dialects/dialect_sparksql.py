@@ -380,6 +380,7 @@ sparksql_dialect.add(
         # Similar to DataSourcesV2
         "DELTA",  # https://github.com/delta-io/delta
         "CSV",
+        "ICEBERG",
         "TEXT",
         "BINARYFILE",
     ),
@@ -423,14 +424,20 @@ sparksql_dialect.add(
     StartHintSegment=StringParser("/*+", KeywordSegment, name="start_hint"),
     EndHintSegment=StringParser("*/", KeywordSegment, name="end_hint"),
     PartitionSpecGrammar=Sequence(
-        OneOf("PARTITION", Sequence("PARTITIONED", "BY")),
+        OneOf(
+            "PARTITION",
+            Sequence("PARTITIONED", "BY"),
+        ),
         Bracketed(
             Delimited(
-                Sequence(
-                    Ref("ColumnReferenceSegment"),
-                    Ref("EqualsSegment", optional=True),
-                    Ref("LiteralGrammar", optional=True),
-                    Ref("CommentGrammar", optional=True),
+                OneOf(
+                    Ref("ColumnDefinitionSegment"),
+                    Sequence(
+                        Ref("ColumnReferenceSegment"),
+                        Ref("EqualsSegment", optional=True),
+                        Ref("LiteralGrammar", optional=True),
+                        Ref("CommentGrammar", optional=True),
+                    ),
                 ),
             ),
         ),
@@ -2238,6 +2245,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DescribeHistoryStatementSegment"),
             Ref("DescribeDetailStatementSegment"),
             Ref("GenerateManifestFileStatementSegment"),
+            Ref("ConvertToDeltaStatementSegment"),
         ],
         remove=[
             Ref("TransactionStatementSegment"),
@@ -2709,5 +2717,27 @@ class GenerateManifestFileStatementSegment(BaseSegment):
             Ref("QuotedLiteralSegment"),
             Ref("FileReferenceSegment"),
             Ref("TableReferenceSegment"),
+        ),
+    )
+
+
+class ConvertToDeltaStatementSegment(BaseSegment):
+    """A statement to convert other file formats to Delta.
+
+    https://docs.delta.io/latest/delta-utility.html#convert-a-parquet-table-to-a-delta-table
+    https://docs.databricks.com/delta/delta-utility.html#convert-an-iceberg-table-to-a-delta-table
+    """
+
+    type = "convert_to_delta_statement"
+
+    match_grammar: Matchable = Sequence(
+        "CONVERT",
+        "TO",
+        "DELTA",
+        Ref("FileReferenceSegment"),
+        Sequence("NO", "STATISTICS", optional=True),
+        Ref(
+            "PartitionSpecGrammar",
+            optional=True,
         ),
     )
