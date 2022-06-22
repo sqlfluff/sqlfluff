@@ -3177,6 +3177,7 @@ class SetClauseSegment(BaseSegment):
             Ref("FunctionSegment"),
             Ref("ColumnReferenceSegment"),
             Ref("ExpressionSegment"),
+            Ref("ValuesClauseSegment"),
             "DEFAULT",
         ),
         AnyNumberOf(Ref("ShorthandCastSegment")),
