@@ -2233,6 +2233,15 @@ ansi_dialect.add(
 )
 
 
+class CTEColumnList(BaseSegment):
+    """Bracketed column list portion of a CTE definition."""
+
+    type = "cte_column_list"
+    match_grammar = Bracketed(
+        Ref("SingleIdentifierListSegment"),
+    )
+
+
 class CTEDefinitionSegment(BaseSegment):
     """A CTE Definition from a WITH statement.
 
@@ -2242,10 +2251,7 @@ class CTEDefinitionSegment(BaseSegment):
     type = "common_table_expression"
     match_grammar: Matchable = Sequence(
         Ref("SingleIdentifierGrammar"),
-        Bracketed(
-            Ref("SingleIdentifierListSegment"),
-            optional=True,
-        ),
+        Ref("CTEColumnList", optional=True),
         "AS",
         Bracketed(
             # Ephemeral here to subdivide the query.
