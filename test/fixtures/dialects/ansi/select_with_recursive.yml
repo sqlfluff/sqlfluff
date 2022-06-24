@@ -3,21 +3,22 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bd4359f11fbb418769bf1d0fa5d56a403132c0e00d35845b8685cbd36dfe3999
+_hash: 8921c4f8390d9ea672e57260f95f01b095e7af459434a18fbc786ed6e837fe88
 file:
   statement:
     with_compound_statement:
     - keyword: WITH
     - keyword: RECURSIVE
     - common_table_expression:
-      - identifier: cte
-      - bracketed:
-          start_bracket: (
-          identifier_list:
-            identifier: a
-          end_bracket: )
-      - keyword: AS
-      - bracketed:
+        identifier: cte
+        cte_column_list:
+          bracketed:
+            start_bracket: (
+            identifier_list:
+              identifier: a
+            end_bracket: )
+        keyword: AS
+        bracketed:
           start_bracket: (
           set_expression:
           - select_statement:
