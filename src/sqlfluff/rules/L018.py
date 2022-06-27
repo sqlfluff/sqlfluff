@@ -55,7 +55,7 @@ class Rule_L018(BaseRule):
     groups = ("all", "core")
     _works_on_unparsable = False
     needs_raw_stack = True
-    config_keywords = ["tab_space_size"]
+    config_keywords = ["tab_space_size", "ignore_indent"]
 
     def _eval(self, context: RuleContext):
         """WITH clause closing bracket should be aligned with WITH keyword.
@@ -151,6 +151,8 @@ class Rule_L018(BaseRule):
                     ]
                     if all(elem.is_type("whitespace") for elem in prev_segs_on_line):
                         # We can move it back, it's all whitespace
+                        if self.ignore_indent:
+                            continue
                         fixes = [
                             LintFix.create_before(
                                 seg,

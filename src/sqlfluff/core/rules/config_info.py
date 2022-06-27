@@ -194,6 +194,12 @@ STANDARD_CONFIG_INFO_DICT = {
         "validation": ["single", "multiple"],
         "definition": "Treatment of wildcards. Defaults to ``single``.",
     },
+    "ignore_indent": {
+        "validation": [True, False],
+        "definition": (
+            "Ignore indentation for the rule."
+        ),
+    },
 }
 
 
