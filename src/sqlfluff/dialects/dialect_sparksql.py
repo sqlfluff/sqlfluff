@@ -2350,7 +2350,6 @@ class AliasExpressionSegment(ansi.AliasExpressionSegment):
                 Ref("JoinTypeKeywords"),
                 "WINDOW",
                 "PIVOT",
-                Ref("DatetimeUnitSegment"),
             ),
         ),
     )
