@@ -2246,6 +2246,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DescribeDetailStatementSegment"),
             Ref("GenerateManifestFileStatementSegment"),
             Ref("ConvertToDeltaStatementSegment"),
+            Ref("RestoreTableStatementSegment"),
         ],
         remove=[
             Ref("TransactionStatementSegment"),
@@ -2736,4 +2737,28 @@ class ConvertToDeltaStatementSegment(BaseSegment):
         Ref("FileReferenceSegment"),
         Sequence("NO", "STATISTICS", optional=True),
         Ref("PartitionSpecGrammar", optional=True),
+    )
+
+
+class RestoreTableStatementSegment(BaseSegment):
+    """A statement to `RESTORE` a Delta Table to a previous version.
+
+    https://docs.delta.io/latest/delta-utility.html#restore-a-delta-table-to-an-earlier-state
+    """
+
+    type = "restore_table_statement"
+
+    match_grammar: Matchable = Sequence(
+        "RESTORE",
+        "TABLE",
+        OneOf(
+            Ref("QuotedLiteralSegment"),
+            Ref("FileReferenceSegment"),
+            Ref("TableReferenceSegment"),
+        ),
+        "TO",
+        OneOf(
+            Ref("TimestampAsOfGrammar"),
+            Ref("VersionAsOfGrammar"),
+        ),
     )
