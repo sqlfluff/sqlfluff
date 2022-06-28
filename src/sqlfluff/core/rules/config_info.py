@@ -196,9 +196,7 @@ STANDARD_CONFIG_INFO_DICT = {
     },
     "ignore_indent": {
         "validation": [True, False],
-        "definition": (
-            "Ignore indentation for the rule."
-        ),
+        "definition": "Ignore indentation for the rule.",
     },
 }
 
