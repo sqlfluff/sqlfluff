@@ -761,7 +761,8 @@ bigquery_dialect.replace(
         ),
     ),
     FunctionNameIdentifierSegment=OneOf(
-        # In BigQuery struct() and array() have a special syntax, so we don't treat them as functions
+        # In BigQuery struct() and array() have a special syntax,
+        # so we don't treat them as functions
         RegexParser(
             r"[A-Z_][A-Z0-9_]*",
             CodeSegment,
@@ -1082,7 +1083,7 @@ class TypelessArraySegment(ansi.TypelessArraySegment):
         "ARRAY",
         Bracketed(
             Ref("SelectableGrammar"),
-        )
+        ),
     )
 
 

@@ -2602,8 +2602,9 @@ class TypelessArraySegment(BaseSegment):
 
     (Yes in BigQuery for example)
     """
+
     type = "typeless_array"
-    match_grammar = Nothing()
+    match_grammar: Matchable = Nothing()
 
 
 class CreateTableStatementSegment(BaseSegment):
