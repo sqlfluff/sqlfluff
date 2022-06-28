@@ -62,6 +62,9 @@ class Rule_L018(BaseRule):
 
         Look for a with clause and evaluate the position of closing brackets.
         """
+        # Config type hints
+        self.ignore_indent: bool
+
         # We only trigger on start_bracket (open parenthesis)
         if context.segment.is_type("with_compound_statement"):
             raw_stack_buff = list(context.raw_stack)
