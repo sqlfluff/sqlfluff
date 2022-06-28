@@ -761,13 +761,14 @@ bigquery_dialect.replace(
         ),
     ),
     FunctionNameIdentifierSegment=OneOf(
-        # In BigQuery struct() has a special syntax, so we don't treat it as a function
+        # In BigQuery struct() and array() have a special syntax,
+        # so we don't treat them as functions
         RegexParser(
             r"[A-Z_][A-Z0-9_]*",
             CodeSegment,
             name="function_name_identifier",
             type="function_name_identifier",
-            anti_template=r"STRUCT",
+            anti_template=r"^(STRUCT|ARRAY)$",
         ),
         RegexParser(
             r"`[^`]*`",
@@ -1068,6 +1069,20 @@ class TypelessStructSegment(ansi.TypelessStructSegment):
                     Ref("AliasExpressionSegment", optional=True),
                 ),
             ),
+        ),
+    )
+
+
+class TypelessArraySegment(ansi.TypelessArraySegment):
+    """Expression to construct a ARRAY from a subquery.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/array_functions#array
+    """
+
+    match_grammar = Sequence(
+        "ARRAY",
+        Bracketed(
+            Ref("SelectableGrammar"),
         ),
     )
 
