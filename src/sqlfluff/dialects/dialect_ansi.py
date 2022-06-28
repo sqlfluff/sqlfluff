@@ -1783,6 +1783,7 @@ ansi_dialect.add(
             Ref("LiteralGrammar"),
             Ref("IntervalExpressionSegment"),
             Ref("TypelessStructSegment"),
+            Ref("TypelessArraySegment"),
             Ref("ColumnReferenceSegment"),
             # For triggers we allow "NEW.*" but not just "*" nor "a.b.*"
             # So can't use WildcardIdentifierSegment nor WildcardExpressionSegment
@@ -2594,6 +2595,15 @@ class TypelessStructSegment(BaseSegment):
 
     type = "typeless_struct"
     match_grammar: Matchable = Nothing()
+
+
+class TypelessArraySegment(BaseSegment):
+    """Expression to construct a ARRAY from a subquery.
+
+    (Yes in BigQuery for example)
+    """
+    type = "typeless_array"
+    match_grammar = Nothing()
 
 
 class CreateTableStatementSegment(BaseSegment):
