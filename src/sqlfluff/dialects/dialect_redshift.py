@@ -655,6 +655,7 @@ class AlterTableActionSegment(BaseSegment):
             Ref.keyword("COLUMN", optional=True),
             Ref("ColumnReferenceSegment"),
             Ref("DatatypeSegment"),
+            Sequence("DEFAULT", Ref("ExpressionSegment"), optional=True),
             Sequence("COLLATE", Ref("QuotedLiteralSegment"), optional=True),
             AnyNumberOf(Ref("ColumnConstraintSegment")),
         ),
