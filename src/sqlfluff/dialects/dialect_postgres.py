@@ -2710,10 +2710,6 @@ class AlterDefaultPrivilegesSchemaObjectsSegment(BaseSegment):
     """`ALTER DEFAULT PRIVILEGES` schema object types.
 
     https://www.postgresql.org/docs/13/sql-alterdefaultprivileges.html
-
-    PROCEDURES added as it's valid in Redshift.
-
-    https://docs.aws.amazon.com/redshift/latest/dg/r_ALTER_DEFAULT_PRIVILEGES.html
     """
 
     type = "alter_default_privileges_schema_object"
@@ -2724,7 +2720,6 @@ class AlterDefaultPrivilegesSchemaObjectsSegment(BaseSegment):
         "SEQUENCES",
         "TYPES",
         "SCHEMAS",
-        "PROCEDURES",
     )
 
 

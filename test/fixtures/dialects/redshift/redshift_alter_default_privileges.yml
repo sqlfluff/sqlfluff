@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 218ce433c6526950403ba5e9c96ca631ab53e7c2ac5f0004362a282358d5bf47
+_hash: 919d9b2003385e0e63d94c9cd3dfa7fb31d5773dc0265c0ad835d1e9076edad4
 file:
   statement:
     alter_default_privileges_statement:
@@ -23,8 +23,7 @@ file:
       - alter_default_privileges_object_privilege:
           keyword: EXECUTE
       - keyword: 'ON'
-      - alter_default_privileges_schema_object:
-          keyword: PROCEDURES
+      - keyword: PROCEDURES
       - keyword: TO
       - alter_default_privileges_to_from_roles:
           role_reference:

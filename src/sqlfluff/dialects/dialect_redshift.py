@@ -181,6 +181,15 @@ redshift_dialect.replace(
         ),
         allow_gaps=False,
     ),
+    AlterDefaultPrivilegesSchemaObjectsSegment=OneOf(
+        "TABLES",
+        "FUNCTIONS",
+        "ROUTINES",
+        "SEQUENCES",
+        "TYPES",
+        "SCHEMAS",
+        "PROCEDURES",
+    ),
 )
 
 
