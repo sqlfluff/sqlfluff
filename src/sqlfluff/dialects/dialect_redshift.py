@@ -1597,6 +1597,21 @@ class DropProcedureStatementSegment(BaseSegment):
     )
 
 
+class AlterDefaultPrivilegesSchemaObjectsSegment(
+    postgres.AlterDefaultPrivilegesSchemaObjectsSegment
+):
+    """`ALTER DEFAULT PRIVILEGES` schema object types.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_ALTER_DEFAULT_PRIVILEGES.html
+    """
+
+    match_grammar = (
+        postgres.AlterDefaultPrivilegesSchemaObjectsSegment.match_grammar.copy(
+            insert=[Sequence("PROCEDURES")]
+        )
+    )
+
+
 class DeclareStatementSegment(BaseSegment):
     """A `DECLARE` statement.
 
