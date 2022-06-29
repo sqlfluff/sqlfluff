@@ -112,7 +112,7 @@ class MultiStringParser(StringParser):
         optional: bool = False,
         **segment_kwargs,
     ):
-        self.templates = templates
+        self.templates = {template.upper() for template in templates}
         self.raw_class = raw_class
         self.name = name
         self.type = type
@@ -123,16 +123,15 @@ class MultiStringParser(StringParser):
         """Return simple options for this matcher.
 
         Because string matchers are not case sensitive we can
-        just return the template here.
+        just return the templates here.
         """
-        return [template.upper() for template in self.templates]
+        return list(self.templates)
 
     def _is_first_match(self, segment: BaseSegment):
         """Does the segment provided match according to the current rules."""
         # Is the target a match and IS IT CODE.
         # The latter stops us accidentally matching comments.
-        upper_templates = {template.upper() for template in self.templates}
-        if segment.raw.upper() in upper_templates and segment.is_code:
+        if segment.raw.upper() in self.templates and segment.is_code:
             return True
         return False
 
