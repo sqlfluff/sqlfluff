@@ -2107,12 +2107,8 @@ class LoadDataSegment(BaseSegment):
         ),
         Sequence(
             "LINES",
-            Sequence(
-                OneOf("STARTING", "TERMINATED"),
-                "BY",
-                Ref("QuotedLiteralSegment"),
-                optional=True,
-            ),
+            Sequence("STARTING", "BY", Ref("QuotedLiteralSegment"), optional=True),
+            Sequence("TERMINATED", "BY", Ref("QuotedLiteralSegment"), optional=True),
             optional=True,
         ),
         Sequence(
