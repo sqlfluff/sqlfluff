@@ -113,11 +113,16 @@ class MultiStringParser(StringParser):
         **segment_kwargs,
     ):
         self.templates = {template.upper() for template in templates}
-        self.raw_class = raw_class
-        self.name = name
-        self.type = type
-        self.optional = optional
-        self.segment_kwargs = segment_kwargs or {}
+        super().__init__(
+            template="",
+            raw_class=raw_class,
+            name=name,
+            type=type,
+            optional=optional,
+            **segment_kwargs,
+        )
+        # Delete attribute which is replaced by `self.templates` for this `Parser``
+        del self.template
 
     def simple(self, parse_context: "ParseContext") -> Optional[List[str]]:
         """Return simple options for this matcher.
