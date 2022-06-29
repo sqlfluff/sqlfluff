@@ -1,0 +1,32 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 218ce433c6526950403ba5e9c96ca631ab53e7c2ac5f0004362a282358d5bf47
+file:
+  statement:
+    alter_default_privileges_statement:
+    - keyword: ALTER
+    - keyword: DEFAULT
+    - keyword: PRIVILEGES
+    - keyword: FOR
+    - keyword: USER
+    - object_reference:
+        identifier: the_user
+    - keyword: IN
+    - keyword: SCHEMA
+    - schema_reference:
+        identifier: the_schema
+    - alter_default_privileges_grant:
+      - keyword: GRANT
+      - alter_default_privileges_object_privilege:
+          keyword: EXECUTE
+      - keyword: 'ON'
+      - alter_default_privileges_schema_object:
+          keyword: PROCEDURES
+      - keyword: TO
+      - alter_default_privileges_to_from_roles:
+          role_reference:
+            identifier: the_other_user
+  statement_terminator: ;
