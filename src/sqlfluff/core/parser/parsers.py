@@ -131,7 +131,7 @@ class MultiStringParser(StringParser):
         """Does the segment provided match according to the current rules."""
         # Is the target a match and IS IT CODE.
         # The latter stops us accidentally matching comments.
-        if segment.raw.upper() in self.templates and segment.is_code:
+        if segment.is_code and segment.raw.upper() in self.templates:
             return True
         return False
 
