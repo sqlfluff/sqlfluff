@@ -4,7 +4,7 @@ Matchable objects which return individual segments.
 """
 
 import regex
-from typing import Type, Optional, List, Tuple, Union
+from typing import Collection, Type, Optional, List, Tuple, Union
 
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.matchable import Matchable
@@ -98,6 +98,43 @@ class StringParser(Matchable):
             elif self._is_first_match(segments[0]):
                 return self._make_match_from_first_result(segments)
         return MatchResult.from_unmatched(segments)
+
+
+class MultiStringParser(StringParser):
+    """An object which matches and returns raw segments on a collection of strings."""
+
+    def __init__(
+        self,
+        templates: Collection[str],
+        raw_class: Type[RawSegment],
+        name: Optional[str] = None,
+        type: Optional[str] = None,
+        optional: bool = False,
+        **segment_kwargs,
+    ):
+        self.templates = templates
+        self.raw_class = raw_class
+        self.name = name
+        self.type = type
+        self.optional = optional
+        self.segment_kwargs = segment_kwargs or {}
+
+    def simple(self, parse_context: "ParseContext") -> Optional[List[str]]:
+        """Return simple options for this matcher.
+
+        Because string matchers are not case sensitive we can
+        just return the template here.
+        """
+        return [template.upper() for template in self.templates]
+
+    def _is_first_match(self, segment: BaseSegment):
+        """Does the segment provided match according to the current rules."""
+        # Is the target a match and IS IT CODE.
+        # The latter stops us accidentally matching comments.
+        upper_templates = {template.upper() for template in self.templates}
+        if segment.raw.upper() in upper_templates and segment.is_code:
+            return True
+        return False
 
 
 class NamedParser(StringParser):
