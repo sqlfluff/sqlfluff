@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1d4d0e6da207670465d878eb8f0162e9bb80934e9a36ce22029c38e4f72e8407
+_hash: e6ec7ed245bc31af652d9776b8149d02ec0a4486e19793a77e488ea6e1596957
 file:
 - statement:
     alter_table_statement:
@@ -315,4 +315,82 @@ file:
           identifier: c0
       - keyword: encode
       - keyword: lzo
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - identifier: the_schema
+      - dot: .
+      - identifier: the_table
+    - alter_table_action_segment:
+      - keyword: ADD
+      - keyword: COLUMN
+      - column_reference:
+          identifier: the_timestamp
+      - data_type:
+          datetime_type_identifier:
+            keyword: TIMESTAMP
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - identifier: the_schema
+      - dot: .
+      - identifier: the_table
+    - alter_table_action_segment:
+      - keyword: ADD
+      - keyword: COLUMN
+      - column_reference:
+          identifier: the_boolean
+      - data_type:
+          keyword: BOOLEAN
+      - keyword: DEFAULT
+      - expression:
+          literal: 'FALSE'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: alter
+    - keyword: table
+    - table_reference:
+        identifier: users
+    - alter_table_action_segment:
+      - keyword: add
+      - keyword: column
+      - column_reference:
+          identifier: feedback_score
+      - data_type:
+          keyword: int
+      - keyword: default
+      - expression:
+          literal: 'NULL'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: alter
+    - keyword: table
+    - table_reference:
+        identifier: users
+    - alter_table_action_segment:
+      - keyword: drop
+      - keyword: column
+      - column_reference:
+          identifier: feedback_score
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: alter
+    - keyword: table
+    - table_reference:
+        identifier: users
+    - alter_table_action_segment:
+      - keyword: drop
+      - keyword: column
+      - column_reference:
+          identifier: feedback_score
+      - keyword: cascade
 - statement_terminator: ;
