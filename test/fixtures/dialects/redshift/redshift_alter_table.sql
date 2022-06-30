@@ -42,3 +42,16 @@ alter table t1 alter sortkey(c0, c1);
 alter table t1 alter encode auto;
 
 alter table t2 alter column c0 encode lzo;
+
+ALTER TABLE the_schema.the_table ADD COLUMN the_timestamp TIMESTAMP;
+
+ALTER TABLE the_schema.the_table ADD COLUMN the_boolean BOOLEAN DEFAULT FALSE;
+
+alter table users
+add column feedback_score int
+default NULL;
+
+alter table users drop column feedback_score;
+
+alter table users
+drop column feedback_score cascade;

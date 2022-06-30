@@ -865,6 +865,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("UpsertClauseListSegment"),
             Ref("InsertRowAliasSegment"),
             Ref("FlushStatementSegment"),
+            Ref("LoadDataSegment"),
         ],
     )
 
@@ -2066,5 +2067,63 @@ class FlushStatementSegment(BaseSegment):
                 ),
                 Sequence("FOR", "EXPORT", optional=True),
             ),
+        ),
+    )
+
+
+class LoadDataSegment(BaseSegment):
+    """A `LOAD DATA` statement.
+
+    As per https://dev.mysql.com/doc/refman/8.0/en/load-data.html
+    """
+
+    type = "load_data_statement"
+
+    match_grammar = Sequence(
+        "LOAD",
+        "DATA",
+        OneOf("LOW_PRIORITY", "CONCURRENT", optional=True),
+        Sequence("LOCAL", optional=True),
+        "INFILE",
+        Ref("QuotedLiteralSegment"),
+        OneOf("REPLACE", "IGNORE", optional=True),
+        "INTO",
+        "TABLE",
+        Ref("TableReferenceSegment"),
+        Sequence("PARTITION", Ref("SelectPartitionClauseSegment"), optional=True),
+        Sequence("CHARACTER", "SET", Ref("NakedIdentifierSegment"), optional=True),
+        Sequence(
+            OneOf("FIELDS", "COLUMNS"),
+            Sequence("TERMINATED", "BY", Ref("QuotedLiteralSegment"), optional=True),
+            Sequence(
+                Sequence("OPTIONALLY", optional=True),
+                "ENCLOSED",
+                "BY",
+                Ref("QuotedLiteralSegment"),
+                optional=True,
+            ),
+            Sequence("ESCAPED", "BY", Ref("QuotedLiteralSegment"), optional=True),
+            optional=True,
+        ),
+        Sequence(
+            "LINES",
+            Sequence("STARTING", "BY", Ref("QuotedLiteralSegment"), optional=True),
+            Sequence("TERMINATED", "BY", Ref("QuotedLiteralSegment"), optional=True),
+            optional=True,
+        ),
+        Sequence(
+            "IGNORE",
+            Ref("NumericLiteralSegment"),
+            OneOf("LINES", "ROWS"),
+            optional=True,
+        ),
+        Sequence(
+            Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+            optional=True,
+        ),
+        Sequence(
+            "SET",
+            Ref("Expression_B_Grammar"),
+            optional=True,
         ),
     )
