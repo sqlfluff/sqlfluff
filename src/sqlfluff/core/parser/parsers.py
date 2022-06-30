@@ -229,6 +229,9 @@ class RegexParser(BaseParser):
         # Store the optional anti-template
         self.template = template
         self.anti_template = anti_template
+        # Compile regexes upfront to avoid repeated overhead
+        self._anti_template = regex.compile(anti_template or r"", regex.IGNORECASE)
+        self._template = regex.compile(template, regex.IGNORECASE)
         super().__init__(
             raw_class=raw_class,
             name=name,
@@ -256,15 +259,13 @@ class RegexParser(BaseParser):
             # In any case, it won't match here.
             return False
         # Try the regex. Case sensitivity is not supported.
-        result = regex.match(self.template, segment.raw_upper, regex.IGNORECASE)
+        result = self._template.match(segment.raw_upper)
         if result:
             result_string = result.group(0)
             # Check that we've fully matched
             if result_string == segment.raw_upper:
                 # Check that the anti_template (if set) hasn't also matched
-                if self.anti_template and regex.match(
-                    self.anti_template, segment.raw_upper, regex.IGNORECASE
-                ):
+                if self.anti_template and self._anti_template.match(segment.raw_upper):
                     return False
                 else:
                     return True
