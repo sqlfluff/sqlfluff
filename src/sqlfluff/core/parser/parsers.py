@@ -101,6 +101,8 @@ class StringParser(BaseParser):
         **segment_kwargs,
     ):
         self.template = template.upper()
+        # Create list version upfront to avoid recreating it multiple times.
+        self._simple = [self.template]
         super().__init__(
             raw_class=raw_class,
             name=name,
@@ -115,7 +117,7 @@ class StringParser(BaseParser):
         Because string matchers are not case sensitive we can
         just return the template here.
         """
-        return [self.template]
+        return self._simple
 
     def _is_first_match(self, segment: BaseSegment):
         """Does the segment provided match according to the current rules."""
@@ -139,6 +141,8 @@ class MultiStringParser(BaseParser):
         **segment_kwargs,
     ):
         self.templates = {template.upper() for template in templates}
+        # Create list version upfront to avoid recreating it multiple times.
+        self._simple = list(self.templates)
         super().__init__(
             raw_class=raw_class,
             name=name,
@@ -153,7 +157,7 @@ class MultiStringParser(BaseParser):
         Because string matchers are not case sensitive we can
         just return the templates here.
         """
-        return list(self.templates)
+        return self._simple
 
     def _is_first_match(self, segment: BaseSegment):
         """Does the segment provided match according to the current rules."""
