@@ -1,0 +1,76 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: f0fb5ec04ac226f74b06ddaa0b146e07eee995d28b63f4881ba7f53c9c489c48
+file:
+- statement:
+    call_statement:
+      keyword: CALL
+      function:
+        function_name:
+          function_name_identifier: test_proc
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    call_statement:
+      keyword: CALL
+      function:
+        function_name:
+          function_name_identifier: test_proc
+        bracketed:
+          start_bracket: (
+          expression:
+            function:
+              function_name:
+                function_name_identifier: pg_last_query_id
+              bracketed:
+                start_bracket: (
+                end_bracket: )
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    call_statement:
+      keyword: CALL
+      function:
+        function_name:
+          function_name_identifier: outer_proc
+        bracketed:
+          start_bracket: (
+          expression:
+            literal: '5'
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    call_statement:
+      keyword: call
+      function:
+        function_name:
+          function_name_identifier: test_sp1
+        bracketed:
+        - start_bracket: (
+        - expression:
+            literal: '3'
+        - comma: ','
+        - expression:
+            literal: "'book'"
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    call_statement:
+      keyword: call
+      function:
+        function_name:
+          function_name_identifier: test_sp2
+        bracketed:
+        - start_bracket: (
+        - expression:
+            literal: '2'
+        - comma: ','
+        - expression:
+            literal: "'2019'"
+        - end_bracket: )
+- statement_terminator: ;
