@@ -49,3 +49,13 @@ ON CONFLICT (bar) WHERE is_active DO NOTHING;
 
 INSERT INTO foo (bar, baz) VALUES (1, 'var')
 ON CONFLICT (bar) DO UPDATE SET (baz) = (SELECT baz FROM foobar WHERE bar = 1);
+
+INSERT INTO megatable (megacolumn)
+SELECT * FROM (
+    VALUES ( 'megavalue' )
+) AS tmp (megacolumn)
+WHERE NOT EXISTS (
+SELECT FROM megatable AS mt
+    WHERE mt.megacolumn = tmp.megacolumn
+)
+ON CONFLICT DO NOTHING;

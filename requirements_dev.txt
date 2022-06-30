@@ -8,7 +8,7 @@ flake8-black>=0.2.4
 doc8
 Pygments
 # testing
-coverage==6.2
+coverage>=6.4
 hypothesis
 pytest
 pytest-cov
@@ -26,4 +26,5 @@ types-Jinja2
 types-regex
 # Requests is required for the util script
 requests
+ghapi
 yamllint

@@ -6,6 +6,9 @@ SELECT * FROM (SELECT c, c+d AS e FROM t2) AS dt;
 INSERT INTO t1 (a,b,c) VALUES (1,2,3),(4,5,6) AS t2
 ON DUPLICATE KEY UPDATE c = t2.a+t2.b;
 
+INSERT INTO t1 (a,b,c) VALUES (1,2,3),(4,5,6) AS t2
+ON DUPLICATE KEY UPDATE a = VALUES(a), b = VALUES(b);
+
 INSERT INTO t1 (a,b,c) VALUES (1,2,3),(4,5,6) AS t2(m,n,p)
 ON DUPLICATE KEY UPDATE c = m+n;
 

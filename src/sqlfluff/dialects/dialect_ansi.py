@@ -48,6 +48,7 @@ from sqlfluff.core.parser import (
     StringParser,
     SymbolSegment,
     WhitespaceSegment,
+    MultiStringParser,
 )
 from sqlfluff.core.parser.segments.base import BracketedSegment
 from sqlfluff.dialects.dialect_ansi_keywords import (
@@ -273,8 +274,8 @@ ansi_dialect.add(
     ),
     # The following functions can be called without parentheses per ANSI specification
     BareFunctionSegment=SegmentGenerator(
-        lambda dialect: RegexParser(
-            r"^(" + r"|".join(dialect.sets("bare_functions")) + r")$",
+        lambda dialect: MultiStringParser(
+            dialect.sets("bare_functions"),
             CodeSegment,
             name="bare_function",
             type="bare_function",
@@ -318,16 +319,16 @@ ansi_dialect.add(
     ),
     # Ansi Intervals
     DatetimeUnitSegment=SegmentGenerator(
-        lambda dialect: RegexParser(
-            r"^(" + r"|".join(dialect.sets("datetime_units")) + r")$",
+        lambda dialect: MultiStringParser(
+            dialect.sets("datetime_units"),
             CodeSegment,
             name="date_part",
             type="date_part",
         )
     ),
     DatePartFunctionName=SegmentGenerator(
-        lambda dialect: RegexParser(
-            r"^(" + r"|".join(dialect.sets("date_part_function_name")) + r")$",
+        lambda dialect: MultiStringParser(
+            dialect.sets("date_part_function_name"),
             CodeSegment,
             name="function_name_identifier",
             type="function_name_identifier",
@@ -1009,6 +1010,7 @@ ansi_dialect.add(
             ),
         ),
         Sequence(OneOf("IGNORE", "RESPECT"), "NULLS"),
+        Ref("IndexColumnDefinitionSegment"),
     ),
     PostFunctionGrammar=OneOf(
         # Optional OVER suffix for window functions.
@@ -1515,9 +1517,9 @@ class JoinOnConditionSegment(BaseSegment):
     type = "join_on_condition"
     match_grammar: Matchable = Sequence(
         "ON",
-        Indent,
+        Conditional(Indent, indented_on_contents=True),
         OptionallyBracketed(Ref("ExpressionSegment")),
-        Dedent,
+        Conditional(Dedent, indented_on_contents=True),
     )
 
 
@@ -1782,6 +1784,7 @@ ansi_dialect.add(
             Ref("LiteralGrammar"),
             Ref("IntervalExpressionSegment"),
             Ref("TypelessStructSegment"),
+            Ref("TypelessArraySegment"),
             Ref("ColumnReferenceSegment"),
             # For triggers we allow "NEW.*" but not just "*" nor "a.b.*"
             # So can't use WildcardIdentifierSegment nor WildcardExpressionSegment
@@ -2232,6 +2235,15 @@ ansi_dialect.add(
 )
 
 
+class CTEColumnList(BaseSegment):
+    """Bracketed column list portion of a CTE definition."""
+
+    type = "cte_column_list"
+    match_grammar = Bracketed(
+        Ref("SingleIdentifierListSegment"),
+    )
+
+
 class CTEDefinitionSegment(BaseSegment):
     """A CTE Definition from a WITH statement.
 
@@ -2241,10 +2253,7 @@ class CTEDefinitionSegment(BaseSegment):
     type = "common_table_expression"
     match_grammar: Matchable = Sequence(
         Ref("SingleIdentifierGrammar"),
-        Bracketed(
-            Ref("SingleIdentifierListSegment"),
-            optional=True,
-        ),
+        Ref("CTEColumnList", optional=True),
         "AS",
         Bracketed(
             # Ephemeral here to subdivide the query.
@@ -2586,6 +2595,16 @@ class TypelessStructSegment(BaseSegment):
     """
 
     type = "typeless_struct"
+    match_grammar: Matchable = Nothing()
+
+
+class TypelessArraySegment(BaseSegment):
+    """Expression to construct a ARRAY from a subquery.
+
+    (Yes in BigQuery for example)
+    """
+
+    type = "typeless_array"
     match_grammar: Matchable = Nothing()
 
 
@@ -3176,6 +3195,7 @@ class SetClauseSegment(BaseSegment):
             Ref("FunctionSegment"),
             Ref("ColumnReferenceSegment"),
             Ref("ExpressionSegment"),
+            Ref("ValuesClauseSegment"),
             "DEFAULT",
         ),
         AnyNumberOf(Ref("ShorthandCastSegment")),

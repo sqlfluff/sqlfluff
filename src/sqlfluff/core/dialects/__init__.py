@@ -23,6 +23,7 @@ from sqlfluff.core.errors import SQLFluffUserError
 _dialect_lookup = {
     "ansi": ("dialect_ansi", "ansi_dialect"),
     "bigquery": ("dialect_bigquery", "bigquery_dialect"),
+    "clickhouse": ("dialect_clickhouse", "clickhouse_dialect"),
     "db2": ("dialect_db2", "db2_dialect"),
     "exasol": ("dialect_exasol", "exasol_dialect"),
     "hive": ("dialect_hive", "hive_dialect"),
@@ -36,6 +37,7 @@ _dialect_lookup = {
     "teradata": ("dialect_teradata", "teradata_dialect"),
     "tsql": ("dialect_tsql", "tsql_dialect"),
     "sparksql": ("dialect_sparksql", "sparksql_dialect"),
+    "databricks": ("dialect_sparksql", "sparksql_dialect"),
 }
 
 _legacy_dialects = {

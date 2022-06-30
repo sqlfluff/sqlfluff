@@ -37,9 +37,9 @@ KNOWN_STYLES = {
     ),
     # e.g. WHERE bla = ?
     "question_mark": regex.compile(r"(?<![:\w\x5c])\?", regex.UNICODE),
-    # e.g. WHERE bla = $3
+    # e.g. WHERE bla = $3 or WHERE bla = ${3}
     "numeric_dollar": regex.compile(
-        r"(?<![:\w\x5c])\$(?P<param_name>[\d]+)", regex.UNICODE
+        r"(?<![:\w\x5c])\${?(?P<param_name>[\d]+)}?", regex.UNICODE
     ),
     # e.g. WHERE bla = %s
     "percent": regex.compile(r"(?<![:\w\x5c])%s", regex.UNICODE),

@@ -61,6 +61,24 @@ The dialect for `Google BigQuery`_.
 
 .. _`Google BigQuery`: https://cloud.google.com/bigquery/
 
+.. _clickhouse_dialect_ref:
+
+ClickHouse
+----------
+
+The dialect for `ClickHouse`_.
+
+.. _`ClickHouse`: https://clickhouse.com/
+
+.. _databricks_dialect_ref:
+
+Databricks
+----------
+
+The dialect `Databricks`_ is an alias for the :ref:`sparksql_dialect_ref`.
+
+.. _`Databricks`: https://databricks.com/
+
 .. _db2_dialect_ref:
 
 Db2
@@ -151,8 +169,8 @@ The dialect for `SOQL`_ (Salesforce Object Query Language).
 SparkSQL
 --------
 
-The dialect for `SparkSQL`_. It inherits from :ref:`ansi_dialect_ref` and
-includes relevant syntax from :ref:`hive_dialect_ref` for commands that
+The dialect for Apache `Spark SQL`_. It inherits from :ref:`ansi_dialect_ref`
+and includes relevant syntax from :ref:`hive_dialect_ref` for commands that
 permit Hive Format.
 
 This implementation focuses on the `Ansi Compliant Mode`_ introduced in
@@ -161,7 +179,7 @@ provides better data quality and easier migration from traditional DBMS.
 
 Versions of Spark prior to 3.x will only support the Hive dialect.
 
-.. _`SparkSQL`: https://spark.apache.org/docs/latest/sql-ref.html
+.. _`Spark SQL`: https://spark.apache.org/docs/latest/sql-ref.html
 .. _`Ansi Compliant Mode`: https://spark.apache.org/docs/latest/sql-ref-ansi-compliance.html
 
 .. _sqlite_dialect_ref:

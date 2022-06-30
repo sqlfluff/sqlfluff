@@ -27,14 +27,14 @@ def test__rules__std_L003_L065_union_all_in_subquery_lint():
 def test__rules__std_L003_L065_union_all_in_subquery_fix():
     """Verify combination of rules L003 and L065 produces a correct indentation."""
     sql = (
-        "SELECT * FROM (\n"
+        "SELECT c FROM (\n"
         "    SELECT 'g' UNION ALL\n"
         "    SELECT 'h'\n"
         "    UNION ALL SELECT 'j'\n"
         ")\n"
     )
     fixed_sql = (
-        "SELECT * FROM (\n"
+        "SELECT c FROM (\n"
         "    SELECT 'g'\n"
         "    UNION ALL\n"
         "    SELECT 'h'\n"

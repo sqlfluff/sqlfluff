@@ -1,7 +1,7 @@
 -- string literals
 SELECT 'Hello, World!' AS col;
-SELECT "SPARK SQL" AS col;
-SELECT 'it\'s $10.' AS col;
+SELECT 'SPARK SQL' AS col;
+SELECT "it's $10." AS col;
 
 -- binary literal
 SELECT X'123456' AS col;

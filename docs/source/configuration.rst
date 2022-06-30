@@ -287,7 +287,7 @@ A few common styles are supported:
     WHERE bla = %(my_name)s
 
     -- dollar
-    WHERE bla = $my_name
+    WHERE bla = $my_name or WHERE bla = ${my_name}
 
     -- question_mark
     WHERE bla = ?

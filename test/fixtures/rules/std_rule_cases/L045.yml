@@ -62,7 +62,6 @@ test_fail_cte_defined_but_unused_2:
       SELECT customer_id, total
       FROM orders
     )
-
     SELECT *
     FROM
       orders AS cte_orders
@@ -105,7 +104,6 @@ test_pass_cte_defined_and_used_4:
         SELECT MAX(row_updated_date) AS max_date
         FROM warehouse.loaded_monthly
     )
-
     SELECT stuff
     FROM warehouse.updated_weekly
     WHERE row_updated_date <= (SELECT max_date FROM max_date_cte)
@@ -122,7 +120,6 @@ test_pass_cte_defined_and_used_5:
           FROM warehouse.updated_weekly
           WHERE row_updated_date <= (SELECT max_date FROM max_date_cte)
     )
-
     SELECT stuff
     FROM uses_max_date_cte
 
@@ -138,7 +135,6 @@ test_pass_cte_defined_and_used_6:
       select pages_xf.received_at
       from pages_xf
     )
-
     select * from final
 
 test_fail_cte_defined_but_unused_4:
@@ -156,7 +152,6 @@ test_fail_cte_defined_but_unused_4:
     unused as (
       select pages.received_at from pages
     )
-
     select * from final
 
 test_pass_cte_defined_and_used_7:
@@ -167,12 +162,10 @@ test_pass_cte_defined_and_used_7:
       from pages
       where pages.received_at > (select max(received_at) from final )
     ),
-
     final as (
       select pages_xf.received_at
       from pages_xf
     )
-
     select * from final
 
 test_snowflake_delete_cte:
@@ -193,7 +186,6 @@ test_pass_exasol_values_clause_cte_1:
         VALUES (1)
         AS t (id)
     )
-
     SELECT *
     FROM txt
   configs:
@@ -206,7 +198,6 @@ test_pass_exasol_values_clause_cte_2:
         VALUES (1, 'foo')
         AS t (id, name)
     )
-
     SELECT *
     FROM txt
   configs:
@@ -219,7 +210,6 @@ test_pass_sparksql_values_clause_cte_1:
         VALUES (1)
         AS t (id)
     )
-
     SELECT *
     FROM txt
   configs:
@@ -232,7 +222,6 @@ test_pass_sparksql_values_clause_cte_2:
         VALUES (1, 'foo')
         AS t (id, name)
     )
-
     SELECT *
     FROM txt
   configs:
@@ -245,6 +234,171 @@ test_fail_query_uses_templating:
     random_gibberish AS (
         SELECT 1
     )
-
     SELECT var_bar
     FROM {{ ref('issue_2235') }}
+
+test_pass_update_cte:
+  pass_str: |
+    WITH cte AS (
+        SELECT
+            id,
+            name,
+            description
+        FROM table1
+    )
+    UPDATE table2
+    SET
+        name = cte.name,
+        description = cte.description
+    FROM cte
+    WHERE table2.id = cte.id;
+  configs:
+    core:
+      dialect: postgres
+
+test_fail_update_cte:
+  fail_str: |
+    WITH cte AS (
+        SELECT
+            id,
+            name,
+            description
+        FROM table1
+    )
+    UPDATE table2
+    SET
+        name = 1,
+        description = 2
+  configs:
+    core:
+      dialect: postgres
+
+test_fail_nested_cte:
+  fail_str: |
+    with a as (
+        with b as (
+            select 1 from foo
+        )
+        select 1
+    )
+    select * from a
+
+test_pass_nested_query:
+  pass_str: |
+    WITH
+    foo AS (
+        SELECT
+            *
+        FROM
+            zipcode
+    ),
+
+    bar AS (
+        SELECT
+            *
+        FROM
+            county
+    ),
+
+    stage AS (
+        (SELECT
+            *
+        FROM
+            foo)
+
+            UNION ALL
+
+        (SELECT
+            *
+        FROM
+            bar)
+    )
+
+    SELECT
+        *
+    FROM
+        stage
+
+test_fail_nested_query:
+  fail_str: |
+    WITH
+    foo AS (
+        SELECT
+            *
+        FROM
+            zipcode
+    ),
+
+    bar AS (
+        SELECT
+            *
+        FROM
+            county
+    ),
+
+    stage AS (
+        (SELECT
+            *
+        FROM
+            foo)
+
+            UNION ALL
+
+        (SELECT
+            *
+        FROM
+            foo)
+    )
+
+    SELECT
+        *
+    FROM
+        stage
+
+test_pass_nested_query_in_from_clause:
+  pass_str: |
+    WITH
+    foo AS (
+        SELECT
+            *
+        FROM
+            zipcode
+    ),
+
+    stage AS (
+        SELECT
+            *
+        FROM
+            (
+                SELECT * FROM foo
+            )
+    )
+
+    SELECT
+        *
+    FROM
+        stage
+
+test_fail_nested_query_in_from_clause:
+  fail_str: |
+    WITH
+    foo AS (
+        SELECT
+            *
+        FROM
+            zipcode
+    ),
+
+    stage AS (
+        SELECT
+            *
+        FROM
+            (
+                SELECT * FROM foofoo
+            )
+    )
+
+    SELECT
+        *
+    FROM
+        stage
