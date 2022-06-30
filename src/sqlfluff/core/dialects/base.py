@@ -9,12 +9,11 @@ from sqlfluff.core.parser import (
     StringParser,
 )
 from sqlfluff.core.parser.grammar.base import BaseGrammar
+from sqlfluff.core.parser.parsers import BaseParser
 
-DialectElementType = Union[
-    Type[BaseSegment], BaseGrammar, StringParser, SegmentGenerator
-]
+DialectElementType = Union[Type[BaseSegment], BaseGrammar, BaseParser, SegmentGenerator]
 # NOTE: Post expansion, no generators remain
-ExpandedDialectElementType = Union[Type[BaseSegment], StringParser, BaseGrammar]
+ExpandedDialectElementType = Union[Type[BaseSegment], BaseParser, BaseGrammar]
 
 
 class Dialect:

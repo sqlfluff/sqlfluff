@@ -31,7 +31,12 @@ from sqlfluff.core.parser.grammar import (
     OptionallyBracketed,
     Conditional,
 )
-from sqlfluff.core.parser.parsers import StringParser, NamedParser, RegexParser
+from sqlfluff.core.parser.parsers import (
+    StringParser,
+    NamedParser,
+    RegexParser,
+    MultiStringParser,
+)
 from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.parser.lexer import Lexer, StringLexer, RegexLexer
 from sqlfluff.core.parser.parser import Parser
@@ -65,6 +70,7 @@ __all__ = (
     "OptionallyBracketed",
     "Conditional",
     "StringParser",
+    "MultiStringParser",
     "NamedParser",
     "RegexParser",
     "PositionMarker",
