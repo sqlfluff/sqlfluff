@@ -265,6 +265,25 @@ sparksql_dialect.replace(
         Ref("SingleQuotedIdentifierSegment"),
         Ref("BackQuotedIdentifierSegment"),
     ),
+    WhereClauseTerminatorGrammar=OneOf(
+        "LIMIT",
+        Sequence(
+            OneOf(
+                "CLUSTER",
+                "DISTRIBUTE",
+                "GROUP",
+                "ORDER",
+                "SORT",
+            ),
+            "BY",
+        ),
+        Sequence("ORDER", "BY"),
+        Sequence("DISTRIBUTE", "BY"),
+        "HAVING",
+        "QUALIFY",
+        "WINDOW",
+        "OVERLAPS",
+    ),
 )
 
 sparksql_dialect.add(
@@ -539,6 +558,20 @@ sparksql_dialect.add(
             name="signed_quoted_literal",
             type="literal",
         ),
+    ),
+    GroupByClauseTerminatorGrammar=OneOf(
+        Sequence(
+            OneOf(
+                "ORDER",
+                "DISTRIBUTE",
+                "CLUSTER",
+                "SORT",
+            ),
+            "BY",
+        ),
+        "LIMIT",
+        "HAVING",
+        "WINDOW",
     ),
 )
 
@@ -1424,7 +1457,7 @@ class GroupByClauseSegment(ansi.GroupByClauseSegment):
 
     match_grammar = StartsWith(
         Sequence("GROUP", "BY"),
-        terminator=OneOf("ORDER", "LIMIT", "HAVING", "WINDOW"),
+        terminator=Ref("GroupByClauseTerminatorGrammar"),
         enforce_whitespace_preceding_terminator=True,
     )
 
@@ -1442,7 +1475,7 @@ class GroupByClauseSegment(ansi.GroupByClauseSegment):
                 Ref("CubeRollupClauseSegment"),
                 Ref("GroupingSetsClauseSegment"),
             ),
-            terminator=OneOf("ORDER", "LIMIT", "HAVING", "WINDOW"),
+            terminator=Ref("GroupByClauseTerminatorGrammar"),
         ),
         # TODO: New Rule
         #  Warn if CubeRollupClauseSegment and
@@ -2762,3 +2795,19 @@ class RestoreTableStatementSegment(BaseSegment):
             Ref("VersionAsOfGrammar"),
         ),
     )
+
+
+class HavingClauseSegment(ansi.HavingClauseSegment):
+    """A `HAVING` clause."""
+
+    type = "having_clause"
+    match_grammar = ansi.HavingClauseSegment.match_grammar.copy()
+    match_grammar.terminator = match_grammar.terminator.copy(  # type: ignore
+        insert=[
+            Sequence(
+                OneOf("CLUSTER", "DISTRIBUTE", "SORT"),
+                "BY",
+            ),
+        ],
+    )
+    parse_grammar = ansi.HavingClauseSegment.parse_grammar
