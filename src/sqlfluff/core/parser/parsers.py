@@ -100,7 +100,7 @@ class StringParser(BaseParser):
         optional: bool = False,
         **segment_kwargs,
     ):
-        self.template = template
+        self.template = template.upper()
         super().__init__(
             raw_class=raw_class,
             name=name,
@@ -115,13 +115,13 @@ class StringParser(BaseParser):
         Because string matchers are not case sensitive we can
         just return the template here.
         """
-        return [self.template.upper()]
+        return [self.template]
 
     def _is_first_match(self, segment: BaseSegment):
         """Does the segment provided match according to the current rules."""
         # Is the target a match and IS IT CODE.
         # The latter stops us accidentally matching comments.
-        if self.template.upper() == segment.raw.upper() and segment.is_code:
+        if self.template == segment.raw_upper and segment.is_code:
             return True
         return False
 
@@ -159,13 +159,31 @@ class MultiStringParser(BaseParser):
         """Does the segment provided match according to the current rules."""
         # Is the target a match and IS IT CODE.
         # The latter stops us accidentally matching comments.
-        if segment.is_code and segment.raw.upper() in self.templates:
+        if segment.is_code and segment.raw_upper in self.templates:
             return True
         return False
 
 
-class NamedParser(StringParser):
+class NamedParser(BaseParser):
     """An object which matches and returns raw segments based on names."""
+
+    def __init__(
+        self,
+        template: str,
+        raw_class: Type[RawSegment],
+        name: Optional[str] = None,
+        type: Optional[str] = None,
+        optional: bool = False,
+        **segment_kwargs,
+    ):
+        self.template = template.lower()
+        super().__init__(
+            raw_class=raw_class,
+            name=name,
+            type=type,
+            optional=optional,
+            **segment_kwargs,
+        )
 
     def simple(cls, parse_context: ParseContext) -> Optional[List[str]]:
         """Does this matcher support a uppercase hash matching route?
@@ -186,12 +204,12 @@ class NamedParser(StringParser):
         """
         # Case sensitivity is not supported. Names are all
         # lowercase by convention.
-        if self.template.lower() == segment.name.lower():
+        if self.template == segment.name.lower():
             return True
         return False
 
 
-class RegexParser(StringParser):
+class RegexParser(BaseParser):
     """An object which matches and returns raw segments based on a regex."""
 
     def __init__(
@@ -205,9 +223,9 @@ class RegexParser(StringParser):
         **segment_kwargs,
     ):
         # Store the optional anti-template
+        self.template = template
         self.anti_template = anti_template
         super().__init__(
-            template=template,
             raw_class=raw_class,
             name=name,
             type=type,
