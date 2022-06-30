@@ -357,3 +357,26 @@ test_fail_quoted_column_snowflake_force_enable:
     rules:
       L059:
         force_enable: true
+
+test_pass_quoted_column_postgres:
+  # The rule is disabled by default in Postgres.
+  pass_str: |
+    SELECT d."date"
+    FROM d
+  configs:
+    core:
+      dialect: postgres
+
+test_fail_quoted_column_postgres_force_enable:
+  fail_str: |
+    SELECT d."date"
+    FROM d
+  fix_str: |
+    SELECT d.date
+    FROM d
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      L059:
+        force_enable: true

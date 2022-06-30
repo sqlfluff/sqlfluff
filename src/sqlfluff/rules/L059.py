@@ -27,9 +27,9 @@ class Rule_L059(BaseRule):
     unnecessary, except for reserved keywords and special characters in identifiers.
 
     .. note::
-       This rule is disabled by default for Snowflake because it allows quotes as
-       part of the column name. In other words, ``date`` and ``"date"`` are two
-       different columns.
+       This rule is disabled by default for Postgres abd Snowflake because the allow
+       quotes as part of the column name. In other words, ``date`` and ``"date"`` are
+       two different columns.
 
        It can be enabled with the ``force_enable = True`` flag.
 
@@ -86,7 +86,7 @@ class Rule_L059(BaseRule):
         "ignore_words_regex",
         "force_enable",
     ]
-    _dialects_allowing_quotes_in_column_names = ["snowflake"]
+    _dialects_allowing_quotes_in_column_names = ["postgres", "snowflake"]
 
     # Ignore "password_auth" type to allow quotes around passwords within
     # `CREATE USER` statements in Exasol dialect.
