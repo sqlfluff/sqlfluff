@@ -52,7 +52,6 @@ class Rule_L018(BaseRule):
     groups = ("all", "core")
     _works_on_unparsable = False
     needs_raw_stack = True
-    config_keywords = []
 
     def _eval(self, context: RuleContext):
         """WITH clause closing bracket should be aligned with WITH keyword.
