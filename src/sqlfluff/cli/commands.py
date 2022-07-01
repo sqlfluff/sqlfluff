@@ -9,7 +9,6 @@ import time
 from logging import LogRecord
 from typing import Callable, Tuple, Optional, cast
 
-from colorama import Style
 import yaml
 
 import click
@@ -291,18 +290,7 @@ def get_config(
     **kwargs,
 ) -> FluffConfig:
     """Get a config object from kwargs."""
-    plain_output = kwargs["nocolor"] or not sys.stdout.isatty()
-
-    def colorize(s: str, color: Optional[Color] = None) -> str:
-        """Optionally use ANSI colour codes to colour a string.
-
-        The name of this function is in American. I'm sorry :(.
-        """
-        if not color or plain_output:
-            return s
-        else:
-            return f"{color.value}{s}{Style.RESET_ALL}"
-
+    plain_output = OutputStreamFormatter.should_produce_plain_output(kwargs["nocolor"])
     if kwargs.get("dialect"):
         try:
             # We're just making sure it exists at this stage.
@@ -310,7 +298,8 @@ def get_config(
             dialect_selector(kwargs["dialect"])
         except SQLFluffUserError as err:
             click.echo(
-                colorize(
+                OutputStreamFormatter.colorize_helper(
+                    plain_output,
                     f"Error loading dialect '{kwargs['dialect']}': {str(err)}",
                     color=Color.red,
                 )
@@ -318,8 +307,10 @@ def get_config(
             sys.exit(66)
         except KeyError:
             click.echo(
-                colorize(
-                    f"Error: Unknown dialect '{kwargs['dialect']}'", color=Color.red
+                OutputStreamFormatter.colorize_helper(
+                    plain_output,
+                    f"Error: Unknown dialect '{kwargs['dialect']}'",
+                    color=Color.red,
                 )
             )
             sys.exit(66)
@@ -337,7 +328,8 @@ def get_config(
         )
     except SQLFluffUserError as err:  # pragma: no cover
         click.echo(
-            colorize(
+            OutputStreamFormatter.colorize_helper(
+                plain_output,
                 f"Error loading config: {str(err)}",
                 color=Color.red,
             )

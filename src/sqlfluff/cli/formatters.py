@@ -76,10 +76,15 @@ class OutputStreamFormatter:
         output_line_length: int = 80,
     ):
         self._output_stream = output_stream
-        self.plain_output = nocolor or not sys.stdout.isatty()
+        self.plain_output = self.should_produce_plain_output(nocolor)
         self._verbosity = verbosity
         self._filter_empty = filter_empty
         self.output_line_length = output_line_length
+
+    @staticmethod
+    def should_produce_plain_output(nocolor: bool) -> bool:
+        """Returns True if text output should be plain (not colored)."""
+        return nocolor or not sys.stdout.isatty()
 
     def _dispatch(self, s: str) -> None:
         """Dispatch a string to the callback.
@@ -218,11 +223,15 @@ class OutputStreamFormatter:
         self._dispatch(s)
 
     def colorize(self, s: str, color: Optional[Color] = None) -> str:
-        """Optionally use ANSI colour codes to colour a string.
+        """Optionally use ANSI colour codes to colour a string."""
+        return self.colorize_helper(self.plain_output, s, color)
 
-        The name of this function is in American. I'm sorry :(.
-        """
-        if not color or self.plain_output:
+    @staticmethod
+    def colorize_helper(
+        plain_output: bool, s: str, color: Optional[Color] = None
+    ) -> str:
+        """Static version of colorize() method."""
+        if not color or plain_output:
             return s
         else:
             return f"{color.value}{s}{Style.RESET_ALL}"
