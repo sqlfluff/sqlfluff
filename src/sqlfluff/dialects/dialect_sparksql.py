@@ -33,6 +33,7 @@ from sqlfluff.core.parser import (
     StartsWith,
     RegexParser,
     Matchable,
+    MultiStringParser,
 )
 from sqlfluff.core.parser.segments.raw import CodeSegment, KeywordSegment
 from sqlfluff.dialects.dialect_sparksql_keywords import (
@@ -355,11 +356,11 @@ sparksql_dialect.add(
     EqualsSegment_b=StringParser(
         "<=>", SymbolSegment, name="equals", type="comparison_operator"
     ),
-    FileKeywordSegment=RegexParser(
-        "FILES?", KeywordSegment, name="file", type="file_keyword"
+    FileKeywordSegment=MultiStringParser(
+        ["FILE", "FILES"], KeywordSegment, name="file", type="file_keyword"
     ),
-    JarKeywordSegment=RegexParser(
-        "JARS?", KeywordSegment, name="jar", type="file_keyword"
+    JarKeywordSegment=MultiStringParser(
+        ["JAR", "JARS"], KeywordSegment, name="jar", type="file_keyword"
     ),
     NoscanKeywordSegment=StringParser(
         "NOSCAN", KeywordSegment, name="noscan_keyword", type="keyword"
