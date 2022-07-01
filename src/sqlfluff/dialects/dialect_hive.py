@@ -214,6 +214,20 @@ hive_dialect.replace(
         "QUALIFY",
         "WINDOW",
     ),
+    HavingClauseTerminatorGrammar=OneOf(
+        Sequence(
+            OneOf(
+                "ORDER",
+                "CLUSTER",
+                "DISTRIBUTE",
+                "SORT",
+            ),
+            "BY",
+        ),
+        "LIMIT",
+        "QUALIFY",
+        "WINDOW",
+    ),
 )
 
 
@@ -846,21 +860,6 @@ class SelectClauseSegment(ansi.SelectClauseSegment):
         before=Ref.keyword("LIMIT"),
     )
     parse_grammar = ansi.SelectClauseSegment.parse_grammar.copy()
-
-
-class HavingClauseSegment(ansi.HavingClauseSegment):
-    """Overriding HavingClauseSegment to allow for additional segment parsing."""
-
-    match_grammar = ansi.HavingClauseSegment.match_grammar.copy()
-    match_grammar.terminator = match_grammar.terminator.copy(  # type: ignore
-        insert=[
-            Sequence("CLUSTER", "BY"),
-            Sequence("DISTRIBUTE", "BY"),
-            Sequence("SORT", "BY"),
-        ],
-        before=Ref.keyword("LIMIT"),
-    )
-    parse_grammar = ansi.HavingClauseSegment.parse_grammar
 
 
 class SetExpressionSegment(ansi.SetExpressionSegment):

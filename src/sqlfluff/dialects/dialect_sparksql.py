@@ -298,6 +298,20 @@ sparksql_dialect.replace(
         "HAVING",
         "WINDOW",
     ),
+    HavingClauseTerminatorGrammar=OneOf(
+        Sequence(
+            OneOf(
+                "ORDER",
+                "CLUSTER",
+                "DISTRIBUTE",
+                "SORT",
+            ),
+            "BY",
+        ),
+        "LIMIT",
+        "QUALIFY",
+        "WINDOW",
+    ),
 )
 
 sparksql_dialect.add(
@@ -2795,19 +2809,3 @@ class RestoreTableStatementSegment(BaseSegment):
             Ref("VersionAsOfGrammar"),
         ),
     )
-
-
-class HavingClauseSegment(ansi.HavingClauseSegment):
-    """A `HAVING` clause."""
-
-    type = "having_clause"
-    match_grammar = ansi.HavingClauseSegment.match_grammar.copy()
-    match_grammar.terminator = match_grammar.terminator.copy(  # type: ignore
-        insert=[
-            Sequence(
-                OneOf("CLUSTER", "DISTRIBUTE", "SORT"),
-                "BY",
-            ),
-        ],
-    )
-    parse_grammar = ansi.HavingClauseSegment.parse_grammar

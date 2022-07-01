@@ -496,6 +496,12 @@ ansi_dialect.add(
         "QUALIFY",
         "WINDOW",
     ),
+    HavingClauseTerminatorGrammar=OneOf(
+        Sequence("ORDER", "BY"),
+        "LIMIT",
+        "QUALIFY",
+        "WINDOW",
+    ),
     OrderByClauseTerminators=OneOf(
         "LIMIT",
         "HAVING",
@@ -2029,7 +2035,7 @@ class HavingClauseSegment(BaseSegment):
     type = "having_clause"
     match_grammar: Matchable = StartsWith(
         "HAVING",
-        terminator=OneOf(Sequence("ORDER", "BY"), "LIMIT", "QUALIFY", "WINDOW"),
+        terminator=Ref("HavingClauseTerminatorGrammar"),
         enforce_whitespace_preceding_terminator=True,
     )
     parse_grammar: Optional[Matchable] = Sequence(
