@@ -72,9 +72,6 @@ test_move_parenthesis_to_next_line_in_templated_block:
     {% if true %}
       cte as (
           select 1)
-    {% else %}
-      cte as (
-          select 2)
     {% endif %}
     select * from cte
 
@@ -84,8 +81,5 @@ test_move_parenthesis_to_next_line_in_templated_block:
       cte as (
           select 1
     )
-    {% else %}
-      cte as (
-          select 2)
     {% endif %}
     select * from cte
