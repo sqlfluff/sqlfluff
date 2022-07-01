@@ -63,7 +63,7 @@ class Rule_L025(BaseRule):
     """
 
     groups = ("all", "core")
-    _dialects_requiring_alias_for_table_expression = [
+    _dialects_requiring_alias_for_values_clause = [
         "snowflake",
         "tsql",
     ]
@@ -120,8 +120,7 @@ class Rule_L025(BaseRule):
                 else:
                     # Is this a dialect that requires VALUE clauses to be aliased?
                     return (
-                        dialect_name
-                        in cls._dialects_requiring_alias_for_table_expression
+                        dialect_name in cls._dialects_requiring_alias_for_values_clause
                     )
 
         # Didn't find a table expression, so the alias is not required.
