@@ -110,3 +110,25 @@ SELECT
 FROM person
 SORT BY
     LEFT(SUBSTRING_INDEX(name, ' ', -1), 1);
+
+SELECT
+    age,
+    name
+FROM person
+WHERE age <= 100
+SORT BY age;
+
+SELECT
+    age,
+    name
+FROM person
+GROUP BY age
+SORT BY age;
+
+SELECT
+    age,
+    name
+FROM person
+GROUP BY age
+HAVING COUNT(age) > 1
+SORT BY age;

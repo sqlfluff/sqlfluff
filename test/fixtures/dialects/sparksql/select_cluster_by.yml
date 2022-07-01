@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ff198ba535c84b801c569c815830e92738a537853f207ad77facffe3412aa277
+_hash: 62fd488eda564c95d2b693d96671c83f6ebcd6f2966999ea091f135b985f96d2
 file:
 - statement:
     select_statement:
@@ -128,4 +128,110 @@ file:
             - expression:
                 literal: '1'
             - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            identifier: age
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: name
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: person
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            identifier: age
+          comparison_operator:
+          - raw_comparison_operator: <
+          - raw_comparison_operator: '='
+          literal: '100'
+      cluster_by_clause:
+      - keyword: CLUSTER
+      - keyword: BY
+      - column_reference:
+          identifier: age
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            identifier: age
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: name
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: person
+      groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - column_reference:
+          identifier: age
+      cluster_by_clause:
+      - keyword: CLUSTER
+      - keyword: BY
+      - column_reference:
+          identifier: age
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            identifier: age
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: name
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: person
+      groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - column_reference:
+          identifier: age
+      having_clause:
+        keyword: HAVING
+        expression:
+          function:
+            function_name:
+              function_name_identifier: COUNT
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  identifier: age
+              end_bracket: )
+          comparison_operator:
+            raw_comparison_operator: '>'
+          literal: '1'
+      cluster_by_clause:
+      - keyword: CLUSTER
+      - keyword: BY
+      - column_reference:
+          identifier: age
 - statement_terminator: ;
