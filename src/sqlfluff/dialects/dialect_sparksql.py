@@ -266,6 +266,53 @@ sparksql_dialect.replace(
         Ref("SingleQuotedIdentifierSegment"),
         Ref("BackQuotedIdentifierSegment"),
     ),
+    WhereClauseTerminatorGrammar=OneOf(
+        "LIMIT",
+        Sequence(
+            OneOf(
+                "CLUSTER",
+                "DISTRIBUTE",
+                "GROUP",
+                "ORDER",
+                "SORT",
+            ),
+            "BY",
+        ),
+        Sequence("ORDER", "BY"),
+        Sequence("DISTRIBUTE", "BY"),
+        "HAVING",
+        "QUALIFY",
+        "WINDOW",
+        "OVERLAPS",
+    ),
+    GroupByClauseTerminatorGrammar=OneOf(
+        Sequence(
+            OneOf(
+                "ORDER",
+                "DISTRIBUTE",
+                "CLUSTER",
+                "SORT",
+            ),
+            "BY",
+        ),
+        "LIMIT",
+        "HAVING",
+        "WINDOW",
+    ),
+    HavingClauseTerminatorGrammar=OneOf(
+        Sequence(
+            OneOf(
+                "ORDER",
+                "CLUSTER",
+                "DISTRIBUTE",
+                "SORT",
+            ),
+            "BY",
+        ),
+        "LIMIT",
+        "QUALIFY",
+        "WINDOW",
+    ),
 )
 
 sparksql_dialect.add(
@@ -1425,7 +1472,7 @@ class GroupByClauseSegment(ansi.GroupByClauseSegment):
 
     match_grammar = StartsWith(
         Sequence("GROUP", "BY"),
-        terminator=OneOf("ORDER", "LIMIT", "HAVING", "WINDOW"),
+        terminator=Ref("GroupByClauseTerminatorGrammar"),
         enforce_whitespace_preceding_terminator=True,
     )
 
@@ -1443,7 +1490,7 @@ class GroupByClauseSegment(ansi.GroupByClauseSegment):
                 Ref("CubeRollupClauseSegment"),
                 Ref("GroupingSetsClauseSegment"),
             ),
-            terminator=OneOf("ORDER", "LIMIT", "HAVING", "WINDOW"),
+            terminator=Ref("GroupByClauseTerminatorGrammar"),
         ),
         # TODO: New Rule
         #  Warn if CubeRollupClauseSegment and
