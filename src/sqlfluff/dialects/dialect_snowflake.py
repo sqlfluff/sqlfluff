@@ -4,6 +4,7 @@ Inherits from ANSI.
 
 Based on https://docs.snowflake.com/en/sql-reference-commands.html
 """
+from typing import Optional
 
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
@@ -645,6 +646,17 @@ snowflake_dialect.replace(
         "MEASURES",
     ),
     TrimParametersGrammar=Nothing(),
+    GroupByClauseTerminatorGrammar=OneOf(
+        "ORDER", "LIMIT", "FETCH", "OFFSET", "HAVING", "QUALIFY", "WINDOW"
+    ),
+    HavingClauseTerminatorGrammar=OneOf(
+        Sequence("ORDER", "BY"),
+        "LIMIT",
+        "QUALIFY",
+        "WINDOW",
+        "FETCH",
+        "OFFSET",
+    ),
 )
 
 # Add all Snowflake keywords
@@ -828,14 +840,12 @@ class GroupByClauseSegment(ansi.GroupByClauseSegment):
     https://docs.snowflake.com/en/sql-reference/constructs/group-by.html
     """
 
-    match_grammar = StartsWith(
+    match_grammar: Matchable = StartsWith(
         Sequence("GROUP", "BY"),
-        terminator=OneOf(
-            "ORDER", "LIMIT", "FETCH", "OFFSET", "HAVING", "QUALIFY", "WINDOW"
-        ),
+        terminator=Ref("GroupByClauseTerminatorGrammar"),
         enforce_whitespace_preceding_terminator=True,
     )
-    parse_grammar = Sequence(
+    parse_grammar: Optional[Matchable] = Sequence(
         "GROUP",
         "BY",
         Indent,
@@ -5187,17 +5197,6 @@ class OrderByClauseSegment(ansi.OrderByClauseSegment):
         ),
         Dedent,
     )
-
-
-class HavingClauseSegment(ansi.HavingClauseSegment):
-    """A `HAVING` clause."""
-
-    type = "having_clause"
-    match_grammar = ansi.HavingClauseSegment.match_grammar.copy()
-    match_grammar.terminator = match_grammar.terminator.copy(  # type: ignore
-        insert=[Ref.keyword("FETCH"), Ref.keyword("OFFSET")],
-    )
-    parse_grammar = ansi.HavingClauseSegment.parse_grammar
 
 
 class DropProcedureStatementSegment(BaseSegment):

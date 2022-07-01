@@ -490,6 +490,19 @@ ansi_dialect.add(
         "WINDOW",
         "OVERLAPS",
     ),
+    GroupByClauseTerminatorGrammar=OneOf(
+        Sequence("ORDER", "BY"),
+        "LIMIT",
+        "HAVING",
+        "QUALIFY",
+        "WINDOW",
+    ),
+    HavingClauseTerminatorGrammar=OneOf(
+        Sequence("ORDER", "BY"),
+        "LIMIT",
+        "QUALIFY",
+        "WINDOW",
+    ),
     OrderByClauseTerminators=OneOf(
         "LIMIT",
         "HAVING",
@@ -1992,13 +2005,13 @@ class GroupByClauseSegment(BaseSegment):
     """A `GROUP BY` clause like in `SELECT`."""
 
     type = "groupby_clause"
+
     match_grammar: Matchable = StartsWith(
         Sequence("GROUP", "BY"),
-        terminator=OneOf(
-            Sequence("ORDER", "BY"), "LIMIT", "HAVING", "QUALIFY", "WINDOW"
-        ),
+        terminator=Ref("GroupByClauseTerminatorGrammar"),
         enforce_whitespace_preceding_terminator=True,
     )
+
     parse_grammar: Optional[Matchable] = Sequence(
         "GROUP",
         "BY",
@@ -2011,9 +2024,7 @@ class GroupByClauseSegment(BaseSegment):
                 # Can `GROUP BY coalesce(col, 1)`
                 Ref("ExpressionSegment"),
             ),
-            terminator=OneOf(
-                Sequence("ORDER", "BY"), "LIMIT", "HAVING", "QUALIFY", "WINDOW"
-            ),
+            terminator=Ref("GroupByClauseTerminatorGrammar"),
         ),
         Dedent,
     )
@@ -2025,7 +2036,7 @@ class HavingClauseSegment(BaseSegment):
     type = "having_clause"
     match_grammar: Matchable = StartsWith(
         "HAVING",
-        terminator=OneOf(Sequence("ORDER", "BY"), "LIMIT", "QUALIFY", "WINDOW"),
+        terminator=Ref("HavingClauseTerminatorGrammar"),
         enforce_whitespace_preceding_terminator=True,
     )
     parse_grammar: Optional[Matchable] = Sequence(
