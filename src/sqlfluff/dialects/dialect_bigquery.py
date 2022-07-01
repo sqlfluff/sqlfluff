@@ -35,6 +35,7 @@ from sqlfluff.core.parser import (
     StringLexer,
     StringParser,
     SymbolSegment,
+    MultiStringParser,
 )
 from sqlfluff.core.parser.segments.base import BracketedSegment
 from sqlfluff.dialects.dialect_bigquery_keywords import (
@@ -160,8 +161,8 @@ bigquery_dialect.add(
         ),
     ),
     ExtendedDatetimeUnitSegment=SegmentGenerator(
-        lambda dialect: RegexParser(
-            r"^(" + r"|".join(dialect.sets("extended_datetime_units")) + r")$",
+        lambda dialect: MultiStringParser(
+            dialect.sets("extended_datetime_units"),
             CodeSegment,
             name="date_part",
             type="date_part",
