@@ -228,6 +228,34 @@ test_fail_sparksql_values_clause:
     core:
       dialect: sparksql
 
+test_pass_snowflake_values:
+  # Tests a fix for issue 3301.
+  pass_str: |
+    SELECT
+      thing_1
+      , thing_2
+    FROM VALUES
+      ( 'foo', 'bar')
+      , ( 'foo', 'bar')
+      my_table_alias(thing_1, thing_2)
+  configs:
+    core:
+      dialect: snowflake
+
+test_pass_tsql_values_clause_in_parentheses:
+  # Tests a fix for issue 3522. In tsql, the parentheses surrouding "values" are
+  # required (otherwise syntax error). SQLFluff was incorrectly complaining that
+  # the alias 't' was unused.
+  pass_str: |
+    SELECT *
+    FROM (VALUES
+        ('a1', 'b1'),
+        ('a2', 'b2'),
+        ('a3', 'b3')) t(a,b)
+  configs:
+    core:
+      dialect: tsql
+
 test_pass_join_on_expression_in_parentheses:
   pass_str: |
     SELECT table1.c1
@@ -284,16 +312,3 @@ test_fail_snowflake_flatten_function:
   configs:
     core:
       dialect: snowflake
-
-
-test_pass_snowflake_values:
-  # Tests a fix for issue 3301.
-  pass_str: |
-    SELECT
-      thing_1
-      , thing_2
-    FROM VALUES
-      ( 'foo', 'bar')
-      , ( 'foo', 'bar')
-      my_table_alias(thing_1, thing_2)
-    ;
