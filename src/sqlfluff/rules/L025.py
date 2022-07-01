@@ -123,8 +123,8 @@ class Rule_L025(BaseRule):
                         dialect_name in cls._dialects_requiring_alias_for_values_clause
                     )
 
-        # Didn't find a table expression, so the alias is not required.
-        return False
+        # This should never happen. Return False just to be safe.
+        return False  # pragma: no cover
 
     @classmethod
     def _analyze_table_aliases(cls, query: L025Query, dialect: Dialect):
