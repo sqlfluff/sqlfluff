@@ -2001,9 +2001,7 @@ class GroupByClauseSegment(BaseSegment):
 
     match_grammar: Matchable = StartsWith(
         Sequence("GROUP", "BY"),
-        terminator=OneOf(
-            Sequence("ORDER", "BY"), "LIMIT", "HAVING", "QUALIFY", "WINDOW"
-        ),
+        terminator=Ref("GroupByClauseTerminatorGrammar"),
         enforce_whitespace_preceding_terminator=True,
     )
 
