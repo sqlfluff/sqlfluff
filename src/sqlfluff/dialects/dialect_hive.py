@@ -204,6 +204,16 @@ hive_dialect.replace(
         ],
         before=Sequence("ORDER", "BY"),
     ),
+    GroupByClauseTerminatorGrammar=OneOf(
+        Sequence(
+            OneOf("ORDER", "CLUSTER", "DISTRIBUTE", "SORT"),
+            "BY",
+        ),
+        "LIMIT",
+        "HAVING",
+        "QUALIFY",
+        "WINDOW",
+    ),
 )
 
 
@@ -836,21 +846,6 @@ class SelectClauseSegment(ansi.SelectClauseSegment):
         before=Ref.keyword("LIMIT"),
     )
     parse_grammar = ansi.SelectClauseSegment.parse_grammar.copy()
-
-
-class GroupByClauseSegment(ansi.GroupByClauseSegment):
-    """Overriding GroupByClauseSegment to allow for additional segment parsing."""
-
-    match_grammar = ansi.GroupByClauseSegment.match_grammar.copy()
-    match_grammar.terminator = match_grammar.terminator.copy(  # type: ignore
-        insert=[
-            Sequence("CLUSTER", "BY"),
-            Sequence("DISTRIBUTE", "BY"),
-            Sequence("SORT", "BY"),
-        ],
-        before=Ref.keyword("LIMIT"),
-    )
-    parse_grammar = ansi.GroupByClauseSegment.parse_grammar
 
 
 class HavingClauseSegment(ansi.HavingClauseSegment):

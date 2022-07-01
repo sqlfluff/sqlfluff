@@ -284,6 +284,20 @@ sparksql_dialect.replace(
         "WINDOW",
         "OVERLAPS",
     ),
+    GroupByClauseTerminatorGrammar=OneOf(
+        Sequence(
+            OneOf(
+                "ORDER",
+                "DISTRIBUTE",
+                "CLUSTER",
+                "SORT",
+            ),
+            "BY",
+        ),
+        "LIMIT",
+        "HAVING",
+        "WINDOW",
+    ),
 )
 
 sparksql_dialect.add(
@@ -558,20 +572,6 @@ sparksql_dialect.add(
             name="signed_quoted_literal",
             type="literal",
         ),
-    ),
-    GroupByClauseTerminatorGrammar=OneOf(
-        Sequence(
-            OneOf(
-                "ORDER",
-                "DISTRIBUTE",
-                "CLUSTER",
-                "SORT",
-            ),
-            "BY",
-        ),
-        "LIMIT",
-        "HAVING",
-        "WINDOW",
     ),
 )
 
