@@ -28,3 +28,25 @@ SELECT
 FROM person
 DISTRIBUTE BY
     LEFT(SUBSTRING_INDEX(name, ' ', -1), 1);
+
+SELECT
+    age,
+    name
+FROM person
+WHERE age <= 100
+DISTRIBUTE BY age;
+
+SELECT
+    age,
+    name
+FROM person
+GROUP BY age
+DISTRIBUTE BY age;
+
+SELECT
+    age,
+    name
+FROM person
+GROUP BY age
+HAVING COUNT(age) > 1
+DISTRIBUTE BY age;
