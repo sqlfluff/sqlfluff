@@ -68,7 +68,7 @@ class FromExpressionElementSegment(ansi.FromExpressionElementSegment):
             ),
             optional=True,
         ),
-        Ref.keyword("Final", optional=True),
+        Ref.keyword("FINAL", optional=True),
         # https://cloud.google.com/bigquery/docs/reference/standard-sql/arrays#flattening_arrays
         Sequence("WITH", "OFFSET", Ref("AliasExpressionSegment"), optional=True),
         Ref("SamplingExpressionSegment", optional=True),
