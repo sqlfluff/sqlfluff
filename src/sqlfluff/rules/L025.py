@@ -113,14 +113,18 @@ class Rule_L025(BaseRule):
         # is actually *required* in order for SQL Server to parse it.
         for segment in from_expression_element.iter_segments(expanding=("bracketed",)):
             if segment.is_type("table_expression"):
-                # Found a table expression.
-                #  Does it have a VALUES clause?
+                # Found a table expression. Does it have a VALUES clause?
                 if not segment.get_child("values_clause"):
-                    # No VALUES clause.
+                    # No VALUES clause, thus the alias is definitely not required.
                     return False
-                # Is this a dialect that requires VALUE clauses to be aliased?
-                if dialect_name in cls._dialects_requiring_alias_for_table_expression:
-                    return True
+                else:
+                    # Is this a dialect that requires VALUE clauses to be aliased?
+                    return (
+                        dialect_name
+                        in cls._dialects_requiring_alias_for_table_expression
+                    )
+
+        # Didn't find a table expression, so the alias is not required.
         return False
 
     @classmethod
