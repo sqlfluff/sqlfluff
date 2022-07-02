@@ -1931,7 +1931,6 @@ class ReservedKeywordFunctionNameSegment(BaseSegment):
     type = "function_name"
     match_grammar = OneOf(
         "COALESCE",
-        "CONVERT",
         "CURRENT_TIMESTAMP",
         "CURRENT_USER",
         "LEFT",
