@@ -278,22 +278,7 @@ tsql_dialect.replace(
             CodeSegment,
             name="function_name_identifier",
             type="function_name_identifier",
-            anti_template=r"^("
-            + r"|".join(
-                dialect.sets("reserved_keywords")
-                - {
-                    "COALESCE",
-                    "CONVERT",
-                    "CURRENT_TIMESTAMP",
-                    "CURRENT_USER",
-                    "LEFT",
-                    "NULLIF",
-                    "RIGHT",
-                    "SESSION_USER",
-                    "SYSTEM_USER",
-                }
-            )
-            + r")$",
+            anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
         )
     ),
     # Override ANSI IsClauseGrammar to remove TSQL non-keyword NAN
@@ -1936,6 +1921,26 @@ class RankFunctionNameSegment(BaseSegment):
     match_grammar = OneOf("DENSE_RANK", "NTILE", "RANK", "ROW_NUMBER")
 
 
+class ReservedKeywordFunctionNameSegment(BaseSegment):
+    """Reserved keywords that are also functions.
+
+    Need to be able to specify this as type function_name
+    so that linting rules identify it properly
+    """
+
+    type = "function_name"
+    match_grammar = OneOf(
+        "COALESCE",
+        "CURRENT_TIMESTAMP",
+        "CURRENT_USER",
+        "LEFT",
+        "NULLIF",
+        "RIGHT",
+        "SESSION_USER",
+        "SYSTEM_USER",
+    )
+
+
 class WithinGroupFunctionNameSegment(BaseSegment):
     """WITHIN GROUP function name segment.
 
@@ -2125,17 +2130,20 @@ class FunctionSegment(BaseSegment):
             Ref("WithinGroupClause", optional=True),
         ),
         Sequence(
-            Ref(
-                "FunctionNameSegment",
-                exclude=OneOf(
-                    Ref("ValuesClauseSegment"),
-                    # List of special functions handled differently
-                    Ref("CastFunctionNameSegment"),
-                    Ref("ConvertFunctionNameSegment"),
-                    Ref("DatePartFunctionNameSegment"),
-                    Ref("WithinGroupFunctionNameSegment"),
-                    Ref("RankFunctionNameSegment"),
+            OneOf(
+                Ref(
+                    "FunctionNameSegment",
+                    exclude=OneOf(
+                        Ref("ValuesClauseSegment"),
+                        # List of special functions handled differently
+                        Ref("CastFunctionNameSegment"),
+                        Ref("ConvertFunctionNameSegment"),
+                        Ref("DatePartFunctionNameSegment"),
+                        Ref("WithinGroupFunctionNameSegment"),
+                        Ref("RankFunctionNameSegment"),
+                    ),
                 ),
+                Ref("ReservedKeywordFunctionNameSegment"),
             ),
             Bracketed(
                 Ref(
