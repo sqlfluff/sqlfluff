@@ -547,15 +547,16 @@ def lint(
         logger=logger,
         stderr_output=non_human_output,
     )
-    # add stdin if specified via lone '-'
-    if ("-",) == paths:
-        result = lnt.lint_string_wrapped(sys.stdin.read(), fname="stdin")
-    else:
-        # Output the results as we go
-        if verbose >= 1:
-            click.echo(format_linting_result_header())
 
-        with PathAndUserErrorHandler(formatter, paths):
+    # Output the results as we go
+    if verbose >= 1:
+        click.echo(format_linting_result_header())
+
+    with PathAndUserErrorHandler(formatter, paths):
+        # add stdin if specified via lone '-'
+        if ("-",) == paths:
+            result = lnt.lint_string_wrapped(sys.stdin.read(), fname="stdin")
+        else:
             result = lnt.lint_paths(
                 paths,
                 ignore_non_existent_files=False,
@@ -563,9 +564,9 @@ def lint(
                 processes=processes,
             )
 
-        # Output the final stats
-        if verbose >= 1:
-            click.echo(formatter.format_linting_stats(result, verbose=verbose))
+    # Output the final stats
+    if verbose >= 1:
+        click.echo(formatter.format_linting_stats(result, verbose=verbose))
 
     if format == FormatType.json.value:
         file_output = json.dumps(result.as_records())
