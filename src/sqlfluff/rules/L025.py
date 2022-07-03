@@ -114,14 +114,25 @@ class Rule_L025(BaseRule):
         for segment in from_expression_element.iter_segments(expanding=("bracketed",)):
             if segment.is_type("table_expression"):
                 # Found a table expression. Does it have a VALUES clause?
-                if not segment.get_child("values_clause"):
-                    # No VALUES clause, thus the alias is definitely not required.
-                    return False
-                else:
-                    # Is this a dialect that requires VALUE clauses to be aliased?
+                if segment.get_child("values_clause"):
+                    # Found a VALUES clause. Is this a dialect that requires
+                    # VALUE clauses to be aliased?
                     return (
                         dialect_name in cls._dialects_requiring_alias_for_values_clause
                     )
+                elif any(
+                    seg.is_type("select_statement")
+                    for seg in segment.iter_segments(expanding=("bracketed",))
+                ):
+                    # The FROM expression is a derived table, i.e. a nested
+                    # SELECT. In this case, the alias is required in every
+                    # dialect we checked (MySQL, Postgres, T-SQL).
+                    # https://pganalyze.com/docs/log-insights/app-errors/U115
+                    return True
+                else:
+                    # None of the special cases above applies, so the alias is
+                    # not required.
+                    return False
 
         # This should never happen. Return False just to be safe.
         return False  # pragma: no cover
