@@ -121,7 +121,7 @@ class Rule_L025(BaseRule):
                         dialect_name in cls._dialects_requiring_alias_for_values_clause
                     )
                 elif any(
-                    seg.is_type("select_statement")
+                    seg.is_type("select_statement", "set_expression")
                     for seg in segment.iter_segments(expanding=("bracketed",))
                 ):
                     # The FROM expression is a derived table, i.e. a nested

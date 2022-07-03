@@ -312,8 +312,16 @@ test_fail_snowflake_flatten_function:
     core:
       dialect: snowflake
 
-test_pass_derived_query_requires_alias:
+test_pass_derived_query_requires_alias_1:
   pass_str: |
     SELECT * FROM (
         SELECT 1
     )  as a
+
+test_pass_derived_query_requires_alias_2:
+  pass_str: |
+    SELECT * FROM (
+        SELECT col FROM dbo.tab
+        UNION
+        SELECT -1 AS col
+    ) AS a
