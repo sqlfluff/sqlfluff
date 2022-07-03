@@ -16,7 +16,7 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 Major changes include:
 * L066 - New rule to allow you to set min/max length requirements for aliases to ensure they are meaningful
 * L062 - addition of `blocked_regex` as well as `blocked_words`
-* L025 - fix two special cases where aliases were removed inappropriately 
+* L025 - fix several corner cases where aliases were removed inappropriately 
 * L059 is now disabled by default for Postgres
 * Many more dialect improvements and bug fixes.
 
@@ -24,6 +24,7 @@ Major changes include:
 
 ## What’s Changed
 
+* L025: Derived query requires alias -- also handle UNION, etc. [#3548](https://github.com/sqlfluff/sqlfluff/pull/3548) [@barrywhart](https://github.com/barrywhart)
 * L025 should not remove aliases from derived queries [#3546](https://github.com/sqlfluff/sqlfluff/pull/3546) [@barrywhart](https://github.com/barrywhart)
 * T-SQL keyword functions should be treated as keywords [#3540](https://github.com/sqlfluff/sqlfluff/pull/3540) [@tunetheweb](https://github.com/tunetheweb)
 * Fix issue where "--nocolor" is ignored [#3536)(https://github.com/sqlfluff/sqlfluff/pull/3536) [@barrywhart](https://github.com/barrywhart)
