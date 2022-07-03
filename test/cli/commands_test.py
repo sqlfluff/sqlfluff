@@ -108,6 +108,21 @@ def test__cli__command_dialect():
     )
 
 
+def test__cli__command_no_dialect():
+    """Check the script raises the right exception no dialect."""
+    # The dialect is unknown should be a non-zero exit code
+    result = invoke_assert_code(
+        ret_code=1,
+        args=[
+            lint,
+            ["-"],
+        ],
+        cli_input="SELECT 1",
+    )
+    assert "User Error" in result.stdout
+    assert "No dialect was specified" in result.stdout
+
+
 def test__cli__command_parse_error_dialect_explicit_warning():
     """Check parsing error raises the right warning."""
     # For any parsing error there should be a non-zero exit code
