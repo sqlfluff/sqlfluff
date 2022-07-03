@@ -89,3 +89,47 @@ test_pass_bool:
     rules:
       L062:
         blocked_words: bool
+
+test_pass_bigquery:
+  pass_str: |
+    SELECT *
+    FROM `owner.schema.table_2022_07_01_desktop`
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      L062:
+        blocked_regex: ^.*(2022_06_01|2022_05_01).*$
+
+test_fail_bigquery:
+  fail_str: |
+    SELECT *
+    FROM `owner.schema.table_2022_06_01_desktop`
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      L062:
+        blocked_regex: ^.*(2022_06_01|2022_05_01).*$
+
+test_fail_bigquery2:
+  fail_str: |
+    SELECT *
+    FROM `owner.schema.table_2022_06_01_desktop`
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      L062:
+        blocked_regex: .*(2022_06_01|2022_05_01).*
+
+test_fail_bigquery3:
+  fail_str: |
+    SELECT *
+    FROM `owner.schema.table_2022_06_01_desktop`
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      L062:
+        blocked_regex: (2022_06_01|2022_05_01)

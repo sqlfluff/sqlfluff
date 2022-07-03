@@ -593,6 +593,8 @@ def assert_structure(yaml_loader, path, code_only=True, include_meta=False):
         # Test more dbt configurations
         ("jinja_o_config_override_dbt_builtins/override_dbt_builtins", True, False),
         ("jinja_p_disable_dbt_builtins/disable_dbt_builtins", True, False),
+        # Load all the macros
+        ("jinja_q_multiple_path_macros/jinja", True, False),
     ],
 )
 def test__templater_full(subpath, code_only, include_meta, yaml_loader, caplog):
@@ -1058,6 +1060,61 @@ FROM SOME_TABLE
                 ("literal", slice(13, 26, None), slice(0, 13, None)),
                 ("literal", slice(26, 27, None), slice(13, 13, None)),
                 ("block_end", slice(27, 39, None), slice(13, 13, None)),
+            ],
+        ),
+        (
+            # Test for issue 3434: Handle {% block %}.
+            "SELECT {% block table_name %}block_contents{% endblock %} "
+            "FROM {{ self.table_name() }}\n",
+            None,
+            [
+                ("literal", slice(0, 7, None), slice(0, 7, None)),
+                ("literal", slice(29, 43, None), slice(7, 21, None)),
+                ("block_start", slice(7, 29, None), slice(21, 21, None)),
+                ("literal", slice(29, 43, None), slice(21, 21, None)),
+                ("block_end", slice(43, 57, None), slice(21, 21, None)),
+                ("literal", slice(57, 63, None), slice(21, 27, None)),
+                ("templated", slice(63, 86, None), slice(27, 27, None)),
+                ("literal", slice(29, 43, None), slice(27, 41, None)),
+                ("literal", slice(86, 87, None), slice(41, 42, None)),
+            ],
+        ),
+        (
+            # Another test for issue 3434: Similar to the first, but uses
+            # the block inside a loop.
+            """{% block table_name %}block_contents{% endblock %}
+SELECT
+{% for j in [4, 5, 6] %}
+FROM {{ j }}{{ self.table_name() }}
+{% endfor %}
+""",
+            None,
+            [
+                ("literal", slice(22, 36, None), slice(0, 14, None)),
+                ("block_start", slice(0, 22, None), slice(14, 14, None)),
+                ("literal", slice(22, 36, None), slice(14, 14, None)),
+                ("block_end", slice(36, 50, None), slice(14, 14, None)),
+                ("literal", slice(50, 58, None), slice(14, 22, None)),
+                ("block_start", slice(58, 82, None), slice(22, 22, None)),
+                ("literal", slice(82, 88, None), slice(22, 28, None)),
+                ("templated", slice(88, 95, None), slice(28, 29, None)),
+                ("templated", slice(95, 118, None), slice(29, 29, None)),
+                ("literal", slice(22, 36, None), slice(29, 43, None)),
+                ("literal", slice(118, 119, None), slice(43, 44, None)),
+                ("block_end", slice(119, 131, None), slice(44, 44, None)),
+                ("literal", slice(82, 88, None), slice(44, 50, None)),
+                ("templated", slice(88, 95, None), slice(50, 51, None)),
+                ("templated", slice(95, 118, None), slice(51, 51, None)),
+                ("literal", slice(22, 36, None), slice(51, 65, None)),
+                ("literal", slice(118, 119, None), slice(65, 66, None)),
+                ("block_end", slice(119, 131, None), slice(66, 66, None)),
+                ("literal", slice(82, 88, None), slice(66, 72, None)),
+                ("templated", slice(88, 95, None), slice(72, 73, None)),
+                ("templated", slice(95, 118, None), slice(73, 73, None)),
+                ("literal", slice(22, 36, None), slice(73, 87, None)),
+                ("literal", slice(118, 119, None), slice(87, 88, None)),
+                ("block_end", slice(119, 131, None), slice(88, 88, None)),
+                ("literal", slice(131, 132, None), slice(88, 89, None)),
             ],
         ),
     ],

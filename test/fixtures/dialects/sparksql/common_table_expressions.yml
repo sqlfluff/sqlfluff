@@ -3,22 +3,23 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7068b60485f3d9f4e1b8e0e14224226b5cfdc8a06e457c8a33522b65ab1c1306
+_hash: 55552c8e7d241533be286e380f9752bab773d4a2c5dce274d14b02adcec867f6
 file:
 - statement:
     with_compound_statement:
       keyword: WITH
       common_table_expression:
-      - identifier: t
-      - bracketed:
-          start_bracket: (
-          identifier_list:
-          - identifier: x
-          - comma: ','
-          - identifier: y
-          end_bracket: )
-      - keyword: AS
-      - bracketed:
+        identifier: t
+        cte_column_list:
+          bracketed:
+            start_bracket: (
+            identifier_list:
+            - identifier: x
+            - comma: ','
+            - identifier: y
+            end_bracket: )
+        keyword: AS
+        bracketed:
           start_bracket: (
           select_statement:
             select_clause:
@@ -133,14 +134,15 @@ file:
                 with_compound_statement:
                   keyword: WITH
                   common_table_expression:
-                  - identifier: t
-                  - bracketed:
-                      start_bracket: (
-                      identifier_list:
-                        identifier: c
-                      end_bracket: )
-                  - keyword: AS
-                  - bracketed:
+                    identifier: t
+                    cte_column_list:
+                      bracketed:
+                        start_bracket: (
+                        identifier_list:
+                          identifier: c
+                        end_bracket: )
+                    keyword: AS
+                    bracketed:
                       start_bracket: (
                       select_statement:
                         select_clause:
@@ -211,20 +213,21 @@ file:
     - with_compound_statement:
         keyword: WITH
         common_table_expression:
-        - identifier: t
-        - bracketed:
-            start_bracket: (
-            identifier_list:
-            - identifier: a
-            - comma: ','
-            - identifier: b
-            - comma: ','
-            - identifier: c
-            - comma: ','
-            - identifier: d
-            end_bracket: )
-        - keyword: AS
-        - bracketed:
+          identifier: t
+          cte_column_list:
+            bracketed:
+              start_bracket: (
+              identifier_list:
+              - identifier: a
+              - comma: ','
+              - identifier: b
+              - comma: ','
+              - identifier: c
+              - comma: ','
+              - identifier: d
+              end_bracket: )
+          keyword: AS
+          bracketed:
             start_bracket: (
             select_statement:
               select_clause:

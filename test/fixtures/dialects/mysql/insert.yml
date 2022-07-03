@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4fcb1def53935791b03b14a72b849f173d23f90aee81a99e047d0f67e4dae82c
+_hash: 5513e4b7763a0732b4d6e5281cb8057a20f5ece052b9281b97e485dcfd017436
 file:
 - statement:
     insert_statement:
@@ -162,6 +162,84 @@ file:
             - identifier: t2
             - dot: .
             - identifier: b
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        identifier: t1
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          identifier: a
+      - comma: ','
+      - column_reference:
+          identifier: b
+      - comma: ','
+      - column_reference:
+          identifier: c
+      - end_bracket: )
+    - values_clause:
+      - keyword: VALUES
+      - bracketed:
+        - start_bracket: (
+        - expression:
+            literal: '1'
+        - comma: ','
+        - expression:
+            literal: '2'
+        - comma: ','
+        - expression:
+            literal: '3'
+        - end_bracket: )
+      - comma: ','
+      - bracketed:
+        - start_bracket: (
+        - expression:
+            literal: '4'
+        - comma: ','
+        - expression:
+            literal: '5'
+        - comma: ','
+        - expression:
+            literal: '6'
+        - end_bracket: )
+    - insert_row_alias:
+        keyword: AS
+        identifier: t2
+    - upsert_clause_list:
+      - keyword: 'ON'
+      - keyword: DUPLICATE
+      - keyword: KEY
+      - keyword: UPDATE
+      - set_clause:
+          column_reference:
+            identifier: a
+          comparison_operator:
+            raw_comparison_operator: '='
+          values_clause:
+            keyword: VALUES
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  identifier: a
+              end_bracket: )
+      - comma: ','
+      - set_clause:
+          column_reference:
+            identifier: b
+          comparison_operator:
+            raw_comparison_operator: '='
+          values_clause:
+            keyword: VALUES
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  identifier: b
+              end_bracket: )
 - statement_terminator: ;
 - statement:
     insert_statement:

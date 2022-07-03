@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7ce30980036eafe78e1166b2dc7487b6b3ad1558257fa34dac05a1c3e9595319
+_hash: 82765358fec514857672b3b253c2a28d82038d623688304b7da24b2d10a4814b
 file:
   batch:
     statement:
@@ -628,7 +628,7 @@ file:
                 - keyword: BY
                 - function:
                     function_name:
-                      function_name_identifier: COALESCE
+                      keyword: COALESCE
                     bracketed:
                     - start_bracket: (
                     - expression:
@@ -645,7 +645,7 @@ file:
                 - expression:
                     function:
                       function_name:
-                        function_name_identifier: COALESCE
+                        keyword: COALESCE
                       bracketed:
                       - start_bracket: (
                       - expression:

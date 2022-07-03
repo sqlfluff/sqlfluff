@@ -21,6 +21,8 @@ Although SQL is reasonably consistent in its implementations, there are several 
 
 - ANSI SQL - this is the base version and on occasion may not strictly follow the ANSI/ISO SQL definition
 - [BigQuery](https://cloud.google.com/bigquery/)
+- [ClickHouse](https://clickhouse.com/)
+- [Databricks](https://databricks.com/) (note: currently this is just an alias for the `sparksql` dialect).
 - [Db2](https://www.ibm.com/analytics/db2)
 - [Exasol](https://www.exasol.com/)
 - [Hive](https://hive.apache.org/)
@@ -75,7 +77,10 @@ For full documentation visit [docs.sqlfluff.com](https://docs.sqlfluff.com/en/st
 
 # Releases
 
-**SQLFluff** is in beta phase - expect the tool to change significantly with potentially non-backwards compatible API and configuration changes in future releases. If you would like to join in please consider [contributing](CONTRIBUTING.md).
+**SQLFluff** adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html), so breaking changes
+should be restricted to major versions releases. Some elements (such as the python API) are in a less
+stable state and may see more significant changes more often. See the [changelog](CHANGELOG.md) for more details.
+If you would like to join in please consider [contributing](CONTRIBUTING.md).
 
 New releases are made monthly. For more information, visit [Releases](https://github.com/sqlfluff/sqlfluff/releases).
 

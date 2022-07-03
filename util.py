@@ -16,6 +16,8 @@ import subprocess
 import sys
 import yaml
 import requests
+import re
+from ghapi.all import GhApi
 
 
 @click.group()
@@ -119,6 +121,147 @@ def benchmark(cmd, runs, from_file):
     click.echo("===== Done =====")
     for run_no in all_results:
         click.echo("Run {:>5}: {}".format(f"#{run_no}", all_results[run_no]))
+
+
+@cli.command()
+@click.option("--new_version_num")
+def prepare_release(new_version_num):
+    """Change version number in the cfg files."""
+    api = GhApi(
+        owner=os.environ["GITHUB_REPOSITORY_OWNER"],
+        repo="sqlfluff",
+        token=os.environ["GITHUB_TOKEN"],
+    )
+    releases = api.repos.list_releases()
+
+    latest_draft_release = None
+    for rel in releases:
+        if rel["draft"]:
+            latest_draft_release = rel
+            break
+
+    if not latest_draft_release:
+        raise ValueError("No draft release found!")
+
+    # Linkify the PRs and authors
+    draft_body_parts = latest_draft_release["body"].split("\n")
+    potential_new_contributors = []
+    for i, p in enumerate(draft_body_parts):
+        draft_body_parts[i] = re.sub(
+            r"\(#([0-9]*)\) @([^ ]*)$",
+            r"[#\1](https://github.com/sqlfluff/sqlfluff/pull/\1) [@\2](https://github.com/\2)",  # noqa E501
+            p,
+        )
+        new_contrib_string = re.sub(
+            r".*\(#([0-9]*)\) @([^ ]*)$",
+            r"* [@\2](https://github.com/\2) made their first contribution in [#\1](https://github.com/sqlfluff/sqlfluff/pull/\1)",  # noqa E501
+            p,
+        )
+        if new_contrib_string.startswith("* "):
+            new_contrib_name = re.sub(r"\* \[(.*?)\].*", r"\1", new_contrib_string)
+            potential_new_contributors.append(
+                {"name": new_contrib_name, "line": new_contrib_string}
+            )
+    whats_changed_text = "\n".join(draft_body_parts)
+
+    # Find the first commit for each contributor in this release
+    potential_new_contributors.reverse()
+    seen_contributors = set()
+    deduped_potential_new_contributors = []
+    for c in potential_new_contributors:
+        if c["name"] not in seen_contributors:
+            seen_contributors.add(c["name"])
+            deduped_potential_new_contributors.append(c)
+
+    input_changelog = open("CHANGELOG.md", encoding="utf8").readlines()
+    write_changelog = open("CHANGELOG.md", "w", encoding="utf8")
+    for i, line in enumerate(input_changelog):
+        write_changelog.write(line)
+        if "DO NOT DELETE THIS LINE" in line:
+            existing_entry_start = i + 2
+            # If the release is already in the changelog, update it
+            if f"## [{new_version_num}]" in input_changelog[existing_entry_start]:
+                input_changelog[
+                    existing_entry_start
+                ] = f"## [{new_version_num}] - {time.strftime('%Y-%m-%d')}\n"
+
+                # Delete the existing What’s Changed and New Contributors sections
+                remaining_changelog = input_changelog[existing_entry_start:]
+                existing_whats_changed_start = (
+                    next(
+                        j
+                        for j, line in enumerate(remaining_changelog)
+                        if line.startswith("## What’s Changed")
+                    )
+                    + existing_entry_start
+                )
+                existing_new_contributors_start = (
+                    next(
+                        j
+                        for j, line in enumerate(remaining_changelog)
+                        if line.startswith("## New Contributors")
+                    )
+                    + existing_entry_start
+                )
+                existing_new_contributors_length = (
+                    next(
+                        j
+                        for j, line in enumerate(
+                            input_changelog[existing_new_contributors_start:]
+                        )
+                        if line.startswith("## [")
+                    )
+                    - 1
+                )
+
+                del input_changelog[
+                    existing_whats_changed_start : existing_new_contributors_start
+                    + existing_new_contributors_length
+                ]
+
+                # Now that we've cleared the previous sections, we will accurately
+                # find if contributors have been previously mentioned in the changelog
+                new_contributor_lines = []
+                input_changelog_str = "".join(
+                    input_changelog[existing_whats_changed_start:]
+                )
+                for c in deduped_potential_new_contributors:
+                    if c["name"] not in input_changelog_str:
+                        new_contributor_lines.append(c["line"])
+                input_changelog[existing_whats_changed_start] = (
+                    whats_changed_text
+                    + "\n\n## New Contributors\n"
+                    + "\n".join(new_contributor_lines)
+                    + "\n\n"
+                )
+
+            else:
+                write_changelog.write(
+                    f"\n## [{new_version_num}] - {time.strftime('%Y-%m-%d')}\n\n## Highlights\n\n"  # noqa E501
+                )
+                write_changelog.write(whats_changed_text)
+                write_changelog.write("\n## New Contributors\n\n")
+                # Ensure contributor names don't appear in input_changelog list
+                new_contributor_lines = []
+                input_changelog_str = "".join(input_changelog)
+                for c in deduped_potential_new_contributors:
+                    if c["name"] not in input_changelog_str:
+                        new_contributor_lines.append(c["line"])
+                write_changelog.write("\n".join(new_contributor_lines))
+                write_changelog.write("\n")
+
+    write_changelog.close()
+
+    for filename in ["setup.cfg", "plugins/sqlfluff-templater-dbt/setup.cfg"]:
+        input_file = open(filename, "r").readlines()
+        write_file = open(filename, "w")
+        for line in input_file:
+            for key in ["stable_version", "version"]:
+                if line.startswith(key):
+                    line = f"{key} = {new_version_num}\n"
+                    break
+            write_file.write(line)
+        write_file.close()
 
 
 if __name__ == "__main__":

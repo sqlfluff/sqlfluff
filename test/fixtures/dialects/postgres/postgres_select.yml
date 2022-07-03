@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2ac14552506be39c7f8cb304071dd62b0f075b16dc4632cc94609fe8bbaac8bc
+_hash: cba29bde5a1ea01bf4b37859eae63693cd142445b6d2514998cf9789e1c70a50
 file:
 - statement:
     select_statement:
@@ -574,4 +574,41 @@ file:
         - keyword: COLLATE
         - column_reference:
             identifier: '"fr_FR"'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: test1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: select
+      - select_clause_element:
+          column_reference:
+            identifier: id
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: start
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - identifier: periods
+          - dot: .
+          - identifier: end
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: periods
 - statement_terminator: ;

@@ -272,3 +272,133 @@ test_fail_update_cte:
   configs:
     core:
       dialect: postgres
+
+test_fail_nested_cte:
+  fail_str: |
+    with a as (
+        with b as (
+            select 1 from foo
+        )
+        select 1
+    )
+    select * from a
+
+test_pass_nested_query:
+  pass_str: |
+    WITH
+    foo AS (
+        SELECT
+            *
+        FROM
+            zipcode
+    ),
+
+    bar AS (
+        SELECT
+            *
+        FROM
+            county
+    ),
+
+    stage AS (
+        (SELECT
+            *
+        FROM
+            foo)
+
+            UNION ALL
+
+        (SELECT
+            *
+        FROM
+            bar)
+    )
+
+    SELECT
+        *
+    FROM
+        stage
+
+test_fail_nested_query:
+  fail_str: |
+    WITH
+    foo AS (
+        SELECT
+            *
+        FROM
+            zipcode
+    ),
+
+    bar AS (
+        SELECT
+            *
+        FROM
+            county
+    ),
+
+    stage AS (
+        (SELECT
+            *
+        FROM
+            foo)
+
+            UNION ALL
+
+        (SELECT
+            *
+        FROM
+            foo)
+    )
+
+    SELECT
+        *
+    FROM
+        stage
+
+test_pass_nested_query_in_from_clause:
+  pass_str: |
+    WITH
+    foo AS (
+        SELECT
+            *
+        FROM
+            zipcode
+    ),
+
+    stage AS (
+        SELECT
+            *
+        FROM
+            (
+                SELECT * FROM foo
+            )
+    )
+
+    SELECT
+        *
+    FROM
+        stage
+
+test_fail_nested_query_in_from_clause:
+  fail_str: |
+    WITH
+    foo AS (
+        SELECT
+            *
+        FROM
+            zipcode
+    ),
+
+    stage AS (
+        SELECT
+            *
+        FROM
+            (
+                SELECT * FROM foofoo
+            )
+    )
+
+    SELECT
+        *
+    FROM
+        stage
