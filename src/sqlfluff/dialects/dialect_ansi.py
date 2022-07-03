@@ -2592,7 +2592,7 @@ class TypelessStructSegment(BaseSegment):
 class StructTypeSegment(BaseSegment):
     """Expression to construct a STRUCT datatype.
 
-    (Yes in BigQuery for example)
+    (Used in BigQuery for example)
     """
 
     type = "struct_type"
