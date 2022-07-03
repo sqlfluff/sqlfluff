@@ -557,7 +557,7 @@ def lint(
 
         with PathAndUserErrorHandler(formatter, paths):
             result = lnt.lint_paths(
-                paths=paths,
+                paths,
                 ignore_non_existent_files=False,
                 ignore_files=not disregard_sqlfluffignores,
                 processes=processes,
@@ -786,7 +786,7 @@ def fix(
 
     with PathAndUserErrorHandler(formatter, paths):
         result = lnt.lint_paths(
-            paths=paths,
+            paths,
             fix=True,
             ignore_non_existent_files=False,
             processes=processes,
