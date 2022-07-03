@@ -2790,7 +2790,7 @@ class CommentOnStatementSegment(BaseSegment):
     https://www.postgresql.org/docs/13/sql-comment.html
     """
 
-    type = "comment_on_statement"
+    type = "comment_clause"
 
     match_grammar = Sequence(
         "COMMENT",
