@@ -448,7 +448,7 @@ class BaseSegment:
         return segs
 
     @classmethod
-    def _position_segments(cls, segments: Tuple["BaseSegment", ...], parent_pos=None):
+    def _position_segments(cls, segments: Tuple["BaseSegment", ...], parent_pos=None) -> Tuple["BaseSegment", ...]:
         """Refresh positions of segments within a span.
 
         This does two things:
