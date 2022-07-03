@@ -135,28 +135,35 @@ def set_logging_level(
         parser_logger.setLevel(logging.DEBUG)
 
 
-def call_with_error_handling(func, *args, **kwargs):
-    """Make a call but do appropriate exception handling for the CLI."""
-    try:
-        result = func(*args, **kwargs)
-    except OSError:
-        click.echo(
-            colorize(
-                f"The path(s) { kwargs.get('paths', kwargs.get('path', default='provided')) } could not be "
-                "accessed. Check it/they exist(s).",
-                Color.red,
+class PathAndUserErrorHandler:
+    """Make an API call but with error handling for the CLI."""
+
+    def __init__(self, formatter, paths):
+        self.formatter = formatter
+        self.paths = paths
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if exc_type is OSError:
+            click.echo(
+                self.formatter.colorize(
+                    f"The path(s) { self.paths } could not be "
+                    "accessed. Check it/they exist(s).",
+                    Color.red,
+                )
             )
-        )
-        sys.exit(1)
-    except SQLFluffUserError as err:
-        click.echo(
-            "\nUser Error: " + colorize(
-                str(err),
-                Color.red,
+            sys.exit(1)
+        elif exc_type is SQLFluffUserError:
+            click.echo(
+                "\nUser Error: "
+                + self.formatter.colorize(
+                    str(exc_val),
+                    Color.red,
+                )
             )
-        )
-        sys.exit(1)
-    return result
+            sys.exit(1)
 
 
 def common_options(f: Callable) -> Callable:
@@ -548,13 +555,13 @@ def lint(
         if verbose >= 1:
             click.echo(format_linting_result_header())
 
-        result = call_with_error_handling(
-            lnt.lint_paths,
-            paths=paths,
-            ignore_non_existent_files=False,
-            ignore_files=not disregard_sqlfluffignores,
-            processes=processes,
-        )
+        with PathAndUserErrorHandler(formatter, paths):
+            result = lnt.lint_paths(
+                paths=paths,
+                ignore_non_existent_files=False,
+                ignore_files=not disregard_sqlfluffignores,
+                processes=processes,
+            )
 
         # Output the final stats
         if verbose >= 1:
@@ -777,13 +784,13 @@ def fix(
     # Lint the paths (not with the fix argument at this stage), outputting as we go.
     click.echo("==== finding fixable violations ====")
 
-    result = call_with_error_handling(
-        lnt.lint_paths,
-        paths=paths,
-        fix=True,
-        ignore_non_existent_files=False,
-        processes=processes,
-    )
+    with PathAndUserErrorHandler(formatter, paths):
+        result = lnt.lint_paths(
+            paths=paths,
+            fix=True,
+            ignore_non_existent_files=False,
+            processes=processes,
+        )
 
     if not fix_even_unparsable:
         exit_code = formatter.handle_files_with_tmp_or_prs_errors(result)
@@ -985,33 +992,32 @@ def parse(
     t0 = time.monotonic()
 
     # handle stdin if specified via lone '-'
-    if "-" == path:
-        parsed_strings = [
-            call_with_error_handling(
-                lnt.parse_string,
-                sys.stdin.read(),
-                "stdin",
-                recurse=recurse,
-                config=lnt.config,
-            ),
-        ]
-    else:
-        # A single path must be specified for this command
-        parsed_strings = list(
-            call_with_error_handling(
-                lnt.parse_path,
-                path=path,
-                recurse=recurse,
+    with PathAndUserErrorHandler(formatter, path):
+        if "-" == path:
+            parsed_strings = [
+                lnt.parse_string(
+                    sys.stdin.read(),
+                    "stdin",
+                    recurse=recurse,
+                    config=lnt.config,
+                ),
+            ]
+        else:
+            # A single path must be specified for this command
+            parsed_strings = list(
+                lnt.parse_path(
+                    path=path,
+                    recurse=recurse,
+                )
             )
-        )
 
     total_time = time.monotonic() - t0
     violations_count = 0
 
-        # iterative print for human readout
-        if format == FormatType.human.value:
-            violations_count = formatter.print_out_violations_and_timing(
-                output_stream, bench, code_only, total_time, verbose, parsed_strings
+    # iterative print for human readout
+    if format == FormatType.human.value:
+        violations_count = formatter.print_out_violations_and_timing(
+            output_stream, bench, code_only, total_time, verbose, parsed_strings
         )
     else:
         parsed_strings_dict = [
