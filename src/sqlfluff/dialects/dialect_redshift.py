@@ -655,6 +655,7 @@ class AlterTableActionSegment(BaseSegment):
             Ref.keyword("COLUMN", optional=True),
             Ref("ColumnReferenceSegment"),
             Ref("DatatypeSegment"),
+            Sequence("DEFAULT", Ref("ExpressionSegment"), optional=True),
             Sequence("COLLATE", Ref("QuotedLiteralSegment"), optional=True),
             AnyNumberOf(Ref("ColumnConstraintSegment")),
         ),
@@ -1596,6 +1597,21 @@ class DropProcedureStatementSegment(BaseSegment):
     )
 
 
+class AlterDefaultPrivilegesSchemaObjectsSegment(
+    postgres.AlterDefaultPrivilegesSchemaObjectsSegment
+):
+    """`ALTER DEFAULT PRIVILEGES` schema object types.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_ALTER_DEFAULT_PRIVILEGES.html
+    """
+
+    match_grammar = (
+        postgres.AlterDefaultPrivilegesSchemaObjectsSegment.match_grammar.copy(
+            insert=[Sequence("PROCEDURES")]
+        )
+    )
+
+
 class DeclareStatementSegment(BaseSegment):
     """A `DECLARE` statement.
 
@@ -1889,6 +1905,7 @@ class StatementSegment(postgres.StatementSegment):
             Ref("AnalyzeCompressionStatementSegment"),
             Ref("VacuumStatementSegment"),
             Ref("AlterProcedureStatementSegment"),
+            Ref("CallStatementSegment"),
         ],
     )
 
@@ -2227,4 +2244,17 @@ class ObjectUnpivotSegment(BaseSegment):
         Ref("SingleIdentifierGrammar"),
         "AT",
         Ref("SingleIdentifierGrammar"),
+    )
+
+
+class CallStatementSegment(BaseSegment):
+    """A `CALL` statement.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_CALL_procedure.html
+    """
+
+    type = "call_statement"
+    match_grammar = Sequence(
+        "CALL",
+        Ref("FunctionSegment"),
     )

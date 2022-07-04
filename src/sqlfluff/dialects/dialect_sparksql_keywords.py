@@ -280,9 +280,11 @@ UNRESERVED_KEYWORDS = [
     # Community Contributed Data Sources
     "DELTA",  # https://github.com/delta-io/delta
     "XML",  # https://github.com/databricks/spark-xml
+    "ICEBERG",
     # Delta Lake
     "DETAIL",
     "DRY",
+    "GENERATE",
     "HISTORY",
     "RETAIN",
     "RUN",

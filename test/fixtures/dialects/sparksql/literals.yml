@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 252f56626a64ac8173456d72f7287861c6f8cf2aa19a0974369b67ebff94fc32
+_hash: f9f1268cb0bd8712d237193a4a72bec9ae6c1547596701bb8b643305ad89669d
 file:
 - statement:
     select_statement:
@@ -20,7 +20,7 @@ file:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          literal: '"SPARK SQL"'
+          literal: "'SPARK SQL'"
           alias_expression:
             keyword: AS
             identifier: col
@@ -30,7 +30,7 @@ file:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          literal: "'it\\'s $10.'"
+          literal: "\"it's $10.\""
           alias_expression:
             keyword: AS
             identifier: col

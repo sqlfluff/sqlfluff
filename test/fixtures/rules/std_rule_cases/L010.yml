@@ -195,3 +195,20 @@ test_fail_select_lower:
     rules:
       L010:
         capitalisation_policy: upper
+
+test_fail_select_lower_keyword_functions:
+  # Test for issue #3520
+  fail_str: |
+    SELECT
+    cast(5 AS int) AS test1,
+    coalesce(1, 2) AS test3
+  fix_str: |
+    SELECT
+    CAST(5 AS int) AS test1,
+    COALESCE(1, 2) AS test3
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      L010:
+        capitalisation_policy: upper
