@@ -79,10 +79,16 @@ class _LineSummary:
             for seg in copied_line_buffer
         )
         has_code_segment = any(elem.is_code for elem in copied_line_buffer)
+        templated_line_type = _get_template_block_type(
+            copied_line_buffer, templated_file
+        )
         has_placeholder = any(
             elem.is_type("placeholder") for elem in copied_line_buffer
         )
-        is_empty_line = not has_code_segment and not has_placeholder
+
+        is_empty_line = not has_code_segment and (
+            not has_placeholder or templated_line_type == "end"
+        )
 
         line_summary = self.__class__(
             line_no=line_no,
@@ -97,9 +103,7 @@ class _LineSummary:
             # or has an indent in the initial whitespace.
             clean_indent=self.clean_indent,
             # Solidify expensive immutable characteristics
-            templated_line_type=_get_template_block_type(
-                copied_line_buffer, templated_file
-            ),
+            templated_line_type=templated_line_type,
             is_comment_line=is_comment_line,
             is_empty_line=is_empty_line,
             has_code_segment=has_code_segment,
