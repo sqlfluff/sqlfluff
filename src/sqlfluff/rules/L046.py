@@ -63,7 +63,7 @@ class Rule_L046(BaseRule):
         >>> Rule_L046._get_whitespace_ends('{%+if a + b is True     -%}')
         ('{%+', '', 'if a + b is True', '     ', '-%}')
         """
-        assert s[0] == '{' and s[-1] == '}'
+        assert s[0] == "{" and s[-1] == "}"
         # Jinja tags all have a length of two. We can use slicing
         # to remove them easily.
         main = s[2:-2]
