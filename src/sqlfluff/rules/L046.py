@@ -6,9 +6,7 @@ from sqlfluff.core.rules.base import (
     EvalResultType,
     LintResult,
     RuleContext,
-    LintFix,
 )
-from sqlfluff.core.rules.functional import rsp
 from sqlfluff.core.rules.doc_decorators import document_groups
 
 
