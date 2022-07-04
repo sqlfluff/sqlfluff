@@ -125,8 +125,14 @@ class Rule_L046(BaseRule):
                 post_fix = " "
 
             if pre_fix is not None or post_fix is not None:
-                # Precalculate the fix even though we don't have the framework to use it yet.
-                # fixed = tag_pre + (pre_fix or ws_pre) + inner + (post_fix or ws_post) + tag_post
+                # Precalculate the fix even though we don't have the
+                # framework to use it yet.
+                # fixed = (
+                #     tag_pre
+                #     + (pre_fix or ws_pre)
+                #     + inner
+                #     + (post_fix or ws_post)
+                #     + tag_post
                 return LintResult(
                     memory=memory,
                     anchor=context.segment,
