@@ -42,7 +42,7 @@ class Rule_L046(BaseRule):
     targets_templated = True
 
     @staticmethod
-    def _get_whitespace_ends(s: str) -> Tuple[str, str, str]:
+    def _get_whitespace_ends(s: str) -> Tuple[str, str, str, str, str]:
         """Remove tag ends and partition off any whitespace ends."""
         # Jinja tags all have a length of two. We can use slicing
         # to remove them easily.

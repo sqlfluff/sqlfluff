@@ -336,6 +336,11 @@ class BaseSegment:
     @cached_property
     def source_raw(self) -> str:
         """Make an uppercase string from the segments of this segment."""
+        if not self.pos_marker:
+            raise NotImplementedError(
+                "Unable to retrieve source raw for a segment without "
+                "position markers. Don't do this."
+            )
         return self.pos_marker.templated_file.source_str[self.pos_marker.source_slice]
 
     @cached_property
