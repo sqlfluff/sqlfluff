@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 216046fcf1cf2f947ad4df7674d2d4d4662c3fe7f18a2adbca56d03aed7f0ed4
+_hash: 7265e7b8217524c52c79650703edfc786f06b8e74ab4e8c11a294d482e98a7a7
 file:
 - statement:
     select_statement:
@@ -128,4 +128,110 @@ file:
             - expression:
                 literal: '1'
             - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            identifier: age
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: name
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: person
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            identifier: age
+          comparison_operator:
+          - raw_comparison_operator: <
+          - raw_comparison_operator: '='
+          literal: '100'
+      distribute_by_clause:
+      - keyword: DISTRIBUTE
+      - keyword: BY
+      - column_reference:
+          identifier: age
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            identifier: age
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: name
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: person
+      groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - column_reference:
+          identifier: age
+      distribute_by_clause:
+      - keyword: DISTRIBUTE
+      - keyword: BY
+      - column_reference:
+          identifier: age
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            identifier: age
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: name
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: person
+      groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - column_reference:
+          identifier: age
+      having_clause:
+        keyword: HAVING
+        expression:
+          function:
+            function_name:
+              function_name_identifier: COUNT
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  identifier: age
+              end_bracket: )
+          comparison_operator:
+            raw_comparison_operator: '>'
+          literal: '1'
+      distribute_by_clause:
+      - keyword: DISTRIBUTE
+      - keyword: BY
+      - column_reference:
+          identifier: age
 - statement_terminator: ;

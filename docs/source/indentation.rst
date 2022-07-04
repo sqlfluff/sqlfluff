@@ -258,10 +258,6 @@ indented within the :code:`WITH` clause:
 
    SELECT 1 FROM some_cte
 
-Note that using :code:`indented_ctes` may clash with `Rule L018`_ (`"WITH
-clause closing bracket should be aligned with WITH keyword."`), so if using
-this option you will likely want to disable that rule.
-
 By default, *SQLFluff* aims to follow the indentation most common approach
 to indentation. However, if you have other versions of indentation which are
 supported by published style guides, then please submit an issue on GitHub

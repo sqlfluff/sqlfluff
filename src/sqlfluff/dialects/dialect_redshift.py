@@ -1905,6 +1905,7 @@ class StatementSegment(postgres.StatementSegment):
             Ref("AnalyzeCompressionStatementSegment"),
             Ref("VacuumStatementSegment"),
             Ref("AlterProcedureStatementSegment"),
+            Ref("CallStatementSegment"),
         ],
     )
 
@@ -2243,4 +2244,17 @@ class ObjectUnpivotSegment(BaseSegment):
         Ref("SingleIdentifierGrammar"),
         "AT",
         Ref("SingleIdentifierGrammar"),
+    )
+
+
+class CallStatementSegment(BaseSegment):
+    """A `CALL` statement.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_CALL_procedure.html
+    """
+
+    type = "call_statement"
+    match_grammar = Sequence(
+        "CALL",
+        Ref("FunctionSegment"),
     )
