@@ -334,6 +334,11 @@ class BaseSegment:
         return self.raw.upper()
 
     @cached_property
+    def source_raw(self) -> str:
+        """Make an uppercase string from the segments of this segment."""
+        return self.pos_marker.templated_file.source_str[self.pos_marker.source_slice]
+
+    @cached_property
     def matched_length(self) -> int:
         """Return the length of the segment in characters."""
         return sum(seg.matched_length for seg in self.segments)
@@ -662,6 +667,7 @@ class BaseSegment:
             "is_whitespace",
             "raw",
             "raw_upper",
+            "source_raw",
             "matched_length",
             "raw_segments",
             "first_non_whitespace_segment_raw_upper",
