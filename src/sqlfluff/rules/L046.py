@@ -44,7 +44,26 @@ class Rule_L046(BaseRule):
 
     @staticmethod
     def _get_whitespace_ends(s: str) -> Tuple[str, str, str, str, str]:
-        """Remove tag ends and partition off any whitespace ends."""
+        """Remove tag ends and partition off any whitespace ends.
+
+        This function assumes that we've already trimmed the string
+        to just the tag, and will raise an AssertionError if not.
+        >>> Rule_L046._get_whitespace_ends('  {{not_trimmed}}   ')
+        Traceback (most recent call last):
+            ...
+        AssertionError
+
+        In essence it divides up a tag into the end tokens, any
+        leading or trailing whitespace and the inner content
+        >>> Rule_L046._get_whitespace_ends('{{ my_content }}')
+        ('{{', ' ', 'my_content', ' ', '}}')
+
+        It also works with block tags and more complicated content
+        and end markers.
+        >>> Rule_L046._get_whitespace_ends('{%+if a + b is True     -%}')
+        ('{%+', '', 'if a + b is True', '     ', '-%}')
+        """
+        assert s[0] == '{' and s[-1] == '}'
         # Jinja tags all have a length of two. We can use slicing
         # to remove them easily.
         main = s[2:-2]
