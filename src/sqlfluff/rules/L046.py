@@ -148,4 +148,5 @@ class Rule_L046(BaseRule):
             if result:
                 return result
             else:
-                return LintResult(memory=context.memory)
+                return LintResult(memory=memory)
+        return LintResult(memory=context.memory)
