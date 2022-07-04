@@ -77,7 +77,7 @@ class Rule_L046(BaseRule):
             # may include multiple raw templated sections:
             # e.g. a single identifier with many templated tags.
             templated_raw_slices = context.functional.segment.raw_slices.select(
-                rsp.is_slice_type("templated")
+                rsp.is_slice_type("templated", "block_start", "block_end")
             )
             result = []
 
