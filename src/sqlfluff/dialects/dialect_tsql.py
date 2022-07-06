@@ -2890,7 +2890,9 @@ class FromClauseSegment(BaseSegment):
     type = "from_clause"
     match_grammar = Sequence(
         "FROM",
+        Indent,
         Delimited(Ref("FromExpressionSegment")),
+        Dedent,
         Ref("DelimiterGrammar", optional=True),
     )
 

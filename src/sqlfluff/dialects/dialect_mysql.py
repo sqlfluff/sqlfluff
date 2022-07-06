@@ -4,6 +4,8 @@ For now the only change is the parsing of comments.
 https://dev.mysql.com/doc/refman/8.0/en/differences-from-ansi.html
 """
 
+from typing import Type
+
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
@@ -13,7 +15,9 @@ from sqlfluff.core.parser import (
     Bracketed,
     CodeSegment,
     CommentSegment,
+    Dedent,
     Delimited,
+    Indent,
     KeywordSegment,
     Matchable,
     NamedParser,
@@ -35,6 +39,10 @@ from sqlfluff.dialects import dialect_ansi as ansi
 
 ansi_dialect = load_raw_dialect("ansi")
 mysql_dialect = ansi_dialect.copy_as("mysql")
+
+FromExpressionSegment: Type[BaseSegment]
+
+FromExpressionSegment = ansi_dialect.get_segment("FromExpressionSegment")
 
 mysql_dialect.patch_lexer_matchers(
     [
@@ -531,6 +539,18 @@ class InsertStatementSegment(BaseSegment):
     )
 
 
+class IndentedFromExpressionSegment(FromExpressionSegment):
+    """An indented from expression segment."""
+
+    type = "indented_from_expression"
+
+    match_grammar = Sequence(
+        Indent,
+        Ref("FromExpressionSegment"),
+        Dedent,
+    )
+
+
 class DeleteUsingClauseSegment(BaseSegment):
     """A `USING` clause froma `DELETE` Statement`."""
 
@@ -543,7 +563,7 @@ class DeleteUsingClauseSegment(BaseSegment):
     parse_grammar = Sequence(
         "USING",
         Delimited(
-            Ref("FromExpressionSegment"),
+            Ref("IndentedFromExpressionSegment"),
         ),
     )
 
@@ -2008,7 +2028,7 @@ class UpdateStatementSegment(BaseSegment):
         "UPDATE",
         Ref.keyword("LOW_PRIORITY", optional=True),
         Ref.keyword("IGNORE", optional=True),
-        Delimited(Ref("TableReferenceSegment"), Ref("FromExpressionSegment")),
+        Delimited(Ref("TableReferenceSegment"), Ref("IndentedFromExpressionSegment")),
         Ref("SetClauseListSegment"),
         Ref("WhereClauseSegment", optional=True),
         Ref("OrderByClauseSegment", optional=True),

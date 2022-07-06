@@ -1268,7 +1268,6 @@ class FromExpressionSegment(BaseSegment):
 
     type = "from_expression"
     match_grammar: Matchable = Sequence(
-        Indent,
         OneOf(
             # check first for MLTableExpression, because of possible FunctionSegment in
             # MainTableExpression
@@ -1280,6 +1279,7 @@ class FromExpressionSegment(BaseSegment):
             Ref("JoinClauseSegment"), Ref("JoinLikeClauseGrammar"), optional=True
         ),
         Conditional(Dedent, indented_joins=True),
+        Indent,
     )
 
 
@@ -1564,9 +1564,11 @@ class FromClauseSegment(BaseSegment):
     )
     parse_grammar: Optional[Matchable] = Sequence(
         "FROM",
+        Indent,
         Delimited(
             Ref("FromExpressionSegment"),
         ),
+        Dedent,
     )
 
     def get_eventual_aliases(self) -> List[Tuple[BaseSegment, AliasInfo]]:

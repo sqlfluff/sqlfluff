@@ -1100,3 +1100,51 @@ test_tsql_bubble_up_newline_after_fix:
   configs:
     core:
       dialect: tsql
+
+
+test_fail_templated_block_unindented_in_from_clause:
+  fail_str: |
+    SELECT
+        {% if true %}
+            1 AS col
+        {% else %}
+            2 AS col
+        {% endif %}
+    FROM
+    {% if true %}
+        a
+    {% else %}
+        b -- won't be fixed as it's in else block
+    {% endif %} -- won't indent, as it is outside from block
+    WHERE x = y
+
+  fix_str: |
+    SELECT
+        {% if true %}
+            1 AS col
+        {% else %}
+            2 AS col
+        {% endif %}
+    FROM
+        {% if true %}
+            a
+        {% else %}
+        b -- won't be fixed as it's in else block
+    {% endif %} -- won't indent, as it is outside from block
+    WHERE x = y
+
+test_pass_groupby_indentation_after_templated_block:
+  pass_str: |
+    SELECT
+        a,
+        COUNT(*) AS cnt
+    FROM tbl
+    WHERE first_condition
+        {% for i in [0, 1] %}
+            {% if i == 0 %}
+                AND {{ var('column_name') }} = 0
+            {% else %}
+                AND other_condition
+            {% endif %}
+        {% endfor %}
+    GROUP BY a
