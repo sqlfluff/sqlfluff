@@ -31,6 +31,7 @@ from sqlfluff.core.parser import (
     StringParser,
     SymbolSegment,
 )
+from sqlfluff.dialects.dialect_ansi import FromExpressionSegment
 from sqlfluff.dialects.dialect_mysql_keywords import (
     mysql_reserved_keywords,
     mysql_unreserved_keywords,
@@ -39,10 +40,6 @@ from sqlfluff.dialects import dialect_ansi as ansi
 
 ansi_dialect = load_raw_dialect("ansi")
 mysql_dialect = ansi_dialect.copy_as("mysql")
-
-FromExpressionSegment: Type[BaseSegment]
-
-FromExpressionSegment = ansi_dialect.get_segment("FromExpressionSegment")
 
 mysql_dialect.patch_lexer_matchers(
     [
