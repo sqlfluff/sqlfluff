@@ -73,6 +73,7 @@ file:
     - dedent: ''
     - from_clause:
       - keyword: FROM
+      - indent: ''
       - newline: "\n"
       - whitespace: '    '
       - placeholder: '{% for action in actions %}'
@@ -84,7 +85,6 @@ file:
       - newline: "\n"
       - whitespace: '            '
       - from_expression:
-        - indent: ''
         - from_expression_element:
             table_expression:
               table_reference:
@@ -188,4 +188,6 @@ file:
                 table_reference:
                   identifier: action_states
           - dedent: ''
+        - indent: ''
+      - dedent: ''
   newline: "\n"

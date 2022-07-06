@@ -28,9 +28,9 @@ file:
             - dedent: ''
             - from_clause:
               - keyword: FROM
+              - indent: ''
               - whitespace: ' '
               - from_expression:
-                  indent: ''
                   from_expression_element:
                     table_expression:
                       table_reference:
@@ -38,6 +38,8 @@ file:
                       - dot: .
                       - identifier: SNAPSHOT_DAILY
                   dedent: ''
+                  indent: ''
+              - dedent: ''
             - newline: "\n"
             - whitespace: '    '
             - where_clause:
@@ -70,11 +72,13 @@ file:
           dedent: ''
           from_clause:
             keyword: FROM
+            indent: ''
             whitespace: ' '
             from_expression:
-              indent: ''
               from_expression_element:
                 table_expression:
                   table_reference:
                     identifier: cust
               dedent: ''
+              indent: ''
+            dedent: ''

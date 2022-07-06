@@ -188,17 +188,17 @@ def test__dialect__ansi_is_whitespace():
 @pytest.mark.parametrize(
     "sql_string, indented_joins,meta_loc",
     [
-        ("select field_1 from my_table as alias_1", True, (1, 5, 8, 14)),
-        ("select field_1 from my_table as alias_1", False, (1, 5, 8, 14)),
+        ("select field_1 from my_table as alias_1", True, (1, 5, 7, 14, 15, 16)),
+        ("select field_1 from my_table as alias_1", False, (1, 5, 7, 14, 15, 16)),
         (
             "select field_1 from my_table as alias_1 join foo using (field_1)",
             True,
-            (1, 5, 8, 16, 21, 24, 26, 28, 29, 30),
+            (1, 5, 7, 16, 21, 24, 26, 28, 29, 30, 31, 32),
         ),
         (
             "select field_1 from my_table as alias_1 join foo using (field_1)",
             False,
-            (1, 5, 8, 15, 17, 22, 25, 27, 29, 30),
+            (1, 5, 7, 15, 17, 22, 25, 27, 29, 30, 31, 32),
         ),
     ],
 )
