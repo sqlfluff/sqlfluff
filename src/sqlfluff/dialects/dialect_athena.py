@@ -220,7 +220,7 @@ class PrimitiveTypeSegment(BaseSegment):
         "INTEGER",
         "INT",
         "BIGINT",
-        "REAL",  # PrestoDB only
+        "REAL",
         "FLOAT",
         Sequence("DOUBLE", Ref.keyword("PRECISION", optional=True)),
         Sequence(
@@ -232,20 +232,20 @@ class PrimitiveTypeSegment(BaseSegment):
                 optional=True,
             ),
         ),
-        "NUMERIC",  # Hive only
-        "STRING",  # Hive only
+        "NUMERIC",
+        "STRING",
         "VARCHAR",
         "CHAR",
-        "VARBINARY",  # PrestoDB only
-        "JSON",  # PrestoDB only
+        "VARBINARY",
+        "JSON",
         "DATE",
         "TIMESTAMP",
         "INTERVAL",
-        "TIME",  # PrestoDB only
-        "IPADDRESS",  # PrestoDB only
-        "HyperLogLog",  # PrestoDB only
-        "P4HyperLogLog",  # PrestoDB only
-        "QDigest",  # PrestoDB only
+        "TIME",
+        "IPADDRESS",
+        "HyperLogLog",
+        "P4HyperLogLog",
+        "QDigest",
     )
 
 
