@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7e8e25230b7bb4701fec6377de0003673787f75e5bf9a02ba791ae7f89927149
+_hash: 5d45dacc0a2edf7a052ec686493ca50fe7828f97cc8c32fe8a9f19219df5f5da
 file:
 - statement:
     delete_statement:
@@ -253,25 +253,26 @@ file:
         identifier: t2
     - using_clause:
         keyword: USING
-        from_expression:
-        - from_expression_element:
-            table_expression:
-              table_reference:
-                identifier: t1
-        - join_clause:
-          - keyword: INNER
-          - keyword: JOIN
+        indented_from_expression:
+          from_expression:
           - from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: t2
-        - join_clause:
-          - keyword: INNER
-          - keyword: JOIN
-          - from_expression_element:
-              table_expression:
-                table_reference:
-                  identifier: t3
+                  identifier: t1
+          - join_clause:
+            - keyword: INNER
+            - keyword: JOIN
+            - from_expression_element:
+                table_expression:
+                  table_reference:
+                    identifier: t2
+          - join_clause:
+            - keyword: INNER
+            - keyword: JOIN
+            - from_expression_element:
+                table_expression:
+                  table_reference:
+                    identifier: t3
     - where_clause:
         keyword: WHERE
         expression:
@@ -311,25 +312,26 @@ file:
         identifier: t2
     - using_clause:
         keyword: USING
-        from_expression:
-        - from_expression_element:
-            table_expression:
-              table_reference:
-                identifier: t1
-        - join_clause:
-          - keyword: INNER
-          - keyword: JOIN
+        indented_from_expression:
+          from_expression:
           - from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: t2
-        - join_clause:
-          - keyword: INNER
-          - keyword: JOIN
-          - from_expression_element:
-              table_expression:
-                table_reference:
-                  identifier: t3
+                  identifier: t1
+          - join_clause:
+            - keyword: INNER
+            - keyword: JOIN
+            - from_expression_element:
+                table_expression:
+                  table_reference:
+                    identifier: t2
+          - join_clause:
+            - keyword: INNER
+            - keyword: JOIN
+            - from_expression_element:
+                table_expression:
+                  table_reference:
+                    identifier: t3
     - where_clause:
         keyword: WHERE
         expression:
