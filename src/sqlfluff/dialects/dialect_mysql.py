@@ -4,8 +4,6 @@ For now the only change is the parsing of comments.
 https://dev.mysql.com/doc/refman/8.0/en/differences-from-ansi.html
 """
 
-from typing import Type
-
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
