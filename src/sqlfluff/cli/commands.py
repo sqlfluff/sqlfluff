@@ -135,6 +135,37 @@ def set_logging_level(
         parser_logger.setLevel(logging.DEBUG)
 
 
+class PathAndUserErrorHandler:
+    """Make an API call but with error handling for the CLI."""
+
+    def __init__(self, formatter, paths):
+        self.formatter = formatter
+        self.paths = paths
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if exc_type is OSError:
+            click.echo(
+                self.formatter.colorize(
+                    f"The path(s) { self.paths } could not be "
+                    "accessed. Check it/they exist(s).",
+                    Color.red,
+                )
+            )
+            sys.exit(1)
+        elif exc_type is SQLFluffUserError:
+            click.echo(
+                "\nUser Error: "
+                + self.formatter.colorize(
+                    str(exc_val),
+                    Color.red,
+                )
+            )
+            sys.exit(1)
+
+
 def common_options(f: Callable) -> Callable:
     """Add common options to commands via a decorator.
 
@@ -516,32 +547,26 @@ def lint(
         logger=logger,
         stderr_output=non_human_output,
     )
-    # add stdin if specified via lone '-'
-    if ("-",) == paths:
-        result = lnt.lint_string_wrapped(sys.stdin.read(), fname="stdin")
-    else:
-        # Output the results as we go
-        if verbose >= 1:
-            click.echo(format_linting_result_header())
-        try:
+
+    # Output the results as we go
+    if verbose >= 1:
+        click.echo(format_linting_result_header())
+
+    with PathAndUserErrorHandler(formatter, paths):
+        # add stdin if specified via lone '-'
+        if ("-",) == paths:
+            result = lnt.lint_string_wrapped(sys.stdin.read(), fname="stdin")
+        else:
             result = lnt.lint_paths(
                 paths,
                 ignore_non_existent_files=False,
                 ignore_files=not disregard_sqlfluffignores,
                 processes=processes,
             )
-        except OSError:
-            click.echo(
-                formatter.colorize(
-                    f"The path(s) '{paths}' could not be accessed. Check it/they "
-                    "exist(s).",
-                    Color.red,
-                )
-            )
-            sys.exit(1)
-        # Output the final stats
-        if verbose >= 1:
-            click.echo(formatter.format_linting_stats(result, verbose=verbose))
+
+    # Output the final stats
+    if verbose >= 1:
+        click.echo(formatter.format_linting_stats(result, verbose=verbose))
 
     if format == FormatType.json.value:
         file_output = json.dumps(result.as_records())
@@ -759,22 +784,14 @@ def fix(
 
     # Lint the paths (not with the fix argument at this stage), outputting as we go.
     click.echo("==== finding fixable violations ====")
-    try:
+
+    with PathAndUserErrorHandler(formatter, paths):
         result = lnt.lint_paths(
             paths,
             fix=True,
             ignore_non_existent_files=False,
             processes=processes,
         )
-    except OSError:
-        click.echo(
-            formatter.colorize(
-                f"The path(s) '{paths}' could not be accessed. Check it/they exist(s).",
-                Color.red,
-            ),
-            err=True,
-        )
-        sys.exit(1)
 
     if not fix_even_unparsable:
         exit_code = formatter.handle_files_with_tmp_or_prs_errors(result)
@@ -973,10 +990,10 @@ def parse(
         pr = cProfile.Profile()
         pr.enable()
 
-    try:
-        t0 = time.monotonic()
+    t0 = time.monotonic()
 
-        # handle stdin if specified via lone '-'
+    # handle stdin if specified via lone '-'
+    with PathAndUserErrorHandler(formatter, path):
         if "-" == path:
             parsed_strings = [
                 lnt.parse_string(
@@ -988,50 +1005,44 @@ def parse(
             ]
         else:
             # A single path must be specified for this command
-            parsed_strings = list(lnt.parse_path(path, recurse=recurse))
-
-        total_time = time.monotonic() - t0
-        violations_count = 0
-
-        # iterative print for human readout
-        if format == FormatType.human.value:
-            violations_count = formatter.print_out_violations_and_timing(
-                output_stream, bench, code_only, total_time, verbose, parsed_strings
-            )
-        else:
-            parsed_strings_dict = [
-                dict(
-                    filepath=linted_result.fname,
-                    segments=linted_result.tree.as_record(
-                        code_only=code_only, show_raw=True, include_meta=include_meta
-                    )
-                    if linted_result.tree
-                    else None,
+            parsed_strings = list(
+                lnt.parse_path(
+                    path=path,
+                    recurse=recurse,
                 )
-                for linted_result in parsed_strings
-            ]
+            )
 
-            if format == FormatType.yaml.value:
-                # For yaml dumping always dump double quoted strings if they contain
-                # tabs or newlines.
-                yaml.add_representer(str, quoted_presenter)
-                file_output = yaml.dump(parsed_strings_dict, sort_keys=False)
-            elif format == FormatType.json.value:
-                file_output = json.dumps(parsed_strings_dict)
+    total_time = time.monotonic() - t0
+    violations_count = 0
 
-            # Dump the output to stdout or to file as appropriate.
-            dump_file_payload(write_output, file_output)
-
-    except OSError:  # pragma: no cover
-        click.echo(
-            formatter.colorize(
-                f"The path '{path}' could not be accessed. Check it exists.",
-                Color.red,
-            ),
-            err=True,
+    # iterative print for human readout
+    if format == FormatType.human.value:
+        violations_count = formatter.print_out_violations_and_timing(
+            output_stream, bench, code_only, total_time, verbose, parsed_strings
         )
-        sys.exit(1)
+    else:
+        parsed_strings_dict = [
+            dict(
+                filepath=linted_result.fname,
+                segments=linted_result.tree.as_record(
+                    code_only=code_only, show_raw=True, include_meta=include_meta
+                )
+                if linted_result.tree
+                else None,
+            )
+            for linted_result in parsed_strings
+        ]
 
+        if format == FormatType.yaml.value:
+            # For yaml dumping always dump double quoted strings if they contain
+            # tabs or newlines.
+            yaml.add_representer(str, quoted_presenter)
+            file_output = yaml.dump(parsed_strings_dict, sort_keys=False)
+        elif format == FormatType.json.value:
+            file_output = json.dumps(parsed_strings_dict)
+
+        # Dump the output to stdout or to file as appropriate.
+        dump_file_payload(write_output, file_output)
     if profiler:
         pr.disable()
         profiler_buffer = StringIO()
