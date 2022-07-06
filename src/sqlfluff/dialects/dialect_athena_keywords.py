@@ -322,8 +322,6 @@ athena_unreserved_keywords = [
     "field_delimiter",
     "UNLOAD",
     "compression",
-    "TIMESTAMP WITH TIME ZONE",
-    "TIME WITH TIME ZONE",
     "IPADDRESS",
     "HyperLogLog",
     "P4HyperLogLog",

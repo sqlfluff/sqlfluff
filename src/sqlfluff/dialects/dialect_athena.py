@@ -33,7 +33,6 @@ ansi_dialect = load_raw_dialect("ansi")
 athena_dialect = ansi_dialect.copy_as("athena")
 
 athena_dialect.sets("unreserved_keywords").update(athena_unreserved_keywords)
-# hive_dialect.sets("reserved_keywords").clear()
 athena_dialect.sets("reserved_keywords").update(athena_reserved_keywords)
 
 athena_dialect.insert_lexer_matchers(
@@ -166,6 +165,7 @@ athena_dialect.add(
         name="quoted_identifier",
         type="identifier",
     ),
+    DatetimeWithTZSegment=Sequence(OneOf("TIMESTAMP", "TIME"), "WITH", "TIME", "ZONE"),
 )
 
 athena_dialect.replace(
@@ -218,7 +218,7 @@ class PrimitiveTypeSegment(BaseSegment):
         "TINYINT",
         "SMALLINT",
         "INTEGER",
-        "INT",  # Hive only
+        "INT",
         "BIGINT",
         "REAL",  # PrestoDB only
         "FLOAT",
@@ -240,10 +240,8 @@ class PrimitiveTypeSegment(BaseSegment):
         "JSON",  # PrestoDB only
         "DATE",
         "TIMESTAMP",
-        "TIMESTAMP WITH TIME ZONE",  # PrestoDB only
         "INTERVAL",
         "TIME",  # PrestoDB only
-        "TIME WITH TIME ZONE",  # PrestoDB only
         "IPADDRESS",  # PrestoDB only
         "HyperLogLog",  # PrestoDB only
         "P4HyperLogLog",  # PrestoDB only
@@ -327,6 +325,7 @@ class DatatypeSegment(BaseSegment):
             Sequence(Ref("SimpleArrayTypeGrammar"), Ref("ArrayLiteralSegment")),
             optional=True,
         ),
+        Ref("DatetimeWithTZSegment"),
     )
 
 
@@ -501,7 +500,7 @@ class InsertStatementSegment(BaseSegment):
 
 
 class UnloadStatementSegment(BaseSegment):
-    """A `UNLOAD` statement.
+    """An `UNLOAD` statement.
 
     https://docs.aws.amazon.com/redshift/latest/dg/r_UNLOAD.html
     """
