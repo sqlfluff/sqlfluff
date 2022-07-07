@@ -4385,37 +4385,31 @@ class CreateCollationStatementSegment(BaseSegment):
                         "LOCALE",
                         Ref("EqualsSegment"),
                         Ref("QuotedLiteralSegment"),
-                        optional=True,
                     ),
                     Sequence(
                         "LC_COLLATE",
                         Ref("EqualsSegment"),
                         Ref("QuotedLiteralSegment"),
-                        optional=True,
                     ),
                     Sequence(
                         "LC_CTYPE",
                         Ref("EqualsSegment"),
                         Ref("QuotedLiteralSegment"),
-                        optional=True,
                     ),
                     Sequence(
                         "PROVIDER",
                         Ref("EqualsSegment"),
                         OneOf("ICU", "LIBC"),
-                        optional=True,
                     ),
                     Sequence(
                         "DETERMINISTIC",
                         Ref("EqualsSegment"),
                         Ref("BooleanLiteralGrammar"),
-                        optional=True,
                     ),
                     Sequence(
                         "VERSION",
                         Ref("EqualsSegment"),
                         Ref("QuotedLiteralSegment"),
-                        optional=True,
                     ),
                 )
             ),
