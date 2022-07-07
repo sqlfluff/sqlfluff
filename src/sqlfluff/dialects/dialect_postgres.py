@@ -1421,14 +1421,13 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                                 Ref("ColumnReferenceSegment"),
                                 Ref("DatatypeSegment"),
                                 AnyNumberOf(
-                                    # COLLATE segment can come before or after
+                                    # A single COLLATE segment can come before or after
                                     # constraint segments
                                     OneOf(
-                                        Ref("ColumnConstraintSegment", optional=True),
+                                        Ref("ColumnConstraintSegment"),
                                         Sequence(
                                             "COLLATE",
                                             Ref("ObjectReferenceSegment"),
-                                            optional=True,
                                         ),
                                     ),
                                 ),
