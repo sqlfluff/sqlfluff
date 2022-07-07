@@ -1,1 +1,1 @@
-create database if not exists my_database
+create database if not exists my_database;

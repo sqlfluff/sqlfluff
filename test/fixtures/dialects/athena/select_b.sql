@@ -13,4 +13,4 @@ where field_1 = 'value'
 group by 1, 2
 having count(1) > 10
 order by 1 DESC
-limit 10
+limit 10;
