@@ -369,7 +369,7 @@ class LintedFile(NamedTuple):
                 positions = list(findall(patch.templated_str, patch.source_str))
                 if len(positions) != 1:
                     # NOTE: This section is not covered in tests. While we
-                    # don't have an example of it's use (we should), the 
+                    # don't have an example of it's use (we should), the
                     # code after this relies on there being only one
                     # instance found - so the safety check remains.
                     linter_logger.debug(  # pragma: no cover
