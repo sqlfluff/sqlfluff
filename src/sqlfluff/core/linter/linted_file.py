@@ -368,12 +368,16 @@ class LintedFile(NamedTuple):
                 # Identify all the places the string appears in the source content.
                 positions = list(findall(patch.templated_str, patch.source_str))
                 if len(positions) != 1:
-                    linter_logger.debug(
+                    # NOTE: This section is not covered in tests. While we
+                    # don't have an example of it's use (we should), the 
+                    # code after this relies on there being only one
+                    # instance found - so the safety check remains.
+                    linter_logger.debug(  # pragma: no cover
                         "        - Skipping edit patch on non-unique templated "
                         "content: %s",
                         patch,
                     )
-                    continue
+                    continue  # pragma: no cover
 
                 # We have a single occurrence of the thing we want to patch. This
                 # means we can use its position to place our patch.
