@@ -22,7 +22,6 @@ from typing import (
     List,
     Tuple,
     Iterator,
-    Union,
 )
 import logging
 
@@ -54,7 +53,7 @@ linter_logger = logging.getLogger("sqlfluff.linter")
 
 @dataclass
 class FixPatch:
-    """An edit patch for a templated file."""
+    """An edit patch for a source file."""
 
     templated_slice: slice
     fixed_raw: str
@@ -62,37 +61,42 @@ class FixPatch:
     # than for function. It allows traceability of *why* this patch was
     # generated. It has no significance for processing.
     patch_category: str
-
-    def enrich(self, templated_file: TemplatedFile) -> "EnrichedFixPatch":
-        """Convert patch to source space."""
-        source_slice = templated_file.templated_slice_to_source_slice(
-            self.templated_slice,
-        )
-        return EnrichedFixPatch(
-            source_slice=source_slice,
-            templated_slice=self.templated_slice,
-            patch_category=self.patch_category,
-            fixed_raw=self.fixed_raw,
-            templated_str=templated_file.templated_str[self.templated_slice],
-            source_str=templated_file.source_str[source_slice],
-        )
-
-
-@dataclass
-class EnrichedFixPatch(FixPatch):
-    """An edit patch for a source file."""
-
     source_slice: slice
     templated_str: str
     source_str: str
 
-    def enrich(self, templated_file: TemplatedFile) -> "EnrichedFixPatch":
-        """No-op override of base class function."""
-        return self
-
     def dedupe_tuple(self):
         """Generate a tuple of this fix for deduping."""
         return (self.source_slice, self.fixed_raw)
+
+    @classmethod
+    def infer_from_template(
+        cls,
+        templated_slice: slice,
+        fixed_raw: str,
+        patch_category: str,
+        templated_file: TemplatedFile,
+    ):
+        """Infer source position from just templated position.
+
+        In cases where we expect it to be uncontroversial it
+        is sometimes more straightforward to just leverage
+        the existing mapping functions to auto-generate the
+        source position rather than calculating it explicitly.
+        """
+        # NOTE: There used to be error handling here to catch ValueErrors.
+        # Removed in July 2022 because untestable.
+        source_slice = templated_file.templated_slice_to_source_slice(
+            templated_slice,
+        )
+        return cls(
+            source_slice=source_slice,
+            templated_slice=templated_slice,
+            patch_category=patch_category,
+            fixed_raw=fixed_raw,
+            templated_str=templated_file.templated_str[templated_slice],
+            source_str=templated_file.source_str[source_slice],
+        )
 
 
 @dataclass
@@ -1295,9 +1299,7 @@ class BaseSegment:
     def _log_apply_fixes_check_issue(message, *args):  # pragma: no cover
         linter_logger.critical(message, exc_info=True, *args)
 
-    def iter_patches(
-        self, templated_file: TemplatedFile
-    ) -> Iterator[Union[EnrichedFixPatch, FixPatch]]:
+    def iter_patches(self, templated_file: TemplatedFile) -> Iterator[FixPatch]:
         """Iterate through the segments generating fix patches.
 
         The patches are generated in TEMPLATED space. This is important
@@ -1326,8 +1328,11 @@ class BaseSegment:
         # If it's all literal, then we don't need to recurse.
         if self.pos_marker.is_literal():
             # Yield the position in the source file and the patch
-            yield FixPatch(
-                self.pos_marker.templated_slice, self.raw, patch_category="literal"
+            yield FixPatch.infer_from_template(
+                self.pos_marker.templated_slice,
+                self.raw,
+                patch_category="literal",
+                templated_file=templated_file,
             )
         # Can we go deeper?
         elif not self.segments:
@@ -1367,7 +1372,7 @@ class BaseSegment:
                 if start_diff > 0 or insert_buff:
                     # If we have an insert buffer, then it's an edit, otherwise a
                     # deletion.
-                    yield FixPatch(
+                    yield FixPatch.infer_from_template(
                         slice(
                             segment.pos_marker.templated_slice.start
                             - max(start_diff, 0),
@@ -1375,7 +1380,9 @@ class BaseSegment:
                         ),
                         insert_buff,
                         patch_category="mid_point",
+                        templated_file=templated_file,
                     )
+
                     insert_buff = ""
 
                 # Now we deal with any changes *within* the segment itself.
@@ -1398,11 +1405,12 @@ class BaseSegment:
                     templated_idx,
                     self.pos_marker.templated_slice.stop,
                 )
-                # By returning an EnrichedFixPatch (rather than FixPatch), which
-                # includes a source_slice field, we ensure that fixes adjacent
-                # to source-only slices (e.g. {% endif %}) are placed
-                # appropriately relative to source-only slices.
-                yield EnrichedFixPatch(
+                # We determine the source_slice directly rather than
+                # infering it so that we can be very specific that
+                # we ensure that fixes adjacent to source-only slices
+                # (e.g. {% endif %}) are placed appropriately relative
+                # to source-only slices.
+                yield FixPatch(
                     source_slice=source_slice,
                     templated_slice=templated_slice,
                     patch_category="end_point",
