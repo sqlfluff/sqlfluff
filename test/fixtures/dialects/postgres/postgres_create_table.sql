@@ -224,3 +224,10 @@ CREATE TABLE users (
     domain_id INTEGER REFERENCES groups (group_id) ON UPDATE RESTRICT,
     other_id INTEGER REFERENCES groups (group_id) MATCH SIMPLE
 );
+
+CREATE TABLE orders
+(
+id bigint NOT NULL DEFAULT NEXTVAL('orders_id_seq'::regclass),
+order_number text NOT NULL COLLATE numeric,
+order_number2 text COLLATE numeric NOT NULL
+);

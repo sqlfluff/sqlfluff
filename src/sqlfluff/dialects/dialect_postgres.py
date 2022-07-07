@@ -1420,13 +1420,15 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                             Sequence(
                                 Ref("ColumnReferenceSegment"),
                                 Ref("DatatypeSegment"),
-                                Sequence(
-                                    "COLLATE",
-                                    Ref("QuotedLiteralSegment"),
-                                    optional=True,
-                                ),
                                 AnyNumberOf(
-                                    Ref("ColumnConstraintSegment", optional=True)
+                                    OneOf(
+                                        Ref("ColumnConstraintSegment", optional=True),
+                                        Sequence(
+                                            "COLLATE",
+                                            Ref("ObjectReferenceSegment"),
+                                            optional=True,
+                                        ),
+                                    ),
                                 ),
                             ),
                             Ref("TableConstraintSegment"),
