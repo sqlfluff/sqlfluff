@@ -27,7 +27,6 @@ from sqlfluff.core.errors import (
     SQLLintError,
     CheckTuple,
 )
-from sqlfluff.core.string_helpers import findall
 from sqlfluff.core.templaters import TemplatedFile
 
 # Classes needed only for type checking
@@ -326,7 +325,7 @@ class LintedFile(NamedTuple):
                 filtered_source_patches.append(patch)
                 dedupe_buffer.append(patch.dedupe_tuple())
             else:
-                NotImplementedError( # pragma: no cover
+                NotImplementedError(  # pragma: no cover
                     "Template tracing logic means that this situation should "
                     "never occur. Please report this as an issue on GitHub "
                     "with a version of your query which triggers this "
