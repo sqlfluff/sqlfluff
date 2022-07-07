@@ -361,12 +361,38 @@ class LintedFile(NamedTuple):
                 filtered_source_patches.append(patch)
                 dedupe_buffer.append(patch.dedupe_tuple())
             else:
-                NotImplementedError(  # pragma: no cover
-                    "Template tracing logic means that this situation should "
-                    "never occur. Please report this as an issue on GitHub "
-                    "with a version of your query which triggers this "
-                    "error"
+                # We've got a situation where the ends of our patch need to be
+                # more carefully mapped. Likely because we're greedily including
+                # a section of source templating with our fix and we need to work
+                # around it gracefully.
+
+                # Identify all the places the string appears in the source content.
+                positions = list(findall(patch.templated_str, patch.source_str))
+                if len(positions) != 1:
+                    linter_logger.debug(
+                        "        - Skipping edit patch on non-unique templated "
+                        "content: %s",
+                        patch,
+                    )
+                    continue
+
+                # We have a single occurrence of the thing we want to patch. This
+                # means we can use its position to place our patch.
+                new_source_slice = slice(
+                    patch.source_slice.start + positions[0],
+                    patch.source_slice.start + positions[0] + len(patch.templated_str),
                 )
+                linter_logger.debug(
+                    "      * Keeping Tricky Case. Positions: %s, New Slice: %s, "
+                    "Patch: %s",
+                    positions,
+                    new_source_slice,
+                    patch,
+                )
+                patch.source_slice = new_source_slice
+                filtered_source_patches.append(patch)
+                dedupe_buffer.append(patch.dedupe_tuple())
+                continue
 
         # Sort the patches before building up the file.
         return sorted(filtered_source_patches, key=lambda x: x.source_slice.start)

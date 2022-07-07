@@ -22,7 +22,6 @@ from typing import (
     List,
     Tuple,
     Iterator,
-    Union,
 )
 import logging
 
@@ -69,15 +68,22 @@ class FixPatch:
     def dedupe_tuple(self):
         """Generate a tuple of this fix for deduping."""
         return (self.source_slice, self.fixed_raw)
-    
+
     @classmethod
     def infer_from_template(
         cls,
         templated_slice: slice,
-        fixed_raw:str,
-        patch_category:str,
+        fixed_raw: str,
+        patch_category: str,
         templated_file: TemplatedFile,
     ):
+        """Infer source position from just templated position.
+
+        In cases where we expect it to be uncontroversial it
+        is sometimes more straightforward to just leverage
+        the existing mapping functions to auto-generate the
+        source position rather than calculating it explicitly.
+        """
         # NOTE: There used to be error handling here to catch ValueErrors.
         # Removed in July 2022 because untestable.
         source_slice = templated_file.templated_slice_to_source_slice(
@@ -1293,9 +1299,7 @@ class BaseSegment:
     def _log_apply_fixes_check_issue(message, *args):  # pragma: no cover
         linter_logger.critical(message, exc_info=True, *args)
 
-    def iter_patches(
-        self, templated_file: TemplatedFile
-    ) -> Iterator[FixPatch]:
+    def iter_patches(self, templated_file: TemplatedFile) -> Iterator[FixPatch]:
         """Iterate through the segments generating fix patches.
 
         The patches are generated in TEMPLATED space. This is important
@@ -1328,7 +1332,7 @@ class BaseSegment:
                 self.pos_marker.templated_slice,
                 self.raw,
                 patch_category="literal",
-                templated_file=templated_file
+                templated_file=templated_file,
             )
         # Can we go deeper?
         elif not self.segments:
@@ -1402,7 +1406,7 @@ class BaseSegment:
                     self.pos_marker.templated_slice.stop,
                 )
                 # We determine the source_slice directly rather than
-                # infering it so that we can be very specific that 
+                # infering it so that we can be very specific that
                 # we ensure that fixes adjacent to source-only slices
                 # (e.g. {% endif %}) are placed appropriately relative
                 # to source-only slices.
