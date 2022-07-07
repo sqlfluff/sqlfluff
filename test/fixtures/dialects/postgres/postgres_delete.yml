@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 18eae966c89e42a090d0cd0e3b7e0a92443577fcf599a5f0325205305564c68f
+_hash: d0f59d3f0579e2e10bd302b8b724640193848f0acdc1df90ce5ff0fa0d900d2e
 file:
 - statement:
     delete_statement:
@@ -495,14 +495,15 @@ file:
     - keyword: WITH
     - keyword: RECURSIVE
     - common_table_expression:
-      - identifier: t
-      - bracketed:
-          start_bracket: (
-          identifier_list:
-            identifier: n
-          end_bracket: )
-      - keyword: AS
-      - bracketed:
+        identifier: t
+        cte_column_list:
+          bracketed:
+            start_bracket: (
+            identifier_list:
+              identifier: n
+            end_bracket: )
+        keyword: AS
+        bracketed:
           start_bracket: (
           set_expression:
             values_clause:
