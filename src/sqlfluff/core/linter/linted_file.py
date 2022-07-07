@@ -20,7 +20,6 @@ from typing import (
     Union,
     cast,
     Type,
-    List,
 )
 
 from sqlfluff.core.errors import (
