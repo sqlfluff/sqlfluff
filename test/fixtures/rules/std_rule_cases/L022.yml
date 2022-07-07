@@ -245,3 +245,22 @@ test_fail_column_name_definition_comment:
         cte_1.var,
         cte_2.var
     FROM cte_1, cte_2;
+
+test_pass_recursive_with_argument_list:
+  pass_str: |
+    WITH RECURSIVE my_cte (n) AS (
+        select 1
+    )
+
+    select * from my_cte
+
+test_pass_recursive_with_argument_list_postgres:
+  pass_str: |
+    WITH RECURSIVE my_cte (n) AS (
+        select 1
+    )
+
+    select * from my_cte
+  configs:
+    core:
+      dialect: postgres

@@ -4066,10 +4066,7 @@ class CTEDefinitionSegment(ansi.CTEDefinitionSegment):
 
     match_grammar = Sequence(
         Ref("SingleIdentifierGrammar"),
-        Bracketed(
-            Ref("SingleIdentifierListSegment"),
-            optional=True,
-        ),
+        Ref("CTEColumnList", optional=True),
         "AS",
         Sequence("NOT", "MATERIALIZED", optional=True),
         Bracketed(
