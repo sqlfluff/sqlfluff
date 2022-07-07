@@ -299,3 +299,18 @@ test_pass_ignore_comment_clauses_snowflake:
     rules:
       L016:
         ignore_comment_clauses: True
+
+test_pass_ignore_comment_clauses_postgres:
+  pass_str: |
+    CREATE TABLE IF NOT EXISTS foo
+    ( id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+      name TEXT NOT NULL
+    );
+
+    COMMENT ON TABLE foo IS 'Windows Phone 8, however, was never able to overcome a long string of disappointments for Microsoft. ';
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      L016:
+        ignore_comment_clauses: True
