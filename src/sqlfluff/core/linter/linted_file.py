@@ -313,9 +313,11 @@ class LintedFile(NamedTuple):
         dedupe_buffer = []
         # We use enumerate so that we get an index for each patch. This is entirely
         # so when debugging logs we can find a given patch again!
-        for idx, patch in enumerate(tree.iter_patches(templated_file=templated_file)):
+        for idx, patch in enumerate(
+            self.tree.iter_patches(templated_file=templated_file)
+        ):
             linter_logger.debug("  %s Yielded patch: %s", idx, patch)
-            cls._log_hints(patch, templated_file)
+            self._log_hints(patch, self.templated_file)
 
             # Check for duplicates
             if patch.dedupe_tuple() in dedupe_buffer:
