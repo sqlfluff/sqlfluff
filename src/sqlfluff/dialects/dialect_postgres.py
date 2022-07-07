@@ -3318,6 +3318,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterTypeStatementSegment"),
             Ref("AlterSchemaStatementSegment"),
             Ref("LockTableStatementSegment"),
+            Ref("CreateCollationStatementSegment"),
         ],
     )
 
@@ -4363,6 +4364,67 @@ class AlterTypeStatementSegment(BaseSegment):
                 Sequence(
                     OneOf("BEFORE", "AFTER"), Ref("QuotedLiteralSegment"), optional=True
                 ),
+            ),
+        ),
+    )
+
+
+class CreateCollationStatementSegment(BaseSegment):
+    """A `CREATE COLLATION` statement.
+
+    https://www.postgresql.org/docs/current/sql-createcollation.html
+    """
+
+    type = "create_collation_statement"
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        "COLLATION",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        "LOCALE",
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                        optional=True,
+                    ),
+                    Sequence(
+                        "LC_COLLATE",
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                        optional=True,
+                    ),
+                    Sequence(
+                        "LC_CTYPE",
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                        optional=True,
+                    ),
+                    Sequence(
+                        "PROVIDER",
+                        Ref("EqualsSegment"),
+                        OneOf("ICU", "LIBC"),
+                        optional=True,
+                    ),
+                    Sequence(
+                        "DETERMINISTIC",
+                        Ref("EqualsSegment"),
+                        Ref("BooleanLiteralGrammar"),
+                        optional=True,
+                    ),
+                    Sequence(
+                        "VERSION",
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                        optional=True,
+                    ),
+                )
+            ),
+            Sequence(
+                "FROM",
+                Ref("ObjectReferenceSegment"),
             ),
         ),
     )
