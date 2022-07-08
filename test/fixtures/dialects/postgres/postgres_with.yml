@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9186a2b9abd8dddb08b72c4faee9e10c8c91b2f86a4d3e005a00470a92269f25
+_hash: ebab9cc65a808ee6ab1f3cb71aaac622a02a3eeacf58faf74a89de490da96660
 file:
 - statement:
     with_compound_statement:
@@ -86,15 +86,16 @@ file:
     - keyword: RECURSIVE
     - common_table_expression:
       - identifier: search_tree
-      - bracketed:
-          start_bracket: (
-          identifier_list:
-          - identifier: id
-          - comma: ','
-          - identifier: link
-          - comma: ','
-          - identifier: data
-          end_bracket: )
+      - cte_column_list:
+          bracketed:
+            start_bracket: (
+            identifier_list:
+            - identifier: id
+            - comma: ','
+            - identifier: link
+            - comma: ','
+            - identifier: data
+            end_bracket: )
       - keyword: AS
       - bracketed:
           start_bracket: (
@@ -217,15 +218,16 @@ file:
     - keyword: RECURSIVE
     - common_table_expression:
       - identifier: search_tree
-      - bracketed:
-          start_bracket: (
-          identifier_list:
-          - identifier: id
-          - comma: ','
-          - identifier: link
-          - comma: ','
-          - identifier: data
-          end_bracket: )
+      - cte_column_list:
+          bracketed:
+            start_bracket: (
+            identifier_list:
+            - identifier: id
+            - comma: ','
+            - identifier: link
+            - comma: ','
+            - identifier: data
+            end_bracket: )
       - keyword: AS
       - bracketed:
           start_bracket: (
@@ -348,17 +350,18 @@ file:
     - keyword: RECURSIVE
     - common_table_expression:
       - identifier: search_graph
-      - bracketed:
-          start_bracket: (
-          identifier_list:
-          - identifier: id
-          - comma: ','
-          - identifier: link
-          - comma: ','
-          - identifier: data
-          - comma: ','
-          - identifier: depth
-          end_bracket: )
+      - cte_column_list:
+          bracketed:
+            start_bracket: (
+            identifier_list:
+            - identifier: id
+            - comma: ','
+            - identifier: link
+            - comma: ','
+            - identifier: data
+            - comma: ','
+            - identifier: depth
+            end_bracket: )
       - keyword: AS
       - bracketed:
           start_bracket: (
