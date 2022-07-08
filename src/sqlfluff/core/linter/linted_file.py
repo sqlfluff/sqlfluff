@@ -31,7 +31,7 @@ from sqlfluff.core.string_helpers import findall
 from sqlfluff.core.templaters import TemplatedFile, RawFileSlice
 
 # Classes needed only for type checking
-from sqlfluff.core.parser.segments.base import BaseSegment, FixPatch
+from sqlfluff.core.parser.segments import BaseSegment, FixPatch
 
 from sqlfluff.core.linter.common import NoQaDirective
 
