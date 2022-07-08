@@ -5,8 +5,9 @@ import logging
 
 from sqlfluff.core.linter import LintedFile
 from sqlfluff.core.parser.markers import PositionMarker
-from sqlfluff.core.parser.segments import FixPatch, RawSegment
+from sqlfluff.core.parser.segments import FixPatch, RawSegment, BaseSegment
 from sqlfluff.core.templaters import RawFileSlice, TemplatedFile
+from sqlfluff.core.templaters.base import TemplatedFileSlice
 
 
 @pytest.mark.parametrize(
@@ -129,6 +130,21 @@ def test__linted_file__slice_source_file_using_patches(
 
 
 templated_file_1 = TemplatedFile.from_string("abc")
+templated_file_2 = TemplatedFile(
+    "{# blah #}{{ foo }}bc",
+    "<testing>",
+    "abc",
+    [
+        TemplatedFileSlice("comment", slice(0, 10), slice(0, 0)),
+        TemplatedFileSlice("templated", slice(10, 19), slice(0, 1)),
+        TemplatedFileSlice("literal", slice(19, 21), slice(1, 3)),
+    ],
+    [
+        RawFileSlice("{# blah #}", "comment", 0),
+        RawFileSlice("{{ foo }}", "templated", 10),
+        RawFileSlice("bc", "literal", 19),
+    ],
+)
 
 
 @pytest.mark.parametrize(
@@ -153,6 +169,54 @@ templated_file_1 = TemplatedFile.from_string("abc")
             ),
             templated_file_1,
             [FixPatch(slice(0, 3), "abz", "literal", slice(0, 3), "abc", "abc")],
+        ),
+        # Nested literal edit example
+        (
+            BaseSegment(
+                [
+                    RawSegment(
+                        "a",
+                        PositionMarker(slice(0, 1), slice(0, 1), templated_file_1),
+                        "code",
+                    ),
+                    RawSegment(
+                        "b",
+                        PositionMarker(slice(1, 2), slice(1, 2), templated_file_1),
+                        "code",
+                    ),
+                    RawSegment(
+                        "z",
+                        PositionMarker(slice(2, 3), slice(2, 3), templated_file_1),
+                        "code",
+                    ),
+                ]
+            ),
+            templated_file_1,
+            [FixPatch(slice(0, 3), "abz", "literal", slice(0, 3), "abc", "abc")],
+        ),
+        # More complicated templating example
+        (
+            BaseSegment(
+                [
+                    RawSegment(
+                        "a",
+                        PositionMarker(slice(0, 20), slice(0, 1), templated_file_2),
+                        "code",
+                    ),
+                    RawSegment(
+                        "b",
+                        PositionMarker(slice(19, 20), slice(1, 2), templated_file_2),
+                        "code",
+                    ),
+                    RawSegment(
+                        "z",
+                        PositionMarker(slice(20, 21), slice(2, 3), templated_file_2),
+                        "code",
+                    ),
+                ]
+            ),
+            templated_file_2,
+            [FixPatch(slice(2, 3), "z", "literal", slice(20, 21), "c", "c")],
         ),
     ],
 )
