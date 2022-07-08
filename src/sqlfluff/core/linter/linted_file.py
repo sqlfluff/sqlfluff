@@ -28,7 +28,7 @@ from sqlfluff.core.errors import (
     CheckTuple,
 )
 from sqlfluff.core.string_helpers import findall
-from sqlfluff.core.templaters import TemplatedFile
+from sqlfluff.core.templaters import TemplatedFile, RawFileSlice
 
 # Classes needed only for type checking
 from sqlfluff.core.parser.segments.base import BaseSegment, FixPatch
@@ -266,23 +266,56 @@ class LintedFile(NamedTuple):
 
         original_source = self.templated_file.source_str
 
-        # Make sure no patches overlap and divide up the source file into slices.
-        # Any Template tags in the source file are off limits.
-        source_only_slices = self.templated_file.source_only_slices()
+        # Generate patches from the fixed tree. In the process we sort
+        # and deduplicate them so that the resultant list is in the
+        # the right order for the source file without any duplicates.
+        # TODO: Requires a mechanism for generating patches for source only
+        # fixes.
+        filtered_source_patches = self._generate_source_patches(
+            self.tree, self.templated_file
+        )
 
+        # Any Template tags in the source file are off limits, unless
+        # we're explicitly fixing the source file.
+        source_only_slices = self.templated_file.source_only_slices()
         linter_logger.debug("Source-only slices: %s", source_only_slices)
 
+        # We now slice up the file using the patches and any source only slices.
+        # This gives us regions to apply changes to.
+        # TODO: This is the last hurdle for source only fixes.
+        slice_buff = self._slice_source_file_using_patches(
+            filtered_source_patches, source_only_slices, self.templated_file.source_str
+        )
+
+        linter_logger.debug("Final slice buffer: %s", slice_buff)
+
+        # Iterate through the patches, building up the new string.
+        fixed_source_string = self._build_up_fixed_source_string(
+            slice_buff, filtered_source_patches, self.templated_file.source_str
+        )
+
+        # The success metric here is whether anything ACTUALLY changed.
+        return fixed_source_string, fixed_source_string != original_source
+
+    @classmethod
+    def _generate_source_patches(
+        cls, tree: BaseSegment, templated_file: TemplatedFile
+    ) -> List[FixPatch]:
+        """Use the fixed tree to generate source patches.
+
+        Importantly here we deduplicate and sort the patches
+        from their position in the templated file into their
+        intended order in the source file.
+        """
         # Iterate patches, filtering and translating as we go:
         linter_logger.debug("### Beginning Patch Iteration.")
         filtered_source_patches = []
         dedupe_buffer = []
         # We use enumerate so that we get an index for each patch. This is entirely
         # so when debugging logs we can find a given patch again!
-        for idx, patch in enumerate(
-            self.tree.iter_patches(templated_file=self.templated_file)
-        ):
+        for idx, patch in enumerate(tree.iter_patches(templated_file=templated_file)):
             linter_logger.debug("  %s Yielded patch: %s", idx, patch)
-            self._log_hints(patch, self.templated_file)
+            cls._log_hints(patch, templated_file)
 
             # Check for duplicates
             if patch.dedupe_tuple() in dedupe_buffer:
@@ -296,12 +329,13 @@ class LintedFile(NamedTuple):
             # or disrupt any templated sections.
             # The intent here is that unless explicitly stated, a fix should never
             # disrupt a templated section.
-            # NOTE: We rely here on the patches being sorted.
-            # TODO: Implement a mechanism for doing templated section fixes. For
-            # now it's just not allowed.
+            # NOTE: We rely here on the patches being generated in order.
+            # TODO: Implement a mechanism for doing templated section fixes. Given
+            # these patches are currently generated from fixed segments, there will
+            # likely need to be an entirely different mechanism
 
             # Get the affected raw slices.
-            local_raw_slices = self.templated_file.raw_slices_spanning_source_slice(
+            local_raw_slices = templated_file.raw_slices_spanning_source_slice(
                 patch.source_slice
             )
             local_type_list = [slc.slice_type for slc in local_raw_slices]
@@ -364,15 +398,35 @@ class LintedFile(NamedTuple):
                 continue
 
         # Sort the patches before building up the file.
-        filtered_source_patches = sorted(
-            filtered_source_patches, key=lambda x: x.source_slice.start
-        )
+        return sorted(filtered_source_patches, key=lambda x: x.source_slice.start)
+
+    @staticmethod
+    def _slice_source_file_using_patches(
+        source_patches: List[FixPatch],
+        source_only_slices: List[RawFileSlice],
+        raw_source_string: str,
+    ) -> List[slice]:
+        """Use patches to safely slice up the file before fixing.
+
+        This uses source only slices to avoid overwriting sections
+        of templated code in the source file (when we don't want to).
+
+        We assume that the source patches have already been
+        sorted and deduplicated. Sorting is important. If the slices
+        aren't sorted then this function will miss chunks.
+        If there are overlaps or duplicates then this function
+        may produce strange results.
+        """
         # We now slice up the file using the patches and any source only slices.
         # This gives us regions to apply changes to.
         slice_buff = []
         source_idx = 0
-        for patch in filtered_source_patches:
+        for patch in source_patches:
             # Are there templated slices at or before the start of this patch?
+            # TODO: We'll need to explicit handling for template fixes here, because
+            # they ARE source only slices. If we can get handling to work properly
+            # here then this is the last hurdle and it will flow through
+            # smoothly from here.
             while (
                 source_only_slices
                 and source_only_slices[0].source_idx < patch.source_slice.start
@@ -404,16 +458,30 @@ class LintedFile(NamedTuple):
             slice_buff.append(patch.source_slice)
             source_idx = patch.source_slice.stop
         # Add a tail slice.
-        if source_idx < len(self.templated_file.source_str):
-            slice_buff.append(slice(source_idx, len(self.templated_file.source_str)))
+        if source_idx < len(raw_source_string):
+            slice_buff.append(slice(source_idx, len(raw_source_string)))
 
-        linter_logger.debug("Final slice buffer: %s", slice_buff)
+        return slice_buff
 
+    @staticmethod
+    def _build_up_fixed_source_string(
+        source_file_slices: List[slice],
+        source_patches: List[FixPatch],
+        raw_source_string: str,
+    ) -> str:
+        """Use patches and raw file to fix the source file.
+
+        This assumes that patches and slices have already
+        been coordinated. If they haven't then this will
+        fail because we rely on patches having a corresponding
+        slice of exactly the right file in the list of file
+        slices.
+        """
         # Iterate through the patches, building up the new string.
         str_buff = ""
-        for source_slice in slice_buff:
+        for source_slice in source_file_slices:
             # Is it one in the patch buffer:
-            for patch in filtered_source_patches:
+            for patch in source_patches:
                 if patch.source_slice == source_slice:
                     # Use the patched version
                     linter_logger.debug(
@@ -430,12 +498,10 @@ class LintedFile(NamedTuple):
                 linter_logger.debug(
                     "Appending Raw:                    %s     %r",
                     source_slice,
-                    self.templated_file.source_str[source_slice],
+                    raw_source_string[source_slice],
                 )
-                str_buff += self.templated_file.source_str[source_slice]
-
-        # The success metric here is whether anything ACTUALLY changed.
-        return str_buff, str_buff != original_source
+                str_buff += raw_source_string[source_slice]
+        return str_buff
 
     def persist_tree(self, suffix: str = "") -> bool:
         """Persist changes to the given path."""
