@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e807b3dd283c305282a04e49753f15084abf9d4287470fbcdcfa048b3b22beeb
+_hash: d86ab351f1acf59230994a60f93ccb4c576de43c7fe5167ee4c175891cbed8b7
 file:
   statement:
     with_compound_statement:
@@ -94,3 +94,4 @@ file:
         limit_clause:
           keyword: limit
           literal: '10'
+  statement_terminator: ;
