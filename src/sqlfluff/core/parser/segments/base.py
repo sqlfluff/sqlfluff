@@ -141,10 +141,16 @@ class AnchorEditInfo:
         anchor by condensing them together here.
         """
         if fix.is_just_source_edit():
+            assert fix.edit
+            # is_just_source_edit confirms there will be a list
+            # so we can hint that to mypy.
             self.source_fixes += fix.edit[0].source_fixes
             # is there already a replace?
             if self._first_replace:
-                # Condence this fix onto that one
+                assert self._first_replace.edit
+                # is_just_source_edit confirms there will be a list
+                # and that's the only way to get into _first_replace
+                # if it's populated so we can hint that to mypy.
                 linter_logger.info(
                     "Multiple edits detected, condensing %s onto %s",
                     fix,

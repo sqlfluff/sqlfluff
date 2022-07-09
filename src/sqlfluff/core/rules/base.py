@@ -204,7 +204,7 @@ class LintFix:
         """Return whether this a valid source only edit."""
         return (
             self.edit_type == "replace"
-            and self.edit
+            and self.edit is not None
             and len(self.edit) == 1
             and self.edit[0].raw == self.anchor.raw
         )
