@@ -126,10 +126,10 @@ class LintFix:
             position to create at (with the existing element at this position
             to be moved *after* the edit), for a `replace` it implies the
             segment to be replaced.
-        edit (:obj:`BaseSegment`, optional): For `replace` and `create` fixes,
+        edit (iterable of :obj:`BaseSegment`, optional): For `replace` and `create` fixes,
             this holds the iterable of segments to create or replace at the
             given `anchor` point.
-        source (:obj:`BaseSegment`, optional): For `replace` and `create` fixes,
+        source (iterable of :obj:`BaseSegment`, optional): For `replace` and `create` fixes,
             this holds iterable of segments that provided code. IMPORTANT: The
             linter uses this to prevent copying material from templated areas.
 
@@ -199,6 +199,14 @@ class LintFix:
             return True  # pragma: no cover TODO?
         return False
 
+    def is_just_source_edit(self):
+        return (
+            self.edit_type == "replace"
+            and self.edit
+            and len(self.edit) == 1
+            and self.edit[0].raw == self.anchor.raw
+        )
+
     def __repr__(self):
         if self.edit_type == "delete":
             detail = f"delete:{self.anchor.raw!r}"
@@ -209,7 +217,10 @@ class LintFix:
                 new_detail = "".join(s.raw for s in self.edit)
 
             if self.edit_type == "replace":
-                detail = f"edt:{self.anchor.raw!r}->{new_detail!r}"
+                if self.is_just_source_edit():
+                    detail = f"src-edt:{self.edit[0].source_fixes!r}"
+                else:
+                    detail = f"edt:{self.anchor.raw!r}->{new_detail!r}"
             else:
                 detail = f"create:{new_detail!r}"
         else:

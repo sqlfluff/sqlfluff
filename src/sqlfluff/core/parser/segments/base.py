@@ -22,6 +22,7 @@ from typing import (
     List,
     Tuple,
     Iterator,
+    TYPE_CHECKING,
 )
 import logging
 
@@ -46,6 +47,9 @@ from sqlfluff.core.parser.matchable import Matchable
 from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.templaters.base import TemplatedFile
+
+if TYPE_CHECKING:
+    from sqlfluff.core.rules.base import LintFix
 
 # Instantiate the linter logger (only for use in methods involved with fixing.)
 linter_logger = logging.getLogger("sqlfluff.linter")
@@ -126,10 +130,35 @@ class AnchorEditInfo:
     create_before: int = field(default=0)
     create_after: int = field(default=0)
     fixes: List = field(default_factory=list)
+    source_fixes: List = field(default_factory=list)
+    _first_replace: Optional["LintFix"] = field(default=None)
 
-    def add(self, fix):
-        """Adds the fix and updates stats."""
+    def add(self, fix: "LintFix"):
+        """Adds the fix and updates stats.
+
+        We also allow potentially multiple source fixes on the same
+        anchor by condensing them together here.
+        """
+        if fix.is_just_source_edit():
+            self.source_fixes += fix.edit[0].source_fixes
+            # is there already a replace?
+            if self._first_replace:
+                # Condence this fix onto that one
+                linter_logger.info(
+                    "Multiple edits detected, condensing %s onto %s",
+                    fix,
+                    self._first_replace,
+                )
+                self._first_replace.edit[0] = self._first_replace.edit[0].edit(
+                    source_fixes=self.source_fixes
+                )
+                linter_logger.info("Condensed fix: %s", self._first_replace)
+                # Return without otherwise adding in this fix.
+                return
+
         self.fixes.append(fix)
+        if fix.edit_type == "replace" and not self._first_replace:
+            self._first_replace = fix
         setattr(self, fix.edit_type, getattr(self, fix.edit_type) + 1)
 
     @property
@@ -1284,7 +1313,9 @@ class BaseSegment:
             return self, [], []
 
     @classmethod
-    def compute_anchor_edit_info(cls, fixes) -> Dict[int, AnchorEditInfo]:
+    def compute_anchor_edit_info(
+        cls, fixes: List["LintFix"]
+    ) -> Dict[int, AnchorEditInfo]:
         """Group and count fixes by anchor, return dictionary."""
         anchor_info = defaultdict(AnchorEditInfo)  # type: ignore
         for fix in fixes:

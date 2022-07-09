@@ -129,6 +129,60 @@ def test__linted_file__build_up_fixed_source_string(
             "a {# b #} c",
             [slice(0, 2), slice(2, 9), slice(9, 11)],
         ),
+        # Illustrate potential templating bug (case from L046)
+        (
+            [
+                FixPatch(
+                    templated_slice=slice(14, 14),
+                    fixed_raw="{%+ if true -%}",
+                    patch_category="source",
+                    source_slice=slice(14, 27),
+                    templated_str="",
+                    source_str="{%+if true-%}",
+                ),
+                FixPatch(
+                    templated_slice=slice(14, 14),
+                    fixed_raw="{{ ref('foo') }}",
+                    patch_category="source",
+                    source_slice=slice(28, 42),
+                    templated_str="",
+                    source_str="{{ref('foo')}}",
+                ),
+                FixPatch(
+                    templated_slice=slice(17, 17),
+                    fixed_raw="{%- endif %}",
+                    patch_category="source",
+                    source_slice=slice(43, 53),
+                    templated_str="",
+                    source_str="{%-endif%}",
+                ),
+            ],
+            [
+                RawFileSlice(
+                    raw="{%+if true-%}",
+                    slice_type="block_start",
+                    source_idx=14,
+                    slice_subtype=None,
+                    block_idx=0,
+                ),
+                RawFileSlice(
+                    raw="{%-endif%}",
+                    slice_type="block_end",
+                    source_idx=43,
+                    slice_subtype=None,
+                    block_idx=1,
+                ),
+            ],
+            "SELECT 1 from {%+if true-%} {{ref('foo')}} {%-endif%}",
+            [
+                slice(0, 14),
+                slice(14, 27),
+                slice(27, 28),
+                slice(28, 42),
+                slice(42, 43),
+                slice(43, 53),
+            ],
+        ),
     ],
 )
 def test__linted_file__slice_source_file_using_patches(

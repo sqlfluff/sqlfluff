@@ -447,6 +447,20 @@ class LintedFile(NamedTuple):
                 slice_buff.append(next_so_slice)
                 source_idx = next_so_slice.stop
 
+            # Does this patch cover the next source-only slice directly?
+            if (
+                source_only_slices
+                and patch.source_slice == source_only_slices[0].source_slice()
+            ):
+                linter_logger.info(
+                    "Removing next source only slice from the stack because it "
+                    "covers the same area of source file as the current patch: %s %s",
+                    source_only_slices[0],
+                    patch,
+                )
+                # If it does, remove it so that we don't duplicate it.
+                source_only_slices.pop(0)
+
             # Is there a gap between current position and this patch?
             if patch.source_slice.start > source_idx:
                 # Add a slice up to this patch.
