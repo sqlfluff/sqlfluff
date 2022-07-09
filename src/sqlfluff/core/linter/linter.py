@@ -4,16 +4,7 @@ import fnmatch
 import os
 import time
 import logging
-from typing import (
-    Any,
-    List,
-    Sequence,
-    Optional,
-    Tuple,
-    cast,
-    Iterable,
-    Iterator,
-)
+from typing import Any, List, Sequence, Optional, Tuple, cast, Iterable, Iterator, Set
 
 import pathspec
 import regex
@@ -34,7 +25,7 @@ from sqlfluff.core.rules.doc_decorators import is_fix_compatible
 from sqlfluff.core.config import FluffConfig, ConfigLoader, progress_bar_configuration
 
 # Classes needed only for type checking
-from sqlfluff.core.parser.segments.base import BaseSegment
+from sqlfluff.core.parser.segments.base import BaseSegment, SourceFix
 from sqlfluff.core.parser.segments.meta import MetaSegment
 from sqlfluff.core.parser.segments.raw import RawSegment
 from sqlfluff.core.rules.base import BaseRule
@@ -479,7 +470,7 @@ class Linter:
         # A placeholder for the fixes we had on the previous loop
         last_fixes = None
         # Keep a set of previous versions to catch infinite loops.
-        previous_versions = {tree.raw}
+        previous_versions: Set[Tuple[str, Tuple[SourceFix, ...]]] = {(tree.raw, ())}
 
         # If we are fixing then we want to loop up to the runaway_limit, otherwise just
         # once for linting.
@@ -595,12 +586,17 @@ class Linter:
                             new_tree, _, _ = tree.apply_fixes(
                                 config.get("dialect_obj"), crawler.code, anchor_info
                             )
-                            # Check for infinite loops
-                            if new_tree.raw not in previous_versions:
+                            # Check for infinite loops. We use a combination of the fixed
+                            # templated file and the list of source fixes to apply.
+                            loop_check_tuple = (
+                                new_tree.raw,
+                                tuple(new_tree.source_fixes),
+                            )
+                            if loop_check_tuple not in previous_versions:
                                 # We've not seen this version of the file so
                                 # far. Continue.
                                 tree = new_tree
-                                previous_versions.add(tree.raw)
+                                previous_versions.add(loop_check_tuple)
                                 changed = True
                                 continue
                             else:

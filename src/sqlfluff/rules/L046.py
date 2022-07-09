@@ -1,10 +1,12 @@
 """Implementation of Rule L046."""
 from typing import Tuple
+from sqlfluff.core.parser.segments import SourceFix
 
 from sqlfluff.core.rules.base import (
     BaseRule,
     EvalResultType,
     LintResult,
+    LintFix,
     RuleContext,
 )
 from sqlfluff.core.rules.functional import rsp
@@ -126,12 +128,13 @@ class Rule_L046(BaseRule):
                 position = raw_slice.raw.find(stripped[0])
 
                 self.logger.debug(
-                    "Tag string segments: %r | %r | %r | %r | %r @ %s",
+                    "Tag string segments: %r | %r | %r | %r | %r @ %s + %s",
                     tag_pre,
                     ws_pre,
                     inner,
                     ws_post,
                     tag_post,
+                    src_idx,
                     position,
                 )
 
@@ -144,24 +147,47 @@ class Rule_L046(BaseRule):
                 if not ws_pre or (ws_pre != " " and "\n" not in ws_pre):
                     pre_fix = " "
                 # Check latter whitespace.
-                elif not ws_post or (ws_post != " " and "\n" not in ws_post):
+                if not ws_post or (ws_post != " " and "\n" not in ws_post):
                     post_fix = " "
 
                 if pre_fix is not None or post_fix is not None:
-                    # Precalculate the fix even though we don't have the
-                    # framework to use it yet.
-                    # fixed = (
-                    #     tag_pre
-                    #     + (pre_fix or ws_pre)
-                    #     + inner
-                    #     + (post_fix or ws_post)
-                    #     + tag_post
+                    fixed = (
+                        tag_pre
+                        + (pre_fix or ws_pre)
+                        + inner
+                        + (post_fix or ws_post)
+                        + tag_post
+                    )
                     result.append(
                         LintResult(
                             memory=memory,
                             anchor=context.segment,
                             description=f"Jinja tags should have a single "
                             f"whitespace on either side: {stripped}",
+                            fixes=[
+                                LintFix.replace(
+                                    context.segment,
+                                    [
+                                        context.segment.edit(
+                                            source_fixes=[
+                                                SourceFix(
+                                                    fixed,
+                                                    slice(
+                                                        src_idx + position,
+                                                        src_idx
+                                                        + position
+                                                        + len(stripped),
+                                                    ),
+                                                    # NOTE: The templated slice here is going to be a little
+                                                    # imprecise, but the one that really matters is the source
+                                                    # slice.
+                                                    context.segment.pos_marker.templated_slice,
+                                                )
+                                            ]
+                                        )
+                                    ],
+                                )
+                            ],
                         )
                     )
             if result:

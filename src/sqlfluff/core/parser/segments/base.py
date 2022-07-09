@@ -51,7 +51,7 @@ from sqlfluff.core.templaters.base import TemplatedFile
 linter_logger = logging.getLogger("sqlfluff.linter")
 
 
-@dataclass
+@dataclass(frozen=True)
 class SourceFix:
     """A stored reference to a fix in the non-templated file."""
 
@@ -63,6 +63,10 @@ class SourceFix:
     # a position in the templated file to interpret it.
     # More work required to achieve that if desired.
     templated_slice: slice
+
+    def __hash__(self):
+        # Only hash based on the source slice, not the templated slice (which might change)
+        return hash((self.edit, self.source_slice.start, self.source_slice.stop))
 
 
 @dataclass
@@ -1323,7 +1327,7 @@ class BaseSegment:
         self, templated_file: TemplatedFile
     ) -> Iterator[FixPatch]:
         """Yield any source patches as fixes now.
-        
+
         NOTE: This yields source fixes for the segment and any of it's
         children, so it's important to call it at the right point in
         the recursion to avoid yielding duplicates.
@@ -1463,7 +1467,9 @@ class BaseSegment:
                     source_str=templated_file.source_str[source_slice],
                 )
 
-    def edit(self, raw):
+    def edit(
+        self, raw: Optional[str] = None, source_fixes: Optional[List[SourceFix]] = None
+    ):
         """Stub."""
         raise NotImplementedError()
 

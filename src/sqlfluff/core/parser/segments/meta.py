@@ -125,7 +125,9 @@ class TemplateSegment(MetaSegment):
         else:  # pragma: no cover TODO?
             return (self.get_type(), self.raw)
 
-    def edit(self, raw=None, source_fixes=None):
+    def edit(
+        self, raw: Optional[str] = None, source_fixes: Optional[List[SourceFix]] = None
+    ):
         """Create a new segment, with exactly the same position but different content.
 
         Returns:

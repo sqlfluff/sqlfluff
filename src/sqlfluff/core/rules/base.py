@@ -313,6 +313,14 @@ class LintFix:
 
     def has_template_conflicts(self, templated_file: TemplatedFile) -> bool:
         """Based on the fix slices, should we discard the fix?"""
+        # Check for explicit source fixes.
+        # TODO: This doesn't account for potentially more complicated source fixes.
+        # If we're replacing a single segment with many *and* doing source fixes
+        # then they will be discarded here as unsafe.
+        if self.edit_type == "replace" and self.edit and len(self.edit) == 1:
+            edit: BaseSegment = self.edit[0]
+            if edit.raw == self.anchor.raw and edit.source_fixes:
+                return False
         # Given fix slices, check for conflicts.
         check_fn = all if self.edit_type in ("create_before", "create_after") else any
         fix_slices = self.get_fix_slices(templated_file, within_only=False)
