@@ -158,6 +158,20 @@ class Rule_L046(BaseRule):
                         + (post_fix or ws_post)
                         + tag_post
                     )
+                    src_fix = [
+                        SourceFix(
+                            fixed,
+                            slice(
+                                src_idx + position,
+                                src_idx + position + len(stripped),
+                            ),
+                            # NOTE: The templated slice here is
+                            # going to be a little imprecise, but
+                            # the one that really matters is the
+                            # source slice.
+                            context.segment.pos_marker.templated_slice,
+                        )
+                    ]
                     result.append(
                         LintResult(
                             memory=memory,
@@ -167,25 +181,7 @@ class Rule_L046(BaseRule):
                             fixes=[
                                 LintFix.replace(
                                     context.segment,
-                                    [
-                                        context.segment.edit(
-                                            source_fixes=[
-                                                SourceFix(
-                                                    fixed,
-                                                    slice(
-                                                        src_idx + position,
-                                                        src_idx
-                                                        + position
-                                                        + len(stripped),
-                                                    ),
-                                                    # NOTE: The templated slice here is going to be a little
-                                                    # imprecise, but the one that really matters is the source
-                                                    # slice.
-                                                    context.segment.pos_marker.templated_slice,
-                                                )
-                                            ]
-                                        )
-                                    ],
+                                    [context.segment.edit(source_fixes=src_fix)],
                                 )
                             ],
                         )

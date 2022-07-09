@@ -586,8 +586,9 @@ class Linter:
                             new_tree, _, _ = tree.apply_fixes(
                                 config.get("dialect_obj"), crawler.code, anchor_info
                             )
-                            # Check for infinite loops. We use a combination of the fixed
-                            # templated file and the list of source fixes to apply.
+                            # Check for infinite loops. We use a combination of the
+                            # fixed templated file and the list of source fixes to
+                            # apply.
                             loop_check_tuple = (
                                 new_tree.raw,
                                 tuple(new_tree.source_fixes),

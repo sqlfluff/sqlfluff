@@ -69,7 +69,8 @@ class SourceFix:
     templated_slice: slice
 
     def __hash__(self):
-        # Only hash based on the source slice, not the templated slice (which might change)
+        # Only hash based on the source slice, not the
+        # templated slice (which might change)
         return hash((self.edit, self.source_slice.start, self.source_slice.stop))
 
 

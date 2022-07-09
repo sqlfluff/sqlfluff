@@ -126,12 +126,13 @@ class LintFix:
             position to create at (with the existing element at this position
             to be moved *after* the edit), for a `replace` it implies the
             segment to be replaced.
-        edit (iterable of :obj:`BaseSegment`, optional): For `replace` and `create` fixes,
-            this holds the iterable of segments to create or replace at the
-            given `anchor` point.
-        source (iterable of :obj:`BaseSegment`, optional): For `replace` and `create` fixes,
-            this holds iterable of segments that provided code. IMPORTANT: The
-            linter uses this to prevent copying material from templated areas.
+        edit (iterable of :obj:`BaseSegment`, optional): For `replace` and
+            `create` fixes, this holds the iterable of segments to create
+            or replace at the given `anchor` point.
+        source (iterable of :obj:`BaseSegment`, optional): For `replace` and
+            `create` fixes, this holds iterable of segments that provided
+            code. IMPORTANT: The linter uses this to prevent copying material
+            from templated areas.
 
     """
 
@@ -199,7 +200,8 @@ class LintFix:
             return True  # pragma: no cover TODO?
         return False
 
-    def is_just_source_edit(self):
+    def is_just_source_edit(self) -> bool:
+        """Return whether this a valid source only edit."""
         return (
             self.edit_type == "replace"
             and self.edit
