@@ -691,13 +691,13 @@ mysql_dialect.add(
         Ref("DatatypeSegment"),
     ),
     LocalVariableNameSegment=RegexParser(
-        r"`?[a-zA-Z0-9_]*`?",
+        r"`?[a-zA-Z0-9_$]*`?",
         CodeSegment,
         name="declared_variable",
         type="variable",
     ),
     SessionVariableNameSegment=RegexParser(
-        r"[@][a-zA-Z0-9_]*",
+        r"[@][a-zA-Z0-9_$]*",
         CodeSegment,
         name="declared_variable",
         type="variable",
@@ -717,7 +717,7 @@ mysql_dialect.insert_lexer_matchers(
     [
         RegexLexer(
             "at_sign",
-            r"@@?[a-zA-Z0-9_.]*",
+            r"@@?[a-zA-Z0-9_$]*(\.[a-zA-Z0-9_$]+)?",
             CodeSegment,
         ),
     ],
