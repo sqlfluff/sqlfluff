@@ -348,6 +348,14 @@ class LintedFile(NamedTuple):
                 )
                 filtered_source_patches.append(patch)
                 dedupe_buffer.append(patch.dedupe_tuple())
+            # Handle the easy case of an explicit source fix
+            elif patch.patch_category == "source":
+                linter_logger.info(
+                    "      * Keeping explicit source fix patch: %s",
+                    patch,
+                )
+                filtered_source_patches.append(patch)
+                dedupe_buffer.append(patch.dedupe_tuple())
             # Is it a zero length patch.
             elif (
                 patch.source_slice.start == patch.source_slice.stop

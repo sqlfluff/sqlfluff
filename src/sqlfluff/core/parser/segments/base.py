@@ -13,7 +13,7 @@ from collections.abc import MutableSet
 from copy import deepcopy
 from dataclasses import dataclass, field, replace
 from io import StringIO
-from itertools import takewhile
+from itertools import takewhile, chain
 from typing import (
     Any,
     Callable,
@@ -49,6 +49,20 @@ from sqlfluff.core.templaters.base import TemplatedFile
 
 # Instantiate the linter logger (only for use in methods involved with fixing.)
 linter_logger = logging.getLogger("sqlfluff.linter")
+
+
+@dataclass
+class SourceFix:
+    """A stored reference to a fix in the non-templated file."""
+
+    edit: str
+    source_slice: slice
+    # TODO: It might be possible to refactor this to not require
+    # a templated_slice (because in theory it's unnecessary).
+    # However much of the fix handling code assumes we need
+    # a position in the templated file to interpret it.
+    # More work required to achieve that if desired.
+    templated_slice: slice
 
 
 @dataclass
@@ -346,6 +360,11 @@ class BaseSegment:
     def raw_segments(self) -> List["BaseSegment"]:
         """Returns a list of raw segments in this segment."""
         return self.get_raw_segments()
+
+    @cached_property
+    def source_fixes(self) -> List[SourceFix]:
+        """Return an source fixes as list."""
+        return list(chain.from_iterable(s.source_fixes for s in self.segments))
 
     @cached_property
     def first_non_whitespace_segment_raw_upper(self) -> Optional[str]:
@@ -669,6 +688,7 @@ class BaseSegment:
             "matched_length",
             "raw_segments",
             "first_non_whitespace_segment_raw_upper",
+            "source_fixes",
         ]:
             self.__dict__.pop(key, None)
 
@@ -1299,6 +1319,25 @@ class BaseSegment:
     def _log_apply_fixes_check_issue(message, *args):  # pragma: no cover
         linter_logger.critical(message, exc_info=True, *args)
 
+    def _iter_source_fix_patches(
+        self, templated_file: TemplatedFile
+    ) -> Iterator[FixPatch]:
+        """Yield any source patches as fixes now.
+        
+        NOTE: This yields source fixes for the segment and any of it's
+        children, so it's important to call it at the right point in
+        the recursion to avoid yielding duplicates.
+        """
+        for source_fix in self.source_fixes:
+            yield FixPatch(
+                source_fix.templated_slice,
+                source_fix.edit,
+                patch_category="source",
+                source_slice=source_fix.source_slice,
+                templated_str=templated_file.templated_str[source_fix.templated_slice],
+                source_str=templated_file.source_str[source_fix.source_slice],
+            )
+
     def iter_patches(self, templated_file: TemplatedFile) -> Iterator[FixPatch]:
         """Iterate through the segments generating fix patches.
 
@@ -1311,9 +1350,12 @@ class BaseSegment:
         """
         # Does it match? If so we can ignore it.
         assert self.pos_marker
-        templated_str = templated_file.templated_str
-        matches = self.raw == templated_str[self.pos_marker.templated_slice]
+        templated_raw = templated_file.templated_str[self.pos_marker.templated_slice]
+        matches = self.raw == templated_raw
         if matches:
+            # First yield any source fixes
+            yield from self._iter_source_fix_patches(templated_file)
+            # Then return.
             return
 
         # If we're here, the segment doesn't match the original.
@@ -1321,13 +1363,15 @@ class BaseSegment:
             "%s at %s: Original: [%r] Fixed: [%r]",
             type(self).__name__,
             self.pos_marker.templated_slice,
-            templated_str[self.pos_marker.templated_slice],
+            templated_raw,
             self.raw,
         )
 
         # If it's all literal, then we don't need to recurse.
         if self.pos_marker.is_literal():
-            # Yield the position in the source file and the patch
+            # First yield any source fixes
+            yield from self._iter_source_fix_patches(templated_file)
+            # Then yield the position in the source file and the patch
             yield FixPatch.infer_from_template(
                 self.pos_marker.templated_slice,
                 self.raw,

@@ -5,7 +5,13 @@ import logging
 
 from sqlfluff.core.linter import LintedFile
 from sqlfluff.core.parser.markers import PositionMarker
-from sqlfluff.core.parser.segments import FixPatch, RawSegment, BaseSegment
+from sqlfluff.core.parser.segments import (
+    FixPatch,
+    RawSegment,
+    BaseSegment,
+    TemplateSegment,
+)
+from sqlfluff.core.parser.segments.raw import SourceFix
 from sqlfluff.core.templaters import RawFileSlice, TemplatedFile
 from sqlfluff.core.templaters.base import TemplatedFileSlice
 
@@ -113,6 +119,16 @@ def test__linted_file__build_up_fixed_source_string(
             "a{# b #}cc",
             [slice(0, 1), slice(1, 8), slice(8, 9), slice(9, 10)],
         ),
+        # Templated example with a source-only slice.
+        # NOTE: We're fixing the soure only slice.
+        # TODO: Should we be using the fix type (e.g. "source")
+        # to somehow determine whether the fix is "safe"?
+        (
+            [FixPatch(slice(2, 2), "{# fixed #}", "", slice(2, 9), "", "")],
+            [RawFileSlice("{# b #}", "comment", 2)],
+            "a {# b #} c",
+            [slice(0, 2), slice(2, 9), slice(9, 11)],
+        ),
     ],
 )
 def test__linted_file__slice_source_file_using_patches(
@@ -198,9 +214,14 @@ templated_file_2 = TemplatedFile(
         (
             BaseSegment(
                 [
+                    TemplateSegment(
+                        PositionMarker(slice(0, 10), slice(0, 0), templated_file_2),
+                        "{# blah #}",
+                        "comment",
+                    ),
                     RawSegment(
                         "a",
-                        PositionMarker(slice(0, 20), slice(0, 1), templated_file_2),
+                        PositionMarker(slice(10, 20), slice(0, 1), templated_file_2),
                         "code",
                     ),
                     RawSegment(
@@ -217,6 +238,49 @@ templated_file_2 = TemplatedFile(
             ),
             templated_file_2,
             [FixPatch(slice(2, 3), "z", "literal", slice(20, 21), "c", "c")],
+        ),
+        # Templating example with fixes
+        (
+            BaseSegment(
+                [
+                    TemplateSegment(
+                        PositionMarker(slice(0, 10), slice(0, 0), templated_file_2),
+                        "{# blah #}",
+                        "comment",
+                        source_fixes=[
+                            SourceFix("{# fixed #}", slice(0, 10), slice(0, 0))
+                        ],
+                    ),
+                    RawSegment(
+                        "a",
+                        PositionMarker(slice(10, 19), slice(0, 1), templated_file_2),
+                        "code",
+                        source_fixes=[
+                            SourceFix("{{ bar }}", slice(10, 19), slice(0, 1))
+                        ],
+                    ),
+                    RawSegment(
+                        "b",
+                        PositionMarker(slice(19, 20), slice(1, 2), templated_file_2),
+                        "code",
+                    ),
+                    RawSegment(
+                        "z",
+                        PositionMarker(slice(20, 21), slice(2, 3), templated_file_2),
+                        "code",
+                    ),
+                ]
+            ),
+            templated_file_2,
+            [
+                FixPatch(
+                    slice(0, 0), "{# fixed #}", "source", slice(0, 10), "", "{# blah #}"
+                ),
+                FixPatch(
+                    slice(0, 1), "{{ bar }}", "source", slice(10, 19), "a", "{{ foo }}"
+                ),
+                FixPatch(slice(2, 3), "z", "literal", slice(20, 21), "c", "c"),
+            ],
         ),
     ],
 )
