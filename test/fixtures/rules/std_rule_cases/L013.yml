@@ -47,3 +47,33 @@ test_pass_function_emits:
   configs:
     core:
       dialect: exasol
+
+test_fail_cte_no_column_list:
+  fail_str: |
+    WITH cte AS (
+        SELECT
+            col_a,
+            min(col_b)
+        FROM my_table
+        GROUP BY 1
+    )
+
+    SELECT
+        a,
+        b
+    FROM cte
+
+test_pass_cte_column_list:
+  pass_str: |
+    WITH cte(a, b) AS (
+        SELECT
+            col_a,
+            min(col_b)
+        FROM my_table
+        GROUP BY 1
+    )
+
+    SELECT
+        a,
+        b
+    FROM cte
