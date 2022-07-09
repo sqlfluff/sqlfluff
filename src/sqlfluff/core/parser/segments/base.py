@@ -49,7 +49,7 @@ from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.templaters.base import TemplatedFile
 
 if TYPE_CHECKING:
-    from sqlfluff.core.rules.base import LintFix
+    from sqlfluff.core.rules.base import LintFix  # pragma: no cover
 
 # Instantiate the linter logger (only for use in methods involved with fixing.)
 linter_logger = logging.getLogger("sqlfluff.linter")
