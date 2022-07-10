@@ -118,7 +118,7 @@ class RawSegment(BaseSegment):
 
     @property
     def source_fixes(self) -> List[SourceFix]:
-        """Return an source fixes as list."""
+        """Return any source fixes as list."""
         return self._source_fixes or []
 
     # ################ INSTANCE METHODS
