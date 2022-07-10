@@ -2258,3 +2258,11 @@ class CallStatementSegment(BaseSegment):
         "CALL",
         Ref("FunctionSegment"),
     )
+
+
+class SelectClauseModifierSegment(postgres.SelectClauseModifierSegment):
+    """Things that come after SELECT but before the columns."""
+
+    match_grammar = postgres.SelectClauseModifierSegment.match_grammar.copy(
+        insert=[Sequence("TOP", Ref("NumericLiteralSegment"))],
+    )
