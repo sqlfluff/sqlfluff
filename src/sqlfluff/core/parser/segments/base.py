@@ -404,7 +404,7 @@ class BaseSegment:
 
     @cached_property
     def source_fixes(self) -> List[SourceFix]:
-        """Return an source fixes as list."""
+        """Return any source fixes as list."""
         return list(chain.from_iterable(s.source_fixes for s in self.segments))
 
     @cached_property
