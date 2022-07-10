@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: fdff956652dd6475e54f12211a109f8fc8e876642cb680fe64950fc79c3b20e3
+_hash: 2d8f06710a2f44e8de1561ada7190ba4187db30dc7fd67b909638abef087b5b7
 file:
 - statement:
     comment_clause:
@@ -209,6 +209,30 @@ file:
 - statement_terminator: ;
 - statement:
     comment_clause:
+    - keyword: comment
+    - keyword: 'on'
+    - keyword: function
+    - function_name:
+        function_name_identifier: function1
+    - keyword: is
+    - literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: comment
+    - keyword: 'on'
+    - keyword: function
+    - function_name:
+        function_name_identifier: function2
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - keyword: is
+    - literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
     - keyword: COMMENT
     - keyword: 'ON'
     - keyword: INDEX
@@ -266,6 +290,29 @@ file:
       - end_bracket: )
     - keyword: IS
     - literal: "'Runs a report'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: comment
+    - keyword: 'on'
+    - keyword: procedure
+    - object_reference:
+        identifier: procedure1
+    - keyword: is
+    - literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: comment
+    - keyword: 'on'
+    - keyword: procedure
+    - object_reference:
+        identifier: procedure2
+    - bracketed:
+        start_bracket: (
+        end_bracket: )
+    - keyword: is
+    - literal: "'comment'"
 - statement_terminator: ;
 - statement:
     comment_clause:

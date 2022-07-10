@@ -2840,7 +2840,7 @@ class CommentOnStatementSegment(BaseSegment):
                 Sequence(
                     "FUNCTION",
                     Ref("FunctionNameSegment"),
-                    Ref("FunctionParameterListGrammar"),
+                    Sequence(Ref("FunctionParameterListGrammar"), optional=True),
                 ),
                 Sequence(
                     "INDEX",
@@ -2892,7 +2892,9 @@ class CommentOnStatementSegment(BaseSegment):
                         Sequence(
                             # TODO: Is this too permissive?
                             Anything(),
+                            optional=True,
                         ),
+                        optional=True,
                     ),
                 ),
             ),
