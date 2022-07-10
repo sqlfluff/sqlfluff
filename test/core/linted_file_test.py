@@ -75,17 +75,23 @@ def test__linted_file__build_up_fixed_source_string(
     # of the fix patches. They're not used at this step so irrelevant for
     # testing.
     [
-        # Trivial example
+        # Trivial example.
+        # No edits in a single character file. Slice should be one
+        # character long.
         ([], [], "a", [slice(0, 1)]),
-        # Simple replacement
+        # Simple replacement.
+        # We've yielded a patch to change a single character. This means
+        # we should get only slices for that character, and for the
+        # unchanged file around it.
         (
             [FixPatch(slice(1, 2), "d", "", slice(1, 2), "b", "b")],
             [],
             "abc",
             [slice(0, 1), slice(1, 2), slice(2, 3)],
         ),
-        # Basic templated example
-        # NOTE: No fixes so just one slice.
+        # Templated no fixes.
+        # A templated file, but with no fixes, so no subdivision of the
+        # file is required and we should just get a single slice.
         (
             [],
             [],
@@ -93,7 +99,11 @@ def test__linted_file__build_up_fixed_source_string(
             [slice(0, 11)],
         ),
         # Templated example with a source-only slice.
-        # NOTE: No fixes so just one slice.
+        # A templated file, but with no fixes, so no subdivision of the
+        # file is required and we should just get a single slice. While
+        # there is handling for "source only" slices like template
+        # comments, in this case no additional slicing is required
+        # because no edits have been made.
         (
             [],
             [RawFileSlice("{# b #}", "comment", 2)],
@@ -101,7 +111,9 @@ def test__linted_file__build_up_fixed_source_string(
             [slice(0, 11)],
         ),
         # Templated fix example with a source-only slice.
-        # NOTE: Correct slicing example
+        # We're making an edit adjacent to a source only slice. Edits
+        # _before_ source only slices currently don't trigger additional
+        # slicing. This is fine.
         (
             [FixPatch(slice(0, 1), "a ", "", slice(0, 1), "a", "a")],
             [RawFileSlice("{# b #}", "comment", 1)],
@@ -109,10 +121,14 @@ def test__linted_file__build_up_fixed_source_string(
             [slice(0, 1), slice(1, 9)],
         ),
         # Templated fix example with a source-only slice.
-        # NOTE: We insert a slice for the source only slice.
+        # We've made an edit directly _after_ a source only slice
+        # which should trigger the logic to ensure that the source
+        # only slice isn't included in the source mapping of the
+        # edit.
         # TODO: given that the logic is based on the _type_
         # of the slice (e.g. comment), would we handle a
         # template tag which returns an empty string correctly?
+        
         (
             [FixPatch(slice(1, 2), " c", "", slice(8, 9), "c", "c")],
             [RawFileSlice("{# b #}", "comment", 1)],
@@ -120,7 +136,9 @@ def test__linted_file__build_up_fixed_source_string(
             [slice(0, 1), slice(1, 8), slice(8, 9), slice(9, 10)],
         ),
         # Templated example with a source-only slice.
-        # NOTE: We're fixing the soure only slice.
+        # Here we're making the fix to the templated slice. This
+        # checks that we don't duplicate or fumble the slice
+        # generation when we're explicitly trying to edit the source.
         # TODO: Should we be using the fix type (e.g. "source")
         # to somehow determine whether the fix is "safe"?
         (
@@ -129,7 +147,10 @@ def test__linted_file__build_up_fixed_source_string(
             "a {# b #} c",
             [slice(0, 2), slice(2, 9), slice(9, 11)],
         ),
-        # Illustrate potential templating bug (case from L046)
+        # Illustrate potential templating bug (case from L046).
+        # In this case we have fixes for all our tempolated sections
+        # and they are all close to eachother and so may be either
+        # skipped or duplicated if the logic is not precise.
         (
             [
                 FixPatch(
@@ -162,14 +183,12 @@ def test__linted_file__build_up_fixed_source_string(
                     raw="{%+if true-%}",
                     slice_type="block_start",
                     source_idx=14,
-                    slice_subtype=None,
                     block_idx=0,
                 ),
                 RawFileSlice(
                     raw="{%-endif%}",
                     slice_type="block_end",
                     source_idx=43,
-                    slice_subtype=None,
                     block_idx=1,
                 ),
             ],

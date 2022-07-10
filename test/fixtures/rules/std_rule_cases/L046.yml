@@ -50,3 +50,7 @@ test_fail_segment_contains_multiple_templated_slices_last_one_bad:
   configs:
     core:
       dialect: bigquery
+
+test_fail_jinja_tags_no_space_no_content:
+  fail_str: SELECT {{-""-}}1
+  fix_str: SELECT {{- "" -}}1
