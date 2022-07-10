@@ -95,6 +95,7 @@ mysql_dialect.replace(
     LiteralGrammar=ansi_dialect.get_grammar("LiteralGrammar").copy(
         insert=[
             Ref("DoubleQuotedLiteralSegment"),
+            Ref("SystemVariableSegment"),
         ]
     ),
     FromClauseTerminatorGrammar=ansi_dialect.get_grammar(
@@ -207,6 +208,12 @@ mysql_dialect.add(
         name="at_sign_literal",
         type="literal",
         trim_chars=("@",),
+    ),
+    SystemVariableSegment=RegexParser(
+        r"@@(session|global)\.[A-Za-z0-9_]+",
+        CodeSegment,
+        name="system_variable",
+        type="system_variable",
     ),
 )
 
@@ -684,13 +691,13 @@ mysql_dialect.add(
         Ref("DatatypeSegment"),
     ),
     LocalVariableNameSegment=RegexParser(
-        r"`?[a-zA-Z0-9_]*`?",
+        r"`?[a-zA-Z0-9_$]*`?",
         CodeSegment,
         name="declared_variable",
         type="variable",
     ),
     SessionVariableNameSegment=RegexParser(
-        r"[@][a-zA-Z0-9_]*",
+        r"[@][a-zA-Z0-9_$]*",
         CodeSegment,
         name="declared_variable",
         type="variable",
@@ -710,7 +717,7 @@ mysql_dialect.insert_lexer_matchers(
     [
         RegexLexer(
             "at_sign",
-            r"[@][a-zA-Z0-9_]*",
+            r"@@?[a-zA-Z0-9_$]*(\.[a-zA-Z0-9_$]+)?",
             CodeSegment,
         ),
     ],
