@@ -132,6 +132,7 @@ class AnchorEditInfo:
     create_after: int = field(default=0)
     fixes: List = field(default_factory=list)
     source_fixes: List = field(default_factory=list)
+    # First fix of edit_type "replace" in "fixes"
     _first_replace: Optional["LintFix"] = field(default=None)
 
     def add(self, fix: "LintFix"):
