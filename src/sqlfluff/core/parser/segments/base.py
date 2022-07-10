@@ -1367,7 +1367,7 @@ class BaseSegment:
     ) -> Iterator[FixPatch]:
         """Yield any source patches as fixes now.
 
-        NOTE: This yields source fixes for the segment and any of it's
+        NOTE: This yields source fixes for the segment and any of its
         children, so it's important to call it at the right point in
         the recursion to avoid yielding duplicates.
         """
