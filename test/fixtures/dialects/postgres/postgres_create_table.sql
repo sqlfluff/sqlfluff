@@ -228,6 +228,7 @@ CREATE TABLE users (
 CREATE TABLE orders
 (
 id bigint NOT NULL DEFAULT NEXTVAL('orders_id_seq'::regclass),
-order_number text UNIQUE COLLATE numeric NOT NULL,
-order_number2 text NOT NULL UNIQUE COLLATE numeric
+constraint_collate_constraints text UNIQUE COLLATE numeric NOT NULL PRIMARY KEY,
+constraints_collate text NOT NULL UNIQUE COLLATE numeric,
+collate_constraints text COLLATE numeric NOT NULL UNIQUE
 );

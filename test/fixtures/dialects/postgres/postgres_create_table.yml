@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a2e5088774e45b199197be6dea8b7f1175a922942be6876597588faf0f404e37
+_hash: 15fd90958831ab1eeb765d759684c4f2521f9098f50e58befc6a29f31fcef957
 file:
 - statement:
     create_table_statement:
@@ -1367,7 +1367,7 @@ file:
               end_bracket: )
       - comma: ','
       - column_reference:
-          identifier: order_number
+          identifier: constraint_collate_constraints
       - data_type:
           keyword: text
       - column_constraint_segment:
@@ -1378,9 +1378,12 @@ file:
       - column_constraint_segment:
         - keyword: NOT
         - keyword: 'NULL'
+      - column_constraint_segment:
+        - keyword: PRIMARY
+        - keyword: KEY
       - comma: ','
       - column_reference:
-          identifier: order_number2
+          identifier: constraints_collate
       - data_type:
           keyword: text
       - column_constraint_segment:
@@ -1391,5 +1394,18 @@ file:
       - keyword: COLLATE
       - object_reference:
           identifier: numeric
+      - comma: ','
+      - column_reference:
+          identifier: collate_constraints
+      - data_type:
+          keyword: text
+      - keyword: COLLATE
+      - object_reference:
+          identifier: numeric
+      - column_constraint_segment:
+        - keyword: NOT
+        - keyword: 'NULL'
+      - column_constraint_segment:
+          keyword: UNIQUE
       - end_bracket: )
 - statement_terminator: ;
