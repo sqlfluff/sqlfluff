@@ -28,3 +28,5 @@ WHERE
     AND baz > +3.E+3
     AND baz > -3.E-3D
     AND baz > -3.e-3d
+    AND baz > -+-1
+    AND baz > -+- 1

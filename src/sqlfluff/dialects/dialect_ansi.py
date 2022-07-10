@@ -956,7 +956,7 @@ class ShorthandCastSegment(BaseSegment):
 
 
 class QualifiedNumericLiteralSegment(BaseSegment):
-    """A numeric literal with a + or - sign preceding.
+    """A numeric literal with one or more + or - signs preceding.
 
     The qualified numeric literal is a compound of a raw
     literal and a plus/minus sign. We do it this way rather
@@ -966,9 +966,8 @@ class QualifiedNumericLiteralSegment(BaseSegment):
 
     type = "numeric_literal"
     match_grammar: Matchable = Sequence(
-        Ref("SignedSegmentGrammar"),
+        AnyNumberOf(Ref("SignedSegmentGrammar"), min_times=1),
         Ref("NumericLiteralSegment"),
-        allow_gaps=False,
     )
 
 
