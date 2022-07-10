@@ -128,7 +128,6 @@ def test__linted_file__build_up_fixed_source_string(
         # TODO: given that the logic is based on the _type_
         # of the slice (e.g. comment), would we handle a
         # template tag which returns an empty string correctly?
-        
         (
             [FixPatch(slice(1, 2), " c", "", slice(8, 9), "c", "c")],
             [RawFileSlice("{# b #}", "comment", 1)],
