@@ -2888,15 +2888,14 @@ class CommentOnStatementSegment(BaseSegment):
                         "ROUTINE",
                     ),
                     Ref("ObjectReferenceSegment"),
-                    Sequence(
-                        Bracketed(
-                            Sequence(
-                                # TODO: Is this too permissive?
-                                Anything(),
-                                optional=True,
-                            ),
+                    Bracketed(
+                        Sequence(
+                            # TODO: Is this too permissive?
+                            Anything(),
+                            optional=True,
                         ),
                         optional=True,
+                    ),
                     ),
                 ),
             ),
