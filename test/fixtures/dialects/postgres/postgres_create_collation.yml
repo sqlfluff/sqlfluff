@@ -1,0 +1,69 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 309835f67eb282ebe597717e51871c763cbc54e4501ca3bda650a877633f1023
+file:
+- statement:
+    create_collation_statement:
+    - keyword: CREATE
+    - keyword: COLLATION
+    - object_reference:
+        identifier: numeric
+    - bracketed:
+      - start_bracket: (
+      - keyword: provider
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: icu
+      - comma: ','
+      - keyword: locale
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - literal: "'en@colNumeric=yes'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_collation_statement:
+    - keyword: CREATE
+    - keyword: COLLATION
+    - object_reference:
+        identifier: french
+    - bracketed:
+        start_bracket: (
+        keyword: locale
+        comparison_operator:
+          raw_comparison_operator: '='
+        literal: "'fr_FR.utf8'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_collation_statement:
+    - keyword: CREATE
+    - keyword: COLLATION
+    - object_reference:
+        identifier: german_phonebook
+    - bracketed:
+      - start_bracket: (
+      - keyword: provider
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: icu
+      - comma: ','
+      - keyword: locale
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - literal: "'de-u-co-phonebk'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_collation_statement:
+    - keyword: CREATE
+    - keyword: COLLATION
+    - object_reference:
+        identifier: german
+    - keyword: FROM
+    - object_reference:
+        identifier: '"de_DE"'
+- statement_terminator: ;
