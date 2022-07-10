@@ -1420,13 +1420,16 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                             Sequence(
                                 Ref("ColumnReferenceSegment"),
                                 Ref("DatatypeSegment"),
-                                Sequence(
-                                    "COLLATE",
-                                    Ref("QuotedLiteralSegment"),
-                                    optional=True,
-                                ),
                                 AnyNumberOf(
-                                    Ref("ColumnConstraintSegment", optional=True)
+                                    # A single COLLATE segment can come before or after
+                                    # constraint segments
+                                    OneOf(
+                                        Ref("ColumnConstraintSegment"),
+                                        Sequence(
+                                            "COLLATE",
+                                            Ref("ObjectReferenceSegment"),
+                                        ),
+                                    ),
                                 ),
                             ),
                             Ref("TableConstraintSegment"),
@@ -3318,6 +3321,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterTypeStatementSegment"),
             Ref("AlterSchemaStatementSegment"),
             Ref("LockTableStatementSegment"),
+            Ref("CreateCollationStatementSegment"),
         ],
     )
 
@@ -4360,6 +4364,61 @@ class AlterTypeStatementSegment(BaseSegment):
                 Sequence(
                     OneOf("BEFORE", "AFTER"), Ref("QuotedLiteralSegment"), optional=True
                 ),
+            ),
+        ),
+    )
+
+
+class CreateCollationStatementSegment(BaseSegment):
+    """A `CREATE COLLATION` statement.
+
+    https://www.postgresql.org/docs/current/sql-createcollation.html
+    """
+
+    type = "create_collation_statement"
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        "COLLATION",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        "LOCALE",
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Sequence(
+                        "LC_COLLATE",
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Sequence(
+                        "LC_CTYPE",
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Sequence(
+                        "PROVIDER",
+                        Ref("EqualsSegment"),
+                        OneOf("ICU", "LIBC"),
+                    ),
+                    Sequence(
+                        "DETERMINISTIC",
+                        Ref("EqualsSegment"),
+                        Ref("BooleanLiteralGrammar"),
+                    ),
+                    Sequence(
+                        "VERSION",
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                )
+            ),
+            Sequence(
+                "FROM",
+                Ref("ObjectReferenceSegment"),
             ),
         ),
     )
