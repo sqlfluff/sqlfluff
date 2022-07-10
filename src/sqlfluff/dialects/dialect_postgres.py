@@ -2896,7 +2896,6 @@ class CommentOnStatementSegment(BaseSegment):
                         ),
                         optional=True,
                     ),
-                    ),
                 ),
             ),
             Sequence("IS", OneOf(Ref("QuotedLiteralSegment"), "NULL")),
