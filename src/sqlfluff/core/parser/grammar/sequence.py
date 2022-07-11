@@ -268,12 +268,12 @@ class Bracketed(Sequence):
 
         # Are we dealing with a pre-existing BracketSegment?
         if seg_buff[0].is_type("bracketed"):
+            seg: BracketedSegment = cast(BracketedSegment, seg_buff[0])
             # Check it's of the right kind of bracket
-            if not start_bracket.match(seg_buff[0].start_bracket, parse_context):
+            if not start_bracket.match(seg.start_bracket, parse_context):
                 # Doesn't match - return no match
                 return MatchResult.from_unmatched(segments)
 
-            seg: BracketedSegment = cast(BracketedSegment, seg_buff[0])
             content_segs = seg.segments[len(seg.start_bracket) : -len(seg.end_bracket)]
             bracket_segment = seg
             trailing_segments = seg_buff[1:]
