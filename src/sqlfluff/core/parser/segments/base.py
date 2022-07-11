@@ -548,16 +548,19 @@ class BaseSegment:
 
         # Use the index so that we can look forward
         # and backward.
-        segment_buffer = ()
+        segment_buffer: Tuple["BaseSegment", ...] = ()
         for idx, segment in enumerate(segments):
             repositioned_seg = copy(segment)
             # Fill any that don't have a position.
             if not repositioned_seg.pos_marker:
                 # Can we get a position from the previous?
                 if idx > 0:
-                    repositioned_seg.pos_marker = segment_buffer[
-                        idx - 1
-                    ].pos_marker.end_point_marker()
+                    prev_seg = segment_buffer[idx - 1]
+                    # Given we're going back in the buffer we should
+                    # have set the position marker for everything already
+                    # in there. This is mostly a hint to mypy.
+                    assert prev_seg.pos_marker
+                    repositioned_seg.pos_marker = prev_seg.pos_marker.end_point_marker()
                 # Can we get it from the parent?
                 elif parent_pos:
                     repositioned_seg.pos_marker = parent_pos.start_point_marker()
@@ -572,6 +575,7 @@ class BaseSegment:
                     else:  # pragma: no cover
                         raise ValueError("Unable to position new segment")
 
+            assert repositioned_seg.pos_marker  # hit for mypy
             # Update the working position.
             repositioned_seg.pos_marker = (
                 repositioned_seg.pos_marker.with_working_position(
