@@ -4,6 +4,7 @@ import configparser
 import json
 import os
 import pathlib
+import re
 import shutil
 import stat
 import tempfile
@@ -24,6 +25,13 @@ import sqlfluff
 from sqlfluff.cli.commands import lint, version, rules, fix, parse, dialects, get_config
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult
 from sqlfluff.core.parser.segments.raw import CommentSegment
+
+re_ansi_escape = re.compile(r"\x1b[^m]*m")
+
+
+def contains_ansi_escape(s: str) -> bool:
+    """Does the string contain ANSI escape codes (e.g. color)?"""
+    return re_ansi_escape.search(s) is not None
 
 
 def invoke_assert_code(
@@ -97,6 +105,68 @@ def test__cli__command_dialect():
                 "test/fixtures/linter/indentation_error_simple.sql",
             ],
         ],
+    )
+
+
+def test__cli__command_no_dialect():
+    """Check the script raises the right exception no dialect."""
+    # The dialect is unknown should be a non-zero exit code
+    result = invoke_assert_code(
+        ret_code=1,
+        args=[
+            lint,
+            ["-"],
+        ],
+        cli_input="SELECT 1",
+    )
+    assert "User Error" in result.stdout
+    assert "No dialect was specified" in result.stdout
+
+
+def test__cli__command_parse_error_dialect_explicit_warning():
+    """Check parsing error raises the right warning."""
+    # For any parsing error there should be a non-zero exit code
+    # and a human-readable warning should be dislayed.
+    # Dialect specified as commandline option.
+    result = invoke_assert_code(
+        ret_code=66,
+        args=[
+            parse,
+            [
+                "-n",
+                "--dialect",
+                "postgres",
+                "test/fixtures/cli/fail_many.sql",
+            ],
+        ],
+    )
+    assert (
+        "WARNING: Parsing errors found and dialect is set to 'postgres'. "
+        "Have you configured your dialect correctly?" in result.stdout
+    )
+
+
+def test__cli__command_parse_error_dialect_implicit_warning():
+    """Check parsing error raises the right warning."""
+    # For any parsing error there should be a non-zero exit code
+    # and a human-readable warning should be dislayed.
+    # Dialect specified in .sqlfluff config.
+    result = invoke_assert_code(
+        ret_code=66,
+        args=[
+            # Config sets dialect to tsql
+            parse,
+            [
+                "-n",
+                "--config",
+                "test/fixtures/cli/extra_configs/.sqlfluff",
+                "test/fixtures/cli/fail_many.sql",
+            ],
+        ],
+    )
+    assert (
+        "WARNING: Parsing errors found and dialect is set to 'tsql'. "
+        "Have you configured your dialect correctly?" in result.stdout
     )
 
 
@@ -1047,6 +1117,36 @@ def test__cli__command_fail_nice_not_found(command):
     """Check commands fail as expected when then don't find files."""
     result = invoke_assert_code(args=command, ret_code=1)
     assert "could not be accessed" in result.output
+
+
+@patch("click.utils.should_strip_ansi")
+@patch("sys.stdout.isatty")
+def test__cli__command_lint_nocolor(isatty, should_strip_ansi, capsys, tmpdir):
+    """Test the --nocolor option prevents color output."""
+    # Patch these two functions to make it think every output stream is a TTY.
+    # In spite of this, the output should not contain ANSI color codes because
+    # we specify "--nocolor" below.
+    isatty.return_value = True
+    should_strip_ansi.return_value = False
+    fpath = "test/fixtures/linter/indentation_errors.sql"
+    output_file = str(tmpdir / "result.txt")
+    cmd_args = [
+        "--verbose",
+        "--nocolor",
+        "--dialect",
+        "ansi",
+        "--disable_progress_bar",
+        fpath,
+        "--write-output",
+        output_file,
+    ]
+    with pytest.raises(SystemExit):
+        lint(cmd_args)
+    out = capsys.readouterr()[0]
+    assert not contains_ansi_escape(out)
+    with open(output_file, "r") as f:
+        file_contents = f.read()
+    assert not contains_ansi_escape(file_contents)
 
 
 @pytest.mark.parametrize(

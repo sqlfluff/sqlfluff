@@ -44,8 +44,19 @@ mysql_dialect.patch_lexer_matchers(
             CommentSegment,
             segment_kwargs={"trim_start": ("-- ", "#")},
         ),
+        # Pattern breakdown:
+        # (?s)                     DOTALL (dot matches newline)
+        #     ('')+?               group1 match consecutive single quotes
+        #     (?!')                negative lookahead single quote
+        #     |(                   group2 start
+        #         '.*?             single quote wildcard zero or more, lazy
+        #         (?<!'|\\)        negative lookbehind: no single quote or backslash
+        #         (?:'')*          non-capturing group: consecutive single quotes
+        #         '                single quote
+        #         (?!')            negative lookahead: not single quote
+        #     )                    group2 end
         RegexLexer(
-            "single_quote", r"(?s)('')+?(?!')|('.*?(?<!')(?:'')*'(?!'))", CodeSegment
+            "single_quote", r"(?s)('')+?(?!')|('.*?(?<!'|\\)(?:'')*'(?!'))", CodeSegment
         ),
     ]
 )
@@ -84,6 +95,7 @@ mysql_dialect.replace(
     LiteralGrammar=ansi_dialect.get_grammar("LiteralGrammar").copy(
         insert=[
             Ref("DoubleQuotedLiteralSegment"),
+            Ref("SystemVariableSegment"),
         ]
     ),
     FromClauseTerminatorGrammar=ansi_dialect.get_grammar(
@@ -196,6 +208,12 @@ mysql_dialect.add(
         name="at_sign_literal",
         type="literal",
         trim_chars=("@",),
+    ),
+    SystemVariableSegment=RegexParser(
+        r"@@(session|global)\.[A-Za-z0-9_]+",
+        CodeSegment,
+        name="system_variable",
+        type="system_variable",
     ),
 )
 
@@ -673,13 +691,13 @@ mysql_dialect.add(
         Ref("DatatypeSegment"),
     ),
     LocalVariableNameSegment=RegexParser(
-        r"`?[a-zA-Z0-9_]*`?",
+        r"`?[a-zA-Z0-9_$]*`?",
         CodeSegment,
         name="declared_variable",
         type="variable",
     ),
     SessionVariableNameSegment=RegexParser(
-        r"[@][a-zA-Z0-9_]*",
+        r"[@][a-zA-Z0-9_$]*",
         CodeSegment,
         name="declared_variable",
         type="variable",
@@ -699,7 +717,7 @@ mysql_dialect.insert_lexer_matchers(
     [
         RegexLexer(
             "at_sign",
-            r"[@][a-zA-Z0-9_]*",
+            r"@@?[a-zA-Z0-9_$]*(\.[a-zA-Z0-9_$]+)?",
             CodeSegment,
         ),
     ],
@@ -854,6 +872,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("UpsertClauseListSegment"),
             Ref("InsertRowAliasSegment"),
             Ref("FlushStatementSegment"),
+            Ref("LoadDataSegment"),
         ],
     )
 
@@ -2055,5 +2074,63 @@ class FlushStatementSegment(BaseSegment):
                 ),
                 Sequence("FOR", "EXPORT", optional=True),
             ),
+        ),
+    )
+
+
+class LoadDataSegment(BaseSegment):
+    """A `LOAD DATA` statement.
+
+    As per https://dev.mysql.com/doc/refman/8.0/en/load-data.html
+    """
+
+    type = "load_data_statement"
+
+    match_grammar = Sequence(
+        "LOAD",
+        "DATA",
+        OneOf("LOW_PRIORITY", "CONCURRENT", optional=True),
+        Sequence("LOCAL", optional=True),
+        "INFILE",
+        Ref("QuotedLiteralSegment"),
+        OneOf("REPLACE", "IGNORE", optional=True),
+        "INTO",
+        "TABLE",
+        Ref("TableReferenceSegment"),
+        Sequence("PARTITION", Ref("SelectPartitionClauseSegment"), optional=True),
+        Sequence("CHARACTER", "SET", Ref("NakedIdentifierSegment"), optional=True),
+        Sequence(
+            OneOf("FIELDS", "COLUMNS"),
+            Sequence("TERMINATED", "BY", Ref("QuotedLiteralSegment"), optional=True),
+            Sequence(
+                Sequence("OPTIONALLY", optional=True),
+                "ENCLOSED",
+                "BY",
+                Ref("QuotedLiteralSegment"),
+                optional=True,
+            ),
+            Sequence("ESCAPED", "BY", Ref("QuotedLiteralSegment"), optional=True),
+            optional=True,
+        ),
+        Sequence(
+            "LINES",
+            Sequence("STARTING", "BY", Ref("QuotedLiteralSegment"), optional=True),
+            Sequence("TERMINATED", "BY", Ref("QuotedLiteralSegment"), optional=True),
+            optional=True,
+        ),
+        Sequence(
+            "IGNORE",
+            Ref("NumericLiteralSegment"),
+            OneOf("LINES", "ROWS"),
+            optional=True,
+        ),
+        Sequence(
+            Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+            optional=True,
+        ),
+        Sequence(
+            "SET",
+            Ref("Expression_B_Grammar"),
+            optional=True,
         ),
     )

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4d356aa40e2cb86273e0b9b49cb717d28ad973e942507997996d6968c2c32cac
+_hash: 7aca8f8e1e189a2ec3338e2aa3a203639df79c68ab3cc153babbcd1b7ab13221
 file:
 - statement:
     select_statement:
@@ -322,19 +322,20 @@ file:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          column_reference:
-            identifier: schedule
-          array_accessor:
-          - start_square_bracket: '['
-          - literal: '1'
-          - slice: ':'
-          - literal: '2'
-          - end_square_bracket: ']'
-          - start_square_bracket: '['
-          - literal: '1'
-          - slice: ':'
-          - literal: '1'
-          - end_square_bracket: ']'
+          expression:
+            column_reference:
+              identifier: schedule
+            array_accessor:
+            - start_square_bracket: '['
+            - literal: '1'
+            - slice: ':'
+            - literal: '2'
+            - end_square_bracket: ']'
+            - start_square_bracket: '['
+            - literal: '1'
+            - slice: ':'
+            - literal: '1'
+            - end_square_bracket: ']'
       from_clause:
         keyword: FROM
         from_expression:
@@ -555,39 +556,41 @@ file:
       select_clause:
       - keyword: SELECT
       - select_clause_element:
-          column_reference:
-            identifier: f1
-          array_accessor:
-          - start_square_bracket: '['
-          - literal: '1'
-          - end_square_bracket: ']'
-          - start_square_bracket: '['
-          - numeric_literal:
-              sign_indicator: '-'
-              literal: '2'
-          - end_square_bracket: ']'
-          - start_square_bracket: '['
-          - literal: '3'
-          - end_square_bracket: ']'
+          expression:
+            column_reference:
+              identifier: f1
+            array_accessor:
+            - start_square_bracket: '['
+            - literal: '1'
+            - end_square_bracket: ']'
+            - start_square_bracket: '['
+            - numeric_literal:
+                sign_indicator: '-'
+                literal: '2'
+            - end_square_bracket: ']'
+            - start_square_bracket: '['
+            - literal: '3'
+            - end_square_bracket: ']'
           alias_expression:
             keyword: AS
             identifier: e1
       - comma: ','
       - select_clause_element:
-          column_reference:
-            identifier: f1
-          array_accessor:
-          - start_square_bracket: '['
-          - literal: '1'
-          - end_square_bracket: ']'
-          - start_square_bracket: '['
-          - numeric_literal:
-              sign_indicator: '-'
-              literal: '1'
-          - end_square_bracket: ']'
-          - start_square_bracket: '['
-          - literal: '5'
-          - end_square_bracket: ']'
+          expression:
+            column_reference:
+              identifier: f1
+            array_accessor:
+            - start_square_bracket: '['
+            - literal: '1'
+            - end_square_bracket: ']'
+            - start_square_bracket: '['
+            - numeric_literal:
+                sign_indicator: '-'
+                literal: '1'
+            - end_square_bracket: ']'
+            - start_square_bracket: '['
+            - literal: '5'
+            - end_square_bracket: ']'
           alias_expression:
             keyword: AS
             identifier: e2

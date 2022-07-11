@@ -177,12 +177,29 @@ STANDARD_CONFIG_INFO_DICT = {
             "in statements."
         ),
     },
+    "blocked_regex": {
+        "definition": (
+            "Optional, regex of blocked pattern which should not be used in statements."
+        ),
+    },
     "preferred_quoted_literal_style": {
         "validation": ["consistent", "single_quotes", "double_quotes"],
         "definition": (
             "Preferred quoting style to use for the quoted literals. If set to "
             "``consistent`` quoting style is derived from the first quoted literal"
             "in the file."
+        ),
+    },
+    "min_alias_length": {
+        "validation": range(1000),
+        "definition": (
+            "The minimum length of an alias to allow without raising a violation."
+        ),
+    },
+    "max_alias_length": {
+        "validation": range(1000),
+        "definition": (
+            "The maximum length of an alias to allow without raising a violation."
         ),
     },
     "wildcard_policy": {

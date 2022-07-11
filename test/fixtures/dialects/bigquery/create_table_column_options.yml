@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a3429a7470b5a9294bf9bb8d383cee02dcccb9235466218d16da77f6df7fabd2
+_hash: 768b525b3be45bf3ab6d64f2267f3d857065f250cf7ebae18fba2fbeb0df4a88
 file:
 - statement:
     create_table_statement:
@@ -65,28 +65,7 @@ file:
       - column_definition:
           identifier: x
           data_type:
-            keyword: STRUCT
-            start_angle_bracket: <
-            parameter: col1
-            data_type:
-              data_type_identifier: INT64
-            options_segment:
-              keyword: OPTIONS
-              bracketed:
-                start_bracket: (
-                parameter: description
-                comparison_operator:
-                  raw_comparison_operator: '='
-                literal: '"An INTEGER field in a STRUCT"'
-                end_bracket: )
-            end_angle_bracket: '>'
-      - comma: ','
-      - column_definition:
-          identifier: y
-          data_type:
-            keyword: ARRAY
-            start_angle_bracket: <
-            data_type:
+            struct_type:
               keyword: STRUCT
               start_angle_bracket: <
               parameter: col1
@@ -99,9 +78,32 @@ file:
                   parameter: description
                   comparison_operator:
                     raw_comparison_operator: '='
-                  literal: '"An INTEGER field in a REPEATED STRUCT"'
+                  literal: '"An INTEGER field in a STRUCT"'
                   end_bracket: )
               end_angle_bracket: '>'
+      - comma: ','
+      - column_definition:
+          identifier: y
+          data_type:
+            keyword: ARRAY
+            start_angle_bracket: <
+            data_type:
+              struct_type:
+                keyword: STRUCT
+                start_angle_bracket: <
+                parameter: col1
+                data_type:
+                  data_type_identifier: INT64
+                options_segment:
+                  keyword: OPTIONS
+                  bracketed:
+                    start_bracket: (
+                    parameter: description
+                    comparison_operator:
+                      raw_comparison_operator: '='
+                    literal: '"An INTEGER field in a REPEATED STRUCT"'
+                    end_bracket: )
+                end_angle_bracket: '>'
             end_angle_bracket: '>'
       - end_bracket: )
 - statement_terminator: ;

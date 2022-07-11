@@ -396,6 +396,7 @@ class DatatypeSegment(BaseSegment):
                 optional=True,
             ),
         ),
+        "ANYELEMENT",
     )
 
 
@@ -514,7 +515,7 @@ class ColumnAttributeSegment(BaseSegment):
         Sequence("DEFAULT", Ref("ExpressionSegment")),
         Sequence(
             "IDENTITY",
-            Bracketed(Delimited(Ref("NumericLiteralSegment"))),
+            Bracketed(Delimited(Ref("NumericLiteralSegment")), optional=True),
         ),
         Sequence(
             "GENERATED",
@@ -522,7 +523,7 @@ class ColumnAttributeSegment(BaseSegment):
             "DEFAULT",
             "AS",
             "IDENTITY",
-            Bracketed(Delimited(Ref("NumericLiteralSegment"))),
+            Bracketed(Delimited(Ref("NumericLiteralSegment")), optional=True),
         ),
         Sequence("ENCODE", Ref("ColumnEncodingGrammar")),
         "DISTKEY",
@@ -654,6 +655,7 @@ class AlterTableActionSegment(BaseSegment):
             Ref.keyword("COLUMN", optional=True),
             Ref("ColumnReferenceSegment"),
             Ref("DatatypeSegment"),
+            Sequence("DEFAULT", Ref("ExpressionSegment"), optional=True),
             Sequence("COLLATE", Ref("QuotedLiteralSegment"), optional=True),
             AnyNumberOf(Ref("ColumnConstraintSegment")),
         ),
@@ -1595,6 +1597,21 @@ class DropProcedureStatementSegment(BaseSegment):
     )
 
 
+class AlterDefaultPrivilegesSchemaObjectsSegment(
+    postgres.AlterDefaultPrivilegesSchemaObjectsSegment
+):
+    """`ALTER DEFAULT PRIVILEGES` schema object types.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_ALTER_DEFAULT_PRIVILEGES.html
+    """
+
+    match_grammar = (
+        postgres.AlterDefaultPrivilegesSchemaObjectsSegment.match_grammar.copy(
+            insert=[Sequence("PROCEDURES")]
+        )
+    )
+
+
 class DeclareStatementSegment(BaseSegment):
     """A `DECLARE` statement.
 
@@ -1888,6 +1905,7 @@ class StatementSegment(postgres.StatementSegment):
             Ref("AnalyzeCompressionStatementSegment"),
             Ref("VacuumStatementSegment"),
             Ref("AlterProcedureStatementSegment"),
+            Ref("CallStatementSegment"),
         ],
     )
 
@@ -2197,4 +2215,54 @@ class LockTableStatementSegment(BaseSegment):
         Delimited(
             Ref("TableReferenceSegment"),
         ),
+    )
+
+
+class TableExpressionSegment(ansi.TableExpressionSegment):
+    """The main table expression e.g. within a FROM clause.
+
+    Override to add Object unpivoting.
+    """
+
+    match_grammar = ansi.TableExpressionSegment.match_grammar.copy(
+        insert=[Ref("ObjectUnpivotSegment", optional=True)],
+        before=Ref("TableReferenceSegment", optional=True),
+    )
+
+
+class ObjectUnpivotSegment(BaseSegment):
+    """Object unpivoting.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/query-super.html#unpivoting
+    """
+
+    type = "object_unpivoting"
+    match_grammar: Matchable = Sequence(
+        "UNPIVOT",
+        Ref("ObjectReferenceSegment"),
+        "AS",
+        Ref("SingleIdentifierGrammar"),
+        "AT",
+        Ref("SingleIdentifierGrammar"),
+    )
+
+
+class CallStatementSegment(BaseSegment):
+    """A `CALL` statement.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_CALL_procedure.html
+    """
+
+    type = "call_statement"
+    match_grammar = Sequence(
+        "CALL",
+        Ref("FunctionSegment"),
+    )
+
+
+class SelectClauseModifierSegment(postgres.SelectClauseModifierSegment):
+    """Things that come after SELECT but before the columns."""
+
+    match_grammar = postgres.SelectClauseModifierSegment.match_grammar.copy(
+        insert=[Sequence("TOP", Ref("NumericLiteralSegment"))],
     )

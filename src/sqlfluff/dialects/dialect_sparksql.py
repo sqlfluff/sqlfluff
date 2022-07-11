@@ -33,6 +33,7 @@ from sqlfluff.core.parser import (
     StartsWith,
     RegexParser,
     Matchable,
+    MultiStringParser,
 )
 from sqlfluff.core.parser.segments.raw import CodeSegment, KeywordSegment
 from sqlfluff.dialects.dialect_sparksql_keywords import (
@@ -265,6 +266,53 @@ sparksql_dialect.replace(
         Ref("SingleQuotedIdentifierSegment"),
         Ref("BackQuotedIdentifierSegment"),
     ),
+    WhereClauseTerminatorGrammar=OneOf(
+        "LIMIT",
+        Sequence(
+            OneOf(
+                "CLUSTER",
+                "DISTRIBUTE",
+                "GROUP",
+                "ORDER",
+                "SORT",
+            ),
+            "BY",
+        ),
+        Sequence("ORDER", "BY"),
+        Sequence("DISTRIBUTE", "BY"),
+        "HAVING",
+        "QUALIFY",
+        "WINDOW",
+        "OVERLAPS",
+    ),
+    GroupByClauseTerminatorGrammar=OneOf(
+        Sequence(
+            OneOf(
+                "ORDER",
+                "DISTRIBUTE",
+                "CLUSTER",
+                "SORT",
+            ),
+            "BY",
+        ),
+        "LIMIT",
+        "HAVING",
+        "WINDOW",
+    ),
+    HavingClauseTerminatorGrammar=OneOf(
+        Sequence(
+            OneOf(
+                "ORDER",
+                "CLUSTER",
+                "DISTRIBUTE",
+                "SORT",
+            ),
+            "BY",
+        ),
+        "LIMIT",
+        "QUALIFY",
+        "WINDOW",
+    ),
 )
 
 sparksql_dialect.add(
@@ -308,11 +356,11 @@ sparksql_dialect.add(
     EqualsSegment_b=StringParser(
         "<=>", SymbolSegment, name="equals", type="comparison_operator"
     ),
-    FileKeywordSegment=RegexParser(
-        "FILES?", KeywordSegment, name="file", type="file_keyword"
+    FileKeywordSegment=MultiStringParser(
+        ["FILE", "FILES"], KeywordSegment, name="file", type="file_keyword"
     ),
-    JarKeywordSegment=RegexParser(
-        "JARS?", KeywordSegment, name="jar", type="file_keyword"
+    JarKeywordSegment=MultiStringParser(
+        ["JAR", "JARS"], KeywordSegment, name="jar", type="file_keyword"
     ),
     NoscanKeywordSegment=StringParser(
         "NOSCAN", KeywordSegment, name="noscan_keyword", type="keyword"
@@ -380,6 +428,7 @@ sparksql_dialect.add(
         # Similar to DataSourcesV2
         "DELTA",  # https://github.com/delta-io/delta
         "CSV",
+        "ICEBERG",
         "TEXT",
         "BINARYFILE",
     ),
@@ -423,14 +472,20 @@ sparksql_dialect.add(
     StartHintSegment=StringParser("/*+", KeywordSegment, name="start_hint"),
     EndHintSegment=StringParser("*/", KeywordSegment, name="end_hint"),
     PartitionSpecGrammar=Sequence(
-        OneOf("PARTITION", Sequence("PARTITIONED", "BY")),
+        OneOf(
+            "PARTITION",
+            Sequence("PARTITIONED", "BY"),
+        ),
         Bracketed(
             Delimited(
-                Sequence(
-                    Ref("ColumnReferenceSegment"),
-                    Ref("EqualsSegment", optional=True),
-                    Ref("LiteralGrammar", optional=True),
-                    Ref("CommentGrammar", optional=True),
+                OneOf(
+                    Ref("ColumnDefinitionSegment"),
+                    Sequence(
+                        Ref("ColumnReferenceSegment"),
+                        Ref("EqualsSegment", optional=True),
+                        Ref("LiteralGrammar", optional=True),
+                        Ref("CommentGrammar", optional=True),
+                    ),
                 ),
             ),
         ),
@@ -1417,7 +1472,7 @@ class GroupByClauseSegment(ansi.GroupByClauseSegment):
 
     match_grammar = StartsWith(
         Sequence("GROUP", "BY"),
-        terminator=OneOf("ORDER", "LIMIT", "HAVING", "WINDOW"),
+        terminator=Ref("GroupByClauseTerminatorGrammar"),
         enforce_whitespace_preceding_terminator=True,
     )
 
@@ -1435,7 +1490,7 @@ class GroupByClauseSegment(ansi.GroupByClauseSegment):
                 Ref("CubeRollupClauseSegment"),
                 Ref("GroupingSetsClauseSegment"),
             ),
-            terminator=OneOf("ORDER", "LIMIT", "HAVING", "WINDOW"),
+            terminator=Ref("GroupByClauseTerminatorGrammar"),
         ),
         # TODO: New Rule
         #  Warn if CubeRollupClauseSegment and
@@ -1507,7 +1562,6 @@ class GroupingSetsClauseSegment(BaseSegment):
             Delimited(
                 Ref("CubeRollupClauseSegment"),
                 Ref("GroupingExpressionList"),
-                Bracketed(),  # Allows empty parentheses
             )
         ),
     )
@@ -1522,6 +1576,7 @@ class GroupingExpressionList(BaseSegment):
         OneOf(
             Bracketed(Delimited(Ref("ExpressionSegment"))),
             Ref("ExpressionSegment"),
+            Bracketed(),  # Allows empty parentheses
         )
     )
 
@@ -1943,6 +1998,10 @@ class DescribeStatementSegment(BaseSegment):
                     Ref("StatementSegment"),
                 ),
             ),
+            exclude=OneOf(
+                Ref.keyword("HISTORY"),
+                Ref.keyword("DETAIL"),
+            ),
         ),
     )
 
@@ -2229,6 +2288,13 @@ class StatementSegment(ansi.StatementSegment):
             # Data Retrieval Statements
             Ref("ClusterByClauseSegment"),
             Ref("DistributeByClauseSegment"),
+            # Delta Lake
+            Ref("VacuumStatementSegment"),
+            Ref("DescribeHistoryStatementSegment"),
+            Ref("DescribeDetailStatementSegment"),
+            Ref("GenerateManifestFileStatementSegment"),
+            Ref("ConvertToDeltaStatementSegment"),
+            Ref("RestoreTableStatementSegment"),
         ],
         remove=[
             Ref("TransactionStatementSegment"),
@@ -2332,7 +2398,6 @@ class AliasExpressionSegment(ansi.AliasExpressionSegment):
                 Ref("JoinTypeKeywords"),
                 "WINDOW",
                 "PIVOT",
-                Ref("DatetimeUnitSegment"),
             ),
         ),
     )
@@ -2606,5 +2671,142 @@ class IntervalExpressionSegment(ansi.IntervalExpressionSegment):
                 Ref("IntervalLiteralSegment"),
             ),
             Ref("QuotedLiteralSegment"),
+        ),
+    )
+
+
+class VacuumStatementSegment(BaseSegment):
+    """A `VACUUM` statement segment.
+
+    https://docs.delta.io/latest/delta-utility.html#remove-files-no-longer-referenced-by-a-delta-table
+    """
+
+    type = "vacuum_statement"
+
+    match_grammar: Matchable = Sequence(
+        "VACUUM",
+        OneOf(
+            Ref("QuotedLiteralSegment"),
+            Ref("FileReferenceSegment"),
+            Ref("TableReferenceSegment"),
+        ),
+        OneOf(
+            Sequence(
+                "RETAIN",
+                Ref("NumericLiteralSegment"),
+                Ref("DatetimeUnitSegment"),
+            ),
+            Sequence(
+                "DRY",
+                "RUN",
+            ),
+            optional=True,
+        ),
+    )
+
+
+class DescribeHistoryStatementSegment(BaseSegment):
+    """A `DESCRIBE HISTORY` statement segment.
+
+    https://docs.delta.io/latest/delta-utility.html#retrieve-delta-table-history
+    """
+
+    type = "describe_history_statement"
+
+    match_grammar: Matchable = Sequence(
+        "DESCRIBE",
+        "HISTORY",
+        OneOf(
+            Ref("QuotedLiteralSegment"),
+            Ref("FileReferenceSegment"),
+            Ref("TableReferenceSegment"),
+        ),
+        Ref("LimitClauseSegment", optional=True),
+    )
+
+
+class DescribeDetailStatementSegment(BaseSegment):
+    """A `DESCRIBE DETAIL` statement segment.
+
+    https://docs.delta.io/latest/delta-utility.html#retrieve-delta-table-details
+    """
+
+    type = "describe_detail_statement"
+
+    match_grammar: Matchable = Sequence(
+        "DESCRIBE",
+        "DETAIL",
+        OneOf(
+            Ref("QuotedLiteralSegment"),
+            Ref("FileReferenceSegment"),
+            Ref("TableReferenceSegment"),
+        ),
+    )
+
+
+class GenerateManifestFileStatementSegment(BaseSegment):
+    """A statement to `GENERATE` manifest files for a Delta Table.
+
+    https://docs.delta.io/latest/delta-utility.html#generate-a-manifest-file
+    """
+
+    type = "generate_manifest_file_statement"
+
+    match_grammar: Matchable = Sequence(
+        "GENERATE",
+        StringParser(
+            "symlink_format_manifest",
+            CodeSegment,
+            name="symlink_format_manifest",
+        ),
+        "FOR",
+        "TABLE",
+        OneOf(
+            Ref("QuotedLiteralSegment"),
+            Ref("FileReferenceSegment"),
+            Ref("TableReferenceSegment"),
+        ),
+    )
+
+
+class ConvertToDeltaStatementSegment(BaseSegment):
+    """A statement to convert other file formats to Delta.
+
+    https://docs.delta.io/latest/delta-utility.html#convert-a-parquet-table-to-a-delta-table
+    https://docs.databricks.com/delta/delta-utility.html#convert-an-iceberg-table-to-a-delta-table
+    """
+
+    type = "convert_to_delta_statement"
+
+    match_grammar: Matchable = Sequence(
+        "CONVERT",
+        "TO",
+        "DELTA",
+        Ref("FileReferenceSegment"),
+        Sequence("NO", "STATISTICS", optional=True),
+        Ref("PartitionSpecGrammar", optional=True),
+    )
+
+
+class RestoreTableStatementSegment(BaseSegment):
+    """A statement to `RESTORE` a Delta Table to a previous version.
+
+    https://docs.delta.io/latest/delta-utility.html#restore-a-delta-table-to-an-earlier-state
+    """
+
+    type = "restore_table_statement"
+
+    match_grammar: Matchable = Sequence(
+        "RESTORE",
+        "TABLE",
+        OneOf(
+            Ref("QuotedLiteralSegment"),
+            Ref("FileReferenceSegment"),
+            Ref("TableReferenceSegment"),
+        ),
+        "TO",
+        OneOf(
+            Ref("TimestampAsOfGrammar"),
+            Ref("VersionAsOfGrammar"),
         ),
     )

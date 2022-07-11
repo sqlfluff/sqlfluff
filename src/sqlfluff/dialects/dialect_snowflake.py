@@ -4,6 +4,7 @@ Inherits from ANSI.
 
 Based on https://docs.snowflake.com/en/sql-reference-commands.html
 """
+from typing import Optional
 
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
@@ -31,6 +32,7 @@ from sqlfluff.core.parser import (
     StringLexer,
     StringParser,
     SymbolSegment,
+    MultiStringParser,
 )
 from sqlfluff.dialects.dialect_snowflake_keywords import (
     snowflake_reserved_keywords,
@@ -99,6 +101,55 @@ snowflake_dialect.sets("bracket_pairs").add(
     ("exclude", "StartExcludeBracketSegment", "EndExcludeBracketSegment", True)
 )
 
+# Add all Snowflake compression types
+snowflake_dialect.sets("compression_types").clear()
+snowflake_dialect.sets("compression_types").update(
+    [
+        "AUTO",
+        "AUTO_DETECT",
+        "GZIP",
+        "BZ2",
+        "BROTLI",
+        "ZSTD",
+        "DEFLATE",
+        "RAW_DEFLATE",
+        "LZO",
+        "NONE",
+        "SNAPPY",
+    ],
+)
+
+# Add all Snowflake supported file types
+snowflake_dialect.sets("files_types").clear()
+snowflake_dialect.sets("files_types").update(
+    ["CSV", "JSON", "AVRO", "ORC" "PARQUET", "XML"],
+)
+
+snowflake_dialect.sets("warehouse_sizes").clear()
+snowflake_dialect.sets("warehouse_sizes").update(
+    [
+        "XSMALL",
+        "SMALL",
+        "MEDIUM",
+        "LARGE",
+        "XLARGE",
+        "XXLARGE",
+        "X2LARGE",
+        "XXXLARGE",
+        "X3LARGE",
+        "X4LARGE",
+        "X5LARGE",
+        "X6LARGE",
+        "X-SMALL",
+        "X-LARGE",
+        "2X-LARGE",
+        "3X-LARGE",
+        "4X-LARGE",
+        "5X-LARGE",
+        "6X-LARGE",
+    ],
+)
+
 snowflake_dialect.add(
     # In snowflake, these are case sensitive even though they're not quoted
     # so they need a different `name` and `type` so they're not picked up
@@ -149,26 +200,36 @@ snowflake_dialect.add(
     ),
     # We use a RegexParser instead of keywords as some (those with dashes) require
     # quotes:
-    WarehouseSize=RegexParser(
-        r"'?XSMALL'?|'?SMALL'?|'?MEDIUM'?|'?LARGE'?|'?XLARGE'?|'?XXLARGE'?|'?X2LARGE'?|"
-        r"'?XXXLARGE'?|'?X3LARGE'?|'?X4LARGE'?|'?X5LARGE|'?X6LARGE'?|"
-        r"'X-SMALL'|'X-LARGE'|'2X-LARGE'|'3X-LARGE'|'4X-LARGE'|'5X-LARGE'|'6X-LARGE'",
-        CodeSegment,
-        name="warehouse_size",
-        type="warehouse_size",
+    WarehouseSize=OneOf(
+        MultiStringParser(
+            [
+                size
+                for size in snowflake_dialect.sets("warehouse_sizes")
+                if "-" not in size
+            ],
+            CodeSegment,
+            name="warehouse_size",
+            type="warehouse_size",
+        ),
+        MultiStringParser(
+            [f"'{size}'" for size in snowflake_dialect.sets("warehouse_sizes")],
+            CodeSegment,
+            name="warehouse_size",
+            type="warehouse_size",
+        ),
     ),
-    # We use a RegexParser instead of keywords as the arguments are optionally quoted.
     CompressionType=OneOf(
-        RegexParser(
-            r"'(AUTO|AUTO_DETECT|GZIP|BZ2|BROTLI|ZSTD|DEFLATE|RAW_DEFLATE|LZO|NONE"
-            r"|SNAPPY)'",
+        MultiStringParser(
+            snowflake_dialect.sets("compression_types"),
             CodeSegment,
             name="compression_type",
             type="keyword",
         ),
-        RegexParser(
-            r"(AUTO|AUTO_DETECT|GZIP|BZ2|BROTLI|ZSTD|DEFLATE|RAW_DEFLATE|LZO|NONE"
-            r"|SNAPPY)",
+        MultiStringParser(
+            [
+                f"'{compression}'"
+                for compression in snowflake_dialect.sets("compression_types")
+            ],
             CodeSegment,
             name="compression_type",
             type="keyword",
@@ -241,35 +302,43 @@ snowflake_dialect.add(
         name="unquoted_file_path",
         type="unquoted_file_path",
     ),
-    SnowflakeEncryptionOption=RegexParser(
-        r"'SNOWFLAKE_FULL'|'SNOWFLAKE_SSE'",
+    SnowflakeEncryptionOption=MultiStringParser(
+        ["'SNOWFLAKE_FULL'", "'SNOWFLAKE_SSE'"],
         CodeSegment,
         name="snowflake_encryption_option",
         type="stage_encryption_option",
     ),
-    S3EncryptionOption=RegexParser(
-        r"'AWS_CSE'|'AWS_SSE_S3'|'AWS_SSE_KMS'",
+    S3EncryptionOption=MultiStringParser(
+        ["'AWS_CSE'", "'AWS_SSE_S3'", "'AWS_SSE_KMS'"],
         CodeSegment,
         name="s3_encryption_option",
         type="stage_encryption_option",
     ),
-    GCSEncryptionOption=RegexParser(
-        r"'GCS_SSE_KMS'",
+    GCSEncryptionOption=StringParser(
+        "'GCS_SSE_KMS'",
         CodeSegment,
         name="gcs_encryption_option",
         type="stage_encryption_option",
     ),
-    AzureBlobStorageEncryptionOption=RegexParser(
-        r"'AZURE_CSE'",
+    AzureBlobStorageEncryptionOption=StringParser(
+        "'AZURE_CSE'",
         CodeSegment,
         name="azure_blob_storage_encryption_option",
         type="stage_encryption_option",
     ),
-    FileType=RegexParser(
-        r"'?CSV'?|'?JSON'?|'?AVRO'?|'?ORC'?|'?PARQUET'?|'?XML'?",
-        CodeSegment,
-        name="file_type",
-        type="file_type",
+    FileType=OneOf(
+        MultiStringParser(
+            snowflake_dialect.sets("file_types"),
+            CodeSegment,
+            name="file_type",
+            type="file_type",
+        ),
+        MultiStringParser(
+            [f"'{file_type}'" for file_type in snowflake_dialect.sets("file_types")],
+            CodeSegment,
+            name="file_type",
+            type="file_type",
+        ),
     ),
     IntegerSegment=RegexParser(
         # An unquoted integer that can be passed as an argument to Snowflake functions.
@@ -577,6 +646,17 @@ snowflake_dialect.replace(
         "MEASURES",
     ),
     TrimParametersGrammar=Nothing(),
+    GroupByClauseTerminatorGrammar=OneOf(
+        "ORDER", "LIMIT", "FETCH", "OFFSET", "HAVING", "QUALIFY", "WINDOW"
+    ),
+    HavingClauseTerminatorGrammar=OneOf(
+        Sequence("ORDER", "BY"),
+        "LIMIT",
+        "QUALIFY",
+        "WINDOW",
+        "FETCH",
+        "OFFSET",
+    ),
 )
 
 # Add all Snowflake keywords
@@ -760,14 +840,12 @@ class GroupByClauseSegment(ansi.GroupByClauseSegment):
     https://docs.snowflake.com/en/sql-reference/constructs/group-by.html
     """
 
-    match_grammar = StartsWith(
+    match_grammar: Matchable = StartsWith(
         Sequence("GROUP", "BY"),
-        terminator=OneOf(
-            "ORDER", "LIMIT", "FETCH", "OFFSET", "HAVING", "QUALIFY", "WINDOW"
-        ),
+        terminator=Ref("GroupByClauseTerminatorGrammar"),
         enforce_whitespace_preceding_terminator=True,
     )
-    parse_grammar = Sequence(
+    parse_grammar: Optional[Matchable] = Sequence(
         "GROUP",
         "BY",
         Indent,
@@ -3486,7 +3564,24 @@ class TableExpressionSegment(ansi.TableExpressionSegment):
         # Nested Selects
         Bracketed(Ref("SelectableGrammar")),
         Ref("ValuesClauseSegment"),
-        Ref("StagePath"),
+        Sequence(
+            Ref("StagePath"),
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        "FILE_FORMAT",
+                        Ref("ParameterAssignerSegment"),
+                        Ref("FileFormatSegment"),
+                    ),
+                    Sequence(
+                        "PATTERN",
+                        Ref("ParameterAssignerSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                ),
+                optional=True,
+            ),
+        ),
     )
 
 
@@ -5102,17 +5197,6 @@ class OrderByClauseSegment(ansi.OrderByClauseSegment):
         ),
         Dedent,
     )
-
-
-class HavingClauseSegment(ansi.HavingClauseSegment):
-    """A `HAVING` clause."""
-
-    type = "having_clause"
-    match_grammar = ansi.HavingClauseSegment.match_grammar.copy()
-    match_grammar.terminator = match_grammar.terminator.copy(  # type: ignore
-        insert=[Ref.keyword("FETCH"), Ref.keyword("OFFSET")],
-    )
-    parse_grammar = ansi.HavingClauseSegment.parse_grammar
 
 
 class DropProcedureStatementSegment(BaseSegment):

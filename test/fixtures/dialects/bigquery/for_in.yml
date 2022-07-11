@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5b17affdd490bc12759c072f0e72e1326c7ad7625fc3173be902563c07e14a9f
+_hash: 82b6abd44ca890221b669e4363b44464aeb79df637e24a0d329267e433590ffe
 file:
 - multi_statement_segment:
     for_in_statement:
@@ -42,7 +42,7 @@ file:
             literal: '5'
         end_bracket: )
     - keyword: DO
-    - for_in_statement:
+    - for_in_statements:
         statement:
           select_statement:
             select_clause:
@@ -99,7 +99,7 @@ file:
             literal: '5'
         end_bracket: )
     - keyword: DO
-    - for_in_statement:
+    - for_in_statements:
       - statement:
           select_statement:
             select_clause:
@@ -185,7 +185,7 @@ file:
                     identifier: '`database.user`'
         end_bracket: )
     - keyword: DO
-    - for_in_statement:
+    - for_in_statements:
         statement:
           assert_statement:
             keyword: ASSERT

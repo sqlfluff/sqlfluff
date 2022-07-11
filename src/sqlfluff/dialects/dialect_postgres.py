@@ -23,6 +23,7 @@ from sqlfluff.core.parser import (
     SymbolSegment,
     StartsWith,
 )
+from sqlfluff.core.parser.segments.base import BracketedSegment
 
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser.grammar.anyof import AnySetOf
@@ -187,7 +188,7 @@ postgres_dialect.sets("datetime_units").update(
 postgres_dialect.sets("date_part_function_name").clear()
 
 # In Postgres, UNNEST() returns a "value table", similar to BigQuery
-postgres_dialect.sets("value_table_functions").update(["unnest"])
+postgres_dialect.sets("value_table_functions").update(["UNNEST", "GENERATE_SERIES"])
 
 postgres_dialect.add(
     JsonOperatorSegment=NamedParser(
@@ -207,6 +208,19 @@ postgres_dialect.add(
     MultilineConcatenateDelimiterGrammar=AnyNumberOf(
         Ref("MultilineConcatenateNewline"), min_times=1, allow_gaps=False
     ),
+    # Add a Full equivalent which also allow keywords
+    NakedIdentifierFullSegment=RegexParser(
+        r"[A-Z_][A-Z0-9_]*",
+        CodeSegment,
+        name="naked_identifier_all",
+        type="identifier",
+    ),
+    SingleIdentifierFullGrammar=OneOf(
+        Ref("NakedIdentifierSegment"),
+        Ref("QuotedIdentifierSegment"),
+        Ref("NakedIdentifierFullSegment"),
+    ),
+    CascadeRestrictGrammar=OneOf("CASCADE", "RESTRICT"),
 )
 
 postgres_dialect.replace(
@@ -240,7 +254,7 @@ postgres_dialect.replace(
         )
     ),
     ParameterNameSegment=RegexParser(
-        r"[A-Z_][A-Z0-9_$]*", CodeSegment, name="parameter", type="parameter"
+        r'[A-Z_][A-Z0-9_$]*|"[^"]*"', CodeSegment, name="parameter", type="parameter"
     ),
     FunctionNameIdentifierSegment=RegexParser(
         r"[A-Z_][A-Z0-9_$]*",
@@ -358,13 +372,6 @@ postgres_dialect.replace(
         ),
     ),
     FrameClauseUnitGrammar=OneOf("RANGE", "ROWS", "GROUPS"),
-    # In Postgres, column references may be followed by a time zone cast in all cases.
-    # For more information, see
-    # https://www.postgresql.org/docs/11/functions-datetime.html
-    ColumnReferenceSegment=Sequence(
-        ansi.ColumnReferenceSegment,
-        Ref("ArrayAccessorSegment", optional=True),
-    ),
     # Postgres supports the non-standard ISNULL and NONNULL comparison operators. See
     # https://www.postgresql.org/docs/14/functions-comparison.html
     IsNullGrammar=Ref.keyword("ISNULL"),
@@ -378,6 +385,20 @@ postgres_dialect.replace(
         "LIMIT",
         Ref("CommaSegment"),
         Ref("SetOperatorSegment"),
+    ),
+    SelectClauseSegmentGrammar=Sequence(
+        "SELECT",
+        Ref("SelectClauseModifierSegment", optional=True),
+        Indent,
+        Delimited(
+            Ref("SelectClauseElementSegment"),
+            # In Postgres you don't need an element so make it optional
+            optional=True,
+            allow_trailing=True,
+        ),
+        # NB: The Dedent for the indent above lives in the
+        # SelectStatementSegment so that it sits in the right
+        # place corresponding to the whitespace.
     ),
     LiteralGrammar=OneOf(
         Ref("QuotedLiteralSegment"),
@@ -401,6 +422,7 @@ postgres_dialect.replace(
         "WINDOW",
         "OVERLAPS",
         "RETURNING",
+        Sequence("ON", "CONFLICT"),
     ),
     OrderByClauseTerminators=OneOf(
         "LIMIT",
@@ -479,7 +501,6 @@ class PsqlVariableGrammar(BaseSegment):
             OneOf(
                 Ref("ParameterNameSegment"),
                 Ref("QuotedLiteralSegment"),
-                Ref("QuotedIdentifierSegment"),
             ),
         )
     )
@@ -671,7 +692,7 @@ class CreateFunctionStatementSegment(ansi.CreateFunctionStatementSegment):
         Sequence("OR", "REPLACE", optional=True),
         Ref("TemporaryGrammar", optional=True),
         "FUNCTION",
-        Sequence("IF", "NOT", "EXISTS", optional=True),
+        Ref("IfNotExistsGrammar", optional=True),
         Ref("FunctionNameSegment"),
         Ref("FunctionParameterListGrammar"),
         Sequence(  # Optional function return type
@@ -1009,25 +1030,29 @@ class IntoClauseSegment(BaseSegment):
 class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     """Overrides ANSI Statement, to allow for SELECT INTO statements."""
 
-    match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar
-    parse_grammar = Sequence(
-        Ref("SelectClauseSegment"),
-        # Dedent for the indent in the select clause.
-        # It's here so that it can come AFTER any whitespace.
-        Dedent,
-        Ref("IntoClauseSegment", optional=True),
-        Ref("FromClauseSegment", optional=True),
-        Ref("WhereClauseSegment", optional=True),
-        Ref("GroupByClauseSegment", optional=True),
-        Ref("HavingClauseSegment", optional=True),
-        Ref("OverlapsClauseSegment", optional=True),
+    match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar.copy()
+    match_grammar.terminator = match_grammar.terminator.copy(  # type: ignore
+        insert=[
+            Sequence("ON", "CONFLICT"),
+        ],
+    )
+    parse_grammar = ansi.UnorderedSelectStatementSegment.parse_grammar.copy(
+        insert=[
+            Ref("IntoClauseSegment", optional=True),
+        ],
+        before=Ref("FromClauseSegment", optional=True),
     )
 
 
 class SelectStatementSegment(ansi.SelectStatementSegment):
     """Overrides ANSI as the parse grammar copy needs to be reapplied."""
 
-    match_grammar = ansi.SelectStatementSegment.match_grammar
+    match_grammar = ansi.SelectStatementSegment.match_grammar.copy()
+    match_grammar.terminator = match_grammar.terminator.copy(  # type: ignore
+        insert=[
+            Sequence("ON", "CONFLICT"),
+        ],
+    )
     parse_grammar = UnorderedSelectStatementSegment.parse_grammar.copy(
         insert=[
             Ref("OrderByClauseSegment", optional=True),
@@ -1084,13 +1109,120 @@ class WithinGroupClauseSegment(BaseSegment):
     match_grammar = Sequence(
         "WITHIN",
         "GROUP",
-        Bracketed(Anything(optional=True)),
+        Bracketed(Ref("OrderByClauseSegment", optional=True)),
     )
 
+
+class CubeRollupClauseSegment(BaseSegment):
+    """`CUBE` / `ROLLUP` clause within the `GROUP BY` clause.
+
+    https://www.postgresql.org/docs/current/queries-table-expressions.html#QUERIES-GROUPING-SETS
+    """
+
+    type = "cube_rollup_clause"
+    match_grammar = StartsWith(
+        OneOf("CUBE", "ROLLUP"),
+        terminator=OneOf(
+            "HAVING",
+            "QUALIFY",
+            Sequence("ORDER", "BY"),
+            "LIMIT",
+            "WINDOW",
+            Ref("SetOperatorSegment"),
+        ),
+    )
     parse_grammar = Sequence(
-        "WITHIN",
+        OneOf("CUBE", "ROLLUP"),
+        Bracketed(
+            Ref("GroupingExpressionList"),
+        ),
+    )
+
+
+class GroupingSetsClauseSegment(BaseSegment):
+    """`GROUPING SETS` clause within the `GROUP BY` clause.
+
+    https://www.postgresql.org/docs/current/queries-table-expressions.html#QUERIES-GROUPING-SETS
+    """
+
+    type = "grouping_sets_clause"
+    match_grammar = StartsWith(
+        Sequence("GROUPING", "SETS"),
+        terminator=OneOf(
+            "HAVING",
+            "QUALIFY",
+            Sequence("ORDER", "BY"),
+            "LIMIT",
+            "WINDOW",
+            Ref("SetOperatorSegment"),
+        ),
+    )
+    parse_grammar = Sequence(
+        "GROUPING",
+        "SETS",
+        Bracketed(
+            Delimited(
+                Ref("CubeRollupClauseSegment"),
+                Ref("GroupingExpressionList"),
+            )
+        ),
+    )
+
+
+class GroupingExpressionList(BaseSegment):
+    """Grouping expression list within `CUBE` / `ROLLUP` `GROUPING SETS`."""
+
+    type = "grouping_expression_list"
+    match_grammar = Delimited(
+        OneOf(
+            Bracketed(Delimited(Ref("ExpressionSegment"))),
+            Ref("ExpressionSegment"),
+            Bracketed(),  # Allows empty parentheses
+        )
+    )
+
+
+class GroupByClauseSegment(BaseSegment):
+    """A `GROUP BY` clause like in `SELECT`."""
+
+    type = "groupby_clause"
+    match_grammar = StartsWith(
+        Sequence("GROUP", "BY"),
+        terminator=OneOf(
+            Sequence("ORDER", "BY"),
+            "LIMIT",
+            "HAVING",
+            "QUALIFY",
+            "WINDOW",
+            Ref("SetOperatorSegment"),
+        ),
+        enforce_whitespace_preceding_terminator=True,
+    )
+    parse_grammar = Sequence(
         "GROUP",
-        Bracketed(Ref("OrderByClauseSegment", optional=True)),
+        "BY",
+        Indent,
+        Delimited(
+            OneOf(
+                Ref("ColumnReferenceSegment"),
+                # Can `GROUP BY 1`
+                Ref("NumericLiteralSegment"),
+                # Can `GROUP BY coalesce(col, 1)`
+                Ref("ExpressionSegment"),
+                Ref("CubeRollupClauseSegment"),
+                Ref("GroupingSetsClauseSegment"),
+                Bracketed(),  # Allows empty parentheses
+            ),
+            terminator=OneOf(
+                Sequence("ORDER", "BY"),
+                "LIMIT",
+                "HAVING",
+                "QUALIFY",
+                "WINDOW",
+                Ref("SetOperatorSegment"),
+            ),
+        ),
+        Dedent,
     )
 
 
@@ -1288,13 +1420,16 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                             Sequence(
                                 Ref("ColumnReferenceSegment"),
                                 Ref("DatatypeSegment"),
-                                Sequence(
-                                    "COLLATE",
-                                    Ref("QuotedLiteralSegment"),
-                                    optional=True,
-                                ),
                                 AnyNumberOf(
-                                    Ref("ColumnConstraintSegment", optional=True)
+                                    # A single COLLATE segment can come before or after
+                                    # constraint segments
+                                    OneOf(
+                                        Ref("ColumnConstraintSegment"),
+                                        Sequence(
+                                            "COLLATE",
+                                            Ref("ObjectReferenceSegment"),
+                                        ),
+                                    ),
                                 ),
                             ),
                             Ref("TableConstraintSegment"),
@@ -1490,7 +1625,7 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
         "TABLE",
         OneOf(
             Sequence(
-                Sequence("IF", "EXISTS", optional=True),
+                Ref("IfExistsGrammar", optional=True),
                 Ref.keyword("ONLY", optional=True),
                 Ref("TableReferenceSegment"),
                 Ref("StarSegment", optional=True),
@@ -1515,7 +1650,7 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                 ),
             ),
             Sequence(
-                Sequence("IF", "EXISTS", optional=True),
+                Ref("IfExistsGrammar", optional=True),
                 Ref("TableReferenceSegment"),
                 OneOf(
                     Sequence("RENAME", "TO", Ref("TableReferenceSegment")),
@@ -1572,7 +1707,7 @@ class AlterTableActionSegment(BaseSegment):
         Sequence(
             "ADD",
             Ref.keyword("COLUMN", optional=True),
-            Sequence("IF", "NOT", "EXISTS", optional=True),
+            Ref("IfNotExistsGrammar", optional=True),
             Ref("ColumnReferenceSegment"),
             Ref("DatatypeSegment"),
             Sequence("COLLATE", Ref("QuotedLiteralSegment"), optional=True),
@@ -1581,7 +1716,7 @@ class AlterTableActionSegment(BaseSegment):
         Sequence(
             "DROP",
             Ref.keyword("COLUMN", optional=True),
-            Sequence("IF", "EXISTS", optional=True),
+            Ref("IfExistsGrammar", optional=True),
             Ref("ColumnReferenceSegment"),
             Ref("DropBehaviorGrammar", optional=True),
         ),
@@ -1611,7 +1746,7 @@ class AlterTableActionSegment(BaseSegment):
                 ),
                 Sequence("DROP", "DEFAULT"),
                 Sequence(OneOf("SET", "DROP", optional=True), "NOT", "NULL"),
-                Sequence("DROP", "EXPRESSION", Sequence("IF", "EXISTS", optional=True)),
+                Sequence("DROP", "EXPRESSION", Ref("IfExistsGrammar", optional=True)),
                 Sequence(
                     "ADD",
                     "GENERATED",
@@ -1635,7 +1770,11 @@ class AlterTableActionSegment(BaseSegment):
                         ),
                     )
                 ),
-                Sequence("DROP", "IDENTITY", Sequence("IF", "EXISTS", optional=True)),
+                Sequence(
+                    "DROP",
+                    "IDENTITY",
+                    Ref("IfExistsGrammar", optional=True),
+                ),
                 Sequence("SET", "STATISTICS", Ref("NumericLiteralSegment")),
                 Sequence(
                     "SET",
@@ -1684,7 +1823,7 @@ class AlterTableActionSegment(BaseSegment):
         Sequence(
             "DROP",
             "CONSTRAINT",
-            Sequence("IF", "EXISTS", optional=True),
+            Ref("IfExistsGrammar", optional=True),
             Ref("ParameterNameSegment"),
             Ref("DropBehaviorGrammar", optional=True),
         ),
@@ -1744,7 +1883,7 @@ class AlterTableActionSegment(BaseSegment):
             "OWNER",
             "TO",
             OneOf(
-                OneOf(Ref("ParameterNameSegment"), Ref("QuotedIdentifierSegment")),
+                Ref("ParameterNameSegment"),
                 "CURRENT_ROLE",
                 "CURRENT_USER",
                 "SESSION_USER",
@@ -1794,7 +1933,7 @@ class DropExtensionStatementSegment(BaseSegment):
         "EXTENSION",
         Ref("IfExistsGrammar", optional=True),
         Ref("ExtensionReferenceSegment"),
-        OneOf("CASCADE", "RESTRICT", optional=True),
+        Ref("CascadeRestrictGrammar", optional=True),
     )
 
 
@@ -1857,7 +1996,7 @@ class AlterMaterializedViewStatementSegment(BaseSegment):
         "VIEW",
         OneOf(
             Sequence(
-                Sequence("IF", "EXISTS", optional=True),
+                Ref("IfExistsGrammar", optional=True),
                 Ref("TableReferenceSegment"),
                 OneOf(
                     Delimited(Ref("AlterMaterializedViewActionSegment")),
@@ -1999,7 +2138,7 @@ class DropMaterializedViewStatementSegment(BaseSegment):
         "DROP",
         "MATERIALIZED",
         "VIEW",
-        Sequence("IF", "EXISTS", optional=True),
+        Ref("IfExistsGrammar", optional=True),
         Delimited(Ref("TableReferenceSegment")),
         Ref("DropBehaviorGrammar", optional=True),
     )
@@ -2216,7 +2355,7 @@ class DropDatabaseStatementSegment(ansi.DropDatabaseStatementSegment):
     match_grammar = Sequence(
         "DROP",
         "DATABASE",
-        Sequence("IF", "EXISTS", optional=True),
+        Ref("IfExistsGrammar", optional=True),
         Ref("DatabaseReferenceSegment"),
         Sequence(
             Ref.keyword("WITH", optional=True),
@@ -2654,7 +2793,7 @@ class CommentOnStatementSegment(BaseSegment):
     https://www.postgresql.org/docs/13/sql-comment.html
     """
 
-    type = "comment_on_statement"
+    type = "comment_clause"
 
     match_grammar = Sequence(
         "COMMENT",
@@ -2704,7 +2843,7 @@ class CommentOnStatementSegment(BaseSegment):
                 Sequence(
                     "FUNCTION",
                     Ref("FunctionNameSegment"),
-                    Ref("FunctionParameterListGrammar"),
+                    Sequence(Ref("FunctionParameterListGrammar"), optional=True),
                 ),
                 Sequence(
                     "INDEX",
@@ -2756,7 +2895,9 @@ class CommentOnStatementSegment(BaseSegment):
                         Sequence(
                             # TODO: Is this too permissive?
                             Anything(),
+                            optional=True,
                         ),
+                        optional=True,
                     ),
                 ),
             ),
@@ -3180,6 +3321,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterTypeStatementSegment"),
             Ref("AlterSchemaStatementSegment"),
             Ref("LockTableStatementSegment"),
+            Ref("CreateCollationStatementSegment"),
         ],
     )
 
@@ -3291,7 +3433,7 @@ class DropTriggerStatementSegment(ansi.DropTriggerStatementSegment):
     match_grammar = Sequence(
         "DROP",
         "TRIGGER",
-        Sequence("IF", "EXISTS", optional=True),
+        Ref("IfExistsGrammar", optional=True),
         Ref("TriggerReferenceSegment"),
         "ON",
         Ref("TableReferenceSegment"),
@@ -3554,17 +3696,18 @@ class CreateDomainStatementSegment(BaseSegment):
         Ref("DatatypeSegment"),
         Sequence("COLLATE", Ref("ObjectReferenceSegment"), optional=True),
         Sequence("DEFAULT", Ref("ExpressionSegment"), optional=True),
-        Sequence(
+        AnyNumberOf(
             Sequence(
-                "CONSTRAINT",
-                Ref("ObjectReferenceSegment"),
-                optional=True,
+                Sequence(
+                    "CONSTRAINT",
+                    Ref("ObjectReferenceSegment"),
+                    optional=True,
+                ),
+                OneOf(
+                    Sequence(Ref.keyword("NOT", optional=True), "NULL"),
+                    Sequence("CHECK", Ref("ExpressionSegment")),
+                ),
             ),
-            OneOf(
-                Sequence(Ref.keyword("NOT", optional=True), "NULL"),
-                Sequence("CHECK", Ref("ExpressionSegment")),
-            ),
-            optional=True,
         ),
     )
 
@@ -3926,10 +4069,7 @@ class CTEDefinitionSegment(ansi.CTEDefinitionSegment):
 
     match_grammar = Sequence(
         Ref("SingleIdentifierGrammar"),
-        Bracketed(
-            Ref("SingleIdentifierListSegment"),
-            optional=True,
-        ),
+        Ref("CTEColumnList", optional=True),
         "AS",
         Sequence("NOT", "MATERIALIZED", optional=True),
         Bracketed(
@@ -4050,6 +4190,7 @@ class SetClauseSegment(BaseSegment):
         OneOf(
             Sequence(
                 Ref("ColumnReferenceSegment"),
+                Ref("ArrayAccessorSegment", optional=True),
                 Ref("EqualsSegment"),
                 OneOf(
                     Ref("LiteralGrammar"),
@@ -4172,6 +4313,113 @@ class AlterTypeStatementSegment(BaseSegment):
                 "SCHEMA",
                 Ref("SchemaReferenceSegment"),
             ),
+            Delimited(
+                Sequence(
+                    "ADD",
+                    "ATTRIBUTE",
+                    Ref("ColumnReferenceSegment"),
+                    Ref("DatatypeSegment"),
+                    Sequence(
+                        "COLLATE",
+                        Ref("QuotedLiteralSegment"),
+                        optional=True,
+                    ),
+                    Ref("CascadeRestrictGrammar", optional=True),
+                ),
+                Sequence(
+                    "ALTER",
+                    "ATTRIBUTE",
+                    Ref("ColumnReferenceSegment"),
+                    Sequence("SET", "DATA", optional=True),
+                    "TYPE",
+                    Ref("DatatypeSegment"),
+                    Sequence(
+                        "COLLATE",
+                        Ref("QuotedLiteralSegment"),
+                        optional=True,
+                    ),
+                    Ref("CascadeRestrictGrammar", optional=True),
+                ),
+                Sequence(
+                    "DROP",
+                    "ATTRIBUTE",
+                    Ref("IfExistsGrammar", optional=True),
+                    Ref("ColumnReferenceSegment"),
+                    Ref("CascadeRestrictGrammar", optional=True),
+                ),
+                Sequence(
+                    "RENAME",
+                    "ATTRIBUTE",
+                    Ref("ColumnReferenceSegment"),
+                    "TO",
+                    Ref("ColumnReferenceSegment"),
+                    Ref("CascadeRestrictGrammar", optional=True),
+                ),
+            ),
+            Sequence(
+                "ADD",
+                "VALUE",
+                Ref("IfNotExistsGrammar", optional=True),
+                Ref("QuotedLiteralSegment"),
+                Sequence(
+                    OneOf("BEFORE", "AFTER"), Ref("QuotedLiteralSegment"), optional=True
+                ),
+            ),
+        ),
+    )
+
+
+class CreateCollationStatementSegment(BaseSegment):
+    """A `CREATE COLLATION` statement.
+
+    https://www.postgresql.org/docs/current/sql-createcollation.html
+    """
+
+    type = "create_collation_statement"
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        "COLLATION",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        "LOCALE",
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Sequence(
+                        "LC_COLLATE",
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Sequence(
+                        "LC_CTYPE",
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Sequence(
+                        "PROVIDER",
+                        Ref("EqualsSegment"),
+                        OneOf("ICU", "LIBC"),
+                    ),
+                    Sequence(
+                        "DETERMINISTIC",
+                        Ref("EqualsSegment"),
+                        Ref("BooleanLiteralGrammar"),
+                    ),
+                    Sequence(
+                        "VERSION",
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                )
+            ),
+            Sequence(
+                "FROM",
+                Ref("ObjectReferenceSegment"),
+            ),
         ),
     )
 
@@ -4235,4 +4483,44 @@ class LockTableStatementSegment(BaseSegment):
             optional=True,
         ),
         Ref.keyword("NOWAIT", optional=True),
+    )
+
+
+class ColumnReferenceSegment(ObjectReferenceSegment):
+    """A reference to column, field or alias.
+
+    We override this for Postgres to allow keywords in fully qualified column
+    names (using Full segments), similar to how this is done in BigQuery.
+    """
+
+    type = "column_reference"
+    match_grammar: Matchable = Sequence(
+        Ref("SingleIdentifierGrammar"),
+        Sequence(
+            OneOf(Ref("DotSegment"), Sequence(Ref("DotSegment"), Ref("DotSegment"))),
+            Delimited(
+                Ref("SingleIdentifierFullGrammar"),
+                delimiter=OneOf(
+                    Ref("DotSegment"), Sequence(Ref("DotSegment"), Ref("DotSegment"))
+                ),
+                terminator=OneOf(
+                    "ON",
+                    "AS",
+                    "USING",
+                    Ref("CommaSegment"),
+                    Ref("CastOperatorSegment"),
+                    Ref("StartSquareBracketSegment"),
+                    Ref("StartBracketSegment"),
+                    Ref("BinaryOperatorGrammar"),
+                    Ref("ColonSegment"),
+                    Ref("DelimiterGrammar"),
+                    Ref("JoinLikeClauseGrammar"),
+                    BracketedSegment,
+                ),
+                allow_gaps=False,
+            ),
+            allow_gaps=False,
+            optional=True,
+        ),
+        allow_gaps=False,
     )

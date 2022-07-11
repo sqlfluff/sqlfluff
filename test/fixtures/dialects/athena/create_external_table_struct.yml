@@ -1,0 +1,330 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: b65a5c19f8df641c2b8d1a2a192b8c6748d89977f7acd8c79d052ab77cb2dbc4
+file:
+  statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: external
+    - keyword: table
+    - table_reference:
+      - identifier: my_database
+      - dot: .
+      - identifier: my_table
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          identifier: '`date`'
+          data_type:
+            primitive_type:
+              keyword: string
+      - comma: ','
+      - column_definition:
+          identifier: campaignId
+          data_type:
+            primitive_type:
+              keyword: string
+      - comma: ','
+      - column_definition:
+          identifier: campaignName
+          data_type:
+            primitive_type:
+              keyword: string
+      - comma: ','
+      - column_definition:
+          identifier: deleted
+          data_type:
+            primitive_type:
+              keyword: string
+      - comma: ','
+      - column_definition:
+          identifier: campaignStatus
+          data_type:
+            primitive_type:
+              keyword: string
+      - comma: ','
+      - column_definition:
+          identifier: app
+          data_type:
+          - keyword: struct
+          - start_angle_bracket: <
+          - identifier: appName
+          - colon: ':'
+          - data_type:
+              primitive_type:
+                keyword: string
+          - comma: ','
+          - identifier: adamId
+          - colon: ':'
+          - data_type:
+              primitive_type:
+                keyword: string
+          - end_angle_bracket: '>'
+      - comma: ','
+      - column_definition:
+          identifier: servingStatus
+          data_type:
+            primitive_type:
+              keyword: string
+      - comma: ','
+      - column_definition:
+          identifier: servingStateReasons
+          data_type:
+            primitive_type:
+              keyword: string
+      - comma: ','
+      - column_definition:
+          identifier: countriesOrRegions
+          data_type:
+            keyword: array
+            start_angle_bracket: <
+            data_type:
+              primitive_type:
+                keyword: string
+            end_angle_bracket: '>'
+      - comma: ','
+      - column_definition:
+          identifier: modificationTime
+          data_type:
+            primitive_type:
+              keyword: string
+      - comma: ','
+      - column_definition:
+          identifier: totalBudget
+          data_type:
+          - keyword: struct
+          - start_angle_bracket: <
+          - identifier: amount
+          - colon: ':'
+          - data_type:
+              primitive_type:
+                keyword: int
+          - comma: ','
+          - identifier: currency
+          - colon: ':'
+          - data_type:
+              primitive_type:
+                keyword: string
+          - end_angle_bracket: '>'
+      - comma: ','
+      - column_definition:
+          identifier: dailyBudget
+          data_type:
+          - keyword: struct
+          - start_angle_bracket: <
+          - identifier: amount
+          - colon: ':'
+          - data_type:
+              primitive_type:
+                keyword: int
+          - comma: ','
+          - identifier: currency
+          - colon: ':'
+          - data_type:
+              primitive_type:
+                keyword: string
+          - end_angle_bracket: '>'
+      - comma: ','
+      - column_definition:
+          identifier: displayStatus
+          data_type:
+            primitive_type:
+              keyword: string
+      - comma: ','
+      - column_definition:
+          identifier: supplySources
+          data_type:
+            keyword: array
+            start_angle_bracket: <
+            data_type:
+              primitive_type:
+                keyword: string
+            end_angle_bracket: '>'
+      - comma: ','
+      - column_definition:
+          identifier: adChannelType
+          data_type:
+            primitive_type:
+              keyword: string
+      - comma: ','
+      - column_definition:
+          identifier: orgId
+          data_type:
+            primitive_type:
+              keyword: string
+      - comma: ','
+      - column_definition:
+          identifier: billingEvent
+          data_type:
+            primitive_type:
+              keyword: string
+      - comma: ','
+      - column_definition:
+          identifier: countryOrRegionServingStateReasons
+          data_type:
+            primitive_type:
+              keyword: string
+      - comma: ','
+      - column_definition:
+          identifier: other
+          data_type:
+            primitive_type:
+              keyword: boolean
+      - comma: ','
+      - column_definition:
+          identifier: impressions
+          data_type:
+            primitive_type:
+              keyword: int
+      - comma: ','
+      - column_definition:
+          identifier: taps
+          data_type:
+            primitive_type:
+              keyword: int
+      - comma: ','
+      - column_definition:
+          identifier: installs
+          data_type:
+            primitive_type:
+              keyword: int
+      - comma: ','
+      - column_definition:
+          identifier: newDownloads
+          data_type:
+            primitive_type:
+              keyword: int
+      - comma: ','
+      - column_definition:
+          identifier: redownloads
+          data_type:
+            primitive_type:
+              keyword: int
+      - comma: ','
+      - column_definition:
+          identifier: latOnInstalls
+          data_type:
+            primitive_type:
+              keyword: int
+      - comma: ','
+      - column_definition:
+          identifier: latOffInstalls
+          data_type:
+            primitive_type:
+              keyword: int
+      - comma: ','
+      - column_definition:
+          identifier: ttr
+          data_type:
+            primitive_type:
+              keyword: int
+      - comma: ','
+      - column_definition:
+          identifier: avgCPA
+          data_type:
+          - keyword: struct
+          - start_angle_bracket: <
+          - identifier: amount
+          - colon: ':'
+          - data_type:
+              primitive_type:
+                keyword: int
+          - comma: ','
+          - identifier: currency
+          - colon: ':'
+          - data_type:
+              primitive_type:
+                keyword: string
+          - end_angle_bracket: '>'
+      - comma: ','
+      - column_definition:
+          identifier: avgCPT
+          data_type:
+          - keyword: struct
+          - start_angle_bracket: <
+          - identifier: amount
+          - colon: ':'
+          - data_type:
+              primitive_type:
+                keyword: int
+          - comma: ','
+          - identifier: currency
+          - colon: ':'
+          - data_type:
+              primitive_type:
+                keyword: string
+          - end_angle_bracket: '>'
+      - comma: ','
+      - column_definition:
+          identifier: avgCPM
+          data_type:
+          - keyword: struct
+          - start_angle_bracket: <
+          - identifier: amount
+          - colon: ':'
+          - data_type:
+              primitive_type:
+                keyword: int
+          - comma: ','
+          - identifier: currency
+          - colon: ':'
+          - data_type:
+              primitive_type:
+                keyword: string
+          - end_angle_bracket: '>'
+      - comma: ','
+      - column_definition:
+          identifier: localSpend
+          data_type:
+          - keyword: struct
+          - start_angle_bracket: <
+          - identifier: amount
+          - colon: ':'
+          - data_type:
+              primitive_type:
+                keyword: int
+          - comma: ','
+          - identifier: currency
+          - colon: ':'
+          - data_type:
+              primitive_type:
+                keyword: string
+          - end_angle_bracket: '>'
+      - comma: ','
+      - column_definition:
+          identifier: conversionRate
+          data_type:
+            primitive_type:
+              keyword: int
+      - end_bracket: )
+    - keyword: PARTITIONED
+    - keyword: BY
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          identifier: field_partition
+          data_type:
+            primitive_type:
+              keyword: string
+        end_bracket: )
+    - row_format_clause:
+      - keyword: ROW
+      - keyword: FORMAT
+      - keyword: DELIMITED
+      - keyword: FIELDS
+      - keyword: TERMINATED
+      - keyword: BY
+      - literal: "','"
+      - keyword: ESCAPED
+      - keyword: BY
+      - literal: "'\\\\'"
+      - keyword: LINES
+      - keyword: TERMINATED
+      - keyword: BY
+      - literal: "'\\n'"
+    - keyword: LOCATION
+    - raw: "'s3://athena-examples-myregion/flight/csv/'"
+  statement_terminator: ;

@@ -3,23 +3,24 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 71c37fda083d9cb57258a02461686c2d84ec45670d26eaadcb91c9850a113ed3
+_hash: f1fe1f3849303d271a43b34e746a174e8bf3d6e2c0f82fb8adf021cfbf57f49b
 file:
   batch:
     statement:
       with_compound_statement:
         keyword: WITH
         common_table_expression:
-        - identifier: Sales_CTE
-        - bracketed:
-            start_bracket: (
-            identifier_list:
-            - identifier: SalesPersonID
-            - comma: ','
-            - identifier: NumberOfOrders
-            end_bracket: )
-        - keyword: AS
-        - bracketed:
+          identifier: Sales_CTE
+          cte_column_list:
+            bracketed:
+              start_bracket: (
+              identifier_list:
+              - identifier: SalesPersonID
+              - comma: ','
+              - identifier: NumberOfOrders
+              end_bracket: )
+          keyword: AS
+          bracketed:
             start_bracket: (
             select_statement:
               select_clause:

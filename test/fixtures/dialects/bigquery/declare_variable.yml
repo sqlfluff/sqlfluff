@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 314dd609dfc7087e8874e235ab1c8d78bfbec61c644eba51fa7caad598e574ea
+_hash: af396f44cfc07a0f471d2e1a006727d4a664c4cb2022f470778e2ebfc39ea6ef
 file:
 - statement:
     declare_segment:
@@ -99,32 +99,34 @@ file:
       keyword: declare
       identifier: str1
       data_type:
-      - keyword: struct
-      - start_angle_bracket: <
-      - parameter: f1
-      - data_type:
-          data_type_identifier: string
-      - comma: ','
-      - parameter: f2
-      - data_type:
-          data_type_identifier: string
-      - end_angle_bracket: '>'
+        struct_type:
+        - keyword: struct
+        - start_angle_bracket: <
+        - parameter: f1
+        - data_type:
+            data_type_identifier: string
+        - comma: ','
+        - parameter: f2
+        - data_type:
+            data_type_identifier: string
+        - end_angle_bracket: '>'
 - statement_terminator: ;
 - statement:
     declare_segment:
     - keyword: declare
     - identifier: str2
     - data_type:
-      - keyword: struct
-      - start_angle_bracket: <
-      - parameter: f1
-      - data_type:
-          data_type_identifier: string
-      - comma: ','
-      - parameter: f2
-      - data_type:
-          data_type_identifier: string
-      - end_angle_bracket: '>'
+        struct_type:
+        - keyword: struct
+        - start_angle_bracket: <
+        - parameter: f1
+        - data_type:
+            data_type_identifier: string
+        - comma: ','
+        - parameter: f2
+        - data_type:
+            data_type_identifier: string
+        - end_angle_bracket: '>'
     - keyword: default
     - expression:
         typeless_struct:
@@ -156,16 +158,17 @@ file:
     - keyword: declare
     - identifier: str4
     - data_type:
-      - keyword: struct
-      - start_angle_bracket: <
-      - parameter: f1
-      - data_type:
-          data_type_identifier: string
-      - comma: ','
-      - parameter: f2
-      - data_type:
-          data_type_identifier: string
-      - end_angle_bracket: '>'
+        struct_type:
+        - keyword: struct
+        - start_angle_bracket: <
+        - parameter: f1
+        - data_type:
+            data_type_identifier: string
+        - comma: ','
+        - parameter: f2
+        - data_type:
+            data_type_identifier: string
+        - end_angle_bracket: '>'
     - keyword: default
     - tuple:
         bracketed:

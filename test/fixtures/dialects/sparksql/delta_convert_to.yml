@@ -1,0 +1,65 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 2c7c05978f82e2fc0f6dbdf7d8f1ae11b70b24c3d2ca90a2288bd6d145ae5a08
+file:
+- statement:
+    convert_to_delta_statement:
+    - keyword: CONVERT
+    - keyword: TO
+    - keyword: DELTA
+    - file_reference:
+        keyword: PARQUET
+        dot: .
+        identifier: '`/data/events/`'
+- statement_terminator: ;
+- statement:
+    convert_to_delta_statement:
+    - keyword: CONVERT
+    - keyword: TO
+    - keyword: DELTA
+    - file_reference:
+        keyword: PARQUET
+        dot: .
+        identifier: '`/data/events/`'
+    - keyword: PARTITIONED
+    - keyword: BY
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          identifier: part
+          data_type:
+            primitive_type:
+              keyword: int
+      - comma: ','
+      - column_definition:
+          identifier: part2
+          data_type:
+            primitive_type:
+              keyword: int
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    convert_to_delta_statement:
+    - keyword: CONVERT
+    - keyword: TO
+    - keyword: DELTA
+    - file_reference:
+        keyword: ICEBERG
+        dot: .
+        identifier: '`/data/events/`'
+- statement_terminator: ;
+- statement:
+    convert_to_delta_statement:
+    - keyword: CONVERT
+    - keyword: TO
+    - keyword: DELTA
+    - file_reference:
+        keyword: ICEBERG
+        dot: .
+        identifier: '`/data/events/`'
+    - keyword: 'NO'
+    - keyword: STATISTICS
+- statement_terminator: ;

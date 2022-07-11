@@ -219,6 +219,80 @@ test_pass_indented_using_on_merge_statment_false:
     indentation:
       indented_using_on: false
 
+test_pass_indented_on_contents_default:
+  # Test indented_on_contents when default (true)
+  pass_str: |
+    SELECT
+        r.a,
+        s.b
+    FROM r
+    JOIN s
+        ON r.a = s.a
+            AND true
+
+test_pass_indented_on_contents_true:
+  # Test indented_on_contents when true (default)
+  pass_str: |
+    SELECT
+        r.a,
+        s.b
+    FROM r
+    JOIN s
+        ON r.a = s.a
+            AND true
+  configs:
+    indentation:
+      indented_on_contents: true
+
+test_pass_indented_on_contents_false:
+  # Test indented_on_contents when false (non-default)
+  pass_str: |
+    SELECT
+        r.a,
+        s.b
+    FROM r
+    JOIN s
+        ON r.a = s.a
+        AND true
+  configs:
+    indentation:
+      indented_on_contents: false
+test_fail_indented_on_contents_default_fix:
+# Default config for indented_on_contents is true
+  fail_str: |
+    SELECT *
+    FROM t1
+    JOIN t2
+        ON true
+    AND true
+  fix_str: |
+    SELECT *
+    FROM t1
+    JOIN t2
+        ON true
+            AND true
+
+test_fail_indented_on_contents_false_fix:
+  fail_str: |
+    SELECT
+        t1.a,
+        t2.b
+    FROM t1
+    JOIN t2
+        ON true
+    AND true
+  fix_str: |
+    SELECT
+        t1.a,
+        t2.b
+    FROM t1
+    JOIN t2
+        ON true
+        AND true
+  configs:
+    indentation:
+      indented_on_contents: false
+
 test_pass_indented_from_with_comment:
   pass_str: |
     SELECT *

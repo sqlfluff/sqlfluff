@@ -11,9 +11,8 @@ Within .dialects, each dialect is free to depend on other dialects as
 required. Any dependent dialects will be loaded as needed.
 """
 
-from typing import NamedTuple, Iterator
 from importlib import import_module
-
+from typing import Iterator, NamedTuple
 
 # Eventually it would be a good to dynamically discover dialects
 # from any module beginning with "dialect_" within this folder.
@@ -22,7 +21,9 @@ from sqlfluff.core.errors import SQLFluffUserError
 
 _dialect_lookup = {
     "ansi": ("dialect_ansi", "ansi_dialect"),
+    "athena": ("dialect_athena", "athena_dialect"),
     "bigquery": ("dialect_bigquery", "bigquery_dialect"),
+    "clickhouse": ("dialect_clickhouse", "clickhouse_dialect"),
     "db2": ("dialect_db2", "db2_dialect"),
     "exasol": ("dialect_exasol", "exasol_dialect"),
     "hive": ("dialect_hive", "hive_dialect"),
@@ -36,6 +37,7 @@ _dialect_lookup = {
     "teradata": ("dialect_teradata", "teradata_dialect"),
     "tsql": ("dialect_tsql", "tsql_dialect"),
     "sparksql": ("dialect_sparksql", "sparksql_dialect"),
+    "databricks": ("dialect_sparksql", "sparksql_dialect"),
 }
 
 _legacy_dialects = {
