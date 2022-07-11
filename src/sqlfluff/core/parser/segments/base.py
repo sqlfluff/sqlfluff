@@ -13,7 +13,7 @@ from collections.abc import MutableSet
 from copy import deepcopy
 from dataclasses import dataclass, field, replace
 from io import StringIO
-from itertools import takewhile
+from itertools import takewhile, chain
 from typing import (
     Any,
     Callable,
@@ -22,6 +22,7 @@ from typing import (
     List,
     Tuple,
     Iterator,
+    TYPE_CHECKING,
 )
 import logging
 
@@ -47,8 +48,30 @@ from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.templaters.base import TemplatedFile
 
+if TYPE_CHECKING:
+    from sqlfluff.core.rules.base import LintFix  # pragma: no cover
+
 # Instantiate the linter logger (only for use in methods involved with fixing.)
 linter_logger = logging.getLogger("sqlfluff.linter")
+
+
+@dataclass(frozen=True)
+class SourceFix:
+    """A stored reference to a fix in the non-templated file."""
+
+    edit: str
+    source_slice: slice
+    # TODO: It might be possible to refactor this to not require
+    # a templated_slice (because in theory it's unnecessary).
+    # However much of the fix handling code assumes we need
+    # a position in the templated file to interpret it.
+    # More work required to achieve that if desired.
+    templated_slice: slice
+
+    def __hash__(self):
+        # Only hash based on the source slice, not the
+        # templated slice (which might change)
+        return hash((self.edit, self.source_slice.start, self.source_slice.stop))
 
 
 @dataclass
@@ -108,10 +131,42 @@ class AnchorEditInfo:
     create_before: int = field(default=0)
     create_after: int = field(default=0)
     fixes: List = field(default_factory=list)
+    source_fixes: List = field(default_factory=list)
+    # First fix of edit_type "replace" in "fixes"
+    _first_replace: Optional["LintFix"] = field(default=None)
 
-    def add(self, fix):
-        """Adds the fix and updates stats."""
+    def add(self, fix: "LintFix"):
+        """Adds the fix and updates stats.
+
+        We also allow potentially multiple source fixes on the same
+        anchor by condensing them together here.
+        """
+        if fix.is_just_source_edit():
+            assert fix.edit
+            # is_just_source_edit confirms there will be a list
+            # so we can hint that to mypy.
+            self.source_fixes += fix.edit[0].source_fixes
+            # is there already a replace?
+            if self._first_replace:
+                assert self._first_replace.edit
+                # is_just_source_edit confirms there will be a list
+                # and that's the only way to get into _first_replace
+                # if it's populated so we can hint that to mypy.
+                linter_logger.info(
+                    "Multiple edits detected, condensing %s onto %s",
+                    fix,
+                    self._first_replace,
+                )
+                self._first_replace.edit[0] = self._first_replace.edit[0].edit(
+                    source_fixes=self.source_fixes
+                )
+                linter_logger.info("Condensed fix: %s", self._first_replace)
+                # Return without otherwise adding in this fix.
+                return
+
         self.fixes.append(fix)
+        if fix.edit_type == "replace" and not self._first_replace:
+            self._first_replace = fix
         setattr(self, fix.edit_type, getattr(self, fix.edit_type) + 1)
 
     @property
@@ -346,6 +401,11 @@ class BaseSegment:
     def raw_segments(self) -> List["BaseSegment"]:
         """Returns a list of raw segments in this segment."""
         return self.get_raw_segments()
+
+    @cached_property
+    def source_fixes(self) -> List[SourceFix]:
+        """Return any source fixes as list."""
+        return list(chain.from_iterable(s.source_fixes for s in self.segments))
 
     @cached_property
     def first_non_whitespace_segment_raw_upper(self) -> Optional[str]:
@@ -669,6 +729,7 @@ class BaseSegment:
             "matched_length",
             "raw_segments",
             "first_non_whitespace_segment_raw_upper",
+            "source_fixes",
         ]:
             self.__dict__.pop(key, None)
 
@@ -1260,7 +1321,9 @@ class BaseSegment:
             return self, [], []
 
     @classmethod
-    def compute_anchor_edit_info(cls, fixes) -> Dict[int, AnchorEditInfo]:
+    def compute_anchor_edit_info(
+        cls, fixes: List["LintFix"]
+    ) -> Dict[int, AnchorEditInfo]:
         """Group and count fixes by anchor, return dictionary."""
         anchor_info = defaultdict(AnchorEditInfo)  # type: ignore
         for fix in fixes:
@@ -1299,6 +1362,25 @@ class BaseSegment:
     def _log_apply_fixes_check_issue(message, *args):  # pragma: no cover
         linter_logger.critical(message, exc_info=True, *args)
 
+    def _iter_source_fix_patches(
+        self, templated_file: TemplatedFile
+    ) -> Iterator[FixPatch]:
+        """Yield any source patches as fixes now.
+
+        NOTE: This yields source fixes for the segment and any of its
+        children, so it's important to call it at the right point in
+        the recursion to avoid yielding duplicates.
+        """
+        for source_fix in self.source_fixes:
+            yield FixPatch(
+                source_fix.templated_slice,
+                source_fix.edit,
+                patch_category="source",
+                source_slice=source_fix.source_slice,
+                templated_str=templated_file.templated_str[source_fix.templated_slice],
+                source_str=templated_file.source_str[source_fix.source_slice],
+            )
+
     def iter_patches(self, templated_file: TemplatedFile) -> Iterator[FixPatch]:
         """Iterate through the segments generating fix patches.
 
@@ -1311,9 +1393,12 @@ class BaseSegment:
         """
         # Does it match? If so we can ignore it.
         assert self.pos_marker
-        templated_str = templated_file.templated_str
-        matches = self.raw == templated_str[self.pos_marker.templated_slice]
+        templated_raw = templated_file.templated_str[self.pos_marker.templated_slice]
+        matches = self.raw == templated_raw
         if matches:
+            # First yield any source fixes
+            yield from self._iter_source_fix_patches(templated_file)
+            # Then return.
             return
 
         # If we're here, the segment doesn't match the original.
@@ -1321,13 +1406,15 @@ class BaseSegment:
             "%s at %s: Original: [%r] Fixed: [%r]",
             type(self).__name__,
             self.pos_marker.templated_slice,
-            templated_str[self.pos_marker.templated_slice],
+            templated_raw,
             self.raw,
         )
 
         # If it's all literal, then we don't need to recurse.
         if self.pos_marker.is_literal():
-            # Yield the position in the source file and the patch
+            # First yield any source fixes
+            yield from self._iter_source_fix_patches(templated_file)
+            # Then yield the position in the source file and the patch
             yield FixPatch.infer_from_template(
                 self.pos_marker.templated_slice,
                 self.raw,
@@ -1419,7 +1506,9 @@ class BaseSegment:
                     source_str=templated_file.source_str[source_slice],
                 )
 
-    def edit(self, raw):
+    def edit(
+        self, raw: Optional[str] = None, source_fixes: Optional[List[SourceFix]] = None
+    ):
         """Stub."""
         raise NotImplementedError()
 
