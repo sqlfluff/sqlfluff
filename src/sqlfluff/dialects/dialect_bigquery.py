@@ -1051,7 +1051,7 @@ class TypelessStructSegment(ansi.TypelessStructSegment):
     match_grammar = Sequence(
         "STRUCT",
         Bracketed(
-            Delimited(  # Comma-separated list of field names/types
+            Delimited(
                 Sequence(
                     Ref("BaseExpressionElementGrammar"),
                     Ref("AliasExpressionSegment", optional=True),
