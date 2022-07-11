@@ -20,7 +20,6 @@ from sqlfluff.core.parser import (
     Delimited,
     GreedyUntil,
     Indent,
-    KeywordSegment,
     Matchable,
     NamedParser,
     Nothing,

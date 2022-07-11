@@ -2621,6 +2621,7 @@ class TypelessArraySegment(BaseSegment):
 
 class StructTypeSegment(BaseSegment):
     """Expression to construct a STRUCT datatype.
+
     (Used in BigQuery for example)
     """
 
