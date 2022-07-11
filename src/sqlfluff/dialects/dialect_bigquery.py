@@ -1635,15 +1635,9 @@ class InsertStatementSegment(ansi.InsertStatementSegment):
         "INSERT",
         Ref.keyword("INTO", optional=True),
         Ref("TableReferenceSegment"),
-        OneOf(
-            # As SelectableGrammar can be bracketed too, the parse gets confused
-            # so we need slightly odd syntax here to allow those to parse (rather
-            # than just add optional=True to BracketedColumnReferenceListGrammar).
+        Sequence(
+            Ref("BracketedColumnReferenceListGrammar", optional=True),
             Ref("SelectableGrammar"),
-            Sequence(
-                Ref("BracketedColumnReferenceListGrammar"),
-                Ref("SelectableGrammar"),
-            ),
         ),
     )
 
