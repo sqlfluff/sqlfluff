@@ -1045,28 +1045,18 @@ class StructTypeSegment(ansi.StructTypeSegment):
 class TypelessStructSegment(ansi.TypelessStructSegment):
     """Expression to construct a STRUCT with implicit types.
 
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-types#typeless_struct_syntax
+    """
+
     match_grammar = Sequence(
         "STRUCT",
         Bracketed(
             Delimited(  # Comma-separated list of field names/types
                 Sequence(
-                    OneOf(
-                        # ParameterNames can look like Datatypes so can't use
-                        # Optional=True here and instead do a OneOf in order
-                        # with DataType only first, followed by both.
-                        Ref("DatatypeSegment"),
-                        Sequence(
-                            Ref("ParameterNameSegment"),
-                            Ref("DatatypeSegment"),
-                        ),
-                    ),
-                    Ref("OptionsSegment", optional=True),
+                    Ref("BaseExpressionElementGrammar"),
+                    Ref("AliasExpressionSegment", optional=True),
                 ),
-                delimiter=Ref("CommaSegment"),
-                bracket_pairs_set="angle_bracket_pairs",
             ),
-            bracket_type="angle",
-            bracket_pairs_set="angle_bracket_pairs",
         ),
     )
 
