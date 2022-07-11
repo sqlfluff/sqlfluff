@@ -1019,7 +1019,6 @@ class StructTypeSegment(ansi.StructTypeSegment):
                     Ref("OptionsSegment", optional=True),
                 ),
                 delimiter=Ref("CommaSegment"),
-                bracket_pairs_set="angle_bracket_pairs",
             ),
             bracket_type="angle",
             bracket_pairs_set="angle_bracket_pairs",
@@ -1848,7 +1847,6 @@ class ProcedureParameterListSegment(BaseSegment):
         Delimited(
             Ref("ProcedureParameterGrammar"),
             delimiter=Ref("CommaSegment"),
-            bracket_pairs_set="angle_bracket_pairs",
             optional=True,
         )
     )
