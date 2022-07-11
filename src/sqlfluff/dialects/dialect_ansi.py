@@ -376,7 +376,9 @@ ansi_dialect.add(
         Ref("BitwiseLShiftSegment"),
         Ref("BitwiseRShiftSegment"),
     ),
-    SignedSegmentGrammar=OneOf(Ref("PositiveSegment"), Ref("NegativeSegment")),
+    SignedSegmentGrammar=AnyNumberOf(
+        Ref("PositiveSegment"), Ref("NegativeSegment"), min_times=1
+    ),
     StringBinaryOperatorGrammar=OneOf(Ref("ConcatSegment")),
     BooleanBinaryOperatorGrammar=OneOf(
         Ref("AndOperatorGrammar"), Ref("OrOperatorGrammar")
@@ -966,7 +968,7 @@ class QualifiedNumericLiteralSegment(BaseSegment):
 
     type = "numeric_literal"
     match_grammar: Matchable = Sequence(
-        AnyNumberOf(Ref("SignedSegmentGrammar"), min_times=1),
+        Ref("SignedSegmentGrammar"),
         Ref("NumericLiteralSegment"),
     )
 
