@@ -90,6 +90,7 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
             ),
             Ref("AlterTablePropertiesSegment"),
             Ref("AlterTableColumnClausesSegment"),
+            Ref("AlterTableConstraintClauses"),
         ),
     )
 
@@ -148,6 +149,27 @@ class AlterTableColumnClausesSegment(BaseSegment):
         # @TODO: alter_varray_col_properties
     )
 
+
+class AlterTableConstraintClauses(BaseSegment):
+    """ALTER TABLE `constraint_clauses` per defined in Oracle's grammar.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/ALTER-TABLE.html
+
+    If possible, please match the order of this sequence with what's defined in
+    Oracle's constraint_clauses grammar.
+    """
+
+    type = "alter_table_constraint_clauses"
+
+    match_grammar = OneOf(
+        Sequence(
+            "ADD",
+            Ref("TableConstraintSegment"),
+        ),
+        # @TODO MODIFY
+        # @TODO RENAME
+        # @TODO DROP
+    )
 
 
 class ExecuteFileSegment(BaseSegment):
