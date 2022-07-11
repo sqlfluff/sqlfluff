@@ -527,7 +527,6 @@ ansi_dialect.add(
     ),
     # This is a placeholder for other dialects.
     SimpleArrayTypeGrammar=Nothing(),
-    StructTypeGrammar=Nothing(),
     BaseExpressionElementGrammar=OneOf(
         Ref("LiteralGrammar"),
         Ref("BareFunctionSegment"),
@@ -1809,7 +1808,7 @@ ansi_dialect.add(
                 Ref("SimpleArrayTypeGrammar", optional=True), Ref("ArrayLiteralSegment")
             ),
             Sequence(
-                Ref("StructTypeGrammar"),
+                Ref("StructTypeSegment"),
                 Bracketed(Delimited(Ref("ExpressionSegment"))),
             ),
             Sequence(
@@ -2617,6 +2616,16 @@ class TypelessArraySegment(BaseSegment):
     """
 
     type = "typeless_array"
+    match_grammar: Matchable = Nothing()
+
+
+class StructTypeSegment(BaseSegment):
+    """Expression to construct a STRUCT datatype.
+
+    (Used in BigQuery for example)
+    """
+
+    type = "struct_type"
     match_grammar: Matchable = Nothing()
 
 
