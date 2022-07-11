@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9fd97404ccd602d831fc2860f1855dff23ae094732bb80699305d382a6d1fa3a
+_hash: 0f63a9238cd9957e16fa123b2388f6887980cd281e3873ca2c04a5c405071e43
 file:
 - statement:
     select_statement:
@@ -287,10 +287,9 @@ file:
                     identifier: car_model
                 end_bracket: )
             - comma: ','
-            - expression:
-                array_literal:
-                  start_bracket: (
-                  end_bracket: )
+            - bracketed:
+                start_bracket: (
+                end_bracket: )
             end_bracket: )
       orderby_clause:
       - keyword: ORDER
