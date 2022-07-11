@@ -31,7 +31,7 @@ from sqlfluff.core.string_helpers import findall
 from sqlfluff.core.templaters import TemplatedFile, RawFileSlice
 
 # Classes needed only for type checking
-from sqlfluff.core.parser.segments.base import BaseSegment, FixPatch
+from sqlfluff.core.parser.segments import BaseSegment, FixPatch
 
 from sqlfluff.core.linter.common import NoQaDirective
 
@@ -348,6 +348,14 @@ class LintedFile(NamedTuple):
                 )
                 filtered_source_patches.append(patch)
                 dedupe_buffer.append(patch.dedupe_tuple())
+            # Handle the easy case of an explicit source fix
+            elif patch.patch_category == "source":
+                linter_logger.info(
+                    "      * Keeping explicit source fix patch: %s",
+                    patch,
+                )
+                filtered_source_patches.append(patch)
+                dedupe_buffer.append(patch.dedupe_tuple())
             # Is it a zero length patch.
             elif (
                 patch.source_slice.start == patch.source_slice.stop
@@ -438,6 +446,20 @@ class LintedFile(NamedTuple):
                 # Add the templated slice.
                 slice_buff.append(next_so_slice)
                 source_idx = next_so_slice.stop
+
+            # Does this patch cover the next source-only slice directly?
+            if (
+                source_only_slices
+                and patch.source_slice == source_only_slices[0].source_slice()
+            ):
+                linter_logger.info(
+                    "Removing next source only slice from the stack because it "
+                    "covers the same area of source file as the current patch: %s %s",
+                    source_only_slices[0],
+                    patch,
+                )
+                # If it does, remove it so that we don't duplicate it.
+                source_only_slices.pop(0)
 
             # Is there a gap between current position and this patch?
             if patch.source_slice.start > source_idx:
