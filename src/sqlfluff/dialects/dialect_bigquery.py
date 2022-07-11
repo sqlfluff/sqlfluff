@@ -998,21 +998,6 @@ class DatatypeSegment(ansi.DatatypeSegment):
     )
 
 
-class FunctionParameterListGrammar(ansi.FunctionParameterListGrammar):
-    """The parameters for a function ie. `(string, number)`."""
-
-    # Function parameter list. Note that the only difference from the ANSI
-    # grammar is that BigQuery provides overrides bracket_pairs_set.
-    match_grammar = Bracketed(
-        Delimited(
-            Ref("FunctionParameterGrammar"),
-            delimiter=Ref("CommaSegment"),
-            bracket_pairs_set="angle_bracket_pairs",
-            optional=True,
-        )
-    )
-
-
 class StructTypeSegment(ansi.StructTypeSegment):
     """Expression to construct a STRUCT datatype."""
 
