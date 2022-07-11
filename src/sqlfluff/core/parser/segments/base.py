@@ -575,7 +575,7 @@ class BaseSegment:
                     else:  # pragma: no cover
                         raise ValueError("Unable to position new segment")
 
-            assert repositioned_seg.pos_marker  # hit for mypy
+            assert repositioned_seg.pos_marker  # hint for mypy
             # Update the working position.
             repositioned_seg.pos_marker = (
                 repositioned_seg.pos_marker.with_working_position(
