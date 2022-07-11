@@ -46,6 +46,7 @@ from sqlfluff.dialects import dialect_hive as hive
 
 ansi_dialect = load_raw_dialect("ansi")
 hive_dialect = load_raw_dialect("hive")
+postgres_dialect = load_raw_dialect("postgres")
 sparksql_dialect = ansi_dialect.copy_as("sparksql")
 
 sparksql_dialect.patch_lexer_matchers(
@@ -383,6 +384,10 @@ sparksql_dialect.add(
     StoredByGrammar=hive_dialect.get_grammar("StoredByGrammar"),
     StorageFormatGrammar=hive_dialect.get_grammar("StorageFormatGrammar"),
     TerminatedByGrammar=hive_dialect.get_grammar("TerminatedByGrammar"),
+    # Inherint some things directly from postgres
+    GroupingSetsClauseSegment=postgres_dialect.get_segment("GroupingSetsClauseSegment"),
+    CubeRollupClauseSegment=postgres_dialect.get_segment("CubeRollupClauseSegment"),
+    GroupingExpressionList=postgres_dialect.get_segment("GroupingExpressionList"),
     # Add Spark Grammar
     PropertyGrammar=Sequence(
         Ref("PropertyNameSegment"),
@@ -1511,73 +1516,6 @@ class WithCubeRollupClauseSegment(BaseSegment):
     match_grammar = Sequence(
         "WITH",
         OneOf("CUBE", "ROLLUP"),
-    )
-
-
-class CubeRollupClauseSegment(BaseSegment):
-    """`[CUBE | ROLLUP]` clause within the `GROUP BY` clause.
-
-    https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-groupby.html
-    """
-
-    type = "cube_rollup_clause"
-
-    match_grammar = StartsWith(
-        OneOf("CUBE", "ROLLUP"),
-        terminator=OneOf(
-            "HAVING",
-            Sequence("ORDER", "BY"),
-            "LIMIT",
-            Ref("SetOperatorSegment"),
-        ),
-    )
-
-    parse_grammar = Sequence(
-        OneOf("CUBE", "ROLLUP"),
-        Bracketed(
-            Ref("GroupingExpressionList"),
-        ),
-    )
-
-
-class GroupingSetsClauseSegment(BaseSegment):
-    """`GROUPING SETS` clause within the `GROUP BY` clause."""
-
-    type = "grouping_sets_clause"
-
-    match_grammar = StartsWith(
-        Sequence("GROUPING", "SETS"),
-        terminator=OneOf(
-            "HAVING",
-            Sequence("ORDER", "BY"),
-            "LIMIT",
-            Ref("SetOperatorSegment"),
-        ),
-    )
-
-    parse_grammar = Sequence(
-        "GROUPING",
-        "SETS",
-        Bracketed(
-            Delimited(
-                Ref("CubeRollupClauseSegment"),
-                Ref("GroupingExpressionList"),
-            )
-        ),
-    )
-
-
-class GroupingExpressionList(BaseSegment):
-    """Grouping expression list within `CUBE` / `ROLLUP` `GROUPING SETS`."""
-
-    type = "grouping_expression_list"
-
-    match_grammar = Delimited(
-        OneOf(
-            Bracketed(Delimited(Ref("ExpressionSegment"))),
-            Ref("ExpressionSegment"),
-            Bracketed(),  # Allows empty parentheses
-        )
     )
 
 

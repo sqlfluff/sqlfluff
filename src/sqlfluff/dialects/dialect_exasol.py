@@ -43,6 +43,7 @@ from sqlfluff.dialects.dialect_exasol_keywords import (
 from sqlfluff.dialects import dialect_ansi as ansi
 
 ansi_dialect = load_raw_dialect("ansi")
+postgres_dialect = load_raw_dialect("postgres")
 exasol_dialect = ansi_dialect.copy_as("exasol")
 
 # Clear ANSI Keywords and add all EXASOL keywords
@@ -206,6 +207,10 @@ exasol_dialect.add(
         name="function_variable",
         type="variable",
     ),
+    # Inherint some things directly from postgres
+    GroupingSetsClauseSegment=postgres_dialect.get_segment("GroupingSetsClauseSegment"),
+    CubeRollupClauseSegment=postgres_dialect.get_segment("CubeRollupClauseSegment"),
+    GroupingExpressionList=postgres_dialect.get_segment("GroupingExpressionList"),
 )
 
 exasol_dialect.replace(
@@ -592,67 +597,6 @@ class GroupByClauseSegment(BaseSegment):
             ),
         ),
         Dedent,
-    )
-
-
-class CubeRollupClauseSegment(BaseSegment):
-    """`CUBE` / `ROLLUP` clause within the `GROUP BY` clause."""
-
-    type = "cube_rollup_clause"
-    match_grammar = StartsWith(
-        OneOf("CUBE", "ROLLUP"),
-        terminator=OneOf(
-            "HAVING",
-            "QUALIFY",
-            Sequence("ORDER", "BY"),
-            "LIMIT",
-            Ref("SetOperatorSegment"),
-        ),
-    )
-    parse_grammar = Sequence(
-        OneOf("CUBE", "ROLLUP"),
-        Bracketed(
-            Ref("GroupingExpressionList"),
-        ),
-    )
-
-
-class GroupingSetsClauseSegment(BaseSegment):
-    """`GROUPING SETS` clause within the `GROUP BY` clause."""
-
-    type = "grouping_sets_clause"
-    match_grammar = StartsWith(
-        Sequence("GROUPING", "SETS"),
-        terminator=OneOf(
-            "HAVING",
-            "QUALIFY",
-            Sequence("ORDER", "BY"),
-            "LIMIT",
-            Ref("SetOperatorSegment"),
-        ),
-    )
-    parse_grammar = Sequence(
-        "GROUPING",
-        "SETS",
-        Bracketed(
-            Delimited(
-                Ref("CubeRollupClauseSegment"),
-                Ref("GroupingExpressionList"),
-            )
-        ),
-    )
-
-
-class GroupingExpressionList(BaseSegment):
-    """Grouping expression list within `CUBE` / `ROLLUP` `GROUPING SETS`."""
-
-    type = "grouping_expression_list"
-    match_grammar = Delimited(
-        OneOf(
-            Bracketed(Delimited(Ref("ExpressionSegment"))),
-            Ref("ExpressionSegment"),
-            Bracketed(),  # Allows empty parentheses
-        )
     )
 
 
