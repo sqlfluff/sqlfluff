@@ -110,7 +110,6 @@ bigquery_dialect.add(
         type="udf_body",
         trim_chars=("'",),
     ),
-    StructKeywordSegment=StringParser("struct", KeywordSegment, name="struct"),
     StartAngleBracketSegment=StringParser(
         "<", SymbolSegment, name="start_angle_bracket", type="start_angle_bracket"
     ),
@@ -222,30 +221,6 @@ bigquery_dialect.replace(
         "ARRAY",
         Bracketed(
             Ref("DatatypeSegment"),
-            bracket_type="angle",
-            bracket_pairs_set="angle_bracket_pairs",
-        ),
-    ),
-    StructTypeGrammar=Sequence(
-        "STRUCT",
-        Bracketed(
-            Delimited(  # Comma-separated list of field names/types
-                Sequence(
-                    OneOf(
-                        # ParameterNames can look like Datatypes so can't use
-                        # Optional=True here and instead do a OneOf in order
-                        # with DataType only first, followed by both.
-                        Ref("DatatypeSegment"),
-                        Sequence(
-                            Ref("ParameterNameSegment"),
-                            Ref("DatatypeSegment"),
-                        ),
-                    ),
-                    Ref("OptionsSegment", optional=True),
-                ),
-                delimiter=Ref("CommaSegment"),
-                bracket_pairs_set="angle_bracket_pairs",
-            ),
             bracket_type="angle",
             bracket_pairs_set="angle_bracket_pairs",
         ),
@@ -1020,7 +995,7 @@ class DatatypeSegment(ansi.DatatypeSegment):
         Ref("DatatypeIdentifierSegment"),  # Simple type
         Sequence("ANY", "TYPE"),  # SQL UDFs can specify this "type"
         Ref("SimpleArrayTypeGrammar"),
-        Ref("StructTypeGrammar"),
+        Ref("StructTypeSegment"),
     )
 
 
@@ -1036,6 +1011,35 @@ class FunctionParameterListGrammar(ansi.FunctionParameterListGrammar):
             bracket_pairs_set="angle_bracket_pairs",
             optional=True,
         )
+    )
+
+
+class StructTypeSegment(ansi.StructTypeSegment):
+    """Expression to construct a STRUCT datatype."""
+
+    match_grammar = Sequence(
+        "STRUCT",
+        Bracketed(
+            Delimited(  # Comma-separated list of field names/types
+                Sequence(
+                    OneOf(
+                        # ParameterNames can look like Datatypes so can't use
+                        # Optional=True here and instead do a OneOf in order
+                        # with DataType only first, followed by both.
+                        Ref("DatatypeSegment"),
+                        Sequence(
+                            Ref("ParameterNameSegment"),
+                            Ref("DatatypeSegment"),
+                        ),
+                    ),
+                    Ref("OptionsSegment", optional=True),
+                ),
+                delimiter=Ref("CommaSegment"),
+                bracket_pairs_set="angle_bracket_pairs",
+            ),
+            bracket_type="angle",
+            bracket_pairs_set="angle_bracket_pairs",
+        ),
     )
 
 
