@@ -1635,10 +1635,8 @@ class InsertStatementSegment(ansi.InsertStatementSegment):
         "INSERT",
         Ref.keyword("INTO", optional=True),
         Ref("TableReferenceSegment"),
-        Sequence(
-            Ref("BracketedColumnReferenceListGrammar", optional=True),
-            Ref("SelectableGrammar"),
-        ),
+        Ref("BracketedColumnReferenceListGrammar", optional=True),
+        Ref("SelectableGrammar"),
     )
 
 
