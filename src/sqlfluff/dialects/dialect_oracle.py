@@ -50,6 +50,106 @@ oracle_dialect.add(
 )
 
 
+
+class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
+    """An `ALTER TABLE` statement.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/ALTER-TABLE.html
+    If possible, please keep the order below the same as Oracle's doc:
+    """
+
+    match_grammar: Matchable = Sequence(
+        "ALTER",
+        "TABLE",
+        Ref("TableReferenceSegment"),
+        OneOf(
+            # @TODO all stuff inside this "Delimited" is not validated for Oracle
+            Delimited(
+                OneOf(
+                    # Table options
+                    Sequence(
+                        Ref("ParameterNameSegment"),
+                        Ref("EqualsSegment", optional=True),
+                        OneOf(Ref("LiteralGrammar"), Ref("NakedIdentifierSegment")),
+                    ),
+                    # Add things
+                    Sequence(
+                        OneOf("ADD", "MODIFY"),
+                        Ref.keyword("COLUMN", optional=True),
+                        Ref("ColumnDefinitionSegment"),
+                        OneOf(
+                            Sequence(
+                                OneOf("FIRST", "AFTER"), Ref("ColumnReferenceSegment")
+                            ),
+                            # Bracketed Version of the same
+                            Ref("BracketedColumnReferenceListGrammar"),
+                            optional=True,
+                        ),
+                    ),
+                ),
+            ),
+            Ref("AlterTablePropertiesSegment"),
+            Ref("AlterTableColumnClausesSegment"),
+        ),
+    )
+
+
+
+class AlterTablePropertiesSegment(BaseSegment):
+    """ALTER TABLE `alter_table_properties` per defined in Oracle's grammar.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/ALTER-TABLE.html
+
+    If possible, please match the order of this sequence with what's defined in
+    Oracle's alter_table_properties grammar.
+    """
+
+    type = "alter_table_properties"
+
+    # TODO: There are many more alter_table_properties to implement
+    match_grammar = OneOf(
+        # Rename
+        Sequence(
+            "RENAME",
+            "TO",
+            Ref("TableReferenceSegment"),
+        ),
+    )
+
+
+
+class AlterTableColumnClausesSegment(BaseSegment):
+    """ALTER TABLE `column_clauses` per defined in Oracle's grammar.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/ALTER-TABLE.html
+
+    If possible, please match the order of this sequence with what's defined in
+    Oracle's column_clauses grammar.
+    """
+
+    type = "alter_table_column_clauses"
+
+    match_grammar = OneOf(
+        # @TODO: add_column_clause
+        # @TODO: modify_column_clause
+        # @TODO: drop_column_clause
+        # @TODO: add_period_clause
+        # @TODO: drop_period_clause
+        # rename_column_clause
+        Sequence(
+            "RENAME",
+            "COLUMN",
+            Ref("ColumnReferenceSegment"),
+            "TO",
+            Ref("ColumnReferenceSegment"),
+        )
+        # @TODO: modify_collection_retrieval
+        # @TODO: modify_LOB_storage_clause
+        # @TODO: alter_varray_col_properties
+    )
+
+
+
 class ExecuteFileSegment(BaseSegment):
     """A reference to an indextype."""
 
