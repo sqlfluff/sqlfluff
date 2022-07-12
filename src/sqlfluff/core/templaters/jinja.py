@@ -329,6 +329,8 @@ class JinjaTemplater(PythonTemplater):
             formatter (:obj:`CallbackFormatter`): Optional object for output.
 
         """
+        self.large_file_check(in_str, fname, config)
+
         if not config:  # pragma: no cover
             raise ValueError(
                 "For the jinja templater, the `process()` method requires a config "

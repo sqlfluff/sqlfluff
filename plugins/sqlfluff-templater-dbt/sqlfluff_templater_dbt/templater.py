@@ -318,6 +318,8 @@ class DbtTemplater(JinjaTemplater):
                 templating operation. Only necessary for some templaters.
             formatter (:obj:`CallbackFormatter`): Optional object for output.
         """
+        self.large_file_check(in_str, fname, config)
+
         # Stash the formatter if provided to use in cached methods.
         self.formatter = formatter
         self.sqlfluff_config = config

@@ -219,6 +219,7 @@ class PythonTemplater(RawTemplater):
             formatter (:obj:`CallbackFormatter`): Optional object for output.
 
         """
+        self.large_file_check(in_str, fname, config)
         live_context = self.get_context(fname=fname, config=config)
         try:
             new_str = in_str.format(**live_context)

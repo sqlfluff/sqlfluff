@@ -132,6 +132,8 @@ class PlaceholderTemplater(RawTemplater):
             formatter (:obj:`CallbackFormatter`): Optional object for output.
 
         """
+        self.large_file_check(in_str, fname, config)
+
         context = self.get_context(config)
         template_slices = []
         raw_slices = []

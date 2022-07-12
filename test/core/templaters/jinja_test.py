@@ -4,6 +4,7 @@ import logging
 from typing import List, NamedTuple
 
 import pytest
+from sqlfluff.core.errors import SQLTemplaterSkipFile
 
 from sqlfluff.core.templaters import JinjaTemplater
 from sqlfluff.core.templaters.base import RawFileSlice, TemplatedFile
@@ -1158,3 +1159,24 @@ def test__templater_jinja_slice_file(raw_file, override_context, result, caplog)
         for templated_file_slice in sliced_file
     ]
     assert actual == result
+
+
+def test__templater_python_large_file_check():
+    """Test large file skipping.
+
+    The check is seperately called on each .process() method
+    so it makes sense to test a few templaters.
+    """
+    # First check we can process the file normally without config.
+    JinjaTemplater().process(in_str="SELECT 1", fname="<string>")
+    # Then check we raise a skip exception when config is set low.
+    with pytest.raises(SQLTemplaterSkipFile) as excinfo:
+        JinjaTemplater().process(
+            in_str="SELECT 1",
+            fname="<string>",
+            config=FluffConfig(
+                overrides={"dialect": "ansi", "large_file_skip_char_limit": 2},
+            ),
+        )
+
+    assert "Length of file" in str(excinfo.value)
