@@ -30,10 +30,7 @@ class CTEDefinitionSegment(ansi.CTEDefinitionSegment):
     match_grammar: Matchable = OneOf(
         Sequence(
             Ref("SingleIdentifierGrammar"),
-            Bracketed(
-                Ref("SingleIdentifierListSegment"),
-                optional=True,
-            ),
+            Ref("CTEColumnList", optional=True),
             "AS",
             Bracketed(
                 # Ephemeral here to subdivide the query.

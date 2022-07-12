@@ -433,7 +433,6 @@ ansi_dialect.add(
     BracketedColumnReferenceListGrammar=Bracketed(
         Delimited(
             Ref("ColumnReferenceSegment"),
-            ephemeral_name="ColumnReferenceList",
         )
     ),
     OrReplaceGrammar=Sequence("OR", "REPLACE"),
