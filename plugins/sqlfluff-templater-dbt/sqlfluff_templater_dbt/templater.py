@@ -471,7 +471,7 @@ class DbtTemplater(JinjaTemplater):
                     "Please report this error on github at "
                     "https://github.com/sqlfluff/sqlfluff/issues, including "
                     "both the raw and compiled sql for the model affected.",
-                    fname
+                    fname,
                 )
                 # Additional error logging in case we get a fatal dbt error.
                 raise SQLTemplaterSkipFile(  # pragma: no cover
