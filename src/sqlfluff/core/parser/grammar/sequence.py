@@ -268,7 +268,10 @@ class Bracketed(Sequence):
 
         # Are we dealing with a pre-existing BracketSegment?
         if seg_buff[0].is_type("bracketed"):
-            seg: BracketedSegment = cast(BracketedSegment, seg_buff[0])
+            # NOTE: We copy the original segment here because otherwise we will begin to
+            # edit a _reference_ and not a copy - and that may lead to unused matches
+            # leaking out. https://github.com/sqlfluff/sqlfluff/issues/3277
+            seg: BracketedSegment = cast(BracketedSegment, seg_buff[0].copy())
             # Check it's of the right kind of bracket
             if not start_bracket.match(seg.start_bracket, parse_context):
                 # Doesn't match - return no match
