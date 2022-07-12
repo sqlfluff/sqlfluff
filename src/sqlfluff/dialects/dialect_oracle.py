@@ -183,10 +183,7 @@ class AlterTableConstraintClauses(BaseSegment):
                     "UNIQUE",
                     Bracketed(Ref("ColumnReferenceSegment")),
                 ),
-                Sequence(
-                    "CONSTRAINT",
-                    Ref("ObjectReferenceSegment")
-                )
+                Sequence("CONSTRAINT", Ref("ObjectReferenceSegment")),
             ),
             Ref.keyword("CASCADE", optional=True),
             Sequence(
@@ -195,10 +192,10 @@ class AlterTableConstraintClauses(BaseSegment):
                     "DROP",
                 ),
                 "INDEX",
-                optional=True
+                optional=True,
             ),
             Ref.keyword("ONLINE", optional=True),
-        )
+        ),
     )
 
 
