@@ -513,7 +513,9 @@ class BaseSegment:
 
     @classmethod
     def _position_segments(
-        cls, segments: Tuple["BaseSegment", ...], parent_pos=None
+        cls,
+        segments: Tuple["BaseSegment", ...],
+        parent_pos: Optional[PositionMarker] = None,
     ) -> Tuple["BaseSegment", ...]:
         """Refresh positions of segments within a span.
 
