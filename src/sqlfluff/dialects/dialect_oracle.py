@@ -133,7 +133,7 @@ class AlterTableColumnClausesSegment(BaseSegment):
             "DROP",
             OneOf(
                 Sequence("COLUMN", Ref("ColumnReferenceSegment")),
-                Bracketed(Delimited(Ref("ColumnReferenceSegment")))
+                Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
             ),
         ),
         # @TODO: add_period_clause
