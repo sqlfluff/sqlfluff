@@ -132,10 +132,7 @@ class AlterTableColumnClausesSegment(BaseSegment):
         Sequence(
             "DROP",
             OneOf(
-                Sequence(
-                    "COLUMN",
-                    Ref("ColumnReferenceSegment")
-                ),
+                Sequence("COLUMN", Ref("ColumnReferenceSegment")),
                 Bracketed(Delimited(Ref("ColumnReferenceSegment")))
             ),
         ),
