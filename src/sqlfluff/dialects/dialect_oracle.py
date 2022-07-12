@@ -73,20 +73,6 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                         Ref("EqualsSegment", optional=True),
                         OneOf(Ref("LiteralGrammar"), Ref("NakedIdentifierSegment")),
                     ),
-                    # Add things
-                    Sequence(
-                        OneOf("ADD", "MODIFY"),
-                        Ref.keyword("COLUMN", optional=True),
-                        Ref("ColumnDefinitionSegment"),
-                        OneOf(
-                            Sequence(
-                                OneOf("FIRST", "AFTER"), Ref("ColumnReferenceSegment")
-                            ),
-                            # Bracketed Version of the same
-                            Ref("BracketedColumnReferenceListGrammar"),
-                            optional=True,
-                        ),
-                    ),
                 ),
             ),
             Ref("AlterTablePropertiesSegment"),
@@ -132,8 +118,18 @@ class AlterTableColumnClausesSegment(BaseSegment):
     type = "alter_table_column_clauses"
 
     match_grammar = OneOf(
-        # @TODO: add_column_clause
-        # @TODO: modify_column_clause
+        # add_column_clause
+        # modify_column_clause
+        Sequence(
+            OneOf(
+                "ADD",
+                "MODIFY",
+            ),
+            OneOf(
+                Ref("ColumnDefinitionSegment"),
+                Bracketed(Delimited(Ref("ColumnDefinitionSegment"))),
+            ),
+        ),
         # drop_column_clause
         # @TODO: extend drop_column_clause
         Sequence(

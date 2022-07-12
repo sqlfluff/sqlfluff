@@ -1,6 +1,14 @@
 -- AlterTableColumnClausesSegment
 ALTER TABLE table_name RENAME COLUMN old_column_name TO new_column_name;
 
+-- add_column_clause
+ALTER TABLE table_name
+ADD (column_name NUMBER(18));
+
+-- modify_column_clauses
+ALTER TABLE table_name
+MODIFY column_name NUMBER(18);
+
 -- drop_column_clause
 ALTER TABLE table_name
 DROP COLUMN column_name;
