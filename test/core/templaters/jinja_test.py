@@ -1161,15 +1161,28 @@ def test__templater_jinja_slice_file(raw_file, override_context, result, caplog)
     assert actual == result
 
 
-def test__templater_python_large_file_check():
+def test__templater_jinja_large_file_check():
     """Test large file skipping.
 
     The check is seperately called on each .process() method
     so it makes sense to test a few templaters.
     """
-    # First check we can process the file normally without config.
-    JinjaTemplater().process(in_str="SELECT 1", fname="<string>")
-    # Then check we raise a skip exception when config is set low.
+    # First check we can process the file normally without specific config.
+    # i.e. check the defaults work and the default is high.
+    JinjaTemplater().process(
+        in_str="SELECT 1",
+        fname="<string>",
+        config=FluffConfig(overrides={"dialect": "ansi"}),
+    )
+    # Second check setting the value low disables the check
+    JinjaTemplater().process(
+        in_str="SELECT 1",
+        fname="<string>",
+        config=FluffConfig(
+            overrides={"dialect": "ansi", "large_file_skip_char_limit": 0}
+        ),
+    )
+    # Finally check we raise a skip exception when config is set low.
     with pytest.raises(SQLTemplaterSkipFile) as excinfo:
         JinjaTemplater().process(
             in_str="SELECT 1",
