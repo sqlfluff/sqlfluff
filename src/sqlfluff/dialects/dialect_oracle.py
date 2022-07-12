@@ -181,6 +181,34 @@ class AlterTableConstraintClauses(BaseSegment):
         # @TODO MODIFY
         # @TODO RENAME
         # @TODO DROP
+        # drop_constraint_clause
+        Sequence(
+            "DROP",
+            OneOf(
+                Sequence(
+                    "PRIMARY",
+                    "KEY",
+                ),
+                Sequence(
+                    "UNIQUE",
+                    Bracketed(Ref("ColumnReferenceSegment")),
+                ),
+                Sequence(
+                    "CONSTRAINT",
+                    Ref("ObjectReferenceSegment")
+                )
+            ),
+            Ref.keyword("CASCADE", optional=True),
+            Sequence(
+                OneOf(
+                    "KEEP",
+                    "DROP",
+                ),
+                "INDEX",
+                optional=True
+            ),
+            Ref.keyword("ONLINE", optional=True),
+        )
     )
 
 
