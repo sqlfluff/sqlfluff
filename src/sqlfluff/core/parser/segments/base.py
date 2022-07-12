@@ -10,7 +10,7 @@ Here we define:
 
 from collections import defaultdict
 from collections.abc import MutableSet
-from copy import deepcopy
+from copy import deepcopy, copy
 from dataclasses import dataclass, field, replace
 from io import StringIO
 from itertools import takewhile, chain
@@ -512,7 +512,11 @@ class BaseSegment:
         return segs
 
     @classmethod
-    def _position_segments(cls, segments, parent_pos=None):
+    def _position_segments(
+        cls,
+        segments: Tuple["BaseSegment", ...],
+        parent_pos: Optional[PositionMarker] = None,
+    ) -> Tuple["BaseSegment", ...]:
         """Refresh positions of segments within a span.
 
         This does two things:
@@ -546,42 +550,54 @@ class BaseSegment:
 
         # Use the index so that we can look forward
         # and backward.
+        segment_buffer: Tuple["BaseSegment", ...] = ()
         for idx, segment in enumerate(segments):
+            repositioned_seg = copy(segment)
             # Fill any that don't have a position.
-            if not segment.pos_marker:
+            if not repositioned_seg.pos_marker:
                 # Can we get a position from the previous?
                 if idx > 0:
-                    segment.pos_marker = segments[idx - 1].pos_marker.end_point_marker()
+                    prev_seg = segment_buffer[idx - 1]
+                    # Given we're going back in the buffer we should
+                    # have set the position marker for everything already
+                    # in there. This is mostly a hint to mypy.
+                    assert prev_seg.pos_marker
+                    repositioned_seg.pos_marker = prev_seg.pos_marker.end_point_marker()
                 # Can we get it from the parent?
                 elif parent_pos:
-                    segment.pos_marker = parent_pos.start_point_marker()
+                    repositioned_seg.pos_marker = parent_pos.start_point_marker()
                 # Search forward for a following one, if we have to?
                 else:
                     for fwd_seg in segments[idx + 1 :]:
                         if fwd_seg.pos_marker:
-                            segments[
-                                idx
-                            ].pos_marker = fwd_seg.pos_marker.start_point_marker()
+                            repositioned_seg.pos_marker = (
+                                fwd_seg.pos_marker.start_point_marker()
+                            )
                             break
                     else:  # pragma: no cover
                         raise ValueError("Unable to position new segment")
 
+            assert repositioned_seg.pos_marker  # hint for mypy
             # Update the working position.
-            segment.pos_marker = segment.pos_marker.with_working_position(
-                line_no,
-                line_pos,
+            repositioned_seg.pos_marker = (
+                repositioned_seg.pos_marker.with_working_position(
+                    line_no,
+                    line_pos,
+                )
             )
-            line_no, line_pos = segment.pos_marker.infer_next_position(
-                segment.raw, line_no, line_pos
+            line_no, line_pos = repositioned_seg.pos_marker.infer_next_position(
+                repositioned_seg.raw, line_no, line_pos
             )
 
             # If this segment has children, recurse and reposition them too.
-            if segment.segments:
-                segment.segments = cls._position_segments(
-                    segment.segments, parent_pos=segment.pos_marker
+            if repositioned_seg.segments:
+                repositioned_seg.segments = cls._position_segments(
+                    repositioned_seg.segments, parent_pos=repositioned_seg.pos_marker
                 )
 
-        return segments
+            segment_buffer += (repositioned_seg,)
+
+        return segment_buffer
 
     # ################ CLASS METHODS
 
@@ -868,6 +884,13 @@ class BaseSegment:
                 ),
             )
         return result
+
+    def copy(self):
+        """Copy the segment recursively, with appropriate copying of references."""
+        new_seg = copy(self)
+        if self.segments:
+            new_seg.segments = tuple(seg.copy() for seg in self.segments)
+        return new_seg
 
     def as_record(self, **kwargs):
         """Return the segment as a structurally simplified record.
