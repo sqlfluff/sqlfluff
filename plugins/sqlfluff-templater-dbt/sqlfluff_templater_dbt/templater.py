@@ -25,7 +25,7 @@ from jinja2_simple_tags import StandaloneTag
 from sqlfluff.core.cached_property import cached_property
 from sqlfluff.core.errors import SQLTemplaterError, SQLTemplaterSkipFile
 
-from sqlfluff.core.templaters.base import TemplatedFile
+from sqlfluff.core.templaters.base import TemplatedFile, large_file_check
 
 from sqlfluff.core.templaters.jinja import JinjaTemplater
 
@@ -308,6 +308,7 @@ class DbtTemplater(JinjaTemplater):
             if fname not in already_yielded:
                 yield fname
 
+    @large_file_check
     def process(self, *, fname, in_str=None, config=None, formatter=None):
         """Compile a dbt model and return the compiled SQL.
 
@@ -318,8 +319,6 @@ class DbtTemplater(JinjaTemplater):
                 templating operation. Only necessary for some templaters.
             formatter (:obj:`CallbackFormatter`): Optional object for output.
         """
-        self.large_file_check(in_str, fname, config)
-
         # Stash the formatter if provided to use in cached methods.
         self.formatter = formatter
         self.sqlfluff_config = config

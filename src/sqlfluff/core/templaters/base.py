@@ -23,6 +23,32 @@ def iter_indices_of_newlines(raw_str: str) -> Iterator[int]:
             break  # pragma: no cover TODO?
 
 
+def large_file_check(func):
+    """Raise an exception if the file is over a defined size.
+
+    Designed to be implemented as a decorator on `.process()` methods.
+
+    If no config is provided or the relevant config value is set
+    to zero then the check is skipped.
+    """
+
+    def _wrapped(
+        self, *, in_str: str, fname: str, config: FluffConfig = None, **kwargs
+    ):
+        if config:
+            limit = config.get("large_file_skip_char_limit")
+            if limit and len(in_str) > limit:
+                raise SQLTemplaterSkipFile(
+                    f"Length of file {fname!r} is over {limit} characters. "
+                    "Skipping to avoid parser lock. Users can increase this limit "
+                    "in their config by setting the 'large_file_skip_char_limit' "
+                    "value, or disable by setting it to zero."
+                )
+        return func(self, in_str=in_str, fname=fname, config=config, **kwargs)
+
+    return _wrapped
+
+
 class RawFileSlice(NamedTuple):
     """A slice referring to a raw file."""
 
@@ -439,23 +465,7 @@ class RawTemplater:
         # Default is to process in the original order.
         return fnames
 
-    def large_file_check(self, in_str: str, fname: str, config: FluffConfig = None):
-        """Raise an exception if the file is over a defined size.
-
-        If no config is provided or the relevant config value is set
-        to zero then the check is skipped.
-        """
-        if not config:
-            return
-        limit = config.get("large_file_skip_char_limit")
-        if limit and len(in_str) > limit:
-            raise SQLTemplaterSkipFile(
-                f"Length of file {fname!r} is over {limit} characters. "
-                "Skipping to avoid parser lock. Users can increase this limit "
-                "in their config by setting the 'large_file_skip_char_limit' "
-                "value, or disable by setting it to zero."
-            )
-
+    @large_file_check
     def process(
         self, *, in_str: str, fname: str, config: FluffConfig = None, formatter=None
     ) -> Tuple[Optional[TemplatedFile], list]:
@@ -478,7 +488,6 @@ class RawTemplater:
             formatter (:obj:`CallbackFormatter`): Optional object for output.
 
         """
-        self.large_file_check(in_str, fname, config)
         return TemplatedFile(in_str, fname=fname), []
 
     def __eq__(self, other):

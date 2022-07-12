@@ -11,9 +11,9 @@ from sqlfluff.core.templaters.base import (
     RawFileSlice,
     TemplatedFile,
     TemplatedFileSlice,
+    large_file_check,
+    RawTemplater,
 )
-
-from sqlfluff.core.templaters.base import RawTemplater
 
 # Instantiate the templater logger
 templater_logger = logging.getLogger("sqlfluff.templater")
@@ -110,6 +110,7 @@ class PlaceholderTemplater(RawTemplater):
 
         return live_context
 
+    @large_file_check
     def process(
         self, *, in_str: str, fname: str, config=None, formatter=None
     ) -> Tuple[Optional[TemplatedFile], list]:
@@ -132,8 +133,6 @@ class PlaceholderTemplater(RawTemplater):
             formatter (:obj:`CallbackFormatter`): Optional object for output.
 
         """
-        self.large_file_check(in_str, fname, config)
-
         context = self.get_context(config)
         template_slices = []
         raw_slices = []

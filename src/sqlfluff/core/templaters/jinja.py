@@ -22,6 +22,7 @@ from sqlfluff.core.templaters.base import (
     RawFileSlice,
     TemplatedFile,
     TemplatedFileSlice,
+    large_file_check,
 )
 from sqlfluff.core.templaters.python import PythonTemplater
 from sqlfluff.core.templaters.slicers.tracer import JinjaAnalyzer
@@ -307,6 +308,7 @@ class JinjaTemplater(PythonTemplater):
 
         return env, live_context, make_template
 
+    @large_file_check
     def process(
         self, *, in_str: str, fname: str, config=None, formatter=None
     ) -> Tuple[Optional[TemplatedFile], list]:
@@ -329,8 +331,6 @@ class JinjaTemplater(PythonTemplater):
             formatter (:obj:`CallbackFormatter`): Optional object for output.
 
         """
-        self.large_file_check(in_str, fname, config)
-
         if not config:  # pragma: no cover
             raise ValueError(
                 "For the jinja templater, the `process()` method requires a config "
