@@ -51,7 +51,6 @@ oracle_dialect.add(
 )
 
 
-
 class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
     """An `ALTER TABLE` statement.
 
@@ -82,7 +81,6 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
     )
 
 
-
 class AlterTablePropertiesSegment(BaseSegment):
     """ALTER TABLE `alter_table_properties` per defined in Oracle's grammar.
 
@@ -103,7 +101,6 @@ class AlterTablePropertiesSegment(BaseSegment):
             Ref("TableReferenceSegment"),
         ),
     )
-
 
 
 class AlterTableColumnClausesSegment(BaseSegment):
