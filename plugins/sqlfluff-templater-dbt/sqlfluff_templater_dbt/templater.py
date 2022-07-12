@@ -464,6 +464,12 @@ class DbtTemplater(JinjaTemplater):
                     node=node,
                     manifest=self.dbt_manifest,
                 )
+            except Exception as err:
+                # Additional error logging in case we get a fatal dbt error.
+                raise SQLTemplaterSkipFile(  # pragma: no cover
+                    f"Skipped file {fname} because dbt raised a fatal "
+                    f"exception during compilation: {err!s}"
+                )
             finally:
                 # Undo the monkeypatch.
                 Environment.from_string = old_from_string
