@@ -7,6 +7,7 @@ from sqlfluff.core.parser import (
     AnyNumberOf,
     BaseFileSegment,
     BaseSegment,
+    Bracketed,
     CodeSegment,
     CommentSegment,
     Delimited,
@@ -133,7 +134,18 @@ class AlterTableColumnClausesSegment(BaseSegment):
     match_grammar = OneOf(
         # @TODO: add_column_clause
         # @TODO: modify_column_clause
-        # @TODO: drop_column_clause
+        # drop_column_clause
+        # @TODO: extend drop_column_clause
+        Sequence(
+            "DROP",
+            OneOf(
+                Sequence(
+                    "COLUMN",
+                    Ref("ColumnReferenceSegment")
+                ),
+                Bracketed(Delimited(Ref("ColumnReferenceSegment")))
+            ),
+        ),
         # @TODO: add_period_clause
         # @TODO: drop_period_clause
         # rename_column_clause
