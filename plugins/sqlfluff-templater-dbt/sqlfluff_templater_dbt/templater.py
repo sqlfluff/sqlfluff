@@ -465,11 +465,19 @@ class DbtTemplater(JinjaTemplater):
                     manifest=self.dbt_manifest,
                 )
             except Exception as err:
+                templater_logger.exception(
+                    "Fatal dbt compilation error on %s. This occurs most often "
+                    "during incorrect sorting of ephemeral models before linting. "
+                    "Please report this error on github at "
+                    "https://github.com/sqlfluff/sqlfluff/issues, including "
+                    "both the raw and compiled sql for the model affected.",
+                    fname
+                )
                 # Additional error logging in case we get a fatal dbt error.
                 raise SQLTemplaterSkipFile(  # pragma: no cover
                     f"Skipped file {fname} because dbt raised a fatal "
                     f"exception during compilation: {err!s}"
-                )
+                ) from err
             finally:
                 # Undo the monkeypatch.
                 Environment.from_string = old_from_string
