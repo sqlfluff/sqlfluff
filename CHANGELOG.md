@@ -10,6 +10,56 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
+## [1.2.0] - 2022-07-13
+
+## Highlights
+Major changes include:
+* Adding AWS Athena as a dialect.
+* A fix routine for L046 (whitespace in jinja tags), and the mechanisms for
+  more source-only fixes in future.
+* By default, large files (over 20k characters) are now skipped by sqlfluff. This
+  limit is configurable and disable-able but exists as a sensible default to avoid
+  the performance overhead of linting *very* large files.
+* For the dbt templater, fatal compilation errors now no longer stop linting, and
+  these files are now skipped instead. This enables projects to continue linting
+  beyond the offending file and much better logging information to enable better
+  debugging.
+
+## What’s Changed
+
+* Improve documentation for custom implemented rules [#3604](https://github.com/sqlfluff/sqlfluff/pull/3603) [@Aditya-Tripuraneni](https://github.com/Aditya-Tripuraneni)
+* Add a skip and better logging for fatal dbt issues [#3603](https://github.com/sqlfluff/sqlfluff/pull/3603) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Add large file check [#3600](https://github.com/sqlfluff/sqlfluff/pull/3600) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Oracle: extend support for `ALTER TABLE` [#3596](https://github.com/sqlfluff/sqlfluff/pull/3596) [@davidfuhr](https://github.com/davidfuhr)
+* Immutability fixes [#3428](https://github.com/sqlfluff/sqlfluff/pull/3428) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Struct type should be a segment [#3591](https://github.com/sqlfluff/sqlfluff/pull/3591) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Fix Bracketed Struct issue [#3590](https://github.com/sqlfluff/sqlfluff/pull/3590) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Allow spaces and multiple signs for numeric literals [#3581](https://github.com/sqlfluff/sqlfluff/pull/3581) [@tunetheweb](https://github.com/tunetheweb)
+* Add source fixing capability and fix routines for L046 [#3578](https://github.com/sqlfluff/sqlfluff/pull/3578) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Small grammar cleanup in team rollout docs [#3584](https://github.com/sqlfluff/sqlfluff/pull/3584) [@theianrobertson](https://github.com/theianrobertson)
+* Postgres: `CREATE COLLATION` support [#3571](https://github.com/sqlfluff/sqlfluff/pull/3571) [@greg-finley](https://github.com/greg-finley)
+* Redshift: Add `TOP X` to select clause modifiers [#3582](https://github.com/sqlfluff/sqlfluff/pull/3582) [@pdebelak](https://github.com/pdebelak)
+* Postgres: Small fixes to `COMMENT ON` [#3566](https://github.com/sqlfluff/sqlfluff/pull/3566) [@greg-finley](https://github.com/greg-finley)
+* Support MySQL system variables [#3576](https://github.com/sqlfluff/sqlfluff/pull/3576) [@qgallet](https://github.com/qgallet)
+* Allow no alias for selects in CTEs with a column list [#3580](https://github.com/sqlfluff/sqlfluff/pull/3580) [@pdebelak](https://github.com/pdebelak)
+* New dialect AWS Athena [#3551](https://github.com/sqlfluff/sqlfluff/pull/3551) [@cmotta](https://github.com/cmotta)
+* Split apart `fix_string()`. [#3568](https://github.com/sqlfluff/sqlfluff/pull/3568) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Fix incorrect L022 with postgres dialect with CTE argument list [#3570](https://github.com/sqlfluff/sqlfluff/pull/3570) [@pdebelak](https://github.com/pdebelak)
+* Simplify lint fixing (prep for source fixes) [#3567](https://github.com/sqlfluff/sqlfluff/pull/3567) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Exclude .coverage.py from linting [#3564](https://github.com/sqlfluff/sqlfluff/pull/3564) [@zidder](https://github.com/zidder)
+* L016: `ignore_comment_clauses` not working for postgres dialect [#3549](https://github.com/sqlfluff/sqlfluff/pull/3549) [@barrywhart](https://github.com/barrywhart)
+* Groundwork for a fix routine for L046 [#3552](https://github.com/sqlfluff/sqlfluff/pull/3552) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Add better handling for SQLFluffUserError when running core cli commands [#3431](https://github.com/sqlfluff/sqlfluff/pull/3431) [@alanmcruickshank](https://github.com/alanmcruickshank)
+
+## New Contributors
+
+* [@pdebelak](https://github.com/pdebelak) made their first contribution in [#3570](https://github.com/sqlfluff/sqlfluff/pull/3570)
+* [@cmotta](https://github.com/cmotta) made their first contribution in [#3551](https://github.com/sqlfluff/sqlfluff/pull/3551)
+* [@qgallet](https://github.com/qgallet) made their first contribution in [#3576](https://github.com/sqlfluff/sqlfluff/pull/3576)
+* [@theianrobertson](https://github.com/theianrobertson) made their first contribution in [#3584](https://github.com/sqlfluff/sqlfluff/pull/3584)
+* [@davidfuhr](https://github.com/davidfuhr) made their first contribution in [#3596](https://github.com/sqlfluff/sqlfluff/pull/3596)
+* [@Aditya-Tripuraneni](https://github.com/Aditya-Tripuraneni) made their first contribution in [#3604](https://github.com/sqlfluff/sqlfluff/pull/3596)
+
 ## [1.1.0] - 2022-07-03
 
 ## Highlights
