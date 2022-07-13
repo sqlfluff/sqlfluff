@@ -13,6 +13,17 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 ## [1.2.0] - 2022-07-13
 
 ## Highlights
+Major changes include:
+* Adding AWS Athena as a dialect.
+* A fix routine for L046 (whitespace in jinja tags), and the mechanisms for
+  more source-only fixes in future.
+* By default, large files (over 20k characters) are now skipped by sqlfluff. This
+  limit is configurable and disable-able but exists as a sensible default to avoid
+  the performance overhead of linting *very* large files.
+* For the dbt templater, fatal compilation errors now lo longer stop linting, and
+  these files are now skipped instead. This enables projects to continue linting
+  beyond the offending file and much better logging information to enable better
+  debugging.
 
 ## What’s Changed
 
