@@ -41,7 +41,7 @@ and is meant to categorize rules; you could use the
 letter 'S' to denote rules that enforce security checks
 for example.
 
-An important thing to note when running custom implemented rules: 
+An important thing to note when running custom implemented rules:
 Run ``pip install -e .``, inside the plugin folder so custom rules in linting
 are included.
 
