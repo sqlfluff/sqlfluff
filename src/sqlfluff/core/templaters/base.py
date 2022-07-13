@@ -3,6 +3,7 @@
 import logging
 from bisect import bisect_left
 from typing import Dict, Iterator, List, Tuple, Optional, NamedTuple, Iterable
+from sqlfluff.core.config import FluffConfig
 
 from sqlfluff.core.errors import SQLTemplaterSkipFile
 
@@ -20,6 +21,32 @@ def iter_indices_of_newlines(raw_str: str) -> Iterator[int]:
             init_idx = nl_pos
         else:
             break  # pragma: no cover TODO?
+
+
+def large_file_check(func):
+    """Raise an exception if the file is over a defined size.
+
+    Designed to be implemented as a decorator on `.process()` methods.
+
+    If no config is provided or the relevant config value is set
+    to zero then the check is skipped.
+    """
+
+    def _wrapped(
+        self, *, in_str: str, fname: str, config: FluffConfig = None, **kwargs
+    ):
+        if config:
+            limit = config.get("large_file_skip_char_limit")
+            if limit and len(in_str) > limit:
+                raise SQLTemplaterSkipFile(
+                    f"Length of file {fname!r} is over {limit} characters. "
+                    "Skipping to avoid parser lock. Users can increase this limit "
+                    "in their config by setting the 'large_file_skip_char_limit' "
+                    "value, or disable by setting it to zero."
+                )
+        return func(self, in_str=in_str, fname=fname, config=config, **kwargs)
+
+    return _wrapped
 
 
 class RawFileSlice(NamedTuple):
@@ -432,14 +459,15 @@ class RawTemplater:
         """
 
     def sequence_files(
-        self, fnames: List[str], config=None, formatter=None
+        self, fnames: List[str], config: FluffConfig = None, formatter=None
     ) -> Iterable[str]:
         """Given files to be processed, return a valid processing sequence."""
         # Default is to process in the original order.
         return fnames
 
+    @large_file_check
     def process(
-        self, *, in_str: str, fname: str, config=None, formatter=None
+        self, *, in_str: str, fname: str, config: FluffConfig = None, formatter=None
     ) -> Tuple[Optional[TemplatedFile], list]:
         """Process a string and return a TemplatedFile.
 
