@@ -42,7 +42,8 @@ letter 'S' to denote rules that enforce security checks
 for example.
 
 An important thing to note when running custom implemented rules: 
-Run ``pip install - e``, inside the plugin folder so  custom rules in linting are included.
+Run ``pip install -e .``, inside the plugin folder so custom rules in linting
+are included.
 
 A plugin Rule code includes the PluginName,
 so a rule "Rule_L000" in core will have code "L000",
