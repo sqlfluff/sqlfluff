@@ -2,6 +2,7 @@
 
 import pytest
 import logging
+from sqlfluff.core.errors import SQLTemplaterSkipFile
 
 from sqlfluff.core.templaters import PythonTemplater
 from sqlfluff.core import SQLTemplaterError, FluffConfig
@@ -473,3 +474,24 @@ def test__templater_python_slice_file(raw_file, templated_file, unwrap_wrapped, 
         prev_slice = (templated_slice.source_slice, templated_slice.templated_slice)
     # check result
     assert resp == result
+
+
+def test__templater_python_large_file_check():
+    """Test large file skipping.
+
+    The check is seperately called on each .process() method
+    so it makes sense to test a few templaters.
+    """
+    # First check we can process the file normally without config.
+    PythonTemplater().process(in_str="SELECT 1", fname="<string>")
+    # Then check we raise a skip exception when config is set low.
+    with pytest.raises(SQLTemplaterSkipFile) as excinfo:
+        PythonTemplater().process(
+            in_str="SELECT 1",
+            fname="<string>",
+            config=FluffConfig(
+                overrides={"dialect": "ansi", "large_file_skip_char_limit": 2},
+            ),
+        )
+
+    assert "Length of file" in str(excinfo.value)
