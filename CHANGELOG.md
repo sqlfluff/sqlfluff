@@ -20,7 +20,7 @@ Major changes include:
 * By default, large files (over 20k characters) are now skipped by sqlfluff. This
   limit is configurable and disable-able but exists as a sensible default to avoid
   the performance overhead of linting *very* large files.
-* For the dbt templater, fatal compilation errors now lo longer stop linting, and
+* For the dbt templater, fatal compilation errors now no longer stop linting, and
   these files are now skipped instead. This enables projects to continue linting
   beyond the offending file and much better logging information to enable better
   debugging.
