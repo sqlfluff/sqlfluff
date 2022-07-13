@@ -27,6 +27,7 @@ Major changes include:
 
 ## What’s Changed
 
+* Improve documentation for custom implemented rules [#3604](https://github.com/sqlfluff/sqlfluff/pull/3603) [@Aditya-Tripuraneni](https://github.com/Aditya-Tripuraneni)
 * Add a skip and better logging for fatal dbt issues [#3603](https://github.com/sqlfluff/sqlfluff/pull/3603) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * Add large file check [#3600](https://github.com/sqlfluff/sqlfluff/pull/3600) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * Oracle: extend support for `ALTER TABLE` [#3596](https://github.com/sqlfluff/sqlfluff/pull/3596) [@davidfuhr](https://github.com/davidfuhr)
