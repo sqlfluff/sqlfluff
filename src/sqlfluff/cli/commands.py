@@ -696,9 +696,9 @@ def do_fixes(lnt, result, formatter=None, **kwargs):
     ),
 )
 @click.option(
-    "--show_errors",
+    "--show_lint_violations",
     is_flag=True,
-    help="Show lint Errors",
+    help="Show lint Violations",
 )
 
 @click.argument("paths", nargs=-1, type=click.Path(allow_dash=True))
@@ -712,7 +712,7 @@ def fix(
     disable_progress_bar: Optional[bool] = False,
     extra_config_path: Optional[str] = None,
     ignore_local_config: bool = False,
-    show_errors: bool = False,
+    show_lint_violations: bool = False,
     **kwargs,
 ) -> None:
     """Fix SQL files.
@@ -875,15 +875,18 @@ def fix(
             click.echo(f"=== {step} ===")
             click.echo(formatter.cli_table(timing_summary[step].items()))
 
-    if show_errors:
-        for violation in result.get_violations():
+    if show_lint_violations:
+        click.echo("==== lint for unfixable violations ====")
+        lnt, formatter = get_linter_and_formatter(config)
+        for violation in result.get_violations(**num_violations_kwargs):
             try:
                 # Normal SQLFluff warnings
                 message = f"{violation.rule_code()}: {violation.description}"
             except AttributeError:
                 # Parse errors
-                message = str(violation)
-            click.echo(message)
+                message = str(violation)                
+            f = formatter.format_violation(violation)                
+            click.echo(f)
         
     sys.exit(exit_code)
 

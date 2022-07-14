@@ -9,7 +9,7 @@ WITH organizations AS (
 
 accounts AS (
 
-    SELECT
+SELECT
         app_key,
         organization_id
     FROM {{ ref('platform_stg__accounts') }}
