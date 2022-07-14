@@ -22,6 +22,7 @@ import colorama
 from tqdm import tqdm
 from sqlfluff.cli.autocomplete import shell_completion_enabled, dialect_shell_complete
 
+from sqlfluff.cli import EXIT_SUCCESS, EXIT_ERROR, EXIT_FAIL
 from sqlfluff.cli.formatters import (
     format_linting_result_header,
     OutputStreamFormatter,
@@ -154,7 +155,7 @@ class PathAndUserErrorHandler:
                     Color.red,
                 )
             )
-            sys.exit(1)
+            sys.exit(EXIT_ERROR)
         elif exc_type is SQLFluffUserError:
             click.echo(
                 "\nUser Error: "
@@ -163,7 +164,7 @@ class PathAndUserErrorHandler:
                     Color.red,
                 )
             )
-            sys.exit(1)
+            sys.exit(EXIT_ERROR)
 
 
 def common_options(f: Callable) -> Callable:
@@ -335,7 +336,7 @@ def get_config(
                     color=Color.red,
                 )
             )
-            sys.exit(66)
+            sys.exit(EXIT_ERROR)
         except KeyError:
             click.echo(
                 OutputStreamFormatter.colorize_helper(
@@ -344,7 +345,7 @@ def get_config(
                     color=Color.red,
                 )
             )
-            sys.exit(66)
+            sys.exit(EXIT_ERROR)
     from_root_kwargs = {}
     if "require_dialect" in kwargs:
         from_root_kwargs["require_dialect"] = kwargs.pop("require_dialect")
@@ -365,7 +366,7 @@ def get_config(
                 color=Color.red,
             )
         )
-        sys.exit(66)
+        sys.exit(EXIT_ERROR)
 
 
 def get_linter_and_formatter(
@@ -380,7 +381,7 @@ def get_linter_and_formatter(
             dialect_selector(dialect)
     except KeyError:  # pragma: no cover
         click.echo(f"Error: Unknown dialect '{cfg.get('dialect')}'")
-        sys.exit(66)
+        sys.exit(EXIT_ERROR)
     formatter = OutputStreamFormatter(
         output_stream=output_stream or make_output_stream(cfg),
         nocolor=cfg.get("nocolor"),
@@ -635,7 +636,7 @@ def lint(
             formatter.completion_message()
         sys.exit(result.stats()["exit code"])
     else:
-        sys.exit(0)
+        sys.exit(EXIT_SUCCESS)
 
 
 def do_fixes(lnt, result, formatter=None, **kwargs):
@@ -730,7 +731,7 @@ def fix(
     verbose = config.get("verbose")
     progress_bar_configuration.disable_progress_bar = disable_progress_bar
 
-    exit_code = 0
+    exit_code = EXIT_SUCCESS
 
     formatter.dispatch_config(lnt)
 
@@ -780,7 +781,7 @@ def fix(
             )
 
         click.echo(stdout, nl=False)
-        sys.exit(1 if templater_error or unfixable_error else exit_code)
+        sys.exit(EXIT_FAIL if templater_error or unfixable_error else exit_code)
 
     # Lint the paths (not with the fix argument at this stage), outputting as we go.
     click.echo("==== finding fixable violations ====")
@@ -816,7 +817,7 @@ def fix(
                 fixed_file_suffix=fixed_suffix,
             )
             if not success:
-                sys.exit(1)  # pragma: no cover
+                sys.exit(EXIT_FAIL)  # pragma: no cover
         else:
             click.echo(
                 "Are you sure you wish to attempt to fix these? [Y/n] ", nl=False
@@ -833,16 +834,16 @@ def fix(
                     fixed_file_suffix=fixed_suffix,
                 )
                 if not success:
-                    sys.exit(1)  # pragma: no cover
+                    sys.exit(EXIT_FAIL)  # pragma: no cover
                 else:
                     formatter.completion_message()
             elif c == "n":
                 click.echo("Aborting...")
-                exit_code = 1
+                exit_code = EXIT_FAIL
             else:  # pragma: no cover
                 click.echo("Invalid input, please enter 'Y' or 'N'")
                 click.echo("Aborting...")
-                exit_code = 1
+                exit_code = EXIT_FAIL
     else:
         click.echo("==== no fixable linting violations found ====")
         formatter.completion_message()
@@ -851,7 +852,7 @@ def fix(
         (
             dict(types=SQLLintError, fixable=False),
             "  [{} unfixable linting violations found]",
-            1,
+            EXIT_FAIL,
         ),
     ]
     for num_violations_kwargs, message_format, error_level in error_types:
@@ -986,7 +987,7 @@ def parse(
             import cProfile
         except ImportError:  # pragma: no cover
             click.echo("The cProfiler is not available on your platform.")
-            sys.exit(1)
+            sys.exit(EXIT_ERROR)
         pr = cProfile.Profile()
         pr.enable()
 
@@ -1053,9 +1054,9 @@ def parse(
         click.echo("\n".join(profiler_buffer.getvalue().split("\n")[:50]))
 
     if violations_count > 0 and not nofail:
-        sys.exit(66)  # pragma: no cover
+        sys.exit(EXIT_FAIL)  # pragma: no cover
     else:
-        sys.exit(0)
+        sys.exit(EXIT_SUCCESS)
 
 
 # This "__main__" handler allows invoking SQLFluff using "python -m", which
