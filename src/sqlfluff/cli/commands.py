@@ -695,6 +695,12 @@ def do_fixes(lnt, result, formatter=None, **kwargs):
         "or in the .sqlfluff config file."
     ),
 )
+@click.option(
+    "--show_errors",
+    is_flag=True,
+    help="Show Errors",
+)
+
 @click.argument("paths", nargs=-1, type=click.Path(allow_dash=True))
 def fix(
     force: bool,
@@ -706,6 +712,7 @@ def fix(
     disable_progress_bar: Optional[bool] = False,
     extra_config_path: Optional[str] = None,
     ignore_local_config: bool = False,
+    show_errors: bool = False,
     **kwargs,
 ) -> None:
     """Fix SQL files.
@@ -868,6 +875,16 @@ def fix(
             click.echo(f"=== {step} ===")
             click.echo(formatter.cli_table(timing_summary[step].items()))
 
+    if show_errors:
+        for violation in result.get_violations():
+            try:
+                # Normal SQLFluff warnings
+                message = f"{violation.rule_code()}: {violation.description}"
+            except AttributeError:
+                # Parse errors
+                message = str(violation)
+            click.echo(message)
+        
     sys.exit(exit_code)
 
 
