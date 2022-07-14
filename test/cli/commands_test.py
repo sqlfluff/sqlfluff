@@ -1600,3 +1600,59 @@ class TestProgressBars:
         assert r"\rlint by rules:" in raw_output
         assert r"\rrule L001:" in raw_output
         assert r"\rrule L049:" in raw_output
+
+
+multiple_expected_output = """==== finding fixable violations ====
+==== no fixable linting violations found ====
+All Finished!
+  [4 unfixable linting violations found]
+"""
+
+def test__cli__fix_multiple_errors_no_show_errors():
+    """Basic checking of lint functionality."""
+    result = invoke_assert_code(
+        ret_code=1,
+        args=[
+            fix,
+            [
+                "--disable_progress_bar",
+                "test/fixtures/linter/multiple_sql_errors.sql",
+            ],
+        ],
+    )
+    # We should get a readout of what the error was
+    check_a = "4 unfixable linting violations found"
+    assert check_a in result.output
+    # Finally check the WHOLE output to make sure that unexpected newlines are not
+    # added. The replace command just accounts for cross platform testing.
+    assert result.output.replace("\\", "/").startswith(multiple_expected_output)
+
+multiple_show_expected_output = """==== finding fixable violations ====
+==== no fixable linting violations found ====
+All Finished!
+  [4 unfixable linting violations found]
+L027: Unqualified reference 'package_id' found in select with more than one referenced table/view.
+L027: Unqualified reference 'owner_type' found in select with more than one referenced table/view.
+L027: Unqualified reference 'app_key' found in select with more than one referenced table/view.
+L027: Unqualified reference 'owner_id' found in select with more than one referenced table/view.  
+"""
+
+def test__cli__fix_multiple_errors_show_errors():
+    """Basic checking of lint functionality."""
+    result = invoke_assert_code(
+        ret_code=1,
+        args=[
+            fix,
+            [
+                "--disable_progress_bar",
+                "--show_errors",
+                "test/fixtures/linter/multiple_sql_errors.sql",
+            ],
+        ],
+    )
+    # We should get a readout of what the error was
+    check_a = "4 unfixable linting violations found"
+    assert check_a in result.output
+    # Finally check the WHOLE output to make sure that unexpected newlines are not
+    # added. The replace command just accounts for cross platform testing.
+    assert result.output.replace("\\", "/").startswith(multiple_expected_output)
