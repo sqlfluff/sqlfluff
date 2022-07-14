@@ -21,6 +21,7 @@ from sqlfluff.core.errors import (
 )
 
 from sqlfluff.core.timing import TimingSummary
+
 # Classes needed only for type checking
 from sqlfluff.core.parser.segments.base import BaseSegment
 from sqlfluff.core.linter.linted_dir import LintedDir
@@ -131,7 +132,9 @@ class LintingResult:
             all_stats["unclean rate"] = 0
         all_stats["clean files"] = all_stats["clean"]
         all_stats["unclean files"] = all_stats["unclean"]
-        all_stats["exit code"] = EXIT_FAIL if all_stats["violations"] > 0 else EXIT_SUCCESS
+        all_stats["exit code"] = (
+            EXIT_FAIL if all_stats["violations"] > 0 else EXIT_SUCCESS
+        )
         all_stats["status"] = "FAIL" if all_stats["violations"] > 0 else "PASS"
         return all_stats
 
