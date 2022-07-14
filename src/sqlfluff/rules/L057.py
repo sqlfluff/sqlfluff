@@ -1,6 +1,7 @@
 """Implementation of Rule L057."""
-import regex
 from typing import Optional
+
+import regex
 
 from sqlfluff.core.rules.base import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.doc_decorators import document_configuration, document_groups
@@ -163,6 +164,15 @@ class Rule_L057(BaseRule):
 
         # We always allow underscores so strip them out
         identifier = identifier.replace("_", "")
+
+        # redshift allows a # at the beginning of temporary table names
+        if (
+            context.dialect.name == "redshift"
+            and identifier[0] == "#"
+            and context.parent_stack
+            and context.parent_stack[-1].name == "TableReferenceSegment"
+        ):
+            identifier = identifier[1:]
 
         # Set the identified minus the allowed characters
         if self.additional_allowed_characters:
