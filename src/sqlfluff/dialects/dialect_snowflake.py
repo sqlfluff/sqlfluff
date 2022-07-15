@@ -1037,16 +1037,11 @@ class SetAssignmentStatementSegment(BaseSegment):
         ),
         Sequence(
             "SET",
-            Bracketed(
-                Delimited(
-                    Ref("LocalVariableNameSegment"), delimiter=Ref("CommaSegment")
-                )
-            ),
+            Bracketed(Delimited(Ref("LocalVariableNameSegment"))),
             Ref("EqualsSegment"),
             Bracketed(
                 Delimited(
                     Ref("ExpressionSegment"),
-                    delimiter=Ref("CommaSegment"),
                 ),
             ),
         ),
@@ -1298,7 +1293,7 @@ class FromPivotExpressionSegment(BaseSegment):
             "FOR",
             Ref("SingleIdentifierGrammar"),
             "IN",
-            Bracketed(Delimited(Ref("LiteralGrammar"), delimiter=Ref("CommaSegment"))),
+            Bracketed(Delimited(Ref("LiteralGrammar"))),
         ),
     )
 
@@ -1314,9 +1309,7 @@ class FromUnpivotExpressionSegment(BaseSegment):
             "FOR",
             Ref("SingleIdentifierGrammar"),
             "IN",
-            Bracketed(
-                Delimited(Ref("SingleIdentifierGrammar"), delimiter=Ref("CommaSegment"))
-            ),
+            Bracketed(Delimited(Ref("SingleIdentifierGrammar"))),
         ),
     )
 
@@ -4509,7 +4502,7 @@ class AlterSessionUnsetClauseSegment(BaseSegment):
 
     match_grammar = Sequence(
         "UNSET",
-        Delimited(Ref("ParameterNameSegment"), delimiter=Ref("CommaSegment")),
+        Delimited(Ref("ParameterNameSegment")),
     )
 
 
@@ -4626,7 +4619,6 @@ class AlterTaskSetClauseSegment(BaseSegment):
                     Ref("NumericLiteralSegment"),
                 ),
             ),
-            delimiter=Ref("CommaSegment"),
         ),
     )
 
@@ -4645,7 +4637,7 @@ class AlterTaskUnsetClauseSegment(BaseSegment):
 
     match_grammar = Sequence(
         "UNSET",
-        Delimited(Ref("ParameterNameSegment"), delimiter=Ref("CommaSegment")),
+        Delimited(Ref("ParameterNameSegment")),
     )
 
 

@@ -927,7 +927,6 @@ class RelationalIndexOptionsSegment(BaseSegment):
                                                         "BLOCKERS",
                                                     ),
                                                 ),
-                                                delimiter=Ref("CommaSegment"),
                                             ),
                                         ),
                                     ),
@@ -960,7 +959,6 @@ class RelationalIndexOptionsSegment(BaseSegment):
                     ),
                     min_times=1,
                 ),
-                delimiter=Ref("CommaSegment"),
             ),
         ),
     )
@@ -3897,7 +3895,6 @@ class AccessStatementSegment(BaseSegment):
                 Sequence(
                     Delimited(
                         OneOf(_global_permissions, _permissions),
-                        delimiter=Ref("CommaSegment"),
                         terminator="ON",
                     ),
                 ),
@@ -3913,7 +3910,6 @@ class AccessStatementSegment(BaseSegment):
             "TO",
             Delimited(
                 OneOf(Ref("RoleReferenceSegment"), Ref("FunctionSegment")),
-                delimiter=Ref("CommaSegment"),
             ),
             OneOf(
                 Sequence("WITH", "GRANT", "OPTION"),
@@ -3930,7 +3926,6 @@ class AccessStatementSegment(BaseSegment):
             OneOf(
                 Delimited(
                     OneOf(_global_permissions, _permissions),
-                    delimiter=Ref("CommaSegment"),
                     terminator="ON",
                 ),
                 Sequence("ALL", Ref.keyword("PRIVILEGES", optional=True)),
@@ -3945,7 +3940,6 @@ class AccessStatementSegment(BaseSegment):
             OneOf("TO"),
             Delimited(
                 Ref("RoleReferenceSegment"),
-                delimiter=Ref("CommaSegment"),
             ),
             Sequence(
                 Ref.keyword("CASCADE", optional=True),
@@ -3959,7 +3953,6 @@ class AccessStatementSegment(BaseSegment):
             OneOf(
                 Delimited(
                     OneOf(_global_permissions, _permissions),
-                    delimiter=Ref("CommaSegment"),
                     terminator="ON",
                 ),
                 Sequence("ALL", Ref.keyword("PRIVILEGES", optional=True)),
@@ -3974,7 +3967,6 @@ class AccessStatementSegment(BaseSegment):
             OneOf("TO", "FROM"),
             Delimited(
                 Ref("RoleReferenceSegment"),
-                delimiter=Ref("CommaSegment"),
             ),
             Sequence(
                 Ref.keyword("CASCADE", optional=True),

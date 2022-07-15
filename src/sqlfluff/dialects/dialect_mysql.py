@@ -1072,7 +1072,6 @@ class ProcedureParameterListGrammar(BaseSegment):
     match_grammar = Bracketed(
         Delimited(
             Ref("ProcedureParameterGrammar"),
-            delimiter=Ref("CommaSegment"),
             optional=True,
         ),
     )

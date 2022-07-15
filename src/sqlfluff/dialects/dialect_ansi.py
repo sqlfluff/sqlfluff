@@ -3081,7 +3081,6 @@ class AccessStatementSegment(BaseSegment):
                 Sequence(
                     Delimited(
                         OneOf(_global_permissions, _permissions),
-                        delimiter=Ref("CommaSegment"),
                         terminator="ON",
                     ),
                     "ON",
@@ -3098,7 +3097,6 @@ class AccessStatementSegment(BaseSegment):
             OneOf("GROUP", "USER", "ROLE", "SHARE", optional=True),
             Delimited(
                 OneOf(Ref("RoleReferenceSegment"), Ref("FunctionSegment"), "PUBLIC"),
-                delimiter=Ref("CommaSegment"),
             ),
             OneOf(
                 Sequence("WITH", "GRANT", "OPTION"),
@@ -3125,7 +3123,6 @@ class AccessStatementSegment(BaseSegment):
                 Sequence(
                     Delimited(
                         OneOf(_global_permissions, _permissions),
-                        delimiter=Ref("CommaSegment"),
                         terminator="ON",
                     ),
                     "ON",
@@ -3138,7 +3135,6 @@ class AccessStatementSegment(BaseSegment):
             OneOf("GROUP", "USER", "ROLE", "SHARE", optional=True),
             Delimited(
                 Ref("ObjectReferenceSegment"),
-                delimiter=Ref("CommaSegment"),
             ),
             Ref("DropBehaviorGrammar", optional=True),
         ),
@@ -3297,7 +3293,6 @@ class FunctionParameterListGrammar(BaseSegment):
     match_grammar: Matchable = Bracketed(
         Delimited(
             Ref("FunctionParameterGrammar"),
-            delimiter=Ref("CommaSegment"),
             optional=True,
         ),
     )
