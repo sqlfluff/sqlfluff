@@ -881,7 +881,7 @@ def fix(
             try:
                 # Normal SQLFluff warnings
                 message = f"{violation.rule_code()}: {violation.description}"
-            except AttributeError:
+            except AttributeError:  # pragma: no cover
                 # Parse errors
                 message = str(violation)                
             f = formatter.format_violation(violation)                
