@@ -698,7 +698,7 @@ def do_fixes(lnt, result, formatter=None, **kwargs):
 @click.option(
     "--show_lint_violations",
     is_flag=True,
-    help="Show lint Violations",
+    help="Show lint violations",
 )
 
 @click.argument("paths", nargs=-1, type=click.Path(allow_dash=True))
@@ -877,7 +877,6 @@ def fix(
 
     if show_lint_violations:
         click.echo("==== lint for unfixable violations ====")
-        lnt, formatter = get_linter_and_formatter(config)
         for violation in result.get_violations(**num_violations_kwargs):
             try:
                 # Normal SQLFluff warnings
