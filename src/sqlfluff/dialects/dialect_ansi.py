@@ -660,14 +660,21 @@ class ObjectLiteralSegment(BaseSegment):
     type = "object_literal"
     match_grammar: Matchable = Bracketed(
         Delimited(
-            Sequence(
-                Ref("QuotedLiteralSegment"),
-                Ref("ColonSegment"),
-                Ref("BaseExpressionElementGrammar"),
-            ),
+            Ref("ObjectLiteralElementSegment"),
             optional=True,
         ),
         bracket_type="curly",
+    )
+
+
+class ObjectLiteralElementSegment(BaseSegment):
+    """An object literal element segment."""
+
+    type = "object_literal_element"
+    match_grammar: Matchable = Sequence(
+        Ref("QuotedLiteralSegment"),
+        Ref("ColonSegment"),
+        Ref("BaseExpressionElementGrammar"),
     )
 
 
