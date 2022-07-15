@@ -233,12 +233,12 @@ tsql_dialect.replace(
         )
     ),
     # Overring ANSI BaseExpressionElement to remove Interval Expression Segment
-    BaseExpressionElementGrammar=OneOf(
-        Ref("LiteralGrammar"),
-        Ref("BareFunctionSegment"),
-        Ref("FunctionSegment"),
-        Ref("ColumnReferenceSegment"),
-        Ref("ExpressionSegment"),
+    BaseExpressionElementGrammar=ansi_dialect.get_grammar(
+        "BaseExpressionElementGrammar"
+    ).copy(
+        remove=[
+            Ref("IntervalExpressionSegment"),
+        ]
     ),
     SingleIdentifierGrammar=OneOf(
         Ref("NakedIdentifierSegment"),
