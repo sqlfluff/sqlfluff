@@ -639,6 +639,7 @@ class PrimitiveTypeSegment(BaseSegment):
         # "SHORT",
         "SMALLINT",
         "INT",
+        "INTEGER",
         "BIGINT",
         "FLOAT",
         "REAL",
