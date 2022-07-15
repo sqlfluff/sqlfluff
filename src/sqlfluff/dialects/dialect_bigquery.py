@@ -1201,7 +1201,7 @@ class ColumnReferenceSegment(ObjectReferenceSegment):
         return super().extract_possible_multipart_references(levels)
 
 
-class HyphenatedTableReferenceSegment(ObjectReferenceSegment):
+class TableReferenceSegment(ObjectReferenceSegment):
     """A reference to an object that may contain embedded hyphens."""
 
     type = "table_reference"
@@ -1256,16 +1256,6 @@ class HyphenatedTableReferenceSegment(ObjectReferenceSegment):
                 segments = list(elems)
                 parts = [seg.raw_trimmed() for seg in segments]
                 yield self.ObjectReferencePart("".join(parts), segments)
-
-
-class TableExpressionSegment(ansi.TableExpressionSegment):
-    """Main table expression e.g. within a FROM clause, with hyphen support."""
-
-    match_grammar = ansi.TableExpressionSegment.match_grammar.copy(
-        insert=[
-            Ref("HyphenatedTableReferenceSegment"),
-        ]
-    )
 
 
 class DeclareStatementSegment(BaseSegment):
