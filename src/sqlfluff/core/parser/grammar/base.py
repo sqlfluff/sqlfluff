@@ -53,14 +53,19 @@ def cached_method_for_parse_context(func):
     """
     cache_key = "__cache_" + func.__name__
 
-    def wrapped_method(self, parse_context: ParseContext):
-        """Cache the output of the method against a given parse context."""
+    def wrapped_method(self, parse_context: ParseContext, **kwargs):
+        """Cache the output of the method against a given parse context.
+
+        Note: kwargs are not taken into account in the caching, but
+        for the current use case of dependency loop debugging that's
+        ok.
+        """
         cache_tuple: Tuple = self.__dict__.get(cache_key, (None, None))
         # Do we currently have a cached value?
         if cache_tuple[0] == parse_context.uuid:
             return cache_tuple[1]
         # Generate a new value, cache it and return
-        result = func(self, parse_context=parse_context)
+        result = func(self, parse_context=parse_context, **kwargs)
         self.__dict__[cache_key] = (parse_context.uuid, result)
         return result
 
@@ -174,7 +179,7 @@ class BaseGrammar(Matchable):
         )  # pragma: no cover
 
     @cached_method_for_parse_context
-    def simple(self, parse_context: ParseContext) -> Optional[List[str]]:
+    def simple(self, parse_context: ParseContext, crumbs=None) -> Optional[List[str]]:
         """Does this matcher support a lowercase hash matching route?"""
         return None
 
@@ -801,13 +806,21 @@ class Ref(BaseGrammar):
         super().__init__(*args, **kwargs)
 
     @cached_method_for_parse_context
-    def simple(self, parse_context: ParseContext) -> Optional[List[str]]:
+    def simple(
+        self, parse_context: ParseContext, crumbs: Optional[Tuple[str]] = None
+    ) -> Optional[List[str]]:
         """Does this matcher support a uppercase hash matching route?
 
         A ref is simple, if the thing it references is simple.
         """
+        ref = self._get_ref()
+        if crumbs and ref in crumbs:
+            loop = " -> ".join(crumbs)
+            raise RecursionError(f"Self referential grammar detected: {loop}")
+        crumbs = (crumbs or ()) + (ref,)
         return self._get_elem(dialect=parse_context.dialect).simple(
-            parse_context=parse_context
+            parse_context=parse_context,
+            crumbs=crumbs,
         )
 
     def _get_ref(self):
