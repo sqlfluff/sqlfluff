@@ -14,14 +14,16 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 ## Highlights
 
+This is primarily a bugfix release to resolve an issue with the 1.2.0 release
+where the new version of `sqlfluff-templater-dbt` relied on functionality
+from the new version of `sqlfluff` but the package configuration had not
+been updated. Versions of the two packages are now pinned together.
+
 ## What’s Changed
 
 * Pin sqlfluff-templater-dbt via release script [#3613](https://github.com/sqlfluff/sqlfluff/pull/3613) [@greg-finley](https://github.com/greg-finley)
 * Specifying comma delimited is unnecessary [#3616](https://github.com/sqlfluff/sqlfluff/pull/3616) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * Handle redshift temporary tables with # at the beginning of name [#3615](https://github.com/sqlfluff/sqlfluff/pull/3615) [@pdebelak](https://github.com/pdebelak)
-
-## New Contributors
-
 
 
 ## [1.2.0] - 2022-07-13
