@@ -121,7 +121,6 @@ bigquery_dialect.add(
     DashSegment=StringParser("-", SymbolSegment, name="dash", type="dash"),
     SelectClauseElementListGrammar=Delimited(
         Ref("SelectClauseElementSegment"),
-        delimiter=Ref("CommaSegment"),
         allow_trailing=True,
     ),
     QuestionMarkSegment=StringParser(
@@ -920,7 +919,6 @@ class FunctionDefinitionGrammar(ansi.FunctionDefinitionGrammar):
                                 Ref("EqualsSegment"),
                                 Anything(),
                             ),
-                            delimiter=Ref("CommaSegment"),
                         )
                     ),
                     optional=True,
@@ -961,7 +959,7 @@ class ExceptClauseSegment(BaseSegment):
     match_grammar = Sequence(
         "EXCEPT",
         Bracketed(
-            Delimited(Ref("SingleIdentifierGrammar"), delimiter=Ref("CommaSegment"))
+            Delimited(Ref("SingleIdentifierGrammar"))
         ),
     )
 
@@ -977,7 +975,6 @@ class ReplaceClauseSegment(BaseSegment):
                 # Not *really* a select target element. It behaves exactly
                 # the same way however.
                 Ref("SelectClauseElementSegment"),
-                delimiter=Ref("CommaSegment"),
             )
         ),
     )
@@ -1018,7 +1015,6 @@ class StructTypeSegment(ansi.StructTypeSegment):
                     ),
                     Ref("OptionsSegment", optional=True),
                 ),
-                delimiter=Ref("CommaSegment"),
             ),
             bracket_type="angle",
             bracket_pairs_set="angle_bracket_pairs",
@@ -1846,7 +1842,6 @@ class ProcedureParameterListSegment(BaseSegment):
     match_grammar = Bracketed(
         Delimited(
             Ref("ProcedureParameterGrammar"),
-            delimiter=Ref("CommaSegment"),
             optional=True,
         )
     )

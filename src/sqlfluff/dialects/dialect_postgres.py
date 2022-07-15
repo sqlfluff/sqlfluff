@@ -709,7 +709,6 @@ class CreateFunctionStatementSegment(ansi.CreateFunctionStatementSegment):
                                     Ref("DatatypeSegment"),
                                 ),
                             ),
-                            delimiter=Ref("CommaSegment"),
                         )
                     ),
                     optional=True,
@@ -983,7 +982,6 @@ class FunctionDefinitionGrammar(ansi.FunctionDefinitionGrammar):
                                 Ref("ParameterNameSegment"),
                                 Ref("LiteralGrammar"),
                             ),
-                            delimiter=Ref("CommaSegment"),
                         ),
                     ),
                     Sequence("FROM", "CURRENT"),
@@ -1004,7 +1002,7 @@ class FunctionDefinitionGrammar(ansi.FunctionDefinitionGrammar):
         Sequence(
             "WITH",
             Bracketed(
-                Delimited(Ref("ParameterNameSegment"), delimiter=Ref("CommaSegment"))
+                Delimited(Ref("ParameterNameSegment"))
             ),
             optional=True,
         ),
@@ -1090,7 +1088,7 @@ class SelectClauseModifierSegment(ansi.SelectClauseModifierSegment):
             Sequence(
                 "ON",
                 Bracketed(
-                    Delimited(Ref("ExpressionSegment"), delimiter=Ref("CommaSegment"))
+                    Delimited(Ref("ExpressionSegment"))
                 ),
                 optional=True,
             ),
@@ -1445,7 +1443,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                     "INHERITS",
                     Bracketed(
                         Delimited(
-                            Ref("TableReferenceSegment"), delimiter=Ref("CommaSegment")
+                            Ref("TableReferenceSegment")
                         )
                     ),
                     optional=True,
@@ -1463,7 +1461,6 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                             AnyNumberOf(Ref("ColumnConstraintSegment")),
                         ),
                         Ref("TableConstraintSegment"),
-                        delimiter=Ref("CommaSegment"),
                     ),
                     optional=True,
                 ),
@@ -1481,7 +1478,6 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                             AnyNumberOf(Ref("ColumnConstraintSegment")),
                         ),
                         Ref("TableConstraintSegment"),
-                        delimiter=Ref("CommaSegment"),
                     ),
                     optional=True,
                 ),
@@ -1513,7 +1509,6 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                                     Ref("ParameterNameSegment", optional=True),
                                 ),
                             ),
-                            delimiter=Ref("CommaSegment"),
                         )
                     )
                 ),
@@ -1631,7 +1626,7 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                 Ref("StarSegment", optional=True),
                 OneOf(
                     Delimited(
-                        Ref("AlterTableActionSegment"), delimiter=Ref("CommaSegment")
+                        Ref("AlterTableActionSegment")
                     ),
                     Sequence(
                         "RENAME",
@@ -1682,7 +1677,7 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                     "OWNED",
                     "BY",
                     Delimited(
-                        Ref("ObjectReferenceSegment"), delimiter=Ref("CommaSegment")
+                        Ref("ObjectReferenceSegment")
                     ),
                     optional=True,
                 ),
@@ -1785,7 +1780,6 @@ class AlterTableActionSegment(BaseSegment):
                                 Ref("EqualsSegment"),
                                 Ref("LiteralGrammar"),
                             ),
-                            delimiter=Ref("CommaSegment"),
                         )
                     ),
                 ),
@@ -1793,7 +1787,7 @@ class AlterTableActionSegment(BaseSegment):
                     "RESET",
                     Bracketed(
                         Delimited(
-                            Ref("ParameterNameSegment"), delimiter=Ref("CommaSegment")
+                            Ref("ParameterNameSegment")
                         )
                     ),
                 ),
@@ -1864,14 +1858,13 @@ class AlterTableActionSegment(BaseSegment):
                         Ref("EqualsSegment"),
                         Ref("LiteralGrammar"),
                     ),
-                    delimiter=Ref("CommaSegment"),
                 )
             ),
         ),
         Sequence(
             "RESET",
             Bracketed(
-                Delimited(Ref("ParameterNameSegment"), delimiter=Ref("CommaSegment"))
+                Delimited(Ref("ParameterNameSegment"))
             ),
         ),
         Sequence(
@@ -2454,7 +2447,7 @@ class PartitionBoundSpecSegment(BaseSegment):
         Sequence(
             "IN",
             Bracketed(
-                Delimited(Ref("ExpressionSegment"), delimiter=Ref("CommaSegment"))
+                Delimited(Ref("ExpressionSegment"))
             ),
         ),
         Sequence(
@@ -2462,14 +2455,12 @@ class PartitionBoundSpecSegment(BaseSegment):
             Bracketed(
                 Delimited(
                     OneOf(Ref("ExpressionSegment"), "MINVALUE", "MAXVALUE"),
-                    delimiter=Ref("CommaSegment"),
                 )
             ),
             "TO",
             Bracketed(
                 Delimited(
                     OneOf(Ref("ExpressionSegment"), "MINVALUE", "MAXVALUE"),
-                    delimiter=Ref("CommaSegment"),
                 )
             ),
         ),
@@ -2595,7 +2586,6 @@ class IndexParametersSegment(BaseSegment):
                         Ref("EqualsSegment"),
                         Ref("LiteralGrammar"),
                     ),
-                    delimiter=Ref("CommaSegment"),
                 )
             ),
             optional=True,
@@ -2953,7 +2943,6 @@ class CreateIndexStatementSegment(ansi.CreateIndexStatementSegment):
                                                 Ref("QuotedIdentifierSegment"),
                                             ),
                                         ),
-                                        delimiter=Ref("CommaSegment"),
                                     ),
                                 ),
                             ),
@@ -2963,7 +2952,6 @@ class CreateIndexStatementSegment(ansi.CreateIndexStatementSegment):
                             ),
                         ),
                     ),
-                    delimiter=Ref("CommaSegment"),
                 )
             ),
         ),
@@ -2972,7 +2960,7 @@ class CreateIndexStatementSegment(ansi.CreateIndexStatementSegment):
                 "INCLUDE",
                 Bracketed(
                     Delimited(
-                        Ref("ColumnReferenceSegment"), delimiter=Ref("CommaSegment")
+                        Ref("ColumnReferenceSegment")
                     )
                 ),
             ),
@@ -2985,7 +2973,6 @@ class CreateIndexStatementSegment(ansi.CreateIndexStatementSegment):
                             Ref("EqualsSegment"),
                             Ref("LiteralGrammar"),
                         ),
-                        delimiter=Ref("CommaSegment"),
                     )
                 ),
             ),
