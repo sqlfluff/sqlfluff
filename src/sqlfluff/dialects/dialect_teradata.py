@@ -226,11 +226,7 @@ class TdCollectStatisticsStatementSegment(BaseSegment):
                     "INDEX",
                     Ref("IndexReferenceSegment", optional=True),
                     Ref.keyword("ALL", optional=True),
-                    Bracketed(
-                        Delimited(
-                            Ref("ColumnReferenceSegment")
-                        )
-                    ),
+                    Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
                     Ref("TdOrderByStatClauseSegment", optional=True),
                 ),
                 # UNIQUE INDEX index_name
@@ -428,9 +424,7 @@ class TdColumnConstraintSegment(BaseSegment):
             Sequence(  # COMPRESS [(1.,3.) | 3. | NULL],
                 "COMPRESS",
                 OneOf(
-                    Bracketed(
-                        Delimited(Ref("LiteralGrammar"))
-                    ),
+                    Bracketed(Delimited(Ref("LiteralGrammar"))),
                     Ref("LiteralGrammar"),
                     "NULL",
                     optional=True,
@@ -571,9 +565,7 @@ class TdTableConstraints(BaseSegment):
                 Ref("ObjectReferenceSegment"),  # Index name
                 Ref.keyword("ALL", optional=True),
                 Bracketed(  # Columns making up  constraint
-                    Delimited(
-                        Ref("ColumnReferenceSegment")
-                    ),
+                    Delimited(Ref("ColumnReferenceSegment")),
                 ),
             ),
         )

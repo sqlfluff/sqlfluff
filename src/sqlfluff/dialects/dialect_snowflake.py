@@ -1038,11 +1038,7 @@ class SetAssignmentStatementSegment(BaseSegment):
         ),
         Sequence(
             "SET",
-            Bracketed(
-                Delimited(
-                    Ref("LocalVariableNameSegment")
-                )
-            ),
+            Bracketed(Delimited(Ref("LocalVariableNameSegment"))),
             Ref("EqualsSegment"),
             Bracketed(
                 Delimited(
@@ -1314,9 +1310,7 @@ class FromUnpivotExpressionSegment(BaseSegment):
             "FOR",
             Ref("SingleIdentifierGrammar"),
             "IN",
-            Bracketed(
-                Delimited(Ref("SingleIdentifierGrammar"))
-            ),
+            Bracketed(Delimited(Ref("SingleIdentifierGrammar"))),
         ),
     )
 

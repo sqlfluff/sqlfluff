@@ -1001,9 +1001,7 @@ class FunctionDefinitionGrammar(ansi.FunctionDefinitionGrammar):
         ),
         Sequence(
             "WITH",
-            Bracketed(
-                Delimited(Ref("ParameterNameSegment"))
-            ),
+            Bracketed(Delimited(Ref("ParameterNameSegment"))),
             optional=True,
         ),
     )
@@ -1087,9 +1085,7 @@ class SelectClauseModifierSegment(ansi.SelectClauseModifierSegment):
             "DISTINCT",
             Sequence(
                 "ON",
-                Bracketed(
-                    Delimited(Ref("ExpressionSegment"))
-                ),
+                Bracketed(Delimited(Ref("ExpressionSegment"))),
                 optional=True,
             ),
         ),
@@ -1441,11 +1437,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                 ),
                 Sequence(
                     "INHERITS",
-                    Bracketed(
-                        Delimited(
-                            Ref("TableReferenceSegment")
-                        )
-                    ),
+                    Bracketed(Delimited(Ref("TableReferenceSegment"))),
                     optional=True,
                 ),
             ),
@@ -1625,9 +1617,7 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                 Ref("TableReferenceSegment"),
                 Ref("StarSegment", optional=True),
                 OneOf(
-                    Delimited(
-                        Ref("AlterTableActionSegment")
-                    ),
+                    Delimited(Ref("AlterTableActionSegment")),
                     Sequence(
                         "RENAME",
                         Ref.keyword("COLUMN", optional=True),
@@ -1676,9 +1666,7 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                 Sequence(
                     "OWNED",
                     "BY",
-                    Delimited(
-                        Ref("ObjectReferenceSegment")
-                    ),
+                    Delimited(Ref("ObjectReferenceSegment")),
                     optional=True,
                 ),
                 "SET",
@@ -1785,11 +1773,7 @@ class AlterTableActionSegment(BaseSegment):
                 ),
                 Sequence(
                     "RESET",
-                    Bracketed(
-                        Delimited(
-                            Ref("ParameterNameSegment")
-                        )
-                    ),
+                    Bracketed(Delimited(Ref("ParameterNameSegment"))),
                 ),
                 Sequence(
                     "SET", "STORAGE", OneOf("PLAIN", "EXTERNAL", "EXTENDED", "MAIN")
@@ -1863,9 +1847,7 @@ class AlterTableActionSegment(BaseSegment):
         ),
         Sequence(
             "RESET",
-            Bracketed(
-                Delimited(Ref("ParameterNameSegment"))
-            ),
+            Bracketed(Delimited(Ref("ParameterNameSegment"))),
         ),
         Sequence(
             Ref.keyword("NO", optional=True), "INHERIT", Ref("TableReferenceSegment")
@@ -2446,9 +2428,7 @@ class PartitionBoundSpecSegment(BaseSegment):
     match_grammar = OneOf(
         Sequence(
             "IN",
-            Bracketed(
-                Delimited(Ref("ExpressionSegment"))
-            ),
+            Bracketed(Delimited(Ref("ExpressionSegment"))),
         ),
         Sequence(
             "FROM",
@@ -2958,11 +2938,7 @@ class CreateIndexStatementSegment(ansi.CreateIndexStatementSegment):
         AnyNumberOf(
             Sequence(
                 "INCLUDE",
-                Bracketed(
-                    Delimited(
-                        Ref("ColumnReferenceSegment")
-                    )
-                ),
+                Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
             ),
             Sequence(
                 "WITH",
