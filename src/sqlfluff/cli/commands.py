@@ -700,7 +700,6 @@ def do_fixes(lnt, result, formatter=None, **kwargs):
     is_flag=True,
     help="Show lint violations",
 )
-
 @click.argument("paths", nargs=-1, type=click.Path(allow_dash=True))
 def fix(
     force: bool,
@@ -878,15 +877,8 @@ def fix(
     if show_lint_violations:
         click.echo("==== lint for unfixable violations ====")
         for violation in result.get_violations(**num_violations_kwargs):
-            try:
-                # Normal SQLFluff warnings
-                message = f"{violation.rule_code()}: {violation.description}"
-            except AttributeError:  # pragma: no cover
-                # Parse errors
-                message = str(violation)                
-            f = formatter.format_violation(violation)                
-            click.echo(f)
-        
+            click.echo(formatter.format_violation(violation))
+
     sys.exit(exit_code)
 
 

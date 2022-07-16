@@ -1613,6 +1613,7 @@ Aborting...
   [4 unfixable linting violations found]
 """
 
+
 def test__cli__fix_multiple_errors_no_show_errors():
     """Basic checking of lint functionality."""
     result = invoke_assert_code(
@@ -1632,6 +1633,7 @@ def test__cli__fix_multiple_errors_no_show_errors():
     # added. The replace command just accounts for cross platform testing.
     assert result.output.replace("\\", "/").startswith(multiple_expected_output)
 
+
 multiple_show_expected_output = """==== finding fixable violations ====
 == [test/fixtures/linter/multiple_sql_errors.sql] FAIL
 L:  12 | P:   1 | L003 | Expected 1 indentations, found 0 [compared to line 10]
@@ -1642,15 +1644,20 @@ Invalid input, please enter 'Y' or 'N'
 Aborting...
   [4 unfixable linting violations found]
 ==== lint for unfixable violations ====
-L:  36 | P:   9 | L027 | Unqualified reference 'package_id' found in select with more than
+L:  36 | P:   9 | L027 | Unqualified reference 'package_id' \
+found in select with more than
                        | one referenced table/view.
-L:  45 | P:  17 | L027 | Unqualified reference 'owner_type' found in select with more than
+L:  45 | P:  17 | L027 | Unqualified reference 'owner_type' \
+found in select with more than
                        | one referenced table/view.
-L:  45 | P:  50 | L027 | Unqualified reference 'app_key' found in select with more than one
+L:  45 | P:  50 | L027 | Unqualified reference 'app_key' \
+found in select with more than one
                        | referenced table/view.
-L:  42 | P:  45 | L027 | Unqualified reference 'owner_id' found in select with more than
+L:  42 | P:  45 | L027 | Unqualified reference 'owner_id' \
+found in select with more than
                        | one referenced table/view.
 """
+
 
 def test__cli__fix_multiple_errors_show_errors():
     """Basic checking of lint functionality."""
