@@ -1828,7 +1828,10 @@ ansi_dialect.add(
             ),
             # Allow potential select statement without brackets
             Ref("SelectStatementSegment"),
-            Ref("LiteralGrammar"),
+            Sequence(
+                Ref("DatatypeSegment", optional=True),
+                Ref("LiteralGrammar"),
+            ),
             Ref("IntervalExpressionSegment"),
             Ref("TypelessStructSegment"),
             Ref("TypelessArraySegment"),
