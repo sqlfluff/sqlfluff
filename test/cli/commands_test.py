@@ -71,7 +71,7 @@ L:   5 | P:  13 | L031 | Avoid aliases in from clauses and join conditions.
 def test__cli__command_directed():
     """Basic checking of lint functionality."""
     result = invoke_assert_code(
-        ret_code=65,
+        ret_code=1,
         args=[
             lint,
             [
@@ -95,7 +95,7 @@ def test__cli__command_dialect():
     """Check the script raises the right exception on an unknown dialect."""
     # The dialect is unknown should be a non-zero exit code
     invoke_assert_code(
-        ret_code=66,
+        ret_code=2,
         args=[
             lint,
             [
@@ -112,7 +112,7 @@ def test__cli__command_no_dialect():
     """Check the script raises the right exception no dialect."""
     # The dialect is unknown should be a non-zero exit code
     result = invoke_assert_code(
-        ret_code=1,
+        ret_code=2,
         args=[
             lint,
             ["-"],
@@ -129,7 +129,7 @@ def test__cli__command_parse_error_dialect_explicit_warning():
     # and a human-readable warning should be dislayed.
     # Dialect specified as commandline option.
     result = invoke_assert_code(
-        ret_code=66,
+        ret_code=1,
         args=[
             parse,
             [
@@ -152,7 +152,7 @@ def test__cli__command_parse_error_dialect_implicit_warning():
     # and a human-readable warning should be dislayed.
     # Dialect specified in .sqlfluff config.
     result = invoke_assert_code(
-        ret_code=66,
+        ret_code=1,
         args=[
             # Config sets dialect to tsql
             parse,
@@ -173,7 +173,7 @@ def test__cli__command_parse_error_dialect_implicit_warning():
 def test__cli__command_dialect_legacy():
     """Check the script raises the right exception on a legacy dialect."""
     result = invoke_assert_code(
-        ret_code=66,
+        ret_code=2,
         args=[
             lint,
             [
@@ -190,7 +190,7 @@ def test__cli__command_dialect_legacy():
 def test__cli__command_extra_config_fail():
     """Check the script raises the right exception non-existent extra config path."""
     result = invoke_assert_code(
-        ret_code=66,
+        ret_code=2,
         args=[
             lint,
             [
@@ -429,7 +429,7 @@ def test__cli__command_lint_parse(command):
                 ["test/fixtures/cli/unknown_jinja_tag/test.sql", "-vvvvvvv"],
                 "y",
             ),
-            65,
+            1,
         ),
     ],
 )
@@ -461,7 +461,7 @@ def test__cli__command_lint_skip_ignore_files():
             "--disregard-sqlfluffignores",
         ],
     )
-    assert result.exit_code == 65
+    assert result.exit_code == 1
     assert "L009" in result.output.strip()
 
 
@@ -488,7 +488,7 @@ def test__cli__command_lint_ignore_local_config():
             "test/fixtures/cli/ignore_local_config/ignore_local_config_test.sql",
         ],
     )
-    assert result.exit_code == 65
+    assert result.exit_code == 1
     assert "L012" in result.output.strip()
 
 
@@ -561,7 +561,7 @@ def generic_roundtrip_test(
     old_mode = stat.S_IMODE(status.st_mode)
     # Check that we first detect the issue
     invoke_assert_code(
-        ret_code=65, args=[lint, ["--dialect=ansi", "--rules", rulestring, filepath]]
+        ret_code=1, args=[lint, ["--dialect=ansi", "--rules", rulestring, filepath]]
     )
     # Fix the file (in force mode)
     if force:
@@ -997,7 +997,7 @@ def test__cli__command_fix_stdin_error_exit_code(
     "rule,fname,prompt,exit_code,fix_exit_code",
     [
         ("L001", "test/fixtures/linter/indentation_errors.sql", "y", 0, 0),
-        ("L001", "test/fixtures/linter/indentation_errors.sql", "n", 65, 1),
+        ("L001", "test/fixtures/linter/indentation_errors.sql", "n", 1, 1),
     ],
 )
 def test__cli__command__fix_no_force(rule, fname, prompt, exit_code, fix_exit_code):
@@ -1075,7 +1075,7 @@ def test__cli__command_parse_serialize_from_stdin(serialize, write_file, tmp_pat
                     ],
                 }
             ],
-            65,
+            1,
         ),
     ],
 )
@@ -1115,7 +1115,7 @@ def test__cli__command_lint_serialize_from_stdin(serialize, sql, expected, exit_
 )
 def test__cli__command_fail_nice_not_found(command):
     """Check commands fail as expected when then don't find files."""
-    result = invoke_assert_code(args=command, ret_code=1)
+    result = invoke_assert_code(args=command, ret_code=2)
     assert "could not be accessed" in result.output
 
 
@@ -1180,7 +1180,7 @@ def test__cli__command_lint_serialize_multiple_files(serialize, write_file, tmp_
     # note the file is in here twice. two files = two payloads.
     result = invoke_assert_code(
         args=[lint, cmd_args],
-        ret_code=65,
+        ret_code=1,
     )
 
     if write_file:
@@ -1226,7 +1226,7 @@ def test__cli__command_lint_serialize_github_annotation():
                 "--disable_progress_bar",
             ),
         ],
-        ret_code=65,
+        ret_code=1,
     )
     result = json.loads(result.output)
     assert result == [
@@ -1337,7 +1337,7 @@ def test__cli__command_lint_serialize_github_annotation_native():
                 "--disable_progress_bar",
             ),
         ],
-        ret_code=65,
+        ret_code=1,
     )
 
     assert result.output == "\n".join(
@@ -1381,7 +1381,7 @@ def test__cli__command_lint_serialize_annotation_level_error_failure_equivalent(
                 "--disable_progress_bar",
             ),
         ],
-        ret_code=65,
+        ret_code=1,
     )
 
     result_failure = invoke_assert_code(
@@ -1396,7 +1396,7 @@ def test__cli__command_lint_serialize_annotation_level_error_failure_equivalent(
                 "--disable_progress_bar",
             ),
         ],
-        ret_code=65,
+        ret_code=1,
     )
 
     assert result_error.output == result_failure.output
@@ -1450,7 +1450,7 @@ def test_cli_encoding(encoding, method, expect_success, tmpdir):
         shutil.copy(sql_path, tmpdir)
         options = [str(tmpdir / "encoding_test.sql")]
     result = invoke_assert_code(
-        ret_code=65,
+        ret_code=1,
         args=[
             lint,
             options,
@@ -1479,7 +1479,7 @@ def test_cli_no_disable_noqa_flag():
 def test_cli_disable_noqa_flag():
     """Test that --disable_noqa flag ignores inline noqa comments."""
     result = invoke_assert_code(
-        ret_code=65,
+        ret_code=1,
         args=[
             lint,
             [
@@ -1563,7 +1563,7 @@ class TestProgressBars:
     ) -> None:
         """When progress bar is enabled, there should be some tracks in output."""
         result = invoke_assert_code(
-            ret_code=65,
+            ret_code=1,
             args=[
                 lint,
                 [

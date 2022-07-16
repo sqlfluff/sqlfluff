@@ -6,6 +6,7 @@ from typing import List, Optional, Tuple, Union
 import click
 from colorama import Style
 
+from sqlfluff.cli import EXIT_FAIL, EXIT_SUCCESS
 from sqlfluff.cli.helpers import (
     get_package_version,
     get_python_version,
@@ -14,6 +15,7 @@ from sqlfluff.cli.helpers import (
     wrap_field,
 )
 from sqlfluff.cli.outputstream import OutputStream
+
 from sqlfluff.core import SQLBaseError, FluffConfig, Linter, TimingSummary
 from sqlfluff.core.enums import Color
 from sqlfluff.core.linter import LintedFile, LintingResult, ParsedString
@@ -517,7 +519,7 @@ class OutputStreamFormatter:
                         color,
                     )
                 )
-        return 1 if num_filtered_errors else 0
+        return EXIT_FAIL if num_filtered_errors else EXIT_SUCCESS
 
     def print_out_violations_and_timing(
         self,
