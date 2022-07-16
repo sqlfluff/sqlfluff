@@ -602,7 +602,7 @@ class BaseSegment:
     # ################ CLASS METHODS
 
     @classmethod
-    def simple(cls, parse_context: ParseContext) -> Optional[List[str]]:
+    def simple(cls, parse_context: ParseContext, crumbs=None) -> Optional[List[str]]:
         """Does this matcher support an uppercase hash matching route?
 
         This should be true if the MATCH grammar is simple. Most more
@@ -610,7 +610,7 @@ class BaseSegment:
         if they wish to be considered simple.
         """
         if cls.match_grammar:
-            return cls.match_grammar.simple(parse_context=parse_context)
+            return cls.match_grammar.simple(parse_context=parse_context, crumbs=crumbs)
         else:  # pragma: no cover TODO?
             # Other segments will either override this method, or aren't
             # simple.
@@ -1563,7 +1563,7 @@ class BracketedSegment(BaseSegment):
         super().__init__(*args, **kwargs)
 
     @classmethod
-    def simple(cls, parse_context: ParseContext) -> Optional[List[str]]:
+    def simple(cls, parse_context: ParseContext, crumbs=None) -> Optional[List[str]]:
         """Simple methods for bracketed and the persitent brackets."""
         start_brackets = [
             start_bracket
@@ -1574,7 +1574,9 @@ class BracketedSegment(BaseSegment):
         ]
         start_simple = []
         for ref in start_brackets:
-            start_simple += parse_context.dialect.ref(ref).simple(parse_context)
+            start_simple += parse_context.dialect.ref(ref).simple(
+                parse_context, crumbs=crumbs
+            )
         return start_simple
 
     @classmethod
