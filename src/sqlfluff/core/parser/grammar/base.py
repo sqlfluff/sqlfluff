@@ -112,7 +112,7 @@ class BaseGrammar(Matchable):
 
     def __init__(
         self,
-        *args,
+        *args: Union[MatchableType, str],
         allow_gaps=True,
         optional=False,
         ephemeral_name=None,
@@ -121,7 +121,9 @@ class BaseGrammar(Matchable):
 
         Args:
             *args: Any number of elements which because the subjects
-                of this grammar.
+                of this grammar. Optionally these elements may also be
+                string references to elements rather than the Matchable
+                elements themselves.
             allow_gaps (:obj:`bool`, optional): Does this instance of the
                 grammar allow gaps between the elements it matches? This
                 may be exhibited slightly differently in each grammar. See
@@ -800,7 +802,7 @@ class Ref(BaseGrammar):
     # and it also causes infinite recursion.
     allow_keyword_string_refs = False
 
-    def __init__(self, *args: Tuple, **kwargs):
+    def __init__(self, *args: str, **kwargs):
         # Any patterns to _prevent_ a match.
         self.exclude = kwargs.pop("exclude", None)
         super().__init__(*args, **kwargs)
@@ -817,10 +819,9 @@ class Ref(BaseGrammar):
         if crumbs and ref in crumbs:
             loop = " -> ".join(crumbs)
             raise RecursionError(f"Self referential grammar detected: {loop}")
-        crumbs = (crumbs or ()) + (ref,)
         return self._get_elem(dialect=parse_context.dialect).simple(
             parse_context=parse_context,
-            crumbs=crumbs,
+            crumbs=(crumbs or ()) + (ref,),
         )
 
     def _get_ref(self) -> str:
