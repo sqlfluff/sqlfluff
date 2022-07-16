@@ -800,7 +800,7 @@ class Ref(BaseGrammar):
     # and it also causes infinite recursion.
     allow_keyword_string_refs = False
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Tuple, **kwargs):
         # Any patterns to _prevent_ a match.
         self.exclude = kwargs.pop("exclude", None)
         super().__init__(*args, **kwargs)
@@ -823,12 +823,18 @@ class Ref(BaseGrammar):
             crumbs=crumbs,
         )
 
-    def _get_ref(self):
+    def _get_ref(self) -> str:
         """Get the name of the thing we're referencing."""
         # Unusually for a grammar we expect _elements to be a list of strings.
         # Notable ONE string for now.
         if len(self._elements) == 1:
             # We're good on length. Get the name of the reference
+            ref = self._elements[0]
+            if not isinstance(ref, str):
+                raise ValueError(
+                    "Ref Grammar expects elements to be strings. "
+                    f"Found {ref!r} instead."
+                )
             return self._elements[0]
         else:  # pragma: no cover
             raise ValueError(
