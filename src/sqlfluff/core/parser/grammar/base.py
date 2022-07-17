@@ -85,7 +85,7 @@ class BaseGrammar(Matchable):
     # Are we allowed to refer to keywords as strings instead of only passing
     # grammars or segments?
     allow_keyword_string_refs = True
-    equality_kwargs = ("optional", "allow_gaps")
+    equality_kwargs: Tuple[str, ...] = ("optional", "allow_gaps")
 
     @staticmethod
     def _resolve_ref(elem):
