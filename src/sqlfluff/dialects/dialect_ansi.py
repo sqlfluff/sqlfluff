@@ -1844,7 +1844,17 @@ ansi_dialect.add(
             ),
             Sequence(
                 Ref("DatatypeSegment"),
-                Ref("LiteralGrammar"),
+                # Don't use the full LiteralGrammar here
+                # because only some of them are applicable.
+                # Notably we shouldn't use QualifiedNumericLiteralSegment
+                # here because it looks like an arithmetic operation.
+                OneOf(
+                    Ref("QuotedLiteralSegment"),
+                    Ref("NumericLiteralSegment"),
+                    Ref("BooleanLiteralGrammar"),
+                    Ref("NullLiteralSegment"),
+                    Ref("DateTimeLiteralGrammar"),
+                ),
             ),
             Ref("LocalAliasSegment"),
         ),
