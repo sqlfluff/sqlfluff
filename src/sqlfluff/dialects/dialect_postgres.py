@@ -400,17 +400,11 @@ postgres_dialect.replace(
         # SelectStatementSegment so that it sits in the right
         # place corresponding to the whitespace.
     ),
-    LiteralGrammar=OneOf(
-        Ref("QuotedLiteralSegment"),
-        Ref("NumericLiteralSegment"),
-        Ref("BooleanLiteralGrammar"),
-        Ref("QualifiedNumericLiteralSegment"),
-        # NB: Null is included in the literals, because it is a keyword which
-        # can otherwise be easily mistaken for an identifier.
-        Ref("NullLiteralSegment"),
-        Ref("DateTimeLiteralGrammar"),
-        Ref("PsqlVariableGrammar"),
-        Sequence(Ref("SimpleArrayTypeGrammar"), Ref("ArrayLiteralSegment")),
+    LiteralGrammar=ansi_dialect.get_grammar("LiteralGrammar").copy(
+        insert=[
+            Ref("PsqlVariableGrammar"),
+        ],
+        before=Ref("ArrayLiteralSegment"),
     ),
     SimpleArrayTypeGrammar=Ref.keyword("ARRAY"),
     WhereClauseTerminatorGrammar=OneOf(

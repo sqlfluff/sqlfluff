@@ -156,17 +156,6 @@ hive_dialect.replace(
         NamedParser("double_quote", CodeSegment, name="quoted_literal", type="literal"),
         NamedParser("back_quote", CodeSegment, name="quoted_literal", type="literal"),
     ),
-    LiteralGrammar=OneOf(
-        Ref("QuotedLiteralSegment"),
-        Ref("NumericLiteralSegment"),
-        Ref("BooleanLiteralGrammar"),
-        Ref("QualifiedNumericLiteralSegment"),
-        # NB: Null is included in the literals, because it is a keyword which
-        # can otherwise be easily mistaken for an identifier.
-        Ref("NullLiteralSegment"),
-        Ref("DateTimeLiteralGrammar"),
-        Sequence(Ref("SimpleArrayTypeGrammar"), Ref("ArrayLiteralSegment")),
-    ),
     SimpleArrayTypeGrammar=Ref.keyword("ARRAY"),
     TrimParametersGrammar=Nothing(),
     SingleIdentifierGrammar=ansi_dialect.get_grammar("SingleIdentifierGrammar").copy(
