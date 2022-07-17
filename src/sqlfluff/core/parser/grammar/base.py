@@ -816,7 +816,7 @@ class Ref(BaseGrammar):
         A ref is simple, if the thing it references is simple.
         """
         ref = self._get_ref()
-        if crumbs and ref in crumbs:
+        if crumbs and ref in crumbs:  # pragma: no cover
             loop = " -> ".join(crumbs)
             raise RecursionError(f"Self referential grammar detected: {loop}")
         return self._get_elem(dialect=parse_context.dialect).simple(
@@ -831,7 +831,7 @@ class Ref(BaseGrammar):
         if len(self._elements) == 1:
             # We're good on length. Get the name of the reference
             ref = self._elements[0]
-            if not isinstance(ref, str):
+            if not isinstance(ref, str):  # pragma: no cover
                 raise ValueError(
                     "Ref Grammar expects elements to be strings. "
                     f"Found {ref!r} instead."
