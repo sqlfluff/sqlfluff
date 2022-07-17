@@ -30,7 +30,7 @@ class Sequence(BaseGrammar):
     test_env = getenv("SQLFLUFF_TESTENV", "")
 
     @cached_method_for_parse_context
-    def simple(self, parse_context: ParseContext) -> Optional[List[str]]:
+    def simple(self, parse_context: ParseContext, crumbs=None) -> Optional[List[str]]:
         """Does this matcher support a uppercase hash matching route?
 
         Sequence does provide this, as long as the *first* non-optional
@@ -38,7 +38,7 @@ class Sequence(BaseGrammar):
         """
         simple_buff = []
         for opt in self._elements:
-            simple = opt.simple(parse_context=parse_context)
+            simple = opt.simple(parse_context=parse_context, crumbs=crumbs)
             if not simple:
                 return None
             simple_buff += simple
@@ -208,13 +208,13 @@ class Bracketed(Sequence):
         super().__init__(*args, **kwargs)
 
     @cached_method_for_parse_context
-    def simple(self, parse_context: ParseContext) -> Optional[List[str]]:
+    def simple(self, parse_context: ParseContext, crumbs=None) -> Optional[List[str]]:
         """Does this matcher support a uppercase hash matching route?
 
         Bracketed does this easily, we just look for the bracket.
         """
         start_bracket, _, _ = self.get_bracket_from_dialect(parse_context)
-        return start_bracket.simple(parse_context=parse_context)
+        return start_bracket.simple(parse_context=parse_context, crumbs=crumbs)
 
     def get_bracket_from_dialect(self, parse_context):
         """Rehydrate the bracket segments in question."""

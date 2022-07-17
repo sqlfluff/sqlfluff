@@ -15,7 +15,7 @@ from sqlfluff.core.parser.context import ParseContext
 class NonCodeMatcher(Matchable):
     """An object which behaves like a matcher to match non-code."""
 
-    def simple(self, parse_context: ParseContext) -> Optional[List[str]]:
+    def simple(self, parse_context: ParseContext, crumbs=None) -> Optional[List[str]]:
         """This element doesn't work with simple."""
         return None
 
