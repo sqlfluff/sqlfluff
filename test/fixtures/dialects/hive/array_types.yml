@@ -3,27 +3,24 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 71ef711c2a07bb43eac9506b74bdcf0eab91dc2c030a1d62d0f54656bd43340f
+_hash: 788285352e6b5559cf4d4da552762c6ee5e76d6847b4253ddf8a96d021f5f6a9
 file:
 - statement:
     select_statement:
       select_clause:
         keyword: select
         select_clause_element:
-          keyword: array
           array_literal:
+          - keyword: array
           - start_square_bracket: '['
-          - expression:
-              column_reference:
-                identifier: a
+          - column_reference:
+              identifier: a
           - comma: ','
-          - expression:
-              column_reference:
-                identifier: b
+          - column_reference:
+              identifier: b
           - comma: ','
-          - expression:
-              column_reference:
-                identifier: c
+          - column_reference:
+              identifier: c
           - end_square_bracket: ']'
           alias_expression:
             keyword: as
@@ -58,20 +55,16 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    keyword: array
                     array_literal:
+                    - keyword: array
                     - start_square_bracket: '['
-                    - expression:
-                        literal: '1'
+                    - literal: '1'
                     - comma: ','
-                    - expression:
-                        literal: '3'
+                    - literal: '3'
                     - comma: ','
-                    - expression:
-                        literal: '6'
+                    - literal: '6'
                     - comma: ','
-                    - expression:
-                        literal: '12'
+                    - literal: '12'
                     - end_square_bracket: ']'
                   end_bracket: )
             alias_expression:
@@ -94,36 +87,34 @@ file:
             bracketed:
               start_bracket: (
               expression:
-                keyword: array
                 array_literal:
+                - keyword: array
                 - start_square_bracket: '['
-                - expression:
-                    function:
-                      function_name:
-                        function_name_identifier: row
-                      bracketed:
-                      - start_bracket: (
-                      - expression:
-                          literal: "'pending.freebet'"
-                      - comma: ','
-                      - expression:
-                          column_reference:
-                            identifier: pending_fb
-                      - end_bracket: )
+                - function:
+                    function_name:
+                      function_name_identifier: row
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        literal: "'pending.freebet'"
+                    - comma: ','
+                    - expression:
+                        column_reference:
+                          identifier: pending_fb
+                    - end_bracket: )
                 - comma: ','
-                - expression:
-                    function:
-                      function_name:
-                        function_name_identifier: row
-                      bracketed:
-                      - start_bracket: (
-                      - expression:
-                          literal: "'bonus.balance'"
-                      - comma: ','
-                      - expression:
-                          column_reference:
-                            identifier: bonus
-                      - end_bracket: )
+                - function:
+                    function_name:
+                      function_name_identifier: row
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        literal: "'bonus.balance'"
+                    - comma: ','
+                    - expression:
+                        column_reference:
+                          identifier: bonus
+                    - end_bracket: )
                 - end_square_bracket: ']'
               end_bracket: )
       from_clause:
@@ -141,17 +132,14 @@ file:
       select_clause:
         keyword: select
         select_clause_element:
-          keyword: array
           array_literal:
+          - keyword: array
           - start_square_bracket: '['
-          - expression:
-              literal: "'a'"
+          - literal: "'a'"
           - comma: ','
-          - expression:
-              literal: "'b'"
+          - literal: "'b'"
           - comma: ','
-          - expression:
-              literal: "'c'"
+          - literal: "'c'"
           - end_square_bracket: ']'
           alias_expression:
             keyword: as
@@ -171,14 +159,12 @@ file:
       select_clause:
         keyword: select
         select_clause_element:
-          keyword: array
           array_literal:
+          - keyword: array
           - start_square_bracket: '['
-          - expression:
-              literal: "'a'"
+          - literal: "'a'"
           - comma: ','
-          - expression:
-              literal: 'null'
+          - literal: 'null'
           - end_square_bracket: ']'
           alias_expression:
             keyword: as
@@ -198,8 +184,8 @@ file:
       select_clause:
         keyword: select
         select_clause_element:
-          keyword: array
           array_literal:
+            keyword: array
             start_square_bracket: '['
             end_square_bracket: ']'
           alias_expression:
