@@ -85,6 +85,7 @@ class BaseGrammar(Matchable):
     # Are we allowed to refer to keywords as strings instead of only passing
     # grammars or segments?
     allow_keyword_string_refs = True
+    equality_kwargs = ("optional", "allow_gaps")
 
     @staticmethod
     def _resolve_ref(elem):
@@ -713,14 +714,18 @@ class BaseGrammar(Matchable):
     def __eq__(self, other):
         """Two grammars are equal if their elements and types are equal.
 
-        NOTE: This could potentially mean that two grammars with
-        the same elements but _different configuration_ will be
-        classed as the same. If this matters for your use case,
-        consider extending this function.
-
-        e.g. `OneOf(foo) == OneOf(foo, optional=True)`
+        NOTE: We use the equality_kwargs tuple on the class to define
+        other kwargs which should also be checked so that things like
+        "optional" is also taken into account in considering equality.
         """
-        return type(self) is type(other) and self._elements == other._elements
+        return (
+            type(self) is type(other)
+            and self._elements == other._elements
+            and all(
+                getattr(self, k, None) == getattr(other, k, None)
+                for k in self.equality_kwargs
+            )
+        )
 
     def copy(
         self,
