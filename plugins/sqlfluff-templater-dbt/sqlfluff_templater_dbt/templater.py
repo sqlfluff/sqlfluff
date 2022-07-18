@@ -453,9 +453,7 @@ class DbtTemplater(JinjaTemplater):
 
         node = self._find_node(fname, config)
         templater_logger.debug(
-            "_find_node for path %r returned object of type %s.",
-            fname,
-            type(node)
+            "_find_node for path %r returned object of type %s.", fname, type(node)
         )
 
         save_ephemeral_nodes = dict(
