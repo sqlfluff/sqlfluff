@@ -2249,7 +2249,7 @@ class TableExpressionSegment(ansi.TableExpressionSegment):
 
     match_grammar = ansi.TableExpressionSegment.match_grammar.copy(
         insert=[Ref("ObjectUnpivotSegment", optional=True)],
-        before=Ref("TableReferenceSegment", optional=True),
+        before=Ref("TableReferenceSegment"),
     )
 
 
