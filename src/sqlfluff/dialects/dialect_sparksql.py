@@ -1460,7 +1460,7 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
             Ref("DistributeByClauseSegment", optional=True),
             Ref("SortByClauseSegment", optional=True),
         ],
-        before=Ref("LimitClauseSegment"),
+        before=Ref("LimitClauseSegment", optional=True),
     )
 
 
