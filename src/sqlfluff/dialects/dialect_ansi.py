@@ -416,6 +416,8 @@ ansi_dialect.add(
         # can otherwise be easily mistaken for an identifier.
         Ref("NullLiteralSegment"),
         Ref("DateTimeLiteralGrammar"),
+        Ref("ArrayLiteralSegment"),
+        Ref("ObjectLiteralSegment"),
     ),
     AndOperatorGrammar=StringParser("AND", KeywordSegment, type="binary_operator"),
     OrOperatorGrammar=StringParser("OR", KeywordSegment, type="binary_operator"),
@@ -526,6 +528,8 @@ ansi_dialect.add(
     ),
     # This is a placeholder for other dialects.
     SimpleArrayTypeGrammar=Nothing(),
+    # Base Expression element is the right thing to reference for everything
+    # which functions as an expression, but could include literals.
     BaseExpressionElementGrammar=OneOf(
         Ref("LiteralGrammar"),
         Ref("BareFunctionSegment"),
@@ -533,6 +537,10 @@ ansi_dialect.add(
         Ref("FunctionSegment"),
         Ref("ColumnReferenceSegment"),
         Ref("ExpressionSegment"),
+        Sequence(
+            Ref("DatatypeSegment"),
+            Ref("LiteralGrammar"),
+        ),
     ),
     FilterClauseGrammar=Sequence(
         "FILTER", Bracketed(Sequence("WHERE", Ref("ExpressionSegment")))
@@ -637,9 +645,36 @@ class ArrayLiteralSegment(BaseSegment):
     """An array literal segment."""
 
     type = "array_literal"
+    match_grammar: Matchable = Sequence(
+        Ref("SimpleArrayTypeGrammar", optional=True),
+        Bracketed(
+            Delimited(Ref("BaseExpressionElementGrammar"), optional=True),
+            bracket_type="square",
+        ),
+    )
+
+
+class ObjectLiteralSegment(BaseSegment):
+    """An object literal segment."""
+
+    type = "object_literal"
     match_grammar: Matchable = Bracketed(
-        Delimited(Ref("ExpressionSegment"), optional=True),
-        bracket_type="square",
+        Delimited(
+            Ref("ObjectLiteralElementSegment"),
+            optional=True,
+        ),
+        bracket_type="curly",
+    )
+
+
+class ObjectLiteralElementSegment(BaseSegment):
+    """An object literal element segment."""
+
+    type = "object_literal_element"
+    match_grammar: Matchable = Sequence(
+        Ref("QuotedLiteralSegment"),
+        Ref("ColonSegment"),
+        Ref("BaseExpressionElementGrammar"),
     )
 
 
@@ -1804,14 +1839,15 @@ ansi_dialect.add(
                 Ref("SingleIdentifierGrammar"), Ref("DotSegment"), Ref("StarSegment")
             ),
             Sequence(
-                Ref("SimpleArrayTypeGrammar", optional=True), Ref("ArrayLiteralSegment")
-            ),
-            Sequence(
                 Ref("StructTypeSegment"),
                 Bracketed(Delimited(Ref("ExpressionSegment"))),
             ),
             Sequence(
                 Ref("DatatypeSegment"),
+                # Don't use the full LiteralGrammar here
+                # because only some of them are applicable.
+                # Notably we shouldn't use QualifiedNumericLiteralSegment
+                # here because it looks like an arithmetic operation.
                 OneOf(
                     Ref("QuotedLiteralSegment"),
                     Ref("NumericLiteralSegment"),

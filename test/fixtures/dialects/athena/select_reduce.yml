@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 20844525726b0fd5a4dc8faed69a02157b5239837d7f52bfdf93cacc6c99c174
+_hash: 77dc50fc4b994d8dea128d49acba1f7cc050519943e0aa268e8749cd1266e344
 file:
 - statement:
     select_statement:
@@ -16,8 +16,8 @@ file:
             bracketed:
             - start_bracket: (
             - expression:
-                keyword: ARRAY
                 array_literal:
+                  keyword: ARRAY
                   start_square_bracket: '['
                   end_square_bracket: ']'
             - comma: ','
@@ -59,17 +59,14 @@ file:
             bracketed:
             - start_bracket: (
             - expression:
-                keyword: ARRAY
                 array_literal:
+                - keyword: ARRAY
                 - start_square_bracket: '['
-                - expression:
-                    literal: '5'
+                - literal: '5'
                 - comma: ','
-                - expression:
-                    literal: '20'
+                - literal: '20'
                 - comma: ','
-                - expression:
-                    literal: '50'
+                - literal: '50'
                 - end_square_bracket: ']'
             - comma: ','
             - expression:
@@ -110,20 +107,16 @@ file:
             bracketed:
             - start_bracket: (
             - expression:
-                keyword: ARRAY
                 array_literal:
+                - keyword: ARRAY
                 - start_square_bracket: '['
-                - expression:
-                    literal: '5'
+                - literal: '5'
                 - comma: ','
-                - expression:
-                    literal: '20'
+                - literal: '20'
                 - comma: ','
-                - expression:
-                    literal: 'NULL'
+                - literal: 'NULL'
                 - comma: ','
-                - expression:
-                    literal: '50'
+                - literal: '50'
                 - end_square_bracket: ']'
             - comma: ','
             - expression:
@@ -164,20 +157,16 @@ file:
             bracketed:
             - start_bracket: (
             - expression:
-                keyword: ARRAY
                 array_literal:
+                - keyword: ARRAY
                 - start_square_bracket: '['
-                - expression:
-                    literal: '5'
+                - literal: '5'
                 - comma: ','
-                - expression:
-                    literal: '20'
+                - literal: '20'
                 - comma: ','
-                - expression:
-                    literal: 'NULL'
+                - literal: 'NULL'
                 - comma: ','
-                - expression:
-                    literal: '50'
+                - literal: '50'
                 - end_square_bracket: ']'
             - comma: ','
             - expression:
@@ -228,20 +217,16 @@ file:
             bracketed:
             - start_bracket: (
             - expression:
-                keyword: ARRAY
                 array_literal:
+                - keyword: ARRAY
                 - start_square_bracket: '['
-                - expression:
-                    literal: '5'
+                - literal: '5'
                 - comma: ','
-                - expression:
-                    literal: '20'
+                - literal: '20'
                 - comma: ','
-                - expression:
-                    literal: 'NULL'
+                - literal: 'NULL'
                 - comma: ','
-                - expression:
-                    literal: '50'
+                - literal: '50'
                 - end_square_bracket: ']'
             - comma: ','
             - expression:
@@ -299,14 +284,12 @@ file:
             bracketed:
             - start_bracket: (
             - expression:
-                keyword: ARRAY
                 array_literal:
+                - keyword: ARRAY
                 - start_square_bracket: '['
-                - expression:
-                    literal: '2147483647'
+                - literal: '2147483647'
                 - comma: ','
-                - expression:
-                    literal: '1'
+                - literal: '1'
                 - end_square_bracket: ']'
             - comma: ','
             - expression:
@@ -358,20 +341,16 @@ file:
             bracketed:
             - start_bracket: (
             - expression:
-                keyword: ARRAY
                 array_literal:
+                - keyword: ARRAY
                 - start_square_bracket: '['
-                - expression:
-                    literal: '5'
+                - literal: '5'
                 - comma: ','
-                - expression:
-                    literal: '6'
+                - literal: '6'
                 - comma: ','
-                - expression:
-                    literal: '10'
+                - literal: '10'
                 - comma: ','
-                - expression:
-                    literal: '20'
+                - literal: '20'
                 - end_square_bracket: ']'
             - comma: ','
             - expression:
