@@ -233,12 +233,12 @@ tsql_dialect.replace(
         )
     ),
     # Overring ANSI BaseExpressionElement to remove Interval Expression Segment
-    BaseExpressionElementGrammar=OneOf(
-        Ref("LiteralGrammar"),
-        Ref("BareFunctionSegment"),
-        Ref("FunctionSegment"),
-        Ref("ColumnReferenceSegment"),
-        Ref("ExpressionSegment"),
+    BaseExpressionElementGrammar=ansi_dialect.get_grammar(
+        "BaseExpressionElementGrammar"
+    ).copy(
+        remove=[
+            Ref("IntervalExpressionSegment"),
+        ]
     ),
     SingleIdentifierGrammar=OneOf(
         Ref("NakedIdentifierSegment"),
@@ -248,18 +248,22 @@ tsql_dialect.replace(
         Ref("ParameterNameSegment"),
         Ref("VariableIdentifierSegment"),
     ),
-    LiteralGrammar=OneOf(
-        Ref("QuotedLiteralSegment"),
-        Ref("QuotedLiteralSegmentWithN"),
-        Ref("NumericLiteralSegment"),
-        Ref("BooleanLiteralGrammar"),
-        Ref("QualifiedNumericLiteralSegment"),
-        # NB: Null is included in the literals, because it is a keyword which
-        # can otherwise be easily mistaken for an identifier.
-        Ref("NullLiteralSegment"),
-        Ref("DateTimeLiteralGrammar"),
-        Ref("ParameterNameSegment"),
-        Ref("SystemVariableSegment"),
+    LiteralGrammar=ansi_dialect.get_grammar("LiteralGrammar")
+    .copy(
+        insert=[
+            Ref("QuotedLiteralSegmentWithN"),
+        ],
+        before=Ref("NumericLiteralSegment"),
+        remove=[
+            Ref("ArrayLiteralSegment"),
+            Ref("ObjectLiteralSegment"),
+        ],
+    )
+    .copy(
+        insert=[
+            Ref("ParameterNameSegment"),
+            Ref("SystemVariableSegment"),
+        ],
     ),
     ParameterNameSegment=RegexParser(
         r"@[A-Za-z0-9_]+", CodeSegment, name="parameter", type="parameter"

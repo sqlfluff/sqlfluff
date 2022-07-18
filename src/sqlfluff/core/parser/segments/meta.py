@@ -39,7 +39,7 @@ class MetaSegment(RawSegment):
         )
 
     @classmethod
-    def simple(cls, parse_context: ParseContext) -> Optional[List[str]]:
+    def simple(cls, parse_context: ParseContext, crumbs=None) -> Optional[List[str]]:
         """Does this matcher support an uppercase hash matching route?
 
         This should be true if the MATCH grammar is simple. Most more

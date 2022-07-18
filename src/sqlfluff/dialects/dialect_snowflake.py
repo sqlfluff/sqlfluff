@@ -565,16 +565,15 @@ snowflake_dialect.replace(
         optional=True,
     ),
     TemporaryTransientGrammar=OneOf(Ref("TemporaryGrammar"), "TRANSIENT"),
-    BaseExpressionElementGrammar=OneOf(
-        # Allow use of CONNECT_BY_ROOT pseudo-columns.
-        # https://docs.snowflake.com/en/sql-reference/constructs/connect-by.html#:~:text=Snowflake%20supports%20the%20CONNECT_BY_ROOT,the%20Examples%20section%20below.
-        Sequence("CONNECT_BY_ROOT", Ref("ColumnReferenceSegment")),
-        Ref("LiteralGrammar"),
-        Ref("BareFunctionSegment"),
-        Ref("IntervalExpressionSegment"),
-        Ref("FunctionSegment"),
-        Ref("ColumnReferenceSegment"),
-        Ref("ExpressionSegment"),
+    BaseExpressionElementGrammar=ansi_dialect.get_grammar(
+        "BaseExpressionElementGrammar"
+    ).copy(
+        insert=[
+            # Allow use of CONNECT_BY_ROOT pseudo-columns.
+            # https://docs.snowflake.com/en/sql-reference/constructs/connect-by.html#:~:text=Snowflake%20supports%20the%20CONNECT_BY_ROOT,the%20Examples%20section%20below.
+            Sequence("CONNECT_BY_ROOT", Ref("ColumnReferenceSegment")),
+        ],
+        before=Ref("LiteralGrammar"),
     ),
     QuotedLiteralSegment=OneOf(
         # https://docs.snowflake.com/en/sql-reference/data-types-text.html#string-constants
