@@ -1004,7 +1004,8 @@ class Linter:
             return sorted(buffer)
 
         # Check the buffer for ignore items and normalise the rest.
-        filtered_buffer = []
+        # It's a set, so we can do natural deduplication.
+        filtered_buffer = set()
 
         for fpath in buffer:
             abs_fpath = os.path.abspath(fpath)
@@ -1031,9 +1032,9 @@ class Linter:
                         )
                     break
             else:
-                filtered_buffer.append(os.path.normpath(fpath))
+                filtered_buffer.add(os.path.normpath(fpath))
 
-        # Return
+        # Return a sorted list
         return sorted(filtered_buffer)
 
     def lint_string_wrapped(
