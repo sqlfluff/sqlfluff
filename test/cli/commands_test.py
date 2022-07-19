@@ -23,7 +23,7 @@ from click.testing import CliRunner
 # We import the library directly here to get the version
 import sqlfluff
 from sqlfluff.cli.commands import lint, version, rules, fix, parse, dialects, get_config
-from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult
+from sqlfluff.core.rules import BaseRule, LintFix, LintResult
 from sqlfluff.core.parser.segments.raw import CommentSegment
 
 re_ansi_escape = re.compile(r"\x1b[^m]*m")

@@ -28,7 +28,7 @@ from sqlfluff.core.config import FluffConfig, ConfigLoader, progress_bar_configu
 from sqlfluff.core.parser.segments.base import BaseSegment, SourceFix
 from sqlfluff.core.parser.segments.meta import MetaSegment
 from sqlfluff.core.parser.segments.raw import RawSegment
-from sqlfluff.core.rules.base import BaseRule
+from sqlfluff.core.rules import BaseRule
 
 from sqlfluff.core.linter.common import (
     RuleTuple,

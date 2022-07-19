@@ -2,7 +2,7 @@
 import copy
 from typing import List
 from sqlfluff.core.parser.segments.base import BaseSegment
-from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
+from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 import sqlfluff.core.rules.functional.segment_predicates as sp
 
 from sqlfluff.core.rules.doc_decorators import (

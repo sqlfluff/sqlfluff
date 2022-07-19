@@ -6,7 +6,7 @@ from sqlfluff.core.parser import (
     KeywordSegment,
 )
 
-from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix, RuleContext
+from sqlfluff.core.rules import BaseRule, LintResult, LintFix, RuleContext
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,

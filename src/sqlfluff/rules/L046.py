@@ -2,7 +2,7 @@
 from typing import Tuple
 from sqlfluff.core.parser.segments import SourceFix
 
-from sqlfluff.core.rules.base import (
+from sqlfluff.core.rules import (
     BaseRule,
     EvalResultType,
     LintResult,

@@ -6,7 +6,7 @@ from typing import Dict, Iterable, List, Optional, Sequence, Set, Tuple
 from sqlfluff.core.parser import WhitespaceSegment
 from sqlfluff.core.parser.segments import BaseSegment
 from sqlfluff.core.rules.functional import rsp, sp, Segments
-from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix, RuleContext
+from sqlfluff.core.rules import BaseRule, LintResult, LintFix, RuleContext
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
