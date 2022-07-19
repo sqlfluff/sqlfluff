@@ -7,6 +7,7 @@ from sqlfluff.core.rules.base import (
     LintFix,
     RuleContext,
     RuleGhost,
+    EvalResultType,
 )
 from sqlfluff.core.rules.config_info import STANDARD_CONFIG_INFO_DICT
 from sqlfluff.core.plugin.host import get_plugin_manager
