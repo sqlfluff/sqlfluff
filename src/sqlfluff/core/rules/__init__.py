@@ -45,4 +45,5 @@ __all__ = (
     "LintFix",
     "RuleContext",
     "RuleGhost",
+    "EvalResultType",
 )
