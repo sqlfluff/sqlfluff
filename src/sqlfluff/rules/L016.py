@@ -520,8 +520,14 @@ class Rule_L016(Rule_L003):
             # these long lines will likely be single line Jinja comments.
             # They will remain as unfixable.
             if this_line[-1].type == "placeholder":
-                self.logger.info("Unfixable template segment: %s", this_line[-1])
-                return LintResult(anchor=context.segment, memory=memory)
+                if (
+                    this_line[-1].block_type != "comment"  # type: ignore
+                    or not self.ignore_comment_clauses
+                ):
+                    self.logger.info("Unfixable template segment: %s", this_line[-1])
+                    return LintResult(anchor=context.segment, memory=memory)
+                else:
+                    return LintResult(memory=memory)
 
             # Does the line end in an inline comment that we can move back?
             if this_line[-1].name == "inline_comment":
