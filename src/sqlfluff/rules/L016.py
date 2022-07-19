@@ -521,7 +521,7 @@ class Rule_L016(Rule_L003):
             # They will remain as unfixable.
             if this_line[-1].type == "placeholder":
                 if (
-                    this_line[-1].block_type != "comment"  # type: ignore
+                    this_line[-1].block_type != "comment"  # type: ignore[attr-defined]
                     or not self.ignore_comment_clauses
                 ):
                     self.logger.info("Unfixable template segment: %s", this_line[-1])
