@@ -276,7 +276,6 @@ def prepare_release(new_version_num):
             elif line.startswith("    $ sqlfluff version"):
                 change_next_line = True
             write_file.write(line)
-
         write_file.close()
 
 
