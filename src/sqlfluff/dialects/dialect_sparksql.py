@@ -689,6 +689,7 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
     """A `ALTER TABLE` statement to change the table schema or properties.
 
     http://spark.apache.org/docs/latest/sql-ref-syntax-ddl-alter-table.html
+    https://docs.delta.io/latest/delta-constraints.html#constraints
     """
 
     type = "alter_table_statement"
