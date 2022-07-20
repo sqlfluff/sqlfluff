@@ -65,3 +65,8 @@ alter table empl_info modify
 ALTER TABLE empl_info DROP COLUMN my_column;
 ALTER TABLE some_schema.empl_info DROP COLUMN my_column;
 ALTER TABLE my_table DROP COLUMN column_1, column_2, column_3;
+
+-- IF EXISTS
+ALTER TABLE IF EXISTS my_table ADD COLUMN my_column INTEGER;
+ALTER TABLE IF EXISTS empl_info DROP COLUMN my_column;
+ALTER TABLE IF EXISTS empl_info RENAME COLUMN old_col_name TO new_col_name;
