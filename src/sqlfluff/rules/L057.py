@@ -1,5 +1,5 @@
 """Implementation of Rule L057."""
-from typing import Optional
+from typing import Optional, Set
 
 import regex
 
@@ -52,6 +52,16 @@ class Rule_L057(BaseRule):
         "ignore_words",
         "ignore_words_regex",
     ]
+
+    def _get_additional_allowed_characters(self, dialect_name: str) -> str:
+        """Returns additional allowed characters, with adjustments for dialect."""
+        result: Set[str] = set()
+        if self.additional_allowed_characters:
+            result.update(self.additional_allowed_characters)
+        if dialect_name == "bigquery":
+            # In BigQuery, also allow hyphens.
+            result.update("-")
+        return "".join(result)
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Do not use special characters in object names."""
@@ -175,9 +185,12 @@ class Rule_L057(BaseRule):
             identifier = identifier[1:]
 
         # Set the identified minus the allowed characters
-        if self.additional_allowed_characters:
+        additional_allowed_characters = self._get_additional_allowed_characters(
+            context.dialect.name
+        )
+        if additional_allowed_characters:
             identifier = identifier.translate(
-                str.maketrans("", "", self.additional_allowed_characters)
+                str.maketrans("", "", additional_allowed_characters)
             )
 
         # Finally test if the remaining identifier is only made up of alphanumerics
