@@ -784,7 +784,7 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
             Sequence(
                 "ADD",
                 Ref("IfNotExistsGrammar", optional=True),
-                AnyNumberOf(Ref("PartitionSpecGrammar")),
+                AnyNumberOf(Ref("PartitionSpecGrammar"), min_times=1),
             ),
             # ALTER TABLE - DROP PARTITION
             Sequence(
@@ -829,6 +829,15 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                 Ref("LocationGrammar"),
             ),
             # ALTER TABLE - ADD/DROP CONTRAINTS (DELTA)
+            Sequence(
+                Indent,
+                OneOf("ADD", "DROP"),
+                "CONSTRAINT",
+                Ref("ColumnReferenceSegment", exclude=Ref.keyword("CHECK"),),
+                Ref.keyword("CHECK", optional=True),
+                Bracketed(Anything(), optional=True),
+                Dedent,
+            ),
         ),
     )
 
