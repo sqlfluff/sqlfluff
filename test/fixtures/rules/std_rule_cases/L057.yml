@@ -201,16 +201,28 @@ test_fail_star_bigquery:
     core:
       dialect: bigquery
 
-test_pass_hyphen_bigquery:
+test_pass_hyphen_bigquery_1:
+  # Passes without setting 'additional_allowed_characters' because L057 allows
+  # hyphens in BigQuery by default.
   pass_str:
     SELECT a
     FROM `user.schema.table-something`
   configs:
     core:
       dialect: bigquery
+
+test_pass_hyphen_bigquery_2:
+  # Passes because explicitly setting 'additional_allowed_characters' adds to the
+  # default ("-") value.
+  pass_str:
+    SELECT a
+    FROM `user.schema.table-some+thing`
+  configs:
+    core:
+      dialect: bigquery
     rules:
       L057:
-        additional_allowed_characters: '-'
+        additional_allowed_characters: '+'
 
 test_pass_dot_bigquery:
   pass_str:
