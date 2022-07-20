@@ -29,6 +29,7 @@ from sqlfluff.core.parser import (
     StringParser,
     RegexParser,
     NewlineSegment,
+    MultiStringParser,
 )
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser.segments.generator import SegmentGenerator
@@ -170,16 +171,16 @@ exasol_dialect.add(
         "escaped_identifier", SymbolSegment, type="identifier"
     ),
     SessionParameterSegment=SegmentGenerator(
-        lambda dialect: RegexParser(
-            r"^(" + r"|".join(dialect.sets("session_parameters")) + r")$",
+        lambda dialect: MultiStringParser(
+            dialect.sets("session_parameters"),
             CodeSegment,
             name="session_parameter",
             type="session_parameter",
         )
     ),
     SystemParameterSegment=SegmentGenerator(
-        lambda dialect: RegexParser(
-            r"^(" + r"|".join(dialect.sets("system_parameters")) + r")$",
+        lambda dialect: MultiStringParser(
+            dialect.sets("system_parameters"),
             CodeSegment,
             name="system_parameter",
             type="system_parameter",
@@ -637,7 +638,6 @@ class GroupingSetsClauseSegment(BaseSegment):
             Delimited(
                 Ref("CubeRollupClauseSegment"),
                 Ref("GroupingExpressionList"),
-                Bracketed(),  # Allows empty parentheses
             )
         ),
     )
@@ -651,6 +651,7 @@ class GroupingExpressionList(BaseSegment):
         OneOf(
             Bracketed(Delimited(Ref("ExpressionSegment"))),
             Ref("ExpressionSegment"),
+            Bracketed(),  # Allows empty parentheses
         )
     )
 

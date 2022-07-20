@@ -63,7 +63,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        jobs: [ 'bench', 'mypy' ]
+        jobs: [ 'bench', 'mypy', 'doctests' ]
     name: ${{ matrix.jobs }} tests
     steps:
     - uses: actions/checkout@v3

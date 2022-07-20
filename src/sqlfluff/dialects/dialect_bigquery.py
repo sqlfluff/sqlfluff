@@ -20,7 +20,6 @@ from sqlfluff.core.parser import (
     Delimited,
     GreedyUntil,
     Indent,
-    KeywordSegment,
     Matchable,
     NamedParser,
     Nothing,
@@ -35,6 +34,7 @@ from sqlfluff.core.parser import (
     StringLexer,
     StringParser,
     SymbolSegment,
+    MultiStringParser,
 )
 from sqlfluff.core.parser.segments.base import BracketedSegment
 from sqlfluff.dialects.dialect_bigquery_keywords import (
@@ -109,7 +109,6 @@ bigquery_dialect.add(
         type="udf_body",
         trim_chars=("'",),
     ),
-    StructKeywordSegment=StringParser("struct", KeywordSegment, name="struct"),
     StartAngleBracketSegment=StringParser(
         "<", SymbolSegment, name="start_angle_bracket", type="start_angle_bracket"
     ),
@@ -122,7 +121,6 @@ bigquery_dialect.add(
     DashSegment=StringParser("-", SymbolSegment, name="dash", type="dash"),
     SelectClauseElementListGrammar=Delimited(
         Ref("SelectClauseElementSegment"),
-        delimiter=Ref("CommaSegment"),
         allow_trailing=True,
     ),
     QuestionMarkSegment=StringParser(
@@ -160,8 +158,8 @@ bigquery_dialect.add(
         ),
     ),
     ExtendedDatetimeUnitSegment=SegmentGenerator(
-        lambda dialect: RegexParser(
-            r"^(" + r"|".join(dialect.sets("extended_datetime_units")) + r")$",
+        lambda dialect: MultiStringParser(
+            dialect.sets("extended_datetime_units"),
             CodeSegment,
             name="date_part",
             type="date_part",
@@ -221,30 +219,6 @@ bigquery_dialect.replace(
         "ARRAY",
         Bracketed(
             Ref("DatatypeSegment"),
-            bracket_type="angle",
-            bracket_pairs_set="angle_bracket_pairs",
-        ),
-    ),
-    StructTypeGrammar=Sequence(
-        "STRUCT",
-        Bracketed(
-            Delimited(  # Comma-separated list of field names/types
-                Sequence(
-                    OneOf(
-                        # ParameterNames can look like Datatypes so can't use
-                        # Optional=True here and instead do a OneOf in order
-                        # with DataType only first, followed by both.
-                        Ref("DatatypeSegment"),
-                        Sequence(
-                            Ref("ParameterNameSegment"),
-                            Ref("DatatypeSegment"),
-                        ),
-                    ),
-                    Ref("OptionsSegment", optional=True),
-                ),
-                delimiter=Ref("CommaSegment"),
-                bracket_pairs_set="angle_bracket_pairs",
-            ),
             bracket_type="angle",
             bracket_pairs_set="angle_bracket_pairs",
         ),
@@ -761,13 +735,14 @@ bigquery_dialect.replace(
         ),
     ),
     FunctionNameIdentifierSegment=OneOf(
-        # In BigQuery struct() has a special syntax, so we don't treat it as a function
+        # In BigQuery struct() and array() have a special syntax,
+        # so we don't treat them as functions
         RegexParser(
             r"[A-Z_][A-Z0-9_]*",
             CodeSegment,
             name="function_name_identifier",
             type="function_name_identifier",
-            anti_template=r"STRUCT",
+            anti_template=r"^(STRUCT|ARRAY)$",
         ),
         RegexParser(
             r"`[^`]*`",
@@ -944,7 +919,6 @@ class FunctionDefinitionGrammar(ansi.FunctionDefinitionGrammar):
                                 Ref("EqualsSegment"),
                                 Anything(),
                             ),
-                            delimiter=Ref("CommaSegment"),
                         )
                     ),
                     optional=True,
@@ -984,9 +958,7 @@ class ExceptClauseSegment(BaseSegment):
     type = "select_except_clause"
     match_grammar = Sequence(
         "EXCEPT",
-        Bracketed(
-            Delimited(Ref("SingleIdentifierGrammar"), delimiter=Ref("CommaSegment"))
-        ),
+        Bracketed(Delimited(Ref("SingleIdentifierGrammar"))),
     )
 
 
@@ -1001,7 +973,6 @@ class ReplaceClauseSegment(BaseSegment):
                 # Not *really* a select target element. It behaves exactly
                 # the same way however.
                 Ref("SelectClauseElementSegment"),
-                delimiter=Ref("CommaSegment"),
             )
         ),
     )
@@ -1018,22 +989,34 @@ class DatatypeSegment(ansi.DatatypeSegment):
         Ref("DatatypeIdentifierSegment"),  # Simple type
         Sequence("ANY", "TYPE"),  # SQL UDFs can specify this "type"
         Ref("SimpleArrayTypeGrammar"),
-        Ref("StructTypeGrammar"),
+        Ref("StructTypeSegment"),
     )
 
 
-class FunctionParameterListGrammar(ansi.FunctionParameterListGrammar):
-    """The parameters for a function ie. `(string, number)`."""
+class StructTypeSegment(ansi.StructTypeSegment):
+    """Expression to construct a STRUCT datatype."""
 
-    # Function parameter list. Note that the only difference from the ANSI
-    # grammar is that BigQuery provides overrides bracket_pairs_set.
-    match_grammar = Bracketed(
-        Delimited(
-            Ref("FunctionParameterGrammar"),
-            delimiter=Ref("CommaSegment"),
+    match_grammar = Sequence(
+        "STRUCT",
+        Bracketed(
+            Delimited(  # Comma-separated list of field names/types
+                Sequence(
+                    OneOf(
+                        # ParameterNames can look like Datatypes so can't use
+                        # Optional=True here and instead do a OneOf in order
+                        # with DataType only first, followed by both.
+                        Ref("DatatypeSegment"),
+                        Sequence(
+                            Ref("ParameterNameSegment"),
+                            Ref("DatatypeSegment"),
+                        ),
+                    ),
+                    Ref("OptionsSegment", optional=True),
+                ),
+            ),
+            bracket_type="angle",
             bracket_pairs_set="angle_bracket_pairs",
-            optional=True,
-        )
+        ),
     )
 
 
@@ -1055,19 +1038,17 @@ class TypelessStructSegment(ansi.TypelessStructSegment):
         ),
     )
 
-    # Workaround: https://github.com/sqlfluff/sqlfluff/issues/3277
-    # There is a weird issue where sometimes typeless structs are parsed as typed
-    # structs and trigger false-positives of L063 when `parse_grammar` is not set.
-    # Follow the linked issue for progress on this issue.
-    parse_grammar = Sequence(
-        "STRUCT",
+
+class TypelessArraySegment(ansi.TypelessArraySegment):
+    """Expression to construct a ARRAY from a subquery.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/array_functions#array
+    """
+
+    match_grammar = Sequence(
+        "ARRAY",
         Bracketed(
-            Delimited(
-                Sequence(
-                    Ref("BaseExpressionElementGrammar"),
-                    Ref("AliasExpressionSegment", optional=True),
-                ),
-            ),
+            Ref("SelectableGrammar"),
         ),
     )
 
@@ -1632,16 +1613,8 @@ class InsertStatementSegment(ansi.InsertStatementSegment):
         "INSERT",
         Ref.keyword("INTO", optional=True),
         Ref("TableReferenceSegment"),
-        OneOf(
-            # As SelectableGrammar can be bracketed too, the parse gets confused
-            # so we need slightly odd syntax here to allow those to parse (rather
-            # than just add optional=True to BracketedColumnReferenceListGrammar).
-            Ref("SelectableGrammar"),
-            Sequence(
-                Ref("BracketedColumnReferenceListGrammar"),
-                Ref("SelectableGrammar"),
-            ),
-        ),
+        Ref("BracketedColumnReferenceListGrammar", optional=True),
+        Ref("SelectableGrammar"),
     )
 
 
@@ -1867,8 +1840,6 @@ class ProcedureParameterListSegment(BaseSegment):
     match_grammar = Bracketed(
         Delimited(
             Ref("ProcedureParameterGrammar"),
-            delimiter=Ref("CommaSegment"),
-            bracket_pairs_set="angle_bracket_pairs",
             optional=True,
         )
     )

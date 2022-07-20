@@ -1,0 +1,246 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 418f2c7c4a75327e91c003ef6e4a56c9b32e33693ec6b426f155fc18fa32672b
+file:
+- statement:
+    load_data_statement:
+    - keyword: LOAD
+    - keyword: DATA
+    - keyword: INFILE
+    - literal: "'/var/lib/mysql-files/libaccess.csv'"
+    - keyword: INTO
+    - keyword: TABLE
+    - table_reference:
+        identifier: libaccess
+    - keyword: FIELDS
+    - keyword: TERMINATED
+    - keyword: BY
+    - literal: "'\\t'"
+    - keyword: OPTIONALLY
+    - keyword: ENCLOSED
+    - keyword: BY
+    - literal: "'\"'"
+    - keyword: IGNORE
+    - literal: '1'
+    - keyword: LINES
+- statement_terminator: ;
+- statement:
+    load_data_statement:
+    - keyword: LOAD
+    - keyword: DATA
+    - keyword: INFILE
+    - literal: "'data.txt'"
+    - keyword: INTO
+    - keyword: TABLE
+    - table_reference:
+      - identifier: db2
+      - dot: .
+      - identifier: my_table
+- statement_terminator: ;
+- statement:
+    load_data_statement:
+    - keyword: LOAD
+    - keyword: DATA
+    - keyword: INFILE
+    - literal: "'/tmp/test.txt'"
+    - keyword: INTO
+    - keyword: TABLE
+    - table_reference:
+        identifier: test
+    - keyword: FIELDS
+    - keyword: TERMINATED
+    - keyword: BY
+    - literal: "','"
+    - keyword: LINES
+    - keyword: STARTING
+    - keyword: BY
+    - literal: "'xxx'"
+- statement_terminator: ;
+- statement:
+    load_data_statement:
+    - keyword: LOAD
+    - keyword: DATA
+    - keyword: INFILE
+    - literal: "'/tmp/test.txt'"
+    - keyword: INTO
+    - keyword: TABLE
+    - table_reference:
+        identifier: test
+    - keyword: IGNORE
+    - literal: '1'
+    - keyword: LINES
+- statement_terminator: ;
+- statement:
+    load_data_statement:
+    - keyword: LOAD
+    - keyword: DATA
+    - keyword: INFILE
+    - literal: "'data.txt'"
+    - keyword: INTO
+    - keyword: TABLE
+    - table_reference:
+        identifier: table2
+    - keyword: FIELDS
+    - keyword: TERMINATED
+    - keyword: BY
+    - literal: "','"
+- statement_terminator: ;
+- statement:
+    load_data_statement:
+    - keyword: LOAD
+    - keyword: DATA
+    - keyword: INFILE
+    - literal: "'data.txt'"
+    - keyword: INTO
+    - keyword: TABLE
+    - table_reference:
+        identifier: table2
+    - keyword: FIELDS
+    - keyword: TERMINATED
+    - keyword: BY
+    - literal: "'\\t'"
+- statement_terminator: ;
+- statement:
+    load_data_statement:
+    - keyword: LOAD
+    - keyword: DATA
+    - keyword: INFILE
+    - literal: "'data.txt'"
+    - keyword: INTO
+    - keyword: TABLE
+    - table_reference:
+        identifier: tbl_name
+    - keyword: FIELDS
+    - keyword: TERMINATED
+    - keyword: BY
+    - literal: "','"
+    - keyword: ENCLOSED
+    - keyword: BY
+    - literal: "'\"'"
+    - keyword: LINES
+    - keyword: TERMINATED
+    - keyword: BY
+    - literal: "'\\r\\n'"
+    - keyword: IGNORE
+    - literal: '1'
+    - keyword: LINES
+- statement_terminator: ;
+- statement:
+    load_data_statement:
+    - keyword: LOAD
+    - keyword: DATA
+    - keyword: INFILE
+    - literal: "'/tmp/jokes.txt'"
+    - keyword: INTO
+    - keyword: TABLE
+    - table_reference:
+        identifier: jokes
+    - keyword: FIELDS
+    - keyword: TERMINATED
+    - keyword: BY
+    - literal: "''"
+    - keyword: LINES
+    - keyword: TERMINATED
+    - keyword: BY
+    - literal: "'\\n%%\\n'"
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          identifier: joke
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    load_data_statement:
+    - keyword: LOAD
+    - keyword: DATA
+    - keyword: INFILE
+    - literal: "'persondata.txt'"
+    - keyword: INTO
+    - keyword: TABLE
+    - table_reference:
+        identifier: persondata
+- statement_terminator: ;
+- statement:
+    load_data_statement:
+    - keyword: LOAD
+    - keyword: DATA
+    - keyword: INFILE
+    - literal: "'file.txt'"
+    - keyword: INTO
+    - keyword: TABLE
+    - table_reference:
+        identifier: t1
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          identifier: column1
+      - comma: ','
+      - column_reference:
+          variable: '@var1'
+      - end_bracket: )
+    - keyword: SET
+    - column_reference:
+        identifier: column2
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - column_reference:
+        variable: '@var1'
+    - binary_operator: /
+    - literal: '100'
+- statement_terminator: ;
+- statement:
+    load_data_statement:
+    - keyword: LOAD
+    - keyword: DATA
+    - keyword: INFILE
+    - literal: "'file.txt'"
+    - keyword: INTO
+    - keyword: TABLE
+    - table_reference:
+        identifier: t1
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          identifier: column1
+      - comma: ','
+      - column_reference:
+          identifier: column2
+      - end_bracket: )
+    - keyword: SET
+    - column_reference:
+        identifier: column3
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bare_function: CURRENT_TIMESTAMP
+- statement_terminator: ;
+- statement:
+    load_data_statement:
+    - keyword: LOAD
+    - keyword: DATA
+    - keyword: INFILE
+    - literal: "'file.txt'"
+    - keyword: INTO
+    - keyword: TABLE
+    - table_reference:
+        identifier: t1
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          identifier: column1
+      - comma: ','
+      - column_reference:
+          variable: '@dummy'
+      - comma: ','
+      - column_reference:
+          identifier: column2
+      - comma: ','
+      - column_reference:
+          variable: '@dummy'
+      - comma: ','
+      - column_reference:
+          identifier: column3
+      - end_bracket: )
+- statement_terminator: ;

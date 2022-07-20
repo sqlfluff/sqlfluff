@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4d320a183718cfaa36e7f5d01949fb12632f9236161c73e693d485b3c3061dfb
+_hash: d08283f65b2b85767cbb79bcfa1483ce634d5ad18e86f6be8033d5f98196a52c
 file:
 - statement:
     select_statement:
@@ -16,12 +16,11 @@ file:
           - identifier: foo_id
       - comma: ','
       - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: array
-            bracketed:
-              start_bracket: (
-              expression:
+          expression:
+            typeless_array:
+              keyword: array
+              bracketed:
+                start_bracket: (
                 select_statement:
                   select_clause:
                     keyword: select
@@ -52,7 +51,7 @@ file:
                       - identifier: some_table
                       - dot: .
                       - identifier: foo_id
-              end_bracket: )
+                end_bracket: )
       from_clause:
         keyword: from
         from_expression:
@@ -159,21 +158,22 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    keyword: ARRAY
-                    start_angle_bracket: <
-                    data_type:
-                    - keyword: STRUCT
-                    - start_angle_bracket: <
-                    - parameter: col_1
-                    - data_type:
-                        data_type_identifier: STRING
-                    - comma: ','
-                    - parameter: col_2
-                    - data_type:
-                        data_type_identifier: STRING
-                    - end_angle_bracket: '>'
-                    end_angle_bracket: '>'
                     array_literal:
+                    - keyword: ARRAY
+                    - start_angle_bracket: <
+                    - data_type:
+                        struct_type:
+                        - keyword: STRUCT
+                        - start_angle_bracket: <
+                        - parameter: col_1
+                        - data_type:
+                            data_type_identifier: STRING
+                        - comma: ','
+                        - parameter: col_2
+                        - data_type:
+                            data_type_identifier: STRING
+                        - end_angle_bracket: '>'
+                    - end_angle_bracket: '>'
                     - start_square_bracket: '['
                     - expression:
                         bracketed:
@@ -199,11 +199,12 @@ file:
       - keyword: SELECT
       - select_clause_element:
           expression:
-            keyword: STRUCT
-            start_angle_bracket: <
-            data_type:
-              data_type_identifier: int64
-            end_angle_bracket: '>'
+            struct_type:
+              keyword: STRUCT
+              start_angle_bracket: <
+              data_type:
+                data_type_identifier: int64
+              end_angle_bracket: '>'
             bracketed:
               start_bracket: (
               expression:
@@ -212,11 +213,12 @@ file:
       - comma: ','
       - select_clause_element:
           expression:
-            keyword: STRUCT
-            start_angle_bracket: <
-            data_type:
-              data_type_identifier: date
-            end_angle_bracket: '>'
+            struct_type:
+              keyword: STRUCT
+              start_angle_bracket: <
+              data_type:
+                data_type_identifier: date
+              end_angle_bracket: '>'
             bracketed:
               start_bracket: (
               expression:
@@ -225,17 +227,18 @@ file:
       - comma: ','
       - select_clause_element:
           expression:
-          - keyword: STRUCT
-          - start_angle_bracket: <
-          - parameter: x
-          - data_type:
-              data_type_identifier: int64
-          - comma: ','
-          - parameter: y
-          - data_type:
-              data_type_identifier: string
-          - end_angle_bracket: '>'
-          - bracketed:
+            struct_type:
+            - keyword: STRUCT
+            - start_angle_bracket: <
+            - parameter: x
+            - data_type:
+                data_type_identifier: int64
+            - comma: ','
+            - parameter: y
+            - data_type:
+                data_type_identifier: string
+            - end_angle_bracket: '>'
+            bracketed:
             - start_bracket: (
             - expression:
                 literal: '1'
@@ -249,11 +252,12 @@ file:
       - comma: ','
       - select_clause_element:
           expression:
-            keyword: STRUCT
-            start_angle_bracket: <
-            data_type:
-              data_type_identifier: int64
-            end_angle_bracket: '>'
+            struct_type:
+              keyword: STRUCT
+              start_angle_bracket: <
+              data_type:
+                data_type_identifier: int64
+              end_angle_bracket: '>'
             bracketed:
               start_bracket: (
               expression:

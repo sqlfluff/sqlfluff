@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d30c96ec3d95dfe608ec866bbaee1a390b5d3dc718a4152fdfc8e466cc3b7d24
+_hash: 3624e615feef9f00378a1aee0c4fa6540df7b0da89fc91ee908881959e03076b
 file:
 - statement:
     create_external_table_statement:
@@ -26,15 +26,12 @@ file:
         - parameter: uris
         - comparison_operator:
             raw_comparison_operator: '='
-        - expression:
-            array_literal:
-            - start_square_bracket: '['
-            - expression:
-                literal: "'gs://bucket/path1.csv'"
-            - comma: ','
-            - expression:
-                literal: "'gs://bucket/path2.csv'"
-            - end_square_bracket: ']'
+        - array_literal:
+          - start_square_bracket: '['
+          - literal: "'gs://bucket/path1.csv'"
+          - comma: ','
+          - literal: "'gs://bucket/path2.csv'"
+          - end_square_bracket: ']'
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -72,12 +69,10 @@ file:
         - parameter: uris
         - comparison_operator:
             raw_comparison_operator: '='
-        - expression:
-            array_literal:
-              start_square_bracket: '['
-              expression:
-                literal: "'gs://bucket/path1.csv'"
-              end_square_bracket: ']'
+        - array_literal:
+            start_square_bracket: '['
+            literal: "'gs://bucket/path1.csv'"
+            end_square_bracket: ']'
         - comma: ','
         - parameter: field_delimiter
         - comparison_operator:
@@ -109,12 +104,10 @@ file:
         - parameter: uris
         - comparison_operator:
             raw_comparison_operator: '='
-        - expression:
-            array_literal:
-              start_square_bracket: '['
-              expression:
-                literal: "'gs://bucket/path/*'"
-              end_square_bracket: ']'
+        - array_literal:
+            start_square_bracket: '['
+            literal: "'gs://bucket/path/*'"
+            end_square_bracket: ']'
         - comma: ','
         - parameter: format
         - comparison_operator:
@@ -159,12 +152,10 @@ file:
         - parameter: uris
         - comparison_operator:
             raw_comparison_operator: '='
-        - expression:
-            array_literal:
-              start_square_bracket: '['
-              expression:
-                literal: "'gs://bucket/path/*'"
-              end_square_bracket: ']'
+        - array_literal:
+            start_square_bracket: '['
+            literal: "'gs://bucket/path/*'"
+            end_square_bracket: ']'
         - comma: ','
         - parameter: format
         - comparison_operator:
@@ -194,12 +185,10 @@ file:
         - parameter: uris
         - comparison_operator:
             raw_comparison_operator: '='
-        - expression:
-            array_literal:
-              start_square_bracket: '['
-              expression:
-                literal: "'gs://bucket/path/*'"
-              end_square_bracket: ']'
+        - array_literal:
+            start_square_bracket: '['
+            literal: "'gs://bucket/path/*'"
+            end_square_bracket: ']'
         - comma: ','
         - parameter: format
         - comparison_operator:

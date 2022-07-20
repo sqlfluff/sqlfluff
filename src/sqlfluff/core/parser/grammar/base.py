@@ -17,7 +17,7 @@ from sqlfluff.core.parser.match_logging import (
 from sqlfluff.core.parser.match_wrapper import match_wrapper
 from sqlfluff.core.parser.matchable import Matchable
 from sqlfluff.core.parser.context import ParseContext
-from sqlfluff.core.parser.parsers import StringParser
+from sqlfluff.core.parser.parsers import BaseParser
 
 # Either a Grammar or a Segment CLASS
 MatchableType = Union[Matchable, Type[BaseSegment]]
@@ -53,14 +53,19 @@ def cached_method_for_parse_context(func):
     """
     cache_key = "__cache_" + func.__name__
 
-    def wrapped_method(self, parse_context: ParseContext):
-        """Cache the output of the method against a given parse context."""
+    def wrapped_method(self, parse_context: ParseContext, **kwargs):
+        """Cache the output of the method against a given parse context.
+
+        Note: kwargs are not taken into account in the caching, but
+        for the current use case of dependency loop debugging that's
+        ok.
+        """
         cache_tuple: Tuple = self.__dict__.get(cache_key, (None, None))
         # Do we currently have a cached value?
         if cache_tuple[0] == parse_context.uuid:
             return cache_tuple[1]
         # Generate a new value, cache it and return
-        result = func(self, parse_context=parse_context)
+        result = func(self, parse_context=parse_context, **kwargs)
         self.__dict__[cache_key] = (parse_context.uuid, result)
         return result
 
@@ -80,6 +85,7 @@ class BaseGrammar(Matchable):
     # Are we allowed to refer to keywords as strings instead of only passing
     # grammars or segments?
     allow_keyword_string_refs = True
+    equality_kwargs: Tuple[str, ...] = ("optional", "allow_gaps")
 
     @staticmethod
     def _resolve_ref(elem):
@@ -88,7 +94,7 @@ class BaseGrammar(Matchable):
             # t: instance / f: class, ref, func
             (True, str, Ref.keyword),
             (True, BaseGrammar, lambda x: x),
-            (True, StringParser, lambda x: x),
+            (True, BaseParser, lambda x: x),
             (False, BaseSegment, lambda x: x),
         ]
         # Get-out clause for None
@@ -107,7 +113,7 @@ class BaseGrammar(Matchable):
 
     def __init__(
         self,
-        *args,
+        *args: Union[MatchableType, str],
         allow_gaps=True,
         optional=False,
         ephemeral_name=None,
@@ -116,7 +122,9 @@ class BaseGrammar(Matchable):
 
         Args:
             *args: Any number of elements which because the subjects
-                of this grammar.
+                of this grammar. Optionally these elements may also be
+                string references to elements rather than the Matchable
+                elements themselves.
             allow_gaps (:obj:`bool`, optional): Does this instance of the
                 grammar allow gaps between the elements it matches? This
                 may be exhibited slightly differently in each grammar. See
@@ -174,7 +182,7 @@ class BaseGrammar(Matchable):
         )  # pragma: no cover
 
     @cached_method_for_parse_context
-    def simple(self, parse_context: ParseContext) -> Optional[List[str]]:
+    def simple(self, parse_context: ParseContext, crumbs=None) -> Optional[List[str]]:
         """Does this matcher support a lowercase hash matching route?"""
         return None
 
@@ -706,14 +714,18 @@ class BaseGrammar(Matchable):
     def __eq__(self, other):
         """Two grammars are equal if their elements and types are equal.
 
-        NOTE: This could potentially mean that two grammars with
-        the same elements but _different configuration_ will be
-        classed as the same. If this matters for your use case,
-        consider extending this function.
-
-        e.g. `OneOf(foo) == OneOf(foo, optional=True)`
+        NOTE: We use the equality_kwargs tuple on the class to define
+        other kwargs which should also be checked so that things like
+        "optional" is also taken into account in considering equality.
         """
-        return type(self) is type(other) and self._elements == other._elements
+        return (
+            type(self) is type(other)
+            and self._elements == other._elements
+            and all(
+                getattr(self, k, None) == getattr(other, k, None)
+                for k in self.equality_kwargs
+            )
+        )
 
     def copy(
         self,
@@ -795,27 +807,40 @@ class Ref(BaseGrammar):
     # and it also causes infinite recursion.
     allow_keyword_string_refs = False
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: str, **kwargs):
         # Any patterns to _prevent_ a match.
         self.exclude = kwargs.pop("exclude", None)
         super().__init__(*args, **kwargs)
 
     @cached_method_for_parse_context
-    def simple(self, parse_context: ParseContext) -> Optional[List[str]]:
+    def simple(
+        self, parse_context: ParseContext, crumbs: Optional[Tuple[str]] = None
+    ) -> Optional[List[str]]:
         """Does this matcher support a uppercase hash matching route?
 
         A ref is simple, if the thing it references is simple.
         """
+        ref = self._get_ref()
+        if crumbs and ref in crumbs:  # pragma: no cover
+            loop = " -> ".join(crumbs)
+            raise RecursionError(f"Self referential grammar detected: {loop}")
         return self._get_elem(dialect=parse_context.dialect).simple(
-            parse_context=parse_context
+            parse_context=parse_context,
+            crumbs=(crumbs or ()) + (ref,),
         )
 
-    def _get_ref(self):
+    def _get_ref(self) -> str:
         """Get the name of the thing we're referencing."""
         # Unusually for a grammar we expect _elements to be a list of strings.
         # Notable ONE string for now.
         if len(self._elements) == 1:
             # We're good on length. Get the name of the reference
+            ref = self._elements[0]
+            if not isinstance(ref, str):  # pragma: no cover
+                raise ValueError(
+                    "Ref Grammar expects elements to be strings. "
+                    f"Found {ref!r} instead."
+                )
             return self._elements[0]
         else:  # pragma: no cover
             raise ValueError(

@@ -2,7 +2,7 @@
 
 import copy
 from abc import ABC, abstractmethod
-from typing import List, Optional, TYPE_CHECKING
+from typing import List, Optional, Tuple, TYPE_CHECKING
 
 
 if TYPE_CHECKING:  # pragma: no cover
@@ -18,8 +18,14 @@ class Matchable(ABC):
         """Return whether this element is optional."""
 
     @abstractmethod
-    def simple(self, parse_context: "ParseContext") -> Optional[List[str]]:
-        """Try to obtain a simple response from the matcher."""
+    def simple(
+        self, parse_context: "ParseContext", crumbs: Optional[Tuple[str, ...]] = None
+    ) -> Optional[List[str]]:
+        """Try to obtain a simple response from the matcher.
+
+        NOTE: the crumbs kwarg is designed to be used by Ref to
+        detect recursion.
+        """
 
     @abstractmethod
     def match(self, segments: tuple, parse_context: "ParseContext") -> "MatchResult":

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b3320d5e7297b6df478a33c196587cc260df20eb0bd0955e7a8df98a5961e732
+_hash: 30ad03e901a89fd1b7cc94f0ca49306a789bc718e8fcc85fbc8faebc44711445
 file:
   statement:
     with_compound_statement:
@@ -29,12 +29,11 @@ file:
                   identifier: min_age
             - comma: ','
             - select_clause_element:
-                function:
-                  function_name:
-                    function_name_identifier: ARRAY
-                  bracketed:
-                    start_bracket: (
-                    expression:
+                expression:
+                  typeless_array:
+                    keyword: ARRAY
+                    bracketed:
+                      start_bracket: (
                       select_statement:
                         select_clause:
                           keyword: SELECT
@@ -78,7 +77,7 @@ file:
                               alias_expression:
                                 keyword: AS
                                 identifier: num
-                    end_bracket: )
+                      end_bracket: )
                 alias_expression:
                   keyword: AS
                   identifier: bits

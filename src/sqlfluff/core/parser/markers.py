@@ -178,7 +178,7 @@ class PositionMarker:
             line_pos + len(raw) if len(split) == 1 else len(split[-1]) + 1,
         )
 
-    def with_working_position(self, line_no: int, line_pos: int):
+    def with_working_position(self, line_no: int, line_pos: int) -> "PositionMarker":
         """Copy this position and replace the working position."""
         return self.__class__(
             source_slice=self.source_slice,

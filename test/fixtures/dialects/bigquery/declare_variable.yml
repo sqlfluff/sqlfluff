@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 314dd609dfc7087e8874e235ab1c8d78bfbec61c644eba51fa7caad598e574ea
+_hash: 6db48fd893573f34c90e458f8e829f9221da5156b89418c5b4272417c62c4272
 file:
 - statement:
     declare_segment:
@@ -58,11 +58,9 @@ file:
     - keyword: default
     - array_literal:
       - start_square_bracket: '['
-      - expression:
-          literal: "'one'"
+      - literal: "'one'"
       - comma: ','
-      - expression:
-          literal: "'two'"
+      - literal: "'two'"
       - end_square_bracket: ']'
 - statement_terminator: ;
 - statement:
@@ -87,11 +85,9 @@ file:
     - keyword: default
     - array_literal:
       - start_square_bracket: '['
-      - expression:
-          literal: "'one'"
+      - literal: "'one'"
       - comma: ','
-      - expression:
-          literal: "'two'"
+      - literal: "'two'"
       - end_square_bracket: ']'
 - statement_terminator: ;
 - statement:
@@ -99,32 +95,34 @@ file:
       keyword: declare
       identifier: str1
       data_type:
-      - keyword: struct
-      - start_angle_bracket: <
-      - parameter: f1
-      - data_type:
-          data_type_identifier: string
-      - comma: ','
-      - parameter: f2
-      - data_type:
-          data_type_identifier: string
-      - end_angle_bracket: '>'
+        struct_type:
+        - keyword: struct
+        - start_angle_bracket: <
+        - parameter: f1
+        - data_type:
+            data_type_identifier: string
+        - comma: ','
+        - parameter: f2
+        - data_type:
+            data_type_identifier: string
+        - end_angle_bracket: '>'
 - statement_terminator: ;
 - statement:
     declare_segment:
     - keyword: declare
     - identifier: str2
     - data_type:
-      - keyword: struct
-      - start_angle_bracket: <
-      - parameter: f1
-      - data_type:
-          data_type_identifier: string
-      - comma: ','
-      - parameter: f2
-      - data_type:
-          data_type_identifier: string
-      - end_angle_bracket: '>'
+        struct_type:
+        - keyword: struct
+        - start_angle_bracket: <
+        - parameter: f1
+        - data_type:
+            data_type_identifier: string
+        - comma: ','
+        - parameter: f2
+        - data_type:
+            data_type_identifier: string
+        - end_angle_bracket: '>'
     - keyword: default
     - expression:
         typeless_struct:
@@ -156,16 +154,17 @@ file:
     - keyword: declare
     - identifier: str4
     - data_type:
-      - keyword: struct
-      - start_angle_bracket: <
-      - parameter: f1
-      - data_type:
-          data_type_identifier: string
-      - comma: ','
-      - parameter: f2
-      - data_type:
-          data_type_identifier: string
-      - end_angle_bracket: '>'
+        struct_type:
+        - keyword: struct
+        - start_angle_bracket: <
+        - parameter: f1
+        - data_type:
+            data_type_identifier: string
+        - comma: ','
+        - parameter: f2
+        - data_type:
+            data_type_identifier: string
+        - end_angle_bracket: '>'
     - keyword: default
     - tuple:
         bracketed:

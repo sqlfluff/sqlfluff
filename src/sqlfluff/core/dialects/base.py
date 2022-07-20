@@ -9,12 +9,11 @@ from sqlfluff.core.parser import (
     StringParser,
 )
 from sqlfluff.core.parser.grammar.base import BaseGrammar
+from sqlfluff.core.parser.parsers import BaseParser
 
-DialectElementType = Union[
-    Type[BaseSegment], BaseGrammar, StringParser, SegmentGenerator
-]
+DialectElementType = Union[Type[BaseSegment], BaseGrammar, BaseParser, SegmentGenerator]
 # NOTE: Post expansion, no generators remain
-ExpandedDialectElementType = Union[Type[BaseSegment], StringParser, BaseGrammar]
+ExpandedDialectElementType = Union[Type[BaseSegment], BaseParser, BaseGrammar]
 
 
 class Dialect:
@@ -155,6 +154,12 @@ class Dialect:
             cls = kwargs[n]
             if self._library[n] is cls:
                 continue
+            elif self._library[n] == cls:
+                # Check for replacement with a new but identical class.
+                # This would be a sign of redundant definitions in the dialect.
+                raise ValueError(
+                    f"Attempted unnecessary identical redefinition of {n!r} in {self!r}"
+                )  # pragma: no cover
 
             # To replace a segment, the replacement must either be a
             # subclass of the original, *or* it must have the same

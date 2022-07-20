@@ -407,3 +407,22 @@ test_fail_special_chars_show_tblproperties:
   configs:
     core:
       dialect: sparksql
+
+test_pass_special_chars_redshift_hash_table:
+  pass_str: |
+    CREATE TABLE #example (
+        id INT
+    );
+  configs:
+    core:
+      dialect: redshift
+
+test_fail_special_chars_redshift_hash_column:
+  fail_str: |
+    CREATE TABLE example
+    (
+        "#example" INT
+    )
+  configs:
+    core:
+      dialect: redshift

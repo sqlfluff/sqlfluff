@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 55a7be6a253a7a592fa0a0f18511cf58e29f9c320c62019877210a92a0f2d5a4
+_hash: 319fba64d197da9e3f35446e209b468b4c081517cb4ca371edc6b1c7d231d7be
 file:
   batch:
   - statement:
@@ -139,5 +139,20 @@ file:
         - parameter: '@ErrorSeverity'
         - comma: ','
         - parameter: '@ErrorState'
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      raiserror_statement:
+        keyword: RAISERROR
+        bracketed:
+        - start_bracket: (
+        - literal: "'The specified table does not exist. Please enter @tableName in\
+            \ the following format: Schemaname.Tablename OR [Schemaname].[Tablename]'"
+        - comma: ','
+        - literal: '11'
+        - comma: ','
+        - numeric_literal:
+            sign_indicator: '-'
+            literal: '1'
         - end_bracket: )
   - statement_terminator: ;

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d465ab4126507916404c690be63c85ad070a15c44102c42472463dd923179ae4
+_hash: 69affa6320f31f6d791dd891df18d54cf8d2595eacf05ec108b6f6e8cf539838
 file:
   statement:
     create_model_statement:
@@ -29,9 +29,10 @@ file:
       - parameter: INPUT_LABEL_COLS
       - comparison_operator:
           raw_comparison_operator: '='
-      - start_square_bracket: '['
-      - literal: "'label_str'"
-      - end_square_bracket: ']'
+      - array_literal:
+          start_square_bracket: '['
+          literal: "'label_str'"
+          end_square_bracket: ']'
       - end_bracket: )
     - keyword: AS
     - select_statement:
