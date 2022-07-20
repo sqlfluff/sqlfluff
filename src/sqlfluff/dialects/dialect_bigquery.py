@@ -6,8 +6,6 @@ and
 https://cloud.google.com/bigquery/docs/reference/standard-sql/lexical#string_and_bytes_literals
 """
 
-import itertools
-
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
@@ -1242,39 +1240,42 @@ class TableReferenceSegment(ObjectReferenceSegment):
         """
         # For each descendant element, group them, using "dot" elements as a
         # delimiter.
-        for is_dot, elems in itertools.groupby(
-            self.recursive_crawl("identifier", "literal", "dash", "dot", "star"),
-            lambda e: e.is_type("dot"),
-        ):
-            if not is_dot:
-                # 'parts' and 'elems_for_parts' accumulate pieces of the name,
-                # delimited by ".".
-                parts = []
-                elems_for_parts = []
-                for seg in elems:
-                    if seg.is_type("identifier"):
-                        # Found an identifier (potentially with embedded dots).
-                        seg_parts = seg.raw_trimmed().split(".")
-                        for idx, part in enumerate(seg_parts):
-                            # Save each part of the segment.
-                            parts.append(part)
-                            elems_for_parts.append(seg)
+        parts = []
+        elems_for_parts = []
 
-                            if idx != len(seg_parts) - 1:
-                                # For each part except the last, flush.
-                                yield self.ObjectReferencePart(
-                                    "".join(parts), elems_for_parts
-                                )
-                                parts = []
-                                elems_for_parts = []
-                    else:
-                        # For non-identifier segments, save the whole
-                        # segment.
-                        parts.append(seg.raw_trimmed())
-                        elems_for_parts.append(seg)
-                # Flush any leftovers.
-                if parts:
-                    yield self.ObjectReferencePart("".join(parts), elems_for_parts)
+        def flush():
+            nonlocal parts, elems_for_parts
+            result = self.ObjectReferencePart("".join(parts), elems_for_parts)
+            parts = []
+            elems_for_parts = []
+            return result
+
+        for elem in self.recursive_crawl(
+            "identifier", "literal", "dash", "dot", "star"
+        ):
+            if not elem.is_type("dot"):
+                if elem.is_type("identifier"):
+                    # Found an identifier (potentially with embedded dots).
+                    elem_subparts = elem.raw_trimmed().split(".")
+                    for idx, part in enumerate(elem_subparts):
+                        # Save each part of the segment.
+                        parts.append(part)
+                        elems_for_parts.append(elem)
+
+                        if idx != len(elem_subparts) - 1:
+                            # For each part except the last, flush.
+                            yield flush()
+
+                else:
+                    # For non-identifier segments, save the whole segment.
+                    parts.append(elem.raw_trimmed())
+                    elems_for_parts.append(elem)
+            else:
+                yield flush()
+
+        # Flush any leftovers.
+        if parts:
+            yield flush()
 
 
 class DeclareStatementSegment(BaseSegment):
