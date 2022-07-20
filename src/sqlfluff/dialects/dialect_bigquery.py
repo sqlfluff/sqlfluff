@@ -1247,21 +1247,32 @@ class TableReferenceSegment(ObjectReferenceSegment):
             lambda e: e.is_type("dot"),
         ):
             if not is_dot:
+                # 'parts' and 'elems_for_parts' accumulate pieces of the name,
+                # delimited by ".".
                 parts = []
                 elems_for_parts = []
                 for seg in elems:
-                    if seg.is_type("identifier") and "." in seg.raw_trimmed():
-                        if parts:
-                            yield self.ObjectReferencePart(
-                                "".join(parts), elems_for_parts
-                            )
-                            parts = []
-                            elems_for_parts = []
-                        for part in seg.raw_trimmed().split("."):
-                            yield self.ObjectReferencePart(part, [seg])
+                    if seg.is_type("identifier"):
+                        # Found an identifier (potentially with embedded dots).
+                        seg_parts = seg.raw_trimmed().split(".")
+                        for idx, part in enumerate(seg_parts):
+                            # Save each part of the segment.
+                            parts.append(part)
+                            elems_for_parts.append(seg)
+
+                            if idx != len(seg_parts) - 1:
+                                # For each part except the last, flush.
+                                yield self.ObjectReferencePart(
+                                    "".join(parts), elems_for_parts
+                                )
+                                parts = []
+                                elems_for_parts = []
                     else:
+                        # For non-identifier segments, save the whole
+                        # segment.
                         parts.append(seg.raw_trimmed())
                         elems_for_parts.append(seg)
+                # Flush any leftovers.
                 if parts:
                     yield self.ObjectReferencePart("".join(parts), elems_for_parts)
 
