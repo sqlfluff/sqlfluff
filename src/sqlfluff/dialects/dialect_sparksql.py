@@ -833,7 +833,10 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                 Indent,
                 OneOf("ADD", "DROP"),
                 "CONSTRAINT",
-                Ref("ColumnReferenceSegment", exclude=Ref.keyword("CHECK"),),
+                Ref(
+                    "ColumnReferenceSegment",
+                    exclude=Ref.keyword("CHECK"),
+                ),
                 Ref.keyword("CHECK", optional=True),
                 Bracketed(Anything(), optional=True),
                 Dedent,

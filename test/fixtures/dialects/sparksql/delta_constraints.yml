@@ -1,0 +1,80 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 7bedc3f29ebb40b354fc5b8828b5d5783968464ffd3cb038ee8b2c1538798986
+file:
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - identifier: default
+      - dot: .
+      - identifier: people10m
+    - keyword: CHANGE
+    - keyword: COLUMN
+    - column_reference:
+        identifier: middle_name
+    - keyword: DROP
+    - keyword: NOT
+    - keyword: 'NULL'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - identifier: default
+      - dot: .
+      - identifier: people10m
+    - keyword: ADD
+    - keyword: CONSTRAINT
+    - column_reference:
+        identifier: date_within_range
+    - keyword: CHECK
+    - bracketed:
+      - start_bracket: (
+      - raw: birthDate
+      - raw: '>'
+      - raw: "'1900-01-01'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - identifier: default
+      - dot: .
+      - identifier: people10m
+    - keyword: DROP
+    - keyword: CONSTRAINT
+    - column_reference:
+        identifier: date_within_range
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - identifier: default
+      - dot: .
+      - identifier: people10m
+    - keyword: ADD
+    - keyword: CONSTRAINT
+    - column_reference:
+        identifier: valid_ids
+    - keyword: CHECK
+    - bracketed:
+      - start_bracket: (
+      - raw: id
+      - raw: '>'
+      - raw: '1'
+      - raw: and
+      - raw: id
+      - raw: <
+      - raw: '99999999'
+      - end_bracket: )
+- statement_terminator: ;
