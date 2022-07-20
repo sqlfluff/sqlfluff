@@ -3,27 +3,23 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 81bfa5b80e421538f98e6357f6c118fdcb655ed2f92a3ed3eea652e0a51f4ac1
+_hash: 09b2b5b2a1f44889c0c719f0d19d602a2ef3fe2b980e0328c6878ce23cfcc2e0
 file:
 - statement:
     select_statement:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          keyword: ARRAY
           array_literal:
+          - keyword: ARRAY
           - start_square_bracket: '['
-          - expression:
-              literal: '5'
+          - literal: '5'
           - comma: ','
-          - expression:
-              literal: 'NULL'
+          - literal: 'NULL'
           - comma: ','
-          - expression:
-              literal: '7'
+          - literal: '7'
           - comma: ','
-          - expression:
-              literal: 'NULL'
+          - literal: 'NULL'
           - end_square_bracket: ']'
 - statement_terminator: ;
 - statement:
@@ -37,8 +33,8 @@ file:
             bracketed:
             - start_bracket: (
             - expression:
-                keyword: ARRAY
                 array_literal:
+                  keyword: ARRAY
                   start_square_bracket: '['
                   end_square_bracket: ']'
             - comma: ','
@@ -60,22 +56,18 @@ file:
             bracketed:
             - start_bracket: (
             - expression:
-                keyword: ARRAY
                 array_literal:
+                - keyword: ARRAY
                 - start_square_bracket: '['
-                - expression:
-                    literal: '5'
+                - literal: '5'
                 - comma: ','
-                - expression:
-                    numeric_literal:
-                      sign_indicator: '-'
-                      literal: '6'
+                - numeric_literal:
+                    sign_indicator: '-'
+                    literal: '6'
                 - comma: ','
-                - expression:
-                    literal: 'NULL'
+                - literal: 'NULL'
                 - comma: ','
-                - expression:
-                    literal: '7'
+                - literal: '7'
                 - end_square_bracket: ']'
             - comma: ','
             - expression:
@@ -100,20 +92,16 @@ file:
             bracketed:
             - start_bracket: (
             - expression:
-                keyword: ARRAY
                 array_literal:
+                - keyword: ARRAY
                 - start_square_bracket: '['
-                - expression:
-                    literal: '5'
+                - literal: '5'
                 - comma: ','
-                - expression:
-                    literal: 'NULL'
+                - literal: 'NULL'
                 - comma: ','
-                - expression:
-                    literal: '7'
+                - literal: '7'
                 - comma: ','
-                - expression:
-                    literal: 'NULL'
+                - literal: 'NULL'
                 - end_square_bracket: ']'
             - comma: ','
             - expression:

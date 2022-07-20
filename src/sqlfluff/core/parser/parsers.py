@@ -111,7 +111,7 @@ class StringParser(BaseParser):
             **segment_kwargs,
         )
 
-    def simple(self, parse_context: "ParseContext") -> Optional[List[str]]:
+    def simple(self, parse_context: "ParseContext", crumbs=None) -> Optional[List[str]]:
         """Return simple options for this matcher.
 
         Because string matchers are not case sensitive we can
@@ -151,7 +151,7 @@ class MultiStringParser(BaseParser):
             **segment_kwargs,
         )
 
-    def simple(self, parse_context: "ParseContext") -> Optional[List[str]]:
+    def simple(self, parse_context: "ParseContext", crumbs=None) -> Optional[List[str]]:
         """Return simple options for this matcher.
 
         Because string matchers are not case sensitive we can
@@ -189,7 +189,7 @@ class NamedParser(BaseParser):
             **segment_kwargs,
         )
 
-    def simple(cls, parse_context: ParseContext) -> Optional[List[str]]:
+    def simple(cls, parse_context: ParseContext, crumbs=None) -> Optional[List[str]]:
         """Does this matcher support a uppercase hash matching route?
 
         NamedParser segment does NOT for now. We might need to later for efficiency.
@@ -240,7 +240,7 @@ class RegexParser(BaseParser):
             **segment_kwargs,
         )
 
-    def simple(cls, parse_context: ParseContext) -> Optional[List[str]]:
+    def simple(cls, parse_context: ParseContext, crumbs=None) -> Optional[List[str]]:
         """Does this matcher support a uppercase hash matching route?
 
         Regex segment does NOT for now. We might need to later for efficiency.

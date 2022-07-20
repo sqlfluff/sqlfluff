@@ -28,13 +28,16 @@ class AnyNumberOf(BaseGrammar):
         super().__init__(*args, **kwargs)
 
     @cached_method_for_parse_context
-    def simple(self, parse_context: ParseContext) -> Optional[List[str]]:
+    def simple(
+        self, parse_context: ParseContext, crumbs: Optional[List[str]] = None
+    ) -> Optional[List[str]]:
         """Does this matcher support a uppercase hash matching route?
 
         AnyNumberOf does provide this, as long as *all* the elements *also* do.
         """
         simple_buff = [
-            opt.simple(parse_context=parse_context) for opt in self._elements
+            opt.simple(parse_context=parse_context, crumbs=crumbs)
+            for opt in self._elements
         ]
         if any(elem is None for elem in simple_buff):
             return None
