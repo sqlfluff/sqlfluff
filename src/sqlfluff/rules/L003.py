@@ -516,6 +516,7 @@ class Rule_L003(BaseRule):
         this_indent_num, this_indent_rem = divmod(
             this_line.indent_size, self.tab_space_size
         )
+        has_partial_indent = bool(this_indent_rem)
         comp_indent_num = prev_line.indent_size // self.tab_space_size
         # Is the indent balance the same?
         if indent_diff == 0:
@@ -550,7 +551,7 @@ class Rule_L003(BaseRule):
                     description=_Desc(
                         expected=comp_indent_num,
                         found=this_indent_num,
-                        has_partial_indent=bool(this_indent_rem),
+                        has_partial_indent=has_partial_indent,
                         compared_to=prev_line.line_no,
                     ),
                     fixes=fixes,
@@ -599,7 +600,7 @@ class Rule_L003(BaseRule):
                     description=_Desc(
                         expected=len(desired_indent) // self.tab_space_size,
                         found=this_indent_num,
-                        has_partial_indent=bool(this_indent_rem),
+                        has_partial_indent=has_partial_indent,
                         compared_to=prev_line.line_no,
                     ),
                     fixes=fixes,
@@ -638,7 +639,7 @@ class Rule_L003(BaseRule):
                         description=_Desc(
                             expected=this_indent_num + 1,
                             found=this_indent_num,
-                            has_partial_indent=bool(this_indent_rem),
+                            has_partial_indent=has_partial_indent,
                             compared_to=prev_line.line_no,
                         ),
                         # Add in an extra bit of whitespace for the indent
@@ -677,7 +678,7 @@ class Rule_L003(BaseRule):
                     description=_Desc(
                         expected=comp_indent_num,
                         found=this_indent_num,
-                        has_partial_indent=bool(this_indent_rem),
+                        has_partial_indent=has_partial_indent,
                         compared_to=prev_line.line_no,
                     ),
                     fixes=fixes,
