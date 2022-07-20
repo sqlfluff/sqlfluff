@@ -260,6 +260,8 @@ def prepare_release(new_version_num):
                 if line.startswith(key):
                     line = f"{key} = {new_version_num}\n"
                     break
+            if line.startswith("    sqlfluff=="):
+                line = f"    sqlfluff=={new_version_num}\n"
             write_file.write(line)
         write_file.close()
 

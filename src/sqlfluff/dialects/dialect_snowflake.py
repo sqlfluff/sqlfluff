@@ -565,16 +565,15 @@ snowflake_dialect.replace(
         optional=True,
     ),
     TemporaryTransientGrammar=OneOf(Ref("TemporaryGrammar"), "TRANSIENT"),
-    BaseExpressionElementGrammar=OneOf(
-        # Allow use of CONNECT_BY_ROOT pseudo-columns.
-        # https://docs.snowflake.com/en/sql-reference/constructs/connect-by.html#:~:text=Snowflake%20supports%20the%20CONNECT_BY_ROOT,the%20Examples%20section%20below.
-        Sequence("CONNECT_BY_ROOT", Ref("ColumnReferenceSegment")),
-        Ref("LiteralGrammar"),
-        Ref("BareFunctionSegment"),
-        Ref("IntervalExpressionSegment"),
-        Ref("FunctionSegment"),
-        Ref("ColumnReferenceSegment"),
-        Ref("ExpressionSegment"),
+    BaseExpressionElementGrammar=ansi_dialect.get_grammar(
+        "BaseExpressionElementGrammar"
+    ).copy(
+        insert=[
+            # Allow use of CONNECT_BY_ROOT pseudo-columns.
+            # https://docs.snowflake.com/en/sql-reference/constructs/connect-by.html#:~:text=Snowflake%20supports%20the%20CONNECT_BY_ROOT,the%20Examples%20section%20below.
+            Sequence("CONNECT_BY_ROOT", Ref("ColumnReferenceSegment")),
+        ],
+        before=Ref("LiteralGrammar"),
     ),
     QuotedLiteralSegment=OneOf(
         # https://docs.snowflake.com/en/sql-reference/data-types-text.html#string-constants
@@ -1038,16 +1037,11 @@ class SetAssignmentStatementSegment(BaseSegment):
         ),
         Sequence(
             "SET",
-            Bracketed(
-                Delimited(
-                    Ref("LocalVariableNameSegment"), delimiter=Ref("CommaSegment")
-                )
-            ),
+            Bracketed(Delimited(Ref("LocalVariableNameSegment"))),
             Ref("EqualsSegment"),
             Bracketed(
                 Delimited(
                     Ref("ExpressionSegment"),
-                    delimiter=Ref("CommaSegment"),
                 ),
             ),
         ),
@@ -1299,7 +1293,7 @@ class FromPivotExpressionSegment(BaseSegment):
             "FOR",
             Ref("SingleIdentifierGrammar"),
             "IN",
-            Bracketed(Delimited(Ref("LiteralGrammar"), delimiter=Ref("CommaSegment"))),
+            Bracketed(Delimited(Ref("LiteralGrammar"))),
         ),
     )
 
@@ -1315,9 +1309,7 @@ class FromUnpivotExpressionSegment(BaseSegment):
             "FOR",
             Ref("SingleIdentifierGrammar"),
             "IN",
-            Bracketed(
-                Delimited(Ref("SingleIdentifierGrammar"), delimiter=Ref("CommaSegment"))
-            ),
+            Bracketed(Delimited(Ref("SingleIdentifierGrammar"))),
         ),
     )
 
@@ -4510,7 +4502,7 @@ class AlterSessionUnsetClauseSegment(BaseSegment):
 
     match_grammar = Sequence(
         "UNSET",
-        Delimited(Ref("ParameterNameSegment"), delimiter=Ref("CommaSegment")),
+        Delimited(Ref("ParameterNameSegment")),
     )
 
 
@@ -4627,7 +4619,6 @@ class AlterTaskSetClauseSegment(BaseSegment):
                     Ref("NumericLiteralSegment"),
                 ),
             ),
-            delimiter=Ref("CommaSegment"),
         ),
     )
 
@@ -4646,7 +4637,7 @@ class AlterTaskUnsetClauseSegment(BaseSegment):
 
     match_grammar = Sequence(
         "UNSET",
-        Delimited(Ref("ParameterNameSegment"), delimiter=Ref("CommaSegment")),
+        Delimited(Ref("ParameterNameSegment")),
     )
 
 

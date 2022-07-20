@@ -233,12 +233,12 @@ tsql_dialect.replace(
         )
     ),
     # Overring ANSI BaseExpressionElement to remove Interval Expression Segment
-    BaseExpressionElementGrammar=OneOf(
-        Ref("LiteralGrammar"),
-        Ref("BareFunctionSegment"),
-        Ref("FunctionSegment"),
-        Ref("ColumnReferenceSegment"),
-        Ref("ExpressionSegment"),
+    BaseExpressionElementGrammar=ansi_dialect.get_grammar(
+        "BaseExpressionElementGrammar"
+    ).copy(
+        remove=[
+            Ref("IntervalExpressionSegment"),
+        ]
     ),
     SingleIdentifierGrammar=OneOf(
         Ref("NakedIdentifierSegment"),
@@ -248,18 +248,22 @@ tsql_dialect.replace(
         Ref("ParameterNameSegment"),
         Ref("VariableIdentifierSegment"),
     ),
-    LiteralGrammar=OneOf(
-        Ref("QuotedLiteralSegment"),
-        Ref("QuotedLiteralSegmentWithN"),
-        Ref("NumericLiteralSegment"),
-        Ref("BooleanLiteralGrammar"),
-        Ref("QualifiedNumericLiteralSegment"),
-        # NB: Null is included in the literals, because it is a keyword which
-        # can otherwise be easily mistaken for an identifier.
-        Ref("NullLiteralSegment"),
-        Ref("DateTimeLiteralGrammar"),
-        Ref("ParameterNameSegment"),
-        Ref("SystemVariableSegment"),
+    LiteralGrammar=ansi_dialect.get_grammar("LiteralGrammar")
+    .copy(
+        insert=[
+            Ref("QuotedLiteralSegmentWithN"),
+        ],
+        before=Ref("NumericLiteralSegment"),
+        remove=[
+            Ref("ArrayLiteralSegment"),
+            Ref("ObjectLiteralSegment"),
+        ],
+    )
+    .copy(
+        insert=[
+            Ref("ParameterNameSegment"),
+            Ref("SystemVariableSegment"),
+        ],
     ),
     ParameterNameSegment=RegexParser(
         r"@[A-Za-z0-9_]+", CodeSegment, name="parameter", type="parameter"
@@ -923,7 +927,6 @@ class RelationalIndexOptionsSegment(BaseSegment):
                                                         "BLOCKERS",
                                                     ),
                                                 ),
-                                                delimiter=Ref("CommaSegment"),
                                             ),
                                         ),
                                     ),
@@ -956,7 +959,6 @@ class RelationalIndexOptionsSegment(BaseSegment):
                     ),
                     min_times=1,
                 ),
-                delimiter=Ref("CommaSegment"),
             ),
         ),
     )
@@ -3893,7 +3895,6 @@ class AccessStatementSegment(BaseSegment):
                 Sequence(
                     Delimited(
                         OneOf(_global_permissions, _permissions),
-                        delimiter=Ref("CommaSegment"),
                         terminator="ON",
                     ),
                 ),
@@ -3909,7 +3910,6 @@ class AccessStatementSegment(BaseSegment):
             "TO",
             Delimited(
                 OneOf(Ref("RoleReferenceSegment"), Ref("FunctionSegment")),
-                delimiter=Ref("CommaSegment"),
             ),
             OneOf(
                 Sequence("WITH", "GRANT", "OPTION"),
@@ -3926,7 +3926,6 @@ class AccessStatementSegment(BaseSegment):
             OneOf(
                 Delimited(
                     OneOf(_global_permissions, _permissions),
-                    delimiter=Ref("CommaSegment"),
                     terminator="ON",
                 ),
                 Sequence("ALL", Ref.keyword("PRIVILEGES", optional=True)),
@@ -3941,7 +3940,6 @@ class AccessStatementSegment(BaseSegment):
             OneOf("TO"),
             Delimited(
                 Ref("RoleReferenceSegment"),
-                delimiter=Ref("CommaSegment"),
             ),
             Sequence(
                 Ref.keyword("CASCADE", optional=True),
@@ -3955,7 +3953,6 @@ class AccessStatementSegment(BaseSegment):
             OneOf(
                 Delimited(
                     OneOf(_global_permissions, _permissions),
-                    delimiter=Ref("CommaSegment"),
                     terminator="ON",
                 ),
                 Sequence("ALL", Ref.keyword("PRIVILEGES", optional=True)),
@@ -3970,7 +3967,6 @@ class AccessStatementSegment(BaseSegment):
             OneOf("TO", "FROM"),
             Delimited(
                 Ref("RoleReferenceSegment"),
-                delimiter=Ref("CommaSegment"),
             ),
             Sequence(
                 Ref.keyword("CASCADE", optional=True),
