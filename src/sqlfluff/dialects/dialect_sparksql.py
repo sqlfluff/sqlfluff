@@ -691,6 +691,8 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
     http://spark.apache.org/docs/latest/sql-ref-syntax-ddl-alter-table.html
     """
 
+    type = "alter_table_statement"
+
     match_grammar = Sequence(
         "ALTER",
         "TABLE",
@@ -746,6 +748,7 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                             "FIRST",
                             "AFTER",
                             "SET",
+                            "DROP",
                         ),
                     ),
                     max_times=2,
@@ -761,7 +764,7 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                     ),
                     optional=True,
                 ),
-                Sequence(OneOf("SET", "DROP"), "NOT NULL", optional=True),
+                Sequence(OneOf("SET", "DROP"), "NOT", "NULL", optional=True),
                 Dedent,
             ),
             # ALTER TABLE - REPLACE COLUMNS
@@ -825,6 +828,7 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                 "SET",
                 Ref("LocationGrammar"),
             ),
+            # ALTER TABLE - ADD/DROP CONTRAINTS (DELTA)
         ),
     )
 
