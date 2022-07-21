@@ -7,24 +7,24 @@ import pathlib
 import re
 import shutil
 import stat
+import subprocess
+import sys
 import tempfile
 import textwrap
 from unittest.mock import MagicMock, patch
 
-import yaml
-import subprocess
 import chardet
-import sys
 
 # Testing libraries
 import pytest
+import yaml
 from click.testing import CliRunner
 
 # We import the library directly here to get the version
 import sqlfluff
-from sqlfluff.cli.commands import lint, version, rules, fix, parse, dialects, get_config
-from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult
+from sqlfluff.cli.commands import dialects, fix, get_config, lint, parse, rules, version
 from sqlfluff.core.parser.segments.raw import CommentSegment
+from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult
 
 re_ansi_escape = re.compile(r"\x1b[^m]*m")
 
@@ -62,7 +62,8 @@ def invoke_assert_code(
 
 
 expected_output = """== [test/fixtures/linter/indentation_error_simple.sql] FAIL
-L:   2 | P:   4 | L003 | Expected 1 indentations, found 0 [compared to line 01]
+L:   2 | P:   4 | L003 | Expected 1 indentation, found less than 1 [compared to
+                       | line 01]
 L:   5 | P:  10 | L010 | Keywords must be consistently upper case.
 L:   5 | P:  13 | L031 | Avoid aliases in from clauses and join conditions.
 """
@@ -1190,7 +1191,7 @@ def test__cli__command_lint_serialize_multiple_files(serialize, write_file, tmp_
         result_payload = result.output
 
     if serialize == "human":
-        assert len(result_payload.split("\n")) == 29 if write_file else 30
+        assert len(result_payload.split("\n")) == 33 if write_file else 32
     elif serialize == "json":
         result = json.loads(result_payload)
         assert len(result) == 2

@@ -1,7 +1,7 @@
 """Tests the python routines within L003."""
 import pytest
 
-from sqlfluff.rules.L003 import Rule_L003
+from sqlfluff.rules.L003 import Rule_L003, _Desc
 
 
 @pytest.mark.parametrize(
@@ -45,6 +45,39 @@ class ProtoSeg:
     ],
 )
 def test__rules__std_L003_indent_size(tab_space_size, segments, result):
-    """Test Rule_L003._make_indent."""
+    """Test Rule_L003._indent_size."""
     res = Rule_L003._indent_size(segments=segments, tab_space_size=tab_space_size)
     assert res == result
+
+
+@pytest.mark.parametrize(
+    "expected,found,compared_to,has_partial_indent,expected_message",
+    [
+        (
+            1,
+            1,
+            4,
+            True,
+            "Expected 1 indentation, found more than 1 [compared to line 04]",
+        ),
+        (
+            2,
+            1,
+            10,
+            False,
+            "Expected 2 indentations, found 1 [compared to line 10]",
+        ),
+        (
+            2,
+            1,
+            11,
+            True,
+            "Expected 2 indentations, found less than 2 [compared to line 11]",
+        ),
+    ],
+)
+def test__rules__std_L003_desc(
+    expected, found, compared_to, has_partial_indent, expected_message
+):
+    """Test Rule_L003 error description."""
+    assert _Desc(expected, found, compared_to, has_partial_indent) == expected_message
