@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ec9d42b15628824d95fd46d5486345a798957f38bdaa20137eb8bc76088bfecf
+_hash: 83f68e6b6527766cec861ad292d0e24643ee6e4d95f8009241cdd6b5c3d99459
 file:
 - statement:
     create_task_statement:
@@ -463,6 +463,55 @@ file:
           function:
             function_name:
               function_name_identifier: auto_device_insert
+            bracketed:
+              start_bracket: (
+              end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_task_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: TASK
+    - object_reference:
+      - identifier: SCH
+      - dot: .
+      - identifier: MY_TASK
+    - keyword: WAREHOUSE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        identifier: MY_WH
+    - keyword: SCHEDULE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - literal: "'USING CRON 15 7 2 * * UTC'"
+    - keyword: USER_TASK_TIMEOUT_MS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - literal: '10800000'
+    - keyword: WHEN
+    - snowflake_task_expression_segment:
+        system_function_name: SYSTEM$STREAM_HAS_DATA
+        bracketed:
+          start_bracket: (
+          literal: "'SCH.MY_STREAM'"
+          end_bracket: )
+        binary_operator: AND
+        expression:
+        - literal: '1'
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - literal: '1'
+    - keyword: AS
+    - statement:
+        call_segment:
+          keyword: CALL
+          function:
+            function_name:
+              identifier: SCH
+              dot: .
+              function_name_identifier: MY_SPROC
             bracketed:
               start_bracket: (
               end_bracket: )
