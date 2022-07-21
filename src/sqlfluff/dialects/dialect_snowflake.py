@@ -1516,6 +1516,16 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                     Ref("QuotedLiteralSegment"),
                 ),
             ),
+            # @TODO: add more contraint actions
+            Sequence(
+                "DROP",
+                Ref("PrimaryKeyGrammar"),
+            ),
+            Sequence(
+                "ADD",
+                Ref("PrimaryKeyGrammar"),
+                Bracketed(Delimited(Ref("ColumnReferenceSegment"), optional=True)),
+            )
             # @TODO: Set/unset TAG
             # @TODO: Unset table options
             # @TODO: Add/drop row access policies

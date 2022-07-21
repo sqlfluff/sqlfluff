@@ -70,3 +70,9 @@ ALTER TABLE my_table DROP COLUMN column_1, column_2, column_3;
 ALTER TABLE IF EXISTS my_table ADD COLUMN my_column INTEGER;
 ALTER TABLE IF EXISTS empl_info DROP COLUMN my_column;
 ALTER TABLE IF EXISTS empl_info RENAME COLUMN old_col_name TO new_col_name;
+
+-- DROP PRIMARY KEY
+ALTER TABLE my_schema.my_table drop PRIMARY KEY;
+
+-- ADD PRIMARY KEY
+ALTER TABLE my_schema.my_table add PRIMARY KEY(TABLE_ID);
