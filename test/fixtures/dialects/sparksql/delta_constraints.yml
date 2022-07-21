@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7bedc3f29ebb40b354fc5b8828b5d5783968464ffd3cb038ee8b2c1538798986
+_hash: 3b1125b049fcd18459e7ff55487c4ab6ecaf0f04e53d4170f60136d17e6db763
 file:
 - statement:
     alter_table_statement:
@@ -35,11 +35,14 @@ file:
         identifier: date_within_range
     - keyword: CHECK
     - bracketed:
-      - start_bracket: (
-      - raw: birthDate
-      - raw: '>'
-      - raw: "'1900-01-01'"
-      - end_bracket: )
+        start_bracket: (
+        expression:
+          column_reference:
+            identifier: birthDate
+          comparison_operator:
+            raw_comparison_operator: '>'
+          literal: "'1900-01-01'"
+        end_bracket: )
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -68,13 +71,18 @@ file:
         identifier: valid_ids
     - keyword: CHECK
     - bracketed:
-      - start_bracket: (
-      - raw: id
-      - raw: '>'
-      - raw: '1'
-      - raw: and
-      - raw: id
-      - raw: <
-      - raw: '99999999'
-      - end_bracket: )
+        start_bracket: (
+        expression:
+        - column_reference:
+            identifier: id
+        - comparison_operator:
+            raw_comparison_operator: '>'
+        - literal: '1'
+        - binary_operator: and
+        - column_reference:
+            identifier: id
+        - comparison_operator:
+            raw_comparison_operator: <
+        - literal: '99999999'
+        end_bracket: )
 - statement_terminator: ;

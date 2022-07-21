@@ -839,7 +839,7 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                     exclude=Ref.keyword("CHECK"),
                 ),
                 Ref.keyword("CHECK", optional=True),
-                Bracketed(Anything(), optional=True),
+                Bracketed(Ref("ExpressionSegment"), optional=True),
                 Dedent,
             ),
         ),
