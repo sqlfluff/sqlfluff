@@ -737,7 +737,10 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
     """A `ALTER TABLE` statement to change the table schema or properties.
 
     http://spark.apache.org/docs/latest/sql-ref-syntax-ddl-alter-table.html
+    https://docs.delta.io/latest/delta-constraints.html#constraints
     """
+
+    type = "alter_table_statement"
 
     match_grammar = Sequence(
         "ALTER",
@@ -794,6 +797,7 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                             "FIRST",
                             "AFTER",
                             "SET",
+                            "DROP",
                         ),
                     ),
                     max_times=2,
@@ -809,7 +813,7 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                     ),
                     optional=True,
                 ),
-                Sequence(OneOf("SET", "DROP"), "NOT NULL", optional=True),
+                Sequence(OneOf("SET", "DROP"), "NOT", "NULL", optional=True),
                 Dedent,
             ),
             # ALTER TABLE - REPLACE COLUMNS
@@ -829,7 +833,7 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
             Sequence(
                 "ADD",
                 Ref("IfNotExistsGrammar", optional=True),
-                AnyNumberOf(Ref("PartitionSpecGrammar")),
+                AnyNumberOf(Ref("PartitionSpecGrammar"), min_times=1),
             ),
             # ALTER TABLE - DROP PARTITION
             Sequence(
@@ -872,6 +876,19 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                 Ref("PartitionSpecGrammar"),
                 "SET",
                 Ref("LocationGrammar"),
+            ),
+            # ALTER TABLE - ADD/DROP CONTRAINTS (DELTA)
+            Sequence(
+                Indent,
+                OneOf("ADD", "DROP"),
+                "CONSTRAINT",
+                Ref(
+                    "ColumnReferenceSegment",
+                    exclude=Ref.keyword("CHECK"),
+                ),
+                Ref.keyword("CHECK", optional=True),
+                Bracketed(Ref("ExpressionSegment"), optional=True),
+                Dedent,
             ),
         ),
     )
