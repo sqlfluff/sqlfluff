@@ -12,6 +12,7 @@ from sqlfluff.core.rules.doc_decorators import (
     document_fix_compatible,
     document_groups,
 )
+from sqlfluff.core.rules.functional import Segments, rsp, sp
 from sqlfluff.core.templaters import TemplatedFile
 from sqlfluff.core.templaters.base import RawFileSlice
 
@@ -513,7 +514,10 @@ class Rule_L003(BaseRule):
             return LintResult(memory=memory)
         prev_line_no = prev_line.line_no
         indent_diff = this_line.anchor_indent_balance - prev_line.anchor_indent_balance
-        this_indent_num = this_line.indent_size // self.tab_space_size
+        this_indent_num, this_indent_rem = divmod(
+            this_line.indent_size, self.tab_space_size
+        )
+        has_partial_indent = bool(this_indent_rem)
         comp_indent_num = prev_line.indent_size // self.tab_space_size
         # Is the indent balance the same?
         if indent_diff == 0:
@@ -548,6 +552,7 @@ class Rule_L003(BaseRule):
                     description=_Desc(
                         expected=comp_indent_num,
                         found=this_indent_num,
+                        has_partial_indent=has_partial_indent,
                         compared_to=prev_line.line_no,
                     ),
                     fixes=fixes,
@@ -596,6 +601,7 @@ class Rule_L003(BaseRule):
                     description=_Desc(
                         expected=len(desired_indent) // self.tab_space_size,
                         found=this_indent_num,
+                        has_partial_indent=has_partial_indent,
                         compared_to=prev_line.line_no,
                     ),
                     fixes=fixes,
@@ -634,6 +640,7 @@ class Rule_L003(BaseRule):
                         description=_Desc(
                             expected=this_indent_num + 1,
                             found=this_indent_num,
+                            has_partial_indent=has_partial_indent,
                             compared_to=prev_line.line_no,
                         ),
                         # Add in an extra bit of whitespace for the indent
@@ -672,6 +679,7 @@ class Rule_L003(BaseRule):
                     description=_Desc(
                         expected=comp_indent_num,
                         found=this_indent_num,
+                        has_partial_indent=has_partial_indent,
                         compared_to=prev_line.line_no,
                     ),
                     fixes=fixes,
@@ -1022,11 +1030,16 @@ def _find_matching_start_line(
 
 
 def _Desc(
-    expected: int,
-    found: int,
-    compared_to: int,
+    expected: int, found: int, compared_to: int, has_partial_indent: bool = False
 ) -> str:
+    indentations = "indentation" if expected == 1 else "indentations"
+    if found >= expected and has_partial_indent:
+        found_explanation = f"more than {found}"
+    elif found < expected and has_partial_indent:
+        found_explanation = f"less than {found + 1}"
+    else:
+        found_explanation = str(found)
     return (
-        f"Expected {expected} indentations,"
-        f" found {found} [compared to line {compared_to:02}]"
+        f"Expected {expected} {indentations},"
+        f" found {found_explanation} [compared to line {compared_to:02}]"
     )

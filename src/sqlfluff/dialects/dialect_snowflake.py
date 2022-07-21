@@ -347,6 +347,12 @@ snowflake_dialect.add(
         name="integer_literal",
         type="literal",
     ),
+    SystemFunctionName=RegexParser(
+        r"SYSTEM\$([A-Za-z0-9_]*)",
+        CodeSegment,
+        name="system_function_name",
+        type="system_function_name",
+    ),
     GroupByContentsGrammar=Delimited(
         OneOf(
             Ref("ColumnReferenceSegment"),
@@ -1464,6 +1470,7 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
     match_grammar = Sequence(
         "ALTER",
         "TABLE",
+        Ref("IfExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
         OneOf(
             # Rename
@@ -1509,6 +1516,16 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                     Ref("QuotedLiteralSegment"),
                 ),
             ),
+            # @TODO: add more contraint actions
+            Sequence(
+                "DROP",
+                Ref("PrimaryKeyGrammar"),
+            ),
+            Sequence(
+                "ADD",
+                Ref("PrimaryKeyGrammar"),
+                Bracketed(Delimited(Ref("ColumnReferenceSegment"), optional=True)),
+            )
             # @TODO: Set/unset TAG
             # @TODO: Unset table options
             # @TODO: Add/drop row access policies
@@ -2698,7 +2715,7 @@ class CreateTaskSegment(BaseSegment):
         Sequence(
             "WHEN",
             Indent,
-            Ref("ExpressionSegment"),
+            Ref("TaskExpressionSegment"),
             Dedent,
             optional=True,
         ),
@@ -2708,6 +2725,28 @@ class CreateTaskSegment(BaseSegment):
             Ref("StatementSegment"),
             Dedent,
         ),
+    )
+
+
+class TaskExpressionSegment(BaseSegment):
+    """Expressions for WHEN clause in TASK.
+
+    e.g. "SYSTEM$STREAM_HAS_DATA('MYSTREAM')"
+
+    """
+
+    type = "snowflake_task_expression_segment"
+    match_grammar = Sequence(
+        Delimited(
+            OneOf(
+                Ref("ExpressionSegment"),
+                Sequence(
+                    Ref("SystemFunctionName"),
+                    Bracketed(Ref("QuotedLiteralSegment")),
+                ),
+            ),
+            delimiter=OneOf(Ref("BooleanBinaryOperatorGrammar")),
+        )
     )
 
 
