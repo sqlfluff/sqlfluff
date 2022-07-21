@@ -265,6 +265,19 @@ def prepare_release(new_version_num):
             write_file.write(line)
         write_file.close()
 
+    for filename in ["docs/source/gettingstarted.rst"]:
+        input_file = open(filename, "r").readlines()
+        write_file = open(filename, "w")
+        change_next_line = False
+        for line in input_file:
+            if change_next_line:
+                line = f"    {new_version_num}\n"
+                change_next_line = False
+            elif line.startswith("    $ sqlfluff version"):
+                change_next_line = True
+            write_file.write(line)
+        write_file.close()
+
 
 if __name__ == "__main__":
     cli()

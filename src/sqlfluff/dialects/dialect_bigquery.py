@@ -6,8 +6,6 @@ and
 https://cloud.google.com/bigquery/docs/reference/standard-sql/lexical#string_and_bytes_literals
 """
 
-import itertools
-
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
@@ -1195,7 +1193,7 @@ class ColumnReferenceSegment(ObjectReferenceSegment):
         return super().extract_possible_multipart_references(levels)
 
 
-class HyphenatedTableReferenceSegment(ObjectReferenceSegment):
+class TableReferenceSegment(ObjectReferenceSegment):
     """A reference to an object that may contain embedded hyphens."""
 
     type = "table_reference"
@@ -1242,24 +1240,42 @@ class HyphenatedTableReferenceSegment(ObjectReferenceSegment):
         """
         # For each descendant element, group them, using "dot" elements as a
         # delimiter.
-        for is_dot, elems in itertools.groupby(
-            self.recursive_crawl("identifier", "literal", "dash", "dot"),
-            lambda e: e.is_type("dot"),
+        parts = []
+        elems_for_parts = []
+
+        def flush():
+            nonlocal parts, elems_for_parts
+            result = self.ObjectReferencePart("".join(parts), elems_for_parts)
+            parts = []
+            elems_for_parts = []
+            return result
+
+        for elem in self.recursive_crawl(
+            "identifier", "literal", "dash", "dot", "star"
         ):
-            if not is_dot:
-                segments = list(elems)
-                parts = [seg.raw_trimmed() for seg in segments]
-                yield self.ObjectReferencePart("".join(parts), segments)
+            if not elem.is_type("dot"):
+                if elem.is_type("identifier"):
+                    # Found an identifier (potentially with embedded dots).
+                    elem_subparts = elem.raw_trimmed().split(".")
+                    for idx, part in enumerate(elem_subparts):
+                        # Save each part of the segment.
+                        parts.append(part)
+                        elems_for_parts.append(elem)
 
+                        if idx != len(elem_subparts) - 1:
+                            # For each part except the last, flush.
+                            yield flush()
 
-class TableExpressionSegment(ansi.TableExpressionSegment):
-    """Main table expression e.g. within a FROM clause, with hyphen support."""
+                else:
+                    # For non-identifier segments, save the whole segment.
+                    parts.append(elem.raw_trimmed())
+                    elems_for_parts.append(elem)
+            else:
+                yield flush()
 
-    match_grammar = ansi.TableExpressionSegment.match_grammar.copy(
-        insert=[
-            Ref("HyphenatedTableReferenceSegment"),
-        ]
-    )
+        # Flush any leftovers.
+        if parts:
+            yield flush()
 
 
 class DeclareStatementSegment(BaseSegment):
