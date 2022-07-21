@@ -156,17 +156,6 @@ hive_dialect.replace(
         NamedParser("double_quote", CodeSegment, name="quoted_literal", type="literal"),
         NamedParser("back_quote", CodeSegment, name="quoted_literal", type="literal"),
     ),
-    LiteralGrammar=OneOf(
-        Ref("QuotedLiteralSegment"),
-        Ref("NumericLiteralSegment"),
-        Ref("BooleanLiteralGrammar"),
-        Ref("QualifiedNumericLiteralSegment"),
-        # NB: Null is included in the literals, because it is a keyword which
-        # can otherwise be easily mistaken for an identifier.
-        Ref("NullLiteralSegment"),
-        Ref("DateTimeLiteralGrammar"),
-        Sequence(Ref("SimpleArrayTypeGrammar"), Ref("ArrayLiteralSegment")),
-    ),
     SimpleArrayTypeGrammar=Ref.keyword("ARRAY"),
     TrimParametersGrammar=Nothing(),
     SingleIdentifierGrammar=ansi_dialect.get_grammar("SingleIdentifierGrammar").copy(
@@ -203,6 +192,30 @@ hive_dialect.replace(
             Sequence("SORT", "BY"),
         ],
         before=Sequence("ORDER", "BY"),
+    ),
+    GroupByClauseTerminatorGrammar=OneOf(
+        Sequence(
+            OneOf("ORDER", "CLUSTER", "DISTRIBUTE", "SORT"),
+            "BY",
+        ),
+        "LIMIT",
+        "HAVING",
+        "QUALIFY",
+        "WINDOW",
+    ),
+    HavingClauseTerminatorGrammar=OneOf(
+        Sequence(
+            OneOf(
+                "ORDER",
+                "CLUSTER",
+                "DISTRIBUTE",
+                "SORT",
+            ),
+            "BY",
+        ),
+        "LIMIT",
+        "QUALIFY",
+        "WINDOW",
     ),
 )
 
@@ -836,36 +849,6 @@ class SelectClauseSegment(ansi.SelectClauseSegment):
         before=Ref.keyword("LIMIT"),
     )
     parse_grammar = ansi.SelectClauseSegment.parse_grammar.copy()
-
-
-class GroupByClauseSegment(ansi.GroupByClauseSegment):
-    """Overriding GroupByClauseSegment to allow for additional segment parsing."""
-
-    match_grammar = ansi.GroupByClauseSegment.match_grammar.copy()
-    match_grammar.terminator = match_grammar.terminator.copy(  # type: ignore
-        insert=[
-            Sequence("CLUSTER", "BY"),
-            Sequence("DISTRIBUTE", "BY"),
-            Sequence("SORT", "BY"),
-        ],
-        before=Ref.keyword("LIMIT"),
-    )
-    parse_grammar = ansi.GroupByClauseSegment.parse_grammar
-
-
-class HavingClauseSegment(ansi.HavingClauseSegment):
-    """Overriding HavingClauseSegment to allow for additional segment parsing."""
-
-    match_grammar = ansi.HavingClauseSegment.match_grammar.copy()
-    match_grammar.terminator = match_grammar.terminator.copy(  # type: ignore
-        insert=[
-            Sequence("CLUSTER", "BY"),
-            Sequence("DISTRIBUTE", "BY"),
-            Sequence("SORT", "BY"),
-        ],
-        before=Ref.keyword("LIMIT"),
-    )
-    parse_grammar = ansi.HavingClauseSegment.parse_grammar
 
 
 class SetExpressionSegment(ansi.SetExpressionSegment):

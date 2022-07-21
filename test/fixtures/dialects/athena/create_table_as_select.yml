@@ -1,0 +1,58 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 6469816f4e4c64b9af86701ef4f034af0635749a38b71dfe230ee7ef1c3a899c
+file:
+  statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        identifier: my_ctas
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - keyword: format
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - literal: "'Parquet'"
+      - comma: ','
+      - keyword: external_location
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - literal: "'s3://my-bucket/my-path-level-1/my-path-level-2'"
+      - comma: ','
+      - keyword: partitioned_by
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - array_literal:
+          keyword: array
+          start_square_bracket: '['
+          literal: "'load_date'"
+          end_square_bracket: ']'
+      - end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              identifier: field_1
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: field_2
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: field_3
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: my_table
+  statement_terminator: ;

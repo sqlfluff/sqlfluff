@@ -1,0 +1,117 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 09b2b5b2a1f44889c0c719f0d19d602a2ef3fe2b980e0328c6878ce23cfcc2e0
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          array_literal:
+          - keyword: ARRAY
+          - start_square_bracket: '['
+          - literal: '5'
+          - comma: ','
+          - literal: 'NULL'
+          - comma: ','
+          - literal: '7'
+          - comma: ','
+          - literal: 'NULL'
+          - end_square_bracket: ']'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: filter
+            bracketed:
+            - start_bracket: (
+            - expression:
+                array_literal:
+                  keyword: ARRAY
+                  start_square_bracket: '['
+                  end_square_bracket: ']'
+            - comma: ','
+            - expression:
+                column_reference:
+                  identifier: x
+                binary_operator: ->
+                literal: 'true'
+            - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: filter
+            bracketed:
+            - start_bracket: (
+            - expression:
+                array_literal:
+                - keyword: ARRAY
+                - start_square_bracket: '['
+                - literal: '5'
+                - comma: ','
+                - numeric_literal:
+                    sign_indicator: '-'
+                    literal: '6'
+                - comma: ','
+                - literal: 'NULL'
+                - comma: ','
+                - literal: '7'
+                - end_square_bracket: ']'
+            - comma: ','
+            - expression:
+              - column_reference:
+                  identifier: x
+              - binary_operator: ->
+              - column_reference:
+                  identifier: x
+              - comparison_operator:
+                  raw_comparison_operator: '>'
+              - literal: '0'
+            - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: filter
+            bracketed:
+            - start_bracket: (
+            - expression:
+                array_literal:
+                - keyword: ARRAY
+                - start_square_bracket: '['
+                - literal: '5'
+                - comma: ','
+                - literal: 'NULL'
+                - comma: ','
+                - literal: '7'
+                - comma: ','
+                - literal: 'NULL'
+                - end_square_bracket: ']'
+            - comma: ','
+            - expression:
+              - column_reference:
+                  identifier: x
+              - binary_operator: ->
+              - column_reference:
+                  identifier: x
+              - keyword: IS
+              - keyword: NOT
+              - keyword: 'NULL'
+            - end_bracket: )
+- statement_terminator: ;

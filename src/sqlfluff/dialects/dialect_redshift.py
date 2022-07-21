@@ -3,27 +3,31 @@
 This is based on postgres dialect, since it was initially based off of Postgres 8.
 We should monitor in future and see if it should be rebased off of ANSI
 """
+from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
-    OneOf,
     AnyNumberOf,
     AnySetOf,
     Anything,
-    Ref,
-    Sequence,
-    Bracketed,
     BaseSegment,
+    Bracketed,
+    CodeSegment,
     Delimited,
     Matchable,
     Nothing,
+    OneOf,
     OptionallyBracketed,
+    Ref,
+    RegexLexer,
+    RegexParser,
+    SegmentGenerator,
+    Sequence,
 )
-from sqlfluff.core.dialects import load_raw_dialect
+from sqlfluff.dialects import dialect_ansi as ansi
+from sqlfluff.dialects import dialect_postgres as postgres
 from sqlfluff.dialects.dialect_redshift_keywords import (
     redshift_reserved_keywords,
     redshift_unreserved_keywords,
 )
-from sqlfluff.dialects import dialect_postgres as postgres
-from sqlfluff.dialects import dialect_ansi as ansi
 
 postgres_dialect = load_raw_dialect("postgres")
 ansi_dialect = load_raw_dialect("ansi")
@@ -160,6 +164,18 @@ redshift_dialect.replace(
         ),
         Ref("AliasExpressionSegment", optional=True),
     ),
+    NakedIdentifierSegment=SegmentGenerator(
+        lambda dialect: RegexParser(
+            # Optionally begins with # for temporary tables. Otherwise
+            # must only contain digits, letters, underscore, and $ but
+            # can’t be all digits.
+            r"#?([A-Z_]+|[0-9]+[A-Z_$])[A-Z0-9_$]*",
+            CodeSegment,
+            name="naked_identifier",
+            type="identifier",
+            anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
+        )
+    ),
     ColumnReferenceSegment=Delimited(
         Sequence(
             ansi.ColumnReferenceSegment,
@@ -181,6 +197,13 @@ redshift_dialect.replace(
         ),
         allow_gaps=False,
     ),
+)
+
+redshift_dialect.patch_lexer_matchers(
+    [
+        # add optional leading # to code for temporary tables
+        RegexLexer("code", r"#?[0-9a-zA-Z_]+[0-9a-zA-Z_$]*", CodeSegment),
+    ]
 )
 
 
@@ -2225,8 +2248,11 @@ class TableExpressionSegment(ansi.TableExpressionSegment):
     """
 
     match_grammar = ansi.TableExpressionSegment.match_grammar.copy(
-        insert=[Ref("ObjectUnpivotSegment", optional=True)],
-        before=Ref("TableReferenceSegment", optional=True),
+        insert=[
+            Ref("ObjectUnpivotSegment", optional=True),
+            Ref("ArrayUnnestSegment", optional=True),
+        ],
+        before=Ref("TableReferenceSegment"),
     )
 
 
@@ -2247,6 +2273,22 @@ class ObjectUnpivotSegment(BaseSegment):
     )
 
 
+class ArrayUnnestSegment(BaseSegment):
+    """Array unnesting.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/query-super.html
+    """
+
+    type = "array_unnesting"
+    match_grammar: Matchable = Sequence(
+        Ref("ObjectReferenceSegment"),
+        "AS",
+        Ref("SingleIdentifierGrammar"),
+        "AT",
+        Ref("SingleIdentifierGrammar"),
+    )
+
+
 class CallStatementSegment(BaseSegment):
     """A `CALL` statement.
 
@@ -2257,4 +2299,12 @@ class CallStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "CALL",
         Ref("FunctionSegment"),
+    )
+
+
+class SelectClauseModifierSegment(postgres.SelectClauseModifierSegment):
+    """Things that come after SELECT but before the columns."""
+
+    match_grammar = postgres.SelectClauseModifierSegment.match_grammar.copy(
+        insert=[Sequence("TOP", Ref("NumericLiteralSegment"))],
     )

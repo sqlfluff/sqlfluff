@@ -30,7 +30,7 @@ class Sequence(BaseGrammar):
     test_env = getenv("SQLFLUFF_TESTENV", "")
 
     @cached_method_for_parse_context
-    def simple(self, parse_context: ParseContext) -> Optional[List[str]]:
+    def simple(self, parse_context: ParseContext, crumbs=None) -> Optional[List[str]]:
         """Does this matcher support a uppercase hash matching route?
 
         Sequence does provide this, as long as the *first* non-optional
@@ -38,7 +38,7 @@ class Sequence(BaseGrammar):
         """
         simple_buff = []
         for opt in self._elements:
-            simple = opt.simple(parse_context=parse_context)
+            simple = opt.simple(parse_context=parse_context, crumbs=crumbs)
             if not simple:
                 return None
             simple_buff += simple
@@ -208,13 +208,13 @@ class Bracketed(Sequence):
         super().__init__(*args, **kwargs)
 
     @cached_method_for_parse_context
-    def simple(self, parse_context: ParseContext) -> Optional[List[str]]:
+    def simple(self, parse_context: ParseContext, crumbs=None) -> Optional[List[str]]:
         """Does this matcher support a uppercase hash matching route?
 
         Bracketed does this easily, we just look for the bracket.
         """
         start_bracket, _, _ = self.get_bracket_from_dialect(parse_context)
-        return start_bracket.simple(parse_context=parse_context)
+        return start_bracket.simple(parse_context=parse_context, crumbs=crumbs)
 
     def get_bracket_from_dialect(self, parse_context):
         """Rehydrate the bracket segments in question."""
@@ -268,7 +268,15 @@ class Bracketed(Sequence):
 
         # Are we dealing with a pre-existing BracketSegment?
         if seg_buff[0].is_type("bracketed"):
-            seg: BracketedSegment = cast(BracketedSegment, seg_buff[0])
+            # NOTE: We copy the original segment here because otherwise we will begin to
+            # edit a _reference_ and not a copy - and that may lead to unused matches
+            # leaking out. https://github.com/sqlfluff/sqlfluff/issues/3277
+            seg: BracketedSegment = cast(BracketedSegment, seg_buff[0].copy())
+            # Check it's of the right kind of bracket
+            if not start_bracket.match(seg.start_bracket, parse_context):
+                # Doesn't match - return no match
+                return MatchResult.from_unmatched(segments)
+
             content_segs = seg.segments[len(seg.start_bracket) : -len(seg.end_bracket)]
             bracket_segment = seg
             trailing_segments = seg_buff[1:]

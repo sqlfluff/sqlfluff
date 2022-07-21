@@ -1,0 +1,130 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 3e7fe40ebaff29fe1db679e34e429696efe86015a25ed5632106ee642d574880
+file:
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        identifier: table_name
+    - alter_table_column_clauses:
+      - keyword: RENAME
+      - keyword: COLUMN
+      - column_reference:
+          identifier: old_column_name
+      - keyword: TO
+      - column_reference:
+          identifier: new_column_name
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        identifier: table_name
+    - alter_table_column_clauses:
+        keyword: ADD
+        bracketed:
+          start_bracket: (
+          column_definition:
+            identifier: column_name
+            data_type:
+              data_type_identifier: NUMBER
+              bracketed:
+                start_bracket: (
+                expression:
+                  literal: '18'
+                end_bracket: )
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        identifier: table_name
+    - alter_table_column_clauses:
+        keyword: MODIFY
+        column_definition:
+          identifier: column_name
+          data_type:
+            data_type_identifier: NUMBER
+            bracketed:
+              start_bracket: (
+              expression:
+                literal: '18'
+              end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        identifier: table_name
+    - alter_table_column_clauses:
+      - keyword: DROP
+      - keyword: COLUMN
+      - column_reference:
+          identifier: column_name
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        identifier: table_name
+    - alter_table_column_clauses:
+        keyword: DROP
+        bracketed:
+        - start_bracket: (
+        - column_reference:
+            identifier: column_name_one
+        - comma: ','
+        - column_reference:
+            identifier: column_name_two
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        identifier: table_name
+    - alter_table_constraint_clauses:
+        keyword: ADD
+        table_constraint:
+        - keyword: CONSTRAINT
+        - object_reference:
+            identifier: constraint_name
+        - keyword: FOREIGN
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              identifier: column_name
+            end_bracket: )
+        - keyword: REFERENCES
+        - table_reference:
+            identifier: other_table_name
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              identifier: other_column_name
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        identifier: table_name
+    - alter_table_constraint_clauses:
+      - keyword: DROP
+      - keyword: CONSTRAINT
+      - object_reference:
+          identifier: constraint_name
+- statement_terminator: ;

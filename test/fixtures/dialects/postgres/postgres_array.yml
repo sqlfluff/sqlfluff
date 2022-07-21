@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7aca8f8e1e189a2ec3338e2aa3a203639df79c68ab3cc153babbcd1b7ab13221
+_hash: b4aa8115f851c201dd4e65b699e9f87d92bda785a3a4ea84d6e6ff4f67951b84
 file:
 - statement:
     select_statement:
@@ -11,26 +11,22 @@ file:
         keyword: SELECT
         select_clause_element:
           expression:
-          - keyword: ARRAY
           - array_literal:
+            - keyword: ARRAY
             - start_square_bracket: '['
-            - expression:
-                literal: '1'
+            - literal: '1'
             - comma: ','
-            - expression:
-                literal: '2'
+            - literal: '2'
             - end_square_bracket: ']'
           - binary_operator:
             - pipe: '|'
             - pipe: '|'
-          - keyword: ARRAY
           - array_literal:
+            - keyword: ARRAY
             - start_square_bracket: '['
-            - expression:
-                literal: '3'
+            - literal: '3'
             - comma: ','
-            - expression:
-                literal: '4'
+            - literal: '4'
             - end_square_bracket: ']'
 - statement_terminator: ;
 - statement:
@@ -38,28 +34,22 @@ file:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          keyword: ARRAY
           array_literal:
+          - keyword: ARRAY
           - start_square_bracket: '['
-          - expression:
-              array_literal:
-              - start_square_bracket: '['
-              - expression:
-                  literal: "'meeting'"
-              - comma: ','
-              - expression:
-                  literal: "'lunch'"
-              - end_square_bracket: ']'
+          - array_literal:
+            - start_square_bracket: '['
+            - literal: "'meeting'"
+            - comma: ','
+            - literal: "'lunch'"
+            - end_square_bracket: ']'
           - comma: ','
-          - expression:
-              array_literal:
-              - start_square_bracket: '['
-              - expression:
-                  literal: "'training'"
-              - comma: ','
-              - expression:
-                  literal: "'presentation'"
-              - end_square_bracket: ']'
+          - array_literal:
+            - start_square_bracket: '['
+            - literal: "'training'"
+            - comma: ','
+            - literal: "'presentation'"
+            - end_square_bracket: ']'
           - end_square_bracket: ']'
 - statement_terminator: ;
 - statement:
@@ -186,45 +176,35 @@ file:
             literal: "'Bill'"
         - comma: ','
         - expression:
-            keyword: ARRAY
             array_literal:
+            - keyword: ARRAY
             - start_square_bracket: '['
-            - expression:
-                literal: '10000'
+            - literal: '10000'
             - comma: ','
-            - expression:
-                literal: '10000'
+            - literal: '10000'
             - comma: ','
-            - expression:
-                literal: '10000'
+            - literal: '10000'
             - comma: ','
-            - expression:
-                literal: '10000'
+            - literal: '10000'
             - end_square_bracket: ']'
         - comma: ','
         - expression:
-            keyword: ARRAY
             array_literal:
+            - keyword: ARRAY
             - start_square_bracket: '['
-            - expression:
-                array_literal:
-                - start_square_bracket: '['
-                - expression:
-                    literal: "'meeting'"
-                - comma: ','
-                - expression:
-                    literal: "'lunch'"
-                - end_square_bracket: ']'
+            - array_literal:
+              - start_square_bracket: '['
+              - literal: "'meeting'"
+              - comma: ','
+              - literal: "'lunch'"
+              - end_square_bracket: ']'
             - comma: ','
-            - expression:
-                array_literal:
-                - start_square_bracket: '['
-                - expression:
-                    literal: "'training'"
-                - comma: ','
-                - expression:
-                    literal: "'presentation'"
-                - end_square_bracket: ']'
+            - array_literal:
+              - start_square_bracket: '['
+              - literal: "'training'"
+              - comma: ','
+              - literal: "'presentation'"
+              - end_square_bracket: ']'
             - end_square_bracket: ']'
         - end_bracket: )
 - statement_terminator: ;
@@ -242,45 +222,35 @@ file:
             literal: "'Carol'"
         - comma: ','
         - expression:
-            keyword: ARRAY
             array_literal:
+            - keyword: ARRAY
             - start_square_bracket: '['
-            - expression:
-                literal: '20000'
+            - literal: '20000'
             - comma: ','
-            - expression:
-                literal: '25000'
+            - literal: '25000'
             - comma: ','
-            - expression:
-                literal: '25000'
+            - literal: '25000'
             - comma: ','
-            - expression:
-                literal: '25000'
+            - literal: '25000'
             - end_square_bracket: ']'
         - comma: ','
         - expression:
-            keyword: ARRAY
             array_literal:
+            - keyword: ARRAY
             - start_square_bracket: '['
-            - expression:
-                array_literal:
-                - start_square_bracket: '['
-                - expression:
-                    literal: "'breakfast'"
-                - comma: ','
-                - expression:
-                    literal: "'consulting'"
-                - end_square_bracket: ']'
+            - array_literal:
+              - start_square_bracket: '['
+              - literal: "'breakfast'"
+              - comma: ','
+              - literal: "'consulting'"
+              - end_square_bracket: ']'
             - comma: ','
-            - expression:
-                array_literal:
-                - start_square_bracket: '['
-                - expression:
-                    literal: "'meeting'"
-                - comma: ','
-                - expression:
-                    literal: "'lunch'"
-                - end_square_bracket: ']'
+            - array_literal:
+              - start_square_bracket: '['
+              - literal: "'meeting'"
+              - comma: ','
+              - literal: "'lunch'"
+              - end_square_bracket: ']'
             - end_square_bracket: ']'
         - end_bracket: )
 - statement_terminator: ;
@@ -417,29 +387,24 @@ file:
             bracketed:
               start_bracket: (
               expression:
-              - keyword: ARRAY
               - array_literal:
+                - keyword: ARRAY
                 - start_square_bracket: '['
-                - expression:
-                    literal: '1'
+                - literal: '1'
                 - comma: ','
-                - expression:
-                    literal: '2'
+                - literal: '2'
                 - end_square_bracket: ']'
               - binary_operator:
                 - pipe: '|'
                 - pipe: '|'
-              - keyword: ARRAY
               - array_literal:
+                - keyword: ARRAY
                 - start_square_bracket: '['
-                - expression:
-                    literal: '3'
+                - literal: '3'
                 - comma: ','
-                - expression:
-                    literal: '4'
+                - literal: '4'
                 - comma: ','
-                - expression:
-                    literal: '5'
+                - literal: '5'
                 - end_square_bracket: ']'
               end_bracket: )
 - statement_terminator: ;
@@ -454,40 +419,32 @@ file:
             bracketed:
               start_bracket: (
               expression:
-              - keyword: ARRAY
               - array_literal:
+                - keyword: ARRAY
                 - start_square_bracket: '['
-                - expression:
-                    literal: '1'
+                - literal: '1'
                 - comma: ','
-                - expression:
-                    literal: '2'
+                - literal: '2'
                 - end_square_bracket: ']'
               - binary_operator:
                 - pipe: '|'
                 - pipe: '|'
-              - keyword: ARRAY
               - array_literal:
+                - keyword: ARRAY
                 - start_square_bracket: '['
-                - expression:
-                    array_literal:
-                    - start_square_bracket: '['
-                    - expression:
-                        literal: '3'
-                    - comma: ','
-                    - expression:
-                        literal: '4'
-                    - end_square_bracket: ']'
+                - array_literal:
+                  - start_square_bracket: '['
+                  - literal: '3'
+                  - comma: ','
+                  - literal: '4'
+                  - end_square_bracket: ']'
                 - comma: ','
-                - expression:
-                    array_literal:
-                    - start_square_bracket: '['
-                    - expression:
-                        literal: '5'
-                    - comma: ','
-                    - expression:
-                        literal: '6'
-                    - end_square_bracket: ']'
+                - array_literal:
+                  - start_square_bracket: '['
+                  - literal: '5'
+                  - comma: ','
+                  - literal: '6'
+                  - end_square_bracket: ']'
                 - end_square_bracket: ']'
               end_bracket: )
 - statement_terminator: ;
@@ -497,14 +454,12 @@ file:
         keyword: SELECT
         select_clause_element:
           expression:
-            keyword: ARRAY
             array_literal:
+            - keyword: ARRAY
             - start_square_bracket: '['
-            - expression:
-                literal: '1'
+            - literal: '1'
             - comma: ','
-            - expression:
-                literal: '2'
+            - literal: '2'
             - end_square_bracket: ']'
             binary_operator:
             - pipe: '|'
@@ -522,29 +477,22 @@ file:
             bracketed:
             - start_bracket: (
             - expression:
-                keyword: ARRAY
                 array_literal:
+                - keyword: ARRAY
                 - start_square_bracket: '['
-                - expression:
-                    literal: "'sun'"
+                - literal: "'sun'"
                 - comma: ','
-                - expression:
-                    literal: "'mon'"
+                - literal: "'mon'"
                 - comma: ','
-                - expression:
-                    literal: "'tue'"
+                - literal: "'tue'"
                 - comma: ','
-                - expression:
-                    literal: "'wed'"
+                - literal: "'wed'"
                 - comma: ','
-                - expression:
-                    literal: "'thu'"
+                - literal: "'thu'"
                 - comma: ','
-                - expression:
-                    literal: "'fri'"
+                - literal: "'fri'"
                 - comma: ','
-                - expression:
-                    literal: "'sat'"
+                - literal: "'sat'"
                 - end_square_bracket: ']'
             - comma: ','
             - expression:
@@ -663,16 +611,14 @@ file:
                   bracketed:
                     start_bracket: (
                     expression:
-                      keyword: ARRAY
                       array_literal:
+                      - keyword: ARRAY
                       - start_square_bracket: '['
-                      - expression:
-                          column_reference:
-                            identifier: id
+                      - column_reference:
+                          identifier: id
                       - comma: ','
-                      - expression:
-                          column_reference:
-                            identifier: vertical
+                      - column_reference:
+                          identifier: vertical
                       - end_square_bracket: ']'
                     end_bracket: )
               end_bracket: )
