@@ -314,3 +314,26 @@ test_pass_ignore_comment_clauses_postgres:
     rules:
       L016:
         ignore_comment_clauses: True
+
+test_fail_templated_comment_clause:
+  fail_str: |
+    SELECT *
+        {# ........................................................................... #}
+    FROM table
+  configs:
+    templater:
+      jinja:
+        context: {}
+
+test_pass_ignore_templated_comment_clause:
+  pass_str: |
+    SELECT *
+        {# ........................................................................... #}
+    FROM table
+  configs:
+    rules:
+      L016:
+        ignore_comment_clauses: True
+    templater:
+      jinja:
+        context: {}
