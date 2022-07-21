@@ -295,16 +295,39 @@ def test__templated_file_templated_slice_to_source_slice(
     assert (is_literal, source_slice) == (literal_test, out_slice)
 
 
-def test__templated_file_source_only_slices():
+@pytest.mark.parametrize(
+    "file,expected_result",
+    [
+        # Comment example
+        (
+            TemplatedFile(
+                source_str="a" * 20,
+                fname="test",
+                raw_sliced=[
+                    RawFileSlice("a" * 10, "literal", 0),
+                    RawFileSlice("{# b #}", "comment", 10),
+                    RawFileSlice("a" * 10, "literal", 17),
+                ],
+                check_consistency=False,
+            ),
+            [RawFileSlice("{# b #}", "comment", 10)],
+        ),
+        # Template tags aren't source only.
+        (
+            TemplatedFile(
+                source_str="aaabbbaaa",
+                fname="test",
+                raw_sliced=[
+                    RawFileSlice("aaa", "literal", 0),
+                    RawFileSlice("{{ b }}", "templated", 3),
+                    RawFileSlice("aaa", "literal", 6),
+                ],
+                check_consistency=False,
+            ),
+            [],
+        ),
+    ],
+)
+def test__templated_file_source_only_slices(file, expected_result):
     """Test TemplatedFile.source_only_slices."""
-    file = TemplatedFile(
-        source_str=" Dummy String again ",  # NB: has length 20
-        fname="test",
-        raw_sliced=[
-            RawFileSlice("a" * 10, "literal", 0),
-            RawFileSlice("b" * 7, "comment", 10),
-            RawFileSlice("a" * 10, "literal", 17),
-        ],
-        check_consistency=False,
-    )
-    assert file.source_only_slices() == [RawFileSlice("b" * 7, "comment", 10)]
+    assert file.source_only_slices() == expected_result

@@ -52,6 +52,15 @@ to be a representation of vanilla SQL before any other project adds their
 spin to it, and so may contain a slightly wider set of functions than actually
 available in true ANSI SQL.
 
+.. _athena_dialect_ref:
+
+Athena
+--------
+
+The dialect for `Amazon Athena`_.
+
+.. _`Amazon Athena`: https://aws.amazon.com/athena/
+
 .. _bigquery_dialect_ref:
 
 BigQuery

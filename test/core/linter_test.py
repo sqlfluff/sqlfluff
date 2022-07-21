@@ -260,7 +260,7 @@ def test__linter__linting_parallel_thread(force_error, monkeypatch):
     config = FluffConfig(overrides={"dialect": "ansi"})
     output_stream = make_output_stream(config, None, os.devnull)
     lntr = Linter(
-        formatter=OutputStreamFormatter(output_stream, verbosity=0),
+        formatter=OutputStreamFormatter(output_stream, False, verbosity=0),
         dialect="ansi",
     )
     result = lntr.lint_paths(

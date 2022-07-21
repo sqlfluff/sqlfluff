@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1ce86226be391d0503f1a45ce8367faeb5628f17a241abc85aa0af4e308ef3f9
+_hash: 15fd90958831ab1eeb765d759684c4f2521f9098f50e58befc6a29f31fcef957
 file:
 - statement:
     create_table_statement:
@@ -1334,5 +1334,78 @@ file:
             end_bracket: )
         - keyword: MATCH
         - keyword: SIMPLE
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        identifier: orders
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          identifier: id
+      - data_type:
+          keyword: bigint
+      - column_constraint_segment:
+        - keyword: NOT
+        - keyword: 'NULL'
+      - column_constraint_segment:
+          keyword: DEFAULT
+          function:
+            function_name:
+              function_name_identifier: NEXTVAL
+            bracketed:
+              start_bracket: (
+              expression:
+                literal: "'orders_id_seq'"
+                cast_expression:
+                  casting_operator: '::'
+                  data_type:
+                    data_type_identifier: regclass
+              end_bracket: )
+      - comma: ','
+      - column_reference:
+          identifier: constraint_collate_constraints
+      - data_type:
+          keyword: text
+      - column_constraint_segment:
+          keyword: UNIQUE
+      - keyword: COLLATE
+      - object_reference:
+          identifier: numeric
+      - column_constraint_segment:
+        - keyword: NOT
+        - keyword: 'NULL'
+      - column_constraint_segment:
+        - keyword: PRIMARY
+        - keyword: KEY
+      - comma: ','
+      - column_reference:
+          identifier: constraints_collate
+      - data_type:
+          keyword: text
+      - column_constraint_segment:
+        - keyword: NOT
+        - keyword: 'NULL'
+      - column_constraint_segment:
+          keyword: UNIQUE
+      - keyword: COLLATE
+      - object_reference:
+          identifier: numeric
+      - comma: ','
+      - column_reference:
+          identifier: collate_constraints
+      - data_type:
+          keyword: text
+      - keyword: COLLATE
+      - object_reference:
+          identifier: numeric
+      - column_constraint_segment:
+        - keyword: NOT
+        - keyword: 'NULL'
+      - column_constraint_segment:
+          keyword: UNIQUE
       - end_bracket: )
 - statement_terminator: ;

@@ -48,7 +48,8 @@ class Rule_L013(BaseRule):
         elements there are.
 
         """
-        segment = context.functional.segment
+        functional_context = context.functional
+        segment = functional_context.segment
         children = segment.children()
         # If we have an alias its all good
         if children.any(sp.is_type("alias_expression")):
@@ -66,6 +67,16 @@ class Rule_L013(BaseRule):
         ):
             return None
 
+        parent_stack = functional_context.parent_stack
+
+        # Ignore if it is part of a CTE with column names
+        if (
+            parent_stack.last(sp.is_type("common_table_expression"))
+            .children()
+            .any(sp.is_type("cte_column_list"))
+        ):
+            return None
+
         select_clause_children = children.select(sp.not_(sp.is_name("star")))
         is_complex_clause = _recursively_check_is_complex(select_clause_children)
         if not is_complex_clause:
@@ -76,7 +87,7 @@ class Rule_L013(BaseRule):
             # Check *how many* elements/columns there are in the select
             # statement. If this is the only one, then we won't
             # report an error.
-            immediate_parent = context.functional.parent_stack.last()
+            immediate_parent = parent_stack.last()
             elements = immediate_parent.children(sp.is_type("select_clause_element"))
             num_elements = len(elements)
 

@@ -2,21 +2,7 @@
 
 import pytest
 
-from sqlfluff.cli.helpers import colorize, cli_table, wrap_elem, wrap_field, pad_line
-from sqlfluff.core.enums import Color
-
-
-def test__cli__helpers__colorize():
-    """Test ANSI colouring."""
-    assert colorize("foo", Color.red) == "\u001b[31mfoo\u001b[0m"
-
-
-def test__cli__helpers__cli_table():
-    """Test making tables."""
-    vals = [("a", 3), ("b", "c"), ("d", 4.7654), ("e", 9)]
-    txt = cli_table(vals, col_width=7, divider_char="|", label_color=None)
-    # NB: No trailing newline
-    assert txt == "a:    3|b:    c\nd: 4.77|e:    9"
+from sqlfluff.cli.helpers import wrap_elem, wrap_field, pad_line
 
 
 @pytest.mark.parametrize(

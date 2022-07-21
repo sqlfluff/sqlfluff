@@ -266,6 +266,53 @@ sparksql_dialect.replace(
         Ref("SingleQuotedIdentifierSegment"),
         Ref("BackQuotedIdentifierSegment"),
     ),
+    WhereClauseTerminatorGrammar=OneOf(
+        "LIMIT",
+        Sequence(
+            OneOf(
+                "CLUSTER",
+                "DISTRIBUTE",
+                "GROUP",
+                "ORDER",
+                "SORT",
+            ),
+            "BY",
+        ),
+        Sequence("ORDER", "BY"),
+        Sequence("DISTRIBUTE", "BY"),
+        "HAVING",
+        "QUALIFY",
+        "WINDOW",
+        "OVERLAPS",
+    ),
+    GroupByClauseTerminatorGrammar=OneOf(
+        Sequence(
+            OneOf(
+                "ORDER",
+                "DISTRIBUTE",
+                "CLUSTER",
+                "SORT",
+            ),
+            "BY",
+        ),
+        "LIMIT",
+        "HAVING",
+        "WINDOW",
+    ),
+    HavingClauseTerminatorGrammar=OneOf(
+        Sequence(
+            OneOf(
+                "ORDER",
+                "CLUSTER",
+                "DISTRIBUTE",
+                "SORT",
+            ),
+            "BY",
+        ),
+        "LIMIT",
+        "QUALIFY",
+        "WINDOW",
+    ),
 )
 
 sparksql_dialect.add(
@@ -592,6 +639,7 @@ class PrimitiveTypeSegment(BaseSegment):
         # "SHORT",
         "SMALLINT",
         "INT",
+        "INTEGER",
         "BIGINT",
         "FLOAT",
         "REAL",
@@ -1430,7 +1478,7 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
             Ref("DistributeByClauseSegment", optional=True),
             Ref("SortByClauseSegment", optional=True),
         ],
-        before=Ref("LimitClauseSegment"),
+        before=Ref("LimitClauseSegment", optional=True),
     )
 
 
@@ -1442,7 +1490,7 @@ class GroupByClauseSegment(ansi.GroupByClauseSegment):
 
     match_grammar = StartsWith(
         Sequence("GROUP", "BY"),
-        terminator=OneOf("ORDER", "LIMIT", "HAVING", "WINDOW"),
+        terminator=Ref("GroupByClauseTerminatorGrammar"),
         enforce_whitespace_preceding_terminator=True,
     )
 
@@ -1460,7 +1508,7 @@ class GroupByClauseSegment(ansi.GroupByClauseSegment):
                 Ref("CubeRollupClauseSegment"),
                 Ref("GroupingSetsClauseSegment"),
             ),
-            terminator=OneOf("ORDER", "LIMIT", "HAVING", "WINDOW"),
+            terminator=Ref("GroupByClauseTerminatorGrammar"),
         ),
         # TODO: New Rule
         #  Warn if CubeRollupClauseSegment and
@@ -1532,7 +1580,6 @@ class GroupingSetsClauseSegment(BaseSegment):
             Delimited(
                 Ref("CubeRollupClauseSegment"),
                 Ref("GroupingExpressionList"),
-                Bracketed(),  # Allows empty parentheses
             )
         ),
     )
@@ -1547,6 +1594,7 @@ class GroupingExpressionList(BaseSegment):
         OneOf(
             Bracketed(Delimited(Ref("ExpressionSegment"))),
             Ref("ExpressionSegment"),
+            Bracketed(),  # Allows empty parentheses
         )
     )
 

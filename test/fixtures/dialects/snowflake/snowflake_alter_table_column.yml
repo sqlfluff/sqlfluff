@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9c6169b3930295c33640ddc54adb221bf9df5ec14b9f39e401e0de5e53045a6d
+_hash: 2258cd76fc9eadcb6a578732bbad524f958967fe936f1fbfb8985b0fbd657b9e
 file:
 - statement:
     alter_table_statement:
@@ -543,4 +543,84 @@ file:
       - comma: ','
       - column_reference:
           identifier: column_3
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        identifier: my_table
+    - alter_table_table_column_action:
+      - keyword: ADD
+      - keyword: COLUMN
+      - column_reference:
+          identifier: my_column
+      - data_type:
+          data_type_identifier: INTEGER
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        identifier: empl_info
+    - alter_table_table_column_action:
+      - keyword: DROP
+      - keyword: COLUMN
+      - column_reference:
+          identifier: my_column
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        identifier: empl_info
+    - alter_table_table_column_action:
+      - keyword: RENAME
+      - keyword: COLUMN
+      - column_reference:
+          identifier: old_col_name
+      - keyword: TO
+      - column_reference:
+          identifier: new_col_name
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - identifier: my_schema
+      - dot: .
+      - identifier: my_table
+    - keyword: drop
+    - keyword: PRIMARY
+    - keyword: KEY
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - identifier: my_schema
+      - dot: .
+      - identifier: my_table
+    - alter_table_table_column_action:
+        keyword: add
+        column_definition:
+          identifier: PRIMARY
+          data_type:
+            data_type_identifier: KEY
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  identifier: TABLE_ID
+              end_bracket: )
 - statement_terminator: ;

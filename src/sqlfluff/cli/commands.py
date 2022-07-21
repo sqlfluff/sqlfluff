@@ -7,7 +7,7 @@ import json
 import logging
 import time
 from logging import LogRecord
-from typing import Callable, Tuple, Optional, List, cast
+from typing import Callable, Tuple, Optional, cast
 
 import yaml
 
@@ -22,17 +22,12 @@ import colorama
 from tqdm import tqdm
 from sqlfluff.cli.autocomplete import shell_completion_enabled, dialect_shell_complete
 
+from sqlfluff.cli import EXIT_SUCCESS, EXIT_ERROR, EXIT_FAIL
 from sqlfluff.cli.formatters import (
-    format_rules,
-    format_violation,
     format_linting_result_header,
-    format_linting_stats,
-    colorize,
-    format_dialect_warning,
-    format_dialects,
     OutputStreamFormatter,
 )
-from sqlfluff.cli.helpers import cli_table, get_package_version
+from sqlfluff.cli.helpers import get_package_version
 from sqlfluff.cli.outputstream import make_output_stream, OutputStream
 
 # Import from sqlfluff core.
@@ -44,23 +39,24 @@ from sqlfluff.core import (
     SQLFluffUserError,
     dialect_selector,
     dialect_readout,
-    TimingSummary,
 )
 from sqlfluff.core.config import progress_bar_configuration
 
 from sqlfluff.core.enums import FormatType, Color
-from sqlfluff.core.linter import ParsedString
 from sqlfluff.core.plugin.host import get_plugin_manager
-from sqlfluff.core.linter import LintingResult
 
 
 class RedWarningsFilter(logging.Filter):
     """This filter makes all warnings or above red."""
 
+    def __init__(self, formatter: OutputStreamFormatter):
+        super().__init__()
+        self.formatter = formatter
+
     def filter(self, record: logging.LogRecord) -> bool:
         """Filter any warnings (or above) to turn them red."""
         if record.levelno >= logging.WARNING:
-            record.msg = f"{colorize(record.msg, Color.red)} "
+            record.msg = f"{self.formatter.colorize(record.msg, Color.red)} "
         return True
 
 
@@ -83,7 +79,10 @@ class StreamHandlerTqdm(logging.StreamHandler):
 
 
 def set_logging_level(
-    verbosity: int, logger: Optional[logging.Logger] = None, stderr_output: bool = False
+    verbosity: int,
+    formatter: OutputStreamFormatter,
+    logger: Optional[logging.Logger] = None,
+    stderr_output: bool = False,
 ) -> None:
     """Set up logging for the CLI.
 
@@ -111,7 +110,7 @@ def set_logging_level(
     # tamed ANSI colour statements, and return us to normality.
     handler.setFormatter(logging.Formatter("\u001b[0m%(levelname)-10s %(message)s"))
     # Set up a handler to colour warnings red.
-    handler.addFilter(RedWarningsFilter())
+    handler.addFilter(RedWarningsFilter(formatter))
     if logger:
         focus_logger = logging.getLogger(f"sqlfluff.{logger}")
         focus_logger.addHandler(handler)
@@ -135,6 +134,37 @@ def set_logging_level(
     elif verbosity > 4:
         fluff_logger.setLevel(logging.DEBUG)
         parser_logger.setLevel(logging.DEBUG)
+
+
+class PathAndUserErrorHandler:
+    """Make an API call but with error handling for the CLI."""
+
+    def __init__(self, formatter, paths):
+        self.formatter = formatter
+        self.paths = paths
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if exc_type is OSError:
+            click.echo(
+                self.formatter.colorize(
+                    f"The path(s) { self.paths } could not be "
+                    "accessed. Check it/they exist(s).",
+                    Color.red,
+                )
+            )
+            sys.exit(EXIT_ERROR)
+        elif exc_type is SQLFluffUserError:
+            click.echo(
+                "\nUser Error: "
+                + self.formatter.colorize(
+                    str(exc_val),
+                    Color.red,
+                )
+            )
+            sys.exit(EXIT_ERROR)
 
 
 def common_options(f: Callable) -> Callable:
@@ -292,6 +322,7 @@ def get_config(
     **kwargs,
 ) -> FluffConfig:
     """Get a config object from kwargs."""
+    plain_output = OutputStreamFormatter.should_produce_plain_output(kwargs["nocolor"])
     if kwargs.get("dialect"):
         try:
             # We're just making sure it exists at this stage.
@@ -299,19 +330,22 @@ def get_config(
             dialect_selector(kwargs["dialect"])
         except SQLFluffUserError as err:
             click.echo(
-                colorize(
+                OutputStreamFormatter.colorize_helper(
+                    plain_output,
                     f"Error loading dialect '{kwargs['dialect']}': {str(err)}",
                     color=Color.red,
                 )
             )
-            sys.exit(66)
+            sys.exit(EXIT_ERROR)
         except KeyError:
             click.echo(
-                colorize(
-                    f"Error: Unknown dialect '{kwargs['dialect']}'", color=Color.red
+                OutputStreamFormatter.colorize_helper(
+                    plain_output,
+                    f"Error: Unknown dialect '{kwargs['dialect']}'",
+                    color=Color.red,
                 )
             )
-            sys.exit(66)
+            sys.exit(EXIT_ERROR)
     from_root_kwargs = {}
     if "require_dialect" in kwargs:
         from_root_kwargs["require_dialect"] = kwargs.pop("require_dialect")
@@ -326,12 +360,13 @@ def get_config(
         )
     except SQLFluffUserError as err:  # pragma: no cover
         click.echo(
-            colorize(
+            OutputStreamFormatter.colorize_helper(
+                plain_output,
                 f"Error loading config: {str(err)}",
                 color=Color.red,
             )
         )
-        sys.exit(66)
+        sys.exit(EXIT_ERROR)
 
 
 def get_linter_and_formatter(
@@ -346,9 +381,10 @@ def get_linter_and_formatter(
             dialect_selector(dialect)
     except KeyError:  # pragma: no cover
         click.echo(f"Error: Unknown dialect '{cfg.get('dialect')}'")
-        sys.exit(66)
+        sys.exit(EXIT_ERROR)
     formatter = OutputStreamFormatter(
         output_stream=output_stream or make_output_stream(cfg),
+        nocolor=cfg.get("nocolor"),
         verbosity=cfg.get("verbose"),
         output_line_length=cfg.get("output_line_length"),
     )
@@ -381,8 +417,8 @@ def version(**kwargs) -> None:
 def rules(**kwargs) -> None:
     """Show the current rules in use."""
     c = get_config(**kwargs, dialect="ansi")
-    lnt, _ = get_linter_and_formatter(c)
-    click.echo(format_rules(lnt), color=c.get("color"))
+    lnt, formatter = get_linter_and_formatter(c)
+    click.echo(formatter.format_rules(lnt), color=c.get("color"))
 
 
 @cli.command()
@@ -390,7 +426,8 @@ def rules(**kwargs) -> None:
 def dialects(**kwargs) -> None:
     """Show the current dialects available."""
     c = get_config(**kwargs, require_dialect=False)
-    click.echo(format_dialects(dialect_readout), color=c.get("color"))
+    _, formatter = get_linter_and_formatter(c)
+    click.echo(formatter.format_dialects(dialect_readout), color=c.get("color"))
 
 
 def dump_file_payload(filename: Optional[str], payload: str):
@@ -505,33 +542,32 @@ def lint(
     formatter.dispatch_config(lnt)
 
     # Set up logging.
-    set_logging_level(verbosity=verbose, logger=logger, stderr_output=non_human_output)
-    # add stdin if specified via lone '-'
-    if ("-",) == paths:
-        result = lnt.lint_string_wrapped(sys.stdin.read(), fname="stdin")
-    else:
-        # Output the results as we go
-        if verbose >= 1:
-            click.echo(format_linting_result_header())
-        try:
+    set_logging_level(
+        verbosity=verbose,
+        formatter=formatter,
+        logger=logger,
+        stderr_output=non_human_output,
+    )
+
+    # Output the results as we go
+    if verbose >= 1:
+        click.echo(format_linting_result_header())
+
+    with PathAndUserErrorHandler(formatter, paths):
+        # add stdin if specified via lone '-'
+        if ("-",) == paths:
+            result = lnt.lint_string_wrapped(sys.stdin.read(), fname="stdin")
+        else:
             result = lnt.lint_paths(
                 paths,
                 ignore_non_existent_files=False,
                 ignore_files=not disregard_sqlfluffignores,
                 processes=processes,
             )
-        except OSError:
-            click.echo(
-                colorize(
-                    f"The path(s) '{paths}' could not be accessed. Check it/they "
-                    "exist(s).",
-                    Color.red,
-                )
-            )
-            sys.exit(1)
-        # Output the final stats
-        if verbose >= 1:
-            click.echo(format_linting_stats(result, verbose=verbose))
+
+    # Output the final stats
+    if verbose >= 1:
+        click.echo(formatter.format_linting_stats(result, verbose=verbose))
 
     if format == FormatType.json.value:
         file_output = json.dumps(result.as_records())
@@ -589,42 +625,18 @@ def lint(
     output_stream.close()
     if bench:
         click.echo("==== overall timings ====")
-        click.echo(cli_table([("Clock time", result.total_time)]))
+        click.echo(formatter.cli_table([("Clock time", result.total_time)]))
         timing_summary = result.timing_summary()
         for step in timing_summary:
             click.echo(f"=== {step} ===")
-            click.echo(cli_table(timing_summary[step].items()))
+            click.echo(formatter.cli_table(timing_summary[step].items()))
 
     if not nofail:
         if not non_human_output:
-            _completion_message(config)
+            formatter.completion_message()
         sys.exit(result.stats()["exit code"])
     else:
-        sys.exit(0)
-
-
-def _handle_files_with_tmp_or_prs_errors(lint_result: LintingResult) -> int:
-    """Discard lint fixes for files with templating or parse errors.
-
-    Returns 1 if there are any files with templating or parse errors after
-    filtering, else 0. (Intended as a process exit code.)
-    """
-    total_errors, num_filtered_errors = lint_result.count_tmp_prs_errors()
-    lint_result.discard_fixes_for_lint_errors_in_files_with_tmp_or_prs_errors()
-    if total_errors:
-        click.echo(
-            colorize(f"  [{total_errors} templating/parsing errors found]", Color.red)
-        )
-        if num_filtered_errors < total_errors:
-            color = Color.red if num_filtered_errors else Color.green
-            click.echo(
-                colorize(
-                    f"  [{num_filtered_errors} templating/parsing errors "
-                    f'remaining after "ignore"]',
-                    color,
-                )
-            )
-    return 1 if num_filtered_errors else 0
+        sys.exit(EXIT_SUCCESS)
 
 
 def do_fixes(lnt, result, formatter=None, **kwargs):
@@ -719,12 +731,17 @@ def fix(
     verbose = config.get("verbose")
     progress_bar_configuration.disable_progress_bar = disable_progress_bar
 
-    exit_code = 0
+    exit_code = EXIT_SUCCESS
 
     formatter.dispatch_config(lnt)
 
     # Set up logging.
-    set_logging_level(verbosity=verbose, logger=logger, stderr_output=fixing_stdin)
+    set_logging_level(
+        verbosity=verbose,
+        formatter=formatter,
+        logger=logger,
+        stderr_output=fixing_stdin,
+    )
 
     # handle stdin case. should output formatted sql to stdout and nothing else.
     if fixing_stdin:
@@ -734,7 +751,7 @@ def fix(
         templater_error = result.num_violations(types=SQLTemplaterError) > 0
         unfixable_error = result.num_violations(types=SQLLintError, fixable=False) > 0
         if not fix_even_unparsable:
-            exit_code = _handle_files_with_tmp_or_prs_errors(result)
+            exit_code = formatter.handle_files_with_tmp_or_prs_errors(result)
 
         if result.num_violations(types=SQLLintError, fixable=True) > 0:
             stdout = result.paths[0].files[0].fix_string()[0]
@@ -743,14 +760,14 @@ def fix(
 
         if templater_error:
             click.echo(
-                colorize(
+                formatter.colorize(
                     "Fix aborted due to unparseable template variables.",
                     Color.red,
                 ),
                 err=True,
             )
             click.echo(
-                colorize(
+                formatter.colorize(
                     "Use --FIX-EVEN-UNPARSABLE' to attempt to fix the SQL anyway.",
                     Color.red,
                 ),
@@ -758,32 +775,27 @@ def fix(
             )
 
         if unfixable_error:
-            click.echo(colorize("Unfixable violations detected.", Color.red), err=True)
+            click.echo(
+                formatter.colorize("Unfixable violations detected.", Color.red),
+                err=True,
+            )
 
         click.echo(stdout, nl=False)
-        sys.exit(1 if templater_error or unfixable_error else exit_code)
+        sys.exit(EXIT_FAIL if templater_error or unfixable_error else exit_code)
 
     # Lint the paths (not with the fix argument at this stage), outputting as we go.
     click.echo("==== finding fixable violations ====")
-    try:
+
+    with PathAndUserErrorHandler(formatter, paths):
         result = lnt.lint_paths(
             paths,
             fix=True,
             ignore_non_existent_files=False,
             processes=processes,
         )
-    except OSError:
-        click.echo(
-            colorize(
-                f"The path(s) '{paths}' could not be accessed. Check it/they exist(s).",
-                Color.red,
-            ),
-            err=True,
-        )
-        sys.exit(1)
 
     if not fix_even_unparsable:
-        exit_code = _handle_files_with_tmp_or_prs_errors(result)
+        exit_code = formatter.handle_files_with_tmp_or_prs_errors(result)
 
     # NB: We filter to linting violations here, because they're
     # the only ones which can be potentially fixed.
@@ -794,7 +806,9 @@ def fix(
             "linting violations found"
         )
         if force:
-            click.echo(f"{colorize('FORCE MODE', Color.red)}: Attempting fixes...")
+            click.echo(
+                f"{formatter.colorize('FORCE MODE', Color.red)}: Attempting fixes..."
+            )
             success = do_fixes(
                 lnt,
                 result,
@@ -803,7 +817,7 @@ def fix(
                 fixed_file_suffix=fixed_suffix,
             )
             if not success:
-                sys.exit(1)  # pragma: no cover
+                sys.exit(EXIT_FAIL)  # pragma: no cover
         else:
             click.echo(
                 "Are you sure you wish to attempt to fix these? [Y/n] ", nl=False
@@ -820,25 +834,25 @@ def fix(
                     fixed_file_suffix=fixed_suffix,
                 )
                 if not success:
-                    sys.exit(1)  # pragma: no cover
+                    sys.exit(EXIT_FAIL)  # pragma: no cover
                 else:
-                    _completion_message(config)
+                    formatter.completion_message()
             elif c == "n":
                 click.echo("Aborting...")
-                exit_code = 1
+                exit_code = EXIT_FAIL
             else:  # pragma: no cover
                 click.echo("Invalid input, please enter 'Y' or 'N'")
                 click.echo("Aborting...")
-                exit_code = 1
+                exit_code = EXIT_FAIL
     else:
         click.echo("==== no fixable linting violations found ====")
-        _completion_message(config)
+        formatter.completion_message()
 
     error_types = [
         (
             dict(types=SQLLintError, fixable=False),
             "  [{} unfixable linting violations found]",
-            1,
+            EXIT_FAIL,
         ),
     ]
     for num_violations_kwargs, message_format, error_level in error_types:
@@ -849,20 +863,13 @@ def fix(
 
     if bench:
         click.echo("==== overall timings ====")
-        click.echo(cli_table([("Clock time", result.total_time)]))
+        click.echo(formatter.cli_table([("Clock time", result.total_time)]))
         timing_summary = result.timing_summary()
         for step in timing_summary:
             click.echo(f"=== {step} ===")
-            click.echo(cli_table(timing_summary[step].items()))
+            click.echo(formatter.cli_table(timing_summary[step].items()))
 
     sys.exit(exit_code)
-
-
-def _completion_message(config: FluffConfig) -> None:
-    click.echo(
-        "All Finished"
-        f"{'' if (config.get('nocolor') or not sys.stdout.isatty()) else ' 📜 🎉'}!"
-    )
 
 
 def quoted_presenter(dumper, data):
@@ -965,7 +972,12 @@ def parse(
     formatter.dispatch_config(lnt)
 
     # Set up logging.
-    set_logging_level(verbosity=verbose, logger=logger, stderr_output=non_human_output)
+    set_logging_level(
+        verbosity=verbose,
+        formatter=formatter,
+        logger=logger,
+        stderr_output=non_human_output,
+    )
 
     # TODO: do this better
 
@@ -975,14 +987,14 @@ def parse(
             import cProfile
         except ImportError:  # pragma: no cover
             click.echo("The cProfiler is not available on your platform.")
-            sys.exit(1)
+            sys.exit(EXIT_ERROR)
         pr = cProfile.Profile()
         pr.enable()
 
-    try:
-        t0 = time.monotonic()
+    t0 = time.monotonic()
 
-        # handle stdin if specified via lone '-'
+    # handle stdin if specified via lone '-'
+    with PathAndUserErrorHandler(formatter, path):
         if "-" == path:
             parsed_strings = [
                 lnt.parse_string(
@@ -994,50 +1006,44 @@ def parse(
             ]
         else:
             # A single path must be specified for this command
-            parsed_strings = list(lnt.parse_path(path, recurse=recurse))
-
-        total_time = time.monotonic() - t0
-        violations_count = 0
-
-        # iterative print for human readout
-        if format == FormatType.human.value:
-            violations_count = _print_out_violations_and_timing(
-                output_stream, bench, code_only, total_time, verbose, parsed_strings
-            )
-        else:
-            parsed_strings_dict = [
-                dict(
-                    filepath=linted_result.fname,
-                    segments=linted_result.tree.as_record(
-                        code_only=code_only, show_raw=True, include_meta=include_meta
-                    )
-                    if linted_result.tree
-                    else None,
+            parsed_strings = list(
+                lnt.parse_path(
+                    path=path,
+                    recurse=recurse,
                 )
-                for linted_result in parsed_strings
-            ]
+            )
 
-            if format == FormatType.yaml.value:
-                # For yaml dumping always dump double quoted strings if they contain
-                # tabs or newlines.
-                yaml.add_representer(str, quoted_presenter)
-                file_output = yaml.dump(parsed_strings_dict, sort_keys=False)
-            elif format == FormatType.json.value:
-                file_output = json.dumps(parsed_strings_dict)
+    total_time = time.monotonic() - t0
+    violations_count = 0
 
-            # Dump the output to stdout or to file as appropriate.
-            dump_file_payload(write_output, file_output)
-
-    except OSError:  # pragma: no cover
-        click.echo(
-            colorize(
-                f"The path '{path}' could not be accessed. Check it exists.",
-                Color.red,
-            ),
-            err=True,
+    # iterative print for human readout
+    if format == FormatType.human.value:
+        violations_count = formatter.print_out_violations_and_timing(
+            output_stream, bench, code_only, total_time, verbose, parsed_strings
         )
-        sys.exit(1)
+    else:
+        parsed_strings_dict = [
+            dict(
+                filepath=linted_result.fname,
+                segments=linted_result.tree.as_record(
+                    code_only=code_only, show_raw=True, include_meta=include_meta
+                )
+                if linted_result.tree
+                else None,
+            )
+            for linted_result in parsed_strings
+        ]
 
+        if format == FormatType.yaml.value:
+            # For yaml dumping always dump double quoted strings if they contain
+            # tabs or newlines.
+            yaml.add_representer(str, quoted_presenter)
+            file_output = yaml.dump(parsed_strings_dict, sort_keys=False)
+        elif format == FormatType.json.value:
+            file_output = json.dumps(parsed_strings_dict)
+
+        # Dump the output to stdout or to file as appropriate.
+        dump_file_payload(write_output, file_output)
     if profiler:
         pr.disable()
         profiler_buffer = StringIO()
@@ -1048,55 +1054,9 @@ def parse(
         click.echo("\n".join(profiler_buffer.getvalue().split("\n")[:50]))
 
     if violations_count > 0 and not nofail:
-        sys.exit(66)  # pragma: no cover
+        sys.exit(EXIT_FAIL)  # pragma: no cover
     else:
-        sys.exit(0)
-
-
-def _print_out_violations_and_timing(
-    output_stream: OutputStream,
-    bench: bool,
-    code_only: bool,
-    total_time: float,
-    verbose: int,
-    parsed_strings: List[ParsedString],
-) -> int:
-    """Used by human formatting during the parse."""
-    violations_count = 0
-    timing = TimingSummary()
-
-    for parsed_string in parsed_strings:
-        timing.add(parsed_string.time_dict)
-
-        if parsed_string.tree:
-            output_stream.write(parsed_string.tree.stringify(code_only=code_only))
-        else:
-            # TODO: Make this prettier
-            output_stream.write("...Failed to Parse...")  # pragma: no cover
-
-        violations_count += len(parsed_string.violations)
-        if parsed_string.violations:
-            output_stream.write("==== parsing violations ====")  # pragma: no cover
-        for v in parsed_string.violations:
-            output_stream.write(format_violation(v))  # pragma: no cover
-        if parsed_string.violations:
-            output_stream.write(
-                format_dialect_warning(parsed_string.config.get("dialect"))
-            )
-
-        if verbose >= 2:
-            output_stream.write("==== timings ====")
-            output_stream.write(cli_table(parsed_string.time_dict.items()))
-
-    if verbose >= 2 or bench:
-        output_stream.write("==== overall timings ====")
-        output_stream.write(cli_table([("Clock time", total_time)]))
-        timing_summary = timing.summary()
-        for step in timing_summary:
-            output_stream.write(f"=== {step} ===")
-            output_stream.write(cli_table(timing_summary[step].items()))
-
-    return violations_count
+        sys.exit(EXIT_SUCCESS)
 
 
 # This "__main__" handler allows invoking SQLFluff using "python -m", which
