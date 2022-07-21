@@ -348,7 +348,7 @@ snowflake_dialect.add(
         type="literal",
     ),
     SystemFunctionName=RegexParser(
-        r"SYSTEM\$([A-z0-9]*)",
+        r"SYSTEM\$([A-Za-z0-9_]*)",
         CodeSegment,
         name="system_function_name",
         type="system_function_name",
