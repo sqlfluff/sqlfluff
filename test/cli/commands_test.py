@@ -1667,7 +1667,7 @@ def test__cli__fix_multiple_errors_show_errors():
             fix,
             [
                 "--disable_progress_bar",
-                "--show_lint_violations",
+                "--show-lint-violations",
                 "test/fixtures/linter/multiple_sql_errors.sql",
             ],
         ],

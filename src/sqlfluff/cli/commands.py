@@ -697,7 +697,7 @@ def do_fixes(lnt, result, formatter=None, **kwargs):
     ),
 )
 @click.option(
-    "--show_lint_violations",
+    "--show-lint-violations",
     is_flag=True,
     help="Show lint violations",
 )
