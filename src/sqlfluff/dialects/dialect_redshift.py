@@ -2248,7 +2248,10 @@ class TableExpressionSegment(ansi.TableExpressionSegment):
     """
 
     match_grammar = ansi.TableExpressionSegment.match_grammar.copy(
-        insert=[Ref("ObjectUnpivotSegment", optional=True)],
+        insert=[
+            Ref("ObjectUnpivotSegment", optional=True),
+            Ref("ArrayUnnestSegment", optional=True),
+        ],
         before=Ref("TableReferenceSegment"),
     )
 
@@ -2262,6 +2265,22 @@ class ObjectUnpivotSegment(BaseSegment):
     type = "object_unpivoting"
     match_grammar: Matchable = Sequence(
         "UNPIVOT",
+        Ref("ObjectReferenceSegment"),
+        "AS",
+        Ref("SingleIdentifierGrammar"),
+        "AT",
+        Ref("SingleIdentifierGrammar"),
+    )
+
+
+class ArrayUnnestSegment(BaseSegment):
+    """Array unnesting.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/query-super.html
+    """
+
+    type = "array_unnesting"
+    match_grammar: Matchable = Sequence(
         Ref("ObjectReferenceSegment"),
         "AS",
         Ref("SingleIdentifierGrammar"),

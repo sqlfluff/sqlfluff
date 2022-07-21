@@ -1,0 +1,174 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: b7f5d79f534ffa1f6d1714056692ab53e0ef871331e039467eef411283da0ba4
+file:
+- statement:
+    with_compound_statement:
+      keyword: WITH
+      common_table_expression:
+        identifier: example_data
+        keyword: AS
+        bracketed:
+          start_bracket: (
+          set_expression:
+          - select_statement:
+              select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                  literal: '10'
+                  alias_expression:
+                    keyword: AS
+                    identifier: shop_id
+              - comma: ','
+              - select_clause_element:
+                  function:
+                    function_name:
+                      function_name_identifier: json_parse
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        literal: "'[1, 2]'"
+                      end_bracket: )
+                  alias_expression:
+                    keyword: AS
+                    identifier: inventory
+          - set_operator:
+            - keyword: UNION
+            - keyword: ALL
+          - select_statement:
+              select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                  literal: '20'
+                  alias_expression:
+                    keyword: AS
+                    identifier: shop_id
+              - comma: ','
+              - select_clause_element:
+                  function:
+                    function_name:
+                      function_name_identifier: json_parse
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        literal: "'[3, 4, 5]'"
+                      end_bracket: )
+                  alias_expression:
+                    keyword: AS
+                    identifier: inventory
+          - set_operator:
+            - keyword: UNION
+            - keyword: ALL
+          - select_statement:
+              select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                  literal: '30'
+                  alias_expression:
+                    keyword: AS
+                    identifier: shop_id
+              - comma: ','
+              - select_clause_element:
+                  function:
+                    function_name:
+                      function_name_identifier: json_parse
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        literal: "'[6, 7, 8, 9]'"
+                      end_bracket: )
+                  alias_expression:
+                    keyword: AS
+                    identifier: inventory
+          end_bracket: )
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              identifier: shop_id
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: value
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: index
+        from_clause:
+        - keyword: FROM
+        - from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: example_data
+              alias_expression:
+                identifier: ed
+        - comma: ','
+        - from_expression:
+            from_expression_element:
+              table_expression:
+                array_unnesting:
+                - object_reference:
+                  - identifier: ed
+                  - dot: .
+                  - identifier: inventory
+                - keyword: AS
+                - identifier: value
+                - keyword: AT
+                - identifier: index
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            identifier: c_name
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - identifier: orders
+          - dot: .
+          - identifier: o_orderkey
+          alias_expression:
+            keyword: AS
+            identifier: orderkey
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: index
+          alias_expression:
+            keyword: AS
+            identifier: orderkey_index
+      from_clause:
+      - keyword: FROM
+      - from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: customer_orders_lineitem
+            alias_expression:
+              identifier: c
+      - comma: ','
+      - from_expression:
+          from_expression_element:
+            table_expression:
+              array_unnesting:
+              - object_reference:
+                - identifier: c
+                - dot: .
+                - identifier: c_orders
+              - keyword: AS
+              - identifier: orders
+              - keyword: AT
+              - identifier: index
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          identifier: orderkey_index
+- statement_terminator: ;
