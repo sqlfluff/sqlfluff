@@ -245,7 +245,7 @@ class JinjaAnalyzer:
         m_close: Optional[regex.Match],
         tag_contents: List[str],
     ) -> Optional[RawSliceInfo]:
-        """Based on block tag, update whether we're in a set/macro section."""
+        """Based on block tag, update whether in a set/call/macro/block section."""
         if block_type == "block_start" and trimmed_parts[0] in (
             "block",
             "call",
