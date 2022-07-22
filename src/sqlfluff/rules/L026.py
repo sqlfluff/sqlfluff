@@ -75,9 +75,9 @@ class Rule_L026(BaseRule):
 
         violations: List[LintResult] = []
         start_types = [
-            "select_statement",
             "delete_statement",
             "merge_statement",
+            "select_statement",
             "update_statement",
         ]
         if context.segment.is_type(
