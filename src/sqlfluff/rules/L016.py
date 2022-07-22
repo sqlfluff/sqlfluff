@@ -9,7 +9,7 @@ from sqlfluff.core.parser import (
     WhitespaceSegment,
 )
 
-from sqlfluff.core.rules.base import LintFix, LintResult, RuleContext
+from sqlfluff.core.rules import LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.functional import sp
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
