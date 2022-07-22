@@ -2,7 +2,7 @@
 from typing import List, Optional, Union
 
 from sqlfluff.core.parser import KeywordSegment, WhitespaceSegment
-from sqlfluff.core.rules.base import LintResult, LintFix, RuleContext
+from sqlfluff.core.rules import LintResult, LintFix, RuleContext
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
 from sqlfluff.rules.L006 import Rule_L006
 import sqlfluff.core.rules.functional.segment_predicates as sp

@@ -1,7 +1,7 @@
 """An example of a custom rule implemented through the plugin system."""
 
 from sqlfluff.core.plugin import hookimpl
-from sqlfluff.core.rules.base import (
+from sqlfluff.core.rules import (
     BaseRule,
     LintResult,
     RuleContext,

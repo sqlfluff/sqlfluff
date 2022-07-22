@@ -2,7 +2,7 @@
 from typing import Iterator, List, Optional
 
 from sqlfluff.core.parser import BaseSegment
-from sqlfluff.core.rules.base import (
+from sqlfluff.core.rules import (
     BaseRule,
     EvalResultType,
     LintFix,

@@ -3,7 +3,7 @@ from typing import Optional
 
 from sqlfluff.rules.L011 import Rule_L011
 from sqlfluff.core.rules.doc_decorators import document_configuration, document_groups
-from sqlfluff.core.rules.base import LintResult, RuleContext
+from sqlfluff.core.rules import LintResult, RuleContext
 
 
 @document_groups
