@@ -42,7 +42,7 @@ class Selectable:
             return get_select_statement_info(
                 self.selectable, self.dialect, early_exit=False
             )
-        else:  # values_clause
+        else:  # DML or values_clause
             # This is a bit dodgy, but a very useful abstraction. Here, we
             # interpret a DML or values_clause segment as if it were a SELECT.
             # Someday, we may need to tweak this, e.g. perhaps add a separate
