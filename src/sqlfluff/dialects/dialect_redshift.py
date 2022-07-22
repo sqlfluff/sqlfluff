@@ -2308,3 +2308,76 @@ class SelectClauseModifierSegment(postgres.SelectClauseModifierSegment):
     match_grammar = postgres.SelectClauseModifierSegment.match_grammar.copy(
         insert=[Sequence("TOP", Ref("NumericLiteralSegment"))],
     )
+
+
+class ConvertFunctionNameSegment(BaseSegment):
+    """CONVERT function name segment.
+
+    Function taking a data type identifier and an expression.
+    An alternative to CAST.
+    """
+
+    type = "function_name"
+    match_grammar = Sequence("CONVERT")
+
+
+class FunctionSegment(ansi.FunctionSegment):
+    """A scalar or aggregate function.
+
+    Maybe in the future we should distinguish between
+    aggregate functions and other functions. For now
+    we treat them the same because they look the same
+    for our purposes.
+    """
+
+    type = "function"
+    match_grammar: Matchable = OneOf(
+        Sequence(
+            # Treat functions which take date parts separately
+            # So those functions parse date parts as DatetimeUnitSegment
+            # rather than identifiers.
+            Sequence(
+                Ref("DatePartFunctionNameSegment"),
+                Bracketed(
+                    Delimited(
+                        Ref("DatetimeUnitSegment"),
+                        Ref(
+                            "FunctionContentsGrammar",
+                            # The brackets might be empty for some functions...
+                            optional=True,
+                            ephemeral_name="FunctionContentsGrammar",
+                        ),
+                    )
+                ),
+            ),
+        ),
+        Sequence(
+            Sequence(
+                Ref(
+                    "FunctionNameSegment",
+                    exclude=OneOf(
+                        Ref("DatePartFunctionNameSegment"),
+                        Ref("ValuesClauseSegment"),
+                        Ref("ConvertFunctionNameSegment"),
+                    ),
+                ),
+                Bracketed(
+                    Ref(
+                        "FunctionContentsGrammar",
+                        # The brackets might be empty for some functions...
+                        optional=True,
+                        ephemeral_name="FunctionContentsGrammar",
+                    )
+                ),
+            ),
+            Ref("PostFunctionGrammar", optional=True),
+        ),
+        Sequence(
+            Ref("ConvertFunctionNameSegment"),
+            Bracketed(
+                Ref("DatatypeSegment"),
+                Ref("CommaSegment"),
+                Ref("ExpressionSegment"),
+            ),
+        ),
+    )
