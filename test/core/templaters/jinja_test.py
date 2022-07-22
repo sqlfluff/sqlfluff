@@ -697,6 +697,14 @@ def test__templater_jinja_slice_template(test, result):
     ] == result
 
 
+def _statement(*args, **kwargs):
+    return "_statement"
+
+
+def _load_result(*args, **kwargs):
+    return "_load_result"
+
+
 @pytest.mark.parametrize(
     "raw_file,override_context,result",
     [
@@ -1116,6 +1124,32 @@ FROM {{ j }}{{ self.table_name() }}
                 ("literal", slice(118, 119, None), slice(87, 88, None)),
                 ("block_end", slice(119, 131, None), slice(88, 88, None)),
                 ("literal", slice(131, 132, None), slice(88, 89, None)),
+            ],
+        ),
+        (
+            """{{ statement('variables', fetch_result=true) }}
+""",
+            dict(
+                statement=_statement,
+                load_result=_load_result,
+            ),
+            [
+                ("templated", slice(0, 47, None), slice(0, 10, None)),
+                ("literal", slice(47, 48, None), slice(10, 11, None)),
+            ],
+        ),
+        (
+            """{% call statement('variables', fetch_result=true) %}select 1 as test{% endcall %}
+""",
+            dict(
+                statement=_statement,
+                load_result=_load_result,
+            ),
+            [
+                ("templated", slice(0, 52, None), slice(0, 10, None)),
+                ("literal", slice(52, 68, None), slice(10, 10, None)),
+                ("block_end", slice(68, 81, None), slice(10, 10, None)),
+                ("literal", slice(81, 82, None), slice(10, 11, None)),
             ],
         ),
     ],
