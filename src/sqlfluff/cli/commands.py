@@ -696,6 +696,11 @@ def do_fixes(lnt, result, formatter=None, **kwargs):
         "or in the .sqlfluff config file."
     ),
 )
+@click.option(
+    "--show-lint-violations",
+    is_flag=True,
+    help="Show lint violations",
+)
 @click.argument("paths", nargs=-1, type=click.Path(allow_dash=True))
 def fix(
     force: bool,
@@ -707,6 +712,7 @@ def fix(
     disable_progress_bar: Optional[bool] = False,
     extra_config_path: Optional[str] = None,
     ignore_local_config: bool = False,
+    show_lint_violations: bool = False,
     **kwargs,
 ) -> None:
     """Fix SQL files.
@@ -868,6 +874,11 @@ def fix(
         for step in timing_summary:
             click.echo(f"=== {step} ===")
             click.echo(formatter.cli_table(timing_summary[step].items()))
+
+    if show_lint_violations:
+        click.echo("==== lint for unfixable violations ====")
+        for violation in result.get_violations(**num_violations_kwargs):
+            click.echo(formatter.format_violation(violation))
 
     sys.exit(exit_code)
 
