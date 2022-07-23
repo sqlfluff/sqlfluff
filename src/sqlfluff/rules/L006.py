@@ -5,7 +5,7 @@ from typing import Tuple, List
 
 from sqlfluff.core.parser import WhitespaceSegment
 
-from sqlfluff.core.rules.base import (
+from sqlfluff.core.rules import (
     BaseRule,
     LintResult,
     LintFix,

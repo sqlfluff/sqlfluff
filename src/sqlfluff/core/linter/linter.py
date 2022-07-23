@@ -28,7 +28,7 @@ from sqlfluff.core.config import FluffConfig, ConfigLoader, progress_bar_configu
 from sqlfluff.core.parser.segments.base import BaseSegment, SourceFix
 from sqlfluff.core.parser.segments.meta import MetaSegment
 from sqlfluff.core.parser.segments.raw import RawSegment
-from sqlfluff.core.rules.base import BaseRule
+from sqlfluff.core.rules import BaseRule
 
 from sqlfluff.core.linter.common import (
     RuleTuple,
@@ -1004,7 +1004,8 @@ class Linter:
             return sorted(buffer)
 
         # Check the buffer for ignore items and normalise the rest.
-        filtered_buffer = []
+        # It's a set, so we can do natural deduplication.
+        filtered_buffer = set()
 
         for fpath in buffer:
             abs_fpath = os.path.abspath(fpath)
@@ -1031,9 +1032,18 @@ class Linter:
                         )
                     break
             else:
-                filtered_buffer.append(os.path.normpath(fpath))
+                npath = os.path.normpath(fpath)
+                # For debugging, log if we already have the file.
+                if npath in filtered_buffer:
+                    linter_logger.debug(  # pragma: no cover
+                        "Developer Warning: Path crawler attempted to "
+                        "requeue the same file twice. %s is already in "
+                        "filtered buffer.",
+                        npath,
+                    )
+                filtered_buffer.add(npath)
 
-        # Return
+        # Return a sorted list
         return sorted(filtered_buffer)
 
     def lint_string_wrapped(

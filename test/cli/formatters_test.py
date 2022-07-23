@@ -4,7 +4,7 @@ import re
 
 from sqlfluff.core import FluffConfig
 from sqlfluff.core.enums import Color
-from sqlfluff.core.rules.base import RuleGhost
+from sqlfluff.core.rules import RuleGhost
 from sqlfluff.core.parser import RawSegment
 from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.errors import SQLLintError

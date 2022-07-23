@@ -1,7 +1,7 @@
 """Implementation of Rule L045."""
 from typing import Iterator
 
-from sqlfluff.core.rules.base import BaseRule, EvalResultType, LintResult, RuleContext
+from sqlfluff.core.rules import BaseRule, EvalResultType, LintResult, RuleContext
 from sqlfluff.core.rules.analysis.select_crawler import Query, SelectCrawler
 from sqlfluff.core.rules.doc_decorators import document_groups
 

@@ -3,7 +3,7 @@
 import regex
 from typing import Tuple, List, Optional
 from sqlfluff.core.parser import BaseSegment
-from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix, RuleContext
+from sqlfluff.core.rules import BaseRule, LintResult, LintFix, RuleContext
 from sqlfluff.core.rules.config_info import get_config_info
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,

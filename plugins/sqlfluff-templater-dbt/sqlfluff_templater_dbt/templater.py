@@ -307,6 +307,12 @@ class DbtTemplater(JinjaTemplater):
         for fname in fnames:
             if fname not in already_yielded:
                 yield fname
+                # Dedupe here so we don't yield twice
+                already_yielded.add(fname)
+            else:
+                templater_logger.debug(
+                    "- Skipping yield of previously sequenced file: %r", fname
+                )
 
     @large_file_check
     def process(self, *, fname, in_str=None, config=None, formatter=None):
@@ -450,6 +456,9 @@ class DbtTemplater(JinjaTemplater):
             return old_from_string(*args, **kwargs)
 
         node = self._find_node(fname, config)
+        templater_logger.debug(
+            "_find_node for path %r returned object of type %s.", fname, type(node)
+        )
 
         save_ephemeral_nodes = dict(
             (k, v)

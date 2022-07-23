@@ -8,7 +8,7 @@ from sqlfluff.core.rules.analysis.select_crawler import (
     Query as SelectCrawlerQuery,
     SelectCrawler,
 )
-from sqlfluff.core.rules.base import (
+from sqlfluff.core.rules import (
     BaseRule,
     LintResult,
     RuleContext,
@@ -74,14 +74,19 @@ class Rule_L026(BaseRule):
             return LintResult()
 
         violations: List[LintResult] = []
-        start_types = ["select_statement", "delete_statement", "update_statement"]
+        start_types = [
+            "delete_statement",
+            "merge_statement",
+            "select_statement",
+            "update_statement",
+        ]
         if context.segment.is_type(
             *start_types
         ) and not context.functional.parent_stack.any(sp.is_type(*start_types)):
             dml_target_table: Optional[Tuple[str, ...]] = None
             if not context.segment.is_type("select_statement"):
                 # Extract first table reference. This will be the target
-                # table in a DELETE or UPDATE statement.
+                # table in a DML statement.
                 table_reference = next(
                     context.segment.recursive_crawl("table_reference"), None
                 )
@@ -205,7 +210,7 @@ class Rule_L026(BaseRule):
                     r, tbl_refs, dml_target_table, cast(L026Query, query.parent)
                 )
             # No parent query. If there's a DML statement at the root, check its
-            # target table.
+            # target table or alias.
             elif not dml_target_table or not object_ref_matches_table(
                 possible_references, [dml_target_table]
             ):

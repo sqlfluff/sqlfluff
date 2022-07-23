@@ -14,7 +14,7 @@ from sqlfluff.core.parser.segments.raw import (
     WhitespaceSegment,
 )
 
-from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
+from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
@@ -428,6 +428,7 @@ class SegmentCloneMap:
             segment.recursive_crawl_all(),
             segment_copy.recursive_crawl_all(),
         ):
+            new_segment.pos_marker = old_segment.pos_marker
             self.segment_map[id(old_segment)] = new_segment
 
     def __getitem__(self, old_segment: BaseSegment) -> BaseSegment:

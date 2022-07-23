@@ -3,7 +3,7 @@ from typing import List, Optional, Iterable
 
 import sqlfluff.core.rules.functional.segment_predicates as sp
 from sqlfluff.core.parser import BaseSegment, NewlineSegment
-from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
+from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
 
 
