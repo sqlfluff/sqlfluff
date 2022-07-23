@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d88e5f09aebf827225e0e8212e0629860009f8d5ac1bdb6f8df8abbd37bcbda4
+_hash: 29b2bd2f7511b32a80bbd5d7ef8cfdc99ef123a566c1f35099f3d97b439675da
 file:
 - statement:
     select_statement:
@@ -37,17 +37,16 @@ file:
         select_clause_element:
           function:
             function_name:
-              function_name_identifier: convert
+              keyword: convert
             bracketed:
-            - start_bracket: (
-            - expression:
-                column_reference:
-                  identifier: integer
-            - comma: ','
-            - expression:
+              start_bracket: (
+              data_type:
+                keyword: integer
+              comma: ','
+              expression:
                 column_reference:
                   identifier: col1
-            - end_bracket: )
+              end_bracket: )
       from_clause:
         keyword: from
         from_expression:
@@ -109,17 +108,17 @@ file:
         select_clause_element:
           function:
             function_name:
-              function_name_identifier: convert
+              keyword: convert
             bracketed:
-            - start_bracket: (
-            - expression:
-                column_reference:
-                  identifier: timestamptz
-            - comma: ','
-            - expression:
+              start_bracket: (
+              data_type:
+                datetime_type_identifier:
+                  keyword: timestamptz
+              comma: ','
+              expression:
                 column_reference:
                   identifier: col1
-            - end_bracket: )
+              end_bracket: )
       from_clause:
         keyword: from
         from_expression:
@@ -187,26 +186,22 @@ file:
         select_clause_element:
           function:
             function_name:
-              function_name_identifier: convert
+              keyword: convert
             bracketed:
-            - start_bracket: (
-            - expression:
-                function:
-                  function_name:
-                    function_name_identifier: decimal
-                  bracketed:
-                  - start_bracket: (
-                  - expression:
-                      literal: '38'
-                  - comma: ','
-                  - expression:
-                      literal: '2'
-                  - end_bracket: )
-            - comma: ','
-            - expression:
+              start_bracket: (
+              data_type:
+                keyword: decimal
+                bracketed:
+                - start_bracket: (
+                - literal: '38'
+                - comma: ','
+                - literal: '2'
+                - end_bracket: )
+              comma: ','
+              expression:
                 column_reference:
                   identifier: col1
-            - end_bracket: )
+              end_bracket: )
       from_clause:
         keyword: from
         from_expression:
@@ -273,17 +268,16 @@ file:
         select_clause_element:
           function:
             function_name:
-              function_name_identifier: convert
+              keyword: convert
             bracketed:
-            - start_bracket: (
-            - expression:
-                column_reference:
-                  identifier: interval
-            - comma: ','
-            - expression:
+              start_bracket: (
+              data_type:
+                keyword: interval
+              comma: ','
+              expression:
                 column_reference:
                   identifier: col1
-            - end_bracket: )
+              end_bracket: )
       from_clause:
         keyword: from
         from_expression:
