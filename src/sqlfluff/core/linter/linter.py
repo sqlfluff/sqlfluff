@@ -1039,7 +1039,7 @@ class Linter:
                         "Developer Warning: Path crawler attempted to "
                         "requeue the same file twice. %s is already in "
                         "filtered buffer.",
-                        npath
+                        npath,
                     )
                 filtered_buffer.add(npath)
 

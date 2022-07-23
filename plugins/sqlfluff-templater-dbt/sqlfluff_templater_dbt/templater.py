@@ -311,8 +311,7 @@ class DbtTemplater(JinjaTemplater):
                 already_yielded.add(fname)
             else:
                 templater_logger.debug(
-                    "- Skipping yield of previously sequenced file: %r",
-                    fname
+                    "- Skipping yield of previously sequenced file: %r", fname
                 )
 
     @large_file_check
