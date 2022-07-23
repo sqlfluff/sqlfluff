@@ -1035,7 +1035,7 @@ class Linter:
                 npath = os.path.normpath(fpath)
                 # For debugging, log if we already have the file.
                 if npath in filtered_buffer:
-                    linter_logger.debug(
+                    linter_logger.debug(  # pragma: no cover
                         "Developer Warning: Path crawler attempted to "
                         "requeue the same file twice. %s is already in "
                         "filtered buffer.",
