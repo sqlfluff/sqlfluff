@@ -309,6 +309,11 @@ class DbtTemplater(JinjaTemplater):
                 yield fname
                 # Dedupe here so we don't yield twice
                 already_yielded.add(fname)
+            else:
+                templater_logger.debug(
+                    "- Skipping yield of previously sequenced file: %r",
+                    fname
+                )
 
     @large_file_check
     def process(self, *, fname, in_str=None, config=None, formatter=None):

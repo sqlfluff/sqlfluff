@@ -1032,7 +1032,16 @@ class Linter:
                         )
                     break
             else:
-                filtered_buffer.add(os.path.normpath(fpath))
+                npath = os.path.normpath(fpath)
+                # For debugging, log if we already have the file.
+                if npath in filtered_buffer:
+                    linter_logger.debug(
+                        "Developer Warning: Path crawler attempted to "
+                        "requeue the same file twice. %s is already in "
+                        "filtered buffer.",
+                        npath
+                    )
+                filtered_buffer.add(npath)
 
         # Return a sorted list
         return sorted(filtered_buffer)
