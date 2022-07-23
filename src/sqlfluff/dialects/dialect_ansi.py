@@ -2352,7 +2352,7 @@ class SetOperatorSegment(BaseSegment):
                 "INTERSECT",
                 "EXCEPT",
             ),
-            Ref.keyword("ALL", optional=True)
+            Ref.keyword("ALL", optional=True),
         ),
         "MINUS",
         exclude=Sequence("EXCEPT", Bracketed(Anything())),
