@@ -1653,8 +1653,23 @@ def test__cli__fix_multiple_errors_show_errors():
     assert check_a in result.output
     # Finally check the WHOLE output to make sure that unexpected newlines are not
     # added. The replace command just accounts for cross platform testing.
-    assert "L:  12 | P:   1 | L003 | Expected 1 indentation, found 0 [compared to line 10]" in result.output
-    assert "L:  36 | P:   9 | L027 | Unqualified reference 'package_id' found in select with more than" in result.output
-    assert "L:  45 | P:  17 | L027 | Unqualified reference 'owner_type' found in select with more than" in result.output
-    assert "L:  45 | P:  50 | L027 | Unqualified reference 'app_key' found in select with more than one" in result.output
-    assert "L:  42 | P:  45 | L027 | Unqualified reference 'owner_id' found in select with more than" in result.output
+    assert (
+        "L:  12 | P:   1 | L003 | Expected 1 indentation, found 0 [compared to line 10]"
+        in result.output
+    )
+    assert (
+        "L:  36 | P:   9 | L027 | Unqualified reference 'package_id' found in select with more than"
+        in result.output
+    )
+    assert (
+        "L:  45 | P:  17 | L027 | Unqualified reference 'owner_type' found in select with more than"
+        in result.output
+    )
+    assert (
+        "L:  45 | P:  50 | L027 | Unqualified reference 'app_key' found in select with more than one"
+        in result.output
+    )
+    assert (
+        "L:  42 | P:  45 | L027 | Unqualified reference 'owner_id' found in select with more than"
+        in result.output
+    )
