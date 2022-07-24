@@ -428,6 +428,7 @@ class SegmentCloneMap:
             segment.recursive_crawl_all(),
             segment_copy.recursive_crawl_all(),
         ):
+            new_segment.pos_marker = old_segment.pos_marker
             self.segment_map[id(old_segment)] = new_segment
 
     def __getitem__(self, old_segment: BaseSegment) -> BaseSegment:

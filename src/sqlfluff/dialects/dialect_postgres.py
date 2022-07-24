@@ -3284,6 +3284,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterSchemaStatementSegment"),
             Ref("LockTableStatementSegment"),
             Ref("CreateCollationStatementSegment"),
+            Ref("CallStoredProcedureSegment"),
         ],
     )
 
@@ -3640,6 +3641,20 @@ class CreatePolicyStatementSegment(BaseSegment):
         ),
         Sequence("USING", Bracketed(Ref("ExpressionSegment")), optional=True),
         Sequence("WITH", "CHECK", Bracketed(Ref("ExpressionSegment")), optional=True),
+    )
+
+
+class CallStoredProcedureSegment(BaseSegment):
+    """This is a CALL statement used to execute a stored procedure.
+
+    https://www.postgresql.org/docs/14/sql-call.html
+    """
+
+    type = "call_statement"
+
+    match_grammar = Sequence(
+        "CALL",
+        Ref("FunctionSegment"),
     )
 
 

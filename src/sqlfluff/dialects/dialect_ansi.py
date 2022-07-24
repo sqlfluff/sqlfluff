@@ -2347,8 +2347,13 @@ class SetOperatorSegment(BaseSegment):
     type = "set_operator"
     match_grammar: Matchable = OneOf(
         Sequence("UNION", OneOf("DISTINCT", "ALL", optional=True)),
-        "INTERSECT",
-        "EXCEPT",
+        Sequence(
+            OneOf(
+                "INTERSECT",
+                "EXCEPT",
+            ),
+            Ref.keyword("ALL", optional=True),
+        ),
         "MINUS",
         exclude=Sequence("EXCEPT", Bracketed(Anything())),
     )
