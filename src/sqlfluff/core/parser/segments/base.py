@@ -25,6 +25,7 @@ from typing import (
     TYPE_CHECKING,
 )
 import logging
+from uuid import UUID, uuid4
 
 from tqdm import tqdm
 
@@ -237,6 +238,7 @@ class BaseSegment:
         segments,
         pos_marker: Optional[PositionMarker] = None,
         name: Optional[str] = None,
+        uuid: Optional[UUID] = None,
     ):
         # A cache variable for expandable
         self._is_expandable: Optional[bool] = None
@@ -272,6 +274,8 @@ class BaseSegment:
                 )
 
         self.pos_marker = pos_marker
+        # Tracker for matching when things start moving.
+        self.uuid = uuid or uuid4()
 
         self._recalculate_caches()
 
@@ -1211,9 +1215,9 @@ class BaseSegment:
                 else:
                     seg = todo_buffer.pop(0)
 
-                    # Look for identity not just equality.
+                    # Look for uuid match.
                     # This handles potential positioning ambiguity.
-                    anchor_info: Optional[AnchorEditInfo] = fixes.pop(id(seg), None)
+                    anchor_info: Optional[AnchorEditInfo] = fixes.pop(seg.uuid, None)
                     if anchor_info is not None:
                         seg_fixes = anchor_info.fixes
                         if (
@@ -1225,7 +1229,7 @@ class BaseSegment:
                             seg_fixes.reverse()
 
                         for f in anchor_info.fixes:
-                            assert f.anchor is seg
+                            assert f.anchor.uuid == seg.uuid
                             fixes_applied.append(f)
                             linter_logger.debug(
                                 "Matched fix against segment: %s -> %s", f, seg
@@ -1360,9 +1364,9 @@ class BaseSegment:
         """Group and count fixes by anchor, return dictionary."""
         anchor_info = defaultdict(AnchorEditInfo)  # type: ignore
         for fix in fixes:
-            # :TRICKY: Use segment id() as the dictionary key since
+            # :TRICKY: Use segment uuid as the dictionary key since
             # different segments may compare as equal.
-            anchor_id = id(fix.anchor)
+            anchor_id = fix.anchor.uuid
             anchor_info[anchor_id].add(fix)
         return dict(anchor_info)
 

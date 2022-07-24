@@ -5,6 +5,7 @@ any children, and the output of the lexer.
 """
 
 from typing import List, Optional, Tuple
+from uuid import UUID, uuid4
 
 from sqlfluff.core.parser.segments.base import BaseSegment, SourceFix
 from sqlfluff.core.parser.markers import PositionMarker
@@ -30,6 +31,7 @@ class RawSegment(BaseSegment):
         trim_start: Optional[Tuple[str, ...]] = None,
         trim_chars: Optional[Tuple[str, ...]] = None,
         source_fixes: Optional[List[SourceFix]] = None,
+        uuid: Optional[UUID] = None,
     ):
         """Initialise raw segment.
 
@@ -56,6 +58,8 @@ class RawSegment(BaseSegment):
         self._is_expandable = None
         # Keep track of any source fixes
         self._source_fixes = source_fixes
+        # UUID for matching
+        self.uuid = uuid or uuid4()
 
     def __repr__(self):
         return "<{}: ({}) {!r}>".format(
@@ -187,6 +191,8 @@ class RawSegment(BaseSegment):
 
         Used mostly by fixes.
 
+        NOTE: This *doesn't* copy the uuid. The edited segment is a new segment.
+
         """
         return self.__class__(
             raw=raw or self.raw,
@@ -292,6 +298,8 @@ class KeywordSegment(CodeSegment):
             A copy of this object with new contents.
 
         Used mostly by fixes.
+
+        NOTE: This *doesn't* copy the uuid. The edited segment is a new segment.
 
         """
         return self.__class__(
