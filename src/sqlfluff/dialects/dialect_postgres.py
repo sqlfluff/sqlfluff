@@ -182,6 +182,11 @@ postgres_dialect.sets("datetime_units").update(
     ]
 )
 
+# Set the bare functions
+postgres_dialect.sets("bare_functions").update(
+    ["CURRENT_TIMESTAMP", "CURRENT_TIME", "CURRENT_DATE", "LOCALTIME", "LOCALTIMESTAMP"]
+)
+
 # Postgres doesn't have a dateadd function
 # Also according to https://www.postgresql.org/docs/14/functions-datetime.html
 # It quotes dateparts. So don't need this.
