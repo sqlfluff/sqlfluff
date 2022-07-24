@@ -1277,8 +1277,8 @@ class BaseSegment:
             # of the fixes applied there first. This ensures those segments have
             # working positions to work with.
             if fixes_applied:
-                seg_buffer = self._position_segments(
-                    tuple(seg_buffer), parent_pos=r.pos_marker
+                seg_buffer = list(
+                    self._position_segments(tuple(seg_buffer), parent_pos=r.pos_marker)
                 )
 
             # Then recurse (i.e. deal with the children) (Requeueing)
