@@ -1,0 +1,83 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: f41728aca3a606d1fc11715eb928375c95a00e330f0f82a2a77a4670fb24eaed
+file:
+- statement:
+    call_statement:
+      keyword: CALL
+      function:
+        function_name:
+          function_name_identifier: do_db_maintenance
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    call_statement:
+      keyword: CALL
+      function:
+        function_name:
+          identifier: my_schema
+          dot: .
+          function_name_identifier: do_db_maintenance
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    call_statement:
+      keyword: call
+      function:
+        function_name:
+          function_name_identifier: procedure_name
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    call_statement:
+      keyword: call
+      function:
+        function_name:
+          function_name_identifier: procedure_name
+        bracketed:
+        - start_bracket: (
+        - expression:
+            literal: "'param1'"
+        - comma: ','
+        - expression:
+            literal: '123'
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    call_statement:
+      keyword: call
+      function:
+        function_name:
+          identifier: schema
+          dot: .
+          function_name_identifier: procedure_name
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    call_statement:
+      keyword: call
+      function:
+        function_name:
+          identifier: schema
+          dot: .
+          function_name_identifier: procedure_name
+        bracketed:
+        - start_bracket: (
+        - expression:
+            literal: "'param1'"
+        - comma: ','
+        - expression:
+            literal: '123'
+        - end_bracket: )
+- statement_terminator: ;
