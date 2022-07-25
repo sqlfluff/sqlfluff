@@ -1275,6 +1275,16 @@ class BaseSegment:
                 # Invalidate any caches
                 self.invalidate_caches()
 
+            # If any fixes applied, do an intermediate reposition. When applying
+            # fixes to children and then trying to reposition them, that recursion
+            # may rely on the parent having already populated positions for any
+            # of the fixes applied there first. This ensures those segments have
+            # working positions to work with.
+            if fixes_applied:
+                seg_buffer = list(
+                    self._position_segments(tuple(seg_buffer), parent_pos=r.pos_marker)
+                )
+
             # Then recurse (i.e. deal with the children) (Requeueing)
             seg_queue = seg_buffer
             seg_buffer = []

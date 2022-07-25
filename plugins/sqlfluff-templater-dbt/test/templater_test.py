@@ -295,15 +295,21 @@ def test__dbt_templated_models_do_not_raise_lint_error(
     assert len(violations) == 0
 
 
+def _clean_path(glob_expression):
+    """Clear out files matching the provided glob expression."""
+    for fsp in glob.glob(glob_expression):
+        os.remove(fsp)
+
+
 @pytest.mark.parametrize(
     "path", ["models/my_new_project/issue_1608.sql", "snapshots/issue_1771.sql"]
 )
 def test__dbt_templated_models_fix_does_not_corrupt_file(
     project_dir, path  # noqa: F811
 ):
-    """Test fix for issue 1608. Previously "sqlfluff fix" corrupted the file."""
-    for fsp in glob.glob(os.path.join(project_dir, "snapshots", "*FIXED.sql")):
-        os.remove(fsp)
+    """Test issues where previously "sqlfluff fix" corrupted the file."""
+    test_glob = os.path.join(project_dir, os.path.dirname(path), "*FIXED.sql")
+    _clean_path(test_glob)
     lntr = Linter(config=FluffConfig(configs=DBT_FLUFF_CONFIG))
     lnt = lntr.lint_path(os.path.join(project_dir, path), fix=True)
     try:
@@ -314,8 +320,7 @@ def test__dbt_templated_models_fix_does_not_corrupt_file(
             fixed_buff = f.read()
         assert fixed_buff == comp_buff
     finally:
-        for fsp in glob.glob(os.path.join(project_dir, "snapshots", "*FIXED.sql")):
-            os.remove(fsp)
+        _clean_path(test_glob)
 
 
 def test__templater_dbt_templating_absolute_path(
