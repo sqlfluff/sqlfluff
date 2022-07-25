@@ -1066,7 +1066,7 @@ class Linter:
         fix: bool = False,
         ignore_non_existent_files: bool = False,
         ignore_files: bool = True,
-        processes: int = 1,
+        processes: Optional[int] = None,
     ) -> LintedDir:
         """Lint a path."""
         linted_path = LintedDir(path)
@@ -1080,15 +1080,21 @@ class Linter:
             )
         )
 
+        if processes is None:
+            processes = self.config.get("processes", default=1)
+
         # to avoid circular import
         from sqlfluff.core.linter.runner import get_runner
 
-        runner = get_runner(
+        runner, effective_processes = get_runner(
             self,
             self.config,
             processes=processes,
             allow_process_parallelism=self.allow_process_parallelism,
         )
+
+        if self.formatter and effective_processes != 1:
+            self.formatter.dispatch_processing_header(effective_processes)
 
         # Show files progress bar only when there is more than one.
         files_count = len(fnames)
@@ -1124,7 +1130,7 @@ class Linter:
         fix: bool = False,
         ignore_non_existent_files: bool = False,
         ignore_files: bool = True,
-        processes: int = 1,
+        processes: Optional[int] = None,
     ) -> LintingResult:
         """Lint an iterable of paths."""
         paths_count = len(paths)
