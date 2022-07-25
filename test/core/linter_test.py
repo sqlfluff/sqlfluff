@@ -4,7 +4,6 @@ import os
 import logging
 from typing import List
 from unittest.mock import patch
-from multiprocessing import cpu_count
 
 import pytest
 
