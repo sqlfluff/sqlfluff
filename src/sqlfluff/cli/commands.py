@@ -489,8 +489,8 @@ def dump_file_payload(filename: Optional[str], payload: str):
     default=None,
     help=(
         "The number of parallel processes to run. Positive numbers work as "
-        "expected. Negative numbers will work as number_of_cpus - number. e.g "
-        "-1 means all cpus except one."
+        "expected. Zero and negative numbers will work as number_of_cpus - "
+        "number. e.g  -1 means all cpus except one. 0 means all cpus."
     ),
 )
 @click.option(
@@ -682,8 +682,8 @@ def do_fixes(lnt, result, formatter=None, **kwargs):
     default=None,
     help=(
         "The number of parallel processes to run. Positive numbers work as "
-        "expected. Negative numbers will work as number_of_cpus - number. e.g "
-        "-1 means all cpus except one."
+        "expected. Zero and negative numbers will work as number_of_cpus - "
+        "number. e.g  -1 means all cpus except one. 0 means all cpus."
     ),
 )
 @click.option(
