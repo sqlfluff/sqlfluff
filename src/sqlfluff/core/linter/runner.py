@@ -233,11 +233,15 @@ def get_runner(
 
     The processes argument can be positive or negative.
     - If positive, the integer is interpreted as the number of processes.
-    - If negative, the integer is interpreted as number_of_cpus - processes.
+    - If negative or zero, the integer is interpreted as number_of_cpus - processes.
 
-    e.g. -1 = all cpus but one.
+    e.g.
+    -1 = all cpus but one.
+    0 = all cpus
+    1 = 1 cpu
+
     """
-    if processes < 0:
+    if processes <= 0:
         processes = max(cpu_count() + processes, 1)
 
     if processes > 1:
