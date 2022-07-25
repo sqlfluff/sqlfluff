@@ -228,7 +228,7 @@ def get_runner(
     config: FluffConfig,
     processes: int,
     allow_process_parallelism: bool = True,
-) -> BaseRunner:
+) -> Tuple[BaseRunner, int]:
     """Generate a runner instance based on parallel and system configuration.
 
     The processes argument can be positive or negative.
