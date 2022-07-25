@@ -185,7 +185,8 @@ class OutputStreamFormatter:
         """Dispatch the header displayed before linting."""
         if self._verbosity > 0:
             self._dispatch(
-                f"{self.colorize('effective configured processes: ', Color.lightgrey)} {processes}"
+                f"{self.colorize('effective configured processes: ', Color.lightgrey)} "
+                f"{processes}"
             )
 
     def dispatch_dialect_warning(self, dialect) -> None:
