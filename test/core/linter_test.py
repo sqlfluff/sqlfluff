@@ -292,14 +292,27 @@ def test_lint_path_parallel_wrapper_exception(patched_lint):
 
 
 @pytest.mark.parametrize(
-    "in_processes,exp_processes", [(1, 1), (0, 512), (-12, 500), (5, 5)]
+    "mock_cpu,in_processes,exp_processes",
+    [
+        # Make the mocked cpu count a really high value which is
+        # unlikely to collide with the real value. We can then
+        # test all the different combos.
+        (512, 1, 1),
+        (512, 0, 512),
+        (512, -12, 500),
+        (512, 5, 5),
+        # Check that we can't go lower than 1 in a 1 cpu case
+        (1, -1, 1),
+    ],
 )
 @patch("multiprocessing.cpu_count")
-def test__linter__get_runner_processes(patched_cpu_count, in_processes, exp_processes):
+def test__linter__get_runner_processes(
+    patched_cpu_count, mock_cpu, in_processes, exp_processes
+):
     """Test that get_runner handles processes correctly."""
     # Make the mocked cpu count a really high value which is
     # unlikely to collide with the real value.
-    patched_cpu_count.return_value = 512
+    patched_cpu_count.return_value = mock_cpu
     _, return_processes = get_runner(
         linter=Linter(),
         config=FluffConfig(overrides={"dialect": "ansi"}),
