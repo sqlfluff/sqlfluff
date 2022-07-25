@@ -181,6 +181,13 @@ class OutputStreamFormatter:
             f"=== [{self.colorize(templater, Color.lightgrey)}] {message}"
         )  # pragma: no cover
 
+    def dispatch_processing_header(self, processes: int) -> None:
+        """Dispatch the header displayed before linting."""
+        if self._verbosity > 0:
+            self._dispatch(
+                f"{self.colorize('effective configured processes: ', Color.lightgrey)} {processes}"
+            )
+
     def dispatch_dialect_warning(self, dialect) -> None:
         """Dispatch a warning for dialects."""
         self._dispatch(self.format_dialect_warning(dialect))  # pragma: no cover

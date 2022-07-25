@@ -11,6 +11,7 @@ import bdb
 import functools
 import logging
 import multiprocessing.dummy
+from multiprocessing import cpu_count
 import signal
 import sys
 import traceback
@@ -228,14 +229,24 @@ def get_runner(
     processes: int,
     allow_process_parallelism: bool = True,
 ) -> BaseRunner:
-    """Generate a runner instance based on parallel and system configuration."""
+    """Generate a runner instance based on parallel and system configuration.
+
+    The processes argument can be positive or negative.
+    - If positive, the integer is interpreted as the number of processes.
+    - If negative, the integer is interpreted as number_of_cpus - processes.
+
+    e.g. -1 = all cpus but one.
+    """
+    if processes < 0:
+        processes = max(cpu_count() + processes, 1)
+
     if processes > 1:
         # Process parallelism isn't really supported during testing
         # so this flag allows us to fall back to a threaded runner
         # in those cases.
         if allow_process_parallelism:
-            return MultiProcessRunner(linter, config, processes=processes)
+            return MultiProcessRunner(linter, config, processes=processes), processes
         else:
-            return MultiThreadRunner(linter, config, processes=processes)
+            return MultiThreadRunner(linter, config, processes=processes), processes
     else:
-        return SequentialRunner(linter, config)
+        return SequentialRunner(linter, config), processes

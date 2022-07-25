@@ -486,8 +486,12 @@ def dump_file_payload(filename: Optional[str], payload: str):
     "-p",
     "--processes",
     type=int,
-    default=1,
-    help="The number of parallel processes to run.",
+    default=None,
+    help=(
+        "The number of parallel processes to run. Positive numbers work as "
+        "expected. Negative numbers will work as number_of_cpus - number. e.g "
+        "-1 means all cpus except one."
+    ),
 )
 @click.option(
     "--disable_progress_bar",
@@ -497,7 +501,6 @@ def dump_file_payload(filename: Optional[str], payload: str):
 @click.argument("paths", nargs=-1, type=click.Path(allow_dash=True))
 def lint(
     paths: Tuple[str],
-    processes: int,
     format: str,
     write_output: Optional[str],
     annotation_level: str,
@@ -505,6 +508,7 @@ def lint(
     disregard_sqlfluffignores: bool,
     logger: Optional[logging.Logger] = None,
     bench: bool = False,
+    processes: Optional[int] = None,
     disable_progress_bar: Optional[bool] = False,
     extra_config_path: Optional[str] = None,
     ignore_local_config: bool = False,
@@ -675,8 +679,12 @@ def do_fixes(lnt, result, formatter=None, **kwargs):
     "-p",
     "--processes",
     type=int,
-    default=1,
-    help="The number of parallel processes to run.",
+    default=None,
+    help=(
+        "The number of parallel processes to run. Positive numbers work as "
+        "expected. Negative numbers will work as number_of_cpus - number. e.g "
+        "-1 means all cpus except one."
+    ),
 )
 @click.option(
     "--disable_progress_bar",
@@ -705,10 +713,10 @@ def do_fixes(lnt, result, formatter=None, **kwargs):
 def fix(
     force: bool,
     paths: Tuple[str],
-    processes: int,
     bench: bool = False,
     fixed_suffix: str = "",
     logger: Optional[logging.Logger] = None,
+    processes: Optional[int] = None,
     disable_progress_bar: Optional[bool] = False,
     extra_config_path: Optional[str] = None,
     ignore_local_config: bool = False,
