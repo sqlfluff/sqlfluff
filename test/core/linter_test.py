@@ -4,6 +4,7 @@ import os
 import logging
 from typing import List
 from unittest.mock import patch
+from multiprocessing import cpu_count
 
 import pytest
 
@@ -14,6 +15,7 @@ from sqlfluff.core.errors import SQLLexError, SQLBaseError, SQLLintError, SQLPar
 from sqlfluff.cli.formatters import OutputStreamFormatter
 from sqlfluff.cli.outputstream import make_output_stream
 from sqlfluff.core.linter import LintingResult, NoQaDirective
+from sqlfluff.core.linter.runner import get_runner
 import sqlfluff.core.linter as linter
 from sqlfluff.core.parser import GreedyUntil, Ref
 from sqlfluff.core.templaters import TemplatedFile
@@ -287,6 +289,23 @@ def test_lint_path_parallel_wrapper_exception(patched_lint):
         assert isinstance(result, runner.DelayedException)
         with pytest.raises(ValueError):
             result.reraise()
+
+
+@pytest.mark.parametrize(
+    "in_processes,exp_processes", [(1, 1), (0, 512), (-12, 500), (5, 5)]
+)
+@patch("multiprocessing.cpu_count")
+def test__linter__get_runner_processes(patched_cpu_count, in_processes, exp_processes):
+    """Test that get_runner handles processes correctly."""
+    # Make the mocked cpu count a really high value which is
+    # unlikely to collide with the real value.
+    patched_cpu_count.return_value = 512
+    _, return_processes = get_runner(
+        linter=Linter(),
+        config=FluffConfig(overrides={"dialect": "ansi"}),
+        processes=in_processes,
+    )
+    assert return_processes == exp_processes
 
 
 @patch("sqlfluff.core.linter.runner.linter_logger")

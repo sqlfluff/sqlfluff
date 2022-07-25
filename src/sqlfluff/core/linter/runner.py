@@ -10,8 +10,8 @@ from abc import ABC
 import bdb
 import functools
 import logging
+import multiprocessing
 import multiprocessing.dummy
-from multiprocessing import cpu_count
 import signal
 import sys
 import traceback
@@ -242,7 +242,7 @@ def get_runner(
 
     """
     if processes <= 0:
-        processes = max(cpu_count() + processes, 1)
+        processes = max(multiprocessing.cpu_count() + processes, 1)
 
     if processes > 1:
         # Process parallelism isn't really supported during testing
