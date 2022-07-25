@@ -135,6 +135,8 @@ class TemplateSegment(MetaSegment):
 
         Used mostly by fixes.
 
+        NOTE: This *doesn't* copy the uuid. The edited segment is a new segment.
+
         """
         if raw:
             raise ValueError(
