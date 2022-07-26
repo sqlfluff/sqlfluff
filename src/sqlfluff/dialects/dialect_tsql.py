@@ -3,39 +3,36 @@
 https://docs.microsoft.com/en-us/sql/t-sql/language-elements/language-elements-transact-sql
 """
 
+from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
+    AnyNumberOf,
+    AnySetOf,
+    BaseFileSegment,
     BaseSegment,
-    Sequence,
-    OneOf,
     Bracketed,
-    Ref,
-    Nothing,
-    RegexLexer,
     CodeSegment,
-    RegexParser,
+    CommentSegment,
+    Conditional,
+    Dedent,
     Delimited,
+    Indent,
     Matchable,
     NamedParser,
+    Nothing,
+    OneOf,
     OptionallyBracketed,
-    Dedent,
-    BaseFileSegment,
-    Indent,
-    AnyNumberOf,
-    CommentSegment,
+    Ref,
+    RegexLexer,
+    RegexParser,
     SegmentGenerator,
-    Conditional,
-    AnySetOf,
+    Sequence,
 )
-
-from sqlfluff.core.dialects import load_raw_dialect
-
+from sqlfluff.core.parser.segments.raw import NewlineSegment, WhitespaceSegment
+from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_tsql_keywords import (
     RESERVED_KEYWORDS,
     UNRESERVED_KEYWORDS,
 )
-
-from sqlfluff.core.parser.segments.raw import NewlineSegment, WhitespaceSegment
-from sqlfluff.dialects import dialect_ansi as ansi
 
 ansi_dialect = load_raw_dialect("ansi")
 tsql_dialect = ansi_dialect.copy_as("tsql")
@@ -436,6 +433,7 @@ tsql_dialect.replace(
         Ref("PivotUnpivotStatementSegment"),
         min_times=1,
     ),
+    StringBinaryOperatorGrammar=OneOf(Ref("ConcatSegment"), "COLLATE"),
 )
 
 
