@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f78dbf5872c29abdcfe06775bc5c22755fad8596b185c6de7b73b032c9a3a5e2
+_hash: fb5668d4692a023cbc141d281e70e350027273f62325d15d8d755a7f1c10321b
 file:
 - batch:
     statement:
@@ -54,14 +54,12 @@ file:
                       function_name:
                         function_name_identifier: DATEPART
                       bracketed:
-                      - start_bracket: (
-                      - expression:
-                          column_reference:
-                            identifier: wk
-                      - comma: ','
-                      - expression:
+                        start_bracket: (
+                        date_part: wk
+                        comma: ','
+                        expression:
                           parameter: '@DATE'
-                      - end_bracket: )
+                        end_bracket: )
                   - binary_operator: +
                   - literal: '1'
                   - binary_operator: '-'
@@ -69,12 +67,10 @@ file:
                       function_name:
                         function_name_identifier: DATEPART
                       bracketed:
-                      - start_bracket: (
-                      - expression:
-                          column_reference:
-                            identifier: wk
-                      - comma: ','
-                      - expression:
+                        start_bracket: (
+                        date_part: wk
+                        comma: ','
+                        expression:
                           function:
                             function_name:
                               keyword: CAST
@@ -85,14 +81,12 @@ file:
                                   function_name:
                                     function_name_identifier: DATEPART
                                   bracketed:
-                                  - start_bracket: (
-                                  - expression:
-                                      column_reference:
-                                        identifier: yy
-                                  - comma: ','
-                                  - expression:
+                                    start_bracket: (
+                                    date_part: yy
+                                    comma: ','
+                                    expression:
                                       parameter: '@DATE'
-                                  - end_bracket: )
+                                    end_bracket: )
                               keyword: as
                               data_type:
                                 data_type_identifier: CHAR
@@ -104,7 +98,7 @@ file:
                               end_bracket: )
                           binary_operator: +
                           literal: "'0104'"
-                      - end_bracket: )
+                        end_bracket: )
                   statement_terminator: ;
             - statement:
                 if_then_statement:
@@ -145,14 +139,12 @@ file:
                                       function_name:
                                         function_name_identifier: DATEPART
                                       bracketed:
-                                      - start_bracket: (
-                                      - expression:
-                                          column_reference:
-                                            identifier: yy
-                                      - comma: ','
-                                      - expression:
+                                        start_bracket: (
+                                        date_part: yy
+                                        comma: ','
+                                        expression:
                                           parameter: '@DATE'
-                                      - end_bracket: )
+                                        end_bracket: )
                                     binary_operator: '-'
                                     literal: '1'
                                   keyword: AS
@@ -179,14 +171,12 @@ file:
                                       function_name:
                                         function_name_identifier: DATEPART
                                       bracketed:
-                                      - start_bracket: (
-                                      - expression:
-                                          column_reference:
-                                            identifier: DAY
-                                      - comma: ','
-                                      - expression:
+                                        start_bracket: (
+                                        date_part: DAY
+                                        comma: ','
+                                        expression:
                                           parameter: '@DATE'
-                                      - end_bracket: )
+                                        end_bracket: )
                                   keyword: AS
                                   data_type:
                                     data_type_identifier: CHAR
@@ -215,14 +205,12 @@ file:
                                 function_name:
                                   function_name_identifier: DATEPART
                                 bracketed:
-                                - start_bracket: (
-                                - expression:
-                                    column_reference:
-                                      identifier: mm
-                                - comma: ','
-                                - expression:
+                                  start_bracket: (
+                                  date_part: mm
+                                  comma: ','
+                                  expression:
                                     parameter: '@DATE'
-                                - end_bracket: )
+                                  end_bracket: )
                               comparison_operator:
                                 raw_comparison_operator: '='
                               literal: '12'
@@ -238,27 +226,23 @@ file:
                                     function_name:
                                       function_name_identifier: DATEPART
                                     bracketed:
-                                    - start_bracket: (
-                                    - expression:
-                                        column_reference:
-                                          identifier: dd
-                                    - comma: ','
-                                    - expression:
+                                      start_bracket: (
+                                      date_part: dd
+                                      comma: ','
+                                      expression:
                                         parameter: '@DATE'
-                                    - end_bracket: )
+                                      end_bracket: )
                                 - binary_operator: '-'
                                 - function:
                                     function_name:
                                       function_name_identifier: DATEPART
                                     bracketed:
-                                    - start_bracket: (
-                                    - expression:
-                                        column_reference:
-                                          identifier: dw
-                                    - comma: ','
-                                    - expression:
+                                      start_bracket: (
+                                      date_part: dw
+                                      comma: ','
+                                      expression:
                                         parameter: '@DATE'
-                                    - end_bracket: )
+                                      end_bracket: )
                                 end_bracket: )
                               comparison_operator:
                               - raw_comparison_operator: '>'
