@@ -381,8 +381,20 @@ tsql_dialect.replace(
         ),
         Sequence(OneOf("IGNORE", "RESPECT"), "NULLS"),
     ),
+    JoinTypeKeywordsGrammar=OneOf(
+        "INNER",
+        Sequence(
+            OneOf(
+                "FULL",
+                "LEFT",
+                "RIGHT",
+            ),
+            Ref.keyword("OUTER", optional=True),
+        ),
+        optional=True,
+    ),
     JoinKeywordsGrammar=OneOf("JOIN", "APPLY", Sequence("OUTER", "APPLY")),
-    NaturalJoinKeywordsGrammar=Nothing(),
+    NaturalJoinKeywordsGrammar=Ref.keyword("CROSS"),
     NestedJoinGrammar=Sequence(
         Indent,
         Ref("JoinClauseSegment"),

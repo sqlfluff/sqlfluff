@@ -33,6 +33,7 @@ from sqlfluff.core.parser import (
     Indent,
     KeywordSegment,
     Matchable,
+    MultiStringParser,
     NamedParser,
     NewlineSegment,
     Nothing,
@@ -48,7 +49,6 @@ from sqlfluff.core.parser import (
     StringParser,
     SymbolSegment,
     WhitespaceSegment,
-    MultiStringParser,
 )
 from sqlfluff.core.parser.segments.base import BracketedSegment
 from sqlfluff.dialects.dialect_ansi_keywords import (
@@ -546,6 +546,19 @@ ansi_dialect.add(
         "FILTER", Bracketed(Sequence("WHERE", Ref("ExpressionSegment")))
     ),
     FrameClauseUnitGrammar=OneOf("ROWS", "RANGE"),
+    JoinTypeKeywordsGrammar=OneOf(
+        "CROSS",
+        "INNER",
+        Sequence(
+            OneOf(
+                "FULL",
+                "LEFT",
+                "RIGHT",
+            ),
+            Ref.keyword("OUTER", optional=True),
+        ),
+        optional=True,
+    ),
     # It's as a sequence to allow to parametrize that in Postgres dialect with LATERAL
     JoinKeywordsGrammar=Sequence("JOIN"),
     # NATURAL joins are not supported in all dialects (e.g. not in Bigquery
@@ -1468,19 +1481,7 @@ class JoinClauseSegment(BaseSegment):
     match_grammar: Matchable = OneOf(
         # NB These qualifiers are optional
         Sequence(
-            OneOf(
-                "CROSS",
-                "INNER",
-                Sequence(
-                    OneOf(
-                        "FULL",
-                        "LEFT",
-                        "RIGHT",
-                    ),
-                    Ref.keyword("OUTER", optional=True),
-                ),
-                optional=True,
-            ),
+            Ref("JoinTypeKeywordsGrammar", optional=True),
             Ref("JoinKeywordsGrammar"),
             Indent,
             Sequence(
