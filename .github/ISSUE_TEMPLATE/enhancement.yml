@@ -4,8 +4,8 @@ labels: [ "enhancement" ]
 body:
   - type: markdown
     attributes:
-      value: |
-        Use this enhancement template to suggest new features or functionality for SQLFluff. Please not
+      value: >
+        Use this enhancement template to suggest new features or functionality for SQLFluff. Please note that
         missing syntax support for any of our currently supported dialects, should instead be filed as a
         [Bug Report](https://github.com/sqlfluff/sqlfluff/issues/new?assignees=&labels=bug&template=bug-report.yml).
 
