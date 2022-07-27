@@ -1481,7 +1481,7 @@ class JoinClauseSegment(BaseSegment):
     match_grammar: Matchable = OneOf(
         # NB These qualifiers are optional
         Sequence(
-            Ref("JoinTypeKeywordsGrammar"),
+            Ref("JoinTypeKeywordsGrammar", optional=True),
             Ref("JoinKeywordsGrammar"),
             Indent,
             Sequence(
