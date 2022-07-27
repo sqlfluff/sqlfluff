@@ -22,6 +22,7 @@ from typing import (
     List,
     Tuple,
     Iterator,
+    Set,
     TYPE_CHECKING,
 )
 import logging
@@ -392,6 +393,20 @@ class BaseSegment:
         return "".join(seg.raw for seg in self.segments)
 
     @cached_property
+    def child_type_set(self) -> Set[str]:
+        """The set of all contained types.
+
+        This is used for rule crawling.
+
+        NOTE: Does not include the types of the parent segment itself.
+        """
+        return set(
+            chain.from_iterable(
+                seg.child_type_set | set(seg._class_types()) for seg in self.segments
+            )
+        )
+
+    @cached_property
     def raw_upper(self) -> str:
         """Make an uppercase string from the segments of this segment."""
         return self.raw.upper()
@@ -632,18 +647,24 @@ class BaseSegment:
     @classmethod
     def class_is_type(cls, *seg_type):
         """Is this segment class (or its parent) of the given type."""
-        # Do we match on the type of _this_ class.
-        if cls.type in seg_type:
-            return True
-        # If not, check types of parents.
+        # Work backward in the class heirachy to see if there's a match
+        for class_type in cls._class_types():
+            if class_type in seg_type:
+                return True
+        return False
+
+    @classmethod
+    def _class_types(cls) -> Iterator[str]:
+        """Iterate the list of class types for this segment."""
+        # First yield the explicit type
+        yield cls.type
+        # Then yield parent types
         for base_class in cls.__bases__:
             if base_class is object:
-                break
-            elif base_class.type in seg_type:
-                return True
-            elif base_class.type == "base":
-                break
-        return False
+                return
+            yield base_class.type
+            # if base_class.type == "base":
+            #    return
 
     @classmethod
     def structural_simplify(cls, elem):
@@ -750,6 +771,7 @@ class BaseSegment:
             "raw_segments",
             "first_non_whitespace_segment_raw_upper",
             "source_fixes",
+            "child_type_set",
         ]:
             self.__dict__.pop(key, None)
 

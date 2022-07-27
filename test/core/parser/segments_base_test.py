@@ -1,6 +1,7 @@
 """The Test file for The New Parser (Base Segment Classes)."""
 
 import pytest
+from sqlfluff.core.dialects import base
 
 from sqlfluff.core.parser import (
     PositionMarker,
@@ -44,6 +45,17 @@ def test__parser__base_segments_type():
     assert DummySegment.class_is_type("dummy")
     assert DummySegment.class_is_type("base")
     assert DummySegment.class_is_type("base", "foo", "bar")
+
+
+def test__parser__base_segments_class_types():
+    """Test the private ._class_types() method."""
+    assert list(DummySegment._class_types()) == ["dummy", "base"]
+
+
+def test__parser__base_segments_child_type_set(raw_seg_list):
+    """Test the .child_type_set() method."""
+    test_seg = DummySegment([DummyAuxSegment(raw_seg_list)])
+    assert test_seg.child_type_set == {"raw", "base", "dummy_aux"}
 
 
 def test__parser__base_segments_stubs():
