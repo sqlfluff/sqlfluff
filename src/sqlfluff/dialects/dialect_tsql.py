@@ -1864,6 +1864,12 @@ class CreateViewStatementSegment(BaseSegment):
         Sequence("OR", "ALTER", optional=True),
         "VIEW",
         Ref("ObjectReferenceSegment"),
+        Bracketed(
+            Delimited(
+                Ref("IndexColumnDefinitionSegment"),
+            ),
+            optional=True,
+        ),
         Sequence(
             "WITH",
             Delimited("ENCRYPTION", "SCHEMABINDING", "VIEW_METADATA"),
