@@ -214,6 +214,16 @@ tsql_dialect.add(
         Sequence(Ref.keyword("GLOBAL", optional=True), Ref("NakedIdentifierSegment")),
         Ref("ParameterNameSegment"),
     ),
+    CollationSegment=SegmentGenerator(
+        # Generate the anti template from the set of reserved keywords
+        lambda dialect: RegexParser(
+            r"[A-Z][A-Za-z0-9_]*[A-Za-z0-9_]",
+            CodeSegment,
+            name="collation",
+            type="collation",
+            anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
+        )
+    ),
 )
 
 tsql_dialect.replace(
@@ -445,7 +455,9 @@ tsql_dialect.replace(
         Ref("PivotUnpivotStatementSegment"),
         min_times=1,
     ),
-    StringBinaryOperatorGrammar=OneOf(Ref("ConcatSegment"), "COLLATE"),
+    CollateGrammar=Sequence(
+        "COLLATE", OneOf(Ref("CollationSegment"), "database_default")
+    ),
 )
 
 
@@ -4098,3 +4110,11 @@ class ForXmlSegment(BaseSegment):
             Sequence("PATH", Bracketed(Ref("QuotedLiteralSegment"), optional=True)),
         ),
     )
+
+
+class ConcatSegment(BaseSegment):
+    """Concat operator."""
+
+    type = "binary_operator"
+    name = "concatenate"
+    match_grammar: Matchable = Ref("PlusSegment")
