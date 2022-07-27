@@ -33,6 +33,7 @@ from sqlfluff.core.parser import (
     Indent,
     KeywordSegment,
     Matchable,
+    MultiStringParser,
     NamedParser,
     NewlineSegment,
     Nothing,
@@ -48,7 +49,6 @@ from sqlfluff.core.parser import (
     StringParser,
     SymbolSegment,
     WhitespaceSegment,
-    MultiStringParser,
 )
 from sqlfluff.core.parser.segments.base import BracketedSegment
 from sqlfluff.dialects.dialect_ansi_keywords import (
@@ -85,7 +85,7 @@ ansi_dialect.set_lexer_matchers(
                 WhitespaceSegment,
             ),
         ),
-        RegexLexer("single_quote", r"'([^'\\]|\\.)*'", CodeSegment),
+        RegexLexer("single_quote", r"'([^'\\]|\\.|'')*'", CodeSegment),
         RegexLexer("double_quote", r'"([^"\\]|\\.)*"', CodeSegment),
         RegexLexer("back_quote", r"`[^`]*`", CodeSegment),
         # See https://www.geeksforgeeks.org/postgresql-dollar-quoted-string-constants/
