@@ -85,7 +85,7 @@ ansi_dialect.set_lexer_matchers(
                 WhitespaceSegment,
             ),
         ),
-        RegexLexer("single_quote", r"'([^'\\]|\\.)*'", CodeSegment),
+        RegexLexer("single_quote", r"'([^'\\]|\\.|'')*'", CodeSegment),
         RegexLexer("double_quote", r'"([^"\\]|\\.)*"', CodeSegment),
         RegexLexer("back_quote", r"`[^`]*`", CodeSegment),
         # See https://www.geeksforgeeks.org/postgresql-dollar-quoted-string-constants/
