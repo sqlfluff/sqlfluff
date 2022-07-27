@@ -381,11 +381,8 @@ EvalResultType = Union[LintResult, List[LintResult], None]
 class CrawlBehavior:
     """Implements how a lint rule traverses the parse tree."""
 
-    def __init__(
-        self, works_on_unparsable: bool, recurse_into: bool, needs_raw_stack: bool
-    ):
+    def __init__(self, works_on_unparsable: bool, needs_raw_stack: bool):
         self.works_on_unparsable = works_on_unparsable
-        self.recurse_into = recurse_into
         self.raw_stack: Optional[List[RawSegment]] = [] if needs_raw_stack else None
 
     def crawl(self, context: RuleContext) -> Iterator[RuleContext]:
@@ -396,6 +393,7 @@ class CrawlBehavior:
             # Abort here if it doesn't. Otherwise we'll get odd results.
             return
 
+        # NOTE: I haven't moved this logic. CONSIDER WHETHER I SHOULD.
         assert (
             self.raw_stack is None
             or (len(context.raw_stack) == 0 and context.raw_segment_pre is None)
@@ -405,26 +403,26 @@ class CrawlBehavior:
         # children.
         yield context
 
-        if self.recurse_into:
-            # The raw stack only keeps track of the previous *raw* segments.
-            if len(context.segment.segments) == 0:
-                context.raw_segment_pre = cast(RawSegment, context.segment)
-                # Tracking raw_stack is expensive, so it's optional per rule.
-                if self.raw_stack is not None:
-                    self.raw_stack.append(context.raw_segment_pre)
-                    context.raw_stack = tuple(self.raw_stack)
-            base_parent_stack = context.parent_stack
-            new_parent_stack = base_parent_stack + (context.segment,)
-            for idx, child in enumerate(context.segment.segments):
-                # For performance reasons, don't create a new RuleContext for
-                # each segment; just modify the existing one in place. This
-                # requires some careful bookkeeping, but it avoids creating a
-                # HUGE number of short-lived RuleContext objects
-                # (#linter loops x #rules x #segments).
-                context.segment = child
-                context.parent_stack = new_parent_stack
-                context.segment_idx = idx
-                yield from self.crawl(context)
+        # NOTE: We used to check for `recurse_into` here.
+        # The raw stack only keeps track of the previous *raw* segments.
+        if len(context.segment.segments) == 0:
+            context.raw_segment_pre = cast(RawSegment, context.segment)
+            # Tracking raw_stack is expensive, so it's optional per rule.
+            if self.raw_stack is not None:
+                self.raw_stack.append(context.raw_segment_pre)
+                context.raw_stack = tuple(self.raw_stack)
+        base_parent_stack = context.parent_stack
+        new_parent_stack = base_parent_stack + (context.segment,)
+        for idx, child in enumerate(context.segment.segments):
+            # For performance reasons, don't create a new RuleContext for
+            # each segment; just modify the existing one in place. This
+            # requires some careful bookkeeping, but it avoids creating a
+            # HUGE number of short-lived RuleContext objects
+            # (#linter loops x #rules x #segments).
+            context.segment = child
+            context.parent_stack = new_parent_stack
+            context.segment_idx = idx
+            yield from self.crawl(context)
 
 
 class BaseRule:
@@ -445,7 +443,7 @@ class BaseRule:
 
     # Lint loop / crawl behavior. When appropriate, rules can (and should)
     # override these values to make linting faster.
-    recurse_into = True
+    crawl_behaviour = None
     # "needs_raw_stack" defaults to False because rules run faster that way, and
     # most rules don't need it. Rules that use it are usually those that look
     # at the surroundings of a segment, e.g. "is there whitespace preceding this
@@ -547,9 +545,8 @@ class BaseRule:
 
         # Propagates memory from one rule _eval() to the next.
         memory: Any = root_context.memory
-        context = None
-        crawl_behavior = CrawlBehavior(
-            self._works_on_unparsable, self.recurse_into, self.needs_raw_stack
+        crawl_behavior = self.crawl_behaviour or CrawlBehavior(
+            self._works_on_unparsable, self.needs_raw_stack
         )
         for context in crawl_behavior.crawl(root_context):
             try:
