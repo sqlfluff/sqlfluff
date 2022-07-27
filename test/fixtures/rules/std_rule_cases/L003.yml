@@ -1102,14 +1102,14 @@ test_tsql_cross_apply_indentation:
   # Test for behavior in issue #3672
   pass_str: |
     SELECT
-      table1.col,
-      table2.col
+        table1.col,
+        table2.col
     FROM table1
     CROSS APPLY (
-      VALUES ((1), (2))
+        VALUES ((1), (2))
     ) AS table2(col)
     INNER JOIN table3
-      ON table1.col = table3.col;
+        ON table1.col = table3.col;
   configs:
     core:
       dialect: tsql
@@ -1118,12 +1118,12 @@ test_tsql_cross_join_indentation:
   # Test for behavior in issue #3672
   pass_str: |
     SELECT
-      table1.col,
-      table2.col
+        table1.col,
+        table2.col
     FROM table1
     CROSS JOIN table2
     INNER JOIN table3
-      ON table1.col = table3.col;
+        ON table1.col = table3.col;
   configs:
     core:
       dialect: tsql
@@ -1132,19 +1132,20 @@ test_tsql_nested_join:
   # Test for behavior prior to issue #3672
   fail_str: |
     SELECT
-      table1.col,
-      table2.col
+        table1.col,
+        table2.col
     FROM table1
     INNER JOIN table2
     INNER JOIN table3
-      ON table1.col = table2.col AND table1.col = table3.col;
-  fix_str: SELECT
-    table1.col,
-    table2.col
+        ON table1.col = table2.col AND table1.col = table3.col;
+  fix_str: |
+    SELECT
+        table1.col,
+        table2.col
     FROM table1
     INNER JOIN table2
-    INNER JOIN table3
-    ON table1.col = table2.col AND table1.col = table3.col;
+        INNER JOIN table3
+            ON table1.col = table2.col AND table1.col = table3.col;
   configs:
     core:
       dialect: tsql
