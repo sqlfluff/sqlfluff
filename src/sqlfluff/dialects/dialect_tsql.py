@@ -433,6 +433,7 @@ tsql_dialect.replace(
         Ref("PivotUnpivotStatementSegment"),
         min_times=1,
     ),
+    StringBinaryOperatorGrammar=OneOf(Ref("ConcatSegment"), "COLLATE"),
 )
 
 
