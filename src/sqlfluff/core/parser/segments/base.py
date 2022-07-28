@@ -24,6 +24,8 @@ from typing import (
     Iterator,
     Set,
     TYPE_CHECKING,
+    cast,
+    Type,
 )
 import logging
 from uuid import UUID, uuid4
@@ -662,6 +664,7 @@ class BaseSegment:
         for base_class in cls.__bases__:
             if base_class is object:
                 return
+            base_class = cast(Type[BaseSegment], base_class)
             yield base_class.type
             # if base_class.type == "base":
             #    return

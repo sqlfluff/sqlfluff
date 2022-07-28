@@ -30,11 +30,17 @@ class RuleContext:
     path: Optional[pathlib.Path]
 
     # These change within a file.
+    # segment: The segment in quesions
     segment: BaseSegment
+    # parent_stack: A tuple of the path from the root to this segment.
     parent_stack: Tuple[BaseSegment, ...] = field(default=tuple())
+    # raw_segment_pre: The previous raw segment
     raw_segment_pre: Optional[RawSegment] = field(default=None)
+    # raw_stack: All of the raw segments so far in the file
     raw_stack: Tuple[RawSegment, ...] = field(default=tuple())
+    # memory: Arbitrary storage for the rule
     memory: Any = field(default_factory=dict)
+    # segment_idx: The index of this segment in the parent
     segment_idx: int = field(default=0)
 
     @property

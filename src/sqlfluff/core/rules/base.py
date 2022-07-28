@@ -40,6 +40,7 @@ from sqlfluff.core.parser import BaseSegment, PositionMarker, RawSegment
 from sqlfluff.core.dialects import Dialect
 from sqlfluff.core.errors import SQLLintError
 from sqlfluff.core.rules.context import RuleContext
+from sqlfluff.core.rules.crawlers import BaseCrawler
 from sqlfluff.core.templaters.base import RawFileSlice, TemplatedFile
 
 # The ghost of a rule (mostly used for testing)
@@ -443,7 +444,8 @@ class BaseRule:
 
     # Lint loop / crawl behavior. When appropriate, rules can (and should)
     # override these values to make linting faster.
-    crawl_behaviour = None
+    crawl_behaviour: Optional[BaseCrawler] = None
+    #crawl_behaviour: BaseCrawler = BaseCrawler()
     # "needs_raw_stack" defaults to False because rules run faster that way, and
     # most rules don't need it. Rules that use it are usually those that look
     # at the surroundings of a segment, e.g. "is there whitespace preceding this
