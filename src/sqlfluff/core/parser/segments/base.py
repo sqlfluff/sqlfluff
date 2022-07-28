@@ -395,6 +395,11 @@ class BaseSegment:
         return "".join(seg.raw for seg in self.segments)
 
     @cached_property
+    def full_type_set(self) -> Set[str]:
+        """The set of types for this segment."""
+        return set(self._class_types())
+
+    @cached_property
     def child_type_set(self) -> Set[str]:
         """The set of all contained types.
 
@@ -404,7 +409,7 @@ class BaseSegment:
         """
         return set(
             chain.from_iterable(
-                seg.child_type_set | set(seg._class_types()) for seg in self.segments
+                seg.child_type_set | set(seg.full_type_set) for seg in self.segments
             )
         )
 
@@ -416,9 +421,7 @@ class BaseSegment:
 
         NOTE: Does not include the types of the parent segment itself.
         """
-        return set(
-            chain.from_iterable(set(seg._class_types()) for seg in self.segments)
-        )
+        return set(chain.from_iterable(set(seg.full_type_set) for seg in self.segments))
 
     @cached_property
     def raw_upper(self) -> str:
@@ -678,8 +681,6 @@ class BaseSegment:
                 return
             base_class = cast(Type[BaseSegment], base_class)
             yield base_class.type
-            # if base_class.type == "base":
-            #    return
 
     @classmethod
     def structural_simplify(cls, elem):
@@ -786,6 +787,7 @@ class BaseSegment:
             "raw_segments",
             "first_non_whitespace_segment_raw_upper",
             "source_fixes",
+            "full_type_set",
             "child_type_set",
             "direct_child_type_set",
         ]:
