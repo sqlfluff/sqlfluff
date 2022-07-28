@@ -455,9 +455,7 @@ tsql_dialect.replace(
         Ref("PivotUnpivotStatementSegment"),
         min_times=1,
     ),
-    CollateGrammar=Sequence(
-        "COLLATE", OneOf(Ref("CollationSegment"), "database_default")
-    ),
+    CollateGrammar=Sequence("COLLATE", Ref("CollationSegment")),
 )
 
 

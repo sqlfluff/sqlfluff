@@ -240,7 +240,6 @@ UNRESERVED_KEYWORDS = [
     "COMPRESSION_DELAY",
     "CURSOR_CLOSE_ON_COMMIT",
     "CYCLE",
-    "database_default",
     "DATA_COMPRESSION",
     "DATASOURCE",
     "DATE",
