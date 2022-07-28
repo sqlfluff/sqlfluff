@@ -532,43 +532,45 @@ class TdTableConstraints(BaseSegment):
     """
 
     type = "td_table_constraint"
-    match_grammar = Sequence(
-        AnyNumberOf(
-            # PRIMARY Index
-            OneOf(
-                Sequence(  # UNIQUE PRIMARY INDEX Column_name | ( Column_name, ... )
-                    Ref.keyword("UNIQUE", optional=True),
-                    "PRIMARY",
-                    "INDEX",
-                    Ref("ObjectReferenceSegment", optional=True),  # primary index name
-                    OneOf(
-                        Bracketed(
-                            Delimited(
-                                Ref("SingleIdentifierGrammar"),
-                            )
-                        ),
-                        Ref("SingleIdentifierGrammar"),
-                    ),
-                ),
-                Sequence("NO", "PRIMARY", "INDEX"),  # NO PRIMARY INDEX
-            ),
-            # PARTITION BY ...
-            Sequence(  # INDEX HOPR_TRN_TRAV_SIN_MP_I ( IND_TIPO_TARJETA );
-                "PARTITION",
-                "BY",
-                Ref("TdTablePartitioningLevel"),
-            ),
-            # Index
-            Sequence(  # INDEX HOPR_TRN_TRAV_SIN_MP_I ( IND_TIPO_TARJETA );
+    match_grammar = AnyNumberOf(
+        # PRIMARY Index
+        OneOf(
+            Sequence(  # UNIQUE PRIMARY INDEX Column_name | ( Column_name, ... )
                 Ref.keyword("UNIQUE", optional=True),
+                "PRIMARY",
                 "INDEX",
-                Ref("ObjectReferenceSegment"),  # Index name
-                Ref.keyword("ALL", optional=True),
-                Bracketed(  # Columns making up  constraint
-                    Delimited(Ref("ColumnReferenceSegment")),
+                Ref("ObjectReferenceSegment", optional=True),  # primary index name
+                OneOf(
+                    Bracketed(
+                        Delimited(
+                            Ref("SingleIdentifierGrammar"),
+                        )
+                    ),
+                    Ref("SingleIdentifierGrammar"),
                 ),
             ),
-        )
+            Sequence("NO", "PRIMARY", "INDEX"),  # NO PRIMARY INDEX
+        ),
+        # PARTITION BY ...
+        Sequence(  # INDEX HOPR_TRN_TRAV_SIN_MP_I ( IND_TIPO_TARJETA );
+            "PARTITION",
+            "BY",
+            Ref("TdTablePartitioningLevel"),
+        ),
+        # Index
+        Sequence(  # INDEX HOPR_TRN_TRAV_SIN_MP_I ( IND_TIPO_TARJETA );
+            Ref.keyword("UNIQUE", optional=True),
+            "INDEX",
+            Ref("ObjectReferenceSegment"),  # Index name
+            Ref.keyword("ALL", optional=True),
+            Bracketed(  # Columns making up  constraint
+                Delimited(Ref("ColumnReferenceSegment")),
+            ),
+        ),
+        # WITH DATA
+        Sequence("WITH", Sequence("NO", optional=True), "DATA"),
+        # ON COMMIT PRESERVE ROWS
+        Sequence("ON", "COMMIT", OneOf("PRESERVE", "DELETE"), "ROWS"),
     )
 
 

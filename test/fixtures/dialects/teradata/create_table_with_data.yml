@@ -1,0 +1,85 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 492e93b76b107341b67c9f5d492c09919b69bf9869640912c9e6df241a69d053
+file:
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: VOLATILE
+    - keyword: TABLE
+    - table_reference:
+        identifier: a
+    - keyword: AS
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              literal: "'A'"
+              alias_expression:
+                keyword: AS
+                identifier: B
+        end_bracket: )
+    - td_table_constraint:
+      - keyword: WITH
+      - keyword: DATA
+      - keyword: 'ON'
+      - keyword: COMMIT
+      - keyword: PRESERVE
+      - keyword: ROWS
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: VOLATILE
+    - keyword: TABLE
+    - table_reference:
+        identifier: b
+    - keyword: AS
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              literal: "'A'"
+              alias_expression:
+                keyword: AS
+                identifier: B
+        end_bracket: )
+    - td_table_constraint:
+      - keyword: WITH
+      - keyword: DATA
+      - keyword: 'ON'
+      - keyword: COMMIT
+      - keyword: DELETE
+      - keyword: ROWS
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: VOLATILE
+    - keyword: TABLE
+    - table_reference:
+        identifier: c
+    - keyword: AS
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              literal: "'A'"
+              alias_expression:
+                keyword: AS
+                identifier: B
+        end_bracket: )
+    - td_table_constraint:
+      - keyword: WITH
+      - keyword: 'NO'
+      - keyword: DATA
+- statement_terminator: ;
