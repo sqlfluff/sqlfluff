@@ -1,0 +1,83 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 5fef3e568fa509d537c7929ea9f8715d22ced6297cbb41cff761348f39afe089
+file:
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        identifier: student
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          identifier: id
+          data_type:
+            primitive_type:
+              keyword: INT
+      - comma: ','
+      - column_definition:
+          identifier: student_name
+          data_type:
+            primitive_type:
+              keyword: STRING
+      - comma: ','
+      - column_definition:
+          identifier: age
+          data_type:
+            primitive_type:
+              keyword: INT
+      - end_bracket: )
+    - keyword: TBLPROPERTIES
+    - bracketed:
+        start_bracket: (
+        property_name_identifier:
+        - identifier: delta
+        - dot: .
+        - identifier: enableChangeDataFeed
+        comparison_operator:
+          raw_comparison_operator: '='
+        literal: 'true'
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        identifier: my_delta_table
+    - keyword: SET
+    - keyword: TBLPROPERTIES
+    - bracketed:
+        start_bracket: (
+        property_name_identifier:
+        - identifier: delta
+        - dot: .
+        - identifier: enableChangeDataFeed
+        comparison_operator:
+          raw_comparison_operator: '='
+        literal: 'true'
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    set_statement:
+      keyword: SET
+      property_name_identifier:
+      - identifier: spark
+      - dot: .
+      - identifier: databricks
+      - dot: .
+      - identifier: delta
+      - dot: .
+      - identifier: properties
+      - dot: .
+      - identifier: defaults
+      - dot: .
+      - identifier: enableChangeDataFeed
+      comparison_operator:
+        raw_comparison_operator: '='
+      literal: 'true'
+- statement_terminator: ;
