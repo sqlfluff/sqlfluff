@@ -1,10 +1,9 @@
 """Definitions of crawlers."""
 
-from typing import Iterator, Set, cast
+from typing import Iterator, Set
 from sqlfluff.core.parser.segments.base import BaseSegment
 
 from sqlfluff.core.rules.context import RuleContext
-from sqlfluff.core.rules.functional.segment_predicates import is_type
 
 
 class BaseCrawler:
@@ -48,14 +47,17 @@ class SegmentSeekerCrawler(BaseCrawler):
         self.types = types
         super().__init__(**kwargs)
 
+    def is_self_match(self, segment: BaseSegment) -> bool:
+        """Does this segment match the relevant criteria."""
+        return segment.is_type(*self.types)
+
     def crawl(self, context: RuleContext) -> Iterator[RuleContext]:
         """Yields a RuleContext for each segment the rule should process.
 
         We assume that segments are yielded by their parent.
         """
-
         # First check the segment itself
-        if context.segment.is_type(*self.types):
+        if self.is_self_match(context.segment):
             yield context
 
         # Check whether any children?
@@ -69,7 +71,8 @@ class SegmentSeekerCrawler(BaseCrawler):
             # This aggressive pruning helps performance.
             return
 
-        # NOTE: Do rule 21 first and don't populate all the context.
+        # NOTE: Full context is not implemented yet. More dev work required
+        # before everything will be available here.
 
         # Given we know that one is present in here somewhere, search for it.
         new_parent_stack = context.parent_stack + (context.segment,)
@@ -85,3 +88,20 @@ class SegmentSeekerCrawler(BaseCrawler):
             context.parent_stack = new_parent_stack
             context.segment_idx = idx
             yield from self.crawl(context)
+
+
+class ParentOfSegmentCrawler(SegmentSeekerCrawler):
+    """A crawler that efficiently searches for parents of specific segment types.
+
+    The segment type(s) are specified on creation.
+    """
+
+    def is_self_match(self, segment: BaseSegment) -> bool:
+        """Does this segment match the relevant criteria.
+
+        We use the _direct_ child set here so that if any of the
+        direct child segments match any of the types we're looking
+        for, then we know that this segment is a parent of that
+        kind of segment.
+        """
+        return bool(self.types & segment.direct_child_type_set)

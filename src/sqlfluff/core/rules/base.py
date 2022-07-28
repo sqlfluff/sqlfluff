@@ -445,7 +445,7 @@ class BaseRule:
     # Lint loop / crawl behavior. When appropriate, rules can (and should)
     # override these values to make linting faster.
     crawl_behaviour: Optional[BaseCrawler] = None
-    #crawl_behaviour: BaseCrawler = BaseCrawler()
+    # crawl_behaviour: BaseCrawler = BaseCrawler()
     # "needs_raw_stack" defaults to False because rules run faster that way, and
     # most rules don't need it. Rules that use it are usually those that look
     # at the surroundings of a segment, e.g. "is there whitespace preceding this
@@ -550,6 +550,7 @@ class BaseRule:
         crawl_behavior = self.crawl_behaviour or CrawlBehavior(
             self._works_on_unparsable, self.needs_raw_stack
         )
+        context = root_context
         for context in crawl_behavior.crawl(root_context):
             try:
                 context.memory = memory

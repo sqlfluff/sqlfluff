@@ -409,6 +409,18 @@ class BaseSegment:
         )
 
     @cached_property
+    def direct_child_type_set(self) -> Set[str]:
+        """The set of all directly child types.
+
+        This is used for rule crawling.
+
+        NOTE: Does not include the types of the parent segment itself.
+        """
+        return set(
+            chain.from_iterable(set(seg._class_types()) for seg in self.segments)
+        )
+
+    @cached_property
     def raw_upper(self) -> str:
         """Make an uppercase string from the segments of this segment."""
         return self.raw.upper()
@@ -775,6 +787,7 @@ class BaseSegment:
             "first_non_whitespace_segment_raw_upper",
             "source_fixes",
             "child_type_set",
+            "direct_child_type_set",
         ]:
             self.__dict__.pop(key, None)
 

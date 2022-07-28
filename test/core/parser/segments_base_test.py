@@ -58,6 +58,12 @@ def test__parser__base_segments_child_type_set(raw_seg_list):
     assert test_seg.child_type_set == {"raw", "base", "dummy_aux"}
 
 
+def test__parser__base_segments_direct_child_type_set(raw_seg_list):
+    """Test the .direct_child_type_set() method."""
+    test_seg = DummySegment([DummyAuxSegment(raw_seg_list)])
+    assert test_seg.direct_child_type_set == {"base", "dummy_aux"}
+
+
 def test__parser__base_segments_stubs():
     """Test stub methods that have no implementation in base class."""
     template = TemplatedFile.from_string("foobar")
