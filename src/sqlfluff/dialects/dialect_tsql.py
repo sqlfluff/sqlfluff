@@ -1958,9 +1958,7 @@ class ReservedKeywordFunctionNameSegment(BaseSegment):
     """
 
     type = "function_name"
-    match_grammar = OneOf(
-        BUILTIN_FUNCTIONS
-    )
+    match_grammar = OneOf(*BUILTIN_FUNCTIONS)
 
 
 class WithinGroupFunctionNameSegment(BaseSegment):
