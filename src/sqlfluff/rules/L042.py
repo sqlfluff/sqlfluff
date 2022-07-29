@@ -20,7 +20,12 @@ from sqlfluff.core.rules.doc_decorators import (
     document_fix_compatible,
     document_groups,
 )
-from sqlfluff.core.rules.functional.segment_predicates import is_name, is_type
+from sqlfluff.core.rules.functional.segment_predicates import (
+    is_keyword,
+    is_name,
+    is_type,
+    is_whitespace,
+)
 from sqlfluff.core.rules.functional.segments import Segments
 from sqlfluff.dialects.dialect_ansi import (
     CTEDefinitionSegment,
@@ -295,7 +300,7 @@ class _CTEBuilder:
             return self.create_cte_alias(None)
         return name
 
-    def get_cte_segements(self) -> List[BaseSegment]:
+    def get_cte_segments(self) -> List[BaseSegment]:
         """Return a valid list of CTES with required padding Segements."""
         cte_segments: List[BaseSegment] = []
         for cte in self.ctes:
@@ -308,12 +313,28 @@ class _CTEBuilder:
 
     def compose_select(self, output_select: BaseSegment, case_preference: str):
         """Compose our final new CTE."""
+        # Ensure there's whitespace between "FROM" and the CTE table name.
+        from_clause = output_select.get_child("from_clause")
+        from_clause_children = Segments(*from_clause.segments)
+        from_segment = from_clause_children.first(is_keyword("from"))
+        if from_segment and not from_clause_children.select(
+            start_seg=from_segment[0], loop_while=is_whitespace()
+        ):
+            idx_from = from_clause_children.index(from_segment[0])
+            # Insert whitespace between "FROM" and the CTE table name.
+            from_clause.segments = list(
+                from_clause_children[: idx_from + 1]
+                + (WhitespaceSegment(),)
+                + from_clause_children[idx_from + 1 :]
+            )
+
+        # Compose the CTE.
         new_select = WithCompoundStatementSegment(
             segments=tuple(
                 [
                     _segmentify("WITH", case_preference),
                     WhitespaceSegment(),
-                    *self.get_cte_segements(),
+                    *self.get_cte_segments(),
                     NewlineSegment(),
                     output_select,
                 ]

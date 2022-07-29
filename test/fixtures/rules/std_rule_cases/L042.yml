@@ -383,3 +383,26 @@ issue_3623_internal_error_multiple_templated_files:
     rules:
       L042:
         forbid_subquery_in: both
+
+issue_3622_no_space_after_from:
+  fail_str: |
+    CREATE TABLE t
+    AS
+    SELECT
+        col1
+    FROM(
+        SELECT 'x' AS col1
+    ) x
+  fix_str: |
+    CREATE TABLE t
+    AS
+    WITH x AS (
+        SELECT 'x' AS col1
+    )
+    SELECT
+        col1
+    FROM x
+  configs:
+    rules:
+      L042:
+        forbid_subquery_in: both
