@@ -32,6 +32,7 @@ from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_tsql_keywords import (
     RESERVED_KEYWORDS,
     UNRESERVED_KEYWORDS,
+    BUILTIN_FUNCTIONS
 )
 
 ansi_dialect = load_raw_dialect("ansi")
@@ -1958,14 +1959,7 @@ class ReservedKeywordFunctionNameSegment(BaseSegment):
 
     type = "function_name"
     match_grammar = OneOf(
-        "COALESCE",
-        "CURRENT_TIMESTAMP",
-        "CURRENT_USER",
-        "LEFT",
-        "NULLIF",
-        "RIGHT",
-        "SESSION_USER",
-        "SYSTEM_USER",
+        BUILTIN_FUNCTIONS
     )
 
 
