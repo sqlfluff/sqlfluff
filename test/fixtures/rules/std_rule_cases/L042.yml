@@ -406,3 +406,19 @@ issue_3622_no_space_after_from:
     rules:
       L042:
         forbid_subquery_in: both
+
+issue_3617_parentheses_around_ctas_select:
+  fail_str: |
+    CREATE TABLE t
+    AS
+    (SELECT
+        Col1
+    FROM
+    (
+        SELECT 'x' AS COl1
+    ) x
+    )
+  configs:
+    rules:
+      L042:
+        forbid_subquery_in: both

@@ -105,7 +105,7 @@ class Rule_L042(BaseRule):
         is_select = segment.all(is_type(*select_types))
         is_select_child = parent_stack.any(is_type(*select_types))
         if not is_select or is_select_child:
-            # Subvert the Crawler
+            # Nothing to do.
             return None
 
         # Gather all possible offending Elements in one crawl
@@ -120,10 +120,12 @@ class Rule_L042(BaseRule):
         if not nested_subqueries:
             return None
         # If there are offending elements calculate fixes
+
         return _calculate_fixes(
             dialect=context.dialect,
             root_select=segment,
             nested_subqueries=nested_subqueries,
+            parent_stack=parent_stack,
         )
 
 
@@ -131,13 +133,14 @@ def _calculate_fixes(
     dialect: Dialect,
     root_select: Segments,
     nested_subqueries: List[_NestedSubQuerySummary],
+    parent_stack: Segments,
 ) -> List[LintResult]:
     """Given the Root select and the offending subqueries calculate fixes."""
     is_with = root_select.all(is_type("with_compound_statement"))
     # TODO: consider if we can fix recursive CTEs
     is_recursive = is_with and len(root_select.children(is_name("recursive"))) > 0
     case_preference = _get_case_preference(root_select)
-    # generate an instance which will track and shape out output CTE
+    # generate an instance which will track and shape our output CTE
     ctes = _CTEBuilder()
     # Init the output/final select &
     # populate existing CTEs
@@ -187,7 +190,16 @@ def _calculate_fixes(
         )
         lint_results.append(res)
 
-    if ctes.has_duplicate_aliases() or is_recursive:
+    # Issue 3617: In T-SQL (and possibly other dialects) the automated fix
+    # leaves parentheses in a location that causes a syntax error. This is an
+    # unusual corner case. For simplicity, we still generate the lint warning
+    # but don't try to generate a fix. Someone could look at this later (a
+    # correct fix would involve removing the parentheses.)
+    bracketed_ctas = [seg.type for seg in parent_stack[-2:]] == [
+        "create_table_statement",
+        "bracketed",
+    ]
+    if bracketed_ctas or ctes.has_duplicate_aliases() or is_recursive:
         # If we have duplicate CTE names just don't fix anything
         # Return the lint warnings anyway
         return lint_results
