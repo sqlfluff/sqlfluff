@@ -472,6 +472,7 @@ ansi_dialect.add(
     # non-standard keywords)
     IsNullGrammar=Nothing(),
     NotNullGrammar=Nothing(),
+    CollateGrammar=Nothing(),
     FromClauseTerminatorGrammar=OneOf(
         "WHERE",
         "LIMIT",
@@ -1751,6 +1752,7 @@ ansi_dialect.add(
                 ),
                 Ref("IsNullGrammar"),
                 Ref("NotNullGrammar"),
+                Ref("CollateGrammar"),
                 Sequence(
                     # e.g. NOT EXISTS, but other expressions could be met as
                     # well by inverting the condition with the NOT operator
