@@ -120,7 +120,6 @@ class Rule_L042(BaseRule):
         if not nested_subqueries:
             return None
         # If there are offending elements calculate fixes
-
         return _calculate_fixes(
             dialect=context.dialect,
             root_select=segment,
