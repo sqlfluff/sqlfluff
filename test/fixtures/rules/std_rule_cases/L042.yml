@@ -454,3 +454,21 @@ issue_3572_correlated_subquery_3:
         (select *
          from events as ce
          where ce.name = person_dates.name)
+
+issue_3598_avoid_looping_1:
+  pass_str: |
+    WITH cte1 AS (
+    	SELECT a
+    	FROM (SELECT a)
+    )
+
+    SELECT a FROM cte1
+
+issue_3598_avoid_looping_2:
+  pass_str: |
+    WITH cte1 AS (
+        SELECT *
+        FROM (SELECT * FROM mongo.temp)
+    )
+
+    SELECT * FROM cte1

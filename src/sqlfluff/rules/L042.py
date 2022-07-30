@@ -1,7 +1,17 @@
 """Implementation of Rule L042."""
 import copy
 from functools import partial
-from typing import Generator, List, NamedTuple, Optional, Set, Type, TypeVar, cast
+from typing import (
+    Generator,
+    List,
+    NamedTuple,
+    Optional,
+    Set,
+    Tuple,
+    Type,
+    TypeVar,
+    cast,
+)
 from sqlfluff.core.dialects.base import Dialect
 from sqlfluff.core.parser.segments.base import BaseSegment
 from sqlfluff.core.parser.segments.raw import (
@@ -156,8 +166,10 @@ def _calculate_fixes(
 
     lint_results: List[LintResult] = []
     clone_map = SegmentCloneMap(root_select[0])
+    is_new_name = False
+    new_table_ref = None
     for parent_type, _, this_seg, subquery in nested_subqueries:
-        alias_name = ctes.create_cte_alias(
+        alias_name, is_new_name = ctes.create_cte_alias(
             this_seg.children(is_type("alias_expression"))
         )
         new_cte = _create_cte_seg(
@@ -169,7 +181,8 @@ def _calculate_fixes(
         ctes.insert_cte(new_cte)
         this_seg_clone = clone_map[this_seg[0]]
         assert this_seg_clone.pos_marker, "TypeGuard"
-        this_seg_clone.segments = (_create_table_ref(alias_name, dialect),)
+        new_table_ref = _create_table_ref(alias_name, dialect)
+        this_seg_clone.segments = (new_table_ref,)
         anchor = subquery
         # Grab the first keyword or symbol in the subquery to use as the
         # anchor. This makes the lint warning less likely to be filtered out
@@ -211,6 +224,17 @@ def _calculate_fixes(
             ],
         )
     ]
+    if is_new_name:
+        assert lint_results[0].fixes[0].edit
+        assert new_table_ref
+        # If we're creating a new CTE name but the CTE name does not appear in
+        # the fix, discard the lint error. This prevents the rule from looping,
+        # i.e. making the same fix repeatedly.
+        for seg in lint_results[0].fixes[0].edit[0].recursive_crawl_all():
+            if seg.uuid == new_table_ref.uuid:
+                break
+        else:
+            lint_results = []
     return lint_results
 
 
@@ -355,19 +379,21 @@ class _CTEBuilder:
 
         self.ctes.insert(insert_position, cte)
 
-    def create_cte_alias(self, alias_segment: Optional[Segments] = None) -> str:
+    def create_cte_alias(
+        self, alias_segment: Optional[Segments] = None
+    ) -> Tuple[str, bool]:
         """Find or create the name for the next CTE."""
         if alias_segment:
             # If we know the name use it
             name = alias_segment.children().last()[0].raw
-            return name
+            return name, False
 
         self.name_idx = self.name_idx + 1
         name = f"prep_{self.name_idx}"
         if name in self.list_used_names():
             # corner case where prep_x exists in origin query
             return self.create_cte_alias(None)
-        return name
+        return name, True
 
     def get_cte_segments(self) -> List[BaseSegment]:
         """Return a valid list of CTES with required padding Segements."""
