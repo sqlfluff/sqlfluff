@@ -197,15 +197,19 @@ test_fail_select_lower:
         capitalisation_policy: upper
 
 test_fail_select_lower_keyword_functions:
-  # Test for issue #3520
+  # Test for issue #3520 and #3583
   fail_str: |
     SELECT
     cast(5 AS int) AS test1,
-    coalesce(1, 2) AS test3
+    coalesce(1, 2) AS test3,
+    iiF(1 = 0, 0, 1) AS test2,
+    dbo.myScalar(1, 2) AS test4
   fix_str: |
     SELECT
     CAST(5 AS int) AS test1,
-    COALESCE(1, 2) AS test3
+    COALESCE(1, 2) AS test3,
+    IIF(1 = 0, 0, 1) AS test2,
+    dbo.myScalar(1, 2) AS test4
   configs:
     core:
       dialect: tsql

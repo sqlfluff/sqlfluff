@@ -460,6 +460,7 @@ BUILTIN_FUNCTIONS = [
     "CHAR",
     "CHARINDEX",
     "CHOOSE",
+    "COALESCE",
     "COLUMNPROPERTY",
     "COL_LENGTH",
     "COL_NAME",
