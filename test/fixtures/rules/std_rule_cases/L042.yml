@@ -422,3 +422,35 @@ issue_3617_parentheses_around_ctas_select:
     rules:
       L042:
         forbid_subquery_in: both
+
+issue_3572_correlated_subquery_1:
+  pass_str: |
+    select
+        pd.*
+    from person_dates
+    join
+        (select *
+         from events
+         where events.name = person_dates.name)
+
+
+issue_3572_correlated_subquery_2:
+  pass_str: |
+    select
+        pd.*
+    from person_dates as pd
+    join
+        (select *
+         from events as ce
+         where ce.name = pd.name)
+
+
+issue_3572_correlated_subquery_3:
+  pass_str: |
+    select
+        pd.*
+    from person_dates as pd
+    join
+        (select *
+         from events as ce
+         where ce.name = person_dates.name)

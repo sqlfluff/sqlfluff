@@ -1,10 +1,9 @@
 """Implementation of Rule L042."""
 import copy
 from functools import partial
-from typing import Generator, List, NamedTuple, Optional, Type, TypeVar, cast
+from typing import Generator, List, NamedTuple, Optional, Set, Type, TypeVar, cast
 from sqlfluff.core.dialects.base import Dialect
 from sqlfluff.core.parser.markers import PositionMarker
-
 from sqlfluff.core.parser.segments.base import BaseSegment
 from sqlfluff.core.parser.segments.raw import (
     CodeSegment,
@@ -13,8 +12,8 @@ from sqlfluff.core.parser.segments.raw import (
     SymbolSegment,
     WhitespaceSegment,
 )
-
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
+from sqlfluff.core.rules.analysis.select import get_select_statement_info
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
@@ -112,7 +111,7 @@ class Rule_L042(BaseRule):
         nested_subqueries: List[_NestedSubQuerySummary] = []
         selects = segment.recursive_crawl(*select_types, recurse_into=True)
         for select in selects.iterate_segments():
-            for res in _find_nested_subqueries(select):
+            for res in _find_nested_subqueries(select, context.dialect):
                 if res.parent_clause_type not in parent_types:
                     continue
                 nested_subqueries.append(res)
@@ -218,8 +217,67 @@ def _calculate_fixes(
     return lint_results
 
 
+def _get_first_select_statement_descendant(
+    segment: BaseSegment,
+) -> Optional[BaseSegment]:
+    """Find first SELECT statement segment (if any) in descendants of 'segment'."""
+    for select_statement in segment.recursive_crawl(
+        "select_statement", recurse_into=False
+    ):
+        # We only want the first one.
+        return select_statement
+    return None
+
+
+def _get_sources_from_select(segment: BaseSegment, dialect: Dialect) -> Set[str]:
+    """Given segment, return set of table or alias names it queries from."""
+    result = set()
+    select = None
+    if segment.is_type("select_statement"):
+        select = segment
+    elif segment.is_type("with_compound_statement"):
+        # For WITH statement, process the main query underneath.
+        select = _get_first_select_statement_descendant(segment)
+    if select and select.is_type("select_statement"):
+        select_info = get_select_statement_info(select, dialect)
+        if select_info:
+            for a in select_info.table_aliases:
+                # For each table in FROM, return table name and any alias.
+                if a.ref_str:
+                    result.add(a.ref_str)
+                if a.object_reference:
+                    result.add(a.object_reference.raw)
+    return result
+
+
+def _is_correlated_subquery(
+    nested_select: Segments, select_source_names: Set[str], dialect: Dialect
+):
+    """Given nested select and the sources of its parent, determine if correlated.
+
+    https://en.wikipedia.org/wiki/Correlated_subquery
+    """
+    if not nested_select:
+        return False
+    select_statement = _get_first_select_statement_descendant(nested_select[0])
+    if not select_statement:
+        return False
+    nested_select_info = get_select_statement_info(select_statement, dialect)
+    if nested_select_info:
+        for r in nested_select_info.reference_buffer:
+            for tr in r.extract_possible_references(  # type: ignore
+                level=r.ObjectReferenceLevel.TABLE  # type: ignore
+            ):
+                # Check for correlated subquery, as indicated by use of a
+                # parent reference.
+                if tr.part in select_source_names:
+                    return True
+    return False
+
+
 def _find_nested_subqueries(
     select: Segments,
+    dialect: Dialect,
 ) -> Generator[_NestedSubQuerySummary, None, None]:
     """Find possible offending elements and return enough to fix them."""
     select_types = [
@@ -229,6 +287,8 @@ def _find_nested_subqueries(
     ]
     from_clause = select.children().first(is_type("from_clause")).children()
     offending_types = ["join_clause", "from_expression_element"]
+    select_source_names = _get_sources_from_select(select[0], dialect)
+
     # Match any of the types we care about
     for this_seg in from_clause.children(is_type(*offending_types)).iterate_segments():
         parent_type = this_seg[0].get_type()
@@ -254,9 +314,10 @@ def _find_nested_subqueries(
             # If there is no match there is no error
             continue
         # Type, parent_select, parent_sequence
-        yield _NestedSubQuerySummary(
-            parent_type, select, this_seg, table_expression_el[0]
-        )
+        if not _is_correlated_subquery(nested_select, select_source_names, dialect):
+            yield _NestedSubQuerySummary(
+                parent_type, select, this_seg, table_expression_el[0]
+            )
 
 
 class _CTEBuilder:
