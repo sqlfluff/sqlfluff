@@ -43,7 +43,7 @@ tsql_dialect.sets("unreserved_keywords").clear()
 tsql_dialect.sets("reserved_keywords").update(RESERVED_KEYWORDS)
 # tsql_dialect.sets("reserved_keywords").difference_update(BUILTIN_FUNCTIONS)
 # I think this may fix an issue.
-tsql_dialect.sets("reserved_keywords").update(BUILTIN_FUNCTIONS)
+tsql_dialect.sets("unreserved_keywords").update(BUILTIN_FUNCTIONS)
 tsql_dialect.sets("unreserved_keywords").update(UNRESERVED_KEYWORDS)
 
 # Set the datetime units
