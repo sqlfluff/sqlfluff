@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b9c5358a0e0465af86ffb91687a551ff2c58728af8bddbaa1d4e2d230899c1eb
+_hash: 9f7612cef41aad5f26b5c37bb1810cd7e793e8ebf5ef99c502440fc82ed0aefc
 file:
   batch:
     statement:
@@ -13,7 +13,7 @@ file:
         - select_clause_element:
             function:
               function_name:
-                function_name_identifier: ConAT
+                function_name_identifier: ConcAT
               bracketed:
               - start_bracket: (
               - expression:
