@@ -463,6 +463,10 @@ issue_3598_avoid_looping_1:
     )
 
     SELECT a FROM cte1
+  configs:
+    rules:
+      L042:
+        forbid_subquery_in: both
 
 issue_3598_avoid_looping_2:
   pass_str: |
@@ -472,3 +476,7 @@ issue_3598_avoid_looping_2:
     )
 
     SELECT * FROM cte1
+  configs:
+    rules:
+      L042:
+        forbid_subquery_in: both
