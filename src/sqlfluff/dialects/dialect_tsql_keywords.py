@@ -438,8 +438,10 @@ UNRESERVED_KEYWORDS = [
     "ZONE",
 ]
 
-# RESERVED functions are documented at https://docs.microsoft.com/en-us/sql/t-sql/functions/functions?view=sql-server-ver16
-# the are used with brackets (e.g. CONCAT('a', 'b')) opposed to KEYWORDS (e.g. CURRENT_USER)
+# RESERVED functions are documented at
+# https://docs.microsoft.com/en-us/sql/t-sql/functions/functions?view=sql-server-ver16
+# They are used with brackets (e.g. CONCAT('a', 'b')) opposed to KEYWORDS (e.g.
+# CURRENT_USER)
 BUILTIN_FUNCTIONS = [
     "ABS",
     "ACOS",

@@ -32,7 +32,7 @@ from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_tsql_keywords import (
     RESERVED_KEYWORDS,
     UNRESERVED_KEYWORDS,
-    BUILTIN_FUNCTIONS
+    BUILTIN_FUNCTIONS,
 )
 
 ansi_dialect = load_raw_dialect("ansi")
