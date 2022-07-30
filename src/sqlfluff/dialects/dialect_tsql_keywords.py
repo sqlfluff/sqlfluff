@@ -52,12 +52,10 @@ RESERVED_KEYWORDS = [
     "DELETE",
     "DENY",
     "DESC",
-    "DISK",
     "DISTINCT",
     "DISTRIBUTED",
     "DOUBLE",
     "DROP",
-    "DUMP",
     "DYNAMIC",
     "ELSE",
     "END",
@@ -106,7 +104,6 @@ RESERVED_KEYWORDS = [
     "LEFT",
     "LIKE",
     "LINENO",
-    "LOAD",
     "LOCAL",
     "MERGE",
     "NATIONAL",
@@ -134,7 +131,6 @@ RESERVED_KEYWORDS = [
     "PERCENT",
     "PIVOT",
     "PLAN",
-    "PRECISION",
     "PRIMARY",
     "PRINT",
     "PROC",
@@ -161,7 +157,6 @@ RESERVED_KEYWORDS = [
     "SCHEMA",
     "SCROLL",
     "SCROLL_LOCKS",
-    "SECURITYAUDIT",
     "SELECT",
     "SEMANTICKEYPHRASETABLE",
     "SEMANTICSIMILARITYDETAILSTABLE",
@@ -203,7 +198,6 @@ RESERVED_KEYWORDS = [
     "WHERE",
     "WHILE",
     "WITH",
-    "WITHINGROUP",
     "WRITETEXT",
 ]
 
@@ -251,8 +245,10 @@ UNRESERVED_KEYWORDS = [
     "DELAY",
     "DETERMINISTIC",
     "DISABLE",
+    "DISK",  # listed as reserved but functionally unreserved
     "DISTRIBUTION",  # Azure Synapse Analytics specific
     "DROP_EXISTING",
+    "DUMP",  # listed as reserved but functionally unreserved
     "ENCRYPTED",
     "ENCRYPTION",
     "ENCRYPTION_TYPE",
@@ -307,6 +303,7 @@ UNRESERVED_KEYWORDS = [
     "LAST",
     "LASTROW",
     "LEVEL",
+    "LOAD",  # listed as reserved but functionally unreserved
     "LOCATION",
     "LOCK_TIMEOUT",
     "LOGIN",
@@ -352,6 +349,7 @@ UNRESERVED_KEYWORDS = [
     "PATH",
     "PERSISTED",
     "PRECEDING",
+    "PRECISION",  # listed as reserved but functionally unreserved
     "PRIOR",
     "PROFILE",
     "QUERYTRACEON",
@@ -385,6 +383,7 @@ UNRESERVED_KEYWORDS = [
     "S",
     "SCALEOUTEXECUTION",
     "SCHEMABINDING",
+    "SECURITYAUDIT",  # listed as reserved but functionally unreserved
     "SELF",
     "SEQUENCE",
     "SEQUENCE_NUMBER",
@@ -431,6 +430,7 @@ UNRESERVED_KEYWORDS = [
     "VIEW_METADATA",
     "WAIT_AT_LOW_PRIORITY",
     "WITHIN",
+    "WITHINGROUP",
     "WORK",
     "XACT_ABORT",
     "XLOCK",
