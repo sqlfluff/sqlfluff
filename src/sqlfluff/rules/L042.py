@@ -20,7 +20,12 @@ from sqlfluff.core.rules.doc_decorators import (
     document_fix_compatible,
     document_groups,
 )
-from sqlfluff.core.rules.functional.segment_predicates import is_name, is_type
+from sqlfluff.core.rules.functional.segment_predicates import (
+    is_keyword,
+    is_name,
+    is_type,
+    is_whitespace,
+)
 from sqlfluff.core.rules.functional.segments import Segments
 from sqlfluff.dialects.dialect_ansi import (
     CTEDefinitionSegment,
@@ -100,7 +105,7 @@ class Rule_L042(BaseRule):
         is_select = segment.all(is_type(*select_types))
         is_select_child = parent_stack.any(is_type(*select_types))
         if not is_select or is_select_child:
-            # Subvert the Crawler
+            # Nothing to do.
             return None
 
         # Gather all possible offending Elements in one crawl
@@ -119,6 +124,7 @@ class Rule_L042(BaseRule):
             dialect=context.dialect,
             root_select=segment,
             nested_subqueries=nested_subqueries,
+            parent_stack=parent_stack,
         )
 
 
@@ -126,13 +132,14 @@ def _calculate_fixes(
     dialect: Dialect,
     root_select: Segments,
     nested_subqueries: List[_NestedSubQuerySummary],
+    parent_stack: Segments,
 ) -> List[LintResult]:
     """Given the Root select and the offending subqueries calculate fixes."""
     is_with = root_select.all(is_type("with_compound_statement"))
     # TODO: consider if we can fix recursive CTEs
     is_recursive = is_with and len(root_select.children(is_name("recursive"))) > 0
     case_preference = _get_case_preference(root_select)
-    # generate an instance which will track and shape out output CTE
+    # generate an instance which will track and shape our output CTE
     ctes = _CTEBuilder()
     # Init the output/final select &
     # populate existing CTEs
@@ -182,7 +189,16 @@ def _calculate_fixes(
         )
         lint_results.append(res)
 
-    if ctes.has_duplicate_aliases() or is_recursive:
+    # Issue 3617: In T-SQL (and possibly other dialects) the automated fix
+    # leaves parentheses in a location that causes a syntax error. This is an
+    # unusual corner case. For simplicity, we still generate the lint warning
+    # but don't try to generate a fix. Someone could look at this later (a
+    # correct fix would involve removing the parentheses.)
+    bracketed_ctas = [seg.type for seg in parent_stack[-2:]] == [
+        "create_table_statement",
+        "bracketed",
+    ]
+    if bracketed_ctas or ctes.has_duplicate_aliases() or is_recursive:
         # If we have duplicate CTE names just don't fix anything
         # Return the lint warnings anyway
         return lint_results
@@ -295,7 +311,7 @@ class _CTEBuilder:
             return self.create_cte_alias(None)
         return name
 
-    def get_cte_segements(self) -> List[BaseSegment]:
+    def get_cte_segments(self) -> List[BaseSegment]:
         """Return a valid list of CTES with required padding Segements."""
         cte_segments: List[BaseSegment] = []
         for cte in self.ctes:
@@ -308,12 +324,28 @@ class _CTEBuilder:
 
     def compose_select(self, output_select: BaseSegment, case_preference: str):
         """Compose our final new CTE."""
+        # Ensure there's whitespace between "FROM" and the CTE table name.
+        from_clause = output_select.get_child("from_clause")
+        from_clause_children = Segments(*from_clause.segments)
+        from_segment = from_clause_children.first(is_keyword("from"))
+        if from_segment and not from_clause_children.select(
+            start_seg=from_segment[0], loop_while=is_whitespace()
+        ):
+            idx_from = from_clause_children.index(from_segment[0])
+            # Insert whitespace between "FROM" and the CTE table name.
+            from_clause.segments = list(
+                from_clause_children[: idx_from + 1]
+                + (WhitespaceSegment(),)
+                + from_clause_children[idx_from + 1 :]
+            )
+
+        # Compose the CTE.
         new_select = WithCompoundStatementSegment(
             segments=tuple(
                 [
                     _segmentify("WITH", case_preference),
                     WhitespaceSegment(),
-                    *self.get_cte_segements(),
+                    *self.get_cte_segments(),
                     NewlineSegment(),
                     output_select,
                 ]
