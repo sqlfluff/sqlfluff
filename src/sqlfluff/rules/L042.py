@@ -3,7 +3,6 @@ import copy
 from functools import partial
 from typing import Generator, List, NamedTuple, Optional, Set, Type, TypeVar, cast
 from sqlfluff.core.dialects.base import Dialect
-from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.parser.segments.base import BaseSegment
 from sqlfluff.core.parser.segments.raw import (
     CodeSegment,
@@ -170,9 +169,7 @@ def _calculate_fixes(
         ctes.insert_cte(new_cte)
         this_seg_clone = clone_map[this_seg[0]]
         assert this_seg_clone.pos_marker, "TypeGuard"
-        this_seg_clone.segments = (
-            _create_table_ref(alias_name, dialect, this_seg_clone.pos_marker),
-        )
+        this_seg_clone.segments = (_create_table_ref(alias_name, dialect),)
         anchor = subquery
         # Grab the first keyword or symbol in the subquery to use as the
         # anchor. This makes the lint warning less likely to be filtered out
@@ -460,15 +457,7 @@ def _create_cte_seg(
     return element
 
 
-def _create_table_ref(
-    table_name: str, dialect: Dialect, position_marker: PositionMarker
-) -> TableExpressionSegment:
-    # The mutative change needs a position_marker
-    position_marker = PositionMarker.from_point(
-        position_marker.source_slice.start,
-        position_marker.templated_slice.start,
-        position_marker.templated_file,
-    )
+def _create_table_ref(table_name: str, dialect: Dialect) -> TableExpressionSegment:
     Seg = partial(_get_seg, dialect=dialect)
     TableExpressionSeg = Seg(TableExpressionSegment)
     TableReferenceSeg = Seg(TableReferenceSegment)
@@ -480,13 +469,10 @@ def _create_table_ref(
                         raw=table_name,
                         name="naked_identifier",
                         type="identifier",
-                        pos_marker=position_marker,
                     ),
                 ),
-                pos_marker=position_marker,
             ),
         ),
-        pos_marker=position_marker,
     )
     return table_seg  # type: ignore
 
