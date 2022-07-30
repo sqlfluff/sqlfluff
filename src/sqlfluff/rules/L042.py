@@ -226,7 +226,7 @@ def _get_first_select_statement_descendant(
     ):
         # We only want the first one.
         return select_statement
-    return None
+    return None  # pragma: no cover
 
 
 def _get_sources_from_select(segment: BaseSegment, dialect: Dialect) -> Set[str]:
@@ -258,10 +258,10 @@ def _is_correlated_subquery(
     https://en.wikipedia.org/wiki/Correlated_subquery
     """
     if not nested_select:
-        return False
+        return False  # pragma: no cover
     select_statement = _get_first_select_statement_descendant(nested_select[0])
     if not select_statement:
-        return False
+        return False  # pragma: no cover
     nested_select_info = get_select_statement_info(select_statement, dialect)
     if nested_select_info:
         for r in nested_select_info.reference_buffer:
