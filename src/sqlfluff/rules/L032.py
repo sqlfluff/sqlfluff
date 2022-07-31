@@ -117,9 +117,12 @@ class Rule_L032(BaseRule):
             _extract_cols_from_using(segment, using_anchor),
         )
 
+        assert table_a.segment
+        assert table_b.segment
         fixes = [
             LintFix.create_before(
                 anchor_segment=insert_after_anchor,
+                source=[table_a.segment, table_b.segment],
                 edit_segments=edit_segments,
             ),
             *[LintFix.delete(seg) for seg in to_delete],

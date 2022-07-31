@@ -293,13 +293,30 @@ test_pass_snowflake_flatten_function:
     core:
       dialect: snowflake
 
-
 passes_tql_table_variable:
   # Issue 3243
   pass_str: select a, b from @tablevar
   configs:
     core:
       dialect: tsql
+    rules:
+      L028:
+        single_table_references: qualified
+
+fail_but_dont_fix_templated_table_name_consistent:
+  fail_str: |
+    SELECT
+        a,
+        {{ "foo" }}.b
+    FROM {{ "foo" }}
+
+fail_but_dont_fix_templated_table_name_qualified:
+  fail_str: |
+    SELECT
+        a,
+        {{ "foo" }}.b
+    FROM {{ "foo" }}
+  configs:
     rules:
       L028:
         single_table_references: qualified
