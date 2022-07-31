@@ -1,10 +1,18 @@
 """Implementation of Rule L042."""
 import copy
 from functools import partial
-from typing import Generator, List, NamedTuple, Optional, Type, TypeVar, cast
+from typing import (
+    Generator,
+    List,
+    NamedTuple,
+    Optional,
+    Set,
+    Tuple,
+    Type,
+    TypeVar,
+    cast,
+)
 from sqlfluff.core.dialects.base import Dialect
-from sqlfluff.core.parser.markers import PositionMarker
-
 from sqlfluff.core.parser.segments.base import BaseSegment
 from sqlfluff.core.parser.segments.raw import (
     CodeSegment,
@@ -13,8 +21,8 @@ from sqlfluff.core.parser.segments.raw import (
     SymbolSegment,
     WhitespaceSegment,
 )
-
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
+from sqlfluff.core.rules.analysis.select import get_select_statement_info
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
@@ -112,7 +120,7 @@ class Rule_L042(BaseRule):
         nested_subqueries: List[_NestedSubQuerySummary] = []
         selects = segment.recursive_crawl(*select_types, recurse_into=True)
         for select in selects.iterate_segments():
-            for res in _find_nested_subqueries(select):
+            for res in _find_nested_subqueries(select, context.dialect):
                 if res.parent_clause_type not in parent_types:
                     continue
                 nested_subqueries.append(res)
@@ -158,8 +166,10 @@ def _calculate_fixes(
 
     lint_results: List[LintResult] = []
     clone_map = SegmentCloneMap(root_select[0])
+    is_new_name = False
+    new_table_ref = None
     for parent_type, _, this_seg, subquery in nested_subqueries:
-        alias_name = ctes.create_cte_alias(
+        alias_name, is_new_name = ctes.create_cte_alias(
             this_seg.children(is_type("alias_expression"))
         )
         new_cte = _create_cte_seg(
@@ -171,9 +181,8 @@ def _calculate_fixes(
         ctes.insert_cte(new_cte)
         this_seg_clone = clone_map[this_seg[0]]
         assert this_seg_clone.pos_marker, "TypeGuard"
-        this_seg_clone.segments = (
-            _create_table_ref(alias_name, dialect, this_seg_clone.pos_marker),
-        )
+        new_table_ref = _create_table_ref(alias_name, dialect)
+        this_seg_clone.segments = (new_table_ref,)
         anchor = subquery
         # Grab the first keyword or symbol in the subquery to use as the
         # anchor. This makes the lint warning less likely to be filtered out
@@ -204,22 +213,92 @@ def _calculate_fixes(
         return lint_results
 
     # Add fixes to the last result only
+    edit = [
+        ctes.compose_select(
+            clone_map[output_select[0]],
+            case_preference=case_preference,
+        ),
+    ]
     lint_results[-1].fixes = [
         LintFix.replace(
             root_select[0],
-            edit_segments=[
-                ctes.compose_select(
-                    clone_map[output_select[0]],
-                    case_preference=case_preference,
-                ),
-            ],
+            edit_segments=edit,
         )
     ]
+    if is_new_name:
+        assert lint_results[0].fixes[0].edit
+        assert new_table_ref
+        # If we're creating a new CTE name but the CTE name does not appear in
+        # the fix, discard the lint error. This prevents the rule from looping,
+        # i.e. making the same fix repeatedly.
+        if not any(
+            seg.uuid == new_table_ref.uuid for seg in edit[0].recursive_crawl_all()
+        ):
+            lint_results[-1].fixes = []
     return lint_results
+
+
+def _get_first_select_statement_descendant(
+    segment: BaseSegment,
+) -> Optional[BaseSegment]:
+    """Find first SELECT statement segment (if any) in descendants of 'segment'."""
+    for select_statement in segment.recursive_crawl(
+        "select_statement", recurse_into=False
+    ):
+        # We only want the first one.
+        return select_statement
+    return None  # pragma: no cover
+
+
+def _get_sources_from_select(segment: BaseSegment, dialect: Dialect) -> Set[str]:
+    """Given segment, return set of table or alias names it queries from."""
+    result = set()
+    select = None
+    if segment.is_type("select_statement"):
+        select = segment
+    elif segment.is_type("with_compound_statement"):
+        # For WITH statement, process the main query underneath.
+        select = _get_first_select_statement_descendant(segment)
+    if select and select.is_type("select_statement"):
+        select_info = get_select_statement_info(select, dialect)
+        if select_info:
+            for a in select_info.table_aliases:
+                # For each table in FROM, return table name and any alias.
+                if a.ref_str:
+                    result.add(a.ref_str)
+                if a.object_reference:
+                    result.add(a.object_reference.raw)
+    return result
+
+
+def _is_correlated_subquery(
+    nested_select: Segments, select_source_names: Set[str], dialect: Dialect
+):
+    """Given nested select and the sources of its parent, determine if correlated.
+
+    https://en.wikipedia.org/wiki/Correlated_subquery
+    """
+    if not nested_select:
+        return False  # pragma: no cover
+    select_statement = _get_first_select_statement_descendant(nested_select[0])
+    if not select_statement:
+        return False  # pragma: no cover
+    nested_select_info = get_select_statement_info(select_statement, dialect)
+    if nested_select_info:
+        for r in nested_select_info.reference_buffer:
+            for tr in r.extract_possible_references(  # type: ignore
+                level=r.ObjectReferenceLevel.TABLE  # type: ignore
+            ):
+                # Check for correlated subquery, as indicated by use of a
+                # parent reference.
+                if tr.part in select_source_names:
+                    return True
+    return False
 
 
 def _find_nested_subqueries(
     select: Segments,
+    dialect: Dialect,
 ) -> Generator[_NestedSubQuerySummary, None, None]:
     """Find possible offending elements and return enough to fix them."""
     select_types = [
@@ -229,6 +308,8 @@ def _find_nested_subqueries(
     ]
     from_clause = select.children().first(is_type("from_clause")).children()
     offending_types = ["join_clause", "from_expression_element"]
+    select_source_names = _get_sources_from_select(select[0], dialect)
+
     # Match any of the types we care about
     for this_seg in from_clause.children(is_type(*offending_types)).iterate_segments():
         parent_type = this_seg[0].get_type()
@@ -254,9 +335,10 @@ def _find_nested_subqueries(
             # If there is no match there is no error
             continue
         # Type, parent_select, parent_sequence
-        yield _NestedSubQuerySummary(
-            parent_type, select, this_seg, table_expression_el[0]
-        )
+        if not _is_correlated_subquery(nested_select, select_source_names, dialect):
+            yield _NestedSubQuerySummary(
+                parent_type, select, this_seg, table_expression_el[0]
+            )
 
 
 class _CTEBuilder:
@@ -297,19 +379,21 @@ class _CTEBuilder:
 
         self.ctes.insert(insert_position, cte)
 
-    def create_cte_alias(self, alias_segment: Optional[Segments] = None) -> str:
+    def create_cte_alias(
+        self, alias_segment: Optional[Segments] = None
+    ) -> Tuple[str, bool]:
         """Find or create the name for the next CTE."""
         if alias_segment:
             # If we know the name use it
             name = alias_segment.children().last()[0].raw
-            return name
+            return name, False
 
         self.name_idx = self.name_idx + 1
         name = f"prep_{self.name_idx}"
         if name in self.list_used_names():
             # corner case where prep_x exists in origin query
             return self.create_cte_alias(None)
-        return name
+        return name, True
 
     def get_cte_segments(self) -> List[BaseSegment]:
         """Return a valid list of CTES with required padding Segements."""
@@ -399,15 +483,7 @@ def _create_cte_seg(
     return element
 
 
-def _create_table_ref(
-    table_name: str, dialect: Dialect, position_marker: PositionMarker
-) -> TableExpressionSegment:
-    # The mutative change needs a position_marker
-    position_marker = PositionMarker.from_point(
-        position_marker.source_slice.start,
-        position_marker.templated_slice.start,
-        position_marker.templated_file,
-    )
+def _create_table_ref(table_name: str, dialect: Dialect) -> TableExpressionSegment:
     Seg = partial(_get_seg, dialect=dialect)
     TableExpressionSeg = Seg(TableExpressionSegment)
     TableReferenceSeg = Seg(TableReferenceSegment)
@@ -419,13 +495,10 @@ def _create_table_ref(
                         raw=table_name,
                         name="naked_identifier",
                         type="identifier",
-                        pos_marker=position_marker,
                     ),
                 ),
-                pos_marker=position_marker,
             ),
         ),
-        pos_marker=position_marker,
     )
     return table_seg  # type: ignore
 
