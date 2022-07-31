@@ -1139,8 +1139,9 @@ FROM {{ j }}{{ self.table_name() }}
             ],
         ),
         (
-            """{% call statement('variables', fetch_result=true) %}select 1 as test{% endcall %}
-""",
+            "{% call statement('variables', fetch_result=true) %}"
+            "select 1 as test"
+            "{% endcall %}\n",
             dict(
                 statement=_statement,
                 load_result=_load_result,
