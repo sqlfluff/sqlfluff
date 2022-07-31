@@ -303,3 +303,10 @@ passes_tql_table_variable:
     rules:
       L028:
         single_table_references: qualified
+
+fail_but_dont_fix_templated_table_name:
+  fail_str: |
+    SELECT
+        a,
+        {{ "foo" }}.b
+    FROM {{ "foo" }}
