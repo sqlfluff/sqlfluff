@@ -13,6 +13,7 @@ from typing import (
     cast,
 )
 from sqlfluff.core.dialects.base import Dialect
+from sqlfluff.core.dialects.common import AliasInfo
 from sqlfluff.core.parser.segments.base import BaseSegment
 from sqlfluff.core.parser.segments.raw import (
     CodeSegment,
@@ -23,6 +24,11 @@ from sqlfluff.core.parser.segments.raw import (
 )
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.analysis.select import get_select_statement_info
+from sqlfluff.core.rules.analysis.select_crawler import (
+    Query,
+    QueryType,
+    SelectCrawler,
+)
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
@@ -124,118 +130,146 @@ class Rule_L042(BaseRule):
                 if res.parent_clause_type not in parent_types:
                     continue
                 nested_subqueries.append(res)
+        crawler = SelectCrawler(context.segment, context.dialect)
 
-        if not nested_subqueries:
+        assert crawler.query_tree
+        if not crawler.query_tree.children:
             return None
+
+        # generate an instance which will track and shape our output CTE
+        ctes = _CTEBuilder()
+        # Init the output/final select &
+        # populate existing CTEs
+        for cte in crawler.query_tree.ctes.values():
+            ctes.insert_cte(cte.cte_definition_segment)  # type: ignore
+
+        is_with = segment.all(is_type("with_compound_statement"))
+        # TODO: consider if we can fix recursive CTEs
+        is_recursive = is_with and len(segment.children(is_name("recursive"))) > 0
+        case_preference = _get_case_preference(segment)
+        output_select = segment
+        if is_with:
+            output_select = segment.children(
+                is_type(
+                    "set_expression",
+                    "select_statement",
+                )
+            )
+
         # If there are offending elements calculate fixes
-        return _calculate_fixes(
+        clone_map = SegmentCloneMap(segment[0])
+        result = _calculate_fixes(
             dialect=context.dialect,
-            root_select=segment,
-            nested_subqueries=nested_subqueries,
+            query=crawler.query_tree,
             parent_stack=parent_stack,
+            ctes=ctes,
+            case_preference=case_preference,
+            clone_map=clone_map,
         )
+
+        if result:
+            _, from_expression, alias_name, subquery_parent = result[-1]
+            assert any(
+                from_expression is seg for seg in subquery_parent.recursive_crawl_all()
+            )
+            this_seg_clone = clone_map[from_expression]
+            new_table_ref = _create_table_ref(alias_name, context.dialect)
+            this_seg_clone.segments = [new_table_ref]
+            ctes.replace_with_clone(subquery_parent, clone_map)
+
+            # Issue 3617: In T-SQL (and possibly other dialects) the automated fix
+            # leaves parentheses in a location that causes a syntax error. This is an
+            # unusual corner case. For simplicity, we still generate the lint warning
+            # but don't try to generate a fix. Someone could look at this later (a
+            # correct fix would involve removing the parentheses.)
+            bracketed_ctas = [seg.type for seg in parent_stack[-2:]] == [
+                "create_table_statement",
+                "bracketed",
+            ]
+            if bracketed_ctas or ctes.has_duplicate_aliases() or is_recursive:
+                # If we have duplicate CTE names just don't fix anything
+                # Return the lint warnings anyway
+                return [result[0] for result in result]
+
+            # Add fixes to the last result only
+            edit = [
+                ctes.compose_select(
+                    clone_map[output_select[0]],
+                    case_preference=case_preference,
+                ),
+            ]
+            result[-1][0].fixes = [
+                LintFix.replace(
+                    segment[0],
+                    edit_segments=edit,
+                )
+            ]
+            result = [result[0] for result in result]
+        return result
 
 
 def _calculate_fixes(
     dialect: Dialect,
-    root_select: Segments,
-    nested_subqueries: List[_NestedSubQuerySummary],
+    query: Query,
     parent_stack: Segments,
-) -> List[LintResult]:
+    ctes: "_CTEBuilder",
+    case_preference,
+    clone_map,
+):  # -> List[LintResult]:
     """Given the Root select and the offending subqueries calculate fixes."""
-    is_with = root_select.all(is_type("with_compound_statement"))
-    # TODO: consider if we can fix recursive CTEs
-    is_recursive = is_with and len(root_select.children(is_name("recursive"))) > 0
-    case_preference = _get_case_preference(root_select)
-    # generate an instance which will track and shape our output CTE
-    ctes = _CTEBuilder()
-    # Init the output/final select &
-    # populate existing CTEs
-    for cte in root_select.children(is_type("common_table_expression")):
-        assert isinstance(cte, CTEDefinitionSegment), "TypeGuard"
-        ctes.insert_cte(cte)
+    if not query.children:
+        return []
 
-    output_select = root_select
-    if is_with:
-        output_select = root_select.children(
-            is_type(
-                "set_expression",
-                "select_statement",
-            )
-        )
-
-    lint_results: List[LintResult] = []
-    clone_map = SegmentCloneMap(root_select[0])
-    is_new_name = False
-    new_table_ref = None
+    print(f"Query: {query.selectables[0].selectable.raw}")
+    lint_results = []
     subquery_summary: _NestedSubQuerySummary
-    for subquery_summary in nested_subqueries:
-        alias_name, is_new_name = ctes.create_cte_alias(
-            subquery_summary.clause_segments.children(is_type("alias_expression"))
-        )
-        new_cte = _create_cte_seg(
-            alias_name=alias_name,
-            subquery=clone_map[subquery_summary.subquery],
-            case_preference=case_preference,
-            dialect=dialect,
-        )
-        ctes.insert_cte(new_cte)
-        this_seg_clone = clone_map[subquery_summary.clause_segments[0]]
-        assert this_seg_clone.pos_marker, "TypeGuard"
-        new_table_ref = _create_table_ref(alias_name, dialect)
-        this_seg_clone.segments = (new_table_ref,)
-        anchor = subquery_summary.subquery
-        # Grab the first keyword or symbol in the subquery to use as the
-        # anchor. This makes the lint warning less likely to be filtered out
-        # if a bit of the subquery happens to be templated.
-        for seg in subquery_summary.subquery.recursive_crawl("keyword", "symbol"):
-            anchor = seg
-            break
-        res = LintResult(
-            anchor=anchor,
-            description=f"{subquery_summary.parent_clause_type} clauses should "
-            "not contain subqueries. Use CTEs instead",
-            fixes=[],
-        )
-        lint_results.append(res)
+    for source in SelectCrawler.get(query, query.selectables[0].selectable):
+        if isinstance(source, Query):
+            lint_results.extend(
+                _calculate_fixes(
+                    dialect, source, parent_stack, ctes, case_preference, clone_map
+                )
+            )
 
-    # Issue 3617: In T-SQL (and possibly other dialects) the automated fix
-    # leaves parentheses in a location that causes a syntax error. This is an
-    # unusual corner case. For simplicity, we still generate the lint warning
-    # but don't try to generate a fix. Someone could look at this later (a
-    # correct fix would involve removing the parentheses.)
-    bracketed_ctas = [seg.type for seg in parent_stack[-2:]] == [
-        "create_table_statement",
-        "bracketed",
-    ]
-    if bracketed_ctas or ctes.has_duplicate_aliases() or is_recursive:
-        # If we have duplicate CTE names just don't fix anything
-        # Return the lint warnings anyway
-        return lint_results
-
-    # Add fixes to the last result only
-    edit = [
-        ctes.compose_select(
-            clone_map[output_select[0]],
-            case_preference=case_preference,
-        ),
-    ]
-    lint_results[-1].fixes = [
-        LintFix.replace(
-            root_select[0],
-            edit_segments=edit,
-        )
-    ]
-    if is_new_name:
-        assert lint_results[0].fixes[0].edit
-        assert new_table_ref
-        # If we're creating a new CTE name but the CTE name does not appear in
-        # the fix, discard the lint error. This prevents the rule from looping,
-        # i.e. making the same fix repeatedly.
-        if not any(
-            seg.uuid == new_table_ref.uuid for seg in edit[0].recursive_crawl_all()
-        ):
-            lint_results[-1].fixes = []
+    if query.query_type != QueryType.WithCompound:
+        for child in query.children:
+            for selectable in child.selectables:
+                alias_name, is_new_name = ctes.create_cte_alias(
+                    selectable.select_info.table_aliases
+                )
+                new_cte = _create_cte_seg(
+                    alias_name=alias_name,
+                    subquery=clone_map[selectable.selectable],
+                    case_preference=case_preference,
+                    dialect=dialect,
+                )
+                print(f"Creating new CTE: {new_cte.raw}")
+                insert_position = ctes.insert_cte(new_cte)
+                print(f"Inserted new CTE: {ctes.ctes[insert_position].raw}")
+                from_expression = (
+                    query.selectables[0]
+                    .select_info.table_aliases[0]
+                    .from_expression_element
+                )
+                # this_seg_clone = clone_map[from_expression]
+                # new_table_ref = _create_table_ref(alias_name, dialect)
+                # this_seg_clone.segments = [new_table_ref]
+                anchor = from_expression.get_child("table_expression")
+                # Grab the first keyword or symbol in the subquery to use as the
+                # anchor. This makes the lint warning less likely to be filtered out
+                # if a bit of the subquery happens to be templated.
+                for seg in anchor.recursive_crawl("keyword", "symbol"):
+                    anchor = seg
+                    break
+                res = LintResult(
+                    anchor=anchor,
+                    description=f"{query.selectables[0].selectable.type} clauses "
+                    "should not contain subqueries. Use CTEs instead",
+                    fixes=[],
+                )
+                lint_results.append(
+                    (res, from_expression, alias_name, query.selectables[0].selectable)
+                )
     return lint_results
 
 
@@ -365,7 +399,7 @@ class _CTEBuilder:
         used_names = self.list_used_names()
         return len(set(used_names)) != len(used_names)
 
-    def insert_cte(self, cte: CTEDefinitionSegment):
+    def insert_cte(self, cte: CTEDefinitionSegment) -> int:
         """Add a new CTE to the list as late as possible but before all its parents."""
         # This should still have the position markers of its true position
         inbound_subquery = Segments(cte).children().last()
@@ -379,25 +413,26 @@ class _CTEBuilder:
         )
 
         self.ctes.insert(insert_position, cte)
+        print("CTEs:")
+        print("==========")
+        print("\n\n".join(cte.raw for cte in self.ctes))
+        return insert_position
 
-    def create_cte_alias(
-        self, alias_segment: Optional[Segments] = None
-    ) -> Tuple[str, bool]:
+    def create_cte_alias(self, aliases: List[AliasInfo]) -> Tuple[str, bool]:
         """Find or create the name for the next CTE."""
-        if alias_segment:
+        if aliases and aliases[0].ref_str:
             # If we know the name use it
-            name = alias_segment.children().last()[0].raw
-            return name, False
+            return aliases[0].ref_str, False
 
         self.name_idx = self.name_idx + 1
         name = f"prep_{self.name_idx}"
         if name in self.list_used_names():
             # corner case where prep_x exists in origin query
-            return self.create_cte_alias(None)
+            return self.create_cte_alias([])
         return name, True
 
     def get_cte_segments(self) -> List[BaseSegment]:
-        """Return a valid list of CTES with required padding Segements."""
+        """Return a valid list of CTES with required padding Segments."""
         cte_segments: List[BaseSegment] = []
         for cte in self.ctes:
             cte_segments = cte_segments + [
@@ -437,6 +472,14 @@ class _CTEBuilder:
             )
         )
         return new_select
+
+    def replace_with_clone(self, segment, clone_map):
+        for idx, cte in enumerate(self.ctes):
+            if any(segment is seg for seg in cte.recursive_crawl_all()):
+                self.ctes[idx] = clone_map[self.ctes[idx]]
+                return
+        else:
+            assert False
 
 
 def _is_child(maybe_parent: Segments, maybe_child: Segments) -> bool:

@@ -131,6 +131,7 @@ class Query:
     parent: Optional["Query"] = field(default=None)
     # Children (could be CTE, subselect, or other).
     children: List["Query"] = field(default_factory=list)
+    cte_definition_segment: Optional[BaseSegment] = field(default=None)
     cte_name_segment: Optional[BaseSegment] = field(default=None)
 
     def lookup_cte(self, name: str, pop: bool = True) -> Optional["Query"]:
@@ -234,8 +235,9 @@ class SelectCrawler:
             except ValueError:
                 pass
 
-        # Stores the last CTE name we saw, so we can associate it with the
-        # corresponding Query.
+        # Stores the last CTE definition & name we saw, so we can associate with
+        # the corresponding Query.
+        cte_definition_segment: Optional[BaseSegment] = None
         cte_name_segment: Optional[BaseSegment] = None
 
         # Visit segment and all its children
@@ -286,6 +288,7 @@ class SelectCrawler:
                             query = self.query_class(
                                 QueryType.Simple,
                                 dialect,
+                                cte_definition_segment=cte_definition_segment,
                                 cte_name_segment=cte_name_segment,
                             )
                             if path[-1].is_type(
@@ -300,6 +303,7 @@ class SelectCrawler:
                                 # child segments.
                                 pass
                             query_stack[-1].ctes[cte_name_segment.raw_upper] = query
+                            cte_definition_segment = None
                             cte_name_segment = None
                             append_query(query)
                         else:
@@ -330,10 +334,13 @@ class SelectCrawler:
                     query = self.query_class(QueryType.WithCompound, dialect)
                     if cte_name_segment:
                         query_stack[-1].ctes[cte_name_segment.raw_upper] = query
+                        cte_definition_segment = None
                         cte_name_segment = None
                     append_query(query)
                 elif path[-1].is_type("common_table_expression"):
-                    # This is a "<<cte name>> AS". Grab the name for later.
+                    # This is a "<<cte name>> AS". Save definition segment and
+                    # name for later.
+                    cte_definition_segment = path[-1]
                     cte_name_segment = path[-1].segments[0]
             elif event == "end":
                 finish_segment()
