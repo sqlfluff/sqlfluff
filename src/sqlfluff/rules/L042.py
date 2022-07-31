@@ -168,32 +168,33 @@ def _calculate_fixes(
     clone_map = SegmentCloneMap(root_select[0])
     is_new_name = False
     new_table_ref = None
-    for parent_type, _, this_seg, subquery in nested_subqueries:
+    subquery_summary: _NestedSubQuerySummary
+    for subquery_summary in nested_subqueries:
         alias_name, is_new_name = ctes.create_cte_alias(
-            this_seg.children(is_type("alias_expression"))
+            subquery_summary.clause_segments.children(is_type("alias_expression"))
         )
         new_cte = _create_cte_seg(
             alias_name=alias_name,
-            subquery=clone_map[subquery],
+            subquery=clone_map[subquery_summary.subquery],
             case_preference=case_preference,
             dialect=dialect,
         )
         ctes.insert_cte(new_cte)
-        this_seg_clone = clone_map[this_seg[0]]
+        this_seg_clone = clone_map[subquery_summary.clause_segments[0]]
         assert this_seg_clone.pos_marker, "TypeGuard"
         new_table_ref = _create_table_ref(alias_name, dialect)
         this_seg_clone.segments = (new_table_ref,)
-        anchor = subquery
+        anchor = subquery_summary.subquery
         # Grab the first keyword or symbol in the subquery to use as the
         # anchor. This makes the lint warning less likely to be filtered out
         # if a bit of the subquery happens to be templated.
-        for seg in subquery.recursive_crawl("keyword", "symbol"):
+        for seg in subquery_summary.subquery.recursive_crawl("keyword", "symbol"):
             anchor = seg
             break
         res = LintResult(
             anchor=anchor,
-            description=f"{parent_type} clauses should not contain "
-            "subqueries. Use CTEs instead",
+            description=f"{subquery_summary.parent_clause_type} clauses should "
+            "not contain subqueries. Use CTEs instead",
             fixes=[],
         )
         lint_results.append(res)
