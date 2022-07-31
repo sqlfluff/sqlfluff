@@ -213,15 +213,16 @@ def _calculate_fixes(
         return lint_results
 
     # Add fixes to the last result only
+    edit = [
+        ctes.compose_select(
+            clone_map[output_select[0]],
+            case_preference=case_preference,
+        ),
+    ]
     lint_results[-1].fixes = [
         LintFix.replace(
             root_select[0],
-            edit_segments=[
-                ctes.compose_select(
-                    clone_map[output_select[0]],
-                    case_preference=case_preference,
-                ),
-            ],
+            edit_segments=edit,
         )
     ]
     if is_new_name:
@@ -230,11 +231,10 @@ def _calculate_fixes(
         # If we're creating a new CTE name but the CTE name does not appear in
         # the fix, discard the lint error. This prevents the rule from looping,
         # i.e. making the same fix repeatedly.
-        for seg in lint_results[0].fixes[0].edit[0].recursive_crawl_all():
-            if seg.uuid == new_table_ref.uuid:
-                break
-        else:
-            lint_results = []
+        if not any(
+            seg.uuid == new_table_ref.uuid for seg in edit[0].recursive_crawl_all()
+        ):
+            lint_results[-1].fixes = []
     return lint_results
 
 

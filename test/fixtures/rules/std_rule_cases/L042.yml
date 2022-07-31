@@ -456,7 +456,7 @@ issue_3572_correlated_subquery_3:
          where ce.name = person_dates.name)
 
 issue_3598_avoid_looping_1:
-  pass_str: |
+  fail_str: |
     WITH cte1 AS (
     	SELECT a
     	FROM (SELECT a)
@@ -469,7 +469,7 @@ issue_3598_avoid_looping_1:
         forbid_subquery_in: both
 
 issue_3598_avoid_looping_2:
-  pass_str: |
+  fail_str: |
     WITH cte1 AS (
         SELECT *
         FROM (SELECT * FROM mongo.temp)
