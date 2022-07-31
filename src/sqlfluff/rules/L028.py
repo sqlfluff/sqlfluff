@@ -154,7 +154,6 @@ def _check_references(
     col_alias_names: List[str] = [c.alias_identifier_name for c in col_aliases]
     table_ref_str: str = table_aliases[0].ref_str
     table_ref_str_source = table_aliases[0].segment
-    assert table_ref_str_source
     # Check all the references that we have.
     seen_ref_types: Set[str] = set()
     for ref in references:
@@ -204,7 +203,7 @@ def _validate_one_reference(
     this_ref_type: str,
     standalone_aliases: List[str],
     table_ref_str: str,
-    table_ref_str_source: BaseSegment,
+    table_ref_str_source: Optional[BaseSegment],
     col_alias_names: List[str],
     seen_ref_types: Set[str],
     fixable: bool,
@@ -257,7 +256,7 @@ def _validate_one_reference(
             fixes = [
                 LintFix.create_before(
                     ref.segments[0] if len(ref.segments) else ref,
-                    source=[table_ref_str_source],
+                    source=[table_ref_str_source] if table_ref_str_source else None,
                     edit_segments=[
                         CodeSegment(
                             raw=table_ref_str,
