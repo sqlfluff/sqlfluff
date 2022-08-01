@@ -11,6 +11,7 @@ import subprocess
 import sys
 import tempfile
 import textwrap
+import logging
 from unittest.mock import MagicMock, patch
 
 import chardet
@@ -27,6 +28,31 @@ from sqlfluff.core.rules import BaseRule, LintFix, LintResult
 from sqlfluff.core.parser.segments.raw import CommentSegment
 
 re_ansi_escape = re.compile(r"\x1b[^m]*m")
+
+
+@pytest.fixture()
+def logging_cleanup():
+    """This gracefully handles logging issues at session teardown.
+
+    Removes handlers from all loggers.
+
+    https://github.com/sqlfluff/sqlfluff/issues/3702
+    https://github.com/pytest-dev/pytest/issues/5502#issuecomment-1190557648
+    """
+    yield
+    # NOTE: This is a teardown function so the clearup code
+    # comes _after_ the yield.
+    # Get only the sqlfluff loggers (which we set in set_logging_level)
+    loggers = [
+        logger
+        for logger in logging.Logger.manager.loggerDict.values()
+        if isinstance(logger, logging.Logger) and logger.name.startswith("sqlfluff")
+    ]
+    for logger in loggers:
+        if not hasattr(logger, "handlers"):
+            continue
+        for handler in logger.handlers[:]:
+            logger.removeHandler(handler)
 
 
 def contains_ansi_escape(s: str) -> bool:
@@ -69,7 +95,7 @@ L:   5 | P:  13 | L031 | Avoid aliases in from clauses and join conditions.
 """
 
 
-def test__cli__command_directed():
+def test__cli__command_directed(logging_cleanup):
     """Basic checking of lint functionality."""
     result = invoke_assert_code(
         ret_code=1,
@@ -92,7 +118,7 @@ def test__cli__command_directed():
     assert result.output.replace("\\", "/").startswith(expected_output)
 
 
-def test__cli__command_dialect():
+def test__cli__command_dialect(logging_cleanup):
     """Check the script raises the right exception on an unknown dialect."""
     # The dialect is unknown should be a non-zero exit code
     invoke_assert_code(
@@ -109,7 +135,7 @@ def test__cli__command_dialect():
     )
 
 
-def test__cli__command_no_dialect():
+def test__cli__command_no_dialect(logging_cleanup):
     """Check the script raises the right exception no dialect."""
     # The dialect is unknown should be a non-zero exit code
     result = invoke_assert_code(
@@ -124,7 +150,7 @@ def test__cli__command_no_dialect():
     assert "No dialect was specified" in result.stdout
 
 
-def test__cli__command_parse_error_dialect_explicit_warning():
+def test__cli__command_parse_error_dialect_explicit_warning(logging_cleanup):
     """Check parsing error raises the right warning."""
     # For any parsing error there should be a non-zero exit code
     # and a human-readable warning should be dislayed.
@@ -147,7 +173,7 @@ def test__cli__command_parse_error_dialect_explicit_warning():
     )
 
 
-def test__cli__command_parse_error_dialect_implicit_warning():
+def test__cli__command_parse_error_dialect_implicit_warning(logging_cleanup):
     """Check parsing error raises the right warning."""
     # For any parsing error there should be a non-zero exit code
     # and a human-readable warning should be dislayed.
@@ -171,7 +197,7 @@ def test__cli__command_parse_error_dialect_implicit_warning():
     )
 
 
-def test__cli__command_dialect_legacy():
+def test__cli__command_dialect_legacy(logging_cleanup):
     """Check the script raises the right exception on a legacy dialect."""
     result = invoke_assert_code(
         ret_code=2,
@@ -188,7 +214,7 @@ def test__cli__command_dialect_legacy():
     assert "Please use the 'exasol' dialect instead." in result.stdout
 
 
-def test__cli__command_extra_config_fail():
+def test__cli__command_extra_config_fail(logging_cleanup):
     """Check the script raises the right exception non-existent extra config path."""
     result = invoke_assert_code(
         ret_code=2,
@@ -230,7 +256,7 @@ def test__cli__command_extra_config_fail():
         ),
     ],
 )
-def test__cli__command_lint_stdin(command):
+def test__cli__command_lint_stdin(logging_cleanup, command):
     """Check basic commands on a simple script using stdin.
 
     The subprocess command should exit without errors, as no issues should be found.
@@ -377,7 +403,7 @@ def test__cli__command_lint_stdin(command):
         ),
     ],
 )
-def test__cli__command_lint_parse(command):
+def test__cli__command_lint_parse(logging_cleanup, command):
     """Check basic commands on a more complicated script."""
     invoke_assert_code(args=command)
 
@@ -434,12 +460,12 @@ def test__cli__command_lint_parse(command):
         ),
     ],
 )
-def test__cli__command_lint_parse_with_retcode(command, ret_code):
+def test__cli__command_lint_parse_with_retcode(logging_cleanup, command, ret_code):
     """Check commands expecting a non-zero ret code."""
     invoke_assert_code(ret_code=ret_code, args=command)
 
 
-def test__cli__command_lint_warning_explicit_file_ignored():
+def test__cli__command_lint_warning_explicit_file_ignored(logging_cleanup):
     """Check ignoring file works when file is in an ignore directory."""
     runner = CliRunner()
     result = runner.invoke(
@@ -452,7 +478,7 @@ def test__cli__command_lint_warning_explicit_file_ignored():
     ) in result.output.strip()
 
 
-def test__cli__command_lint_skip_ignore_files():
+def test__cli__command_lint_skip_ignore_files(logging_cleanup):
     """Check "ignore file" is skipped when --disregard-sqlfluffignores flag is set."""
     runner = CliRunner()
     result = runner.invoke(
@@ -466,7 +492,7 @@ def test__cli__command_lint_skip_ignore_files():
     assert "L009" in result.output.strip()
 
 
-def test__cli__command_lint_ignore_local_config():
+def test__cli__command_lint_ignore_local_config(logging_cleanup):
     """Test that --ignore-local_config ignores .sqlfluff file as expected."""
     runner = CliRunner()
     # First we test that not including the --ignore-local-config includes
@@ -493,7 +519,7 @@ def test__cli__command_lint_ignore_local_config():
     assert "L012" in result.output.strip()
 
 
-def test__cli__command_versioning():
+def test__cli__command_versioning(logging_cleanup):
     """Check version command."""
     # Get the package version info
     pkg_version = sqlfluff.__version__
@@ -510,7 +536,7 @@ def test__cli__command_versioning():
     assert result.output.strip() == pkg_version
 
 
-def test__cli__command_version():
+def test__cli__command_version(logging_cleanup):
     """Just check version command for exceptions."""
     # Get the package version info
     pkg_version = sqlfluff.__version__
@@ -524,12 +550,12 @@ def test__cli__command_version():
     assert pkg_version in result.output
 
 
-def test__cli__command_rules():
+def test__cli__command_rules(logging_cleanup):
     """Check rules command for exceptions."""
     invoke_assert_code(args=[rules])
 
 
-def test__cli__command_dialects():
+def test__cli__command_dialects(logging_cleanup):
     """Check dialects command for exceptions."""
     invoke_assert_code(args=[dialects])
 
@@ -601,7 +627,7 @@ def generic_roundtrip_test(
         ("L003", "test/fixtures/linter/indentation_error_hard.sql"),
     ],
 )
-def test__cli__command__fix(rule, fname):
+def test__cli__command__fix(logging_cleanup, rule, fname):
     """Test the round trip of detecting, fixing and then not detecting the rule."""
     with open(fname) as test_file:
         generic_roundtrip_test(test_file, rule)
@@ -735,7 +761,9 @@ def test__cli__command__fix(rule, fname):
         "2_files_with_lint_errors_1_unsuppressed_parse_error",
     ],
 )
-def test__cli__fix_error_handling_behavior(sql, fix_args, fixed, exit_code, tmpdir):
+def test__cli__fix_error_handling_behavior(
+    logging_cleanup, sql, fix_args, fixed, exit_code, tmpdir
+):
     """Tests how "fix" behaves wrt parse errors, exit code, etc."""
     if not isinstance(sql, list):
         sql = [sql]
@@ -777,7 +805,7 @@ def test__cli__fix_error_handling_behavior(sql, fix_args, fixed, exit_code, tmpd
     ],
 )
 def test_cli_fix_even_unparsable(
-    method: str, fix_even_unparsable: bool, monkeypatch, tmpdir
+    logging_cleanup, method: str, fix_even_unparsable: bool, monkeypatch, tmpdir
 ):
     """Test the fix_even_unparsable option works from cmd line and config."""
     sql_filename = "fix_even_unparsable.sql"
@@ -859,7 +887,7 @@ def _mock_eval(rule, context):
     ],
 )
 @patch("sqlfluff.rules.L001.Rule_L001._eval", _mock_eval)
-def test__cli__fix_loop_limit_behavior(sql, exit_code, tmpdir):
+def test__cli__fix_loop_limit_behavior(logging_cleanup, sql, exit_code, tmpdir):
     """Tests how "fix" behaves when the loop limit is exceeded."""
     fix_args = ["--force", "--fixed-suffix", "FIXED", "--rules", "L001"]
     tmp_path = pathlib.Path(str(tmpdir))
@@ -914,7 +942,7 @@ def test__cli__fix_loop_limit_behavior(sql, exit_code, tmpdir):
         ),
     ],
 )
-def test__cli__command_fix_stdin(stdin, rules, stdout):
+def test__cli__command_fix_stdin(logging_cleanup, stdin, rules, stdout):
     """Check stdin input for fix works."""
     result = invoke_assert_code(
         args=[fix, ("-", "--rules", rules, "--disable_progress_bar", "--dialect=ansi")],
@@ -923,7 +951,7 @@ def test__cli__command_fix_stdin(stdin, rules, stdout):
     assert result.output == stdout
 
 
-def test__cli__command_fix_stdin_logging_to_stderr(monkeypatch):
+def test__cli__command_fix_stdin_logging_to_stderr(logging_cleanup, monkeypatch):
     """Check that logging goes to stderr when stdin is passed to fix."""
     perfect_sql = "select col from table"
 
@@ -944,7 +972,7 @@ def test__cli__command_fix_stdin_logging_to_stderr(monkeypatch):
     assert "<FAKE CODE>" in result.stderr
 
 
-def test__cli__command_fix_stdin_safety():
+def test__cli__command_fix_stdin_safety(logging_cleanup):
     """Check edge cases regarding safety when fixing stdin."""
     perfect_sql = "select col from table"
 
@@ -976,7 +1004,7 @@ def test__cli__command_fix_stdin_safety():
     ],
 )
 def test__cli__command_fix_stdin_error_exit_code(
-    sql, exit_code, params, output_contains
+    logging_cleanup, sql, exit_code, params, output_contains
 ):
     """Check that the CLI fails nicely if fixing a templated stdin."""
     if exit_code == 0:
@@ -1001,7 +1029,9 @@ def test__cli__command_fix_stdin_error_exit_code(
         ("L001", "test/fixtures/linter/indentation_errors.sql", "n", 1, 1),
     ],
 )
-def test__cli__command__fix_no_force(rule, fname, prompt, exit_code, fix_exit_code):
+def test__cli__command__fix_no_force(
+    logging_cleanup, rule, fname, prompt, exit_code, fix_exit_code
+):
     """Round trip test, using the prompts."""
     with open(fname) as test_file:
         generic_roundtrip_test(
@@ -1016,7 +1046,9 @@ def test__cli__command__fix_no_force(rule, fname, prompt, exit_code, fix_exit_co
 
 @pytest.mark.parametrize("serialize", ["yaml", "json"])
 @pytest.mark.parametrize("write_file", [None, "outfile"])
-def test__cli__command_parse_serialize_from_stdin(serialize, write_file, tmp_path):
+def test__cli__command_parse_serialize_from_stdin(
+    logging_cleanup, serialize, write_file, tmp_path
+):
     """Check that the parser serialized output option is working.
 
     This tests both output to stdout and output to file.
@@ -1080,7 +1112,9 @@ def test__cli__command_parse_serialize_from_stdin(serialize, write_file, tmp_pat
         ),
     ],
 )
-def test__cli__command_lint_serialize_from_stdin(serialize, sql, expected, exit_code):
+def test__cli__command_lint_serialize_from_stdin(
+    logging_cleanup, serialize, sql, expected, exit_code
+):
     """Check an explicit serialized return value for a single error."""
     result = invoke_assert_code(
         args=[
@@ -1122,7 +1156,9 @@ def test__cli__command_fail_nice_not_found(command):
 
 @patch("click.utils.should_strip_ansi")
 @patch("sys.stdout.isatty")
-def test__cli__command_lint_nocolor(isatty, should_strip_ansi, capsys, tmpdir):
+def test__cli__command_lint_nocolor(
+    isatty, should_strip_ansi, capsys, tmpdir, logging_cleanup
+):
     """Test the --nocolor option prevents color output."""
     # Patch these two functions to make it think every output stream is a TTY.
     # In spite of this, the output should not contain ANSI color codes because
@@ -1155,7 +1191,9 @@ def test__cli__command_lint_nocolor(isatty, should_strip_ansi, capsys, tmpdir):
     ["human", "yaml", "json", "github-annotation", "github-annotation-native"],
 )
 @pytest.mark.parametrize("write_file", [None, "outfile"])
-def test__cli__command_lint_serialize_multiple_files(serialize, write_file, tmp_path):
+def test__cli__command_lint_serialize_multiple_files(
+    logging_cleanup, serialize, write_file, tmp_path
+):
     """Test the output output formats for multiple files.
 
     This tests runs both stdout checking and file checking.
@@ -1212,7 +1250,7 @@ def test__cli__command_lint_serialize_multiple_files(serialize, write_file, tmp_
         raise Exception
 
 
-def test__cli__command_lint_serialize_github_annotation():
+def test__cli__command_lint_serialize_github_annotation(logging_cleanup):
     """Test format of github-annotation output."""
     fpath = "test/fixtures/linter/identifier_capitalisation.sql"
     result = invoke_assert_code(
@@ -1320,7 +1358,7 @@ def test__cli__command_lint_serialize_github_annotation():
     ]
 
 
-def test__cli__command_lint_serialize_github_annotation_native():
+def test__cli__command_lint_serialize_github_annotation_native(logging_cleanup):
     """Test format of github-annotation output."""
     fpath = "test/fixtures/linter/identifier_capitalisation.sql"
     # Normalise paths to control for OS variance
@@ -1366,6 +1404,7 @@ def test__cli__command_lint_serialize_github_annotation_native():
 
 @pytest.mark.parametrize("serialize", ["github-annotation", "github-annotation-native"])
 def test__cli__command_lint_serialize_annotation_level_error_failure_equivalent(
+    logging_cleanup,
     serialize,
 ):
     """Test format of github-annotation output."""
@@ -1403,7 +1442,7 @@ def test__cli__command_lint_serialize_annotation_level_error_failure_equivalent(
     assert result_error.output == result_failure.output
 
 
-def test___main___help():
+def test___main___help(logging_cleanup):
     """Test that the CLI can be access via __main__."""
     # nonzero exit is good enough
     subprocess.check_output(
@@ -1419,7 +1458,7 @@ def test___main___help():
         ("utf-32", "UTF-32"),
     ],
 )
-def test_encoding(encoding_in, encoding_out):
+def test_encoding(logging_cleanup, encoding_in, encoding_out):
     """Check the encoding of the test file remains the same after fix is applied."""
     with open("test/fixtures/linter/indentation_errors.sql", "r") as testfile:
         generic_roundtrip_test(
@@ -1439,7 +1478,7 @@ def test_encoding(encoding_in, encoding_out):
         ("utf-8-SIG", "config-file", True),
     ],
 )
-def test_cli_encoding(encoding, method, expect_success, tmpdir):
+def test_cli_encoding(logging_cleanup, encoding, method, expect_success, tmpdir):
     """Try loading a utf-8-SIG encoded file using the correct encoding via the cli."""
     sql_path = "test/fixtures/cli/encoding_test.sql"
     if method == "command-line":
@@ -1466,7 +1505,7 @@ def test_cli_encoding(encoding, method, expect_success, tmpdir):
     assert success2 == expect_success
 
 
-def test_cli_no_disable_noqa_flag():
+def test_cli_no_disable_noqa_flag(logging_cleanup):
     """Test that unset --disable_noqa flag respects inline noqa comments."""
     invoke_assert_code(
         ret_code=0,
@@ -1477,7 +1516,7 @@ def test_cli_no_disable_noqa_flag():
     )
 
 
-def test_cli_disable_noqa_flag():
+def test_cli_disable_noqa_flag(logging_cleanup):
     """Test that --disable_noqa flag ignores inline noqa comments."""
     result = invoke_assert_code(
         ret_code=1,
@@ -1495,7 +1534,7 @@ def test_cli_disable_noqa_flag():
     assert r"L:   5 | P:  11 | L010 |" in raw_output
 
 
-def test_cli_get_default_config():
+def test_cli_get_default_config(logging_cleanup):
     """`nocolor` and `verbose` values loaded from config if not specified via CLI."""
     config = get_config(
         "test/fixtures/config/toml/pyproject.toml",
@@ -1523,7 +1562,7 @@ class TestProgressBars:
     """
 
     def test_cli_lint_disabled_progress_bar(
-        self, mock_disable_progress_bar: MagicMock
+        self, mock_disable_progress_bar: MagicMock, logging_cleanup
     ) -> None:
         """When progress bar is disabled, nothing should be printed into output."""
         result = invoke_assert_code(
@@ -1542,7 +1581,7 @@ class TestProgressBars:
         assert "\r\rlint by rules:" not in raw_output
 
     def test_cli_lint_enabled_progress_bar(
-        self, mock_disable_progress_bar: MagicMock
+        self, mock_disable_progress_bar: MagicMock, logging_cleanup
     ) -> None:
         """When progress bar is enabled, there should be some tracks in output."""
         result = invoke_assert_code(
@@ -1560,7 +1599,7 @@ class TestProgressBars:
         assert r"\rrule L049:" in raw_output
 
     def test_cli_lint_enabled_progress_bar_multiple_paths(
-        self, mock_disable_progress_bar: MagicMock
+        self, mock_disable_progress_bar: MagicMock, logging_cleanup
     ) -> None:
         """When progress bar is enabled, there should be some tracks in output."""
         result = invoke_assert_code(
@@ -1582,7 +1621,7 @@ class TestProgressBars:
         assert r"\rrule L049:" in raw_output
 
     def test_cli_lint_enabled_progress_bar_multiple_files(
-        self, mock_disable_progress_bar: MagicMock
+        self, mock_disable_progress_bar: MagicMock, logging_cleanup
     ) -> None:
         """When progress bar is enabled, there should be some tracks in output."""
         result = invoke_assert_code(
@@ -1615,7 +1654,7 @@ Aborting...
 """
 
 
-def test__cli__fix_multiple_errors_no_show_errors():
+def test__cli__fix_multiple_errors_no_show_errors(logging_cleanup):
     """Basic checking of lint functionality."""
     result = invoke_assert_code(
         ret_code=1,
@@ -1635,7 +1674,7 @@ def test__cli__fix_multiple_errors_no_show_errors():
     assert result.output.replace("\\", "/").startswith(multiple_expected_output)
 
 
-def test__cli__fix_multiple_errors_show_errors():
+def test__cli__fix_multiple_errors_show_errors(logging_cleanup):
     """Basic checking of lint functionality."""
     result = invoke_assert_code(
         ret_code=1,
