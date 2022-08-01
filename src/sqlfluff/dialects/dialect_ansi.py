@@ -68,7 +68,7 @@ ansi_dialect.set_lexer_matchers(
             "inline_comment",
             r"(--|#)[^\n]*",
             CommentSegment,
-            segment_kwargs={"trim_start": ("--", "#")},
+            segment_kwargs={"trim_start": ("--", "#"), "type": "inline_comment"},
         ),
         RegexLexer(
             "block_comment",
@@ -84,6 +84,7 @@ ansi_dialect.set_lexer_matchers(
                 r"[^\S\r\n]+",
                 WhitespaceSegment,
             ),
+            segment_kwargs={"type": "block_comment"},
         ),
         RegexLexer("single_quote", r"'([^'\\]|\\.|'')*'", CodeSegment),
         RegexLexer("double_quote", r'"([^"\\]|\\.)*"', CodeSegment),
@@ -199,6 +200,34 @@ ansi_dialect.sets("bracket_pairs").update(
 #   UNNEST(), as BigQuery. DB2 is not currently supported by SQLFluff.
 ansi_dialect.sets("value_table_functions").update([])
 
+
+class IdentifierSegment(CodeSegment):
+    """An identifier segment.
+
+    Defined here for type inheritance.
+    """
+
+    type = "identifier"
+
+
+class LiteralSegment(CodeSegment):
+    """An literal segment.
+
+    Defined here for type inheritance.
+    """
+
+    type = "literal"
+
+
+class LiteralKeywordSegment(KeywordSegment):
+    """An keyword style literal segment.
+
+    Defined here for type inheritance.
+    """
+
+    type = "literal"
+
+
 ansi_dialect.add(
     # Real segments
     DelimiterGrammar=Ref("SemicolonSegment"),
@@ -245,7 +274,6 @@ ansi_dialect.add(
         lambda dialect: MultiStringParser(
             dialect.sets("bare_functions"),
             CodeSegment,
-            name="bare_function",
             type="bare_function",
         )
     ),
@@ -255,22 +283,16 @@ ansi_dialect.add(
         # Generate the anti template from the set of reserved keywords
         lambda dialect: RegexParser(
             r"[A-Z0-9_]*[A-Z][A-Z0-9_]*",
-            CodeSegment,
-            name="naked_identifier",
-            type="identifier",
+            IdentifierSegment,
+            type="naked_identifier",
             anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
         )
     ),
-    VersionIdentifierSegment=RegexParser(
-        r"[A-Z0-9_.]*", CodeSegment, name="version", type="identifier"
-    ),
-    ParameterNameSegment=RegexParser(
-        r"[A-Z][A-Z0-9_]*", CodeSegment, name="parameter", type="parameter"
-    ),
+    VersionIdentifierSegment=RegexParser(r"[A-Z0-9_.]*", IdentifierSegment),
+    ParameterNameSegment=RegexParser(r"[A-Z][A-Z0-9_]*", CodeSegment, type="parameter"),
     FunctionNameIdentifierSegment=RegexParser(
         r"[A-Z][A-Z0-9_]*",
         CodeSegment,
-        name="function_name_identifier",
         type="function_name_identifier",
     ),
     # Maybe data types should be more restrictive?
@@ -279,7 +301,6 @@ ansi_dialect.add(
         lambda dialect: RegexParser(
             r"[A-Z][A-Z0-9_]*",
             CodeSegment,
-            name="data_type_identifier",
             type="data_type_identifier",
             anti_template=r"^(NOT)$",
             # TODO - this is a stopgap until we implement explicit data types
@@ -290,7 +311,6 @@ ansi_dialect.add(
         lambda dialect: MultiStringParser(
             dialect.sets("datetime_units"),
             CodeSegment,
-            name="date_part",
             type="date_part",
         )
     ),
@@ -298,33 +318,26 @@ ansi_dialect.add(
         lambda dialect: MultiStringParser(
             dialect.sets("date_part_function_name"),
             CodeSegment,
-            name="function_name_identifier",
             type="function_name_identifier",
         )
     ),
     QuotedIdentifierSegment=NamedParser(
-        "double_quote", CodeSegment, name="quoted_identifier", type="identifier"
+        "double_quote", IdentifierSegment, type="quoted_identifier"
     ),
     QuotedLiteralSegment=NamedParser(
-        "single_quote", CodeSegment, name="quoted_literal", type="literal"
+        "single_quote", LiteralSegment, name="quoted_literal", type="literal"
     ),
     SingleQuotedIdentifierSegment=NamedParser(
-        "single_quote", CodeSegment, name="quoted_identifier", type="identifier"
+        "single_quote", IdentifierSegment, type="quoted_identifier"
     ),
     NumericLiteralSegment=NamedParser(
-        "numeric_literal", CodeSegment, name="numeric_literal", type="literal"
+        "numeric_literal", LiteralSegment, name="numeric_literal", type="literal"
     ),
     # NullSegment is defined seperately to the keyword so we can give it a different
     # type
-    NullLiteralSegment=StringParser(
-        "null", KeywordSegment, name="null_literal", type="literal"
-    ),
-    TrueSegment=StringParser(
-        "true", KeywordSegment, name="boolean_literal", type="literal"
-    ),
-    FalseSegment=StringParser(
-        "false", KeywordSegment, name="boolean_literal", type="literal"
-    ),
+    NullLiteralSegment=StringParser("null", LiteralKeywordSegment, type="null_literal"),
+    TrueSegment=StringParser("true", LiteralKeywordSegment, type="boolean_literal"),
+    FalseSegment=StringParser("false", LiteralKeywordSegment, type="boolean_literal"),
     # We use a GRAMMAR here not a Segment. Otherwise we get an unnecessary layer
     SingleIdentifierGrammar=OneOf(
         Ref("NakedIdentifierSegment"), Ref("QuotedIdentifierSegment")
@@ -368,9 +381,7 @@ ansi_dialect.add(
     # should not be changed by rules (e.g. rule L064)
     DateTimeLiteralGrammar=Sequence(
         OneOf("DATE", "TIME", "TIMESTAMP", "INTERVAL"),
-        NamedParser(
-            "single_quote", CodeSegment, name="date_constructor_literal", type="literal"
-        ),
+        NamedParser("single_quote", LiteralSegment, type="date_constructor_literal"),
     ),
     # Hookpoint for other dialects
     # e.g. INTO is optional in BIGQUERY
