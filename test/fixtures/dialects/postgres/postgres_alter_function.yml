@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b34eb8e8919a4cee40f68d0f1247a983c3eb86515034a200aa1d8d56599899aa
+_hash: 5e3ba19d28a0d7373d76847fb21e74786231083cf7eb2b2f42f22cc3a6bb543e
 file:
 - statement:
     alter_function_statement:
@@ -80,7 +80,7 @@ file:
     - keyword: ALTER
     - keyword: FUNCTION
     - function_name:
-        identifier: public
+        naked_identifier: public
         dot: .
         function_name_identifier: fn
     - keyword: OWNER
@@ -92,7 +92,7 @@ file:
     - keyword: ALTER
     - keyword: FUNCTION
     - function_name:
-        identifier: public
+        naked_identifier: public
         dot: .
         function_name_identifier: fn
     - keyword: OWNER
@@ -104,7 +104,7 @@ file:
     - keyword: ALTER
     - keyword: FUNCTION
     - function_name:
-        identifier: public
+        naked_identifier: public
         dot: .
         function_name_identifier: fn
     - keyword: OWNER
@@ -116,7 +116,7 @@ file:
     - keyword: ALTER
     - keyword: FUNCTION
     - function_name:
-        identifier: public
+        naked_identifier: public
         dot: .
         function_name_identifier: fn
     - keyword: OWNER
@@ -140,7 +140,7 @@ file:
     - keyword: ALTER
     - keyword: FUNCTION
     - function_name:
-        identifier: public
+        naked_identifier: public
         dot: .
         function_name_identifier: fn
     - alter_function_action_segment:
@@ -187,7 +187,7 @@ file:
     - keyword: ALTER
     - keyword: FUNCTION
     - function_name:
-        identifier: public
+        naked_identifier: public
         dot: .
         function_name_identifier: fn
     - function_parameter_list:
@@ -258,7 +258,7 @@ file:
     - keyword: ALTER
     - keyword: FUNCTION
     - function_name:
-        identifier: public
+        naked_identifier: public
         dot: .
         function_name_identifier: fn
     - alter_function_action_segment:
@@ -331,7 +331,7 @@ file:
     - keyword: ALTER
     - keyword: FUNCTION
     - function_name:
-        identifier: public
+        naked_identifier: public
         dot: .
         function_name_identifier: fn
     - alter_function_action_segment:
@@ -379,7 +379,7 @@ file:
     - keyword: ALTER
     - keyword: FUNCTION
     - function_name:
-        identifier: public
+        naked_identifier: public
         dot: .
         function_name_identifier: fn
     - alter_function_action_segment:
@@ -400,7 +400,7 @@ file:
     - keyword: ALTER
     - keyword: FUNCTION
     - function_name:
-        identifier: public
+        naked_identifier: public
         dot: .
         function_name_identifier: fn
     - alter_function_action_segment:
@@ -479,7 +479,7 @@ file:
     - keyword: ALTER
     - keyword: FUNCTION
     - function_name:
-        identifier: public
+        naked_identifier: public
         dot: .
         function_name_identifier: fn
     - function_parameter_list:
@@ -1026,7 +1026,7 @@ file:
     - keyword: ALTER
     - keyword: FUNCTION
     - function_name:
-        identifier: public
+        naked_identifier: public
         dot: .
         function_name_identifier: fn
     - alter_function_action_segment:
@@ -1229,7 +1229,7 @@ file:
     - keyword: ALTER
     - keyword: FUNCTION
     - function_name:
-        identifier: public
+        naked_identifier: public
         dot: .
         function_name_identifier: fn
     - alter_function_action_segment:
@@ -1297,7 +1297,7 @@ file:
       - keyword: SET
       - parameter: param1
       - keyword: TO
-      - literal: "'value'"
+      - quoted_literal: "'value'"
 - statement_terminator: ;
 - statement:
     alter_function_statement:
@@ -1321,7 +1321,7 @@ file:
       - keyword: SET
       - parameter: param1
       - keyword: TO
-      - literal: "'value'"
+      - quoted_literal: "'value'"
       - keyword: RESTRICT
 - statement_terminator: ;
 - statement:
@@ -1377,7 +1377,7 @@ file:
       - keyword: SET
       - parameter: param1
       - keyword: TO
-      - identifier: avalue
+      - naked_identifier: avalue
 - statement_terminator: ;
 - statement:
     alter_function_statement:
@@ -1403,7 +1403,7 @@ file:
         parameter: param1
         comparison_operator:
           raw_comparison_operator: '='
-        literal: "'value'"
+        quoted_literal: "'value'"
 - statement_terminator: ;
 - statement:
     alter_function_statement:
@@ -1416,7 +1416,7 @@ file:
         parameter: param1
         comparison_operator:
           raw_comparison_operator: '='
-        identifier: avalue
+        naked_identifier: avalue
 - statement_terminator: ;
 - statement:
     alter_function_statement:
@@ -1453,7 +1453,7 @@ file:
         parameter: param1
         comparison_operator:
           raw_comparison_operator: '='
-        literal: "'value'"
+        quoted_literal: "'value'"
 - statement_terminator: ;
 - statement:
     alter_function_statement:
@@ -1472,7 +1472,7 @@ file:
         parameter: param1
         comparison_operator:
           raw_comparison_operator: '='
-        identifier: avalue
+        naked_identifier: avalue
 - statement_terminator: ;
 - statement:
     alter_function_statement:
@@ -1494,7 +1494,7 @@ file:
         parameter: param1
         comparison_operator:
           raw_comparison_operator: '='
-        identifier: avalue
+        naked_identifier: avalue
 - statement_terminator: ;
 - statement:
     alter_function_statement:
@@ -1550,7 +1550,7 @@ file:
     - keyword: ALTER
     - keyword: FUNCTION
     - function_name:
-        identifier: public
+        naked_identifier: public
         dot: .
         function_name_identifier: fn
     - function_parameter_list:

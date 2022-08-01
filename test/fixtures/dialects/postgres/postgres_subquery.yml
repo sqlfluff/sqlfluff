@@ -3,34 +3,34 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 80b2e664095903fc6b4d71042d2eda078c8b02edd6eeddce47234f1c70be14e7
+_hash: 2f1520e8812dc6b95c25f73d1700df0e41e2db8b0352863f4e26851e591ecc08
 file:
   statement:
     insert_statement:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-        identifier: target_table
+        naked_identifier: target_table
     - bracketed:
         start_bracket: (
         column_reference:
-          identifier: target_column
+          naked_identifier: target_column
         end_bracket: )
     - select_statement:
         select_clause:
           keyword: SELECT
           select_clause_element:
             column_reference:
-            - identifier: table1
+            - naked_identifier: table1
             - dot: .
-            - identifier: column1
+            - naked_identifier: column1
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: table1
+                  naked_identifier: table1
             join_clause:
             - keyword: INNER
             - keyword: JOIN
@@ -43,30 +43,30 @@ file:
                         keyword: SELECT
                         select_clause_element:
                           column_reference:
-                          - identifier: table2
+                          - naked_identifier: table2
                           - dot: .
-                          - identifier: join_column
+                          - naked_identifier: join_column
                       from_clause:
                         keyword: FROM
                         from_expression:
                           from_expression_element:
                             table_expression:
                               table_reference:
-                                identifier: table2
+                                naked_identifier: table2
                     end_bracket: )
                 alias_expression:
                   keyword: AS
-                  identifier: temp3
+                  naked_identifier: temp3
             - join_on_condition:
                 keyword: 'ON'
                 expression:
                 - column_reference:
-                  - identifier: table1
+                  - naked_identifier: table1
                   - dot: .
-                  - identifier: join_column
+                  - naked_identifier: join_column
                 - comparison_operator:
                     raw_comparison_operator: '='
                 - column_reference:
-                  - identifier: temp3
+                  - naked_identifier: temp3
                   - dot: .
-                  - identifier: join_column
+                  - naked_identifier: join_column

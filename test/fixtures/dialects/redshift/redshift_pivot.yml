@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 51fe19c6930fb03304893dd1196e34fb0a0d0720fbc9fa62cf20beccf0562c14
+_hash: 56d78f3e4b292e32074e0b159bdee6088fbd6043dc0428c575e2a4382f16e268
 file:
 - statement:
     select_statement:
@@ -25,18 +25,18 @@ file:
                   - keyword: SELECT
                   - select_clause_element:
                       column_reference:
-                        identifier: partname
+                        naked_identifier: partname
                   - comma: ','
                   - select_clause_element:
                       column_reference:
-                        identifier: price
+                        naked_identifier: price
                   from_clause:
                     keyword: FROM
                     from_expression:
                       from_expression_element:
                         table_expression:
                           table_reference:
-                            identifier: part
+                            naked_identifier: part
                 end_bracket: )
           from_pivot_expression:
             keyword: PIVOT
@@ -49,22 +49,22 @@ file:
                   start_bracket: (
                   expression:
                     column_reference:
-                      identifier: price
+                      naked_identifier: price
                   end_bracket: )
             - keyword: FOR
             - column_reference:
-                identifier: partname
+                naked_identifier: partname
             - keyword: IN
             - bracketed:
               - start_bracket: (
               - expression:
-                  literal: "'P1'"
+                  quoted_literal: "'P1'"
               - comma: ','
               - expression:
-                  literal: "'P2'"
+                  quoted_literal: "'P2'"
               - comma: ','
               - expression:
-                  literal: "'P3'"
+                  quoted_literal: "'P3'"
               - end_bracket: )
             - end_bracket: )
 - statement_terminator: ;
@@ -88,18 +88,18 @@ file:
                   - keyword: SELECT
                   - select_clause_element:
                       column_reference:
-                        identifier: quality
+                        naked_identifier: quality
                   - comma: ','
                   - select_clause_element:
                       column_reference:
-                        identifier: manufacturer
+                        naked_identifier: manufacturer
                   from_clause:
                     keyword: FROM
                     from_expression:
                       from_expression_element:
                         table_expression:
                           table_reference:
-                            identifier: part
+                            naked_identifier: part
                 end_bracket: )
           from_pivot_expression:
             keyword: PIVOT
@@ -114,7 +114,7 @@ file:
                   end_bracket: )
             - keyword: FOR
             - column_reference:
-                identifier: quality
+                naked_identifier: quality
             - keyword: IN
             - bracketed:
               - start_bracket: (
@@ -149,18 +149,18 @@ file:
                   - keyword: SELECT
                   - select_clause_element:
                       column_reference:
-                        identifier: quality
+                        naked_identifier: quality
                   - comma: ','
                   - select_clause_element:
                       column_reference:
-                        identifier: manufacturer
+                        naked_identifier: manufacturer
                   from_clause:
                     keyword: FROM
                     from_expression:
                       from_expression_element:
                         table_expression:
                           table_reference:
-                            identifier: part
+                            naked_identifier: part
                 end_bracket: )
           from_pivot_expression:
             keyword: PIVOT
@@ -175,10 +175,10 @@ file:
                   end_bracket: )
             - alias_expression:
                 keyword: AS
-                identifier: count
+                naked_identifier: count
             - keyword: FOR
             - column_reference:
-                identifier: quality
+                naked_identifier: quality
             - keyword: IN
             - bracketed:
               - start_bracket: (
@@ -186,19 +186,19 @@ file:
                   literal: '1'
               - alias_expression:
                   keyword: AS
-                  identifier: high
+                  naked_identifier: high
               - comma: ','
               - expression:
                   literal: '2'
               - alias_expression:
                   keyword: AS
-                  identifier: low
+                  naked_identifier: low
               - comma: ','
               - expression:
                   null_literal: 'NULL'
               - alias_expression:
                   keyword: AS
-                  identifier: na
+                  naked_identifier: na
               - end_bracket: )
             - end_bracket: )
 - statement_terminator: ;
@@ -206,7 +206,7 @@ file:
     with_compound_statement:
       keyword: WITH
       common_table_expression:
-        identifier: bear_diet
+        naked_identifier: bear_diet
         keyword: AS
         bracketed:
           start_bracket: (
@@ -215,22 +215,22 @@ file:
             - keyword: SELECT
             - select_clause_element:
                 column_reference:
-                  identifier: bear_id
+                  naked_identifier: bear_id
             - comma: ','
             - select_clause_element:
                 column_reference:
-                  identifier: bear_species
+                  naked_identifier: bear_species
             - comma: ','
             - select_clause_element:
                 column_reference:
-                  identifier: food_eaten
+                  naked_identifier: food_eaten
             from_clause:
               keyword: FROM
               from_expression:
                 from_expression_element:
                   table_expression:
                     table_reference:
-                      identifier: bear_facts
+                      naked_identifier: bear_facts
           end_bracket: )
       select_statement:
         select_clause:
@@ -245,7 +245,7 @@ file:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: bear_diet
+                  naked_identifier: bear_diet
             from_pivot_expression:
               keyword: PIVOT
               bracketed:
@@ -259,36 +259,36 @@ file:
                     end_bracket: )
               - alias_expression:
                   keyword: AS
-                  identifier: num_ate_food
+                  naked_identifier: num_ate_food
               - keyword: FOR
               - column_reference:
-                  identifier: bear_species
+                  naked_identifier: bear_species
               - keyword: IN
               - bracketed:
                 - start_bracket: (
                 - expression:
-                    literal: "'polar bear'"
+                    quoted_literal: "'polar bear'"
                 - comma: ','
                 - expression:
-                    literal: "'brown bear'"
+                    quoted_literal: "'brown bear'"
                 - comma: ','
                 - expression:
-                    literal: "'american black bear'"
+                    quoted_literal: "'american black bear'"
                 - comma: ','
                 - expression:
-                    literal: "'asian black bear'"
+                    quoted_literal: "'asian black bear'"
                 - comma: ','
                 - expression:
-                    literal: "'giant panda'"
+                    quoted_literal: "'giant panda'"
                 - comma: ','
                 - expression:
-                    literal: "'spectacled bear'"
+                    quoted_literal: "'spectacled bear'"
                 - comma: ','
                 - expression:
-                    literal: "'sloth bear'"
+                    quoted_literal: "'sloth bear'"
                 - comma: ','
                 - expression:
-                    literal: "'sun bear'"
+                    quoted_literal: "'sun bear'"
                 - end_bracket: )
               - end_bracket: )
 - statement_terminator: ;
@@ -306,7 +306,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: orders
+                naked_identifier: orders
           from_pivot_expression:
             keyword: PIVOT
             bracketed:
@@ -320,15 +320,15 @@ file:
                   end_bracket: )
             - keyword: FOR
             - column_reference:
-                identifier: color
+                naked_identifier: color
             - keyword: IN
             - bracketed:
               - start_bracket: (
               - expression:
-                  literal: "'red'"
+                  quoted_literal: "'red'"
               - comma: ','
               - expression:
-                  literal: "'blue'"
+                  quoted_literal: "'blue'"
               - end_bracket: )
             - end_bracket: )
 - statement_terminator: ;
@@ -352,18 +352,18 @@ file:
                   - keyword: SELECT
                   - select_clause_element:
                       column_reference:
-                        identifier: quality
+                        naked_identifier: quality
                   - comma: ','
                   - select_clause_element:
                       column_reference:
-                        identifier: manufacturer
+                        naked_identifier: manufacturer
                   from_clause:
                     keyword: FROM
                     from_expression:
                       from_expression_element:
                         table_expression:
                           table_reference:
-                            identifier: part
+                            naked_identifier: part
                 end_bracket: )
           from_pivot_expression:
             keyword: PIVOT
@@ -378,7 +378,7 @@ file:
                   end_bracket: )
             - keyword: FOR
             - column_reference:
-                identifier: quality
+                naked_identifier: quality
             - keyword: IN
             - bracketed:
               - start_bracket: (
@@ -394,5 +394,5 @@ file:
             - end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: quality_matrix
+            naked_identifier: quality_matrix
 - statement_terminator: ;

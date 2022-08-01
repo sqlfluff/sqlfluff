@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3a56ad8620a1462f2502f58778d2f9fa5c4f83e9ace3f13753c7c164f9374093
+_hash: d42c5a732684b9680dc708b2f4ec704ea208d82af395d95f5a56556950abbb51
 file:
   statement:
     select_statement:
@@ -19,7 +19,7 @@ file:
                 literal: "'{\"type\":\"LineString\",\"coordinates\":[[1,2],[4,5]]}'"
               comma: ','
               named_argument:
-                identifier: make_valid
+                naked_identifier: make_valid
                 right_arrow: =>
                 expression:
                   boolean_literal: 'true'

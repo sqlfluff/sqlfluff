@@ -3,17 +3,17 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 885a8b786040bd04613932c82a9c800655829d1ce5e7691ae659dc026384d032
+_hash: bbeaabbbacbba058a8df520704ab02dd3024ae3499783c7f952d3b726551ec4f
 file:
 - statement:
     alter_view_statement:
     - keyword: ALTER
     - keyword: VIEW
     - table_reference:
-        identifier: myview
+        naked_identifier: myview
     - keyword: ALTER
     - column_reference:
-        identifier: date_column
+        naked_identifier: date_column
     - keyword: SET
     - keyword: DEFAULT
     - function:
@@ -28,10 +28,10 @@ file:
     - keyword: ALTER
     - keyword: VIEW
     - table_reference:
-        identifier: myview
+        naked_identifier: myview
     - keyword: ALTER
     - column_reference:
-        identifier: int_column
+        naked_identifier: int_column
     - keyword: SET
     - keyword: DEFAULT
     - literal: '1'
@@ -41,23 +41,23 @@ file:
     - keyword: ALTER
     - keyword: VIEW
     - table_reference:
-        identifier: myview
+        naked_identifier: myview
     - keyword: ALTER
     - column_reference:
-        identifier: text_column
+        naked_identifier: text_column
     - keyword: SET
     - keyword: DEFAULT
-    - literal: "'value'"
+    - quoted_literal: "'value'"
 - statement_terminator: ;
 - statement:
     alter_view_statement:
     - keyword: ALTER
     - keyword: VIEW
     - table_reference:
-        identifier: myview
+        naked_identifier: myview
     - keyword: ALTER
     - column_reference:
-        identifier: bool_column
+        naked_identifier: bool_column
     - keyword: SET
     - keyword: DEFAULT
     - boolean_literal: 'false'
@@ -67,25 +67,25 @@ file:
     - keyword: ALTER
     - keyword: VIEW
     - table_reference:
-        identifier: myview
+        naked_identifier: myview
     - keyword: ALTER
     - column_reference:
-        identifier: other_column
+        naked_identifier: other_column
     - keyword: SET
     - keyword: DEFAULT
     - expression:
         column_reference:
-          identifier: other_value
+          naked_identifier: other_value
 - statement_terminator: ;
 - statement:
     alter_view_statement:
     - keyword: ALTER
     - keyword: VIEW
     - table_reference:
-        identifier: myview
+        naked_identifier: myview
     - keyword: ALTER
     - column_reference:
-        identifier: other_column
+        naked_identifier: other_column
     - keyword: SET
     - keyword: DEFAULT
     - bare_function: CURRENT_TIMESTAMP
@@ -95,10 +95,10 @@ file:
     - keyword: ALTER
     - keyword: VIEW
     - table_reference:
-        identifier: myview
+        naked_identifier: myview
     - keyword: ALTER
     - column_reference:
-        identifier: other_column
+        naked_identifier: other_column
     - keyword: SET
     - keyword: DEFAULT
     - function:
@@ -108,7 +108,7 @@ file:
           start_bracket: (
           expression:
             column_reference:
-              identifier: a_parameter
+              naked_identifier: a_parameter
           end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -116,10 +116,10 @@ file:
     - keyword: ALTER
     - keyword: VIEW
     - table_reference:
-        identifier: myview
+        naked_identifier: myview
     - keyword: ALTER
     - column_reference:
-        identifier: other_column
+        naked_identifier: other_column
     - keyword: SET
     - keyword: DEFAULT
     - function:
@@ -128,7 +128,7 @@ file:
         bracketed:
           start_bracket: (
           expression:
-            literal: "'a_parameter'"
+            quoted_literal: "'a_parameter'"
           end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -136,10 +136,10 @@ file:
     - keyword: ALTER
     - keyword: VIEW
     - table_reference:
-        identifier: myview
+        naked_identifier: myview
     - keyword: ALTER
     - column_reference:
-        identifier: other_column
+        naked_identifier: other_column
     - keyword: DROP
     - keyword: DEFAULT
 - statement_terminator: ;
@@ -150,10 +150,10 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - table_reference:
-        identifier: myview
+        naked_identifier: myview
     - keyword: ALTER
     - column_reference:
-        identifier: date_column
+        naked_identifier: date_column
     - keyword: SET
     - keyword: DEFAULT
     - function:
@@ -170,10 +170,10 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - table_reference:
-        identifier: myview
+        naked_identifier: myview
     - keyword: ALTER
     - column_reference:
-        identifier: int_column
+        naked_identifier: int_column
     - keyword: SET
     - keyword: DEFAULT
     - literal: '1'
@@ -185,13 +185,13 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - table_reference:
-        identifier: myview
+        naked_identifier: myview
     - keyword: ALTER
     - column_reference:
-        identifier: text_column
+        naked_identifier: text_column
     - keyword: SET
     - keyword: DEFAULT
-    - literal: "'value'"
+    - quoted_literal: "'value'"
 - statement_terminator: ;
 - statement:
     alter_view_statement:
@@ -200,10 +200,10 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - table_reference:
-        identifier: myview
+        naked_identifier: myview
     - keyword: ALTER
     - column_reference:
-        identifier: bool_column
+        naked_identifier: bool_column
     - keyword: SET
     - keyword: DEFAULT
     - boolean_literal: 'false'
@@ -215,15 +215,15 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - table_reference:
-        identifier: myview
+        naked_identifier: myview
     - keyword: ALTER
     - column_reference:
-        identifier: other_column
+        naked_identifier: other_column
     - keyword: SET
     - keyword: DEFAULT
     - expression:
         column_reference:
-          identifier: other_value
+          naked_identifier: other_value
 - statement_terminator: ;
 - statement:
     alter_view_statement:
@@ -232,10 +232,10 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - table_reference:
-        identifier: myview
+        naked_identifier: myview
     - keyword: ALTER
     - column_reference:
-        identifier: other_column
+        naked_identifier: other_column
     - keyword: SET
     - keyword: DEFAULT
     - bare_function: CURRENT_TIMESTAMP
@@ -247,10 +247,10 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - table_reference:
-        identifier: myview
+        naked_identifier: myview
     - keyword: ALTER
     - column_reference:
-        identifier: other_column
+        naked_identifier: other_column
     - keyword: SET
     - keyword: DEFAULT
     - function:
@@ -260,7 +260,7 @@ file:
           start_bracket: (
           expression:
             column_reference:
-              identifier: a_parameter
+              naked_identifier: a_parameter
           end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -270,10 +270,10 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - table_reference:
-        identifier: myview
+        naked_identifier: myview
     - keyword: ALTER
     - column_reference:
-        identifier: other_column
+        naked_identifier: other_column
     - keyword: SET
     - keyword: DEFAULT
     - function:
@@ -282,7 +282,7 @@ file:
         bracketed:
           start_bracket: (
           expression:
-            literal: "'a_parameter'"
+            quoted_literal: "'a_parameter'"
           end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -292,10 +292,10 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - table_reference:
-        identifier: myview
+        naked_identifier: myview
     - keyword: ALTER
     - column_reference:
-        identifier: other_column
+        naked_identifier: other_column
     - keyword: DROP
     - keyword: DEFAULT
 - statement_terminator: ;
@@ -304,29 +304,29 @@ file:
     - keyword: ALTER
     - keyword: VIEW
     - table_reference:
-        identifier: myview
+        naked_identifier: myview
     - keyword: OWNER
     - keyword: TO
     - object_reference:
-        identifier: baz_role
+        naked_identifier: baz_role
 - statement_terminator: ;
 - statement:
     alter_view_statement:
     - keyword: ALTER
     - keyword: VIEW
     - table_reference:
-        identifier: myview
+        naked_identifier: myview
     - keyword: OWNER
     - keyword: TO
     - object_reference:
-        identifier: '"baz-role"'
+        quoted_identifier: '"baz-role"'
 - statement_terminator: ;
 - statement:
     alter_view_statement:
     - keyword: ALTER
     - keyword: VIEW
     - table_reference:
-        identifier: myview
+        naked_identifier: myview
     - keyword: OWNER
     - keyword: TO
     - keyword: CURRENT_ROLE
@@ -336,18 +336,18 @@ file:
     - keyword: ALTER
     - keyword: VIEW
     - table_reference:
-        identifier: myview
+        naked_identifier: myview
     - keyword: OWNER
     - keyword: TO
     - object_reference:
-        identifier: CURRENT_USER
+        naked_identifier: CURRENT_USER
 - statement_terminator: ;
 - statement:
     alter_view_statement:
     - keyword: ALTER
     - keyword: VIEW
     - table_reference:
-        identifier: myview
+        naked_identifier: myview
     - keyword: OWNER
     - keyword: TO
     - keyword: SESSION_USER
@@ -359,11 +359,11 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - table_reference:
-        identifier: myview
+        naked_identifier: myview
     - keyword: OWNER
     - keyword: TO
     - object_reference:
-        identifier: baz_role
+        naked_identifier: baz_role
 - statement_terminator: ;
 - statement:
     alter_view_statement:
@@ -372,11 +372,11 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - table_reference:
-        identifier: myview
+        naked_identifier: myview
     - keyword: OWNER
     - keyword: TO
     - object_reference:
-        identifier: '"baz-role"'
+        quoted_identifier: '"baz-role"'
 - statement_terminator: ;
 - statement:
     alter_view_statement:
@@ -385,7 +385,7 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - table_reference:
-        identifier: myview
+        naked_identifier: myview
     - keyword: OWNER
     - keyword: TO
     - keyword: CURRENT_ROLE
@@ -397,11 +397,11 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - table_reference:
-        identifier: myview
+        naked_identifier: myview
     - keyword: OWNER
     - keyword: TO
     - object_reference:
-        identifier: CURRENT_USER
+        naked_identifier: CURRENT_USER
 - statement_terminator: ;
 - statement:
     alter_view_statement:
@@ -410,7 +410,7 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - table_reference:
-        identifier: myview
+        naked_identifier: myview
     - keyword: OWNER
     - keyword: TO
     - keyword: SESSION_USER
@@ -420,69 +420,27 @@ file:
     - keyword: ALTER
     - keyword: VIEW
     - table_reference:
-        identifier: myview
+        naked_identifier: myview
     - keyword: RENAME
     - column_reference:
-        identifier: column_name
+        naked_identifier: column_name
     - keyword: TO
     - column_reference:
-        identifier: new_column_name
+        naked_identifier: new_column_name
 - statement_terminator: ;
 - statement:
     alter_view_statement:
     - keyword: ALTER
     - keyword: VIEW
     - table_reference:
-        identifier: myview
-    - keyword: RENAME
-    - keyword: COLUMN
-    - column_reference:
-        identifier: column_name
-    - keyword: TO
-    - column_reference:
-        identifier: new_column_name
-- statement_terminator: ;
-- statement:
-    alter_view_statement:
-    - keyword: ALTER
-    - keyword: VIEW
-    - keyword: IF
-    - keyword: EXISTS
-    - table_reference:
-        identifier: myview
-    - keyword: RENAME
-    - column_reference:
-        identifier: column_name
-    - keyword: TO
-    - column_reference:
-        identifier: new_column_name
-- statement_terminator: ;
-- statement:
-    alter_view_statement:
-    - keyword: ALTER
-    - keyword: VIEW
-    - keyword: IF
-    - keyword: EXISTS
-    - table_reference:
-        identifier: myview
+        naked_identifier: myview
     - keyword: RENAME
     - keyword: COLUMN
     - column_reference:
-        identifier: column_name
+        naked_identifier: column_name
     - keyword: TO
     - column_reference:
-        identifier: new_column_name
-- statement_terminator: ;
-- statement:
-    alter_view_statement:
-    - keyword: ALTER
-    - keyword: VIEW
-    - table_reference:
-        identifier: myview
-    - keyword: RENAME
-    - keyword: TO
-    - table_reference:
-        identifier: new_name
+        naked_identifier: new_column_name
 - statement_terminator: ;
 - statement:
     alter_view_statement:
@@ -491,22 +449,13 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - table_reference:
-        identifier: myview
+        naked_identifier: myview
     - keyword: RENAME
+    - column_reference:
+        naked_identifier: column_name
     - keyword: TO
-    - table_reference:
-        identifier: new_name
-- statement_terminator: ;
-- statement:
-    alter_view_statement:
-    - keyword: ALTER
-    - keyword: VIEW
-    - table_reference:
-        identifier: myview
-    - keyword: SET
-    - keyword: SCHEMA
-    - schema_reference:
-        identifier: new_schema
+    - column_reference:
+        naked_identifier: new_column_name
 - statement_terminator: ;
 - statement:
     alter_view_statement:
@@ -515,18 +464,69 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - table_reference:
-        identifier: myview
-    - keyword: SET
-    - keyword: SCHEMA
-    - schema_reference:
-        identifier: new_schema
+        naked_identifier: myview
+    - keyword: RENAME
+    - keyword: COLUMN
+    - column_reference:
+        naked_identifier: column_name
+    - keyword: TO
+    - column_reference:
+        naked_identifier: new_column_name
 - statement_terminator: ;
 - statement:
     alter_view_statement:
     - keyword: ALTER
     - keyword: VIEW
     - table_reference:
-        identifier: myview
+        naked_identifier: myview
+    - keyword: RENAME
+    - keyword: TO
+    - table_reference:
+        naked_identifier: new_name
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: myview
+    - keyword: RENAME
+    - keyword: TO
+    - table_reference:
+        naked_identifier: new_name
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: myview
+    - keyword: SET
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: new_schema
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: myview
+    - keyword: SET
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: new_schema
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: myview
     - keyword: SET
     - bracketed:
         start_bracket: (
@@ -538,7 +538,7 @@ file:
     - keyword: ALTER
     - keyword: VIEW
     - table_reference:
-        identifier: myview
+        naked_identifier: myview
     - keyword: SET
     - bracketed:
         start_bracket: (
@@ -553,7 +553,7 @@ file:
     - keyword: ALTER
     - keyword: VIEW
     - table_reference:
-        identifier: myview
+        naked_identifier: myview
     - keyword: SET
     - bracketed:
       - start_bracket: (
@@ -565,7 +565,7 @@ file:
       - parameter: view_option_name2
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'value'"
+      - quoted_literal: "'value'"
       - comma: ','
       - parameter: view_option_name3
       - comma: ','
@@ -582,7 +582,7 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - table_reference:
-        identifier: myview
+        naked_identifier: myview
     - keyword: SET
     - bracketed:
         start_bracket: (
@@ -596,7 +596,7 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - table_reference:
-        identifier: myview
+        naked_identifier: myview
     - keyword: SET
     - bracketed:
         start_bracket: (
@@ -613,7 +613,7 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - table_reference:
-        identifier: myview
+        naked_identifier: myview
     - keyword: SET
     - bracketed:
       - start_bracket: (
@@ -632,7 +632,7 @@ file:
     - keyword: ALTER
     - keyword: VIEW
     - table_reference:
-        identifier: myview
+        naked_identifier: myview
     - keyword: RESET
     - bracketed:
         start_bracket: (
@@ -644,7 +644,7 @@ file:
     - keyword: ALTER
     - keyword: VIEW
     - table_reference:
-        identifier: myview
+        naked_identifier: myview
     - keyword: RESET
     - bracketed:
       - start_bracket: (
@@ -660,7 +660,7 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - table_reference:
-        identifier: myview
+        naked_identifier: myview
     - keyword: RESET
     - bracketed:
         start_bracket: (
@@ -674,7 +674,7 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - table_reference:
-        identifier: myview
+        naked_identifier: myview
     - keyword: RESET
     - bracketed:
       - start_bracket: (

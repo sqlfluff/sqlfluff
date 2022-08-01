@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bfc4b7136cc562e8ed26d85f398dbe6dbad115a7cb3565b36ae881e707296ebe
+_hash: fce4ad1bbc05e9f3d30190a7fe7dbe9738a62a68d56fa8af2c4c34c87711d862
 file:
 - statement:
     select_statement:
@@ -12,7 +12,7 @@ file:
         select_clause_element:
           expression:
             column_reference:
-              identifier: b
+              naked_identifier: b
             cast_expression:
               casting_operator: '::'
               data_type:
@@ -24,7 +24,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: a
+                naked_identifier: a
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -33,7 +33,7 @@ file:
         select_clause_element:
           expression:
             column_reference:
-              identifier: b
+              naked_identifier: b
             cast_expression:
               casting_operator: '::'
               data_type:
@@ -45,7 +45,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: a
+                naked_identifier: a
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -54,7 +54,7 @@ file:
       - select_clause_element:
           expression:
             column_reference:
-              identifier: b
+              naked_identifier: b
             cast_expression:
               casting_operator: '::'
               data_type:
@@ -64,7 +64,7 @@ file:
       - select_clause_element:
           expression:
             column_reference:
-              identifier: c
+              naked_identifier: c
             cast_expression:
               casting_operator: '::'
               data_type:
@@ -77,7 +77,7 @@ file:
       - select_clause_element:
           expression:
             column_reference:
-              identifier: d
+              naked_identifier: d
             cast_expression:
               casting_operator: '::'
               data_type:
@@ -92,7 +92,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: a
+                naked_identifier: a
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -101,7 +101,7 @@ file:
         select_clause_element:
           expression:
             column_reference:
-              identifier: b
+              naked_identifier: b
             cast_expression:
               casting_operator: '::'
               data_type:
@@ -113,7 +113,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: a
+                naked_identifier: a
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -122,7 +122,7 @@ file:
       - select_clause_element:
           expression:
             column_reference:
-              identifier: b
+              naked_identifier: b
             cast_expression:
               casting_operator: '::'
               data_type:
@@ -132,7 +132,7 @@ file:
       - select_clause_element:
           expression:
             column_reference:
-              identifier: c
+              naked_identifier: c
             cast_expression:
               casting_operator: '::'
               data_type:
@@ -145,7 +145,7 @@ file:
       - select_clause_element:
           expression:
             column_reference:
-              identifier: d
+              naked_identifier: d
             cast_expression:
               casting_operator: '::'
               data_type:
@@ -160,7 +160,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: a
+                naked_identifier: a
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -169,7 +169,7 @@ file:
         select_clause_element:
           expression:
             column_reference:
-              identifier: b
+              naked_identifier: b
             cast_expression:
               casting_operator: '::'
               data_type:
@@ -181,7 +181,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: a
+                naked_identifier: a
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -190,23 +190,23 @@ file:
       - select_clause_element:
           expression:
             column_reference:
-            - identifier: raw_data
+            - naked_identifier: raw_data
             - dot: .
-            - identifier: status
+            - naked_identifier: status
             cast_expression:
               casting_operator: '::'
               data_type:
                 keyword: VARCHAR
           alias_expression:
             keyword: AS
-            identifier: status
+            naked_identifier: status
       - comma: ','
       - select_clause_element:
           expression:
             column_reference:
-            - identifier: raw_data
+            - naked_identifier: raw_data
             - dot: .
-            - identifier: start
+            - naked_identifier: start
             cast_expression:
               casting_operator: '::'
               data_type:
@@ -217,17 +217,17 @@ file:
             - keyword: TIME
             - keyword: ZONE
             - expression:
-                literal: "'UTC'"
+                quoted_literal: "'UTC'"
           alias_expression:
             keyword: AS
-            identifier: started_at
+            naked_identifier: started_at
       - comma: ','
       - select_clause_element:
           expression:
             column_reference:
-            - identifier: raw_data
-            - dot: .
-            - identifier: '"end"'
+              naked_identifier: raw_data
+              dot: .
+              quoted_identifier: '"end"'
             cast_expression:
               casting_operator: '::'
               data_type:
@@ -238,17 +238,17 @@ file:
             - keyword: TIME
             - keyword: ZONE
             - expression:
-                literal: "'UTC'"
+                quoted_literal: "'UTC'"
           alias_expression:
             keyword: AS
-            identifier: ended_at
+            naked_identifier: ended_at
       - comma: ','
       - select_clause_element:
           expression:
             column_reference:
-            - identifier: raw_data
+            - naked_identifier: raw_data
             - dot: .
-            - identifier: created
+            - naked_identifier: created
             cast_expression:
               casting_operator: '::'
               data_type:
@@ -259,37 +259,37 @@ file:
             - keyword: TIME
             - keyword: ZONE
             - expression:
-                literal: "'UTC'"
+                quoted_literal: "'UTC'"
           alias_expression:
             keyword: AS
-            identifier: created_at
+            naked_identifier: created_at
       - comma: ','
       - select_clause_element:
           expression:
           - column_reference:
-            - identifier: raw_data
+            - naked_identifier: raw_data
             - dot: .
-            - identifier: identifier
+            - naked_identifier: identifier
           - array_accessor:
               start_square_bracket: '['
               literal: '0'
               end_square_bracket: ']'
           - dot: .
           - column_reference:
-              identifier: value
+              naked_identifier: value
           - cast_expression:
               casting_operator: '::'
               data_type:
                 keyword: VARCHAR
           alias_expression:
             keyword: AS
-            identifier: communication_request_fhir_reference_origin
+            naked_identifier: communication_request_fhir_reference_origin
       - comma: ','
       - select_clause_element:
           column_reference:
-          - identifier: extension_extraction
+          - naked_identifier: extension_extraction
           - dot: .
-          - identifier: database_reference
+          - naked_identifier: database_reference
       - comma: ','
       - select_clause_element:
           expression:
@@ -304,7 +304,7 @@ file:
             - keyword: TIME
             - keyword: ZONE
             - expression:
-                literal: "'UTC'"
+                quoted_literal: "'UTC'"
       - comma: ','
       - select_clause_element:
           expression:
@@ -322,14 +322,14 @@ file:
                 - keyword: TIME
                 - keyword: ZONE
                 - expression:
-                    literal: "'UTC'"
+                    quoted_literal: "'UTC'"
               end_bracket: )
             time_zone_grammar:
             - keyword: AT
             - keyword: TIME
             - keyword: ZONE
             - expression:
-                literal: "'AEST'"
+                quoted_literal: "'AEST'"
       - comma: ','
       - select_clause_element:
           expression:
@@ -350,14 +350,14 @@ file:
                     - keyword: TIME
                     - keyword: ZONE
                     - expression:
-                        literal: "'UTC'"
+                        quoted_literal: "'UTC'"
                   end_bracket: )
                 time_zone_grammar:
                 - keyword: AT
                 - keyword: TIME
                 - keyword: ZONE
                 - expression:
-                    literal: "'AEST'"
+                    quoted_literal: "'AEST'"
               end_bracket: )
       from_clause:
         keyword: FROM
@@ -365,4 +365,4 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: raw_data
+                naked_identifier: raw_data

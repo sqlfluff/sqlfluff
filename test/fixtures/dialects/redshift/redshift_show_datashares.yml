@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 644a3968cee8e62fad25af3d1e5d3117c6aec86043ffb8b5b12b8befbff5b35d
+_hash: cdcc140569a5ab1628ad23eceea9565bba47b5fc6b2a8de9784a4f47b4988aa0
 file:
 - statement:
     show_datashares_statement:
@@ -15,5 +15,5 @@ file:
     - keyword: SHOW
     - keyword: DATASHARES
     - keyword: LIKE
-    - literal: "'sales%'"
+    - quoted_literal: "'sales%'"
 - statement_terminator: ;

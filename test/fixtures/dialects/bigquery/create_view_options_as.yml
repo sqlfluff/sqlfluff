@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2aef0cbe8d125669809df21e56e4807369e25708545c06339ea12ece5af71680
+_hash: 45bd0a4feafe7387226668a9a06a1d620c2fb45fe3f84b3390501901ba80f0ea
 file:
 - statement:
     create_view_statement:
@@ -12,7 +12,7 @@ file:
     - keyword: REPLACE
     - keyword: VIEW
     - table_reference:
-        identifier: foo
+        naked_identifier: foo
     - keyword: AS
     - bracketed:
         start_bracket: (
@@ -29,7 +29,7 @@ file:
               from_expression_element:
                 table_expression:
                   table_reference:
-                    identifier: bar
+                    naked_identifier: bar
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -39,7 +39,7 @@ file:
     - keyword: REPLACE
     - keyword: VIEW
     - table_reference:
-        identifier: foo
+        naked_identifier: foo
     - options_segment:
         keyword: OPTIONS
         bracketed:
@@ -65,7 +65,7 @@ file:
               from_expression_element:
                 table_expression:
                   table_reference:
-                    identifier: bar
+                    naked_identifier: bar
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -78,7 +78,7 @@ file:
     - keyword: NOT
     - keyword: EXISTS
     - table_reference:
-        identifier: foo
+        naked_identifier: foo
     - options_segment:
         keyword: OPTIONS
         bracketed:
@@ -104,6 +104,6 @@ file:
               from_expression_element:
                 table_expression:
                   table_reference:
-                    identifier: bar
+                    naked_identifier: bar
         end_bracket: )
 - statement_terminator: ;

@@ -3,33 +3,33 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 75ac79c99279e253b01b6d78ba5b72f42e7f153be2dd859a1240ee6567dcd99d
+_hash: b39673d0a21fecc56fac7b5ee0772e9988aab529c0b8aaf747fbf6a43bbb0e41
 file:
 - statement:
     create_user_statement:
     - keyword: CREATE
     - keyword: USER
     - role_reference:
-        identifier: user1
+        naked_identifier: user1
     - keyword: PASSWORD
-    - literal: "'md5153c434b4b77c89e6b94f12c5393af5b'"
+    - quoted_literal: "'md5153c434b4b77c89e6b94f12c5393af5b'"
 - statement_terminator: ;
 - statement:
     create_user_statement:
     - keyword: CREATE
     - keyword: USER
     - role_reference:
-        identifier: admin
+        naked_identifier: admin
     - keyword: WITH
     - keyword: PASSWORD
-    - literal: "'sha256|Mypassword1'"
+    - quoted_literal: "'sha256|Mypassword1'"
 - statement_terminator: ;
 - statement:
     create_user_statement:
     - keyword: CREATE
     - keyword: USER
     - role_reference:
-        identifier: lazy
+        naked_identifier: lazy
     - keyword: PASSWORD
     - keyword: DISABLE
 - statement_terminator: ;
@@ -38,17 +38,7 @@ file:
     - keyword: CREATE
     - keyword: USER
     - role_reference:
-        identifier: lazy
-    - keyword: WITH
-    - keyword: PASSWORD
-    - keyword: DISABLE
-- statement_terminator: ;
-- statement:
-    create_user_statement:
-    - keyword: CREATE
-    - keyword: USER
-    - role_reference:
-        identifier: '"lazy"'
+        naked_identifier: lazy
     - keyword: WITH
     - keyword: PASSWORD
     - keyword: DISABLE
@@ -58,9 +48,19 @@ file:
     - keyword: CREATE
     - keyword: USER
     - role_reference:
-        identifier: user1
+        quoted_identifier: '"lazy"'
+    - keyword: WITH
     - keyword: PASSWORD
-    - literal: "'md5153c434b4b77c89e6b94f12c5393af5b'"
+    - keyword: DISABLE
+- statement_terminator: ;
+- statement:
+    create_user_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - role_reference:
+        naked_identifier: user1
+    - keyword: PASSWORD
+    - quoted_literal: "'md5153c434b4b77c89e6b94f12c5393af5b'"
     - keyword: CREATEDB
 - statement_terminator: ;
 - statement:
@@ -68,9 +68,9 @@ file:
     - keyword: CREATE
     - keyword: USER
     - role_reference:
-        identifier: user1
+        naked_identifier: user1
     - keyword: PASSWORD
-    - literal: "'md5153c434b4b77c89e6b94f12c5393af5b'"
+    - quoted_literal: "'md5153c434b4b77c89e6b94f12c5393af5b'"
     - keyword: NOCREATEDB
 - statement_terminator: ;
 - statement:
@@ -78,9 +78,9 @@ file:
     - keyword: CREATE
     - keyword: USER
     - role_reference:
-        identifier: user1
+        naked_identifier: user1
     - keyword: PASSWORD
-    - literal: "'md5153c434b4b77c89e6b94f12c5393af5b'"
+    - quoted_literal: "'md5153c434b4b77c89e6b94f12c5393af5b'"
     - keyword: CREATEUSER
 - statement_terminator: ;
 - statement:
@@ -88,9 +88,9 @@ file:
     - keyword: CREATE
     - keyword: USER
     - role_reference:
-        identifier: user1
+        naked_identifier: user1
     - keyword: PASSWORD
-    - literal: "'md5153c434b4b77c89e6b94f12c5393af5b'"
+    - quoted_literal: "'md5153c434b4b77c89e6b94f12c5393af5b'"
     - keyword: NOCREATEUSER
 - statement_terminator: ;
 - statement:
@@ -98,9 +98,9 @@ file:
     - keyword: CREATE
     - keyword: USER
     - role_reference:
-        identifier: user1
+        naked_identifier: user1
     - keyword: PASSWORD
-    - literal: "'md5153c434b4b77c89e6b94f12c5393af5b'"
+    - quoted_literal: "'md5153c434b4b77c89e6b94f12c5393af5b'"
     - keyword: SYSLOG
     - keyword: ACCESS
     - keyword: RESTRICTED
@@ -110,9 +110,9 @@ file:
     - keyword: CREATE
     - keyword: USER
     - role_reference:
-        identifier: user1
+        naked_identifier: user1
     - keyword: PASSWORD
-    - literal: "'md5153c434b4b77c89e6b94f12c5393af5b'"
+    - quoted_literal: "'md5153c434b4b77c89e6b94f12c5393af5b'"
     - keyword: SYSLOG
     - keyword: ACCESS
     - keyword: UNRESTRICTED
@@ -122,50 +122,50 @@ file:
     - keyword: CREATE
     - keyword: USER
     - role_reference:
-        identifier: user1
+        naked_identifier: user1
     - keyword: PASSWORD
-    - literal: "'md5153c434b4b77c89e6b94f12c5393af5b'"
+    - quoted_literal: "'md5153c434b4b77c89e6b94f12c5393af5b'"
     - keyword: IN
     - keyword: GROUP
     - object_reference:
-        identifier: group_1
+        naked_identifier: group_1
 - statement_terminator: ;
 - statement:
     create_user_statement:
     - keyword: CREATE
     - keyword: USER
     - role_reference:
-        identifier: user1
+        naked_identifier: user1
     - keyword: PASSWORD
-    - literal: "'md5153c434b4b77c89e6b94f12c5393af5b'"
+    - quoted_literal: "'md5153c434b4b77c89e6b94f12c5393af5b'"
     - keyword: IN
     - keyword: GROUP
     - object_reference:
-        identifier: group_1
+        naked_identifier: group_1
     - comma: ','
     - object_reference:
-        identifier: group_2
+        naked_identifier: group_2
 - statement_terminator: ;
 - statement:
     create_user_statement:
     - keyword: CREATE
     - keyword: USER
     - role_reference:
-        identifier: user1
+        naked_identifier: user1
     - keyword: PASSWORD
-    - literal: "'md5153c434b4b77c89e6b94f12c5393af5b'"
+    - quoted_literal: "'md5153c434b4b77c89e6b94f12c5393af5b'"
     - keyword: VALID
     - keyword: UNTIL
-    - literal: "'2017-06-10'"
+    - quoted_literal: "'2017-06-10'"
 - statement_terminator: ;
 - statement:
     create_user_statement:
     - keyword: CREATE
     - keyword: USER
     - role_reference:
-        identifier: user1
+        naked_identifier: user1
     - keyword: PASSWORD
-    - literal: "'md5153c434b4b77c89e6b94f12c5393af5b'"
+    - quoted_literal: "'md5153c434b4b77c89e6b94f12c5393af5b'"
     - keyword: CONNECTION
     - keyword: LIMIT
     - literal: '30'
@@ -175,9 +175,9 @@ file:
     - keyword: CREATE
     - keyword: USER
     - role_reference:
-        identifier: user1
+        naked_identifier: user1
     - keyword: PASSWORD
-    - literal: "'md5153c434b4b77c89e6b94f12c5393af5b'"
+    - quoted_literal: "'md5153c434b4b77c89e6b94f12c5393af5b'"
     - keyword: CONNECTION
     - keyword: LIMIT
     - keyword: UNLIMITED
@@ -187,9 +187,9 @@ file:
     - keyword: CREATE
     - keyword: USER
     - role_reference:
-        identifier: user1
+        naked_identifier: user1
     - keyword: PASSWORD
-    - literal: "'md5153c434b4b77c89e6b94f12c5393af5b'"
+    - quoted_literal: "'md5153c434b4b77c89e6b94f12c5393af5b'"
     - keyword: SESSION
     - keyword: TIMEOUT
     - literal: '120'

@@ -3,16 +3,16 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4f6bcae80f76de93e6827cd60191c02c955877b0ba8c688876d839205ee2f955
+_hash: 7e91ca55711299bc1e6dc431e3cc95257325a3ff4ecb0686c9e02b0345305b73
 file:
 - statement:
     declare_segment:
     - keyword: DECLARE
-    - identifier: x
+    - naked_identifier: x
     - data_type:
         data_type_identifier: INT64
     - keyword: DEFAULT
-    - literal: '0'
+    - numeric_literal: '0'
 - statement_terminator: ;
 - multi_statement_segment:
     repeat_statement:
@@ -21,14 +21,14 @@ file:
       - statement:
           set_segment:
             keyword: SET
-            identifier: x
+            naked_identifier: x
             comparison_operator:
               raw_comparison_operator: '='
             expression:
               column_reference:
-                identifier: x
+                naked_identifier: x
               binary_operator: +
-              literal: '1'
+              numeric_literal: '1'
       - statement_terminator: ;
       - statement:
           select_statement:
@@ -36,16 +36,16 @@ file:
               keyword: SELECT
               select_clause_element:
                 column_reference:
-                  identifier: x
+                  naked_identifier: x
       - statement_terminator: ;
     - keyword: UNTIL
     - expression:
         column_reference:
-          identifier: x
+          naked_identifier: x
         comparison_operator:
         - raw_comparison_operator: '>'
         - raw_comparison_operator: '='
-        literal: '3'
+        numeric_literal: '3'
     - keyword: END
     - keyword: REPEAT
 - statement_terminator: ;
@@ -61,7 +61,7 @@ file:
             select_clause:
               keyword: SELECT
               select_clause_element:
-                literal: '1'
+                numeric_literal: '1'
       - statement_terminator: ;
       - statement:
           continue_statement:
@@ -75,11 +75,11 @@ file:
     - keyword: IF
     - expression:
         column_reference:
-          identifier: x
+          naked_identifier: x
         comparison_operator:
         - raw_comparison_operator: '>'
         - raw_comparison_operator: '='
-        literal: '10'
+        numeric_literal: '10'
     - keyword: THEN
     - if_statements:
         statement:
@@ -88,7 +88,7 @@ file:
               keyword: SELECT
               select_clause_element:
                 column_reference:
-                  identifier: x
+                  naked_identifier: x
         statement_terminator: ;
     - keyword: END
     - keyword: IF
@@ -98,66 +98,66 @@ file:
     - keyword: IF
     - expression:
         column_reference:
-          identifier: x
+          naked_identifier: x
         comparison_operator:
         - raw_comparison_operator: '>'
         - raw_comparison_operator: '='
-        literal: '10'
+        numeric_literal: '10'
     - keyword: THEN
     - if_statements:
         statement:
           set_segment:
             keyword: SET
-            identifier: x
+            naked_identifier: x
             comparison_operator:
               raw_comparison_operator: '='
             expression:
               column_reference:
-                identifier: x
+                naked_identifier: x
               binary_operator: '-'
-              literal: '1'
+              numeric_literal: '1'
         statement_terminator: ;
     - keyword: ELSEIF
     - expression:
         column_reference:
-          identifier: x
+          naked_identifier: x
         comparison_operator:
           raw_comparison_operator: <
-        literal: '0'
+        numeric_literal: '0'
     - keyword: THEN
     - if_statements:
         statement:
           set_segment:
             keyword: SET
-            identifier: x
+            naked_identifier: x
             comparison_operator:
               raw_comparison_operator: '='
             expression:
               column_reference:
-                identifier: x
+                naked_identifier: x
               binary_operator: +
-              literal: '1'
+              numeric_literal: '1'
         statement_terminator: ;
     - keyword: ELSEIF
     - expression:
         column_reference:
-          identifier: x
+          naked_identifier: x
         comparison_operator:
           raw_comparison_operator: '='
-        literal: '0'
+        numeric_literal: '0'
     - keyword: THEN
     - if_statements:
         statement:
           set_segment:
             keyword: SET
-            identifier: x
+            naked_identifier: x
             comparison_operator:
               raw_comparison_operator: '='
             expression:
               column_reference:
-                identifier: x
+                naked_identifier: x
               binary_operator: +
-              literal: '1'
+              numeric_literal: '1'
         statement_terminator: ;
     - keyword: ELSE
     - if_statements:
@@ -167,7 +167,7 @@ file:
               keyword: SELECT
               select_clause_element:
                 column_reference:
-                  identifier: x
+                  naked_identifier: x
         statement_terminator: ;
     - keyword: END
     - keyword: IF
@@ -179,25 +179,25 @@ file:
       - statement:
           set_segment:
             keyword: SET
-            identifier: x
+            naked_identifier: x
             comparison_operator:
               raw_comparison_operator: '='
             expression:
               column_reference:
-                identifier: x
+                naked_identifier: x
               binary_operator: +
-              literal: '1'
+              numeric_literal: '1'
       - statement_terminator: ;
       - multi_statement_segment:
           if_statement:
           - keyword: IF
           - expression:
               column_reference:
-                identifier: x
+                naked_identifier: x
               comparison_operator:
               - raw_comparison_operator: '>'
               - raw_comparison_operator: '='
-              literal: '10'
+              numeric_literal: '10'
           - keyword: THEN
           - if_statements:
               statement:
@@ -222,23 +222,23 @@ file:
         keyword: SELECT
         select_clause_element:
           column_reference:
-            identifier: x
+            naked_identifier: x
 - statement_terminator: ;
 - statement:
     declare_segment:
       keyword: DECLARE
-      identifier: heads
+      naked_identifier: heads
       data_type:
         data_type_identifier: BOOL
 - statement_terminator: ;
 - statement:
     declare_segment:
     - keyword: DECLARE
-    - identifier: heads_count
+    - naked_identifier: heads_count
     - data_type:
         data_type_identifier: INT64
     - keyword: DEFAULT
-    - literal: '0'
+    - numeric_literal: '0'
 - statement_terminator: ;
 - multi_statement_segment:
     loop_statement:
@@ -247,7 +247,7 @@ file:
       - statement:
           set_segment:
             keyword: SET
-            identifier: heads
+            naked_identifier: heads
             comparison_operator:
               raw_comparison_operator: '='
             expression:
@@ -259,14 +259,14 @@ file:
                   end_bracket: )
               comparison_operator:
                 raw_comparison_operator: <
-              literal: '0.5'
+              numeric_literal: '0.5'
       - statement_terminator: ;
       - multi_statement_segment:
           if_statement:
           - keyword: IF
           - expression:
               column_reference:
-                identifier: heads
+                naked_identifier: heads
           - keyword: THEN
           - if_statements:
             - statement:
@@ -279,14 +279,14 @@ file:
             - statement:
                 set_segment:
                   keyword: SET
-                  identifier: heads_count
+                  naked_identifier: heads_count
                   comparison_operator:
                     raw_comparison_operator: '='
                   expression:
                     column_reference:
-                      identifier: heads_count
+                      naked_identifier: heads_count
                     binary_operator: +
-                    literal: '1'
+                    numeric_literal: '1'
             - statement_terminator: ;
             - statement:
                 continue_statement:
@@ -327,7 +327,7 @@ file:
                     start_bracket: (
                     expression:
                       column_reference:
-                        identifier: heads_count
+                        naked_identifier: heads_count
                     keyword: AS
                     data_type:
                       data_type_identifier: STRING

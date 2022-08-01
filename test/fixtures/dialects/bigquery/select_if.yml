@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 22ce079d6ac2e0ba079299ebb928577690b8011191f5d3eadb4a33148b8f6cfa
+_hash: 37efc133aed479978d855fa3a562853daaed5d4da6235d198795be83ea2af0cf
 file:
   statement:
     select_statement:
@@ -11,15 +11,15 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: client
+            naked_identifier: client
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: firstHtml
+            naked_identifier: firstHtml
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: vary
+            naked_identifier: vary
       - comma: ','
       - select_clause_element:
           function:
@@ -29,7 +29,7 @@ file:
             - start_bracket: (
             - expression:
                 column_reference:
-                  identifier: _cdn_provider
+                  naked_identifier: _cdn_provider
                 comparison_operator:
                 - raw_comparison_operator: '!'
                 - raw_comparison_operator: '='
@@ -43,7 +43,7 @@ file:
             - end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: source
+            naked_identifier: source
       - comma: ','
       - select_clause_element:
           function:
@@ -52,18 +52,18 @@ file:
             bracketed:
               start_bracket: (
               expression:
-                literal: '0'
+                numeric_literal: '0'
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: total
+            naked_identifier: total
       from_clause:
       - keyword: FROM
       - from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: '`httparchive.almanac.requests`'
+                quoted_identifier: '`httparchive.almanac.requests`'
       - comma: ','
       - from_expression:
           from_expression_element:
@@ -99,7 +99,7 @@ file:
                                           start_bracket: (
                                           expression:
                                             column_reference:
-                                              identifier: resp_vary
+                                              naked_identifier: resp_vary
                                           end_bracket: )
                                   - comma: ','
                                   - expression:
@@ -122,12 +122,12 @@ file:
                   end_bracket: )
             alias_expression:
               keyword: AS
-              identifier: vary
+              naked_identifier: vary
       where_clause:
         keyword: WHERE
         expression:
           column_reference:
-            identifier: date
+            naked_identifier: date
           comparison_operator:
             raw_comparison_operator: '='
           literal: "'2019-07-01'"
@@ -135,28 +135,28 @@ file:
       - keyword: GROUP
       - keyword: BY
       - column_reference:
-          identifier: client
+          naked_identifier: client
       - comma: ','
       - column_reference:
-          identifier: firstHtml
+          naked_identifier: firstHtml
       - comma: ','
       - column_reference:
-          identifier: vary
+          naked_identifier: vary
       - comma: ','
       - column_reference:
-          identifier: source
+          naked_identifier: source
       having_clause:
         keyword: HAVING
         expression:
         - column_reference:
-            identifier: vary
+            naked_identifier: vary
         - comparison_operator:
           - raw_comparison_operator: '!'
           - raw_comparison_operator: '='
         - literal: "''"
         - binary_operator: AND
         - column_reference:
-            identifier: vary
+            naked_identifier: vary
         - keyword: IS
         - keyword: NOT
         - keyword: 'NULL'
@@ -164,13 +164,13 @@ file:
       - keyword: ORDER
       - keyword: BY
       - column_reference:
-          identifier: client
+          naked_identifier: client
       - keyword: DESC
       - comma: ','
       - column_reference:
-          identifier: firstHtml
+          naked_identifier: firstHtml
       - keyword: DESC
       - comma: ','
       - column_reference:
-          identifier: total
+          naked_identifier: total
       - keyword: DESC

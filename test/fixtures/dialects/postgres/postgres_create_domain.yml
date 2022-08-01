@@ -3,14 +3,14 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b97b13b6d58597831556ee1950904e8f2ad5570b185f6efb42b9f1d73129e043
+_hash: da60b8be8b3f496ebed1e63d809e74b89bc29a1ac6d32f59bd19005006e7ab4a
 file:
 - statement:
     create_domain_statement:
     - keyword: CREATE
     - keyword: DOMAIN
     - object_reference:
-        identifier: us_postal_code
+        naked_identifier: us_postal_code
     - keyword: AS
     - data_type:
         keyword: TEXT
@@ -20,14 +20,14 @@ file:
           start_bracket: (
           expression:
           - column_reference:
-              identifier: VALUE
+              naked_identifier: VALUE
           - comparison_operator: '~'
-          - literal: "'^\\d{5}$'"
+          - quoted_literal: "'^\\d{5}$'"
           - binary_operator: OR
           - column_reference:
-              identifier: VALUE
+              naked_identifier: VALUE
           - comparison_operator: '~'
-          - literal: "'^\\d{5}-\\d{4}$'"
+          - quoted_literal: "'^\\d{5}-\\d{4}$'"
           end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -35,7 +35,7 @@ file:
     - keyword: create
     - keyword: domain
     - object_reference:
-        identifier: oname
+        naked_identifier: oname
     - keyword: as
     - data_type:
         keyword: text
@@ -45,13 +45,13 @@ file:
     - keyword: CREATE
     - keyword: DOMAIN
     - object_reference:
-        identifier: mystr
+        naked_identifier: mystr
     - keyword: AS
     - data_type:
         keyword: text
     - keyword: CONSTRAINT
     - object_reference:
-        identifier: not_empty
+        naked_identifier: not_empty
     - keyword: CHECK
     - expression:
         bracketed:
@@ -64,7 +64,7 @@ file:
                 start_bracket: (
                 expression:
                   column_reference:
-                    identifier: value
+                    naked_identifier: value
                 end_bracket: )
             comparison_operator:
               raw_comparison_operator: '>'
@@ -72,7 +72,7 @@ file:
           end_bracket: )
     - keyword: CONSTRAINT
     - object_reference:
-        identifier: too_big
+        naked_identifier: too_big
     - keyword: CHECK
     - expression:
         bracketed:
@@ -85,7 +85,7 @@ file:
                 start_bracket: (
                 expression:
                   column_reference:
-                    identifier: value
+                    naked_identifier: value
                 end_bracket: )
             comparison_operator:
             - raw_comparison_operator: <

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7acd70d3717570b03da38c6e41cee9b6fa4870d1c2ed9ce7f73bad63ea11bb3b
+_hash: a097c931b635234e77b16dbd7220e1cb3ef7a5f3e7e826793ec9a6876508d696
 file:
   statement:
     select_statement:
@@ -11,17 +11,17 @@ file:
         keyword: SELECT
         select_clause_element:
           column_reference:
-            identifier: user_id
+            naked_identifier: user_id
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
           - table_expression:
               table_reference:
-                identifier: lists_emails
+                naked_identifier: lists_emails
           - alias_expression:
               keyword: AS
-              identifier: list_emails
+              naked_identifier: list_emails
           - keyword: FOR
           - keyword: SYSTEM_TIME
           - keyword: AS

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3d4ae86a614a1bb0a71ed54200740b830737645311620da724215aab957db6bc
+_hash: 47d5d055a30c0fbf95e970c663eb1dbee6922b5867f87e92b26d0caab138ba3f
 file:
 - statement:
     alter_materialized_view_statement:
@@ -11,11 +11,11 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-        identifier: bar
+        naked_identifier: bar
     - alter_materialized_view_action_segment:
       - keyword: ALTER
       - column_reference:
-          identifier: column_name
+          naked_identifier: column_name
       - keyword: SET
       - keyword: STATISTICS
       - literal: '1'
@@ -26,12 +26,12 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-        identifier: bar
+        naked_identifier: bar
     - alter_materialized_view_action_segment:
       - keyword: ALTER
       - keyword: COLUMN
       - column_reference:
-          identifier: column_name
+          naked_identifier: column_name
       - keyword: SET
       - keyword: STATISTICS
       - literal: '1'
@@ -42,11 +42,11 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-        identifier: bar
+        naked_identifier: bar
     - alter_materialized_view_action_segment:
       - keyword: ALTER
       - column_reference:
-          identifier: column_name
+          naked_identifier: column_name
       - keyword: SET
       - bracketed:
           start_bracket: (
@@ -62,24 +62,24 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-        identifier: bar
+        naked_identifier: bar
     - alter_materialized_view_action_segment:
       - keyword: ALTER
       - keyword: COLUMN
       - column_reference:
-          identifier: column_name
+          naked_identifier: column_name
       - keyword: SET
       - bracketed:
         - start_bracket: (
         - parameter: attribute_option1
         - comparison_operator:
             raw_comparison_operator: '='
-        - literal: "'avalue'"
+        - quoted_literal: "'avalue'"
         - comma: ','
         - parameter: attribute_option2
         - comparison_operator:
             raw_comparison_operator: '='
-        - literal: "'avalue'"
+        - quoted_literal: "'avalue'"
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -88,11 +88,11 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-        identifier: bar
+        naked_identifier: bar
     - alter_materialized_view_action_segment:
       - keyword: ALTER
       - column_reference:
-          identifier: column_name
+          naked_identifier: column_name
       - keyword: RESET
       - bracketed:
           start_bracket: (
@@ -105,11 +105,11 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-        identifier: bar
+        naked_identifier: bar
     - alter_materialized_view_action_segment:
       - keyword: ALTER
       - column_reference:
-          identifier: column_name
+          naked_identifier: column_name
       - keyword: RESET
       - bracketed:
         - start_bracket: (
@@ -124,12 +124,12 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-        identifier: bar
+        naked_identifier: bar
     - alter_materialized_view_action_segment:
       - keyword: ALTER
       - keyword: COLUMN
       - column_reference:
-          identifier: column_name
+          naked_identifier: column_name
       - keyword: RESET
       - bracketed:
           start_bracket: (
@@ -142,12 +142,12 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-        identifier: bar
+        naked_identifier: bar
     - alter_materialized_view_action_segment:
       - keyword: ALTER
       - keyword: COLUMN
       - column_reference:
-          identifier: column_name
+          naked_identifier: column_name
       - keyword: RESET
       - bracketed:
         - start_bracket: (
@@ -162,11 +162,11 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-        identifier: bar
+        naked_identifier: bar
     - alter_materialized_view_action_segment:
       - keyword: ALTER
       - column_reference:
-          identifier: column_name
+          naked_identifier: column_name
       - keyword: SET
       - keyword: STORAGE
       - keyword: PLAIN
@@ -177,12 +177,12 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-        identifier: bar
+        naked_identifier: bar
     - alter_materialized_view_action_segment:
       - keyword: ALTER
       - keyword: COLUMN
       - column_reference:
-          identifier: column_name
+          naked_identifier: column_name
       - keyword: SET
       - keyword: STORAGE
       - keyword: EXTENDED
@@ -193,7 +193,7 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-        identifier: bar
+        naked_identifier: bar
     - alter_materialized_view_action_segment:
       - keyword: CLUSTER
       - keyword: 'ON'
@@ -205,7 +205,7 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-        identifier: bar
+        naked_identifier: bar
     - alter_materialized_view_action_segment:
       - keyword: SET
       - keyword: WITHOUT
@@ -217,7 +217,7 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-        identifier: bar
+        naked_identifier: bar
     - alter_materialized_view_action_segment:
         keyword: SET
         bracketed:
@@ -231,7 +231,7 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-        identifier: bar
+        naked_identifier: bar
     - alter_materialized_view_action_segment:
         keyword: SET
         bracketed:
@@ -247,7 +247,7 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-        identifier: bar
+        naked_identifier: bar
     - alter_materialized_view_action_segment:
         keyword: SET
         bracketed:
@@ -255,7 +255,7 @@ file:
         - parameter: storage_parameter
         - comparison_operator:
             raw_comparison_operator: '='
-        - literal: "'some_value'"
+        - quoted_literal: "'some_value'"
         - comma: ','
         - parameter: storage_parameter
         - end_bracket: )
@@ -266,7 +266,7 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-        identifier: bar
+        naked_identifier: bar
     - alter_materialized_view_action_segment:
         keyword: RESET
         bracketed:
@@ -280,7 +280,7 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-        identifier: bar
+        naked_identifier: bar
     - alter_materialized_view_action_segment:
         keyword: RESET
         bracketed:
@@ -296,12 +296,12 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-        identifier: bar
+        naked_identifier: bar
     - alter_materialized_view_action_segment:
       - keyword: OWNER
       - keyword: TO
       - object_reference:
-          identifier: baz_role
+          naked_identifier: baz_role
 - statement_terminator: ;
 - statement:
     alter_materialized_view_statement:
@@ -309,12 +309,12 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-        identifier: bar
+        naked_identifier: bar
     - alter_materialized_view_action_segment:
       - keyword: OWNER
       - keyword: TO
       - object_reference:
-          identifier: '"baz-role"'
+          quoted_identifier: '"baz-role"'
 - statement_terminator: ;
 - statement:
     alter_materialized_view_statement:
@@ -322,12 +322,12 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-        identifier: bar
+        naked_identifier: bar
     - keyword: DEPENDS
     - keyword: 'ON'
     - keyword: EXTENSION
     - extension_reference:
-        identifier: baz
+        naked_identifier: baz
 - statement_terminator: ;
 - statement:
     alter_materialized_view_statement:
@@ -335,13 +335,13 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-        identifier: bar
+        naked_identifier: bar
     - keyword: 'NO'
     - keyword: DEPENDS
     - keyword: 'ON'
     - keyword: EXTENSION
     - extension_reference:
-        identifier: baz
+        naked_identifier: baz
 - statement_terminator: ;
 - statement:
     alter_materialized_view_statement:
@@ -349,13 +349,13 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-        identifier: bar
+        naked_identifier: bar
     - keyword: RENAME
     - column_reference:
-        identifier: column_name
+        naked_identifier: column_name
     - keyword: TO
     - column_reference:
-        identifier: new_column_name
+        naked_identifier: new_column_name
 - statement_terminator: ;
 - statement:
     alter_materialized_view_statement:
@@ -365,14 +365,14 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - table_reference:
-        identifier: bar
+        naked_identifier: bar
     - keyword: RENAME
     - keyword: COLUMN
     - column_reference:
-        identifier: column_name
+        naked_identifier: column_name
     - keyword: TO
     - column_reference:
-        identifier: new_column_name
+        naked_identifier: new_column_name
 - statement_terminator: ;
 - statement:
     alter_materialized_view_statement:
@@ -380,11 +380,11 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-        identifier: bar
+        naked_identifier: bar
     - keyword: RENAME
     - keyword: TO
     - table_reference:
-        identifier: baz
+        naked_identifier: baz
 - statement_terminator: ;
 - statement:
     alter_materialized_view_statement:
@@ -394,11 +394,11 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - table_reference:
-        identifier: bar
+        naked_identifier: bar
     - keyword: RENAME
     - keyword: TO
     - table_reference:
-        identifier: baz
+        naked_identifier: baz
 - statement_terminator: ;
 - statement:
     alter_materialized_view_statement:
@@ -406,11 +406,11 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-        identifier: bar
+        naked_identifier: bar
     - keyword: SET
     - keyword: SCHEMA
     - schema_reference:
-        identifier: new_schema
+        naked_identifier: new_schema
 - statement_terminator: ;
 - statement:
     alter_materialized_view_statement:
@@ -420,11 +420,11 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - table_reference:
-        identifier: bar
+        naked_identifier: bar
     - keyword: SET
     - keyword: SCHEMA
     - schema_reference:
-        identifier: new_schema
+        naked_identifier: new_schema
 - statement_terminator: ;
 - statement:
     alter_materialized_view_statement:
@@ -435,11 +435,11 @@ file:
     - keyword: IN
     - keyword: TABLESPACE
     - tablespace_reference:
-        identifier: old_tablespace
+        naked_identifier: old_tablespace
     - keyword: SET
     - keyword: TABLESPACE
     - tablespace_reference:
-        identifier: new_tablespace
+        naked_identifier: new_tablespace
 - statement_terminator: ;
 - statement:
     alter_materialized_view_statement:
@@ -450,11 +450,11 @@ file:
     - keyword: IN
     - keyword: TABLESPACE
     - tablespace_reference:
-        identifier: old_tablespace
+        naked_identifier: old_tablespace
     - keyword: SET
     - keyword: TABLESPACE
     - tablespace_reference:
-        identifier: new_tablespace
+        naked_identifier: new_tablespace
     - keyword: NOWAIT
 - statement_terminator: ;
 - statement:
@@ -466,15 +466,15 @@ file:
     - keyword: IN
     - keyword: TABLESPACE
     - tablespace_reference:
-        identifier: old_tablespace
+        naked_identifier: old_tablespace
     - keyword: OWNED
     - keyword: BY
     - object_reference:
-        identifier: role_name
+        naked_identifier: role_name
     - keyword: SET
     - keyword: TABLESPACE
     - tablespace_reference:
-        identifier: new_tablespace
+        naked_identifier: new_tablespace
 - statement_terminator: ;
 - statement:
     alter_materialized_view_statement:
@@ -485,15 +485,15 @@ file:
     - keyword: IN
     - keyword: TABLESPACE
     - tablespace_reference:
-        identifier: old_tablespace
+        naked_identifier: old_tablespace
     - keyword: OWNED
     - keyword: BY
     - object_reference:
-        identifier: role_name
+        naked_identifier: role_name
     - keyword: SET
     - keyword: TABLESPACE
     - tablespace_reference:
-        identifier: new_tablespace
+        naked_identifier: new_tablespace
     - keyword: NOWAIT
 - statement_terminator: ;
 - statement:
@@ -505,18 +505,18 @@ file:
     - keyword: IN
     - keyword: TABLESPACE
     - tablespace_reference:
-        identifier: old_tablespace
+        naked_identifier: old_tablespace
     - keyword: OWNED
     - keyword: BY
     - object_reference:
-        identifier: role_name
+        naked_identifier: role_name
     - comma: ','
     - object_reference:
-        identifier: role_name_2
+        naked_identifier: role_name_2
     - keyword: SET
     - keyword: TABLESPACE
     - tablespace_reference:
-        identifier: new_tablespace
+        naked_identifier: new_tablespace
 - statement_terminator: ;
 - statement:
     alter_materialized_view_statement:
@@ -527,17 +527,17 @@ file:
     - keyword: IN
     - keyword: TABLESPACE
     - tablespace_reference:
-        identifier: old_tablespace
+        naked_identifier: old_tablespace
     - keyword: OWNED
     - keyword: BY
     - object_reference:
-        identifier: role_name
+        naked_identifier: role_name
     - comma: ','
     - object_reference:
-        identifier: role_name_2
+        naked_identifier: role_name_2
     - keyword: SET
     - keyword: TABLESPACE
     - tablespace_reference:
-        identifier: new_tablespace
+        naked_identifier: new_tablespace
     - keyword: NOWAIT
 - statement_terminator: ;

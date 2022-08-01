@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: dba2ff896f761027ceff4a53c2a0c6eb3652c51ddf3b67e44809df232cf75330
+_hash: ba1b3addf0649a8e73d530e42a76bf2590f753e2911a2bd238cb4ec0ccdf0c65
 file:
   statement:
     select_statement:
@@ -11,66 +11,66 @@ file:
       - keyword: select
       - select_clause_element:
           column_reference:
-          - identifier: u
+          - naked_identifier: u
           - dot: .
-          - identifier: user_id
+          - naked_identifier: user_id
       - comma: ','
       - select_clause_element:
           column_reference:
-          - identifier: u
+          - naked_identifier: u
           - dot: .
-          - identifier: user_email
+          - naked_identifier: user_email
       - comma: ','
       - select_clause_element:
           column_reference:
-          - identifier: p
+          - naked_identifier: p
           - dot: .
-          - identifier: product_id
+          - naked_identifier: product_id
       from_clause:
         keyword: from
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: user_tb
+                naked_identifier: user_tb
             alias_expression:
               keyword: as
-              identifier: u
+              naked_identifier: u
           join_clause:
           - keyword: inner
           - keyword: join
           - from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: product_tb
+                  naked_identifier: product_tb
               alias_expression:
                 keyword: as
-                identifier: p
+                naked_identifier: p
           - join_on_condition:
               keyword: 'on'
               expression:
               - column_reference:
-                - identifier: u
+                - naked_identifier: u
                 - dot: .
-                - identifier: user_id
+                - naked_identifier: user_id
               - comparison_operator:
                   raw_comparison_operator: '='
               - column_reference:
-                - identifier: p
+                - naked_identifier: p
                 - dot: .
-                - identifier: user_id
+                - naked_identifier: user_id
               - binary_operator: and
               - function:
                   function_name:
                     function_name_identifier: position
                   bracketed:
                     start_bracket: (
-                    literal: "'@domain'"
+                    quoted_literal: "'@domain'"
                     keyword: in
                     column_reference:
-                    - identifier: u
+                    - naked_identifier: u
                     - dot: .
-                    - identifier: user_email
+                    - naked_identifier: user_email
                     end_bracket: )
               - comparison_operator:
                   raw_comparison_operator: '='

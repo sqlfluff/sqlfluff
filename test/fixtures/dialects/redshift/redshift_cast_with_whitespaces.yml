@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d7d64b9fe8b44c2db5d36f0eb0eb5c3ee3c0845fcd66392bc7a59b1162068264
+_hash: 57f8468676306fe30d7ed05a344fa3d073ff714fa4193e9c648b5a3ef9d2ceb4
 file:
 - statement:
     select_statement:
@@ -12,7 +12,7 @@ file:
         select_clause_element:
           expression:
             column_reference:
-              identifier: amount_of_honey
+              naked_identifier: amount_of_honey
             cast_expression:
               casting_operator: '::'
               data_type:
@@ -23,7 +23,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: bear_inventory
+                naked_identifier: bear_inventory
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -32,7 +32,7 @@ file:
         select_clause_element:
           expression:
             column_reference:
-              identifier: amount_of_honey
+              naked_identifier: amount_of_honey
             cast_expression:
               casting_operator: '::'
               data_type:
@@ -43,7 +43,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: bear_inventory
+                naked_identifier: bear_inventory
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -52,7 +52,7 @@ file:
         select_clause_element:
           expression:
             column_reference:
-              identifier: amount_of_honey
+              naked_identifier: amount_of_honey
             cast_expression:
               casting_operator: '::'
               data_type:
@@ -63,7 +63,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: bear_inventory
+                naked_identifier: bear_inventory
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -72,7 +72,7 @@ file:
         select_clause_element:
           expression:
             column_reference:
-              identifier: amount_of_honey
+              naked_identifier: amount_of_honey
             cast_expression:
               casting_operator: '::'
               data_type:
@@ -83,7 +83,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: bear_inventory
+                naked_identifier: bear_inventory
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -92,7 +92,7 @@ file:
         select_clause_element:
           expression:
             column_reference:
-              identifier: amount_of_honey
+              naked_identifier: amount_of_honey
             cast_expression:
               casting_operator: '::'
               data_type:
@@ -104,7 +104,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: bear_inventory
+                naked_identifier: bear_inventory
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -113,7 +113,7 @@ file:
         select_clause_element:
           expression:
             column_reference:
-              identifier: amount_of_honey
+              naked_identifier: amount_of_honey
             cast_expression:
               casting_operator: '::'
               data_type:
@@ -124,7 +124,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: bear_inventory
+                naked_identifier: bear_inventory
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -133,7 +133,7 @@ file:
         select_clause_element:
           expression:
             column_reference:
-              identifier: amount_of_honey
+              naked_identifier: amount_of_honey
             cast_expression:
               casting_operator: '::'
               data_type:
@@ -148,7 +148,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: bear_inventory
+                naked_identifier: bear_inventory
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -157,7 +157,7 @@ file:
         select_clause_element:
           expression:
             column_reference:
-              identifier: amount_of_honey
+              naked_identifier: amount_of_honey
             cast_expression:
               casting_operator: '::'
               data_type:
@@ -169,7 +169,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: bear_inventory
+                naked_identifier: bear_inventory
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -178,7 +178,7 @@ file:
         select_clause_element:
           expression:
             column_reference:
-              identifier: amount_of_honey
+              naked_identifier: amount_of_honey
             cast_expression:
               casting_operator: '::'
               data_type:
@@ -193,7 +193,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: bear_inventory
+                naked_identifier: bear_inventory
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -201,34 +201,34 @@ file:
         keyword: SELECT
         select_clause_element:
           column_reference:
-          - identifier: bi
+          - naked_identifier: bi
           - dot: .
-          - identifier: amount_of_honey
+          - naked_identifier: amount_of_honey
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: bear_inventory
+                naked_identifier: bear_inventory
             alias_expression:
-              identifier: bi
+              naked_identifier: bi
           join_clause:
           - keyword: LEFT
           - keyword: JOIN
           - from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: favorite_cola
+                  naked_identifier: favorite_cola
               alias_expression:
-                identifier: fc
+                naked_identifier: fc
           - join_on_condition:
               keyword: 'ON'
               expression:
               - column_reference:
-                - identifier: fc
+                - naked_identifier: fc
                 - dot: .
-                - identifier: bear_id
+                - naked_identifier: bear_id
               - cast_expression:
                   casting_operator: '::'
                   data_type:
@@ -240,9 +240,9 @@ file:
               - comparison_operator:
                   raw_comparison_operator: '='
               - column_reference:
-                - identifier: bi
+                - naked_identifier: bi
                 - dot: .
-                - identifier: bear_id
+                - naked_identifier: bear_id
               - cast_expression:
                   casting_operator: '::'
                   data_type:
@@ -255,10 +255,10 @@ file:
         keyword: WHERE
         expression:
           column_reference:
-          - identifier: fc
+          - naked_identifier: fc
           - dot: .
-          - identifier: favorite_cola
+          - naked_identifier: favorite_cola
           comparison_operator:
             raw_comparison_operator: '='
-          literal: "'RC Cola'"
+          quoted_literal: "'RC Cola'"
 - statement_terminator: ;

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7fbe124ffce48912aed1b9036a0131a681d139ffede5b7f3beae1d96b684262c
+_hash: 2d3232499b62f8418636e7465f05cf8b5c372cffe3161b082fedd67c06aff695
 file:
   statement:
     select_statement:
@@ -13,7 +13,7 @@ file:
           boolean_literal: 'TRUE'
           alias_expression:
             keyword: AS
-            identifier: col1
+            naked_identifier: col1
       - comma: ','
       - select_clause_element:
           function:
@@ -27,16 +27,16 @@ file:
                 literal: "'foo'"
             - comma: ','
             - expression:
-                literal: '0'
+                numeric_literal: '0'
             - comma: ','
             - expression:
                 numeric_literal:
                   sign_indicator: '-'
-                  literal: '2'
+                  numeric_literal: '2'
             - end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: col2
+            naked_identifier: col2
       - comma: ','
       - select_clause_element:
           function:
@@ -51,7 +51,7 @@ file:
             - expression:
                 numeric_literal:
                   sign_indicator: '-'
-                  literal: '2'
+                  numeric_literal: '2'
             - comma: ','
             - expression:
                 bare_function: CURRENT_DATE
@@ -67,7 +67,7 @@ file:
               start_bracket: (
               expression:
                 column_reference:
-                  identifier: column1
+                  naked_identifier: column1
               end_bracket: )
       from_clause:
         keyword: FROM
@@ -75,5 +75,5 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: table1
+                naked_identifier: table1
   statement_terminator: ;

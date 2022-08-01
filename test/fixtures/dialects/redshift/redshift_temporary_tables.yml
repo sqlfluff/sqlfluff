@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a98eb8d20432c7fae26baedd7eb35ac463854a7add4abbe93f2389728c22f014
+_hash: b7d46b72b36acc34ecad4331b97fa771bc9b96540906dcbfb861b3ad8c79f582
 file:
 - statement:
     create_table_as_statement:
@@ -11,32 +11,32 @@ file:
     - keyword: TEMPORARY
     - keyword: TABLE
     - object_reference:
-        identifier: '#temp_table'
+        naked_identifier: '#temp_table'
     - keyword: AS
     - select_statement:
         select_clause:
           keyword: SELECT
           select_clause_element:
             column_reference:
-              identifier: name
+              naked_identifier: name
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: other_table
+                  naked_identifier: other_table
 - statement_terminator: ;
 - statement:
     create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: '#other_temp_table'
+        naked_identifier: '#other_temp_table'
     - bracketed:
         start_bracket: (
         column_reference:
-          identifier: id
+          naked_identifier: id
         data_type:
           keyword: int
         end_bracket: )
@@ -45,12 +45,12 @@ file:
     copy_statement:
     - keyword: COPY
     - table_reference:
-        identifier: '#temp_table'
+        naked_identifier: '#temp_table'
     - keyword: FROM
-    - literal: "'s3://mybucket/path'"
+    - quoted_literal: "'s3://mybucket/path'"
     - authorization_segment:
         keyword: CREDENTIALS
-        literal: "'aws_access_key_id=SECRET;aws_secret_access_key=ALSO_SECRET'"
+        quoted_literal: "'aws_access_key_id=SECRET;aws_secret_access_key=ALSO_SECRET'"
     - keyword: GZIP
 - statement_terminator: ;
 - statement:
@@ -67,5 +67,5 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: '#temp_table'
+                naked_identifier: '#temp_table'
 - statement_terminator: ;

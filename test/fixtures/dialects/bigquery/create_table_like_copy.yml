@@ -3,35 +3,35 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 84617f141b5ce87226c16945b2f2e5c2595d177eb975a7e5add6bc87adde75f2
+_hash: aacbfd74b1f2cecaa82d12e782eef7eb48f8e0d7c8ef6de4a15ff59997d21800
 file:
 - statement:
     create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - identifier: mydataset
+      - naked_identifier: mydataset
       - dot: .
-      - identifier: newtable
+      - naked_identifier: newtable
     - keyword: LIKE
     - table_reference:
-      - identifier: mydataset
+      - naked_identifier: mydataset
       - dot: .
-      - identifier: sourcetable
+      - naked_identifier: sourcetable
 - statement_terminator: ;
 - statement:
     create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - identifier: mydataset
+      - naked_identifier: mydataset
       - dot: .
-      - identifier: newtable
+      - naked_identifier: newtable
     - keyword: LIKE
     - table_reference:
-      - identifier: mydataset
+      - naked_identifier: mydataset
       - dot: .
-      - identifier: sourcetable
+      - naked_identifier: sourcetable
     - keyword: AS
     - select_statement:
         select_clause:
@@ -46,21 +46,21 @@ file:
             from_expression_element:
               table_expression:
                 table_reference:
-                - identifier: mydataset
+                - naked_identifier: mydataset
                 - dot: .
-                - identifier: myothertable
+                - naked_identifier: myothertable
 - statement_terminator: ;
 - statement:
     create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - identifier: mydataset
+      - naked_identifier: mydataset
       - dot: .
-      - identifier: newtable
+      - naked_identifier: newtable
     - keyword: COPY
     - table_reference:
-      - identifier: mydataset
+      - naked_identifier: mydataset
       - dot: .
-      - identifier: sourcetable
+      - naked_identifier: sourcetable
 - statement_terminator: ;

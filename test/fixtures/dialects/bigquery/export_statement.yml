@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bd39db0983c89c5ad11a0b59cb4f5b002fa31799329d0d006aeb6358a9eb23d6
+_hash: c6cc1bc85cb30051cde34b477b1584848cf5aa889892db5defd29d8bcda6ac1e
 file:
 - statement:
     export_statement:
@@ -12,11 +12,11 @@ file:
     - keyword: WITH
     - keyword: CONNECTION
     - object_reference:
-      - identifier: PROJECT_ID
+      - naked_identifier: PROJECT_ID
       - dot: .
-      - identifier: LOCATION
+      - naked_identifier: LOCATION
       - dot: .
-      - identifier: CONNECTION_ID
+      - naked_identifier: CONNECTION_ID
     - keyword: OPTIONS
     - bracketed:
       - start_bracket: (
@@ -51,25 +51,25 @@ file:
         - keyword: SELECT
         - select_clause_element:
             column_reference:
-              identifier: field1
+              naked_identifier: field1
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: field2
+              naked_identifier: field2
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                - identifier: mydataset
+                - naked_identifier: mydataset
                 - dot: .
-                - identifier: table1
+                - naked_identifier: table1
         orderby_clause:
         - keyword: ORDER
         - keyword: BY
         - column_reference:
-            identifier: field1
+            naked_identifier: field1
 - statement_terminator: ;
 - statement:
     export_statement:
@@ -78,7 +78,7 @@ file:
     - keyword: WITH
     - keyword: CONNECTION
     - object_reference:
-        identifier: '`PROJECT_ID.LOCATION.CONNECTION_ID`'
+        quoted_identifier: '`PROJECT_ID.LOCATION.CONNECTION_ID`'
     - keyword: OPTIONS
     - bracketed:
       - start_bracket: (
@@ -113,25 +113,25 @@ file:
         - keyword: SELECT
         - select_clause_element:
             column_reference:
-              identifier: field1
+              naked_identifier: field1
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: field2
+              naked_identifier: field2
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                - identifier: mydataset
+                - naked_identifier: mydataset
                 - dot: .
-                - identifier: table1
+                - naked_identifier: table1
         orderby_clause:
         - keyword: ORDER
         - keyword: BY
         - column_reference:
-            identifier: field1
+            naked_identifier: field1
 - statement_terminator: ;
 - statement:
     export_statement:
@@ -171,28 +171,28 @@ file:
         - keyword: SELECT
         - select_clause_element:
             column_reference:
-              identifier: field1
+              naked_identifier: field1
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: field2
+              naked_identifier: field2
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                - identifier: mydataset
+                - naked_identifier: mydataset
                 - dot: .
-                - identifier: table1
+                - naked_identifier: table1
         orderby_clause:
         - keyword: ORDER
         - keyword: BY
         - column_reference:
-            identifier: field1
+            naked_identifier: field1
         limit_clause:
           keyword: LIMIT
-          literal: '10'
+          numeric_literal: '10'
 - statement_terminator: ;
 - statement:
     export_statement:
@@ -222,28 +222,28 @@ file:
         - keyword: SELECT
         - select_clause_element:
             column_reference:
-              identifier: field1
+              naked_identifier: field1
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: field2
+              naked_identifier: field2
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                - identifier: mydataset
+                - naked_identifier: mydataset
                 - dot: .
-                - identifier: table1
+                - naked_identifier: table1
         orderby_clause:
         - keyword: ORDER
         - keyword: BY
         - column_reference:
-            identifier: field1
+            naked_identifier: field1
         limit_clause:
           keyword: LIMIT
-          literal: '10'
+          numeric_literal: '10'
 - statement_terminator: ;
 - statement:
     export_statement:
@@ -273,28 +273,28 @@ file:
         - keyword: SELECT
         - select_clause_element:
             column_reference:
-              identifier: field1
+              naked_identifier: field1
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: field2
+              naked_identifier: field2
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                - identifier: mydataset
+                - naked_identifier: mydataset
                 - dot: .
-                - identifier: table1
+                - naked_identifier: table1
         orderby_clause:
         - keyword: ORDER
         - keyword: BY
         - column_reference:
-            identifier: field1
+            naked_identifier: field1
         limit_clause:
           keyword: LIMIT
-          literal: '10'
+          numeric_literal: '10'
 - statement_terminator: ;
 - statement:
     export_statement:
@@ -332,7 +332,7 @@ file:
     - with_compound_statement:
         keyword: WITH
         common_table_expression:
-          identifier: cte
+          naked_identifier: cte
           keyword: AS
           bracketed:
             start_bracket: (
@@ -341,28 +341,28 @@ file:
               - keyword: SELECT
               - select_clause_element:
                   column_reference:
-                    identifier: field1
+                    naked_identifier: field1
               - comma: ','
               - select_clause_element:
                   column_reference:
-                    identifier: field2
+                    naked_identifier: field2
               from_clause:
                 keyword: FROM
                 from_expression:
                   from_expression_element:
                     table_expression:
                       table_reference:
-                      - identifier: mydataset
+                      - naked_identifier: mydataset
                       - dot: .
-                      - identifier: table1
+                      - naked_identifier: table1
               orderby_clause:
               - keyword: ORDER
               - keyword: BY
               - column_reference:
-                  identifier: field1
+                  naked_identifier: field1
               limit_clause:
                 keyword: LIMIT
-                literal: '10'
+                numeric_literal: '10'
             end_bracket: )
         select_statement:
           select_clause:
@@ -377,5 +377,5 @@ file:
               from_expression_element:
                 table_expression:
                   table_reference:
-                    identifier: cte
+                    naked_identifier: cte
 - statement_terminator: ;

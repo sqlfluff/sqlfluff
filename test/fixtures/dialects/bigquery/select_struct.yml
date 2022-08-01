@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d08283f65b2b85767cbb79bcfa1483ce634d5ad18e86f6be8033d5f98196a52c
+_hash: 4350e55f2aa1ef048a946a3da8c940c347ed7795f0a892c35757a0e9447ef524
 file:
 - statement:
     select_statement:
@@ -11,9 +11,9 @@ file:
       - keyword: select
       - select_clause_element:
           column_reference:
-          - identifier: some_table
+          - naked_identifier: some_table
           - dot: .
-          - identifier: foo_id
+          - naked_identifier: foo_id
       - comma: ','
       - select_clause_element:
           expression:
@@ -37,20 +37,20 @@ file:
                       from_expression_element:
                         table_expression:
                           table_reference:
-                            identifier: another_table
+                            naked_identifier: another_table
                   where_clause:
                     keyword: where
                     expression:
                     - column_reference:
-                      - identifier: another_table
+                      - naked_identifier: another_table
                       - dot: .
-                      - identifier: foo_id
+                      - naked_identifier: foo_id
                     - comparison_operator:
                         raw_comparison_operator: '='
                     - column_reference:
-                      - identifier: some_table
+                      - naked_identifier: some_table
                       - dot: .
-                      - identifier: foo_id
+                      - naked_identifier: foo_id
                 end_bracket: )
       from_clause:
         keyword: from
@@ -58,7 +58,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: another_table
+                naked_identifier: another_table
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -71,13 +71,13 @@ file:
           literal: "'1'"
           alias_expression:
             keyword: as
-            identifier: bb
+            naked_identifier: bb
       - comma: ','
       - select_clause_element:
-          literal: '2'
+          numeric_literal: '2'
           alias_expression:
             keyword: as
-            identifier: aa
+            naked_identifier: aa
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -90,51 +90,51 @@ file:
               bracketed:
               - start_bracket: (
               - column_reference:
-                - identifier: bar
+                - naked_identifier: bar
                 - dot: .
-                - identifier: bar_id
+                - naked_identifier: bar_id
               - alias_expression:
                   keyword: as
-                  identifier: id
+                  naked_identifier: id
               - comma: ','
               - column_reference:
-                - identifier: bar
+                - naked_identifier: bar
                 - dot: .
-                - identifier: bar_name
+                - naked_identifier: bar_name
               - alias_expression:
                   keyword: as
-                  identifier: bar
+                  naked_identifier: bar
               - end_bracket: )
           alias_expression:
             keyword: as
-            identifier: bar
+            naked_identifier: bar
       from_clause:
         keyword: from
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: foo
+                naked_identifier: foo
           join_clause:
           - keyword: left
           - keyword: join
           - from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: bar
+                  naked_identifier: bar
           - join_on_condition:
               keyword: 'on'
               expression:
               - column_reference:
-                - identifier: bar
+                - naked_identifier: bar
                 - dot: .
-                - identifier: foo_id
+                - naked_identifier: foo_id
               - comparison_operator:
                   raw_comparison_operator: '='
               - column_reference:
-                - identifier: foo
+                - naked_identifier: foo
                 - dot: .
-                - identifier: foo_id
+                - naked_identifier: foo_id
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -142,11 +142,11 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: col_1
+            naked_identifier: col_1
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: col_2
+            naked_identifier: col_2
       from_clause:
         keyword: FROM
         from_expression:
@@ -208,7 +208,7 @@ file:
             bracketed:
               start_bracket: (
               expression:
-                literal: '5'
+                numeric_literal: '5'
               end_bracket: )
       - comma: ','
       - select_clause_element:
@@ -222,7 +222,7 @@ file:
             bracketed:
               start_bracket: (
               expression:
-                literal: '"2011-05-05"'
+                quoted_literal: '"2011-05-05"'
               end_bracket: )
       - comma: ','
       - select_clause_element:
@@ -241,13 +241,13 @@ file:
             bracketed:
             - start_bracket: (
             - expression:
-                literal: '1'
+                numeric_literal: '1'
             - comma: ','
             - expression:
                 column_reference:
-                - identifier: t
+                - naked_identifier: t
                 - dot: .
-                - identifier: str_col
+                - naked_identifier: str_col
             - end_bracket: )
       - comma: ','
       - select_clause_element:
@@ -262,7 +262,7 @@ file:
               start_bracket: (
               expression:
                 column_reference:
-                  identifier: int_col
+                  naked_identifier: int_col
               end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -276,19 +276,19 @@ file:
               bracketed:
               - start_bracket: (
               - column_reference:
-                  identifier: some_field
+                  naked_identifier: some_field
               - comma: ','
               - column_reference:
-                  identifier: some_other_field
+                  naked_identifier: some_other_field
               - end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: col
+            naked_identifier: col
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: table
+                naked_identifier: table
 - statement_terminator: ;

@@ -3,25 +3,25 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4a7615a914f33d58e7a1a994de615af23a584b6bccfb80835ab14d0e0793ac7a
+_hash: 974220a63e067069e866cdf033ab22f122ac072b09337e27b18abbc4f3313116
 file:
   statement:
     create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - identifier: public
+      - naked_identifier: public
       - dot: .
-      - identifier: foo
+      - naked_identifier: foo
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: quadkey
+          naked_identifier: quadkey
       - data_type:
           keyword: TEXT
       - comma: ','
       - column_reference:
-          identifier: my_geometry_column
+          naked_identifier: my_geometry_column
       - data_type:
           wkt_geometry_type:
             keyword: GEOMETRY
@@ -33,7 +33,7 @@ file:
               end_bracket: )
       - comma: ','
       - column_reference:
-          identifier: my_point
+          naked_identifier: my_point
       - data_type:
           wkt_geometry_type:
             keyword: POINT
@@ -44,7 +44,7 @@ file:
             - end_bracket: )
       - comma: ','
       - column_reference:
-          identifier: my_linestring
+          naked_identifier: my_linestring
       - data_type:
           wkt_geometry_type:
             keyword: LINESTRING
@@ -64,7 +64,7 @@ file:
             - end_bracket: )
       - comma: ','
       - column_reference:
-          identifier: my_simple_polygon
+          naked_identifier: my_simple_polygon
       - data_type:
           wkt_geometry_type:
             keyword: POLYGON
@@ -90,7 +90,7 @@ file:
               end_bracket: )
       - comma: ','
       - column_reference:
-          identifier: my_complex_polygon
+          naked_identifier: my_complex_polygon
       - data_type:
           wkt_geometry_type:
             keyword: POLYGON
@@ -134,7 +134,7 @@ file:
             - end_bracket: )
       - comma: ','
       - column_reference:
-          identifier: my_geometry_collection
+          naked_identifier: my_geometry_collection
       - data_type:
           wkt_geometry_type:
             keyword: GEOMETRYCOLLECTION
@@ -173,7 +173,7 @@ file:
             - end_bracket: )
       - comma: ','
       - column_reference:
-          identifier: my_3d_linestring
+          naked_identifier: my_3d_linestring
       - data_type:
           wkt_geometry_type:
             keyword: LINESTRINGZ
@@ -193,7 +193,7 @@ file:
             - end_bracket: )
       - comma: ','
       - column_reference:
-          identifier: my_geography_column
+          naked_identifier: my_geography_column
       - data_type:
           wkt_geometry_type:
             keyword: GEOGRAPHY
@@ -205,7 +205,7 @@ file:
               end_bracket: )
       - comma: ','
       - column_reference:
-          identifier: my_4d_point
+          naked_identifier: my_4d_point
       - data_type:
           wkt_geometry_type:
             keyword: POINTZM
@@ -221,7 +221,7 @@ file:
             - end_bracket: )
       - comma: ','
       - column_reference:
-          identifier: my_multicurve
+          naked_identifier: my_multicurve
       - data_type:
           wkt_geometry_type:
             keyword: MULTICURVE
@@ -252,7 +252,7 @@ file:
               end_bracket: )
       - comma: ','
       - column_reference:
-          identifier: my_tin
+          naked_identifier: my_tin
       - data_type:
           wkt_geometry_type:
             keyword: TIN
@@ -304,7 +304,7 @@ file:
             - end_bracket: )
       - comma: ','
       - column_reference:
-          identifier: my_triangle
+          naked_identifier: my_triangle
       - data_type:
           wkt_geometry_type:
             keyword: TRIANGLE
@@ -327,7 +327,7 @@ file:
               end_bracket: )
       - comma: ','
       - column_reference:
-          identifier: my_polyhedral_surface
+          naked_identifier: my_polyhedral_surface
       - data_type:
           wkt_geometry_type:
             keyword: POLYHEDRALSURFACE
@@ -491,7 +491,7 @@ file:
             - end_bracket: )
       - comma: ','
       - column_reference:
-          identifier: my_3d_geometry_collection
+          naked_identifier: my_3d_geometry_collection
       - data_type:
           wkt_geometry_type:
             keyword: GEOMETRYCOLLECTIONM
@@ -521,7 +521,7 @@ file:
             - end_bracket: )
       - comma: ','
       - column_reference:
-          identifier: my_curve_polygon
+          naked_identifier: my_curve_polygon
       - data_type:
           wkt_geometry_type:
             keyword: CURVEPOLYGON
@@ -564,7 +564,7 @@ file:
               end_bracket: )
       - comma: ','
       - column_reference:
-          identifier: my_multisurface
+          naked_identifier: my_multisurface
       - data_type:
           wkt_geometry_type:
             keyword: MULTISURFACE
@@ -645,7 +645,7 @@ file:
               end_bracket: )
       - comma: ','
       - column_reference:
-          identifier: my_circularstring
+          naked_identifier: my_circularstring
       - data_type:
           wkt_geometry_type:
             keyword: CIRCULARSTRING
@@ -673,7 +673,7 @@ file:
         - bracketed:
             start_bracket: (
             column_reference:
-              identifier: quadkey
+              naked_identifier: quadkey
             end_bracket: )
       - end_bracket: )
   statement_terminator: ;

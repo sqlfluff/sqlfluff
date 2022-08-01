@@ -109,17 +109,13 @@ bigquery_dialect.add(
         "<", SymbolSegment, type="start_angle_bracket"
     ),
     EndAngleBracketSegment=StringParser(">", SymbolSegment, type="end_angle_bracket"),
-    RightArrowSegment=StringParser(
-        "=>", SymbolSegment, type="right_arrow"
-    ),
+    RightArrowSegment=StringParser("=>", SymbolSegment, type="right_arrow"),
     DashSegment=StringParser("-", SymbolSegment, type="dash"),
     SelectClauseElementListGrammar=Delimited(
         Ref("SelectClauseElementSegment"),
         allow_trailing=True,
     ),
-    QuestionMarkSegment=StringParser(
-        "?", SymbolSegment, type="question_mark"
-    ),
+    QuestionMarkSegment=StringParser("?", SymbolSegment, type="question_mark"),
     AtSignLiteralSegment=NamedParser(
         "at_sign_literal",
         ansi.LiteralSegment,
@@ -214,9 +210,7 @@ bigquery_dialect.replace(
     # BigQuery allows underscore in parameter names, and also anything if quoted in
     # backticks
     ParameterNameSegment=OneOf(
-        RegexParser(
-            r"[A-Z_][A-Z0-9_]*", CodeSegment, type="parameter"
-        ),
+        RegexParser(r"[A-Z_][A-Z0-9_]*", CodeSegment, type="parameter"),
         RegexParser(r"`[^`]*`", CodeSegment, type="parameter"),
     ),
     DateTimeLiteralGrammar=Sequence(
@@ -698,9 +692,7 @@ bigquery_dialect.replace(
     ),
     # Add ParameterizedSegment to the ansi NumericLiteralSegment
     NumericLiteralSegment=OneOf(
-        NamedParser(
-            "numeric_literal", ansi.LiteralSegment, type="numeric_literal"
-        ),
+        NamedParser("numeric_literal", ansi.LiteralSegment, type="numeric_literal"),
         Ref("ParameterizedSegment"),
     ),
     # Add three elements to the ansi LiteralGrammar

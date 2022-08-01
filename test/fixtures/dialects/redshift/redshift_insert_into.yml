@@ -3,16 +3,16 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1e7af90a25a98f815f8c4dc3f2d1501dfdd6bf01f859625a09a83131239a2ef8
+_hash: 8279362a60850976c97b65f00125f8717dd63c71cff4a509d1aff0ba802ab097
 file:
 - statement:
     insert_statement:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-      - identifier: s1
+      - naked_identifier: s1
       - dot: .
-      - identifier: t1
+      - naked_identifier: t1
     - bracketed:
         start_bracket: (
         select_statement:
@@ -20,22 +20,22 @@ file:
           - keyword: SELECT
           - select_clause_element:
               column_reference:
-                identifier: col1
+                naked_identifier: col1
           - comma: ','
           - select_clause_element:
               column_reference:
-                identifier: col2
+                naked_identifier: col2
           - comma: ','
           - select_clause_element:
               column_reference:
-                identifier: col3
+                naked_identifier: col3
           from_clause:
             keyword: FROM
             from_expression:
               from_expression_element:
                 table_expression:
                   table_reference:
-                    identifier: testtable
+                    naked_identifier: testtable
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -43,16 +43,16 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-      - identifier: s1
+      - naked_identifier: s1
       - dot: .
-      - identifier: t1
+      - naked_identifier: t1
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: col1
+          naked_identifier: col1
       - comma: ','
       - column_reference:
-          identifier: col2
+          naked_identifier: col2
       - end_bracket: )
     - bracketed:
         start_bracket: (
@@ -61,22 +61,22 @@ file:
           - keyword: select
           - select_clause_element:
               column_reference:
-                identifier: col1
+                naked_identifier: col1
           - comma: ','
           - select_clause_element:
               column_reference:
-                identifier: col2
+                naked_identifier: col2
           - comma: ','
           - select_clause_element:
               column_reference:
-                identifier: col3
+                naked_identifier: col3
           from_clause:
             keyword: from
             from_expression:
               from_expression_element:
                 table_expression:
                   table_reference:
-                    identifier: testtable
+                    naked_identifier: testtable
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -84,39 +84,39 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-      - identifier: schema1
+      - naked_identifier: schema1
       - dot: .
-      - identifier: t1
+      - naked_identifier: t1
     - select_statement:
         select_clause:
         - keyword: SELECT
         - select_clause_element:
             column_reference:
-              identifier: col1
+              naked_identifier: col1
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: col2
+              naked_identifier: col2
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: col3
+              naked_identifier: col3
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: testtable
+                  naked_identifier: testtable
 - statement_terminator: ;
 - statement:
     insert_statement:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-      - identifier: schema1
+      - naked_identifier: schema1
       - dot: .
-      - identifier: t1
+      - naked_identifier: t1
     - keyword: DEFAULT
     - keyword: VALUES
 - statement_terminator: ;
@@ -125,23 +125,23 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-      - identifier: s1
+      - naked_identifier: s1
       - dot: .
-      - identifier: t1
+      - naked_identifier: t1
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: col1
+          naked_identifier: col1
       - comma: ','
       - column_reference:
-          identifier: col2
+          naked_identifier: col2
       - end_bracket: )
     - values_clause:
       - keyword: VALUES
       - bracketed:
         - start_bracket: (
         - expression:
-            literal: "'V1'"
+            quoted_literal: "'V1'"
         - comma: ','
         - expression:
             literal: '1'
@@ -150,7 +150,7 @@ file:
       - bracketed:
         - start_bracket: (
         - expression:
-            literal: "'V2'"
+            quoted_literal: "'V2'"
         - comma: ','
         - expression:
             literal: '2'

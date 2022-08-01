@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 425d1b3adcf48414a3ddd2e6b6d4da8538eb25743eb1a5e17b8ec1a0ec5ed3a6
+_hash: 2d072252aa2060e0334355161ef4d40728ed91eef4eb01a57a19c4b4a2696f97
 file:
 - statement:
     select_statement:
@@ -11,7 +11,7 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: item
+            naked_identifier: item
       - comma: ','
       - select_clause_element:
           function:
@@ -30,31 +30,31 @@ file:
                   - keyword: BY
                   - expression:
                       column_reference:
-                        identifier: category
+                        naked_identifier: category
                   orderby_clause:
                   - keyword: ORDER
                   - keyword: BY
                   - column_reference:
-                      identifier: purchases
+                      naked_identifier: purchases
                   - keyword: DESC
                 end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: rank
+            naked_identifier: rank
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: Produce
+                naked_identifier: Produce
       where_clause:
         keyword: WHERE
         expression:
           column_reference:
-          - identifier: Produce
+          - naked_identifier: Produce
           - dot: .
-          - identifier: category
+          - naked_identifier: category
           comparison_operator:
             raw_comparison_operator: '='
           literal: "'vegetable'"
@@ -62,11 +62,11 @@ file:
         keyword: QUALIFY
         expression:
           column_reference:
-            identifier: rank
+            naked_identifier: rank
           comparison_operator:
           - raw_comparison_operator: <
           - raw_comparison_operator: '='
-          literal: '3'
+          numeric_literal: '3'
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -74,7 +74,7 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: item
+            naked_identifier: item
       - comma: ','
       - select_clause_element:
           function:
@@ -93,31 +93,31 @@ file:
                   - keyword: BY
                   - expression:
                       column_reference:
-                        identifier: category
+                        naked_identifier: category
                   orderby_clause:
                   - keyword: ORDER
                   - keyword: BY
                   - column_reference:
-                      identifier: purchases
+                      naked_identifier: purchases
                   - keyword: DESC
                 end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: rank
+            naked_identifier: rank
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: Produce
+                naked_identifier: Produce
       where_clause:
         keyword: WHERE
         expression:
           column_reference:
-          - identifier: Produce
+          - naked_identifier: Produce
           - dot: .
-          - identifier: category
+          - naked_identifier: category
           comparison_operator:
             raw_comparison_operator: '='
           literal: "'vegetable'"
@@ -125,16 +125,16 @@ file:
         keyword: QUALIFY
         expression:
           column_reference:
-            identifier: rank
+            naked_identifier: rank
           comparison_operator:
           - raw_comparison_operator: <
           - raw_comparison_operator: '='
-          literal: '3'
+          numeric_literal: '3'
       orderby_clause:
       - keyword: ORDER
       - keyword: BY
       - column_reference:
-          identifier: item
+          naked_identifier: item
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -142,7 +142,7 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: item
+            naked_identifier: item
       - comma: ','
       - select_clause_element:
           function:
@@ -161,31 +161,31 @@ file:
                   - keyword: BY
                   - expression:
                       column_reference:
-                        identifier: category
+                        naked_identifier: category
                   orderby_clause:
                   - keyword: ORDER
                   - keyword: BY
                   - column_reference:
-                      identifier: purchases
+                      naked_identifier: purchases
                   - keyword: DESC
                 end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: rank
+            naked_identifier: rank
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: Produce
+                naked_identifier: Produce
       where_clause:
         keyword: WHERE
         expression:
           column_reference:
-          - identifier: Produce
+          - naked_identifier: Produce
           - dot: .
-          - identifier: category
+          - naked_identifier: category
           comparison_operator:
             raw_comparison_operator: '='
           literal: "'vegetable'"
@@ -193,14 +193,14 @@ file:
         keyword: QUALIFY
         expression:
           column_reference:
-            identifier: rank
+            naked_identifier: rank
           comparison_operator:
           - raw_comparison_operator: <
           - raw_comparison_operator: '='
-          literal: '3'
+          numeric_literal: '3'
       limit_clause:
         keyword: LIMIT
-        literal: '5'
+        numeric_literal: '5'
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -208,7 +208,7 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: item
+            naked_identifier: item
       - comma: ','
       - select_clause_element:
           function:
@@ -227,31 +227,31 @@ file:
                   - keyword: BY
                   - expression:
                       column_reference:
-                        identifier: category
+                        naked_identifier: category
                   orderby_clause:
                   - keyword: ORDER
                   - keyword: BY
                   - column_reference:
-                      identifier: purchases
+                      naked_identifier: purchases
                   - keyword: DESC
                 end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: rank
+            naked_identifier: rank
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: Produce
+                naked_identifier: Produce
       where_clause:
         keyword: WHERE
         expression:
           column_reference:
-          - identifier: Produce
+          - naked_identifier: Produce
           - dot: .
-          - identifier: category
+          - naked_identifier: category
           comparison_operator:
             raw_comparison_operator: '='
           literal: "'vegetable'"
@@ -259,19 +259,19 @@ file:
         keyword: QUALIFY
         expression:
           column_reference:
-            identifier: rank
+            naked_identifier: rank
           comparison_operator:
           - raw_comparison_operator: <
           - raw_comparison_operator: '='
-          literal: '3'
+          numeric_literal: '3'
       orderby_clause:
       - keyword: ORDER
       - keyword: BY
       - column_reference:
-          identifier: item
+          naked_identifier: item
       limit_clause:
         keyword: LIMIT
-        literal: '5'
+        numeric_literal: '5'
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -279,7 +279,7 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: item
+            naked_identifier: item
       - comma: ','
       - select_clause_element:
           function:
@@ -298,31 +298,31 @@ file:
                   - keyword: BY
                   - expression:
                       column_reference:
-                        identifier: category
+                        naked_identifier: category
                   orderby_clause:
                   - keyword: ORDER
                   - keyword: BY
                   - column_reference:
-                      identifier: purchases
+                      naked_identifier: purchases
                   - keyword: DESC
                 end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: rank
+            naked_identifier: rank
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: Produce
+                naked_identifier: Produce
       where_clause:
         keyword: WHERE
         expression:
           column_reference:
-          - identifier: Produce
+          - naked_identifier: Produce
           - dot: .
-          - identifier: category
+          - naked_identifier: category
           comparison_operator:
             raw_comparison_operator: '='
           literal: "'vegetable'"
@@ -330,14 +330,14 @@ file:
         keyword: QUALIFY
         expression:
           column_reference:
-            identifier: rank
+            naked_identifier: rank
           comparison_operator:
           - raw_comparison_operator: <
           - raw_comparison_operator: '='
-          literal: '3'
+          numeric_literal: '3'
       limit_clause:
         keyword: LIMIT
-        literal: '5'
+        numeric_literal: '5'
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -345,7 +345,7 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: item
+            naked_identifier: item
       - comma: ','
       - select_clause_element:
           function:
@@ -364,31 +364,31 @@ file:
                   - keyword: BY
                   - expression:
                       column_reference:
-                        identifier: category
+                        naked_identifier: category
                   orderby_clause:
                   - keyword: ORDER
                   - keyword: BY
                   - column_reference:
-                      identifier: purchases
+                      naked_identifier: purchases
                   - keyword: DESC
                 end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: rank
+            naked_identifier: rank
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: Produce
+                naked_identifier: Produce
       where_clause:
         keyword: WHERE
         expression:
           column_reference:
-          - identifier: Produce
+          - naked_identifier: Produce
           - dot: .
-          - identifier: category
+          - naked_identifier: category
           comparison_operator:
             raw_comparison_operator: '='
           literal: "'vegetable'"
@@ -396,15 +396,15 @@ file:
         keyword: QUALIFY
         expression:
           column_reference:
-            identifier: rank
+            naked_identifier: rank
           comparison_operator:
           - raw_comparison_operator: <
           - raw_comparison_operator: '='
-          literal: '3'
+          numeric_literal: '3'
       named_window:
         keyword: WINDOW
         named_window_expression:
-          identifier: item_window
+          naked_identifier: item_window
           keyword: AS
           bracketed:
             start_bracket: (
@@ -414,19 +414,19 @@ file:
               - keyword: BY
               - expression:
                   column_reference:
-                    identifier: category
+                    naked_identifier: category
               orderby_clause:
               - keyword: ORDER
               - keyword: BY
               - column_reference:
-                  identifier: purchases
+                  naked_identifier: purchases
               frame_clause:
               - keyword: ROWS
               - keyword: BETWEEN
-              - literal: '2'
+              - numeric_literal: '2'
               - keyword: PRECEDING
               - keyword: AND
-              - literal: '2'
+              - numeric_literal: '2'
               - keyword: FOLLOWING
             end_bracket: )
 - statement_terminator: ;
@@ -436,7 +436,7 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: item
+            naked_identifier: item
       - comma: ','
       - select_clause_element:
           function:
@@ -455,31 +455,31 @@ file:
                   - keyword: BY
                   - expression:
                       column_reference:
-                        identifier: category
+                        naked_identifier: category
                   orderby_clause:
                   - keyword: ORDER
                   - keyword: BY
                   - column_reference:
-                      identifier: purchases
+                      naked_identifier: purchases
                   - keyword: DESC
                 end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: rank
+            naked_identifier: rank
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: Produce
+                naked_identifier: Produce
       where_clause:
         keyword: WHERE
         expression:
           column_reference:
-          - identifier: Produce
+          - naked_identifier: Produce
           - dot: .
-          - identifier: category
+          - naked_identifier: category
           comparison_operator:
             raw_comparison_operator: '='
           literal: "'vegetable'"
@@ -487,20 +487,20 @@ file:
         keyword: QUALIFY
         expression:
           column_reference:
-            identifier: rank
+            naked_identifier: rank
           comparison_operator:
           - raw_comparison_operator: <
           - raw_comparison_operator: '='
-          literal: '3'
+          numeric_literal: '3'
       orderby_clause:
       - keyword: ORDER
       - keyword: BY
       - column_reference:
-          identifier: item
+          naked_identifier: item
       named_window:
         keyword: WINDOW
         named_window_expression:
-          identifier: item_window
+          naked_identifier: item_window
           keyword: AS
           bracketed:
             start_bracket: (
@@ -510,19 +510,19 @@ file:
               - keyword: BY
               - expression:
                   column_reference:
-                    identifier: category
+                    naked_identifier: category
               orderby_clause:
               - keyword: ORDER
               - keyword: BY
               - column_reference:
-                  identifier: purchases
+                  naked_identifier: purchases
               frame_clause:
               - keyword: ROWS
               - keyword: BETWEEN
-              - literal: '2'
+              - numeric_literal: '2'
               - keyword: PRECEDING
               - keyword: AND
-              - literal: '2'
+              - numeric_literal: '2'
               - keyword: FOLLOWING
             end_bracket: )
 - statement_terminator: ;

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b1227ae9c1807c73aa1d3053c7f5363fb734f167695acfc0368f3f14c55d533d
+_hash: 08778e025b1407c1d55d5a139d27268e9d98f73ce6381e472eb703b30f375ef6
 file:
 - statement:
     select_statement:
@@ -26,12 +26,12 @@ file:
                   - literal: "'hello'"
                   - alias_expression:
                       keyword: AS
-                      identifier: greeting
+                      naked_identifier: greeting
                   - comma: ','
                   - literal: "'world'"
                   - alias_expression:
                       keyword: AS
-                      identifier: subject
+                      naked_identifier: subject
                   - end_bracket: )
             - comma: ','
             - expression:
@@ -42,17 +42,17 @@ file:
                   - literal: "'hi'"
                   - alias_expression:
                       keyword: AS
-                      identifier: greeting
+                      naked_identifier: greeting
                   - comma: ','
                   - literal: "'there'"
                   - alias_expression:
                       keyword: AS
-                      identifier: subject
+                      naked_identifier: subject
                   - end_bracket: )
             - end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: salute
+            naked_identifier: salute
       from_clause:
         keyword: FROM
         from_expression:
@@ -64,7 +64,7 @@ file:
                   select_clause:
                     keyword: SELECT
                     select_clause_element:
-                      literal: '1'
+                      numeric_literal: '1'
                 end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -79,16 +79,16 @@ file:
               - keyword: WHEN
               - expression:
                 - column_reference:
-                  - identifier: a
+                  - naked_identifier: a
                   - dot: .
-                  - identifier: xxx
+                  - naked_identifier: xxx
                 - comparison_operator:
                   - raw_comparison_operator: '!'
                   - raw_comparison_operator: '='
                 - column_reference:
-                  - identifier: b
+                  - naked_identifier: b
                   - dot: .
-                  - identifier: xxx
+                  - naked_identifier: xxx
               - keyword: THEN
               - expression:
                   typeless_struct:
@@ -96,49 +96,49 @@ file:
                     bracketed:
                     - start_bracket: (
                     - column_reference:
-                      - identifier: a
+                      - naked_identifier: a
                       - dot: .
-                      - identifier: xxx
+                      - naked_identifier: xxx
                     - alias_expression:
                         keyword: AS
-                        identifier: M
+                        naked_identifier: M
                     - comma: ','
                     - column_reference:
-                      - identifier: b
+                      - naked_identifier: b
                       - dot: .
-                      - identifier: xxx
+                      - naked_identifier: xxx
                     - alias_expression:
                         keyword: AS
-                        identifier: N
+                        naked_identifier: N
                     - end_bracket: )
             - keyword: END
           alias_expression:
             keyword: AS
-            identifier: xxx
+            naked_identifier: xxx
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: A
+                naked_identifier: A
           join_clause:
             keyword: JOIN
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: B
+                  naked_identifier: B
             join_on_condition:
               keyword: 'ON'
               expression:
               - column_reference:
-                - identifier: B
+                - naked_identifier: B
                 - dot: .
-                - identifier: id
+                - naked_identifier: id
               - comparison_operator:
                   raw_comparison_operator: '='
               - column_reference:
-                - identifier: A
+                - naked_identifier: A
                 - dot: .
-                - identifier: id
+                - naked_identifier: id
 - statement_terminator: ;

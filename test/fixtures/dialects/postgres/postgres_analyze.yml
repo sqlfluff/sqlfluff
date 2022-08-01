@@ -3,26 +3,26 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e922e238e87233311373b7dc7e0b048abf319c3be3de28210c8fed9a8fe346c5
+_hash: c6b6c8641a16f20ac8898a51c1dd2ff9b1f1c79eef7aaac5cf250133ffb09727
 file:
 - statement:
     analyze_statement:
       keyword: ANALYZE
       table_reference:
-        identifier: foo
+        naked_identifier: foo
 - statement_terminator: ;
 - statement:
     analyze_statement:
       keyword: ANALYSE
       table_reference:
-        identifier: foo
+        naked_identifier: foo
 - statement_terminator: ;
 - statement:
     analyze_statement:
     - keyword: ANALYZE
     - keyword: VERBOSE
     - table_reference:
-        identifier: foo
+        naked_identifier: foo
 - statement_terminator: ;
 - statement:
     analyze_statement:
@@ -34,7 +34,7 @@ file:
       - keyword: SKIP_LOCKED
       - end_bracket: )
       table_reference:
-        identifier: foo
+        naked_identifier: foo
 - statement_terminator: ;
 - statement:
     analyze_statement:
@@ -48,7 +48,7 @@ file:
       - boolean_literal: 'TRUE'
       - end_bracket: )
       table_reference:
-        identifier: foo
+        naked_identifier: foo
 - statement_terminator: ;
 - statement:
     analyze_statement:
@@ -61,45 +61,45 @@ file:
       - boolean_literal: 'FALSE'
       - end_bracket: )
       table_reference:
-        identifier: foo
+        naked_identifier: foo
 - statement_terminator: ;
 - statement:
     analyze_statement:
     - keyword: ANALYZE
     - keyword: VERBOSE
     - table_reference:
-        identifier: foo
+        naked_identifier: foo
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: bar
+          naked_identifier: bar
       - comma: ','
       - column_reference:
-          identifier: bat
+          naked_identifier: bat
       - end_bracket: )
 - statement_terminator: ;
 - statement:
     analyze_statement:
     - keyword: ANALYZE
     - table_reference:
-        identifier: foo
+        naked_identifier: foo
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: bar
+          naked_identifier: bar
       - comma: ','
       - column_reference:
-          identifier: bat
+          naked_identifier: bat
       - end_bracket: )
     - comma: ','
     - table_reference:
-        identifier: foo2
+        naked_identifier: foo2
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: bar2
+          naked_identifier: bar2
       - comma: ','
       - column_reference:
-          identifier: bat2
+          naked_identifier: bat2
       - end_bracket: )
 - statement_terminator: ;

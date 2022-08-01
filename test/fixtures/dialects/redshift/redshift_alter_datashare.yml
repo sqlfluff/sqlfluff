@@ -3,14 +3,14 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f6c21690d1ce62a534c3fbfbf61de6472d6561070b9288ac03e62417c4450429
+_hash: 2b1acf41db31b9f7890e2887ba06c4c546817087234a30c10f9474eb2df487d0
 file:
 - statement:
     create_datashare_statement:
     - keyword: ALTER
     - keyword: DATASHARE
     - object_reference:
-        identifier: salesshare
+        naked_identifier: salesshare
     - keyword: SET
     - keyword: PUBLICACCESSIBLE
     - boolean_literal: 'FALSE'
@@ -20,7 +20,7 @@ file:
     - keyword: ALTER
     - keyword: DATASHARE
     - object_reference:
-        identifier: salesshare
+        naked_identifier: salesshare
     - keyword: SET
     - keyword: INCLUDENEW
     - comparison_operator:
@@ -29,65 +29,65 @@ file:
     - keyword: FOR
     - keyword: SCHEMA
     - schema_reference:
-        identifier: public
+        naked_identifier: public
 - statement_terminator: ;
 - statement:
     create_datashare_statement:
     - keyword: ALTER
     - keyword: DATASHARE
     - object_reference:
-        identifier: salesshare
+        naked_identifier: salesshare
     - keyword: ADD
     - keyword: TABLE
     - table_reference:
-      - identifier: public
+      - naked_identifier: public
       - dot: .
-      - identifier: tbl1
+      - naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     create_datashare_statement:
     - keyword: ALTER
     - keyword: DATASHARE
     - object_reference:
-        identifier: salesshare
+        naked_identifier: salesshare
     - keyword: ADD
     - keyword: TABLE
     - table_reference:
-      - identifier: public
+      - naked_identifier: public
       - dot: .
-      - identifier: tbl1
+      - naked_identifier: tbl1
     - comma: ','
     - table_reference:
-      - identifier: public
+      - naked_identifier: public
       - dot: .
-      - identifier: tbl2
+      - naked_identifier: tbl2
 - statement_terminator: ;
 - statement:
     create_datashare_statement:
     - keyword: ALTER
     - keyword: DATASHARE
     - object_reference:
-        identifier: salesshare
+        naked_identifier: salesshare
     - keyword: ADD
     - keyword: SCHEMA
     - schema_reference:
-        identifier: public
+        naked_identifier: public
 - statement_terminator: ;
 - statement:
     create_datashare_statement:
     - keyword: ALTER
     - keyword: DATASHARE
     - object_reference:
-        identifier: salesshare
+        naked_identifier: salesshare
     - keyword: ADD
     - keyword: FUNCTION
     - function_name:
-        identifier: public
+        naked_identifier: public
         dot: .
         function_name_identifier: fn1
     - comma: ','
     - function_name:
-        identifier: public
+        naked_identifier: public
         dot: .
         function_name_identifier: fn2
 - statement_terminator: ;
@@ -96,25 +96,25 @@ file:
     - keyword: ALTER
     - keyword: DATASHARE
     - object_reference:
-        identifier: salesshare
+        naked_identifier: salesshare
     - keyword: ADD
     - keyword: ALL
     - keyword: TABLES
     - keyword: IN
     - keyword: SCHEMA
     - schema_reference:
-        identifier: public
+        naked_identifier: public
 - statement_terminator: ;
 - statement:
     create_datashare_statement:
     - keyword: ALTER
     - keyword: DATASHARE
     - object_reference:
-        identifier: salesshare
+        naked_identifier: salesshare
     - keyword: REMOVE
     - keyword: TABLE
     - table_reference:
-      - identifier: public
+      - naked_identifier: public
       - dot: .
-      - identifier: tbl1
+      - naked_identifier: tbl1
 - statement_terminator: ;

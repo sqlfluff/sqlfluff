@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e21b8a92dbd2a9903a27fcff9bb1f0126b79ff1b09749b2d1e0ccba948810577
+_hash: 3b3d9d091eed6a294259d1dfb62bb8d523f1e13cf50f6c682233ecd8c4d47724
 file:
 - statement:
     create_external_schema_statement:
@@ -11,16 +11,16 @@ file:
     - keyword: external
     - keyword: schema
     - schema_reference:
-        identifier: spectrum_schema
+        naked_identifier: spectrum_schema
     - keyword: from
     - keyword: data
     - keyword: catalog
     - keyword: database
-    - literal: "'sampledb'"
+    - quoted_literal: "'sampledb'"
     - keyword: region
-    - literal: "'us-west-2'"
+    - quoted_literal: "'us-west-2'"
     - keyword: iam_role
-    - literal: "'arn:aws:iam::123456789012:role/MySpectrumRole'"
+    - quoted_literal: "'arn:aws:iam::123456789012:role/MySpectrumRole'"
 - statement_terminator: ;
 - statement:
     create_external_schema_statement:
@@ -28,14 +28,14 @@ file:
     - keyword: external
     - keyword: schema
     - schema_reference:
-        identifier: spectrum_schema
+        naked_identifier: spectrum_schema
     - keyword: from
     - keyword: data
     - keyword: catalog
     - keyword: database
-    - literal: "'spectrum_db'"
+    - quoted_literal: "'spectrum_db'"
     - keyword: iam_role
-    - literal: "'arn:aws:iam::123456789012:role/MySpectrumRole'"
+    - quoted_literal: "'arn:aws:iam::123456789012:role/MySpectrumRole'"
     - keyword: create
     - keyword: external
     - keyword: database
@@ -49,18 +49,18 @@ file:
     - keyword: external
     - keyword: schema
     - schema_reference:
-        identifier: hive_schema
+        naked_identifier: hive_schema
     - keyword: from
     - keyword: hive
     - keyword: metastore
     - keyword: database
-    - literal: "'hive_db'"
+    - quoted_literal: "'hive_db'"
     - keyword: uri
-    - literal: "'172.10.10.10'"
+    - quoted_literal: "'172.10.10.10'"
     - keyword: port
     - literal: '99'
     - keyword: iam_role
-    - literal: "'arn:aws:iam::123456789012:role/MySpectrumRole'"
+    - quoted_literal: "'arn:aws:iam::123456789012:role/MySpectrumRole'"
 - statement_terminator: ;
 - statement:
     create_external_schema_statement:
@@ -68,16 +68,16 @@ file:
     - keyword: external
     - keyword: schema
     - schema_reference:
-        identifier: spectrum_schema
+        naked_identifier: spectrum_schema
     - keyword: from
     - keyword: data
     - keyword: catalog
     - keyword: database
-    - literal: "'spectrum_db'"
+    - quoted_literal: "'spectrum_db'"
     - keyword: iam_role
-    - literal: "'arn:aws:iam::123456789012:role/myRedshiftRole,arn:aws:iam::123456789012:role/myS3Role'"
+    - quoted_literal: "'arn:aws:iam::123456789012:role/myRedshiftRole,arn:aws:iam::123456789012:role/myS3Role'"
     - keyword: catalog_role
-    - literal: "'arn:aws:iam::123456789012:role/myAthenaRole'"
+    - quoted_literal: "'arn:aws:iam::123456789012:role/myAthenaRole'"
     - keyword: create
     - keyword: external
     - keyword: database
@@ -94,21 +94,21 @@ file:
     - keyword: NOT
     - keyword: EXISTS
     - schema_reference:
-        identifier: myRedshiftSchema
+        naked_identifier: myRedshiftSchema
     - keyword: FROM
     - keyword: POSTGRES
     - keyword: DATABASE
-    - literal: "'my_aurora_db'"
+    - quoted_literal: "'my_aurora_db'"
     - keyword: SCHEMA
-    - literal: "'my_aurora_schema'"
+    - quoted_literal: "'my_aurora_schema'"
     - keyword: URI
-    - literal: "'endpoint to aurora hostname'"
+    - quoted_literal: "'endpoint to aurora hostname'"
     - keyword: PORT
     - literal: '5432'
     - keyword: IAM_ROLE
-    - literal: "'arn:aws:iam::123456789012:role/MyAuroraRole'"
+    - quoted_literal: "'arn:aws:iam::123456789012:role/MyAuroraRole'"
     - keyword: SECRET_ARN
-    - literal: "'arn:aws:secretsmanager:us-east-2:123456789012:secret:development/MyTestDatabase-AbCdEf'"
+    - quoted_literal: "'arn:aws:secretsmanager:us-east-2:123456789012:secret:development/MyTestDatabase-AbCdEf'"
 - statement_terminator: ;
 - statement:
     create_external_schema_statement:
@@ -116,13 +116,13 @@ file:
     - keyword: EXTERNAL
     - keyword: SCHEMA
     - schema_reference:
-        identifier: sales_schema
+        naked_identifier: sales_schema
     - keyword: FROM
     - keyword: REDSHIFT
     - keyword: DATABASE
-    - literal: "'sales_db'"
+    - quoted_literal: "'sales_db'"
     - keyword: SCHEMA
-    - literal: "'public'"
+    - quoted_literal: "'public'"
 - statement_terminator: ;
 - statement:
     create_external_schema_statement:
@@ -133,17 +133,17 @@ file:
     - keyword: NOT
     - keyword: EXISTS
     - schema_reference:
-        identifier: myRedshiftSchema
+        naked_identifier: myRedshiftSchema
     - keyword: FROM
     - keyword: MYSQL
     - keyword: DATABASE
-    - literal: "'my_aurora_db'"
+    - quoted_literal: "'my_aurora_db'"
     - keyword: URI
-    - literal: "'endpoint to aurora hostname'"
+    - quoted_literal: "'endpoint to aurora hostname'"
     - keyword: IAM_ROLE
-    - literal: "'arn:aws:iam::123456789012:role/MyAuroraRole'"
+    - quoted_literal: "'arn:aws:iam::123456789012:role/MyAuroraRole'"
     - keyword: SECRET_ARN
-    - literal: "'arn:aws:secretsmanager:us-east-2:123456789012:secret:development/MyTestDatabase-AbCdEf'"
+    - quoted_literal: "'arn:aws:secretsmanager:us-east-2:123456789012:secret:development/MyTestDatabase-AbCdEf'"
 - statement_terminator: ;
 - statement:
     create_external_schema_statement:
@@ -151,14 +151,14 @@ file:
     - keyword: external
     - keyword: schema
     - schema_reference:
-        identifier: spectrum_schema
+        naked_identifier: spectrum_schema
     - keyword: from
     - keyword: data
     - keyword: catalog
     - keyword: database
-    - literal: "'sampledb'"
+    - quoted_literal: "'sampledb'"
     - keyword: region
-    - literal: "'us-west-2'"
+    - quoted_literal: "'us-west-2'"
     - keyword: iam_role
-    - literal: "'arn:aws:iam::123456789012:role/MySpectrumRole'"
+    - quoted_literal: "'arn:aws:iam::123456789012:role/MySpectrumRole'"
 - statement_terminator: ;

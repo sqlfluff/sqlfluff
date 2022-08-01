@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6bcbb12f775b9554e6c61b3abf5647f272e6fd5324724990a094744855d097d3
+_hash: 85fab487b42db251c5a75a73fb961d42937af65510311489d6bd67bbff171e69
 file:
 - statement:
     create_external_table_statement:
@@ -11,13 +11,13 @@ file:
     - keyword: EXTERNAL
     - keyword: TABLE
     - table_reference:
-      - identifier: external_schema
+      - naked_identifier: external_schema
       - dot: .
-      - identifier: table_name
+      - naked_identifier: table_name
     - bracketed:
         start_bracket: (
         column_reference:
-          identifier: col1
+          naked_identifier: col1
         data_type:
           keyword: INTEGER
         end_bracket: )
@@ -25,7 +25,7 @@ file:
     - keyword: AS
     - keyword: PARQUET
     - keyword: LOCATION
-    - literal: "'s3://bucket/folder'"
+    - quoted_literal: "'s3://bucket/folder'"
 - statement_terminator: ;
 - statement:
     create_external_table_statement:
@@ -33,18 +33,18 @@ file:
     - keyword: EXTERNAL
     - keyword: TABLE
     - table_reference:
-      - identifier: external_schema
+      - naked_identifier: external_schema
       - dot: .
-      - identifier: table_name
+      - naked_identifier: table_name
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: col1
+          naked_identifier: col1
       - data_type:
           keyword: INTEGER
       - comma: ','
       - column_reference:
-          identifier: col2
+          naked_identifier: col2
       - data_type:
           keyword: TEXT
       - end_bracket: )
@@ -52,7 +52,7 @@ file:
     - keyword: AS
     - keyword: PARQUET
     - keyword: LOCATION
-    - literal: "'s3://bucket/folder'"
+    - quoted_literal: "'s3://bucket/folder'"
 - statement_terminator: ;
 - statement:
     create_external_table_statement:
@@ -60,18 +60,18 @@ file:
     - keyword: EXTERNAL
     - keyword: TABLE
     - table_reference:
-      - identifier: external_schema
+      - naked_identifier: external_schema
       - dot: .
-      - identifier: table_name
+      - naked_identifier: table_name
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: col1
+          naked_identifier: col1
       - data_type:
           keyword: INTEGER
       - comma: ','
       - column_reference:
-          identifier: col2
+          naked_identifier: col2
       - data_type:
           keyword: TEXT
       - end_bracket: )
@@ -79,7 +79,7 @@ file:
     - keyword: AS
     - keyword: ORC
     - keyword: LOCATION
-    - literal: "'s3://bucket/folder'"
+    - quoted_literal: "'s3://bucket/folder'"
 - statement_terminator: ;
 - statement:
     create_external_table_statement:
@@ -87,18 +87,18 @@ file:
     - keyword: EXTERNAL
     - keyword: TABLE
     - table_reference:
-      - identifier: external_schema
+      - naked_identifier: external_schema
       - dot: .
-      - identifier: table_name
+      - naked_identifier: table_name
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: col1
+          naked_identifier: col1
       - data_type:
           keyword: INTEGER
       - comma: ','
       - column_reference:
-          identifier: col2
+          naked_identifier: col2
       - data_type:
           keyword: TEXT
       - end_bracket: )
@@ -106,7 +106,7 @@ file:
     - keyword: AS
     - keyword: AVRO
     - keyword: LOCATION
-    - literal: "'s3://bucket/folder'"
+    - quoted_literal: "'s3://bucket/folder'"
 - statement_terminator: ;
 - statement:
     create_external_table_statement:
@@ -114,18 +114,18 @@ file:
     - keyword: EXTERNAL
     - keyword: TABLE
     - table_reference:
-      - identifier: external_schema
+      - naked_identifier: external_schema
       - dot: .
-      - identifier: table_name
+      - naked_identifier: table_name
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: col1
+          naked_identifier: col1
       - data_type:
           keyword: INTEGER
       - comma: ','
       - column_reference:
-          identifier: col2
+          naked_identifier: col2
       - data_type:
           keyword: TEXT
       - end_bracket: )
@@ -133,7 +133,7 @@ file:
     - keyword: AS
     - keyword: TEXTFILE
     - keyword: LOCATION
-    - literal: "'s3://bucket/folder'"
+    - quoted_literal: "'s3://bucket/folder'"
 - statement_terminator: ;
 - statement:
     create_external_table_statement:
@@ -141,18 +141,18 @@ file:
     - keyword: EXTERNAL
     - keyword: TABLE
     - table_reference:
-      - identifier: external_schema
+      - naked_identifier: external_schema
       - dot: .
-      - identifier: table_name
+      - naked_identifier: table_name
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: col1
+          naked_identifier: col1
       - data_type:
           keyword: INTEGER
       - comma: ','
       - column_reference:
-          identifier: col2
+          naked_identifier: col2
       - data_type:
           keyword: TEXT
       - end_bracket: )
@@ -162,7 +162,7 @@ file:
       - bracketed:
           start_bracket: (
           column_reference:
-            identifier: col3
+            naked_identifier: col3
           data_type:
             keyword: integer
           end_bracket: )
@@ -170,7 +170,7 @@ file:
     - keyword: AS
     - keyword: PARQUET
     - keyword: LOCATION
-    - literal: "'s3://bucket/folder'"
+    - quoted_literal: "'s3://bucket/folder'"
 - statement_terminator: ;
 - statement:
     create_external_table_statement:
@@ -178,18 +178,18 @@ file:
     - keyword: EXTERNAL
     - keyword: TABLE
     - table_reference:
-      - identifier: external_schema
+      - naked_identifier: external_schema
       - dot: .
-      - identifier: table_name
+      - naked_identifier: table_name
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: col1
+          naked_identifier: col1
       - data_type:
           keyword: INTEGER
       - comma: ','
       - column_reference:
-          identifier: col2
+          naked_identifier: col2
       - data_type:
           keyword: TEXT
       - end_bracket: )
@@ -199,12 +199,12 @@ file:
       - bracketed:
         - start_bracket: (
         - column_reference:
-            identifier: col3
+            naked_identifier: col3
         - data_type:
             keyword: INTEGER
         - comma: ','
         - column_reference:
-            identifier: col4
+            naked_identifier: col4
         - data_type:
             keyword: INTEGER
         - end_bracket: )
@@ -212,7 +212,7 @@ file:
     - keyword: AS
     - keyword: PARQUET
     - keyword: LOCATION
-    - literal: "'s3://bucket/folder'"
+    - quoted_literal: "'s3://bucket/folder'"
 - statement_terminator: ;
 - statement:
     create_external_table_statement:
@@ -220,13 +220,13 @@ file:
     - keyword: EXTERNAL
     - keyword: TABLE
     - table_reference:
-      - identifier: external_schema
+      - naked_identifier: external_schema
       - dot: .
-      - identifier: table_name
+      - naked_identifier: table_name
     - bracketed:
         start_bracket: (
         column_reference:
-          identifier: col1
+          naked_identifier: col1
         data_type:
           keyword: INTEGER
         end_bracket: )
@@ -234,20 +234,20 @@ file:
     - keyword: AS
     - keyword: PARQUET
     - keyword: LOCATION
-    - literal: "'s3://bucket/folder'"
+    - quoted_literal: "'s3://bucket/folder'"
     - keyword: TABLE
     - keyword: PROPERTIES
     - bracketed:
       - start_bracket: (
-      - literal: "'some_property1'"
+      - quoted_literal: "'some_property1'"
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'some_value1'"
+      - quoted_literal: "'some_value1'"
       - comma: ','
-      - literal: "'some_property2'"
+      - quoted_literal: "'some_property2'"
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'some_value2'"
+      - quoted_literal: "'some_value2'"
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -256,29 +256,29 @@ file:
     - keyword: external
     - keyword: table
     - table_reference:
-      - identifier: spectrum
+      - naked_identifier: spectrum
       - dot: .
-      - identifier: sales
+      - naked_identifier: sales
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: salesid
+          naked_identifier: salesid
       - data_type:
           keyword: integer
       - comma: ','
       - column_reference:
-          identifier: saledate
+          naked_identifier: saledate
       - data_type:
           datetime_type_identifier:
             keyword: date
       - comma: ','
       - column_reference:
-          identifier: qtysold
+          naked_identifier: qtysold
       - data_type:
           keyword: smallint
       - comma: ','
       - column_reference:
-          identifier: pricepaid
+          naked_identifier: pricepaid
       - data_type:
           keyword: decimal
           bracketed:
@@ -289,7 +289,7 @@ file:
           - end_bracket: )
       - comma: ','
       - column_reference:
-          identifier: saletime
+          naked_identifier: saletime
       - data_type:
           datetime_type_identifier:
             keyword: timestamp
@@ -301,20 +301,20 @@ file:
       - keyword: fields
       - keyword: terminated
       - keyword: by
-      - literal: "'\\t'"
+      - quoted_literal: "'\\t'"
     - keyword: stored
     - keyword: as
     - keyword: textfile
     - keyword: location
-    - literal: "'s3://awssampledbuswest2/tickit/spectrum/sales/'"
+    - quoted_literal: "'s3://awssampledbuswest2/tickit/spectrum/sales/'"
     - keyword: table
     - keyword: properties
     - bracketed:
       - start_bracket: (
-      - literal: "'numRows'"
+      - quoted_literal: "'numRows'"
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'170000'"
+      - quoted_literal: "'170000'"
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -323,29 +323,29 @@ file:
     - keyword: external
     - keyword: table
     - table_reference:
-      - identifier: spectrum
+      - naked_identifier: spectrum
       - dot: .
-      - identifier: cloudtrail_json
+      - naked_identifier: cloudtrail_json
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: event_version
+          naked_identifier: event_version
       - data_type:
           keyword: int
       - comma: ','
       - column_reference:
-          identifier: event_id
+          naked_identifier: event_id
       - data_type:
           keyword: bigint
       - comma: ','
       - column_reference:
-          identifier: event_time
+          naked_identifier: event_time
       - data_type:
           datetime_type_identifier:
             keyword: timestamp
       - comma: ','
       - column_reference:
-          identifier: event_type
+          naked_identifier: event_type
       - data_type:
           keyword: varchar
           bracketed:
@@ -354,33 +354,33 @@ file:
             end_bracket: )
       - comma: ','
       - column_reference:
-          identifier: recipientaccountid
+          naked_identifier: recipientaccountid
       - data_type:
           keyword: bigint
       - end_bracket: )
     - keyword: row
     - keyword: format
     - keyword: serde
-    - literal: "'org.openx.data.jsonserde.JsonSerDe'"
+    - quoted_literal: "'org.openx.data.jsonserde.JsonSerDe'"
     - keyword: with
     - keyword: serdeproperties
     - bracketed:
       - start_bracket: (
-      - literal: "'dots.in.keys'"
+      - quoted_literal: "'dots.in.keys'"
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'true'"
+      - quoted_literal: "'true'"
       - comma: ','
-      - literal: "'mapping.requesttime'"
+      - quoted_literal: "'mapping.requesttime'"
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'requesttimestamp'"
+      - quoted_literal: "'requesttimestamp'"
       - end_bracket: )
     - keyword: stored
     - keyword: as
     - keyword: textfile
     - keyword: location
-    - literal: "'s3://mybucket/json/cloudtrail'"
+    - quoted_literal: "'s3://mybucket/json/cloudtrail'"
 - statement_terminator: ;
 - statement:
     create_external_table_statement:
@@ -388,18 +388,18 @@ file:
     - keyword: EXTERNAL
     - keyword: TABLE
     - table_reference:
-      - identifier: schema_spectrum_uddh
+      - naked_identifier: schema_spectrum_uddh
       - dot: .
-      - identifier: soccer_league
+      - naked_identifier: soccer_league
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: league_rank
+          naked_identifier: league_rank
       - data_type:
           keyword: smallint
       - comma: ','
       - column_reference:
-          identifier: club_name
+          naked_identifier: club_name
       - data_type:
           keyword: varchar
           bracketed:
@@ -408,7 +408,7 @@ file:
             end_bracket: )
       - comma: ','
       - column_reference:
-          identifier: league_spi
+          naked_identifier: league_spi
       - data_type:
           keyword: decimal
           bracketed:
@@ -419,7 +419,7 @@ file:
           - end_bracket: )
       - comma: ','
       - column_reference:
-          identifier: league_nspi
+          naked_identifier: league_nspi
       - data_type:
           keyword: smallint
       - end_bracket: )
@@ -430,24 +430,24 @@ file:
       - keyword: FIELDS
       - keyword: TERMINATED
       - keyword: BY
-      - literal: "','"
+      - quoted_literal: "','"
       - keyword: LINES
       - keyword: TERMINATED
       - keyword: BY
-      - literal: "'\\n\\l'"
+      - quoted_literal: "'\\n\\l'"
     - keyword: stored
     - keyword: as
     - keyword: textfile
     - keyword: LOCATION
-    - literal: "'s3://spectrum-uddh/league/'"
+    - quoted_literal: "'s3://spectrum-uddh/league/'"
     - keyword: table
     - keyword: properties
     - bracketed:
       - start_bracket: (
-      - literal: "'skip.header.line.count'"
+      - quoted_literal: "'skip.header.line.count'"
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'1'"
+      - quoted_literal: "'1'"
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -456,16 +456,16 @@ file:
     - keyword: EXTERNAL
     - keyword: TABLE
     - table_reference:
-        identifier: tbl1
+        naked_identifier: tbl1
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: col1
+          naked_identifier: col1
       - data_type:
           keyword: int
       - comma: ','
       - column_reference:
-          identifier: col2
+          naked_identifier: col2
       - data_type:
           keyword: varchar
           bracketed:
@@ -476,15 +476,15 @@ file:
     - keyword: ROW
     - keyword: FORMAT
     - keyword: SERDE
-    - literal: "'com.amazon.ionhiveserde.IonHiveSerDe'"
+    - quoted_literal: "'com.amazon.ionhiveserde.IonHiveSerDe'"
     - keyword: STORED
     - keyword: AS
     - keyword: INPUTFORMAT
-    - literal: "'com.amazon.ionhiveserde.formats.IonInputFormat'"
+    - quoted_literal: "'com.amazon.ionhiveserde.formats.IonInputFormat'"
     - keyword: OUTPUTFORMAT
-    - literal: "'com.amazon.ionhiveserde.formats.IonOutputFormat'"
+    - quoted_literal: "'com.amazon.ionhiveserde.formats.IonOutputFormat'"
     - keyword: LOCATION
-    - literal: "'s3://s3-bucket/prefix'"
+    - quoted_literal: "'s3://s3-bucket/prefix'"
 - statement_terminator: ;
 - statement:
     create_external_table_statement:
@@ -492,25 +492,25 @@ file:
     - keyword: EXTERNAL
     - keyword: TABLE
     - table_reference:
-      - identifier: spectrum
+      - naked_identifier: spectrum
       - dot: .
-      - identifier: partitioned_lineitem
+      - naked_identifier: partitioned_lineitem
     - partitioned_by_segment:
       - keyword: PARTITIONED
       - keyword: BY
       - bracketed:
         - start_bracket: (
         - column_reference:
-            identifier: l_shipdate
+            naked_identifier: l_shipdate
         - comma: ','
         - column_reference:
-            identifier: l_shipmode
+            naked_identifier: l_shipmode
         - end_bracket: )
     - keyword: STORED
     - keyword: AS
     - keyword: parquet
     - keyword: LOCATION
-    - literal: "'S3://mybucket/cetas/partitioned_lineitem/'"
+    - quoted_literal: "'S3://mybucket/cetas/partitioned_lineitem/'"
     - keyword: AS
     - select_statement:
         select_clause:

@@ -332,12 +332,8 @@ postgres_dialect.replace(
         ),
     ),
     QuotedIdentifierSegment=OneOf(
-        NamedParser(
-            "double_quote", ansi.IdentifierSegment, type="quoted_identifier"
-        ),
-        NamedParser(
-            "unicode_double_quote", ansi.LiteralSegment, type="quoted_literal"
-        ),
+        NamedParser("double_quote", ansi.IdentifierSegment, type="quoted_identifier"),
+        NamedParser("unicode_double_quote", ansi.LiteralSegment, type="quoted_literal"),
     ),
     PostFunctionGrammar=AnyNumberOf(
         Ref("WithinGroupClauseSegment"),

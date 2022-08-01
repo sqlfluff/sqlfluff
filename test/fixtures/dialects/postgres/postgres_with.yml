@@ -3,13 +3,13 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ebab9cc65a808ee6ab1f3cb71aaac622a02a3eeacf58faf74a89de490da96660
+_hash: 8699b2da719041770016641119d8ef1d999ba38b0aa579f47f624d4633be6f38
 file:
 - statement:
     with_compound_statement:
       keyword: WITH
       common_table_expression:
-      - identifier: w
+      - naked_identifier: w
       - keyword: AS
       - keyword: NOT
       - keyword: MATERIALIZED
@@ -28,7 +28,7 @@ file:
                 from_expression_element:
                   table_expression:
                     table_reference:
-                      identifier: big_table
+                      naked_identifier: big_table
           end_bracket: )
       select_statement:
         select_clause:
@@ -43,39 +43,39 @@ file:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: w
+                  naked_identifier: w
               alias_expression:
                 keyword: AS
-                identifier: w1
+                naked_identifier: w1
             join_clause:
               keyword: JOIN
               from_expression_element:
                 table_expression:
                   table_reference:
-                    identifier: w
+                    naked_identifier: w
                 alias_expression:
                   keyword: AS
-                  identifier: w2
+                  naked_identifier: w2
               join_on_condition:
                 keyword: 'ON'
                 expression:
                 - column_reference:
-                  - identifier: w1
+                  - naked_identifier: w1
                   - dot: .
-                  - identifier: key
+                  - naked_identifier: key
                 - comparison_operator:
                     raw_comparison_operator: '='
                 - column_reference:
-                  - identifier: w2
+                  - naked_identifier: w2
                   - dot: .
-                  - identifier: ref
+                  - naked_identifier: ref
         where_clause:
           keyword: WHERE
           expression:
             column_reference:
-            - identifier: w2
+            - naked_identifier: w2
             - dot: .
-            - identifier: key
+            - naked_identifier: key
             comparison_operator:
               raw_comparison_operator: '='
             literal: '123'
@@ -85,16 +85,16 @@ file:
     - keyword: WITH
     - keyword: RECURSIVE
     - common_table_expression:
-      - identifier: search_tree
+      - naked_identifier: search_tree
       - cte_column_list:
           bracketed:
             start_bracket: (
             identifier_list:
-            - identifier: id
+            - naked_identifier: id
             - comma: ','
-            - identifier: link
+            - naked_identifier: link
             - comma: ','
-            - identifier: data
+            - naked_identifier: data
             end_bracket: )
       - keyword: AS
       - bracketed:
@@ -105,30 +105,30 @@ file:
               - keyword: SELECT
               - select_clause_element:
                   column_reference:
-                  - identifier: t
+                  - naked_identifier: t
                   - dot: .
-                  - identifier: id
+                  - naked_identifier: id
               - comma: ','
               - select_clause_element:
                   column_reference:
-                  - identifier: t
+                  - naked_identifier: t
                   - dot: .
-                  - identifier: link
+                  - naked_identifier: link
               - comma: ','
               - select_clause_element:
                   column_reference:
-                  - identifier: t
+                  - naked_identifier: t
                   - dot: .
-                  - identifier: data
+                  - naked_identifier: data
               from_clause:
                 keyword: FROM
                 from_expression:
                   from_expression_element:
                     table_expression:
                       table_reference:
-                        identifier: tree
+                        naked_identifier: tree
                     alias_expression:
-                      identifier: t
+                      naked_identifier: t
           - set_operator:
             - keyword: UNION
             - keyword: ALL
@@ -137,61 +137,61 @@ file:
               - keyword: SELECT
               - select_clause_element:
                   column_reference:
-                  - identifier: t
+                  - naked_identifier: t
                   - dot: .
-                  - identifier: id
+                  - naked_identifier: id
               - comma: ','
               - select_clause_element:
                   column_reference:
-                  - identifier: t
+                  - naked_identifier: t
                   - dot: .
-                  - identifier: link
+                  - naked_identifier: link
               - comma: ','
               - select_clause_element:
                   column_reference:
-                  - identifier: t
+                  - naked_identifier: t
                   - dot: .
-                  - identifier: data
+                  - naked_identifier: data
               from_clause:
               - keyword: FROM
               - from_expression:
                   from_expression_element:
                     table_expression:
                       table_reference:
-                        identifier: tree
+                        naked_identifier: tree
                     alias_expression:
-                      identifier: t
+                      naked_identifier: t
               - comma: ','
               - from_expression:
                   from_expression_element:
                     table_expression:
                       table_reference:
-                        identifier: search_tree
+                        naked_identifier: search_tree
                     alias_expression:
-                      identifier: st
+                      naked_identifier: st
               where_clause:
                 keyword: WHERE
                 expression:
                 - column_reference:
-                  - identifier: t
+                  - naked_identifier: t
                   - dot: .
-                  - identifier: id
+                  - naked_identifier: id
                 - comparison_operator:
                     raw_comparison_operator: '='
                 - column_reference:
-                  - identifier: st
+                  - naked_identifier: st
                   - dot: .
-                  - identifier: link
+                  - naked_identifier: link
           end_bracket: )
       - keyword: SEARCH
       - keyword: DEPTH
       - keyword: FIRST
       - keyword: BY
       - column_reference:
-          identifier: id
+          naked_identifier: id
       - keyword: SET
       - column_reference:
-          identifier: ordercol
+          naked_identifier: ordercol
     - select_statement:
         select_clause:
           keyword: SELECT
@@ -205,28 +205,28 @@ file:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: search_tree
+                  naked_identifier: search_tree
         orderby_clause:
         - keyword: ORDER
         - keyword: BY
         - column_reference:
-            identifier: ordercol
+            naked_identifier: ordercol
 - statement_terminator: ;
 - statement:
     with_compound_statement:
     - keyword: WITH
     - keyword: RECURSIVE
     - common_table_expression:
-      - identifier: search_tree
+      - naked_identifier: search_tree
       - cte_column_list:
           bracketed:
             start_bracket: (
             identifier_list:
-            - identifier: id
+            - naked_identifier: id
             - comma: ','
-            - identifier: link
+            - naked_identifier: link
             - comma: ','
-            - identifier: data
+            - naked_identifier: data
             end_bracket: )
       - keyword: AS
       - bracketed:
@@ -237,30 +237,30 @@ file:
               - keyword: SELECT
               - select_clause_element:
                   column_reference:
-                  - identifier: t
+                  - naked_identifier: t
                   - dot: .
-                  - identifier: id
+                  - naked_identifier: id
               - comma: ','
               - select_clause_element:
                   column_reference:
-                  - identifier: t
+                  - naked_identifier: t
                   - dot: .
-                  - identifier: link
+                  - naked_identifier: link
               - comma: ','
               - select_clause_element:
                   column_reference:
-                  - identifier: t
+                  - naked_identifier: t
                   - dot: .
-                  - identifier: data
+                  - naked_identifier: data
               from_clause:
                 keyword: FROM
                 from_expression:
                   from_expression_element:
                     table_expression:
                       table_reference:
-                        identifier: tree
+                        naked_identifier: tree
                     alias_expression:
-                      identifier: t
+                      naked_identifier: t
           - set_operator:
             - keyword: UNION
             - keyword: ALL
@@ -269,61 +269,61 @@ file:
               - keyword: SELECT
               - select_clause_element:
                   column_reference:
-                  - identifier: t
+                  - naked_identifier: t
                   - dot: .
-                  - identifier: id
+                  - naked_identifier: id
               - comma: ','
               - select_clause_element:
                   column_reference:
-                  - identifier: t
+                  - naked_identifier: t
                   - dot: .
-                  - identifier: link
+                  - naked_identifier: link
               - comma: ','
               - select_clause_element:
                   column_reference:
-                  - identifier: t
+                  - naked_identifier: t
                   - dot: .
-                  - identifier: data
+                  - naked_identifier: data
               from_clause:
               - keyword: FROM
               - from_expression:
                   from_expression_element:
                     table_expression:
                       table_reference:
-                        identifier: tree
+                        naked_identifier: tree
                     alias_expression:
-                      identifier: t
+                      naked_identifier: t
               - comma: ','
               - from_expression:
                   from_expression_element:
                     table_expression:
                       table_reference:
-                        identifier: search_tree
+                        naked_identifier: search_tree
                     alias_expression:
-                      identifier: st
+                      naked_identifier: st
               where_clause:
                 keyword: WHERE
                 expression:
                 - column_reference:
-                  - identifier: t
+                  - naked_identifier: t
                   - dot: .
-                  - identifier: id
+                  - naked_identifier: id
                 - comparison_operator:
                     raw_comparison_operator: '='
                 - column_reference:
-                  - identifier: st
+                  - naked_identifier: st
                   - dot: .
-                  - identifier: link
+                  - naked_identifier: link
           end_bracket: )
       - keyword: SEARCH
       - keyword: BREADTH
       - keyword: FIRST
       - keyword: BY
       - column_reference:
-          identifier: id
+          naked_identifier: id
       - keyword: SET
       - column_reference:
-          identifier: ordercol
+          naked_identifier: ordercol
     - select_statement:
         select_clause:
           keyword: SELECT
@@ -337,30 +337,30 @@ file:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: search_tree
+                  naked_identifier: search_tree
         orderby_clause:
         - keyword: ORDER
         - keyword: BY
         - column_reference:
-            identifier: ordercol
+            naked_identifier: ordercol
 - statement_terminator: ;
 - statement:
     with_compound_statement:
     - keyword: WITH
     - keyword: RECURSIVE
     - common_table_expression:
-      - identifier: search_graph
+      - naked_identifier: search_graph
       - cte_column_list:
           bracketed:
             start_bracket: (
             identifier_list:
-            - identifier: id
+            - naked_identifier: id
             - comma: ','
-            - identifier: link
+            - naked_identifier: link
             - comma: ','
-            - identifier: data
+            - naked_identifier: data
             - comma: ','
-            - identifier: depth
+            - naked_identifier: depth
             end_bracket: )
       - keyword: AS
       - bracketed:
@@ -371,21 +371,21 @@ file:
               - keyword: SELECT
               - select_clause_element:
                   column_reference:
-                  - identifier: g
+                  - naked_identifier: g
                   - dot: .
-                  - identifier: id
+                  - naked_identifier: id
               - comma: ','
               - select_clause_element:
                   column_reference:
-                  - identifier: g
+                  - naked_identifier: g
                   - dot: .
-                  - identifier: link
+                  - naked_identifier: link
               - comma: ','
               - select_clause_element:
                   column_reference:
-                  - identifier: g
+                  - naked_identifier: g
                   - dot: .
-                  - identifier: data
+                  - naked_identifier: data
               - comma: ','
               - select_clause_element:
                   literal: '1'
@@ -395,9 +395,9 @@ file:
                   from_expression_element:
                     table_expression:
                       table_reference:
-                        identifier: graph
+                        naked_identifier: graph
                     alias_expression:
-                      identifier: g
+                      naked_identifier: g
           - set_operator:
             - keyword: UNION
             - keyword: ALL
@@ -406,28 +406,28 @@ file:
               - keyword: SELECT
               - select_clause_element:
                   column_reference:
-                  - identifier: g
+                  - naked_identifier: g
                   - dot: .
-                  - identifier: id
+                  - naked_identifier: id
               - comma: ','
               - select_clause_element:
                   column_reference:
-                  - identifier: g
+                  - naked_identifier: g
                   - dot: .
-                  - identifier: link
+                  - naked_identifier: link
               - comma: ','
               - select_clause_element:
                   column_reference:
-                  - identifier: g
+                  - naked_identifier: g
                   - dot: .
-                  - identifier: data
+                  - naked_identifier: data
               - comma: ','
               - select_clause_element:
                   expression:
                     column_reference:
-                    - identifier: sg
+                    - naked_identifier: sg
                     - dot: .
-                    - identifier: depth
+                    - naked_identifier: depth
                     binary_operator: +
                     literal: '1'
               from_clause:
@@ -436,40 +436,40 @@ file:
                   from_expression_element:
                     table_expression:
                       table_reference:
-                        identifier: graph
+                        naked_identifier: graph
                     alias_expression:
-                      identifier: g
+                      naked_identifier: g
               - comma: ','
               - from_expression:
                   from_expression_element:
                     table_expression:
                       table_reference:
-                        identifier: search_graph
+                        naked_identifier: search_graph
                     alias_expression:
-                      identifier: sg
+                      naked_identifier: sg
               where_clause:
                 keyword: WHERE
                 expression:
                 - column_reference:
-                  - identifier: g
+                  - naked_identifier: g
                   - dot: .
-                  - identifier: id
+                  - naked_identifier: id
                 - comparison_operator:
                     raw_comparison_operator: '='
                 - column_reference:
-                  - identifier: sg
+                  - naked_identifier: sg
                   - dot: .
-                  - identifier: link
+                  - naked_identifier: link
           end_bracket: )
       - keyword: CYCLE
       - column_reference:
-          identifier: id
+          naked_identifier: id
       - keyword: SET
       - column_reference:
-          identifier: is_cycle
+          naked_identifier: is_cycle
       - keyword: USING
       - column_reference:
-          identifier: path
+          naked_identifier: path
     - select_statement:
         select_clause:
           keyword: SELECT
@@ -483,5 +483,5 @@ file:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: search_graph
+                  naked_identifier: search_graph
 - statement_terminator: ;

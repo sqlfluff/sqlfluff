@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: dc1872bf8e0bfbc5786059a56316b965cdb7138636a82e09e273c203982e4021
+_hash: d9b16b0e1a3b4b65a7dbc30442463f2ca595d561a94acd4791eebfcb0c1f55be
 file:
 - statement:
     select_statement:
@@ -17,33 +17,33 @@ file:
             - start_bracket: (
             - expression:
                 column_reference:
-                  identifier: doc
+                  naked_identifier: doc
                 binary_operator: '#>>'
-                literal: "'{fields}'"
+                quoted_literal: "'{fields}'"
             - comma: ','
             - expression:
-                literal: "''"
+                quoted_literal: "''"
             - end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: field
+            naked_identifier: field
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: mytable
+                naked_identifier: mytable
       where_clause:
         keyword: WHERE
         expression:
         - column_reference:
-            identifier: doc
+            naked_identifier: doc
         - binary_operator: ->>
-        - literal: "'some_field'"
+        - quoted_literal: "'some_field'"
         - comparison_operator:
             raw_comparison_operator: '='
-        - literal: "'some_value'"
+        - quoted_literal: "'some_value'"
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -51,13 +51,27 @@ file:
         keyword: SELECT
         select_clause_element:
           expression:
-          - literal: "'[{\"a\":\"foo\"},{\"b\":\"bar\"},{\"c\":\"baz\"}]'"
+            quoted_literal: "'[{\"a\":\"foo\"},{\"b\":\"bar\"},{\"c\":\"baz\"}]'"
+            cast_expression:
+              casting_operator: '::'
+              data_type:
+                keyword: json
+            binary_operator: ->
+            literal: '2'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - quoted_literal: "'{\"a\": {\"b\":\"foo\"}}'"
           - cast_expression:
               casting_operator: '::'
               data_type:
                 keyword: json
           - binary_operator: ->
-          - literal: '2'
+          - quoted_literal: "'a'"
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -65,13 +79,13 @@ file:
         keyword: SELECT
         select_clause_element:
           expression:
-          - literal: "'{\"a\": {\"b\":\"foo\"}}'"
-          - cast_expression:
+            quoted_literal: "'[1,2,3]'"
+            cast_expression:
               casting_operator: '::'
               data_type:
                 keyword: json
-          - binary_operator: ->
-          - literal: "'a'"
+            binary_operator: ->>
+            literal: '2'
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -79,27 +93,13 @@ file:
         keyword: SELECT
         select_clause_element:
           expression:
-          - literal: "'[1,2,3]'"
-          - cast_expression:
-              casting_operator: '::'
-              data_type:
-                keyword: json
-          - binary_operator: ->>
-          - literal: '2'
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-        keyword: SELECT
-        select_clause_element:
-          expression:
-          - literal: "'{\"a\":1,\"b\":2}'"
+          - quoted_literal: "'{\"a\":1,\"b\":2}'"
           - cast_expression:
               casting_operator: '::'
               data_type:
                 keyword: json
           - binary_operator: ->>
-          - literal: "'b'"
+          - quoted_literal: "'b'"
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -107,13 +107,13 @@ file:
         keyword: SELECT
         select_clause_element:
           expression:
-          - literal: "'{\"a\": {\"b\":{\"c\": \"foo\"}}}'"
+          - quoted_literal: "'{\"a\": {\"b\":{\"c\": \"foo\"}}}'"
           - cast_expression:
               casting_operator: '::'
               data_type:
                 keyword: json
           - binary_operator: '#>'
-          - literal: "'{a,b}'"
+          - quoted_literal: "'{a,b}'"
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -121,11 +121,11 @@ file:
         keyword: SELECT
         select_clause_element:
           expression:
-          - literal: "'{\"a\":[1,2,3],\"b\":[4,5,6]}'"
+          - quoted_literal: "'{\"a\":[1,2,3],\"b\":[4,5,6]}'"
           - cast_expression:
               casting_operator: '::'
               data_type:
                 keyword: json
           - binary_operator: '#>>'
-          - literal: "'{a,2}'"
+          - quoted_literal: "'{a,2}'"
 - statement_terminator: ;

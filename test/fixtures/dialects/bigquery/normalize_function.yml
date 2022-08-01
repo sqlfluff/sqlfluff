@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2a6f32ae2dbc25331ecf96dafddccd6df89363bc4573af35754a451c70eb9f3c
+_hash: b97e00d9d9fe349e93768f63c7182924dd680c96291a305c5f165cda52a85ab0
 file:
 - statement:
     select_statement:
@@ -11,7 +11,7 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: col1
+            naked_identifier: col1
       - comma: ','
       - select_clause_element:
           function:
@@ -26,7 +26,7 @@ file:
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: a
+            naked_identifier: a
       - comma: ','
       - select_clause_element:
           function:
@@ -41,7 +41,7 @@ file:
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: b
+            naked_identifier: b
       - comma: ','
       - select_clause_element:
           function:
@@ -56,7 +56,7 @@ file:
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: c
+            naked_identifier: c
       - comma: ','
       - select_clause_element:
           function:
@@ -71,7 +71,7 @@ file:
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: d
+            naked_identifier: d
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -79,23 +79,23 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: a
+            naked_identifier: a
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: b
+            naked_identifier: b
       - comma: ','
       - select_clause_element:
           expression:
           - column_reference:
-              identifier: a
+              naked_identifier: a
           - comparison_operator:
               raw_comparison_operator: '='
           - column_reference:
-              identifier: b
+              naked_identifier: b
           alias_expression:
             keyword: as
-            identifier: normalized
+            naked_identifier: normalized
       from_clause:
         keyword: FROM
         from_expression:
@@ -117,7 +117,7 @@ file:
                           end_bracket: )
                       alias_expression:
                         keyword: as
-                        identifier: a
+                        naked_identifier: a
                   - comma: ','
                   - select_clause_element:
                       function:
@@ -130,14 +130,14 @@ file:
                           end_bracket: )
                       alias_expression:
                         keyword: as
-                        identifier: b
+                        naked_identifier: b
                 end_bracket: )
 - statement_terminator: ;
 - statement:
     with_compound_statement:
       keyword: WITH
       common_table_expression:
-        identifier: EquivalentNames
+        naked_identifier: EquivalentNames
         keyword: AS
         bracketed:
           start_bracket: (
@@ -146,7 +146,7 @@ file:
               keyword: SELECT
               select_clause_element:
                 column_reference:
-                  identifier: name
+                  naked_identifier: name
             from_clause:
               keyword: FROM
               from_expression:
@@ -173,7 +173,7 @@ file:
                         end_bracket: )
                   alias_expression:
                     keyword: AS
-                    identifier: name
+                    naked_identifier: name
           end_bracket: )
       select_statement:
         select_clause:
@@ -186,13 +186,13 @@ file:
                 start_bracket: (
                 expression:
                   column_reference:
-                    identifier: name
+                    naked_identifier: name
                 comma: ','
                 keyword: NFKC
                 end_bracket: )
             alias_expression:
               keyword: AS
-              identifier: normalized_name
+              naked_identifier: normalized_name
         - comma: ','
         - select_clause_element:
             function:
@@ -204,18 +204,18 @@ file:
                 end_bracket: )
             alias_expression:
               keyword: AS
-              identifier: name_count
+              naked_identifier: name_count
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: EquivalentNames
+                  naked_identifier: EquivalentNames
         groupby_clause:
         - keyword: GROUP
         - keyword: BY
-        - literal: '1'
+        - numeric_literal: '1'
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -223,11 +223,11 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: a
+            naked_identifier: a
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: b
+            naked_identifier: b
       - comma: ','
       - select_clause_element:
           expression:
@@ -238,7 +238,7 @@ file:
                 start_bracket: (
                 expression:
                   column_reference:
-                    identifier: a
+                    naked_identifier: a
                 end_bracket: )
           - comparison_operator:
               raw_comparison_operator: '='
@@ -249,11 +249,11 @@ file:
                 start_bracket: (
                 expression:
                   column_reference:
-                    identifier: b
+                    naked_identifier: b
                 end_bracket: )
           alias_expression:
             keyword: as
-            identifier: normalized
+            naked_identifier: normalized
       - comma: ','
       - select_clause_element:
           expression:
@@ -264,7 +264,7 @@ file:
                 start_bracket: (
                 expression:
                   column_reference:
-                    identifier: a
+                    naked_identifier: a
                 end_bracket: )
           - comparison_operator:
               raw_comparison_operator: '='
@@ -275,11 +275,11 @@ file:
                 start_bracket: (
                 expression:
                   column_reference:
-                    identifier: b
+                    naked_identifier: b
                 end_bracket: )
           alias_expression:
             keyword: as
-            identifier: normalized_with_case_folding
+            naked_identifier: normalized_with_case_folding
       from_clause:
         keyword: FROM
         from_expression:
@@ -294,13 +294,13 @@ file:
                       literal: "'The red barn'"
                       alias_expression:
                         keyword: AS
-                        identifier: a
+                        naked_identifier: a
                   - comma: ','
                   - select_clause_element:
                       literal: "'The Red Barn'"
                       alias_expression:
                         keyword: AS
-                        identifier: b
+                        naked_identifier: b
                 end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -309,11 +309,11 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: a
+            naked_identifier: a
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: b
+            naked_identifier: b
       - comma: ','
       - select_clause_element:
           expression:
@@ -324,7 +324,7 @@ file:
                 start_bracket: (
                 expression:
                   column_reference:
-                    identifier: a
+                    naked_identifier: a
                 comma: ','
                 keyword: NFD
                 end_bracket: )
@@ -337,13 +337,13 @@ file:
                 start_bracket: (
                 expression:
                   column_reference:
-                    identifier: b
+                    naked_identifier: b
                 comma: ','
                 keyword: NFD
                 end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: nfd
+            naked_identifier: nfd
       - comma: ','
       - select_clause_element:
           expression:
@@ -354,7 +354,7 @@ file:
                 start_bracket: (
                 expression:
                   column_reference:
-                    identifier: a
+                    naked_identifier: a
                 comma: ','
                 keyword: NFC
                 end_bracket: )
@@ -367,13 +367,13 @@ file:
                 start_bracket: (
                 expression:
                   column_reference:
-                    identifier: b
+                    naked_identifier: b
                 comma: ','
                 keyword: NFC
                 end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: nfc
+            naked_identifier: nfc
       - comma: ','
       - select_clause_element:
           expression:
@@ -384,7 +384,7 @@ file:
                 start_bracket: (
                 expression:
                   column_reference:
-                    identifier: a
+                    naked_identifier: a
                 comma: ','
                 keyword: NFKD
                 end_bracket: )
@@ -397,13 +397,13 @@ file:
                 start_bracket: (
                 expression:
                   column_reference:
-                    identifier: b
+                    naked_identifier: b
                 comma: ','
                 keyword: NFKD
                 end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: nkfd
+            naked_identifier: nkfd
       - comma: ','
       - select_clause_element:
           expression:
@@ -414,7 +414,7 @@ file:
                 start_bracket: (
                 expression:
                   column_reference:
-                    identifier: a
+                    naked_identifier: a
                 comma: ','
                 keyword: NFKC
                 end_bracket: )
@@ -427,10 +427,10 @@ file:
                 start_bracket: (
                 expression:
                   column_reference:
-                    identifier: b
+                    naked_identifier: b
                 comma: ','
                 keyword: NFKC
                 end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: nkfc
+            naked_identifier: nkfc

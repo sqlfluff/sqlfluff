@@ -3,13 +3,13 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3f4c8f3526ae1d28a5fbfc6d9d2072dc5c30e2251b1df4cb00765a681d5a023a
+_hash: 2e2705db06ec33a9d36a74292546722509f88116460015c0996b65bd55a9a813
 file:
 - statement:
     call_statement:
       keyword: CALL
       procedure_name:
-        identifier: mydataset
+        naked_identifier: mydataset
         dot: .
         procedure_name_identifier: create_customer
       bracketed:
@@ -19,7 +19,7 @@ file:
 - statement:
     declare_segment:
       keyword: DECLARE
-      identifier: retCode
+      naked_identifier: retCode
       data_type:
         data_type_identifier: INT64
 - statement_terminator: ;
@@ -27,7 +27,7 @@ file:
     call_statement:
       keyword: CALL
       procedure_name:
-        identifier: mySchema
+        naked_identifier: mySchema
         dot: .
         procedure_name_identifier: UpdateSomeTables
       bracketed:
@@ -37,7 +37,7 @@ file:
       - comma: ','
       - expression:
           column_reference:
-            identifier: retCode
+            naked_identifier: retCode
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -46,5 +46,5 @@ file:
         keyword: SELECT
         select_clause_element:
           column_reference:
-            identifier: retCode
+            naked_identifier: retCode
 - statement_terminator: ;

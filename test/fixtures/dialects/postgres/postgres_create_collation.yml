@@ -3,14 +3,14 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 309835f67eb282ebe597717e51871c763cbc54e4501ca3bda650a877633f1023
+_hash: 9e7e11a57e7d87b51f1f6fc06c349a9f2a666f583242bd8c54afb7ca4a447cc2
 file:
 - statement:
     create_collation_statement:
     - keyword: CREATE
     - keyword: COLLATION
     - object_reference:
-        identifier: numeric
+        naked_identifier: numeric
     - bracketed:
       - start_bracket: (
       - keyword: provider
@@ -21,7 +21,7 @@ file:
       - keyword: locale
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'en@colNumeric=yes'"
+      - quoted_literal: "'en@colNumeric=yes'"
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -29,13 +29,13 @@ file:
     - keyword: CREATE
     - keyword: COLLATION
     - object_reference:
-        identifier: french
+        naked_identifier: french
     - bracketed:
         start_bracket: (
         keyword: locale
         comparison_operator:
           raw_comparison_operator: '='
-        literal: "'fr_FR.utf8'"
+        quoted_literal: "'fr_FR.utf8'"
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -43,7 +43,7 @@ file:
     - keyword: CREATE
     - keyword: COLLATION
     - object_reference:
-        identifier: german_phonebook
+        naked_identifier: german_phonebook
     - bracketed:
       - start_bracket: (
       - keyword: provider
@@ -54,7 +54,7 @@ file:
       - keyword: locale
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'de-u-co-phonebk'"
+      - quoted_literal: "'de-u-co-phonebk'"
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -62,8 +62,8 @@ file:
     - keyword: CREATE
     - keyword: COLLATION
     - object_reference:
-        identifier: german
+        naked_identifier: german
     - keyword: FROM
     - object_reference:
-        identifier: '"de_DE"'
+        quoted_identifier: '"de_DE"'
 - statement_terminator: ;

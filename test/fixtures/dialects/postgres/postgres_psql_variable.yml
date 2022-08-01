@@ -3,55 +3,55 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 72ba092a18c35c0903f109751f20490e82561f4e1969d22c5e9f5f0de6dacdf0
+_hash: 607ecdf86591baa8007ae393982b52ed433c4c7862f6a857d6fff8946cf2d6bc
 file:
 - statement:
     select_statement:
       select_clause:
       - keyword: SELECT
       - select_clause_element:
-          literal: "'from'"
+          quoted_literal: "'from'"
           alias_expression:
             keyword: AS
-            identifier: direction
+            naked_identifier: direction
       - comma: ','
       - select_clause_element:
           column_reference:
-          - identifier: users
+          - naked_identifier: users
           - dot: .
-          - identifier: email
+          - naked_identifier: email
       - comma: ','
       - select_clause_element:
           column_reference:
-          - identifier: rona_mms_charge_accounts
+          - naked_identifier: rona_mms_charge_accounts
           - dot: .
-          - identifier: account_number
+          - naked_identifier: account_number
       from_clause:
         keyword: FROM
         from_expression:
         - from_expression_element:
             table_expression:
               table_reference:
-                identifier: memberships
+                naked_identifier: memberships
         - join_clause:
             keyword: JOIN
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: users
+                  naked_identifier: users
             join_on_condition:
               keyword: 'ON'
               expression:
               - column_reference:
-                - identifier: users
+                - naked_identifier: users
                 - dot: .
-                - identifier: id
+                - naked_identifier: id
               - comparison_operator:
                   raw_comparison_operator: '='
               - column_reference:
-                - identifier: memberships
+                - naked_identifier: memberships
                 - dot: .
-                - identifier: user_id
+                - naked_identifier: user_id
         - join_clause:
           - keyword: LEFT
           - keyword: OUTER
@@ -59,27 +59,27 @@ file:
           - from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: rona_mms_charge_accounts
+                  naked_identifier: rona_mms_charge_accounts
           - join_on_condition:
               keyword: 'ON'
               expression:
               - column_reference:
-                - identifier: users
+                - naked_identifier: users
                 - dot: .
-                - identifier: id
+                - naked_identifier: id
               - comparison_operator:
                   raw_comparison_operator: '='
               - column_reference:
-                - identifier: rona_mms_charge_accounts
+                - naked_identifier: rona_mms_charge_accounts
                 - dot: .
-                - identifier: customer_id
+                - naked_identifier: customer_id
       where_clause:
         keyword: WHERE
         expression:
         - column_reference:
-          - identifier: memberships
+          - naked_identifier: memberships
           - dot: .
-          - identifier: code
+          - naked_identifier: code
         - comparison_operator:
             raw_comparison_operator: '='
         - bracketed:
@@ -95,9 +95,9 @@ file:
               keyword: text
         - binary_operator: AND
         - column_reference:
-          - identifier: rona_mms_charge_accounts
+          - naked_identifier: rona_mms_charge_accounts
           - dot: .
-          - identifier: account_number
+          - naked_identifier: account_number
         - comparison_operator:
             raw_comparison_operator: '='
         - function:
@@ -122,7 +122,7 @@ file:
                 literal: '10'
             - comma: ','
             - expression:
-                literal: "'0'"
+                quoted_literal: "'0'"
             - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -130,48 +130,48 @@ file:
       select_clause:
       - keyword: SELECT
       - select_clause_element:
-          literal: "'from'"
+          quoted_literal: "'from'"
           alias_expression:
             keyword: AS
-            identifier: direction
+            naked_identifier: direction
       - comma: ','
       - select_clause_element:
           column_reference:
-          - identifier: users
+          - naked_identifier: users
           - dot: .
-          - identifier: email
+          - naked_identifier: email
       - comma: ','
       - select_clause_element:
           column_reference:
-          - identifier: rona_mms_charge_accounts
+          - naked_identifier: rona_mms_charge_accounts
           - dot: .
-          - identifier: account_number
+          - naked_identifier: account_number
       from_clause:
         keyword: FROM
         from_expression:
         - from_expression_element:
             table_expression:
               table_reference:
-                identifier: memberships
+                naked_identifier: memberships
         - join_clause:
             keyword: JOIN
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: users
+                  naked_identifier: users
             join_on_condition:
               keyword: 'ON'
               expression:
               - column_reference:
-                - identifier: users
+                - naked_identifier: users
                 - dot: .
-                - identifier: id
+                - naked_identifier: id
               - comparison_operator:
                   raw_comparison_operator: '='
               - column_reference:
-                - identifier: memberships
+                - naked_identifier: memberships
                 - dot: .
-                - identifier: user_id
+                - naked_identifier: user_id
         - join_clause:
           - keyword: LEFT
           - keyword: OUTER
@@ -179,37 +179,37 @@ file:
           - from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: rona_mms_charge_accounts
+                  naked_identifier: rona_mms_charge_accounts
           - join_on_condition:
               keyword: 'ON'
               expression:
               - column_reference:
-                - identifier: users
+                - naked_identifier: users
                 - dot: .
-                - identifier: id
+                - naked_identifier: id
               - comparison_operator:
                   raw_comparison_operator: '='
               - column_reference:
-                - identifier: rona_mms_charge_accounts
+                - naked_identifier: rona_mms_charge_accounts
                 - dot: .
-                - identifier: customer_id
+                - naked_identifier: customer_id
       where_clause:
         keyword: WHERE
         expression:
         - column_reference:
-          - identifier: memberships
+          - naked_identifier: memberships
           - dot: .
-          - identifier: code
+          - naked_identifier: code
         - comparison_operator:
             raw_comparison_operator: '='
         - psql_variable:
             colon: ':'
-            literal: "'m1'"
+            quoted_literal: "'m1'"
         - binary_operator: AND
         - column_reference:
-          - identifier: rona_mms_charge_accounts
+          - naked_identifier: rona_mms_charge_accounts
           - dot: .
-          - identifier: account_number
+          - naked_identifier: account_number
         - comparison_operator:
             raw_comparison_operator: '='
         - function:
@@ -220,12 +220,12 @@ file:
             - expression:
                 psql_variable:
                   colon: ':'
-                  literal: "'a'"
+                  quoted_literal: "'a'"
             - comma: ','
             - expression:
                 literal: '10'
             - comma: ','
             - expression:
-                literal: "'0'"
+                quoted_literal: "'0'"
             - end_bracket: )
 - statement_terminator: ;

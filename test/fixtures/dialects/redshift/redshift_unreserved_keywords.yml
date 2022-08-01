@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2a54e431587b734209fa033f58b03ab2f3dd58aeb0d00c9817a3960592e0e102
+_hash: b9c2855fe7dd06fc4e5c99824e16eb736d7534e70017c2cdf5c83d50ad587896
 file:
   statement:
     select_statement:
@@ -11,108 +11,108 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: auto
+            naked_identifier: auto
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: avro
+            naked_identifier: avro
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: backup
+            naked_identifier: backup
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: bzip2
+            naked_identifier: bzip2
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: case_insensitive
+            naked_identifier: case_insensitive
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: case_sensitive
+            naked_identifier: case_sensitive
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: compound
+            naked_identifier: compound
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: defaults
+            naked_identifier: defaults
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: deflate
+            naked_identifier: deflate
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: distkey
+            naked_identifier: distkey
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: diststyle
+            naked_identifier: diststyle
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: encode
+            naked_identifier: encode
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: even
+            naked_identifier: even
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: excluding
+            naked_identifier: excluding
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: explicit
+            naked_identifier: explicit
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: gzip
+            naked_identifier: gzip
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: including
+            naked_identifier: including
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: interleaved
+            naked_identifier: interleaved
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: language
+            naked_identifier: language
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: lzop
+            naked_identifier: lzop
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: offline
+            naked_identifier: offline
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: partitioned
+            naked_identifier: partitioned
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: sortkey
+            naked_identifier: sortkey
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: wallet
+            naked_identifier: wallet
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: zstd
+            naked_identifier: zstd
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: foo
+                naked_identifier: foo
   statement_terminator: ;

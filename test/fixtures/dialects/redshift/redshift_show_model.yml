@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a1779fe7ea317f4f8ffc6d51041b624080aca739b2349a7f889dd7af001c1fa6
+_hash: a18435e378fb780efb8c6b0210f84365b31ee39918b8668bbca95d6e74cfd36b
 file:
 - statement:
     show_model_statement:
@@ -16,5 +16,5 @@ file:
     - keyword: SHOW
     - keyword: MODEL
     - object_reference:
-        identifier: mdl
+        naked_identifier: mdl
 - statement_terminator: ;

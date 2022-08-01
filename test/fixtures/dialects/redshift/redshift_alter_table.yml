@@ -3,26 +3,26 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2d7c46618e05c6fdecb2c48e68c669097607df1255d476b4ffade0d5c1df455f
+_hash: 68990137a43c435e410cfe55030aa7065b1137143c1de9def3fddb028a46a0c7
 file:
 - statement:
     alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: example_table
+        naked_identifier: example_table
     - alter_table_action_segment:
         keyword: ADD
         table_constraint:
         - keyword: CONSTRAINT
         - object_reference:
-            identifier: example_name
+            naked_identifier: example_name
         - keyword: PRIMARY
         - keyword: KEY
         - bracketed:
             start_bracket: (
             column_reference:
-              identifier: example_sk
+              naked_identifier: example_sk
             end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -30,7 +30,7 @@ file:
     - keyword: alter
     - keyword: table
     - table_reference:
-        identifier: users
+        naked_identifier: users
     - alter_table_action_segment:
       - keyword: rename
       - keyword: to
@@ -41,7 +41,7 @@ file:
     - keyword: alter
     - keyword: table
     - table_reference:
-        identifier: venue
+        naked_identifier: venue
     - alter_table_action_segment:
       - keyword: owner
       - keyword: to
@@ -52,7 +52,7 @@ file:
     - keyword: alter
     - keyword: table
     - table_reference:
-        identifier: vdate
+        naked_identifier: vdate
     - alter_table_action_segment:
       - keyword: owner
       - keyword: to
@@ -63,21 +63,21 @@ file:
     - keyword: alter
     - keyword: table
     - table_reference:
-        identifier: venue
+        naked_identifier: venue
     - keyword: rename
     - keyword: column
     - column_reference:
-        identifier: venueseats
+        naked_identifier: venueseats
     - keyword: to
     - column_reference:
-        identifier: venuesize
+        naked_identifier: venuesize
 - statement_terminator: ;
 - statement:
     alter_table_statement:
     - keyword: alter
     - keyword: table
     - table_reference:
-        identifier: category
+        naked_identifier: category
     - alter_table_action_segment:
       - keyword: drop
       - keyword: constraint
@@ -88,12 +88,12 @@ file:
     - keyword: alter
     - keyword: table
     - table_reference:
-        identifier: event
+        naked_identifier: event
     - alter_table_action_segment:
       - keyword: alter
       - keyword: column
       - column_reference:
-          identifier: eventname
+          naked_identifier: eventname
       - keyword: type
       - data_type:
           keyword: varchar
@@ -107,11 +107,11 @@ file:
     - keyword: create
     - keyword: table
     - table_reference:
-        identifier: t1
+        naked_identifier: t1
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: c0
+          naked_identifier: c0
       - data_type:
           keyword: int
       - column_attribute_segment:
@@ -119,7 +119,7 @@ file:
         - keyword: lzo
       - comma: ','
       - column_reference:
-          identifier: c1
+          naked_identifier: c1
       - data_type:
           keyword: bigint
       - column_attribute_segment:
@@ -127,7 +127,7 @@ file:
         - keyword: zstd
       - comma: ','
       - column_reference:
-          identifier: c2
+          naked_identifier: c2
       - data_type:
           keyword: varchar
           bracketed:
@@ -139,7 +139,7 @@ file:
         - keyword: lzo
       - comma: ','
       - column_reference:
-          identifier: c3
+          naked_identifier: c3
       - data_type:
           keyword: varchar
           bracketed:
@@ -156,12 +156,12 @@ file:
     - keyword: alter
     - keyword: table
     - table_reference:
-        identifier: t1
+        naked_identifier: t1
     - alter_table_action_segment:
       - keyword: alter
       - keyword: column
       - column_reference:
-          identifier: c0
+          naked_identifier: c0
       - keyword: encode
       - keyword: az64
 - statement_terminator: ;
@@ -170,12 +170,12 @@ file:
     - keyword: alter
     - keyword: table
     - table_reference:
-        identifier: t1
+        naked_identifier: t1
     - alter_table_action_segment:
       - keyword: alter
       - keyword: column
       - column_reference:
-          identifier: c1
+          naked_identifier: c1
       - keyword: encode
       - keyword: az64
 - statement_terminator: ;
@@ -184,12 +184,12 @@ file:
     - keyword: alter
     - keyword: table
     - table_reference:
-        identifier: t1
+        naked_identifier: t1
     - alter_table_action_segment:
       - keyword: alter
       - keyword: column
       - column_reference:
-          identifier: c2
+          naked_identifier: c2
       - keyword: encode
       - keyword: bytedict
 - statement_terminator: ;
@@ -198,12 +198,12 @@ file:
     - keyword: alter
     - keyword: table
     - table_reference:
-        identifier: t1
+        naked_identifier: t1
     - alter_table_action_segment:
       - keyword: alter
       - keyword: column
       - column_reference:
-          identifier: c3
+          naked_identifier: c3
       - keyword: encode
       - keyword: runlength
 - statement_terminator: ;
@@ -212,33 +212,33 @@ file:
     - keyword: alter
     - keyword: table
     - table_reference:
-        identifier: inventory
+        naked_identifier: inventory
     - alter_table_action_segment:
       - keyword: alter
       - keyword: diststyle
       - keyword: key
       - keyword: distkey
       - column_reference:
-          identifier: inv_warehouse_sk
+          naked_identifier: inv_warehouse_sk
 - statement_terminator: ;
 - statement:
     alter_table_statement:
     - keyword: alter
     - keyword: table
     - table_reference:
-        identifier: inventory
+        naked_identifier: inventory
     - alter_table_action_segment:
       - keyword: alter
       - keyword: distkey
       - column_reference:
-          identifier: inv_item_sk
+          naked_identifier: inv_item_sk
 - statement_terminator: ;
 - statement:
     alter_table_statement:
     - keyword: alter
     - keyword: table
     - table_reference:
-        identifier: inventory
+        naked_identifier: inventory
     - alter_table_action_segment:
       - keyword: alter
       - keyword: diststyle
@@ -249,17 +249,17 @@ file:
     - keyword: alter
     - keyword: table
     - table_reference:
-        identifier: t1
+        naked_identifier: t1
     - alter_table_action_segment:
       - keyword: alter
       - keyword: sortkey
       - bracketed:
         - start_bracket: (
         - column_reference:
-            identifier: c0
+            naked_identifier: c0
         - comma: ','
         - column_reference:
-            identifier: c1
+            naked_identifier: c1
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -267,7 +267,7 @@ file:
     - keyword: alter
     - keyword: table
     - table_reference:
-        identifier: t1
+        naked_identifier: t1
     - alter_table_action_segment:
       - keyword: alter
       - keyword: sortkey
@@ -278,17 +278,17 @@ file:
     - keyword: alter
     - keyword: table
     - table_reference:
-        identifier: t1
+        naked_identifier: t1
     - alter_table_action_segment:
       - keyword: alter
       - keyword: sortkey
       - bracketed:
         - start_bracket: (
         - column_reference:
-            identifier: c0
+            naked_identifier: c0
         - comma: ','
         - column_reference:
-            identifier: c1
+            naked_identifier: c1
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -296,7 +296,7 @@ file:
     - keyword: alter
     - keyword: table
     - table_reference:
-        identifier: t1
+        naked_identifier: t1
     - alter_table_action_segment:
       - keyword: alter
       - keyword: encode
@@ -307,12 +307,12 @@ file:
     - keyword: alter
     - keyword: table
     - table_reference:
-        identifier: t2
+        naked_identifier: t2
     - alter_table_action_segment:
       - keyword: alter
       - keyword: column
       - column_reference:
-          identifier: c0
+          naked_identifier: c0
       - keyword: encode
       - keyword: lzo
 - statement_terminator: ;
@@ -321,14 +321,14 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - identifier: the_schema
+      - naked_identifier: the_schema
       - dot: .
-      - identifier: the_table
+      - naked_identifier: the_table
     - alter_table_action_segment:
       - keyword: ADD
       - keyword: COLUMN
       - column_reference:
-          identifier: the_timestamp
+          naked_identifier: the_timestamp
       - data_type:
           datetime_type_identifier:
             keyword: TIMESTAMP
@@ -338,14 +338,14 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - identifier: the_schema
+      - naked_identifier: the_schema
       - dot: .
-      - identifier: the_table
+      - naked_identifier: the_table
     - alter_table_action_segment:
       - keyword: ADD
       - keyword: COLUMN
       - column_reference:
-          identifier: the_boolean
+          naked_identifier: the_boolean
       - data_type:
           keyword: BOOLEAN
       - keyword: DEFAULT
@@ -357,12 +357,12 @@ file:
     - keyword: alter
     - keyword: table
     - table_reference:
-        identifier: users
+        naked_identifier: users
     - alter_table_action_segment:
       - keyword: add
       - keyword: column
       - column_reference:
-          identifier: feedback_score
+          naked_identifier: feedback_score
       - data_type:
           keyword: int
       - keyword: default
@@ -374,23 +374,23 @@ file:
     - keyword: alter
     - keyword: table
     - table_reference:
-        identifier: users
+        naked_identifier: users
     - alter_table_action_segment:
       - keyword: drop
       - keyword: column
       - column_reference:
-          identifier: feedback_score
+          naked_identifier: feedback_score
 - statement_terminator: ;
 - statement:
     alter_table_statement:
     - keyword: alter
     - keyword: table
     - table_reference:
-        identifier: users
+        naked_identifier: users
     - alter_table_action_segment:
       - keyword: drop
       - keyword: column
       - column_reference:
-          identifier: feedback_score
+          naked_identifier: feedback_score
       - keyword: cascade
 - statement_terminator: ;

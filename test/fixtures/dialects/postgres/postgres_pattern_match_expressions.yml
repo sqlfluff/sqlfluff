@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ec35e6d39628e0535a60f3d1df1f9e0582622f2df9e010fedb1aad2ad20e33b8
+_hash: 413088f10c6a5fbabc4c14834d563d3edb5ff24ecc7fccdc4336b39ca2cab678
 file:
 - statement:
     select_statement:
@@ -19,14 +19,14 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: animals
+                naked_identifier: animals
       where_clause:
         keyword: WHERE
         expression:
           column_reference:
-            identifier: family
+            naked_identifier: family
           keyword: LIKE
-          literal: "'%ursidae%'"
+          quoted_literal: "'%ursidae%'"
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -42,15 +42,15 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: animals
+                naked_identifier: animals
       where_clause:
         keyword: WHERE
         expression:
         - column_reference:
-            identifier: family
+            naked_identifier: family
         - keyword: NOT
         - keyword: LIKE
-        - literal: "'%ursidae%'"
+        - quoted_literal: "'%ursidae%'"
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -66,14 +66,14 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: animals
+                naked_identifier: animals
       where_clause:
         keyword: WHERE
         expression:
           column_reference:
-            identifier: genus
+            naked_identifier: genus
           keyword: ILIKE
-          literal: "'%ursus%'"
+          quoted_literal: "'%ursus%'"
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -89,15 +89,15 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: animals
+                naked_identifier: animals
       where_clause:
         keyword: WHERE
         expression:
         - column_reference:
-            identifier: genus
+            naked_identifier: genus
         - keyword: NOT
         - keyword: ILIKE
-        - literal: "'%ursus%'"
+        - quoted_literal: "'%ursus%'"
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -113,16 +113,16 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: animals
+                naked_identifier: animals
       where_clause:
         keyword: WHERE
         expression:
         - column_reference:
-            identifier: family
+            naked_identifier: family
         - keyword: LIKE
-        - literal: "'%ursidae%'"
+        - quoted_literal: "'%ursidae%'"
         - keyword: ESCAPE
-        - literal: "'\\\\'"
+        - quoted_literal: "'\\\\'"
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -138,17 +138,17 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: animals
+                naked_identifier: animals
       where_clause:
         keyword: WHERE
         expression:
         - column_reference:
-            identifier: genus
+            naked_identifier: genus
         - keyword: NOT
         - keyword: ILIKE
-        - literal: "'%ursus%'"
+        - quoted_literal: "'%ursus%'"
         - keyword: ESCAPE
-        - literal: "'\\\\'"
+        - quoted_literal: "'\\\\'"
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -162,25 +162,25 @@ file:
             - start_bracket: (
             - expression:
               - column_reference:
-                  identifier: family
+                  naked_identifier: family
               - keyword: LIKE
-              - literal: "'%ursidae%'"
+              - quoted_literal: "'%ursidae%'"
               - keyword: ESCAPE
-              - literal: "'\\\\'"
+              - quoted_literal: "'\\\\'"
             - comma: ','
             - expression:
                 boolean_literal: 'FALSE'
             - end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: is_bear
+            naked_identifier: is_bear
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: animals
+                naked_identifier: animals
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -196,15 +196,15 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: animals
+                naked_identifier: animals
       where_clause:
         keyword: WHERE
         expression:
         - column_reference:
-            identifier: family
+            naked_identifier: family
         - keyword: SIMILAR
         - keyword: TO
-        - literal: "'%ursidae%'"
+        - quoted_literal: "'%ursidae%'"
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -220,16 +220,16 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: animals
+                naked_identifier: animals
       where_clause:
         keyword: WHERE
         expression:
         - column_reference:
-            identifier: family
+            naked_identifier: family
         - keyword: NOT
         - keyword: SIMILAR
         - keyword: TO
-        - literal: "'%ursidae%'"
+        - quoted_literal: "'%ursidae%'"
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -245,15 +245,15 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: animals
+                naked_identifier: animals
       where_clause:
         keyword: WHERE
         expression:
         - column_reference:
-            identifier: genus
+            naked_identifier: genus
         - keyword: SIMILAR
         - keyword: TO
-        - literal: "'%ursus%'"
+        - quoted_literal: "'%ursus%'"
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -269,16 +269,16 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: animals
+                naked_identifier: animals
       where_clause:
         keyword: WHERE
         expression:
         - column_reference:
-            identifier: genus
+            naked_identifier: genus
         - keyword: NOT
         - keyword: SIMILAR
         - keyword: TO
-        - literal: "'%ursus%'"
+        - quoted_literal: "'%ursus%'"
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -294,17 +294,17 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: animals
+                naked_identifier: animals
       where_clause:
         keyword: WHERE
         expression:
         - column_reference:
-            identifier: family
+            naked_identifier: family
         - keyword: SIMILAR
         - keyword: TO
-        - literal: "'%ursidae%'"
+        - quoted_literal: "'%ursidae%'"
         - keyword: ESCAPE
-        - literal: "'\\\\'"
+        - quoted_literal: "'\\\\'"
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -320,18 +320,18 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: animals
+                naked_identifier: animals
       where_clause:
         keyword: WHERE
         expression:
         - column_reference:
-            identifier: genus
+            naked_identifier: genus
         - keyword: NOT
         - keyword: SIMILAR
         - keyword: TO
-        - literal: "'%ursus%'"
+        - quoted_literal: "'%ursus%'"
         - keyword: ESCAPE
-        - literal: "'\\\\'"
+        - quoted_literal: "'\\\\'"
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -345,32 +345,32 @@ file:
             - start_bracket: (
             - expression:
               - column_reference:
-                  identifier: family
+                  naked_identifier: family
               - keyword: SIMILAR
               - keyword: TO
-              - literal: "'%ursidae%'"
+              - quoted_literal: "'%ursidae%'"
               - keyword: ESCAPE
-              - literal: "'\\\\'"
+              - quoted_literal: "'\\\\'"
             - comma: ','
             - expression:
                 boolean_literal: 'FALSE'
             - end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: is_bear
+            naked_identifier: is_bear
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: animals
+                naked_identifier: animals
 - statement_terminator: ;
 - statement:
     with_compound_statement:
       keyword: WITH
       common_table_expression:
-        identifier: cleaned_bear_financial_branch
+        naked_identifier: cleaned_bear_financial_branch
         keyword: AS
         bracketed:
           start_bracket: (
@@ -379,7 +379,7 @@ file:
             - keyword: SELECT
             - select_clause_element:
                 column_reference:
-                  identifier: branch_id
+                  naked_identifier: branch_id
             - comma: ','
             - select_clause_element:
                 function:
@@ -394,14 +394,14 @@ file:
                         - keyword: WHEN
                         - expression:
                           - column_reference:
-                              identifier: honey_numerical_code
+                              naked_identifier: honey_numerical_code
                           - keyword: SIMILAR
                           - keyword: TO
-                          - literal: "'[0-9]{0,7}.?[0-9]{0,2}'"
+                          - quoted_literal: "'[0-9]{0,7}.?[0-9]{0,2}'"
                         - keyword: THEN
                         - expression:
                             column_reference:
-                              identifier: honey_numerical_code
+                              naked_identifier: honey_numerical_code
                       - else_clause:
                           keyword: ELSE
                           expression:
@@ -409,32 +409,32 @@ file:
                       - keyword: END
                   - comma: ','
                   - expression:
-                      literal: "'24601'"
+                      quoted_literal: "'24601'"
                   - end_bracket: )
                 alias_expression:
                   keyword: AS
-                  identifier: honey_numerical_code
+                  naked_identifier: honey_numerical_code
             from_clause:
               keyword: FROM
               from_expression:
                 from_expression_element:
                   table_expression:
                     table_reference:
-                      identifier: bear_financial_branch
+                      naked_identifier: bear_financial_branch
           end_bracket: )
       select_statement:
         select_clause:
           keyword: SELECT
           select_clause_element:
             column_reference:
-              identifier: branch_id
+              naked_identifier: branch_id
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: cleaned_bear_financial_branch
+                  naked_identifier: cleaned_bear_financial_branch
         limit_clause:
           keyword: LIMIT
           literal: '10'

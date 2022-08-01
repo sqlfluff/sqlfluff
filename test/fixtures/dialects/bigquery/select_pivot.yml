@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 76d2e82e90f97d57482d060a0ed0d913f4dad2bcbbe4c1d192b9021efc09c357
+_hash: 0918d8e2908f7c1b45d44f605d615592772392ca7795805d2d2b53338ca83e9a
 file:
 - statement:
     select_statement:
@@ -33,7 +33,7 @@ file:
                       from_expression_element:
                         table_expression:
                           table_reference:
-                            identifier: Produce
+                            naked_identifier: Produce
                 end_bracket: )
           from_pivot_expression:
             keyword: PIVOT
@@ -46,10 +46,10 @@ file:
                   start_bracket: (
                   expression:
                     column_reference:
-                      identifier: sales
+                      naked_identifier: sales
                   end_bracket: )
             - keyword: FOR
-            - identifier: quarter
+            - naked_identifier: quarter
             - keyword: IN
             - bracketed:
               - start_bracket: (
@@ -83,18 +83,18 @@ file:
                   - keyword: SELECT
                   - select_clause_element:
                       column_reference:
-                        identifier: sales
+                        naked_identifier: sales
                   - comma: ','
                   - select_clause_element:
                       column_reference:
-                        identifier: quarter
+                        naked_identifier: quarter
                   from_clause:
                     keyword: FROM
                     from_expression:
                       from_expression_element:
                         table_expression:
                           table_reference:
-                            identifier: Produce
+                            naked_identifier: Produce
                 end_bracket: )
           from_pivot_expression:
             keyword: PIVOT
@@ -107,10 +107,10 @@ file:
                   start_bracket: (
                   expression:
                     column_reference:
-                      identifier: sales
+                      naked_identifier: sales
                   end_bracket: )
             - keyword: FOR
-            - identifier: quarter
+            - naked_identifier: quarter
             - keyword: IN
             - bracketed:
               - start_bracket: (
@@ -152,7 +152,7 @@ file:
                       from_expression_element:
                         table_expression:
                           table_reference:
-                            identifier: Produce
+                            naked_identifier: Produce
                 end_bracket: )
           from_pivot_expression:
             keyword: PIVOT
@@ -165,10 +165,10 @@ file:
                   start_bracket: (
                   expression:
                     column_reference:
-                      identifier: sales
+                      naked_identifier: sales
                   end_bracket: )
             - keyword: FOR
-            - identifier: quarter
+            - naked_identifier: quarter
             - keyword: IN
             - bracketed:
               - start_bracket: (
@@ -200,18 +200,18 @@ file:
                   - keyword: SELECT
                   - select_clause_element:
                       column_reference:
-                        identifier: sales
+                        naked_identifier: sales
                   - comma: ','
                   - select_clause_element:
                       column_reference:
-                        identifier: quarter
+                        naked_identifier: quarter
                   from_clause:
                     keyword: FROM
                     from_expression:
                       from_expression_element:
                         table_expression:
                           table_reference:
-                            identifier: Produce
+                            naked_identifier: Produce
                 end_bracket: )
           from_pivot_expression:
             keyword: PIVOT
@@ -224,10 +224,10 @@ file:
                   start_bracket: (
                   expression:
                     column_reference:
-                      identifier: sales
+                      naked_identifier: sales
                   end_bracket: )
             - keyword: FOR
-            - identifier: quarter
+            - naked_identifier: quarter
             - keyword: IN
             - bracketed:
               - start_bracket: (
@@ -259,18 +259,18 @@ file:
                   - keyword: SELECT
                   - select_clause_element:
                       column_reference:
-                        identifier: sales
+                        naked_identifier: sales
                   - comma: ','
                   - select_clause_element:
                       column_reference:
-                        identifier: quarter
+                        naked_identifier: quarter
                   from_clause:
                     keyword: FROM
                     from_expression:
                       from_expression_element:
                         table_expression:
                           table_reference:
-                            identifier: Produce
+                            naked_identifier: Produce
                 end_bracket: )
           from_pivot_expression:
             keyword: PIVOT
@@ -283,7 +283,7 @@ file:
                   start_bracket: (
                   expression:
                     column_reference:
-                      identifier: sales
+                      naked_identifier: sales
                   end_bracket: )
             - comma: ','
             - function:
@@ -293,10 +293,10 @@ file:
                   start_bracket: (
                   expression:
                     column_reference:
-                      identifier: sales
+                      naked_identifier: sales
                   end_bracket: )
             - keyword: FOR
-            - identifier: quarter
+            - naked_identifier: quarter
             - keyword: IN
             - bracketed:
               - start_bracket: (

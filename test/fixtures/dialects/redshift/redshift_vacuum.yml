@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 509a271feaca53d1b5f2b46a41e5eb3237da4c462bd1c6e8c541ea27955558a2
+_hash: 5320230a1ca68c5d4481c06f8242ace843cc722f1fdaf12644ac9b4dda68b3a4
 file:
 - statement:
     vacuum_statement:
@@ -13,13 +13,13 @@ file:
     vacuum_statement:
       keyword: vacuum
       table_reference:
-        identifier: sales
+        naked_identifier: sales
 - statement_terminator: ;
 - statement:
     vacuum_statement:
     - keyword: vacuum
     - table_reference:
-        identifier: sales
+        naked_identifier: sales
     - keyword: to
     - literal: '100'
     - keyword: percent
@@ -29,7 +29,7 @@ file:
     - keyword: vacuum
     - keyword: recluster
     - table_reference:
-        identifier: sales
+        naked_identifier: sales
 - statement_terminator: ;
 - statement:
     vacuum_statement:
@@ -37,7 +37,7 @@ file:
     - keyword: sort
     - keyword: only
     - table_reference:
-        identifier: sales
+        naked_identifier: sales
     - keyword: to
     - literal: '75'
     - keyword: percent
@@ -48,7 +48,7 @@ file:
     - keyword: delete
     - keyword: only
     - table_reference:
-        identifier: sales
+        naked_identifier: sales
     - keyword: to
     - literal: '75'
     - keyword: percent
@@ -58,14 +58,14 @@ file:
     - keyword: vacuum
     - keyword: reindex
     - table_reference:
-        identifier: listing
+        naked_identifier: listing
 - statement_terminator: ;
 - statement:
     vacuum_statement:
     - keyword: vacuum
     - keyword: reindex
     - table_reference:
-        identifier: listing
+        naked_identifier: listing
     - keyword: to
     - literal: '75'
     - keyword: percent
@@ -74,7 +74,7 @@ file:
     vacuum_statement:
     - keyword: vacuum
     - table_reference:
-        identifier: listing
+        naked_identifier: listing
     - keyword: to
     - literal: '75'
     - keyword: percent
