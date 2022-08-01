@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: fe0877d98b6f804cdf9ebf376554720404503f4be4c6a42337f97a383014ab36
+_hash: b1498b85ec2f0a96c8ee83574eb876676d002d8898ecd0d84f70c4e790ce50fb
 file:
 - statement:
     select_statement:
@@ -12,7 +12,7 @@ file:
         select_clause_element:
           expression:
             keyword: date
-            literal: "'2012-08-08'"
+            date_constructor_literal: "'2012-08-08'"
             binary_operator: +
             interval_expression:
               keyword: interval
@@ -26,7 +26,7 @@ file:
         select_clause_element:
           expression:
             keyword: time
-            literal: "'01:00'"
+            date_constructor_literal: "'01:00'"
             binary_operator: +
             interval_expression:
               keyword: interval
@@ -40,7 +40,7 @@ file:
         select_clause_element:
           expression:
             keyword: timestamp
-            literal: "'2012-08-08 01:00'"
+            date_constructor_literal: "'2012-08-08 01:00'"
             binary_operator: +
             interval_expression:
               keyword: interval
@@ -54,7 +54,7 @@ file:
         select_clause_element:
           expression:
             keyword: timestamp
-            literal: "'2012-10-31 01:00'"
+            date_constructor_literal: "'2012-10-31 01:00'"
             binary_operator: +
             interval_expression:
               keyword: interval
@@ -100,7 +100,7 @@ file:
         select_clause_element:
           expression:
             keyword: date
-            literal: "'2012-08-08'"
+            date_constructor_literal: "'2012-08-08'"
             binary_operator: '-'
             interval_expression:
               keyword: interval
@@ -114,7 +114,7 @@ file:
         select_clause_element:
           expression:
             keyword: time
-            literal: "'01:00'"
+            date_constructor_literal: "'01:00'"
             binary_operator: '-'
             interval_expression:
               keyword: interval
@@ -128,7 +128,7 @@ file:
         select_clause_element:
           expression:
             keyword: timestamp
-            literal: "'2012-08-08 01:00'"
+            date_constructor_literal: "'2012-08-08 01:00'"
             binary_operator: '-'
             interval_expression:
               keyword: interval
@@ -142,7 +142,7 @@ file:
         select_clause_element:
           expression:
             keyword: timestamp
-            literal: "'2012-10-31 01:00'"
+            date_constructor_literal: "'2012-10-31 01:00'"
             binary_operator: '-'
             interval_expression:
               keyword: interval
@@ -294,7 +294,7 @@ file:
         keyword: select
         select_clause_element:
           column_reference:
-            identifier: localtime
+            naked_identifier: localtime
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -302,7 +302,7 @@ file:
         keyword: select
         select_clause_element:
           column_reference:
-            identifier: localtimestamp
+            naked_identifier: localtimestamp
 - statement_terminator: ;
 - statement:
     select_statement:

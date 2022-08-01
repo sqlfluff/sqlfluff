@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2c5a31ff4becf332f6f6a64363b078a98e81758ad032d1df83364c43323336b6
+_hash: f6c21690d1ce62a534c3fbfbf61de6472d6561070b9288ac03e62417c4450429
 file:
 - statement:
     create_datashare_statement:
@@ -13,7 +13,7 @@ file:
         identifier: salesshare
     - keyword: SET
     - keyword: PUBLICACCESSIBLE
-    - literal: 'FALSE'
+    - boolean_literal: 'FALSE'
 - statement_terminator: ;
 - statement:
     create_datashare_statement:
@@ -25,7 +25,7 @@ file:
     - keyword: INCLUDENEW
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: 'TRUE'
+    - boolean_literal: 'TRUE'
     - keyword: FOR
     - keyword: SCHEMA
     - schema_reference:

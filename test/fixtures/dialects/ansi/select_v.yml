@@ -3,20 +3,20 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5ca0990681d8061be633afaa8708b4b0f5058a452079416a8f63ee4263bc8623
+_hash: 5d62d56ee4bc153b5a65f68faba9cb2812a3dbab108bab8e88d0b4189f030056
 file:
   statement:
     with_compound_statement:
       keyword: WITH
       common_table_expression:
-        identifier: counter
+        naked_identifier: counter
         keyword: AS
         bracketed:
           start_bracket: (
           with_compound_statement:
             keyword: WITH
             common_table_expression:
-              identifier: ladder
+              naked_identifier: ladder
               keyword: AS
               bracketed:
                 start_bracket: (
@@ -39,7 +39,7 @@ file:
                   from_expression_element:
                     table_expression:
                       table_reference:
-                        identifier: ladder
+                        naked_identifier: ladder
               orderby_clause:
               - keyword: ORDER
               - keyword: BY
@@ -58,4 +58,4 @@ file:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: counter
+                  naked_identifier: counter

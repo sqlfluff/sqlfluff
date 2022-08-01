@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7cd33cca5d174a96e3c54097d978662b9b4909fe718271bf8332f47bcedd60dd
+_hash: cc0271b4370b5d3c467c6f75c5e07d8a886ea4ac1705c302a6057c67348fe1ff
 file:
 - statement:
     select_statement:
@@ -11,24 +11,24 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: last_name
+            naked_identifier: last_name
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: employee_id
+            naked_identifier: employee_id
           alias_expression:
-            identifier: id
+            naked_identifier: id
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: manager_id
+            naked_identifier: manager_id
           alias_expression:
-            identifier: mgr_id
+            naked_identifier: mgr_id
       - comma: ','
       - select_clause_element:
           bare_function: CONNECT_BY_ISLEAF
           alias_expression:
-            identifier: leaf
+            naked_identifier: leaf
       - comma: ','
       - select_clause_element:
           bare_function: LEVEL
@@ -60,43 +60,43 @@ file:
               - start_bracket: (
               - expression:
                   column_reference:
-                    identifier: last_name
+                    naked_identifier: last_name
               - comma: ','
               - expression:
                   literal: "'/'"
               - end_bracket: )
           alias_expression:
-            identifier: '"PATH"'
+            quoted_identifier: '"PATH"'
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: employees
+                naked_identifier: employees
       connect_by_clause:
       - keyword: CONNECT
       - keyword: BY
       - expression:
         - keyword: PRIOR
         - column_reference:
-            identifier: employee_id
+            naked_identifier: employee_id
         - comparison_operator:
             raw_comparison_operator: '='
         - column_reference:
-            identifier: manager_id
+            naked_identifier: manager_id
         - binary_operator: AND
         - column_reference:
-            identifier: dept_no
+            naked_identifier: dept_no
         - comparison_operator:
             raw_comparison_operator: '='
         - column_reference:
-            identifier: dno
+            naked_identifier: dno
       - keyword: START
       - keyword: WITH
       - expression:
           column_reference:
-            identifier: last_name
+            naked_identifier: last_name
           comparison_operator:
             raw_comparison_operator: '='
           literal: "'Clark'"
@@ -104,7 +104,7 @@ file:
       - keyword: ORDER
       - keyword: BY
       - column_reference:
-          identifier: employee_id
+          naked_identifier: employee_id
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -112,7 +112,7 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: store
+            naked_identifier: store
       - comma: ','
       - select_clause_element:
           function:
@@ -122,28 +122,28 @@ file:
               start_bracket: (
               expression:
                 column_reference:
-                  identifier: price
+                  naked_identifier: price
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: volume
+            naked_identifier: volume
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: sales
+                naked_identifier: sales
       groupby_clause:
       - keyword: GROUP
       - keyword: BY
       - column_reference:
-          identifier: store
+          naked_identifier: store
       orderby_clause:
       - keyword: ORDER
       - keyword: BY
       - column_reference:
-          identifier: store
+          naked_identifier: store
       - keyword: DESC
 - statement_terminator: ;
 - statement:
@@ -152,7 +152,7 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: name
+            naked_identifier: name
       - comma: ','
       - select_clause_element:
           function:
@@ -162,45 +162,45 @@ file:
               start_bracket: (
               expression:
                 column_reference:
-                  identifier: price
+                  naked_identifier: price
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: volume
+            naked_identifier: volume
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: customers
+                naked_identifier: customers
           join_clause:
           - keyword: JOIN
           - from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: sales
+                  naked_identifier: sales
           - keyword: USING
           - bracketed:
               start_bracket: (
-              identifier: c_id
+              naked_identifier: c_id
               end_bracket: )
       groupby_clause:
       - keyword: GROUP
       - keyword: BY
       - column_reference:
-          identifier: name
+          naked_identifier: name
       orderby_clause:
       - keyword: ORDER
       - keyword: BY
       - column_reference:
-          identifier: name
+          naked_identifier: name
 - statement_terminator: ;
 - statement:
     with_compound_statement:
       keyword: WITH
       common_table_expression:
-        identifier: tmp_view
+        naked_identifier: tmp_view
         keyword: AS
         bracketed:
           start_bracket: (
@@ -209,41 +209,41 @@ file:
             - keyword: SELECT
             - select_clause_element:
                 column_reference:
-                  identifier: name
+                  naked_identifier: name
             - comma: ','
             - select_clause_element:
                 column_reference:
-                  identifier: price
+                  naked_identifier: price
             - comma: ','
             - select_clause_element:
                 column_reference:
-                  identifier: store
+                  naked_identifier: store
             from_clause:
             - keyword: FROM
             - from_expression:
                 from_expression_element:
                   table_expression:
                     table_reference:
-                      identifier: customers
+                      naked_identifier: customers
             - comma: ','
             - from_expression:
                 from_expression_element:
                   table_expression:
                     table_reference:
-                      identifier: sales
+                      naked_identifier: sales
             where_clause:
               keyword: WHERE
               expression:
               - column_reference:
-                - identifier: customers
+                - naked_identifier: customers
                 - dot: .
-                - identifier: c_id
+                - naked_identifier: c_id
               - comparison_operator:
                   raw_comparison_operator: '='
               - column_reference:
-                - identifier: sales
+                - naked_identifier: sales
                 - dot: .
-                - identifier: c_id
+                - naked_identifier: c_id
           end_bracket: )
       select_statement:
         select_clause:
@@ -256,26 +256,26 @@ file:
                 start_bracket: (
                 expression:
                   column_reference:
-                    identifier: price
+                    naked_identifier: price
                 end_bracket: )
             alias_expression:
               keyword: AS
-              identifier: volume
+              naked_identifier: volume
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: name
+              naked_identifier: name
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: store
+              naked_identifier: store
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: tmp_view
+                  naked_identifier: tmp_view
         groupby_clause:
         - keyword: GROUP
         - keyword: BY
@@ -287,11 +287,11 @@ file:
               grouping_expression_list:
               - expression:
                   column_reference:
-                    identifier: name
+                    naked_identifier: name
               - comma: ','
               - expression:
                   column_reference:
-                    identifier: store
+                    naked_identifier: store
               - comma: ','
               - bracketed:
                   start_bracket: (
@@ -320,7 +320,7 @@ file:
                     start_bracket: (
                     import_columns:
                       column_datatype_definition:
-                        identifier: v
+                        naked_identifier: v
                         data_type:
                           keyword: VARCHAR
                           bracketed:
@@ -334,12 +334,12 @@ file:
                     - keyword: EXA
                     - keyword: AT
                     - connection_definition:
-                        identifier: my_connection
+                        naked_identifier: my_connection
                     - keyword: TABLE
                     - table_reference:
-                      - identifier: sys
+                      - naked_identifier: sys
                       - dot: .
-                      - identifier: dual
+                      - naked_identifier: dual
               end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -349,7 +349,7 @@ file:
         select_clause_element:
           function:
             function_name:
-              identifier: aschema
+              naked_identifier: aschema
               dot: .
               function_name_identifier: afunction
             bracketed:
@@ -366,16 +366,16 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-              - identifier: aschema
+              - naked_identifier: aschema
               - dot: .
-              - identifier: mytable
+              - naked_identifier: mytable
       where_clause:
         keyword: WHERE
         expression:
         - bracketed:
           - start_bracket: (
           - column_reference:
-              identifier: a
+              naked_identifier: a
           - comma: ','
           - literal: '2'
           - comma: ','
@@ -386,7 +386,7 @@ file:
               - start_bracket: (
               - expression:
                   column_reference:
-                    identifier: c
+                    naked_identifier: c
               - comma: ','
               - expression:
                   literal: '1'
@@ -403,31 +403,31 @@ file:
               - keyword: SELECT
               - select_clause_element:
                   column_reference:
-                    identifier: a
+                    naked_identifier: a
               - comma: ','
               - select_clause_element:
                   column_reference:
-                    identifier: b
+                    naked_identifier: b
               - comma: ','
               - select_clause_element:
                   column_reference:
-                    identifier: c
+                    naked_identifier: c
               from_clause:
                 keyword: FROM
                 from_expression:
                   from_expression_element:
                     table_expression:
                       table_reference:
-                      - identifier: bschema
+                      - naked_identifier: bschema
                       - dot: .
-                      - identifier: yourtable
+                      - naked_identifier: yourtable
             end_bracket: )
 - statement_terminator: ;
 - statement:
     with_compound_statement:
       keyword: WITH
       common_table_expression:
-        identifier: mylist
+        naked_identifier: mylist
         keyword: AS
         bracketed:
           start_bracket: (
@@ -471,15 +471,15 @@ file:
               - end_bracket: )
           - alias_expression:
               keyword: AS
-              identifier: mylist
+              naked_identifier: mylist
               bracketed:
                 start_bracket: (
                 identifier_list:
-                - identifier: a
+                - naked_identifier: a
                 - comma: ','
-                - identifier: b
+                - naked_identifier: b
                 - comma: ','
-                - identifier: c
+                - naked_identifier: c
                 end_bracket: )
           end_bracket: )
       select_statement:
@@ -495,7 +495,7 @@ file:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: mylist
+                  naked_identifier: mylist
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -523,21 +523,21 @@ file:
                     - start_bracket: (
                     - expression:
                         column_reference:
-                          identifier: col1
+                          naked_identifier: col1
                     - comma: ','
                     - expression:
                         column_reference:
-                          identifier: col2
+                          naked_identifier: col2
                     - end_bracket: )
                   orderby_clause:
                   - keyword: ORDER
                   - keyword: BY
                   - column_reference:
-                      identifier: col1
+                      naked_identifier: col1
                   - keyword: DESC
                   - comma: ','
                   - column_reference:
-                      identifier: col2
+                      naked_identifier: col2
                   - keyword: DESC
                 end_bracket: )
 - statement_terminator: ;
@@ -567,22 +567,22 @@ file:
                     - start_bracket: (
                     - expression:
                         column_reference:
-                          identifier: col1
+                          naked_identifier: col1
                     - comma: ','
                     - expression:
                         column_reference:
-                          identifier: col2
+                          naked_identifier: col2
                     - end_bracket: )
                 end_bracket: )
       orderby_clause:
       - keyword: ORDER
       - keyword: BY
       - column_reference:
-          identifier: col1
+          naked_identifier: col1
       - keyword: DESC
       - comma: ','
       - column_reference:
-          identifier: col2
+          naked_identifier: col2
       - keyword: DESC
 - statement_terminator: ;
 - statement:
@@ -591,7 +591,7 @@ file:
         keyword: SELECT
         select_clause_element:
           column_reference:
-            identifier: x
+            naked_identifier: x
         with_invalid_unique_pk_clause:
         - keyword: WITH
         - keyword: INVALID
@@ -599,7 +599,7 @@ file:
         - bracketed:
             start_bracket: (
             column_reference:
-              identifier: myid
+              naked_identifier: myid
             end_bracket: )
       from_clause:
         keyword: FROM
@@ -607,7 +607,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t
+                naked_identifier: t
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -658,13 +658,13 @@ file:
                 - end_bracket: )
                 alias_expression:
                   keyword: AS
-                  identifier: x
+                  naked_identifier: x
                   bracketed:
                     start_bracket: (
                     identifier_list:
-                    - identifier: c1
+                    - naked_identifier: c1
                     - comma: ','
-                    - identifier: c2
+                    - naked_identifier: c2
                     end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -702,13 +702,13 @@ file:
                 - end_bracket: )
                 alias_expression:
                   keyword: AS
-                  identifier: x
+                  naked_identifier: x
                   bracketed:
                     start_bracket: (
                     identifier_list:
-                    - identifier: c1
+                    - naked_identifier: c1
                     - comma: ','
-                    - identifier: c2
+                    - naked_identifier: c2
                     end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -766,11 +766,11 @@ file:
               end_bracket: )
             alias_expression:
               keyword: AS
-              identifier: xs
+              naked_identifier: xs
               bracketed:
                 start_bracket: (
                 identifier_list:
-                  identifier: n1
+                  naked_identifier: n1
                 end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -801,11 +801,11 @@ file:
     - keyword: SELECT
     - select_clause_element:
         column_reference:
-          identifier: first_name
+          naked_identifier: first_name
     - comma: ','
     - select_clause_element:
         column_reference:
-          identifier: name
+          naked_identifier: name
     - with_invalid_foreign_key_clause:
       - keyword: WITH
       - keyword: INVALID
@@ -814,18 +814,18 @@ file:
       - bracketed:
           start_bracket: (
           column_reference:
-            identifier: nr
+            naked_identifier: nr
           end_bracket: )
       - keyword: from
       - table_reference:
-          identifier: T1
+          naked_identifier: T1
       - keyword: REFERENCING
       - table_reference:
-          identifier: T2
+          naked_identifier: T2
       - bracketed:
           start_bracket: (
           column_reference:
-            identifier: id
+            naked_identifier: id
           end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -843,17 +843,17 @@ file:
       - bracketed:
         - start_bracket: (
         - column_reference:
-            identifier: first_name
+            naked_identifier: first_name
         - comma: ','
         - column_reference:
-            identifier: name
+            naked_identifier: name
         - end_bracket: )
       - keyword: from
       - table_reference:
-          identifier: T1
+          naked_identifier: T1
       - keyword: REFERENCING
       - table_reference:
-          identifier: T2
+          naked_identifier: T2
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -865,30 +865,30 @@ file:
       - bracketed:
         - start_bracket: (
         - column_reference:
-            identifier: nr
+            naked_identifier: nr
         - comma: ','
         - column_reference:
-            identifier: first_name
+            naked_identifier: first_name
         - comma: ','
         - column_reference:
-            identifier: name
+            naked_identifier: name
         - end_bracket: )
       - keyword: from
       - table_reference:
-          identifier: T1
+          naked_identifier: T1
       - keyword: REFERENCING
       - table_reference:
-          identifier: T2
+          naked_identifier: T2
       - bracketed:
         - start_bracket: (
         - column_reference:
-            identifier: id
+            naked_identifier: id
         - comma: ','
         - column_reference:
-            identifier: first_name
+            naked_identifier: first_name
         - comma: ','
         - column_reference:
-            identifier: name
+            naked_identifier: name
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -903,14 +903,14 @@ file:
         - keyword: INTO
         - keyword: TABLE
         - table_reference:
-            identifier: t2
+            naked_identifier: t2
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
       orderby_clause:
       - keyword: ORDER
       - keyword: BY
@@ -929,7 +929,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: dual
+                naked_identifier: dual
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -942,7 +942,7 @@ file:
         - bracketed:
             start_bracket: (
             column_reference:
-              identifier: first_name
+              naked_identifier: first_name
             end_bracket: )
       from_clause:
         keyword: from
@@ -950,7 +950,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: T1
+                naked_identifier: T1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -964,7 +964,7 @@ file:
             - start_bracket: (
             - expression:
                 column_reference:
-                  identifier: json_str
+                  naked_identifier: json_str
             - comma: ','
             - expression:
                 literal: "'$.\"@id\"'"
@@ -977,7 +977,7 @@ file:
               bracketed:
               - start_bracket: (
               - column_datatype_definition:
-                  identifier: id
+                  naked_identifier: id
                   data_type:
                     keyword: VARCHAR
                     bracketed:
@@ -986,7 +986,7 @@ file:
                       end_bracket: )
               - comma: ','
               - column_datatype_definition:
-                  identifier: error_column
+                  naked_identifier: error_column
                   data_type:
                     keyword: VARCHAR
                     bracketed:
@@ -1000,7 +1000,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t
+                naked_identifier: t
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1026,14 +1026,14 @@ file:
               end_bracket: )
           alias_expression:
             keyword: as
-            identifier: a
+            naked_identifier: a
       - comma: ','
       - select_clause_element:
           expression:
             local_alias_segment:
               keyword: local
               dot: .
-              identifier: a
+              naked_identifier: a
             binary_operator: '*'
             literal: '10'
       from_clause:
@@ -1042,7 +1042,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: x
+                naked_identifier: x
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1056,25 +1056,25 @@ file:
               start_bracket: (
               expression:
                 column_reference:
-                  identifier: x
+                  naked_identifier: x
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: x
+            naked_identifier: x
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t
+                naked_identifier: t
       where_clause:
         keyword: WHERE
         expression:
           local_alias_segment:
             keyword: local
             dot: .
-            identifier: x
+            naked_identifier: x
           comparison_operator:
             raw_comparison_operator: '>'
           literal: '10'
@@ -1085,10 +1085,10 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: c1
+            naked_identifier: c1
           alias_expression:
             keyword: as
-            identifier: cx
+            naked_identifier: cx
       - comma: ','
       - select_clause_element:
           function:
@@ -1100,14 +1100,14 @@ file:
               end_bracket: )
           alias_expression:
             keyword: as
-            identifier: cc
+            naked_identifier: cc
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: x
+                naked_identifier: x
       groupby_clause:
       - keyword: GROUP
       - keyword: BY
@@ -1115,7 +1115,7 @@ file:
           local_alias_segment:
             keyword: local
             dot: .
-            identifier: cx
+            naked_identifier: cx
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1123,17 +1123,17 @@ file:
         keyword: SELECT
         select_clause_element:
           column_reference:
-            identifier: c1
+            naked_identifier: c1
           alias_expression:
             keyword: as
-            identifier: cx
+            naked_identifier: cx
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: x
+                naked_identifier: x
       orderby_clause:
       - keyword: ORDER
       - keyword: BY
@@ -1141,7 +1141,7 @@ file:
           local_alias_segment:
             keyword: local
             dot: .
-            identifier: cx
+            naked_identifier: cx
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1149,7 +1149,7 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: c1
+            naked_identifier: c1
       - comma: ','
       - select_clause_element:
           function:
@@ -1161,14 +1161,14 @@ file:
               end_bracket: )
           alias_expression:
             keyword: as
-            identifier: c
+            naked_identifier: c
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: x
+                naked_identifier: x
       groupby_clause:
       - keyword: GROUP
       - keyword: BY
@@ -1179,7 +1179,7 @@ file:
           local_alias_segment:
             keyword: local
             dot: .
-            identifier: c
+            naked_identifier: c
           comparison_operator:
             raw_comparison_operator: '>'
           literal: '1'
@@ -1190,15 +1190,15 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: S_ID
+            naked_identifier: S_ID
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: C_ID
+            naked_identifier: C_ID
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: PRICE
+            naked_identifier: PRICE
       - comma: ','
       - select_clause_element:
           function:
@@ -1217,30 +1217,30 @@ file:
                   - keyword: BY
                   - expression:
                       column_reference:
-                        identifier: C_ID
+                        naked_identifier: C_ID
                   orderby_clause:
                   - keyword: ORDER
                   - keyword: BY
                   - column_reference:
-                      identifier: PRICE
+                      naked_identifier: PRICE
                   - keyword: DESC
                 end_bracket: )
           alias_expression:
-            identifier: NUM
+            naked_identifier: NUM
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: SALES
+                naked_identifier: SALES
       qualify_clause:
         keyword: QUALIFY
         expression:
           local_alias_segment:
             keyword: local
             dot: .
-            identifier: NUM
+            naked_identifier: NUM
           comparison_operator:
             raw_comparison_operator: '='
           literal: '1'
@@ -1258,7 +1258,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: T
+                naked_identifier: T
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1266,14 +1266,14 @@ file:
         keyword: SELECT
         select_clause_element:
           column_reference:
-            identifier: '"day"'
+            quoted_identifier: '"day"'
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: T
+                naked_identifier: T
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1289,7 +1289,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: T
+                naked_identifier: T
       preferring_clause:
         keyword: PREFERRING
         preference_term:
@@ -1297,7 +1297,7 @@ file:
           local_alias_segment:
             keyword: LOCAL
             dot: .
-            identifier: ranking
+            naked_identifier: ranking
         partitionby_clause:
         - keyword: PARTITION
         - keyword: BY
@@ -1305,7 +1305,7 @@ file:
             local_alias_segment:
               keyword: local
               dot: .
-              identifier: c1
+              naked_identifier: c1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1321,7 +1321,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: T
+                naked_identifier: T
       preferring_clause:
         keyword: PREFERRING
         preference_term:
@@ -1329,7 +1329,7 @@ file:
           local_alias_segment:
             keyword: LOCAL
             dot: .
-            identifier: ranking
+            naked_identifier: ranking
           plus_prior_inverse:
           - keyword: PRIOR
           - keyword: TO
@@ -1338,7 +1338,7 @@ file:
               local_alias_segment:
                 keyword: LOCAL
                 dot: .
-                identifier: budget
+                naked_identifier: budget
         partitionby_clause:
         - keyword: PARTITION
         - keyword: BY
@@ -1346,7 +1346,7 @@ file:
             local_alias_segment:
               keyword: local
               dot: .
-              identifier: c1
+              naked_identifier: c1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1362,7 +1362,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: T
+                naked_identifier: T
       preferring_clause:
         keyword: PREFERRING
         preference_term:
@@ -1370,7 +1370,7 @@ file:
           local_alias_segment:
             keyword: LOCAL
             dot: .
-            identifier: ranking
+            naked_identifier: ranking
           plus_prior_inverse:
             keyword: PLUS
             preference_term:
@@ -1378,7 +1378,7 @@ file:
               local_alias_segment:
                 keyword: LOCAL
                 dot: .
-                identifier: budget
+                naked_identifier: budget
         partitionby_clause:
         - keyword: PARTITION
         - keyword: BY
@@ -1386,7 +1386,7 @@ file:
             local_alias_segment:
               keyword: local
               dot: .
-              identifier: c1
+              naked_identifier: c1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1402,7 +1402,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: T
+                naked_identifier: T
       preferring_clause:
         keyword: PREFERRING
         preference_term:
@@ -1410,7 +1410,7 @@ file:
           local_alias_segment:
             keyword: LOCAL
             dot: .
-            identifier: ranking
+            naked_identifier: ranking
           plus_prior_inverse:
           - keyword: PRIOR
           - keyword: TO
@@ -1419,12 +1419,12 @@ file:
               local_alias_segment:
                 keyword: LOCAL
                 dot: .
-                identifier: budget
+                naked_identifier: budget
               plus_prior_inverse:
                 keyword: INVERSE
                 preference_term:
                   column_reference:
-                    identifier: col20
+                    naked_identifier: col20
         partitionby_clause:
         - keyword: PARTITION
         - keyword: BY
@@ -1432,7 +1432,7 @@ file:
             local_alias_segment:
               keyword: local
               dot: .
-              identifier: c1
+              naked_identifier: c1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1448,7 +1448,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: T
+                naked_identifier: T
       where_clause:
         keyword: WHERE
         expression:
@@ -1457,12 +1457,12 @@ file:
           - local_alias_segment:
               keyword: LOCAL
               dot: .
-              identifier: c1
+              naked_identifier: c1
           - comma: ','
           - local_alias_segment:
               keyword: LOCAL
               dot: .
-              identifier: c2
+              naked_identifier: c2
           - end_bracket: )
         - keyword: NOT
         - keyword: IN
@@ -1473,18 +1473,18 @@ file:
               - keyword: SELECT
               - select_clause_element:
                   column_reference:
-                    identifier: c1
+                    naked_identifier: c1
               - comma: ','
               - select_clause_element:
                   column_reference:
-                    identifier: c2
+                    naked_identifier: c2
               from_clause:
                 keyword: FROM
                 from_expression:
                   from_expression_element:
                     table_expression:
                       table_reference:
-                        identifier: b
+                        naked_identifier: b
             end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -1495,21 +1495,21 @@ file:
           literal: "'ABC'"
           alias_expression:
             keyword: as
-            identifier: c1
+            naked_identifier: c1
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: dual
+                naked_identifier: dual
       where_clause:
         keyword: WHERE
         expression:
           local_alias_segment:
             keyword: local
             dot: .
-            identifier: c1
+            naked_identifier: c1
           comparison_operator:
             raw_comparison_operator: '='
           literal: "'ABC'"
@@ -1521,22 +1521,22 @@ file:
         - keyword: SELECT
         - select_clause_element:
             column_reference:
-              identifier: a
+              naked_identifier: a
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: b
+              naked_identifier: b
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: c
+              naked_identifier: c
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: x
+                  naked_identifier: x
     - set_operator:
         keyword: union
     - select_statement:
@@ -1544,27 +1544,27 @@ file:
         - keyword: SELECT
         - select_clause_element:
             column_reference:
-              identifier: a
+              naked_identifier: a
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: b
+              naked_identifier: b
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: c
+              naked_identifier: c
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: y
+                  naked_identifier: y
     - orderby_clause:
       - keyword: ORDER
       - keyword: BY
       - column_reference:
-          identifier: a
+          naked_identifier: a
 - statement_terminator: ;
 - statement:
     set_expression:
@@ -1590,25 +1590,25 @@ file:
                     end_bracket: )
             alias_expression:
               keyword: AS
-              identifier: nummer
+              naked_identifier: nummer
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                - identifier: sys
+                - naked_identifier: sys
                 - dot: .
-                - identifier: exa_sql_keywords
+                - naked_identifier: exa_sql_keywords
             join_clause:
             - keyword: CROSS
             - keyword: JOIN
             - from_expression_element:
                 table_expression:
                   table_reference:
-                  - identifier: sys
+                  - naked_identifier: sys
                   - dot: .
-                  - identifier: exa_sql_keywords
+                  - naked_identifier: exa_sql_keywords
     - set_operator:
       - keyword: UNION
       - keyword: ALL
@@ -1736,7 +1736,7 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: v
+            naked_identifier: v
       - comma: ','
       - select_clause_element:
           expression:
@@ -1744,7 +1744,7 @@ file:
           - literal: "'2020-10-26'"
           - binary_operator: +
           - column_reference:
-              identifier: v
+              naked_identifier: v
           - binary_operator: '*'
           - interval_expression:
             - keyword: INTERVAL
@@ -1752,17 +1752,17 @@ file:
             - keyword: DAY
           alias_expression:
             keyword: AS
-            identifier: late_2020_mondays
+            naked_identifier: late_2020_mondays
       - comma: ','
       - select_clause_element:
           expression:
             literal: '5'
             binary_operator: '*'
             column_reference:
-              identifier: v
+              naked_identifier: v
           alias_expression:
             keyword: AS
-            identifier: five_times_table
+            naked_identifier: five_times_table
       from_clause:
         keyword: FROM
         from_expression:
@@ -1776,10 +1776,10 @@ file:
               - literal: '9'
             alias_expression:
               keyword: AS
-              identifier: v
+              naked_identifier: v
               bracketed:
                 start_bracket: (
                 identifier_list:
-                  identifier: v
+                  naked_identifier: v
                 end_bracket: )
 - statement_terminator: ;

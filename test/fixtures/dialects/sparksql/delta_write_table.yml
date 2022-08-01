@@ -3,16 +3,16 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e461676f523407410601287c4d1cacd6abf67ccfa6fb204241a1a4742f02bce7
+_hash: 71a413ce8e57c3ecb61d0fc3d117123b729e1b1ebce1f6fbee1d09f8204e5ae2
 file:
 - statement:
     insert_statement:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-      - identifier: default
+      - naked_identifier: default
       - dot: .
-      - identifier: people10m
+      - naked_identifier: people10m
     - select_statement:
         select_clause:
           keyword: SELECT
@@ -26,7 +26,7 @@ file:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: more_people
+                  naked_identifier: more_people
 - statement_terminator: ;
 - statement:
     insert_statement:
@@ -34,9 +34,9 @@ file:
     - keyword: OVERWRITE
     - keyword: TABLE
     - table_reference:
-      - identifier: default
+      - naked_identifier: default
       - dot: .
-      - identifier: people10m
+      - naked_identifier: people10m
     - select_statement:
         select_clause:
           keyword: SELECT
@@ -50,7 +50,7 @@ file:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: more_people
+                  naked_identifier: more_people
 - statement_terminator: ;
 - statement:
     set_statement:
@@ -74,9 +74,9 @@ file:
     - keyword: INSERT
     - keyword: OVERWRITE
     - table_reference:
-      - identifier: default
+      - naked_identifier: default
       - dot: .
-      - identifier: people10m
+      - naked_identifier: people10m
     - select_statement:
         select_clause:
           keyword: SELECT
@@ -90,5 +90,5 @@ file:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: more_people
+                  naked_identifier: more_people
 - statement_terminator: ;

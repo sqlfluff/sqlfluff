@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7ba373b891304f17f9998477909e6755b830ccc0cc25bbcafa90b770e545e07d
+_hash: 2d7504c1f9e75bcafb5d284129681ec9673f03ff99a4e8d214e016e4f42716ba
 file:
 - statement:
     create_stream_statement:
@@ -179,11 +179,11 @@ file:
     - keyword: APPEND_ONLY
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: 'TRUE'
+    - boolean_literal: 'TRUE'
     - keyword: SHOW_INITIAL_ROWS
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: 'TRUE'
+    - boolean_literal: 'TRUE'
     - comment_equals_clause:
         keyword: COMMENT
         comparison_operator:
@@ -206,7 +206,7 @@ file:
     - keyword: INSERT_ONLY
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: 'TRUE'
+    - boolean_literal: 'TRUE'
     - comment_equals_clause:
         keyword: COMMENT
         comparison_operator:
@@ -248,11 +248,11 @@ file:
     - keyword: APPEND_ONLY
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: 'FALSE'
+    - boolean_literal: 'FALSE'
     - keyword: SHOW_INITIAL_ROWS
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: 'FALSE'
+    - boolean_literal: 'FALSE'
     - comment_equals_clause:
         keyword: COMMENT
         comparison_operator:

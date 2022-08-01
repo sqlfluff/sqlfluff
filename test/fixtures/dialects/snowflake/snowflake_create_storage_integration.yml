@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a75abb7a185502645a3fed29db04d629bb90260791cee458d8ed88744b5c52f2
+_hash: 3686d12735d00624a7e87959ebddf04fc3e5463c4738a654b3624c0c942568a0
 file:
 - statement:
     create_statement:
@@ -28,7 +28,7 @@ file:
     - keyword: enabled
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: 'true'
+    - boolean_literal: 'true'
     - keyword: storage_allowed_locations
     - comparison_operator:
         raw_comparison_operator: '='
@@ -58,7 +58,7 @@ file:
     - keyword: enabled
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: 'true'
+    - boolean_literal: 'true'
     - keyword: storage_allowed_locations
     - comparison_operator:
         raw_comparison_operator: '='
@@ -88,7 +88,7 @@ file:
     - keyword: enabled
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: 'true'
+    - boolean_literal: 'true'
     - storage_integration_parameters:
         keyword: azure_tenant_id
         comparison_operator:
@@ -129,7 +129,7 @@ file:
     - keyword: enabled
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: 'true'
+    - boolean_literal: 'true'
     - keyword: storage_allowed_locations
     - comparison_operator:
         raw_comparison_operator: '='
@@ -168,7 +168,7 @@ file:
     - keyword: enabled
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: 'true'
+    - boolean_literal: 'true'
     - keyword: storage_allowed_locations
     - comparison_operator:
         raw_comparison_operator: '='
@@ -207,7 +207,7 @@ file:
     - keyword: enabled
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: 'false'
+    - boolean_literal: 'false'
     - storage_integration_parameters:
         keyword: azure_tenant_id
         comparison_operator:

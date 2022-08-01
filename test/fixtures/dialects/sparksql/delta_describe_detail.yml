@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d41887a88399589b3f5174fb6ed9e81f5ed8f499483ad1b678d50c3ab218dc2f
+_hash: 4747a9aa9ebeb09346b0c8e99c287167ffe755cdcf114612544471d441411dfe
 file:
 - statement:
     describe_detail_statement:
@@ -16,7 +16,7 @@ file:
     - keyword: DESCRIBE
     - keyword: DETAIL
     - table_reference:
-        identifier: eventstable
+        naked_identifier: eventstable
 - statement_terminator: ;
 - statement:
     describe_detail_statement:

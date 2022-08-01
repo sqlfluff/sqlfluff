@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8e9ddab73505cbaa613f54578784f4c2f363360244669dcc1931f49b2070ff23
+_hash: f81fe843796c742c5899e6073767f7ce531f22de56c8d022454625b79c27844d
 file:
   statement:
     create_virtual_schema_statement:
@@ -11,12 +11,12 @@ file:
     - keyword: VIRTUAL
     - keyword: SCHEMA
     - schema_reference:
-        identifier: hive
+        naked_identifier: hive
     - keyword: USING
     - object_reference:
-      - identifier: adapter
+      - naked_identifier: adapter
       - dot: .
-      - identifier: jdbc_adapter
+      - naked_identifier: jdbc_adapter
     - keyword: WITH
     - parameter: SQL_DIALECT
     - comparison_operator:

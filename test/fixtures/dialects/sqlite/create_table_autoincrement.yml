@@ -3,18 +3,18 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: acd6f0c53325bb408f8aee54b972015c3cfa3228c749cb851d6abd46af30c9ef
+_hash: 35d22c9df0ef9cc9ea9c020085cf4f633f9ea53a48a92bfcd928bbe86df5fe0a
 file:
   statement:
     create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: foo
+        naked_identifier: foo
     - bracketed:
         start_bracket: (
         column_definition:
-          identifier: id
+          naked_identifier: id
           data_type:
             data_type_identifier: INTEGER
           column_constraint_segment:

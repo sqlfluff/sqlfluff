@@ -3,11 +3,11 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1ec4cd7ff211f8acd0d2bf094c7fd45cf49c64e79da0292d7d8619d2a64189f1
+_hash: b2db9bda187de5db1905468ca3ae84266b11b104b25d3af57e21fdb8ea2e2a85
 file:
 - statement:
     repeat_statement:
-      identifier: iteration
+      naked_identifier: iteration
       colon: ':'
       keyword: repeat
       statement:
@@ -33,5 +33,5 @@ file:
         literal: '5'
     - keyword: end
     - keyword: repeat
-    - identifier: iteration
+    - naked_identifier: iteration
 - statement_terminator: ;

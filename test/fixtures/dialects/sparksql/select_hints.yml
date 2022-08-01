@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6b178ad90f1732024ad018d47169c0f030724189c31f0f47410655cc1815903c
+_hash: be269a379642f7bd2a365d1d9e024c84510a50d537900e9d95fcda3a0137ab03
 file:
 - statement:
     select_statement:
@@ -22,22 +22,22 @@ file:
           - keyword: '*/'
       - select_clause_element:
           column_reference:
-            identifier: a
+            naked_identifier: a
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: b
+            naked_identifier: b
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: c
+            naked_identifier: c
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t
+                naked_identifier: t
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -56,22 +56,22 @@ file:
           - keyword: '*/'
       - select_clause_element:
           column_reference:
-            identifier: a
+            naked_identifier: a
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: b
+            naked_identifier: b
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: c
+            naked_identifier: c
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t
+                naked_identifier: t
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -85,27 +85,27 @@ file:
                 function_name_identifier: REPARTITION
               bracketed:
                 start_bracket: (
-                identifier: c
+                naked_identifier: c
                 end_bracket: )
           - keyword: '*/'
       - select_clause_element:
           column_reference:
-            identifier: a
+            naked_identifier: a
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: b
+            naked_identifier: b
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: c
+            naked_identifier: c
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t
+                naked_identifier: t
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -121,27 +121,27 @@ file:
                 start_bracket: (
                 literal: '3'
                 comma: ','
-                identifier: c
+                naked_identifier: c
                 end_bracket: )
           - keyword: '*/'
       - select_clause_element:
           column_reference:
-            identifier: a
+            naked_identifier: a
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: b
+            naked_identifier: b
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: c
+            naked_identifier: c
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t
+                naked_identifier: t
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -155,27 +155,27 @@ file:
                 function_name_identifier: REPARTITION_BY_RANGE
               bracketed:
                 start_bracket: (
-                identifier: c
+                naked_identifier: c
                 end_bracket: )
           - keyword: '*/'
       - select_clause_element:
           column_reference:
-            identifier: a
+            naked_identifier: a
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: b
+            naked_identifier: b
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: c
+            naked_identifier: c
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t
+                naked_identifier: t
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -191,27 +191,27 @@ file:
                 start_bracket: (
                 literal: '3'
                 comma: ','
-                identifier: c
+                naked_identifier: c
                 end_bracket: )
           - keyword: '*/'
       - select_clause_element:
           column_reference:
-            identifier: a
+            naked_identifier: a
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: b
+            naked_identifier: b
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: c
+            naked_identifier: c
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t
+                naked_identifier: t
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -226,22 +226,22 @@ file:
           - keyword: '*/'
       - select_clause_element:
           column_reference:
-            identifier: a
+            naked_identifier: a
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: b
+            naked_identifier: b
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: c
+            naked_identifier: c
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t
+                naked_identifier: t
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -255,27 +255,27 @@ file:
                 function_name_identifier: REBALANCE
               bracketed:
                 start_bracket: (
-                identifier: c
+                naked_identifier: c
                 end_bracket: )
           - keyword: '*/'
       - select_clause_element:
           column_reference:
-            identifier: a
+            naked_identifier: a
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: b
+            naked_identifier: b
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: c
+            naked_identifier: c
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t
+                naked_identifier: t
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -307,27 +307,27 @@ file:
                 start_bracket: (
                 literal: '3'
                 comma: ','
-                identifier: c
+                naked_identifier: c
                 end_bracket: )
           - keyword: '*/'
       - select_clause_element:
           column_reference:
-            identifier: a
+            naked_identifier: a
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: b
+            naked_identifier: b
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: c
+            naked_identifier: c
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t
+                naked_identifier: t
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -341,53 +341,53 @@ file:
                 function_name_identifier: BROADCAST
               bracketed:
                 start_bracket: (
-                identifier: t1
+                naked_identifier: t1
                 end_bracket: )
           - keyword: '*/'
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: a
+          - naked_identifier: a
       - comma: ','
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: b
+          - naked_identifier: b
       - comma: ','
       - select_clause_element:
           column_reference:
-          - identifier: t2
+          - naked_identifier: t2
           - dot: .
-          - identifier: c
+          - naked_identifier: c
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
           join_clause:
           - keyword: INNER
           - keyword: JOIN
           - from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: t2
+                  naked_identifier: t2
           - join_on_condition:
               keyword: 'ON'
               expression:
               - column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: key
+                - naked_identifier: key
               - comparison_operator:
                   raw_comparison_operator: '='
               - column_reference:
-                - identifier: t2
+                - naked_identifier: t2
                 - dot: .
-                - identifier: key
+                - naked_identifier: key
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -401,53 +401,53 @@ file:
                 function_name_identifier: BROADCASTJOIN
               bracketed:
                 start_bracket: (
-                identifier: t1
+                naked_identifier: t1
                 end_bracket: )
           - keyword: '*/'
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: a
+          - naked_identifier: a
       - comma: ','
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: b
+          - naked_identifier: b
       - comma: ','
       - select_clause_element:
           column_reference:
-          - identifier: t2
+          - naked_identifier: t2
           - dot: .
-          - identifier: c
+          - naked_identifier: c
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
           join_clause:
           - keyword: LEFT
           - keyword: JOIN
           - from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: t2
+                  naked_identifier: t2
           - join_on_condition:
               keyword: 'ON'
               expression:
               - column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: key
+                - naked_identifier: key
               - comparison_operator:
                   raw_comparison_operator: '='
               - column_reference:
-                - identifier: t2
+                - naked_identifier: t2
                 - dot: .
-                - identifier: key
+                - naked_identifier: key
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -461,53 +461,53 @@ file:
                 function_name_identifier: MAPJOIN
               bracketed:
                 start_bracket: (
-                identifier: t2
+                naked_identifier: t2
                 end_bracket: )
           - keyword: '*/'
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: a
+          - naked_identifier: a
       - comma: ','
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: b
+          - naked_identifier: b
       - comma: ','
       - select_clause_element:
           column_reference:
-          - identifier: t2
+          - naked_identifier: t2
           - dot: .
-          - identifier: c
+          - naked_identifier: c
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
           join_clause:
           - keyword: LEFT
           - keyword: JOIN
           - from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: t2
+                  naked_identifier: t2
           - join_on_condition:
               keyword: 'ON'
               expression:
               - column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: key
+                - naked_identifier: key
               - comparison_operator:
                   raw_comparison_operator: '='
               - column_reference:
-                - identifier: t2
+                - naked_identifier: t2
                 - dot: .
-                - identifier: key
+                - naked_identifier: key
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -521,53 +521,53 @@ file:
                 function_name_identifier: SHUFFLE_MERGE
               bracketed:
                 start_bracket: (
-                identifier: t1
+                naked_identifier: t1
                 end_bracket: )
           - keyword: '*/'
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: a
+          - naked_identifier: a
       - comma: ','
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: b
+          - naked_identifier: b
       - comma: ','
       - select_clause_element:
           column_reference:
-          - identifier: t2
+          - naked_identifier: t2
           - dot: .
-          - identifier: c
+          - naked_identifier: c
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
           join_clause:
           - keyword: INNER
           - keyword: JOIN
           - from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: t2
+                  naked_identifier: t2
           - join_on_condition:
               keyword: 'ON'
               expression:
               - column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: key
+                - naked_identifier: key
               - comparison_operator:
                   raw_comparison_operator: '='
               - column_reference:
-                - identifier: t2
+                - naked_identifier: t2
                 - dot: .
-                - identifier: key
+                - naked_identifier: key
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -581,53 +581,53 @@ file:
                 function_name_identifier: MERGEJOIN
               bracketed:
                 start_bracket: (
-                identifier: t2
+                naked_identifier: t2
                 end_bracket: )
           - keyword: '*/'
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: a
+          - naked_identifier: a
       - comma: ','
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: b
+          - naked_identifier: b
       - comma: ','
       - select_clause_element:
           column_reference:
-          - identifier: t2
+          - naked_identifier: t2
           - dot: .
-          - identifier: c
+          - naked_identifier: c
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
           join_clause:
           - keyword: INNER
           - keyword: JOIN
           - from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: t2
+                  naked_identifier: t2
           - join_on_condition:
               keyword: 'ON'
               expression:
               - column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: key
+                - naked_identifier: key
               - comparison_operator:
                   raw_comparison_operator: '='
               - column_reference:
-                - identifier: t2
+                - naked_identifier: t2
                 - dot: .
-                - identifier: key
+                - naked_identifier: key
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -641,53 +641,53 @@ file:
                 function_name_identifier: MERGE
               bracketed:
                 start_bracket: (
-                identifier: t1
+                naked_identifier: t1
                 end_bracket: )
           - keyword: '*/'
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: a
+          - naked_identifier: a
       - comma: ','
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: b
+          - naked_identifier: b
       - comma: ','
       - select_clause_element:
           column_reference:
-          - identifier: t2
+          - naked_identifier: t2
           - dot: .
-          - identifier: c
+          - naked_identifier: c
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
           join_clause:
           - keyword: INNER
           - keyword: JOIN
           - from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: t2
+                  naked_identifier: t2
           - join_on_condition:
               keyword: 'ON'
               expression:
               - column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: key
+                - naked_identifier: key
               - comparison_operator:
                   raw_comparison_operator: '='
               - column_reference:
-                - identifier: t2
+                - naked_identifier: t2
                 - dot: .
-                - identifier: key
+                - naked_identifier: key
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -701,53 +701,53 @@ file:
                 function_name_identifier: SHUFFLE_HASH
               bracketed:
                 start_bracket: (
-                identifier: t1
+                naked_identifier: t1
                 end_bracket: )
           - keyword: '*/'
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: a
+          - naked_identifier: a
       - comma: ','
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: b
+          - naked_identifier: b
       - comma: ','
       - select_clause_element:
           column_reference:
-          - identifier: t2
+          - naked_identifier: t2
           - dot: .
-          - identifier: c
+          - naked_identifier: c
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
           join_clause:
           - keyword: INNER
           - keyword: JOIN
           - from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: t2
+                  naked_identifier: t2
           - join_on_condition:
               keyword: 'ON'
               expression:
               - column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: key
+                - naked_identifier: key
               - comparison_operator:
                   raw_comparison_operator: '='
               - column_reference:
-                - identifier: t2
+                - naked_identifier: t2
                 - dot: .
-                - identifier: key
+                - naked_identifier: key
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -761,53 +761,53 @@ file:
                 function_name_identifier: SHUFFLE_REPLICATE_NL
               bracketed:
                 start_bracket: (
-                identifier: t1
+                naked_identifier: t1
                 end_bracket: )
           - keyword: '*/'
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: a
+          - naked_identifier: a
       - comma: ','
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: b
+          - naked_identifier: b
       - comma: ','
       - select_clause_element:
           column_reference:
-          - identifier: t2
+          - naked_identifier: t2
           - dot: .
-          - identifier: c
+          - naked_identifier: c
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
           join_clause:
           - keyword: INNER
           - keyword: JOIN
           - from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: t2
+                  naked_identifier: t2
           - join_on_condition:
               keyword: 'ON'
               expression:
               - column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: key
+                - naked_identifier: key
               - comparison_operator:
                   raw_comparison_operator: '='
               - column_reference:
-                - identifier: t2
+                - naked_identifier: t2
                 - dot: .
-                - identifier: key
+                - naked_identifier: key
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -821,7 +821,7 @@ file:
                 function_name_identifier: BROADCAST
               bracketed:
                 start_bracket: (
-                identifier: t1
+                naked_identifier: t1
                 end_bracket: )
           - comma: ','
           - hint_function:
@@ -829,53 +829,53 @@ file:
                 function_name_identifier: MERGE
               bracketed:
               - start_bracket: (
-              - identifier: t1
+              - naked_identifier: t1
               - comma: ','
-              - identifier: t2
+              - naked_identifier: t2
               - end_bracket: )
           - keyword: '*/'
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: a
+          - naked_identifier: a
       - comma: ','
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: b
+          - naked_identifier: b
       - comma: ','
       - select_clause_element:
           column_reference:
-          - identifier: t2
+          - naked_identifier: t2
           - dot: .
-          - identifier: c
+          - naked_identifier: c
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
           join_clause:
           - keyword: INNER
           - keyword: JOIN
           - from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: t2
+                  naked_identifier: t2
           - join_on_condition:
               keyword: 'ON'
               expression:
               - column_reference:
-                - identifier: t1
+                - naked_identifier: t1
                 - dot: .
-                - identifier: key
+                - naked_identifier: key
               - comparison_operator:
                   raw_comparison_operator: '='
               - column_reference:
-                - identifier: t2
+                - naked_identifier: t2
                 - dot: .
-                - identifier: key
+                - naked_identifier: key
 - statement_terminator: ;

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 82cd4b064853fc81e6c36caf234007715c0f145dd9b4cefc5ef7b110fd4892a1
+_hash: 8b8e98194b9499db54b6cbe500617d264003323d8aa6376f3563a744c7ace868
 file:
   statement:
     select_statement:
@@ -11,15 +11,15 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: item
+            naked_identifier: item
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: purchases
+            naked_identifier: purchases
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: category
+            naked_identifier: category
       - comma: ','
       - select_clause_element:
           function:
@@ -29,29 +29,29 @@ file:
               start_bracket: (
               expression:
                 column_reference:
-                  identifier: item
+                  naked_identifier: item
               end_bracket: )
             over_clause:
               keyword: OVER
               bracketed:
                 start_bracket: (
                 window_specification:
-                  identifier: c
+                  naked_identifier: c
                 end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: most_popular
+            naked_identifier: most_popular
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: Produce
+                naked_identifier: Produce
       named_window:
       - keyword: WINDOW
       - named_window_expression:
-          identifier: a
+          naked_identifier: a
           keyword: AS
           bracketed:
             start_bracket: (
@@ -61,11 +61,11 @@ file:
               - keyword: BY
               - expression:
                   column_reference:
-                    identifier: category
+                    naked_identifier: category
             end_bracket: )
       - comma: ','
       - named_window_expression:
-          identifier: b
+          naked_identifier: b
           keyword: AS
           bracketed:
             start_bracket: (
@@ -74,11 +74,11 @@ file:
               - keyword: ORDER
               - keyword: BY
               - column_reference:
-                  identifier: purchases
+                  naked_identifier: purchases
             end_bracket: )
       - comma: ','
       - named_window_expression:
-          identifier: c
+          naked_identifier: c
           keyword: AS
           bracketed:
             start_bracket: (

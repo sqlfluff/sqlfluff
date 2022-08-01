@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b134c1d90dd56af9cdfc0e032f216bb3cbcbabbc2249cc6a387ab6a48b805e93
+_hash: 41cf477ed75786b80028fdcbca71bdd5cd894ff99a9edfb10f42238b264510c9
 file:
   statement:
     insert_statement:
@@ -11,7 +11,7 @@ file:
     - keyword: INTO
     - keyword: TABLE
     - table_reference:
-        identifier: foo
+        naked_identifier: foo
     - values_clause:
       - keyword: VALUES
       - bracketed:

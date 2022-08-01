@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 62fd488eda564c95d2b693d96671c83f6ebcd6f2966999ea091f135b985f96d2
+_hash: e1d264ee40aa3c34a39c3e6c315a976338e6918b87942362c5dc518aca6328e0
 file:
 - statement:
     select_statement:
@@ -11,23 +11,23 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: age
+            naked_identifier: age
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: name
+            naked_identifier: name
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: person
+                naked_identifier: person
       cluster_by_clause:
       - keyword: CLUSTER
       - keyword: BY
       - column_reference:
-          identifier: age
+          naked_identifier: age
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -35,18 +35,18 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: age
+            naked_identifier: age
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: name
+            naked_identifier: name
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: person
+                naked_identifier: person
       cluster_by_clause:
       - keyword: CLUSTER
       - keyword: BY
@@ -58,26 +58,26 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: age
+            naked_identifier: age
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: name
+            naked_identifier: name
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: person
+                naked_identifier: person
       cluster_by_clause:
       - keyword: CLUSTER
       - keyword: BY
       - column_reference:
-          identifier: name
+          naked_identifier: name
       - comma: ','
       - column_reference:
-          identifier: age
+          naked_identifier: age
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -85,18 +85,18 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: age
+            naked_identifier: age
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: name
+            naked_identifier: name
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: person
+                naked_identifier: person
       cluster_by_clause:
       - keyword: CLUSTER
       - keyword: BY
@@ -114,7 +114,7 @@ file:
                   - start_bracket: (
                   - expression:
                       column_reference:
-                        identifier: name
+                        naked_identifier: name
                   - comma: ','
                   - expression:
                       literal: "' '"
@@ -135,23 +135,23 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: age
+            naked_identifier: age
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: name
+            naked_identifier: name
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: person
+                naked_identifier: person
       where_clause:
         keyword: WHERE
         expression:
           column_reference:
-            identifier: age
+            naked_identifier: age
           comparison_operator:
           - raw_comparison_operator: <
           - raw_comparison_operator: '='
@@ -160,7 +160,7 @@ file:
       - keyword: CLUSTER
       - keyword: BY
       - column_reference:
-          identifier: age
+          naked_identifier: age
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -168,28 +168,28 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: age
+            naked_identifier: age
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: name
+            naked_identifier: name
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: person
+                naked_identifier: person
       groupby_clause:
       - keyword: GROUP
       - keyword: BY
       - column_reference:
-          identifier: age
+          naked_identifier: age
       cluster_by_clause:
       - keyword: CLUSTER
       - keyword: BY
       - column_reference:
-          identifier: age
+          naked_identifier: age
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -197,23 +197,23 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: age
+            naked_identifier: age
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: name
+            naked_identifier: name
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: person
+                naked_identifier: person
       groupby_clause:
       - keyword: GROUP
       - keyword: BY
       - column_reference:
-          identifier: age
+          naked_identifier: age
       having_clause:
         keyword: HAVING
         expression:
@@ -224,7 +224,7 @@ file:
               start_bracket: (
               expression:
                 column_reference:
-                  identifier: age
+                  naked_identifier: age
               end_bracket: )
           comparison_operator:
             raw_comparison_operator: '>'
@@ -233,5 +233,5 @@ file:
       - keyword: CLUSTER
       - keyword: BY
       - column_reference:
-          identifier: age
+          naked_identifier: age
 - statement_terminator: ;

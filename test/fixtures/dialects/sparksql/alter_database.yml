@@ -3,20 +3,20 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9c8afe3bea7deebe4d9ac56572152ca17c5bfc5a1614da015242322be263d6c8
+_hash: 7c54cc8620417a1205646d441442134bd3f9934a032964fd94a92789aca2b02e
 file:
 - statement:
     alter_database_statement:
     - keyword: ALTER
     - keyword: DATABASE
     - database_reference:
-        identifier: inventory
+        naked_identifier: inventory
     - keyword: SET
     - keyword: DBPROPERTIES
     - bracketed:
         start_bracket: (
         property_name_identifier:
-          identifier: "'Edited-by'"
+          quoted_identifier: "'Edited-by'"
         comparison_operator:
           raw_comparison_operator: '='
         literal: "'John'"
@@ -27,19 +27,19 @@ file:
     - keyword: ALTER
     - keyword: DATABASE
     - database_reference:
-        identifier: inventory
+        naked_identifier: inventory
     - keyword: SET
     - keyword: DBPROPERTIES
     - bracketed:
       - start_bracket: (
       - property_name_identifier:
-          identifier: "'Edited-by'"
+          quoted_identifier: "'Edited-by'"
       - comparison_operator:
           raw_comparison_operator: '='
       - literal: "'John'"
       - comma: ','
       - property_name_identifier:
-          identifier: "'Edit-date'"
+          quoted_identifier: "'Edit-date'"
       - comparison_operator:
           raw_comparison_operator: '='
       - literal: "'01/01/2001'"
@@ -50,13 +50,13 @@ file:
     - keyword: ALTER
     - keyword: SCHEMA
     - database_reference:
-        identifier: inventory
+        naked_identifier: inventory
     - keyword: SET
     - keyword: DBPROPERTIES
     - bracketed:
         start_bracket: (
         property_name_identifier:
-          identifier: "'Edited-by'"
+          quoted_identifier: "'Edited-by'"
         comparison_operator:
           raw_comparison_operator: '='
         literal: "'John'"
@@ -67,19 +67,19 @@ file:
     - keyword: ALTER
     - keyword: SCHEMA
     - database_reference:
-        identifier: inventory
+        naked_identifier: inventory
     - keyword: SET
     - keyword: DBPROPERTIES
     - bracketed:
       - start_bracket: (
       - property_name_identifier:
-          identifier: "'Edited-by'"
+          quoted_identifier: "'Edited-by'"
       - comparison_operator:
           raw_comparison_operator: '='
       - literal: "'John'"
       - comma: ','
       - property_name_identifier:
-          identifier: "'Edit-date'"
+          quoted_identifier: "'Edit-date'"
       - comparison_operator:
           raw_comparison_operator: '='
       - literal: "'01/01/2001'"

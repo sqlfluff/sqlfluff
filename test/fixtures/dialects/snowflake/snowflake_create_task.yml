@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 83f68e6b6527766cec861ad292d0e24643ee6e4d95f8009241cdd6b5c3d99459
+_hash: baaa900d709900217b58a39a3eb5a39a9619d92e6c13e296c34cccf52ddb4291
 file:
 - statement:
     create_task_statement:
@@ -106,7 +106,7 @@ file:
     - keyword: ALLOW_OVERLAPPING_EXECUTION
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: 'TRUE'
+    - boolean_literal: 'TRUE'
     - parameter: TIMESTAMP_INPUT_FORMAT
     - comparison_operator:
         raw_comparison_operator: '='

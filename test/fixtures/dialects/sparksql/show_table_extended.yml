@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d33139f238571fdbf4160477e448645fbe2db15cc827a9ade81794007e23fff9
+_hash: 5d926cf63fce9e57338be5cc70fd7d6ef8736aa74131b999766fd396370dfde7
 file:
 - statement:
     show_statement:
@@ -28,14 +28,14 @@ file:
     - keyword: EXTENDED
     - keyword: IN
     - database_reference:
-        identifier: default
+        naked_identifier: default
     - keyword: LIKE
     - literal: "'employee'"
     - keyword: PARTITION
     - bracketed:
         start_bracket: (
         column_reference:
-          identifier: grade
+          naked_identifier: grade
         comparison_operator:
           raw_comparison_operator: '='
         literal: '1'
@@ -48,14 +48,14 @@ file:
     - keyword: EXTENDED
     - keyword: IN
     - database_reference:
-        identifier: default
+        naked_identifier: default
     - keyword: LIKE
     - literal: "'empl*'"
     - keyword: PARTITION
     - bracketed:
         start_bracket: (
         column_reference:
-          identifier: grade
+          naked_identifier: grade
         comparison_operator:
           raw_comparison_operator: '='
         literal: '1'

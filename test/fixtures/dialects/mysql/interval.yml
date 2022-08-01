@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c97934eaf51f702823f4320a83bbbf734e8951c88f92d3c81e24a16d19ac5273
+_hash: 1dd5a524f3ace7b873731cc236c19aa8438bb11b8839a481cc544030d2fb8d0e
 file:
 - statement:
     select_statement:
@@ -100,7 +100,7 @@ file:
                 literal: "'1.999999'"
             - expression:
                 column_reference:
-                  identifier: SECOND_MICROSECOND
+                  naked_identifier: SECOND_MICROSECOND
             - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -121,7 +121,7 @@ file:
                 literal: "'1:1'"
             - expression:
                 column_reference:
-                  identifier: MINUTE_SECOND
+                  naked_identifier: MINUTE_SECOND
             - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -175,7 +175,7 @@ file:
                   keyword: INTERVAL
                   expression:
                     column_reference:
-                      identifier: col1
+                      naked_identifier: col1
                   date_part: DAY
             - end_bracket: )
       from_clause:
@@ -184,7 +184,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -209,10 +209,10 @@ file:
                   keyword: INTERVAL
                   expression:
                   - column_reference:
-                      identifier: col1
+                      naked_identifier: col1
                   - binary_operator: +
                   - column_reference:
-                      identifier: col2
+                      naked_identifier: col2
                   date_part: DAY
             - end_bracket: )
       from_clause:
@@ -221,5 +221,5 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl1
+                naked_identifier: tbl1
 - statement_terminator: ;

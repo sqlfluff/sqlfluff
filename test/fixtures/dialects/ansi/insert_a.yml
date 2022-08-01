@@ -3,18 +3,18 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 578cbbda22bc9a10e02bb4add5fac204809ffbe17635b6eb707960cf8ce38b5a
+_hash: 33fe112d5978f55e91932c1fc202468d4071f314d36ed8e0c9fb909bbc026ad6
 file:
 - statement:
     insert_statement:
     - keyword: INSERT
     - keyword: into
     - table_reference:
-        identifier: tbl_b
+        naked_identifier: tbl_b
     - bracketed:
         start_bracket: (
         column_reference:
-          identifier: col1
+          naked_identifier: col1
         end_bracket: )
     - values_clause:
         keyword: values
@@ -29,7 +29,7 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-        identifier: tbl_c
+        naked_identifier: tbl_c
     - bracketed:
         start_bracket: (
         select_statement:
@@ -45,6 +45,6 @@ file:
               from_expression_element:
                 table_expression:
                   table_reference:
-                    identifier: table1
+                    naked_identifier: table1
         end_bracket: )
 - statement_terminator: ;

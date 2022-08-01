@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 108cd55147abeb069b0b0399e41f009f6cd6a36bec8a1e7c35871a3cb14c85da
+_hash: 2808a8d706c3dceb2d0e85db381e5aa38572bb9364cb4cc2455da794c1483b6a
 file:
   statement:
     select_statement:
@@ -17,16 +17,16 @@ file:
             - start_bracket: (
             - expression:
                 column_reference:
-                - identifier: zendesk
+                - naked_identifier: zendesk
                 - dot: .
-                - identifier: created_at
+                - naked_identifier: created_at
             - comma: ','
             - expression:
                 literal: "'America/New_York'"
             - end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: date
+            naked_identifier: date
       - comma: ','
       - select_clause_element:
           function:
@@ -41,9 +41,9 @@ file:
                   - keyword: WHEN
                   - expression:
                       column_reference:
-                      - identifier: zendesk
+                      - naked_identifier: zendesk
                       - dot: .
-                      - identifier: support_team
+                      - naked_identifier: support_team
                       keyword: IN
                       bracketed:
                       - start_bracket: (
@@ -60,11 +60,11 @@ file:
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: tech_support
+            naked_identifier: tech_support
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: zendesk
+                naked_identifier: zendesk

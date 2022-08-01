@@ -3,13 +3,13 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 249a6974e8059778910e46fb476812cf37d690e2a6db7c8aa5664605f77c5fd2
+_hash: b24bb69bda4d3f4b0935318ceb891695de929cfe302ddb737c23f4de72e316cc
 file:
 - statement:
     create_connection:
     - keyword: CREATE
     - keyword: CONNECTION
-    - identifier: ftp_connection
+    - naked_identifier: ftp_connection
     - keyword: TO
     - connection_definition:
       - literal: "'ftp://192.168.1.1/'"
@@ -23,7 +23,7 @@ file:
     create_connection:
     - keyword: CREATE
     - keyword: CONNECTION
-    - identifier: exa_connection
+    - naked_identifier: exa_connection
     - keyword: TO
     - connection_definition:
         literal: "'192.168.6.11..14:8563'"
@@ -32,7 +32,7 @@ file:
     create_connection:
     - keyword: CREATE
     - keyword: CONNECTION
-    - identifier: ora_connection
+    - naked_identifier: ora_connection
     - keyword: TO
     - connection_definition:
         literal: "'(DESCRIPTION =\n    (ADDRESS = (PROTOCOL = TCP)(HOST = 192.168.6.54)(PORT\
@@ -42,7 +42,7 @@ file:
     create_connection:
     - keyword: CREATE
     - keyword: CONNECTION
-    - identifier: jdbc_connection_1
+    - naked_identifier: jdbc_connection_1
     - keyword: TO
     - connection_definition:
         literal: "'jdbc:mysql://192.168.6.1/my_db'"
@@ -51,7 +51,7 @@ file:
     create_connection:
     - keyword: CREATE
     - keyword: CONNECTION
-    - identifier: jdbc_connection_2
+    - naked_identifier: jdbc_connection_2
     - keyword: TO
     - connection_definition:
         literal: "'jdbc:postgresql://192.168.6.2:5432/my_db?stringtype=unspecified'"

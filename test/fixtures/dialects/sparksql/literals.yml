@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f9f1268cb0bd8712d237193a4a72bec9ae6c1547596701bb8b643305ad89669d
+_hash: 7d9436014202c1e6ca4d9f10e1cef52f4a0cd2c8b020b575037fc50b6b2432c3
 file:
 - statement:
     select_statement:
@@ -13,7 +13,7 @@ file:
           literal: "'Hello, World!'"
           alias_expression:
             keyword: AS
-            identifier: col
+            naked_identifier: col
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -23,7 +23,7 @@ file:
           literal: "'SPARK SQL'"
           alias_expression:
             keyword: AS
-            identifier: col
+            naked_identifier: col
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -33,7 +33,7 @@ file:
           literal: "\"it's $10.\""
           alias_expression:
             keyword: AS
-            identifier: col
+            naked_identifier: col
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -43,37 +43,37 @@ file:
           literal: "X'123456'"
           alias_expression:
             keyword: AS
-            identifier: col
+            naked_identifier: col
 - statement_terminator: ;
 - statement:
     select_statement:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          literal: 'NULL'
+          null_literal: 'NULL'
           alias_expression:
             keyword: AS
-            identifier: col
+            naked_identifier: col
 - statement_terminator: ;
 - statement:
     select_statement:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          literal: 'TRUE'
+          boolean_literal: 'TRUE'
           alias_expression:
             keyword: AS
-            identifier: col
+            naked_identifier: col
 - statement_terminator: ;
 - statement:
     select_statement:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          literal: 'FALSE'
+          boolean_literal: 'FALSE'
           alias_expression:
             keyword: AS
-            identifier: col
+            naked_identifier: col
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -85,7 +85,7 @@ file:
             literal: '2147483648'
           alias_expression:
             keyword: AS
-            identifier: col
+            naked_identifier: col
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -95,7 +95,7 @@ file:
           literal: 9223372036854775807l
           alias_expression:
             keyword: AS
-            identifier: col
+            naked_identifier: col
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -107,7 +107,7 @@ file:
             literal: 32Y
           alias_expression:
             keyword: AS
-            identifier: col
+            naked_identifier: col
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -117,7 +117,7 @@ file:
           literal: 482S
           alias_expression:
             keyword: AS
-            identifier: col
+            naked_identifier: col
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -127,7 +127,7 @@ file:
           literal: '12.578'
           alias_expression:
             keyword: AS
-            identifier: col
+            naked_identifier: col
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -139,7 +139,7 @@ file:
             literal: '0.1234567'
           alias_expression:
             keyword: AS
-            identifier: col
+            naked_identifier: col
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -151,7 +151,7 @@ file:
             literal: '.1234567'
           alias_expression:
             keyword: AS
-            identifier: col
+            naked_identifier: col
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -161,7 +161,7 @@ file:
           literal: '123.'
           alias_expression:
             keyword: AS
-            identifier: col
+            naked_identifier: col
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -171,7 +171,7 @@ file:
           literal: 123.BD
           alias_expression:
             keyword: AS
-            identifier: col
+            naked_identifier: col
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -181,7 +181,7 @@ file:
           literal: 5E2
           alias_expression:
             keyword: AS
-            identifier: col
+            naked_identifier: col
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -191,7 +191,7 @@ file:
           literal: 5D
           alias_expression:
             keyword: AS
-            identifier: col
+            naked_identifier: col
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -203,7 +203,7 @@ file:
             literal: 5BD
           alias_expression:
             keyword: AS
-            identifier: col
+            naked_identifier: col
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -213,7 +213,7 @@ file:
           literal: 12.578e-2d
           alias_expression:
             keyword: AS
-            identifier: col
+            naked_identifier: col
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -225,7 +225,7 @@ file:
             literal: .1234567E+2BD
           alias_expression:
             keyword: AS
-            identifier: col
+            naked_identifier: col
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -237,7 +237,7 @@ file:
             literal: '3.e+3'
           alias_expression:
             keyword: AS
-            identifier: col
+            naked_identifier: col
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -249,7 +249,7 @@ file:
             literal: 3.E-3D
           alias_expression:
             keyword: AS
-            identifier: col
+            naked_identifier: col
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -257,10 +257,10 @@ file:
         keyword: SELECT
         select_clause_element:
           keyword: DATE
-          literal: "'1997'"
+          date_constructor_literal: "'1997'"
           alias_expression:
             keyword: AS
-            identifier: col
+            naked_identifier: col
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -268,10 +268,10 @@ file:
         keyword: SELECT
         select_clause_element:
           keyword: DATE
-          literal: "'1997-01'"
+          date_constructor_literal: "'1997-01'"
           alias_expression:
             keyword: AS
-            identifier: col
+            naked_identifier: col
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -279,10 +279,10 @@ file:
         keyword: SELECT
         select_clause_element:
           keyword: DATE
-          literal: "'2011-11-11'"
+          date_constructor_literal: "'2011-11-11'"
           alias_expression:
             keyword: AS
-            identifier: col
+            naked_identifier: col
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -290,10 +290,10 @@ file:
         keyword: SELECT
         select_clause_element:
           keyword: TIMESTAMP
-          literal: "'1997-01-31 09:26:56.123'"
+          date_constructor_literal: "'1997-01-31 09:26:56.123'"
           alias_expression:
             keyword: AS
-            identifier: col
+            naked_identifier: col
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -301,10 +301,10 @@ file:
         keyword: SELECT
         select_clause_element:
           keyword: TIMESTAMP
-          literal: "'1997-01-31 09:26:56.66666666UTC+08:00'"
+          date_constructor_literal: "'1997-01-31 09:26:56.66666666UTC+08:00'"
           alias_expression:
             keyword: AS
-            identifier: col
+            naked_identifier: col
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -312,10 +312,10 @@ file:
         keyword: SELECT
         select_clause_element:
           keyword: TIMESTAMP
-          literal: "'1997-01'"
+          date_constructor_literal: "'1997-01'"
           alias_expression:
             keyword: AS
-            identifier: col
+            naked_identifier: col
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -331,7 +331,7 @@ file:
             - date_part: MONTH
           alias_expression:
             keyword: AS
-            identifier: col
+            naked_identifier: col
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -348,7 +348,7 @@ file:
             - date_part: SECOND
           alias_expression:
             keyword: AS
-            identifier: col
+            naked_identifier: col
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -362,7 +362,7 @@ file:
               date_part: YEAR
           alias_expression:
             keyword: AS
-            identifier: col
+            naked_identifier: col
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -380,7 +380,7 @@ file:
               date_part: MINUTE
           alias_expression:
             keyword: AS
-            identifier: col
+            naked_identifier: col
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -388,7 +388,7 @@ file:
         keyword: SELECT
         select_clause_element:
           keyword: INTERVAL
-          literal: "'1 YEAR 2 DAYS 3 HOURS'"
+          date_constructor_literal: "'1 YEAR 2 DAYS 3 HOURS'"
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -426,5 +426,5 @@ file:
               date_part: MICROSECONDS
           alias_expression:
             keyword: AS
-            identifier: col
+            naked_identifier: col
 - statement_terminator: ;

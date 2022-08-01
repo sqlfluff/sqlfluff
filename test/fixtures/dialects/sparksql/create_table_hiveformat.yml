@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f93d282168797a55676db42bea1d05f55a7db5c4375d7a97b8f87853771302d0
+_hash: 343fbc70db01b63f7e46276379bc83ecacbbd363164c7c0f30cdf6304649d64d
 file:
 - statement:
     create_table_statement:
@@ -14,11 +14,11 @@ file:
     - keyword: NOT
     - keyword: EXISTS
     - table_reference:
-        identifier: table_identifier
+        naked_identifier: table_identifier
     - bracketed:
         start_bracket: (
         column_definition:
-          identifier: col_name1
+          naked_identifier: col_name1
           data_type:
             primitive_type:
               keyword: STRING
@@ -34,7 +34,7 @@ file:
     - bracketed:
         start_bracket: (
         column_definition:
-          identifier: col_name2
+          naked_identifier: col_name2
           data_type:
             primitive_type:
               keyword: STRING
@@ -48,21 +48,21 @@ file:
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: col_name1
+          naked_identifier: col_name1
       - comma: ','
       - column_reference:
-          identifier: col_name2
+          naked_identifier: col_name2
       - end_bracket: )
     - keyword: SORTED
     - keyword: BY
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: col_name1
+          naked_identifier: col_name1
       - keyword: ASC
       - comma: ','
       - column_reference:
-          identifier: col_name2
+          naked_identifier: col_name2
       - keyword: DESC
       - end_bracket: )
     - keyword: INTO
@@ -85,13 +85,13 @@ file:
     - bracketed:
       - start_bracket: (
       - property_name_identifier:
-          identifier: '"key1"'
+          quoted_identifier: '"key1"'
       - comparison_operator:
           raw_comparison_operator: '='
       - literal: '"val1"'
       - comma: ','
       - property_name_identifier:
-          identifier: '"key2"'
+          quoted_identifier: '"key2"'
       - comparison_operator:
           raw_comparison_operator: '='
       - literal: '"val2"'
@@ -112,7 +112,7 @@ file:
               from_expression_element:
                 table_expression:
                   table_reference:
-                    identifier: table_identifier
+                    naked_identifier: table_identifier
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -120,23 +120,23 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: student
+        naked_identifier: student
     - bracketed:
       - start_bracket: (
       - column_definition:
-          identifier: id
+          naked_identifier: id
           data_type:
             primitive_type:
               keyword: INT
       - comma: ','
       - column_definition:
-          identifier: student_name
+          naked_identifier: student_name
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          identifier: age
+          naked_identifier: age
           data_type:
             primitive_type:
               keyword: INT
@@ -150,7 +150,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: student_copy
+        naked_identifier: student_copy
     - keyword: STORED
     - keyword: AS
     - keyword: ORC
@@ -168,30 +168,30 @@ file:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: student
+                  naked_identifier: student
 - statement_terminator: ;
 - statement:
     create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: student
+        naked_identifier: student
     - bracketed:
       - start_bracket: (
       - column_definition:
-          identifier: id
+          naked_identifier: id
           data_type:
             primitive_type:
               keyword: INT
       - comma: ','
       - column_definition:
-          identifier: student_name
+          naked_identifier: student_name
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          identifier: age
+          naked_identifier: age
           data_type:
             primitive_type:
               keyword: INT
@@ -205,7 +205,7 @@ file:
     - bracketed:
         start_bracket: (
         property_name_identifier:
-          identifier: "'foo'"
+          quoted_identifier: "'foo'"
         comparison_operator:
           raw_comparison_operator: '='
         literal: "'bar'"
@@ -216,23 +216,23 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: student
+        naked_identifier: student
     - bracketed:
       - start_bracket: (
       - column_definition:
-          identifier: id
+          naked_identifier: id
           data_type:
             primitive_type:
               keyword: INT
       - comma: ','
       - column_definition:
-          identifier: student_name
+          naked_identifier: student_name
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          identifier: age
+          naked_identifier: age
           data_type:
             primitive_type:
               keyword: INT
@@ -244,7 +244,7 @@ file:
     - bracketed:
         start_bracket: (
         property_name_identifier:
-          identifier: "'foo'"
+          quoted_identifier: "'foo'"
         comparison_operator:
           raw_comparison_operator: '='
         literal: "'bar'"
@@ -257,17 +257,17 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: student
+        naked_identifier: student
     - bracketed:
       - start_bracket: (
       - column_definition:
-          identifier: id
+          naked_identifier: id
           data_type:
             primitive_type:
               keyword: INT
       - comma: ','
       - column_definition:
-          identifier: student_name
+          naked_identifier: student_name
           data_type:
             primitive_type:
               keyword: STRING
@@ -277,7 +277,7 @@ file:
     - bracketed:
         start_bracket: (
         column_definition:
-          identifier: age
+          naked_identifier: age
           data_type:
             primitive_type:
               keyword: INT
@@ -291,17 +291,17 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: student
+        naked_identifier: student
     - bracketed:
       - start_bracket: (
       - column_definition:
-          identifier: id
+          naked_identifier: id
           data_type:
             primitive_type:
               keyword: INT
       - comma: ','
       - column_definition:
-          identifier: student_name
+          naked_identifier: student_name
           data_type:
             primitive_type:
               keyword: STRING
@@ -314,7 +314,7 @@ file:
     - bracketed:
         start_bracket: (
         column_definition:
-          identifier: age
+          naked_identifier: age
           data_type:
             primitive_type:
               keyword: INT
@@ -325,17 +325,17 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: student
+        naked_identifier: student
     - bracketed:
       - start_bracket: (
       - column_definition:
-          identifier: id
+          naked_identifier: id
           data_type:
             primitive_type:
               keyword: INT
       - comma: ','
       - column_definition:
-          identifier: student_name
+          naked_identifier: student_name
           data_type:
             primitive_type:
               keyword: STRING
@@ -358,17 +358,17 @@ file:
     - keyword: EXTERNAL
     - keyword: TABLE
     - table_reference:
-        identifier: family
+        naked_identifier: family
     - bracketed:
       - start_bracket: (
       - column_definition:
-          identifier: student_name
+          naked_identifier: student_name
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          identifier: friends
+          naked_identifier: friends
           data_type:
             keyword: ARRAY
             start_angle_bracket: <
@@ -378,7 +378,7 @@ file:
             end_angle_bracket: '>'
       - comma: ','
       - column_definition:
-          identifier: children
+          naked_identifier: children
           data_type:
             keyword: MAP
             start_angle_bracket: <
@@ -391,17 +391,17 @@ file:
             end_angle_bracket: '>'
       - comma: ','
       - column_definition:
-          identifier: address
+          naked_identifier: address
           data_type:
           - keyword: STRUCT
           - start_angle_bracket: <
-          - identifier: street
+          - naked_identifier: street
           - colon: ':'
           - data_type:
               primitive_type:
                 keyword: STRING
           - comma: ','
-          - identifier: city
+          - naked_identifier: city
           - colon: ':'
           - data_type:
               primitive_type:
@@ -448,7 +448,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: avroexample
+        naked_identifier: avroexample
     - row_format_clause:
       - keyword: ROW
       - keyword: FORMAT
@@ -464,7 +464,7 @@ file:
     - bracketed:
         start_bracket: (
         property_name_identifier:
-          identifier: "'avro.schema.literal'"
+          quoted_identifier: "'avro.schema.literal'"
         comparison_operator:
           raw_comparison_operator: '='
         literal: "'{\n        \"namespace\": \"org.apache.hive\",\n        \"name\"\
@@ -485,17 +485,17 @@ file:
     - keyword: EXTERNAL
     - keyword: TABLE
     - table_reference:
-        identifier: family
+        naked_identifier: family
     - bracketed:
       - start_bracket: (
       - column_definition:
-          identifier: id
+          naked_identifier: id
           data_type:
             primitive_type:
               keyword: INT
       - comma: ','
       - column_definition:
-          identifier: family_name
+          naked_identifier: family_name
           data_type:
             primitive_type:
               keyword: STRING
@@ -519,17 +519,17 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: clustered_by_test1
+        naked_identifier: clustered_by_test1
     - bracketed:
       - start_bracket: (
       - column_definition:
-          identifier: id
+          naked_identifier: id
           data_type:
             primitive_type:
               keyword: INT
       - comma: ','
       - column_definition:
-          identifier: age
+          naked_identifier: age
           data_type:
             primitive_type:
               keyword: STRING
@@ -539,7 +539,7 @@ file:
     - bracketed:
         start_bracket: (
         column_reference:
-          identifier: id
+          naked_identifier: id
         end_bracket: )
     - keyword: INTO
     - literal: '4'
@@ -553,17 +553,17 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: clustered_by_test2
+        naked_identifier: clustered_by_test2
     - bracketed:
       - start_bracket: (
       - column_definition:
-          identifier: id
+          naked_identifier: id
           data_type:
             primitive_type:
               keyword: INT
       - comma: ','
       - column_definition:
-          identifier: test_name
+          naked_identifier: test_name
           data_type:
             primitive_type:
               keyword: STRING
@@ -573,7 +573,7 @@ file:
     - bracketed:
         start_bracket: (
         column_definition:
-          identifier: test_year
+          naked_identifier: test_year
           data_type:
             primitive_type:
               keyword: STRING
@@ -583,17 +583,17 @@ file:
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: id
+          naked_identifier: id
       - comma: ','
       - column_reference:
-          identifier: name
+          naked_identifier: name
       - end_bracket: )
     - keyword: SORTED
     - keyword: BY
     - bracketed:
         start_bracket: (
         column_reference:
-          identifier: id
+          naked_identifier: id
         keyword: ASC
         end_bracket: )
     - keyword: INTO

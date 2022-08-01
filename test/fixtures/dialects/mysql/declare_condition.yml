@@ -3,12 +3,12 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 51906138c01b812ed45ea4539f7808f6b823f19fda7be29baf2eb6c450a675eb
+_hash: 4a48b0aad8d1db9683e91cb8b487018f072bf35623b8629433d9a672cfea7ab3
 file:
   statement:
     declare_statement:
     - keyword: DECLARE
-    - identifier: random_condition_name
+    - naked_identifier: random_condition_name
     - keyword: CONDITION
     - keyword: FOR
     - literal: '1051'

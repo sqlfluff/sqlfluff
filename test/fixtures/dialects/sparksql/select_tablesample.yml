@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bdb34d5bac52449ef500ae09b1ed925aff876c3732f080393c0917bcd753fea1
+_hash: 29ad320e6395d66f5a89c2c221e1fc8735807d1903a8e8cb914c7f6cada0e533
 file:
 - statement:
     select_statement:
@@ -11,18 +11,18 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: a
+            naked_identifier: a
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: b
+            naked_identifier: b
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: test
+                naked_identifier: test
             sample_expression:
               keyword: TABLESAMPLE
               bracketed:
@@ -37,24 +37,24 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t
+          - naked_identifier: t
           - dot: .
-          - identifier: a
+          - naked_identifier: a
       - comma: ','
       - select_clause_element:
           column_reference:
-          - identifier: t
+          - naked_identifier: t
           - dot: .
-          - identifier: b
+          - naked_identifier: b
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: test
+                naked_identifier: test
             alias_expression:
-              identifier: t
+              naked_identifier: t
             sample_expression:
               keyword: TABLESAMPLE
               bracketed:
@@ -69,25 +69,25 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t
+          - naked_identifier: t
           - dot: .
-          - identifier: a
+          - naked_identifier: a
       - comma: ','
       - select_clause_element:
           column_reference:
-          - identifier: t
+          - naked_identifier: t
           - dot: .
-          - identifier: b
+          - naked_identifier: b
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: test
+                naked_identifier: test
             alias_expression:
               keyword: AS
-              identifier: t
+              naked_identifier: t
             sample_expression:
               keyword: TABLESAMPLE
               bracketed:
@@ -102,18 +102,18 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: a
+            naked_identifier: a
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: b
+            naked_identifier: b
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: test
+                naked_identifier: test
             sample_expression:
               keyword: TABLESAMPLE
               bracketed:
@@ -128,18 +128,18 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: a
+            naked_identifier: a
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: b
+            naked_identifier: b
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: test
+                naked_identifier: test
             sample_expression:
               keyword: TABLESAMPLE
               bracketed:
@@ -157,22 +157,22 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: test_1
+          - naked_identifier: test_1
           - dot: .
-          - identifier: a
+          - naked_identifier: a
       - comma: ','
       - select_clause_element:
           column_reference:
-          - identifier: test_1
+          - naked_identifier: test_1
           - dot: .
-          - identifier: b
+          - naked_identifier: b
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: test_1
+                naked_identifier: test_1
             sample_expression:
               keyword: TABLESAMPLE
               bracketed:
@@ -186,7 +186,7 @@ file:
           - from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: test_2
+                  naked_identifier: test_2
               sample_expression:
                 keyword: TABLESAMPLE
                 bracketed:
@@ -204,24 +204,24 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: a
+          - naked_identifier: a
       - comma: ','
       - select_clause_element:
           column_reference:
-          - identifier: t2
+          - naked_identifier: t2
           - dot: .
-          - identifier: b
+          - naked_identifier: b
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: test_1
+                naked_identifier: test_1
             alias_expression:
-              identifier: t1
+              naked_identifier: t1
             sample_expression:
               keyword: TABLESAMPLE
               bracketed:
@@ -235,9 +235,9 @@ file:
           - from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: test_2
+                  naked_identifier: test_2
               alias_expression:
-                identifier: t2
+                naked_identifier: t2
               sample_expression:
                 keyword: TABLESAMPLE
                 bracketed:
@@ -255,25 +255,25 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: a
+          - naked_identifier: a
       - comma: ','
       - select_clause_element:
           column_reference:
-          - identifier: t2
+          - naked_identifier: t2
           - dot: .
-          - identifier: b
+          - naked_identifier: b
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: test_1
+                naked_identifier: test_1
             alias_expression:
               keyword: AS
-              identifier: t1
+              naked_identifier: t1
             sample_expression:
               keyword: TABLESAMPLE
               bracketed:
@@ -287,10 +287,10 @@ file:
           - from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: test_2
+                  naked_identifier: test_2
               alias_expression:
                 keyword: AS
-                identifier: t2
+                naked_identifier: t2
               sample_expression:
                 keyword: TABLESAMPLE
                 bracketed:

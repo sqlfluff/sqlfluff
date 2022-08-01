@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 383cb125aae7a42036e3c65f5845b0f9722129b67b1e18ae8ac3f453191eed1f
+_hash: 0e71e9d3a2d0b1cf6bc8427a9b97cfc63b0797c41d1af4938273d55e71f50efc
 file:
 - statement:
     select_statement:
@@ -11,15 +11,15 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: a
+            naked_identifier: a
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: b
+            naked_identifier: b
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: c
+            naked_identifier: c
       from_clause:
         keyword: FROM
         from_expression:
@@ -36,15 +36,15 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: a
+            naked_identifier: a
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: b
+            naked_identifier: b
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: c
+            naked_identifier: c
       from_clause:
         keyword: FROM
         from_expression:
@@ -61,15 +61,15 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: a
+            naked_identifier: a
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: b
+            naked_identifier: b
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: c
+            naked_identifier: c
       from_clause:
         keyword: FROM
         from_expression:
@@ -86,15 +86,15 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: a
+            naked_identifier: a
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: b
+            naked_identifier: b
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: c
+            naked_identifier: c
       from_clause:
         keyword: FROM
         from_expression:
@@ -111,15 +111,15 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: a
+            naked_identifier: a
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: b
+            naked_identifier: b
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: c
+            naked_identifier: c
       from_clause:
         keyword: FROM
         from_expression:
@@ -136,15 +136,15 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: a
+            naked_identifier: a
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: b
+            naked_identifier: b
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: c
+            naked_identifier: c
       from_clause:
         keyword: FROM
         from_expression:
@@ -161,15 +161,15 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: a
+            naked_identifier: a
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: b
+            naked_identifier: b
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: c
+            naked_identifier: c
       from_clause:
         keyword: FROM
         from_expression:
@@ -186,15 +186,15 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: a
+            naked_identifier: a
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: b
+            naked_identifier: b
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: c
+            naked_identifier: c
       from_clause:
         keyword: FROM
         from_expression:
@@ -211,15 +211,15 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: a
+            naked_identifier: a
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: b
+            naked_identifier: b
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: c
+            naked_identifier: c
       from_clause:
         keyword: FROM
         from_expression:
@@ -236,15 +236,15 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: a
+            naked_identifier: a
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: b
+            naked_identifier: b
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: c
+            naked_identifier: c
       from_clause:
         keyword: FROM
         from_expression:
@@ -261,15 +261,15 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: a
+            naked_identifier: a
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: b
+            naked_identifier: b
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: c
+            naked_identifier: c
       from_clause:
         keyword: FROM
         from_expression:
@@ -286,15 +286,15 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: a
+            naked_identifier: a
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: b
+            naked_identifier: b
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: c
+            naked_identifier: c
       from_clause:
         keyword: FROM
         from_expression:
@@ -311,15 +311,15 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: a
+            naked_identifier: a
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: b
+            naked_identifier: b
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: c
+            naked_identifier: c
       from_clause:
         keyword: FROM
         from_expression:
@@ -336,15 +336,15 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: a
+            naked_identifier: a
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: b
+            naked_identifier: b
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: c
+            naked_identifier: c
       from_clause:
         keyword: FROM
         from_expression:
@@ -361,15 +361,15 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: a
+            naked_identifier: a
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: b
+            naked_identifier: b
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: c
+            naked_identifier: c
       from_clause:
         keyword: FROM
         from_expression:
@@ -386,15 +386,15 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: a
+            naked_identifier: a
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: b
+            naked_identifier: b
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: c
+            naked_identifier: c
       from_clause:
         keyword: FROM
         from_expression:
@@ -411,15 +411,15 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: a
+            naked_identifier: a
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: b
+            naked_identifier: b
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: c
+            naked_identifier: c
       from_clause:
         keyword: FROM
         from_expression:
@@ -436,15 +436,15 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: a
+            naked_identifier: a
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: b
+            naked_identifier: b
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: c
+            naked_identifier: c
       from_clause:
         keyword: FROM
         from_expression:

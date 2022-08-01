@@ -3,21 +3,21 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bf1d5ec42281fca64ab0f0004ba38487528abf4d960262eb5327e5403a2553b6
+_hash: 9a44d886b867398d4865a833146a7334629840a2bcad3a4e745484279aec82b3
 file:
   statement:
     create_table_statement:
     - keyword: create
     - keyword: table
     - table_reference:
-      - identifier: sandbox_db
+      - naked_identifier: sandbox_db
       - dot: .
-      - identifier: Org_Descendant
+      - naked_identifier: Org_Descendant
     - bracketed:
       - start_bracket: (
       - column_definition:
           column_reference:
-            identifier: Org_Unit_Code
+            naked_identifier: Org_Unit_Code
           data_type:
             data_type_identifier: char
             bracketed:
@@ -28,14 +28,14 @@ file:
           td_column_attribute_constraint:
           - keyword: character
           - keyword: set
-          - identifier: unicode
+          - naked_identifier: unicode
           column_constraint_segment:
           - keyword: not
           - keyword: 'null'
       - comma: ','
       - column_definition:
           column_reference:
-            identifier: Org_Unit_Type
+            naked_identifier: Org_Unit_Type
           data_type:
             data_type_identifier: char
             bracketed:
@@ -46,14 +46,14 @@ file:
           td_column_attribute_constraint:
           - keyword: character
           - keyword: set
-          - identifier: unicode
+          - naked_identifier: unicode
           column_constraint_segment:
           - keyword: not
           - keyword: 'null'
       - comma: ','
       - column_definition:
           column_reference:
-            identifier: Entity_Code
+            naked_identifier: Entity_Code
           data_type:
             data_type_identifier: varchar
             bracketed:
@@ -69,7 +69,7 @@ file:
       - comma: ','
       - column_definition:
           column_reference:
-            identifier: Parent_Org_Unit_Code
+            naked_identifier: Parent_Org_Unit_Code
           data_type:
             data_type_identifier: char
             bracketed:
@@ -80,14 +80,14 @@ file:
           td_column_attribute_constraint:
           - keyword: character
           - keyword: set
-          - identifier: unicode
+          - naked_identifier: unicode
           column_constraint_segment:
           - keyword: not
           - keyword: 'null'
       - comma: ','
       - column_definition:
           column_reference:
-            identifier: Parent_Org_Unit_Type
+            naked_identifier: Parent_Org_Unit_Type
           data_type:
             data_type_identifier: char
             bracketed:
@@ -98,14 +98,14 @@ file:
           td_column_attribute_constraint:
           - keyword: character
           - keyword: set
-          - identifier: unicode
+          - naked_identifier: unicode
           column_constraint_segment:
           - keyword: not
           - keyword: 'null'
       - comma: ','
       - column_definition:
           column_reference:
-            identifier: Parent_Entity_Code
+            naked_identifier: Parent_Entity_Code
           data_type:
             data_type_identifier: varchar
             bracketed:
@@ -123,13 +123,13 @@ file:
       - keyword: primary
       - keyword: index
       - object_reference:
-          identifier: Org_Descendant_NUPI
+          naked_identifier: Org_Descendant_NUPI
       - bracketed:
         - start_bracket: (
-        - identifier: Org_Unit_Code
+        - naked_identifier: Org_Unit_Code
         - comma: ','
-        - identifier: Org_Unit_Type
+        - naked_identifier: Org_Unit_Type
         - comma: ','
-        - identifier: Entity_Code
+        - naked_identifier: Entity_Code
         - end_bracket: )
   statement_terminator: ;

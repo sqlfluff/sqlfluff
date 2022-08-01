@@ -3,14 +3,14 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 907011fa063c660586d6ba78de210f8490066e00e13aea4bc30b0dff11c42fe1
+_hash: 62cf038f75d11eb1e92a55b7e4003d3a9bfdb8edb5cfaeb42e541d81a760d56d
 file:
 - statement:
     describe_statement:
     - keyword: DESCRIBE
     - keyword: DATABASE
     - database_reference:
-        identifier: employees
+        naked_identifier: employees
 - statement_terminator: ;
 - statement:
     describe_statement:
@@ -18,12 +18,12 @@ file:
     - keyword: DATABASE
     - keyword: EXTENDED
     - database_reference:
-        identifier: employees
+        naked_identifier: employees
 - statement_terminator: ;
 - statement:
     describe_statement:
     - keyword: DESC
     - keyword: DATABASE
     - database_reference:
-        identifier: deployment
+        naked_identifier: deployment
 - statement_terminator: ;

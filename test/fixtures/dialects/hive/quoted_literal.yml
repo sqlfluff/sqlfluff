@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8126a9cf587f21c619e47d0b431a8c89ce39e492e8609c7e97654e78e24aba73
+_hash: a219e1dd7a6984c5c17b9151c5cbf39df3b57dae493b586e338fd1817dc7a14d
 file:
   statement:
     select_statement:
@@ -11,7 +11,7 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: result
+            naked_identifier: result
       - comma: ','
       - select_clause_element:
           literal: '`timestamp`'
@@ -24,18 +24,18 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: student
+                naked_identifier: student
       where_clause:
         keyword: WHERE
         expression:
         - column_reference:
-            identifier: name
+            naked_identifier: name
         - comparison_operator:
             raw_comparison_operator: '='
         - literal: '"John Smith"'
         - binary_operator: OR
         - column_reference:
-            identifier: name
+            naked_identifier: name
         - comparison_operator:
             raw_comparison_operator: '='
         - literal: "'Jane Doe'"

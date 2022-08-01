@@ -3,13 +3,13 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d8154772ad142ffc090bb03e1c73f664a06a9204ca2f9e24b74fa03262e1b328
+_hash: 1298ca21b1fa3bc9eedfd815d67ba202ec5342bbc767d995aac381df569fb4a9
 file:
   statement:
     with_compound_statement:
       keyword: WITH
       common_table_expression:
-        identifier: cte
+        naked_identifier: cte
         keyword: as
         bracketed:
           start_bracket: (
@@ -18,25 +18,25 @@ file:
               keyword: select
               select_clause_element:
                 column_reference:
-                  identifier: a
+                  naked_identifier: a
             from_clause:
               keyword: from
               from_expression:
                 from_expression_element:
                   table_expression:
                     table_reference:
-                      identifier: tbla
+                      naked_identifier: tbla
           end_bracket: )
       select_statement:
         select_clause:
           keyword: select
           select_clause_element:
             column_reference:
-              identifier: a
+              naked_identifier: a
         from_clause:
           keyword: from
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: cte
+                  naked_identifier: cte

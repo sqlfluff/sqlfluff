@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 304ece91d8540fd10a09ebec75402ff76d951690615eac803dee97975aa9c73f
+_hash: 4ce1d1cd216b7f85d6e060ca57b77ba28732ada2a723d38ea4e42c798ac3ca28
 file:
 - statement:
     use_statement:
@@ -38,51 +38,51 @@ file:
     - keyword: USE
     - keyword: ROLE
     - object_reference:
-        identifier: '"MY_ROLE"'
+        quoted_identifier: '"MY_ROLE"'
 - statement_terminator: ;
 - statement:
     use_statement:
     - keyword: USE
     - keyword: WAREHOUSE
     - object_reference:
-        identifier: '"MY_WAREHOUSE"'
+        quoted_identifier: '"MY_WAREHOUSE"'
 - statement_terminator: ;
 - statement:
     use_statement:
     - keyword: USE
     - keyword: DATABASE
     - database_reference:
-        identifier: '"MY_DATABASE"'
+        quoted_identifier: '"MY_DATABASE"'
 - statement_terminator: ;
 - statement:
     use_statement:
       keyword: USE
       database_reference:
-        identifier: '"MY_DATABASE"'
+        quoted_identifier: '"MY_DATABASE"'
 - statement_terminator: ;
 - statement:
     use_statement:
     - keyword: USE
     - keyword: SCHEMA
     - schema_reference:
-      - identifier: '"MY_DATABASE"'
+      - quoted_identifier: '"MY_DATABASE"'
       - dot: .
-      - identifier: '"MY_SCHEMA"'
+      - quoted_identifier: '"MY_SCHEMA"'
 - statement_terminator: ;
 - statement:
     use_statement:
     - keyword: USE
     - keyword: SCHEMA
     - schema_reference:
-        identifier: '"MY_SCHEMA"'
+        quoted_identifier: '"MY_SCHEMA"'
 - statement_terminator: ;
 - statement:
     use_statement:
       keyword: USE
       database_reference:
-      - identifier: '"MY_DATABASE"'
+      - quoted_identifier: '"MY_DATABASE"'
       - dot: .
-      - identifier: '"MY_SCHEMA"'
+      - quoted_identifier: '"MY_SCHEMA"'
 - statement_terminator: ;
 - statement:
     use_statement:

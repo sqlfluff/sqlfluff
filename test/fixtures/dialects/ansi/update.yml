@@ -3,35 +3,35 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ac5bb76548df5da3e4049c0cd2603d36e669781e2c43659729a9182baf022136
+_hash: 341b9ff706543eaa215fa8cd12f7d0852b6e7a748578b98fbf5187ac8e9d35ec
 file:
   statement:
     update_statement:
       keyword: UPDATE
       table_reference:
-        identifier: table_name
+        naked_identifier: table_name
       set_clause_list:
       - keyword: SET
       - set_clause:
         - column_reference:
-            identifier: column1
+            naked_identifier: column1
         - comparison_operator:
             raw_comparison_operator: '='
         - column_reference:
-            identifier: value1
+            naked_identifier: value1
       - comma: ','
       - set_clause:
         - column_reference:
-            identifier: column2
+            naked_identifier: column2
         - comparison_operator:
             raw_comparison_operator: '='
         - column_reference:
-            identifier: value2
+            naked_identifier: value2
       where_clause:
         keyword: WHERE
         expression:
           column_reference:
-            identifier: a
+            naked_identifier: a
           comparison_operator:
             raw_comparison_operator: '='
           literal: '1'

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9624fe4f00943ec23c50109601e8ed98edf237925bfa9a3b2d25a321eaa88415
+_hash: d96b6270fc706839869ea26c6db139456f52fadc607ed86f6cdfb72457c68753
 file:
 - statement:
     create_database_statement:
@@ -298,7 +298,7 @@ file:
     - database_reference:
         identifier: db
     - keyword: ALLOW_CONNECTIONS
-    - literal: 'true'
+    - boolean_literal: 'true'
 - statement_terminator: ;
 - statement:
     create_database_statement:
@@ -309,7 +309,7 @@ file:
     - keyword: ALLOW_CONNECTIONS
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: 'true'
+    - boolean_literal: 'true'
 - statement_terminator: ;
 - statement:
     create_database_statement:
@@ -340,7 +340,7 @@ file:
     - database_reference:
         identifier: db
     - keyword: IS_TEMPLATE
-    - literal: 'true'
+    - boolean_literal: 'true'
 - statement_terminator: ;
 - statement:
     create_database_statement:
@@ -351,7 +351,7 @@ file:
     - keyword: IS_TEMPLATE
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: 'true'
+    - boolean_literal: 'true'
 - statement_terminator: ;
 - statement:
     create_database_statement:
@@ -362,14 +362,14 @@ file:
     - keyword: IS_TEMPLATE
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: 'true'
+    - boolean_literal: 'true'
     - keyword: CONNECTION
     - keyword: LIMIT
     - literal: '10'
     - keyword: ALLOW_CONNECTIONS
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: 'true'
+    - boolean_literal: 'true'
 - statement_terminator: ;
 - statement:
     create_database_statement:
@@ -381,14 +381,14 @@ file:
     - keyword: IS_TEMPLATE
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: 'true'
+    - boolean_literal: 'true'
     - keyword: CONNECTION
     - keyword: LIMIT
     - literal: '10'
     - keyword: ALLOW_CONNECTIONS
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: 'true'
+    - boolean_literal: 'true'
 - statement_terminator: ;
 - statement:
     create_database_statement:
@@ -400,14 +400,14 @@ file:
     - keyword: IS_TEMPLATE
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: 'true'
+    - boolean_literal: 'true'
     - keyword: CONNECTION
     - keyword: LIMIT
     - literal: '10'
     - keyword: ALLOW_CONNECTIONS
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: 'true'
+    - boolean_literal: 'true'
     - keyword: TEMPLATE
     - comparison_operator:
         raw_comparison_operator: '='
@@ -432,14 +432,14 @@ file:
     - keyword: IS_TEMPLATE
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: 'true'
+    - boolean_literal: 'true'
     - keyword: CONNECTION
     - keyword: LIMIT
     - literal: '10'
     - keyword: ALLOW_CONNECTIONS
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: 'true'
+    - boolean_literal: 'true'
     - keyword: TEMPLATE
     - comparison_operator:
         raw_comparison_operator: '='
@@ -466,14 +466,14 @@ file:
     - keyword: IS_TEMPLATE
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: 'true'
+    - boolean_literal: 'true'
     - keyword: CONNECTION
     - keyword: LIMIT
     - literal: '10'
     - keyword: ALLOW_CONNECTIONS
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: 'true'
+    - boolean_literal: 'true'
     - keyword: TEMPLATE
     - comparison_operator:
         raw_comparison_operator: '='

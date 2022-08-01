@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2ef749549d6fa01ea926682b2bcc71414102af4c0da7315d3e8c0e617baff326
+_hash: fe4859e5dd1c80fdc899c8bf95b7f1e19b6f92b86e2cfb5a73a747212a7226e6
 file:
 - statement:
     comment_statement:
@@ -11,7 +11,7 @@ file:
     - keyword: 'ON'
     - keyword: SCHEMA
     - object_reference:
-        identifier: s1
+        naked_identifier: s1
     - keyword: IS
     - literal: "'My first schema'"
 - statement_terminator: ;
@@ -21,9 +21,9 @@ file:
     - keyword: 'ON'
     - keyword: TABLE
     - table_reference:
-      - identifier: a_schema
+      - naked_identifier: a_schema
       - dot: .
-      - identifier: t1
+      - naked_identifier: t1
     - keyword: IS
     - literal: "'My first table'"
 - statement_terminator: ;
@@ -32,14 +32,14 @@ file:
     - keyword: COMMENT
     - keyword: 'ON'
     - table_reference:
-        identifier: t1
+        naked_identifier: t1
     - bracketed:
       - start_bracket: (
-      - identifier: id
+      - naked_identifier: id
       - keyword: IS
       - literal: "'Identity column'"
       - comma: ','
-      - identifier: zip
+      - naked_identifier: zip
       - keyword: IS
       - literal: "'Zip code'"
       - end_bracket: )
@@ -50,7 +50,7 @@ file:
     - keyword: 'ON'
     - keyword: SCRIPT
     - object_reference:
-        identifier: script1
+        naked_identifier: script1
     - keyword: IS
     - literal: "'My first script'"
 - statement_terminator: ;
@@ -61,7 +61,7 @@ file:
     - keyword: CONSUMER
     - keyword: GROUP
     - object_reference:
-        identifier: admin_group
+        naked_identifier: admin_group
     - keyword: IS
     - literal: "'VERY important!!!'"
 - statement_terminator: ;

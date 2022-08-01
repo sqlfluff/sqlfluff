@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 21a0a9b32e3159ef2304940cabc52cb7355f81f0a0bb0c77f6efd091d114f8f3
+_hash: 8eb040f7b9995d6b2524bdf941165ed365a4d68796df81a04576df5d7bf57604
 file:
 - statement:
     explain_statement:
@@ -12,39 +12,39 @@ file:
       - start_bracket: (
       - explain_option:
           keyword: analyze
-          literal: 'true'
+          boolean_literal: 'true'
       - comma: ','
       - explain_option:
           keyword: analyse
-          literal: 'true'
+          boolean_literal: 'true'
       - comma: ','
       - explain_option:
           keyword: verbose
-          literal: 'true'
+          boolean_literal: 'true'
       - comma: ','
       - explain_option:
           keyword: costs
-          literal: 'true'
+          boolean_literal: 'true'
       - comma: ','
       - explain_option:
           keyword: settings
-          literal: 'true'
+          boolean_literal: 'true'
       - comma: ','
       - explain_option:
           keyword: buffers
-          literal: 'true'
+          boolean_literal: 'true'
       - comma: ','
       - explain_option:
           keyword: wal
-          literal: 'true'
+          boolean_literal: 'true'
       - comma: ','
       - explain_option:
           keyword: timing
-          literal: 'true'
+          boolean_literal: 'true'
       - comma: ','
       - explain_option:
           keyword: summary
-          literal: 'true'
+          boolean_literal: 'true'
       - comma: ','
       - explain_option:
         - keyword: format
@@ -63,39 +63,39 @@ file:
       - start_bracket: (
       - explain_option:
           keyword: analyze
-          literal: 'false'
+          boolean_literal: 'false'
       - comma: ','
       - explain_option:
           keyword: analyse
-          literal: 'false'
+          boolean_literal: 'false'
       - comma: ','
       - explain_option:
           keyword: verbose
-          literal: 'false'
+          boolean_literal: 'false'
       - comma: ','
       - explain_option:
           keyword: costs
-          literal: 'false'
+          boolean_literal: 'false'
       - comma: ','
       - explain_option:
           keyword: settings
-          literal: 'false'
+          boolean_literal: 'false'
       - comma: ','
       - explain_option:
           keyword: buffers
-          literal: 'false'
+          boolean_literal: 'false'
       - comma: ','
       - explain_option:
           keyword: wal
-          literal: 'false'
+          boolean_literal: 'false'
       - comma: ','
       - explain_option:
           keyword: timing
-          literal: 'false'
+          boolean_literal: 'false'
       - comma: ','
       - explain_option:
           keyword: summary
-          literal: 'false'
+          boolean_literal: 'false'
       - comma: ','
       - explain_option:
         - keyword: format

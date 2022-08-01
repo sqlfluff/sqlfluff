@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 673adfe5390702ee95279dfd1c4ee42f78d9142f43b05ca5a1d2be0ac7442d76
+_hash: 3d35ec507822e6b09f82ca243334fbd00bf01d547f8427e3058baba439efe960
 file:
 - statement:
     select_statement:
@@ -11,7 +11,7 @@ file:
         keyword: SELECT
         select_clause_element:
           column_reference:
-            identifier: id
+            naked_identifier: id
       from_clause:
         keyword: FROM
         from_expression:
@@ -41,7 +41,7 @@ file:
         keyword: SELECT
         select_clause_element:
           column_reference:
-            identifier: id
+            naked_identifier: id
       from_clause:
         keyword: FROM
         from_expression:
@@ -62,7 +62,7 @@ file:
         keyword: SELECT
         select_clause_element:
           column_reference:
-            identifier: id
+            naked_identifier: id
       from_clause:
         keyword: FROM
         from_expression:
@@ -86,7 +86,7 @@ file:
         keyword: SELECT
         select_clause_element:
           column_reference:
-            identifier: id
+            naked_identifier: id
       from_clause:
         keyword: FROM
         from_expression:
@@ -113,7 +113,7 @@ file:
         keyword: SELECT
         select_clause_element:
           column_reference:
-            identifier: id
+            naked_identifier: id
       from_clause:
         keyword: FROM
         from_expression:
@@ -143,9 +143,9 @@ file:
         keyword: SELECT
         select_clause_element:
           column_reference:
-          - identifier: test
+          - naked_identifier: test
           - dot: .
-          - identifier: id
+          - naked_identifier: id
       from_clause:
         keyword: FROM
         from_expression:
@@ -164,7 +164,7 @@ file:
                 - end_bracket: )
             alias_expression:
               keyword: AS
-              identifier: test
+              naked_identifier: test
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -172,9 +172,9 @@ file:
         keyword: SELECT
         select_clause_element:
           column_reference:
-          - identifier: test
+          - naked_identifier: test
           - dot: .
-          - identifier: id
+          - naked_identifier: id
       from_clause:
         keyword: FROM
         from_expression:
@@ -192,5 +192,5 @@ file:
                     literal: '8'
                 - end_bracket: )
             alias_expression:
-              identifier: test
+              naked_identifier: test
 - statement_terminator: ;

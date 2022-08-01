@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2357559a783cecacb1c2d3843fca153dedaf81672fe4b92d87176a1fc92f4abf
+_hash: 885a8b786040bd04613932c82a9c800655829d1ce5e7691ae659dc026384d032
 file:
 - statement:
     alter_view_statement:
@@ -60,7 +60,7 @@ file:
         identifier: bool_column
     - keyword: SET
     - keyword: DEFAULT
-    - literal: 'false'
+    - boolean_literal: 'false'
 - statement_terminator: ;
 - statement:
     alter_view_statement:
@@ -206,7 +206,7 @@ file:
         identifier: bool_column
     - keyword: SET
     - keyword: DEFAULT
-    - literal: 'false'
+    - boolean_literal: 'false'
 - statement_terminator: ;
 - statement:
     alter_view_statement:
@@ -572,7 +572,7 @@ file:
       - parameter: view_option_name4
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: 'false'
+      - boolean_literal: 'false'
       - end_bracket: )
 - statement_terminator: ;
 - statement:

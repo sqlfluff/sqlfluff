@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 86680e9c495da7f08e7ae9667ebb81c94e94db226072e5b0c782c449fb17b7b8
+_hash: 6730782441e3615cfdfad2b812e4a7650fc7092154fa5216281abdf7d2280ec6
 file:
 - statement:
     comment_statement:
@@ -11,9 +11,9 @@ file:
     - keyword: 'ON'
     - keyword: COLUMN
     - column_reference:
-      - identifier: employees
+      - naked_identifier: employees
       - dot: .
-      - identifier: job_id
+      - naked_identifier: job_id
     - keyword: IS
     - literal: "'abbreviated job title'"
 - statement_terminator: ;
@@ -23,7 +23,7 @@ file:
     - keyword: 'ON'
     - keyword: TABLE
     - table_reference:
-        identifier: employees
+        naked_identifier: employees
     - keyword: IS
     - literal: "'employees table'"
 - statement_terminator: ;
@@ -33,7 +33,7 @@ file:
     - keyword: 'ON'
     - keyword: INDEXTYPE
     - indextype_reference:
-        identifier: employees_indextype
+        naked_identifier: employees_indextype
     - keyword: IS
     - literal: "'employees indextype'"
 - statement_terminator: ;
@@ -43,7 +43,7 @@ file:
     - keyword: 'ON'
     - keyword: OPERATOR
     - object_reference:
-        identifier: employees_operator
+        naked_identifier: employees_operator
     - keyword: IS
     - literal: "'employees operator'"
 - statement_terminator: ;
@@ -54,7 +54,7 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-        identifier: employees_mv
+        naked_identifier: employees_mv
     - keyword: IS
     - literal: "'employees materialized view'"
 - statement_terminator: ;

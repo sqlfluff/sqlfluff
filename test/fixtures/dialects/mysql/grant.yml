@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 29bbbad5f865af360d629bd828fc9c690d913e55e1237d8f5698f3eeb73abf9b
+_hash: e3fba87b6fa43be59b30db9b41306806a6f504bb9d2ba76e6092150112399cde
 file:
 - statement:
     access_statement:
@@ -19,10 +19,10 @@ file:
     - keyword: REFERENCES
     - keyword: 'ON'
     - object_reference:
-        identifier: prj_table
+        naked_identifier: prj_table
     - keyword: TO
     - role_reference:
-        identifier: prj_svc
+        naked_identifier: prj_svc
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -38,10 +38,10 @@ file:
     - keyword: REFERENCES
     - keyword: 'ON'
     - object_reference:
-        identifier: prj_table
+        naked_identifier: prj_table
     - keyword: TO
     - role_reference:
-        identifier: "'prj_svc'"
+        quoted_identifier: "'prj_svc'"
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -57,7 +57,7 @@ file:
     - keyword: REFERENCES
     - keyword: 'ON'
     - object_reference:
-        identifier: prj_table
+        naked_identifier: prj_table
     - keyword: TO
     - role_reference:
         literal: '"prj_svc"'
@@ -76,7 +76,7 @@ file:
     - keyword: REFERENCES
     - keyword: 'ON'
     - object_reference:
-        identifier: prj_table
+        naked_identifier: prj_table
     - keyword: TO
     - role_reference:
         identifier: '`prj_svc`'
@@ -95,12 +95,12 @@ file:
     - keyword: REFERENCES
     - keyword: 'ON'
     - object_reference:
-        identifier: prj_table
+        naked_identifier: prj_table
     - keyword: TO
     - role_reference:
-      - identifier: "'prj_svc'"
+      - quoted_identifier: "'prj_svc'"
       - literal: '@'
-      - identifier: "'%'"
+      - quoted_identifier: "'%'"
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -116,7 +116,7 @@ file:
     - keyword: REFERENCES
     - keyword: 'ON'
     - object_reference:
-        identifier: prj_table
+        naked_identifier: prj_table
     - keyword: TO
     - role_reference:
       - literal: '"prj_svc"'
@@ -137,7 +137,7 @@ file:
     - keyword: REFERENCES
     - keyword: 'ON'
     - object_reference:
-        identifier: prj_table
+        naked_identifier: prj_table
     - keyword: TO
     - role_reference:
       - identifier: '`prj_svc`'
@@ -158,7 +158,7 @@ file:
     - keyword: REFERENCES
     - keyword: 'ON'
     - object_reference:
-        identifier: prj_table
+        naked_identifier: prj_table
     - keyword: TO
     - role_reference:
       - identifier: '`prj_svc`'

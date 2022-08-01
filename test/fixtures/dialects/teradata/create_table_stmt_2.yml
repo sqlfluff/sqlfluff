@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a0a4e2684566f08cd241bdc172fd263b2545bf343041ce10d61c31ed6ae17144
+_hash: a1cfd2bc295b0628ce17d3dfa24f5098973493cb15bec788941ed07fdf89d383
 file:
   statement:
     create_table_statement:
@@ -11,12 +11,12 @@ file:
     - keyword: MULTISET
     - keyword: TABLE
     - table_reference:
-        identifier: TABLE_2
+        naked_identifier: TABLE_2
     - bracketed:
       - start_bracket: (
       - column_definition:
         - column_reference:
-            identifier: CHAR_FIELD
+            naked_identifier: CHAR_FIELD
         - data_type:
             data_type_identifier: CHAR
             bracketed:
@@ -27,7 +27,7 @@ file:
         - td_column_attribute_constraint:
           - keyword: CHARACTER
           - keyword: SET
-          - identifier: LATIN
+          - naked_identifier: LATIN
         - td_column_attribute_constraint:
           - keyword: NOT
           - keyword: CASESPECIFIC
@@ -37,7 +37,7 @@ file:
       - comma: ','
       - column_definition:
           column_reference:
-            identifier: DATE_FIELD
+            naked_identifier: DATE_FIELD
           data_type:
             data_type_identifier: DATE
             keyword: FORMAT
@@ -48,7 +48,7 @@ file:
       - comma: ','
       - column_definition:
           column_reference:
-            identifier: BYTE_FIELD
+            naked_identifier: BYTE_FIELD
           data_type:
             data_type_identifier: BYTEINT
           td_column_attribute_constraint:
@@ -57,7 +57,7 @@ file:
       - comma: ','
       - column_definition:
           column_reference:
-            identifier: DECIMAL_FIELD
+            naked_identifier: DECIMAL_FIELD
           data_type:
             data_type_identifier: DECIMAL
             bracketed:
@@ -105,7 +105,7 @@ file:
       - comma: ','
       - column_definition:
           column_reference:
-            identifier: TIMESTAMP_FIELD
+            naked_identifier: TIMESTAMP_FIELD
           data_type:
             data_type_identifier: TIMESTAMP
             bracketed:
@@ -122,10 +122,10 @@ file:
       - keyword: INDEX
       - bracketed:
         - start_bracket: (
-        - identifier: CHAR_FIELD
+        - naked_identifier: CHAR_FIELD
         - comma: ','
-        - identifier: DATE_FIELD
+        - naked_identifier: DATE_FIELD
         - comma: ','
-        - identifier: BYTE_FIELD
+        - naked_identifier: BYTE_FIELD
         - end_bracket: )
   statement_terminator: ;

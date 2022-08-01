@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 02f397fb8dd0ebef10f043d3b5036a422e89db82582d5e73a4af64d28a4f314d
+_hash: 4789006910cff1aeb8df478a73327bf4eee7ef94a3cee788d20b1eff5ff520dc
 file:
 - statement:
     insert_statement:
@@ -11,7 +11,7 @@ file:
     - keyword: INTO
     - keyword: TABLE
     - table_reference:
-        identifier: students
+        naked_identifier: students
     - values_clause:
         keyword: VALUES
         bracketed:
@@ -31,7 +31,7 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-        identifier: students
+        naked_identifier: students
     - values_clause:
         keyword: VALUES
         bracketed:
@@ -51,7 +51,7 @@ file:
     - keyword: INSERT
     - keyword: OVERWRITE
     - table_reference:
-        identifier: students
+        naked_identifier: students
     - values_clause:
         keyword: VALUES
         bracketed:
@@ -71,7 +71,7 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-        identifier: students
+        naked_identifier: students
     - values_clause:
       - keyword: VALUES
       - bracketed:
@@ -103,7 +103,7 @@ file:
     - keyword: INSERT
     - keyword: OVERWRITE
     - table_reference:
-        identifier: students
+        naked_identifier: students
     - values_clause:
       - keyword: VALUES
       - bracketed:
@@ -135,12 +135,12 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-        identifier: students
+        naked_identifier: students
     - keyword: PARTITION
     - bracketed:
         start_bracket: (
         column_reference:
-          identifier: student_id
+          naked_identifier: student_id
         comparison_operator:
           raw_comparison_operator: '='
         literal: '444444'
@@ -150,23 +150,23 @@ file:
         - keyword: SELECT
         - select_clause_element:
             column_reference:
-              identifier: name
+              naked_identifier: name
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: address
+              naked_identifier: address
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: persons
+                  naked_identifier: persons
         where_clause:
           keyword: WHERE
           expression:
             column_reference:
-              identifier: name
+              naked_identifier: name
             comparison_operator:
               raw_comparison_operator: '='
             literal: '"Dora Williams"'
@@ -176,12 +176,12 @@ file:
     - keyword: INSERT
     - keyword: OVERWRITE
     - table_reference:
-        identifier: students
+        naked_identifier: students
     - keyword: PARTITION
     - bracketed:
         start_bracket: (
         column_reference:
-          identifier: student_id
+          naked_identifier: student_id
         comparison_operator:
           raw_comparison_operator: '='
         literal: '444444'
@@ -191,23 +191,23 @@ file:
         - keyword: SELECT
         - select_clause_element:
             column_reference:
-              identifier: name
+              naked_identifier: name
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: address
+              naked_identifier: address
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: persons
+                  naked_identifier: persons
         where_clause:
           keyword: WHERE
           expression:
             column_reference:
-              identifier: name
+              naked_identifier: name
             comparison_operator:
               raw_comparison_operator: '='
             literal: '"Dora Williams"'
@@ -217,90 +217,90 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-        identifier: students
+        naked_identifier: students
     - keyword: TABLE
     - table_reference:
-        identifier: visiting_students
+        naked_identifier: visiting_students
 - statement_terminator: ;
 - statement:
     insert_statement:
     - keyword: INSERT
     - keyword: OVERWRITE
     - table_reference:
-        identifier: students
+        naked_identifier: students
     - keyword: TABLE
     - table_reference:
-        identifier: visiting_students
+        naked_identifier: visiting_students
 - statement_terminator: ;
 - statement:
     insert_statement:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-        identifier: students
+        naked_identifier: students
     - keyword: FROM
     - table_reference:
-        identifier: applicants
+        naked_identifier: applicants
     - keyword: SELECT
     - column_reference:
-        identifier: name
+        naked_identifier: name
     - comma: ','
     - column_reference:
-        identifier: address
+        naked_identifier: address
     - comma: ','
     - column_reference:
-        identifier: id
+        naked_identifier: id
     - where_clause:
         keyword: WHERE
         expression:
           column_reference:
-            identifier: qualified
+            naked_identifier: qualified
           comparison_operator:
             raw_comparison_operator: '='
-          literal: 'TRUE'
+          boolean_literal: 'TRUE'
 - statement_terminator: ;
 - statement:
     insert_statement:
     - keyword: INSERT
     - keyword: OVERWRITE
     - table_reference:
-        identifier: students
+        naked_identifier: students
     - keyword: FROM
     - table_reference:
-        identifier: applicants
+        naked_identifier: applicants
     - keyword: SELECT
     - column_reference:
-        identifier: name
+        naked_identifier: name
     - comma: ','
     - column_reference:
-        identifier: address
+        naked_identifier: address
     - comma: ','
     - column_reference:
-        identifier: id
+        naked_identifier: id
     - where_clause:
         keyword: WHERE
         expression:
           column_reference:
-            identifier: qualified
+            naked_identifier: qualified
           comparison_operator:
             raw_comparison_operator: '='
-          literal: 'TRUE'
+          boolean_literal: 'TRUE'
 - statement_terminator: ;
 - statement:
     insert_statement:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-        identifier: students
+        naked_identifier: students
     - keyword: PARTITION
     - bracketed:
         start_bracket: (
         column_reference:
-          identifier: birthday
+          naked_identifier: birthday
         comparison_operator:
           raw_comparison_operator: '='
         keyword: DATE
-        literal: "'2019-01-02'"
+        date_constructor_literal: "'2019-01-02'"
         end_bracket: )
     - values_clause:
         keyword: VALUES
@@ -318,16 +318,16 @@ file:
     - keyword: INSERT
     - keyword: OVERWRITE
     - table_reference:
-        identifier: students
+        naked_identifier: students
     - keyword: PARTITION
     - bracketed:
         start_bracket: (
         column_reference:
-          identifier: birthday
+          naked_identifier: birthday
         comparison_operator:
           raw_comparison_operator: '='
         keyword: DATE
-        literal: "'2019-01-02'"
+        date_constructor_literal: "'2019-01-02'"
         end_bracket: )
     - values_clause:
         keyword: VALUES
@@ -345,12 +345,12 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-        identifier: students
+        naked_identifier: students
     - keyword: PARTITION
     - bracketed:
         start_bracket: (
         column_reference:
-          identifier: student_id
+          naked_identifier: student_id
         comparison_operator:
           raw_comparison_operator: '='
         literal: '11215017'
@@ -358,10 +358,10 @@ file:
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: address
+          naked_identifier: address
       - comma: ','
       - column_reference:
-          identifier: name
+          naked_identifier: name
       - end_bracket: )
     - values_clause:
         keyword: VALUES
@@ -379,12 +379,12 @@ file:
     - keyword: INSERT
     - keyword: OVERWRITE
     - table_reference:
-        identifier: students
+        naked_identifier: students
     - keyword: PARTITION
     - bracketed:
         start_bracket: (
         column_reference:
-          identifier: student_id
+          naked_identifier: student_id
         comparison_operator:
           raw_comparison_operator: '='
         literal: '11215017'
@@ -392,10 +392,10 @@ file:
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: address
+          naked_identifier: address
       - comma: ','
       - column_reference:
-          identifier: name
+          naked_identifier: name
       - end_bracket: )
     - values_clause:
         keyword: VALUES

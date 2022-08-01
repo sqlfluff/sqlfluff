@@ -3,19 +3,19 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8921c4f8390d9ea672e57260f95f01b095e7af459434a18fbc786ed6e837fe88
+_hash: 49bcb713853439679ed5f6bfbe6844b8a3f54e7ec788dab3100b93df949a0460
 file:
   statement:
     with_compound_statement:
     - keyword: WITH
     - keyword: RECURSIVE
     - common_table_expression:
-        identifier: cte
+        naked_identifier: cte
         cte_column_list:
           bracketed:
             start_bracket: (
             identifier_list:
-              identifier: a
+              naked_identifier: a
             end_bracket: )
         keyword: AS
         bracketed:
@@ -35,7 +35,7 @@ file:
                 select_clause_element:
                   expression:
                     column_reference:
-                      identifier: a
+                      naked_identifier: a
                     binary_operator: +
                     literal: '1'
               from_clause:
@@ -44,12 +44,12 @@ file:
                   from_expression_element:
                     table_expression:
                       table_reference:
-                        identifier: cte
+                        naked_identifier: cte
               where_clause:
                 keyword: WHERE
                 expression:
                   column_reference:
-                    identifier: a
+                    naked_identifier: a
                   comparison_operator:
                     raw_comparison_operator: <
                   literal: '5'
@@ -59,12 +59,12 @@ file:
           keyword: SELECT
           select_clause_element:
             column_reference:
-              identifier: a
+              naked_identifier: a
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: cte
+                  naked_identifier: cte
   statement_terminator: ;

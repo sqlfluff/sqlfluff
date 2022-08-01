@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7bc3f8f63d79e6fe432f2b0428a65d019132d278abd05d3e61e53dfbc5fbc646
+_hash: f7f278d1739cff8e0c087cfeda1b9e7e8c01832ae74a2a4293888e338d82d750
 file:
 - statement:
     merge_statement:
@@ -76,7 +76,7 @@ file:
                     identifier: quantity
               - comma: ','
               - expression:
-                  literal: 'TRUE'
+                  boolean_literal: 'TRUE'
               - end_bracket: )
       - not_matched_by_target_clause:
         - keyword: WHEN
@@ -109,7 +109,7 @@ file:
                     identifier: quantity
               - comma: ','
               - expression:
-                  literal: 'FALSE'
+                  boolean_literal: 'FALSE'
               - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -184,7 +184,7 @@ file:
                     identifier: quantity
               - comma: ','
               - expression:
-                  literal: 'TRUE'
+                  boolean_literal: 'TRUE'
               - end_bracket: )
       - not_matched_by_target_clause:
         - keyword: WHEN
@@ -217,7 +217,7 @@ file:
                     identifier: quantity
               - comma: ','
               - expression:
-                  literal: 'FALSE'
+                  boolean_literal: 'FALSE'
               - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -672,7 +672,7 @@ file:
                     identifier: quantity
               - comma: ','
               - expression:
-                  literal: 'TRUE'
+                  boolean_literal: 'TRUE'
               - end_bracket: )
       - not_matched_by_target_clause:
         - keyword: WHEN
@@ -707,7 +707,7 @@ file:
                     identifier: quantity
               - comma: ','
               - expression:
-                  literal: 'FALSE'
+                  boolean_literal: 'FALSE'
               - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -806,7 +806,7 @@ file:
     - join_on_condition:
         keyword: 'ON'
         expression:
-          literal: 'FALSE'
+          boolean_literal: 'FALSE'
     - merge_match:
         merge_when_matched_clause:
         - keyword: WHEN

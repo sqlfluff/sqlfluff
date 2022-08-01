@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 02775388620890f17894f148d7cf19bae1d9332a76d7c182bfbde2031a69e5ee
+_hash: 20ecab460583991bbb9e7a00acf3af2d816a083065db220e3d70a7f8505bcf50
 file:
 - statement:
     describe_statement:
@@ -116,14 +116,14 @@ file:
     - keyword: DESCRIBE
     - keyword: WAREHOUSE
     - object_reference:
-        identifier: '"my warehouse"'
+        quoted_identifier: '"my warehouse"'
 - statement_terminator: ;
 - statement:
     describe_statement:
     - keyword: DESC
     - keyword: WAREHOUSE
     - object_reference:
-        identifier: '"my warehouse"'
+        quoted_identifier: '"my warehouse"'
 - statement_terminator: ;
 - statement:
     describe_statement:

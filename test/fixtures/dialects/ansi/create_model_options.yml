@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 69affa6320f31f6d791dd891df18d54cf8d2595eacf05ec108b6f6e8cf539838
+_hash: 7ad66f3aeb5814361542a90c677d08dc7b4e314dc7579468e276326ca89bb23e
 file:
   statement:
     create_model_statement:
@@ -12,7 +12,7 @@ file:
     - keyword: REPLACE
     - keyword: MODEL
     - object_reference:
-        identifier: model3
+        naked_identifier: model3
     - keyword: OPTIONS
     - bracketed:
       - start_bracket: (
@@ -24,7 +24,7 @@ file:
       - parameter: AUTO_CLASS_WEIGHTS
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: 'TRUE'
+      - boolean_literal: 'TRUE'
       - comma: ','
       - parameter: INPUT_LABEL_COLS
       - comparison_operator:
@@ -40,23 +40,23 @@ file:
         - keyword: SELECT
         - select_clause_element:
             column_reference:
-              identifier: a
+              naked_identifier: a
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: b
+              naked_identifier: b
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: table1
+                  naked_identifier: table1
         where_clause:
           keyword: WHERE
           expression:
             column_reference:
-              identifier: training
+              naked_identifier: training
             comparison_operator:
               raw_comparison_operator: '='
             literal: '1'

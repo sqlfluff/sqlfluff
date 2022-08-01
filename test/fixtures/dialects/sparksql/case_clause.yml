@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: cb200bf32cc6ff2225902c35bf8b605296114c99f2d3575178410252cb62b5c4
+_hash: aa831360683d19e9e8fcc5aa83a532cd54771e1de52af040cd81386b75e1e62e
 file:
 - statement:
     select_statement:
@@ -11,7 +11,7 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: id
+            naked_identifier: id
       - comma: ','
       - select_clause_element:
           expression:
@@ -21,7 +21,7 @@ file:
               - keyword: WHEN
               - expression:
                   column_reference:
-                    identifier: id
+                    naked_identifier: id
                   comparison_operator:
                     raw_comparison_operator: '>'
                   literal: '200'
@@ -39,7 +39,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: person
+                naked_identifier: person
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -47,7 +47,7 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: id
+            naked_identifier: id
       - comma: ','
       - select_clause_element:
           expression:
@@ -57,7 +57,7 @@ file:
               - keyword: WHEN
               - expression:
                   column_reference:
-                    identifier: id
+                    naked_identifier: id
                   comparison_operator:
                     raw_comparison_operator: '>'
                   literal: '200'
@@ -71,14 +71,14 @@ file:
             - keyword: END
           alias_expression:
             keyword: AS
-            identifier: id_size
+            naked_identifier: id_size
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: person
+                naked_identifier: person
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -86,7 +86,7 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: id
+            naked_identifier: id
       - comma: ','
       - select_clause_element:
           expression:
@@ -94,7 +94,7 @@ file:
             - keyword: CASE
             - expression:
                 column_reference:
-                  identifier: id
+                  naked_identifier: id
             - when_clause:
               - keyword: WHEN
               - expression:
@@ -106,7 +106,7 @@ file:
               - keyword: WHEN
               - expression:
                   column_reference:
-                    identifier: id
+                    naked_identifier: id
                   comparison_operator:
                     raw_comparison_operator: '>'
                   literal: '300'
@@ -124,7 +124,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: person
+                naked_identifier: person
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -132,14 +132,14 @@ file:
         keyword: SELECT
         select_clause_element:
           column_reference:
-            identifier: id
+            naked_identifier: id
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: person
+                naked_identifier: person
       where_clause:
         keyword: WHERE
         expression:

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: af81613a4b767dff57430b9e30266761b44d034233ebd9e0481e4993251e2c68
+_hash: 36eb784afb1422f871d7a151504e47eb4aa29a8dde687442413e13432ee2aa97
 file:
 - statement:
     select_statement:
@@ -59,22 +59,22 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: test
+          - naked_identifier: test
           - dot: .
-          - identifier: a
+          - naked_identifier: a
       - comma: ','
       - select_clause_element:
           column_reference:
-          - identifier: test
+          - naked_identifier: test
           - dot: .
-          - identifier: b
+          - naked_identifier: b
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: test
+                naked_identifier: test
             lateral_view_clause:
             - keyword: LATERAL
             - keyword: VIEW
@@ -97,7 +97,7 @@ file:
                       - end_bracket: )
                   end_bracket: )
             - keyword: AS
-            - identifier: c2
+            - naked_identifier: c2
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -105,22 +105,22 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: test
+          - naked_identifier: test
           - dot: .
-          - identifier: a
+          - naked_identifier: a
       - comma: ','
       - select_clause_element:
           column_reference:
-          - identifier: test
+          - naked_identifier: test
           - dot: .
-          - identifier: b
+          - naked_identifier: b
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: test
+                naked_identifier: test
             lateral_view_clause:
             - keyword: LATERAL
             - keyword: VIEW
@@ -143,7 +143,7 @@ file:
                       - end_bracket: )
                   end_bracket: )
             - keyword: AS
-            - identifier: c2
+            - naked_identifier: c2
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -239,22 +239,22 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: test
+          - naked_identifier: test
           - dot: .
-          - identifier: a
+          - naked_identifier: a
       - comma: ','
       - select_clause_element:
           column_reference:
-          - identifier: test
+          - naked_identifier: test
           - dot: .
-          - identifier: b
+          - naked_identifier: b
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: test
+                naked_identifier: test
             lateral_view_clause:
             - keyword: LATERAL
             - keyword: VIEW
@@ -297,9 +297,9 @@ file:
                       - end_bracket: )
                   end_bracket: )
             - keyword: AS
-            - identifier: c1
+            - naked_identifier: c1
             - comma: ','
-            - identifier: c2
+            - naked_identifier: c2
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -307,22 +307,22 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: test
+          - naked_identifier: test
           - dot: .
-          - identifier: a
+          - naked_identifier: a
       - comma: ','
       - select_clause_element:
           column_reference:
-          - identifier: test
+          - naked_identifier: test
           - dot: .
-          - identifier: b
+          - naked_identifier: b
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: test
+                naked_identifier: test
             lateral_view_clause:
             - keyword: LATERAL
             - keyword: VIEW
@@ -365,9 +365,9 @@ file:
                       - end_bracket: )
                   end_bracket: )
             - keyword: AS
-            - identifier: c1
+            - naked_identifier: c1
             - comma: ','
-            - identifier: c2
+            - naked_identifier: c2
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -423,22 +423,22 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: test
+          - naked_identifier: test
           - dot: .
-          - identifier: a
+          - naked_identifier: a
       - comma: ','
       - select_clause_element:
           column_reference:
-          - identifier: test
+          - naked_identifier: test
           - dot: .
-          - identifier: b
+          - naked_identifier: b
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: test
+                naked_identifier: test
             lateral_view_clause:
             - keyword: LATERAL
             - keyword: VIEW
@@ -461,7 +461,7 @@ file:
                       - end_bracket: )
                   end_bracket: )
             - keyword: AS
-            - identifier: c1
+            - naked_identifier: c1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -469,22 +469,22 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: test
+          - naked_identifier: test
           - dot: .
-          - identifier: a
+          - naked_identifier: a
       - comma: ','
       - select_clause_element:
           column_reference:
-          - identifier: test
+          - naked_identifier: test
           - dot: .
-          - identifier: b
+          - naked_identifier: b
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: test
+                naked_identifier: test
             lateral_view_clause:
             - keyword: LATERAL
             - keyword: VIEW
@@ -507,7 +507,7 @@ file:
                       - end_bracket: )
                   end_bracket: )
             - keyword: AS
-            - identifier: c1
+            - naked_identifier: c1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -538,22 +538,22 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: test
+          - naked_identifier: test
           - dot: .
-          - identifier: a
+          - naked_identifier: a
       - comma: ','
       - select_clause_element:
           column_reference:
-          - identifier: test
+          - naked_identifier: test
           - dot: .
-          - identifier: b
+          - naked_identifier: b
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: test
+                naked_identifier: test
             lateral_view_clause:
             - keyword: LATERAL
             - keyword: VIEW
@@ -575,9 +575,9 @@ file:
                     literal: '3'
                 - end_bracket: )
             - keyword: AS
-            - identifier: c1
+            - naked_identifier: c1
             - comma: ','
-            - identifier: c2
+            - naked_identifier: c2
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -605,22 +605,22 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: test
+          - naked_identifier: test
           - dot: .
-          - identifier: a
+          - naked_identifier: a
       - comma: ','
       - select_clause_element:
           column_reference:
-          - identifier: test
+          - naked_identifier: test
           - dot: .
-          - identifier: b
+          - naked_identifier: b
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: test
+                naked_identifier: test
             lateral_view_clause:
             - keyword: LATERAL
             - keyword: VIEW
@@ -639,9 +639,9 @@ file:
                     literal: "'b'"
                 - end_bracket: )
             - keyword: AS
-            - identifier: c1
+            - naked_identifier: c1
             - comma: ','
-            - identifier: c2
+            - naked_identifier: c2
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -666,22 +666,22 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: test
+          - naked_identifier: test
           - dot: .
-          - identifier: a
+          - naked_identifier: a
       - comma: ','
       - select_clause_element:
           column_reference:
-          - identifier: test
+          - naked_identifier: test
           - dot: .
-          - identifier: b
+          - naked_identifier: b
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: test
+                naked_identifier: test
             lateral_view_clause:
             - keyword: LATERAL
             - keyword: VIEW
@@ -697,5 +697,5 @@ file:
                     literal: "'HOST'"
                 - end_bracket: )
             - keyword: AS
-            - identifier: c1
+            - naked_identifier: c1
 - statement_terminator: ;

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4edaafc6ef5d5b43a4f149aff4e3783b7306fd9687a9aff652828eec22abc690
+_hash: 5b636913f0c94b81de4b955c6ab1a4efa3cac354910c2a09cc1b6bacc8b817ba
 file:
 - statement:
     create_stage_statement:
@@ -88,7 +88,7 @@ file:
         keyword: ENABLE
         comparison_operator:
           raw_comparison_operator: '='
-        literal: 'TRUE'
+        boolean_literal: 'TRUE'
         end_bracket: )
     - keyword: FILE_FORMAT
     - comparison_operator:
@@ -276,11 +276,11 @@ file:
       - keyword: ENABLE
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: 'true'
+      - boolean_literal: 'true'
       - keyword: AUTO_REFRESH
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: 'true'
+      - boolean_literal: 'true'
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -324,11 +324,11 @@ file:
       - keyword: ENABLE
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: 'true'
+      - boolean_literal: 'true'
       - keyword: AUTO_REFRESH
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: 'true'
+      - boolean_literal: 'true'
       - keyword: NOTIFICATION_INTEGRATION
       - comparison_operator:
           raw_comparison_operator: '='
@@ -418,11 +418,11 @@ file:
       - keyword: ENABLE
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: 'true'
+      - boolean_literal: 'true'
       - keyword: AUTO_REFRESH
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: 'true'
+      - boolean_literal: 'true'
       - keyword: NOTIFICATION_INTEGRATION
       - comparison_operator:
           raw_comparison_operator: '='

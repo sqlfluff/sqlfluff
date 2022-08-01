@@ -3,13 +3,13 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a33a692e6ff8b937f83b650b3a030b81f063c517bdf5b7bd7d4d2b3478c09db6
+_hash: be64518afe0906f729329eabb5c72bea9de42b01a1f0f30421213d9b1073ffee
 file:
 - statement:
     drop_connection_statement:
     - keyword: DROP
     - keyword: CONNECTION
-    - identifier: my_connection
+    - naked_identifier: my_connection
 - statement_terminator: ;
 - statement:
     drop_connection_statement:
@@ -17,11 +17,11 @@ file:
     - keyword: CONNECTION
     - keyword: IF
     - keyword: EXISTS
-    - identifier: my_connection
+    - naked_identifier: my_connection
 - statement_terminator: ;
 - statement:
     drop_connection_statement:
     - keyword: DROP
     - keyword: CONNECTION
-    - identifier: '"myCon"'
+    - quoted_identifier: '"myCon"'
 - statement_terminator: ;

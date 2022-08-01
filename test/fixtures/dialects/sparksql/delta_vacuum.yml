@@ -3,13 +3,13 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c28f1106be5c6dfd0b714e0fd8748e93648dd6f84c1eae0eea3ba18275ee5ab9
+_hash: b26eeed1e5e5f79d9e06995b640f56cbd4d4f9497a9f2634bfc8395063f22787
 file:
 - statement:
     vacuum_statement:
       keyword: VACUUM
       table_reference:
-        identifier: EVENTSTABLE
+        naked_identifier: EVENTSTABLE
 - statement_terminator: ;
 - statement:
     vacuum_statement:
@@ -39,7 +39,7 @@ file:
     vacuum_statement:
     - keyword: VACUUM
     - table_reference:
-        identifier: EVENTSTABLE
+        naked_identifier: EVENTSTABLE
     - keyword: DRY
     - keyword: RUN
 - statement_terminator: ;

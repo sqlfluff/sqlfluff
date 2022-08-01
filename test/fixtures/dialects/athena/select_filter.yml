@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 09b2b5b2a1f44889c0c719f0d19d602a2ef3fe2b980e0328c6878ce23cfcc2e0
+_hash: 876490bbe530d7475386ae5e8a4b615f9c6046dbce76b38257b16867323ea600
 file:
 - statement:
     select_statement:
@@ -15,11 +15,11 @@ file:
           - start_square_bracket: '['
           - literal: '5'
           - comma: ','
-          - literal: 'NULL'
+          - null_literal: 'NULL'
           - comma: ','
           - literal: '7'
           - comma: ','
-          - literal: 'NULL'
+          - null_literal: 'NULL'
           - end_square_bracket: ']'
 - statement_terminator: ;
 - statement:
@@ -40,9 +40,9 @@ file:
             - comma: ','
             - expression:
                 column_reference:
-                  identifier: x
+                  naked_identifier: x
                 binary_operator: ->
-                literal: 'true'
+                boolean_literal: 'true'
             - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -65,17 +65,17 @@ file:
                     sign_indicator: '-'
                     literal: '6'
                 - comma: ','
-                - literal: 'NULL'
+                - null_literal: 'NULL'
                 - comma: ','
                 - literal: '7'
                 - end_square_bracket: ']'
             - comma: ','
             - expression:
               - column_reference:
-                  identifier: x
+                  naked_identifier: x
               - binary_operator: ->
               - column_reference:
-                  identifier: x
+                  naked_identifier: x
               - comparison_operator:
                   raw_comparison_operator: '>'
               - literal: '0'
@@ -97,19 +97,19 @@ file:
                 - start_square_bracket: '['
                 - literal: '5'
                 - comma: ','
-                - literal: 'NULL'
+                - null_literal: 'NULL'
                 - comma: ','
                 - literal: '7'
                 - comma: ','
-                - literal: 'NULL'
+                - null_literal: 'NULL'
                 - end_square_bracket: ']'
             - comma: ','
             - expression:
               - column_reference:
-                  identifier: x
+                  naked_identifier: x
               - binary_operator: ->
               - column_reference:
-                  identifier: x
+                  naked_identifier: x
               - keyword: IS
               - keyword: NOT
               - keyword: 'NULL'

@@ -3,24 +3,24 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 096038deac08576cf9d78c8236d64340cdebeeba27966d33204b0c413c1e84bd
+_hash: c9d9d6fde8de637fad603516da2fca6a055a70031843ad9121ef85d5cc920176
 file:
   statement:
     create_udf_script:
     - keyword: CREATE
     - keyword: OR
     - keyword: REPLACE
-    - identifier: PYTHON3
+    - naked_identifier: PYTHON3
     - keyword: SCALAR
     - keyword: SCRIPT
     - script_reference:
-      - identifier: MYSCHEMA
+      - naked_identifier: MYSCHEMA
       - dot: .
-      - identifier: MYPYTHONSCRIPT
+      - naked_identifier: MYPYTHONSCRIPT
     - bracketed:
       - start_bracket: (
       - column_datatype_definition:
-          identifier: JSON_STR
+          naked_identifier: JSON_STR
           data_type:
             keyword: VARCHAR
             bracketed:
@@ -29,7 +29,7 @@ file:
               end_bracket: )
       - comma: ','
       - column_datatype_definition:
-          identifier: LANGUAGE_KEY
+          naked_identifier: LANGUAGE_KEY
           data_type:
             keyword: VARCHAR
             bracketed:
@@ -38,7 +38,7 @@ file:
               end_bracket: )
       - comma: ','
       - column_datatype_definition:
-          identifier: TXT_KEY
+          naked_identifier: TXT_KEY
           data_type:
             keyword: VARCHAR
             bracketed:
@@ -51,7 +51,7 @@ file:
         bracketed:
           start_bracket: (
           column_datatype_definition:
-            identifier: X
+            naked_identifier: X
             data_type:
               keyword: VARCHAR
               bracketed:

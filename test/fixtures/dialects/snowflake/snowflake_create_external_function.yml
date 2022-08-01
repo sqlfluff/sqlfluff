@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7dd3cbb7d1d92610bd65366f672bd2e61bb7137852875e03df0f1173e41d9dd7
+_hash: 6ce91ec0edd4f20bd8735511fe993e7f3bcb0dc5f6980ef07130d264db5192c6
 file:
 - statement:
     create_external_function_statement:
@@ -29,7 +29,7 @@ file:
         raw_comparison_operator: '='
     - identifier: DEMONSTRATION_EXTERNAL_API_INTEGRATION_01
     - keyword: AS
-    - identifier: "'https://xyz.execute-api.us-west-2.amazonaws.com/prod/remote_echo'"
+    - quoted_identifier: "'https://xyz.execute-api.us-west-2.amazonaws.com/prod/remote_echo'"
 - statement_terminator: ;
 - statement:
     create_external_function_statement:
@@ -65,15 +65,15 @@ file:
         raw_comparison_operator: '='
     - bracketed:
       - start_bracket: (
-      - identifier: "'volume-measure'"
+      - quoted_identifier: "'volume-measure'"
       - comparison_operator:
           raw_comparison_operator: '='
-      - identifier: "'liters'"
+      - quoted_identifier: "'liters'"
       - comma: ','
-      - identifier: "'distance-measure'"
+      - quoted_identifier: "'distance-measure'"
       - comparison_operator:
           raw_comparison_operator: '='
-      - identifier: "'kilometers'"
+      - quoted_identifier: "'kilometers'"
       - end_bracket: )
     - keyword: CONTEXT_HEADERS
     - comparison_operator:
@@ -105,7 +105,7 @@ file:
         dot: .
         function_name_identifier: SOME_FUNCTION
     - keyword: AS
-    - identifier: "'https://xyz.execute-api.us-west-2.amazonaws.com/prod/remote_echo'"
+    - quoted_identifier: "'https://xyz.execute-api.us-west-2.amazonaws.com/prod/remote_echo'"
 - statement_terminator: ;
 - statement:
     create_external_function_statement:
@@ -145,15 +145,15 @@ file:
         raw_comparison_operator: '='
     - bracketed:
       - start_bracket: (
-      - identifier: "'volume-measure'"
+      - quoted_identifier: "'volume-measure'"
       - comparison_operator:
           raw_comparison_operator: '='
-      - identifier: "'liters'"
+      - quoted_identifier: "'liters'"
       - comma: ','
-      - identifier: "'distance-measure'"
+      - quoted_identifier: "'distance-measure'"
       - comparison_operator:
           raw_comparison_operator: '='
-      - identifier: "'kilometers'"
+      - quoted_identifier: "'kilometers'"
       - end_bracket: )
     - keyword: CONTEXT_HEADERS
     - comparison_operator:
@@ -185,7 +185,7 @@ file:
         dot: .
         function_name_identifier: SOME_FUNCTION
     - keyword: AS
-    - identifier: "'https://xyz.execute-api.us-west-2.amazonaws.com/prod/remote_echo'"
+    - quoted_identifier: "'https://xyz.execute-api.us-west-2.amazonaws.com/prod/remote_echo'"
 - statement_terminator: ;
 - statement:
     create_external_function_statement:
@@ -228,15 +228,15 @@ file:
         raw_comparison_operator: '='
     - bracketed:
       - start_bracket: (
-      - identifier: "'volume-measure'"
+      - quoted_identifier: "'volume-measure'"
       - comparison_operator:
           raw_comparison_operator: '='
-      - identifier: "'liters'"
+      - quoted_identifier: "'liters'"
       - comma: ','
-      - identifier: "'distance-measure'"
+      - quoted_identifier: "'distance-measure'"
       - comparison_operator:
           raw_comparison_operator: '='
-      - identifier: "'kilometers'"
+      - quoted_identifier: "'kilometers'"
       - end_bracket: )
     - keyword: CONTEXT_HEADERS
     - comparison_operator:
@@ -268,5 +268,5 @@ file:
         dot: .
         function_name_identifier: SOME_FUNCTION
     - keyword: AS
-    - identifier: "'https://xyz.execute-api.us-west-2.amazonaws.com/prod/remote_echo'"
+    - quoted_identifier: "'https://xyz.execute-api.us-west-2.amazonaws.com/prod/remote_echo'"
 - statement_terminator: ;

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 982b78aa7635586060a2b1d066910232b48bb6dccaabee676118f621f702a219
+_hash: ff55be644e76d1a68a5ede997af5d30520067c0ffb69a4438710951734976770
 file:
 - statement:
     copy_statement:
@@ -113,7 +113,7 @@ file:
       - literal: "'\\'"
       - comma: ','
       - keyword: FREEZE
-      - literal: 'true'
+      - boolean_literal: 'true'
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -277,7 +277,7 @@ file:
         - end_bracket: )
       - comma: ','
       - keyword: FREEZE
-      - literal: 'false'
+      - boolean_literal: 'false'
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -322,7 +322,7 @@ file:
         - end_bracket: )
       - comma: ','
       - keyword: FREEZE
-      - literal: 'true'
+      - boolean_literal: 'true'
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -368,7 +368,7 @@ file:
         - end_bracket: )
       - comma: ','
       - keyword: FREEZE
-      - literal: 'false'
+      - boolean_literal: 'false'
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -398,10 +398,10 @@ file:
       - identifier: csv
       - comma: ','
       - keyword: HEADER
-      - literal: 'true'
+      - boolean_literal: 'true'
       - comma: ','
       - keyword: FREEZE
-      - literal: 'true'
+      - boolean_literal: 'true'
       - comma: ','
       - keyword: FORCE_NULL
       - bracketed:
@@ -436,7 +436,7 @@ file:
       - identifier: csv
       - comma: ','
       - keyword: HEADER
-      - literal: 'true'
+      - boolean_literal: 'true'
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -468,7 +468,7 @@ file:
       - identifier: csv
       - comma: ','
       - keyword: HEADER
-      - literal: 'true'
+      - boolean_literal: 'true'
       - comma: ','
       - keyword: FREEZE
       - end_bracket: )
@@ -511,10 +511,10 @@ file:
       - identifier: csv
       - comma: ','
       - keyword: HEADER
-      - literal: 'true'
+      - boolean_literal: 'true'
       - comma: ','
       - keyword: FREEZE
-      - literal: 'false'
+      - boolean_literal: 'false'
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -531,10 +531,10 @@ file:
       - identifier: csv
       - comma: ','
       - keyword: HEADER
-      - literal: 'true'
+      - boolean_literal: 'true'
       - comma: ','
       - keyword: FREEZE
-      - literal: 'true'
+      - boolean_literal: 'true'
       - comma: ','
       - keyword: FORCE_NULL
       - bracketed:
@@ -650,10 +650,10 @@ file:
       - identifier: csv
       - comma: ','
       - keyword: HEADER
-      - literal: 'true'
+      - boolean_literal: 'true'
       - comma: ','
       - keyword: FREEZE
-      - literal: 'true'
+      - boolean_literal: 'true'
       - comma: ','
       - keyword: FORCE_NULL
       - bracketed:
@@ -749,7 +749,7 @@ file:
         - end_bracket: )
       - comma: ','
       - keyword: FREEZE
-      - literal: 'true'
+      - boolean_literal: 'true'
       - end_bracket: )
 - statement_terminator: ;
 - statement:

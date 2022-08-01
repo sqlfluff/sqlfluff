@@ -3,18 +3,18 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 115f8fbe5c3bea55f05c1de5ec914699eddee34bac9e05e0bd86da4639544639
+_hash: 592389a2d4a83749398fc8068f3d122c0909af0a54eb1892dca6e1016aba05c7
 file:
 - statement:
     alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: table_name
+        naked_identifier: table_name
     - keyword: ADD
     - keyword: COLUMNS
     - column_definition:
-        identifier: col_name
+        naked_identifier: col_name
         data_type:
           primitive_type:
             keyword: STRING
@@ -24,13 +24,13 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: table_name
+        naked_identifier: table_name
     - keyword: ADD
     - keyword: COLUMNS
     - bracketed:
         start_bracket: (
         column_definition:
-          identifier: col_name
+          naked_identifier: col_name
           data_type:
             primitive_type:
               keyword: STRING
@@ -41,17 +41,17 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: table_name
+        naked_identifier: table_name
     - keyword: ADD
     - keyword: COLUMNS
     - column_definition:
-        identifier: col_name
+        naked_identifier: col_name
         data_type:
           primitive_type:
             keyword: STRING
     - comma: ','
     - column_definition:
-        identifier: col_name2
+        naked_identifier: col_name2
         data_type:
           primitive_type:
             keyword: INT
@@ -61,11 +61,11 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: table_name
+        naked_identifier: table_name
     - keyword: ADD
     - keyword: COLUMNS
     - column_definition:
-        identifier: col_name
+        naked_identifier: col_name
         data_type:
           primitive_type:
             keyword: STRING
@@ -80,11 +80,11 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: table_name
+        naked_identifier: table_name
     - keyword: ADD
     - keyword: COLUMNS
     - column_definition:
-        identifier: col_name
+        naked_identifier: col_name
         data_type:
           primitive_type:
             keyword: STRING
@@ -95,7 +95,7 @@ file:
     - keyword: FIRST
     - comma: ','
     - column_definition:
-        identifier: col_name2
+        naked_identifier: col_name2
         data_type:
           primitive_type:
             keyword: INT
@@ -105,19 +105,19 @@ file:
             literal: '"col_2_comment"'
     - keyword: AFTER
     - column_reference:
-        identifier: col_b_name
+        naked_identifier: col_b_name
 - statement_terminator: ;
 - statement:
     alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: table_name
+        naked_identifier: table_name
     - keyword: CHANGE
     - column_reference:
-        identifier: col_name_old
+        naked_identifier: col_name_old
     - column_reference:
-        identifier: col_name_new
+        naked_identifier: col_name_new
     - data_type:
         primitive_type:
           keyword: STRING
@@ -127,13 +127,13 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: table_name
+        naked_identifier: table_name
     - keyword: CHANGE
     - keyword: COLUMN
     - column_reference:
-        identifier: col_name_old
+        naked_identifier: col_name_old
     - column_reference:
-        identifier: col_name_new
+        naked_identifier: col_name_new
     - data_type:
         primitive_type:
           keyword: STRING
@@ -143,13 +143,13 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: table_name
+        naked_identifier: table_name
     - keyword: CHANGE
     - keyword: COLUMN
     - column_reference:
-        identifier: col_name_old
+        naked_identifier: col_name_old
     - column_reference:
-        identifier: col_name_new
+        naked_identifier: col_name_new
     - data_type:
         primitive_type:
           keyword: STRING
@@ -161,13 +161,13 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: table_name
+        naked_identifier: table_name
     - keyword: CHANGE
     - keyword: COLUMN
     - column_reference:
-        identifier: col_name_old
+        naked_identifier: col_name_old
     - column_reference:
-        identifier: col_name_new
+        naked_identifier: col_name_new
     - data_type:
         primitive_type:
           keyword: STRING
@@ -180,13 +180,13 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: table_name
+        naked_identifier: table_name
     - keyword: CHANGE
     - keyword: COLUMN
     - column_reference:
-        identifier: col_name_old
+        naked_identifier: col_name_old
     - column_reference:
-        identifier: col_name_new
+        naked_identifier: col_name_new
     - data_type:
         primitive_type:
           keyword: STRING
@@ -194,21 +194,21 @@ file:
     - literal: '"new_col_comment"'
     - keyword: AFTER
     - column_reference:
-        identifier: col_a_name
+        naked_identifier: col_a_name
 - statement_terminator: ;
 - statement:
     alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: table_name
+        naked_identifier: table_name
     - keyword: CHANGE
     - column_reference:
-      - identifier: col_name_1
+      - naked_identifier: col_name_1
       - dot: .
-      - identifier: nested_col_name
+      - naked_identifier: nested_col_name
     - column_reference:
-        identifier: nested_col_name_new
+        naked_identifier: nested_col_name_new
     - data_type:
         primitive_type:
           keyword: STRING
@@ -218,15 +218,15 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: table_name
+        naked_identifier: table_name
     - keyword: CHANGE
     - keyword: COLUMN
     - column_reference:
-      - identifier: col_name_1
+      - naked_identifier: col_name_1
       - dot: .
-      - identifier: nested_col_name
+      - naked_identifier: nested_col_name
     - column_reference:
-        identifier: nested_col_name_new
+        naked_identifier: nested_col_name_new
     - data_type:
         primitive_type:
           keyword: STRING
@@ -236,15 +236,15 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: table_name
+        naked_identifier: table_name
     - keyword: CHANGE
     - keyword: COLUMN
     - column_reference:
-      - identifier: col_name_1
+      - naked_identifier: col_name_1
       - dot: .
-      - identifier: nested_col_name
+      - naked_identifier: nested_col_name
     - column_reference:
-        identifier: nested_col_name_new
+        naked_identifier: nested_col_name_new
     - data_type:
         primitive_type:
           keyword: STRING
@@ -256,15 +256,15 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: table_name
+        naked_identifier: table_name
     - keyword: CHANGE
     - keyword: COLUMN
     - column_reference:
-      - identifier: col_name_1
+      - naked_identifier: col_name_1
       - dot: .
-      - identifier: nested_col_name
+      - naked_identifier: nested_col_name
     - column_reference:
-        identifier: nested_col_name_new
+        naked_identifier: nested_col_name_new
     - data_type:
         primitive_type:
           keyword: STRING
@@ -277,15 +277,15 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: table_name
+        naked_identifier: table_name
     - keyword: CHANGE
     - keyword: COLUMN
     - column_reference:
-      - identifier: col_name_1
+      - naked_identifier: col_name_1
       - dot: .
-      - identifier: nested_col_name
+      - naked_identifier: nested_col_name
     - column_reference:
-        identifier: nested_col_name_new
+        naked_identifier: nested_col_name_new
     - data_type:
         primitive_type:
           keyword: STRING
@@ -293,22 +293,22 @@ file:
     - literal: '"new_col_comment"'
     - keyword: AFTER
     - column_reference:
-        identifier: col_a_name
+        naked_identifier: col_a_name
 - statement_terminator: ;
 - statement:
     alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: boxes
+        naked_identifier: boxes
     - keyword: CHANGE
     - keyword: COLUMN
     - column_reference:
-      - identifier: col_b
+      - naked_identifier: col_b
       - dot: .
-      - identifier: a_key_name
+      - naked_identifier: a_key_name
     - column_reference:
-        identifier: a_new_key_name
+        naked_identifier: a_new_key_name
     - data_type:
         primitive_type:
           keyword: STRING
@@ -319,13 +319,13 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: table_name
+        naked_identifier: table_name
     - keyword: REPLACE
     - keyword: COLUMNS
     - bracketed:
         start_bracket: (
         column_definition:
-          identifier: col_name1
+          naked_identifier: col_name1
           data_type:
             primitive_type:
               keyword: STRING
@@ -340,35 +340,35 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: boxes
+        naked_identifier: boxes
     - keyword: REPLACE
     - keyword: COLUMNS
     - bracketed:
       - start_bracket: (
       - column_definition:
-          identifier: col_c
+          naked_identifier: col_c
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          identifier: col_b
+          naked_identifier: col_b
           data_type:
           - keyword: STRUCT
           - start_angle_bracket: <
-          - identifier: key2
+          - naked_identifier: key2
           - colon: ':'
           - data_type:
               primitive_type:
                 keyword: STRING
           - comma: ','
-          - identifier: nested
+          - naked_identifier: nested
           - colon: ':'
           - data_type:
               primitive_type:
                 keyword: STRING
           - comma: ','
-          - identifier: key1
+          - naked_identifier: key1
           - colon: ':'
           - data_type:
               primitive_type:
@@ -376,7 +376,7 @@ file:
           - end_angle_bracket: '>'
       - comma: ','
       - column_definition:
-          identifier: col_a
+          naked_identifier: col_a
           data_type:
             primitive_type:
               keyword: STRING

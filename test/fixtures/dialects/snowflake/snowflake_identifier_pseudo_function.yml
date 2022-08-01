@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 770f12ddd43779db0e961600e5e14eeb1c9b28212646276f219c2f95636df758
+_hash: 096a309a4073cad5c4c05abbb8971ee6361cb0e47fb8957abe3e77fd0ba1928d
 file:
 - statement:
     use_statement:
@@ -13,7 +13,7 @@ file:
         keyword: identifier
         bracketed:
           start_bracket: (
-          identifier: "'my_schema'"
+          quoted_identifier: "'my_schema'"
           end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -24,7 +24,7 @@ file:
         keyword: identifier
         bracketed:
           start_bracket: (
-          identifier: "'{{ params.schema_name }}'"
+          quoted_identifier: "'{{ params.schema_name }}'"
           end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -37,7 +37,7 @@ file:
         keyword: identifier
         bracketed:
           start_bracket: (
-          identifier: "'my_db'"
+          quoted_identifier: "'my_db'"
           end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -50,7 +50,7 @@ file:
         keyword: identifier
         bracketed:
           start_bracket: (
-          identifier: "'my_schema'"
+          quoted_identifier: "'my_schema'"
           end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -63,7 +63,7 @@ file:
         keyword: identifier
         bracketed:
           start_bracket: (
-          identifier: "'my_db.my_schema.my_table'"
+          quoted_identifier: "'my_db.my_schema.my_table'"
           end_bracket: )
     - bracketed:
         start_bracket: (
@@ -83,7 +83,7 @@ file:
         keyword: identifier
         bracketed:
           start_bracket: (
-          identifier: "'\"my_table\"'"
+          quoted_identifier: "'\"my_table\"'"
           end_bracket: )
     - bracketed:
         start_bracket: (
@@ -103,7 +103,7 @@ file:
         keyword: identifier
         bracketed:
           start_bracket: (
-          identifier: "'my_schema'"
+          quoted_identifier: "'my_schema'"
           end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -188,7 +188,7 @@ file:
                 keyword: identifier
                 bracketed:
                   start_bracket: (
-                  identifier: "'my_table'"
+                  quoted_identifier: "'my_table'"
                   end_bracket: )
       orderby_clause:
       - keyword: order
@@ -233,7 +233,7 @@ file:
               keyword: identifier
               bracketed:
                 start_bracket: (
-                identifier: "'my_function_name'"
+                quoted_identifier: "'my_function_name'"
                 end_bracket: )
             bracketed:
               start_bracket: (
@@ -249,7 +249,7 @@ file:
               keyword: identifier
               bracketed:
                 start_bracket: (
-                identifier: "'my_function_name'"
+                quoted_identifier: "'my_function_name'"
                 end_bracket: )
             bracketed:
             - start_bracket: (

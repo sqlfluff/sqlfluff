@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ec5138282259b7187521f7283018e83a9c7d53d9dbf4d7c3a0ad146a45a1ac6a
+_hash: 70b0822e0c1b4403a83e22e8dc09ff63d23a9ed95907107279e79d5a189f4ccf
 file:
 - statement:
     select_statement:
@@ -11,23 +11,23 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: a
+            naked_identifier: a
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: b
+            naked_identifier: b
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: person
+                naked_identifier: person
       where_clause:
         keyword: WHERE
         expression:
           column_reference:
-            identifier: name
+            naked_identifier: name
           keyword: LIKE
           literal: "'M%'"
 - statement_terminator: ;
@@ -37,23 +37,23 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: a
+            naked_identifier: a
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: b
+            naked_identifier: b
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: person
+                naked_identifier: person
       where_clause:
         keyword: WHERE
         expression:
           column_reference:
-            identifier: name
+            naked_identifier: name
           keyword: LIKE
           literal: "'M_ry'"
 - statement_terminator: ;
@@ -63,23 +63,23 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: a
+            naked_identifier: a
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: b
+            naked_identifier: b
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: person
+                naked_identifier: person
       where_clause:
         keyword: WHERE
         expression:
         - column_reference:
-            identifier: name
+            naked_identifier: name
         - keyword: NOT
         - keyword: LIKE
         - literal: "'M_ry'"
@@ -90,23 +90,23 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: a
+            naked_identifier: a
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: b
+            naked_identifier: b
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: person
+                naked_identifier: person
       where_clause:
         keyword: WHERE
         expression:
           column_reference:
-            identifier: name
+            naked_identifier: name
           keyword: RLIKE
           literal: "'M+'"
 - statement_terminator: ;
@@ -116,23 +116,23 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: a
+            naked_identifier: a
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: b
+            naked_identifier: b
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: person
+                naked_identifier: person
       where_clause:
         keyword: WHERE
         expression:
           column_reference:
-            identifier: name
+            naked_identifier: name
           keyword: REGEXP
           literal: "'M+'"
 - statement_terminator: ;
@@ -142,23 +142,23 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: a
+            naked_identifier: a
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: b
+            naked_identifier: b
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: person
+                naked_identifier: person
       where_clause:
         keyword: WHERE
         expression:
           column_reference:
-            identifier: name
+            naked_identifier: name
           keyword: LIKE
           literal: "'%\\_%'"
 - statement_terminator: ;
@@ -168,23 +168,23 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: a
+            naked_identifier: a
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: b
+            naked_identifier: b
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: person
+                naked_identifier: person
       where_clause:
         keyword: WHERE
         expression:
         - column_reference:
-            identifier: name
+            naked_identifier: name
         - keyword: LIKE
         - literal: "'%$_%'"
         - keyword: ESCAPE
@@ -196,32 +196,32 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: a
+            naked_identifier: a
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: b
+            naked_identifier: b
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: person
+                naked_identifier: person
       where_clause:
         keyword: WHERE
         expression:
         - column_reference:
-            identifier: name
+            naked_identifier: name
         - keyword: LIKE
         - keyword: ALL
         - bracketed:
           - start_bracket: (
           - column_reference:
-              identifier: "'%an%'"
+              quoted_identifier: "'%an%'"
           - comma: ','
           - column_reference:
-              identifier: "'%an'"
+              quoted_identifier: "'%an'"
           - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -230,32 +230,32 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: a
+            naked_identifier: a
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: b
+            naked_identifier: b
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: person
+                naked_identifier: person
       where_clause:
         keyword: WHERE
         expression:
         - column_reference:
-            identifier: name
+            naked_identifier: name
         - keyword: LIKE
         - keyword: ANY
         - bracketed:
           - start_bracket: (
           - column_reference:
-              identifier: "'%an%'"
+              quoted_identifier: "'%an%'"
           - comma: ','
           - column_reference:
-              identifier: "'%an'"
+              quoted_identifier: "'%an'"
           - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -264,32 +264,32 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: a
+            naked_identifier: a
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: b
+            naked_identifier: b
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: person
+                naked_identifier: person
       where_clause:
         keyword: WHERE
         expression:
         - column_reference:
-            identifier: name
+            naked_identifier: name
         - keyword: LIKE
         - keyword: SOME
         - bracketed:
           - start_bracket: (
           - column_reference:
-              identifier: "'%an%'"
+              quoted_identifier: "'%an%'"
           - comma: ','
           - column_reference:
-              identifier: "'%an'"
+              quoted_identifier: "'%an'"
           - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -298,33 +298,33 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: a
+            naked_identifier: a
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: b
+            naked_identifier: b
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: person
+                naked_identifier: person
       where_clause:
         keyword: WHERE
         expression:
         - column_reference:
-            identifier: name
+            naked_identifier: name
         - keyword: NOT
         - keyword: LIKE
         - keyword: ALL
         - bracketed:
           - start_bracket: (
           - column_reference:
-              identifier: "'%an%'"
+              quoted_identifier: "'%an%'"
           - comma: ','
           - column_reference:
-              identifier: "'%an'"
+              quoted_identifier: "'%an'"
           - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -333,33 +333,33 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: a
+            naked_identifier: a
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: b
+            naked_identifier: b
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: person
+                naked_identifier: person
       where_clause:
         keyword: WHERE
         expression:
         - column_reference:
-            identifier: name
+            naked_identifier: name
         - keyword: NOT
         - keyword: LIKE
         - keyword: ANY
         - bracketed:
           - start_bracket: (
           - column_reference:
-              identifier: "'%an%'"
+              quoted_identifier: "'%an%'"
           - comma: ','
           - column_reference:
-              identifier: "'%an'"
+              quoted_identifier: "'%an'"
           - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -368,32 +368,32 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: a
+            naked_identifier: a
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: b
+            naked_identifier: b
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: person
+                naked_identifier: person
       where_clause:
         keyword: WHERE
         expression:
         - column_reference:
-            identifier: name
+            naked_identifier: name
         - keyword: NOT
         - keyword: LIKE
         - keyword: SOME
         - bracketed:
           - start_bracket: (
           - column_reference:
-              identifier: "'%an%'"
+              quoted_identifier: "'%an%'"
           - comma: ','
           - column_reference:
-              identifier: "'%an'"
+              quoted_identifier: "'%an'"
           - end_bracket: )
 - statement_terminator: ;

@@ -3,46 +3,46 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3ef55d95beb25753b338ed213ee514c7af7de6ccc6d27a4837d5d5e465ad8884
+_hash: 8887b38f35c9c989c0fa37fdae16df8e726178f0f0ccbb5541d5093cf92312ca
 file:
 - statement:
     alter_view_statement:
     - keyword: ALTER
     - keyword: VIEW
     - table_reference:
-        identifier: view_identifier
+        naked_identifier: view_identifier
     - keyword: RENAME
     - keyword: TO
     - table_reference:
-        identifier: view_identifier
+        naked_identifier: view_identifier
 - statement_terminator: ;
 - statement:
     alter_view_statement:
     - keyword: ALTER
     - keyword: VIEW
     - table_reference:
-      - identifier: tempdb1
+      - naked_identifier: tempdb1
       - dot: .
-      - identifier: v1
+      - naked_identifier: v1
     - keyword: RENAME
     - keyword: TO
     - table_reference:
-      - identifier: tempdb1
+      - naked_identifier: tempdb1
       - dot: .
-      - identifier: v2
+      - naked_identifier: v2
 - statement_terminator: ;
 - statement:
     alter_view_statement:
     - keyword: ALTER
     - keyword: VIEW
     - table_reference:
-        identifier: view_identifier
+        naked_identifier: view_identifier
     - keyword: SET
     - keyword: TBLPROPERTIES
     - bracketed:
         start_bracket: (
         property_name_identifier:
-          identifier: '"property_key"'
+          quoted_identifier: '"property_key"'
         comparison_operator:
           raw_comparison_operator: '='
         literal: '"property_val"'
@@ -53,21 +53,21 @@ file:
     - keyword: ALTER
     - keyword: VIEW
     - table_reference:
-      - identifier: tempdb1
+      - naked_identifier: tempdb1
       - dot: .
-      - identifier: v2
+      - naked_identifier: v2
     - keyword: SET
     - keyword: TBLPROPERTIES
     - bracketed:
       - start_bracket: (
       - property_name_identifier:
-          identifier: "'created.by.user'"
+          quoted_identifier: "'created.by.user'"
       - comparison_operator:
           raw_comparison_operator: '='
       - literal: '"John"'
       - comma: ','
       - property_name_identifier:
-          identifier: "'created.date'"
+          quoted_identifier: "'created.date'"
       - comparison_operator:
           raw_comparison_operator: '='
       - literal: "'01-01-2001'"
@@ -78,13 +78,13 @@ file:
     - keyword: ALTER
     - keyword: VIEW
     - table_reference:
-        identifier: view_identifier
+        naked_identifier: view_identifier
     - keyword: UNSET
     - keyword: TBLPROPERTIES
     - bracketed:
         start_bracket: (
         property_name_identifier:
-          identifier: '"property_key"'
+          quoted_identifier: '"property_key"'
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -92,7 +92,7 @@ file:
     - keyword: ALTER
     - keyword: VIEW
     - table_reference:
-        identifier: view_identifier
+        naked_identifier: view_identifier
     - keyword: UNSET
     - keyword: TBLPROPERTIES
     - keyword: IF
@@ -100,7 +100,7 @@ file:
     - bracketed:
         start_bracket: (
         property_name_identifier:
-          identifier: '"property_key"'
+          quoted_identifier: '"property_key"'
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -108,18 +108,18 @@ file:
     - keyword: ALTER
     - keyword: VIEW
     - table_reference:
-      - identifier: tempdb1
+      - naked_identifier: tempdb1
       - dot: .
-      - identifier: v2
+      - naked_identifier: v2
     - keyword: UNSET
     - keyword: TBLPROPERTIES
     - bracketed:
       - start_bracket: (
       - property_name_identifier:
-          identifier: "'created.by.user'"
+          quoted_identifier: "'created.by.user'"
       - comma: ','
       - property_name_identifier:
-          identifier: "'created.date'"
+          quoted_identifier: "'created.date'"
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -127,7 +127,7 @@ file:
     - keyword: ALTER
     - keyword: VIEW
     - table_reference:
-        identifier: view_identifier
+        naked_identifier: view_identifier
     - keyword: AS
     - bracketed:
         start_bracket: (
@@ -136,20 +136,20 @@ file:
           - keyword: SELECT
           - select_clause_element:
               column_reference:
-                identifier: a
+                naked_identifier: a
           - comma: ','
           - select_clause_element:
               column_reference:
-                identifier: b
+                naked_identifier: b
           from_clause:
             keyword: FROM
             from_expression:
               from_expression_element:
                 table_expression:
                   table_reference:
-                  - identifier: tempdb1
+                  - naked_identifier: tempdb1
                   - dot: .
-                  - identifier: v1
+                  - naked_identifier: v1
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -157,27 +157,27 @@ file:
     - keyword: ALTER
     - keyword: VIEW
     - table_reference:
-      - identifier: tempdb1
+      - naked_identifier: tempdb1
       - dot: .
-      - identifier: v2
+      - naked_identifier: v2
     - keyword: AS
     - select_statement:
         select_clause:
         - keyword: SELECT
         - select_clause_element:
             column_reference:
-              identifier: a
+              naked_identifier: a
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: b
+              naked_identifier: b
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                - identifier: tempdb1
+                - naked_identifier: tempdb1
                 - dot: .
-                - identifier: v1
+                - naked_identifier: v1
 - statement_terminator: ;

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 204c3aa3dc0ab12d08013dce12c60f6b1445fd82ecdd846ca33b2bf08b1a62eb
+_hash: bb7be4dd3c22e202b1573286b810d58d0f02f37ea99c86d0cbbcd549e8b9297c
 file:
 - statement:
     create_table_statement:
@@ -13,7 +13,7 @@ file:
     - keyword: not
     - keyword: exists
     - table_reference:
-        identifier: '"p08_base"'
+        quoted_identifier: '"p08_base"'
     - keyword: as
     - select_statement:
         select_clause:
@@ -37,7 +37,7 @@ file:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: '"_p08"'
+                  quoted_identifier: '"_p08"'
 - statement_terminator: ;
 - statement:
     create_table_statement:
@@ -448,7 +448,7 @@ file:
             data_type_identifier: number
           column_constraint_segment:
             keyword: default
-            literal: 'null'
+            null_literal: 'null'
       - comma: ','
       - column_definition:
           identifier: orderdate
@@ -456,7 +456,7 @@ file:
             data_type_identifier: date
           column_constraint_segment:
             keyword: default
-            literal: 'null'
+            null_literal: 'null'
       - comma: ','
       - column_definition:
           identifier: orderstatus
@@ -469,7 +469,7 @@ file:
               end_bracket: )
           column_constraint_segment:
             keyword: default
-            literal: 'null'
+            null_literal: 'null'
       - comma: ','
       - column_definition:
           identifier: price

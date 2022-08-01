@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 493cf6c8b8ef0e646333fac960017ac2cdccdbcd82edb6b8899598e2cc9fdc7f
+_hash: 989e9570b6a7417536bfa7fd5edaa71ed7b1062c19189ee506fa2dcd205b86ad
 file:
 - statement:
     alter_database_statement:
@@ -19,7 +19,7 @@ file:
     - database_reference:
         identifier: db
     - keyword: ALLOW_CONNECTIONS
-    - literal: 'true'
+    - boolean_literal: 'true'
 - statement_terminator: ;
 - statement:
     alter_database_statement:
@@ -29,7 +29,7 @@ file:
         identifier: db
     - keyword: WITH
     - keyword: ALLOW_CONNECTIONS
-    - literal: 'true'
+    - boolean_literal: 'true'
 - statement_terminator: ;
 - statement:
     alter_database_statement:
@@ -59,7 +59,7 @@ file:
     - database_reference:
         identifier: db
     - keyword: IS_TEMPLATE
-    - literal: 'true'
+    - boolean_literal: 'true'
 - statement_terminator: ;
 - statement:
     alter_database_statement:
@@ -69,7 +69,7 @@ file:
         identifier: db
     - keyword: WITH
     - keyword: IS_TEMPLATE
-    - literal: 'true'
+    - boolean_literal: 'true'
 - statement_terminator: ;
 - statement:
     alter_database_statement:
@@ -78,9 +78,9 @@ file:
     - database_reference:
         identifier: db
     - keyword: IS_TEMPLATE
-    - literal: 'true'
+    - boolean_literal: 'true'
     - keyword: ALLOW_CONNECTIONS
-    - literal: 'true'
+    - boolean_literal: 'true'
 - statement_terminator: ;
 - statement:
     alter_database_statement:
@@ -90,9 +90,9 @@ file:
         identifier: db
     - keyword: WITH
     - keyword: IS_TEMPLATE
-    - literal: 'true'
+    - boolean_literal: 'true'
     - keyword: ALLOW_CONNECTIONS
-    - literal: 'true'
+    - boolean_literal: 'true'
 - statement_terminator: ;
 - statement:
     alter_database_statement:
@@ -104,9 +104,9 @@ file:
     - keyword: LIMIT
     - literal: '10'
     - keyword: IS_TEMPLATE
-    - literal: 'true'
+    - boolean_literal: 'true'
     - keyword: ALLOW_CONNECTIONS
-    - literal: 'true'
+    - boolean_literal: 'true'
 - statement_terminator: ;
 - statement:
     alter_database_statement:
@@ -119,9 +119,9 @@ file:
     - keyword: LIMIT
     - literal: '10'
     - keyword: IS_TEMPLATE
-    - literal: 'true'
+    - boolean_literal: 'true'
     - keyword: ALLOW_CONNECTIONS
-    - literal: 'true'
+    - boolean_literal: 'true'
 - statement_terminator: ;
 - statement:
     alter_database_statement:

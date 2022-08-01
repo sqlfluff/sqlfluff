@@ -3,20 +3,20 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9e88646485228f71ffc50c13ee7010f7ca985de224cc9fa16e4843837fb73ea2
+_hash: ded6e65d6a9cdd29f8cb2707502351a52006b4def920828d47df823f08286d39
 file:
 - statement:
     create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: t
+        naked_identifier: t
     - bracketed:
         start_bracket: (
         table_content_definition:
           column_definition:
             column_datatype_definition:
-              identifier: c1
+              naked_identifier: c1
               data_type:
                 keyword: DECIMAL
         end_bracket: )
@@ -26,13 +26,13 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: t
+        naked_identifier: t
     - bracketed:
         start_bracket: (
         table_content_definition:
           column_definition:
             column_datatype_definition:
-              identifier: c1
+              naked_identifier: c1
               data_type:
                 keyword: DECIMAL
                 bracketed:
@@ -46,13 +46,13 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: t
+        naked_identifier: t
     - bracketed:
         start_bracket: (
         table_content_definition:
           column_definition:
             column_datatype_definition:
-              identifier: c1
+              naked_identifier: c1
               data_type:
                 keyword: DECIMAL
                 bracketed:
@@ -68,13 +68,13 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: t
+        naked_identifier: t
     - bracketed:
         start_bracket: (
         table_content_definition:
           column_definition:
             column_datatype_definition:
-              identifier: c1
+              naked_identifier: c1
               data_type:
                 keyword: DEC
                 bracketed:
@@ -90,13 +90,13 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: t
+        naked_identifier: t
     - bracketed:
         start_bracket: (
         table_content_definition:
           column_definition:
             column_datatype_definition:
-              identifier: c1
+              naked_identifier: c1
               data_type:
                 keyword: NUMERIC
                 bracketed:
@@ -110,13 +110,13 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: t
+        naked_identifier: t
     - bracketed:
         start_bracket: (
         table_content_definition:
           column_definition:
             column_datatype_definition:
-              identifier: c1
+              naked_identifier: c1
               data_type:
                 keyword: NUMBER
                 bracketed:
@@ -132,13 +132,13 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: t
+        naked_identifier: t
     - bracketed:
         start_bracket: (
         table_content_definition:
           column_definition:
             column_datatype_definition:
-              identifier: c1
+              naked_identifier: c1
               data_type:
                 keyword: BIGINT
         end_bracket: )
@@ -148,13 +148,13 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: t
+        naked_identifier: t
     - bracketed:
         start_bracket: (
         table_content_definition:
           column_definition:
             column_datatype_definition:
-              identifier: c1
+              naked_identifier: c1
               data_type:
                 keyword: DOUBLE
         end_bracket: )
@@ -164,13 +164,13 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: t
+        naked_identifier: t
     - bracketed:
         start_bracket: (
         table_content_definition:
           column_definition:
             column_datatype_definition:
-              identifier: c1
+              naked_identifier: c1
               data_type:
               - keyword: DOUBLE
               - keyword: PRECISION
@@ -181,13 +181,13 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: t
+        naked_identifier: t
     - bracketed:
         start_bracket: (
         table_content_definition:
           column_definition:
             column_datatype_definition:
-              identifier: c1
+              naked_identifier: c1
               data_type:
                 keyword: FLOAT
         end_bracket: )
@@ -197,13 +197,13 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: t
+        naked_identifier: t
     - bracketed:
         start_bracket: (
         table_content_definition:
           column_definition:
             column_datatype_definition:
-              identifier: c1
+              naked_identifier: c1
               data_type:
                 keyword: INT
         end_bracket: )
@@ -213,13 +213,13 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: t
+        naked_identifier: t
     - bracketed:
         start_bracket: (
         table_content_definition:
           column_definition:
             column_datatype_definition:
-              identifier: c1
+              naked_identifier: c1
               data_type:
                 keyword: INTEGER
         end_bracket: )
@@ -229,13 +229,13 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: t
+        naked_identifier: t
     - bracketed:
         start_bracket: (
         table_content_definition:
           column_definition:
             column_datatype_definition:
-              identifier: c1
+              naked_identifier: c1
               data_type:
                 keyword: REAL
         end_bracket: )
@@ -245,13 +245,13 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: t
+        naked_identifier: t
     - bracketed:
         start_bracket: (
         table_content_definition:
           column_definition:
             column_datatype_definition:
-              identifier: c1
+              naked_identifier: c1
               data_type:
                 keyword: SHORTINT
         end_bracket: )
@@ -261,13 +261,13 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: t
+        naked_identifier: t
     - bracketed:
         start_bracket: (
         table_content_definition:
           column_definition:
             column_datatype_definition:
-              identifier: c1
+              naked_identifier: c1
               data_type:
                 keyword: TINYINT
         end_bracket: )
@@ -277,13 +277,13 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: t
+        naked_identifier: t
     - bracketed:
         start_bracket: (
         table_content_definition:
           column_definition:
             column_datatype_definition:
-              identifier: c1
+              naked_identifier: c1
               data_type:
                 keyword: SMALLINT
         end_bracket: )
@@ -293,13 +293,13 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: t
+        naked_identifier: t
     - bracketed:
         start_bracket: (
         table_content_definition:
           column_definition:
             column_datatype_definition:
-              identifier: c1
+              naked_identifier: c1
               data_type:
                 keyword: BOOL
         end_bracket: )
@@ -309,13 +309,13 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: t
+        naked_identifier: t
     - bracketed:
         start_bracket: (
         table_content_definition:
           column_definition:
             column_datatype_definition:
-              identifier: c1
+              naked_identifier: c1
               data_type:
                 keyword: BOOLEAN
         end_bracket: )
@@ -325,13 +325,13 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: t
+        naked_identifier: t
     - bracketed:
         start_bracket: (
         table_content_definition:
           column_definition:
             column_datatype_definition:
-              identifier: c1
+              naked_identifier: c1
               data_type:
                 keyword: DATE
         end_bracket: )
@@ -341,13 +341,13 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: t
+        naked_identifier: t
     - bracketed:
         start_bracket: (
         table_content_definition:
           column_definition:
             column_datatype_definition:
-              identifier: c1
+              naked_identifier: c1
               data_type:
                 keyword: TIMESTAMP
         end_bracket: )
@@ -357,13 +357,13 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: t
+        naked_identifier: t
     - bracketed:
         start_bracket: (
         table_content_definition:
           column_definition:
             column_datatype_definition:
-              identifier: c1
+              naked_identifier: c1
               data_type:
               - keyword: TIMESTAMP
               - keyword: WITH
@@ -377,13 +377,13 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: t
+        naked_identifier: t
     - bracketed:
         start_bracket: (
         table_content_definition:
           column_definition:
             column_datatype_definition:
-              identifier: c1
+              naked_identifier: c1
               data_type:
               - keyword: INTERVAL
               - keyword: YEAR
@@ -400,13 +400,13 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: t
+        naked_identifier: t
     - bracketed:
         start_bracket: (
         table_content_definition:
           column_definition:
             column_datatype_definition:
-              identifier: c1
+              naked_identifier: c1
               data_type:
               - keyword: INTERVAL
               - keyword: DAY
@@ -427,13 +427,13 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: t
+        naked_identifier: t
     - bracketed:
         start_bracket: (
         table_content_definition:
           column_definition:
             column_datatype_definition:
-              identifier: c1
+              naked_identifier: c1
               data_type:
                 keyword: GEOMETRY
                 bracketed:
@@ -447,13 +447,13 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: t
+        naked_identifier: t
     - bracketed:
         start_bracket: (
         table_content_definition:
           column_definition:
             column_datatype_definition:
-              identifier: c1
+              naked_identifier: c1
               data_type:
                 keyword: HASHTYPE
         end_bracket: )
@@ -463,13 +463,13 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: t
+        naked_identifier: t
     - bracketed:
         start_bracket: (
         table_content_definition:
           column_definition:
             column_datatype_definition:
-              identifier: c1
+              naked_identifier: c1
               data_type:
                 keyword: HASHTYPE
                 bracketed:
@@ -484,13 +484,13 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: t
+        naked_identifier: t
     - bracketed:
         start_bracket: (
         table_content_definition:
           column_definition:
             column_datatype_definition:
-              identifier: c1
+              naked_identifier: c1
               data_type:
                 keyword: HASHTYPE
                 bracketed:
@@ -505,13 +505,13 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: t
+        naked_identifier: t
     - bracketed:
         start_bracket: (
         table_content_definition:
           column_definition:
             column_datatype_definition:
-              identifier: c1
+              naked_identifier: c1
               data_type:
                 keyword: CHAR
                 bracketed:
@@ -525,13 +525,13 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: t
+        naked_identifier: t
     - bracketed:
         start_bracket: (
         table_content_definition:
           column_definition:
             column_datatype_definition:
-              identifier: c1
+              naked_identifier: c1
               data_type:
               - keyword: CHAR
               - keyword: VARYING
@@ -546,13 +546,13 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: t
+        naked_identifier: t
     - bracketed:
         start_bracket: (
         table_content_definition:
           column_definition:
             column_datatype_definition:
-              identifier: c1
+              naked_identifier: c1
               data_type:
                 keyword: VARCHAR
                 bracketed:
@@ -567,13 +567,13 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: t
+        naked_identifier: t
     - bracketed:
         start_bracket: (
         table_content_definition:
           column_definition:
             column_datatype_definition:
-              identifier: c1
+              naked_identifier: c1
               data_type:
                 keyword: VARCHAR2
                 bracketed:
@@ -587,13 +587,13 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: t
+        naked_identifier: t
     - bracketed:
         start_bracket: (
         table_content_definition:
           column_definition:
             column_datatype_definition:
-              identifier: c1
+              naked_identifier: c1
               data_type:
                 keyword: VARCHAR
                 bracketed:
@@ -608,13 +608,13 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: t
+        naked_identifier: t
     - bracketed:
         start_bracket: (
         table_content_definition:
           column_definition:
             column_datatype_definition:
-              identifier: c1
+              naked_identifier: c1
               data_type:
               - keyword: LONG
               - keyword: VARCHAR
@@ -625,13 +625,13 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: t
+        naked_identifier: t
     - bracketed:
         start_bracket: (
         table_content_definition:
           column_definition:
             column_datatype_definition:
-              identifier: c1
+              naked_identifier: c1
               data_type:
               - keyword: CHARACTER
               - keyword: LARGE
@@ -647,13 +647,13 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: t
+        naked_identifier: t
     - bracketed:
         start_bracket: (
         table_content_definition:
           column_definition:
             column_datatype_definition:
-              identifier: c1
+              naked_identifier: c1
               data_type:
               - keyword: CHARACTER
               - keyword: VARYING
@@ -668,13 +668,13 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: t
+        naked_identifier: t
     - bracketed:
         start_bracket: (
         table_content_definition:
           column_definition:
             column_datatype_definition:
-              identifier: c1
+              naked_identifier: c1
               data_type:
                 keyword: CLOB
                 bracketed:
@@ -688,13 +688,13 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: t
+        naked_identifier: t
     - bracketed:
         start_bracket: (
         table_content_definition:
           column_definition:
             column_datatype_definition:
-              identifier: c1
+              naked_identifier: c1
               data_type:
               - keyword: CLOB
               - bracketed:
@@ -709,13 +709,13 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: t
+        naked_identifier: t
     - bracketed:
         start_bracket: (
         table_content_definition:
           column_definition:
             column_datatype_definition:
-              identifier: c1
+              naked_identifier: c1
               data_type:
               - keyword: VARCHAR
               - bracketed:

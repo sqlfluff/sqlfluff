@@ -3,22 +3,22 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 773c7fb30e5d50a8160f290fcf127411a9836e423665167dd6df2f56d19cfaba
+_hash: 06ceb963ab8aafba5b44ffbf8cd0e89f860a7cf10f98f98dad4e370e0865d17d
 file:
 - statement:
     import_statement:
     - keyword: IMPORT
     - keyword: INTO
     - table_reference:
-        identifier: table_3
+        naked_identifier: table_3
     - bracketed:
         start_bracket: (
         identifier_list:
-        - identifier: col1
+        - naked_identifier: col1
         - comma: ','
-        - identifier: col2
+        - naked_identifier: col2
         - comma: ','
-        - identifier: col4
+        - naked_identifier: col4
         end_bracket: )
     - import_from_clause:
         keyword: FROM
@@ -26,7 +26,7 @@ file:
         - keyword: ORA
         - keyword: AT
         - connection_definition:
-          - identifier: my_oracle
+          - naked_identifier: my_oracle
           - keyword: USER
           - literal: "'agent_008'"
           - keyword: IDENTIFIED
@@ -39,7 +39,7 @@ file:
         - keyword: INTO
         - import_error_destination:
             table_reference:
-              identifier: error_table
+              naked_identifier: error_table
         - bracketed:
             start_bracket: (
             expression:
@@ -55,15 +55,15 @@ file:
     - keyword: IMPORT
     - keyword: INTO
     - table_reference:
-        identifier: table_3
+        naked_identifier: table_3
     - bracketed:
         start_bracket: (
         identifier_list:
-        - identifier: col1
+        - naked_identifier: col1
         - comma: ','
-        - identifier: col2
+        - naked_identifier: col2
         - comma: ','
-        - identifier: col4
+        - naked_identifier: col4
         end_bracket: )
     - import_from_clause:
         keyword: FROM
@@ -71,7 +71,7 @@ file:
         - keyword: ORA
         - keyword: AT
         - connection_definition:
-          - identifier: my_oracle
+          - naked_identifier: my_oracle
           - keyword: USER
           - literal: "'agent_008'"
           - keyword: IDENTIFIED
@@ -79,24 +79,24 @@ file:
           - literal: "'secret'"
         - keyword: TABLE
         - table_reference:
-          - identifier: a
+          - naked_identifier: a
           - dot: .
-          - identifier: tab
+          - naked_identifier: tab
         - bracketed:
             start_bracket: (
             identifier_list:
-            - identifier: c1
+            - naked_identifier: c1
             - comma: ','
-            - identifier: c2
+            - naked_identifier: c2
             - comma: ','
-            - identifier: c3
+            - naked_identifier: c3
             end_bracket: )
         import_errors_clause:
         - keyword: ERRORS
         - keyword: INTO
         - import_error_destination:
             table_reference:
-              identifier: error_table
+              naked_identifier: error_table
         - bracketed:
             start_bracket: (
             expression:
@@ -112,7 +112,7 @@ file:
     - keyword: IMPORT
     - keyword: INTO
     - table_reference:
-        identifier: table_1
+        naked_identifier: table_1
     - import_from_clause:
         keyword: FROM
         import_file:
@@ -162,14 +162,14 @@ file:
     - keyword: IMPORT
     - keyword: INTO
     - table_reference:
-        identifier: table_2
+        naked_identifier: table_2
     - import_from_clause:
         keyword: FROM
         import_file:
         - keyword: FBV
         - keyword: AT
         - connection_definition:
-            identifier: my_fileserver
+            naked_identifier: my_fileserver
         - keyword: FILE
         - literal: "'tab2_part1.fbv'"
         - fbv_cols:
@@ -215,18 +215,18 @@ file:
     - keyword: IMPORT
     - keyword: INTO
     - table_reference:
-        identifier: table_7
+        naked_identifier: table_7
     - import_from_clause:
         keyword: FROM
         import_script:
         - keyword: SCRIPT
         - object_reference:
-          - identifier: etl
+          - naked_identifier: etl
           - dot: .
-          - identifier: import_hcat_table
+          - naked_identifier: import_hcat_table
         - keyword: AT
         - connection_definition:
-          - identifier: my_oracle
+          - naked_identifier: my_oracle
           - keyword: USER
           - literal: "'agent_008'"
           - keyword: IDENTIFIED
@@ -255,7 +255,7 @@ file:
     - keyword: IMPORT
     - keyword: INTO
     - table_reference:
-        identifier: table_4
+        naked_identifier: table_4
     - import_from_clause:
         keyword: FROM
         import_export_dbsrc:
@@ -280,7 +280,7 @@ file:
     - keyword: IMPORT
     - keyword: INTO
     - table_reference:
-        identifier: table_5
+        naked_identifier: table_5
     - import_from_clause:
         keyword: FROM
         import_file:
@@ -296,19 +296,19 @@ file:
     - keyword: IMPORT
     - keyword: INTO
     - table_reference:
-        identifier: table_6
+        naked_identifier: table_6
     - import_from_clause:
         keyword: FROM
         import_export_dbsrc:
         - keyword: EXA
         - keyword: AT
         - connection_definition:
-            identifier: my_exasol
+            naked_identifier: my_exasol
         - keyword: TABLE
         - table_reference:
-          - identifier: MY_SCHEMA
+          - naked_identifier: MY_SCHEMA
           - dot: .
-          - identifier: MY_TABLE
+          - naked_identifier: MY_TABLE
 - statement_terminator: ;
 - statement:
     import_statement:
@@ -320,7 +320,7 @@ file:
           table_like_clause:
             keyword: LIKE
             table_reference:
-              identifier: CAT
+              naked_identifier: CAT
         end_bracket: )
     - import_from_clause:
         keyword: FROM
@@ -328,7 +328,7 @@ file:
         - keyword: EXA
         - keyword: AT
         - connection_definition:
-            identifier: my_exa_conn
+            naked_identifier: my_exa_conn
         - keyword: STATEMENT
         - literal: "' SELECT OBJECT_NAME, OBJECT_TYPE FROM EXA_USER_OBJECTS WHERE\
             \ OBJECT_TYPE IN (''TABLE'', ''VIEW'') '"
@@ -338,7 +338,7 @@ file:
     - keyword: IMPORT
     - keyword: INTO
     - table_reference:
-        identifier: table_8
+        naked_identifier: table_8
     - import_from_clause:
         keyword: FROM
         import_file:
@@ -362,7 +362,7 @@ file:
     - keyword: IMPORT
     - keyword: INTO
     - table_reference:
-        identifier: table_1
+        naked_identifier: table_1
     - import_from_clause:
         keyword: FROM
         import_file:

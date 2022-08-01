@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1186a7bb1c633d6141fa59cef0c53583b47c255f12cbdf20d8edb8f7a9a7b754
+_hash: 04d14147ab5e6a91ad4684a54a2eb40029b7ff458e480c86896bc441e03b0e01
 file:
 - statement:
     msck_repair_table_statement:
@@ -11,7 +11,7 @@ file:
     - keyword: REPAIR
     - keyword: TABLE
     - table_reference:
-        identifier: table_identifier
+        naked_identifier: table_identifier
     - keyword: ADD
     - keyword: PARTITIONS
 - statement_terminator: ;
@@ -21,7 +21,7 @@ file:
     - keyword: REPAIR
     - keyword: TABLE
     - table_reference:
-        identifier: table_identifier
+        naked_identifier: table_identifier
     - keyword: DROP
     - keyword: PARTITIONS
 - statement_terminator: ;
@@ -31,7 +31,7 @@ file:
     - keyword: REPAIR
     - keyword: TABLE
     - table_reference:
-        identifier: table_identifier
+        naked_identifier: table_identifier
     - keyword: SYNC
     - keyword: PARTITIONS
 - statement_terminator: ;
@@ -41,7 +41,7 @@ file:
     - keyword: REPAIR
     - keyword: TABLE
     - table_reference:
-        identifier: table_identifier
+        naked_identifier: table_identifier
 - statement_terminator: ;
 - statement:
     msck_repair_table_statement:
@@ -49,7 +49,7 @@ file:
     - keyword: REPAIR
     - keyword: TABLE
     - table_reference:
-        identifier: t1
+        naked_identifier: t1
 - statement_terminator: ;
 - statement:
     msck_repair_table_statement:
@@ -57,7 +57,7 @@ file:
     - keyword: REPAIR
     - keyword: TABLE
     - table_reference:
-        identifier: emp_part
+        naked_identifier: emp_part
     - keyword: DROP
     - keyword: PARTITIONS
 - statement_terminator: ;

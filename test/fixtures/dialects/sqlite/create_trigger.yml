@@ -3,19 +3,19 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b66b6c76d6cb97ca1e3be833c06a46f4b7d637147199353fdb51fc0a9c5e43c4
+_hash: c2944bc2a520f5fffd2769dfc50ba9c5d0fe45b03bb15fba514fafb7fd109d4a
 file:
   statement:
     create_trigger:
     - keyword: CREATE
     - keyword: TRIGGER
     - trigger_reference:
-        identifier: update_customer_address
+        naked_identifier: update_customer_address
     - keyword: UPDATE
     - keyword: OF
     - column_reference:
-        identifier: address
+        naked_identifier: address
     - keyword: 'ON'
     - table_reference:
-        identifier: customers
+        naked_identifier: customers
   statement_terminator: ;

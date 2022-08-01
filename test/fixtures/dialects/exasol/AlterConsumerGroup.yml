@@ -3,14 +3,14 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2f8de0d1bff7fb37ad25e67d180d5b3c2dafc05998989fc055589927afcd01b0
+_hash: 22dcf1474c638049ea01dd33fb475330192c7c1d7847d8d545f3faa4a9e082b2
 file:
 - statement:
     alter_consumer_group_statement:
     - keyword: ALTER
     - keyword: CONSUMER
     - keyword: GROUP
-    - identifier: TEST_TEAM
+    - naked_identifier: TEST_TEAM
     - keyword: SET
     - consumer_group_parameter:
         keyword: PRECEDENCE
@@ -53,7 +53,7 @@ file:
     - keyword: ALTER
     - keyword: CONSUMER
     - keyword: GROUP
-    - identifier: '"ADMIN"'
+    - quoted_identifier: '"ADMIN"'
     - keyword: SET
     - consumer_group_parameter:
         keyword: PRECEDENCE

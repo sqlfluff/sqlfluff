@@ -3,29 +3,29 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 20e12303c1aae1aea1783caaa7c290708676455b78149cb19c213c5de90b4cc7
+_hash: 716dec028b785348de7adc576a14ea3ecf60dd41b566471fee23659ef862c6ea
 file:
 - statement:
     describe_statement:
     - keyword: DESCRIBE
     - keyword: TABLE
     - table_reference:
-        identifier: customer
+        naked_identifier: customer
 - statement_terminator: ;
 - statement:
     describe_statement:
       keyword: DESCRIBE
       table_reference:
-        identifier: customer
+        naked_identifier: customer
 - statement_terminator: ;
 - statement:
     describe_statement:
     - keyword: DESCRIBE
     - keyword: TABLE
     - table_reference:
-      - identifier: salesdb
+      - naked_identifier: salesdb
       - dot: .
-      - identifier: customer
+      - naked_identifier: customer
 - statement_terminator: ;
 - statement:
     describe_statement:
@@ -33,7 +33,7 @@ file:
     - keyword: TABLE
     - keyword: EXTENDED
     - table_reference:
-        identifier: customer
+        naked_identifier: customer
 - statement_terminator: ;
 - statement:
     describe_statement:
@@ -41,12 +41,12 @@ file:
     - keyword: TABLE
     - keyword: EXTENDED
     - table_reference:
-        identifier: customer
+        naked_identifier: customer
     - keyword: PARTITION
     - bracketed:
         start_bracket: (
         column_reference:
-          identifier: state
+          naked_identifier: state
         comparison_operator:
           raw_comparison_operator: '='
         literal: "'AR'"
@@ -56,40 +56,40 @@ file:
     describe_statement:
     - keyword: DESCRIBE
     - table_reference:
-        identifier: customer
-    - identifier: salesdb
+        naked_identifier: customer
+    - naked_identifier: salesdb
     - dot: .
-    - identifier: customer
+    - naked_identifier: customer
     - dot: .
-    - identifier: name
+    - naked_identifier: name
 - statement_terminator: ;
 - statement:
     describe_statement:
     - keyword: DESCRIBE
     - keyword: TABLE
     - table_reference:
-        identifier: customer
-    - identifier: salesdb
+        naked_identifier: customer
+    - naked_identifier: salesdb
     - dot: .
-    - identifier: customer
+    - naked_identifier: customer
     - dot: .
-    - identifier: name
+    - naked_identifier: name
 - statement_terminator: ;
 - statement:
     describe_statement:
     - keyword: DESCRIBE
     - keyword: TABLE
     - table_reference:
-        identifier: customer
-    - identifier: customer
+        naked_identifier: customer
+    - naked_identifier: customer
     - dot: .
-    - identifier: name
+    - naked_identifier: name
 - statement_terminator: ;
 - statement:
     describe_statement:
     - keyword: DESCRIBE
     - keyword: TABLE
     - table_reference:
-        identifier: customer
-    - identifier: name
+        naked_identifier: customer
+    - naked_identifier: name
 - statement_terminator: ;

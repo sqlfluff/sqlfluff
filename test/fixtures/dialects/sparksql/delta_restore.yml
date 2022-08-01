@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 43ce176611eb2d0911dd3fb8451c18db37976ae99a32c179b24131f5f57e46c8
+_hash: 54144846cb6f25480e30006e01a31cbcbf11b00fde4086fe1569ab114e5519af
 file:
 - statement:
     restore_table_statement:
@@ -24,9 +24,9 @@ file:
     - keyword: RESTORE
     - keyword: TABLE
     - table_reference:
-      - identifier: default
+      - naked_identifier: default
       - dot: .
-      - identifier: people10m
+      - naked_identifier: people10m
     - keyword: TO
     - keyword: TIMESTAMP
     - keyword: AS
@@ -38,9 +38,9 @@ file:
     - keyword: RESTORE
     - keyword: TABLE
     - table_reference:
-      - identifier: default
+      - naked_identifier: default
       - dot: .
-      - identifier: people10m
+      - naked_identifier: people10m
     - keyword: TO
     - keyword: TIMESTAMP
     - keyword: AS
@@ -67,9 +67,9 @@ file:
     - keyword: RESTORE
     - keyword: TABLE
     - table_reference:
-      - identifier: default
+      - naked_identifier: default
       - dot: .
-      - identifier: people10m
+      - naked_identifier: people10m
     - keyword: TO
     - keyword: TIMESTAMP
     - keyword: AS
@@ -95,9 +95,9 @@ file:
     - keyword: RESTORE
     - keyword: TABLE
     - table_reference:
-      - identifier: default
+      - naked_identifier: default
       - dot: .
-      - identifier: people10m
+      - naked_identifier: people10m
     - keyword: TO
     - keyword: VERSION
     - keyword: AS

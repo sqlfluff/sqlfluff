@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 92783b6b9ef4342e1734ddbfcbe748ea5185b06424c64c3c59eb40746f7ab328
+_hash: 7574dab76cddc9011796300a2fb86c1b5353f54bb175df8caf049ce35d1dbf37
 file:
 - statement:
     insert_overwrite_directory_statement:
@@ -35,7 +35,7 @@ file:
       - literal: "'test'"
       - comma: ','
       - property_name_identifier:
-          identifier: '"user"'
+          quoted_identifier: '"user"'
       - comparison_operator:
           raw_comparison_operator: '='
       - literal: '"a person"'
@@ -45,14 +45,14 @@ file:
           keyword: SELECT
           select_clause_element:
             column_reference:
-              identifier: a
+              naked_identifier: a
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: test_table
+                  naked_identifier: test_table
 - statement_terminator: ;
 - statement:
     insert_overwrite_directory_statement:
@@ -93,14 +93,14 @@ file:
           keyword: SELECT
           select_clause_element:
             column_reference:
-              identifier: a
+              naked_identifier: a
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: test_table
+                  naked_identifier: test_table
 - statement_terminator: ;
 - statement:
     insert_overwrite_directory_statement:
@@ -133,14 +133,14 @@ file:
           keyword: SELECT
           select_clause_element:
             column_reference:
-              identifier: a
+              naked_identifier: a
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: test_table
+                  naked_identifier: test_table
 - statement_terminator: ;
 - statement:
     insert_overwrite_directory_statement:
@@ -170,12 +170,12 @@ file:
           keyword: SELECT
           select_clause_element:
             column_reference:
-              identifier: a
+              naked_identifier: a
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: test_table
+                  naked_identifier: test_table
 - statement_terminator: ;

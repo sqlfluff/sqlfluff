@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 14e310ccc1dc5d6db25e47b23071fdeac75eb56caefa5919f14f40b925bf02e3
+_hash: 5acc92ee4c666405c909d32cbb873b1561ef2b8fb69706e1d54ed7c79d10ff7f
 file:
   statement:
     select_statement:
@@ -33,7 +33,7 @@ file:
                         - keyword: ORDER
                         - keyword: BY
                         - column_reference:
-                            identifier: DateCD
+                            naked_identifier: DateCD
                         - keyword: ASC
                       end_bracket: )
             - comma: ','
@@ -42,11 +42,11 @@ file:
             - end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: dt
+            naked_identifier: dt
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: boo
+                naked_identifier: boo

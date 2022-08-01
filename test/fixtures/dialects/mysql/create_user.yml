@@ -3,14 +3,14 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 538b2a4d64e1da8b602b4dbdc6e12cb32630bc08293fc47051a95bfb6b2c421c
+_hash: 0056e25b8b525f3c28de5ed8306de9f00c19deea59fabb59741b8846679f9246
 file:
 - statement:
     create_user_statement:
     - keyword: CREATE
     - keyword: USER
     - role_reference:
-        identifier: jeffrey
+        naked_identifier: jeffrey
 - statement_terminator: ;
 - statement:
     create_user_statement:
@@ -20,18 +20,18 @@ file:
     - keyword: NOT
     - keyword: EXISTS
     - role_reference:
-        identifier: jeffrey
+        naked_identifier: jeffrey
 - statement_terminator: ;
 - statement:
     create_user_statement:
     - keyword: CREATE
     - keyword: USER
     - role_reference:
-        identifier: "'prj_svc'"
+        quoted_identifier: "'prj_svc'"
     - keyword: IDENTIFIED
     - keyword: WITH
     - object_reference:
-        identifier: AWSAuthenticationPlugin
+        naked_identifier: AWSAuthenticationPlugin
     - keyword: AS
     - literal: "'RDS'"
 - statement_terminator: ;
@@ -40,9 +40,9 @@ file:
     - keyword: CREATE
     - keyword: USER
     - role_reference:
-      - identifier: "'jeffrey'"
+      - quoted_identifier: "'jeffrey'"
       - literal: '@'
-      - identifier: "'localhost'"
+      - quoted_identifier: "'localhost'"
     - keyword: IDENTIFIED
     - keyword: BY
     - literal: "'password'"
@@ -76,9 +76,9 @@ file:
     - keyword: CREATE
     - keyword: USER
     - role_reference:
-      - identifier: "'jeffrey'"
+      - quoted_identifier: "'jeffrey'"
       - literal: '@'
-      - identifier: "'localhost'"
+      - quoted_identifier: "'localhost'"
     - keyword: IDENTIFIED
     - keyword: BY
     - literal: "'new_password'"
@@ -90,13 +90,13 @@ file:
     - keyword: CREATE
     - keyword: USER
     - role_reference:
-      - identifier: "'jeffrey'"
+      - quoted_identifier: "'jeffrey'"
       - literal: '@'
-      - identifier: "'localhost'"
+      - quoted_identifier: "'localhost'"
     - keyword: IDENTIFIED
     - keyword: WITH
     - object_reference:
-        identifier: caching_sha2_password
+        naked_identifier: caching_sha2_password
     - keyword: BY
     - literal: "'new_password'"
     - keyword: PASSWORD
@@ -114,24 +114,24 @@ file:
     - keyword: CREATE
     - keyword: USER
     - role_reference:
-      - identifier: "'jeffrey'"
+      - quoted_identifier: "'jeffrey'"
       - literal: '@'
-      - identifier: "'localhost'"
+      - quoted_identifier: "'localhost'"
     - keyword: IDENTIFIED
     - keyword: WITH
     - object_reference:
-        identifier: mysql_native_password
+        naked_identifier: mysql_native_password
     - keyword: BY
     - literal: "'new_password1'"
     - comma: ','
     - role_reference:
-      - identifier: "'jeanne'"
+      - quoted_identifier: "'jeanne'"
       - literal: '@'
-      - identifier: "'localhost'"
+      - quoted_identifier: "'localhost'"
     - keyword: IDENTIFIED
     - keyword: WITH
     - object_reference:
-        identifier: caching_sha2_password
+        naked_identifier: caching_sha2_password
     - keyword: BY
     - literal: "'new_password2'"
     - keyword: REQUIRE
@@ -150,13 +150,13 @@ file:
     - keyword: CREATE
     - keyword: USER
     - role_reference:
-      - identifier: "'jeffrey'"
+      - quoted_identifier: "'jeffrey'"
       - literal: '@'
-      - identifier: "'localhost'"
+      - quoted_identifier: "'localhost'"
     - keyword: IDENTIFIED
     - keyword: WITH
     - object_reference:
-        identifier: mysql_native_password
+        naked_identifier: mysql_native_password
     - keyword: BY
     - literal: "'password'"
 - statement_terminator: ;
@@ -165,20 +165,20 @@ file:
     - keyword: CREATE
     - keyword: USER
     - role_reference:
-      - identifier: "'u1'"
+      - quoted_identifier: "'u1'"
       - literal: '@'
-      - identifier: "'localhost'"
+      - quoted_identifier: "'localhost'"
     - keyword: IDENTIFIED
     - keyword: WITH
     - object_reference:
-        identifier: caching_sha2_password
+        naked_identifier: caching_sha2_password
     - keyword: BY
     - literal: "'sha2_password'"
     - keyword: AND
     - keyword: IDENTIFIED
     - keyword: WITH
     - object_reference:
-        identifier: authentication_ldap_sasl
+        naked_identifier: authentication_ldap_sasl
     - keyword: AS
     - literal: "'uid=u1_ldap,ou=People,dc=example,dc=com'"
 - statement_terminator: ;
@@ -187,38 +187,38 @@ file:
     - keyword: CREATE
     - keyword: USER
     - role_reference:
-      - identifier: "'u1'"
+      - quoted_identifier: "'u1'"
       - literal: '@'
-      - identifier: "'localhost'"
+      - quoted_identifier: "'localhost'"
     - keyword: IDENTIFIED
     - keyword: WITH
     - object_reference:
-        identifier: caching_sha2_password
+        naked_identifier: caching_sha2_password
     - keyword: BY
     - literal: "'sha2_password'"
     - keyword: AND
     - keyword: IDENTIFIED
     - keyword: WITH
     - object_reference:
-        identifier: authentication_ldap_sasl
+        naked_identifier: authentication_ldap_sasl
     - keyword: AS
     - literal: "'uid=u1_ldap,ou=People,dc=example,dc=com'"
     - keyword: AND
     - keyword: IDENTIFIED
     - keyword: WITH
     - object_reference:
-        identifier: authentication_fido
+        naked_identifier: authentication_fido
 - statement_terminator: ;
 - statement:
     create_user_statement:
     - keyword: CREATE
     - keyword: USER
     - role_reference:
-        identifier: user
+        naked_identifier: user
     - keyword: IDENTIFIED
     - keyword: WITH
     - object_reference:
-        identifier: authentication_fido
+        naked_identifier: authentication_fido
     - keyword: INITIAL
     - keyword: AUTHENTICATION
     - keyword: IDENTIFIED
@@ -231,25 +231,25 @@ file:
     - keyword: CREATE
     - keyword: USER
     - role_reference:
-      - identifier: "'joe'"
+      - quoted_identifier: "'joe'"
       - literal: '@'
-      - identifier: "'10.0.0.1'"
+      - quoted_identifier: "'10.0.0.1'"
     - keyword: DEFAULT
     - keyword: ROLE
     - role_reference:
-        identifier: administrator
+        naked_identifier: administrator
     - comma: ','
     - role_reference:
-        identifier: developer
+        naked_identifier: developer
 - statement_terminator: ;
 - statement:
     create_user_statement:
     - keyword: CREATE
     - keyword: USER
     - role_reference:
-      - identifier: "'jeffrey'"
+      - quoted_identifier: "'jeffrey'"
       - literal: '@'
-      - identifier: "'localhost'"
+      - quoted_identifier: "'localhost'"
     - keyword: REQUIRE
     - keyword: NONE
 - statement_terminator: ;
@@ -258,9 +258,9 @@ file:
     - keyword: CREATE
     - keyword: USER
     - role_reference:
-      - identifier: "'jeffrey'"
+      - quoted_identifier: "'jeffrey'"
       - literal: '@'
-      - identifier: "'localhost'"
+      - quoted_identifier: "'localhost'"
     - keyword: REQUIRE
     - keyword: SSL
 - statement_terminator: ;
@@ -269,9 +269,9 @@ file:
     - keyword: CREATE
     - keyword: USER
     - role_reference:
-      - identifier: "'jeffrey'"
+      - quoted_identifier: "'jeffrey'"
       - literal: '@'
-      - identifier: "'localhost'"
+      - quoted_identifier: "'localhost'"
     - keyword: REQUIRE
     - keyword: X509
 - statement_terminator: ;
@@ -280,9 +280,9 @@ file:
     - keyword: CREATE
     - keyword: USER
     - role_reference:
-      - identifier: "'jeffrey'"
+      - quoted_identifier: "'jeffrey'"
       - literal: '@'
-      - identifier: "'localhost'"
+      - quoted_identifier: "'localhost'"
     - keyword: REQUIRE
     - keyword: ISSUER
     - literal: "'/C=SE/ST=Stockholm/L=Stockholm/\n    O=MySQL/CN=CA/emailAddress=ca@example.com'"
@@ -292,9 +292,9 @@ file:
     - keyword: CREATE
     - keyword: USER
     - role_reference:
-      - identifier: "'jeffrey'"
+      - quoted_identifier: "'jeffrey'"
       - literal: '@'
-      - identifier: "'localhost'"
+      - quoted_identifier: "'localhost'"
     - keyword: REQUIRE
     - keyword: SUBJECT
     - literal: "'/C=SE/ST=Stockholm/L=Stockholm/\n    O=MySQL demo client certificate/\n\
@@ -305,9 +305,9 @@ file:
     - keyword: CREATE
     - keyword: USER
     - role_reference:
-      - identifier: "'jeffrey'"
+      - quoted_identifier: "'jeffrey'"
       - literal: '@'
-      - identifier: "'localhost'"
+      - quoted_identifier: "'localhost'"
     - keyword: REQUIRE
     - keyword: CIPHER
     - literal: "'EDH-RSA-DES-CBC3-SHA'"
@@ -317,9 +317,9 @@ file:
     - keyword: CREATE
     - keyword: USER
     - role_reference:
-      - identifier: "'jeffrey'"
+      - quoted_identifier: "'jeffrey'"
       - literal: '@'
-      - identifier: "'localhost'"
+      - quoted_identifier: "'localhost'"
     - keyword: REQUIRE
     - keyword: SUBJECT
     - literal: "'/C=SE/ST=Stockholm/L=Stockholm/\n    O=MySQL demo client certificate/\n\
@@ -336,9 +336,9 @@ file:
     - keyword: CREATE
     - keyword: USER
     - role_reference:
-      - identifier: "'jeffrey'"
+      - quoted_identifier: "'jeffrey'"
       - literal: '@'
-      - identifier: "'localhost'"
+      - quoted_identifier: "'localhost'"
     - keyword: WITH
     - keyword: MAX_QUERIES_PER_HOUR
     - literal: '500'
@@ -350,9 +350,9 @@ file:
     - keyword: CREATE
     - keyword: USER
     - role_reference:
-      - identifier: "'jeffrey'"
+      - quoted_identifier: "'jeffrey'"
       - literal: '@'
-      - identifier: "'localhost'"
+      - quoted_identifier: "'localhost'"
     - keyword: PASSWORD
     - keyword: EXPIRE
 - statement_terminator: ;
@@ -361,9 +361,9 @@ file:
     - keyword: CREATE
     - keyword: USER
     - role_reference:
-      - identifier: "'jeffrey'"
+      - quoted_identifier: "'jeffrey'"
       - literal: '@'
-      - identifier: "'localhost'"
+      - quoted_identifier: "'localhost'"
     - keyword: PASSWORD
     - keyword: EXPIRE
     - keyword: DEFAULT
@@ -373,9 +373,9 @@ file:
     - keyword: CREATE
     - keyword: USER
     - role_reference:
-      - identifier: "'jeffrey'"
+      - quoted_identifier: "'jeffrey'"
       - literal: '@'
-      - identifier: "'localhost'"
+      - quoted_identifier: "'localhost'"
     - keyword: PASSWORD
     - keyword: EXPIRE
     - keyword: NEVER
@@ -385,9 +385,9 @@ file:
     - keyword: CREATE
     - keyword: USER
     - role_reference:
-      - identifier: "'jeffrey'"
+      - quoted_identifier: "'jeffrey'"
       - literal: '@'
-      - identifier: "'localhost'"
+      - quoted_identifier: "'localhost'"
     - keyword: PASSWORD
     - keyword: EXPIRE
     - keyword: INTERVAL
@@ -399,9 +399,9 @@ file:
     - keyword: CREATE
     - keyword: USER
     - role_reference:
-      - identifier: "'jeffrey'"
+      - quoted_identifier: "'jeffrey'"
       - literal: '@'
-      - identifier: "'localhost'"
+      - quoted_identifier: "'localhost'"
     - keyword: PASSWORD
     - keyword: HISTORY
     - keyword: DEFAULT
@@ -411,9 +411,9 @@ file:
     - keyword: CREATE
     - keyword: USER
     - role_reference:
-      - identifier: "'jeffrey'"
+      - quoted_identifier: "'jeffrey'"
       - literal: '@'
-      - identifier: "'localhost'"
+      - quoted_identifier: "'localhost'"
     - keyword: PASSWORD
     - keyword: HISTORY
     - literal: '6'
@@ -423,9 +423,9 @@ file:
     - keyword: CREATE
     - keyword: USER
     - role_reference:
-      - identifier: "'jeffrey'"
+      - quoted_identifier: "'jeffrey'"
       - literal: '@'
-      - identifier: "'localhost'"
+      - quoted_identifier: "'localhost'"
     - keyword: PASSWORD
     - keyword: REUSE
     - keyword: INTERVAL
@@ -436,9 +436,9 @@ file:
     - keyword: CREATE
     - keyword: USER
     - role_reference:
-      - identifier: "'jeffrey'"
+      - quoted_identifier: "'jeffrey'"
       - literal: '@'
-      - identifier: "'localhost'"
+      - quoted_identifier: "'localhost'"
     - keyword: PASSWORD
     - keyword: REUSE
     - keyword: INTERVAL
@@ -450,9 +450,9 @@ file:
     - keyword: CREATE
     - keyword: USER
     - role_reference:
-      - identifier: "'jeffrey'"
+      - quoted_identifier: "'jeffrey'"
       - literal: '@'
-      - identifier: "'localhost'"
+      - quoted_identifier: "'localhost'"
     - keyword: PASSWORD
     - keyword: REQUIRE
     - keyword: CURRENT
@@ -462,9 +462,9 @@ file:
     - keyword: CREATE
     - keyword: USER
     - role_reference:
-      - identifier: "'jeffrey'"
+      - quoted_identifier: "'jeffrey'"
       - literal: '@'
-      - identifier: "'localhost'"
+      - quoted_identifier: "'localhost'"
     - keyword: PASSWORD
     - keyword: REQUIRE
     - keyword: CURRENT
@@ -475,9 +475,9 @@ file:
     - keyword: CREATE
     - keyword: USER
     - role_reference:
-      - identifier: "'jeffrey'"
+      - quoted_identifier: "'jeffrey'"
       - literal: '@'
-      - identifier: "'localhost'"
+      - quoted_identifier: "'localhost'"
     - keyword: PASSWORD
     - keyword: REQUIRE
     - keyword: CURRENT
@@ -488,9 +488,9 @@ file:
     - keyword: CREATE
     - keyword: USER
     - role_reference:
-      - identifier: "'jeffrey'"
+      - quoted_identifier: "'jeffrey'"
       - literal: '@'
-      - identifier: "'localhost'"
+      - quoted_identifier: "'localhost'"
     - keyword: FAILED_LOGIN_ATTEMPTS
     - literal: '4'
     - keyword: PASSWORD_LOCK_TIME
@@ -501,9 +501,9 @@ file:
     - keyword: CREATE
     - keyword: USER
     - role_reference:
-      - identifier: "'jon'"
+      - quoted_identifier: "'jon'"
       - literal: '@'
-      - identifier: "'localhost'"
+      - quoted_identifier: "'localhost'"
     - keyword: COMMENT
     - literal: "'Some information about Jon'"
 - statement_terminator: ;
@@ -512,9 +512,9 @@ file:
     - keyword: CREATE
     - keyword: USER
     - role_reference:
-      - identifier: "'jim'"
+      - quoted_identifier: "'jim'"
       - literal: '@'
-      - identifier: "'localhost'"
+      - quoted_identifier: "'localhost'"
     - keyword: ATTRIBUTE
     - literal: "'{\"fname\": \"James\", \"lname\": \"Scott\", \"phone\": \"123-456-7890\"\
         }'"

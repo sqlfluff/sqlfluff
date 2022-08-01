@@ -3,14 +3,14 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bb84ff38d649298761a2732029334e2b1b7d9493d71b86a5f5c3f5368fa03c44
+_hash: 321113de78538b9f7a7e57708799dbf88ccc04aeffc662018d74fc43a6134805
 file:
 - statement:
     create_consumer_group_statement:
     - keyword: CREATE
     - keyword: CONSUMER
     - keyword: GROUP
-    - identifier: CEO
+    - naked_identifier: CEO
     - keyword: WITH
     - consumer_group_parameter:
         keyword: PRECEDENCE
@@ -29,7 +29,7 @@ file:
     - keyword: CREATE
     - keyword: CONSUMER
     - keyword: GROUP
-    - identifier: BI_TEAM
+    - naked_identifier: BI_TEAM
     - keyword: WITH
     - consumer_group_parameter:
         keyword: PRECEDENCE
@@ -60,7 +60,7 @@ file:
     - keyword: CREATE
     - keyword: CONSUMER
     - keyword: GROUP
-    - identifier: TEST_TEAM
+    - naked_identifier: TEST_TEAM
     - keyword: WITH
     - consumer_group_parameter:
         keyword: PRECEDENCE
@@ -103,7 +103,7 @@ file:
     - keyword: CREATE
     - keyword: CONSUMER
     - keyword: GROUP
-    - identifier: '"ADMIN"'
+    - quoted_identifier: '"ADMIN"'
     - keyword: WITH
     - consumer_group_parameter:
         keyword: PRECEDENCE

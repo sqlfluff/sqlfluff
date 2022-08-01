@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 015a1643612602ae83fd8ee331e0ea7ffab692452ff64998ebefd54287005221
+_hash: 72a4ba704d4293db2af8cdbf1b2b2c1f35422a1eec1e6ef333ef8c21b9f583e8
 file:
 - statement:
     reindex_statement_segment:
@@ -40,7 +40,7 @@ file:
     - bracketed:
         start_bracket: (
         keyword: CONCURRENTLY
-        literal: 'FALSE'
+        boolean_literal: 'FALSE'
         end_bracket: )
     - keyword: SYSTEM
     - database_reference:
@@ -56,7 +56,7 @@ file:
           identifier: my_tablespace
       - comma: ','
       - keyword: VERBOSE
-      - literal: 'TRUE'
+      - boolean_literal: 'TRUE'
       - end_bracket: )
     - keyword: SCHEMA
     - schema_reference:

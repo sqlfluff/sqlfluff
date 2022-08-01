@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6030b140ee4ecb5ad946ade1476320c461237e34b10834ffe26264fc9f9eb34c
+_hash: 1297fcf2e0a86596b71bb76dbcf4d000299e6635ad55004683da469e38689eb4
 file:
   statement:
     insert_statement:
@@ -11,18 +11,18 @@ file:
     - keyword: INTO
     - keyword: TABLE
     - table_reference:
-        identifier: foo
+        naked_identifier: foo
     - keyword: PARTITION
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: a
+          naked_identifier: a
       - comparison_operator:
           raw_comparison_operator: '='
       - literal: "'test_foo'"
       - comma: ','
       - column_reference:
-          identifier: b
+          naked_identifier: b
       - comparison_operator:
           raw_comparison_operator: '='
       - literal: "'test_bar'"
@@ -32,24 +32,24 @@ file:
         - keyword: SELECT
         - select_clause_element:
             column_reference:
-              identifier: a
+              naked_identifier: a
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: b
+              naked_identifier: b
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: c
+              naked_identifier: c
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: d
+              naked_identifier: d
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: bar
+                  naked_identifier: bar
   statement_terminator: ;

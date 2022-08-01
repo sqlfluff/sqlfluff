@@ -3,30 +3,30 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 373f120bf8a323bc11d69c929b0cd7c3c11ebf37c03cf03092ecf5b714759d8e
+_hash: 36cad23d24e27b250ba1da59e3a6241976ac11f557ee84201785cc768f30dfcc
 file:
 - statement:
     show_statement:
     - keyword: SHOW
     - keyword: TBLPROPERTIES
     - table_reference:
-        identifier: customer
+        naked_identifier: customer
 - statement_terminator: ;
 - statement:
     show_statement:
     - keyword: SHOW
     - keyword: TBLPROPERTIES
     - table_reference:
-      - identifier: salesdb
+      - naked_identifier: salesdb
       - dot: .
-      - identifier: customer
+      - naked_identifier: customer
 - statement_terminator: ;
 - statement:
     show_statement:
     - keyword: SHOW
     - keyword: TBLPROPERTIES
     - table_reference:
-        identifier: customer
+        naked_identifier: customer
     - bracketed:
         start_bracket: (
         property_name_identifier:
@@ -42,10 +42,10 @@ file:
     - keyword: SHOW
     - keyword: TBLPROPERTIES
     - table_reference:
-        identifier: customer
+        naked_identifier: customer
     - bracketed:
         start_bracket: (
         property_name_identifier:
-          identifier: "'created.date'"
+          quoted_identifier: "'created.date'"
         end_bracket: )
 - statement_terminator: ;

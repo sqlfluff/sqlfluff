@@ -3,20 +3,20 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5410e17cf8dd4b83c9fdd261541b0560b28ff001e2834fd52435463f3886fe0a
+_hash: 3ff624d057d473532363f2558e85e343f568dae6bb391cd8ff7799d1a09f3f7c
 file:
   statement:
     with_compound_statement:
       keyword: WITH
       common_table_expression:
-        identifier: t
+        naked_identifier: t
         cte_column_list:
           bracketed:
             start_bracket: (
             identifier_list:
-            - identifier: col1
+            - naked_identifier: col1
             - comma: ','
-            - identifier: col2
+            - naked_identifier: col2
             end_bracket: )
         keyword: AS
         bracketed:
@@ -35,7 +35,7 @@ file:
                 from_expression_element:
                   table_expression:
                     table_reference:
-                      identifier: foo
+                      naked_identifier: foo
           end_bracket: )
       select_statement:
         select_clause:
@@ -50,5 +50,5 @@ file:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: t
+                  naked_identifier: t
   statement_terminator: ;

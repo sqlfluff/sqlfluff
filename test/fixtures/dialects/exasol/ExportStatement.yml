@@ -3,13 +3,13 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bc1f55bb7ff86d913d91969925200369a131ecc87545713094a1de2812361415
+_hash: 8745d0f1c313142630763f87cb775f79ae23c975bbe14426369279d8fe515b95
 file:
 - statement:
     export_statement:
       keyword: EXPORT
       table_reference:
-        identifier: tab1
+        naked_identifier: tab1
       export_into_clause:
         keyword: INTO
         import_file:
@@ -42,7 +42,7 @@ file:
     export_statement:
       keyword: EXPORT
       table_reference:
-        identifier: tab1
+        naked_identifier: tab1
       export_into_clause:
         keyword: INTO
         import_file:
@@ -106,12 +106,12 @@ file:
               from_expression_element:
                 table_expression:
                   table_reference:
-                    identifier: T
+                    naked_identifier: T
           where_clause:
             keyword: WHERE
             expression:
               column_reference:
-                identifier: id
+                naked_identifier: id
               comparison_operator:
                 raw_comparison_operator: '='
               literal: '3295'
@@ -122,7 +122,7 @@ file:
         - keyword: FBV
         - keyword: AT
         - connection_definition:
-            identifier: my_connection
+            naked_identifier: my_connection
         - keyword: FILE
         - literal: "'t1.fbv'"
         - keyword: FILE
@@ -148,7 +148,7 @@ file:
               from_expression_element:
                 table_expression:
                   table_reference:
-                    identifier: my_view
+                    naked_identifier: my_view
         end_bracket: )
       export_into_clause:
         keyword: INTO
@@ -164,9 +164,9 @@ file:
           - literal: "'my_secret'"
         - keyword: TABLE
         - table_reference:
-          - identifier: my_schema
+          - naked_identifier: my_schema
           - dot: .
-          - identifier: my_table
+          - naked_identifier: my_table
         - keyword: CREATED
         - keyword: BY
         - literal: "'CREATE TABLE my_table(order_id INT, price DEC(18,2))'"
@@ -175,7 +175,7 @@ file:
     export_statement:
       keyword: EXPORT
       table_reference:
-        identifier: tab1
+        naked_identifier: tab1
       export_into_clause:
         keyword: INTO
         import_export_dbsrc:
@@ -194,15 +194,15 @@ file:
           - literal: "'secret'"
         - keyword: TABLE
         - table_reference:
-          - identifier: my_schema
+          - naked_identifier: my_schema
           - dot: .
-          - identifier: tab1
+          - naked_identifier: tab1
 - statement_terminator: ;
 - statement:
     export_statement:
       keyword: EXPORT
       table_reference:
-        identifier: tab1
+        naked_identifier: tab1
       export_into_clause:
         keyword: INTO
         import_file:
@@ -217,7 +217,7 @@ file:
     export_statement:
       keyword: EXPORT
       table_reference:
-        identifier: tab1
+        naked_identifier: tab1
       export_into_clause:
         keyword: INTO
         import_file:
@@ -237,15 +237,15 @@ file:
     export_statement:
       keyword: EXPORT
       table_reference:
-        identifier: tab1
+        naked_identifier: tab1
       export_into_clause:
         keyword: INTO
         import_script:
         - keyword: SCRIPT
         - object_reference:
-          - identifier: etl
+          - naked_identifier: etl
           - dot: .
-          - identifier: export_hcat_table
+          - naked_identifier: export_hcat_table
         - keyword: WITH
         - parameter: HCAT_DB
         - comparison_operator:
@@ -268,7 +268,7 @@ file:
     export_statement:
       keyword: EXPORT
       table_reference:
-        identifier: tab1
+        naked_identifier: tab1
       export_into_clause:
         keyword: INTO
         import_file:

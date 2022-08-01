@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: eb83029b4192bdc26920cc97cfb6a4dc995ccf21bc24d820eec75d5c9b078482
+_hash: d55aa47bc120e7aee73471783aa5f4cef787375b5349447b3ffefb496762289b
 file:
   statement:
     create_statement:
@@ -16,7 +16,7 @@ file:
     - keyword: auto_ingest
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: 'true'
+    - boolean_literal: 'true'
     - keyword: aws_sns_topic
     - comparison_operator:
         raw_comparison_operator: '='

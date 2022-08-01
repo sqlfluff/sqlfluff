@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 418f2c7c4a75327e91c003ef6e4a56c9b32e33693ec6b426f155fc18fa32672b
+_hash: daa86857884027f2a8ffd5aefa5010d8b8cabd81193fa35ca26dc8ed66a7be9c
 file:
 - statement:
     load_data_statement:
@@ -14,7 +14,7 @@ file:
     - keyword: INTO
     - keyword: TABLE
     - table_reference:
-        identifier: libaccess
+        naked_identifier: libaccess
     - keyword: FIELDS
     - keyword: TERMINATED
     - keyword: BY
@@ -36,9 +36,9 @@ file:
     - keyword: INTO
     - keyword: TABLE
     - table_reference:
-      - identifier: db2
+      - naked_identifier: db2
       - dot: .
-      - identifier: my_table
+      - naked_identifier: my_table
 - statement_terminator: ;
 - statement:
     load_data_statement:
@@ -49,7 +49,7 @@ file:
     - keyword: INTO
     - keyword: TABLE
     - table_reference:
-        identifier: test
+        naked_identifier: test
     - keyword: FIELDS
     - keyword: TERMINATED
     - keyword: BY
@@ -68,7 +68,7 @@ file:
     - keyword: INTO
     - keyword: TABLE
     - table_reference:
-        identifier: test
+        naked_identifier: test
     - keyword: IGNORE
     - literal: '1'
     - keyword: LINES
@@ -82,7 +82,7 @@ file:
     - keyword: INTO
     - keyword: TABLE
     - table_reference:
-        identifier: table2
+        naked_identifier: table2
     - keyword: FIELDS
     - keyword: TERMINATED
     - keyword: BY
@@ -97,7 +97,7 @@ file:
     - keyword: INTO
     - keyword: TABLE
     - table_reference:
-        identifier: table2
+        naked_identifier: table2
     - keyword: FIELDS
     - keyword: TERMINATED
     - keyword: BY
@@ -112,7 +112,7 @@ file:
     - keyword: INTO
     - keyword: TABLE
     - table_reference:
-        identifier: tbl_name
+        naked_identifier: tbl_name
     - keyword: FIELDS
     - keyword: TERMINATED
     - keyword: BY
@@ -137,7 +137,7 @@ file:
     - keyword: INTO
     - keyword: TABLE
     - table_reference:
-        identifier: jokes
+        naked_identifier: jokes
     - keyword: FIELDS
     - keyword: TERMINATED
     - keyword: BY
@@ -149,7 +149,7 @@ file:
     - bracketed:
         start_bracket: (
         column_reference:
-          identifier: joke
+          naked_identifier: joke
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -161,7 +161,7 @@ file:
     - keyword: INTO
     - keyword: TABLE
     - table_reference:
-        identifier: persondata
+        naked_identifier: persondata
 - statement_terminator: ;
 - statement:
     load_data_statement:
@@ -172,18 +172,18 @@ file:
     - keyword: INTO
     - keyword: TABLE
     - table_reference:
-        identifier: t1
+        naked_identifier: t1
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: column1
+          naked_identifier: column1
       - comma: ','
       - column_reference:
           variable: '@var1'
       - end_bracket: )
     - keyword: SET
     - column_reference:
-        identifier: column2
+        naked_identifier: column2
     - comparison_operator:
         raw_comparison_operator: '='
     - column_reference:
@@ -200,18 +200,18 @@ file:
     - keyword: INTO
     - keyword: TABLE
     - table_reference:
-        identifier: t1
+        naked_identifier: t1
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: column1
+          naked_identifier: column1
       - comma: ','
       - column_reference:
-          identifier: column2
+          naked_identifier: column2
       - end_bracket: )
     - keyword: SET
     - column_reference:
-        identifier: column3
+        naked_identifier: column3
     - comparison_operator:
         raw_comparison_operator: '='
     - bare_function: CURRENT_TIMESTAMP
@@ -225,22 +225,22 @@ file:
     - keyword: INTO
     - keyword: TABLE
     - table_reference:
-        identifier: t1
+        naked_identifier: t1
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: column1
+          naked_identifier: column1
       - comma: ','
       - column_reference:
           variable: '@dummy'
       - comma: ','
       - column_reference:
-          identifier: column2
+          naked_identifier: column2
       - comma: ','
       - column_reference:
           variable: '@dummy'
       - comma: ','
       - column_reference:
-          identifier: column3
+          naked_identifier: column3
       - end_bracket: )
 - statement_terminator: ;

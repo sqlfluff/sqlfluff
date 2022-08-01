@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c19b9865f7bc29197359f871b57e66d4f12bccb6f3241c8e68e6c9502c39b0a9
+_hash: 1c35264baa0630b12e434db56a7cb38f6c3cdb83e3dc25b8f1667a85529a3d1f
 file:
 - statement:
     values_clause:
@@ -18,7 +18,7 @@ file:
       - end_bracket: )
       alias_expression:
         keyword: as
-        identifier: t
+        naked_identifier: t
 - statement_terminator: ;
 - statement:
     values_clause:
@@ -32,7 +32,7 @@ file:
           literal: '2'
       - end_bracket: )
       alias_expression:
-        identifier: t
+        naked_identifier: t
 - statement_terminator: ;
 - statement:
     values_clause:
@@ -47,13 +47,13 @@ file:
       - end_bracket: )
       alias_expression:
         keyword: as
-        identifier: t
+        naked_identifier: t
         bracketed:
           start_bracket: (
           identifier_list:
-          - identifier: a
+          - naked_identifier: a
           - comma: ','
-          - identifier: b
+          - naked_identifier: b
           end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -78,13 +78,13 @@ file:
       - end_bracket: )
     - alias_expression:
         keyword: as
-        identifier: t
+        naked_identifier: t
         bracketed:
           start_bracket: (
           identifier_list:
-          - identifier: a
+          - naked_identifier: a
           - comma: ','
-          - identifier: b
+          - naked_identifier: b
           end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -103,9 +103,9 @@ file:
         bracketed:
           start_bracket: (
           identifier_list:
-          - identifier: a
+          - naked_identifier: a
           - comma: ','
-          - identifier: b
+          - naked_identifier: b
           end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -120,13 +120,13 @@ file:
           literal: '2'
       - end_bracket: )
       alias_expression:
-        identifier: t
+        naked_identifier: t
         bracketed:
           start_bracket: (
           identifier_list:
-          - identifier: a
+          - naked_identifier: a
           - comma: ','
-          - identifier: b
+          - naked_identifier: b
           end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -144,9 +144,9 @@ file:
         bracketed:
           start_bracket: (
           identifier_list:
-          - identifier: a
+          - naked_identifier: a
           - comma: ','
-          - identifier: b
+          - naked_identifier: b
           end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -174,9 +174,9 @@ file:
         bracketed:
           start_bracket: (
           identifier_list:
-          - identifier: a
+          - naked_identifier: a
           - comma: ','
-          - identifier: b
+          - naked_identifier: b
           end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -200,13 +200,13 @@ file:
           literal: '4'
       - end_bracket: )
     - alias_expression:
-        identifier: t
+        naked_identifier: t
         bracketed:
           start_bracket: (
           identifier_list:
-          - identifier: a
+          - naked_identifier: a
           - comma: ','
-          - identifier: b
+          - naked_identifier: b
           end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -233,8 +233,8 @@ file:
         bracketed:
           start_bracket: (
           identifier_list:
-          - identifier: a
+          - naked_identifier: a
           - comma: ','
-          - identifier: b
+          - naked_identifier: b
           end_bracket: )
 - statement_terminator: ;

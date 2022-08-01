@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9a820a2d3a09e29af2291f5aa6b7e7ed2d3aacbe9d2a3dcd813127d6de864ef2
+_hash: 021549297d451469082b0087475efc7cac88b25a3e716e2cc8bb0a2a59d2608c
 file:
 - statement:
     select_statement:
@@ -42,7 +42,7 @@ file:
                 end_bracket: )
             binary_operator: +
             keyword: INTERVAL
-            literal: "'1 year'"
+            date_constructor_literal: "'1 year'"
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -60,7 +60,7 @@ file:
                 end_bracket: )
             binary_operator: +
             keyword: INTERVAL
-            literal: "'3 hours, 18 minutes'"
+            date_constructor_literal: "'3 hours, 18 minutes'"
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -71,9 +71,9 @@ file:
             bare_function: current_timestamp
             binary_operator: +
             keyword: INTERVAL
-            literal: "'1 year, 3 quarters, 4 months, 5 weeks, 6 days, 7 minutes, 8\
-              \ seconds,\n                            1000 milliseconds, 4000000 microseconds,\
-              \ 5000000001 nanoseconds'"
+            date_constructor_literal: "'1 year, 3 quarters, 4 months, 5 weeks, 6 days,\
+              \ 7 minutes, 8 seconds,\n                            1000 milliseconds,\
+              \ 4000000 microseconds, 5000000001 nanoseconds'"
           alias_expression:
             keyword: as
             identifier: complex_interval1
@@ -94,8 +94,9 @@ file:
                 end_bracket: )
             binary_operator: +
             keyword: INTERVAL
-            literal: "'1 y, 3 q, 4 mm, 5 w, 6 d, 7 h, 9 m, 8 s,\n                \
-              \                1000 ms, 445343232 us, 898498273498 ns'"
+            date_constructor_literal: "'1 y, 3 q, 4 mm, 5 w, 6 d, 7 h, 9 m, 8 s,\n\
+              \                                1000 ms, 445343232 us, 898498273498\
+              \ ns'"
           alias_expression:
             keyword: as
             identifier: complex_interval2
@@ -128,7 +129,7 @@ file:
           bare_function: current_date
           binary_operator: '-'
           keyword: INTERVAL
-          literal: "'2 y, 3 month'"
+          date_constructor_literal: "'2 y, 3 month'"
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -140,7 +141,7 @@ file:
               identifier: ts
             binary_operator: +
             keyword: INTERVAL
-            literal: "'4 seconds'"
+            date_constructor_literal: "'4 seconds'"
       from_clause:
         keyword: from
         from_expression:

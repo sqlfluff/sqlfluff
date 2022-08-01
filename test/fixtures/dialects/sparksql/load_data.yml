@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8a9ab5365ee7f3653d54b75a82620859c51daeab4429e7b86b99968c7db3be2d
+_hash: 96e7dd0afa177a80fb032f960dff704f6a0b6a44c9dea81d26e5940cd00329d7
 file:
 - statement:
     load_data_statement:
@@ -16,7 +16,7 @@ file:
     - keyword: INTO
     - keyword: TABLE
     - table_reference:
-        identifier: test_load
+        naked_identifier: test_load
 - statement_terminator: ;
 - statement:
     load_data_statement:
@@ -29,18 +29,18 @@ file:
     - keyword: INTO
     - keyword: TABLE
     - table_reference:
-        identifier: test_load_partition
+        naked_identifier: test_load_partition
     - keyword: PARTITION
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: c2
+          naked_identifier: c2
       - comparison_operator:
           raw_comparison_operator: '='
       - literal: '2'
       - comma: ','
       - column_reference:
-          identifier: c3
+          naked_identifier: c3
       - comparison_operator:
           raw_comparison_operator: '='
       - literal: '3'
@@ -56,7 +56,7 @@ file:
     - keyword: INTO
     - keyword: TABLE
     - table_reference:
-        identifier: test_load
+        naked_identifier: test_load
 - statement_terminator: ;
 - statement:
     load_data_statement:
@@ -68,18 +68,18 @@ file:
     - keyword: INTO
     - keyword: TABLE
     - table_reference:
-        identifier: test_load_partition
+        naked_identifier: test_load_partition
     - keyword: PARTITION
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: c2
+          naked_identifier: c2
       - comparison_operator:
           raw_comparison_operator: '='
       - literal: '2'
       - comma: ','
       - column_reference:
-          identifier: c3
+          naked_identifier: c3
       - comparison_operator:
           raw_comparison_operator: '='
       - literal: '3'
@@ -94,18 +94,18 @@ file:
     - keyword: INTO
     - keyword: TABLE
     - table_reference:
-        identifier: test_load_partition
+        naked_identifier: test_load_partition
     - keyword: PARTITION
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: c2
+          naked_identifier: c2
       - comparison_operator:
           raw_comparison_operator: '='
       - literal: '2'
       - comma: ','
       - column_reference:
-          identifier: c3
+          naked_identifier: c3
       - comparison_operator:
           raw_comparison_operator: '='
       - literal: '3'

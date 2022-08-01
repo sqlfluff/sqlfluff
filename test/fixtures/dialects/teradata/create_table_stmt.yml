@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a0ec0c525cb13655349b1a46d4084dda425ddd2eac69b3e2b478e46da23f5bb1
+_hash: 2cdf08157f71afb5ec98b0600e9e37772aeb7800f532cbba8b469cb7e52655c9
 file:
   statement:
     create_table_statement:
@@ -11,7 +11,7 @@ file:
     - keyword: MULTISET
     - keyword: TABLE
     - table_reference:
-        identifier: CONSUMOS
+        naked_identifier: CONSUMOS
     - create_table_options_statement:
       - comma: ','
       - keyword: 'NO'
@@ -36,7 +36,7 @@ file:
         start_bracket: (
         column_definition:
           column_reference:
-            identifier: FIELD1
+            naked_identifier: FIELD1
           data_type:
             data_type_identifier: CHAR
             bracketed:
@@ -50,6 +50,6 @@ file:
       - keyword: INDEX
       - bracketed:
           start_bracket: (
-          identifier: FIELD1
+          naked_identifier: FIELD1
           end_bracket: )
   statement_terminator: ;

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4c0215ef4a3d272e7ab7cd2a69fac8a107dc874b1e76746dc829b0e8adaa6b50
+_hash: 2475b577af1c428903288f5ab85677960322310c8fd1b7a4e48734431c703e68
 file:
   statement:
     select_statement:
@@ -19,7 +19,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: A_TABLE
+                naked_identifier: A_TABLE
           join_clause:
           - keyword: INNER
           - keyword: JOIN
@@ -32,17 +32,17 @@ file:
                       keyword: SELECT
                       select_clause_element:
                         column_reference:
-                          identifier: margin
+                          naked_identifier: margin
                     from_clause:
                       keyword: FROM
                       from_expression:
                         from_expression_element:
                           table_expression:
                             table_reference:
-                              identifier: B_TABLE
+                              naked_identifier: B_TABLE
                   end_bracket: )
           - keyword: USING
           - bracketed:
               start_bracket: (
-              identifier: SOME_COLUMN
+              naked_identifier: SOME_COLUMN
               end_bracket: )

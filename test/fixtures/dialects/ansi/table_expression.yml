@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3a16a223e5ce9bfac7c1ce656591163c2f27a994b59d4b360754651b8629f315
+_hash: 0f32ec651ada1b29e867beb33348e07fc6bbe1c625b6a089d92ddc451bd391af
 file:
 - statement:
     select_statement:
@@ -11,10 +11,10 @@ file:
         keyword: SELECT
         select_clause_element:
           column_reference:
-            identifier: y
+            naked_identifier: y
           alias_expression:
             keyword: AS
-            identifier: woy
+            naked_identifier: woy
       from_clause:
         keyword: FROM
         from_expression:
@@ -40,7 +40,7 @@ file:
                   end_bracket: )
             alias_expression:
               keyword: AS
-              identifier: y
+              naked_identifier: y
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -48,11 +48,11 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: id
+            naked_identifier: id
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: name
+            naked_identifier: name
       from_clause:
       - keyword: FROM
       - from_expression:
@@ -74,11 +74,11 @@ file:
                     - end_square_bracket: ']'
                   end_bracket: )
           - alias_expression:
-              identifier: id
+              naked_identifier: id
           - keyword: WITH
           - keyword: OFFSET
           - alias_expression:
-              identifier: pos1
+              naked_identifier: pos1
       - comma: ','
       - from_expression:
           from_expression_element:
@@ -99,18 +99,18 @@ file:
                     - end_square_bracket: ']'
                   end_bracket: )
           - alias_expression:
-              identifier: name
+              naked_identifier: name
           - keyword: WITH
           - keyword: OFFSET
           - alias_expression:
-              identifier: pos2
+              naked_identifier: pos2
       where_clause:
         keyword: WHERE
         expression:
         - column_reference:
-            identifier: pos1
+            naked_identifier: pos1
         - comparison_operator:
             raw_comparison_operator: '='
         - column_reference:
-            identifier: pos2
+            naked_identifier: pos2
 - statement_terminator: ;

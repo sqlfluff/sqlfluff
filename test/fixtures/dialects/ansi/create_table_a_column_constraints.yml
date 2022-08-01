@@ -3,18 +3,18 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3df412d5cf7df13a1fff015dd84b29d94ef20b4c0c4718ef28be1d4564b0a7fd
+_hash: 8f0be1a19b4137628e25bfff08b7ec6108e29cb00d1d9f6e9f6e8958b83cc287
 file:
   statement:
     create_table_statement:
     - keyword: create
     - keyword: table
     - table_reference:
-        identifier: table1
+        naked_identifier: table1
     - bracketed:
       - start_bracket: (
       - column_definition:
-          identifier: c1
+          naked_identifier: c1
           data_type:
             data_type_identifier: INT
           column_constraint_segment:
@@ -22,7 +22,7 @@ file:
           - keyword: 'NULL'
       - comma: ','
       - column_definition:
-        - identifier: c2
+        - naked_identifier: c2
         - data_type:
             data_type_identifier: INT
         - column_constraint_segment:
@@ -32,7 +32,7 @@ file:
             literal: '1'
       - comma: ','
       - column_definition:
-          identifier: c3
+          naked_identifier: c3
           data_type:
             data_type_identifier: INT
           column_constraint_segment:
@@ -40,95 +40,95 @@ file:
           - keyword: KEY
       - comma: ','
       - column_definition:
-          identifier: c4
+          naked_identifier: c4
           data_type:
             data_type_identifier: INT
           column_constraint_segment:
             keyword: UNIQUE
       - comma: ','
       - column_definition:
-          identifier: c5
+          naked_identifier: c5
           data_type:
             data_type_identifier: INT
           column_constraint_segment:
             keyword: REFERENCES
             table_reference:
-              identifier: table2
+              naked_identifier: table2
       - comma: ','
       - column_definition:
-          identifier: c6
+          naked_identifier: c6
           data_type:
             data_type_identifier: INT
           column_constraint_segment:
             keyword: REFERENCES
             table_reference:
-              identifier: table2
+              naked_identifier: table2
             bracketed:
               start_bracket: (
               column_reference:
-                identifier: c6_other
+                naked_identifier: c6_other
               end_bracket: )
       - comma: ','
       - column_definition:
-          identifier: c6
+          naked_identifier: c6
           data_type:
             data_type_identifier: INT
           column_constraint_segment:
           - keyword: REFERENCES
           - table_reference:
-              identifier: table2
+              naked_identifier: table2
           - bracketed:
               start_bracket: (
               column_reference:
-                identifier: c6_other
+                naked_identifier: c6_other
               end_bracket: )
           - keyword: MATCH
           - keyword: FULL
       - comma: ','
       - column_definition:
-          identifier: c6
+          naked_identifier: c6
           data_type:
             data_type_identifier: INT
           column_constraint_segment:
           - keyword: REFERENCES
           - table_reference:
-              identifier: table2
+              naked_identifier: table2
           - bracketed:
               start_bracket: (
               column_reference:
-                identifier: c6_other
+                naked_identifier: c6_other
               end_bracket: )
           - keyword: MATCH
           - keyword: PARTIAL
       - comma: ','
       - column_definition:
-          identifier: c6
+          naked_identifier: c6
           data_type:
             data_type_identifier: INT
           column_constraint_segment:
           - keyword: REFERENCES
           - table_reference:
-              identifier: table2
+              naked_identifier: table2
           - bracketed:
               start_bracket: (
               column_reference:
-                identifier: c6_other
+                naked_identifier: c6_other
               end_bracket: )
           - keyword: MATCH
           - keyword: SIMPLE
       - comma: ','
       - column_definition:
-          identifier: c6
+          naked_identifier: c6
           data_type:
             data_type_identifier: INT
           column_constraint_segment:
           - keyword: REFERENCES
           - table_reference:
-              identifier: table2
+              naked_identifier: table2
           - bracketed:
               start_bracket: (
               column_reference:
-                identifier: c6_other
+                naked_identifier: c6_other
               end_bracket: )
           - keyword: 'ON'
           - keyword: DELETE
@@ -136,17 +136,17 @@ file:
           - keyword: ACTION
       - comma: ','
       - column_definition:
-          identifier: c6
+          naked_identifier: c6
           data_type:
             data_type_identifier: INT
           column_constraint_segment:
           - keyword: REFERENCES
           - table_reference:
-              identifier: table2
+              naked_identifier: table2
           - bracketed:
               start_bracket: (
               column_reference:
-                identifier: c6_other
+                naked_identifier: c6_other
               end_bracket: )
           - keyword: 'ON'
           - keyword: UPDATE
@@ -154,17 +154,17 @@ file:
           - keyword: 'NULL'
       - comma: ','
       - column_definition:
-          identifier: c6
+          naked_identifier: c6
           data_type:
             data_type_identifier: INT
           column_constraint_segment:
           - keyword: REFERENCES
           - table_reference:
-              identifier: table2
+              naked_identifier: table2
           - bracketed:
               start_bracket: (
               column_reference:
-                identifier: c6_other
+                naked_identifier: c6_other
               end_bracket: )
           - keyword: 'ON'
           - keyword: DELETE
@@ -174,7 +174,7 @@ file:
           - keyword: CASCADE
       - comma: ','
       - column_definition:
-        - identifier: c7
+        - naked_identifier: c7
         - data_type:
             data_type_identifier: INT
         - column_constraint_segment:
@@ -188,10 +188,10 @@ file:
         - column_constraint_segment:
             keyword: REFERENCES
             table_reference:
-              identifier: table3
+              naked_identifier: table3
             bracketed:
               start_bracket: (
               column_reference:
-                identifier: c7_other
+                naked_identifier: c7_other
               end_bracket: )
       - end_bracket: )

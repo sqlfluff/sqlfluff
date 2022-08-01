@@ -3,19 +3,19 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a78ad62775805af0c0da6043c9751aba49411b7a7ae88108c7a91b7584c8381f
+_hash: 1c063414f8e1c250fe6a92dadac6caeb675c23e9f599a789972d6ccd83e7887c
 file:
 - statement:
     delete_statement:
     - keyword: DELETE
     - keyword: FROM
     - table_reference:
-        identifier: staff
+        naked_identifier: staff
     - where_clause:
         keyword: WHERE
         expression:
           column_reference:
-            identifier: name
+            naked_identifier: name
           comparison_operator:
             raw_comparison_operator: '='
           literal: "'SMITH'"
@@ -26,14 +26,14 @@ file:
     - star: '*'
     - keyword: FROM
     - table_reference:
-        identifier: staff
+        naked_identifier: staff
 - statement_terminator: ;
 - statement:
     delete_statement:
     - keyword: DELETE
     - keyword: FROM
     - table_reference:
-        identifier: staff
+        naked_identifier: staff
     - preferring_clause:
         keyword: PREFERRING
         bracketed:
@@ -41,12 +41,12 @@ file:
           preference_term:
             keyword: LOW
             column_reference:
-              identifier: change_date
+              naked_identifier: change_date
           end_bracket: )
         partitionby_clause:
         - keyword: PARTITION
         - keyword: BY
         - expression:
             column_reference:
-              identifier: emp_no
+              naked_identifier: emp_no
 - statement_terminator: ;

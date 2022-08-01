@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8f65575ee7c71807999c2477d0f4e09384c5d629d74d828c1db42ba48d1eb0d7
+_hash: fcd09d8ca050898246234879ce66e44eb273a041068b6ed0fd2d40835d051a4c
 file:
 - statement:
     create_external_table_statement:
@@ -44,7 +44,7 @@ file:
     - keyword: external
     - keyword: table
     - table_reference:
-        identifier: '"_p08"'
+        quoted_identifier: '"_p08"'
     - keyword: with
     - keyword: location
     - comparison_operator:
@@ -53,7 +53,7 @@ file:
     - keyword: auto_refresh
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: 'true'
+    - boolean_literal: 'true'
     - keyword: file_format
     - comparison_operator:
         raw_comparison_operator: '='

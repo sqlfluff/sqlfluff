@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7fc38c380014cc274d7e65a6d9cd51c5e40b54261d20d61d4be57fc998856ae6
+_hash: 5dc2d95551fc747a66d21d5a634182bf609f12d687405fd368190bc5890b07dd
 file:
   statement:
     create_table_statement:
@@ -11,12 +11,12 @@ file:
     - keyword: MULTISET
     - keyword: TABLE
     - table_reference:
-        identifier: NUM_LTR_DESVINCULADOS_ADH
+        naked_identifier: NUM_LTR_DESVINCULADOS_ADH
     - bracketed:
       - start_bracket: (
       - column_definition:
         - column_reference:
-            identifier: DES_EVENTO
+            naked_identifier: DES_EVENTO
         - data_type:
             data_type_identifier: VARCHAR
             bracketed:
@@ -27,7 +27,7 @@ file:
         - td_column_attribute_constraint:
           - keyword: CHARACTER
           - keyword: SET
-          - identifier: LATIN
+          - naked_identifier: LATIN
         - td_column_attribute_constraint:
           - keyword: NOT
           - keyword: CASESPECIFIC
@@ -42,7 +42,7 @@ file:
       - comma: ','
       - column_definition:
           column_reference:
-            identifier: IND_CONTINUA
+            naked_identifier: IND_CONTINUA
           data_type:
             data_type_identifier: BYTEINT
           td_column_attribute_constraint:
@@ -53,13 +53,13 @@ file:
       - keyword: INDEX
       - bracketed:
         - start_bracket: (
-        - identifier: COD_TARJETA
+        - naked_identifier: COD_TARJETA
         - comma: ','
-        - identifier: COD_EST
+        - naked_identifier: COD_EST
         - comma: ','
-        - identifier: FEC_CIERRE_EST
+        - naked_identifier: FEC_CIERRE_EST
         - comma: ','
-        - identifier: IND_TIPO_TARJETA
+        - naked_identifier: IND_TIPO_TARJETA
         - end_bracket: )
       - keyword: PARTITION
       - keyword: BY
@@ -87,10 +87,10 @@ file:
           - end_bracket: )
       - keyword: INDEX
       - object_reference:
-          identifier: HOPR_TRN_TRAV_SIN_MP_I
+          naked_identifier: HOPR_TRN_TRAV_SIN_MP_I
       - bracketed:
           start_bracket: (
           column_reference:
-            identifier: IND_TIPO_TARJETA
+            naked_identifier: IND_TIPO_TARJETA
           end_bracket: )
   statement_terminator: ;

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d07602f1f0fbd1c7e5eb9cf291c5d0c3ff66765b46945016477462789d87c747
+_hash: 3f041db2faf4f539953054480bd02c23beb8560be60637a8c55c6156a1fcea2f
 file:
 - statement:
     select_statement:
@@ -19,7 +19,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: source
+                naked_identifier: source
             sample_expression:
               keyword: TABLESAMPLE
               bracketed:
@@ -30,10 +30,10 @@ file:
               - keyword: OF
               - literal: '32'
               - keyword: 'ON'
-              - identifier: id
+              - naked_identifier: id
               - end_bracket: )
               alias_expression:
-                identifier: s
+                naked_identifier: s
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -49,7 +49,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: source
+                naked_identifier: source
             sample_expression:
               keyword: TABLESAMPLE
               bracketed:
@@ -68,7 +68,7 @@ file:
                     end_bracket: )
               - end_bracket: )
               alias_expression:
-                identifier: s
+                naked_identifier: s
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -84,7 +84,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: source
+                naked_identifier: source
             sample_expression:
               keyword: TABLESAMPLE
               bracketed:
@@ -94,7 +94,7 @@ file:
                 end_bracket: )
               alias_expression:
                 keyword: AS
-                identifier: s
+                naked_identifier: s
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -110,7 +110,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: source
+                naked_identifier: source
             sample_expression:
               keyword: TABLESAMPLE
               bracketed:
@@ -118,7 +118,7 @@ file:
                 byte_length_literal: 100M
                 end_bracket: )
               alias_expression:
-                identifier: s
+                naked_identifier: s
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -134,7 +134,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: source
+                naked_identifier: source
             sample_expression:
               keyword: TABLESAMPLE
               bracketed:

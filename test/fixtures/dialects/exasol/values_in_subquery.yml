@@ -3,13 +3,13 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2563056fe5c469899d58b90f13ac5a8d364772acf41983e24ab7dce256255d82
+_hash: 42e01cddef668037ca52e97dc935c0422897fe9c3d9ab1ffce3865328c09ba2e
 file:
 - statement:
     with_compound_statement:
       keyword: WITH
       common_table_expression:
-        identifier: txt
+        naked_identifier: txt
         keyword: AS
         bracketed:
           start_bracket: (
@@ -22,11 +22,11 @@ file:
               end_bracket: )
             alias_expression:
               keyword: AS
-              identifier: t
+              naked_identifier: t
               bracketed:
                 start_bracket: (
                 identifier_list:
-                  identifier: id
+                  naked_identifier: id
                 end_bracket: )
           end_bracket: )
       select_statement:
@@ -42,13 +42,13 @@ file:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: txt
+                  naked_identifier: txt
 - statement_terminator: ;
 - statement:
     with_compound_statement:
       keyword: WITH
       common_table_expression:
-        identifier: txt
+        naked_identifier: txt
         keyword: AS
         bracketed:
           start_bracket: (
@@ -71,13 +71,13 @@ file:
               - end_bracket: )
           - alias_expression:
               keyword: AS
-              identifier: t
+              naked_identifier: t
               bracketed:
                 start_bracket: (
                 identifier_list:
-                - identifier: c1
+                - naked_identifier: c1
                 - comma: ','
-                - identifier: c2
+                - naked_identifier: c2
                 end_bracket: )
           end_bracket: )
       select_statement:
@@ -93,7 +93,7 @@ file:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: txt
+                  naked_identifier: txt
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -120,11 +120,11 @@ file:
               end_bracket: )
             alias_expression:
               keyword: AS
-              identifier: t
+              naked_identifier: t
               bracketed:
                 start_bracket: (
                 identifier_list:
-                  identifier: id
+                  naked_identifier: id
                 end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -162,12 +162,12 @@ file:
               end_bracket: )
             alias_expression:
               keyword: AS
-              identifier: t
+              naked_identifier: t
               bracketed:
                 start_bracket: (
                 identifier_list:
-                - identifier: c1
+                - naked_identifier: c1
                 - comma: ','
-                - identifier: c2
+                - naked_identifier: c2
                 end_bracket: )
 - statement_terminator: ;

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c28560bc28bf5553f7d9542b52b6047eb3a486249e4480108fa4c9676fe08188
+_hash: 76b8fb26f10764672761f092277c3f9ea0884aaf3207505467460e83b8195769
 file:
 - statement:
     select_statement:
@@ -11,20 +11,20 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: a
+            naked_identifier: a
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: b
+            naked_identifier: b
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-              - identifier: default
+              - naked_identifier: default
               - dot: .
-              - identifier: people10m
+              - naked_identifier: people10m
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -32,11 +32,11 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: a
+            naked_identifier: a
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: b
+            naked_identifier: b
       from_clause:
         keyword: FROM
         from_expression:
@@ -53,20 +53,20 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: a
+            naked_identifier: a
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: b
+            naked_identifier: b
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-              - identifier: default
+              - naked_identifier: default
               - dot: .
-              - identifier: people10m
+              - naked_identifier: people10m
               literal: '@20190101000000000'
 - statement_terminator: ;
 - statement:
@@ -135,9 +135,9 @@ file:
           from_expression_element:
             table_expression:
             - table_reference:
-              - identifier: default
+              - naked_identifier: default
               - dot: .
-              - identifier: people10m
+              - naked_identifier: people10m
             - keyword: TIMESTAMP
             - keyword: AS
             - keyword: OF
@@ -161,9 +161,9 @@ file:
           from_expression_element:
             table_expression:
             - table_reference:
-              - identifier: default
+              - naked_identifier: default
               - dot: .
-              - identifier: people10m
+              - naked_identifier: people10m
             - keyword: TIMESTAMP
             - keyword: AS
             - keyword: OF
@@ -202,9 +202,9 @@ file:
           from_expression_element:
             table_expression:
             - table_reference:
-              - identifier: default
+              - naked_identifier: default
               - dot: .
-              - identifier: people10m
+              - naked_identifier: people10m
             - keyword: TIMESTAMP
             - keyword: AS
             - keyword: OF
@@ -216,20 +216,20 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: a
+            naked_identifier: a
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: b
+            naked_identifier: b
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-              - identifier: default
+              - naked_identifier: default
               - dot: .
-              - identifier: people10m
+              - naked_identifier: people10m
               literal: '@v123'
 - statement_terminator: ;
 - statement:
@@ -250,9 +250,9 @@ file:
           from_expression_element:
             table_expression:
             - table_reference:
-              - identifier: default
+              - naked_identifier: default
               - dot: .
-              - identifier: people10m
+              - naked_identifier: people10m
             - keyword: VERSION
             - keyword: AS
             - keyword: OF
@@ -276,9 +276,9 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-              - identifier: default
+              - naked_identifier: default
               - dot: .
-              - identifier: people10m
+              - naked_identifier: people10m
               literal: '@v5238'
 - statement_terminator: ;
 - statement:

@@ -3,14 +3,14 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5868182eecb18f3a2dbce8127b6900cc6881fec967a0a885eb3402cfe476a828
+_hash: ff8834e00a14813f7a855096017b3caf63540d2cf1b3c0141e1e2a267315eb38
 file:
   statement:
     create_database_statement:
     - keyword: CREATE
     - keyword: DATABASE
     - database_reference:
-        identifier: foo
+        naked_identifier: foo
     - keyword: LOCATION
     - literal: "'hdfs://path'"
     - keyword: WITH

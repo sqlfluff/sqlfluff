@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0d1d7813e2c113fe92b8e582c7a0463c45d4a682afdded745c986c1269e23693
+_hash: 76e28b74a56ca5d948476cb32f45649e0357c1e42344987e658178ad75d0fbcb
 file:
 - statement:
     select_statement:
@@ -17,7 +17,7 @@ file:
               bracketed:
                 start_bracket: (
                 expression:
-                  literal: 'null'
+                  null_literal: 'null'
                 keyword: AS
                 data_type:
                   primitive_type:
@@ -30,7 +30,7 @@ file:
               bracketed:
                 start_bracket: (
                 expression:
-                  literal: 'null'
+                  null_literal: 'null'
                 keyword: AS
                 data_type:
                   primitive_type:
@@ -49,14 +49,14 @@ file:
               bracketed:
                 start_bracket: (
                 expression:
-                  literal: 'null'
+                  null_literal: 'null'
                 keyword: AS
                 data_type:
                   primitive_type:
                     keyword: boolean
                 end_bracket: )
             binary_operator: OR
-            literal: 'false'
+            boolean_literal: 'false'
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -70,14 +70,14 @@ file:
               bracketed:
                 start_bracket: (
                 expression:
-                  literal: 'null'
+                  null_literal: 'null'
                 keyword: AS
                 data_type:
                   primitive_type:
                     keyword: boolean
                 end_bracket: )
             binary_operator: OR
-            literal: 'true'
+            boolean_literal: 'true'
 - statement_terminator: ;
 - statement:
     select_statement:

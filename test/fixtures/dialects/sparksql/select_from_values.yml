@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b0363ad09c5aed1c2dd95dd68f6dd459407e26901945a4fc565755309429905e
+_hash: 19a539b9a2afa944e1c109b7e0edb55dc572422cc93e2877f81904764cd2a97a
 file:
 - statement:
     select_statement:
@@ -321,7 +321,7 @@ file:
                   literal: '1'
                 alias_expression:
                   keyword: as
-                  identifier: t
+                  naked_identifier: t
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -348,13 +348,13 @@ file:
                 - end_bracket: )
                 alias_expression:
                   keyword: as
-                  identifier: t
+                  naked_identifier: t
                   bracketed:
                     start_bracket: (
                     identifier_list:
-                    - identifier: a
+                    - naked_identifier: a
                     - comma: ','
-                    - identifier: b
+                    - naked_identifier: b
                     end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -394,13 +394,13 @@ file:
               end_bracket: )
             alias_expression:
               keyword: as
-              identifier: t
+              naked_identifier: t
               bracketed:
                 start_bracket: (
                 identifier_list:
-                - identifier: a
+                - naked_identifier: a
                 - comma: ','
-                - identifier: b
+                - naked_identifier: b
                 end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -443,9 +443,9 @@ file:
               bracketed:
                 start_bracket: (
                 identifier_list:
-                - identifier: a
+                - naked_identifier: a
                 - comma: ','
-                - identifier: b
+                - naked_identifier: b
                 end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -466,7 +466,7 @@ file:
                 expression:
                   literal: '1'
                 alias_expression:
-                  identifier: t
+                  naked_identifier: t
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -492,13 +492,13 @@ file:
                     literal: '2'
                 - end_bracket: )
                 alias_expression:
-                  identifier: t
+                  naked_identifier: t
                   bracketed:
                     start_bracket: (
                     identifier_list:
-                    - identifier: a
+                    - naked_identifier: a
                     - comma: ','
-                    - identifier: b
+                    - naked_identifier: b
                     end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -537,13 +537,13 @@ file:
                   - end_bracket: )
               end_bracket: )
             alias_expression:
-              identifier: t
+              naked_identifier: t
               bracketed:
                 start_bracket: (
                 identifier_list:
-                - identifier: a
+                - naked_identifier: a
                 - comma: ','
-                - identifier: b
+                - naked_identifier: b
                 end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -585,9 +585,9 @@ file:
               bracketed:
                 start_bracket: (
                 identifier_list:
-                - identifier: a
+                - naked_identifier: a
                 - comma: ','
-                - identifier: b
+                - naked_identifier: b
                 end_bracket: )
 - statement_terminator: ;
 - statement:

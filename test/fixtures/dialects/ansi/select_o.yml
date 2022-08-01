@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 698784f3abccdd2fa0a83d552ce4e6b9e3b97c18680d9b0d5771b232050193a4
+_hash: 1957a003057454b0d42cad3faa487330371302f83f29a6fcc36144314e8d6b94
 file:
   statement:
     select_statement:
@@ -11,19 +11,19 @@ file:
         keyword: SELECT
         select_clause_element:
           column_reference:
-            identifier: business_type
+            naked_identifier: business_type
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: benchmark_summaries
+                naked_identifier: benchmark_summaries
       where_clause:
         keyword: WHERE
         expression:
         - column_reference:
-            identifier: avg_click_rate
+            naked_identifier: avg_click_rate
         - keyword: NOT
         - keyword: BETWEEN
         - literal: '0'
@@ -33,25 +33,25 @@ file:
         - literal: '1'
         - binary_operator: +
         - column_reference:
-            identifier: some_value
+            naked_identifier: some_value
         - binary_operator: AND
         - column_reference:
-            identifier: some_other_thing
+            naked_identifier: some_other_thing
         - keyword: BETWEEN
         - literal: '0'
         - binary_operator: '-'
         - literal: '1'
         - binary_operator: '*'
         - column_reference:
-            identifier: another_value
+            naked_identifier: another_value
         - keyword: and
         - literal: '1'
         - binary_operator: AND
         - column_reference:
-            identifier: another_thing
+            naked_identifier: another_thing
         - keyword: BETWEEN
         - sign_indicator: '-'
         - column_reference:
-            identifier: another_value
+            naked_identifier: another_value
         - keyword: and
         - literal: '0'

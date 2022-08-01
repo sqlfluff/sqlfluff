@@ -3,14 +3,14 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a945ebc38b052ee1abb47789698113d2a4de16a33cf793ed0e973d16b1920807
+_hash: 6c4be6d0a43c6ae93f8022af2ab01fcea9a8fc3a16ee659a20d10c2bdd9719ba
 file:
 - statement:
     alter_database_statement:
     - keyword: ALTER
     - keyword: DATABASE
     - database_reference:
-        identifier: foo
+        naked_identifier: foo
     - keyword: SET
     - keyword: DBPROPERTIES
     - bracketed:
@@ -31,7 +31,7 @@ file:
     - keyword: ALTER
     - keyword: DATABASE
     - database_reference:
-        identifier: bar
+        naked_identifier: bar
     - keyword: SET
     - keyword: LOCATION
     - literal: '"hdfs://alternate_path"'
@@ -41,7 +41,7 @@ file:
     - keyword: ALTER
     - keyword: DATABASE
     - database_reference:
-        identifier: foo2
+        naked_identifier: foo2
     - keyword: SET
     - keyword: OWNER
     - keyword: USER

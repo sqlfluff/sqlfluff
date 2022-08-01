@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 44f080981ae899e2a698cf35a81a7609ccffcc1395d8b391eccbf78be4253a4b
+_hash: 4f6da8b2010cc36b44c8abe1f78eb37d86181feeaa38c6ef26d1c1167108dfa2
 file:
 - statement:
     select_statement:
@@ -11,23 +11,23 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: name
+            naked_identifier: name
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: age
+            naked_identifier: age
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: person
+                naked_identifier: person
       where_clause:
         keyword: WHERE
         expression:
           column_reference:
-            identifier: id
+            naked_identifier: id
           comparison_operator:
             raw_comparison_operator: '>'
           literal: '200'
@@ -35,7 +35,7 @@ file:
       - keyword: ORDER
       - keyword: BY
       - column_reference:
-          identifier: id
+          naked_identifier: id
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -43,29 +43,29 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: name
+            naked_identifier: name
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: age
+            naked_identifier: age
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: person
+                naked_identifier: person
       where_clause:
         keyword: WHERE
         expression:
         - column_reference:
-            identifier: id
+            naked_identifier: id
         - comparison_operator:
             raw_comparison_operator: '='
         - literal: '200'
         - binary_operator: OR
         - column_reference:
-            identifier: id
+            naked_identifier: id
         - comparison_operator:
             raw_comparison_operator: '='
         - literal: '300'
@@ -73,7 +73,7 @@ file:
       - keyword: ORDER
       - keyword: BY
       - column_reference:
-          identifier: id
+          naked_identifier: id
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -81,18 +81,18 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: name
+            naked_identifier: name
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: age
+            naked_identifier: age
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: person
+                naked_identifier: person
       where_clause:
         keyword: WHERE
         expression:
@@ -103,7 +103,7 @@ file:
               start_bracket: (
               expression:
                 column_reference:
-                  identifier: name
+                  naked_identifier: name
               end_bracket: )
           comparison_operator:
             raw_comparison_operator: '>'
@@ -112,7 +112,7 @@ file:
       - keyword: ORDER
       - keyword: BY
       - column_reference:
-          identifier: id
+          naked_identifier: id
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -120,23 +120,23 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: name
+            naked_identifier: name
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: age
+            naked_identifier: age
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: person
+                naked_identifier: person
       where_clause:
         keyword: WHERE
         expression:
         - column_reference:
-            identifier: id
+            naked_identifier: id
         - keyword: BETWEEN
         - literal: '200'
         - keyword: AND
@@ -145,7 +145,7 @@ file:
       - keyword: ORDER
       - keyword: BY
       - column_reference:
-          identifier: id
+          naked_identifier: id
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -153,23 +153,23 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: name
+            naked_identifier: name
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: age
+            naked_identifier: age
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: person
+                naked_identifier: person
       where_clause:
         keyword: WHERE
         expression:
           column_reference:
-            identifier: age
+            naked_identifier: age
           comparison_operator:
             raw_comparison_operator: '>'
           bracketed:
@@ -186,7 +186,7 @@ file:
                         start_bracket: (
                         expression:
                           column_reference:
-                            identifier: age
+                            naked_identifier: age
                         end_bracket: )
                 from_clause:
                   keyword: FROM
@@ -194,7 +194,7 @@ file:
                     from_expression_element:
                       table_expression:
                         table_reference:
-                          identifier: person
+                          naked_identifier: person
             end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -203,18 +203,18 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: name
+            naked_identifier: name
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: age
+            naked_identifier: age
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: person
+                naked_identifier: person
       where_clause:
         keyword: WHERE
         expression:
@@ -232,25 +232,25 @@ file:
                   from_expression_element:
                     table_expression:
                       table_reference:
-                        identifier: person
+                        naked_identifier: person
               where_clause:
                 keyword: WHERE
                 expression:
                 - column_reference:
-                  - identifier: person
+                  - naked_identifier: person
                   - dot: .
-                  - identifier: id
+                  - naked_identifier: id
                 - comparison_operator:
                     raw_comparison_operator: '='
                 - column_reference:
-                  - identifier: person
+                  - naked_identifier: person
                   - dot: .
-                  - identifier: id
+                  - naked_identifier: id
                 - binary_operator: AND
                 - column_reference:
-                  - identifier: person
+                  - naked_identifier: person
                   - dot: .
-                  - identifier: age
+                  - naked_identifier: age
                 - keyword: IS
                 - keyword: 'NULL'
             end_bracket: )

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b65a5c19f8df641c2b8d1a2a192b8c6748d89977f7acd8c79d052ab77cb2dbc4
+_hash: 3291c5b93861ea4d31510e9aea54d507f493c457447ddf26a34ddc4c59af0720
 file:
   statement:
     create_table_statement:
@@ -11,9 +11,9 @@ file:
     - keyword: external
     - keyword: table
     - table_reference:
-      - identifier: my_database
+      - naked_identifier: my_database
       - dot: .
-      - identifier: my_table
+      - naked_identifier: my_table
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -23,41 +23,41 @@ file:
               keyword: string
       - comma: ','
       - column_definition:
-          identifier: campaignId
+          naked_identifier: campaignId
           data_type:
             primitive_type:
               keyword: string
       - comma: ','
       - column_definition:
-          identifier: campaignName
+          naked_identifier: campaignName
           data_type:
             primitive_type:
               keyword: string
       - comma: ','
       - column_definition:
-          identifier: deleted
+          naked_identifier: deleted
           data_type:
             primitive_type:
               keyword: string
       - comma: ','
       - column_definition:
-          identifier: campaignStatus
+          naked_identifier: campaignStatus
           data_type:
             primitive_type:
               keyword: string
       - comma: ','
       - column_definition:
-          identifier: app
+          naked_identifier: app
           data_type:
           - keyword: struct
           - start_angle_bracket: <
-          - identifier: appName
+          - naked_identifier: appName
           - colon: ':'
           - data_type:
               primitive_type:
                 keyword: string
           - comma: ','
-          - identifier: adamId
+          - naked_identifier: adamId
           - colon: ':'
           - data_type:
               primitive_type:
@@ -65,19 +65,19 @@ file:
           - end_angle_bracket: '>'
       - comma: ','
       - column_definition:
-          identifier: servingStatus
+          naked_identifier: servingStatus
           data_type:
             primitive_type:
               keyword: string
       - comma: ','
       - column_definition:
-          identifier: servingStateReasons
+          naked_identifier: servingStateReasons
           data_type:
             primitive_type:
               keyword: string
       - comma: ','
       - column_definition:
-          identifier: countriesOrRegions
+          naked_identifier: countriesOrRegions
           data_type:
             keyword: array
             start_angle_bracket: <
@@ -87,23 +87,23 @@ file:
             end_angle_bracket: '>'
       - comma: ','
       - column_definition:
-          identifier: modificationTime
+          naked_identifier: modificationTime
           data_type:
             primitive_type:
               keyword: string
       - comma: ','
       - column_definition:
-          identifier: totalBudget
+          naked_identifier: totalBudget
           data_type:
           - keyword: struct
           - start_angle_bracket: <
-          - identifier: amount
+          - naked_identifier: amount
           - colon: ':'
           - data_type:
               primitive_type:
                 keyword: int
           - comma: ','
-          - identifier: currency
+          - naked_identifier: currency
           - colon: ':'
           - data_type:
               primitive_type:
@@ -111,17 +111,17 @@ file:
           - end_angle_bracket: '>'
       - comma: ','
       - column_definition:
-          identifier: dailyBudget
+          naked_identifier: dailyBudget
           data_type:
           - keyword: struct
           - start_angle_bracket: <
-          - identifier: amount
+          - naked_identifier: amount
           - colon: ':'
           - data_type:
               primitive_type:
                 keyword: int
           - comma: ','
-          - identifier: currency
+          - naked_identifier: currency
           - colon: ':'
           - data_type:
               primitive_type:
@@ -129,13 +129,13 @@ file:
           - end_angle_bracket: '>'
       - comma: ','
       - column_definition:
-          identifier: displayStatus
+          naked_identifier: displayStatus
           data_type:
             primitive_type:
               keyword: string
       - comma: ','
       - column_definition:
-          identifier: supplySources
+          naked_identifier: supplySources
           data_type:
             keyword: array
             start_angle_bracket: <
@@ -145,95 +145,95 @@ file:
             end_angle_bracket: '>'
       - comma: ','
       - column_definition:
-          identifier: adChannelType
+          naked_identifier: adChannelType
           data_type:
             primitive_type:
               keyword: string
       - comma: ','
       - column_definition:
-          identifier: orgId
+          naked_identifier: orgId
           data_type:
             primitive_type:
               keyword: string
       - comma: ','
       - column_definition:
-          identifier: billingEvent
+          naked_identifier: billingEvent
           data_type:
             primitive_type:
               keyword: string
       - comma: ','
       - column_definition:
-          identifier: countryOrRegionServingStateReasons
+          naked_identifier: countryOrRegionServingStateReasons
           data_type:
             primitive_type:
               keyword: string
       - comma: ','
       - column_definition:
-          identifier: other
+          naked_identifier: other
           data_type:
             primitive_type:
               keyword: boolean
       - comma: ','
       - column_definition:
-          identifier: impressions
+          naked_identifier: impressions
           data_type:
             primitive_type:
               keyword: int
       - comma: ','
       - column_definition:
-          identifier: taps
+          naked_identifier: taps
           data_type:
             primitive_type:
               keyword: int
       - comma: ','
       - column_definition:
-          identifier: installs
+          naked_identifier: installs
           data_type:
             primitive_type:
               keyword: int
       - comma: ','
       - column_definition:
-          identifier: newDownloads
+          naked_identifier: newDownloads
           data_type:
             primitive_type:
               keyword: int
       - comma: ','
       - column_definition:
-          identifier: redownloads
+          naked_identifier: redownloads
           data_type:
             primitive_type:
               keyword: int
       - comma: ','
       - column_definition:
-          identifier: latOnInstalls
+          naked_identifier: latOnInstalls
           data_type:
             primitive_type:
               keyword: int
       - comma: ','
       - column_definition:
-          identifier: latOffInstalls
+          naked_identifier: latOffInstalls
           data_type:
             primitive_type:
               keyword: int
       - comma: ','
       - column_definition:
-          identifier: ttr
+          naked_identifier: ttr
           data_type:
             primitive_type:
               keyword: int
       - comma: ','
       - column_definition:
-          identifier: avgCPA
+          naked_identifier: avgCPA
           data_type:
           - keyword: struct
           - start_angle_bracket: <
-          - identifier: amount
+          - naked_identifier: amount
           - colon: ':'
           - data_type:
               primitive_type:
                 keyword: int
           - comma: ','
-          - identifier: currency
+          - naked_identifier: currency
           - colon: ':'
           - data_type:
               primitive_type:
@@ -241,17 +241,17 @@ file:
           - end_angle_bracket: '>'
       - comma: ','
       - column_definition:
-          identifier: avgCPT
+          naked_identifier: avgCPT
           data_type:
           - keyword: struct
           - start_angle_bracket: <
-          - identifier: amount
+          - naked_identifier: amount
           - colon: ':'
           - data_type:
               primitive_type:
                 keyword: int
           - comma: ','
-          - identifier: currency
+          - naked_identifier: currency
           - colon: ':'
           - data_type:
               primitive_type:
@@ -259,17 +259,17 @@ file:
           - end_angle_bracket: '>'
       - comma: ','
       - column_definition:
-          identifier: avgCPM
+          naked_identifier: avgCPM
           data_type:
           - keyword: struct
           - start_angle_bracket: <
-          - identifier: amount
+          - naked_identifier: amount
           - colon: ':'
           - data_type:
               primitive_type:
                 keyword: int
           - comma: ','
-          - identifier: currency
+          - naked_identifier: currency
           - colon: ':'
           - data_type:
               primitive_type:
@@ -277,17 +277,17 @@ file:
           - end_angle_bracket: '>'
       - comma: ','
       - column_definition:
-          identifier: localSpend
+          naked_identifier: localSpend
           data_type:
           - keyword: struct
           - start_angle_bracket: <
-          - identifier: amount
+          - naked_identifier: amount
           - colon: ':'
           - data_type:
               primitive_type:
                 keyword: int
           - comma: ','
-          - identifier: currency
+          - naked_identifier: currency
           - colon: ':'
           - data_type:
               primitive_type:
@@ -295,7 +295,7 @@ file:
           - end_angle_bracket: '>'
       - comma: ','
       - column_definition:
-          identifier: conversionRate
+          naked_identifier: conversionRate
           data_type:
             primitive_type:
               keyword: int
@@ -305,7 +305,7 @@ file:
     - bracketed:
         start_bracket: (
         column_definition:
-          identifier: field_partition
+          naked_identifier: field_partition
           data_type:
             primitive_type:
               keyword: string

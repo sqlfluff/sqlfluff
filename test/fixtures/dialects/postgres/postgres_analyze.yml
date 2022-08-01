@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c66328f005c8141e48502b70887f8ccfcd8deb12d56f963356ef9e29d1f0b08a
+_hash: e922e238e87233311373b7dc7e0b048abf319c3be3de28210c8fed9a8fe346c5
 file:
 - statement:
     analyze_statement:
@@ -42,10 +42,10 @@ file:
       bracketed:
       - start_bracket: (
       - keyword: VERBOSE
-      - literal: 'FALSE'
+      - boolean_literal: 'FALSE'
       - comma: ','
       - keyword: SKIP_LOCKED
-      - literal: 'TRUE'
+      - boolean_literal: 'TRUE'
       - end_bracket: )
       table_reference:
         identifier: foo
@@ -58,7 +58,7 @@ file:
       - keyword: SKIP_LOCKED
       - comma: ','
       - keyword: VERBOSE
-      - literal: 'FALSE'
+      - boolean_literal: 'FALSE'
       - end_bracket: )
       table_reference:
         identifier: foo

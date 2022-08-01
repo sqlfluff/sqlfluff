@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 313a0ed2d9d3ed25e2465b005b85f0ad561ca7cc480334bd820feb59ae99cf2c
+_hash: 5bcc6ceee0d0b2c5fde4f6fc9686761fbdbcdca0177f7bb504eeb6eeb9bcf783
 file:
   statement:
     unload_statement:
@@ -15,18 +15,18 @@ file:
           - keyword: SELECT
           - select_clause_element:
               column_reference:
-                identifier: field_1
+                naked_identifier: field_1
           - comma: ','
           - select_clause_element:
               column_reference:
-                identifier: field_2
+                naked_identifier: field_2
           from_clause:
             keyword: FROM
             from_expression:
               from_expression_element:
                 table_expression:
                   table_reference:
-                    identifier: my_table
+                    naked_identifier: my_table
         end_bracket: )
     - keyword: TO
     - literal: "'s3://my_athena_data_location/my_folder/'"
@@ -55,7 +55,7 @@ file:
           keyword: ARRAY
           start_square_bracket: '['
           column_reference:
-            identifier: field_2
+            naked_identifier: field_2
           end_square_bracket: ']'
       - end_bracket: )
   statement_terminator: ;

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a51e59d07f2042e5144fa6a3ce671b7926136e3b1a48fd4a1d22ef952ac1c216
+_hash: 5f3ce6e288c91784d4305a4e555d9e328b8ea1b6e007ac49b0ee031074cda01e
 file:
 - statement:
     create_table_statement:
@@ -13,10 +13,10 @@ file:
     - keyword: NOT
     - keyword: EXISTS
     - table_reference:
-        identifier: table_identifier
+        naked_identifier: table_identifier
     - keyword: LIKE
     - table_reference:
-        identifier: source_table_identifier
+        naked_identifier: source_table_identifier
     - keyword: USING
     - keyword: PARQUET
     - row_format_clause:
@@ -34,13 +34,13 @@ file:
     - bracketed:
       - start_bracket: (
       - property_name_identifier:
-          identifier: '"key1"'
+          quoted_identifier: '"key1"'
       - comparison_operator:
           raw_comparison_operator: '='
       - literal: '"val1"'
       - comma: ','
       - property_name_identifier:
-          identifier: '"key2"'
+          quoted_identifier: '"key2"'
       - comparison_operator:
           raw_comparison_operator: '='
       - literal: '"val2"'
@@ -53,20 +53,20 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: student_dupli
+        naked_identifier: student_dupli
     - keyword: LIKE
     - table_reference:
-        identifier: student
+        naked_identifier: student
 - statement_terminator: ;
 - statement:
     create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: student_dupli
+        naked_identifier: student_dupli
     - keyword: LIKE
     - table_reference:
-        identifier: student
+        naked_identifier: student
     - keyword: USING
     - keyword: CSV
 - statement_terminator: ;
@@ -75,10 +75,10 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: student_dupli
+        naked_identifier: student_dupli
     - keyword: LIKE
     - table_reference:
-        identifier: student
+        naked_identifier: student
     - keyword: LOCATION
     - literal: "'/root1/home'"
 - statement_terminator: ;
@@ -87,10 +87,10 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: student_dupli
+        naked_identifier: student_dupli
     - keyword: LIKE
     - table_reference:
-        identifier: student
+        naked_identifier: student
     - row_format_clause:
       - keyword: ROW
       - keyword: FORMAT
@@ -106,7 +106,7 @@ file:
     - bracketed:
         start_bracket: (
         property_name_identifier:
-          identifier: "'owner'"
+          quoted_identifier: "'owner'"
         comparison_operator:
           raw_comparison_operator: '='
         literal: "'xxxx'"

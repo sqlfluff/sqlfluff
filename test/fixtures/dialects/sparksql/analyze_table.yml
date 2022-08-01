@@ -3,14 +3,14 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: fd2fcab6c53edcf7ddb5ee2a7d6653c7a20848296e6c63f83bbdded165cbd7ed
+_hash: 7d0bf0c669d51164afbb769cd740a480f5e6770da4b33d56d2347dbff0d12086
 file:
 - statement:
     analyze_table_statement:
     - keyword: ANALYZE
     - keyword: TABLE
     - table_reference:
-        identifier: students
+        naked_identifier: students
     - keyword: COMPUTE
     - keyword: STATISTICS
     - keyword: NOSCAN
@@ -20,7 +20,7 @@ file:
     - keyword: ANALYZE
     - keyword: TABLE
     - table_reference:
-        identifier: students
+        naked_identifier: students
     - keyword: COMPUTE
     - keyword: STATISTICS
 - statement_terminator: ;
@@ -29,12 +29,12 @@ file:
     - keyword: ANALYZE
     - keyword: TABLE
     - table_reference:
-        identifier: students
+        naked_identifier: students
     - keyword: PARTITION
     - bracketed:
         start_bracket: (
         column_reference:
-          identifier: student_id
+          naked_identifier: student_id
         comparison_operator:
           raw_comparison_operator: '='
         literal: '111111'
@@ -47,13 +47,13 @@ file:
     - keyword: ANALYZE
     - keyword: TABLE
     - table_reference:
-        identifier: students
+        naked_identifier: students
     - keyword: COMPUTE
     - keyword: STATISTICS
     - keyword: FOR
     - keyword: COLUMNS
     - column_reference:
-        identifier: name
+        naked_identifier: name
 - statement_terminator: ;
 - statement:
     analyze_table_statement:
@@ -61,7 +61,7 @@ file:
     - keyword: TABLES
     - keyword: IN
     - database_reference:
-        identifier: school_db
+        naked_identifier: school_db
     - keyword: COMPUTE
     - keyword: STATISTICS
     - keyword: NOSCAN

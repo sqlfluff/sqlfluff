@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d67c4da1824cff5aaac6bb1f73073ca704a116f34e37a0d27252dde8e3b2ea4d
+_hash: de2db40ebcb0e50bb1c99ba4bd86c7426e211ec12963705bc6943812d320f148
 file:
 - statement:
     select_statement:
@@ -11,15 +11,15 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: pushdown_id
+            naked_identifier: pushdown_id
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: pushdown_involved_tables
+            naked_identifier: pushdown_involved_tables
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: pushdown_sql
+            naked_identifier: pushdown_sql
       from_clause:
         keyword: FROM
         from_expression:
@@ -43,14 +43,14 @@ file:
                         from_expression_element:
                           table_expression:
                             table_reference:
-                            - identifier: vs_impala
+                            - naked_identifier: vs_impala
                             - dot: .
-                            - identifier: sample_07
+                            - naked_identifier: sample_07
                     where_clause:
                       keyword: WHERE
                       expression:
                         column_reference:
-                          identifier: total_emp
+                          naked_identifier: total_emp
                         comparison_operator:
                           raw_comparison_operator: '>'
                         literal: '10000'
@@ -73,14 +73,14 @@ file:
             from_expression_element:
               table_expression:
                 table_reference:
-                - identifier: vs_impala
+                - naked_identifier: vs_impala
                 - dot: .
-                - identifier: sample_07
+                - naked_identifier: sample_07
         where_clause:
           keyword: WHERE
           expression:
             column_reference:
-              identifier: total_emp
+              naked_identifier: total_emp
             comparison_operator:
               raw_comparison_operator: '>'
             literal: '10000'

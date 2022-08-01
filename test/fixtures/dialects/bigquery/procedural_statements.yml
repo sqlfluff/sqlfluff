@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 90e6fc9d50bdb4bb9c9b9dc4902c179fe456a9ad3f19d3848c034c0330142766
+_hash: 4f6bcae80f76de93e6827cd60191c02c955877b0ba8c688876d839205ee2f955
 file:
 - statement:
     declare_segment:
@@ -53,7 +53,7 @@ file:
     while_statement:
     - keyword: WHILE
     - expression:
-        literal: 'true'
+        boolean_literal: 'true'
     - keyword: DO
     - while_statements:
       - statement:
