@@ -11,6 +11,7 @@ import subprocess
 import sys
 import tempfile
 import textwrap
+import logging
 from unittest.mock import MagicMock, patch
 
 import chardet
@@ -27,6 +28,33 @@ from sqlfluff.core.rules import BaseRule, LintFix, LintResult
 from sqlfluff.core.parser.segments.raw import CommentSegment
 
 re_ansi_escape = re.compile(r"\x1b[^m]*m")
+
+
+@pytest.fixture(autouse=True)
+def logging_cleanup():
+    """This gracefully handles logging issues at session teardown.
+
+    Removes handlers from all loggers. Autouse applies this to all
+    tests in this file (i.e. all the cli command tests), which should
+    be all of the test cases where `set_logging_level` is called.
+
+    https://github.com/sqlfluff/sqlfluff/issues/3702
+    https://github.com/pytest-dev/pytest/issues/5502#issuecomment-1190557648
+    """
+    yield
+    # NOTE: This is a teardown function so the clearup code
+    # comes _after_ the yield.
+    # Get only the sqlfluff loggers (which we set in set_logging_level)
+    loggers = [
+        logger
+        for logger in logging.Logger.manager.loggerDict.values()
+        if isinstance(logger, logging.Logger) and logger.name.startswith("sqlfluff")
+    ]
+    for logger in loggers:
+        if not hasattr(logger, "handlers"):
+            continue
+        for handler in logger.handlers[:]:
+            logger.removeHandler(handler)
 
 
 def contains_ansi_escape(s: str) -> bool:
