@@ -345,11 +345,9 @@ sparksql_dialect.add(
         "TEXTFILE", KeywordSegment, name="text_file", type="file_format"
     ),
     StartAngleBracketSegment=StringParser(
-        "<", SymbolSegment, name="start_angle_bracket", type="start_angle_bracket"
+        "<", SymbolSegment, type="start_angle_bracket"
     ),
-    EndAngleBracketSegment=StringParser(
-        ">", SymbolSegment, name="end_angle_bracket", type="end_angle_bracket"
-    ),
+    EndAngleBracketSegment=StringParser(">", SymbolSegment, type="end_angle_bracket"),
     EqualsSegment_a=StringParser(
         "==", SymbolSegment, name="equals", type="comparison_operator"
     ),

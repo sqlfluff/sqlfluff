@@ -64,11 +64,9 @@ hive_dialect.sets("datetime_units").update(
 
 hive_dialect.add(
     StartAngleBracketSegment=StringParser(
-        "<", SymbolSegment, name="start_angle_bracket", type="start_angle_bracket"
+        "<", SymbolSegment, type="start_angle_bracket"
     ),
-    EndAngleBracketSegment=StringParser(
-        ">", SymbolSegment, name="end_angle_bracket", type="end_angle_bracket"
-    ),
+    EndAngleBracketSegment=StringParser(">", SymbolSegment, type="end_angle_bracket"),
     JsonfileKeywordSegment=StringParser(
         "JSONFILE", KeywordSegment, name="json_file", type="file_format"
     ),

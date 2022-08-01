@@ -51,11 +51,9 @@ athena_dialect.sets("angle_bracket_pairs").update(
 
 athena_dialect.add(
     StartAngleBracketSegment=StringParser(
-        "<", SymbolSegment, name="start_angle_bracket", type="start_angle_bracket"
+        "<", SymbolSegment, type="start_angle_bracket"
     ),
-    EndAngleBracketSegment=StringParser(
-        ">", SymbolSegment, name="end_angle_bracket", type="end_angle_bracket"
-    ),
+    EndAngleBracketSegment=StringParser(">", SymbolSegment, type="end_angle_bracket"),
     RightArrowOperator=StringParser(
         "->", SymbolSegment, name="right_arrow", type="binary_operator"
     ),

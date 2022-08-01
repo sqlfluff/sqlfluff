@@ -207,24 +207,16 @@ ansi_dialect.add(
     ),
     ColonSegment=StringParser(":", SymbolSegment, name="colon", type="colon"),
     SliceSegment=StringParser(":", SymbolSegment, name="slice", type="slice"),
-    StartBracketSegment=StringParser(
-        "(", SymbolSegment, name="start_bracket", type="start_bracket"
-    ),
-    EndBracketSegment=StringParser(
-        ")", SymbolSegment, name="end_bracket", type="end_bracket"
-    ),
+    StartBracketSegment=StringParser("(", SymbolSegment, type="start_bracket"),
+    EndBracketSegment=StringParser(")", SymbolSegment, type="end_bracket"),
     StartSquareBracketSegment=StringParser(
-        "[", SymbolSegment, name="start_square_bracket", type="start_square_bracket"
+        "[", SymbolSegment, type="start_square_bracket"
     ),
-    EndSquareBracketSegment=StringParser(
-        "]", SymbolSegment, name="end_square_bracket", type="end_square_bracket"
-    ),
+    EndSquareBracketSegment=StringParser("]", SymbolSegment, type="end_square_bracket"),
     StartCurlyBracketSegment=StringParser(
-        "{", SymbolSegment, name="start_curly_bracket", type="start_curly_bracket"
+        "{", SymbolSegment, type="start_curly_bracket"
     ),
-    EndCurlyBracketSegment=StringParser(
-        "}", SymbolSegment, name="end_curly_bracket", type="end_curly_bracket"
-    ),
+    EndCurlyBracketSegment=StringParser("}", SymbolSegment, type="end_curly_bracket"),
     CommaSegment=StringParser(",", SymbolSegment, name="comma", type="comma"),
     DotSegment=StringParser(".", SymbolSegment, name="dot", type="dot"),
     StarSegment=StringParser("*", SymbolSegment, name="star", type="star"),

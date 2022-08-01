@@ -90,12 +90,12 @@ class Rule_L043(BaseRule):
         # Add coalesce and opening parenthesis.
         edits = [
             KeywordSegment("coalesce"),
-            SymbolSegment("(", name="start_bracket", type="start_bracket"),
+            SymbolSegment("(", type="start_bracket"),
             coalesce_arg_1,
             SymbolSegment(",", name="comma", type="comma"),
             WhitespaceSegment(),
             coalesce_arg_2,
-            SymbolSegment(")", name="end_bracket", type="end_bracket"),
+            SymbolSegment(")", type="end_bracket"),
         ]
 
         if preceding_not:

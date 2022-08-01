@@ -108,11 +108,9 @@ bigquery_dialect.add(
         trim_chars=("'",),
     ),
     StartAngleBracketSegment=StringParser(
-        "<", SymbolSegment, name="start_angle_bracket", type="start_angle_bracket"
+        "<", SymbolSegment, type="start_angle_bracket"
     ),
-    EndAngleBracketSegment=StringParser(
-        ">", SymbolSegment, name="end_angle_bracket", type="end_angle_bracket"
-    ),
+    EndAngleBracketSegment=StringParser(">", SymbolSegment, type="end_angle_bracket"),
     RightArrowSegment=StringParser(
         "=>", SymbolSegment, name="right_arrow", type="right_arrow"
     ),

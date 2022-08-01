@@ -569,11 +569,11 @@ class BaseGrammar(Matchable):
                             # the innermost start bracket? E.g. ")" matches "(",
                             # "]" matches "[".
                             # For the start bracket we don't have the matcher
-                            # but we can work out the name, so we use that for
+                            # but we can work out the type, so we use that for
                             # the lookup.
                             start_index = [
-                                bracket.name for bracket in start_brackets
-                            ].index(bracket_stack[-1].bracket.name)
+                                bracket.type for bracket in start_brackets
+                            ].index(bracket_stack[-1].bracket.get_type())
                             # For the end index, we can just look for the matcher
                             end_index = end_brackets.index(matcher)
                             bracket_types_match = start_index == end_index
