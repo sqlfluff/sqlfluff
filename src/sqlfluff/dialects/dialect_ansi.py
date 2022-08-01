@@ -202,11 +202,9 @@ ansi_dialect.sets("value_table_functions").update([])
 ansi_dialect.add(
     # Real segments
     DelimiterGrammar=Ref("SemicolonSegment"),
-    SemicolonSegment=StringParser(
-        ";", SymbolSegment, name="semicolon", type="statement_terminator"
-    ),
-    ColonSegment=StringParser(":", SymbolSegment, name="colon", type="colon"),
-    SliceSegment=StringParser(":", SymbolSegment, name="slice", type="slice"),
+    SemicolonSegment=StringParser(";", SymbolSegment, type="statement_terminator"),
+    ColonSegment=StringParser(":", SymbolSegment, type="colon"),
+    SliceSegment=StringParser(":", SymbolSegment, type="slice"),
     StartBracketSegment=StringParser("(", SymbolSegment, type="start_bracket"),
     EndBracketSegment=StringParser(")", SymbolSegment, type="end_bracket"),
     StartSquareBracketSegment=StringParser(
@@ -217,53 +215,31 @@ ansi_dialect.add(
         "{", SymbolSegment, type="start_curly_bracket"
     ),
     EndCurlyBracketSegment=StringParser("}", SymbolSegment, type="end_curly_bracket"),
-    CommaSegment=StringParser(",", SymbolSegment, name="comma", type="comma"),
-    DotSegment=StringParser(".", SymbolSegment, name="dot", type="dot"),
-    StarSegment=StringParser("*", SymbolSegment, name="star", type="star"),
-    TildeSegment=StringParser("~", SymbolSegment, name="tilde", type="tilde"),
-    CastOperatorSegment=StringParser(
-        "::", SymbolSegment, name="casting_operator", type="casting_operator"
-    ),
-    PlusSegment=StringParser("+", SymbolSegment, name="plus", type="binary_operator"),
-    MinusSegment=StringParser("-", SymbolSegment, name="minus", type="binary_operator"),
-    PositiveSegment=StringParser(
-        "+", SymbolSegment, name="positive", type="sign_indicator"
-    ),
-    NegativeSegment=StringParser(
-        "-", SymbolSegment, name="negative", type="sign_indicator"
-    ),
-    DivideSegment=StringParser(
-        "/", SymbolSegment, name="divide", type="binary_operator"
-    ),
-    MultiplySegment=StringParser(
-        "*", SymbolSegment, name="multiply", type="binary_operator"
-    ),
-    ModuloSegment=StringParser(
-        "%", SymbolSegment, name="modulo", type="binary_operator"
-    ),
-    SlashSegment=StringParser("/", SymbolSegment, name="slash", type="slash"),
-    AmpersandSegment=StringParser(
-        "&", SymbolSegment, name="ampersand", type="ampersand"
-    ),
-    PipeSegment=StringParser("|", SymbolSegment, name="pipe", type="pipe"),
-    BitwiseXorSegment=StringParser(
-        "^", SymbolSegment, name="binary_xor", type="binary_operator"
-    ),
+    CommaSegment=StringParser(",", SymbolSegment, type="comma"),
+    DotSegment=StringParser(".", SymbolSegment, type="dot"),
+    StarSegment=StringParser("*", SymbolSegment, type="star"),
+    TildeSegment=StringParser("~", SymbolSegment, type="tilde"),
+    CastOperatorSegment=StringParser("::", SymbolSegment, type="casting_operator"),
+    PlusSegment=StringParser("+", SymbolSegment, type="binary_operator"),
+    MinusSegment=StringParser("-", SymbolSegment, type="binary_operator"),
+    PositiveSegment=StringParser("+", SymbolSegment, type="sign_indicator"),
+    NegativeSegment=StringParser("-", SymbolSegment, type="sign_indicator"),
+    DivideSegment=StringParser("/", SymbolSegment, type="binary_operator"),
+    MultiplySegment=StringParser("*", SymbolSegment, type="binary_operator"),
+    ModuloSegment=StringParser("%", SymbolSegment, type="binary_operator"),
+    SlashSegment=StringParser("/", SymbolSegment, type="slash"),
+    AmpersandSegment=StringParser("&", SymbolSegment, type="ampersand"),
+    PipeSegment=StringParser("|", SymbolSegment, type="pipe"),
+    BitwiseXorSegment=StringParser("^", SymbolSegment, type="binary_operator"),
     LikeOperatorSegment=NamedParser(
         "like_operator", SymbolSegment, name="like_operator", type="comparison_operator"
     ),
-    RawNotSegment=StringParser(
-        "!", SymbolSegment, name="raw_not", type="raw_comparison_operator"
-    ),
-    RawEqualsSegment=StringParser(
-        "=", SymbolSegment, name="raw_equals", type="raw_comparison_operator"
-    ),
+    RawNotSegment=StringParser("!", SymbolSegment, type="raw_comparison_operator"),
+    RawEqualsSegment=StringParser("=", SymbolSegment, type="raw_comparison_operator"),
     RawGreaterThanSegment=StringParser(
-        ">", SymbolSegment, name="raw_greater_than", type="raw_comparison_operator"
+        ">", SymbolSegment, type="raw_comparison_operator"
     ),
-    RawLessThanSegment=StringParser(
-        "<", SymbolSegment, name="raw_less_than", type="raw_comparison_operator"
-    ),
+    RawLessThanSegment=StringParser("<", SymbolSegment, type="raw_comparison_operator"),
     # The following functions can be called without parentheses per ANSI specification
     BareFunctionSegment=SegmentGenerator(
         lambda dialect: MultiStringParser(
