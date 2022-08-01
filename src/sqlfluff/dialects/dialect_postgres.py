@@ -216,9 +216,8 @@ postgres_dialect.add(
     # Add a Full equivalent which also allow keywords
     NakedIdentifierFullSegment=RegexParser(
         r"[A-Z_][A-Z0-9_]*",
-        CodeSegment,
-        name="naked_identifier_all",
-        type="identifier",
+        ansi.IdentifierSegment,
+        type="naked_identifier_all",
     ),
     SingleIdentifierFullGrammar=OneOf(
         Ref("NakedIdentifierSegment"),
@@ -252,9 +251,8 @@ postgres_dialect.replace(
             # Can’t begin with $, must only contain digits, letters, underscore it $ but
             # can’t be all digits.
             r"([A-Z_]+|[0-9]+[A-Z_$])[A-Z0-9_$]*",
-            CodeSegment,
-            name="naked_identifier",
-            type="identifier",
+            ansi.IdentifierSegment,
+            type="naked_identifier",
             anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
         )
     ),
@@ -264,7 +262,6 @@ postgres_dialect.replace(
     FunctionNameIdentifierSegment=RegexParser(
         r"[A-Z_][A-Z0-9_$]*",
         CodeSegment,
-        name="function_name_identifier",
         type="function_name_identifier",
     ),
     QuotedLiteralSegment=OneOf(
@@ -276,78 +273,70 @@ postgres_dialect.replace(
         Sequence(
             NamedParser(
                 "single_quote",
-                CodeSegment,
-                name="quoted_literal",
-                type="literal",
+                ansi.LiteralSegment,
+                type="quoted_literal",
             ),
             AnyNumberOf(
                 Ref("MultilineConcatenateDelimiterGrammar"),
                 NamedParser(
                     "single_quote",
-                    CodeSegment,
-                    name="quoted_literal",
-                    type="literal",
+                    ansi.LiteralSegment,
+                    type="quoted_literal",
                 ),
             ),
         ),
         Delimited(
             NamedParser(
                 "unicode_single_quote",
-                CodeSegment,
-                name="quoted_literal",
-                type="literal",
+                ansi.LiteralSegment,
+                type="quoted_literal",
             ),
             AnyNumberOf(
                 Ref("MultilineConcatenateDelimiterGrammar"),
                 NamedParser(
                     "unicode_single_quote",
-                    CodeSegment,
-                    name="quoted_literal",
-                    type="literal",
+                    ansi.LiteralSegment,
+                    type="quoted_literal",
                 ),
             ),
         ),
         Delimited(
             NamedParser(
                 "escaped_single_quote",
-                CodeSegment,
-                name="quoted_literal",
-                type="literal",
+                ansi.LiteralSegment,
+                type="quoted_literal",
             ),
             AnyNumberOf(
                 Ref("MultilineConcatenateDelimiterGrammar"),
                 NamedParser(
                     "escaped_single_quote",
-                    CodeSegment,
-                    name="quoted_literal",
-                    type="literal",
+                    ansi.LiteralSegment,
+                    type="quoted_literal",
                 ),
             ),
         ),
         Delimited(
             NamedParser(
                 "dollar_quote",
-                CodeSegment,
-                name="quoted_literal",
-                type="literal",
+                ansi.LiteralSegment,
+                type="quoted_literal",
             ),
             AnyNumberOf(
                 Ref("MultilineConcatenateDelimiterGrammar"),
                 NamedParser(
                     "dollar_quote",
-                    CodeSegment,
-                    name="quoted_literal",
-                    type="literal",
+                    ansi.LiteralSegment,
+                    type="quoted_literal",
                 ),
             ),
         ),
     ),
     QuotedIdentifierSegment=OneOf(
         NamedParser(
-            "double_quote", CodeSegment, name="quoted_identifier", type="identifier"
+            "double_quote", ansi.IdentifierSegment, type="quoted_identifier"
         ),
         NamedParser(
-            "unicode_double_quote", CodeSegment, name="quoted_literal", type="literal"
+            "unicode_double_quote", ansi.LiteralSegment, type="quoted_literal"
         ),
     ),
     PostFunctionGrammar=AnyNumberOf(

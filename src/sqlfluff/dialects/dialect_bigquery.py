@@ -81,16 +81,14 @@ bigquery_dialect.patch_lexer_matchers(
 bigquery_dialect.add(
     DoubleQuotedLiteralSegment=NamedParser(
         "double_quote",
-        CodeSegment,
-        name="quoted_literal",
-        type="literal",
+        ansi.LiteralSegment,
+        type="quoted_literal",
         trim_chars=('"',),
     ),
     SingleQuotedLiteralSegment=NamedParser(
         "single_quote",
-        CodeSegment,
-        name="quoted_literal",
-        type="literal",
+        ansi.LiteralSegment,
+        type="quoted_literal",
         trim_chars=("'",),
     ),
     DoubleQuotedUDFBody=NamedParser(
@@ -112,29 +110,27 @@ bigquery_dialect.add(
     ),
     EndAngleBracketSegment=StringParser(">", SymbolSegment, type="end_angle_bracket"),
     RightArrowSegment=StringParser(
-        "=>", SymbolSegment, name="right_arrow", type="right_arrow"
+        "=>", SymbolSegment, type="right_arrow"
     ),
-    DashSegment=StringParser("-", SymbolSegment, name="dash", type="dash"),
+    DashSegment=StringParser("-", SymbolSegment, type="dash"),
     SelectClauseElementListGrammar=Delimited(
         Ref("SelectClauseElementSegment"),
         allow_trailing=True,
     ),
     QuestionMarkSegment=StringParser(
-        "?", SymbolSegment, name="question_mark", type="question_mark"
+        "?", SymbolSegment, type="question_mark"
     ),
     AtSignLiteralSegment=NamedParser(
         "at_sign_literal",
-        CodeSegment,
-        name="at_sign_literal",
-        type="literal",
+        ansi.LiteralSegment,
+        type="at_sign_literal",
         trim_chars=("@",),
     ),
     # Add a Full equivalent which also allow keywords
     NakedIdentifierFullSegment=RegexParser(
         r"[A-Z_][A-Z0-9_]*",
-        CodeSegment,
-        name="naked_identifier_all",
-        type="identifier",
+        ansi.IdentifierSegment,
+        type="naked_identifier_all",
     ),
     SingleIdentifierFullGrammar=OneOf(
         Ref("NakedIdentifierSegment"),
@@ -157,7 +153,6 @@ bigquery_dialect.add(
         lambda dialect: MultiStringParser(
             dialect.sets("extended_datetime_units"),
             CodeSegment,
-            name="date_part",
             type="date_part",
         )
     ),
@@ -166,14 +161,12 @@ bigquery_dialect.add(
         RegexParser(
             r"[A-Z_][A-Z0-9_]*",
             CodeSegment,
-            name="procedure_name_identifier",
             type="procedure_name_identifier",
             anti_template=r"STRUCT",
         ),
         RegexParser(
             r"`[^`]*`",
             CodeSegment,
-            name="procedure_name_identifier",
             type="procedure_name_identifier",
         ),
     ),
@@ -196,9 +189,8 @@ bigquery_dialect.replace(
         # Generate the anti template from the set of reserved keywords
         lambda dialect: RegexParser(
             r"[A-Z_][A-Z0-9_]*",
-            CodeSegment,
-            name="naked_identifier",
-            type="identifier",
+            ansi.IdentifierSegment,
+            type="naked_identifier",
             anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
         )
     ),
@@ -223,14 +215,14 @@ bigquery_dialect.replace(
     # backticks
     ParameterNameSegment=OneOf(
         RegexParser(
-            r"[A-Z_][A-Z0-9_]*", CodeSegment, name="parameter", type="parameter"
+            r"[A-Z_][A-Z0-9_]*", CodeSegment, type="parameter"
         ),
-        RegexParser(r"`[^`]*`", CodeSegment, name="parameter", type="parameter"),
+        RegexParser(r"`[^`]*`", CodeSegment, type="parameter"),
     ),
     DateTimeLiteralGrammar=Sequence(
         OneOf("DATE", "DATETIME", "TIME", "TIMESTAMP"),
         NamedParser(
-            "single_quote", CodeSegment, name="date_constructor_literal", type="literal"
+            "single_quote", ansi.LiteralSegment, type="date_constructor_literal"
         ),
     ),
     JoinLikeClauseGrammar=Sequence(
@@ -700,15 +692,14 @@ class IntervalExpressionSegment(ansi.IntervalExpressionSegment):
 bigquery_dialect.replace(
     QuotedIdentifierSegment=NamedParser(
         "back_quote",
-        CodeSegment,
-        name="quoted_identifier",
-        type="identifier",
+        ansi.IdentifierSegment,
+        type="quoted_identifier",
         trim_chars=("`",),
     ),
     # Add ParameterizedSegment to the ansi NumericLiteralSegment
     NumericLiteralSegment=OneOf(
         NamedParser(
-            "numeric_literal", CodeSegment, name="numeric_literal", type="literal"
+            "numeric_literal", ansi.LiteralSegment, type="numeric_literal"
         ),
         Ref("ParameterizedSegment"),
     ),
@@ -736,14 +727,12 @@ bigquery_dialect.replace(
         RegexParser(
             r"[A-Z_][A-Z0-9_]*",
             CodeSegment,
-            name="function_name_identifier",
             type="function_name_identifier",
             anti_template=r"^(STRUCT|ARRAY)$",
         ),
         RegexParser(
             r"`[^`]*`",
             CodeSegment,
-            name="function_name_identifier",
             type="function_name_identifier",
         ),
     ),
@@ -761,7 +750,6 @@ class ExtractFunctionNameSegment(BaseSegment):
     match_grammar: Matchable = StringParser(
         "EXTRACT",
         CodeSegment,
-        name="function_name_identifier",
         type="function_name_identifier",
     )
 
@@ -778,13 +766,11 @@ class NormalizeFunctionNameSegment(BaseSegment):
         StringParser(
             "NORMALIZE",
             CodeSegment,
-            name="function_name_identifier",
             type="function_name_identifier",
         ),
         StringParser(
             "NORMALIZE_AND_CASEFOLD",
             CodeSegment,
-            name="function_name_identifier",
             type="function_name_identifier",
         ),
     )

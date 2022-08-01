@@ -78,6 +78,7 @@ def assert_rule_fail_in_sql(code, sql, configs=None, line_numbers=None):
     if parse_errors:
         pytest.fail(f"Found the following parse errors in test case: {parse_errors}")
     if not any(v.rule.code == code for v in lerrs):
+        print(f"Parsed File:\n{linted.tree.stringify()}")
         pytest.fail(
             f"No {code} failures found in query which should fail.",
             pytrace=False,
