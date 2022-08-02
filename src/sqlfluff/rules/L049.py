@@ -73,14 +73,18 @@ class Rule_L049(Rule_L006):
         results: List[LintResult] = []
         # We may have many operators
         for operator in operators:
+            self.logger.debug("Children found: %s", children)
             after_op_list = children.select(start_seg=operator)
+            # If nothing comes after operator then skip
+            if not after_op_list:
+                continue
             null_literal = after_op_list.first(sp.is_code())
             # if the next bit of code isnt a NULL then we are good
             if not null_literal.all(sp.is_type("null_literal")):
                 continue
 
             sub_seg = null_literal.get()
-            assert sub_seg, "TypeGaurd: Segement Must exist Must exist"
+            assert sub_seg, "TypeGaurd: Segment must exist"
             self.logger.debug(
                 "Found NULL literal following equals/not equals @%s: %r",
                 sub_seg.pos_marker,
