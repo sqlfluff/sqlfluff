@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9f2539a6a38958dd4cd8368fc08379402cf4bbe7952432de498b905d68d5d545
+_hash: b6fd985f23a4d09c42eb03d69589b5522249b07828edb281805a559ceabdbdb7
 file:
 - statement:
     comment_statement:
@@ -11,9 +11,9 @@ file:
     - keyword: 'on'
     - keyword: column
     - object_reference:
-      - identifier: my_table
+      - naked_identifier: my_table
       - dot: .
-      - identifier: my_column
+      - naked_identifier: my_column
     - keyword: is
     - quoted_literal: "'comment'"
 - statement_terminator: ;
@@ -23,7 +23,7 @@ file:
     - keyword: 'on'
     - keyword: table
     - object_reference:
-        identifier: foo
+        naked_identifier: foo
     - keyword: is
     - quoted_literal: "'comment'"
 - statement_terminator: ;
@@ -33,7 +33,7 @@ file:
     - keyword: 'on'
     - keyword: view
     - object_reference:
-        identifier: foo
+        naked_identifier: foo
     - keyword: is
     - quoted_literal: "'comment'"
 - statement_terminator: ;
@@ -43,7 +43,7 @@ file:
     - keyword: 'on'
     - keyword: schema
     - object_reference:
-        identifier: foo
+        naked_identifier: foo
     - keyword: is
     - quoted_literal: "'comment'"
 - statement_terminator: ;
@@ -53,7 +53,7 @@ file:
     - keyword: 'on'
     - keyword: database
     - object_reference:
-        identifier: foo
+        naked_identifier: foo
     - keyword: is
     - quoted_literal: "'comment'"
 - statement_terminator: ;
@@ -63,7 +63,7 @@ file:
     - keyword: 'on'
     - keyword: warehouse
     - object_reference:
-        identifier: foo
+        naked_identifier: foo
     - keyword: is
     - quoted_literal: "'comment'"
 - statement_terminator: ;
@@ -73,7 +73,7 @@ file:
     - keyword: 'on'
     - keyword: user
     - object_reference:
-        identifier: foo
+        naked_identifier: foo
     - keyword: is
     - quoted_literal: "'comment'"
 - statement_terminator: ;
@@ -83,7 +83,7 @@ file:
     - keyword: 'on'
     - keyword: stage
     - object_reference:
-        identifier: foo
+        naked_identifier: foo
     - keyword: is
     - quoted_literal: "'comment'"
 - statement_terminator: ;
@@ -93,7 +93,7 @@ file:
     - keyword: 'on'
     - keyword: function
     - object_reference:
-        identifier: foo
+        naked_identifier: foo
     - keyword: is
     - quoted_literal: "'comment'"
 - statement_terminator: ;
@@ -103,7 +103,7 @@ file:
     - keyword: 'on'
     - keyword: procedure
     - object_reference:
-        identifier: foo
+        naked_identifier: foo
     - keyword: is
     - quoted_literal: "'comment'"
 - statement_terminator: ;
@@ -113,7 +113,7 @@ file:
     - keyword: 'on'
     - keyword: sequence
     - object_reference:
-        identifier: foo
+        naked_identifier: foo
     - keyword: is
     - quoted_literal: "'comment'"
 - statement_terminator: ;
@@ -123,7 +123,7 @@ file:
     - keyword: 'on'
     - keyword: share
     - object_reference:
-        identifier: foo
+        naked_identifier: foo
     - keyword: is
     - quoted_literal: "'comment'"
 - statement_terminator: ;
@@ -133,7 +133,7 @@ file:
     - keyword: 'on'
     - keyword: pipe
     - object_reference:
-        identifier: foo
+        naked_identifier: foo
     - keyword: is
     - quoted_literal: "'comment'"
 - statement_terminator: ;
@@ -143,7 +143,7 @@ file:
     - keyword: 'on'
     - keyword: stream
     - object_reference:
-        identifier: foo
+        naked_identifier: foo
     - keyword: is
     - quoted_literal: "'comment'"
 - statement_terminator: ;
@@ -153,7 +153,7 @@ file:
     - keyword: 'on'
     - keyword: task
     - object_reference:
-        identifier: foo
+        naked_identifier: foo
     - keyword: is
     - quoted_literal: "'comment'"
 - statement_terminator: ;
@@ -164,7 +164,7 @@ file:
     - keyword: network
     - keyword: policy
     - object_reference:
-        identifier: foo
+        naked_identifier: foo
     - keyword: is
     - quoted_literal: "'comment'"
 - statement_terminator: ;
@@ -175,7 +175,7 @@ file:
     - keyword: api
     - keyword: integration
     - object_reference:
-        identifier: foo
+        naked_identifier: foo
     - keyword: is
     - quoted_literal: "'comment'"
 - statement_terminator: ;
@@ -186,7 +186,7 @@ file:
     - keyword: notification
     - keyword: integration
     - object_reference:
-        identifier: foo
+        naked_identifier: foo
     - keyword: is
     - quoted_literal: "'comment'"
 - statement_terminator: ;
@@ -197,7 +197,7 @@ file:
     - keyword: security
     - keyword: integration
     - object_reference:
-        identifier: foo
+        naked_identifier: foo
     - keyword: is
     - quoted_literal: "'comment'"
 - statement_terminator: ;
@@ -208,7 +208,7 @@ file:
     - keyword: storage
     - keyword: integration
     - object_reference:
-        identifier: foo
+        naked_identifier: foo
     - keyword: is
     - quoted_literal: "'comment'"
 - statement_terminator: ;
@@ -219,7 +219,7 @@ file:
     - keyword: session
     - keyword: policy
     - object_reference:
-        identifier: foo
+        naked_identifier: foo
     - keyword: is
     - quoted_literal: "'comment'"
 - statement_terminator: ;
@@ -230,7 +230,7 @@ file:
     - keyword: external
     - keyword: table
     - object_reference:
-        identifier: foo
+        naked_identifier: foo
     - keyword: is
     - quoted_literal: "'comment'"
 - statement_terminator: ;
@@ -241,7 +241,7 @@ file:
     - keyword: materialized
     - keyword: view
     - object_reference:
-        identifier: foo
+        naked_identifier: foo
     - keyword: is
     - quoted_literal: "'comment'"
 - statement_terminator: ;
@@ -252,7 +252,7 @@ file:
     - keyword: masking
     - keyword: policy
     - object_reference:
-        identifier: foo
+        naked_identifier: foo
     - keyword: is
     - quoted_literal: "'comment'"
 - statement_terminator: ;
@@ -264,7 +264,7 @@ file:
     - keyword: access
     - keyword: policy
     - object_reference:
-        identifier: foo
+        naked_identifier: foo
     - keyword: is
     - quoted_literal: "'comment'"
 - statement_terminator: ;
@@ -275,7 +275,7 @@ file:
     - keyword: file
     - keyword: format
     - object_reference:
-        identifier: foo
+        naked_identifier: foo
     - keyword: is
     - quoted_literal: "'comment'"
 - statement_terminator: ;

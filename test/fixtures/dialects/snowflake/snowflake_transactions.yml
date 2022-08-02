@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 285e389ad2180a5be36e2113cff074dc67c88da558d154fddb98afdab5d3b06d
+_hash: 2d7b9aa701600850873b8009d301b81526b0f7dacce7e003d9bd56867ac85f95
 file:
 - statement:
     transaction_statement:
@@ -24,7 +24,7 @@ file:
     - keyword: begin
     - keyword: name
     - object_reference:
-        identifier: t4
+        naked_identifier: t4
 - statement_terminator: ;
 - statement:
     transaction_statement:
@@ -32,7 +32,7 @@ file:
     - keyword: work
     - keyword: name
     - object_reference:
-        identifier: t4
+        naked_identifier: t4
 - statement_terminator: ;
 - statement:
     transaction_statement:
@@ -40,7 +40,7 @@ file:
     - keyword: transaction
     - keyword: name
     - object_reference:
-        identifier: t4
+        naked_identifier: t4
 - statement_terminator: ;
 - statement:
     transaction_statement:
@@ -53,7 +53,7 @@ file:
     - keyword: transaction
     - keyword: name
     - object_reference:
-        identifier: t4
+        naked_identifier: t4
 - statement_terminator: ;
 - statement:
     transaction_statement:

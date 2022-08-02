@@ -3,21 +3,21 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: db2e12ac321232b6aa1c8924d1a378a997935f495df2c0f127bf97ca2ee7b192
+_hash: b0dafb65360d9c10e9c56627e02ea35220e8528526ebed4bb9d3a47f8053c304
 file:
   statement:
     alter_task_statement:
     - keyword: ALTER
     - keyword: TASK
     - object_reference:
-        identifier: my_task
+        naked_identifier: my_task
     - alter_task_special_set_clause:
       - keyword: SET
       - keyword: WAREHOUSE
       - comparison_operator:
           raw_comparison_operator: '='
       - object_reference:
-          identifier: my_warehouse
+          naked_identifier: my_warehouse
       - keyword: SCHEDULE
       - comparison_operator:
           raw_comparison_operator: '='

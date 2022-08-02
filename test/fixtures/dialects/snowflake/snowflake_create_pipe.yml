@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b21ab683f183ffc502fd2618dbb3de59b394581cc10dddcd2c97ebdb308a9075
+_hash: 29c161ba9d29e26de948798d51b1dad7de41234157559a2a09dd76e9f31456a9
 file:
   statement:
     create_statement:
@@ -12,7 +12,7 @@ file:
     - keyword: replace
     - keyword: pipe
     - object_reference:
-        identifier: mypipe_s3
+        naked_identifier: mypipe_s3
     - keyword: auto_ingest
     - comparison_operator:
         raw_comparison_operator: '='
@@ -26,14 +26,14 @@ file:
       - keyword: copy
       - keyword: into
       - table_reference:
-        - identifier: snowpipe_db
+        - naked_identifier: snowpipe_db
         - dot: .
-        - identifier: public
+        - naked_identifier: public
         - dot: .
-        - identifier: mytable
+        - naked_identifier: mytable
       - keyword: from
       - storage_location:
-          identifier: '@snowpipe_db.public.mystage'
+          stage_path: '@snowpipe_db.public.mystage'
       - keyword: file_format
       - comparison_operator:
           raw_comparison_operator: '='

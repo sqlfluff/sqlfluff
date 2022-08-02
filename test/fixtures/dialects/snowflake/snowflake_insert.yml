@@ -3,18 +3,18 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9f218b50db1e13a7a7dceca392bc916bb0bfeff6582852d78133858c37af1ee2
+_hash: c81a669cbc95ca3267e1921e9cc2f7ffc3c85658f61264472a624464eb8837e8
 file:
 - statement:
     insert_statement:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-        identifier: foo
+        naked_identifier: foo
     - bracketed:
         start_bracket: (
         column_reference:
-          identifier: bar
+          naked_identifier: bar
         end_bracket: )
     - values_clause:
         keyword: VALUES
@@ -30,11 +30,11 @@ file:
     - keyword: OVERWRITE
     - keyword: INTO
     - table_reference:
-        identifier: foo
+        naked_identifier: foo
     - bracketed:
         start_bracket: (
         column_reference:
-          identifier: bar
+          naked_identifier: bar
         end_bracket: )
     - values_clause:
         keyword: VALUES
@@ -49,14 +49,14 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-        identifier: foo
+        naked_identifier: foo
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: bar
+          naked_identifier: bar
       - comma: ','
       - column_reference:
-          identifier: baz
+          naked_identifier: baz
       - end_bracket: )
     - values_clause:
       - keyword: VALUES
@@ -83,11 +83,11 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-        identifier: foo
+        naked_identifier: foo
     - bracketed:
         start_bracket: (
         column_reference:
-          identifier: bar
+          naked_identifier: bar
         end_bracket: )
     - values_clause:
         keyword: VALUES
@@ -101,11 +101,11 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-        identifier: foo
+        naked_identifier: foo
     - bracketed:
         start_bracket: (
         column_reference:
-          identifier: bar
+          naked_identifier: bar
         end_bracket: )
     - values_clause:
         keyword: VALUES
@@ -119,7 +119,7 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-        identifier: films
+        naked_identifier: films
     - select_statement:
         select_clause:
           keyword: SELECT
@@ -133,12 +133,12 @@ file:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: tmp_films
+                  naked_identifier: tmp_films
         where_clause:
           keyword: WHERE
           expression:
             column_reference:
-              identifier: date_prod
+              naked_identifier: date_prod
             comparison_operator:
               raw_comparison_operator: <
             quoted_literal: "'2004-05-07'"
@@ -149,20 +149,20 @@ file:
     - keyword: all
     - keyword: into
     - table_reference:
-        identifier: t1
+        naked_identifier: t1
     - keyword: into
     - table_reference:
-        identifier: t1
+        naked_identifier: t1
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: c1
+          naked_identifier: c1
       - comma: ','
       - column_reference:
-          identifier: c2
+          naked_identifier: c2
       - comma: ','
       - column_reference:
-          identifier: c3
+          naked_identifier: c3
       - end_bracket: )
     - values_clause:
         keyword: values
@@ -170,68 +170,68 @@ file:
         - start_bracket: (
         - expression:
             column_reference:
-              identifier: n2
+              naked_identifier: n2
         - comma: ','
         - expression:
             column_reference:
-              identifier: n1
+              naked_identifier: n1
         - comma: ','
         - keyword: default
         - end_bracket: )
     - keyword: into
     - table_reference:
-        identifier: t2
+        naked_identifier: t2
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: c1
+          naked_identifier: c1
       - comma: ','
       - column_reference:
-          identifier: c2
+          naked_identifier: c2
       - comma: ','
       - column_reference:
-          identifier: c3
+          naked_identifier: c3
       - end_bracket: )
     - keyword: into
     - table_reference:
-        identifier: t2
+        naked_identifier: t2
     - values_clause:
         keyword: values
         bracketed:
         - start_bracket: (
         - expression:
             column_reference:
-              identifier: n3
+              naked_identifier: n3
         - comma: ','
         - expression:
             column_reference:
-              identifier: n2
+              naked_identifier: n2
         - comma: ','
         - expression:
             column_reference:
-              identifier: n1
+              naked_identifier: n1
         - end_bracket: )
     - select_statement:
         select_clause:
         - keyword: select
         - select_clause_element:
             column_reference:
-              identifier: n1
+              naked_identifier: n1
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: n2
+              naked_identifier: n2
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: n3
+              naked_identifier: n3
         from_clause:
           keyword: from
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: src
+                  naked_identifier: src
 - statement_terminator: ;
 - statement:
     insert_statement:
@@ -240,20 +240,20 @@ file:
     - keyword: all
     - keyword: into
     - table_reference:
-        identifier: t1
+        naked_identifier: t1
     - keyword: into
     - table_reference:
-        identifier: t1
+        naked_identifier: t1
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: c1
+          naked_identifier: c1
       - comma: ','
       - column_reference:
-          identifier: c2
+          naked_identifier: c2
       - comma: ','
       - column_reference:
-          identifier: c3
+          naked_identifier: c3
       - end_bracket: )
     - values_clause:
         keyword: values
@@ -261,68 +261,68 @@ file:
         - start_bracket: (
         - expression:
             column_reference:
-              identifier: n2
+              naked_identifier: n2
         - comma: ','
         - expression:
             column_reference:
-              identifier: n1
+              naked_identifier: n1
         - comma: ','
         - keyword: default
         - end_bracket: )
     - keyword: into
     - table_reference:
-        identifier: t2
+        naked_identifier: t2
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: c1
+          naked_identifier: c1
       - comma: ','
       - column_reference:
-          identifier: c2
+          naked_identifier: c2
       - comma: ','
       - column_reference:
-          identifier: c3
+          naked_identifier: c3
       - end_bracket: )
     - keyword: into
     - table_reference:
-        identifier: t2
+        naked_identifier: t2
     - values_clause:
         keyword: values
         bracketed:
         - start_bracket: (
         - expression:
             column_reference:
-              identifier: n3
+              naked_identifier: n3
         - comma: ','
         - expression:
             column_reference:
-              identifier: n2
+              naked_identifier: n2
         - comma: ','
         - expression:
             column_reference:
-              identifier: n1
+              naked_identifier: n1
         - end_bracket: )
     - select_statement:
         select_clause:
         - keyword: select
         - select_clause_element:
             column_reference:
-              identifier: n1
+              naked_identifier: n1
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: n2
+              naked_identifier: n2
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: n3
+              naked_identifier: n3
         from_clause:
           keyword: from
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: src
+                  naked_identifier: src
 - statement_terminator: ;
 - statement:
     insert_statement:
@@ -330,18 +330,18 @@ file:
     - keyword: all
     - keyword: into
     - table_reference:
-        identifier: t1
+        naked_identifier: t1
     - values_clause:
         keyword: values
         bracketed:
         - start_bracket: (
         - expression:
             column_reference:
-              identifier: $1
+              column_index_identifier_segment: $1
         - comma: ','
         - expression:
             column_reference:
-              identifier: an_alias
+              naked_identifier: an_alias
         - comma: ','
         - expression:
             column_reference:
@@ -357,7 +357,7 @@ file:
             numeric_literal: '50'
             alias_expression:
               keyword: as
-              identifier: an_alias
+              naked_identifier: an_alias
         - comma: ','
         - select_clause_element:
             expression:
@@ -371,65 +371,65 @@ file:
     - keyword: all
     - keyword: into
     - table_reference:
-        identifier: t1
+        naked_identifier: t1
     - values_clause:
         keyword: values
         bracketed:
         - start_bracket: (
         - expression:
             column_reference:
-              identifier: key
+              naked_identifier: key
         - comma: ','
         - expression:
             column_reference:
-              identifier: a
+              naked_identifier: a
         - end_bracket: )
     - select_statement:
         select_clause:
         - keyword: select
         - select_clause_element:
             column_reference:
-            - identifier: src1
+            - naked_identifier: src1
             - dot: .
-            - identifier: key
+            - naked_identifier: key
             alias_expression:
               keyword: as
-              identifier: key
+              naked_identifier: key
         - comma: ','
         - select_clause_element:
             column_reference:
-            - identifier: src1
+            - naked_identifier: src1
             - dot: .
-            - identifier: a
+            - naked_identifier: a
             alias_expression:
               keyword: as
-              identifier: a
+              naked_identifier: a
         from_clause:
         - keyword: from
         - from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: src1
+                  naked_identifier: src1
         - comma: ','
         - from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: src2
+                  naked_identifier: src2
         where_clause:
           keyword: where
           expression:
           - column_reference:
-            - identifier: src1
+            - naked_identifier: src1
             - dot: .
-            - identifier: key
+            - naked_identifier: key
           - comparison_operator:
               raw_comparison_operator: '='
           - column_reference:
-            - identifier: src2
+            - naked_identifier: src2
             - dot: .
-            - identifier: key
+            - naked_identifier: key
 - statement_terminator: ;
 - statement:
     insert_statement:
@@ -438,45 +438,45 @@ file:
     - keyword: when
     - expression:
         column_reference:
-          identifier: n1
+          naked_identifier: n1
         comparison_operator:
           raw_comparison_operator: '>'
         numeric_literal: '100'
     - keyword: then
     - keyword: into
     - table_reference:
-        identifier: t1
+        naked_identifier: t1
     - keyword: when
     - expression:
         column_reference:
-          identifier: n1
+          naked_identifier: n1
         comparison_operator:
           raw_comparison_operator: '>'
         numeric_literal: '10'
     - keyword: then
     - keyword: into
     - table_reference:
-        identifier: t1
+        naked_identifier: t1
     - keyword: into
     - table_reference:
-        identifier: t2
+        naked_identifier: t2
     - keyword: else
     - keyword: into
     - table_reference:
-        identifier: t2
+        naked_identifier: t2
     - select_statement:
         select_clause:
           keyword: select
           select_clause_element:
             column_reference:
-              identifier: n1
+              naked_identifier: n1
         from_clause:
           keyword: from
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: src
+                  naked_identifier: src
 - statement_terminator: ;
 - statement:
     insert_statement:
@@ -485,45 +485,45 @@ file:
     - keyword: when
     - expression:
         column_reference:
-          identifier: n1
+          naked_identifier: n1
         comparison_operator:
           raw_comparison_operator: '>'
         numeric_literal: '100'
     - keyword: then
     - keyword: into
     - table_reference:
-        identifier: t1
+        naked_identifier: t1
     - keyword: when
     - expression:
         column_reference:
-          identifier: n1
+          naked_identifier: n1
         comparison_operator:
           raw_comparison_operator: '>'
         numeric_literal: '10'
     - keyword: then
     - keyword: into
     - table_reference:
-        identifier: t1
+        naked_identifier: t1
     - keyword: into
     - table_reference:
-        identifier: t2
+        naked_identifier: t2
     - keyword: else
     - keyword: into
     - table_reference:
-        identifier: t2
+        naked_identifier: t2
     - select_statement:
         select_clause:
           keyword: select
           select_clause_element:
             column_reference:
-              identifier: n1
+              naked_identifier: n1
         from_clause:
           keyword: from
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: src
+                  naked_identifier: src
 - statement_terminator: ;
 - statement:
     insert_statement:
@@ -532,21 +532,21 @@ file:
     - keyword: when
     - expression:
         column_reference:
-          identifier: c
+          naked_identifier: c
         comparison_operator:
           raw_comparison_operator: '>'
         numeric_literal: '10'
     - keyword: then
     - keyword: into
     - table_reference:
-        identifier: t1
+        naked_identifier: t1
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: col1
+          naked_identifier: col1
       - comma: ','
       - column_reference:
-          identifier: col2
+          naked_identifier: col2
       - end_bracket: )
     - values_clause:
         keyword: values
@@ -554,31 +554,31 @@ file:
         - start_bracket: (
         - expression:
             column_reference:
-              identifier: a
+              naked_identifier: a
         - comma: ','
         - expression:
             column_reference:
-              identifier: b
+              naked_identifier: b
         - end_bracket: )
     - select_statement:
         select_clause:
         - keyword: select
         - select_clause_element:
             column_reference:
-              identifier: a
+              naked_identifier: a
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: b
+              naked_identifier: b
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: c
+              naked_identifier: c
         from_clause:
           keyword: from
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: src
+                  naked_identifier: src
 - statement_terminator: ;

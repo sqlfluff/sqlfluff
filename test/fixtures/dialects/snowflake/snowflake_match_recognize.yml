@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7c7ced74a9c0c60a8dfe46c2f8aecc6f10f4150d6dd084b5f117f24ab9a1382b
+_hash: 8ea694be243e70ae116b2449b81f5fb611ed7909eb3d8d15f48196f9619094bc
 file:
 - statement:
     select_statement:
@@ -19,7 +19,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: stock_price_history
+                naked_identifier: stock_price_history
           match_recognize_clause:
             keyword: match_recognize
             bracketed:
@@ -29,12 +29,12 @@ file:
               - keyword: by
               - expression:
                   column_reference:
-                    identifier: company
+                    naked_identifier: company
             - orderby_clause:
               - keyword: order
               - keyword: by
               - column_reference:
-                  identifier: price_date
+                  naked_identifier: price_date
             - keyword: measures
             - expression:
                 function:
@@ -45,7 +45,7 @@ file:
                     end_bracket: )
             - alias_expression:
                 keyword: as
-                identifier: match_number
+                naked_identifier: match_number
             - comma: ','
             - expression:
                 function:
@@ -55,11 +55,11 @@ file:
                     start_bracket: (
                     expression:
                       column_reference:
-                        identifier: price_date
+                        naked_identifier: price_date
                     end_bracket: )
             - alias_expression:
                 keyword: as
-                identifier: start_date
+                naked_identifier: start_date
             - comma: ','
             - expression:
                 function:
@@ -69,11 +69,11 @@ file:
                     start_bracket: (
                     expression:
                       column_reference:
-                        identifier: price_date
+                        naked_identifier: price_date
                     end_bracket: )
             - alias_expression:
                 keyword: as
-                identifier: end_date
+                naked_identifier: end_date
             - comma: ','
             - expression:
                 function:
@@ -85,7 +85,7 @@ file:
                     end_bracket: )
             - alias_expression:
                 keyword: as
-                identifier: rows_in_sequence
+                naked_identifier: rows_in_sequence
             - comma: ','
             - expression:
                 function:
@@ -94,13 +94,13 @@ file:
                   bracketed:
                     start_bracket: (
                     expression:
-                      identifier: row_with_price_decrease
+                      naked_identifier: row_with_price_decrease
                       dot: .
                       star: '*'
                     end_bracket: )
             - alias_expression:
                 keyword: as
-                identifier: num_decreases
+                naked_identifier: num_decreases
             - comma: ','
             - expression:
                 function:
@@ -109,13 +109,13 @@ file:
                   bracketed:
                     start_bracket: (
                     expression:
-                      identifier: row_with_price_increase
+                      naked_identifier: row_with_price_increase
                       dot: .
                       star: '*'
                     end_bracket: )
             - alias_expression:
                 keyword: as
-                identifier: num_increases
+                naked_identifier: num_increases
             - keyword: one
             - keyword: row
             - keyword: per
@@ -125,22 +125,22 @@ file:
             - keyword: skip
             - keyword: to
             - keyword: last
-            - identifier: row_with_price_increase
+            - naked_identifier: row_with_price_increase
             - keyword: pattern
             - bracketed:
               - start_bracket: (
-              - identifier: row_before_decrease
-              - identifier: row_with_price_decrease
+              - naked_identifier: row_before_decrease
+              - naked_identifier: row_with_price_decrease
               - sign_indicator: +
-              - identifier: row_with_price_increase
+              - naked_identifier: row_with_price_increase
               - sign_indicator: +
               - end_bracket: )
             - keyword: define
-            - identifier: row_with_price_decrease
+            - naked_identifier: row_with_price_decrease
             - keyword: as
             - expression:
                 column_reference:
-                  identifier: price
+                  naked_identifier: price
                 comparison_operator:
                   raw_comparison_operator: <
                 function:
@@ -150,14 +150,14 @@ file:
                     start_bracket: (
                     expression:
                       column_reference:
-                        identifier: price
+                        naked_identifier: price
                     end_bracket: )
             - comma: ','
-            - identifier: row_with_price_increase
+            - naked_identifier: row_with_price_increase
             - keyword: as
             - expression:
                 column_reference:
-                  identifier: price
+                  naked_identifier: price
                 comparison_operator:
                   raw_comparison_operator: '>'
                 function:
@@ -167,17 +167,17 @@ file:
                     start_bracket: (
                     expression:
                       column_reference:
-                        identifier: price
+                        naked_identifier: price
                     end_bracket: )
             - end_bracket: )
       orderby_clause:
       - keyword: order
       - keyword: by
       - column_reference:
-          identifier: company
+          naked_identifier: company
       - comma: ','
       - column_reference:
-          identifier: match_number
+          naked_identifier: match_number
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -185,23 +185,23 @@ file:
       - keyword: select
       - select_clause_element:
           column_reference:
-            identifier: price_date
+            naked_identifier: price_date
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: match_number
+            naked_identifier: match_number
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: msq
+            naked_identifier: msq
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: price
+            naked_identifier: price
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: cl
+            naked_identifier: cl
       from_clause:
         keyword: from
         from_expression:
@@ -222,12 +222,12 @@ file:
                       from_expression_element:
                         table_expression:
                           table_reference:
-                            identifier: stock_price_history
+                            naked_identifier: stock_price_history
                   where_clause:
                     keyword: where
                     expression:
                       column_reference:
-                        identifier: company
+                        naked_identifier: company
                       comparison_operator:
                         raw_comparison_operator: '='
                       quoted_literal: "'ABCD'"
@@ -240,7 +240,7 @@ file:
               - keyword: order
               - keyword: by
               - column_reference:
-                  identifier: price_date
+                  naked_identifier: price_date
             - keyword: measures
             - expression:
                 function:
@@ -262,7 +262,7 @@ file:
                     end_bracket: )
             - alias_expression:
                 keyword: as
-                identifier: msq
+                naked_identifier: msq
             - comma: ','
             - expression:
                 function:
@@ -273,7 +273,7 @@ file:
                     end_bracket: )
             - alias_expression:
                 keyword: as
-                identifier: cl
+                naked_identifier: cl
             - keyword: all
             - keyword: rows
             - keyword: per
@@ -281,21 +281,21 @@ file:
             - keyword: pattern
             - bracketed:
               - start_bracket: (
-              - identifier: any_row
-              - identifier: up
+              - naked_identifier: any_row
+              - naked_identifier: up
               - sign_indicator: +
               - end_bracket: )
             - keyword: define
-            - identifier: any_row
+            - naked_identifier: any_row
             - keyword: as
             - expression:
                 boolean_literal: 'true'
             - comma: ','
-            - identifier: up
+            - naked_identifier: up
             - keyword: as
             - expression:
                 column_reference:
-                  identifier: price
+                  naked_identifier: price
                 comparison_operator:
                   raw_comparison_operator: '>'
                 function:
@@ -305,17 +305,17 @@ file:
                     start_bracket: (
                     expression:
                       column_reference:
-                        identifier: price
+                        naked_identifier: price
                     end_bracket: )
             - end_bracket: )
       orderby_clause:
       - keyword: order
       - keyword: by
       - column_reference:
-          identifier: match_number
+          naked_identifier: match_number
       - comma: ','
       - column_reference:
-          identifier: msq
+          naked_identifier: msq
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -331,7 +331,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: stock_price_history
+                naked_identifier: stock_price_history
           match_recognize_clause:
             keyword: match_recognize
             bracketed:
@@ -341,12 +341,12 @@ file:
               - keyword: by
               - expression:
                   column_reference:
-                    identifier: company
+                    naked_identifier: company
             - orderby_clause:
               - keyword: order
               - keyword: by
               - column_reference:
-                  identifier: price_date
+                  naked_identifier: price_date
             - keyword: measures
             - expression:
                 function:
@@ -368,15 +368,15 @@ file:
             - keyword: pattern
             - bracketed:
                 start_bracket: (
-                identifier: overavg
+                naked_identifier: overavg
                 star: '*'
                 end_bracket: )
             - keyword: define
-            - identifier: overavg
+            - naked_identifier: overavg
             - keyword: as
             - expression:
                 column_reference:
-                  identifier: price
+                  naked_identifier: price
                 comparison_operator:
                   raw_comparison_operator: '>'
                 function:
@@ -386,7 +386,7 @@ file:
                     start_bracket: (
                     expression:
                       column_reference:
-                        identifier: price
+                        naked_identifier: price
                     end_bracket: )
                   over_clause:
                     keyword: over
@@ -407,10 +407,10 @@ file:
       - keyword: order
       - keyword: by
       - column_reference:
-          identifier: company
+          naked_identifier: company
       - comma: ','
       - column_reference:
-          identifier: price_date
+          naked_identifier: price_date
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -426,7 +426,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: stock_price_history
+                naked_identifier: stock_price_history
           match_recognize_clause:
             keyword: match_recognize
             bracketed:
@@ -436,12 +436,12 @@ file:
               - keyword: by
               - expression:
                   column_reference:
-                    identifier: company
+                    naked_identifier: company
             - orderby_clause:
               - keyword: order
               - keyword: by
               - column_reference:
-                  identifier: price_date
+                  naked_identifier: price_date
             - keyword: measures
             - expression:
                 function:
@@ -463,7 +463,7 @@ file:
                     end_bracket: )
             - alias_expression:
                 keyword: as
-                identifier: cl
+                naked_identifier: cl
             - keyword: all
             - keyword: rows
             - keyword: per
@@ -474,15 +474,15 @@ file:
             - keyword: pattern
             - bracketed:
                 start_bracket: (
-                identifier: overavg
+                naked_identifier: overavg
                 sign_indicator: +
                 end_bracket: )
             - keyword: define
-            - identifier: overavg
+            - naked_identifier: overavg
             - keyword: as
             - expression:
                 column_reference:
-                  identifier: price
+                  naked_identifier: price
                 comparison_operator:
                   raw_comparison_operator: '>'
                 function:
@@ -492,7 +492,7 @@ file:
                     start_bracket: (
                     expression:
                       column_reference:
-                        identifier: price
+                        naked_identifier: price
                     end_bracket: )
                   over_clause:
                     keyword: over
@@ -513,10 +513,10 @@ file:
       - keyword: order
       - keyword: by
       - column_reference:
-          identifier: company
+          naked_identifier: company
       - comma: ','
       - column_reference:
-          identifier: price_date
+          naked_identifier: price_date
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -524,15 +524,15 @@ file:
       - keyword: select
       - select_clause_element:
           column_reference:
-            identifier: company
+            naked_identifier: company
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: price_date
+            naked_identifier: price_date
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: price
+            naked_identifier: price
       - comma: ','
       - select_clause_element:
           column_reference:
@@ -547,7 +547,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: stock_price_history
+                naked_identifier: stock_price_history
           match_recognize_clause:
             keyword: match_recognize
             bracketed:
@@ -557,12 +557,12 @@ file:
               - keyword: by
               - expression:
                   column_reference:
-                    identifier: company
+                    naked_identifier: company
             - orderby_clause:
               - keyword: order
               - keyword: by
               - column_reference:
-                  identifier: price_date
+                  naked_identifier: price_date
             - keyword: measures
             - keyword: final
             - expression:
@@ -573,9 +573,9 @@ file:
                     start_bracket: (
                     expression:
                       column_reference:
-                      - identifier: lt45
+                      - naked_identifier: lt45
                       - dot: .
-                      - identifier: price
+                      - naked_identifier: price
                     end_bracket: )
             - alias_expression:
                 keyword: as
@@ -590,9 +590,9 @@ file:
                     start_bracket: (
                     expression:
                       column_reference:
-                      - identifier: lt45
+                      - naked_identifier: lt45
                       - dot: .
-                      - identifier: price
+                      - naked_identifier: price
                     end_bracket: )
             - alias_expression:
                 keyword: as
@@ -610,15 +610,15 @@ file:
             - keyword: pattern
             - bracketed:
               - start_bracket: (
-              - identifier: lt45
-              - identifier: lt45
+              - naked_identifier: lt45
+              - naked_identifier: lt45
               - end_bracket: )
             - keyword: define
-            - identifier: lt45
+            - naked_identifier: lt45
             - keyword: as
             - expression:
                 column_reference:
-                  identifier: price
+                  naked_identifier: price
                 comparison_operator:
                   raw_comparison_operator: <
                 numeric_literal: '45.00'
@@ -627,7 +627,7 @@ file:
         keyword: where
         expression:
           column_reference:
-            identifier: company
+            naked_identifier: company
           comparison_operator:
             raw_comparison_operator: '='
           quoted_literal: "'ABCD'"
@@ -635,7 +635,7 @@ file:
       - keyword: order
       - keyword: by
       - column_reference:
-          identifier: price_date
+          naked_identifier: price_date
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -651,7 +651,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: stock_price_history
+                naked_identifier: stock_price_history
           match_recognize_clause:
             keyword: match_recognize
             bracketed:
@@ -661,12 +661,12 @@ file:
               - keyword: by
               - expression:
                   column_reference:
-                    identifier: company
+                    naked_identifier: company
             - orderby_clause:
               - keyword: order
               - keyword: by
               - column_reference:
-                  identifier: price_date
+                  naked_identifier: price_date
             - keyword: measures
             - expression:
                 function:
@@ -677,7 +677,7 @@ file:
                     end_bracket: )
             - alias_expression:
                 keyword: as
-                identifier: match_number
+                naked_identifier: match_number
             - comma: ','
             - expression:
                 function:
@@ -687,11 +687,11 @@ file:
                     start_bracket: (
                     expression:
                       column_reference:
-                        identifier: price_date
+                        naked_identifier: price_date
                     end_bracket: )
             - alias_expression:
                 keyword: as
-                identifier: start_date
+                naked_identifier: start_date
             - comma: ','
             - expression:
                 function:
@@ -701,11 +701,11 @@ file:
                     start_bracket: (
                     expression:
                       column_reference:
-                        identifier: price_date
+                        naked_identifier: price_date
                     end_bracket: )
             - alias_expression:
                 keyword: as
-                identifier: end_date
+                naked_identifier: end_date
             - comma: ','
             - expression:
                 function:
@@ -717,7 +717,7 @@ file:
                     end_bracket: )
             - alias_expression:
                 keyword: as
-                identifier: rows_in_sequence
+                naked_identifier: rows_in_sequence
             - comma: ','
             - expression:
                 function:
@@ -726,13 +726,13 @@ file:
                   bracketed:
                     start_bracket: (
                     expression:
-                      identifier: row_with_price_decrease
+                      naked_identifier: row_with_price_decrease
                       dot: .
                       star: '*'
                     end_bracket: )
             - alias_expression:
                 keyword: as
-                identifier: num_decreases
+                naked_identifier: num_decreases
             - comma: ','
             - expression:
                 function:
@@ -741,13 +741,13 @@ file:
                   bracketed:
                     start_bracket: (
                     expression:
-                      identifier: row_with_price_increase
+                      naked_identifier: row_with_price_increase
                       dot: .
                       star: '*'
                     end_bracket: )
             - alias_expression:
                 keyword: as
-                identifier: num_increases
+                naked_identifier: num_increases
             - keyword: one
             - keyword: row
             - keyword: per
@@ -757,48 +757,48 @@ file:
             - keyword: skip
             - keyword: to
             - keyword: last
-            - identifier: row_with_price_increase
+            - naked_identifier: row_with_price_increase
             - keyword: pattern
             - bracketed:
               - start_bracket: (
               - caret: ^
-              - identifier: S1
+              - naked_identifier: S1
               - sign_indicator: +
-              - identifier: S2
+              - naked_identifier: S2
               - star: '*'
-              - identifier: S3
+              - naked_identifier: S3
               - question_mark: '?'
-              - identifier: S4
+              - naked_identifier: S4
               - start_curly_bracket: '{'
               - numeric_literal: '1'
               - end_curly_bracket: '}'
-              - identifier: S5
-              - start_curly_bracket: '{'
-              - numeric_literal: '1'
-              - comma: ','
-              - end_curly_bracket: '}'
-              - identifier: S6
-              - start_curly_bracket: '{'
-              - comma: ','
-              - numeric_literal: '1'
-              - end_curly_bracket: '}'
-              - identifier: S7
+              - naked_identifier: S5
               - start_curly_bracket: '{'
               - numeric_literal: '1'
               - comma: ','
+              - end_curly_bracket: '}'
+              - naked_identifier: S6
+              - start_curly_bracket: '{'
+              - comma: ','
               - numeric_literal: '1'
               - end_curly_bracket: '}'
-              - identifier: S8
+              - naked_identifier: S7
+              - start_curly_bracket: '{'
+              - numeric_literal: '1'
+              - comma: ','
+              - numeric_literal: '1'
+              - end_curly_bracket: '}'
+              - naked_identifier: S8
               - star: '*'
               - question_mark: '?'
               - dollar: $
               - end_bracket: )
             - keyword: define
-            - identifier: row_with_price_decrease
+            - naked_identifier: row_with_price_decrease
             - keyword: as
             - expression:
                 column_reference:
-                  identifier: price
+                  naked_identifier: price
                 comparison_operator:
                   raw_comparison_operator: <
                 function:
@@ -808,14 +808,14 @@ file:
                     start_bracket: (
                     expression:
                       column_reference:
-                        identifier: price
+                        naked_identifier: price
                     end_bracket: )
             - comma: ','
-            - identifier: row_with_price_increase
+            - naked_identifier: row_with_price_increase
             - keyword: as
             - expression:
                 column_reference:
-                  identifier: price
+                  naked_identifier: price
                 comparison_operator:
                   raw_comparison_operator: '>'
                 function:
@@ -825,17 +825,17 @@ file:
                     start_bracket: (
                     expression:
                       column_reference:
-                        identifier: price
+                        naked_identifier: price
                     end_bracket: )
             - end_bracket: )
       orderby_clause:
       - keyword: order
       - keyword: by
       - column_reference:
-          identifier: company
+          naked_identifier: company
       - comma: ','
       - column_reference:
-          identifier: match_number
+          naked_identifier: match_number
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -851,7 +851,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: stock_price_history
+                naked_identifier: stock_price_history
           match_recognize_clause:
             keyword: match_recognize
             bracketed:
@@ -861,12 +861,12 @@ file:
               - keyword: by
               - expression:
                   column_reference:
-                    identifier: company
+                    naked_identifier: company
             - orderby_clause:
               - keyword: order
               - keyword: by
               - column_reference:
-                  identifier: price_date
+                  naked_identifier: price_date
             - keyword: measures
             - expression:
                 function:
@@ -877,7 +877,7 @@ file:
                     end_bracket: )
             - alias_expression:
                 keyword: as
-                identifier: match_number
+                naked_identifier: match_number
             - comma: ','
             - expression:
                 function:
@@ -887,11 +887,11 @@ file:
                     start_bracket: (
                     expression:
                       column_reference:
-                        identifier: price_date
+                        naked_identifier: price_date
                     end_bracket: )
             - alias_expression:
                 keyword: as
-                identifier: start_date
+                naked_identifier: start_date
             - comma: ','
             - expression:
                 function:
@@ -901,11 +901,11 @@ file:
                     start_bracket: (
                     expression:
                       column_reference:
-                        identifier: price_date
+                        naked_identifier: price_date
                     end_bracket: )
             - alias_expression:
                 keyword: as
-                identifier: end_date
+                naked_identifier: end_date
             - comma: ','
             - expression:
                 function:
@@ -917,7 +917,7 @@ file:
                     end_bracket: )
             - alias_expression:
                 keyword: as
-                identifier: rows_in_sequence
+                naked_identifier: rows_in_sequence
             - comma: ','
             - expression:
                 function:
@@ -926,13 +926,13 @@ file:
                   bracketed:
                     start_bracket: (
                     expression:
-                      identifier: row_with_price_decrease
+                      naked_identifier: row_with_price_decrease
                       dot: .
                       star: '*'
                     end_bracket: )
             - alias_expression:
                 keyword: as
-                identifier: num_decreases
+                naked_identifier: num_decreases
             - comma: ','
             - expression:
                 function:
@@ -941,13 +941,13 @@ file:
                   bracketed:
                     start_bracket: (
                     expression:
-                      identifier: row_with_price_increase
+                      naked_identifier: row_with_price_increase
                       dot: .
                       star: '*'
                     end_bracket: )
             - alias_expression:
                 keyword: as
-                identifier: num_increases
+                naked_identifier: num_increases
             - keyword: one
             - keyword: row
             - keyword: per
@@ -957,44 +957,44 @@ file:
             - keyword: skip
             - keyword: to
             - keyword: last
-            - identifier: row_with_price_increase
+            - naked_identifier: row_with_price_increase
             - keyword: pattern
             - bracketed:
               - start_bracket: (
               - caret: ^
               - bracketed:
                 - start_bracket: (
-                - identifier: S1
+                - naked_identifier: S1
                 - binary_operator:
                     pipe: '|'
-                - identifier: S2
+                - naked_identifier: S2
                 - star: '*'
                 - end_bracket: )
               - question_mark: '?'
-              - identifier: S3
+              - naked_identifier: S3
               - keyword: PERMUTE
               - bracketed:
                 - start_bracket: (
-                - identifier: S4
+                - naked_identifier: S4
                 - sign_indicator: +
                 - comma: ','
-                - identifier: S5
+                - naked_identifier: S5
                 - star: '*'
                 - question_mark: '?'
                 - end_bracket: )
               - bracketed:
                   start_exclude_bracket: '{-'
-                  identifier: S6
+                  naked_identifier: S6
                   end_exclude_bracket: -}
               - sign_indicator: +
               - dollar: $
               - end_bracket: )
             - keyword: define
-            - identifier: row_with_price_decrease
+            - naked_identifier: row_with_price_decrease
             - keyword: as
             - expression:
                 column_reference:
-                  identifier: price
+                  naked_identifier: price
                 comparison_operator:
                   raw_comparison_operator: <
                 function:
@@ -1004,14 +1004,14 @@ file:
                     start_bracket: (
                     expression:
                       column_reference:
-                        identifier: price
+                        naked_identifier: price
                     end_bracket: )
             - comma: ','
-            - identifier: row_with_price_increase
+            - naked_identifier: row_with_price_increase
             - keyword: as
             - expression:
                 column_reference:
-                  identifier: price
+                  naked_identifier: price
                 comparison_operator:
                   raw_comparison_operator: '>'
                 function:
@@ -1021,17 +1021,17 @@ file:
                     start_bracket: (
                     expression:
                       column_reference:
-                        identifier: price
+                        naked_identifier: price
                     end_bracket: )
             - end_bracket: )
       orderby_clause:
       - keyword: order
       - keyword: by
       - column_reference:
-          identifier: company
+          naked_identifier: company
       - comma: ','
       - column_reference:
-          identifier: match_number
+          naked_identifier: match_number
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1047,7 +1047,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: stock_price_history
+                naked_identifier: stock_price_history
           match_recognize_clause:
             keyword: match_recognize
             bracketed:
@@ -1057,12 +1057,12 @@ file:
               - keyword: by
               - expression:
                   column_reference:
-                    identifier: company
+                    naked_identifier: company
             - orderby_clause:
               - keyword: order
               - keyword: by
               - column_reference:
-                  identifier: price_date
+                  naked_identifier: price_date
             - keyword: measures
             - expression:
                 function:
@@ -1073,7 +1073,7 @@ file:
                     end_bracket: )
             - alias_expression:
                 keyword: as
-                identifier: match_number
+                naked_identifier: match_number
             - comma: ','
             - expression:
                 function:
@@ -1083,11 +1083,11 @@ file:
                     start_bracket: (
                     expression:
                       column_reference:
-                        identifier: price_date
+                        naked_identifier: price_date
                     end_bracket: )
             - alias_expression:
                 keyword: as
-                identifier: start_date
+                naked_identifier: start_date
             - comma: ','
             - expression:
                 function:
@@ -1097,11 +1097,11 @@ file:
                     start_bracket: (
                     expression:
                       column_reference:
-                        identifier: price_date
+                        naked_identifier: price_date
                     end_bracket: )
             - alias_expression:
                 keyword: as
-                identifier: end_date
+                naked_identifier: end_date
             - comma: ','
             - expression:
                 function:
@@ -1113,7 +1113,7 @@ file:
                     end_bracket: )
             - alias_expression:
                 keyword: as
-                identifier: rows_in_sequence
+                naked_identifier: rows_in_sequence
             - comma: ','
             - expression:
                 function:
@@ -1122,13 +1122,13 @@ file:
                   bracketed:
                     start_bracket: (
                     expression:
-                      identifier: row_with_price_decrease
+                      naked_identifier: row_with_price_decrease
                       dot: .
                       star: '*'
                     end_bracket: )
             - alias_expression:
                 keyword: as
-                identifier: num_decreases
+                naked_identifier: num_decreases
             - comma: ','
             - expression:
                 function:
@@ -1137,13 +1137,13 @@ file:
                   bracketed:
                     start_bracket: (
                     expression:
-                      identifier: row_with_price_increase
+                      naked_identifier: row_with_price_increase
                       dot: .
                       star: '*'
                     end_bracket: )
             - alias_expression:
                 keyword: as
-                identifier: num_increases
+                naked_identifier: num_increases
             - keyword: one
             - keyword: row
             - keyword: per
@@ -1153,30 +1153,30 @@ file:
             - keyword: skip
             - keyword: to
             - keyword: last
-            - identifier: row_with_price_increase
+            - naked_identifier: row_with_price_increase
             - keyword: pattern
             - bracketed:
                 start_bracket: (
                 bracketed:
                 - start_bracket: (
-                - identifier: A
+                - naked_identifier: A
                 - bracketed:
                   - start_exclude_bracket: '{-'
-                  - identifier: B
+                  - naked_identifier: B
                   - sign_indicator: +
-                  - identifier: C
+                  - naked_identifier: C
                   - sign_indicator: +
                   - end_exclude_bracket: -}
-                - identifier: D
+                - naked_identifier: D
                 - sign_indicator: +
                 - end_bracket: )
                 end_bracket: )
             - keyword: define
-            - identifier: row_with_price_decrease
+            - naked_identifier: row_with_price_decrease
             - keyword: as
             - expression:
                 column_reference:
-                  identifier: price
+                  naked_identifier: price
                 comparison_operator:
                   raw_comparison_operator: <
                 function:
@@ -1186,14 +1186,14 @@ file:
                     start_bracket: (
                     expression:
                       column_reference:
-                        identifier: price
+                        naked_identifier: price
                     end_bracket: )
             - comma: ','
-            - identifier: row_with_price_increase
+            - naked_identifier: row_with_price_increase
             - keyword: as
             - expression:
                 column_reference:
-                  identifier: price
+                  naked_identifier: price
                 comparison_operator:
                   raw_comparison_operator: '>'
                 function:
@@ -1203,17 +1203,17 @@ file:
                     start_bracket: (
                     expression:
                       column_reference:
-                        identifier: price
+                        naked_identifier: price
                     end_bracket: )
             - end_bracket: )
       orderby_clause:
       - keyword: order
       - keyword: by
       - column_reference:
-          identifier: company
+          naked_identifier: company
       - comma: ','
       - column_reference:
-          identifier: match_number
+          naked_identifier: match_number
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1229,7 +1229,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: stock_price_history
+                naked_identifier: stock_price_history
           match_recognize_clause:
             keyword: match_recognize
             bracketed:
@@ -1239,12 +1239,12 @@ file:
               - keyword: by
               - expression:
                   column_reference:
-                    identifier: company
+                    naked_identifier: company
             - orderby_clause:
               - keyword: order
               - keyword: by
               - column_reference:
-                  identifier: price_date
+                  naked_identifier: price_date
             - keyword: measures
             - expression:
                 function:
@@ -1255,7 +1255,7 @@ file:
                     end_bracket: )
             - alias_expression:
                 keyword: as
-                identifier: match_number
+                naked_identifier: match_number
             - comma: ','
             - expression:
                 function:
@@ -1265,11 +1265,11 @@ file:
                     start_bracket: (
                     expression:
                       column_reference:
-                        identifier: price_date
+                        naked_identifier: price_date
                     end_bracket: )
             - alias_expression:
                 keyword: as
-                identifier: start_date
+                naked_identifier: start_date
             - comma: ','
             - expression:
                 function:
@@ -1279,11 +1279,11 @@ file:
                     start_bracket: (
                     expression:
                       column_reference:
-                        identifier: price_date
+                        naked_identifier: price_date
                     end_bracket: )
             - alias_expression:
                 keyword: as
-                identifier: end_date
+                naked_identifier: end_date
             - comma: ','
             - expression:
                 function:
@@ -1295,7 +1295,7 @@ file:
                     end_bracket: )
             - alias_expression:
                 keyword: as
-                identifier: rows_in_sequence
+                naked_identifier: rows_in_sequence
             - comma: ','
             - expression:
                 function:
@@ -1304,13 +1304,13 @@ file:
                   bracketed:
                     start_bracket: (
                     expression:
-                      identifier: row_with_price_decrease
+                      naked_identifier: row_with_price_decrease
                       dot: .
                       star: '*'
                     end_bracket: )
             - alias_expression:
                 keyword: as
-                identifier: num_decreases
+                naked_identifier: num_decreases
             - comma: ','
             - expression:
                 function:
@@ -1319,13 +1319,13 @@ file:
                   bracketed:
                     start_bracket: (
                     expression:
-                      identifier: row_with_price_increase
+                      naked_identifier: row_with_price_increase
                       dot: .
                       star: '*'
                     end_bracket: )
             - alias_expression:
                 keyword: as
-                identifier: num_increases
+                naked_identifier: num_increases
             - keyword: one
             - keyword: row
             - keyword: per
@@ -1335,29 +1335,29 @@ file:
             - keyword: skip
             - keyword: to
             - keyword: last
-            - identifier: row_with_price_increase
+            - naked_identifier: row_with_price_increase
             - keyword: pattern
             - bracketed:
                 start_bracket: (
                 bracketed:
                 - start_bracket: (
-                - identifier: A
+                - naked_identifier: A
                 - binary_operator:
                     pipe: '|'
-                - identifier: B
+                - naked_identifier: B
                 - end_bracket: )
                 start_curly_bracket: '{'
                 numeric_literal: '5'
                 end_curly_bracket: '}'
-                identifier: C
+                naked_identifier: C
                 sign_indicator: +
                 end_bracket: )
             - keyword: define
-            - identifier: row_with_price_decrease
+            - naked_identifier: row_with_price_decrease
             - keyword: as
             - expression:
                 column_reference:
-                  identifier: price
+                  naked_identifier: price
                 comparison_operator:
                   raw_comparison_operator: <
                 function:
@@ -1367,14 +1367,14 @@ file:
                     start_bracket: (
                     expression:
                       column_reference:
-                        identifier: price
+                        naked_identifier: price
                     end_bracket: )
             - comma: ','
-            - identifier: row_with_price_increase
+            - naked_identifier: row_with_price_increase
             - keyword: as
             - expression:
                 column_reference:
-                  identifier: price
+                  naked_identifier: price
                 comparison_operator:
                   raw_comparison_operator: '>'
                 function:
@@ -1384,15 +1384,15 @@ file:
                     start_bracket: (
                     expression:
                       column_reference:
-                        identifier: price
+                        naked_identifier: price
                     end_bracket: )
             - end_bracket: )
       orderby_clause:
       - keyword: order
       - keyword: by
       - column_reference:
-          identifier: company
+          naked_identifier: company
       - comma: ','
       - column_reference:
-          identifier: match_number
+          naked_identifier: match_number
 - statement_terminator: ;

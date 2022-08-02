@@ -3,14 +3,14 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c5353212e43f875878eed5e8067a1c51f0b76b7e959afe6573308d4076006478
+_hash: 1bbe3f883fc45f3df4bb453d9b2b4448e70d27fcbd1c885cdcc87b3578f7e3b0
 file:
 - statement:
     alter_stream_statement:
     - keyword: alter
     - keyword: stream
     - object_reference:
-        identifier: mystream
+        naked_identifier: mystream
     - keyword: set
     - comment_equals_clause:
         keyword: comment
@@ -25,11 +25,11 @@ file:
     - keyword: if
     - keyword: exists
     - object_reference:
-        identifier: mystream
+        naked_identifier: mystream
     - keyword: set
     - tag_equals:
         keyword: tag
-        identifier: mytag
+        naked_identifier: mytag
         comparison_operator:
           raw_comparison_operator: '='
         quoted_literal: "'myvalue'"
@@ -41,7 +41,7 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - object_reference:
-        identifier: mystream
+        naked_identifier: mystream
     - keyword: SET
     - keyword: APPEND_ONLY
     - comparison_operator:
@@ -49,12 +49,12 @@ file:
     - boolean_literal: 'FALSE'
     - tag_equals:
       - keyword: TAG
-      - identifier: mytag1
+      - naked_identifier: mytag1
       - comparison_operator:
           raw_comparison_operator: '='
       - quoted_literal: "'myvalue1'"
       - comma: ','
-      - identifier: mytag2
+      - naked_identifier: mytag2
       - comparison_operator:
           raw_comparison_operator: '='
       - quoted_literal: "'myvalue2'"
@@ -71,7 +71,7 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - object_reference:
-        identifier: mystream
+        naked_identifier: mystream
     - keyword: SET
     - keyword: INSERT_ONLY
     - comparison_operator:
@@ -88,7 +88,7 @@ file:
     - keyword: alter
     - keyword: stream
     - object_reference:
-        identifier: mystream
+        naked_identifier: mystream
     - keyword: unset
     - keyword: comment
 - statement_terminator: ;
@@ -97,10 +97,10 @@ file:
     - keyword: alter
     - keyword: stream
     - object_reference:
-        identifier: mystream
+        naked_identifier: mystream
     - keyword: unset
     - keyword: tag
-    - identifier: mytag1
+    - naked_identifier: mytag1
     - comma: ','
-    - identifier: mytag2
+    - naked_identifier: mytag2
 - statement_terminator: ;

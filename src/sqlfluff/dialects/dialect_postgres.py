@@ -197,7 +197,7 @@ postgres_dialect.sets("value_table_functions").update(["UNNEST", "GENERATE_SERIE
 
 postgres_dialect.add(
     JsonOperatorSegment=NamedParser(
-        "json_operator", SymbolSegment, name="json_operator", type="binary_operator"
+        "json_operator", SymbolSegment, type="binary_operator"
     ),
     SimpleGeometryGrammar=AnyNumberOf(Ref("NumericLiteralSegment")),
     # N.B. this MultilineConcatenateDelimiterGrammar is only created
@@ -207,7 +207,6 @@ postgres_dialect.add(
     MultilineConcatenateNewline=NamedParser(
         "newline",
         NewlineSegment,
-        name="newline",
         type="newline",
     ),
     MultilineConcatenateDelimiterGrammar=AnyNumberOf(
@@ -257,7 +256,7 @@ postgres_dialect.replace(
         )
     ),
     ParameterNameSegment=RegexParser(
-        r'[A-Z_][A-Z0-9_$]*|"[^"]*"', CodeSegment, name="parameter", type="parameter"
+        r'[A-Z_][A-Z0-9_$]*|"[^"]*"', CodeSegment, type="parameter"
     ),
     FunctionNameIdentifierSegment=RegexParser(
         r"[A-Z_][A-Z0-9_$]*",

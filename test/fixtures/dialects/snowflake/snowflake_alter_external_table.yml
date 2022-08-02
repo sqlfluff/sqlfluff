@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 18a31d16af219137d7a5f3afefcf402eba2153c32c6afbb07c5640826af148c7
+_hash: d18cf30b49749b2f879ef2161d131cdba0ff5fc279442ebbd71f1d4e47f7dd58
 file:
 - statement:
     alter_external_table_statement:
@@ -11,7 +11,7 @@ file:
     - keyword: external
     - keyword: table
     - table_reference:
-        identifier: foo
+        naked_identifier: foo
     - keyword: refresh
 - statement_terminator: ;
 - statement:
@@ -20,7 +20,7 @@ file:
     - keyword: external
     - keyword: table
     - table_reference:
-        identifier: foo
+        naked_identifier: foo
     - keyword: refresh
     - quoted_literal: "'2018/08/05/'"
 - statement_terminator: ;
@@ -30,7 +30,7 @@ file:
     - keyword: external
     - keyword: table
     - table_reference:
-        identifier: foo
+        naked_identifier: foo
     - keyword: add
     - keyword: files
     - bracketed:
@@ -46,7 +46,7 @@ file:
     - keyword: external
     - keyword: table
     - table_reference:
-        identifier: foo
+        naked_identifier: foo
     - keyword: remove
     - keyword: files
     - bracketed:
@@ -62,25 +62,25 @@ file:
     - keyword: external
     - keyword: table
     - table_reference:
-        identifier: foo
+        naked_identifier: foo
     - keyword: add
     - keyword: partition
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: foo
+          naked_identifier: foo
       - comparison_operator:
           raw_comparison_operator: '='
       - quoted_literal: "'baz'"
       - comma: ','
       - column_reference:
-          identifier: bar
+          naked_identifier: bar
       - comparison_operator:
           raw_comparison_operator: '='
       - quoted_literal: "'bar'"
       - comma: ','
       - column_reference:
-          identifier: baz
+          naked_identifier: baz
       - comparison_operator:
           raw_comparison_operator: '='
       - quoted_literal: "'foo'"
@@ -94,7 +94,7 @@ file:
     - keyword: external
     - keyword: table
     - table_reference:
-        identifier: foo
+        naked_identifier: foo
     - keyword: drop
     - keyword: partition
     - keyword: location
@@ -108,7 +108,7 @@ file:
     - keyword: if
     - keyword: exists
     - table_reference:
-        identifier: foo
+        naked_identifier: foo
     - keyword: set
     - keyword: auto_refresh
     - comparison_operator:
@@ -123,16 +123,16 @@ file:
     - keyword: if
     - keyword: exists
     - table_reference:
-        identifier: foo
+        naked_identifier: foo
     - keyword: set
     - tag_equals:
       - keyword: tag
-      - identifier: foo
+      - naked_identifier: foo
       - comparison_operator:
           raw_comparison_operator: '='
       - quoted_literal: "'foo'"
       - comma: ','
-      - identifier: bar
+      - naked_identifier: bar
       - comparison_operator:
           raw_comparison_operator: '='
       - quoted_literal: "'bar'"
@@ -143,11 +143,11 @@ file:
     - keyword: external
     - keyword: table
     - table_reference:
-        identifier: foo
+        naked_identifier: foo
     - keyword: unset
     - tag_equals:
         keyword: tag
-        identifier: foo
+        naked_identifier: foo
         comparison_operator:
           raw_comparison_operator: '='
         quoted_literal: "'foo'"

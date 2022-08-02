@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2a0630dafb1c92a727f175d713ca974d39721cd93dc363714c5d7ead45e8db8d
+_hash: bdd7d356ea2c7ef3bc8091e3cc967c8129b2ef875e37027755b9529a777828c4
 file:
 - statement:
     use_statement:
@@ -68,7 +68,7 @@ file:
     - bracketed:
         start_bracket: (
         column_definition:
-          identifier: c1
+          naked_identifier: c1
           data_type:
             data_type_identifier: number
         end_bracket: )
@@ -88,7 +88,7 @@ file:
     - bracketed:
         start_bracket: (
         column_definition:
-          identifier: c1
+          naked_identifier: c1
           data_type:
             data_type_identifier: number
         end_bracket: )

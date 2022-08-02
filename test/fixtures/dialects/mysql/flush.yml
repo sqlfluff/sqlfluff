@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 28f8a9ffd2decc4a5aedda0f14fd2368fb71225c0e37286d485e137c338845d0
+_hash: 19d48e39bc87b05358abcf06a2d2edd289d9e249da43532890fd301fe03d83df
 file:
 - statement:
     flush_statement:
@@ -84,9 +84,9 @@ file:
         naked_identifier: table1
     - comma: ','
     - table_reference:
-      - identifier: '`foo`'
+      - quoted_identifier: '`foo`'
       - dot: .
-      - identifier: '`bar`'
+      - quoted_identifier: '`bar`'
 - statement_terminator: ;
 - statement:
     flush_statement:
@@ -96,9 +96,9 @@ file:
         naked_identifier: table1
     - comma: ','
     - table_reference:
-      - identifier: '`foo`'
+      - quoted_identifier: '`foo`'
       - dot: .
-      - identifier: '`bar`'
+      - quoted_identifier: '`bar`'
     - keyword: WITH
     - keyword: READ
     - keyword: LOCK
@@ -111,9 +111,9 @@ file:
         naked_identifier: table1
     - comma: ','
     - table_reference:
-      - identifier: '`foo`'
+      - quoted_identifier: '`foo`'
       - dot: .
-      - identifier: '`bar`'
+      - quoted_identifier: '`bar`'
     - keyword: FOR
     - keyword: EXPORT
 - statement_terminator: ;

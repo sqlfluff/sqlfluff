@@ -3,14 +3,14 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 71c3cc0d8560368063582004dbbbd8ba03b7cf68b94a3ff41413753bda2687c6
+_hash: 70ec57eefb21ce252ea064da0052afe669a4df06d2e5491af6b3da821a2b8043
 file:
 - statement:
     alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: my_table
+        naked_identifier: my_table
     - alter_table_clustering_action:
       - keyword: CLUSTER
       - keyword: BY
@@ -18,11 +18,11 @@ file:
         - start_bracket: (
         - expression:
             column_reference:
-              identifier: c1
+              naked_identifier: c1
         - comma: ','
         - expression:
             column_reference:
-              identifier: c2
+              naked_identifier: c2
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -30,7 +30,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: my_table
+        naked_identifier: my_table
     - alter_table_clustering_action:
       - keyword: CLUSTER
       - keyword: BY
@@ -44,7 +44,7 @@ file:
                 start_bracket: (
                 expression:
                   column_reference:
-                    identifier: c1
+                    naked_identifier: c1
                 end_bracket: )
         - comma: ','
         - expression:
@@ -55,7 +55,7 @@ file:
               - start_bracket: (
               - expression:
                   column_reference:
-                    identifier: c2
+                    naked_identifier: c2
               - comma: ','
               - expression:
                   numeric_literal: '0'
@@ -70,7 +70,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: my_table
+        naked_identifier: my_table
     - alter_table_clustering_action:
       - keyword: CLUSTER
       - keyword: BY
@@ -78,7 +78,7 @@ file:
           start_bracket: (
           expression:
             column_reference:
-              identifier: v
+              naked_identifier: v
             snowflake_semi_structured_expression:
             - colon: ':'
             - semi_structured_element: '"Data"'
@@ -95,7 +95,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: my_table
+        naked_identifier: my_table
     - alter_table_clustering_action:
         keyword: RECLUSTER
 - statement_terminator: ;
@@ -104,7 +104,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: my_table
+        naked_identifier: my_table
     - alter_table_clustering_action:
       - keyword: RECLUSTER
       - keyword: MAX_SIZE
@@ -117,14 +117,14 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: my_table
+        naked_identifier: my_table
     - alter_table_clustering_action:
         keyword: RECLUSTER
         where_clause:
           keyword: WHERE
           expression:
           - column_reference:
-              identifier: create_date
+              naked_identifier: create_date
           - keyword: BETWEEN
           - bracketed:
               start_bracket: (
@@ -143,7 +143,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: my_table
+        naked_identifier: my_table
     - alter_table_clustering_action:
       - keyword: RECLUSTER
       - keyword: MAX_SIZE
@@ -154,7 +154,7 @@ file:
           keyword: WHERE
           expression:
           - column_reference:
-              identifier: create_date
+              naked_identifier: create_date
           - keyword: BETWEEN
           - bracketed:
               start_bracket: (
@@ -173,7 +173,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: my_table
+        naked_identifier: my_table
     - alter_table_clustering_action:
       - keyword: SUSPEND
       - keyword: RECLUSTER
@@ -183,7 +183,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: my_table
+        naked_identifier: my_table
     - alter_table_clustering_action:
       - keyword: RESUME
       - keyword: RECLUSTER
@@ -193,7 +193,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: my_table
+        naked_identifier: my_table
     - alter_table_clustering_action:
       - keyword: DROP
       - keyword: CLUSTERING

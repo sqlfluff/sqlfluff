@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c8f99c10229c244d6358b664c22995320c2177ccd59f7321c7be53ba85b662a0
+_hash: 990d8f15823f8f62dc00f28663b53829fcfb81cd480f1cdccf6ad16b819589e1
 file:
 - statement:
     describe_statement:
@@ -41,7 +41,7 @@ file:
     - keyword: NETWORK
     - keyword: POLICY
     - object_reference:
-        identifier: my_policy
+        naked_identifier: my_policy
 - statement_terminator: ;
 - statement:
     describe_statement:
@@ -49,67 +49,67 @@ file:
     - keyword: NETWORK
     - keyword: POLICY
     - object_reference:
-        identifier: my_policy
+        naked_identifier: my_policy
 - statement_terminator: ;
 - statement:
     describe_statement:
     - keyword: DESCRIBE
     - keyword: SHARE
     - object_reference:
-        identifier: sales_s
+        naked_identifier: sales_s
 - statement_terminator: ;
 - statement:
     describe_statement:
     - keyword: DESC
     - keyword: SHARE
     - object_reference:
-        identifier: sales_s
+        naked_identifier: sales_s
 - statement_terminator: ;
 - statement:
     describe_statement:
     - keyword: DESCRIBE
     - keyword: SHARE
     - object_reference:
-      - identifier: ab67890
+      - naked_identifier: ab67890
       - dot: .
-      - identifier: sales_s
+      - naked_identifier: sales_s
 - statement_terminator: ;
 - statement:
     describe_statement:
     - keyword: DESC
     - keyword: SHARE
     - object_reference:
-      - identifier: ab67890
+      - naked_identifier: ab67890
       - dot: .
-      - identifier: sales_s
+      - naked_identifier: sales_s
 - statement_terminator: ;
 - statement:
     describe_statement:
     - keyword: DESCRIBE
     - keyword: USER
     - object_reference:
-        identifier: test_user
+        naked_identifier: test_user
 - statement_terminator: ;
 - statement:
     describe_statement:
     - keyword: DESC
     - keyword: USER
     - object_reference:
-        identifier: test_user
+        naked_identifier: test_user
 - statement_terminator: ;
 - statement:
     describe_statement:
     - keyword: DESCRIBE
     - keyword: WAREHOUSE
     - object_reference:
-        identifier: my_warehouse
+        naked_identifier: my_warehouse
 - statement_terminator: ;
 - statement:
     describe_statement:
     - keyword: DESC
     - keyword: WAREHOUSE
     - object_reference:
-        identifier: my_warehouse
+        naked_identifier: my_warehouse
 - statement_terminator: ;
 - statement:
     describe_statement:
@@ -130,14 +130,14 @@ file:
     - keyword: DESCRIBE
     - keyword: DATABASE
     - database_reference:
-        identifier: my_database
+        naked_identifier: my_database
 - statement_terminator: ;
 - statement:
     describe_statement:
     - keyword: DESC
     - keyword: DATABASE
     - database_reference:
-        identifier: my_database
+        naked_identifier: my_database
 - statement_terminator: ;
 - statement:
     describe_statement:
@@ -145,7 +145,7 @@ file:
     - keyword: API
     - keyword: INTEGRATION
     - object_reference:
-        identifier: my_integration
+        naked_identifier: my_integration
 - statement_terminator: ;
 - statement:
     describe_statement:
@@ -153,7 +153,7 @@ file:
     - keyword: API
     - keyword: INTEGRATION
     - object_reference:
-        identifier: my_integration
+        naked_identifier: my_integration
 - statement_terminator: ;
 - statement:
     describe_statement:
@@ -161,7 +161,7 @@ file:
     - keyword: NOTIFICATION
     - keyword: INTEGRATION
     - object_reference:
-        identifier: my_integration
+        naked_identifier: my_integration
 - statement_terminator: ;
 - statement:
     describe_statement:
@@ -169,7 +169,7 @@ file:
     - keyword: NOTIFICATION
     - keyword: INTEGRATION
     - object_reference:
-        identifier: my_integration
+        naked_identifier: my_integration
 - statement_terminator: ;
 - statement:
     describe_statement:
@@ -177,7 +177,7 @@ file:
     - keyword: SECURITY
     - keyword: INTEGRATION
     - object_reference:
-        identifier: my_integration
+        naked_identifier: my_integration
 - statement_terminator: ;
 - statement:
     describe_statement:
@@ -185,7 +185,7 @@ file:
     - keyword: SECURITY
     - keyword: INTEGRATION
     - object_reference:
-        identifier: my_integration
+        naked_identifier: my_integration
 - statement_terminator: ;
 - statement:
     describe_statement:
@@ -193,7 +193,7 @@ file:
     - keyword: STORAGE
     - keyword: INTEGRATION
     - object_reference:
-        identifier: my_integration
+        naked_identifier: my_integration
 - statement_terminator: ;
 - statement:
     describe_statement:
@@ -201,21 +201,21 @@ file:
     - keyword: STORAGE
     - keyword: INTEGRATION
     - object_reference:
-        identifier: my_integration
+        naked_identifier: my_integration
 - statement_terminator: ;
 - statement:
     describe_statement:
     - keyword: DESCRIBE
     - keyword: INTEGRATION
     - object_reference:
-        identifier: my_integration
+        naked_identifier: my_integration
 - statement_terminator: ;
 - statement:
     describe_statement:
     - keyword: DESC
     - keyword: INTEGRATION
     - object_reference:
-        identifier: my_integration
+        naked_identifier: my_integration
 - statement_terminator: ;
 - statement:
     describe_statement:
@@ -223,7 +223,7 @@ file:
     - keyword: SESSION
     - keyword: POLICY
     - object_reference:
-        identifier: my_session_policy
+        naked_identifier: my_session_policy
 - statement_terminator: ;
 - statement:
     describe_statement:
@@ -231,82 +231,82 @@ file:
     - keyword: SESSION
     - keyword: POLICY
     - object_reference:
-        identifier: my_session_policy
+        naked_identifier: my_session_policy
 - statement_terminator: ;
 - statement:
     describe_statement:
     - keyword: DESCRIBE
     - keyword: SCHEMA
     - schema_reference:
-        identifier: my_schema
+        naked_identifier: my_schema
 - statement_terminator: ;
 - statement:
     describe_statement:
     - keyword: DESC
     - keyword: SCHEMA
     - schema_reference:
-        identifier: my_schema
+        naked_identifier: my_schema
 - statement_terminator: ;
 - statement:
     describe_statement:
     - keyword: DESCRIBE
     - keyword: SCHEMA
     - schema_reference:
-      - identifier: my_database
+      - naked_identifier: my_database
       - dot: .
-      - identifier: my_schema
+      - naked_identifier: my_schema
 - statement_terminator: ;
 - statement:
     describe_statement:
     - keyword: DESC
     - keyword: SCHEMA
     - schema_reference:
-      - identifier: my_database
+      - naked_identifier: my_database
       - dot: .
-      - identifier: my_schema
+      - naked_identifier: my_schema
 - statement_terminator: ;
 - statement:
     describe_statement:
     - keyword: DESCRIBE
     - keyword: TABLE
     - table_reference:
-        identifier: my_table
+        naked_identifier: my_table
 - statement_terminator: ;
 - statement:
     describe_statement:
     - keyword: DESC
     - keyword: TABLE
     - table_reference:
-        identifier: my_table
+        naked_identifier: my_table
 - statement_terminator: ;
 - statement:
     describe_statement:
     - keyword: DESCRIBE
     - keyword: TABLE
     - table_reference:
-      - identifier: my_database
+      - naked_identifier: my_database
       - dot: .
-      - identifier: my_schema
+      - naked_identifier: my_schema
       - dot: .
-      - identifier: my_table
+      - naked_identifier: my_table
 - statement_terminator: ;
 - statement:
     describe_statement:
     - keyword: DESC
     - keyword: TABLE
     - table_reference:
-      - identifier: my_database
+      - naked_identifier: my_database
       - dot: .
-      - identifier: my_schema
+      - naked_identifier: my_schema
       - dot: .
-      - identifier: my_table
+      - naked_identifier: my_table
 - statement_terminator: ;
 - statement:
     describe_statement:
     - keyword: DESCRIBE
     - keyword: TABLE
     - table_reference:
-        identifier: my_table
+        naked_identifier: my_table
     - keyword: TYPE
     - comparison_operator:
         raw_comparison_operator: '='
@@ -317,7 +317,7 @@ file:
     - keyword: DESC
     - keyword: TABLE
     - table_reference:
-        identifier: my_table
+        naked_identifier: my_table
     - keyword: TYPE
     - comparison_operator:
         raw_comparison_operator: '='
@@ -328,7 +328,7 @@ file:
     - keyword: DESCRIBE
     - keyword: TABLE
     - table_reference:
-        identifier: my_table
+        naked_identifier: my_table
     - keyword: TYPE
     - comparison_operator:
         raw_comparison_operator: '='
@@ -339,7 +339,7 @@ file:
     - keyword: DESC
     - keyword: TABLE
     - table_reference:
-        identifier: my_table
+        naked_identifier: my_table
     - keyword: TYPE
     - comparison_operator:
         raw_comparison_operator: '='
@@ -351,7 +351,7 @@ file:
     - keyword: EXTERNAL
     - keyword: TABLE
     - table_reference:
-        identifier: my_table
+        naked_identifier: my_table
 - statement_terminator: ;
 - statement:
     describe_statement:
@@ -359,7 +359,7 @@ file:
     - keyword: EXTERNAL
     - keyword: TABLE
     - table_reference:
-        identifier: my_table
+        naked_identifier: my_table
 - statement_terminator: ;
 - statement:
     describe_statement:
@@ -367,7 +367,7 @@ file:
     - keyword: EXTERNAL
     - keyword: TABLE
     - table_reference:
-        identifier: my_table
+        naked_identifier: my_table
     - keyword: TYPE
     - comparison_operator:
         raw_comparison_operator: '='
@@ -379,7 +379,7 @@ file:
     - keyword: EXTERNAL
     - keyword: TABLE
     - table_reference:
-        identifier: my_table
+        naked_identifier: my_table
     - keyword: TYPE
     - comparison_operator:
         raw_comparison_operator: '='
@@ -391,7 +391,7 @@ file:
     - keyword: EXTERNAL
     - keyword: TABLE
     - table_reference:
-        identifier: my_table
+        naked_identifier: my_table
     - keyword: TYPE
     - comparison_operator:
         raw_comparison_operator: '='
@@ -403,7 +403,7 @@ file:
     - keyword: EXTERNAL
     - keyword: TABLE
     - table_reference:
-        identifier: my_table
+        naked_identifier: my_table
     - keyword: TYPE
     - comparison_operator:
         raw_comparison_operator: '='
@@ -414,52 +414,36 @@ file:
     - keyword: DESCRIBE
     - keyword: VIEW
     - table_reference:
-        identifier: my_view
+        naked_identifier: my_view
 - statement_terminator: ;
 - statement:
     describe_statement:
     - keyword: DESC
     - keyword: VIEW
     - table_reference:
-        identifier: my_view
+        naked_identifier: my_view
 - statement_terminator: ;
 - statement:
     describe_statement:
     - keyword: DESCRIBE
     - keyword: VIEW
     - table_reference:
-      - identifier: my_database
+      - naked_identifier: my_database
       - dot: .
-      - identifier: my_schema
+      - naked_identifier: my_schema
       - dot: .
-      - identifier: my_view
+      - naked_identifier: my_view
 - statement_terminator: ;
 - statement:
     describe_statement:
     - keyword: DESC
     - keyword: VIEW
     - table_reference:
-      - identifier: my_database
+      - naked_identifier: my_database
       - dot: .
-      - identifier: my_schema
+      - naked_identifier: my_schema
       - dot: .
-      - identifier: my_view
-- statement_terminator: ;
-- statement:
-    describe_statement:
-    - keyword: DESCRIBE
-    - keyword: MATERIALIZED
-    - keyword: VIEW
-    - table_reference:
-        identifier: my_view
-- statement_terminator: ;
-- statement:
-    describe_statement:
-    - keyword: DESC
-    - keyword: MATERIALIZED
-    - keyword: VIEW
-    - table_reference:
-        identifier: my_view
+      - naked_identifier: my_view
 - statement_terminator: ;
 - statement:
     describe_statement:
@@ -467,11 +451,7 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-      - identifier: my_database
-      - dot: .
-      - identifier: my_schema
-      - dot: .
-      - identifier: my_view
+        naked_identifier: my_view
 - statement_terminator: ;
 - statement:
     describe_statement:
@@ -479,25 +459,45 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-      - identifier: my_database
+        naked_identifier: my_view
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+      - naked_identifier: my_database
       - dot: .
-      - identifier: my_schema
+      - naked_identifier: my_schema
       - dot: .
-      - identifier: my_view
+      - naked_identifier: my_view
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESC
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+      - naked_identifier: my_database
+      - dot: .
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: my_view
 - statement_terminator: ;
 - statement:
     describe_statement:
     - keyword: DESCRIBE
     - keyword: SEQUENCE
     - sequence_reference:
-        identifier: my_sequence
+        naked_identifier: my_sequence
 - statement_terminator: ;
 - statement:
     describe_statement:
     - keyword: DESC
     - keyword: SEQUENCE
     - sequence_reference:
-        identifier: my_sequence
+        naked_identifier: my_sequence
 - statement_terminator: ;
 - statement:
     describe_statement:
@@ -505,7 +505,7 @@ file:
     - keyword: MASKING
     - keyword: POLICY
     - object_reference:
-        identifier: my_masking_policy
+        naked_identifier: my_masking_policy
 - statement_terminator: ;
 - statement:
     describe_statement:
@@ -513,7 +513,7 @@ file:
     - keyword: MASKING
     - keyword: POLICY
     - object_reference:
-        identifier: my_masking_policy
+        naked_identifier: my_masking_policy
 - statement_terminator: ;
 - statement:
     describe_statement:
@@ -522,7 +522,7 @@ file:
     - keyword: ACCESS
     - keyword: POLICY
     - object_reference:
-        identifier: my_row_access_policy
+        naked_identifier: my_row_access_policy
 - statement_terminator: ;
 - statement:
     describe_statement:
@@ -531,7 +531,7 @@ file:
     - keyword: ACCESS
     - keyword: POLICY
     - object_reference:
-        identifier: my_row_access_policy
+        naked_identifier: my_row_access_policy
 - statement_terminator: ;
 - statement:
     describe_statement:
@@ -539,7 +539,7 @@ file:
     - keyword: FILE
     - keyword: FORMAT
     - object_reference:
-        identifier: my_file_format
+        naked_identifier: my_file_format
 - statement_terminator: ;
 - statement:
     describe_statement:
@@ -547,63 +547,63 @@ file:
     - keyword: FILE
     - keyword: FORMAT
     - object_reference:
-        identifier: my_file_format
+        naked_identifier: my_file_format
 - statement_terminator: ;
 - statement:
     describe_statement:
     - keyword: DESCRIBE
     - keyword: STAGE
     - object_reference:
-        identifier: my_stage
+        naked_identifier: my_stage
 - statement_terminator: ;
 - statement:
     describe_statement:
     - keyword: DESC
     - keyword: STAGE
     - object_reference:
-        identifier: my_stage
+        naked_identifier: my_stage
 - statement_terminator: ;
 - statement:
     describe_statement:
     - keyword: DESCRIBE
     - keyword: PIPE
     - object_reference:
-        identifier: my_pipe
+        naked_identifier: my_pipe
 - statement_terminator: ;
 - statement:
     describe_statement:
     - keyword: DESC
     - keyword: PIPE
     - object_reference:
-        identifier: my_pipe
+        naked_identifier: my_pipe
 - statement_terminator: ;
 - statement:
     describe_statement:
     - keyword: DESCRIBE
     - keyword: STREAM
     - object_reference:
-        identifier: my_stream
+        naked_identifier: my_stream
 - statement_terminator: ;
 - statement:
     describe_statement:
     - keyword: DESC
     - keyword: STREAM
     - object_reference:
-        identifier: my_stream
+        naked_identifier: my_stream
 - statement_terminator: ;
 - statement:
     describe_statement:
     - keyword: DESCRIBE
     - keyword: TASK
     - object_reference:
-        identifier: my_task
+        naked_identifier: my_task
 - statement_terminator: ;
 - statement:
     describe_statement:
     - keyword: DESC
     - keyword: TASK
     - object_reference:
-        identifier: my_task
+        naked_identifier: my_task
 - statement_terminator: ;
 - statement:
     describe_statement:

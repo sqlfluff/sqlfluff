@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 55e8aad6da9093813f9615569433368229cc43e694d533ce09fd5c72f4ebe33d
+_hash: fa7337a921e487f7776e8da6a78aa388f08e3e68f24b66267800800b6e757ee9
 file:
 - statement:
     create_table_statement:
@@ -141,7 +141,7 @@ file:
     - file_reference:
         keyword: DELTA
         dot: .
-        identifier: '`/delta/people10m`'
+        quoted_identifier: '`/delta/people10m`'
     - bracketed:
       - start_bracket: (
       - column_definition:

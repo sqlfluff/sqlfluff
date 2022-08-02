@@ -3,19 +3,19 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a4fac713c18bfffaa054b85eaba41c5ce33ce89254463f7a54ed1c0a8e463ebd
+_hash: 1bad013dedbfea5e554ea3f923c67d68c17ace2d864143f106729147b9a966e5
 file:
 - statement:
     put_statement:
       keyword: put
       unquoted_file_path: file:///tmp/data/mydata.csv
-      identifier: '@my_int_stage'
+      stage_path: '@my_int_stage'
 - statement_terminator: ;
 - statement:
     put_statement:
     - keyword: put
     - unquoted_file_path: file:///tmp/data/orders_001.csv
-    - identifier: '@%orderstiny_ext'
+    - stage_path: '@%orderstiny_ext'
     - keyword: auto_compress
     - comparison_operator:
         raw_comparison_operator: '='
@@ -25,7 +25,7 @@ file:
     put_statement:
     - keyword: put
     - unquoted_file_path: file:///tmp/data/orders_*01.csv
-    - identifier: '@%orderstiny_ext'
+    - stage_path: '@%orderstiny_ext'
     - keyword: auto_compress
     - comparison_operator:
         raw_comparison_operator: '='
@@ -35,7 +35,7 @@ file:
     put_statement:
     - keyword: put
     - unquoted_file_path: file://c:\temp\data\mydata.csv
-    - identifier: '@~'
+    - stage_path: '@~'
     - keyword: auto_compress
     - comparison_operator:
         raw_comparison_operator: '='
@@ -45,7 +45,7 @@ file:
     put_statement:
     - keyword: put
     - unquoted_file_path: file://c:\temp\data\mydata.csv
-    - identifier: '@~'
+    - stage_path: '@~'
     - keyword: parallel
     - comparison_operator:
         raw_comparison_operator: '='
@@ -55,17 +55,17 @@ file:
     put_statement:
     - keyword: put
     - unquoted_file_path: file://c:\temp\data\mydata.csv
-    - identifier: '@~'
+    - stage_path: '@~'
     - keyword: source_compression
     - comparison_operator:
         raw_comparison_operator: '='
-    - keyword: "'auto_detect'"
+    - compression_type: "'auto_detect'"
 - statement_terminator: ;
 - statement:
     put_statement:
     - keyword: put
     - unquoted_file_path: file://c:\temp\data\mydata.csv
-    - identifier: '@~'
+    - stage_path: '@~'
     - keyword: overwrite
     - comparison_operator:
         raw_comparison_operator: '='

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c1ed4823d951f4b598509df58e66747cb4b8b3a1db5599cbb19470e3517f4893
+_hash: baf250a0c6905431cf7bd5c3ae55c22ebdf464964992a98ac96c83b8575eec36
 file:
 - statement:
     alter_schema_statement:
@@ -12,29 +12,29 @@ file:
     - keyword: if
     - keyword: exists
     - schema_reference:
-        identifier: schema1
+        naked_identifier: schema1
     - keyword: rename
     - keyword: to
     - schema_reference:
-        identifier: schema2
+        naked_identifier: schema2
 - statement_terminator: ;
 - statement:
     alter_schema_statement:
     - keyword: alter
     - keyword: schema
     - schema_reference:
-        identifier: schema1
+        naked_identifier: schema1
     - keyword: swap
     - keyword: with
     - schema_reference:
-        identifier: schema2
+        naked_identifier: schema2
 - statement_terminator: ;
 - statement:
     alter_schema_statement:
     - keyword: alter
     - keyword: schema
     - schema_reference:
-        identifier: schema2
+        naked_identifier: schema2
     - keyword: enable
     - keyword: managed
     - keyword: access
@@ -44,7 +44,7 @@ file:
     - keyword: alter
     - keyword: schema
     - schema_reference:
-        identifier: schema1
+        naked_identifier: schema1
     - keyword: set
     - schema_object_properties:
         keyword: data_retention_time_in_days
@@ -57,16 +57,16 @@ file:
     - keyword: alter
     - keyword: schema
     - schema_reference:
-        identifier: schema1
+        naked_identifier: schema1
     - keyword: set
     - tag_equals:
       - keyword: tag
-      - identifier: tag1
+      - naked_identifier: tag1
       - comparison_operator:
           raw_comparison_operator: '='
       - quoted_literal: "'value1'"
       - comma: ','
-      - identifier: tag2
+      - naked_identifier: tag2
       - comparison_operator:
           raw_comparison_operator: '='
       - quoted_literal: "'value2'"
@@ -76,7 +76,7 @@ file:
     - keyword: alter
     - keyword: schema
     - schema_reference:
-        identifier: schema1
+        naked_identifier: schema1
     - keyword: unset
     - keyword: data_retention_time_in_days
 - statement_terminator: ;
@@ -85,7 +85,7 @@ file:
     - keyword: alter
     - keyword: schema
     - schema_reference:
-        identifier: schema1
+        naked_identifier: schema1
     - keyword: unset
     - keyword: data_retention_time_in_days
     - comma: ','
@@ -96,10 +96,10 @@ file:
     - keyword: alter
     - keyword: schema
     - schema_reference:
-        identifier: schema1
+        naked_identifier: schema1
     - keyword: unset
     - keyword: tag
-    - identifier: foo
+    - naked_identifier: foo
     - comma: ','
-    - identifier: bar
+    - naked_identifier: bar
 - statement_terminator: ;

@@ -3,14 +3,14 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 62bea3497151ebfa259941460254c0fd91f7ae6f411c0415639b6eaf7b088bf7
+_hash: 174503206910b257981d4edca72094807799dadc6017572aae0782f4bbb27f7f
 file:
 - statement:
     create_stage_statement:
     - keyword: CREATE
     - keyword: STAGE
     - object_reference:
-        identifier: my_int_stage
+        naked_identifier: my_int_stage
     - keyword: COPY_OPTIONS
     - comparison_operator:
         raw_comparison_operator: '='
@@ -28,7 +28,7 @@ file:
     - keyword: CREATE
     - keyword: STAGE
     - object_reference:
-        identifier: my_int_stage
+        naked_identifier: my_int_stage
     - stage_parameters:
         keyword: ENCRYPTION
         comparison_operator:
@@ -58,7 +58,7 @@ file:
     - keyword: TEMPORARY
     - keyword: STAGE
     - object_reference:
-        identifier: my_temp_int_stage
+        naked_identifier: my_temp_int_stage
 - statement_terminator: ;
 - statement:
     create_stage_statement:
@@ -66,20 +66,20 @@ file:
     - keyword: TEMPORARY
     - keyword: STAGE
     - object_reference:
-        identifier: my_int_stage
+        naked_identifier: my_int_stage
     - keyword: FILE_FORMAT
     - comparison_operator:
         raw_comparison_operator: '='
     - file_format_segment:
         object_reference:
-          identifier: my_csv_format
+          naked_identifier: my_csv_format
 - statement_terminator: ;
 - statement:
     create_stage_statement:
     - keyword: CREATE
     - keyword: STAGE
     - object_reference:
-        identifier: mystage
+        naked_identifier: mystage
     - keyword: DIRECTORY
     - comparison_operator:
         raw_comparison_operator: '='
@@ -95,14 +95,14 @@ file:
         raw_comparison_operator: '='
     - file_format_segment:
         object_reference:
-          identifier: myformat
+          naked_identifier: myformat
 - statement_terminator: ;
 - statement:
     create_stage_statement:
     - keyword: CREATE
     - keyword: STAGE
     - object_reference:
-        identifier: my_ext_stage
+        naked_identifier: my_ext_stage
     - keyword: URL
     - comparison_operator:
         raw_comparison_operator: '='
@@ -112,14 +112,14 @@ file:
         comparison_operator:
           raw_comparison_operator: '='
         object_reference:
-          identifier: myint
+          naked_identifier: myint
 - statement_terminator: ;
 - statement:
     create_stage_statement:
     - keyword: CREATE
     - keyword: STAGE
     - object_reference:
-        identifier: my_ext_stage1
+        naked_identifier: my_ext_stage1
     - keyword: URL
     - comparison_operator:
         raw_comparison_operator: '='
@@ -145,7 +145,7 @@ file:
     - keyword: CREATE
     - keyword: STAGE
     - object_reference:
-        identifier: my_ext_stage2
+        naked_identifier: my_ext_stage2
     - keyword: URL
     - comparison_operator:
         raw_comparison_operator: '='
@@ -181,7 +181,7 @@ file:
     - keyword: CREATE
     - keyword: STAGE
     - object_reference:
-        identifier: my_ext_stage3
+        naked_identifier: my_ext_stage3
     - keyword: URL
     - comparison_operator:
         raw_comparison_operator: '='
@@ -221,7 +221,7 @@ file:
     - keyword: CREATE
     - keyword: STAGE
     - object_reference:
-        identifier: my_ext_stage3
+        naked_identifier: my_ext_stage3
     - keyword: URL
     - comparison_operator:
         raw_comparison_operator: '='
@@ -257,7 +257,7 @@ file:
     - keyword: CREATE
     - keyword: STAGE
     - object_reference:
-        identifier: mystage
+        naked_identifier: mystage
     - keyword: URL
     - comparison_operator:
         raw_comparison_operator: '='
@@ -267,7 +267,7 @@ file:
         comparison_operator:
           raw_comparison_operator: '='
         object_reference:
-          identifier: my_storage_int
+          naked_identifier: my_storage_int
     - keyword: DIRECTORY
     - comparison_operator:
         raw_comparison_operator: '='
@@ -288,7 +288,7 @@ file:
     - keyword: CREATE
     - keyword: STAGE
     - object_reference:
-        identifier: my_ext_stage
+        naked_identifier: my_ext_stage
     - keyword: URL
     - comparison_operator:
         raw_comparison_operator: '='
@@ -298,14 +298,14 @@ file:
         comparison_operator:
           raw_comparison_operator: '='
         object_reference:
-          identifier: myint
+          naked_identifier: myint
 - statement_terminator: ;
 - statement:
     create_stage_statement:
     - keyword: CREATE
     - keyword: STAGE
     - object_reference:
-        identifier: mystage
+        naked_identifier: mystage
     - keyword: URL
     - comparison_operator:
         raw_comparison_operator: '='
@@ -315,7 +315,7 @@ file:
         comparison_operator:
           raw_comparison_operator: '='
         object_reference:
-          identifier: my_storage_int
+          naked_identifier: my_storage_int
     - keyword: DIRECTORY
     - comparison_operator:
         raw_comparison_operator: '='
@@ -340,7 +340,7 @@ file:
     - keyword: CREATE
     - keyword: STAGE
     - object_reference:
-        identifier: my_ext_stage
+        naked_identifier: my_ext_stage
     - keyword: URL
     - comparison_operator:
         raw_comparison_operator: '='
@@ -350,14 +350,14 @@ file:
         comparison_operator:
           raw_comparison_operator: '='
         object_reference:
-          identifier: myint
+          naked_identifier: myint
 - statement_terminator: ;
 - statement:
     create_stage_statement:
     - keyword: CREATE
     - keyword: STAGE
     - object_reference:
-        identifier: mystage
+        naked_identifier: mystage
     - keyword: URL
     - comparison_operator:
         raw_comparison_operator: '='
@@ -392,14 +392,14 @@ file:
         raw_comparison_operator: '='
     - file_format_segment:
         object_reference:
-          identifier: my_csv_format
+          naked_identifier: my_csv_format
 - statement_terminator: ;
 - statement:
     create_stage_statement:
     - keyword: CREATE
     - keyword: STAGE
     - object_reference:
-        identifier: mystage
+        naked_identifier: mystage
     - keyword: URL
     - comparison_operator:
         raw_comparison_operator: '='
@@ -409,7 +409,7 @@ file:
         comparison_operator:
           raw_comparison_operator: '='
         object_reference:
-          identifier: my_storage_int
+          naked_identifier: my_storage_int
     - keyword: DIRECTORY
     - comparison_operator:
         raw_comparison_operator: '='
@@ -436,9 +436,9 @@ file:
     - keyword: REPLACE
     - keyword: STAGE
     - object_reference:
-      - identifier: foo
+      - naked_identifier: foo
       - dot: .
-      - identifier: bar
+      - naked_identifier: bar
     - keyword: URL
     - comparison_operator:
         raw_comparison_operator: '='
@@ -448,17 +448,17 @@ file:
         comparison_operator:
           raw_comparison_operator: '='
         object_reference:
-          identifier: foo
+          naked_identifier: foo
     - keyword: FILE_FORMAT
     - comparison_operator:
         raw_comparison_operator: '='
     - file_format_segment:
         object_reference:
-        - identifier: foo
+        - naked_identifier: foo
         - dot: .
-        - identifier: bar
+        - naked_identifier: bar
         - dot: .
-        - identifier: baz
+        - naked_identifier: baz
 - statement_terminator: ;
 - statement:
     create_stage_statement:
@@ -467,9 +467,9 @@ file:
     - keyword: REPLACE
     - keyword: STAGE
     - object_reference:
-      - identifier: foo
+      - naked_identifier: foo
       - dot: .
-      - identifier: bar
+      - naked_identifier: bar
     - keyword: URL
     - comparison_operator:
         raw_comparison_operator: '='
@@ -479,7 +479,7 @@ file:
         comparison_operator:
           raw_comparison_operator: '='
         object_reference:
-          identifier: foo
+          naked_identifier: foo
     - keyword: FILE_FORMAT
     - comparison_operator:
         raw_comparison_operator: '='
@@ -490,10 +490,10 @@ file:
           comparison_operator:
             raw_comparison_operator: '='
           object_reference:
-          - identifier: foo
+          - naked_identifier: foo
           - dot: .
-          - identifier: bar
+          - naked_identifier: bar
           - dot: .
-          - identifier: baz
+          - naked_identifier: baz
           end_bracket: )
 - statement_terminator: ;

@@ -67,18 +67,12 @@ hive_dialect.add(
         "<", SymbolSegment, type="start_angle_bracket"
     ),
     EndAngleBracketSegment=StringParser(">", SymbolSegment, type="end_angle_bracket"),
-    JsonfileKeywordSegment=StringParser(
-        "JSONFILE", KeywordSegment, name="json_file", type="file_format"
-    ),
-    RcfileKeywordSegment=StringParser(
-        "RCFILE", KeywordSegment, name="rc_file", type="file_format"
-    ),
+    JsonfileKeywordSegment=StringParser("JSONFILE", KeywordSegment, type="file_format"),
+    RcfileKeywordSegment=StringParser("RCFILE", KeywordSegment, type="file_format"),
     SequencefileKeywordSegment=StringParser(
-        "SEQUENCEFILE", KeywordSegment, name="sequence_file", type="file_format"
+        "SEQUENCEFILE", KeywordSegment, type="file_format"
     ),
-    TextfileKeywordSegment=StringParser(
-        "TEXTFILE", KeywordSegment, name="text_file", type="file_format"
-    ),
+    TextfileKeywordSegment=StringParser("TEXTFILE", KeywordSegment, type="file_format"),
     LocationGrammar=Sequence("LOCATION", Ref("QuotedLiteralSegment")),
     PropertyGrammar=Sequence(
         Ref("QuotedLiteralSegment"),
@@ -791,7 +785,6 @@ class SamplingExpressionSegment(BaseSegment):
                 RegexParser(
                     r"\d+[bBkKmMgG]",
                     CodeSegment,
-                    name="byte_length_literal",
                     type="byte_length_literal",
                 ),
             ),

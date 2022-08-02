@@ -173,7 +173,6 @@ exasol_dialect.add(
         lambda dialect: MultiStringParser(
             dialect.sets("session_parameters"),
             CodeSegment,
-            name="session_parameter",
             type="session_parameter",
         )
     ),
@@ -181,7 +180,6 @@ exasol_dialect.add(
         lambda dialect: MultiStringParser(
             dialect.sets("system_parameters"),
             CodeSegment,
-            name="system_parameter",
             type="system_parameter",
         )
     ),
@@ -202,7 +200,6 @@ exasol_dialect.add(
     VariableNameSegment=RegexParser(
         r"[A-Z][A-Z0-9_]*",
         CodeSegment,
-        name="function_variable",
         type="variable",
     ),
 )
@@ -216,7 +213,6 @@ exasol_dialect.replace(
     ParameterNameSegment=RegexParser(
         r"\"?[A-Z][A-Z0-9_]*\"?",
         CodeSegment,
-        name="parameter",
         type="parameter",
     ),
     LikeGrammar=Ref.keyword("LIKE"),

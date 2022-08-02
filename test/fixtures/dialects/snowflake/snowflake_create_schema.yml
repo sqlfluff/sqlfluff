@@ -3,41 +3,41 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8a0a40798df7a06d477c722849808278b5244ff818f8c33dc1ce20b6b4154a9d
+_hash: eed3060f41e8069e3a69783e69a256fa4efb6e75648ea0daca4b4aee76a48bea
 file:
 - statement:
     create_clone_statement:
     - keyword: create
     - keyword: schema
     - object_reference:
-        identifier: mytestschema_clone_restore
+        naked_identifier: mytestschema_clone_restore
     - keyword: clone
     - object_reference:
-        identifier: testschema
+        naked_identifier: testschema
 - statement_terminator: ;
 - statement:
     create_clone_statement:
     - keyword: create
     - keyword: schema
     - object_reference:
-      - identifier: mytestdatabase1
+      - naked_identifier: mytestdatabase1
       - dot: .
-      - identifier: mytestschema_clone_restore
+      - naked_identifier: mytestschema_clone_restore
     - keyword: clone
     - object_reference:
-      - identifier: mytestdatabase2
+      - naked_identifier: mytestdatabase2
       - dot: .
-      - identifier: testschema
+      - naked_identifier: testschema
 - statement_terminator: ;
 - statement:
     create_clone_statement:
     - keyword: create
     - keyword: schema
     - object_reference:
-        identifier: mytestschema_clone_restore
+        naked_identifier: mytestschema_clone_restore
     - keyword: clone
     - object_reference:
-        identifier: testschema
+        naked_identifier: testschema
     - from_before_expression:
         keyword: before
         bracketed:
@@ -64,7 +64,7 @@ file:
     - keyword: create
     - keyword: schema
     - schema_reference:
-        identifier: mytestschema
+        naked_identifier: mytestschema
     - schema_object_properties:
         comment_equals_clause:
           keyword: comment
@@ -77,17 +77,17 @@ file:
     - keyword: create
     - keyword: schema
     - schema_reference:
-        identifier: mytestschema
+        naked_identifier: mytestschema
     - tag_bracketed_equals:
         keyword: tag
         bracketed:
         - start_bracket: (
-        - identifier: tag1
+        - naked_identifier: tag1
         - comparison_operator:
             raw_comparison_operator: '='
         - quoted_literal: "'foo'"
         - comma: ','
-        - identifier: tag2
+        - naked_identifier: tag2
         - comparison_operator:
             raw_comparison_operator: '='
         - quoted_literal: "'bar'"
@@ -98,7 +98,7 @@ file:
     - keyword: create
     - keyword: schema
     - schema_reference:
-        identifier: mytestschema
+        naked_identifier: mytestschema
     - keyword: with
     - keyword: managed
     - keyword: access
@@ -112,7 +112,7 @@ file:
     - keyword: not
     - keyword: exists
     - schema_reference:
-        identifier: mytestschema
+        naked_identifier: mytestschema
     - schema_object_properties:
         keyword: default_ddl_collation
         comparison_operator:

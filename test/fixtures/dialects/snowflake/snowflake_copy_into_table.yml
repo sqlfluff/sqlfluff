@@ -3,27 +3,27 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d9f2fa67c3657b3407abedc9a51b480bcc2fefb5fa6eb8baec799aeec959b27f
+_hash: 2ea803fdfb6c3731b2883a21773a259f40aa8473025002f7511db225af575fde
 file:
 - statement:
     copy_into_statement:
     - keyword: copy
     - keyword: into
     - table_reference:
-        identifier: mytable
+        naked_identifier: mytable
     - keyword: from
     - storage_location:
-        identifier: '@my_int_stage'
+        stage_path: '@my_int_stage'
 - statement_terminator: ;
 - statement:
     copy_into_statement:
     - keyword: copy
     - keyword: into
     - table_reference:
-        identifier: mytable
+        naked_identifier: mytable
     - keyword: from
     - storage_location:
-        identifier: '@my_int_stage'
+        stage_path: '@my_int_stage'
     - keyword: file_format
     - comparison_operator:
         raw_comparison_operator: '='
@@ -42,10 +42,10 @@ file:
     - keyword: copy
     - keyword: into
     - table_reference:
-        identifier: mytable
+        naked_identifier: mytable
     - keyword: from
     - storage_location:
-        identifier: '@my_int_stage'
+        stage_path: '@my_int_stage'
     - keyword: file_format
     - comparison_operator:
         raw_comparison_operator: '='
@@ -63,10 +63,10 @@ file:
     - keyword: copy
     - keyword: into
     - table_reference:
-        identifier: mytable
+        naked_identifier: mytable
     - keyword: from
     - storage_location:
-        identifier: '@my_int_stage'
+        stage_path: '@my_int_stage'
     - keyword: file_format
     - comparison_operator:
         raw_comparison_operator: '='
@@ -89,10 +89,10 @@ file:
     - keyword: copy
     - keyword: into
     - table_reference:
-        identifier: mytable
+        naked_identifier: mytable
     - keyword: from
     - storage_location:
-        identifier: '@my_int_stage'
+        stage_path: '@my_int_stage'
     - keyword: file_format
     - comparison_operator:
         raw_comparison_operator: '='
@@ -103,7 +103,7 @@ file:
           comparison_operator:
             raw_comparison_operator: '='
           object_reference:
-            identifier: myformat
+            naked_identifier: myformat
           end_bracket: )
     - keyword: pattern
     - comparison_operator:
@@ -115,54 +115,54 @@ file:
     - keyword: copy
     - keyword: into
     - table_reference:
-        identifier: mytable
+        naked_identifier: mytable
 - statement_terminator: ;
 - statement:
     copy_into_statement:
     - keyword: copy
     - keyword: into
     - table_reference:
-        identifier: mytable
+        naked_identifier: mytable
     - keyword: from
     - storage_location:
-        identifier: '@%mytable'
+        stage_path: '@%mytable'
 - statement_terminator: ;
 - statement:
     copy_into_statement:
     - keyword: copy
     - keyword: into
     - table_reference:
-        identifier: mytable
+        naked_identifier: mytable
     - keyword: from
     - storage_location:
-        identifier: '@~/data_files'
+        stage_path: '@~/data_files'
 - statement_terminator: ;
 - statement:
     copy_into_statement:
     - keyword: copy
     - keyword: into
     - table_reference:
-        identifier: mytable
+        naked_identifier: mytable
     - keyword: from
     - storage_location:
-        identifier: '@mydb.myschema.mystage'
+        stage_path: '@mydb.myschema.mystage'
 - statement_terminator: ;
 - statement:
     copy_into_statement:
     - keyword: copy
     - keyword: into
     - table_reference:
-        identifier: mytable
+        naked_identifier: mytable
     - keyword: from
     - storage_location:
-        identifier: '@mydatabase.myschema.%mytable'
+        stage_path: '@mydatabase.myschema.%mytable'
 - statement_terminator: ;
 - statement:
     copy_into_statement:
     - keyword: copy
     - keyword: into
     - table_reference:
-        identifier: mytable
+        naked_identifier: mytable
     - copy_options:
         keyword: purge
         comparison_operator:
@@ -174,7 +174,7 @@ file:
     - keyword: copy
     - keyword: into
     - table_reference:
-        identifier: mytable
+        naked_identifier: mytable
     - keyword: validation_mode
     - comparison_operator:
         raw_comparison_operator: '='
@@ -185,7 +185,7 @@ file:
     - keyword: copy
     - keyword: into
     - table_reference:
-        identifier: mytable
+        naked_identifier: mytable
     - keyword: validation_mode
     - comparison_operator:
         raw_comparison_operator: '='
@@ -196,7 +196,7 @@ file:
     - keyword: copy
     - keyword: into
     - table_reference:
-        identifier: mytable
+        naked_identifier: mytable
     - keyword: validation_mode
     - comparison_operator:
         raw_comparison_operator: '='
@@ -207,7 +207,7 @@ file:
     - keyword: COPY
     - keyword: INTO
     - table_reference:
-        identifier: target_table
+        naked_identifier: target_table
     - keyword: FROM
     - bracketed:
         start_bracket: (
@@ -216,14 +216,14 @@ file:
             keyword: SELECT
             select_clause_element:
               column_reference:
-                identifier: $1
+                column_index_identifier_segment: $1
           from_clause:
             keyword: FROM
             from_expression:
               from_expression_element:
                 table_expression:
                   table_reference:
-                    identifier: '@source_stage'
+                    stage_path: '@source_stage'
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -231,11 +231,11 @@ file:
     - keyword: copy
     - keyword: into
     - table_reference:
-        identifier: mytable1
+        naked_identifier: mytable1
     - bracketed:
         start_bracket: (
         column_reference:
-          identifier: column1
+          naked_identifier: column1
         end_bracket: )
     - keyword: from
     - storage_location:
@@ -258,7 +258,7 @@ file:
     - keyword: copy
     - keyword: into
     - table_reference:
-        identifier: mytable1
+        naked_identifier: mytable1
     - keyword: from
     - bracketed:
         start_bracket: (
@@ -267,14 +267,14 @@ file:
             keyword: select
             select_clause_element:
               column_reference:
-                identifier: column1
+                naked_identifier: column1
           from_clause:
             keyword: from
             from_expression:
               from_expression_element:
                 table_expression:
                   table_reference:
-                    identifier: '@ext.stage/path1'
+                    stage_path: '@ext.stage/path1'
         end_bracket: )
     - keyword: file_format
     - comparison_operator:
@@ -294,7 +294,7 @@ file:
     - keyword: copy
     - keyword: into
     - table_reference:
-        identifier: mytable1
+        naked_identifier: mytable1
     - keyword: from
     - storage_location:
         bucket_path: "'s3://bucket/source'"
@@ -320,15 +320,15 @@ file:
     - keyword: copy
     - keyword: into
     - table_reference:
-        identifier: mytable1
+        naked_identifier: mytable1
     - bracketed:
         start_bracket: (
         column_reference:
-          identifier: column1
+          naked_identifier: column1
         end_bracket: )
     - keyword: from
     - storage_location:
-        identifier: '@public.stage/sub-folder/myfile-1.csv'
+        stage_path: '@public.stage/sub-folder/myfile-1.csv'
     - keyword: file_format
     - comparison_operator:
         raw_comparison_operator: '='
@@ -347,15 +347,15 @@ file:
     - keyword: copy
     - keyword: into
     - table_reference:
-        identifier: mytable1
+        naked_identifier: mytable1
     - bracketed:
         start_bracket: (
         column_reference:
-          identifier: column1
+          naked_identifier: column1
         end_bracket: )
     - keyword: from
     - storage_location:
-        identifier: '@public.stage/subfolder/'
+        stage_path: '@public.stage/subfolder/'
     - keyword: file_format
     - comparison_operator:
         raw_comparison_operator: '='

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 96c44a12e536d0a8ee5852d9be201486ce72e601e84a068fb1ee0e3eb9d138e6
+_hash: 6b64b643c85caa9b20790dad10a2f0b075a9326e3cdfb1318fdb43057172b5e8
 file:
 - statement:
     create_statement:
@@ -11,7 +11,7 @@ file:
     - keyword: storage
     - keyword: integration
     - object_reference:
-        identifier: s3_int
+        naked_identifier: s3_int
     - keyword: type
     - comparison_operator:
         raw_comparison_operator: '='
@@ -45,7 +45,7 @@ file:
     - keyword: storage
     - keyword: integration
     - object_reference:
-        identifier: gcs_int
+        naked_identifier: gcs_int
     - keyword: type
     - comparison_operator:
         raw_comparison_operator: '='
@@ -75,7 +75,7 @@ file:
     - keyword: storage
     - keyword: integration
     - object_reference:
-        identifier: azure_int
+        naked_identifier: azure_int
     - keyword: type
     - comparison_operator:
         raw_comparison_operator: '='
@@ -112,7 +112,7 @@ file:
     - keyword: storage
     - keyword: integration
     - object_reference:
-        identifier: s3_int
+        naked_identifier: s3_int
     - keyword: type
     - comparison_operator:
         raw_comparison_operator: '='
@@ -135,7 +135,7 @@ file:
         raw_comparison_operator: '='
     - bracketed:
         start_bracket: (
-        identifier: "'*'"
+        quoted_star: "'*'"
         end_bracket: )
     - keyword: storage_blocked_locations
     - comparison_operator:
@@ -155,7 +155,7 @@ file:
     - keyword: storage
     - keyword: integration
     - object_reference:
-        identifier: gcs_int
+        naked_identifier: gcs_int
     - keyword: type
     - comparison_operator:
         raw_comparison_operator: '='
@@ -174,7 +174,7 @@ file:
         raw_comparison_operator: '='
     - bracketed:
         start_bracket: (
-        identifier: "'*'"
+        quoted_star: "'*'"
         end_bracket: )
     - keyword: storage_blocked_locations
     - comparison_operator:
@@ -194,7 +194,7 @@ file:
     - keyword: storage
     - keyword: integration
     - object_reference:
-        identifier: azure_int
+        naked_identifier: azure_int
     - keyword: type
     - comparison_operator:
         raw_comparison_operator: '='
@@ -218,7 +218,7 @@ file:
         raw_comparison_operator: '='
     - bracketed:
         start_bracket: (
-        identifier: "'*'"
+        quoted_star: "'*'"
         end_bracket: )
     - keyword: storage_blocked_locations
     - comparison_operator:

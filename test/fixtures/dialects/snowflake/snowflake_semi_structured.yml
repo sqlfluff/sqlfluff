@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b7d5c911d0c8b613d9e0506a6a5981e0068a1ef15c93b25f237c9ec952ddc390
+_hash: 432e899a0e895fb09959978e6d2096acc2b27d4f57221754a46426bdae669b85
 file:
 - statement:
     select_statement:
@@ -11,23 +11,23 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: ticket_id
+            naked_identifier: ticket_id
       - comma: ','
       - select_clause_element:
           expression:
             column_reference:
-              identifier: value
+              naked_identifier: value
             snowflake_semi_structured_expression:
               colon: ':'
               semi_structured_element: value
           alias_expression:
             keyword: AS
-            identifier: uncasted
+            naked_identifier: uncasted
       - comma: ','
       - select_clause_element:
           expression:
             column_reference:
-              identifier: value
+              naked_identifier: value
             snowflake_semi_structured_expression:
               colon: ':'
               semi_structured_element: id
@@ -37,12 +37,12 @@ file:
                 data_type_identifier: bigint
           alias_expression:
             keyword: AS
-            identifier: field_id
+            naked_identifier: field_id
       - comma: ','
       - select_clause_element:
           expression:
             column_reference:
-              identifier: value
+              naked_identifier: value
             snowflake_semi_structured_expression:
               colon: ':'
               semi_structured_element: value
@@ -52,12 +52,12 @@ file:
                 data_type_identifier: STRING
           alias_expression:
             keyword: AS
-            identifier: field_val
+            naked_identifier: field_val
       - comma: ','
       - select_clause_element:
           expression:
             column_reference:
-              identifier: value
+              naked_identifier: value
             snowflake_semi_structured_expression:
             - colon: ':'
             - semi_structured_element: thing
@@ -69,12 +69,12 @@ file:
             - semi_structured_element: foo
           alias_expression:
             keyword: AS
-            identifier: another_val
+            naked_identifier: another_val
       - comma: ','
       - select_clause_element:
           expression:
             column_reference:
-              identifier: value
+              naked_identifier: value
             snowflake_semi_structured_expression:
             - colon: ':'
             - semi_structured_element: thing
@@ -98,12 +98,12 @@ file:
                 data_type_identifier: bigint
           alias_expression:
             keyword: AS
-            identifier: another_val
+            naked_identifier: another_val
       - comma: ','
       - select_clause_element:
           expression:
             column_reference:
-              identifier: array_field
+              naked_identifier: array_field
             array_accessor:
               start_square_bracket: '['
               numeric_literal: '0'
@@ -113,14 +113,14 @@ file:
               semi_structured_element: array_element_property
           alias_expression:
             keyword: as
-            identifier: test_array_access
+            naked_identifier: test_array_access
       from_clause:
       - keyword: FROM
       - from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: raw_tickets
+                naked_identifier: raw_tickets
       - comma: ','
       - from_expression:
           from_expression_element:
@@ -135,7 +135,7 @@ file:
                     parameter: INPUT
                     parameter_assigner: =>
                     column_reference:
-                      identifier: custom_fields
+                      naked_identifier: custom_fields
                   end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -145,7 +145,7 @@ file:
       - select_clause_element:
           expression:
             column_reference:
-              identifier: value
+              naked_identifier: value
             snowflake_semi_structured_expression:
             - colon: ':'
             - semi_structured_element: point
@@ -167,12 +167,12 @@ file:
                 - end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: lat
+            naked_identifier: lat
       - comma: ','
       - select_clause_element:
           expression:
             column_reference:
-              identifier: value
+              naked_identifier: value
             snowflake_semi_structured_expression:
             - colon: ':'
             - semi_structured_element: point
@@ -194,12 +194,12 @@ file:
                 - end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: lng
+            naked_identifier: lng
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: table1
+                naked_identifier: table1
 - statement_terminator: ;

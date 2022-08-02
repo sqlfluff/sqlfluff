@@ -3,14 +3,14 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 46a84949fbaf9d3c4ec4fb62be3662cfa0c6d6ff3056e31d4f7aa807c73c10e3
+_hash: aefbc327ea54f5ebca58050d3670b6029b61a43b5be55b05c2d3680fc3843bf3
 file:
   statement:
     create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: '`foo`'
+        quoted_identifier: '`foo`'
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -25,7 +25,7 @@ file:
             keyword: BINARY
       - comma: ','
       - column_definition:
-        - identifier: '`id`'
+        - quoted_identifier: '`id`'
         - data_type:
             data_type_identifier: int
             bracketed:
@@ -46,7 +46,7 @@ file:
         - bracketed:
             start_bracket: (
             column_reference:
-              identifier: '`id`'
+              quoted_identifier: '`id`'
             end_bracket: )
       - end_bracket: )
     - parameter: ENGINE

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: cea9407a0eff92d0be91462226446e12c17e7ae9c202dfc14ff45000544a7cce
+_hash: e86cfba356795fe4599cef806bd5c5c782881b14785deacab9bef35c96bef07b
 file:
 - statement:
     delimiter_statement:
@@ -14,7 +14,7 @@ file:
     - keyword: CREATE
     - keyword: FUNCTION
     - function_name:
-        identifier: '`add`'
+        quoted_identifier: '`add`'
     - function_parameter_list:
         bracketed:
           start_bracket: (

@@ -3,14 +3,14 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e584f4f3e4d5adb660790ad1695d31bd356d15cc84b681d7f7ea331ea8251199
+_hash: 60cf5e0c09e3c94be9dcab99e6548d9b4b8c78d07c24dda49540b922537d4ad4
 file:
   statement:
     create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: '`foo`'
+        quoted_identifier: '`foo`'
     - bracketed:
       - start_bracket: (
       - column_definition:

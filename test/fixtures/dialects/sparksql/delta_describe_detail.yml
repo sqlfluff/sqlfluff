@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 84a85cc56d21c70d4dd2ef82f24c9beba24c1d2e09bb179f456ed730cc274f1a
+_hash: f0e9a8ba7769d9aa6938ad447278fcc1671a02c1e41c0696916b1603e246ae1d
 file:
 - statement:
     describe_detail_statement:
@@ -25,5 +25,5 @@ file:
     - file_reference:
         keyword: DELTA
         dot: .
-        identifier: '`/data/events/`'
+        quoted_identifier: '`/data/events/`'
 - statement_terminator: ;

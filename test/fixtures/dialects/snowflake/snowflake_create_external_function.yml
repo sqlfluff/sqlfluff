@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: eb06a55098be7c34dc1354280ff4983e194e6eeb279718288ffabc7dd3bade7b
+_hash: 30cc5c94b78e31be517e738d44b5c3cd8bec96e130bf1cd285a66ce642433734
 file:
 - statement:
     create_external_function_statement:
@@ -27,7 +27,7 @@ file:
     - keyword: API_INTEGRATION
     - comparison_operator:
         raw_comparison_operator: '='
-    - identifier: DEMONSTRATION_EXTERNAL_API_INTEGRATION_01
+    - naked_identifier: DEMONSTRATION_EXTERNAL_API_INTEGRATION_01
     - keyword: AS
     - quoted_identifier: "'https://xyz.execute-api.us-west-2.amazonaws.com/prod/remote_echo'"
 - statement_terminator: ;
@@ -39,7 +39,7 @@ file:
     - keyword: EXTERNAL
     - keyword: FUNCTION
     - function_name:
-        identifier: MY_SCHEMA
+        naked_identifier: MY_SCHEMA
         dot: .
         function_name_identifier: LOCAL_ECHO
     - function_parameter_list:
@@ -59,7 +59,7 @@ file:
     - keyword: API_INTEGRATION
     - comparison_operator:
         raw_comparison_operator: '='
-    - identifier: DEMONSTRATION_EXTERNAL_API_INTEGRATION_01
+    - naked_identifier: DEMONSTRATION_EXTERNAL_API_INTEGRATION_01
     - keyword: HEADERS
     - comparison_operator:
         raw_comparison_operator: '='
@@ -89,19 +89,19 @@ file:
     - keyword: COMPRESSION
     - comparison_operator:
         raw_comparison_operator: '='
-    - keyword: NONE
+    - compression_type: NONE
     - keyword: REQUEST_TRANSLATOR
     - comparison_operator:
         raw_comparison_operator: '='
     - function_name:
-        identifier: UTILITY
+        naked_identifier: UTILITY
         dot: .
         function_name_identifier: SOME_FUNCTION
     - keyword: RESPONSE_TRANSLATOR
     - comparison_operator:
         raw_comparison_operator: '='
     - function_name:
-        identifier: UTILITY
+        naked_identifier: UTILITY
         dot: .
         function_name_identifier: SOME_FUNCTION
     - keyword: AS
@@ -115,7 +115,7 @@ file:
     - keyword: EXTERNAL
     - keyword: FUNCTION
     - function_name:
-        identifier: MY_SCHEMA
+        naked_identifier: MY_SCHEMA
         dot: .
         function_name_identifier: LOCAL_ECHO
     - function_parameter_list:
@@ -139,7 +139,7 @@ file:
     - keyword: API_INTEGRATION
     - comparison_operator:
         raw_comparison_operator: '='
-    - identifier: DEMONSTRATION_EXTERNAL_API_INTEGRATION_01
+    - naked_identifier: DEMONSTRATION_EXTERNAL_API_INTEGRATION_01
     - keyword: HEADERS
     - comparison_operator:
         raw_comparison_operator: '='
@@ -169,19 +169,19 @@ file:
     - keyword: COMPRESSION
     - comparison_operator:
         raw_comparison_operator: '='
-    - keyword: NONE
+    - compression_type: NONE
     - keyword: REQUEST_TRANSLATOR
     - comparison_operator:
         raw_comparison_operator: '='
     - function_name:
-        identifier: UTILITY
+        naked_identifier: UTILITY
         dot: .
         function_name_identifier: SOME_FUNCTION
     - keyword: RESPONSE_TRANSLATOR
     - comparison_operator:
         raw_comparison_operator: '='
     - function_name:
-        identifier: UTILITY
+        naked_identifier: UTILITY
         dot: .
         function_name_identifier: SOME_FUNCTION
     - keyword: AS
@@ -195,7 +195,7 @@ file:
     - keyword: EXTERNAL
     - keyword: FUNCTION
     - function_name:
-        identifier: MY_SCHEMA
+        naked_identifier: MY_SCHEMA
         dot: .
         function_name_identifier: LOCAL_ECHO
     - function_parameter_list:
@@ -222,7 +222,7 @@ file:
     - keyword: API_INTEGRATION
     - comparison_operator:
         raw_comparison_operator: '='
-    - identifier: DEMONSTRATION_EXTERNAL_API_INTEGRATION_01
+    - naked_identifier: DEMONSTRATION_EXTERNAL_API_INTEGRATION_01
     - keyword: HEADERS
     - comparison_operator:
         raw_comparison_operator: '='
@@ -252,19 +252,19 @@ file:
     - keyword: COMPRESSION
     - comparison_operator:
         raw_comparison_operator: '='
-    - keyword: NONE
+    - compression_type: NONE
     - keyword: REQUEST_TRANSLATOR
     - comparison_operator:
         raw_comparison_operator: '='
     - function_name:
-        identifier: UTILITY
+        naked_identifier: UTILITY
         dot: .
         function_name_identifier: SOME_FUNCTION
     - keyword: RESPONSE_TRANSLATOR
     - comparison_operator:
         raw_comparison_operator: '='
     - function_name:
-        identifier: UTILITY
+        naked_identifier: UTILITY
         dot: .
         function_name_identifier: SOME_FUNCTION
     - keyword: AS

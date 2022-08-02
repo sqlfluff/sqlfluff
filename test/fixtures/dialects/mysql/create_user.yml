@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1ea9914e303e26b666613722ee83aee91cf1db8c01c047f7e8473f2508359039
+_hash: 05f46a3017e1faedf744739775dca1f558debcd801def9827abd8848dca5185e
 file:
 - statement:
     create_user_statement:
@@ -64,9 +64,9 @@ file:
     - keyword: CREATE
     - keyword: USER
     - role_reference:
-      - identifier: '`jeffrey`'
+      - quoted_identifier: '`jeffrey`'
       - at_sign_literal: '@'
-      - identifier: '`localhost`'
+      - quoted_identifier: '`localhost`'
     - keyword: IDENTIFIED
     - keyword: BY
     - quoted_literal: '"password"'

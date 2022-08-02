@@ -219,7 +219,6 @@ tsql_dialect.add(
         lambda dialect: RegexParser(
             r"[A-Z][A-Za-z0-9_]*[A-Za-z0-9_]",
             CodeSegment,
-            name="collation",
             type="collation",
             anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
         )
@@ -271,9 +270,7 @@ tsql_dialect.replace(
             Ref("SystemVariableSegment"),
         ],
     ),
-    ParameterNameSegment=RegexParser(
-        r"@[A-Za-z0-9_]+", CodeSegment, name="parameter", type="parameter"
-    ),
+    ParameterNameSegment=RegexParser(r"@[A-Za-z0-9_]+", CodeSegment, type="parameter"),
     FunctionParameterGrammar=Sequence(
         Ref("ParameterNameSegment", optional=True),
         Sequence("AS", optional=True),
@@ -286,7 +283,6 @@ tsql_dialect.replace(
         lambda dialect: RegexParser(
             r"[A-Z][A-Z0-9_]*|\[[A-Z][A-Z0-9_]*\]",
             CodeSegment,
-            name="function_name_identifier",
             type="function_name_identifier",
             anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
         )
@@ -301,7 +297,6 @@ tsql_dialect.replace(
         lambda dialect: RegexParser(
             r"[A-Z][A-Z0-9_]*|\[[A-Z][A-Z0-9_]*\]",
             CodeSegment,
-            name="data_type_identifier",
             type="data_type_identifier",
             # anti_template=r"^(NOT)$",
             anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",

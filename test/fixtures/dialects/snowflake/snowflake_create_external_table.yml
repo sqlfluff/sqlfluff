@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 82c28cf0eff8c58c2cedebef102c22a57d7983f2c103abfb0c8774dd0e06d60a
+_hash: 4c0d00939f332938116d72a004183e9ae8fe5cd618de9085c57db5a673646e32
 file:
 - statement:
     create_external_table_statement:
@@ -13,12 +13,12 @@ file:
     - keyword: external
     - keyword: table
     - table_reference:
-        identifier: ext_table
+        naked_identifier: ext_table
     - keyword: with
     - keyword: location
     - comparison_operator:
         raw_comparison_operator: '='
-    - identifier: '@mystage/path1/'
+    - stage_path: '@mystage/path1/'
     - keyword: file_format
     - comparison_operator:
         raw_comparison_operator: '='
@@ -49,7 +49,7 @@ file:
     - keyword: location
     - comparison_operator:
         raw_comparison_operator: '='
-    - identifier: '@carpe_datastore_commercial/p08'
+    - stage_path: '@carpe_datastore_commercial/p08'
     - keyword: auto_refresh
     - comparison_operator:
         raw_comparison_operator: '='
@@ -77,12 +77,12 @@ file:
     - keyword: EXTERNAL
     - keyword: TABLE
     - table_reference:
-      - identifier: EXTERNAL_TABLES
+      - naked_identifier: EXTERNAL_TABLES
       - dot: .
-      - identifier: TRIPS
+      - naked_identifier: TRIPS
     - bracketed:
       - start_bracket: (
-      - identifier: tripduration
+      - naked_identifier: tripduration
       - data_type:
           data_type_identifier: integer
       - keyword: as
@@ -94,7 +94,7 @@ file:
               start_bracket: (
               expression:
                 column_reference:
-                  identifier: VALUE
+                  naked_identifier: VALUE
                 snowflake_semi_structured_expression:
                   colon: ':'
                   semi_structured_element: c1
@@ -107,7 +107,7 @@ file:
                 data_type_identifier: integer
               end_bracket: )
       - comma: ','
-      - identifier: starttime
+      - naked_identifier: starttime
       - data_type:
           keyword: timestamp
       - keyword: as
@@ -119,7 +119,7 @@ file:
               start_bracket: (
               expression:
                 column_reference:
-                  identifier: VALUE
+                  naked_identifier: VALUE
                 snowflake_semi_structured_expression:
                   colon: ':'
                   semi_structured_element: c2
@@ -132,7 +132,7 @@ file:
                 keyword: timestamp
               end_bracket: )
       - comma: ','
-      - identifier: stoptime
+      - naked_identifier: stoptime
       - data_type:
           keyword: timestamp
       - keyword: as
@@ -144,7 +144,7 @@ file:
               start_bracket: (
               expression:
                 column_reference:
-                  identifier: VALUE
+                  naked_identifier: VALUE
                 snowflake_semi_structured_expression:
                   colon: ':'
                   semi_structured_element: c3
@@ -157,7 +157,7 @@ file:
                 keyword: timestamp
               end_bracket: )
       - comma: ','
-      - identifier: start_station_id
+      - naked_identifier: start_station_id
       - data_type:
           data_type_identifier: integer
       - keyword: as
@@ -169,7 +169,7 @@ file:
               start_bracket: (
               expression:
                 column_reference:
-                  identifier: VALUE
+                  naked_identifier: VALUE
                 snowflake_semi_structured_expression:
                   colon: ':'
                   semi_structured_element: c4
@@ -182,7 +182,7 @@ file:
                 data_type_identifier: integer
               end_bracket: )
       - comma: ','
-      - identifier: start_station_name
+      - naked_identifier: start_station_name
       - data_type:
           data_type_identifier: varchar
       - keyword: as
@@ -190,7 +190,7 @@ file:
           start_bracket: (
           expression:
             column_reference:
-              identifier: VALUE
+              naked_identifier: VALUE
             snowflake_semi_structured_expression:
               colon: ':'
               semi_structured_element: c5
@@ -200,7 +200,7 @@ file:
                 data_type_identifier: varchar
           end_bracket: )
       - comma: ','
-      - identifier: start_station_latitude
+      - naked_identifier: start_station_latitude
       - data_type:
           data_type_identifier: float
       - keyword: as
@@ -212,7 +212,7 @@ file:
               start_bracket: (
               expression:
                 column_reference:
-                  identifier: VALUE
+                  naked_identifier: VALUE
                 snowflake_semi_structured_expression:
                   colon: ':'
                   semi_structured_element: c6
@@ -225,7 +225,7 @@ file:
                 data_type_identifier: float
               end_bracket: )
       - comma: ','
-      - identifier: start_station_longitude
+      - naked_identifier: start_station_longitude
       - data_type:
           data_type_identifier: float
       - keyword: as
@@ -237,7 +237,7 @@ file:
               start_bracket: (
               expression:
                 column_reference:
-                  identifier: VALUE
+                  naked_identifier: VALUE
                 snowflake_semi_structured_expression:
                   colon: ':'
                   semi_structured_element: c7
@@ -250,7 +250,7 @@ file:
                 data_type_identifier: float
               end_bracket: )
       - comma: ','
-      - identifier: end_station_id
+      - naked_identifier: end_station_id
       - data_type:
           data_type_identifier: integer
       - keyword: as
@@ -262,7 +262,7 @@ file:
               start_bracket: (
               expression:
                 column_reference:
-                  identifier: VALUE
+                  naked_identifier: VALUE
                 snowflake_semi_structured_expression:
                   colon: ':'
                   semi_structured_element: c8
@@ -275,7 +275,7 @@ file:
                 data_type_identifier: integer
               end_bracket: )
       - comma: ','
-      - identifier: end_station_name
+      - naked_identifier: end_station_name
       - data_type:
           data_type_identifier: varchar
       - keyword: as
@@ -283,7 +283,7 @@ file:
           start_bracket: (
           expression:
             column_reference:
-              identifier: VALUE
+              naked_identifier: VALUE
             snowflake_semi_structured_expression:
               colon: ':'
               semi_structured_element: c9
@@ -293,7 +293,7 @@ file:
                 data_type_identifier: varchar
           end_bracket: )
       - comma: ','
-      - identifier: end_station_latitude
+      - naked_identifier: end_station_latitude
       - data_type:
           data_type_identifier: float
       - keyword: as
@@ -305,7 +305,7 @@ file:
               start_bracket: (
               expression:
                 column_reference:
-                  identifier: VALUE
+                  naked_identifier: VALUE
                 snowflake_semi_structured_expression:
                   colon: ':'
                   semi_structured_element: c10
@@ -318,7 +318,7 @@ file:
                 data_type_identifier: float
               end_bracket: )
       - comma: ','
-      - identifier: end_station_longitude
+      - naked_identifier: end_station_longitude
       - data_type:
           data_type_identifier: float
       - keyword: as
@@ -330,7 +330,7 @@ file:
               start_bracket: (
               expression:
                 column_reference:
-                  identifier: VALUE
+                  naked_identifier: VALUE
                 snowflake_semi_structured_expression:
                   colon: ':'
                   semi_structured_element: c11
@@ -343,7 +343,7 @@ file:
                 data_type_identifier: float
               end_bracket: )
       - comma: ','
-      - identifier: bikeid
+      - naked_identifier: bikeid
       - data_type:
           data_type_identifier: integer
       - keyword: as
@@ -355,7 +355,7 @@ file:
               start_bracket: (
               expression:
                 column_reference:
-                  identifier: VALUE
+                  naked_identifier: VALUE
                 snowflake_semi_structured_expression:
                   colon: ':'
                   semi_structured_element: c12
@@ -368,7 +368,7 @@ file:
                 data_type_identifier: integer
               end_bracket: )
       - comma: ','
-      - identifier: membership_type
+      - naked_identifier: membership_type
       - data_type:
           data_type_identifier: varchar
       - keyword: as
@@ -376,7 +376,7 @@ file:
           start_bracket: (
           expression:
             column_reference:
-              identifier: VALUE
+              naked_identifier: VALUE
             snowflake_semi_structured_expression:
               colon: ':'
               semi_structured_element: c13
@@ -386,7 +386,7 @@ file:
                 data_type_identifier: varchar
           end_bracket: )
       - comma: ','
-      - identifier: usertype
+      - naked_identifier: usertype
       - data_type:
           data_type_identifier: varchar
       - keyword: as
@@ -394,7 +394,7 @@ file:
           start_bracket: (
           expression:
             column_reference:
-              identifier: VALUE
+              naked_identifier: VALUE
             snowflake_semi_structured_expression:
               colon: ':'
               semi_structured_element: c14
@@ -404,7 +404,7 @@ file:
                 data_type_identifier: varchar
           end_bracket: )
       - comma: ','
-      - identifier: birth_year
+      - naked_identifier: birth_year
       - data_type:
           data_type_identifier: integer
       - keyword: as
@@ -416,7 +416,7 @@ file:
               start_bracket: (
               expression:
                 column_reference:
-                  identifier: VALUE
+                  naked_identifier: VALUE
                 snowflake_semi_structured_expression:
                   colon: ':'
                   semi_structured_element: c15
@@ -429,7 +429,7 @@ file:
                 data_type_identifier: integer
               end_bracket: )
       - comma: ','
-      - identifier: gender
+      - naked_identifier: gender
       - data_type:
           data_type_identifier: integer
       - keyword: as
@@ -441,7 +441,7 @@ file:
               start_bracket: (
               expression:
                 column_reference:
-                  identifier: VALUE
+                  naked_identifier: VALUE
                 snowflake_semi_structured_expression:
                   colon: ':'
                   semi_structured_element: c16
@@ -454,7 +454,7 @@ file:
                 data_type_identifier: integer
               end_bracket: )
       - comma: ','
-      - identifier: year
+      - naked_identifier: year
       - data_type:
           data_type_identifier: integer
       - keyword: as
@@ -468,7 +468,7 @@ file:
               - start_bracket: (
               - expression:
                   column_reference:
-                    identifier: metadata$filename
+                    naked_identifier: metadata$filename
               - comma: ','
               - expression:
                   numeric_literal: '22'
@@ -486,12 +486,12 @@ file:
     - keyword: BY
     - bracketed:
         start_bracket: (
-        identifier: year
+        naked_identifier: year
         end_bracket: )
     - keyword: LOCATION
     - comparison_operator:
         raw_comparison_operator: '='
-    - identifier: '@external_tables.citibike_trips'
+    - stage_path: '@external_tables.citibike_trips'
     - keyword: FILE_FORMAT
     - comparison_operator:
         raw_comparison_operator: '='

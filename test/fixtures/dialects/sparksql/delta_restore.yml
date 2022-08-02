@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1ddae447540dc1323ae51345ae4ed3a42eb638b8522502512036757526b1376b
+_hash: b0533a4086a4a1240f4920f5d1d1a657eb89eb7248622ee0d81cf538cfc01242
 file:
 - statement:
     restore_table_statement:
@@ -12,7 +12,7 @@ file:
     - file_reference:
         keyword: DELTA
         dot: .
-        identifier: '`/delta/people10m`'
+        quoted_identifier: '`/delta/people10m`'
     - keyword: TO
     - keyword: TIMESTAMP
     - keyword: AS
@@ -83,7 +83,7 @@ file:
     - file_reference:
         keyword: DELTA
         dot: .
-        identifier: '`/delta/people10m`'
+        quoted_identifier: '`/delta/people10m`'
     - keyword: TO
     - keyword: VERSION
     - keyword: AS

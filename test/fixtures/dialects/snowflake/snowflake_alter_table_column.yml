@@ -3,19 +3,19 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7e86d26377d5702184d52a374c828e9ee6f7418621c2d9b5b185c99075c9134e
+_hash: 039c55eb113779324abffb5d04be4857968710630bd0e260478a0ca41c3aaf1d
 file:
 - statement:
     alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: my_table
+        naked_identifier: my_table
     - alter_table_table_column_action:
       - keyword: ADD
       - keyword: COLUMN
       - column_reference:
-          identifier: my_column
+          naked_identifier: my_column
       - data_type:
           data_type_identifier: INTEGER
 - statement_terminator: ;
@@ -24,12 +24,12 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: my_table
+        naked_identifier: my_table
     - alter_table_table_column_action:
       - keyword: ADD
       - keyword: COLUMN
       - column_definition:
-          identifier: my_column
+          naked_identifier: my_column
           data_type:
             data_type_identifier: VARCHAR
             bracketed:
@@ -46,17 +46,17 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: my_table
+        naked_identifier: my_table
     - alter_table_table_column_action:
       - keyword: ADD
       - keyword: COLUMN
       - column_reference:
-          identifier: column_1
+          naked_identifier: column_1
       - data_type:
           data_type_identifier: varchar
       - comma: ','
       - column_reference:
-          identifier: column_2
+          naked_identifier: column_2
       - data_type:
           data_type_identifier: integer
 - statement_terminator: ;
@@ -65,12 +65,12 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: my_table
+        naked_identifier: my_table
     - alter_table_table_column_action:
       - keyword: ADD
       - keyword: COLUMN
       - column_reference:
-          identifier: my_column
+          naked_identifier: my_column
       - data_type:
           data_type_identifier: INTEGER
       - keyword: DEFAULT
@@ -82,12 +82,12 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: my_table
+        naked_identifier: my_table
     - alter_table_table_column_action:
       - keyword: ADD
       - keyword: COLUMN
       - column_reference:
-          identifier: my_column
+          naked_identifier: my_column
       - data_type:
           data_type_identifier: INTEGER
       - keyword: AUTOINCREMENT
@@ -97,12 +97,12 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: my_table
+        naked_identifier: my_table
     - alter_table_table_column_action:
       - keyword: ADD
       - keyword: COLUMN
       - column_reference:
-          identifier: my_column
+          naked_identifier: my_column
       - data_type:
           data_type_identifier: INTEGER
       - keyword: IDENTITY
@@ -112,12 +112,12 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: my_table
+        naked_identifier: my_table
     - alter_table_table_column_action:
       - keyword: ADD
       - keyword: COLUMN
       - column_reference:
-          identifier: my_column
+          naked_identifier: my_column
       - data_type:
           data_type_identifier: INTEGER
       - keyword: AUTOINCREMENT
@@ -133,12 +133,12 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: my_table
+        naked_identifier: my_table
     - alter_table_table_column_action:
       - keyword: ADD
       - keyword: COLUMN
       - column_reference:
-          identifier: my_column
+          naked_identifier: my_column
       - data_type:
           data_type_identifier: INTEGER
       - keyword: IDENTITY
@@ -152,12 +152,12 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: my_table
+        naked_identifier: my_table
     - alter_table_table_column_action:
       - keyword: ADD
       - keyword: COLUMN
       - column_reference:
-          identifier: my_column
+          naked_identifier: my_column
       - data_type:
           data_type_identifier: INTEGER
       - keyword: MASKING
@@ -170,12 +170,12 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: my_table
+        naked_identifier: my_table
     - alter_table_table_column_action:
       - keyword: ADD
       - keyword: COLUMN
       - column_reference:
-          identifier: my_column
+          naked_identifier: my_column
       - data_type:
           data_type_identifier: INTEGER
       - keyword: WITH
@@ -189,21 +189,21 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: my_table
+        naked_identifier: my_table
     - alter_table_table_column_action:
       - keyword: ADD
       - keyword: COLUMN
       - column_reference:
-          identifier: my_column
+          naked_identifier: my_column
       - data_type:
           data_type_identifier: INTEGER
       - keyword: WITH
       - keyword: MASKING
       - keyword: POLICY
       - function_name:
-        - identifier: adatabase
+        - naked_identifier: adatabase
         - dot: .
-        - identifier: aschema
+        - naked_identifier: aschema
         - dot: .
         - function_name_identifier: apolicy
 - statement_terminator: ;
@@ -212,12 +212,12 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: my_table
+        naked_identifier: my_table
     - alter_table_table_column_action:
       - keyword: ADD
       - keyword: COLUMN
       - column_reference:
-          identifier: my_column
+          naked_identifier: my_column
       - data_type:
           data_type_identifier: INTEGER
       - keyword: WITH
@@ -229,11 +229,11 @@ file:
       - bracketed:
           start_bracket: (
           column_reference:
-            identifier: my_column
+            naked_identifier: my_column
           comma: ','
           expression:
             column_reference:
-              identifier: my_column
+              naked_identifier: my_column
             comparison_operator:
               raw_comparison_operator: '>'
             numeric_literal: '10'
@@ -244,12 +244,12 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: reporting_tbl
+        naked_identifier: reporting_tbl
     - alter_table_table_column_action:
       - keyword: ADD
       - keyword: COLUMN
       - column_reference:
-          identifier: reporting_group
+          naked_identifier: reporting_group
       - data_type:
           data_type_identifier: VARCHAR
       - comment_clause:
@@ -261,27 +261,27 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: empl_info
+        naked_identifier: empl_info
     - alter_table_table_column_action:
       - keyword: RENAME
       - keyword: COLUMN
       - column_reference:
-          identifier: old_col_name
+          naked_identifier: old_col_name
       - keyword: TO
       - column_reference:
-          identifier: new_col_name
+          naked_identifier: new_col_name
 - statement_terminator: ;
 - statement:
     alter_table_statement:
     - keyword: alter
     - keyword: table
     - table_reference:
-        identifier: t1
+        naked_identifier: t1
     - alter_table_table_column_action:
       - keyword: alter
       - keyword: column
       - column_reference:
-          identifier: c1
+          naked_identifier: c1
       - keyword: drop
       - keyword: not
       - keyword: 'null'
@@ -291,11 +291,11 @@ file:
     - keyword: alter
     - keyword: table
     - table_reference:
-        identifier: t1
+        naked_identifier: t1
     - alter_table_table_column_action:
         keyword: alter
         column_reference:
-          identifier: c5
+          naked_identifier: c5
         comment_clause:
           keyword: comment
           quoted_literal: "'50 character column'"
@@ -305,19 +305,19 @@ file:
     - keyword: alter
     - keyword: table
     - table_reference:
-        identifier: t1
+        naked_identifier: t1
     - alter_table_table_column_action:
       - keyword: modify
       - column_reference:
-          identifier: c2
+          naked_identifier: c2
       - keyword: drop
       - keyword: default
       - comma: ','
       - column_reference:
-          identifier: c3
+          naked_identifier: c3
       - keyword: set
       - keyword: default
-      - identifier: seq5
+      - naked_identifier: seq5
       - dot: .
       - keyword: nextval
 - statement_terminator: ;
@@ -326,11 +326,11 @@ file:
     - keyword: alter
     - keyword: table
     - table_reference:
-        identifier: t1
+        naked_identifier: t1
     - alter_table_table_column_action:
       - keyword: alter
       - column_reference:
-          identifier: c4
+          naked_identifier: c4
       - keyword: set
       - keyword: data
       - keyword: type
@@ -344,7 +344,7 @@ file:
       - comma: ','
       - keyword: column
       - column_reference:
-          identifier: c4
+          naked_identifier: c4
       - keyword: drop
       - keyword: default
 - statement_terminator: ;
@@ -353,14 +353,14 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - identifier: xxxx
+      - naked_identifier: xxxx
       - dot: .
-      - identifier: example_table
+      - naked_identifier: example_table
     - alter_table_table_column_action:
       - keyword: MODIFY
       - keyword: COLUMN
       - column_reference:
-          identifier: employeeCode
+          naked_identifier: employeeCode
       - keyword: SET
       - keyword: MASKING
       - keyword: POLICY
@@ -372,21 +372,21 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - identifier: aschema
+      - naked_identifier: aschema
       - dot: .
-      - identifier: atable
+      - naked_identifier: atable
     - alter_table_table_column_action:
       - keyword: MODIFY
       - keyword: COLUMN
       - column_reference:
-          identifier: acolumn
+          naked_identifier: acolumn
       - keyword: SET
       - keyword: MASKING
       - keyword: POLICY
       - function_name:
-        - identifier: adatabase
+        - naked_identifier: adatabase
         - dot: .
-        - identifier: aschema
+        - naked_identifier: aschema
         - dot: .
         - function_name_identifier: apolicy
 - statement_terminator: ;
@@ -395,12 +395,12 @@ file:
     - keyword: alter
     - keyword: table
     - table_reference:
-        identifier: empl_info
+        naked_identifier: empl_info
     - alter_table_table_column_action:
       - keyword: modify
       - keyword: column
       - column_reference:
-          identifier: empl_id
+          naked_identifier: empl_id
       - keyword: set
       - keyword: masking
       - keyword: policy
@@ -412,12 +412,12 @@ file:
     - keyword: alter
     - keyword: table
     - table_reference:
-        identifier: empl_info
+        naked_identifier: empl_info
     - alter_table_table_column_action:
       - keyword: modify
       - keyword: column
       - column_reference:
-          identifier: empl_id
+          naked_identifier: empl_id
       - keyword: set
       - keyword: masking
       - keyword: policy
@@ -427,11 +427,11 @@ file:
       - bracketed:
           start_bracket: (
           column_reference:
-            identifier: empl_id
+            naked_identifier: empl_id
           comma: ','
           expression:
             column_reference:
-              identifier: empl_id
+              naked_identifier: empl_id
             comparison_operator:
               raw_comparison_operator: '>'
             numeric_literal: '10'
@@ -442,12 +442,12 @@ file:
     - keyword: alter
     - keyword: table
     - table_reference:
-        identifier: empl_info
+        naked_identifier: empl_info
     - alter_table_table_column_action:
       - keyword: modify
       - keyword: column
       - column_reference:
-          identifier: empl_id
+          naked_identifier: empl_id
       - keyword: set
       - keyword: masking
       - keyword: policy
@@ -456,7 +456,7 @@ file:
       - comma: ','
       - keyword: column
       - column_reference:
-          identifier: empl_dob
+          naked_identifier: empl_dob
       - keyword: set
       - keyword: masking
       - keyword: policy
@@ -468,12 +468,12 @@ file:
     - keyword: alter
     - keyword: table
     - table_reference:
-        identifier: empl_info
+        naked_identifier: empl_info
     - alter_table_table_column_action:
       - keyword: modify
       - keyword: column
       - column_reference:
-          identifier: empl_id
+          naked_identifier: empl_id
       - keyword: unset
       - keyword: masking
       - keyword: policy
@@ -483,19 +483,19 @@ file:
     - keyword: alter
     - keyword: table
     - table_reference:
-        identifier: empl_info
+        naked_identifier: empl_info
     - alter_table_table_column_action:
       - keyword: modify
       - keyword: column
       - column_reference:
-          identifier: empl_id
+          naked_identifier: empl_id
       - keyword: unset
       - keyword: masking
       - keyword: policy
       - comma: ','
       - keyword: column
       - column_reference:
-          identifier: empl_dob
+          naked_identifier: empl_dob
       - keyword: unset
       - keyword: masking
       - keyword: policy
@@ -505,44 +505,44 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: empl_info
+        naked_identifier: empl_info
     - alter_table_table_column_action:
       - keyword: DROP
       - keyword: COLUMN
       - column_reference:
-          identifier: my_column
+          naked_identifier: my_column
 - statement_terminator: ;
 - statement:
     alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - identifier: some_schema
+      - naked_identifier: some_schema
       - dot: .
-      - identifier: empl_info
+      - naked_identifier: empl_info
     - alter_table_table_column_action:
       - keyword: DROP
       - keyword: COLUMN
       - column_reference:
-          identifier: my_column
+          naked_identifier: my_column
 - statement_terminator: ;
 - statement:
     alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: my_table
+        naked_identifier: my_table
     - alter_table_table_column_action:
       - keyword: DROP
       - keyword: COLUMN
       - column_reference:
-          identifier: column_1
+          naked_identifier: column_1
       - comma: ','
       - column_reference:
-          identifier: column_2
+          naked_identifier: column_2
       - comma: ','
       - column_reference:
-          identifier: column_3
+          naked_identifier: column_3
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -551,12 +551,12 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - table_reference:
-        identifier: my_table
+        naked_identifier: my_table
     - alter_table_table_column_action:
       - keyword: ADD
       - keyword: COLUMN
       - column_reference:
-          identifier: my_column
+          naked_identifier: my_column
       - data_type:
           data_type_identifier: INTEGER
 - statement_terminator: ;
@@ -567,12 +567,12 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - table_reference:
-        identifier: empl_info
+        naked_identifier: empl_info
     - alter_table_table_column_action:
       - keyword: DROP
       - keyword: COLUMN
       - column_reference:
-          identifier: my_column
+          naked_identifier: my_column
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -581,24 +581,24 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - table_reference:
-        identifier: empl_info
+        naked_identifier: empl_info
     - alter_table_table_column_action:
       - keyword: RENAME
       - keyword: COLUMN
       - column_reference:
-          identifier: old_col_name
+          naked_identifier: old_col_name
       - keyword: TO
       - column_reference:
-          identifier: new_col_name
+          naked_identifier: new_col_name
 - statement_terminator: ;
 - statement:
     alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - identifier: my_schema
+      - naked_identifier: my_schema
       - dot: .
-      - identifier: my_table
+      - naked_identifier: my_table
     - keyword: drop
     - keyword: PRIMARY
     - keyword: KEY
@@ -608,19 +608,19 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - identifier: my_schema
+      - naked_identifier: my_schema
       - dot: .
-      - identifier: my_table
+      - naked_identifier: my_table
     - alter_table_table_column_action:
         keyword: add
         column_definition:
-          identifier: PRIMARY
+          naked_identifier: PRIMARY
           data_type:
             data_type_identifier: KEY
             bracketed:
               start_bracket: (
               expression:
                 column_reference:
-                  identifier: TABLE_ID
+                  naked_identifier: TABLE_ID
               end_bracket: )
 - statement_terminator: ;

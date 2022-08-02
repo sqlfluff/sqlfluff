@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 64af849a7406406ec34d91df22643a17a36cee1cfe7acdc9b22b250cf132d6ee
+_hash: 37df5646cd5d4db6264d866fd5aa7909ccfad9e82c47235c53adc53ec510d4ca
 file:
 - statement:
     select_statement:
@@ -19,7 +19,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: my_tbl
+                naked_identifier: my_tbl
           from_pivot_expression:
             keyword: PIVOT
             bracketed:
@@ -31,10 +31,10 @@ file:
                   start_bracket: (
                   expression:
                     column_reference:
-                      identifier: f_val
+                      naked_identifier: f_val
                   end_bracket: )
             - keyword: FOR
-            - identifier: f_id
+            - naked_identifier: f_id
             - keyword: IN
             - bracketed:
               - start_bracket: (
@@ -45,13 +45,13 @@ file:
             - end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: f
+            naked_identifier: f
             bracketed:
               start_bracket: (
               identifier_list:
-              - identifier: a
+              - naked_identifier: a
               - comma: ','
-              - identifier: b
+              - naked_identifier: b
               end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -68,20 +68,20 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: my_tbl
+                naked_identifier: my_tbl
           from_unpivot_expression:
             keyword: UNPIVOT
             bracketed:
             - start_bracket: (
-            - identifier: val
+            - naked_identifier: val
             - keyword: FOR
-            - identifier: col_name
+            - naked_identifier: col_name
             - keyword: IN
             - bracketed:
               - start_bracket: (
-              - identifier: a
+              - naked_identifier: a
               - comma: ','
-              - identifier: b
+              - naked_identifier: b
               - end_bracket: )
             - end_bracket: )
 - statement_terminator: ;

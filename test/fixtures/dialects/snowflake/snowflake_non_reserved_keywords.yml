@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c4deed2a46ef50aa5da7fad924f0b04dff31765a949a98ff4f989fc84540ae40
+_hash: 239f6fcece51a5dbd7ce49cb7468efeb74f8a4d75d4daf47bd322281e85db407
 file:
 - statement:
     select_statement:
@@ -11,14 +11,14 @@ file:
         keyword: SELECT
         select_clause_element:
           column_reference:
-            identifier: account
+            naked_identifier: account
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: foo
+                naked_identifier: foo
 - statement_terminator: ;
 - statement:
     create_table_statement:
@@ -28,11 +28,11 @@ file:
     - keyword: NOT
     - keyword: EXISTS
     - table_reference:
-        identifier: table_name
+        naked_identifier: table_name
     - bracketed:
         start_bracket: (
         column_definition:
-          identifier: organization
+          naked_identifier: organization
           data_type:
             data_type_identifier: VARCHAR
         end_bracket: )
@@ -41,7 +41,7 @@ file:
     with_compound_statement:
       keyword: with
       common_table_expression:
-        identifier: pivot
+        naked_identifier: pivot
         keyword: as
         bracketed:
           start_bracket: (
@@ -64,5 +64,5 @@ file:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: pivot
+                  naked_identifier: pivot
 - statement_terminator: ;

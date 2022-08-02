@@ -3,14 +3,14 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9c4ad013d4d5252468aad7d58e97eab435fdbb3b27549356e9c7d431023e5527
+_hash: 75a90cd7c9d69dc64006a01c1b9e33a82e8d37cffe312967e14609fffd22a8a5
 file:
 - statement:
     create_view_statement:
     - keyword: create
     - keyword: view
     - table_reference:
-        identifier: another_view
+        naked_identifier: another_view
     - comment_equals_clause:
         keyword: comment
         comparison_operator:
@@ -22,50 +22,50 @@ file:
         - keyword: select
         - select_clause_element:
             column_reference:
-              identifier: col_1
+              naked_identifier: col_1
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: col_2
+              naked_identifier: col_2
         from_clause:
           keyword: from
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: other_table
+                  naked_identifier: other_table
 - statement_terminator: ;
 - statement:
     create_view_statement:
     - keyword: CREATE
     - keyword: VIEW
     - table_reference:
-        identifier: basic_view
+        naked_identifier: basic_view
     - keyword: AS
     - select_statement:
         select_clause:
         - keyword: SELECT
         - select_clause_element:
             column_reference:
-              identifier: col1
+              naked_identifier: col1
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: col2
+              naked_identifier: col2
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: src_table
+                  naked_identifier: src_table
 - statement_terminator: ;
 - statement:
     create_view_statement:
     - keyword: CREATE
     - keyword: VIEW
     - table_reference:
-        identifier: view_with_comments
+        naked_identifier: view_with_comments
     - comment_equals_clause:
         keyword: COMMENT
         comparison_operator:
@@ -77,18 +77,18 @@ file:
         - keyword: SELECT
         - select_clause_element:
             column_reference:
-              identifier: col1
+              naked_identifier: col1
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: col2
+              naked_identifier: col2
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: src_table
+                  naked_identifier: src_table
 - statement_terminator: ;
 - statement:
     create_view_statement:
@@ -97,7 +97,7 @@ file:
     - keyword: REPLACE
     - keyword: VIEW
     - table_reference:
-        identifier: view_with_replace_and_comment
+        naked_identifier: view_with_replace_and_comment
     - comment_equals_clause:
         keyword: COMMENT
         comparison_operator:
@@ -109,18 +109,18 @@ file:
         - keyword: SELECT
         - select_clause_element:
             column_reference:
-              identifier: col1
+              naked_identifier: col1
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: col2
+              naked_identifier: col2
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: src_table
+                  naked_identifier: src_table
 - statement_terminator: ;
 - statement:
     create_view_statement:
@@ -134,7 +134,7 @@ file:
     - keyword: NOT
     - keyword: EXISTS
     - table_reference:
-        identifier: secure_recursive_view_with_comment
+        naked_identifier: secure_recursive_view_with_comment
     - comment_equals_clause:
         keyword: COMMENT
         comparison_operator:
@@ -146,18 +146,18 @@ file:
         - keyword: SELECT
         - select_clause_element:
             column_reference:
-              identifier: col1
+              naked_identifier: col1
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: col2
+              naked_identifier: col2
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: src_table
+                  naked_identifier: src_table
 - statement_terminator: ;
 - statement:
     create_view_statement:
@@ -166,7 +166,7 @@ file:
     - keyword: REPLACE
     - keyword: VIEW
     - table_reference:
-        identifier: view_with_comment_and_copy_grants
+        naked_identifier: view_with_comment_and_copy_grants
     - comment_equals_clause:
         keyword: COMMENT
         comparison_operator:
@@ -180,18 +180,18 @@ file:
         - keyword: SELECT
         - select_clause_element:
             column_reference:
-              identifier: col1
+              naked_identifier: col1
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: col2
+              naked_identifier: col2
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: src_table
+                  naked_identifier: src_table
 - statement_terminator: ;
 - statement:
     create_view_statement:
@@ -200,18 +200,18 @@ file:
     - keyword: REPLACE
     - keyword: VIEW
     - table_reference:
-        identifier: view_with_tags_and_copy_grants
+        naked_identifier: view_with_tags_and_copy_grants
     - tag_bracketed_equals:
       - keyword: WITH
       - keyword: TAG
       - bracketed:
         - start_bracket: (
-        - identifier: foo
+        - naked_identifier: foo
         - comparison_operator:
             raw_comparison_operator: '='
         - quoted_literal: "'bar'"
         - comma: ','
-        - identifier: hello
+        - naked_identifier: hello
         - comparison_operator:
             raw_comparison_operator: '='
         - quoted_literal: "'world'"
@@ -224,18 +224,18 @@ file:
         - keyword: SELECT
         - select_clause_element:
             column_reference:
-              identifier: col1
+              naked_identifier: col1
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: col2
+              naked_identifier: col2
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: src_table
+                  naked_identifier: src_table
 - statement_terminator: ;
 - statement:
     create_view_statement:
@@ -244,14 +244,14 @@ file:
     - keyword: REPLACE
     - keyword: VIEW
     - table_reference:
-        identifier: view_with_column_comment
+        naked_identifier: view_with_column_comment
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: col1
+          naked_identifier: col1
       - comma: ','
       - column_reference:
-          identifier: col2
+          naked_identifier: col2
       - comment_clause:
           keyword: COMMENT
           quoted_literal: "'some comment'"
@@ -262,18 +262,18 @@ file:
         - keyword: SELECT
         - select_clause_element:
             column_reference:
-              identifier: col1
+              naked_identifier: col1
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: col2
+              naked_identifier: col2
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: src_table
+                  naked_identifier: src_table
 - statement_terminator: ;
 - statement:
     create_view_statement:
@@ -287,7 +287,7 @@ file:
     - keyword: NOT
     - keyword: EXISTS
     - table_reference:
-        identifier: view_with_all_implemented_features
+        naked_identifier: view_with_all_implemented_features
     - comment_equals_clause:
         keyword: COMMENT
         comparison_operator:
@@ -296,10 +296,10 @@ file:
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: col1
+          naked_identifier: col1
       - comma: ','
       - column_reference:
-          identifier: col2
+          naked_identifier: col2
       - comment_clause:
           keyword: COMMENT
           quoted_literal: "'some comment'"
@@ -308,7 +308,7 @@ file:
     - with_compound_statement:
         keyword: WITH
         common_table_expression:
-          identifier: cte
+          naked_identifier: cte
           keyword: AS
           bracketed:
             start_bracket: (
@@ -317,52 +317,52 @@ file:
                 keyword: SELECT
                 select_clause_element:
                   column_reference:
-                    identifier: col1
+                    naked_identifier: col1
               from_clause:
                 keyword: FROM
                 from_expression:
                   from_expression_element:
                     table_expression:
                       table_reference:
-                        identifier: table_1
+                        naked_identifier: table_1
             end_bracket: )
         select_statement:
           select_clause:
           - keyword: SELECT
           - select_clause_element:
               column_reference:
-                identifier: col1
+                naked_identifier: col1
           - comma: ','
           - select_clause_element:
               column_reference:
-                identifier: col2
+                naked_identifier: col2
           from_clause:
             keyword: FROM
             from_expression:
               from_expression_element:
                 table_expression:
                   table_reference:
-                    identifier: table_2
+                    naked_identifier: table_2
               join_clause:
               - keyword: INNER
               - keyword: JOIN
               - from_expression_element:
                   table_expression:
                     table_reference:
-                      identifier: my_cte
+                      naked_identifier: my_cte
               - join_on_condition:
                   keyword: 'ON'
                   expression:
                   - column_reference:
-                    - identifier: table_1
+                    - naked_identifier: table_1
                     - dot: .
-                    - identifier: pk
+                    - naked_identifier: pk
                   - comparison_operator:
                       raw_comparison_operator: '='
                   - column_reference:
-                    - identifier: table_2
+                    - naked_identifier: table_2
                     - dot: .
-                    - identifier: pk
+                    - naked_identifier: pk
 - statement_terminator: ;
 - statement:
     create_view_statement:
@@ -371,14 +371,14 @@ file:
     - keyword: REPLACE
     - keyword: VIEW
     - table_reference:
-        identifier: vw_appt_latest
+        naked_identifier: vw_appt_latest
     - keyword: AS
     - bracketed:
         start_bracket: (
         with_compound_statement:
           keyword: WITH
           common_table_expression:
-            identifier: most_current
+            naked_identifier: most_current
             keyword: as
             bracketed:
               start_bracket: (
@@ -388,7 +388,7 @@ file:
                   select_clause_element:
                     wildcard_expression:
                       wildcard_identifier:
-                        identifier: da
+                        naked_identifier: da
                         dot: .
                         star: '*'
                 from_clause:
@@ -397,16 +397,16 @@ file:
                     from_expression_element:
                       table_expression:
                         table_reference:
-                          identifier: dim_appt
+                          naked_identifier: dim_appt
                       alias_expression:
-                        identifier: da
+                        naked_identifier: da
                 where_clause:
                   keyword: WHERE
                   expression:
                   - column_reference:
-                    - identifier: da
+                    - naked_identifier: da
                     - dot: .
-                    - identifier: current_appt_id
+                    - naked_identifier: current_appt_id
                   - keyword: IS
                   - keyword: 'NULL'
               end_bracket: )
@@ -423,6 +423,6 @@ file:
                 from_expression_element:
                   table_expression:
                     table_reference:
-                      identifier: most_current
+                      naked_identifier: most_current
         end_bracket: )
 - statement_terminator: ;

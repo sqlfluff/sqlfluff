@@ -94,14 +94,12 @@ bigquery_dialect.add(
     DoubleQuotedUDFBody=NamedParser(
         "double_quote",
         CodeSegment,
-        name="udf_body",
         type="udf_body",
         trim_chars=('"',),
     ),
     SingleQuotedUDFBody=NamedParser(
         "single_quote",
         CodeSegment,
-        name="udf_body",
         type="udf_body",
         trim_chars=("'",),
     ),
@@ -1871,9 +1869,7 @@ class CreateProcedureStatementSegment(BaseSegment):
         Sequence(
             "OPTIONS",
             "strict_mode",
-            StringParser(
-                "strict_mode", CodeSegment, name="strict_mode", type="procedure_option"
-            ),
+            StringParser("strict_mode", CodeSegment, type="procedure_option"),
             Ref("EqualsSegment"),
             Ref("BooleanLiteralGrammar"),
             optional=True,

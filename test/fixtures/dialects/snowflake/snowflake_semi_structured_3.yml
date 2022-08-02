@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0df647409d6bf3931ad1328682ccfb45b81d120e10326ba3b6ef346e46d64993
+_hash: 0b936d0c53e60ea3e2218b58700181c23b632f40b7597f3e7e25da58e8686bfb
 file:
   statement:
     select_statement:
@@ -18,9 +18,9 @@ file:
                 start_bracket: (
                 expression:
                   column_reference:
-                  - identifier: t
+                  - naked_identifier: t
                   - dot: .
-                  - identifier: metadata
+                  - naked_identifier: metadata
                 end_bracket: )
           - array_accessor:
               start_square_bracket: '['
@@ -33,7 +33,7 @@ file:
               end_square_bracket: ']'
           alias_expression:
             keyword: AS
-            identifier: first_name
+            naked_identifier: first_name
       - comma: ','
       - select_clause_element:
           expression:
@@ -44,23 +44,23 @@ file:
                 start_bracket: (
                 expression:
                   column_reference:
-                  - identifier: t
+                  - naked_identifier: t
                   - dot: .
-                  - identifier: metadata
+                  - naked_identifier: metadata
                 end_bracket: )
             snowflake_semi_structured_expression:
               colon: ':'
               semi_structured_element: customer_id
           alias_expression:
             keyword: AS
-            identifier: customer_id
+            naked_identifier: customer_id
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tickets
+                naked_identifier: tickets
             alias_expression:
               keyword: AS
-              identifier: t
+              naked_identifier: t

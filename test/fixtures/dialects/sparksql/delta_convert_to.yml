@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9c39d8332ea4208ab4aae54b31b86e96c1c22d00923768a6c08fc54fa5f2aa01
+_hash: a3d34caef12a18197d02c733c3cce7611de20948b410c4900b9995a6c479b36c
 file:
 - statement:
     convert_to_delta_statement:
@@ -13,7 +13,7 @@ file:
     - file_reference:
         keyword: PARQUET
         dot: .
-        identifier: '`/data/events/`'
+        quoted_identifier: '`/data/events/`'
 - statement_terminator: ;
 - statement:
     convert_to_delta_statement:
@@ -23,7 +23,7 @@ file:
     - file_reference:
         keyword: PARQUET
         dot: .
-        identifier: '`/data/events/`'
+        quoted_identifier: '`/data/events/`'
     - keyword: PARTITIONED
     - keyword: BY
     - bracketed:
@@ -49,7 +49,7 @@ file:
     - file_reference:
         keyword: ICEBERG
         dot: .
-        identifier: '`/data/events/`'
+        quoted_identifier: '`/data/events/`'
 - statement_terminator: ;
 - statement:
     convert_to_delta_statement:
@@ -59,7 +59,7 @@ file:
     - file_reference:
         keyword: ICEBERG
         dot: .
-        identifier: '`/data/events/`'
+        quoted_identifier: '`/data/events/`'
     - keyword: 'NO'
     - keyword: STATISTICS
 - statement_terminator: ;

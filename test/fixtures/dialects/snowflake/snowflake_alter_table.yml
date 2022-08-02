@@ -3,36 +3,36 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: aaa775f0cea2a7ed80b51a676a54780f22001767ddb3810ad0b8311570e9426b
+_hash: 829cd2e0d6a1ab5aa48115e491b6c911731eda6e48b2560a6bdc721a3d4aaba1
 file:
 - statement:
     alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: my_old_table
+        naked_identifier: my_old_table
     - keyword: RENAME
     - keyword: TO
     - table_reference:
-        identifier: my_new_table
+        naked_identifier: my_new_table
 - statement_terminator: ;
 - statement:
     alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: my_existing_table
+        naked_identifier: my_existing_table
     - keyword: SWAP
     - keyword: WITH
     - table_reference:
-        identifier: my_another_table
+        naked_identifier: my_another_table
 - statement_terminator: ;
 - statement:
     alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: my_existing_table
+        naked_identifier: my_existing_table
     - keyword: ADD
     - keyword: SEARCH
     - keyword: OPTIMIZATION
@@ -42,7 +42,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: my_existing_table
+        naked_identifier: my_existing_table
     - keyword: DROP
     - keyword: SEARCH
     - keyword: OPTIMIZATION
@@ -52,7 +52,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: my_table
+        naked_identifier: my_table
     - keyword: SET
     - parameter: DATA_RETENTION_TIME_IN_DAYS
     - comparison_operator:
@@ -64,7 +64,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: my_table
+        naked_identifier: my_table
     - keyword: SET
     - parameter: DEFAULT_DDL_COLLATION
     - comparison_operator:
@@ -76,7 +76,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: my_table
+        naked_identifier: my_table
     - keyword: SET
     - parameter: COMMENT
     - comparison_operator:

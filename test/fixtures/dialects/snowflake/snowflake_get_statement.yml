@@ -3,24 +3,24 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1c921ddcc2c8f6f3c27682d75150a8ce766b71e7a2379d2bfa60f6ca6559c6eb
+_hash: d52b5bbb775e0a3d534c87ef38be635e991e1e69028687f1e5e5bc461731e624
 file:
 - statement:
     get_statement:
       keyword: get
-      identifier: '@%mytable'
+      stage_path: '@%mytable'
       unquoted_file_path: file://C:\temp\load
 - statement_terminator: ;
 - statement:
     get_statement:
       keyword: get
-      identifier: '@~/myfiles'
+      stage_path: '@~/myfiles'
       unquoted_file_path: file:///tmp/data/
 - statement_terminator: ;
 - statement:
     get_statement:
     - keyword: get
-    - identifier: '@~/myfiles'
+    - stage_path: '@~/myfiles'
     - unquoted_file_path: file:///tmp/data/
     - keyword: PATTERN
     - comparison_operator:
@@ -30,7 +30,7 @@ file:
 - statement:
     get_statement:
     - keyword: get
-    - identifier: '@~/myfiles'
+    - stage_path: '@~/myfiles'
     - unquoted_file_path: file:///tmp/data/
     - keyword: PATTERN
     - comparison_operator:
@@ -40,7 +40,7 @@ file:
 - statement:
     get_statement:
     - keyword: get
-    - identifier: '@~/myfiles'
+    - stage_path: '@~/myfiles'
     - unquoted_file_path: file:///tmp/data/
     - keyword: PARALLEL
     - comparison_operator:

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ac825d9375b5de6d73ea53678420ccf3dd3651f96e4adaaa5c154747e9c41704
+_hash: 51bbf5a827b5e2ba4aefdea69bee7821d3755ed83bf2761759a9ef850ac21bee
 file:
 - statement:
     create_table_statement:
@@ -227,7 +227,7 @@ file:
           data_type:
           - keyword: STRUCT
           - start_angle_bracket: <
-          - identifier: '`b`'
+          - quoted_identifier: '`b`'
           - colon: ':'
           - data_type:
               primitive_type:
@@ -241,7 +241,7 @@ file:
           - end_angle_bracket: '>'
       - comma: ','
       - column_definition:
-          identifier: '`d`'
+          quoted_identifier: '`d`'
           data_type:
             keyword: MAP
             start_angle_bracket: <

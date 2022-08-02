@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a750dbc0c2826ee4dffcc0bb99028a0c2ab265d865258d91d8133ad0ec8712a5
+_hash: a940e0a52c2ce42862e5c44fc4f854eebbf6bb2eed5c2029e48502ed818363a1
 file:
 - statement:
     alter_materialized_view_statement:
@@ -11,11 +11,11 @@ file:
     - keyword: materialized
     - keyword: view
     - table_reference:
-        identifier: table1_mv
+        naked_identifier: table1_mv
     - keyword: rename
     - keyword: to
     - table_reference:
-        identifier: my_mv
+        naked_identifier: my_mv
 - statement_terminator: ;
 - statement:
     alter_materialized_view_statement:
@@ -23,7 +23,7 @@ file:
     - keyword: materialized
     - keyword: view
     - table_reference:
-        identifier: my_mv
+        naked_identifier: my_mv
     - keyword: cluster
     - keyword: by
     - expression:
@@ -31,7 +31,7 @@ file:
           start_bracket: (
           expression:
             column_reference:
-              identifier: i
+              naked_identifier: i
           end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -40,7 +40,7 @@ file:
     - keyword: materialized
     - keyword: view
     - table_reference:
-        identifier: my_mv
+        naked_identifier: my_mv
     - keyword: suspend
     - keyword: recluster
 - statement_terminator: ;
@@ -50,7 +50,7 @@ file:
     - keyword: materialized
     - keyword: view
     - table_reference:
-        identifier: my_mv
+        naked_identifier: my_mv
     - keyword: resume
     - keyword: recluster
 - statement_terminator: ;
@@ -60,7 +60,7 @@ file:
     - keyword: materialized
     - keyword: view
     - table_reference:
-        identifier: my_mv
+        naked_identifier: my_mv
     - keyword: suspend
 - statement_terminator: ;
 - statement:
@@ -69,7 +69,7 @@ file:
     - keyword: materialized
     - keyword: view
     - table_reference:
-        identifier: my_mv
+        naked_identifier: my_mv
     - keyword: resume
 - statement_terminator: ;
 - statement:
@@ -78,7 +78,7 @@ file:
     - keyword: materialized
     - keyword: view
     - table_reference:
-        identifier: my_mv
+        naked_identifier: my_mv
     - keyword: drop
     - keyword: clustering
     - keyword: key
@@ -89,7 +89,7 @@ file:
     - keyword: materialized
     - keyword: view
     - table_reference:
-        identifier: mv1
+        naked_identifier: mv1
     - keyword: set
     - keyword: secure
 - statement_terminator: ;
@@ -99,7 +99,7 @@ file:
     - keyword: materialized
     - keyword: view
     - table_reference:
-        identifier: mv1
+        naked_identifier: mv1
     - keyword: set
     - comment_equals_clause:
         keyword: comment
@@ -113,11 +113,11 @@ file:
     - keyword: materialized
     - keyword: view
     - table_reference:
-        identifier: mv1
+        naked_identifier: mv1
     - keyword: set
     - tag_equals:
         keyword: tag
-        identifier: my_tag
+        naked_identifier: my_tag
         comparison_operator:
           raw_comparison_operator: '='
         quoted_literal: "'my tag'"
@@ -128,11 +128,11 @@ file:
     - keyword: materialized
     - keyword: view
     - table_reference:
-        identifier: mv1
+        naked_identifier: mv1
     - keyword: unset
     - tag_equals:
         keyword: tag
-        identifier: my_tag
+        naked_identifier: my_tag
         comparison_operator:
           raw_comparison_operator: '='
         quoted_literal: "'not my tag anymore'"

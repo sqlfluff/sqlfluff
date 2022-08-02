@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e0553ea31fc12ed69b61e857f352a76b3175ba90f77cf6f68e08b3cc952eeb13
+_hash: 36aac154cc29a8174068e6e2c01eaa791f94c0af65b03ae16a94ff319675d85f
 file:
 - statement:
     select_statement:
@@ -76,7 +76,7 @@ file:
               \ 4000000 microseconds, 5000000001 nanoseconds'"
           alias_expression:
             keyword: as
-            identifier: complex_interval1
+            naked_identifier: complex_interval1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -99,7 +99,7 @@ file:
               \ ns'"
           alias_expression:
             keyword: as
-            identifier: complex_interval2
+            naked_identifier: complex_interval2
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -107,23 +107,23 @@ file:
       - keyword: select
       - select_clause_element:
           column_reference:
-            identifier: name
+            naked_identifier: name
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: hire_date
+            naked_identifier: hire_date
       from_clause:
         keyword: from
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: employees
+                naked_identifier: employees
       where_clause:
         keyword: where
         expression:
           column_reference:
-            identifier: hire_date
+            naked_identifier: hire_date
           comparison_operator:
             raw_comparison_operator: '>'
           bare_function: current_date
@@ -138,7 +138,7 @@ file:
         select_clause_element:
           expression:
             column_reference:
-              identifier: ts
+              naked_identifier: ts
             binary_operator: +
             keyword: INTERVAL
             date_constructor_literal: "'4 seconds'"
@@ -148,12 +148,12 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t1
+                naked_identifier: t1
       where_clause:
         keyword: where
         expression:
           column_reference:
-            identifier: ts
+            naked_identifier: ts
           comparison_operator:
             raw_comparison_operator: '>'
           function:

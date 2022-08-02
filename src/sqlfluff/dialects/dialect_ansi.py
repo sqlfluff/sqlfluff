@@ -261,7 +261,7 @@ ansi_dialect.add(
     PipeSegment=StringParser("|", SymbolSegment, type="pipe"),
     BitwiseXorSegment=StringParser("^", SymbolSegment, type="binary_operator"),
     LikeOperatorSegment=NamedParser(
-        "like_operator", SymbolSegment, name="like_operator", type="comparison_operator"
+        "like_operator", SymbolSegment, type="comparison_operator"
     ),
     RawNotSegment=StringParser("!", SymbolSegment, type="raw_comparison_operator"),
     RawEqualsSegment=StringParser("=", SymbolSegment, type="raw_comparison_operator"),

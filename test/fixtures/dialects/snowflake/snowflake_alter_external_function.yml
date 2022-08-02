@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 76c31f80fb9319de40ff0fad748987f26518336c60beb1bdf412e81d7378946c
+_hash: c6a2bf22f3b84a2339aa80cc957b7f89796f16670cc913876d6fdaeaf53dd83e
 file:
 - statement:
     alter_function_statement:
@@ -72,7 +72,7 @@ file:
     - keyword: API_INTEGRATION
     - comparison_operator:
         raw_comparison_operator: '='
-    - identifier: API_INTEGRATION_2
+    - naked_identifier: API_INTEGRATION_2
 - statement_terminator: ;
 - statement:
     alter_function_statement:
@@ -108,7 +108,7 @@ file:
     - keyword: COMPRESSION
     - comparison_operator:
         raw_comparison_operator: '='
-    - keyword: GZIP
+    - compression_type: GZIP
 - statement_terminator: ;
 - statement:
     alter_function_statement:

@@ -87,9 +87,8 @@ mysql_dialect.sets("reserved_keywords").difference_update(["INDEX"])
 mysql_dialect.replace(
     QuotedIdentifierSegment=NamedParser(
         "back_quote",
-        CodeSegment,
-        name="quoted_identifier",
-        type="identifier",
+        ansi.IdentifierSegment,
+        type="quoted_identifier",
         trim_chars=("`",),
     ),
     LiteralGrammar=ansi_dialect.get_grammar("LiteralGrammar").copy(
@@ -166,9 +165,7 @@ mysql_dialect.replace(
     # Odd syntax, but pr
     CharCharacterSetGrammar=Ref.keyword("BINARY"),
     DelimiterGrammar=OneOf(Ref("SemicolonSegment"), Ref("TildeSegment")),
-    TildeSegment=StringParser(
-        "~", SymbolSegment, name="tilde", type="statement_terminator"
-    ),
+    TildeSegment=StringParser("~", SymbolSegment, type="statement_terminator"),
     ParameterNameSegment=RegexParser(
         r"`?[A-Za-z0-9_]*`?", CodeSegment, type="parameter"
     ),
@@ -662,13 +659,11 @@ class IntervalExpressionSegment(BaseSegment):
 
 mysql_dialect.add(
     OutputParameterSegment=StringParser(
-        "OUT", SymbolSegment, name="inputparameter", type="parameter_direction"
+        "OUT", SymbolSegment, type="parameter_direction"
     ),
-    InputParameterSegment=StringParser(
-        "IN", SymbolSegment, name="outputparameter", type="parameter_direction"
-    ),
+    InputParameterSegment=StringParser("IN", SymbolSegment, type="parameter_direction"),
     InputOutputParameterSegment=StringParser(
-        "INOUT", SymbolSegment, name="inputoutputparameter", type="parameter_direction"
+        "INOUT", SymbolSegment, type="parameter_direction"
     ),
     ProcedureParameterGrammar=OneOf(
         Sequence(
@@ -686,13 +681,11 @@ mysql_dialect.add(
     LocalVariableNameSegment=RegexParser(
         r"`?[a-zA-Z0-9_$]*`?",
         CodeSegment,
-        name="declared_variable",
         type="variable",
     ),
     SessionVariableNameSegment=RegexParser(
         r"[@][a-zA-Z0-9_$]*",
         CodeSegment,
-        name="declared_variable",
         type="variable",
     ),
     BooleanDynamicSystemVariablesGrammar=OneOf(

@@ -318,59 +318,42 @@ sparksql_dialect.replace(
 sparksql_dialect.add(
     BackQuotedIdentifierSegment=NamedParser(
         "back_quote",
-        CodeSegment,
-        name="quoted_identifier",
-        type="identifier",
+        ansi.IdentifierSegment,
+        type="quoted_identifier",
         trim_chars=("`",),
     ),
     BinaryfileKeywordSegment=StringParser(
         "BINARYFILE",
         KeywordSegment,
-        name="binary_file",
         type="file_format",
     ),
     JsonfileKeywordSegment=StringParser(
         "JSONFILE",
         KeywordSegment,
-        name="json_file",
         type="file_format",
     ),
-    RcfileKeywordSegment=StringParser(
-        "RCFILE", KeywordSegment, name="rc_file", type="file_format"
-    ),
+    RcfileKeywordSegment=StringParser("RCFILE", KeywordSegment, type="file_format"),
     SequencefileKeywordSegment=StringParser(
-        "SEQUENCEFILE", KeywordSegment, name="sequence_file", type="file_format"
+        "SEQUENCEFILE", KeywordSegment, type="file_format"
     ),
-    TextfileKeywordSegment=StringParser(
-        "TEXTFILE", KeywordSegment, name="text_file", type="file_format"
-    ),
+    TextfileKeywordSegment=StringParser("TEXTFILE", KeywordSegment, type="file_format"),
     StartAngleBracketSegment=StringParser(
         "<", SymbolSegment, type="start_angle_bracket"
     ),
     EndAngleBracketSegment=StringParser(">", SymbolSegment, type="end_angle_bracket"),
-    EqualsSegment_a=StringParser(
-        "==", SymbolSegment, name="equals", type="comparison_operator"
-    ),
-    EqualsSegment_b=StringParser(
-        "<=>", SymbolSegment, name="equals", type="comparison_operator"
-    ),
+    EqualsSegment_a=StringParser("==", SymbolSegment, type="comparison_operator"),
+    EqualsSegment_b=StringParser("<=>", SymbolSegment, type="comparison_operator"),
     FileKeywordSegment=MultiStringParser(
-        ["FILE", "FILES"], KeywordSegment, name="file", type="file_keyword"
+        ["FILE", "FILES"], KeywordSegment, type="file_keyword"
     ),
     JarKeywordSegment=MultiStringParser(
-        ["JAR", "JARS"], KeywordSegment, name="jar", type="file_keyword"
+        ["JAR", "JARS"], KeywordSegment, type="file_keyword"
     ),
-    NoscanKeywordSegment=StringParser(
-        "NOSCAN", KeywordSegment, name="noscan_keyword", type="keyword"
-    ),
-    WhlKeywordSegment=StringParser(
-        "WHL", KeywordSegment, name="whl", type="file_keyword"
-    ),
+    NoscanKeywordSegment=StringParser("NOSCAN", KeywordSegment, type="keyword"),
+    WhlKeywordSegment=StringParser("WHL", KeywordSegment, type="file_keyword"),
     SQLConfPropertiesSegment=Sequence(
-        StringParser("-", SymbolSegment, name="dash", type="dash"),
-        StringParser(
-            "v", SymbolSegment, name="sql_conf_option_set", type="sql_conf_option"
-        ),
+        StringParser("-", SymbolSegment, type="dash"),
+        StringParser("v", SymbolSegment, type="sql_conf_option"),
         allow_gaps=False,
     ),
     # Add relevant Hive Grammar
@@ -2767,7 +2750,7 @@ class GenerateManifestFileStatementSegment(BaseSegment):
         StringParser(
             "symlink_format_manifest",
             CodeSegment,
-            name="symlink_format_manifest",
+            type="symlink_format_manifest",
         ),
         "FOR",
         "TABLE",

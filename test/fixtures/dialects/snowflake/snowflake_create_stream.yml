@@ -3,29 +3,29 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7c6908b7d6c6d40905978f3b53d4ab8e44b309decfc57453363aad785c7932cc
+_hash: 4231f1ad0afda72d3bf827f7d841e80a423dfec0a772844a467110f18f99cf4d
 file:
 - statement:
     create_stream_statement:
     - keyword: create
     - keyword: stream
     - object_reference:
-        identifier: new_stream
+        naked_identifier: new_stream
     - keyword: 'on'
     - keyword: table
     - object_reference:
-        identifier: table_name
+        naked_identifier: table_name
 - statement_terminator: ;
 - statement:
     create_stream_statement:
     - keyword: create
     - keyword: stream
     - object_reference:
-        identifier: mystream
+        naked_identifier: mystream
     - keyword: 'on'
     - keyword: table
     - object_reference:
-        identifier: mytable
+        naked_identifier: mytable
     - from_before_expression:
         keyword: before
         bracketed:
@@ -52,11 +52,11 @@ file:
     - keyword: create
     - keyword: stream
     - object_reference:
-        identifier: mystream
+        naked_identifier: mystream
     - keyword: 'on'
     - keyword: table
     - object_reference:
-        identifier: mytable
+        naked_identifier: mytable
     - from_at_expression:
         keyword: at
         bracketed:
@@ -76,11 +76,11 @@ file:
     - keyword: create
     - keyword: stream
     - object_reference:
-        identifier: mystream
+        naked_identifier: mystream
     - keyword: 'on'
     - keyword: table
     - object_reference:
-        identifier: mytable
+        naked_identifier: mytable
     - from_before_expression:
         keyword: before
         bracketed:
@@ -96,44 +96,44 @@ file:
     - keyword: create
     - keyword: stream
     - object_reference:
-        identifier: new_stream
+        naked_identifier: new_stream
     - keyword: 'on'
     - keyword: external
     - keyword: table
     - object_reference:
-        identifier: table_name
+        naked_identifier: table_name
 - statement_terminator: ;
 - statement:
     create_stream_statement:
     - keyword: create
     - keyword: stream
     - object_reference:
-        identifier: new_stream
+        naked_identifier: new_stream
     - keyword: 'on'
     - keyword: stage
     - object_reference:
-        identifier: stage_name
+        naked_identifier: stage_name
 - statement_terminator: ;
 - statement:
     create_stream_statement:
     - keyword: create
     - keyword: stream
     - object_reference:
-        identifier: new_stream
+        naked_identifier: new_stream
     - keyword: 'on'
     - keyword: view
     - object_reference:
-        identifier: view_name
+        naked_identifier: view_name
 - statement_terminator: ;
 - statement:
     create_clone_statement:
     - keyword: create
     - keyword: stream
     - object_reference:
-        identifier: new_stream
+        naked_identifier: new_stream
     - keyword: clone
     - object_reference:
-        identifier: source_stream
+        naked_identifier: source_stream
 - statement_terminator: ;
 - statement:
     create_stream_statement:
@@ -142,11 +142,11 @@ file:
     - keyword: replace
     - keyword: stream
     - object_reference:
-        identifier: new_stream
+        naked_identifier: new_stream
     - keyword: 'on'
     - keyword: table
     - object_reference:
-        identifier: table_name
+        naked_identifier: table_name
 - statement_terminator: ;
 - statement:
     create_stream_statement:
@@ -156,11 +156,11 @@ file:
     - keyword: not
     - keyword: exists
     - object_reference:
-        identifier: new_stream
+        naked_identifier: new_stream
     - keyword: 'on'
     - keyword: table
     - object_reference:
-        identifier: table_name
+        naked_identifier: table_name
 - statement_terminator: ;
 - statement:
     create_stream_statement:
@@ -169,13 +169,13 @@ file:
     - keyword: REPLACE
     - keyword: STREAM
     - object_reference:
-        identifier: new_stream
+        naked_identifier: new_stream
     - keyword: COPY
     - keyword: GRANTS
     - keyword: 'ON'
     - keyword: TABLE
     - object_reference:
-        identifier: table_name
+        naked_identifier: table_name
     - keyword: APPEND_ONLY
     - comparison_operator:
         raw_comparison_operator: '='
@@ -197,12 +197,12 @@ file:
     - keyword: REPLACE
     - keyword: STREAM
     - object_reference:
-        identifier: new_stream
+        naked_identifier: new_stream
     - keyword: 'ON'
     - keyword: EXTERNAL
     - keyword: TABLE
     - object_reference:
-        identifier: table_name
+        naked_identifier: table_name
     - keyword: INSERT_ONLY
     - comparison_operator:
         raw_comparison_operator: '='
@@ -221,11 +221,11 @@ file:
     - keyword: NOT
     - keyword: EXISTS
     - object_reference:
-        identifier: new_stream
+        naked_identifier: new_stream
     - keyword: 'ON'
     - keyword: STAGE
     - object_reference:
-        identifier: stage_name
+        naked_identifier: stage_name
     - comment_equals_clause:
         keyword: COMMENT
         comparison_operator:
@@ -240,11 +240,11 @@ file:
     - keyword: NOT
     - keyword: EXISTS
     - object_reference:
-        identifier: new_stream
+        naked_identifier: new_stream
     - keyword: 'ON'
     - keyword: VIEW
     - object_reference:
-        identifier: view_name
+        naked_identifier: view_name
     - keyword: APPEND_ONLY
     - comparison_operator:
         raw_comparison_operator: '='

@@ -92,7 +92,7 @@ class Rule_L043(BaseRule):
             KeywordSegment("coalesce"),
             SymbolSegment("(", type="start_bracket"),
             coalesce_arg_1,
-            SymbolSegment(",", name="comma", type="comma"),
+            SymbolSegment(",", type="comma"),
             WhitespaceSegment(),
             coalesce_arg_2,
             SymbolSegment(")", type="end_bracket"),

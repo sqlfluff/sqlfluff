@@ -54,21 +54,13 @@ athena_dialect.add(
         "<", SymbolSegment, type="start_angle_bracket"
     ),
     EndAngleBracketSegment=StringParser(">", SymbolSegment, type="end_angle_bracket"),
-    RightArrowOperator=StringParser(
-        "->", SymbolSegment, name="right_arrow", type="binary_operator"
-    ),
-    JsonfileKeywordSegment=StringParser(
-        "JSONFILE", KeywordSegment, name="json_file", type="file_format"
-    ),
-    RcfileKeywordSegment=StringParser(
-        "RCFILE", KeywordSegment, name="rc_file", type="file_format"
-    ),
+    RightArrowOperator=StringParser("->", SymbolSegment, type="binary_operator"),
+    JsonfileKeywordSegment=StringParser("JSONFILE", KeywordSegment, type="file_format"),
+    RcfileKeywordSegment=StringParser("RCFILE", KeywordSegment, type="file_format"),
     SequencefileKeywordSegment=StringParser(
-        "SEQUENCEFILE", KeywordSegment, name="sequence_file", type="file_format"
+        "SEQUENCEFILE", KeywordSegment, type="file_format"
     ),
-    TextfileKeywordSegment=StringParser(
-        "TEXTFILE", KeywordSegment, name="text_file", type="file_format"
-    ),
+    TextfileKeywordSegment=StringParser("TEXTFILE", KeywordSegment, type="file_format"),
     PropertyGrammar=Sequence(
         Ref("QuotedLiteralSegment"),
         Ref("EqualsSegment"),

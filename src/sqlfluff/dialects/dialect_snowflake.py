@@ -34,6 +34,7 @@ from sqlfluff.core.parser import (
     SymbolSegment,
     MultiStringParser,
 )
+from sqlfluff.core.parser.segments.raw import KeywordSegment
 from sqlfluff.dialects.dialect_snowflake_keywords import (
     snowflake_reserved_keywords,
     snowflake_unreserved_keywords,
@@ -155,46 +156,38 @@ snowflake_dialect.add(
     # so they need a different `name` and `type` so they're not picked up
     # by other rules.
     ParameterAssignerSegment=StringParser(
-        "=>", SymbolSegment, name="parameter_assigner", type="parameter_assigner"
+        "=>", SymbolSegment, type="parameter_assigner"
     ),
-    FunctionAssignerSegment=StringParser(
-        "->", SymbolSegment, name="function_assigner", type="function_assigner"
-    ),
+    FunctionAssignerSegment=StringParser("->", SymbolSegment, type="function_assigner"),
     QuotedStarSegment=StringParser(
         "'*'",
-        CodeSegment,
-        name="quoted_star",
-        type="identifier",
+        ansi.IdentifierSegment,
+        type="quoted_star",
         trim_chars=("'",),
     ),
     NakedSemiStructuredElementSegment=RegexParser(
         r"[A-Z0-9_]*",
         CodeSegment,
-        name="naked_semi_structured_element",
         type="semi_structured_element",
     ),
     QuotedSemiStructuredElementSegment=NamedParser(
         "double_quote",
         CodeSegment,
-        name="quoted_semi_structured_element",
         type="semi_structured_element",
     ),
     ColumnIndexIdentifierSegment=RegexParser(
         r"\$[0-9]+",
-        CodeSegment,
-        name="column_index_identifier_segment",
-        type="identifier",
+        ansi.IdentifierSegment,
+        type="column_index_identifier_segment",
     ),
     LocalVariableNameSegment=RegexParser(
         r"[a-zA-Z0-9_]*",
         CodeSegment,
-        name="declared_variable",
         type="variable",
     ),
     ReferencedVariableNameSegment=RegexParser(
         r"\$[A-Z][A-Z0-9_]*",
         CodeSegment,
-        name="referenced_variable",
         type="variable",
         trim_chars=("$"),
     ),
@@ -208,37 +201,32 @@ snowflake_dialect.add(
                 if "-" not in size
             ],
             CodeSegment,
-            name="warehouse_size",
             type="warehouse_size",
         ),
         MultiStringParser(
             [f"'{size}'" for size in snowflake_dialect.sets("warehouse_sizes")],
             CodeSegment,
-            name="warehouse_size",
             type="warehouse_size",
         ),
     ),
     CompressionType=OneOf(
         MultiStringParser(
             snowflake_dialect.sets("compression_types"),
-            CodeSegment,
-            name="compression_type",
-            type="keyword",
+            KeywordSegment,
+            type="compression_type",
         ),
         MultiStringParser(
             [
                 f"'{compression}'"
                 for compression in snowflake_dialect.sets("compression_types")
             ],
-            CodeSegment,
-            name="compression_type",
-            type="keyword",
+            KeywordSegment,
+            type="compression_type",
         ),
     ),
     ValidationModeOptionSegment=RegexParser(
         r"'?RETURN_(?:\d+_ROWS|ERRORS|ALL_ERRORS)'?",
         CodeSegment,
-        name="validation_mode_option",
         type="validation_mode_option",
     ),
     CopyOptionOnErrorSegment=RegexParser(
@@ -265,22 +253,19 @@ snowflake_dialect.add(
     ),
     StagePath=RegexParser(
         r"(?:@[^\s;)]+|'@[^']+')",
-        CodeSegment,
-        name="stage_path",
-        type="identifier",
+        ansi.IdentifierSegment,
+        type="stage_path",
     ),
     S3Path=RegexParser(
         # https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucketnamingrules.html
         r"'s3://[a-z0-9][a-z0-9\.-]{1,61}[a-z0-9](?:/.+)?'",
         CodeSegment,
-        name="s3_path",
         type="bucket_path",
     ),
     GCSPath=RegexParser(
         # https://cloud.google.com/storage/docs/naming-buckets
         r"'gcs://[a-z0-9][\w\.-]{1,61}[a-z0-9](?:/.+)?'",
         CodeSegment,
-        name="gcs_path",
         type="bucket_path",
     ),
     AzureBlobStoragePath=RegexParser(
@@ -288,50 +273,42 @@ snowflake_dialect.add(
         r"'azure://[a-z0-9][a-z0-9-]{1,61}[a-z0-9]\.blob\.core\.windows\.net/[a-z0-9]"
         r"[a-z0-9\.-]{1,61}[a-z0-9](?:/.+)?'",
         CodeSegment,
-        name="azure_blob_storage_path",
         type="bucket_path",
     ),
     UnquotedFilePath=NamedParser(
         "unquoted_file_path",
         CodeSegment,
-        name="unquoted_file_path",
         type="unquoted_file_path",
     ),
     SnowflakeEncryptionOption=MultiStringParser(
         ["'SNOWFLAKE_FULL'", "'SNOWFLAKE_SSE'"],
         CodeSegment,
-        name="snowflake_encryption_option",
         type="stage_encryption_option",
     ),
     S3EncryptionOption=MultiStringParser(
         ["'AWS_CSE'", "'AWS_SSE_S3'", "'AWS_SSE_KMS'"],
         CodeSegment,
-        name="s3_encryption_option",
         type="stage_encryption_option",
     ),
     GCSEncryptionOption=StringParser(
         "'GCS_SSE_KMS'",
         CodeSegment,
-        name="gcs_encryption_option",
         type="stage_encryption_option",
     ),
     AzureBlobStorageEncryptionOption=StringParser(
         "'AZURE_CSE'",
         CodeSegment,
-        name="azure_blob_storage_encryption_option",
         type="stage_encryption_option",
     ),
     FileType=OneOf(
         MultiStringParser(
             snowflake_dialect.sets("file_types"),
             CodeSegment,
-            name="file_type",
             type="file_type",
         ),
         MultiStringParser(
             [f"'{file_type}'" for file_type in snowflake_dialect.sets("file_types")],
             CodeSegment,
-            name="file_type",
             type="file_type",
         ),
     ),
@@ -365,16 +342,14 @@ snowflake_dialect.add(
         Ref("QuotedLiteralSegment"),
     ),
     StartExcludeBracketSegment=StringParser(
-        "{-", SymbolSegment, name="start_exclude_bracket", type="start_exclude_bracket"
+        "{-", SymbolSegment, type="start_exclude_bracket"
     ),
     EndExcludeBracketSegment=StringParser(
-        "-}", SymbolSegment, name="end_exclude_bracket", type="end_exclude_bracket"
+        "-}", SymbolSegment, type="end_exclude_bracket"
     ),
-    QuestionMarkSegment=StringParser(
-        "?", SymbolSegment, name="question_mark", type="question_mark"
-    ),
-    CaretSegment=StringParser("^", SymbolSegment, name="caret", type="caret"),
-    DollarSegment=StringParser("$", SymbolSegment, name="dollar", type="dollar"),
+    QuestionMarkSegment=StringParser("?", SymbolSegment, type="question_mark"),
+    CaretSegment=StringParser("^", SymbolSegment, type="caret"),
+    DollarSegment=StringParser("$", SymbolSegment, type="dollar"),
     PatternQuantifierGrammar=Sequence(
         OneOf(
             Ref("PositiveSegment"),
@@ -497,9 +472,8 @@ snowflake_dialect.replace(
         lambda dialect: RegexParser(
             # See https://docs.snowflake.com/en/sql-reference/identifiers-syntax.html
             r"[a-zA-Z_][a-zA-Z0-9_$]*",
-            CodeSegment,
-            name="naked_identifier",
-            type="identifier",
+            ansi.IdentifierSegment,
+            type="naked_identifier",
             anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
         )
     ),

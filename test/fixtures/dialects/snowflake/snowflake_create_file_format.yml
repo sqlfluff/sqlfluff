@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 60220d0a1a6fecd2f312a5b83ffd9559a4bc5cc2be9e7f70495ef7ad6a986378
+_hash: 80552b4296eb1e1392edc2235a2d9be10d7e6e38b123013344a09b2392e491d8
 file:
 - statement:
     create_file_format_segment:
@@ -11,7 +11,7 @@ file:
     - keyword: FILE
     - keyword: FORMAT
     - object_reference:
-        identifier: my_file_format
+        naked_identifier: my_file_format
     - csv_file_format_type_parameters:
         keyword: TYPE
         comparison_operator:
@@ -26,7 +26,7 @@ file:
     - keyword: FILE
     - keyword: FORMAT
     - object_reference:
-        identifier: my_csv_format
+        naked_identifier: my_csv_format
     - csv_file_format_type_parameters:
       - keyword: TYPE
       - comparison_operator:
@@ -36,7 +36,7 @@ file:
       - keyword: COMPRESSION
       - comparison_operator:
           raw_comparison_operator: '='
-      - keyword: AUTO
+      - compression_type: AUTO
       - comma: ','
       - keyword: RECORD_DELIMITER
       - comparison_operator:
@@ -142,7 +142,7 @@ file:
     - keyword: NOT
     - keyword: EXISTS
     - object_reference:
-        identifier: my_csv_format
+        naked_identifier: my_csv_format
     - csv_file_format_type_parameters:
       - keyword: TYPE
       - comparison_operator:
@@ -151,7 +151,7 @@ file:
       - keyword: COMPRESSION
       - comparison_operator:
           raw_comparison_operator: '='
-      - keyword: GZIP
+      - compression_type: GZIP
       - keyword: RECORD_DELIMITER
       - comparison_operator:
           raw_comparison_operator: '='
@@ -243,7 +243,7 @@ file:
     - keyword: FILE
     - keyword: FORMAT
     - object_reference:
-        identifier: my_json_format
+        naked_identifier: my_json_format
     - json_file_format_type_parameters:
       - keyword: TYPE
       - comparison_operator:
@@ -253,7 +253,7 @@ file:
       - keyword: COMPRESSION
       - comparison_operator:
           raw_comparison_operator: '='
-      - keyword: AUTO
+      - compression_type: AUTO
       - comma: ','
       - keyword: DATE_FORMAT
       - comparison_operator:
@@ -339,7 +339,7 @@ file:
     - keyword: NOT
     - keyword: EXISTS
     - object_reference:
-        identifier: my_json_format
+        naked_identifier: my_json_format
     - json_file_format_type_parameters:
       - keyword: TYPE
       - comparison_operator:
@@ -348,7 +348,7 @@ file:
       - keyword: COMPRESSION
       - comparison_operator:
           raw_comparison_operator: '='
-      - keyword: GZIP
+      - compression_type: GZIP
       - keyword: DATE_FORMAT
       - comparison_operator:
           raw_comparison_operator: '='
@@ -424,7 +424,7 @@ file:
     - keyword: FILE
     - keyword: FORMAT
     - object_reference:
-        identifier: my_avro_format
+        naked_identifier: my_avro_format
     - avro_file_format_type_parameters:
       - keyword: TYPE
       - comparison_operator:
@@ -434,7 +434,7 @@ file:
       - keyword: COMPRESSION
       - comparison_operator:
           raw_comparison_operator: '='
-      - keyword: AUTO
+      - compression_type: AUTO
       - comma: ','
       - keyword: TRIM_SPACE
       - comparison_operator:
@@ -460,7 +460,7 @@ file:
     - keyword: NOT
     - keyword: EXISTS
     - object_reference:
-        identifier: my_avro_format
+        naked_identifier: my_avro_format
     - avro_file_format_type_parameters:
       - keyword: TYPE
       - comparison_operator:
@@ -469,7 +469,7 @@ file:
       - keyword: COMPRESSION
       - comparison_operator:
           raw_comparison_operator: '='
-      - keyword: "'GZIP'"
+      - compression_type: "'GZIP'"
       - keyword: TRIM_SPACE
       - comparison_operator:
           raw_comparison_operator: '='
@@ -497,7 +497,7 @@ file:
     - keyword: FILE
     - keyword: FORMAT
     - object_reference:
-        identifier: my_orc_format
+        naked_identifier: my_orc_format
     - orc_file_format_type_parameters:
       - keyword: TYPE
       - comparison_operator:
@@ -528,7 +528,7 @@ file:
     - keyword: NOT
     - keyword: EXISTS
     - object_reference:
-        identifier: my_orc_format
+        naked_identifier: my_orc_format
     - orc_file_format_type_parameters:
       - keyword: TYPE
       - comparison_operator:
@@ -561,7 +561,7 @@ file:
     - keyword: FILE
     - keyword: FORMAT
     - object_reference:
-        identifier: my_parquet_format
+        naked_identifier: my_parquet_format
     - parquet_file_format_type_parameters:
       - keyword: TYPE
       - comparison_operator:
@@ -571,7 +571,7 @@ file:
       - keyword: COMPRESSION
       - comparison_operator:
           raw_comparison_operator: '='
-      - keyword: SNAPPY
+      - compression_type: SNAPPY
       - comma: ','
       - keyword: SNAPPY_COMPRESSION
       - comparison_operator:
@@ -602,7 +602,7 @@ file:
     - keyword: NOT
     - keyword: EXISTS
     - object_reference:
-        identifier: my_parquet_format
+        naked_identifier: my_parquet_format
     - parquet_file_format_type_parameters:
       - keyword: TYPE
       - comparison_operator:
@@ -611,7 +611,7 @@ file:
       - keyword: COMPRESSION
       - comparison_operator:
           raw_comparison_operator: '='
-      - keyword: AUTO
+      - compression_type: AUTO
       - keyword: SNAPPY_COMPRESSION
       - comparison_operator:
           raw_comparison_operator: '='
@@ -643,7 +643,7 @@ file:
     - keyword: FILE
     - keyword: FORMAT
     - object_reference:
-        identifier: my_xml_format
+        naked_identifier: my_xml_format
     - xml_file_format_type_parameters:
       - keyword: TYPE
       - comparison_operator:
@@ -653,7 +653,7 @@ file:
       - keyword: COMPRESSION
       - comparison_operator:
           raw_comparison_operator: '='
-      - keyword: AUTO
+      - compression_type: AUTO
       - comma: ','
       - keyword: IGNORE_UTF8_ERRORS
       - comparison_operator:
@@ -694,7 +694,7 @@ file:
     - keyword: NOT
     - keyword: EXISTS
     - object_reference:
-        identifier: my_xml_format
+        naked_identifier: my_xml_format
     - xml_file_format_type_parameters:
       - keyword: TYPE
       - comparison_operator:
@@ -703,7 +703,7 @@ file:
       - keyword: COMPRESSION
       - comparison_operator:
           raw_comparison_operator: '='
-      - keyword: GZIP
+      - compression_type: GZIP
       - keyword: IGNORE_UTF8_ERRORS
       - comparison_operator:
           raw_comparison_operator: '='
