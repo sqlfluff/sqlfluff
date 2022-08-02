@@ -84,6 +84,7 @@ class Rule_L026(BaseRule):
             *start_types
         ) and not context.functional.parent_stack.any(sp.is_type(*start_types)):
             dml_target_table: Optional[Tuple[str, ...]] = None
+            self.logger.debug("Trigger on: %s", context.segment)
             if not context.segment.is_type("select_statement"):
                 # Extract first table reference. This will be the target
                 # table in a DML statement.
@@ -93,6 +94,7 @@ class Rule_L026(BaseRule):
                 if table_reference:
                     dml_target_table = self._table_ref_as_tuple(table_reference)
 
+            self.logger.debug("DML Reference Table: %s", dml_target_table)
             # Verify table references in any SELECT statements found in or
             # below context.segment in the parser tree.
             crawler = SelectCrawler(
@@ -128,10 +130,19 @@ class Rule_L026(BaseRule):
         # For each query...
         for selectable in query.selectables:
             select_info = selectable.select_info
+            self.logger.debug(
+                "Selectable: %s",
+                selectable,
+            )
             if select_info:
                 # Record the available tables.
                 query.aliases += select_info.table_aliases
                 query.standalone_aliases += select_info.standalone_aliases
+                self.logger.debug(
+                    "Aliases: %s %s",
+                    [alias.ref_str for alias in select_info.table_aliases],
+                    select_info.standalone_aliases,
+                )
 
                 # Try and resolve each reference to a value in query.aliases (or
                 # in an ancestor query).
