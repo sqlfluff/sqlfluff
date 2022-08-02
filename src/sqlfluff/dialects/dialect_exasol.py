@@ -14,7 +14,6 @@ from sqlfluff.core.parser import (
     Delimited,
     GreedyUntil,
     Indent,
-    KeywordSegment,
     Nothing,
     OneOf,
     Ref,
