@@ -354,7 +354,7 @@ class _CTEBuilder:
         for cte in self.ctes:
             id_seg = cte.get_identifier()
             cte_name = id_seg.raw
-            if id_seg.is_name("quoted_identifier"):
+            if id_seg.is_type("quoted_identifier"):
                 cte_name = cte_name[1:-1]
 
             used_names.append(cte_name)

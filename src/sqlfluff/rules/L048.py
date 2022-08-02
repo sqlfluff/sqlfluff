@@ -40,8 +40,8 @@ class Rule_L048(Rule_L006):
     _require_three_children: bool = False
 
     _target_elems: List[Tuple[str, str]] = [
-        ("name", "quoted_literal"),
-        ("name", "date_constructor_literal"),
+        ("type", "quoted_literal"),
+        ("type", "date_constructor_literal"),
     ]
 
     @staticmethod

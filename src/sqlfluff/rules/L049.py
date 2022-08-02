@@ -68,6 +68,7 @@ class Rule_L049(Rule_L006):
         operators = segment.children(sp.raw_is("=", "!=", "<>"))
         if len(operators) == 0:
             return None
+        self.logger.debug("Operators found: %s", operators)
 
         results: List[LintResult] = []
         # We may have many operators
