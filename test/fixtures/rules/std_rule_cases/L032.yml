@@ -56,3 +56,12 @@ test_fail_parent_child_positioning:
   fix_str: |
     select * from c1 join c2 ON c1.ID = c2.ID
     join (select * from c3 join c4 ON c3.ID = c4.ID) as c5 on c1.ID = c5.ID
+
+fail_but_dont_fix_templated_table_names:
+  fail_str: |
+    SELECT
+        {{ "table_a" }}.field_1,
+        table_b.field_2
+    FROM
+        {{ "table_a" }}
+    INNER JOIN table_b USING (id)

@@ -383,3 +383,100 @@ issue_3623_internal_error_multiple_templated_files:
     rules:
       L042:
         forbid_subquery_in: both
+
+issue_3622_no_space_after_from:
+  fail_str: |
+    CREATE TABLE t
+    AS
+    SELECT
+        col1
+    FROM(
+        SELECT 'x' AS col1
+    ) x
+  fix_str: |
+    CREATE TABLE t
+    AS
+    WITH x AS (
+        SELECT 'x' AS col1
+    )
+    SELECT
+        col1
+    FROM x
+  configs:
+    rules:
+      L042:
+        forbid_subquery_in: both
+
+issue_3617_parentheses_around_ctas_select:
+  fail_str: |
+    CREATE TABLE t
+    AS
+    (SELECT
+        Col1
+    FROM
+    (
+        SELECT 'x' AS COl1
+    ) x
+    )
+  configs:
+    rules:
+      L042:
+        forbid_subquery_in: both
+
+issue_3572_correlated_subquery_1:
+  pass_str: |
+    select
+        pd.*
+    from person_dates
+    join
+        (select *
+         from events
+         where events.name = person_dates.name)
+
+
+issue_3572_correlated_subquery_2:
+  pass_str: |
+    select
+        pd.*
+    from person_dates as pd
+    join
+        (select *
+         from events as ce
+         where ce.name = pd.name)
+
+
+issue_3572_correlated_subquery_3:
+  pass_str: |
+    select
+        pd.*
+    from person_dates as pd
+    join
+        (select *
+         from events as ce
+         where ce.name = person_dates.name)
+
+issue_3598_avoid_looping_1:
+  fail_str: |
+    WITH cte1 AS (
+    	SELECT a
+    	FROM (SELECT a)
+    )
+
+    SELECT a FROM cte1
+  configs:
+    rules:
+      L042:
+        forbid_subquery_in: both
+
+issue_3598_avoid_looping_2:
+  fail_str: |
+    WITH cte1 AS (
+        SELECT *
+        FROM (SELECT * FROM mongo.temp)
+    )
+
+    SELECT * FROM cte1
+  configs:
+    rules:
+      L042:
+        forbid_subquery_in: both
