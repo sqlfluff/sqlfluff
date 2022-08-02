@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4789006910cff1aeb8df478a73327bf4eee7ef94a3cee788d20b1eff5ff520dc
+_hash: ce81c4895d2e8b1cb82d8a89e8c3832e1a4efb0067d2357f15fd1e66f5ee8004
 file:
 - statement:
     insert_statement:
@@ -23,7 +23,7 @@ file:
             literal: "'123 Park Ave, San Jose'"
         - comma: ','
         - expression:
-            literal: '111111'
+            numeric_literal: '111111'
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -43,7 +43,7 @@ file:
             literal: "'123 Park Ave, San Jose'"
         - comma: ','
         - expression:
-            literal: '111111'
+            numeric_literal: '111111'
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -63,7 +63,7 @@ file:
             literal: "'123 Park Ave, San Jose'"
         - comma: ','
         - expression:
-            literal: '111111'
+            numeric_literal: '111111'
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -83,7 +83,7 @@ file:
             literal: "'456 Taylor St, Cupertino'"
         - comma: ','
         - expression:
-            literal: '222222'
+            numeric_literal: '222222'
         - end_bracket: )
       - comma: ','
       - bracketed:
@@ -95,7 +95,7 @@ file:
             literal: "'789 Race Ave, Palo Alto'"
         - comma: ','
         - expression:
-            literal: '333333'
+            numeric_literal: '333333'
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -115,7 +115,7 @@ file:
             literal: "'456 Taylor St, Cupertino'"
         - comma: ','
         - expression:
-            literal: '222222'
+            numeric_literal: '222222'
         - end_bracket: )
       - comma: ','
       - bracketed:
@@ -127,7 +127,7 @@ file:
             literal: "'789 Race Ave, Palo Alto'"
         - comma: ','
         - expression:
-            literal: '333333'
+            numeric_literal: '333333'
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -143,7 +143,7 @@ file:
           naked_identifier: student_id
         comparison_operator:
           raw_comparison_operator: '='
-        literal: '444444'
+        numeric_literal: '444444'
         end_bracket: )
     - select_statement:
         select_clause:
@@ -184,7 +184,7 @@ file:
           naked_identifier: student_id
         comparison_operator:
           raw_comparison_operator: '='
-        literal: '444444'
+        numeric_literal: '444444'
         end_bracket: )
     - select_statement:
         select_clause:
@@ -353,7 +353,7 @@ file:
           naked_identifier: student_id
         comparison_operator:
           raw_comparison_operator: '='
-        literal: '11215017'
+        numeric_literal: '11215017'
         end_bracket: )
     - bracketed:
       - start_bracket: (
@@ -387,7 +387,7 @@ file:
           naked_identifier: student_id
         comparison_operator:
           raw_comparison_operator: '='
-        literal: '11215017'
+        numeric_literal: '11215017'
         end_bracket: )
     - bracketed:
       - start_bracket: (

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e1d264ee40aa3c34a39c3e6c315a976338e6918b87942362c5dc518aca6328e0
+_hash: bc5dfcb6ef15257ff3d03fc23dcee75acaecdcfe96007732c8bbe37bb18fe1e0
 file:
 - statement:
     select_statement:
@@ -50,7 +50,7 @@ file:
       cluster_by_clause:
       - keyword: CLUSTER
       - keyword: BY
-      - literal: '1'
+      - numeric_literal: '1'
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -122,11 +122,11 @@ file:
                   - expression:
                       numeric_literal:
                         sign_indicator: '-'
-                        literal: '1'
+                        numeric_literal: '1'
                   - end_bracket: )
             - comma: ','
             - expression:
-                literal: '1'
+                numeric_literal: '1'
             - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -155,7 +155,7 @@ file:
           comparison_operator:
           - raw_comparison_operator: <
           - raw_comparison_operator: '='
-          literal: '100'
+          numeric_literal: '100'
       cluster_by_clause:
       - keyword: CLUSTER
       - keyword: BY
@@ -228,7 +228,7 @@ file:
               end_bracket: )
           comparison_operator:
             raw_comparison_operator: '>'
-          literal: '1'
+          numeric_literal: '1'
       cluster_by_clause:
       - keyword: CLUSTER
       - keyword: BY

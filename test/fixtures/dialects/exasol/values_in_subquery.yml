@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 42e01cddef668037ca52e97dc935c0422897fe9c3d9ab1ffce3865328c09ba2e
+_hash: ce20fc23dc8e2aae7b9a2ad6e51a7ecb24fcb8c54f74cb0b12c2980ede299875
 file:
 - statement:
     with_compound_statement:
@@ -18,7 +18,7 @@ file:
             bracketed:
               start_bracket: (
               expression:
-                literal: '1'
+                numeric_literal: '1'
               end_bracket: )
             alias_expression:
               keyword: AS
@@ -57,17 +57,17 @@ file:
           - expression:
               bracketed:
               - start_bracket: (
-              - literal: '1'
+              - numeric_literal: '1'
               - comma: ','
-              - literal: '2'
+              - numeric_literal: '2'
               - end_bracket: )
           - comma: ','
           - expression:
               bracketed:
               - start_bracket: (
-              - literal: '3'
+              - numeric_literal: '3'
               - comma: ','
-              - literal: '4'
+              - numeric_literal: '4'
               - end_bracket: )
           - alias_expression:
               keyword: AS
@@ -115,7 +115,7 @@ file:
                   bracketed:
                     start_bracket: (
                     expression:
-                      literal: '1'
+                      numeric_literal: '1'
                     end_bracket: )
               end_bracket: )
             alias_expression:
@@ -147,17 +147,17 @@ file:
                 - expression:
                     bracketed:
                     - start_bracket: (
-                    - literal: '1'
+                    - numeric_literal: '1'
                     - comma: ','
-                    - literal: '2'
+                    - numeric_literal: '2'
                     - end_bracket: )
                 - comma: ','
                 - expression:
                     bracketed:
                     - start_bracket: (
-                    - literal: '3'
+                    - numeric_literal: '3'
                     - comma: ','
-                    - literal: '4'
+                    - numeric_literal: '4'
                     - end_bracket: )
               end_bracket: )
             alias_expression:

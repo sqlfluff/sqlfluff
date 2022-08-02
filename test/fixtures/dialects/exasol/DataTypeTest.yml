@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ded6e65d6a9cdd29f8cb2707502351a52006b4def920828d47df823f08286d39
+_hash: f3784e1b3ce39b615798a7d2d7404069755635626ee4eaa2404fc106f68475a1
 file:
 - statement:
     create_table_statement:
@@ -37,7 +37,7 @@ file:
                 keyword: DECIMAL
                 bracketed:
                   start_bracket: (
-                  literal: '10'
+                  numeric_literal: '10'
                   end_bracket: )
         end_bracket: )
 - statement_terminator: ;
@@ -57,9 +57,9 @@ file:
                 keyword: DECIMAL
                 bracketed:
                 - start_bracket: (
-                - literal: '10'
+                - numeric_literal: '10'
                 - comma: ','
-                - literal: '2'
+                - numeric_literal: '2'
                 - end_bracket: )
         end_bracket: )
 - statement_terminator: ;
@@ -79,9 +79,9 @@ file:
                 keyword: DEC
                 bracketed:
                 - start_bracket: (
-                - literal: '10'
+                - numeric_literal: '10'
                 - comma: ','
-                - literal: '2'
+                - numeric_literal: '2'
                 - end_bracket: )
         end_bracket: )
 - statement_terminator: ;
@@ -101,7 +101,7 @@ file:
                 keyword: NUMERIC
                 bracketed:
                   start_bracket: (
-                  literal: '10'
+                  numeric_literal: '10'
                   end_bracket: )
         end_bracket: )
 - statement_terminator: ;
@@ -121,9 +121,9 @@ file:
                 keyword: NUMBER
                 bracketed:
                 - start_bracket: (
-                - literal: '10'
+                - numeric_literal: '10'
                 - comma: ','
-                - literal: '2'
+                - numeric_literal: '2'
                 - end_bracket: )
         end_bracket: )
 - statement_terminator: ;
@@ -389,7 +389,7 @@ file:
               - keyword: YEAR
               - bracketed:
                   start_bracket: (
-                  literal: '1'
+                  numeric_literal: '1'
                   end_bracket: )
               - keyword: TO
               - keyword: MONTH
@@ -412,13 +412,13 @@ file:
               - keyword: DAY
               - bracketed:
                   start_bracket: (
-                  literal: '2'
+                  numeric_literal: '2'
                   end_bracket: )
               - keyword: TO
               - keyword: SECOND
               - bracketed:
                   start_bracket: (
-                  literal: '1'
+                  numeric_literal: '1'
                   end_bracket: )
         end_bracket: )
 - statement_terminator: ;
@@ -438,7 +438,7 @@ file:
                 keyword: GEOMETRY
                 bracketed:
                   start_bracket: (
-                  literal: '1000'
+                  numeric_literal: '1000'
                   end_bracket: )
         end_bracket: )
 - statement_terminator: ;
@@ -474,7 +474,7 @@ file:
                 keyword: HASHTYPE
                 bracketed:
                   start_bracket: (
-                  literal: '8'
+                  numeric_literal: '8'
                   keyword: BYTE
                   end_bracket: )
         end_bracket: )
@@ -495,7 +495,7 @@ file:
                 keyword: HASHTYPE
                 bracketed:
                   start_bracket: (
-                  literal: '8'
+                  numeric_literal: '8'
                   keyword: BIT
                   end_bracket: )
         end_bracket: )
@@ -516,7 +516,7 @@ file:
                 keyword: CHAR
                 bracketed:
                   start_bracket: (
-                  literal: '1'
+                  numeric_literal: '1'
                   end_bracket: )
         end_bracket: )
 - statement_terminator: ;
@@ -537,7 +537,7 @@ file:
               - keyword: VARYING
               - bracketed:
                   start_bracket: (
-                  literal: '1'
+                  numeric_literal: '1'
                   end_bracket: )
         end_bracket: )
 - statement_terminator: ;
@@ -557,7 +557,7 @@ file:
                 keyword: VARCHAR
                 bracketed:
                   start_bracket: (
-                  literal: '2000'
+                  numeric_literal: '2000'
                   keyword: CHAR
                   end_bracket: )
         end_bracket: )
@@ -578,7 +578,7 @@ file:
                 keyword: VARCHAR2
                 bracketed:
                   start_bracket: (
-                  literal: '2000'
+                  numeric_literal: '2000'
                   end_bracket: )
         end_bracket: )
 - statement_terminator: ;
@@ -598,7 +598,7 @@ file:
                 keyword: VARCHAR
                 bracketed:
                   start_bracket: (
-                  literal: '2000'
+                  numeric_literal: '2000'
                   keyword: BYTE
                   end_bracket: )
         end_bracket: )
@@ -638,7 +638,7 @@ file:
               - keyword: OBJECT
               - bracketed:
                   start_bracket: (
-                  literal: '1000'
+                  numeric_literal: '1000'
                   end_bracket: )
         end_bracket: )
 - statement_terminator: ;
@@ -659,7 +659,7 @@ file:
               - keyword: VARYING
               - bracketed:
                   start_bracket: (
-                  literal: '1000'
+                  numeric_literal: '1000'
                   end_bracket: )
         end_bracket: )
 - statement_terminator: ;
@@ -679,7 +679,7 @@ file:
                 keyword: CLOB
                 bracketed:
                   start_bracket: (
-                  literal: '2000'
+                  numeric_literal: '2000'
                   end_bracket: )
         end_bracket: )
 - statement_terminator: ;
@@ -699,7 +699,7 @@ file:
               - keyword: CLOB
               - bracketed:
                   start_bracket: (
-                  literal: '2000'
+                  numeric_literal: '2000'
                   end_bracket: )
               - keyword: ASCII
         end_bracket: )
@@ -720,7 +720,7 @@ file:
               - keyword: VARCHAR
               - bracketed:
                   start_bracket: (
-                  literal: '2000'
+                  numeric_literal: '2000'
                   keyword: CHAR
                   end_bracket: )
               - keyword: UTF8

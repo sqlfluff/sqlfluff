@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 338e58d5380acf9d2ce36f87dda8cd0947c4cf3197286dbdcb3324b2130405c4
+_hash: 3b9249e20ce323516dccca39b953990bd11d212dce95910a4029b95c17ebd33c
 file:
 - statement:
     select_statement:
@@ -25,7 +25,7 @@ file:
                 - bracketed:
                   - start_bracket: (
                   - expression:
-                      literal: '1'
+                      numeric_literal: '1'
                   - comma: ','
                   - expression:
                       literal: "'one'"
@@ -34,7 +34,7 @@ file:
                 - bracketed:
                   - start_bracket: (
                   - expression:
-                      literal: '2'
+                      numeric_literal: '2'
                   - comma: ','
                   - expression:
                       literal: "'two'"
@@ -43,7 +43,7 @@ file:
                 - bracketed:
                   - start_bracket: (
                   - expression:
-                      literal: '3'
+                      numeric_literal: '3'
                   - comma: ','
                   - expression:
                       literal: "'three'"
@@ -68,7 +68,7 @@ file:
               - bracketed:
                 - start_bracket: (
                 - expression:
-                    literal: '1'
+                    numeric_literal: '1'
                 - comma: ','
                 - expression:
                     literal: "'one'"
@@ -77,7 +77,7 @@ file:
               - bracketed:
                 - start_bracket: (
                 - expression:
-                    literal: '2'
+                    numeric_literal: '2'
                 - comma: ','
                 - expression:
                     literal: "'two'"
@@ -86,7 +86,7 @@ file:
               - bracketed:
                 - start_bracket: (
                 - expression:
-                    literal: '3'
+                    numeric_literal: '3'
                 - comma: ','
                 - expression:
                     literal: "'three'"

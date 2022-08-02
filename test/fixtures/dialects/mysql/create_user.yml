@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0056e25b8b525f3c28de5ed8306de9f00c19deea59fabb59741b8846679f9246
+_hash: 07fff92b57616c64fe57200da973fd7cca02d0b22371feb5825165d82769425b
 file:
 - statement:
     create_user_statement:
@@ -102,12 +102,12 @@ file:
     - keyword: PASSWORD
     - keyword: EXPIRE
     - keyword: INTERVAL
-    - literal: '180'
+    - numeric_literal: '180'
     - keyword: DAY
     - keyword: FAILED_LOGIN_ATTEMPTS
-    - literal: '3'
+    - numeric_literal: '3'
     - keyword: PASSWORD_LOCK_TIME
-    - literal: '2'
+    - numeric_literal: '2'
 - statement_terminator: ;
 - statement:
     create_user_statement:
@@ -138,10 +138,10 @@ file:
     - keyword: X509
     - keyword: WITH
     - keyword: MAX_QUERIES_PER_HOUR
-    - literal: '60'
+    - numeric_literal: '60'
     - keyword: PASSWORD
     - keyword: HISTORY
-    - literal: '5'
+    - numeric_literal: '5'
     - keyword: ACCOUNT
     - keyword: LOCK
 - statement_terminator: ;
@@ -341,9 +341,9 @@ file:
       - quoted_identifier: "'localhost'"
     - keyword: WITH
     - keyword: MAX_QUERIES_PER_HOUR
-    - literal: '500'
+    - numeric_literal: '500'
     - keyword: MAX_UPDATES_PER_HOUR
-    - literal: '100'
+    - numeric_literal: '100'
 - statement_terminator: ;
 - statement:
     create_user_statement:
@@ -391,7 +391,7 @@ file:
     - keyword: PASSWORD
     - keyword: EXPIRE
     - keyword: INTERVAL
-    - literal: '180'
+    - numeric_literal: '180'
     - keyword: DAY
 - statement_terminator: ;
 - statement:
@@ -416,7 +416,7 @@ file:
       - quoted_identifier: "'localhost'"
     - keyword: PASSWORD
     - keyword: HISTORY
-    - literal: '6'
+    - numeric_literal: '6'
 - statement_terminator: ;
 - statement:
     create_user_statement:
@@ -442,7 +442,7 @@ file:
     - keyword: PASSWORD
     - keyword: REUSE
     - keyword: INTERVAL
-    - literal: '360'
+    - numeric_literal: '360'
     - keyword: DAY
 - statement_terminator: ;
 - statement:
@@ -492,9 +492,9 @@ file:
       - literal: '@'
       - quoted_identifier: "'localhost'"
     - keyword: FAILED_LOGIN_ATTEMPTS
-    - literal: '4'
+    - numeric_literal: '4'
     - keyword: PASSWORD_LOCK_TIME
-    - literal: '2'
+    - numeric_literal: '2'
 - statement_terminator: ;
 - statement:
     create_user_statement:

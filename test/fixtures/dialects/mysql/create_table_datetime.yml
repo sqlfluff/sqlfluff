@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1e8016c2edc1373d77ae71b97c238bb3ba8221d51a653170ca43797669accbb1
+_hash: 6a48e23c30450e7c9b0e0171bad9c1d6a12a95885d10fa2c8fcde45d569e75bd
 file:
   statement:
     create_table_statement:
@@ -56,19 +56,19 @@ file:
         - naked_identifier: ts3
         - keyword: TIMESTAMP
         - keyword: DEFAULT
-        - literal: '0'
+        - numeric_literal: '0'
       - comma: ','
       - column_definition:
         - naked_identifier: dt3
         - keyword: DATETIME
         - keyword: DEFAULT
-        - literal: '0'
+        - numeric_literal: '0'
       - comma: ','
       - column_definition:
         - naked_identifier: ts4
         - keyword: TIMESTAMP
         - keyword: DEFAULT
-        - literal: '0'
+        - numeric_literal: '0'
         - keyword: 'ON'
         - keyword: UPDATE
         - keyword: CURRENT_TIMESTAMP
@@ -77,7 +77,7 @@ file:
         - naked_identifier: dt4
         - keyword: DATETIME
         - keyword: DEFAULT
-        - literal: '0'
+        - numeric_literal: '0'
         - keyword: 'ON'
         - keyword: UPDATE
         - keyword: CURRENT_TIMESTAMP
@@ -118,20 +118,20 @@ file:
         - keyword: TIMESTAMP
         - bracketed:
             start_bracket: (
-            literal: '6'
+            numeric_literal: '6'
             end_bracket: )
         - keyword: DEFAULT
         - keyword: CURRENT_TIMESTAMP
         - bracketed:
             start_bracket: (
-            literal: '6'
+            numeric_literal: '6'
             end_bracket: )
         - keyword: 'ON'
         - keyword: UPDATE
         - keyword: CURRENT_TIMESTAMP
         - bracketed:
             start_bracket: (
-            literal: '6'
+            numeric_literal: '6'
             end_bracket: )
       - comma: ','
       - column_definition:
@@ -147,7 +147,7 @@ file:
         - keyword: TIMESTAMP
         - keyword: 'NULL'
         - keyword: DEFAULT
-        - literal: '0'
+        - numeric_literal: '0'
       - comma: ','
       - column_definition:
         - naked_identifier: ts10

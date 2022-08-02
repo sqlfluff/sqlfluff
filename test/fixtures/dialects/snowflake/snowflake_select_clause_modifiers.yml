@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c2f7708096f526a51c7f5d0e0afe420cdbff71fc0cc1ef0d9605edc31577b578
+_hash: a123bde119b32371b5dfdc11381f3bb6c54ee3448c550a7027724f8e0bd2b913
 file:
 - statement:
     select_statement:
@@ -103,7 +103,7 @@ file:
         keyword: SELECT
         select_clause_modifier:
           keyword: TOP
-          literal: '1'
+          numeric_literal: '1'
         select_clause_element:
           wildcard_expression:
             wildcard_identifier:
@@ -122,7 +122,7 @@ file:
         keyword: SELECT
         select_clause_modifier:
           keyword: TOP
-          literal: '2'
+          numeric_literal: '2'
         select_clause_element:
           column_reference:
             identifier: col1
@@ -140,7 +140,7 @@ file:
       - keyword: SELECT
       - select_clause_modifier:
           keyword: TOP
-          literal: '3'
+          numeric_literal: '3'
       - select_clause_element:
           column_reference:
             identifier: col1
@@ -166,7 +166,7 @@ file:
         select_clause_modifier:
         - keyword: ALL
         - keyword: TOP
-        - literal: '10'
+        - numeric_literal: '10'
         select_clause_element:
           column_reference:
             identifier: col1
@@ -185,7 +185,7 @@ file:
         select_clause_modifier:
         - keyword: DISTINCT
         - keyword: TOP
-        - literal: '20'
+        - numeric_literal: '20'
         select_clause_element:
           column_reference:
           - identifier: my_table
@@ -206,7 +206,7 @@ file:
         select_clause_modifier:
         - keyword: DISTINCT
         - keyword: TOP
-        - literal: '30'
+        - numeric_literal: '30'
         select_clause_element:
           wildcard_expression:
             wildcard_identifier:
@@ -226,7 +226,7 @@ file:
       - select_clause_modifier:
         - keyword: DISTINCT
         - keyword: TOP
-        - literal: '40'
+        - numeric_literal: '40'
       - select_clause_element:
           column_reference:
             identifier: col1

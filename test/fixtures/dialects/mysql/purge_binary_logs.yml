@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: fd25d700f1df99b7fc2fb7ee7027f66c180d3cfe7723d0c80eddec684c8eb0f1
+_hash: 31db655bf48d6f394addca9527f2097ac1b4ad5ce4f1cda106f121d059ba5652
 file:
 - statement:
     purge_binary_logs_statement:
@@ -45,7 +45,7 @@ file:
     - keyword: BINARY
     - keyword: LOGS
     - keyword: BEFORE
-    - literal: '19830905132800'
+    - numeric_literal: '19830905132800'
 - statement_terminator: ;
 - statement:
     purge_binary_logs_statement:
@@ -54,7 +54,7 @@ file:
     - keyword: LOGS
     - keyword: BEFORE
     - keyword: DATETIME
-    - literal: '19830905132800'
+    - numeric_literal: '19830905132800'
 - statement_terminator: ;
 - statement:
     purge_binary_logs_statement:
@@ -63,5 +63,5 @@ file:
     - keyword: LOGS
     - keyword: BEFORE
     - keyword: TIMESTAMP
-    - literal: '19830905132800'
+    - numeric_literal: '19830905132800'
 - statement_terminator: ;

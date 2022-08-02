@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 641f72a5ba95e1ada3b4e39ad06572f2d0c4ea5471cc25859f9489429e55ddc1
+_hash: 2e09566434aadc2390a179b1b719e485f2e2d76b71c682c929350f8acffbeeea
 file:
 - statement:
     select_statement:
@@ -1290,7 +1290,7 @@ file:
             - date_part: s
             - comma: ','
             - expression:
-                literal: '123'
+                numeric_literal: '123'
             - comma: ','
             - expression:
                 column_reference:
@@ -1317,7 +1317,7 @@ file:
             - date_part: sec
             - comma: ','
             - expression:
-                literal: '123'
+                numeric_literal: '123'
             - comma: ','
             - expression:
                 column_reference:
@@ -1344,7 +1344,7 @@ file:
             - date_part: secs
             - comma: ','
             - expression:
-                literal: '123'
+                numeric_literal: '123'
             - comma: ','
             - expression:
                 column_reference:
@@ -1371,7 +1371,7 @@ file:
             - date_part: millisecond
             - comma: ','
             - expression:
-                literal: '123'
+                numeric_literal: '123'
             - comma: ','
             - expression:
                 column_reference:
@@ -1398,7 +1398,7 @@ file:
             - date_part: milliseconds
             - comma: ','
             - expression:
-                literal: '123'
+                numeric_literal: '123'
             - comma: ','
             - expression:
                 column_reference:
@@ -1425,7 +1425,7 @@ file:
             - date_part: ms
             - comma: ','
             - expression:
-                literal: '123'
+                numeric_literal: '123'
             - comma: ','
             - expression:
                 column_reference:
@@ -1452,7 +1452,7 @@ file:
             - date_part: msec
             - comma: ','
             - expression:
-                literal: '123'
+                numeric_literal: '123'
             - comma: ','
             - expression:
                 column_reference:
@@ -1479,7 +1479,7 @@ file:
             - date_part: msecs
             - comma: ','
             - expression:
-                literal: '123'
+                numeric_literal: '123'
             - comma: ','
             - expression:
                 column_reference:
@@ -1506,7 +1506,7 @@ file:
             - date_part: msecond
             - comma: ','
             - expression:
-                literal: '123'
+                numeric_literal: '123'
             - comma: ','
             - expression:
                 column_reference:
@@ -1533,7 +1533,7 @@ file:
             - date_part: mseconds
             - comma: ','
             - expression:
-                literal: '123'
+                numeric_literal: '123'
             - comma: ','
             - expression:
                 column_reference:
@@ -1560,7 +1560,7 @@ file:
             - date_part: millisec
             - comma: ','
             - expression:
-                literal: '123'
+                numeric_literal: '123'
             - comma: ','
             - expression:
                 column_reference:
@@ -1587,7 +1587,7 @@ file:
             - date_part: millisecs
             - comma: ','
             - expression:
-                literal: '123'
+                numeric_literal: '123'
             - comma: ','
             - expression:
                 column_reference:
@@ -1614,7 +1614,7 @@ file:
             - date_part: millisecon
             - comma: ','
             - expression:
-                literal: '123'
+                numeric_literal: '123'
             - comma: ','
             - expression:
                 column_reference:
@@ -1641,7 +1641,7 @@ file:
             - date_part: microsecond
             - comma: ','
             - expression:
-                literal: '123'
+                numeric_literal: '123'
             - comma: ','
             - expression:
                 column_reference:
@@ -1668,7 +1668,7 @@ file:
             - date_part: microseconds
             - comma: ','
             - expression:
-                literal: '123'
+                numeric_literal: '123'
             - comma: ','
             - expression:
                 column_reference:

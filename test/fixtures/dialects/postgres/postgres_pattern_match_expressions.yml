@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 413088f10c6a5fbabc4c14834d563d3edb5ff24ecc7fccdc4336b39ca2cab678
+_hash: aa70ac109a77bef6e01f8fba80b5c7474d2fd192720d43719d24f668ff025471
 file:
 - statement:
     select_statement:
@@ -437,5 +437,5 @@ file:
                   naked_identifier: cleaned_bear_financial_branch
         limit_clause:
           keyword: LIMIT
-          literal: '10'
+          numeric_literal: '10'
 - statement_terminator: ;

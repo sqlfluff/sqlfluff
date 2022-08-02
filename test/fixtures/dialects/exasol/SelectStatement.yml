@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: cc0271b4370b5d3c467c6f75c5e07d8a886ea4ac1705c302a6057c67348fe1ff
+_hash: 6096ce5edfbdca1488f804df724a0c10c765f6711c0d1fda301f7768645bdd85
 file:
 - statement:
     select_statement:
@@ -41,14 +41,14 @@ file:
               bracketed:
               - start_bracket: (
               - expression:
-                  literal: "' '"
+                  quoted_literal: "' '"
               - comma: ','
               - expression:
-                - literal: '2'
+                - numeric_literal: '2'
                 - binary_operator: '*'
                 - bare_function: LEVEL
                 - binary_operator: '-'
-                - literal: '1'
+                - numeric_literal: '1'
               - end_bracket: )
           - binary_operator:
             - pipe: '|'
@@ -63,7 +63,7 @@ file:
                     naked_identifier: last_name
               - comma: ','
               - expression:
-                  literal: "'/'"
+                  quoted_literal: "'/'"
               - end_bracket: )
           alias_expression:
             quoted_identifier: '"PATH"'
@@ -99,7 +99,7 @@ file:
             naked_identifier: last_name
           comparison_operator:
             raw_comparison_operator: '='
-          literal: "'Clark'"
+          quoted_literal: "'Clark'"
       orderby_clause:
       - keyword: ORDER
       - keyword: BY
@@ -325,7 +325,7 @@ file:
                           keyword: VARCHAR
                           bracketed:
                             start_bracket: (
-                            literal: '1'
+                            numeric_literal: '1'
                             end_bracket: )
                     end_bracket: )
                 - import_from_clause:
@@ -355,10 +355,10 @@ file:
             bracketed:
             - start_bracket: (
             - expression:
-                literal: "'hello'"
+                quoted_literal: "'hello'"
             - comma: ','
             - expression:
-                literal: '123'
+                numeric_literal: '123'
             - end_bracket: )
       from_clause:
         keyword: FROM
@@ -377,7 +377,7 @@ file:
           - column_reference:
               naked_identifier: a
           - comma: ','
-          - literal: '2'
+          - numeric_literal: '2'
           - comma: ','
           - function:
               function_name:
@@ -389,10 +389,10 @@ file:
                     naked_identifier: c
               - comma: ','
               - expression:
-                  literal: '1'
+                  numeric_literal: '1'
               - comma: ','
               - expression:
-                  literal: '3'
+                  numeric_literal: '3'
               - end_bracket: )
           - end_bracket: )
         - keyword: IN
@@ -436,21 +436,21 @@ file:
           - expression:
               bracketed:
               - start_bracket: (
-              - literal: "'a'"
+              - quoted_literal: "'a'"
               - comma: ','
-              - literal: "'b'"
+              - quoted_literal: "'b'"
               - comma: ','
-              - literal: "'c'"
+              - quoted_literal: "'c'"
               - end_bracket: )
           - comma: ','
           - expression:
               bracketed:
               - start_bracket: (
-              - literal: "'d'"
+              - quoted_literal: "'d'"
               - comma: ','
-              - literal: "'e'"
+              - quoted_literal: "'e'"
               - comma: ','
-              - literal: "'f'"
+              - quoted_literal: "'f'"
               - end_bracket: )
           - comma: ','
           - expression:
@@ -462,12 +462,12 @@ file:
                   bracketed:
                     start_bracket: (
                     expression:
-                      literal: "'a'"
+                      quoted_literal: "'a'"
                     end_bracket: )
               - comma: ','
-              - literal: "'b'"
+              - quoted_literal: "'b'"
               - comma: ','
-              - literal: "'d'"
+              - quoted_literal: "'d'"
               - end_bracket: )
           - alias_expression:
               keyword: AS
@@ -627,10 +627,10 @@ file:
                 bracketed:
                 - start_bracket: (
                 - expression:
-                    literal: "'x'"
+                    quoted_literal: "'x'"
                 - comma: ','
                 - expression:
-                    literal: "'y'"
+                    quoted_literal: "'y'"
                 - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -651,10 +651,10 @@ file:
                 bracketed:
                 - start_bracket: (
                 - expression:
-                    literal: "'x'"
+                    quoted_literal: "'x'"
                 - comma: ','
                 - expression:
-                    literal: "'y'"
+                    quoted_literal: "'y'"
                 - end_bracket: )
                 alias_expression:
                   keyword: AS
@@ -687,17 +687,17 @@ file:
                 - expression:
                     bracketed:
                     - start_bracket: (
-                    - literal: "'x'"
+                    - quoted_literal: "'x'"
                     - comma: ','
-                    - literal: "'2'"
+                    - quoted_literal: "'2'"
                     - end_bracket: )
                 - comma: ','
                 - expression:
                     bracketed:
                     - start_bracket: (
-                    - literal: "'y'"
+                    - quoted_literal: "'y'"
                     - comma: ','
-                    - literal: "'2'"
+                    - quoted_literal: "'2'"
                     - end_bracket: )
                 - end_bracket: )
                 alias_expression:
@@ -729,13 +729,13 @@ file:
                 values_clause:
                 - keyword: VALUES
                 - expression:
-                    literal: '1'
+                    numeric_literal: '1'
                 - comma: ','
                 - expression:
-                    literal: '2'
+                    numeric_literal: '2'
                 - comma: ','
                 - expression:
-                    literal: '3'
+                    numeric_literal: '3'
               end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -756,13 +756,13 @@ file:
                 values_clause:
                 - keyword: VALUES
                 - expression:
-                    literal: '1'
+                    numeric_literal: '1'
                 - comma: ','
                 - expression:
-                    literal: '2'
+                    numeric_literal: '2'
                 - comma: ','
                 - expression:
-                    literal: '3'
+                    numeric_literal: '3'
               end_bracket: )
             alias_expression:
               keyword: AS
@@ -789,12 +789,12 @@ file:
               values_range_clause:
               - keyword: VALUES
               - keyword: BETWEEN
-              - literal: '1'
+              - numeric_literal: '1'
               - keyword: AND
-              - literal: '15'
+              - numeric_literal: '15'
               - keyword: WITH
               - keyword: STEP
-              - literal: '4'
+              - numeric_literal: '4'
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -914,7 +914,7 @@ file:
       orderby_clause:
       - keyword: ORDER
       - keyword: BY
-      - literal: '1'
+      - numeric_literal: '1'
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -967,10 +967,10 @@ file:
                   naked_identifier: json_str
             - comma: ','
             - expression:
-                literal: "'$.\"@id\"'"
+                quoted_literal: "'$.\"@id\"'"
             - comma: ','
             - expression:
-                literal: "'$.error()'"
+                quoted_literal: "'$.error()'"
             - end_bracket: )
             emits_segment:
               keyword: EMITS
@@ -982,7 +982,7 @@ file:
                     keyword: VARCHAR
                     bracketed:
                       start_bracket: (
-                      literal: '2000'
+                      numeric_literal: '2000'
                       end_bracket: )
               - comma: ','
               - column_datatype_definition:
@@ -991,7 +991,7 @@ file:
                     keyword: VARCHAR
                     bracketed:
                       start_bracket: (
-                      literal: '2000000'
+                      numeric_literal: '2000000'
                       end_bracket: )
               - end_bracket: )
       from_clause:
@@ -1008,9 +1008,9 @@ file:
         keyword: SELECT
         select_clause_element:
           expression:
-          - literal: '10'
+          - numeric_literal: '10'
           - binary_operator: /
-          - literal: '2'
+          - numeric_literal: '2'
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1035,7 +1035,7 @@ file:
               dot: .
               naked_identifier: a
             binary_operator: '*'
-            literal: '10'
+            numeric_literal: '10'
       from_clause:
         keyword: from
         from_expression:
@@ -1077,7 +1077,7 @@ file:
             naked_identifier: x
           comparison_operator:
             raw_comparison_operator: '>'
-          literal: '10'
+          numeric_literal: '10'
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1172,7 +1172,7 @@ file:
       groupby_clause:
       - keyword: GROUP
       - keyword: BY
-      - literal: '1'
+      - numeric_literal: '1'
       having_clause:
         keyword: HAVING
         expression:
@@ -1182,7 +1182,7 @@ file:
             naked_identifier: c
           comparison_operator:
             raw_comparison_operator: '>'
-          literal: '1'
+          numeric_literal: '1'
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1243,7 +1243,7 @@ file:
             naked_identifier: NUM
           comparison_operator:
             raw_comparison_operator: '='
-          literal: '1'
+          numeric_literal: '1'
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1492,7 +1492,7 @@ file:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          literal: "'ABC'"
+          quoted_literal: "'ABC'"
           alias_expression:
             keyword: as
             naked_identifier: c1
@@ -1512,7 +1512,7 @@ file:
             naked_identifier: c1
           comparison_operator:
             raw_comparison_operator: '='
-          literal: "'ABC'"
+          quoted_literal: "'ABC'"
 - statement_terminator: ;
 - statement:
     set_expression:
@@ -1575,7 +1575,7 @@ file:
             expression:
               numeric_literal:
                 sign_indicator: '-'
-                literal: '1'
+                numeric_literal: '1'
               binary_operator: '*'
               function:
                 function_name:
@@ -1616,7 +1616,7 @@ file:
         select_clause:
           keyword: SELECT
           select_clause_element:
-            literal: '0'
+            numeric_literal: '0'
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -1625,33 +1625,33 @@ file:
       - select_clause_element:
           interval_expression:
           - keyword: INTERVAL
-          - literal: "'5'"
+          - quoted_literal: "'5'"
           - keyword: MONTH
       - comma: ','
       - select_clause_element:
           interval_expression:
           - keyword: INTERVAL
-          - literal: "'130'"
+          - quoted_literal: "'130'"
           - keyword: MONTH
           - bracketed:
               start_bracket: (
-              literal: '3'
+              numeric_literal: '3'
               end_bracket: )
       - comma: ','
       - select_clause_element:
           interval_expression:
           - keyword: INTERVAL
-          - literal: "'27'"
+          - quoted_literal: "'27'"
           - keyword: YEAR
       - comma: ','
       - select_clause_element:
           interval_expression:
           - keyword: INTERVAL
-          - literal: "'100-1'"
+          - quoted_literal: "'100-1'"
           - keyword: YEAR
           - bracketed:
               start_bracket: (
-              literal: '3'
+              numeric_literal: '3'
               end_bracket: )
           - keyword: TO
           - keyword: MONTH
@@ -1659,7 +1659,7 @@ file:
       - select_clause_element:
           interval_expression:
           - keyword: INTERVAL
-          - literal: "'2-1'"
+          - quoted_literal: "'2-1'"
           - keyword: YEAR
           - keyword: TO
           - keyword: MONTH
@@ -1667,7 +1667,7 @@ file:
       - select_clause_element:
           interval_expression:
           - keyword: INTERVAL
-          - literal: "'10:20'"
+          - quoted_literal: "'10:20'"
           - keyword: HOUR
           - keyword: TO
           - keyword: MINUTE
@@ -1675,7 +1675,7 @@ file:
       - select_clause_element:
           interval_expression:
           - keyword: INTERVAL
-          - literal: "'2 23:10:59'"
+          - quoted_literal: "'2 23:10:59'"
           - keyword: DAY
           - keyword: TO
           - keyword: SECOND
@@ -1683,51 +1683,51 @@ file:
       - select_clause_element:
           interval_expression:
           - keyword: INTERVAL
-          - literal: "'6'"
+          - quoted_literal: "'6'"
           - keyword: MINUTE
       - comma: ','
       - select_clause_element:
           interval_expression:
           - keyword: INTERVAL
-          - literal: "'5'"
+          - quoted_literal: "'5'"
           - keyword: DAY
       - comma: ','
       - select_clause_element:
           interval_expression:
           - keyword: INTERVAL
-          - literal: "'100'"
+          - quoted_literal: "'100'"
           - keyword: HOUR
           - bracketed:
               start_bracket: (
-              literal: '3'
+              numeric_literal: '3'
               end_bracket: )
       - comma: ','
       - select_clause_element:
           interval_expression:
           - keyword: INTERVAL
-          - literal: "'1.99999'"
+          - quoted_literal: "'1.99999'"
           - keyword: SECOND
           - bracketed:
             - start_bracket: (
-            - literal: '2'
+            - numeric_literal: '2'
             - comma: ','
-            - literal: '2'
+            - numeric_literal: '2'
             - end_bracket: )
       - comma: ','
       - select_clause_element:
           interval_expression:
           - keyword: INTERVAL
-          - literal: "'23:10:59.123'"
+          - quoted_literal: "'23:10:59.123'"
           - keyword: HOUR
           - bracketed:
               start_bracket: (
-              literal: '2'
+              numeric_literal: '2'
               end_bracket: )
           - keyword: TO
           - keyword: SECOND
           - bracketed:
               start_bracket: (
-              literal: '3'
+              numeric_literal: '3'
               end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -1748,7 +1748,7 @@ file:
           - binary_operator: '*'
           - interval_expression:
             - keyword: INTERVAL
-            - literal: "'7'"
+            - quoted_literal: "'7'"
             - keyword: DAY
           alias_expression:
             keyword: AS
@@ -1756,7 +1756,7 @@ file:
       - comma: ','
       - select_clause_element:
           expression:
-            literal: '5'
+            numeric_literal: '5'
             binary_operator: '*'
             column_reference:
               naked_identifier: v
@@ -1771,9 +1771,9 @@ file:
               values_range_clause:
               - keyword: VALUES
               - keyword: BETWEEN
-              - literal: '1'
+              - numeric_literal: '1'
               - keyword: AND
-              - literal: '9'
+              - numeric_literal: '9'
             alias_expression:
               keyword: AS
               naked_identifier: v

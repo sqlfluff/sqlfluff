@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b8b65b58bbb369dd8dff53de64bd182a5d5ce8b6e2b2f03e35c4547d8e6cfebe
+_hash: 9575db20580324d3eeb9919f2fdebdb2174b8b78d41d59ccfe94dffa6e31f8e9
 file:
 - statement:
     create_table_statement:
@@ -23,7 +23,7 @@ file:
             bracketed:
               start_bracket: (
               expression:
-                literal: '6'
+                numeric_literal: '6'
               end_bracket: )
           td_column_attribute_constraint:
           - keyword: character
@@ -41,7 +41,7 @@ file:
             bracketed:
               start_bracket: (
               expression:
-                literal: '3'
+                numeric_literal: '3'
               end_bracket: )
           td_column_attribute_constraint:
           - keyword: character
@@ -59,7 +59,7 @@ file:
             bracketed:
               start_bracket: (
               expression:
-                literal: '10'
+                numeric_literal: '10'
               end_bracket: )
           td_column_attribute_constraint:
             keyword: uppercase
@@ -75,7 +75,7 @@ file:
             bracketed:
               start_bracket: (
               expression:
-                literal: '6'
+                numeric_literal: '6'
               end_bracket: )
           td_column_attribute_constraint:
           - keyword: character
@@ -93,7 +93,7 @@ file:
             bracketed:
               start_bracket: (
               expression:
-                literal: '3'
+                numeric_literal: '3'
               end_bracket: )
           td_column_attribute_constraint:
           - keyword: character
@@ -111,7 +111,7 @@ file:
             bracketed:
               start_bracket: (
               expression:
-                literal: '10'
+                numeric_literal: '10'
               end_bracket: )
           td_column_attribute_constraint:
             keyword: uppercase
@@ -225,7 +225,7 @@ file:
       - dot: .
       - naked_identifier: Org_Descendant
     - keyword: is
-    - literal: "'View with all Org_Unit_Ids on all levels'"
+    - quoted_literal: "'View with all Org_Unit_Ids on all levels'"
 - statement_terminator: ;
 - statement:
     comment_clause:
@@ -239,7 +239,7 @@ file:
       - dot: .
       - naked_identifier: Org_Unit_Code
     - keyword: is
-    - literal: "'Organisational unit code'"
+    - quoted_literal: "'Organisational unit code'"
 - statement_terminator: ;
 - statement:
     comment_clause:
@@ -253,7 +253,8 @@ file:
       - dot: .
       - naked_identifier: Org_Unit_Type
     - keyword: is
-    - literal: "'The type of organization such as branch, region, team, call center'"
+    - quoted_literal: "'The type of organization such as branch, region, team, call\
+        \ center'"
 - statement_terminator: ;
 - statement:
     comment_clause:
@@ -267,7 +268,7 @@ file:
       - dot: .
       - naked_identifier: Entity_Code
     - keyword: is
-    - literal: "'Owning entity code'"
+    - quoted_literal: "'Owning entity code'"
 - statement_terminator: ;
 - statement:
     comment_clause:
@@ -281,7 +282,7 @@ file:
       - dot: .
       - naked_identifier: Parent_Org_Unit_Code
     - keyword: is
-    - literal: "'Organisational unit code'"
+    - quoted_literal: "'Organisational unit code'"
 - statement_terminator: ;
 - statement:
     comment_clause:
@@ -295,7 +296,8 @@ file:
       - dot: .
       - naked_identifier: Parent_Org_Unit_Type
     - keyword: is
-    - literal: "'The type of organization such as branch, region, team, call center'"
+    - quoted_literal: "'The type of organization such as branch, region, team, call\
+        \ center'"
 - statement_terminator: ;
 - statement:
     comment_clause:
@@ -309,5 +311,5 @@ file:
       - dot: .
       - naked_identifier: Parent_Entity_Code
     - keyword: is
-    - literal: "'Owning entity code parent'"
+    - quoted_literal: "'Owning entity code parent'"
 - statement_terminator: ;

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3b3d9d091eed6a294259d1dfb62bb8d523f1e13cf50f6c682233ecd8c4d47724
+_hash: 5e538d865e2518f99c09256ff8198187db3ac1e21ce743e8652d5d264b9a3778
 file:
 - statement:
     create_external_schema_statement:
@@ -58,7 +58,7 @@ file:
     - keyword: uri
     - quoted_literal: "'172.10.10.10'"
     - keyword: port
-    - literal: '99'
+    - numeric_literal: '99'
     - keyword: iam_role
     - quoted_literal: "'arn:aws:iam::123456789012:role/MySpectrumRole'"
 - statement_terminator: ;
@@ -104,7 +104,7 @@ file:
     - keyword: URI
     - quoted_literal: "'endpoint to aurora hostname'"
     - keyword: PORT
-    - literal: '5432'
+    - numeric_literal: '5432'
     - keyword: IAM_ROLE
     - quoted_literal: "'arn:aws:iam::123456789012:role/MyAuroraRole'"
     - keyword: SECRET_ARN

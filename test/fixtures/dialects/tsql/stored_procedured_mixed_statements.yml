@@ -3,16 +3,16 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a9f062ca6aa5f126fbd3e254d21fe9d0a53c477332f4b194995b30c723ab6010
+_hash: 3a5423cf8242fc1fc58c65ffccfd6dd113b24a15010966fc3d6007a77dd35486
 file:
   batch:
     create_procedure_statement:
     - keyword: CREATE
     - keyword: PROC
     - object_reference:
-      - identifier: '[Reporting]'
+      - quoted_identifier: '[Reporting]'
       - dot: .
-      - identifier: '[PowerPlan]'
+      - quoted_identifier: '[PowerPlan]'
     - keyword: AS
     - procedure_statement:
       - statement:
@@ -35,9 +35,9 @@ file:
           - keyword: DROP
           - keyword: TABLE
           - table_reference:
-            - identifier: '[Reporting]'
+            - quoted_identifier: '[Reporting]'
             - dot: .
-            - identifier: '[PowerPlan_BASE]'
+            - quoted_identifier: '[PowerPlan_BASE]'
           - statement_terminator: ;
       - statement:
           begin_end_block:
@@ -47,13 +47,13 @@ file:
                 select_clause:
                   keyword: SELECT
                   select_clause_element:
-                    literal: '1'
+                    numeric_literal: '1'
           - statement:
               create_table_as_select_statement:
               - keyword: CREATE
               - keyword: TABLE
               - table_reference:
-                  identifier: '#TempTest'
+                  hash_identifier: '#TempTest'
               - table_distribution_index_clause:
                   keyword: WITH
                   bracketed:
@@ -74,21 +74,21 @@ file:
                     select_clause:
                     - keyword: SELECT
                     - select_clause_element:
-                        literal: '2'
+                        numeric_literal: '2'
                         alias_expression:
                           keyword: AS
-                          identifier: Two
+                          naked_identifier: Two
                     - comma: ','
                     - select_clause_element:
-                        literal: '3'
+                        numeric_literal: '3'
                         alias_expression:
                           keyword: AS
-                          identifier: Three
+                          naked_identifier: Three
                     - comma: ','
                     - select_clause_element:
-                        literal: '4'
+                        numeric_literal: '4'
                         alias_expression:
                           keyword: AS
-                          identifier: Four
+                          naked_identifier: Four
                   end_bracket: )
           - keyword: END

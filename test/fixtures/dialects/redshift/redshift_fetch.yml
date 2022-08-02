@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5a202a1735b76b21bad94d2d9392daf3b8d14fb2df176b086c21200958b70ffc
+_hash: cc2d7173c01b14c8678d87572594149d6be691a41a16eb9cb3246d9cd5999561
 file:
 - statement:
     fetch_statement:
@@ -25,7 +25,7 @@ file:
     fetch_statement:
     - keyword: fetch
     - keyword: forward
-    - literal: '100'
+    - numeric_literal: '100'
     - keyword: from
     - object_reference:
         naked_identifier: curs1

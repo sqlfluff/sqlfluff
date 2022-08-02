@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ea23131ff960663045817fb6bc1f047a9abb1c4e45fa1fe035aaaaf1240c7e5f
+_hash: fd7206234d3089bf40aa15d903a2a756abe694096830bbd9e25d37311ce22728
 file:
 - statement:
     create_function_statement:
@@ -118,12 +118,12 @@ file:
       - keyword: SECURITY
       - keyword: DEFINER
       - keyword: ROWS
-      - literal: '5'
+      - numeric_literal: '5'
       - keyword: SET
       - parameter: test_param
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: '3'
+      - numeric_literal: '3'
 - statement_terminator: ;
 - statement:
     create_function_statement:
@@ -164,14 +164,14 @@ file:
       - keyword: SECURITY
       - keyword: DEFINER
       - keyword: COST
-      - literal: '123'
+      - numeric_literal: '123'
       - keyword: ROWS
-      - literal: '5'
+      - numeric_literal: '5'
       - keyword: SET
       - parameter: test_param
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: '3'
+      - numeric_literal: '3'
       - keyword: WITH
       - bracketed:
           start_bracket: (
@@ -313,7 +313,7 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    literal: '42'
+                    numeric_literal: '42'
                   end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -373,7 +373,7 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    literal: '42'
+                    numeric_literal: '42'
                   end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -461,7 +461,7 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    literal: '42'
+                    numeric_literal: '42'
                   end_bracket: )
 - statement_terminator: ;
 - statement:

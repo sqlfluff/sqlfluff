@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c97497ce04dbe4936968ca7882904e0b7dba991b443b1196d853aef836b15a7f
+_hash: 7da96fb9cdc292e207aaf5fb2ca24010332d4aae5187fb19abb6e55dc4b7ed97
 file:
   statement:
     select_statement:
@@ -25,10 +25,10 @@ file:
             - keyword: SYSTEM
             - bracketed:
                 start_bracket: (
-                literal: '10'
+                numeric_literal: '10'
                 end_bracket: )
             - keyword: REPEATABLE
             - bracketed:
                 start_bracket: (
-                literal: '100'
+                numeric_literal: '100'
                 end_bracket: )

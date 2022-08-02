@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c135a7855ac181e753bd9c38313ff8cb541020521565dfabf8ea60bb281565b4
+_hash: 798fdcfb2a09b9b47273fc2a5222726f86ccdf8482d89febaed695ba33d74e15
 file:
 - statement:
     set_statement:
@@ -12,7 +12,7 @@ file:
       comparison_operator:
         raw_comparison_operator: '='
       expression:
-        literal: '10'
+        numeric_literal: '10'
 - statement_terminator: ;
 - statement:
     set_statement:
@@ -37,7 +37,7 @@ file:
     - bracketed:
       - start_bracket: (
       - expression:
-          literal: '10'
+          numeric_literal: '10'
       - comma: ','
       - expression:
           literal: "'example'"
@@ -73,7 +73,7 @@ file:
                         identifier: table1
           end_bracket: )
         binary_operator: /
-        literal: '2'
+        numeric_literal: '2'
 - statement_terminator: ;
 - statement:
     set_statement:
@@ -89,10 +89,10 @@ file:
     - bracketed:
       - start_bracket: (
       - expression:
-          literal: '40'
+          numeric_literal: '40'
       - comma: ','
       - expression:
-          literal: '70'
+          numeric_literal: '70'
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -109,10 +109,10 @@ file:
     - bracketed:
       - start_bracket: (
       - expression:
-          literal: '50'
+          numeric_literal: '50'
       - comma: ','
       - expression:
-          literal: '2'
+          numeric_literal: '2'
           binary_operator: '*'
           variable: $min
       - end_bracket: )

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3b8a203a3164848982852f79f8f538b8ced000ee65889a9a0f1ca9955ce6e8d4
+_hash: 7ff1d0a5b3b8ac35886f6d7cdd3d98c2af949c207b8263ce999116a720d65b86
 file:
   statement:
     comment_clause:
@@ -17,5 +17,5 @@ file:
       - dot: .
       - naked_identifier: Org_Unit_Code
     - keyword: is
-    - literal: "'Organisational unit code'"
+    - quoted_literal: "'Organisational unit code'"
   statement_terminator: ;

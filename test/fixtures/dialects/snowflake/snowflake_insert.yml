@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a8565b2ee96037bc9a5b2ffc8aa79847ab8054deed0e23cdb00265dc4ca2d86e
+_hash: 6fce0ae9115e8dd04a5c5b39b7207eecc31db4d4ace7a472dd838dfc6afa46a5
 file:
 - statement:
     insert_statement:
@@ -63,19 +63,19 @@ file:
       - bracketed:
         - start_bracket: (
         - expression:
-            literal: '1'
+            numeric_literal: '1'
         - comma: ','
         - expression:
-            literal: '2'
+            numeric_literal: '2'
         - end_bracket: )
       - comma: ','
       - bracketed:
         - start_bracket: (
         - expression:
-            literal: '3'
+            numeric_literal: '3'
         - comma: ','
         - expression:
-            literal: '4'
+            numeric_literal: '4'
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -351,19 +351,19 @@ file:
         select_clause:
         - keyword: select
         - select_clause_element:
-            literal: '1'
+            numeric_literal: '1'
         - comma: ','
         - select_clause_element:
-            literal: '50'
+            numeric_literal: '50'
             alias_expression:
               keyword: as
               identifier: an_alias
         - comma: ','
         - select_clause_element:
             expression:
-            - literal: '10'
+            - numeric_literal: '10'
             - binary_operator: +
-            - literal: '20'
+            - numeric_literal: '20'
 - statement_terminator: ;
 - statement:
     insert_statement:
@@ -441,7 +441,7 @@ file:
           identifier: n1
         comparison_operator:
           raw_comparison_operator: '>'
-        literal: '100'
+        numeric_literal: '100'
     - keyword: then
     - keyword: into
     - table_reference:
@@ -452,7 +452,7 @@ file:
           identifier: n1
         comparison_operator:
           raw_comparison_operator: '>'
-        literal: '10'
+        numeric_literal: '10'
     - keyword: then
     - keyword: into
     - table_reference:
@@ -488,7 +488,7 @@ file:
           identifier: n1
         comparison_operator:
           raw_comparison_operator: '>'
-        literal: '100'
+        numeric_literal: '100'
     - keyword: then
     - keyword: into
     - table_reference:
@@ -499,7 +499,7 @@ file:
           identifier: n1
         comparison_operator:
           raw_comparison_operator: '>'
-        literal: '10'
+        numeric_literal: '10'
     - keyword: then
     - keyword: into
     - table_reference:
@@ -535,7 +535,7 @@ file:
           identifier: c
         comparison_operator:
           raw_comparison_operator: '>'
-        literal: '10'
+        numeric_literal: '10'
     - keyword: then
     - keyword: into
     - table_reference:

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b0f6bd2a42aee9d21e5bab70a9d88e8117337df01b56a6053c662a1bd3996cc2
+_hash: 529c379b58b13b0d1848eb9d59c1ab1e0b51da0ef143a06272e952fcb65635a9
 file:
   statement:
     select_statement:
@@ -13,7 +13,7 @@ file:
           quoted_literal: '""'
       - comma: ','
       - select_clause_element:
-          literal: "''"
+          quoted_literal: "''"
       - comma: ','
       - select_clause_element:
           quoted_literal: '"abc"'
@@ -22,16 +22,16 @@ file:
           quoted_literal: "\"it's\""
       - comma: ','
       - select_clause_element:
-          literal: "'it\\'s'"
+          quoted_literal: "'it\\'s'"
       - comma: ','
       - select_clause_element:
-          literal: "'Title: \"Boy\"'"
+          quoted_literal: "'Title: \"Boy\"'"
       - comma: ','
       - select_clause_element:
           quoted_literal: '"test \"escaped\""'
       - comma: ','
       - select_clause_element:
-          literal: "'test \\'escaped\\''"
+          quoted_literal: "'test \\'escaped\\''"
       - comma: ','
       - select_clause_element:
           quoted_literal: '"test \\\"escaped"'
@@ -43,7 +43,7 @@ file:
           quoted_literal: r""
       - comma: ','
       - select_clause_element:
-          literal: "r''"
+          quoted_literal: "r''"
       - comma: ','
       - select_clause_element:
           quoted_literal: r"abc+"
@@ -52,19 +52,19 @@ file:
           quoted_literal: R"abc+"
       - comma: ','
       - select_clause_element:
-          literal: "r'abc+'"
+          quoted_literal: "r'abc+'"
       - comma: ','
       - select_clause_element:
-          literal: "R'abc+'"
+          quoted_literal: "R'abc+'"
       - comma: ','
       - select_clause_element:
-          literal: "r'f\\(abc, (.*),def\\)'"
+          quoted_literal: "r'f\\(abc, (.*),def\\)'"
       - comma: ','
       - select_clause_element:
           quoted_literal: r"f\(abc, (.*),def\)"
       - comma: ','
       - select_clause_element:
-          literal: "b'abc'"
+          quoted_literal: "b'abc'"
       - comma: ','
       - select_clause_element:
           quoted_literal: B"abc"
@@ -76,16 +76,16 @@ file:
           quoted_literal: rB"abc*"
       - comma: ','
       - select_clause_element:
-          literal: "Rb'abc*'"
+          quoted_literal: "Rb'abc*'"
       - comma: ','
       - select_clause_element:
-          literal: "br'abc+'"
+          quoted_literal: "br'abc+'"
       - comma: ','
       - select_clause_element:
           quoted_literal: RB"abc+"
       - comma: ','
       - select_clause_element:
-          literal: "r''' as foo ''  bar '''"
+          quoted_literal: "r''' as foo ''  bar '''"
       - comma: ','
       - select_clause_element:
           quoted_literal: "B\"\"\" triple ''' quoted '' \"\" string are \"\"\""

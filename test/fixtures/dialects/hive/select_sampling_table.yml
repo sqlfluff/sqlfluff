@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3f041db2faf4f539953054480bd02c23beb8560be60637a8c55c6156a1fcea2f
+_hash: a373b0698e2abe00ac058b9cd8c923627b6e3c5fe89147f61a360e36271a4963
 file:
 - statement:
     select_statement:
@@ -25,10 +25,10 @@ file:
               bracketed:
               - start_bracket: (
               - keyword: BUCKET
-              - literal: '3'
+              - numeric_literal: '3'
               - keyword: OUT
               - keyword: OF
-              - literal: '32'
+              - numeric_literal: '32'
               - keyword: 'ON'
               - naked_identifier: id
               - end_bracket: )
@@ -55,10 +55,10 @@ file:
               bracketed:
               - start_bracket: (
               - keyword: BUCKET
-              - literal: '3'
+              - numeric_literal: '3'
               - keyword: OUT
               - keyword: OF
-              - literal: '32'
+              - numeric_literal: '32'
               - keyword: 'ON'
               - function:
                   function_name:
@@ -89,7 +89,7 @@ file:
               keyword: TABLESAMPLE
               bracketed:
                 start_bracket: (
-                literal: '0.1'
+                numeric_literal: '0.1'
                 keyword: PERCENT
                 end_bracket: )
               alias_expression:
@@ -139,7 +139,7 @@ file:
               keyword: TABLESAMPLE
               bracketed:
                 start_bracket: (
-                literal: '10'
+                numeric_literal: '10'
                 keyword: ROWS
                 end_bracket: )
 - statement_terminator: ;

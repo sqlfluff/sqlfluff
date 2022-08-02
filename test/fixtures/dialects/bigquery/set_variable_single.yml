@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 137c23123e5200c9a360e7d1ef9dcb01ed1d122ce1a7640f21b640d6e7eb7f42
+_hash: 5b73183ebf8033c3781e1134e79dda3300baf1a5b990595c27be20e9a23b764f
 file:
 - statement:
     set_segment:
@@ -21,8 +21,8 @@ file:
         raw_comparison_operator: '='
       array_literal:
       - start_square_bracket: '['
-      - literal: "'one'"
+      - quoted_literal: "'one'"
       - comma: ','
-      - literal: "'two'"
+      - quoted_literal: "'two'"
       - end_square_bracket: ']'
 - statement_terminator: ;

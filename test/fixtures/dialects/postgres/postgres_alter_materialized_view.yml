@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 47d5d055a30c0fbf95e970c663eb1dbee6922b5867f87e92b26d0caab138ba3f
+_hash: db066c1cd10146838f254fc78f072e577cbf02eb04feae81b20b04857e20d552
 file:
 - statement:
     alter_materialized_view_statement:
@@ -18,7 +18,7 @@ file:
           naked_identifier: column_name
       - keyword: SET
       - keyword: STATISTICS
-      - literal: '1'
+      - numeric_literal: '1'
 - statement_terminator: ;
 - statement:
     alter_materialized_view_statement:
@@ -34,7 +34,7 @@ file:
           naked_identifier: column_name
       - keyword: SET
       - keyword: STATISTICS
-      - literal: '1'
+      - numeric_literal: '1'
 - statement_terminator: ;
 - statement:
     alter_materialized_view_statement:
@@ -53,7 +53,7 @@ file:
           parameter: attribute_option
           comparison_operator:
             raw_comparison_operator: '='
-          literal: '1'
+          numeric_literal: '1'
           end_bracket: )
 - statement_terminator: ;
 - statement:

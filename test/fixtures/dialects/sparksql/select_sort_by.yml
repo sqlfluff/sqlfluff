@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: fa0902d5544c9da76a7a5fb86e92887b32814e84a4cb4384948f3139544c04c7
+_hash: 8c290069c3b4f27799a213563f27ad45df8839441107eaaafb765f904afdc05f
 file:
 - statement:
     select_statement:
@@ -108,7 +108,7 @@ file:
       sort_by_clause:
       - keyword: SORT
       - keyword: BY
-      - literal: '1'
+      - numeric_literal: '1'
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -135,7 +135,7 @@ file:
       sort_by_clause:
       - keyword: SORT
       - keyword: BY
-      - literal: '1'
+      - numeric_literal: '1'
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -470,11 +470,11 @@ file:
                   - expression:
                       numeric_literal:
                         sign_indicator: '-'
-                        literal: '1'
+                        numeric_literal: '1'
                   - end_bracket: )
             - comma: ','
             - expression:
-                literal: '1'
+                numeric_literal: '1'
             - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -503,7 +503,7 @@ file:
           comparison_operator:
           - raw_comparison_operator: <
           - raw_comparison_operator: '='
-          literal: '100'
+          numeric_literal: '100'
       sort_by_clause:
       - keyword: SORT
       - keyword: BY
@@ -576,7 +576,7 @@ file:
               end_bracket: )
           comparison_operator:
             raw_comparison_operator: '>'
-          literal: '1'
+          numeric_literal: '1'
       sort_by_clause:
       - keyword: SORT
       - keyword: BY

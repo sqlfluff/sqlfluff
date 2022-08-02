@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: af2efca5bd94277594a248fbac414760e6d0c46551f2fcc6f546d936fff6d3f1
+_hash: a155b30a76ea8dc167ff827e171f4c86fd931ab6e3365743f68cef6e793efd02
 file:
 - statement:
     update_statement:
@@ -21,7 +21,7 @@ file:
             column_reference:
               naked_identifier: salary
             binary_operator: '*'
-            literal: '1.1'
+            numeric_literal: '1.1'
       where_clause:
         keyword: WHERE
         expression:
@@ -29,7 +29,7 @@ file:
             naked_identifier: name
           comparison_operator:
             raw_comparison_operator: '='
-          literal: "'SMITH'"
+          quoted_literal: "'SMITH'"
 - statement_terminator: ;
 - statement:
     update_statement:
@@ -54,7 +54,7 @@ file:
             - dot: .
             - naked_identifier: salary
             binary_operator: /
-            literal: '1.95583'
+            numeric_literal: '1.95583'
       - comma: ','
       - set_clause:
           column_reference:
@@ -64,7 +64,7 @@ file:
           comparison_operator:
             raw_comparison_operator: '='
           expression:
-            literal: "'EUR'"
+            quoted_literal: "'EUR'"
       where_clause:
         keyword: WHERE
         expression:
@@ -74,7 +74,7 @@ file:
           - naked_identifier: currency
           comparison_operator:
             raw_comparison_operator: '='
-          literal: "'DM'"
+          quoted_literal: "'DM'"
 - statement_terminator: ;
 - statement:
     update_statement:
@@ -160,7 +160,7 @@ file:
             column_reference:
               naked_identifier: stocks
             binary_operator: '*'
-            literal: '10'
+            numeric_literal: '10'
       preferring_clause:
         keyword: PREFERRING
         preference_term:

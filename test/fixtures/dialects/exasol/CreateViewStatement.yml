@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7a259bedea8f673f81fb64c97c1e61a4787a246ebdf566471a306ddc235f3284
+_hash: 651b70f72362f42ca96206b4b51f7f42bbbbed4d17d670b24b6fef8ec7a7e0b4
 file:
 - statement:
     create_view_statement:
@@ -31,7 +31,7 @@ file:
     - comment_clause:
       - keyword: COMMENT
       - keyword: IS
-      - literal: "'nice view'"
+      - quoted_literal: "'nice view'"
 - statement_terminator: ;
 - statement:
     create_view_statement:
@@ -101,7 +101,7 @@ file:
       - comment_clause:
         - keyword: COMMENT
         - keyword: IS
-        - literal: "'something important'"
+        - quoted_literal: "'something important'"
       - comma: ','
       - column_reference:
           naked_identifier: col2
@@ -214,5 +214,5 @@ file:
     - comment_clause:
       - keyword: COMMENT
       - keyword: IS
-      - literal: "'BLABLA'"
+      - quoted_literal: "'BLABLA'"
 - statement_terminator: ;

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ec1a0a626db184f96cfb9c6e65a386a98bd7620897df7c5b12cf60b064d63e60
+_hash: 0ca0a589ad98d8a2f91b99db2f29bc962416ea5cef4eaaee8fb4d1d07bd1e7c3
 file:
 - statement:
     insert_statement:
@@ -26,11 +26,11 @@ file:
         keyword: VALUES
         bracketed:
         - start_bracket: (
-        - literal: '1'
+        - numeric_literal: '1'
         - comma: ','
-        - literal: '2.34'
+        - numeric_literal: '2.34'
         - comma: ','
-        - literal: "'abc'"
+        - quoted_literal: "'abc'"
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -43,20 +43,20 @@ file:
       - keyword: VALUES
       - bracketed:
         - start_bracket: (
-        - literal: '2'
+        - numeric_literal: '2'
         - comma: ','
-        - literal: '1.56'
+        - numeric_literal: '1.56'
         - comma: ','
-        - literal: "'ghi'"
+        - quoted_literal: "'ghi'"
         - end_bracket: )
       - comma: ','
       - bracketed:
         - start_bracket: (
-        - literal: '3'
+        - numeric_literal: '3'
         - comma: ','
-        - literal: '5.92'
+        - numeric_literal: '5.92'
         - comma: ','
-        - literal: "'pqr'"
+        - quoted_literal: "'pqr'"
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -69,11 +69,11 @@ file:
         keyword: VALUES
         bracketed:
         - start_bracket: (
-        - literal: '4'
+        - numeric_literal: '4'
         - comma: ','
         - keyword: DEFAULT
         - comma: ','
-        - literal: "'xyz'"
+        - quoted_literal: "'xyz'"
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -210,9 +210,9 @@ file:
                         naked_identifier: y
             end_bracket: )
         - comma: ','
-        - literal: "'val1'"
+        - quoted_literal: "'val1'"
         - comma: ','
-        - literal: "'val2'"
+        - quoted_literal: "'val2'"
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -242,9 +242,9 @@ file:
     - values_range_clause:
       - keyword: VALUES
       - keyword: BETWEEN
-      - literal: '1'
+      - numeric_literal: '1'
       - keyword: AND
-      - literal: '100'
+      - numeric_literal: '100'
 - statement_terminator: ;
 - statement:
     insert_statement:
@@ -260,10 +260,10 @@ file:
     - values_range_clause:
       - keyword: VALUES
       - keyword: BETWEEN
-      - literal: '1'
+      - numeric_literal: '1'
       - keyword: AND
-      - literal: '100'
+      - numeric_literal: '100'
       - keyword: WITH
       - keyword: STEP
-      - literal: '4'
+      - numeric_literal: '4'
 - statement_terminator: ;

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c6cc1bc85cb30051cde34b477b1584848cf5aa889892db5defd29d8bcda6ac1e
+_hash: 3e830009c18c7e67f90c88311fef42426ae60190acbc09005dab500ff861ffed
 file:
 - statement:
     export_statement:
@@ -23,12 +23,12 @@ file:
       - export_option: uri
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'gs://bucket/folder/*.csv'"
+      - quoted_literal: "'gs://bucket/folder/*.csv'"
       - comma: ','
       - export_option: format
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'CSV'"
+      - quoted_literal: "'CSV'"
       - comma: ','
       - export_option: overwrite
       - comparison_operator:
@@ -43,7 +43,7 @@ file:
       - export_option: field_delimiter
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "';'"
+      - quoted_literal: "';'"
       - end_bracket: )
     - keyword: AS
     - select_statement:
@@ -85,12 +85,12 @@ file:
       - export_option: uri
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'gs://bucket/folder/*.csv'"
+      - quoted_literal: "'gs://bucket/folder/*.csv'"
       - comma: ','
       - export_option: format
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'CSV'"
+      - quoted_literal: "'CSV'"
       - comma: ','
       - export_option: overwrite
       - comparison_operator:
@@ -105,7 +105,7 @@ file:
       - export_option: field_delimiter
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "';'"
+      - quoted_literal: "';'"
       - end_bracket: )
     - keyword: AS
     - select_statement:
@@ -143,12 +143,12 @@ file:
       - export_option: uri
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'gs://bucket/folder/*.csv'"
+      - quoted_literal: "'gs://bucket/folder/*.csv'"
       - comma: ','
       - export_option: format
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'CSV'"
+      - quoted_literal: "'CSV'"
       - comma: ','
       - export_option: overwrite
       - comparison_operator:
@@ -163,7 +163,7 @@ file:
       - export_option: field_delimiter
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "';'"
+      - quoted_literal: "';'"
       - end_bracket: )
     - keyword: AS
     - select_statement:
@@ -204,17 +204,17 @@ file:
       - export_option: uri
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'gs://bucket/folder/*'"
+      - quoted_literal: "'gs://bucket/folder/*'"
       - comma: ','
       - export_option: format
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'AVRO'"
+      - quoted_literal: "'AVRO'"
       - comma: ','
       - export_option: compression
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'SNAPPY'"
+      - quoted_literal: "'SNAPPY'"
       - end_bracket: )
     - keyword: AS
     - select_statement:
@@ -255,12 +255,12 @@ file:
       - export_option: uri
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'gs://bucket/folder/*'"
+      - quoted_literal: "'gs://bucket/folder/*'"
       - comma: ','
       - export_option: format
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'PARQUET'"
+      - quoted_literal: "'PARQUET'"
       - comma: ','
       - export_option: overwrite
       - comparison_operator:
@@ -306,12 +306,12 @@ file:
       - export_option: uri
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'gs://bucket/folder/*.csv'"
+      - quoted_literal: "'gs://bucket/folder/*.csv'"
       - comma: ','
       - export_option: format
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'CSV'"
+      - quoted_literal: "'CSV'"
       - comma: ','
       - export_option: overwrite
       - comparison_operator:
@@ -326,7 +326,7 @@ file:
       - export_option: field_delimiter
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "';'"
+      - quoted_literal: "';'"
       - end_bracket: )
     - keyword: AS
     - with_compound_statement:

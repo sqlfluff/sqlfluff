@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0ae7d918536a0c1d1f9b4f7fbaee31e188a8eb6fbaed984e8b52f2efbc760db6
+_hash: 2540817a4a23e14304777bd6c311fbffee45d4969c043c78f9ca133675cf8bd6
 file:
 - statement:
     values_clause:
@@ -11,10 +11,10 @@ file:
       bracketed:
       - start_bracket: (
       - expression:
-          literal: '1'
+          numeric_literal: '1'
       - comma: ','
       - expression:
-          literal: '2'
+          numeric_literal: '2'
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -23,12 +23,12 @@ file:
       bracketed:
       - start_bracket: (
       - expression:
-        - literal: '1'
+        - numeric_literal: '1'
         - binary_operator: +
-        - literal: '1'
+        - numeric_literal: '1'
       - comma: ','
       - expression:
-          literal: '2'
+          numeric_literal: '2'
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -37,12 +37,12 @@ file:
       bracketed:
       - start_bracket: (
       - expression:
-        - literal: '1'
+        - numeric_literal: '1'
         - binary_operator: +
-        - literal: '1'
+        - numeric_literal: '1'
       - comma: ','
       - expression:
-          literal: '2'
+          numeric_literal: '2'
           cast_expression:
             casting_operator: '::'
             data_type:
@@ -55,19 +55,19 @@ file:
     - bracketed:
       - start_bracket: (
       - expression:
-          literal: '1'
+          numeric_literal: '1'
       - comma: ','
       - expression:
-          literal: '2'
+          numeric_literal: '2'
       - end_bracket: )
     - comma: ','
     - bracketed:
       - start_bracket: (
       - expression:
-          literal: '3'
+          numeric_literal: '3'
       - comma: ','
       - expression:
-          literal: '4'
+          numeric_literal: '4'
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -76,19 +76,19 @@ file:
     - bracketed:
       - start_bracket: (
       - expression:
-          literal: '1'
+          numeric_literal: '1'
       - comma: ','
       - expression:
-          literal: '2'
+          numeric_literal: '2'
       - end_bracket: )
     - comma: ','
     - bracketed:
       - start_bracket: (
       - expression:
-          literal: '3'
+          numeric_literal: '3'
       - comma: ','
       - expression:
-          literal: '4'
+          numeric_literal: '4'
       - end_bracket: )
     - comma: ','
     - bracketed:
@@ -100,10 +100,10 @@ file:
             bracketed:
             - start_bracket: (
             - expression:
-                literal: '5'
+                numeric_literal: '5'
             - comma: ','
             - expression:
-                literal: '6'
+                numeric_literal: '6'
             - end_bracket: )
       - comma: ','
       - expression:
@@ -113,10 +113,10 @@ file:
             bracketed:
             - start_bracket: (
             - expression:
-                literal: '7'
+                numeric_literal: '7'
             - comma: ','
             - expression:
-                literal: '8'
+                numeric_literal: '8'
             - end_bracket: )
       - end_bracket: )
 - statement_terminator: ;
@@ -126,23 +126,23 @@ file:
     - bracketed:
       - start_bracket: (
       - expression:
-          literal: '1'
+          numeric_literal: '1'
       - comma: ','
       - expression:
-          literal: '2'
+          numeric_literal: '2'
       - end_bracket: )
     - comma: ','
     - bracketed:
       - start_bracket: (
       - expression:
-          literal: '3'
+          numeric_literal: '3'
       - comma: ','
       - expression:
-          literal: '4'
+          numeric_literal: '4'
       - end_bracket: )
     - limit_clause:
         keyword: limit
-        literal: '1'
+        numeric_literal: '1'
 - statement_terminator: ;
 - statement:
     values_clause:
@@ -150,25 +150,25 @@ file:
     - bracketed:
       - start_bracket: (
       - expression:
-          literal: '1'
+          numeric_literal: '1'
       - comma: ','
       - expression:
-          literal: '2'
+          numeric_literal: '2'
       - end_bracket: )
     - comma: ','
     - bracketed:
       - start_bracket: (
       - expression:
-          literal: '3'
+          numeric_literal: '3'
       - comma: ','
       - expression:
-          literal: '4'
+          numeric_literal: '4'
       - end_bracket: )
     - limit_clause:
       - keyword: limit
-      - literal: '1'
+      - numeric_literal: '1'
       - keyword: offset
-      - literal: '1'
+      - numeric_literal: '1'
 - statement_terminator: ;
 - statement:
     values_clause:
@@ -176,24 +176,24 @@ file:
     - bracketed:
       - start_bracket: (
       - expression:
-          literal: '1'
+          numeric_literal: '1'
       - comma: ','
       - expression:
-          literal: '2'
+          numeric_literal: '2'
       - end_bracket: )
     - comma: ','
     - bracketed:
       - start_bracket: (
       - expression:
-          literal: '3'
+          numeric_literal: '3'
       - comma: ','
       - expression:
-          literal: '4'
+          numeric_literal: '4'
       - end_bracket: )
     - orderby_clause:
       - keyword: order
       - keyword: by
-      - literal: '1'
+      - numeric_literal: '1'
       - keyword: desc
 - statement_terminator: ;
 - statement:
@@ -202,26 +202,26 @@ file:
     - bracketed:
       - start_bracket: (
       - expression:
-          literal: '1'
+          numeric_literal: '1'
       - comma: ','
       - expression:
-          literal: '2'
+          numeric_literal: '2'
       - end_bracket: )
     - comma: ','
     - bracketed:
       - start_bracket: (
       - expression:
-          literal: '3'
+          numeric_literal: '3'
       - comma: ','
       - expression:
-          literal: '4'
+          numeric_literal: '4'
       - end_bracket: )
     - orderby_clause:
       - keyword: order
       - keyword: by
-      - literal: '1'
+      - numeric_literal: '1'
       - keyword: desc
     - limit_clause:
         keyword: limit
-        literal: '1'
+        numeric_literal: '1'
 - statement_terminator: ;

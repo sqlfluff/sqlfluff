@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c357c39cff84cefb40112f8f244be931a4177efeb1f826717442e3b7b6e3e465
+_hash: b7d5c911d0c8b613d9e0506a6a5981e0068a1ef15c93b25f237c9ec952ddc390
 file:
 - statement:
     select_statement:
@@ -63,7 +63,7 @@ file:
             - semi_structured_element: thing
             - array_accessor:
                 start_square_bracket: '['
-                literal: '4'
+                numeric_literal: '4'
                 end_square_bracket: ']'
             - dot: .
             - semi_structured_element: foo
@@ -80,7 +80,7 @@ file:
             - semi_structured_element: thing
             - array_accessor:
                 start_square_bracket: '['
-                literal: '4'
+                numeric_literal: '4'
                 end_square_bracket: ']'
             - dot: .
             - semi_structured_element: bar
@@ -88,7 +88,7 @@ file:
             - semi_structured_element: baz
             - array_accessor:
                 start_square_bracket: '['
-                literal: '0'
+                numeric_literal: '0'
                 end_square_bracket: ']'
             - dot: .
             - semi_structured_element: foo
@@ -106,7 +106,7 @@ file:
               identifier: array_field
             array_accessor:
               start_square_bracket: '['
-              literal: '0'
+              numeric_literal: '0'
               end_square_bracket: ']'
             snowflake_semi_structured_expression:
               dot: .
@@ -160,10 +160,10 @@ file:
                 bracketed:
                 - start_bracket: (
                 - expression:
-                    literal: '10'
+                    numeric_literal: '10'
                 - comma: ','
                 - expression:
-                    literal: '6'
+                    numeric_literal: '6'
                 - end_bracket: )
           alias_expression:
             keyword: AS
@@ -187,10 +187,10 @@ file:
                 bracketed:
                 - start_bracket: (
                 - expression:
-                    literal: '10'
+                    numeric_literal: '10'
                 - comma: ','
                 - expression:
-                    literal: '6'
+                    numeric_literal: '6'
                 - end_bracket: )
           alias_expression:
             keyword: AS

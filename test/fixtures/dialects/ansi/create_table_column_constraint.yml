@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4693c3178780afe48c0e85aa4fca2ac77e90b2e9f498a06859bf026bff204282
+_hash: e0482f0f2f6480c796b00f793b89ddd654365fbf4f741719eff8fea05625c9da
 file:
 - statement:
     create_table_statement:
@@ -31,7 +31,7 @@ file:
                   naked_identifier: age
                 comparison_operator:
                   raw_comparison_operator: '>'
-                literal: '18'
+                numeric_literal: '18'
               end_bracket: )
       - end_bracket: )
 - statement_terminator: ;
@@ -88,7 +88,7 @@ file:
             bracketed:
               start_bracket: (
               expression:
-                literal: '255'
+                numeric_literal: '255'
               end_bracket: )
           column_constraint_segment:
           - keyword: NOT
@@ -101,7 +101,7 @@ file:
             bracketed:
               start_bracket: (
               expression:
-                literal: '255'
+                numeric_literal: '255'
               end_bracket: )
       - comma: ','
       - column_definition:
@@ -116,7 +116,7 @@ file:
             bracketed:
               start_bracket: (
               expression:
-                literal: '255'
+                numeric_literal: '255'
               end_bracket: )
       - comma: ','
       - column_definition:
@@ -133,13 +133,13 @@ file:
               - comparison_operator:
                 - raw_comparison_operator: '>'
                 - raw_comparison_operator: '='
-              - literal: '18'
+              - numeric_literal: '18'
               - binary_operator: AND
               - column_reference:
                   naked_identifier: City
               - comparison_operator:
                   raw_comparison_operator: '='
-              - literal: "'Sandnes'"
+              - quoted_literal: "'Sandnes'"
               end_bracket: )
       - end_bracket: )
 - statement_terminator: ;

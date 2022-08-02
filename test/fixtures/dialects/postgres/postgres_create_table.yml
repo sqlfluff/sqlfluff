@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b46690cb0476e02234f14616b24f50724c646c5c80ead16da5ad7c48f57aa7c0
+_hash: 4b2def462595301518c5209a8a2824737867d12032b225116ed1f2f14a2bf721
 file:
 - statement:
     create_table_statement:
@@ -49,7 +49,7 @@ file:
           keyword: varchar
           bracketed:
             start_bracket: (
-            literal: '40'
+            numeric_literal: '40'
             end_bracket: )
       - column_constraint_segment:
         - keyword: NOT
@@ -89,7 +89,7 @@ file:
                 naked_identifier: did
               comparison_operator:
                 raw_comparison_operator: '>'
-              literal: '100'
+              numeric_literal: '100'
             end_bracket: )
       - comma: ','
       - column_reference:
@@ -98,7 +98,7 @@ file:
           keyword: varchar
           bracketed:
             start_bracket: (
-            literal: '40'
+            numeric_literal: '40'
             end_bracket: )
       - end_bracket: )
 - statement_terminator: ;
@@ -121,7 +121,7 @@ file:
           keyword: varchar
           bracketed:
             start_bracket: (
-            literal: '40'
+            numeric_literal: '40'
             end_bracket: )
       - comma: ','
       - table_constraint:
@@ -136,7 +136,7 @@ file:
                 naked_identifier: did
             - comparison_operator:
                 raw_comparison_operator: '>'
-            - literal: '100'
+            - numeric_literal: '100'
             - binary_operator: AND
             - column_reference:
                 naked_identifier: name
@@ -166,7 +166,7 @@ file:
           keyword: varchar
           bracketed:
             start_bracket: (
-            literal: '40'
+            numeric_literal: '40'
             end_bracket: )
       - comma: ','
       - table_constraint:
@@ -201,7 +201,7 @@ file:
           keyword: varchar
           bracketed:
             start_bracket: (
-            literal: '40'
+            numeric_literal: '40'
             end_bracket: )
       - end_bracket: )
 - statement_terminator: ;
@@ -219,7 +219,7 @@ file:
           keyword: varchar
           bracketed:
             start_bracket: (
-            literal: '40'
+            numeric_literal: '40'
             end_bracket: )
       - column_constraint_segment:
           keyword: DEFAULT
@@ -275,7 +275,7 @@ file:
           keyword: varchar
           bracketed:
             start_bracket: (
-            literal: '40'
+            numeric_literal: '40'
             end_bracket: )
       - column_constraint_segment:
         - keyword: NOT
@@ -301,7 +301,7 @@ file:
           keyword: varchar
           bracketed:
             start_bracket: (
-            literal: '40'
+            numeric_literal: '40'
             end_bracket: )
       - column_constraint_segment:
           keyword: UNIQUE
@@ -326,7 +326,7 @@ file:
           keyword: varchar
           bracketed:
             start_bracket: (
-            literal: '40'
+            numeric_literal: '40'
             end_bracket: )
       - comma: ','
       - table_constraint:
@@ -357,7 +357,7 @@ file:
           keyword: varchar
           bracketed:
             start_bracket: (
-            literal: '40'
+            numeric_literal: '40'
             end_bracket: )
       - comma: ','
       - table_constraint:
@@ -374,7 +374,7 @@ file:
               parameter: fillfactor
               comparison_operator:
                 raw_comparison_operator: '='
-              literal: '70'
+              numeric_literal: '70'
               end_bracket: )
       - end_bracket: )
     - keyword: WITH
@@ -383,7 +383,7 @@ file:
         parameter: fillfactor
         comparison_operator:
           raw_comparison_operator: '='
-        literal: '70'
+        numeric_literal: '70'
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -454,7 +454,7 @@ file:
       - keyword: OPTIONS
       - column_constraint_segment:
           keyword: DEFAULT
-          literal: '1000'
+          numeric_literal: '1000'
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -601,7 +601,7 @@ file:
                   end_bracket: )
           - comma: ','
           - expression:
-              literal: '1'
+              numeric_literal: '1'
           - end_bracket: )
         end_bracket: )
 - statement_terminator: ;
@@ -659,7 +659,7 @@ file:
           naked_identifier: unitsales
         column_constraint_segment:
           keyword: DEFAULT
-          literal: '0'
+          numeric_literal: '0'
         end_bracket: )
     - keyword: FOR
     - keyword: VALUES
@@ -705,10 +705,10 @@ file:
       - bracketed:
         - start_bracket: (
         - expression:
-            literal: '2016'
+            numeric_literal: '2016'
         - comma: ','
         - expression:
-            literal: '11'
+            numeric_literal: '11'
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -728,19 +728,19 @@ file:
       - bracketed:
         - start_bracket: (
         - expression:
-            literal: '2016'
+            numeric_literal: '2016'
         - comma: ','
         - expression:
-            literal: '11'
+            numeric_literal: '11'
         - end_bracket: )
       - keyword: TO
       - bracketed:
         - start_bracket: (
         - expression:
-            literal: '2016'
+            numeric_literal: '2016'
         - comma: ','
         - expression:
-            literal: '12'
+            numeric_literal: '12'
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -760,19 +760,19 @@ file:
       - bracketed:
         - start_bracket: (
         - expression:
-            literal: '2016'
+            numeric_literal: '2016'
         - comma: ','
         - expression:
-            literal: '12'
+            numeric_literal: '12'
         - end_bracket: )
       - keyword: TO
       - bracketed:
         - start_bracket: (
         - expression:
-            literal: '2017'
+            numeric_literal: '2017'
         - comma: ','
         - expression:
-            literal: '01'
+            numeric_literal: '01'
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -792,19 +792,19 @@ file:
       - bracketed:
         - start_bracket: (
         - expression:
-            literal: '2017'
+            numeric_literal: '2017'
         - comma: ','
         - expression:
-            literal: '01'
+            numeric_literal: '01'
         - end_bracket: )
       - keyword: TO
       - bracketed:
         - start_bracket: (
         - expression:
-            literal: '2017'
+            numeric_literal: '2017'
         - comma: ','
         - expression:
-            literal: '02'
+            numeric_literal: '02'
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -832,7 +832,7 @@ file:
               comparison_operator:
               - raw_comparison_operator: '!'
               - raw_comparison_operator: '='
-              literal: '0'
+              numeric_literal: '0'
             end_bracket: )
         end_bracket: )
     - keyword: FOR
@@ -873,7 +873,7 @@ file:
               comparison_operator:
               - raw_comparison_operator: '!'
               - raw_comparison_operator: '='
-              literal: '0'
+              numeric_literal: '0'
             end_bracket: )
         end_bracket: )
     - keyword: FOR
@@ -914,13 +914,13 @@ file:
       - bracketed:
           start_bracket: (
           expression:
-            literal: '10000'
+            numeric_literal: '10000'
           end_bracket: )
       - keyword: TO
       - bracketed:
           start_bracket: (
           expression:
-            literal: '100000'
+            numeric_literal: '100000'
           end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -940,10 +940,10 @@ file:
         bracketed:
         - start_bracket: (
         - keyword: MODULUS
-        - literal: '4'
+        - numeric_literal: '4'
         - comma: ','
         - keyword: REMAINDER
-        - literal: '0'
+        - numeric_literal: '0'
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -963,10 +963,10 @@ file:
         bracketed:
         - start_bracket: (
         - keyword: MODULUS
-        - literal: '4'
+        - numeric_literal: '4'
         - comma: ','
         - keyword: REMAINDER
-        - literal: '1'
+        - numeric_literal: '1'
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -986,10 +986,10 @@ file:
         bracketed:
         - start_bracket: (
         - keyword: MODULUS
-        - literal: '4'
+        - numeric_literal: '4'
         - comma: ','
         - keyword: REMAINDER
-        - literal: '2'
+        - numeric_literal: '2'
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -1009,10 +1009,10 @@ file:
         bracketed:
         - start_bracket: (
         - keyword: MODULUS
-        - literal: '4'
+        - numeric_literal: '4'
         - comma: ','
         - keyword: REMAINDER
-        - literal: '3'
+        - numeric_literal: '3'
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -1227,7 +1227,7 @@ file:
         - keyword: varying
         - bracketed:
             start_bracket: (
-            literal: '40'
+            numeric_literal: '40'
             end_bracket: )
       - column_constraint_segment:
         - keyword: NOT

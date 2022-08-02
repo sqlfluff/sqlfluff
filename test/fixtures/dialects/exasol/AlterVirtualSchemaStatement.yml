@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1de47886295671376f870f3d1cdefa85e550a7a3f3bdd6b44d29b6b987811366
+_hash: a43f172c076893a09ec340877e05d2bfe8881c298e7fd4bd5614e0545818f817
 file:
 - statement:
     alter_virtual_schema_statement:
@@ -17,7 +17,7 @@ file:
         naked_identifier: CONNECTION_STRING
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: "'jdbc:hive2://localhost:10000/default'"
+    - quoted_literal: "'jdbc:hive2://localhost:10000/default'"
 - statement_terminator: ;
 - statement:
     alter_virtual_schema_statement:

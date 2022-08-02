@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 46f2a92b13f6382579451c35f99863be32b97bbbd99c8855b238723486567d88
+_hash: feac558779eab5cd039ec703125209de00ded78733b832070559793932bc656b
 file:
 - statement:
     merge_statement:
@@ -337,7 +337,7 @@ file:
               comparison_operator:
               - raw_comparison_operator: '!'
               - raw_comparison_operator: '='
-              literal: "'warehouse #2'"
+              quoted_literal: "'warehouse #2'"
         end_bracket: )
     - alias_expression:
         naked_identifier: s
@@ -366,7 +366,7 @@ file:
             - naked_identifier: warehouse
             comparison_operator:
               raw_comparison_operator: '='
-            literal: "'warehouse #1'"
+            quoted_literal: "'warehouse #1'"
         - keyword: THEN
         - merge_update_clause:
             keyword: UPDATE
@@ -478,7 +478,7 @@ file:
               naked_identifier: state
             comparison_operator:
               raw_comparison_operator: '='
-            literal: "'CA'"
+            quoted_literal: "'CA'"
         - keyword: THEN
         - merge_update_clause:
             keyword: UPDATE
@@ -801,7 +801,7 @@ file:
               comparison_operator:
               - raw_comparison_operator: <
               - raw_comparison_operator: '>'
-              literal: "'warehouse #2'"
+              quoted_literal: "'warehouse #2'"
         end_bracket: )
     - join_on_condition:
         keyword: 'ON'

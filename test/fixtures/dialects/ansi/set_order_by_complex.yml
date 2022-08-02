@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: fc96ee6692edef4edd6465783bef4e428b141b4a6f31f0807da91016b88c4b2b
+_hash: 6f7aadd671fed70160b3eda465490c09c32a77fe77145b3a8bd37bcfbf532cd0
 file:
   statement:
     set_expression:
@@ -26,10 +26,10 @@ file:
           orderby_clause:
           - keyword: ORDER
           - keyword: BY
-          - literal: '1'
+          - numeric_literal: '1'
           limit_clause:
             keyword: LIMIT
-            literal: '1'
+            numeric_literal: '1'
         end_bracket: )
     - set_operator:
       - keyword: UNION
@@ -53,15 +53,15 @@ file:
           orderby_clause:
           - keyword: ORDER
           - keyword: BY
-          - literal: '1'
+          - numeric_literal: '1'
           limit_clause:
             keyword: LIMIT
-            literal: '1'
+            numeric_literal: '1'
         end_bracket: )
     - orderby_clause:
       - keyword: ORDER
       - keyword: BY
-      - literal: '1'
+      - numeric_literal: '1'
     - limit_clause:
         keyword: LIMIT
-        literal: '1'
+        numeric_literal: '1'

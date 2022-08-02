@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bb7be4dd3c22e202b1573286b810d58d0f02f37ea99c86d0cbbcd549e8b9297c
+_hash: 1abd16bae48fc9b1710228e240016c5089192bd940c51aa77c29c37b9fc73f30
 file:
 - statement:
     create_table_statement:
@@ -179,7 +179,7 @@ file:
               column_reference:
                 identifier: b
               binary_operator: +
-              literal: '1'
+              numeric_literal: '1'
             alias_expression:
               keyword: as
               identifier: c
@@ -465,7 +465,7 @@ file:
             bracketed:
               start_bracket: (
               expression:
-                literal: '100'
+                numeric_literal: '100'
               end_bracket: )
           column_constraint_segment:
             keyword: default
@@ -478,7 +478,7 @@ file:
             bracketed:
               start_bracket: (
               expression:
-                literal: '255'
+                numeric_literal: '255'
               end_bracket: )
       - end_bracket: )
     - keyword: as
@@ -703,7 +703,7 @@ file:
           - keyword: CURRENT_TIMESTAMP
           - bracketed:
               start_bracket: (
-              literal: '2'
+              numeric_literal: '2'
               end_bracket: )
       - comma: ','
       - column_definition:
@@ -734,9 +734,9 @@ file:
             keyword: autoincrement
             bracketed:
             - start_bracket: (
-            - literal: '0'
+            - numeric_literal: '0'
             - comma: ','
-            - literal: '1'
+            - numeric_literal: '1'
             - end_bracket: )
         end_bracket: )
 - statement_terminator: ;
@@ -758,9 +758,9 @@ file:
             keyword: autoincrement
             bracketed:
             - start_bracket: (
-            - literal: '0'
+            - numeric_literal: '0'
             - comma: ','
-            - literal: '1'
+            - numeric_literal: '1'
             - end_bracket: )
         end_bracket: )
 - statement_terminator: ;
@@ -784,9 +784,9 @@ file:
             keyword: autoincrement
             bracketed:
             - start_bracket: (
-            - literal: '0'
+            - numeric_literal: '0'
             - comma: ','
-            - literal: '1'
+            - numeric_literal: '1'
             - end_bracket: )
         end_bracket: )
 - statement_terminator: ;
@@ -837,6 +837,6 @@ file:
                   identifier: test_column
                 comparison_operator:
                   raw_comparison_operator: '>'
-                literal: '10'
+                numeric_literal: '10'
               end_bracket: )
         end_bracket: )

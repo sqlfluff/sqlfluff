@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1654993b6f91dbaa9d065df4ed5c1b23dbd25684f78651715dbbc8c79064470a
+_hash: bfcb09cc30b23ab8f03a65f17c105b056152bb5153afd6da5e753254dbd3b286
 file:
 - statement:
     alter_table_statement:
@@ -58,10 +58,10 @@ file:
                     identifier: c2
               - comma: ','
               - expression:
-                  literal: '0'
+                  numeric_literal: '0'
               - comma: ','
               - expression:
-                  literal: '10'
+                  numeric_literal: '10'
               - end_bracket: )
         - end_bracket: )
 - statement_terminator: ;
@@ -110,7 +110,7 @@ file:
       - keyword: MAX_SIZE
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: '100'
+      - numeric_literal: '100'
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -149,7 +149,7 @@ file:
       - keyword: MAX_SIZE
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: '100'
+      - numeric_literal: '100'
       - where_clause:
           keyword: WHERE
           expression:

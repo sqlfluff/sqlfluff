@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 602a80e418d59200faf8e79470edc612b03c10fe93b113d35241a5151fe41bcd
+_hash: 50d48be5c65f0483dcaa979662f5087e6d688ead2e1b512d8ac86095e7c9109b
 file:
 - statement:
     delete_statement:
@@ -64,7 +64,7 @@ file:
           naked_identifier: timestamp_column
       limit_clause:
         keyword: LIMIT
-        literal: '1'
+        numeric_literal: '1'
 - statement_terminator: ;
 - statement:
     delete_statement:

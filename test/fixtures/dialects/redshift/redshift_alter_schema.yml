@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a34c7c06884045324ca811ecdf831f20ce898ddc70e09f0403688c87385894b3
+_hash: fd0a3f56eabf13406394006718db8bdeb0d09fe9ad3bfdbb476619984fe809b8
 file:
 - statement:
     alter_schema_statement:
@@ -34,7 +34,7 @@ file:
     - schema_reference:
         naked_identifier: schema1
     - keyword: QUOTA
-    - literal: '50'
+    - numeric_literal: '50'
     - keyword: GB
 - statement_terminator: ;
 - statement:

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b2c6604c7d37e75d2a95229d4e32a4331d5b60e975aee7f5309c651dc15e9d52
+_hash: 2e5f4282870203bb218cfe9656c1475a83f328312317f4a6c17f56643b3e2a27
 file:
 - statement:
     create_function_statement:
@@ -28,7 +28,7 @@ file:
         keyword: VARCHAR
         bracketed:
           start_bracket: (
-          literal: '10'
+          numeric_literal: '10'
           end_bracket: )
     - keyword: AS
     - variable: res
@@ -44,7 +44,7 @@ file:
             bracketed:
               start_bracket: (
               expression:
-                literal: '100'
+                numeric_literal: '100'
                 binary_operator: '*'
                 column_reference:
                   naked_identifier: fraction
@@ -60,7 +60,7 @@ file:
         binary_operator:
         - pipe: '|'
         - pipe: '|'
-        literal: "' %'"
+        quoted_literal: "' %'"
     - statement_terminator: ;
     - keyword: END
     - function_reference:
@@ -81,7 +81,7 @@ file:
         keyword: VARCHAR
         bracketed:
           start_bracket: (
-          literal: '10'
+          numeric_literal: '10'
           end_bracket: )
     - keyword: AS
     - variable: res
@@ -107,7 +107,7 @@ file:
           statement_terminator: ;
     - keyword: RETURN
     - expression:
-        literal: "'HELLO'"
+        quoted_literal: "'HELLO'"
     - statement_terminator: ;
     - keyword: END
     - function_reference:
@@ -128,7 +128,7 @@ file:
         keyword: VARCHAR
         bracketed:
           start_bracket: (
-          literal: '10'
+          numeric_literal: '10'
           end_bracket: )
     - keyword: AS
     - variable: res
@@ -150,10 +150,10 @@ file:
                     naked_identifier: input_variable
                   comparison_operator:
                     raw_comparison_operator: <
-                  literal: '0'
+                  numeric_literal: '0'
               - keyword: THEN
               - expression:
-                  literal: '0'
+                  numeric_literal: '0'
             - else_clause:
                 keyword: ELSE
                 expression:
@@ -185,7 +185,7 @@ file:
         keyword: VARCHAR
         bracketed:
           start_bracket: (
-          literal: '10'
+          numeric_literal: '10'
           end_bracket: )
     - keyword: AS
     - variable: res
@@ -197,7 +197,7 @@ file:
         function_assignment:
           variable: res
           assignment_operator: :=
-          literal: "'Hello World'"
+          quoted_literal: "'Hello World'"
           statement_terminator: ;
     - keyword: RETURN
     - expression:
@@ -223,7 +223,7 @@ file:
         keyword: VARCHAR
         bracketed:
           start_bracket: (
-          literal: '10'
+          numeric_literal: '10'
           end_bracket: )
     - keyword: AS
     - variable: res
@@ -239,7 +239,7 @@ file:
               naked_identifier: input_variable
             comparison_operator:
               raw_comparison_operator: '='
-            literal: '0'
+            numeric_literal: '0'
         - keyword: THEN
         - function_body:
             function_assignment:
@@ -253,13 +253,13 @@ file:
               naked_identifier: input_variable
             comparison_operator:
               raw_comparison_operator: '='
-            literal: '1'
+            numeric_literal: '1'
         - keyword: THEN
         - function_body:
             function_assignment:
               variable: res
               assignment_operator: :=
-              literal: "'HELLO'"
+              quoted_literal: "'HELLO'"
               statement_terminator: ;
         - keyword: ELSEIF
         - expression:
@@ -267,13 +267,13 @@ file:
               naked_identifier: input_variable
             comparison_operator:
               raw_comparison_operator: '='
-            literal: '2'
+            numeric_literal: '2'
         - keyword: THEN
         - function_body:
             function_assignment:
               variable: res
               assignment_operator: :=
-              literal: "'HALLO'"
+              quoted_literal: "'HALLO'"
               statement_terminator: ;
         - keyword: ELSE
         - function_body:
@@ -309,7 +309,7 @@ file:
         keyword: VARCHAR
         bracketed:
           start_bracket: (
-          literal: '10'
+          numeric_literal: '10'
           end_bracket: )
     - keyword: AS
     - variable: res
@@ -323,7 +323,7 @@ file:
         - naked_identifier: cnt
         - assignment_operator: :=
         - expression:
-            literal: '1'
+            numeric_literal: '1'
         - keyword: TO
         - expression:
             column_reference:
@@ -337,7 +337,7 @@ file:
                 column_reference:
                   naked_identifier: res
                 binary_operator: '*'
-                literal: '2'
+                numeric_literal: '2'
               statement_terminator: ;
         - keyword: END
         - keyword: FOR
@@ -366,7 +366,7 @@ file:
         keyword: VARCHAR
         bracketed:
           start_bracket: (
-          literal: '10'
+          numeric_literal: '10'
           end_bracket: )
     - keyword: AS
     - variable: res
@@ -380,10 +380,10 @@ file:
         - naked_identifier: cnt
         - keyword: IN
         - expression:
-            literal: '1'
+            numeric_literal: '1'
         - range_operator: ..
         - expression:
-            literal: '10'
+            numeric_literal: '10'
         - keyword: LOOP
         - function_body:
             function_assignment:
@@ -393,7 +393,7 @@ file:
                 column_reference:
                   naked_identifier: res
                 binary_operator: '*'
-                literal: '2'
+                numeric_literal: '2'
               statement_terminator: ;
         - keyword: END
         - keyword: LOOP
@@ -422,7 +422,7 @@ file:
         keyword: VARCHAR
         bracketed:
           start_bracket: (
-          literal: '10'
+          numeric_literal: '10'
           end_bracket: )
     - keyword: AS
     - variable: res
@@ -450,7 +450,7 @@ file:
                 column_reference:
                   naked_identifier: res
                 binary_operator: '*'
-                literal: '2'
+                numeric_literal: '2'
               statement_terminator: ;
         - function_body:
             function_assignment:
@@ -460,7 +460,7 @@ file:
                 column_reference:
                   naked_identifier: cnt
                 binary_operator: +
-                literal: '1'
+                numeric_literal: '1'
               statement_terminator: ;
         - keyword: END
         - keyword: WHILE
@@ -490,7 +490,7 @@ file:
           keyword: VARCHAR
           bracketed:
             start_bracket: (
-            literal: '6'
+            numeric_literal: '6'
             end_bracket: )
       - comma: ','
       - naked_identifier: p2
@@ -498,7 +498,7 @@ file:
           keyword: VARCHAR
           bracketed:
             start_bracket: (
-            literal: '10'
+            numeric_literal: '10'
             end_bracket: )
       - end_bracket: )
     - keyword: RETURN
@@ -506,7 +506,7 @@ file:
         keyword: VARCHAR
         bracketed:
           start_bracket: (
-          literal: '20'
+          numeric_literal: '20'
           end_bracket: )
     - keyword: IS
     - variable: res
@@ -514,7 +514,7 @@ file:
         keyword: VARCHAR
         bracketed:
           start_bracket: (
-          literal: '20'
+          numeric_literal: '20'
           end_bracket: )
     - statement_terminator: ;
     - keyword: BEGIN
@@ -542,13 +542,13 @@ file:
                   naked_identifier: p1
                 comparison_operator:
                   raw_comparison_operator: '='
-                literal: '1'
+                numeric_literal: '1'
             - keyword: THEN
             - function_body:
                 function_assignment:
                   variable: res
                   assignment_operator: :=
-                  literal: "'Hello World'"
+                  quoted_literal: "'Hello World'"
                   statement_terminator: ;
             - keyword: ELSE
             - function_body:
@@ -559,13 +559,13 @@ file:
                       naked_identifier: p2
                     comparison_operator:
                       raw_comparison_operator: '='
-                    literal: '3'
+                    numeric_literal: '3'
                 - keyword: THEN
                 - function_body:
                     function_assignment:
                       variable: res
                       assignment_operator: :=
-                      literal: "'ABC'"
+                      quoted_literal: "'ABC'"
                       statement_terminator: ;
                 - keyword: END
                 - keyword: IF
@@ -574,7 +574,7 @@ file:
                 function_assignment:
                   variable: res
                   assignment_operator: :=
-                  literal: "'WOHOOOO'"
+                  quoted_literal: "'WOHOOOO'"
                   statement_terminator: ;
             - keyword: END
             - keyword: IF

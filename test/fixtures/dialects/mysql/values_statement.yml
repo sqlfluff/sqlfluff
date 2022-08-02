@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 61fe61f9ec9fc6536dfa997d315e7487164aed23166472826132415009c5f96d
+_hash: 1893e8f35a9e6325fa4f201ba680eb0dfc513d1409b9bf448744a4409aaf8c49
 file:
 - statement:
     values_clause:
@@ -15,7 +15,7 @@ file:
           literal: "'a'"
       - comma: ','
       - expression:
-          literal: '1'
+          numeric_literal: '1'
       - end_bracket: )
     - comma: ','
     - keyword: ROW
@@ -25,7 +25,7 @@ file:
           literal: "'b'"
       - comma: ','
       - expression:
-          literal: '2'
+          numeric_literal: '2'
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -38,7 +38,7 @@ file:
           literal: "'a'"
       - comma: ','
       - expression:
-          literal: '1'
+          numeric_literal: '1'
       - end_bracket: )
     - comma: ','
     - keyword: ROW
@@ -55,9 +55,9 @@ file:
               end_bracket: )
       - comma: ','
       - expression:
-        - literal: '2'
+        - numeric_literal: '2'
         - binary_operator: +
-        - literal: '1'
+        - numeric_literal: '1'
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -77,7 +77,7 @@ file:
             expression:
               numeric_literal:
                 sign_indicator: '-'
-                literal: '5'
+                numeric_literal: '5'
             date_part: day
       - end_bracket: )
 - statement_terminator: ;

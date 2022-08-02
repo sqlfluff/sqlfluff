@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9a44d886b867398d4865a833146a7334629840a2bcad3a4e745484279aec82b3
+_hash: 4b566ceea9d591b537356005ca503574fcfe0cdb0430c274aeb6af4f39dbdbdd
 file:
   statement:
     create_table_statement:
@@ -23,7 +23,7 @@ file:
             bracketed:
               start_bracket: (
               expression:
-                literal: '6'
+                numeric_literal: '6'
               end_bracket: )
           td_column_attribute_constraint:
           - keyword: character
@@ -41,7 +41,7 @@ file:
             bracketed:
               start_bracket: (
               expression:
-                literal: '3'
+                numeric_literal: '3'
               end_bracket: )
           td_column_attribute_constraint:
           - keyword: character
@@ -59,7 +59,7 @@ file:
             bracketed:
               start_bracket: (
               expression:
-                literal: '10'
+                numeric_literal: '10'
               end_bracket: )
           td_column_attribute_constraint:
             keyword: uppercase
@@ -75,7 +75,7 @@ file:
             bracketed:
               start_bracket: (
               expression:
-                literal: '6'
+                numeric_literal: '6'
               end_bracket: )
           td_column_attribute_constraint:
           - keyword: character
@@ -93,7 +93,7 @@ file:
             bracketed:
               start_bracket: (
               expression:
-                literal: '3'
+                numeric_literal: '3'
               end_bracket: )
           td_column_attribute_constraint:
           - keyword: character
@@ -111,7 +111,7 @@ file:
             bracketed:
               start_bracket: (
               expression:
-                literal: '10'
+                numeric_literal: '10'
               end_bracket: )
           td_column_attribute_constraint:
             keyword: uppercase

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6ce91ec0edd4f20bd8735511fe993e7f3bcb0dc5f6980ef07130d264db5192c6
+_hash: 87dd05785ad3220e7bac745305c6618f19eabfbd42c11daea449ffef47ce2407
 file:
 - statement:
     create_external_function_statement:
@@ -85,7 +85,7 @@ file:
     - keyword: MAX_BATCH_ROWS
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: '50'
+    - numeric_literal: '50'
     - keyword: COMPRESSION
     - comparison_operator:
         raw_comparison_operator: '='
@@ -165,7 +165,7 @@ file:
     - keyword: MAX_BATCH_ROWS
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: '50'
+    - numeric_literal: '50'
     - keyword: COMPRESSION
     - comparison_operator:
         raw_comparison_operator: '='
@@ -248,7 +248,7 @@ file:
     - keyword: MAX_BATCH_ROWS
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: '50'
+    - numeric_literal: '50'
     - keyword: COMPRESSION
     - comparison_operator:
         raw_comparison_operator: '='

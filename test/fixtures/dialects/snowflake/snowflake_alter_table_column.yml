@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2258cd76fc9eadcb6a578732bbad524f958967fe936f1fbfb8985b0fbd657b9e
+_hash: b4178f0d1a17e126b56728f03667e80493bee8b36dac7aa276c3477395d5fc42
 file:
 - statement:
     alter_table_statement:
@@ -35,7 +35,7 @@ file:
             bracketed:
               start_bracket: (
               expression:
-                literal: '5000'
+                numeric_literal: '5000'
               end_bracket: )
           column_constraint_segment:
           - keyword: NOT
@@ -75,7 +75,7 @@ file:
           data_type_identifier: INTEGER
       - keyword: DEFAULT
       - expression:
-          literal: '1'
+          numeric_literal: '1'
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -123,9 +123,9 @@ file:
       - keyword: AUTOINCREMENT
       - bracketed:
         - start_bracket: (
-        - literal: '10000'
+        - numeric_literal: '10000'
         - comma: ','
-        - literal: '1'
+        - numeric_literal: '1'
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -143,9 +143,9 @@ file:
           data_type_identifier: INTEGER
       - keyword: IDENTITY
       - keyword: START
-      - literal: '10000'
+      - numeric_literal: '10000'
       - keyword: INCREMENT
-      - literal: '1'
+      - numeric_literal: '1'
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -236,7 +236,7 @@ file:
               identifier: my_column
             comparison_operator:
               raw_comparison_operator: '>'
-            literal: '10'
+            numeric_literal: '10'
           end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -339,7 +339,7 @@ file:
           bracketed:
             start_bracket: (
             expression:
-              literal: '50'
+              numeric_literal: '50'
             end_bracket: )
       - comma: ','
       - keyword: column
@@ -434,7 +434,7 @@ file:
               identifier: empl_id
             comparison_operator:
               raw_comparison_operator: '>'
-            literal: '10'
+            numeric_literal: '10'
           end_bracket: )
 - statement_terminator: ;
 - statement:

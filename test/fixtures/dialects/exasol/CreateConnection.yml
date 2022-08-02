@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b24bb69bda4d3f4b0935318ceb891695de929cfe302ddb737c23f4de72e316cc
+_hash: 1b30adf9c54a4aae2b5ccca87f898e2a5c6f7167c6e0b0da80b8a506a067a590
 file:
 - statement:
     create_connection:
@@ -12,12 +12,12 @@ file:
     - naked_identifier: ftp_connection
     - keyword: TO
     - connection_definition:
-      - literal: "'ftp://192.168.1.1/'"
+      - quoted_literal: "'ftp://192.168.1.1/'"
       - keyword: USER
-      - literal: "'agent_007'"
+      - quoted_literal: "'agent_007'"
       - keyword: IDENTIFIED
       - keyword: BY
-      - literal: "'secret'"
+      - quoted_literal: "'secret'"
 - statement_terminator: ;
 - statement:
     create_connection:
@@ -26,7 +26,7 @@ file:
     - naked_identifier: exa_connection
     - keyword: TO
     - connection_definition:
-        literal: "'192.168.6.11..14:8563'"
+        quoted_literal: "'192.168.6.11..14:8563'"
 - statement_terminator: ;
 - statement:
     create_connection:
@@ -35,7 +35,7 @@ file:
     - naked_identifier: ora_connection
     - keyword: TO
     - connection_definition:
-        literal: "'(DESCRIPTION =\n    (ADDRESS = (PROTOCOL = TCP)(HOST = 192.168.6.54)(PORT\
+        quoted_literal: "'(DESCRIPTION =\n    (ADDRESS = (PROTOCOL = TCP)(HOST = 192.168.6.54)(PORT\
           \ = 1521))\n    (CONNECT_DATA = (SERVER = DEDICATED)(SERVICE_NAME = orcl)))'"
 - statement_terminator: ;
 - statement:
@@ -45,7 +45,7 @@ file:
     - naked_identifier: jdbc_connection_1
     - keyword: TO
     - connection_definition:
-        literal: "'jdbc:mysql://192.168.6.1/my_db'"
+        quoted_literal: "'jdbc:mysql://192.168.6.1/my_db'"
 - statement_terminator: ;
 - statement:
     create_connection:
@@ -54,5 +54,5 @@ file:
     - naked_identifier: jdbc_connection_2
     - keyword: TO
     - connection_definition:
-        literal: "'jdbc:postgresql://192.168.6.2:5432/my_db?stringtype=unspecified'"
+        quoted_literal: "'jdbc:postgresql://192.168.6.2:5432/my_db?stringtype=unspecified'"
 - statement_terminator: ;

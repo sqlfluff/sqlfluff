@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: aa26996187151dd293e6cfbf12d526cfc84a2d8ae7a686ebccfb5e3d17554d5c
+_hash: 07d87cf85cb9304b5b685159fb88be02af371955f623f78e85a59fd1c512d186
 file:
 - statement:
     select_statement:
@@ -50,7 +50,7 @@ file:
       distribute_by_clause:
       - keyword: DISTRIBUTE
       - keyword: BY
-      - literal: '1'
+      - numeric_literal: '1'
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -122,11 +122,11 @@ file:
                   - expression:
                       numeric_literal:
                         sign_indicator: '-'
-                        literal: '1'
+                        numeric_literal: '1'
                   - end_bracket: )
             - comma: ','
             - expression:
-                literal: '1'
+                numeric_literal: '1'
             - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -155,7 +155,7 @@ file:
           comparison_operator:
           - raw_comparison_operator: <
           - raw_comparison_operator: '='
-          literal: '100'
+          numeric_literal: '100'
       distribute_by_clause:
       - keyword: DISTRIBUTE
       - keyword: BY
@@ -228,7 +228,7 @@ file:
               end_bracket: )
           comparison_operator:
             raw_comparison_operator: '>'
-          literal: '1'
+          numeric_literal: '1'
       distribute_by_clause:
       - keyword: DISTRIBUTE
       - keyword: BY

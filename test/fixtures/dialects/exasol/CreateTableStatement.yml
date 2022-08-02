@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2e27fb96b4371ed2ceafe84af6b0e53ee17a2da1cdac76df7fed5523631ee6aa
+_hash: 0e42fd85a50adbe93a29b3dd9037595c4f09a3a7a5c67c84eebd2daa2369f7cd
 file:
 - statement:
     create_table_statement:
@@ -23,7 +23,7 @@ file:
               - keyword: VARCHAR
               - bracketed:
                   start_bracket: (
-                  literal: '20'
+                  numeric_literal: '20'
                   end_bracket: )
               - keyword: UTF8
       - comma: ','
@@ -35,9 +35,9 @@ file:
                 keyword: DECIMAL
                 bracketed:
                 - start_bracket: (
-                - literal: '24'
+                - numeric_literal: '24'
                 - comma: ','
-                - literal: '4'
+                - numeric_literal: '4'
                 - end_bracket: )
             column_constraint_segment:
               table_constraint_definition:
@@ -46,7 +46,7 @@ file:
               comment_clause:
               - keyword: COMMENT
               - keyword: IS
-              - literal: "'The B column'"
+              - quoted_literal: "'The B column'"
       - comma: ','
       - table_content_definition:
           column_definition:
@@ -56,7 +56,7 @@ file:
                 keyword: DECIMAL
             column_constraint_segment:
               keyword: DEFAULT
-              literal: '122'
+              numeric_literal: '122'
       - comma: ','
       - table_content_definition:
           column_definition:
@@ -141,7 +141,7 @@ file:
               column_reference:
                 naked_identifier: c
               binary_operator: +
-              literal: '1'
+              numeric_literal: '1'
             alias_expression:
               keyword: AS
               naked_identifier: c
@@ -290,7 +290,7 @@ file:
                 keyword: VARCHAR
                 bracketed:
                   start_bracket: (
-                  literal: '40'
+                  numeric_literal: '40'
                   end_bracket: )
       - comma: ','
       - table_content_definition:
@@ -322,7 +322,7 @@ file:
     - comment_clause:
       - keyword: COMMENT
       - keyword: IS
-      - literal: "'a great table'"
+      - quoted_literal: "'a great table'"
 - statement_terminator: ;
 - statement:
     create_table_statement:
@@ -362,7 +362,7 @@ file:
                 keyword: VARCHAR
                 bracketed:
                   start_bracket: (
-                  literal: '20'
+                  numeric_literal: '20'
                   end_bracket: )
       - end_bracket: )
 - statement_terminator: ;
@@ -387,9 +387,9 @@ file:
                 keyword: DECIMAL
                 bracketed:
                 - start_bracket: (
-                - literal: '18'
+                - numeric_literal: '18'
                 - comma: ','
-                - literal: '0'
+                - numeric_literal: '0'
                 - end_bracket: )
             column_constraint_segment:
               keyword: IDENTITY
@@ -401,12 +401,12 @@ file:
               comment_clause:
               - keyword: COMMENT
               - keyword: IS
-              - literal: "'without constraint name'"
+              - quoted_literal: "'without constraint name'"
         end_bracket: )
     - comment_clause:
       - keyword: COMMENT
       - keyword: IS
-      - literal: "'a nice table'"
+      - quoted_literal: "'a nice table'"
 - statement_terminator: ;
 - statement:
     create_table_statement:
@@ -426,9 +426,9 @@ file:
                 keyword: DECIMAL
                 bracketed:
                 - start_bracket: (
-                - literal: '18'
+                - numeric_literal: '18'
                 - comma: ','
-                - literal: '0'
+                - numeric_literal: '0'
                 - end_bracket: )
       - comma: ','
       - table_content_definition:
@@ -439,7 +439,7 @@ file:
                 keyword: CHAR
                 bracketed:
                   start_bracket: (
-                  literal: '1'
+                  numeric_literal: '1'
                   end_bracket: )
       - comma: ','
       - table_content_definition:
@@ -472,9 +472,9 @@ file:
                 keyword: DECIMAL
                 bracketed:
                 - start_bracket: (
-                - literal: '18'
+                - numeric_literal: '18'
                 - comma: ','
-                - literal: '0'
+                - numeric_literal: '0'
                 - end_bracket: )
       - comma: ','
       - table_content_definition:
@@ -485,7 +485,7 @@ file:
                 keyword: CHAR
                 bracketed:
                   start_bracket: (
-                  literal: '1'
+                  numeric_literal: '1'
                   end_bracket: )
       - comma: ','
       - table_content_definition:
@@ -519,7 +519,7 @@ file:
                 keyword: CHAR
                 bracketed:
                   start_bracket: (
-                  literal: '1'
+                  numeric_literal: '1'
                   end_bracket: )
             column_constraint_segment:
               table_constraint_definition:
@@ -553,7 +553,7 @@ file:
     - comment_clause:
       - keyword: COMMENT
       - keyword: IS
-      - literal: "'BLABLA'"
+      - quoted_literal: "'BLABLA'"
 - statement_terminator: ;
 - statement:
     create_table_statement:
@@ -613,5 +613,5 @@ file:
     - comment_clause:
       - keyword: COMMENT
       - keyword: IS
-      - literal: "'ABC'"
+      - quoted_literal: "'ABC'"
 - statement_terminator: ;

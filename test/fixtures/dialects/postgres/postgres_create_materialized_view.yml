@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c015f16892e42d10c2c5ccbbc23f784b3bafc98f254e4c49a1bd1cfa7283074e
+_hash: b0eb41bbfff930069d2dee1c38806061e4d02c975049a911ff45b4c6f5f2f892
 file:
 - statement:
     create_materialized_view_statement:
@@ -438,7 +438,7 @@ file:
       - parameter: prop_a
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: '1'
+      - numeric_literal: '1'
       - comma: ','
       - parameter: prob_b
       - comparison_operator:
@@ -506,7 +506,7 @@ file:
                 naked_identifier: col
               comparison_operator:
                 raw_comparison_operator: '>'
-              literal: '2'
+              numeric_literal: '2'
         end_bracket: )
     - with_data_clause:
       - keyword: WITH
@@ -533,7 +533,7 @@ file:
       - parameter: prop_a
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: '1'
+      - numeric_literal: '1'
       - comma: ','
       - parameter: prob_b
       - comparison_operator:
@@ -601,7 +601,7 @@ file:
                 naked_identifier: col
               comparison_operator:
                 raw_comparison_operator: '>'
-              literal: '2'
+              numeric_literal: '2'
         end_bracket: )
     - with_data_clause:
       - keyword: WITH

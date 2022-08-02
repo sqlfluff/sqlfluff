@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 087cf74b775d498807f5cd551236d2c42ddff52ef7372784915717363f31bf8f
+_hash: f22d569afdcb89d848ee18f33b4b2e6266e14a562eaafb3c38dc15add5be1c80
 file:
 - statement:
     create_schema_statement:
@@ -55,7 +55,7 @@ file:
     - object_reference:
         naked_identifier: dwuser
     - keyword: QUOTA
-    - literal: '100'
+    - numeric_literal: '100'
     - keyword: MB
 - statement_terminator: ;
 - statement:
@@ -71,7 +71,7 @@ file:
     - object_reference:
         naked_identifier: dwuser
     - keyword: QUOTA
-    - literal: '100'
+    - numeric_literal: '100'
     - keyword: MB
 - statement_terminator: ;
 - statement:
@@ -84,7 +84,7 @@ file:
     - object_reference:
         naked_identifier: dwuser
     - keyword: QUOTA
-    - literal: '5'
+    - numeric_literal: '5'
     - keyword: GB
 - statement_terminator: ;
 - statement:
@@ -100,7 +100,7 @@ file:
     - object_reference:
         naked_identifier: dwuser
     - keyword: QUOTA
-    - literal: '5'
+    - numeric_literal: '5'
     - keyword: GB
 - statement_terminator: ;
 - statement:
@@ -113,7 +113,7 @@ file:
     - object_reference:
         naked_identifier: dwuser
     - keyword: QUOTA
-    - literal: '0.1'
+    - numeric_literal: '0.1'
     - keyword: TB
 - statement_terminator: ;
 - statement:
@@ -129,7 +129,7 @@ file:
     - object_reference:
         naked_identifier: dwuser
     - keyword: QUOTA
-    - literal: '0.1'
+    - numeric_literal: '0.1'
     - keyword: TB
 - statement_terminator: ;
 - statement:
@@ -175,7 +175,7 @@ file:
     - object_reference:
         naked_identifier: dwuser
     - keyword: QUOTA
-    - literal: '100'
+    - numeric_literal: '100'
     - keyword: MB
 - statement_terminator: ;
 - statement:
@@ -186,7 +186,7 @@ file:
     - object_reference:
         naked_identifier: dwuser
     - keyword: QUOTA
-    - literal: '5'
+    - numeric_literal: '5'
     - keyword: GB
 - statement_terminator: ;
 - statement:
@@ -197,7 +197,7 @@ file:
     - object_reference:
         naked_identifier: dwuser
     - keyword: QUOTA
-    - literal: '0.1'
+    - numeric_literal: '0.1'
     - keyword: TB
 - statement_terminator: ;
 - statement:

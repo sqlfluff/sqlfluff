@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2808629983f6481182725498e9c9918dc64eda30d6b9ea1552a046533272fd70
+_hash: 26160edae3c35eb2b1df2bb4f32b6bcf02cfa0407ff5645a30c95cf0f750d508
 file:
 - statement:
     alter_table_statement:
@@ -111,7 +111,7 @@ file:
           naked_identifier: Age
         comparison_operator:
           raw_comparison_operator: '='
-        literal: '18'
+        numeric_literal: '18'
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -131,7 +131,7 @@ file:
           naked_identifier: Age
         comparison_operator:
           raw_comparison_operator: '='
-        literal: '18'
+        numeric_literal: '18'
         end_bracket: )
     - keyword: PARTITION
     - bracketed:
@@ -140,7 +140,7 @@ file:
           naked_identifier: Age
         comparison_operator:
           raw_comparison_operator: '='
-        literal: '20'
+        numeric_literal: '20'
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -159,7 +159,7 @@ file:
           naked_identifier: Age
         comparison_operator:
           raw_comparison_operator: '='
-        literal: '18'
+        numeric_literal: '18'
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -319,13 +319,13 @@ file:
           naked_identifier: Month
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: '2'
+      - numeric_literal: '2'
       - comma: ','
       - column_reference:
           naked_identifier: Day
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: '2'
+      - numeric_literal: '2'
       - end_bracket: )
     - keyword: SET
     - keyword: FILEFORMAT

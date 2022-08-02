@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 65649d9739ba8a6d30c0a7a4335e2234d5f1c082add44c8e661823c52e0fdd3d
+_hash: c1a2b25cdbdf47210e66ae07cab232d7a6820dfc411e0505064e56c472390cfd
 file:
 - statement:
     create_external_table_statement:
@@ -21,16 +21,16 @@ file:
         - parameter: format
         - comparison_operator:
             raw_comparison_operator: '='
-        - literal: "'CSV'"
+        - quoted_literal: "'CSV'"
         - comma: ','
         - parameter: uris
         - comparison_operator:
             raw_comparison_operator: '='
         - array_literal:
           - start_square_bracket: '['
-          - literal: "'gs://bucket/path1.csv'"
+          - quoted_literal: "'gs://bucket/path1.csv'"
           - comma: ','
-          - literal: "'gs://bucket/path2.csv'"
+          - quoted_literal: "'gs://bucket/path2.csv'"
           - end_square_bracket: ']'
         - end_bracket: )
 - statement_terminator: ;
@@ -64,20 +64,20 @@ file:
         - parameter: format
         - comparison_operator:
             raw_comparison_operator: '='
-        - literal: "'CSV'"
+        - quoted_literal: "'CSV'"
         - comma: ','
         - parameter: uris
         - comparison_operator:
             raw_comparison_operator: '='
         - array_literal:
             start_square_bracket: '['
-            literal: "'gs://bucket/path1.csv'"
+            quoted_literal: "'gs://bucket/path1.csv'"
             end_square_bracket: ']'
         - comma: ','
         - parameter: field_delimiter
         - comparison_operator:
             raw_comparison_operator: '='
-        - literal: "'|'"
+        - quoted_literal: "'|'"
         - comma: ','
         - parameter: max_bad_records
         - comparison_operator:
@@ -106,7 +106,7 @@ file:
             raw_comparison_operator: '='
         - array_literal:
             start_square_bracket: '['
-            literal: "'gs://bucket/path/*'"
+            quoted_literal: "'gs://bucket/path/*'"
             end_square_bracket: ']'
         - comma: ','
         - parameter: format
@@ -118,7 +118,7 @@ file:
         - parameter: hive_partition_uri_prefix
         - comparison_operator:
             raw_comparison_operator: '='
-        - literal: "'gs://bucket/path'"
+        - quoted_literal: "'gs://bucket/path'"
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -154,7 +154,7 @@ file:
             raw_comparison_operator: '='
         - array_literal:
             start_square_bracket: '['
-            literal: "'gs://bucket/path/*'"
+            quoted_literal: "'gs://bucket/path/*'"
             end_square_bracket: ']'
         - comma: ','
         - parameter: format
@@ -166,7 +166,7 @@ file:
         - parameter: hive_partition_uri_prefix
         - comparison_operator:
             raw_comparison_operator: '='
-        - literal: "'gs://bucket/path'"
+        - quoted_literal: "'gs://bucket/path'"
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -187,7 +187,7 @@ file:
             raw_comparison_operator: '='
         - array_literal:
             start_square_bracket: '['
-            literal: "'gs://bucket/path/*'"
+            quoted_literal: "'gs://bucket/path/*'"
             end_square_bracket: ']'
         - comma: ','
         - parameter: format
@@ -199,7 +199,7 @@ file:
         - parameter: hive_partition_uri_prefix
         - comparison_operator:
             raw_comparison_operator: '='
-        - literal: "'gs://bucket/path'"
+        - quoted_literal: "'gs://bucket/path'"
         - end_bracket: )
     - keyword: WITH
     - keyword: PARTITION

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0f7bc679f7f9f323fffa2eabd1c41541e4dd923de15db99f23ac06daff0e58cc
+_hash: 1972e838880e449d4187a8c7cc9fce8f821e315f5ceceb01e1859bdeb28b0f0b
 file:
 - statement:
     insert_statement:
@@ -43,19 +43,19 @@ file:
       - bracketed:
         - start_bracket: (
         - expression:
-            literal: '1'
+            numeric_literal: '1'
         - comma: ','
         - expression:
-            literal: '2'
+            numeric_literal: '2'
         - end_bracket: )
       - comma: ','
       - bracketed:
         - start_bracket: (
         - expression:
-            literal: '3'
+            numeric_literal: '3'
         - comma: ','
         - expression:
-            literal: '4'
+            numeric_literal: '4'
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -77,21 +77,21 @@ file:
       - bracketed:
         - start_bracket: (
         - expression:
-          - literal: '1'
+          - numeric_literal: '1'
           - binary_operator: +
-          - literal: '1'
+          - numeric_literal: '1'
         - comma: ','
         - expression:
-            literal: '2'
+            numeric_literal: '2'
         - end_bracket: )
       - comma: ','
       - bracketed:
         - start_bracket: (
         - expression:
-            literal: '3'
+            numeric_literal: '3'
         - comma: ','
         - expression:
-            literal: '4'
+            numeric_literal: '4'
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -134,7 +134,7 @@ file:
         bracketed:
         - start_bracket: (
         - expression:
-            literal: '8'
+            numeric_literal: '8'
         - comma: ','
         - expression:
             quoted_literal: "'Anvil Distribution'"
@@ -162,7 +162,7 @@ file:
         bracketed:
         - start_bracket: (
         - expression:
-            literal: '1'
+            numeric_literal: '1'
         - comma: ','
         - expression:
             quoted_literal: "'val'"
@@ -190,7 +190,7 @@ file:
         bracketed:
         - start_bracket: (
         - expression:
-            literal: '1'
+            numeric_literal: '1'
         - comma: ','
         - expression:
             quoted_literal: "'val'"
@@ -328,10 +328,10 @@ file:
         bracketed:
         - start_bracket: (
         - expression:
-            literal: '1'
+            numeric_literal: '1'
         - comma: ','
         - expression:
-            literal: '2'
+            numeric_literal: '2'
         - end_bracket: )
     - keyword: RETURNING
     - expression:
@@ -361,10 +361,10 @@ file:
         bracketed:
         - start_bracket: (
         - expression:
-            literal: '1'
+            numeric_literal: '1'
         - comma: ','
         - expression:
-            literal: '2'
+            numeric_literal: '2'
         - end_bracket: )
     - keyword: RETURNING
     - expression:
@@ -400,7 +400,7 @@ file:
         bracketed:
         - start_bracket: (
         - expression:
-            literal: '1'
+            numeric_literal: '1'
         - comma: ','
         - expression:
             quoted_literal: "'var'"
@@ -446,7 +446,7 @@ file:
         bracketed:
         - start_bracket: (
         - expression:
-            literal: '1'
+            numeric_literal: '1'
         - comma: ','
         - expression:
             quoted_literal: "'var'"
@@ -485,7 +485,7 @@ file:
         bracketed:
         - start_bracket: (
         - expression:
-            literal: '1'
+            numeric_literal: '1'
         - comma: ','
         - expression:
             quoted_literal: "'var'"
@@ -556,7 +556,7 @@ file:
         bracketed:
         - start_bracket: (
         - expression:
-            literal: '1'
+            numeric_literal: '1'
         - comma: ','
         - expression:
             quoted_literal: "'var'"
@@ -590,7 +590,7 @@ file:
         bracketed:
         - start_bracket: (
         - expression:
-            literal: '1'
+            numeric_literal: '1'
         - comma: ','
         - expression:
             quoted_literal: "'var'"
@@ -630,7 +630,7 @@ file:
         bracketed:
         - start_bracket: (
         - expression:
-            literal: '1'
+            numeric_literal: '1'
         - comma: ','
         - expression:
             quoted_literal: "'var'"
@@ -677,7 +677,7 @@ file:
                     naked_identifier: bar
                   comparison_operator:
                     raw_comparison_operator: '='
-                  literal: '1'
+                  numeric_literal: '1'
           end_bracket: )
 - statement_terminator: ;
 - statement:

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b39673d0a21fecc56fac7b5ee0772e9988aab529c0b8aaf747fbf6a43bbb0e41
+_hash: b927b56eaf9af8b279a5d3e08157a66324f3bfd85c0d0ec3ce36b3b949a229d1
 file:
 - statement:
     create_user_statement:
@@ -168,7 +168,7 @@ file:
     - quoted_literal: "'md5153c434b4b77c89e6b94f12c5393af5b'"
     - keyword: CONNECTION
     - keyword: LIMIT
-    - literal: '30'
+    - numeric_literal: '30'
 - statement_terminator: ;
 - statement:
     create_user_statement:
@@ -192,5 +192,5 @@ file:
     - quoted_literal: "'md5153c434b4b77c89e6b94f12c5393af5b'"
     - keyword: SESSION
     - keyword: TIMEOUT
-    - literal: '120'
+    - numeric_literal: '120'
 - statement_terminator: ;

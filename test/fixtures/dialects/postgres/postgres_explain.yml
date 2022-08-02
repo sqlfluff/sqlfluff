@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8eb040f7b9995d6b2524bdf941165ed365a4d68796df81a04576df5d7bf57604
+_hash: b43be4e2d4d82bc59868e3fea7954af36498598340cdc0d885be35d2da8ecbf5
 file:
 - statement:
     explain_statement:
@@ -54,7 +54,7 @@ file:
         select_clause:
           keyword: select
           select_clause_element:
-            literal: '1'
+            numeric_literal: '1'
 - statement_terminator: ;
 - statement:
     explain_statement:
@@ -105,7 +105,7 @@ file:
         select_clause:
           keyword: select
           select_clause_element:
-            literal: '1'
+            numeric_literal: '1'
 - statement_terminator: ;
 - statement:
     explain_statement:
@@ -147,7 +147,7 @@ file:
         select_clause:
           keyword: select
           select_clause_element:
-            literal: '1'
+            numeric_literal: '1'
 - statement_terminator: ;
 - statement:
     explain_statement:
@@ -158,7 +158,7 @@ file:
         select_clause:
           keyword: select
           select_clause_element:
-            literal: '1'
+            numeric_literal: '1'
 - statement_terminator: ;
 - statement:
     explain_statement:
@@ -169,7 +169,7 @@ file:
         select_clause:
           keyword: select
           select_clause_element:
-            literal: '1'
+            numeric_literal: '1'
 - statement_terminator: ;
 - statement:
     explain_statement:
@@ -179,7 +179,7 @@ file:
         select_clause:
           keyword: select
           select_clause_element:
-            literal: '1'
+            numeric_literal: '1'
 - statement_terminator: ;
 - statement:
     explain_statement:
@@ -189,7 +189,7 @@ file:
         select_clause:
           keyword: select
           select_clause_element:
-            literal: '1'
+            numeric_literal: '1'
 - statement_terminator: ;
 - statement:
     explain_statement:
@@ -204,7 +204,7 @@ file:
         select_clause:
           keyword: select
           select_clause_element:
-            literal: '1'
+            numeric_literal: '1'
 - statement_terminator: ;
 - statement:
     explain_statement:
@@ -219,7 +219,7 @@ file:
         select_clause:
           keyword: select
           select_clause_element:
-            literal: '1'
+            numeric_literal: '1'
 - statement_terminator: ;
 - statement:
     explain_statement:
@@ -234,5 +234,5 @@ file:
         select_clause:
           keyword: select
           select_clause_element:
-            literal: '1'
+            numeric_literal: '1'
 - statement_terminator: ;

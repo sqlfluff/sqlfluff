@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5bc6f92026663b9dc418732d617c09014e25bf2d752fce2fae57b20199063a5e
+_hash: dd8234a97825defa11505759366dc1e3a6482097f2c3056f6f82e592de8a0081
 file:
   statement:
     create_table_statement:
@@ -46,32 +46,32 @@ file:
       - bracketed:
         - start_bracket: (
         - bracketed:
-          - start_bracket: (
-          - literal: "'s1'"
-          - comma: ','
-          - literal: '1'
-          - end_bracket: )
+            start_bracket: (
+            literal: "'s1'"
+            comma: ','
+            numeric_literal: '1'
+            end_bracket: )
         - comma: ','
         - bracketed:
-          - start_bracket: (
-          - literal: "'s3'"
-          - comma: ','
-          - literal: '3'
-          - end_bracket: )
+            start_bracket: (
+            literal: "'s3'"
+            comma: ','
+            numeric_literal: '3'
+            end_bracket: )
         - comma: ','
         - bracketed:
-          - start_bracket: (
-          - literal: "'s13'"
-          - comma: ','
-          - literal: '13'
-          - end_bracket: )
+            start_bracket: (
+            literal: "'s13'"
+            comma: ','
+            numeric_literal: '13'
+            end_bracket: )
         - comma: ','
         - bracketed:
-          - start_bracket: (
-          - literal: "'s78'"
-          - comma: ','
-          - literal: '78'
-          - end_bracket: )
+            start_bracket: (
+            literal: "'s78'"
+            comma: ','
+            numeric_literal: '78'
+            end_bracket: )
         - end_bracket: )
       - keyword: STORED
       - keyword: AS

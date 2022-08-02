@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8dbcb097be72f13a32e517e97c923e0405116f7acf959d0501819a34ff35ba08
+_hash: df92e15b443b724bc6eda497969a78e2b1e3d638f0cbb0fa275d1d26873fda4d
 file:
   statement:
     create_udf_script:
@@ -21,7 +21,7 @@ file:
             keyword: varchar
             bracketed:
               start_bracket: (
-              literal: '10000'
+              numeric_literal: '10000'
               end_bracket: )
         end_bracket: )
     - emits_segment:
@@ -34,7 +34,7 @@ file:
               keyword: varchar
               bracketed:
                 start_bracket: (
-                literal: '100'
+                numeric_literal: '100'
                 end_bracket: )
           end_bracket: )
     - keyword: AS

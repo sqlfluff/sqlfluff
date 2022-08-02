@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5320230a1ca68c5d4481c06f8242ace843cc722f1fdaf12644ac9b4dda68b3a4
+_hash: ffe0de2c6413a5f57b2ad950d92a11bbfd256c6a19ee29b6db333c5d27eb17f0
 file:
 - statement:
     vacuum_statement:
@@ -21,7 +21,7 @@ file:
     - table_reference:
         naked_identifier: sales
     - keyword: to
-    - literal: '100'
+    - numeric_literal: '100'
     - keyword: percent
 - statement_terminator: ;
 - statement:
@@ -39,7 +39,7 @@ file:
     - table_reference:
         naked_identifier: sales
     - keyword: to
-    - literal: '75'
+    - numeric_literal: '75'
     - keyword: percent
 - statement_terminator: ;
 - statement:
@@ -50,7 +50,7 @@ file:
     - table_reference:
         naked_identifier: sales
     - keyword: to
-    - literal: '75'
+    - numeric_literal: '75'
     - keyword: percent
 - statement_terminator: ;
 - statement:
@@ -67,7 +67,7 @@ file:
     - table_reference:
         naked_identifier: listing
     - keyword: to
-    - literal: '75'
+    - numeric_literal: '75'
     - keyword: percent
 - statement_terminator: ;
 - statement:
@@ -76,7 +76,7 @@ file:
     - table_reference:
         naked_identifier: listing
     - keyword: to
-    - literal: '75'
+    - numeric_literal: '75'
     - keyword: percent
     - keyword: BOOST
 - statement_terminator: ;

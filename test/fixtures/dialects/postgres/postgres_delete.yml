@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1ef5ffc1f2d6e6ee6f186700eee9aade55c473279c153b26d26854a2a0d4955d
+_hash: 807bc630f751ca3385876e9134d7b8d6e4a64f4898fca5dcfe14f3cf656b92b2
 file:
 - statement:
     delete_statement:
@@ -511,7 +511,7 @@ file:
               bracketed:
                 start_bracket: (
                 expression:
-                  literal: '1'
+                  numeric_literal: '1'
                 end_bracket: )
             set_operator:
             - keyword: UNION
@@ -524,7 +524,7 @@ file:
                     column_reference:
                       naked_identifier: n
                     binary_operator: +
-                    literal: '1'
+                    numeric_literal: '1'
               from_clause:
                 keyword: FROM
                 from_expression:
@@ -539,7 +539,7 @@ file:
                     naked_identifier: n
                   comparison_operator:
                     raw_comparison_operator: <
-                  literal: '100'
+                  numeric_literal: '100'
           end_bracket: )
     - delete_statement:
       - keyword: DELETE

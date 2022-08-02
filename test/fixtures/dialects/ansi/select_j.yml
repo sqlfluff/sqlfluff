@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c6b5d6016ecbd453c283758d4857569a80936359809f355ab7b7de10addda87a
+_hash: ffec6e9074ce8a42448d7c3d36e8a74fc167e756673f39e2140078afcc746d79
 file:
 - statement:
     select_statement:
@@ -24,7 +24,7 @@ file:
                         naked_identifier: sd2
                   - comma: ','
                   - expression:
-                      literal: '2'
+                      numeric_literal: '2'
                   - end_bracket: )
               - binary_operator: +
               - function:
@@ -37,7 +37,7 @@ file:
                         naked_identifier: sd3
                   - comma: ','
                   - expression:
-                      literal: '2'
+                      numeric_literal: '2'
                   - end_bracket: )
               - binary_operator: +
               - function:
@@ -50,7 +50,7 @@ file:
                         naked_identifier: sd4
                   - comma: ','
                   - expression:
-                      literal: '2'
+                      numeric_literal: '2'
                   - end_bracket: )
               - binary_operator: +
               - function:
@@ -63,7 +63,7 @@ file:
                         naked_identifier: sd4
                   - comma: ','
                   - expression:
-                      literal: '2'
+                      numeric_literal: '2'
                   - end_bracket: )
               end_bracket: )
           alias_expression:
@@ -95,11 +95,11 @@ file:
                     naked_identifier: max_month
               - keyword: THEN
               - expression:
-                  literal: '1'
+                  numeric_literal: '1'
             - else_clause:
                 keyword: ELSE
                 expression:
-                  literal: '0'
+                  numeric_literal: '0'
             - keyword: END
           alias_expression:
             naked_identifier: churn

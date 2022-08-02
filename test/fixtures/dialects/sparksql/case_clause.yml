@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: aa831360683d19e9e8fcc5aa83a532cd54771e1de52af040cd81386b75e1e62e
+_hash: 92642fbd27c00135f2480b91ac9358145d911fc761f5812102f8fc99eaa19a09
 file:
 - statement:
     select_statement:
@@ -24,7 +24,7 @@ file:
                     naked_identifier: id
                   comparison_operator:
                     raw_comparison_operator: '>'
-                  literal: '200'
+                  numeric_literal: '200'
               - keyword: THEN
               - expression:
                   literal: "'bigger'"
@@ -60,7 +60,7 @@ file:
                     naked_identifier: id
                   comparison_operator:
                     raw_comparison_operator: '>'
-                  literal: '200'
+                  numeric_literal: '200'
               - keyword: THEN
               - expression:
                   literal: "'bigger'"
@@ -98,7 +98,7 @@ file:
             - when_clause:
               - keyword: WHEN
               - expression:
-                  literal: '100'
+                  numeric_literal: '100'
               - keyword: THEN
               - expression:
                   literal: "'bigger'"
@@ -109,7 +109,7 @@ file:
                     naked_identifier: id
                   comparison_operator:
                     raw_comparison_operator: '>'
-                  literal: '300'
+                  numeric_literal: '300'
               - keyword: THEN
               - expression:
                   literal: "'300'"
@@ -146,28 +146,28 @@ file:
           case_expression:
           - keyword: CASE
           - expression:
-            - literal: '1'
+            - numeric_literal: '1'
             - comparison_operator:
                 raw_comparison_operator: '='
-            - literal: '1'
+            - numeric_literal: '1'
           - when_clause:
             - keyword: WHEN
             - expression:
-                literal: '100'
+                numeric_literal: '100'
             - keyword: THEN
             - expression:
                 literal: "'big'"
           - when_clause:
             - keyword: WHEN
             - expression:
-                literal: '200'
+                numeric_literal: '200'
             - keyword: THEN
             - expression:
                 literal: "'bigger'"
           - when_clause:
             - keyword: WHEN
             - expression:
-                literal: '300'
+                numeric_literal: '300'
             - keyword: THEN
             - expression:
                 literal: "'biggest'"

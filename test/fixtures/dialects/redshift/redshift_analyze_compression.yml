@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 22e098001799818bca9dd3d09105253739c86ecbbc5968e16157e802f1be5526
+_hash: d0afed803f6f284e6ce947638cc96551cfb53fd8f8506989cf0f815f91da0ce5
 file:
 - statement:
     analyze_statement:
@@ -43,5 +43,5 @@ file:
     - table_reference:
         naked_identifier: sales
     - keyword: comprows
-    - literal: '10000'
+    - numeric_literal: '10000'
 - statement_terminator: ;

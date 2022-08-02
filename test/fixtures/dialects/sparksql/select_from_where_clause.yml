@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4f6da8b2010cc36b44c8abe1f78eb37d86181feeaa38c6ef26d1c1167108dfa2
+_hash: 59a2bc011fdb7b3367b1d7ce3761037c884ce8298414f1fd7d7de2b2e5f349b8
 file:
 - statement:
     select_statement:
@@ -30,7 +30,7 @@ file:
             naked_identifier: id
           comparison_operator:
             raw_comparison_operator: '>'
-          literal: '200'
+          numeric_literal: '200'
       orderby_clause:
       - keyword: ORDER
       - keyword: BY
@@ -62,13 +62,13 @@ file:
             naked_identifier: id
         - comparison_operator:
             raw_comparison_operator: '='
-        - literal: '200'
+        - numeric_literal: '200'
         - binary_operator: OR
         - column_reference:
             naked_identifier: id
         - comparison_operator:
             raw_comparison_operator: '='
-        - literal: '300'
+        - numeric_literal: '300'
       orderby_clause:
       - keyword: ORDER
       - keyword: BY
@@ -107,7 +107,7 @@ file:
               end_bracket: )
           comparison_operator:
             raw_comparison_operator: '>'
-          literal: '3'
+          numeric_literal: '3'
       orderby_clause:
       - keyword: ORDER
       - keyword: BY
@@ -138,9 +138,9 @@ file:
         - column_reference:
             naked_identifier: id
         - keyword: BETWEEN
-        - literal: '200'
+        - numeric_literal: '200'
         - keyword: AND
-        - literal: '300'
+        - numeric_literal: '300'
       orderby_clause:
       - keyword: ORDER
       - keyword: BY
@@ -225,7 +225,7 @@ file:
               select_clause:
                 keyword: SELECT
                 select_clause_element:
-                  literal: '1'
+                  numeric_literal: '1'
               from_clause:
                 keyword: FROM
                 from_expression:

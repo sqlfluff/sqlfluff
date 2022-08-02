@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 909492cdbdd6267cfb96a29b3f9613f8551e4725a079d7eb26969538db71cdeb
+_hash: 07214dfc654a54fa01f59d32c129ad3cf5a614556fd09deff2f76324c00a34ca
 file:
 - statement:
     select_statement:
@@ -16,7 +16,7 @@ file:
             bracketed:
               start_bracket: (
               expression:
-                literal: "'    SparkSQL   '"
+                quoted_literal: "'    SparkSQL   '"
               end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -32,7 +32,7 @@ file:
             - keyword: BOTH
             - keyword: FROM
             - expression:
-                literal: "'    SparkSQL   '"
+                quoted_literal: "'    SparkSQL   '"
             - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -48,7 +48,7 @@ file:
             - keyword: LEADING
             - keyword: FROM
             - expression:
-                literal: "'    SparkSQL   '"
+                quoted_literal: "'    SparkSQL   '"
             - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -64,7 +64,7 @@ file:
             - keyword: TRAILING
             - keyword: FROM
             - expression:
-                literal: "'    SparkSQL   '"
+                quoted_literal: "'    SparkSQL   '"
             - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -78,10 +78,10 @@ file:
             bracketed:
             - start_bracket: (
             - expression:
-                literal: "'SL'"
+                quoted_literal: "'SL'"
             - keyword: FROM
             - expression:
-                literal: "'SSparkSQLS'"
+                quoted_literal: "'SSparkSQLS'"
             - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -96,10 +96,10 @@ file:
             - start_bracket: (
             - keyword: BOTH
             - expression:
-                literal: "'SL'"
+                quoted_literal: "'SL'"
             - keyword: FROM
             - expression:
-                literal: "'SSparkSQLS'"
+                quoted_literal: "'SSparkSQLS'"
             - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -114,10 +114,10 @@ file:
             - start_bracket: (
             - keyword: LEADING
             - expression:
-                literal: "'SL'"
+                quoted_literal: "'SL'"
             - keyword: FROM
             - expression:
-                literal: "'SSparkSQLS'"
+                quoted_literal: "'SSparkSQLS'"
             - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -132,9 +132,9 @@ file:
             - start_bracket: (
             - keyword: TRAILING
             - expression:
-                literal: "'SL'"
+                quoted_literal: "'SL'"
             - keyword: FROM
             - expression:
-                literal: "'SSparkSQLS'"
+                quoted_literal: "'SSparkSQLS'"
             - end_bracket: )
 - statement_terminator: ;

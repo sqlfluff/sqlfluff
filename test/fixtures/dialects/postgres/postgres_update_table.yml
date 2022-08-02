@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 72fe008f6aedafc5eaea91c01f66813eb09b20feb9abce91299591638cbb4f20
+_hash: 86626a1823ad820cb0c4a708ab00298f00e1fb7a615911bd384bc95204644b16
 file:
 - statement:
     update_statement:
@@ -43,7 +43,7 @@ file:
             column_reference:
               naked_identifier: temp_lo
             binary_operator: +
-            literal: '1'
+            numeric_literal: '1'
       - comma: ','
       - set_clause:
           column_reference:
@@ -54,7 +54,7 @@ file:
             column_reference:
               naked_identifier: temp_lo
             binary_operator: +
-            literal: '15'
+            numeric_literal: '15'
       - comma: ','
       - set_clause:
           column_reference:
@@ -93,7 +93,7 @@ file:
             column_reference:
               naked_identifier: temp_lo
             binary_operator: +
-            literal: '1'
+            numeric_literal: '1'
       - comma: ','
       - set_clause:
           column_reference:
@@ -104,7 +104,7 @@ file:
             column_reference:
               naked_identifier: temp_lo
             binary_operator: +
-            literal: '15'
+            numeric_literal: '15'
       - comma: ','
       - set_clause:
           column_reference:
@@ -166,13 +166,13 @@ file:
               column_reference:
                 naked_identifier: temp_lo
               binary_operator: +
-              literal: '1'
+              numeric_literal: '1'
           - comma: ','
           - expression:
               column_reference:
                 naked_identifier: temp_lo
               binary_operator: +
-              literal: '15'
+              numeric_literal: '15'
           - comma: ','
           - keyword: DEFAULT
           - end_bracket: )
@@ -207,7 +207,7 @@ file:
             column_reference:
               naked_identifier: sales_count
             binary_operator: +
-            literal: '1'
+            numeric_literal: '1'
       from_clause:
         keyword: FROM
         from_expression:
@@ -253,7 +253,7 @@ file:
             column_reference:
               naked_identifier: sales_count
             binary_operator: +
-            literal: '1'
+            numeric_literal: '1'
       where_clause:
         keyword: WHERE
         expression:

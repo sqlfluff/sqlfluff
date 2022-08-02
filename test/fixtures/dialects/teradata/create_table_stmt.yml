@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2cdf08157f71afb5ec98b0600e9e37772aeb7800f532cbba8b469cb7e52655c9
+_hash: ed3990efbc92aa72a08ed29dd6371d853cb3be43fab5668e69a1a2427b9ed575
 file:
   statement:
     create_table_statement:
@@ -42,7 +42,7 @@ file:
             bracketed:
               start_bracket: (
               expression:
-                literal: '9'
+                numeric_literal: '9'
               end_bracket: )
         end_bracket: )
     - td_table_constraint:

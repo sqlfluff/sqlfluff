@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 88b6365814aa9736a042f2b15816a482882d3a509fdeeec54031e41c0be459fd
+_hash: 635527ad5397828b25d70c26312b49c232b5b255e99d6ca92ffb502a3200eb3d
 file:
 - statement:
     create_user_statement:
@@ -27,7 +27,7 @@ file:
       - keyword: AT
       - keyword: LDAP
       - keyword: AS
-      - literal: "'cn=user_2,dc=authorization,dc=exasol,dc=com'"
+      - quoted_literal: "'cn=user_2,dc=authorization,dc=exasol,dc=com'"
 - statement_terminator: ;
 - statement:
     create_user_statement:
@@ -40,7 +40,7 @@ file:
       - keyword: BY
       - keyword: KERBEROS
       - keyword: PRINCIPAL
-      - literal: "'<user>@<realm>'"
+      - quoted_literal: "'<user>@<realm>'"
 - statement_terminator: ;
 - statement:
     create_user_statement:
@@ -53,5 +53,5 @@ file:
       - keyword: BY
       - keyword: OPENID
       - keyword: SUBJECT
-      - literal: "'database-user@exasol.example'"
+      - quoted_literal: "'database-user@exasol.example'"
 - statement_terminator: ;

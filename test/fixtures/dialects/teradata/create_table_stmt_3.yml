@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5dc2d95551fc747a66d21d5a634182bf609f12d687405fd368190bc5890b07dd
+_hash: cc9bccf721c6d09124f8c79fd96de34843bf86e3b284efbb28b9ac693134579a
 file:
   statement:
     create_table_statement:
@@ -22,7 +22,7 @@ file:
             bracketed:
               start_bracket: (
               expression:
-                literal: '255'
+                numeric_literal: '255'
               end_bracket: )
         - td_column_attribute_constraint:
           - keyword: CHARACTER
@@ -35,9 +35,9 @@ file:
             keyword: COMPRESS
             bracketed:
             - start_bracket: (
-            - literal: "'Cambio de bandera'"
+            - quoted_literal: "'Cambio de bandera'"
             - comma: ','
-            - literal: "'Cierre'"
+            - quoted_literal: "'Cierre'"
             - end_bracket: )
       - comma: ','
       - column_definition:

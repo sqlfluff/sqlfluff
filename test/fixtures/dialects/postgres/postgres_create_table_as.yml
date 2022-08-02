@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a7f117c6ab72525cf16c134095fc96743b764e283e25d2d1a0c57ff55fa28be4
+_hash: 400575378a328cfd4f1f25bebd8703ee72ed4a8f4fc7ea9abc45593aa25b8734
 file:
 - statement:
     create_table_as_statement:
@@ -541,7 +541,7 @@ file:
         parameter: val
         comparison_operator:
           raw_comparison_operator: '='
-        literal: '70'
+        numeric_literal: '70'
         end_bracket: )
     - keyword: AS
     - select_statement:

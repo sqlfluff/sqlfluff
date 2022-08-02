@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 99d378f23ba602f1a122e01e1c519e3f133d9d7e5a8d30494305ebce9183389a
+_hash: 318d9e68866d95ce8cd26b859bd4cc69aa89b75f3301eba470bfa13e5dba69c8
 file:
 - statement:
     create_table_statement:
@@ -109,7 +109,7 @@ file:
           keyword: float
           bracketed:
             start_bracket: (
-            literal: '24'
+            numeric_literal: '24'
             end_bracket: )
       - comma: ','
       - column_reference:
@@ -147,7 +147,7 @@ file:
           keyword: numeric
           bracketed:
             start_bracket: (
-            literal: '7'
+            numeric_literal: '7'
             end_bracket: )
       - comma: ','
       - column_reference:
@@ -156,7 +156,7 @@ file:
           keyword: decimal
           bracketed:
             start_bracket: (
-            literal: '7'
+            numeric_literal: '7'
             end_bracket: )
       - comma: ','
       - column_reference:
@@ -165,9 +165,9 @@ file:
           keyword: numeric
           bracketed:
           - start_bracket: (
-          - literal: '7'
+          - numeric_literal: '7'
           - comma: ','
-          - literal: '2'
+          - numeric_literal: '2'
           - end_bracket: )
       - comma: ','
       - column_reference:
@@ -176,9 +176,9 @@ file:
           keyword: decimal
           bracketed:
           - start_bracket: (
-          - literal: '7'
+          - numeric_literal: '7'
           - comma: ','
-          - literal: '2'
+          - numeric_literal: '2'
           - end_bracket: )
       - end_bracket: )
 - statement_terminator: ;
@@ -215,7 +215,7 @@ file:
           keyword: char
           bracketed:
             start_bracket: (
-            literal: '7'
+            numeric_literal: '7'
             end_bracket: )
       - comma: ','
       - column_reference:
@@ -229,7 +229,7 @@ file:
           keyword: character
           bracketed:
             start_bracket: (
-            literal: '5'
+            numeric_literal: '5'
             end_bracket: )
       - comma: ','
       - column_reference:
@@ -245,7 +245,7 @@ file:
         - keyword: varying
         - bracketed:
             start_bracket: (
-            literal: '8'
+            numeric_literal: '8'
             end_bracket: )
       - comma: ','
       - column_reference:
@@ -254,7 +254,7 @@ file:
           keyword: varchar
           bracketed:
             start_bracket: (
-            literal: '9'
+            numeric_literal: '9'
             end_bracket: )
       - comma: ','
       - column_reference:
@@ -303,7 +303,7 @@ file:
             keyword: interval
             bracketed:
               start_bracket: (
-              literal: '4'
+              numeric_literal: '4'
               end_bracket: )
       - comma: ','
       - column_reference:
@@ -313,7 +313,7 @@ file:
             keyword: time
             bracketed:
               start_bracket: (
-              literal: '4'
+              numeric_literal: '4'
               end_bracket: )
       - comma: ','
       - column_reference:
@@ -323,7 +323,7 @@ file:
           - keyword: time
           - bracketed:
               start_bracket: (
-              literal: '4'
+              numeric_literal: '4'
               end_bracket: )
           - keyword: with
           - keyword: time
@@ -336,7 +336,7 @@ file:
           - keyword: time
           - bracketed:
               start_bracket: (
-              literal: '4'
+              numeric_literal: '4'
               end_bracket: )
           - keyword: without
           - keyword: time
@@ -349,7 +349,7 @@ file:
             keyword: timestamp
             bracketed:
               start_bracket: (
-              literal: '4'
+              numeric_literal: '4'
               end_bracket: )
       - comma: ','
       - column_reference:
@@ -359,7 +359,7 @@ file:
           - keyword: timestamp
           - bracketed:
               start_bracket: (
-              literal: '4'
+              numeric_literal: '4'
               end_bracket: )
           - keyword: with
           - keyword: time
@@ -372,7 +372,7 @@ file:
           - keyword: timestamp
           - bracketed:
               start_bracket: (
-              literal: '4'
+              numeric_literal: '4'
               end_bracket: )
           - keyword: without
           - keyword: time
@@ -391,7 +391,7 @@ file:
             keyword: timetz
             bracketed:
               start_bracket: (
-              literal: '4'
+              numeric_literal: '4'
               end_bracket: )
       - comma: ','
       - column_reference:
@@ -407,7 +407,7 @@ file:
             keyword: timestamptz
             bracketed:
               start_bracket: (
-              literal: '4'
+              numeric_literal: '4'
               end_bracket: )
       - end_bracket: )
 - statement_terminator: ;
@@ -522,7 +522,7 @@ file:
           keyword: bit
           bracketed:
             start_bracket: (
-            literal: '3'
+            numeric_literal: '3'
             end_bracket: )
       - comma: ','
       - column_reference:
@@ -538,7 +538,7 @@ file:
         - keyword: varying
         - bracketed:
             start_bracket: (
-            literal: '5'
+            numeric_literal: '5'
             end_bracket: )
       - end_bracket: )
 - statement_terminator: ;
@@ -652,7 +652,7 @@ file:
           keyword: char
           start_square_bracket: '['
           expression:
-            literal: '1'
+            numeric_literal: '1'
           end_square_bracket: ']'
       - comma: ','
       - column_reference:
@@ -661,11 +661,11 @@ file:
         - keyword: jsonb
         - start_square_bracket: '['
         - expression:
-            literal: '3'
+            numeric_literal: '3'
         - end_square_bracket: ']'
         - start_square_bracket: '['
         - expression:
-            literal: '5'
+            numeric_literal: '5'
         - end_square_bracket: ']'
       - comma: ','
       - column_reference:
@@ -681,7 +681,7 @@ file:
         - keyword: ARRAY
         - array_literal:
             start_square_bracket: '['
-            literal: '7'
+            numeric_literal: '7'
             end_square_bracket: ']'
       - end_bracket: )
 - statement_terminator: ;

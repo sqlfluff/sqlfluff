@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7574dab76cddc9011796300a2fb86c1b5353f54bb175df8caf049ce35d1dbf37
+_hash: 688c0a86d40dc9f97b6fea11d50ec7b3db36acd1f8a056bd8dd5203ab90e8267
 file:
 - statement:
     insert_overwrite_directory_statement:
@@ -118,11 +118,11 @@ file:
       - comma: ','
       - property_name_identifier:
           identifier: col1
-      - literal: '1'
+      - numeric_literal: '1'
       - comma: ','
       - property_name_identifier:
           identifier: col2
-      - literal: '2'
+      - numeric_literal: '2'
       - comma: ','
       - property_name_identifier:
           identifier: col3
@@ -155,11 +155,11 @@ file:
       - start_bracket: (
       - property_name_identifier:
           identifier: col1
-      - literal: '1'
+      - numeric_literal: '1'
       - comma: ','
       - property_name_identifier:
           identifier: col2
-      - literal: '2'
+      - numeric_literal: '2'
       - comma: ','
       - property_name_identifier:
           identifier: col3

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9f433c6ed5cd6b521941a7b82876c9af9dc690c4d9543d9a10181a70a51989d0
+_hash: c41532be9fd3c5a8c3f28e19e7798a8ca7ce0e88b104d0ca4e80c1de68edb809
 file:
   statement:
     with_compound_statement:
@@ -49,7 +49,7 @@ file:
               bracketed:
                 start_bracket: (
                 expression:
-                  literal: '1'
+                  numeric_literal: '1'
                 end_bracket: )
         from_clause:
           keyword: from
@@ -69,9 +69,9 @@ file:
         groupby_clause:
         - keyword: group
         - keyword: by
-        - literal: '1'
+        - numeric_literal: '1'
         - comma: ','
-        - literal: '2'
+        - numeric_literal: '2'
         having_clause:
           keyword: having
           expression:
@@ -81,17 +81,17 @@ file:
               bracketed:
                 start_bracket: (
                 expression:
-                  literal: '1'
+                  numeric_literal: '1'
                 end_bracket: )
             comparison_operator:
               raw_comparison_operator: '>'
-            literal: '10'
+            numeric_literal: '10'
         orderby_clause:
         - keyword: order
         - keyword: by
-        - literal: '1'
+        - numeric_literal: '1'
         - keyword: DESC
         limit_clause:
           keyword: limit
-          literal: '10'
+          numeric_literal: '10'
   statement_terminator: ;

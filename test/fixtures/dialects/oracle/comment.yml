@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6730782441e3615cfdfad2b812e4a7650fc7092154fa5216281abdf7d2280ec6
+_hash: c51b17e9c78cfe03b337afca82520331ca798a2bd2153384ef58c800cb742ca6
 file:
 - statement:
     comment_statement:
@@ -15,7 +15,7 @@ file:
       - dot: .
       - naked_identifier: job_id
     - keyword: IS
-    - literal: "'abbreviated job title'"
+    - quoted_literal: "'abbreviated job title'"
 - statement_terminator: ;
 - statement:
     comment_statement:
@@ -25,7 +25,7 @@ file:
     - table_reference:
         naked_identifier: employees
     - keyword: IS
-    - literal: "'employees table'"
+    - quoted_literal: "'employees table'"
 - statement_terminator: ;
 - statement:
     comment_statement:
@@ -35,7 +35,7 @@ file:
     - indextype_reference:
         naked_identifier: employees_indextype
     - keyword: IS
-    - literal: "'employees indextype'"
+    - quoted_literal: "'employees indextype'"
 - statement_terminator: ;
 - statement:
     comment_statement:
@@ -45,7 +45,7 @@ file:
     - object_reference:
         naked_identifier: employees_operator
     - keyword: IS
-    - literal: "'employees operator'"
+    - quoted_literal: "'employees operator'"
 - statement_terminator: ;
 - statement:
     comment_statement:
@@ -56,5 +56,5 @@ file:
     - table_reference:
         naked_identifier: employees_mv
     - keyword: IS
-    - literal: "'employees materialized view'"
+    - quoted_literal: "'employees materialized view'"
 - statement_terminator: ;

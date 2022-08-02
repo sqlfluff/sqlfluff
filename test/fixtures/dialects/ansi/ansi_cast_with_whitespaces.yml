@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0fa88b3085739ec1650ad2655da015987620f670164af75b9ed991ad5d68377b
+_hash: 48d6ad263b98eb579ae3258051c919f0eb8ec033ed634046f8e2d90dbb63b198
 file:
 - statement:
     select_statement:
@@ -140,7 +140,7 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    literal: '512'
+                    numeric_literal: '512'
                   end_bracket: )
       from_clause:
         keyword: FROM
@@ -234,7 +234,7 @@ file:
                     bracketed:
                       start_bracket: (
                       expression:
-                        literal: '512'
+                        numeric_literal: '512'
                       end_bracket: )
               - comparison_operator:
                   raw_comparison_operator: '='
@@ -249,7 +249,7 @@ file:
                     bracketed:
                       start_bracket: (
                       expression:
-                        literal: '512'
+                        numeric_literal: '512'
                       end_bracket: )
       where_clause:
         keyword: WHERE
@@ -260,5 +260,5 @@ file:
           - naked_identifier: favorite_cola
           comparison_operator:
             raw_comparison_operator: '='
-          literal: "'RC Cola'"
+          quoted_literal: "'RC Cola'"
 - statement_terminator: ;

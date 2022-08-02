@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: cc70747009891fa7b3da5d2fbe6d0ef871879927e1c8bcfadbb0a6ee5958b901
+_hash: 8124d5d4d98bab9117a490802c9613bc6853607423e55c20293fc72b30691f84
 file:
 - statement:
     select_statement:
@@ -58,10 +58,10 @@ file:
                       bracketed:
                       - start_bracket: (
                       - expression:
-                          literal: '30'
+                          numeric_literal: '30'
                       - comma: ','
                       - expression:
-                          literal: '60'
+                          numeric_literal: '60'
                       - end_bracket: )
                   end_bracket: )
             - naked_identifier: tbl_name
@@ -82,10 +82,10 @@ file:
                       bracketed:
                       - start_bracket: (
                       - expression:
-                          literal: '40'
+                          numeric_literal: '40'
                       - comma: ','
                       - expression:
-                          literal: '80'
+                          numeric_literal: '80'
                       - end_bracket: )
                   end_bracket: )
             - keyword: AS
@@ -132,10 +132,10 @@ file:
                       bracketed:
                       - start_bracket: (
                       - expression:
-                          literal: '30'
+                          numeric_literal: '30'
                       - comma: ','
                       - expression:
-                          literal: '60'
+                          numeric_literal: '60'
                       - end_bracket: )
                   end_bracket: )
             - keyword: AS
@@ -155,10 +155,10 @@ file:
                       bracketed:
                       - start_bracket: (
                       - expression:
-                          literal: '40'
+                          numeric_literal: '40'
                       - comma: ','
                       - expression:
-                          literal: '80'
+                          numeric_literal: '80'
                       - end_bracket: )
                   end_bracket: )
             - keyword: AS

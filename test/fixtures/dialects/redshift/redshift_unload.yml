@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9b8f00bad3755988f7160fd43eaea550a900c3340a27dc2d3f18a74c85fb6070
+_hash: 478ce354cedf63b95a71e94c62bf69f24a44522ad4bec29ecd797140959e4525
 file:
 - statement:
     unload_statement:
@@ -142,7 +142,7 @@ file:
         keyword: iam_role
         quoted_literal: "'arn:aws:iam::0123456789012:role/MyRedshiftRole'"
     - keyword: maxfilesize
-    - literal: '1'
+    - numeric_literal: '1'
     - keyword: gb
 - statement_terminator: ;
 - statement:

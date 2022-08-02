@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 06ceb963ab8aafba5b44ffbf8cd0e89f860a7cf10f98f98dad4e370e0865d17d
+_hash: 78eb4b7335b845c9d9533762c7710a67691acd763acbeede3a6807a5b21ec22c
 file:
 - statement:
     import_statement:
@@ -28,12 +28,12 @@ file:
         - connection_definition:
           - naked_identifier: my_oracle
           - keyword: USER
-          - literal: "'agent_008'"
+          - quoted_literal: "'agent_008'"
           - keyword: IDENTIFIED
           - keyword: BY
-          - literal: "'secret'"
+          - quoted_literal: "'secret'"
         - keyword: STATEMENT
-        - literal: "' SELECT * FROM orders WHERE order_state=''OK'' '"
+        - quoted_literal: "' SELECT * FROM orders WHERE order_state=''OK'' '"
         import_errors_clause:
         - keyword: ERRORS
         - keyword: INTO
@@ -48,7 +48,7 @@ file:
         - reject_clause:
           - keyword: REJECT
           - keyword: LIMIT
-          - literal: '10'
+          - numeric_literal: '10'
 - statement_terminator: ;
 - statement:
     import_statement:
@@ -73,10 +73,10 @@ file:
         - connection_definition:
           - naked_identifier: my_oracle
           - keyword: USER
-          - literal: "'agent_008'"
+          - quoted_literal: "'agent_008'"
           - keyword: IDENTIFIED
           - keyword: BY
-          - literal: "'secret'"
+          - quoted_literal: "'secret'"
         - keyword: TABLE
         - table_reference:
           - naked_identifier: a
@@ -105,7 +105,7 @@ file:
         - reject_clause:
           - keyword: REJECT
           - keyword: LIMIT
-          - literal: '10'
+          - numeric_literal: '10'
 - statement_terminator: ;
 - statement:
     import_statement:
@@ -119,43 +119,43 @@ file:
         - keyword: CSV
         - keyword: AT
         - connection_definition:
-          - literal: "'http://192.168.1.1:8080/'"
+          - quoted_literal: "'http://192.168.1.1:8080/'"
           - keyword: USER
-          - literal: "'agent_007'"
+          - quoted_literal: "'agent_007'"
           - keyword: IDENTIFIED
           - keyword: BY
-          - literal: "'secret'"
+          - quoted_literal: "'secret'"
         - keyword: FILE
-        - literal: "'tab1_part1.csv'"
+        - quoted_literal: "'tab1_part1.csv'"
         - keyword: FILE
-        - literal: "'tab1_part2.csv'"
+        - quoted_literal: "'tab1_part2.csv'"
         - csv_cols:
             bracketed:
             - start_bracket: (
-            - literal: '1'
+            - numeric_literal: '1'
             - keyword: FORMAT
             - comparison_operator:
                 raw_comparison_operator: '='
-            - literal: "'DD-MM-YYYY'"
+            - quoted_literal: "'DD-MM-YYYY'"
             - comma: ','
-            - literal: '2'
+            - numeric_literal: '2'
             - range_operator: ..
-            - literal: '4'
+            - numeric_literal: '4'
             - keyword: FORMAT
             - comparison_operator:
                 raw_comparison_operator: '='
-            - literal: "'YYYYMMDD'"
+            - quoted_literal: "'YYYYMMDD'"
             - end_bracket: )
         - file_opts:
           - keyword: COLUMN
           - keyword: SEPARATOR
           - comparison_operator:
               raw_comparison_operator: '='
-          - literal: "';'"
+          - quoted_literal: "';'"
           - keyword: SKIP
           - comparison_operator:
               raw_comparison_operator: '='
-          - literal: '5'
+          - numeric_literal: '5'
 - statement_terminator: ;
 - statement:
     import_statement:
@@ -171,18 +171,18 @@ file:
         - connection_definition:
             naked_identifier: my_fileserver
         - keyword: FILE
-        - literal: "'tab2_part1.fbv'"
+        - quoted_literal: "'tab2_part1.fbv'"
         - fbv_cols:
             bracketed:
             - start_bracket: (
             - keyword: SIZE
             - comparison_operator:
                 raw_comparison_operator: '='
-            - literal: '8'
+            - numeric_literal: '8'
             - keyword: PADDING
             - comparison_operator:
                 raw_comparison_operator: '='
-            - literal: "'+'"
+            - quoted_literal: "'+'"
             - keyword: ALIGN
             - comparison_operator:
                 raw_comparison_operator: '='
@@ -191,21 +191,21 @@ file:
             - keyword: SIZE
             - comparison_operator:
                 raw_comparison_operator: '='
-            - literal: '4'
+            - numeric_literal: '4'
             - comma: ','
             - keyword: SIZE
             - comparison_operator:
                 raw_comparison_operator: '='
-            - literal: '8'
+            - numeric_literal: '8'
             - comma: ','
             - keyword: SIZE
             - comparison_operator:
                 raw_comparison_operator: '='
-            - literal: '32'
+            - numeric_literal: '32'
             - keyword: FORMAT
             - comparison_operator:
                 raw_comparison_operator: '='
-            - literal: "'DD-MM-YYYY'"
+            - quoted_literal: "'DD-MM-YYYY'"
             - end_bracket: )
         - file_opts:
             keyword: TRIM
@@ -228,27 +228,27 @@ file:
         - connection_definition:
           - naked_identifier: my_oracle
           - keyword: USER
-          - literal: "'agent_008'"
+          - quoted_literal: "'agent_008'"
           - keyword: IDENTIFIED
           - keyword: BY
-          - literal: "'secret'"
+          - quoted_literal: "'secret'"
         - keyword: WITH
         - parameter: HCAT_DB
         - comparison_operator:
             raw_comparison_operator: '='
-        - literal: "'default'"
+        - quoted_literal: "'default'"
         - parameter: HCAT_TABLE
         - comparison_operator:
             raw_comparison_operator: '='
-        - literal: "'my_hcat_table'"
+        - quoted_literal: "'my_hcat_table'"
         - parameter: HCAT_ADDRESS
         - comparison_operator:
             raw_comparison_operator: '='
-        - literal: "'hcatalog-server:50111'"
+        - quoted_literal: "'hcatalog-server:50111'"
         - parameter: HDFS_USER
         - comparison_operator:
             raw_comparison_operator: '='
-        - literal: "'hdfs'"
+        - quoted_literal: "'hdfs'"
 - statement_terminator: ;
 - statement:
     import_statement:
@@ -263,17 +263,17 @@ file:
         - keyword: DRIVER
         - comparison_operator:
             raw_comparison_operator: '='
-        - literal: "'MSSQL'"
+        - quoted_literal: "'MSSQL'"
         - keyword: AT
         - connection_definition:
-          - literal: "'jdbc:sqlserver://dbserver;databaseName=testdb'"
+          - quoted_literal: "'jdbc:sqlserver://dbserver;databaseName=testdb'"
           - keyword: USER
-          - literal: "'agent_008'"
+          - quoted_literal: "'agent_008'"
           - keyword: IDENTIFIED
           - keyword: BY
-          - literal: "'secret'"
+          - quoted_literal: "'secret'"
         - keyword: STATEMENT
-        - literal: "' SELECT * FROM orders WHERE order_state=''OK'' '"
+        - quoted_literal: "' SELECT * FROM orders WHERE order_state=''OK'' '"
 - statement_terminator: ;
 - statement:
     import_statement:
@@ -287,9 +287,9 @@ file:
         - keyword: CSV
         - keyword: AT
         - connection_definition:
-            literal: "'http://HadoopNode:50070/webhdfs/v1/tmp'"
+            quoted_literal: "'http://HadoopNode:50070/webhdfs/v1/tmp'"
         - keyword: FILE
-        - literal: "'file.csv?op=OPEN&user.name=user'"
+        - quoted_literal: "'file.csv?op=OPEN&user.name=user'"
 - statement_terminator: ;
 - statement:
     import_statement:
@@ -330,8 +330,8 @@ file:
         - connection_definition:
             naked_identifier: my_exa_conn
         - keyword: STATEMENT
-        - literal: "' SELECT OBJECT_NAME, OBJECT_TYPE FROM EXA_USER_OBJECTS WHERE\
-            \ OBJECT_TYPE IN (''TABLE'', ''VIEW'') '"
+        - quoted_literal: "' SELECT OBJECT_NAME, OBJECT_TYPE FROM EXA_USER_OBJECTS\
+            \ WHERE OBJECT_TYPE IN (''TABLE'', ''VIEW'') '"
 - statement_terminator: ;
 - statement:
     import_statement:
@@ -345,17 +345,17 @@ file:
         - keyword: LOCAL
         - keyword: CSV
         - keyword: FILE
-        - literal: "'~/my_table.csv'"
+        - quoted_literal: "'~/my_table.csv'"
         - file_opts:
           - keyword: COLUMN
           - keyword: SEPARATOR
           - comparison_operator:
               raw_comparison_operator: '='
-          - literal: "';'"
+          - quoted_literal: "';'"
           - keyword: SKIP
           - comparison_operator:
               raw_comparison_operator: '='
-          - literal: '5'
+          - numeric_literal: '5'
 - statement_terminator: ;
 - statement:
     import_statement:
@@ -369,12 +369,12 @@ file:
         - keyword: CSV
         - keyword: AT
         - connection_definition:
-          - literal: "'https://<bucketname>.s3-<region>.amazonaws.com/'"
+          - quoted_literal: "'https://<bucketname>.s3-<region>.amazonaws.com/'"
           - keyword: USER
-          - literal: "'<AccessKeyID>'"
+          - quoted_literal: "'<AccessKeyID>'"
           - keyword: IDENTIFIED
           - keyword: BY
-          - literal: "'<SecretAccessKey>'"
+          - quoted_literal: "'<SecretAccessKey>'"
         - keyword: FILE
-        - literal: "'file.csv'"
+        - quoted_literal: "'file.csv'"
 - statement_terminator: ;

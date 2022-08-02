@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3e26e953c76d3057c8870add1b2ae20687a47122872dc58e1cb484b0d6f9c1d5
+_hash: 345a00ed52dc3605465c3c04b2282272ace5cd7c3b2eb8284ec59e13d41ec1ce
 file:
 - statement:
     select_statement:
@@ -70,11 +70,11 @@ file:
               keyword: offset
               parameter_assigner: =>
               expression:
-                numeric_literal:
+              - numeric_literal:
                   sign_indicator: '-'
-                  literal: '60'
-                binary_operator: '*'
-                literal: '5'
+                  numeric_literal: '60'
+              - binary_operator: '*'
+              - numeric_literal: '5'
               end_bracket: )
 - statement_terminator: ;
 - statement:

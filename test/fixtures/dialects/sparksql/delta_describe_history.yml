@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 477436e9b04b83493ec747241271ca979f55a6a827cc00bcfcccbdcfdc2dbf9a
+_hash: a0fffe821238702539f4b973dad401ce5403e66eea72d5d15a701fa01c5ebc7b
 file:
 - statement:
     describe_history_statement:
@@ -27,7 +27,7 @@ file:
     - literal: "'/data/events/'"
     - limit_clause:
         keyword: LIMIT
-        literal: '1'
+        numeric_literal: '1'
 - statement_terminator: ;
 - statement:
     describe_history_statement:

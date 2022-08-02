@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 786889438120f6b146e2f620ac029e83a06f56cdffa6ce8e498acde2e66efe49
+_hash: f277aef81cf2ed68a5440c23a66868f475d0cbf1af04e44fbf9cd38b923c1d21
 file:
 - statement:
     with_compound_statement:
@@ -18,7 +18,7 @@ file:
               select_clause:
               - keyword: SELECT
               - select_clause_element:
-                  literal: "'Kale'"
+                  quoted_literal: "'Kale'"
                   alias_expression:
                     keyword: as
                     naked_identifier: product
@@ -53,7 +53,7 @@ file:
               select_clause:
               - keyword: SELECT
               - select_clause_element:
-                  literal: "'Apple'"
+                  quoted_literal: "'Apple'"
               - comma: ','
               - select_clause_element:
                   numeric_literal: '77'

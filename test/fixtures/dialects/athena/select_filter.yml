@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 876490bbe530d7475386ae5e8a4b615f9c6046dbce76b38257b16867323ea600
+_hash: a6b6aff3b1fe6fbbae5a9c418ef0bca8cf90abf31cd2f5e56c17a35f4d00fb53
 file:
 - statement:
     select_statement:
@@ -13,11 +13,11 @@ file:
           array_literal:
           - keyword: ARRAY
           - start_square_bracket: '['
-          - literal: '5'
+          - numeric_literal: '5'
           - comma: ','
           - null_literal: 'NULL'
           - comma: ','
-          - literal: '7'
+          - numeric_literal: '7'
           - comma: ','
           - null_literal: 'NULL'
           - end_square_bracket: ']'
@@ -59,15 +59,15 @@ file:
                 array_literal:
                 - keyword: ARRAY
                 - start_square_bracket: '['
-                - literal: '5'
+                - numeric_literal: '5'
                 - comma: ','
                 - numeric_literal:
                     sign_indicator: '-'
-                    literal: '6'
+                    numeric_literal: '6'
                 - comma: ','
                 - null_literal: 'NULL'
                 - comma: ','
-                - literal: '7'
+                - numeric_literal: '7'
                 - end_square_bracket: ']'
             - comma: ','
             - expression:
@@ -78,7 +78,7 @@ file:
                   naked_identifier: x
               - comparison_operator:
                   raw_comparison_operator: '>'
-              - literal: '0'
+              - numeric_literal: '0'
             - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -95,11 +95,11 @@ file:
                 array_literal:
                 - keyword: ARRAY
                 - start_square_bracket: '['
-                - literal: '5'
+                - numeric_literal: '5'
                 - comma: ','
                 - null_literal: 'NULL'
                 - comma: ','
-                - literal: '7'
+                - numeric_literal: '7'
                 - comma: ','
                 - null_literal: 'NULL'
                 - end_square_bracket: ']'

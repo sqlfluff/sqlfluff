@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9e4c380f3c218ca6d27b93bf39205de45f5b7193fc97aa57a8cef6d460c7df15
+_hash: 4d45a7689d9427d88d402e9faa9517b8a732eb84f4ddf31d8ff0ab663b751282
 file:
 - statement:
     alter_table_statement:
@@ -20,7 +20,7 @@ file:
           bracketed:
             start_bracket: (
             expression:
-              literal: '255'
+              numeric_literal: '255'
             end_bracket: )
         column_constraint_segment:
         - keyword: NOT
@@ -78,7 +78,7 @@ file:
           bracketed:
             start_bracket: (
             expression:
-              literal: '11'
+              numeric_literal: '11'
             end_bracket: )
       - column_constraint_segment:
           keyword: 'NULL'
@@ -103,7 +103,7 @@ file:
           bracketed:
             start_bracket: (
             expression:
-              literal: '11'
+              numeric_literal: '11'
             end_bracket: )
         column_constraint_segment:
         - keyword: NOT
@@ -126,7 +126,7 @@ file:
           bracketed:
             start_bracket: (
             expression:
-              literal: '11'
+              numeric_literal: '11'
             end_bracket: )
     - keyword: FIRST
 - statement_terminator: ;
@@ -147,7 +147,7 @@ file:
           bracketed:
             start_bracket: (
             expression:
-              literal: '11'
+              numeric_literal: '11'
             end_bracket: )
     - keyword: AFTER
     - column_reference:

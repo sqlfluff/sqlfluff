@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: dd8924f6c5c4af43d4e6f325d7034973f4143924edf4780b6dc2d48c8bb08d3a
+_hash: 070409e28b6b4bc14acd531925db47a93eb0244d204f6d51bea9b81391735c5a
 file:
 - statement:
     insert_statement:
@@ -24,10 +24,10 @@ file:
         bracketed:
         - start_bracket: (
         - expression:
-            literal: "'The Great Gatsby'"
+            quoted_literal: "'The Great Gatsby'"
         - comma: ','
         - expression:
-            literal: "'F. Scott Fitzgerald'"
+            quoted_literal: "'F. Scott Fitzgerald'"
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -48,10 +48,10 @@ file:
         bracketed:
         - start_bracket: (
         - expression:
-            literal: "'The Great Gatsby'"
+            quoted_literal: "'The Great Gatsby'"
         - comma: ','
         - expression:
-            literal: "'F. Scott Fitzgerald'"
+            quoted_literal: "'F. Scott Fitzgerald'"
         - end_bracket: )
 - statement_terminator: ;
 - statement:

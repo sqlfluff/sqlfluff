@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7d9436014202c1e6ca4d9f10e1cef52f4a0cd2c8b020b575037fc50b6b2432c3
+_hash: 96b7e05ffb8bf2ee36da82ae546dbc9b1e94216d8c4a715c15c9705cf86b0de3
 file:
 - statement:
     select_statement:
@@ -82,7 +82,7 @@ file:
         select_clause_element:
           numeric_literal:
             sign_indicator: '-'
-            literal: '2147483648'
+            numeric_literal: '2147483648'
           alias_expression:
             keyword: AS
             naked_identifier: col
@@ -92,39 +92,7 @@ file:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          literal: 9223372036854775807l
-          alias_expression:
-            keyword: AS
-            naked_identifier: col
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-        keyword: SELECT
-        select_clause_element:
-          numeric_literal:
-            sign_indicator: '-'
-            literal: 32Y
-          alias_expression:
-            keyword: AS
-            naked_identifier: col
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-        keyword: SELECT
-        select_clause_element:
-          literal: 482S
-          alias_expression:
-            keyword: AS
-            naked_identifier: col
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-        keyword: SELECT
-        select_clause_element:
-          literal: '12.578'
+          numeric_literal: 9223372036854775807l
           alias_expression:
             keyword: AS
             naked_identifier: col
@@ -136,7 +104,27 @@ file:
         select_clause_element:
           numeric_literal:
             sign_indicator: '-'
-            literal: '0.1234567'
+            numeric_literal: 32Y
+          alias_expression:
+            keyword: AS
+            naked_identifier: col
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          numeric_literal: 482S
+          alias_expression:
+            keyword: AS
+            naked_identifier: col
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          numeric_literal: '12.578'
           alias_expression:
             keyword: AS
             naked_identifier: col
@@ -148,47 +136,7 @@ file:
         select_clause_element:
           numeric_literal:
             sign_indicator: '-'
-            literal: '.1234567'
-          alias_expression:
-            keyword: AS
-            naked_identifier: col
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-        keyword: SELECT
-        select_clause_element:
-          literal: '123.'
-          alias_expression:
-            keyword: AS
-            naked_identifier: col
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-        keyword: SELECT
-        select_clause_element:
-          literal: 123.BD
-          alias_expression:
-            keyword: AS
-            naked_identifier: col
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-        keyword: SELECT
-        select_clause_element:
-          literal: 5E2
-          alias_expression:
-            keyword: AS
-            naked_identifier: col
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-        keyword: SELECT
-        select_clause_element:
-          literal: 5D
+            numeric_literal: '0.1234567'
           alias_expression:
             keyword: AS
             naked_identifier: col
@@ -200,7 +148,7 @@ file:
         select_clause_element:
           numeric_literal:
             sign_indicator: '-'
-            literal: 5BD
+            numeric_literal: '.1234567'
           alias_expression:
             keyword: AS
             naked_identifier: col
@@ -210,7 +158,37 @@ file:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          literal: 12.578e-2d
+          numeric_literal: '123.'
+          alias_expression:
+            keyword: AS
+            naked_identifier: col
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          numeric_literal: 123.BD
+          alias_expression:
+            keyword: AS
+            naked_identifier: col
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          numeric_literal: 5E2
+          alias_expression:
+            keyword: AS
+            naked_identifier: col
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          numeric_literal: 5D
           alias_expression:
             keyword: AS
             naked_identifier: col
@@ -222,7 +200,29 @@ file:
         select_clause_element:
           numeric_literal:
             sign_indicator: '-'
-            literal: .1234567E+2BD
+            numeric_literal: 5BD
+          alias_expression:
+            keyword: AS
+            naked_identifier: col
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          numeric_literal: 12.578e-2d
+          alias_expression:
+            keyword: AS
+            naked_identifier: col
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          numeric_literal:
+            sign_indicator: '-'
+            numeric_literal: .1234567E+2BD
           alias_expression:
             keyword: AS
             naked_identifier: col
@@ -234,7 +234,7 @@ file:
         select_clause_element:
           numeric_literal:
             sign_indicator: +
-            literal: '3.e+3'
+            numeric_literal: '3.e+3'
           alias_expression:
             keyword: AS
             naked_identifier: col
@@ -246,7 +246,7 @@ file:
         select_clause_element:
           numeric_literal:
             sign_indicator: '-'
-            literal: 3.E-3D
+            numeric_literal: 3.E-3D
           alias_expression:
             keyword: AS
             naked_identifier: col
@@ -358,7 +358,7 @@ file:
           interval_expression:
             keyword: INTERVAL
             interval_literal:
-              literal: '3'
+              numeric_literal: '3'
               date_part: YEAR
           alias_expression:
             keyword: AS
@@ -373,7 +373,7 @@ file:
           - keyword: INTERVAL
           - interval_literal:
               sign_indicator: '-'
-              literal: '2'
+              numeric_literal: '2'
               date_part: HOUR
           - interval_literal:
               literal: "'3'"
@@ -398,31 +398,31 @@ file:
           interval_expression:
           - keyword: INTERVAL
           - interval_literal:
-              literal: '1'
+              numeric_literal: '1'
               date_part: YEARS
           - interval_literal:
-              literal: '2'
+              numeric_literal: '2'
               date_part: MONTH
           - interval_literal:
-              literal: '3'
+              numeric_literal: '3'
               date_part: WEEK
           - interval_literal:
-              literal: '4'
+              numeric_literal: '4'
               date_part: DAYS
           - interval_literal:
-              literal: '5'
+              numeric_literal: '5'
               date_part: HOUR
           - interval_literal:
-              literal: '6'
+              numeric_literal: '6'
               date_part: MINUTES
           - interval_literal:
-              literal: '7'
+              numeric_literal: '7'
               date_part: SECOND
           - interval_literal:
-              literal: '8'
+              numeric_literal: '8'
               date_part: MILLISECOND
           - interval_literal:
-              literal: '9'
+              numeric_literal: '9'
               date_part: MICROSECONDS
           alias_expression:
             keyword: AS

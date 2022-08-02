@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 482e022a21c5e57e7e2c888dbb0dced85bf8e6db83c52878e7a43f6910c18dda
+_hash: ee5f830c8e113fe87f49dcb120b0fe14735f8fe695a632db77f4cde8a6d003bf
 file:
 - statement:
     select_statement:
@@ -274,10 +274,10 @@ file:
                   naked_identifier: salary
             - comma: ','
             - expression:
-                literal: '1'
+                numeric_literal: '1'
             - comma: ','
             - expression:
-                literal: '0'
+                numeric_literal: '0'
             - end_bracket: )
             over_clause:
               keyword: OVER
@@ -363,10 +363,10 @@ file:
                   naked_identifier: salary
             - comma: ','
             - expression:
-                literal: '1'
+                numeric_literal: '1'
             - comma: ','
             - expression:
-                literal: '0'
+                numeric_literal: '0'
             - end_bracket: )
             over_clause:
             - keyword: IGNORE
@@ -454,10 +454,10 @@ file:
                   naked_identifier: salary
             - comma: ','
             - expression:
-                literal: '1'
+                numeric_literal: '1'
             - comma: ','
             - expression:
-                literal: '0'
+                numeric_literal: '0'
             - end_bracket: )
             over_clause:
             - keyword: RESPECT
@@ -512,7 +512,7 @@ file:
                   naked_identifier: v
             - comma: ','
             - expression:
-                literal: '0'
+                numeric_literal: '0'
             - end_bracket: )
             over_clause:
             - keyword: IGNORE
@@ -534,7 +534,7 @@ file:
                   naked_identifier: v
             - comma: ','
             - expression:
-                literal: '0'
+                numeric_literal: '0'
             - end_bracket: )
             over_clause:
             - keyword: IGNORE
@@ -556,7 +556,7 @@ file:
                   naked_identifier: v
             - comma: ','
             - expression:
-                literal: '2'
+                numeric_literal: '2'
             - end_bracket: )
             over_clause:
             - keyword: IGNORE
@@ -654,7 +654,7 @@ file:
                   naked_identifier: v
             - comma: ','
             - expression:
-                literal: '0'
+                numeric_literal: '0'
             - end_bracket: )
             over_clause:
             - keyword: RESPECT
@@ -676,7 +676,7 @@ file:
                   naked_identifier: v
             - comma: ','
             - expression:
-                literal: '0'
+                numeric_literal: '0'
             - end_bracket: )
             over_clause:
             - keyword: RESPECT
@@ -698,7 +698,7 @@ file:
                   naked_identifier: v
             - comma: ','
             - expression:
-                literal: '2'
+                numeric_literal: '2'
             - end_bracket: )
             over_clause:
             - keyword: RESPECT
@@ -802,7 +802,7 @@ file:
                 - naked_identifier: v
             - comma: ','
             - expression:
-                literal: '0'
+                numeric_literal: '0'
             - end_bracket: )
             over_clause:
             - keyword: RESPECT
@@ -826,7 +826,7 @@ file:
                 - naked_identifier: v
             - comma: ','
             - expression:
-                literal: '0'
+                numeric_literal: '0'
             - end_bracket: )
             over_clause:
             - keyword: RESPECT
@@ -850,7 +850,7 @@ file:
                 - naked_identifier: v
             - comma: ','
             - expression:
-                literal: '2'
+                numeric_literal: '2'
             - end_bracket: )
             over_clause:
             - keyword: RESPECT

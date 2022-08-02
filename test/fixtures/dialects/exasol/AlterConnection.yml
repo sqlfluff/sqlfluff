@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 30b6c28aa5712d5a6247d3a1be990638fbd0bc358ec19ed81a2fbe48db40e035
+_hash: bb83dd281f2b9719c7e55dd6a8bbf1d0cf1228b098ef48a4372c4f699d5c0d09
 file:
   statement:
     alter_connection:
@@ -12,5 +12,5 @@ file:
     - naked_identifier: exa_connection
     - keyword: TO
     - connection_definition:
-        literal: "'192.168.6.11..14:8564'"
+        quoted_literal: "'192.168.6.11..14:8564'"
   statement_terminator: ;

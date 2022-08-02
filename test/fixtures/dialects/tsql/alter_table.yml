@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f764e68ea672dbbfd2b726a0c582ba7615524a549eaedb43255b0c6974edad3f
+_hash: c6968f8db17a2cf4627b340995fc604f8ca1494be3782f1228d5ef423996f464
 file:
 - batch:
     statement:
@@ -11,13 +11,13 @@ file:
       - keyword: CREATE
       - keyword: TABLE
       - table_reference:
-        - identifier: dbo
+        - naked_identifier: dbo
         - dot: .
-        - identifier: doc_exa
+        - naked_identifier: doc_exa
       - bracketed:
           start_bracket: (
           column_definition:
-            identifier: column_a
+            naked_identifier: column_a
             data_type:
               data_type_identifier: INT
           end_bracket: )
@@ -30,18 +30,18 @@ file:
       - keyword: ALTER
       - keyword: TABLE
       - table_reference:
-        - identifier: dbo
+        - naked_identifier: dbo
         - dot: .
-        - identifier: doc_exa
+        - naked_identifier: doc_exa
       - keyword: ADD
       - column_definition:
-          identifier: column_b
+          naked_identifier: column_b
           data_type:
             data_type_identifier: VARCHAR
             bracketed:
               start_bracket: (
               expression:
-                literal: '20'
+                numeric_literal: '20'
               end_bracket: )
           column_constraint_segment:
             keyword: 'NULL'
@@ -54,13 +54,13 @@ file:
       - keyword: CREATE
       - keyword: TABLE
       - table_reference:
-        - identifier: dbo
+        - naked_identifier: dbo
         - dot: .
-        - identifier: doc_exc
+        - naked_identifier: doc_exc
       - bracketed:
           start_bracket: (
           column_definition:
-            identifier: column_a
+            naked_identifier: column_a
             data_type:
               data_type_identifier: INT
           end_bracket: )
@@ -73,25 +73,25 @@ file:
       - keyword: ALTER
       - keyword: TABLE
       - table_reference:
-        - identifier: dbo
+        - naked_identifier: dbo
         - dot: .
-        - identifier: doc_exc
+        - naked_identifier: doc_exc
       - keyword: ADD
       - column_definition:
-        - identifier: column_b
+        - naked_identifier: column_b
         - data_type:
             data_type_identifier: VARCHAR
             bracketed:
               start_bracket: (
               expression:
-                literal: '20'
+                numeric_literal: '20'
               end_bracket: )
         - column_constraint_segment:
             keyword: 'NULL'
         - column_constraint_segment:
           - keyword: CONSTRAINT
           - object_reference:
-              identifier: exb_unique
+              naked_identifier: exb_unique
           - keyword: UNIQUE
     statement_terminator: ;
 - go_statement:
@@ -101,8 +101,8 @@ file:
       execute_script_statement:
         keyword: EXEC
         object_reference:
-          identifier: sp_help
-        identifier: doc_exc
+          naked_identifier: sp_help
+        naked_identifier: doc_exc
         statement_terminator: ;
 - go_statement:
     keyword: GO
@@ -112,9 +112,9 @@ file:
       - keyword: DROP
       - keyword: TABLE
       - table_reference:
-        - identifier: dbo
+        - naked_identifier: dbo
         - dot: .
-        - identifier: doc_exc
+        - naked_identifier: doc_exc
       - statement_terminator: ;
 - go_statement:
     keyword: GO
@@ -124,18 +124,18 @@ file:
       - keyword: CREATE
       - keyword: TABLE
       - table_reference:
-        - identifier: dbo
+        - naked_identifier: dbo
         - dot: .
-        - identifier: doc_exz
+        - naked_identifier: doc_exz
       - bracketed:
         - start_bracket: (
         - column_definition:
-            identifier: column_a
+            naked_identifier: column_a
             data_type:
               data_type_identifier: INT
         - comma: ','
         - column_definition:
-            identifier: column_b
+            naked_identifier: column_b
             data_type:
               data_type_identifier: INT
         - end_bracket: )
@@ -148,20 +148,20 @@ file:
       - keyword: INSERT
       - keyword: INTO
       - table_reference:
-        - identifier: dbo
+        - naked_identifier: dbo
         - dot: .
-        - identifier: doc_exz
+        - naked_identifier: doc_exz
       - bracketed:
           start_bracket: (
           column_reference:
-            identifier: column_a
+            naked_identifier: column_a
           end_bracket: )
       - values_clause:
           keyword: VALUES
           bracketed:
             start_bracket: (
             expression:
-              literal: '7'
+              numeric_literal: '7'
             end_bracket: )
     statement_terminator: ;
 - go_statement:
@@ -172,19 +172,19 @@ file:
       - keyword: ALTER
       - keyword: TABLE
       - table_reference:
-        - identifier: dbo
+        - naked_identifier: dbo
         - dot: .
-        - identifier: doc_exz
+        - naked_identifier: doc_exz
       - keyword: ADD
       - column_constraint_segment:
         - keyword: CONSTRAINT
         - object_reference:
-            identifier: col_b_def
+            naked_identifier: col_b_def
         - keyword: DEFAULT
-        - literal: '50'
+        - numeric_literal: '50'
       - keyword: FOR
       - column_reference:
-          identifier: column_b
+          naked_identifier: column_b
     statement_terminator: ;
 - go_statement:
     keyword: GO
@@ -194,20 +194,20 @@ file:
       - keyword: INSERT
       - keyword: INTO
       - table_reference:
-        - identifier: dbo
+        - naked_identifier: dbo
         - dot: .
-        - identifier: doc_exz
+        - naked_identifier: doc_exz
       - bracketed:
           start_bracket: (
           column_reference:
-            identifier: column_a
+            naked_identifier: column_a
           end_bracket: )
       - values_clause:
           keyword: VALUES
           bracketed:
             start_bracket: (
             expression:
-              literal: '10'
+              numeric_literal: '10'
             end_bracket: )
     statement_terminator: ;
 - go_statement:
@@ -227,9 +227,9 @@ file:
             from_expression_element:
               table_expression:
                 table_reference:
-                - identifier: dbo
+                - naked_identifier: dbo
                 - dot: .
-                - identifier: doc_exz
+                - naked_identifier: doc_exz
           statement_terminator: ;
 - go_statement:
     keyword: GO
@@ -239,9 +239,9 @@ file:
       - keyword: DROP
       - keyword: TABLE
       - table_reference:
-        - identifier: dbo
+        - naked_identifier: dbo
         - dot: .
-        - identifier: doc_exz
+        - naked_identifier: doc_exz
       - statement_terminator: ;
 - go_statement:
     keyword: GO
@@ -251,14 +251,14 @@ file:
       - keyword: ALTER
       - keyword: TABLE
       - table_reference:
-        - identifier: Production
+        - naked_identifier: Production
         - dot: .
-        - identifier: TransactionHistoryArchive
+        - naked_identifier: TransactionHistoryArchive
       - keyword: ADD
       - table_constraint:
         - keyword: CONSTRAINT
         - object_reference:
-            identifier: PK_TransactionHistoryArchive_TransactionID
+            naked_identifier: PK_TransactionHistoryArchive_TransactionID
         - keyword: PRIMARY
         - keyword: KEY
         - keyword: CLUSTERED
@@ -266,7 +266,7 @@ file:
             bracketed:
               start_bracket: (
               index_column_definition:
-                identifier: TransactionID
+                naked_identifier: TransactionID
               end_bracket: )
 - go_statement:
     keyword: GO
@@ -276,19 +276,19 @@ file:
       - keyword: ALTER
       - keyword: TABLE
       - table_reference:
-        - identifier: Production
+        - naked_identifier: Production
         - dot: .
-        - identifier: TransactionHistoryArchive
+        - naked_identifier: TransactionHistoryArchive
       - keyword: ALTER
       - keyword: COLUMN
       - column_definition:
-          identifier: rec_number
+          naked_identifier: rec_number
           data_type:
             data_type_identifier: VARCHAR
             bracketed:
               start_bracket: (
               expression:
-                literal: '36'
+                numeric_literal: '36'
               end_bracket: )
 - go_statement:
     keyword: GO
@@ -298,45 +298,45 @@ file:
       - keyword: ALTER
       - keyword: TABLE
       - table_reference:
-        - identifier: Production
+        - naked_identifier: Production
         - dot: .
-        - identifier: TransactionHistoryArchive
+        - naked_identifier: TransactionHistoryArchive
       - keyword: DROP
       - keyword: CONSTRAINT
       - object_reference:
-          identifier: PK_TransactionHistoryArchive_TransactionID
+          naked_identifier: PK_TransactionHistoryArchive_TransactionID
   - statement:
       alter_table_statement:
       - keyword: ALTER
       - keyword: TABLE
       - table_reference:
-        - identifier: '[Production]'
+        - quoted_identifier: '[Production]'
         - dot: .
-        - identifier: '[ProductCostHistory]'
+        - quoted_identifier: '[ProductCostHistory]'
       - keyword: WITH
       - keyword: CHECK
       - keyword: ADD
       - table_constraint:
         - keyword: CONSTRAINT
         - object_reference:
-            identifier: '[FK_ProductCostHistory_Product_ProductID]'
+            quoted_identifier: '[FK_ProductCostHistory_Product_ProductID]'
         - keyword: FOREIGN
         - keyword: KEY
         - bracketed:
             start_bracket: (
             column_reference:
-              identifier: '[ProductID]'
+              quoted_identifier: '[ProductID]'
             end_bracket: )
         - references_constraint_grammar:
             keyword: REFERENCES
             table_reference:
-            - identifier: '[Production]'
+            - quoted_identifier: '[Production]'
             - dot: .
-            - identifier: '[Product]'
+            - quoted_identifier: '[Product]'
             bracketed:
               start_bracket: (
               column_reference:
-                identifier: '[ProductID]'
+                quoted_identifier: '[ProductID]'
               end_bracket: )
 - go_statement:
     keyword: GO
@@ -346,12 +346,12 @@ file:
       - keyword: ALTER
       - keyword: TABLE
       - table_reference:
-        - identifier: '[Production]'
+        - quoted_identifier: '[Production]'
         - dot: .
-        - identifier: '[ProductCostHistory]'
+        - quoted_identifier: '[ProductCostHistory]'
       - keyword: CHECK
       - keyword: CONSTRAINT
       - object_reference:
-          identifier: '[FK_ProductCostHistory_Product_ProductID]'
+          quoted_identifier: '[FK_ProductCostHistory_Product_ProductID]'
 - go_statement:
     keyword: GO

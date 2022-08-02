@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: daa86857884027f2a8ffd5aefa5010d8b8cabd81193fa35ca26dc8ed66a7be9c
+_hash: ec467efc0cdd369a18970c82bd6e7996d9d7318379fbd84c2e5774ed4c1a4ee2
 file:
 - statement:
     load_data_statement:
@@ -24,7 +24,7 @@ file:
     - keyword: BY
     - literal: "'\"'"
     - keyword: IGNORE
-    - literal: '1'
+    - numeric_literal: '1'
     - keyword: LINES
 - statement_terminator: ;
 - statement:
@@ -70,7 +70,7 @@ file:
     - table_reference:
         naked_identifier: test
     - keyword: IGNORE
-    - literal: '1'
+    - numeric_literal: '1'
     - keyword: LINES
 - statement_terminator: ;
 - statement:
@@ -125,7 +125,7 @@ file:
     - keyword: BY
     - literal: "'\\r\\n'"
     - keyword: IGNORE
-    - literal: '1'
+    - numeric_literal: '1'
     - keyword: LINES
 - statement_terminator: ;
 - statement:
@@ -189,7 +189,7 @@ file:
     - column_reference:
         variable: '@var1'
     - binary_operator: /
-    - literal: '100'
+    - numeric_literal: '100'
 - statement_terminator: ;
 - statement:
     load_data_statement:

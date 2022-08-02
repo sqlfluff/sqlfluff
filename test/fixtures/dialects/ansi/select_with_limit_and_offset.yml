@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6fe57d5ba0083de049bb5613c44a68152c72bfead06b1fcc6c511e68f8a3f3dc
+_hash: e87a966441c7e2091e72dcbfec0b7999c9a79b610855befa30fd945e874126bd
 file:
   statement:
     select_statement:
@@ -22,6 +22,6 @@ file:
                 naked_identifier: counter
       limit_clause:
       - keyword: LIMIT
-      - literal: '10'
+      - numeric_literal: '10'
       - keyword: OFFSET
-      - literal: '10'
+      - numeric_literal: '10'

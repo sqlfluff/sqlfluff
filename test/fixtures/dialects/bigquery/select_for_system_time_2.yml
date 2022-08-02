@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4e9262d0e70716cee343c4a99bb69da27f62589fac8c6e917be3fa0c84925b37
+_hash: e8bad254979fce30874d61d54ea4a291c0fc6f3f4127e5a0556317c742155cec
 file:
   statement:
     select_statement:
@@ -30,7 +30,7 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    literal: "'2020-05-11T14:02:52+00:00'"
+                    quoted_literal: "'2020-05-11T14:02:52+00:00'"
                   keyword: AS
                   data_type:
                     data_type_identifier: TIMESTAMP

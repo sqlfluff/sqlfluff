@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f9e4ee13db0861bee2db9f94eaa34bfccbaab01ed1d9687d40c21943be890a16
+_hash: e929b61b11d4ebbe7dcba4df45f5ee2d5e92b28ec812fd6032b7076f1ec4c3c2
 file:
 - statement:
     update_statement:
@@ -24,7 +24,7 @@ file:
             column_reference:
               naked_identifier: col1
             binary_operator: +
-            literal: '1'
+            numeric_literal: '1'
 - statement_terminator: ;
 - statement:
     update_statement:
@@ -45,7 +45,7 @@ file:
             column_reference:
               naked_identifier: col1
             binary_operator: +
-            literal: '1'
+            numeric_literal: '1'
       - comma: ','
       - set_clause:
         - column_reference:
@@ -112,7 +112,7 @@ file:
             column_reference:
               naked_identifier: id
             binary_operator: +
-            literal: '1'
+            numeric_literal: '1'
       orderby_clause:
       - keyword: ORDER
       - keyword: BY
@@ -139,7 +139,7 @@ file:
             column_reference:
               naked_identifier: retail
             binary_operator: '*'
-            literal: '0.9'
+            numeric_literal: '0.9'
       where_clause:
         keyword: WHERE
         expression:
@@ -172,13 +172,13 @@ file:
                 - comparison_operator:
                   - raw_comparison_operator: '>'
                   - raw_comparison_operator: '='
-                - literal: '1.3'
+                - numeric_literal: '1.3'
                 - binary_operator: AND
                 - column_reference:
                     naked_identifier: quantity
                 - comparison_operator:
                     raw_comparison_operator: '>'
-                - literal: '100'
+                - numeric_literal: '100'
             end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -237,13 +237,13 @@ file:
                           - comparison_operator:
                             - raw_comparison_operator: '>'
                             - raw_comparison_operator: '='
-                          - literal: '1.3'
+                          - numeric_literal: '1.3'
                           - binary_operator: AND
                           - column_reference:
                               naked_identifier: quantity
                           - comparison_operator:
                               raw_comparison_operator: <
-                          - literal: '100'
+                          - numeric_literal: '100'
                       end_bracket: )
               end_bracket: )
           alias_expression:
@@ -264,7 +264,7 @@ file:
             - dot: .
             - naked_identifier: retail
             binary_operator: '*'
-            literal: '0.9'
+            numeric_literal: '0.9'
       where_clause:
         keyword: WHERE
         expression:
@@ -337,7 +337,7 @@ file:
             - dot: .
             - naked_identifier: retail
             binary_operator: '*'
-            literal: '0.9'
+            numeric_literal: '0.9'
       where_clause:
         keyword: WHERE
         expression:
@@ -348,7 +348,7 @@ file:
         - comparison_operator:
           - raw_comparison_operator: '>'
           - raw_comparison_operator: '='
-        - literal: '1.3'
+        - numeric_literal: '1.3'
         - binary_operator: AND
         - column_reference:
           - naked_identifier: discounted
@@ -356,7 +356,7 @@ file:
           - naked_identifier: quantity
         - comparison_operator:
             raw_comparison_operator: <
-        - literal: '100'
+        - numeric_literal: '100'
         - binary_operator: AND
         - column_reference:
           - naked_identifier: items
@@ -385,10 +385,10 @@ file:
             naked_identifier: bar
           comparison_operator:
             raw_comparison_operator: '='
-          literal: '7'
+          numeric_literal: '7'
     - limit_clause:
         keyword: LIMIT
-        literal: '4'
+        numeric_literal: '4'
 - statement_terminator: ;
 - statement:
     update_statement:

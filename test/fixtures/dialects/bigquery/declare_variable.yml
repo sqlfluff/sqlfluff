@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9908ec716d886a434f853ae19f06651886f2ba87e5b968c924b21a93097f648d
+_hash: e7c3d1f233e5041e5097f81128665af7895b563ccfcf6e247911f714db0b0c04
 file:
 - statement:
     declare_segment:
@@ -26,7 +26,7 @@ file:
     - keyword: declare
     - naked_identifier: var4
     - keyword: default
-    - literal: "'value'"
+    - quoted_literal: "'value'"
 - statement_terminator: ;
 - statement:
     declare_segment:
@@ -58,9 +58,9 @@ file:
     - keyword: default
     - array_literal:
       - start_square_bracket: '['
-      - literal: "'one'"
+      - quoted_literal: "'one'"
       - comma: ','
-      - literal: "'two'"
+      - quoted_literal: "'two'"
       - end_square_bracket: ']'
 - statement_terminator: ;
 - statement:
@@ -85,9 +85,9 @@ file:
     - keyword: default
     - array_literal:
       - start_square_bracket: '['
-      - literal: "'one'"
+      - quoted_literal: "'one'"
       - comma: ','
-      - literal: "'two'"
+      - quoted_literal: "'two'"
       - end_square_bracket: ']'
 - statement_terminator: ;
 - statement:
@@ -129,9 +129,9 @@ file:
           keyword: struct
           bracketed:
           - start_bracket: (
-          - literal: "'one'"
+          - quoted_literal: "'one'"
           - comma: ','
-          - literal: "'two'"
+          - quoted_literal: "'two'"
           - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -144,9 +144,9 @@ file:
           keyword: struct
           bracketed:
           - start_bracket: (
-          - literal: "'one'"
+          - quoted_literal: "'one'"
           - comma: ','
-          - literal: "'two'"
+          - quoted_literal: "'two'"
           - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -169,9 +169,9 @@ file:
     - tuple:
         bracketed:
         - start_bracket: (
-        - literal: "'one'"
+        - quoted_literal: "'one'"
         - comma: ','
-        - literal: "'two'"
+        - quoted_literal: "'two'"
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -188,7 +188,7 @@ file:
     - data_type:
         data_type_identifier: string
     - keyword: default
-    - literal: "'value'"
+    - quoted_literal: "'value'"
 - statement_terminator: ;
 - statement:
     declare_segment:
@@ -217,5 +217,5 @@ file:
     - data_type:
         data_type_identifier: string
     - keyword: default
-    - literal: "'value'"
+    - quoted_literal: "'value'"
 - statement_terminator: ;

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3017bdec5d082f6c38bfe8de568465b1ab68e83ac7113b30288cd898ca643673
+_hash: e9cde3cbfcab57f38d759e64d68ed11707b93e371783ea18ae937ef1b45492a1
 file:
 - statement:
     select_statement:
@@ -19,10 +19,10 @@ file:
                   column_reference:
                     quoted_identifier: '"Spec\"s 23"'
                   keyword: like
-                  literal: "'Spec\\'s%'"
+                  quoted_literal: "'Spec\\'s%'"
               - keyword: then
               - expression:
-                  literal: "'boop'"
+                  quoted_literal: "'boop'"
             - keyword: end
           alias_expression:
             keyword: as
@@ -33,7 +33,7 @@ file:
       select_clause:
         keyword: select
         select_clause_element:
-          literal: "'This shouldn''t fail'"
+          quoted_literal: "'This shouldn''t fail'"
           alias_expression:
             keyword: as
             naked_identifier: success

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 01404d0b3a0298de8d691e942e2375f4b196bcb6c894ec58b6311330fcc462ae
+_hash: ab549cad18c87ed0748bd3d4a7ffc302aaf2a2ea0f2780b85963e6218b159ff8
 file:
 - statement:
     select_statement:
@@ -621,7 +621,7 @@ file:
                   identifier: price
                 comparison_operator:
                   raw_comparison_operator: <
-                literal: '45.00'
+                numeric_literal: '45.00'
             - end_bracket: )
       where_clause:
         keyword: where
@@ -770,23 +770,23 @@ file:
               - question_mark: '?'
               - identifier: S4
               - start_curly_bracket: '{'
-              - literal: '1'
+              - numeric_literal: '1'
               - end_curly_bracket: '}'
               - identifier: S5
               - start_curly_bracket: '{'
-              - literal: '1'
+              - numeric_literal: '1'
               - comma: ','
               - end_curly_bracket: '}'
               - identifier: S6
               - start_curly_bracket: '{'
               - comma: ','
-              - literal: '1'
+              - numeric_literal: '1'
               - end_curly_bracket: '}'
               - identifier: S7
               - start_curly_bracket: '{'
-              - literal: '1'
+              - numeric_literal: '1'
               - comma: ','
-              - literal: '1'
+              - numeric_literal: '1'
               - end_curly_bracket: '}'
               - identifier: S8
               - star: '*'
@@ -1347,7 +1347,7 @@ file:
                 - identifier: B
                 - end_bracket: )
                 start_curly_bracket: '{'
-                literal: '5'
+                numeric_literal: '5'
                 end_curly_bracket: '}'
                 identifier: C
                 sign_indicator: +

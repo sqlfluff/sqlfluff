@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 29ad320e6395d66f5a89c2c221e1fc8735807d1903a8e8cb914c7f6cada0e533
+_hash: 72061fbe559f92d245812e9660a400734186a91f7df06debb3482e677a634e83
 file:
 - statement:
     select_statement:
@@ -27,7 +27,7 @@ file:
               keyword: TABLESAMPLE
               bracketed:
                 start_bracket: (
-                literal: '50'
+                numeric_literal: '50'
                 keyword: PERCENT
                 end_bracket: )
 - statement_terminator: ;
@@ -59,7 +59,7 @@ file:
               keyword: TABLESAMPLE
               bracketed:
                 start_bracket: (
-                literal: '50'
+                numeric_literal: '50'
                 keyword: PERCENT
                 end_bracket: )
 - statement_terminator: ;
@@ -92,7 +92,7 @@ file:
               keyword: TABLESAMPLE
               bracketed:
                 start_bracket: (
-                literal: '50'
+                numeric_literal: '50'
                 keyword: PERCENT
                 end_bracket: )
 - statement_terminator: ;
@@ -118,7 +118,7 @@ file:
               keyword: TABLESAMPLE
               bracketed:
                 start_bracket: (
-                literal: '5'
+                numeric_literal: '5'
                 keyword: ROWS
                 end_bracket: )
 - statement_terminator: ;
@@ -145,10 +145,10 @@ file:
               bracketed:
               - start_bracket: (
               - keyword: BUCKET
-              - literal: '4'
+              - numeric_literal: '4'
               - keyword: OUT
               - keyword: OF
-              - literal: '10'
+              - numeric_literal: '10'
               - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -177,7 +177,7 @@ file:
               keyword: TABLESAMPLE
               bracketed:
                 start_bracket: (
-                literal: '5'
+                numeric_literal: '5'
                 keyword: ROWS
                 end_bracket: )
           join_clause:
@@ -192,10 +192,10 @@ file:
                 bracketed:
                 - start_bracket: (
                 - keyword: BUCKET
-                - literal: '4'
+                - numeric_literal: '4'
                 - keyword: OUT
                 - keyword: OF
-                - literal: '10'
+                - numeric_literal: '10'
                 - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -226,7 +226,7 @@ file:
               keyword: TABLESAMPLE
               bracketed:
                 start_bracket: (
-                literal: '5'
+                numeric_literal: '5'
                 keyword: ROWS
                 end_bracket: )
           join_clause:
@@ -243,10 +243,10 @@ file:
                 bracketed:
                 - start_bracket: (
                 - keyword: BUCKET
-                - literal: '4'
+                - numeric_literal: '4'
                 - keyword: OUT
                 - keyword: OF
-                - literal: '10'
+                - numeric_literal: '10'
                 - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -278,7 +278,7 @@ file:
               keyword: TABLESAMPLE
               bracketed:
                 start_bracket: (
-                literal: '5'
+                numeric_literal: '5'
                 keyword: ROWS
                 end_bracket: )
           join_clause:
@@ -296,9 +296,9 @@ file:
                 bracketed:
                 - start_bracket: (
                 - keyword: BUCKET
-                - literal: '4'
+                - numeric_literal: '4'
                 - keyword: OUT
                 - keyword: OF
-                - literal: '10'
+                - numeric_literal: '10'
                 - end_bracket: )
 - statement_terminator: ;

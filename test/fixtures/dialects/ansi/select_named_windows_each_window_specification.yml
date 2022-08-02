@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8b8e98194b9499db54b6cbe500617d264003323d8aa6376f3563a744c7ace868
+_hash: b35baee4afa7aea4adf039229968c415ba614894fec3e02a001aa1ecfcddf7cb
 file:
   statement:
     select_statement:
@@ -86,9 +86,9 @@ file:
               frame_clause:
               - keyword: ROWS
               - keyword: BETWEEN
-              - literal: '2'
+              - numeric_literal: '2'
               - keyword: PRECEDING
               - keyword: AND
-              - literal: '2'
+              - numeric_literal: '2'
               - keyword: FOLLOWING
             end_bracket: )

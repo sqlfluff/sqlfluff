@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5e3ba19d28a0d7373d76847fb21e74786231083cf7eb2b2f42f22cc3a6bb543e
+_hash: f5189a71f81828e83117fdfcf84db19cd6ad2423d302ee1285375a3c90e6f193
 file:
 - statement:
     alter_function_statement:
@@ -1082,7 +1082,7 @@ file:
         function_name_identifier: fn
     - alter_function_action_segment:
         keyword: COST
-        literal: '10'
+        numeric_literal: '10'
 - statement_terminator: ;
 - statement:
     alter_function_statement:
@@ -1092,7 +1092,7 @@ file:
         function_name_identifier: fn
     - alter_function_action_segment:
       - keyword: COST
-      - literal: '10'
+      - numeric_literal: '10'
       - keyword: RESTRICT
 - statement_terminator: ;
 - statement:
@@ -1114,7 +1114,7 @@ file:
         - end_bracket: )
     - alter_function_action_segment:
         keyword: COST
-        literal: '10'
+        numeric_literal: '10'
 - statement_terminator: ;
 - statement:
     alter_function_statement:
@@ -1135,7 +1135,7 @@ file:
         - end_bracket: )
     - alter_function_action_segment:
       - keyword: COST
-      - literal: '10'
+      - numeric_literal: '10'
       - keyword: RESTRICT
 - statement_terminator: ;
 - statement:
@@ -1146,7 +1146,7 @@ file:
         function_name_identifier: fn
     - alter_function_action_segment:
         keyword: ROWS
-        literal: '10'
+        numeric_literal: '10'
 - statement_terminator: ;
 - statement:
     alter_function_statement:
@@ -1156,7 +1156,7 @@ file:
         function_name_identifier: fn
     - alter_function_action_segment:
       - keyword: ROWS
-      - literal: '10'
+      - numeric_literal: '10'
       - keyword: RESTRICT
 - statement_terminator: ;
 - statement:
@@ -1184,7 +1184,7 @@ file:
         - end_bracket: )
     - alter_function_action_segment:
         keyword: ROWS
-        literal: '10'
+        numeric_literal: '10'
 - statement_terminator: ;
 - statement:
     alter_function_statement:
@@ -1211,7 +1211,7 @@ file:
         - end_bracket: )
     - alter_function_action_segment:
       - keyword: ROWS
-      - literal: '10'
+      - numeric_literal: '10'
       - keyword: RESTRICT
 - statement_terminator: ;
 - statement:
@@ -1285,7 +1285,7 @@ file:
       - keyword: SET
       - parameter: param1
       - keyword: TO
-      - literal: '1'
+      - numeric_literal: '1'
 - statement_terminator: ;
 - statement:
     alter_function_statement:
@@ -1390,7 +1390,7 @@ file:
         parameter: param1
         comparison_operator:
           raw_comparison_operator: '='
-        literal: '1'
+        numeric_literal: '1'
 - statement_terminator: ;
 - statement:
     alter_function_statement:

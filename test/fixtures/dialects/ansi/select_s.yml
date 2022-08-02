@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5c5a7149aff9287153488e49ee9edc9bed42ee3f860e23fc3669e3909156c2a3
+_hash: 528835729e7c059d03d13e3c3aacd0887f9390c572fa9e8f764cedb66972a37c
 file:
   statement:
     select_statement:
@@ -36,7 +36,7 @@ file:
                       bracketed:
                         start_bracket: (
                         expression:
-                          literal: '0'
+                          numeric_literal: '0'
                         end_bracket: )
                   end_square_bracket: ']'
               - binary_operator: +
@@ -54,7 +54,7 @@ file:
                       bracketed:
                         start_bracket: (
                         expression:
-                          literal: '1'
+                          numeric_literal: '1'
                         end_bracket: )
                   end_square_bracket: ']'
               - binary_operator: +
@@ -72,7 +72,7 @@ file:
                       bracketed:
                         start_bracket: (
                         expression:
-                          literal: '2'
+                          numeric_literal: '2'
                         end_bracket: )
                   end_square_bracket: ']'
               - binary_operator: +
@@ -90,7 +90,7 @@ file:
                       bracketed:
                         start_bracket: (
                         expression:
-                          literal: '3'
+                          numeric_literal: '3'
                         end_bracket: )
                   end_square_bracket: ']'
               - binary_operator: +
@@ -108,7 +108,7 @@ file:
                       bracketed:
                         start_bracket: (
                         expression:
-                          literal: '4'
+                          numeric_literal: '4'
                         end_bracket: )
                   end_square_bracket: ']'
               - binary_operator: +
@@ -126,7 +126,7 @@ file:
                       bracketed:
                         start_bracket: (
                         expression:
-                          literal: '5'
+                          numeric_literal: '5'
                         end_bracket: )
                   end_square_bracket: ']'
               end_bracket: )

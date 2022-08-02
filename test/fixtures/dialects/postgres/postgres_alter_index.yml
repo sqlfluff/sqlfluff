@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 554132c29c42e65e524e2b205585c5e45a75ae1d344a62a279ec6608c85169f8
+_hash: 5cf064cb4d9880172559d9988a04e7ea296d8329e620aeb900c6237cf9ba5ee3
 file:
 - statement:
     alter_index_statement:
@@ -39,7 +39,7 @@ file:
         parameter: fillfactor
         comparison_operator:
           raw_comparison_operator: '='
-        literal: '75'
+        numeric_literal: '75'
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -50,10 +50,10 @@ file:
         naked_identifier: coord_idx
     - keyword: ALTER
     - keyword: COLUMN
-    - literal: '3'
+    - numeric_literal: '3'
     - keyword: SET
     - keyword: STATISTICS
-    - literal: '1000'
+    - numeric_literal: '1000'
 - statement_terminator: ;
 - statement:
     alter_index_statement:
@@ -102,10 +102,10 @@ file:
     - index_reference:
         naked_identifier: foo
     - keyword: ALTER
-    - literal: '4'
+    - numeric_literal: '4'
     - keyword: SET
     - keyword: STATISTICS
-    - literal: '7'
+    - numeric_literal: '7'
 - statement_terminator: ;
 - statement:
     alter_index_statement:

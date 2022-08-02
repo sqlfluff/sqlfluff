@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bc2a0167b11d6b89e8ff157f9617578b9a6ae4a12074571328887b4185e72f23
+_hash: 9c45e91fe7171ccaa616e36f1289fbe25b0d8999fec39ba98c7cf6b72d98b97e
 file:
 - statement:
     select_statement:
@@ -94,7 +94,7 @@ file:
               end_bracket: )
           comparison_operator:
             raw_comparison_operator: '>'
-          literal: '15'
+          numeric_literal: '15'
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -136,7 +136,7 @@ file:
             naked_identifier: sum_quantity
           comparison_operator:
             raw_comparison_operator: '>'
-          literal: '15'
+          numeric_literal: '15'
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -185,7 +185,7 @@ file:
               end_bracket: )
           comparison_operator:
             raw_comparison_operator: '>'
-          literal: '15'
+          numeric_literal: '15'
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -223,10 +223,10 @@ file:
       having_clause:
         keyword: HAVING
         expression:
-        - literal: '1'
+        - numeric_literal: '1'
         - comparison_operator:
             raw_comparison_operator: '>'
-        - literal: '0'
+        - numeric_literal: '0'
       orderby_clause:
       - keyword: ORDER
       - keyword: BY
@@ -271,5 +271,5 @@ file:
               end_bracket: )
           comparison_operator:
             raw_comparison_operator: '>'
-          literal: '10'
+          numeric_literal: '10'
 - statement_terminator: ;

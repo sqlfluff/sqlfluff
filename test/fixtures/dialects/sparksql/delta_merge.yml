@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 84a46f60a1a0ed28f6016462a2b5a9fcbd64f690e2b831d99c9212a3b39fee98
+_hash: c4059991d0b3d710932cb8c93294b824cb99997a328bde7be4272f3feb3b92bb
 file:
 - statement:
     merge_statement:
@@ -273,7 +273,7 @@ file:
         - interval_expression:
             keyword: INTERVAL
             interval_literal:
-              literal: '7'
+              numeric_literal: '7'
               date_part: DAYS
     - merge_match:
         merge_when_not_matched_clause:
@@ -298,7 +298,7 @@ file:
             interval_expression:
               keyword: INTERVAL
               interval_literal:
-                literal: '7'
+                numeric_literal: '7'
                 date_part: DAYS
         - keyword: THEN
         - merge_insert_clause:

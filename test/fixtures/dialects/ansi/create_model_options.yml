@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7ad66f3aeb5814361542a90c677d08dc7b4e314dc7579468e276326ca89bb23e
+_hash: 85eb5ea66a830ebcaf88fe4de952e6b43c8c149166cbf164f5f2b04ad969b9c7
 file:
   statement:
     create_model_statement:
@@ -19,7 +19,7 @@ file:
       - parameter: MODEL_TYPE
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'LOGISTIC_REG'"
+      - quoted_literal: "'LOGISTIC_REG'"
       - comma: ','
       - parameter: AUTO_CLASS_WEIGHTS
       - comparison_operator:
@@ -31,7 +31,7 @@ file:
           raw_comparison_operator: '='
       - array_literal:
           start_square_bracket: '['
-          literal: "'label_str'"
+          quoted_literal: "'label_str'"
           end_square_bracket: ']'
       - end_bracket: )
     - keyword: AS
@@ -59,4 +59,4 @@ file:
               naked_identifier: training
             comparison_operator:
               raw_comparison_operator: '='
-            literal: '1'
+            numeric_literal: '1'

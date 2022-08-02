@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 96e7dd0afa177a80fb032f960dff704f6a0b6a44c9dea81d26e5940cd00329d7
+_hash: 26434b1618dfd165ae98650bd3535023b27f867f71e5b3fc9fff95c8f2bf4a22
 file:
 - statement:
     load_data_statement:
@@ -37,13 +37,13 @@ file:
           naked_identifier: c2
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: '2'
+      - numeric_literal: '2'
       - comma: ','
       - column_reference:
           naked_identifier: c3
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: '3'
+      - numeric_literal: '3'
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -76,13 +76,13 @@ file:
           naked_identifier: c2
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: '2'
+      - numeric_literal: '2'
       - comma: ','
       - column_reference:
           naked_identifier: c3
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: '3'
+      - numeric_literal: '3'
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -102,12 +102,12 @@ file:
           naked_identifier: c2
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: '2'
+      - numeric_literal: '2'
       - comma: ','
       - column_reference:
           naked_identifier: c3
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: '3'
+      - numeric_literal: '3'
       - end_bracket: )
 - statement_terminator: ;

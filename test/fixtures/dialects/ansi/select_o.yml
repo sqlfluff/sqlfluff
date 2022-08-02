@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1957a003057454b0d42cad3faa487330371302f83f29a6fcc36144314e8d6b94
+_hash: 27f7510e3029d7c72b72d88565fe738581add837efc8e0a16900e17670aec6f3
 file:
   statement:
     select_statement:
@@ -26,11 +26,11 @@ file:
             naked_identifier: avg_click_rate
         - keyword: NOT
         - keyword: BETWEEN
-        - literal: '0'
+        - numeric_literal: '0'
         - keyword: and
-        - literal: '1'
+        - numeric_literal: '1'
         - binary_operator: +
-        - literal: '1'
+        - numeric_literal: '1'
         - binary_operator: +
         - column_reference:
             naked_identifier: some_value
@@ -38,14 +38,14 @@ file:
         - column_reference:
             naked_identifier: some_other_thing
         - keyword: BETWEEN
-        - literal: '0'
+        - numeric_literal: '0'
         - binary_operator: '-'
-        - literal: '1'
+        - numeric_literal: '1'
         - binary_operator: '*'
         - column_reference:
             naked_identifier: another_value
         - keyword: and
-        - literal: '1'
+        - numeric_literal: '1'
         - binary_operator: AND
         - column_reference:
             naked_identifier: another_thing
@@ -54,4 +54,4 @@ file:
         - column_reference:
             naked_identifier: another_value
         - keyword: and
-        - literal: '0'
+        - numeric_literal: '0'

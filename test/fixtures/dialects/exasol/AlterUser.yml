@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ea4dfa503370a09e234364061c39086d97ca3991c4be3804f3662c227d1a9e37
+_hash: faa22d59324432fe8ffce992f299c79436e9cf770ed6e801ff2498c5d0c6dcd1
 file:
 - statement:
     alter_user_statement:
@@ -40,7 +40,7 @@ file:
       - keyword: AT
       - keyword: LDAP
       - keyword: AS
-      - literal: "'cn=user_2,dc=authorization,dc=exasol,dc=com'"
+      - quoted_literal: "'cn=user_2,dc=authorization,dc=exasol,dc=com'"
 - statement_terminator: ;
 - statement:
     alter_user_statement:
@@ -51,7 +51,7 @@ file:
     - keyword: PASSWORD_EXPIRY_POLICY
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: "'42 days'"
+    - quoted_literal: "'42 days'"
 - statement_terminator: ;
 - statement:
     alter_user_statement:
@@ -144,5 +144,5 @@ file:
       - keyword: BY
       - keyword: OPENID
       - keyword: SUBJECT
-      - literal: "'database-user@exasol.example'"
+      - quoted_literal: "'database-user@exasol.example'"
 - statement_terminator: ;

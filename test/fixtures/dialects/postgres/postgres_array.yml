@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ebc1be73af87bd07fb9fba226bee033349956f04a4e653b7bc785bbb8c4aacb8
+_hash: b01e4f374a650fe3899b026a64a9d850eda424da09af1354fc359118d1b0bb39
 file:
 - statement:
     select_statement:
@@ -14,9 +14,9 @@ file:
           - array_literal:
             - keyword: ARRAY
             - start_square_bracket: '['
-            - literal: '1'
+            - numeric_literal: '1'
             - comma: ','
-            - literal: '2'
+            - numeric_literal: '2'
             - end_square_bracket: ']'
           - binary_operator:
             - pipe: '|'
@@ -24,9 +24,9 @@ file:
           - array_literal:
             - keyword: ARRAY
             - start_square_bracket: '['
-            - literal: '3'
+            - numeric_literal: '3'
             - comma: ','
-            - literal: '4'
+            - numeric_literal: '4'
             - end_square_bracket: ']'
 - statement_terminator: ;
 - statement:
@@ -96,11 +96,11 @@ file:
         - keyword: integer
         - start_square_bracket: '['
         - expression:
-            literal: '3'
+            numeric_literal: '3'
         - end_square_bracket: ']'
         - start_square_bracket: '['
         - expression:
-            literal: '3'
+            numeric_literal: '3'
         - end_square_bracket: ']'
         end_bracket: )
 - statement_terminator: ;
@@ -126,41 +126,41 @@ file:
             naked_identifier: pay_by_quarter
         - array_accessor:
             start_square_bracket: '['
-            literal: '1'
+            numeric_literal: '1'
             end_square_bracket: ']'
         - comparison_operator:
             raw_comparison_operator: '='
-        - literal: '10000'
+        - numeric_literal: '10000'
         - binary_operator: OR
         - column_reference:
             naked_identifier: pay_by_quarter
         - array_accessor:
             start_square_bracket: '['
-            literal: '2'
+            numeric_literal: '2'
             end_square_bracket: ']'
         - comparison_operator:
             raw_comparison_operator: '='
-        - literal: '10000'
+        - numeric_literal: '10000'
         - binary_operator: OR
         - column_reference:
             naked_identifier: pay_by_quarter
         - array_accessor:
             start_square_bracket: '['
-            literal: '3'
+            numeric_literal: '3'
             end_square_bracket: ']'
         - comparison_operator:
             raw_comparison_operator: '='
-        - literal: '10000'
+        - numeric_literal: '10000'
         - binary_operator: OR
         - column_reference:
             naked_identifier: pay_by_quarter
         - array_accessor:
             start_square_bracket: '['
-            literal: '4'
+            numeric_literal: '4'
             end_square_bracket: ']'
         - comparison_operator:
             raw_comparison_operator: '='
-        - literal: '10000'
+        - numeric_literal: '10000'
 - statement_terminator: ;
 - statement:
     insert_statement:
@@ -179,13 +179,13 @@ file:
             array_literal:
             - keyword: ARRAY
             - start_square_bracket: '['
-            - literal: '10000'
+            - numeric_literal: '10000'
             - comma: ','
-            - literal: '10000'
+            - numeric_literal: '10000'
             - comma: ','
-            - literal: '10000'
+            - numeric_literal: '10000'
             - comma: ','
-            - literal: '10000'
+            - numeric_literal: '10000'
             - end_square_bracket: ']'
         - comma: ','
         - expression:
@@ -225,13 +225,13 @@ file:
             array_literal:
             - keyword: ARRAY
             - start_square_bracket: '['
-            - literal: '20000'
+            - numeric_literal: '20000'
             - comma: ','
-            - literal: '25000'
+            - numeric_literal: '25000'
             - comma: ','
-            - literal: '25000'
+            - numeric_literal: '25000'
             - comma: ','
-            - literal: '25000'
+            - numeric_literal: '25000'
             - end_square_bracket: ']'
         - comma: ','
         - expression:
@@ -275,7 +275,7 @@ file:
             naked_identifier: pay_by_quarter
         - array_accessor:
             start_square_bracket: '['
-            literal: '1'
+            numeric_literal: '1'
             end_square_bracket: ']'
         - comparison_operator:
           - raw_comparison_operator: <
@@ -284,7 +284,7 @@ file:
             naked_identifier: pay_by_quarter
         - array_accessor:
             start_square_bracket: '['
-            literal: '2'
+            numeric_literal: '2'
             end_square_bracket: ']'
 - statement_terminator: ;
 - statement:
@@ -297,14 +297,14 @@ file:
               naked_identifier: schedule
             array_accessor:
             - start_square_bracket: '['
-            - literal: '1'
+            - numeric_literal: '1'
             - slice: ':'
-            - literal: '2'
+            - numeric_literal: '2'
             - end_square_bracket: ']'
             - start_square_bracket: '['
-            - literal: '1'
+            - numeric_literal: '1'
             - slice: ':'
-            - literal: '1'
+            - numeric_literal: '1'
             - end_square_bracket: ']'
       from_clause:
         keyword: FROM
@@ -334,11 +334,11 @@ file:
             naked_identifier: pay_by_quarter
           array_accessor:
             start_square_bracket: '['
-            literal: '4'
+            numeric_literal: '4'
             end_square_bracket: ']'
           comparison_operator:
             raw_comparison_operator: '='
-          literal: '15000'
+          numeric_literal: '15000'
       where_clause:
         keyword: WHERE
         expression:
@@ -360,9 +360,9 @@ file:
             naked_identifier: pay_by_quarter
           array_accessor:
           - start_square_bracket: '['
-          - literal: '1'
+          - numeric_literal: '1'
           - slice: ':'
-          - literal: '2'
+          - numeric_literal: '2'
           - end_square_bracket: ']'
           comparison_operator:
             raw_comparison_operator: '='
@@ -390,9 +390,9 @@ file:
               - array_literal:
                 - keyword: ARRAY
                 - start_square_bracket: '['
-                - literal: '1'
+                - numeric_literal: '1'
                 - comma: ','
-                - literal: '2'
+                - numeric_literal: '2'
                 - end_square_bracket: ']'
               - binary_operator:
                 - pipe: '|'
@@ -400,11 +400,11 @@ file:
               - array_literal:
                 - keyword: ARRAY
                 - start_square_bracket: '['
-                - literal: '3'
+                - numeric_literal: '3'
                 - comma: ','
-                - literal: '4'
+                - numeric_literal: '4'
                 - comma: ','
-                - literal: '5'
+                - numeric_literal: '5'
                 - end_square_bracket: ']'
               end_bracket: )
 - statement_terminator: ;
@@ -422,9 +422,9 @@ file:
               - array_literal:
                 - keyword: ARRAY
                 - start_square_bracket: '['
-                - literal: '1'
+                - numeric_literal: '1'
                 - comma: ','
-                - literal: '2'
+                - numeric_literal: '2'
                 - end_square_bracket: ']'
               - binary_operator:
                 - pipe: '|'
@@ -434,16 +434,16 @@ file:
                 - start_square_bracket: '['
                 - array_literal:
                   - start_square_bracket: '['
-                  - literal: '3'
+                  - numeric_literal: '3'
                   - comma: ','
-                  - literal: '4'
+                  - numeric_literal: '4'
                   - end_square_bracket: ']'
                 - comma: ','
                 - array_literal:
                   - start_square_bracket: '['
-                  - literal: '5'
+                  - numeric_literal: '5'
                   - comma: ','
-                  - literal: '6'
+                  - numeric_literal: '6'
                   - end_square_bracket: ']'
                 - end_square_bracket: ']'
               end_bracket: )
@@ -457,9 +457,9 @@ file:
             array_literal:
             - keyword: ARRAY
             - start_square_bracket: '['
-            - literal: '1'
+            - numeric_literal: '1'
             - comma: ','
-            - literal: '2'
+            - numeric_literal: '2'
             - end_square_bracket: ']'
             binary_operator:
             - pipe: '|'
@@ -509,15 +509,15 @@ file:
               naked_identifier: f1
             array_accessor:
             - start_square_bracket: '['
-            - literal: '1'
+            - numeric_literal: '1'
             - end_square_bracket: ']'
             - start_square_bracket: '['
             - numeric_literal:
                 sign_indicator: '-'
-                literal: '2'
+                numeric_literal: '2'
             - end_square_bracket: ']'
             - start_square_bracket: '['
-            - literal: '3'
+            - numeric_literal: '3'
             - end_square_bracket: ']'
           alias_expression:
             keyword: AS
@@ -529,15 +529,15 @@ file:
               naked_identifier: f1
             array_accessor:
             - start_square_bracket: '['
-            - literal: '1'
+            - numeric_literal: '1'
             - end_square_bracket: ']'
             - start_square_bracket: '['
             - numeric_literal:
                 sign_indicator: '-'
-                literal: '1'
+                numeric_literal: '1'
             - end_square_bracket: ']'
             - start_square_bracket: '['
-            - literal: '5'
+            - numeric_literal: '5'
             - end_square_bracket: ']'
           alias_expression:
             keyword: AS
@@ -598,7 +598,7 @@ file:
                   - else_clause:
                       keyword: ELSE
                       expression:
-                        literal: '0'
+                        numeric_literal: '0'
                   - keyword: END
                 end_bracket: )
             binary_operator: '*'
@@ -624,7 +624,7 @@ file:
               end_bracket: )
             array_accessor:
               start_square_bracket: '['
-              literal: '2'
+              numeric_literal: '2'
               end_square_bracket: ']'
       from_clause:
         keyword: FROM

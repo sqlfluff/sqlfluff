@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 196f48537cb6982e8eb10a988bb1300073e55b8dacdcd87b1f17b7949220c827
+_hash: 830de392062d8919d6406b638f6a147ab37532248dd51fec82eaf3a04c3689c9
 file:
 - statement:
     alter_table_statement:
@@ -25,9 +25,9 @@ file:
                 keyword: DECIMAL
                 bracketed:
                 - start_bracket: (
-                - literal: '18'
+                - numeric_literal: '18'
                 - comma: ','
-                - literal: '0'
+                - numeric_literal: '0'
                 - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -48,11 +48,11 @@ file:
                   keyword: CHAR
                   bracketed:
                     start_bracket: (
-                    literal: '10'
+                    numeric_literal: '10'
                     end_bracket: )
               column_constraint_segment:
                 keyword: DEFAULT
-                literal: "'some text'"
+                quoted_literal: "'some text'"
             end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -96,9 +96,9 @@ file:
               keyword: DECIMAL
               bracketed:
               - start_bracket: (
-              - literal: '10'
+              - numeric_literal: '10'
               - comma: ','
-              - literal: '2'
+              - numeric_literal: '2'
               - end_bracket: )
             end_bracket: )
 - statement_terminator: ;
@@ -118,11 +118,11 @@ file:
               keyword: VARCHAR
               bracketed:
                 start_bracket: (
-                literal: '5'
+                numeric_literal: '5'
                 end_bracket: )
             column_constraint_segment:
               keyword: DEFAULT
-              literal: "'text'"
+              quoted_literal: "'text'"
             end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -141,7 +141,7 @@ file:
             keyword: IDENTITY
             bracketed:
               start_bracket: (
-              literal: '1000'
+              numeric_literal: '1000'
               end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -202,7 +202,7 @@ file:
         - naked_identifier: id
         - keyword: SET
         - keyword: IDENTITY
-        - literal: '1000'
+        - numeric_literal: '1000'
 - statement_terminator: ;
 - statement:
     alter_table_statement:

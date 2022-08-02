@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 751d58cb20eba0b203cfb6fdab1a62352b4cecd9bbe73b93c8726c059d260bfc
+_hash: 41dfc3fcb84393e15f3b50236490fe3e599c6ddb098c8aa1b70ecfeccf168bf1
 file:
 - statement:
     alter_table_statement:
@@ -20,7 +20,7 @@ file:
           keyword: varchar
           bracketed:
             start_bracket: (
-            literal: '30'
+            numeric_literal: '30'
             end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -64,7 +64,7 @@ file:
           keyword: varchar
           bracketed:
             start_bracket: (
-            literal: '30'
+            numeric_literal: '30'
             end_bracket: )
       - column_constraint_segment:
           keyword: DEFAULT
@@ -108,7 +108,7 @@ file:
           keyword: varchar
           bracketed:
             start_bracket: (
-            literal: '80'
+            numeric_literal: '80'
             end_bracket: )
     - comma: ','
     - alter_table_action_segment:
@@ -121,7 +121,7 @@ file:
           keyword: varchar
           bracketed:
             start_bracket: (
-            literal: '100'
+            numeric_literal: '100'
             end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -248,7 +248,7 @@ file:
           naked_identifier: int_column
       - keyword: SET
       - keyword: DEFAULT
-      - literal: '1'
+      - numeric_literal: '1'
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -399,7 +399,7 @@ file:
           naked_identifier: int_column
       - keyword: SET
       - keyword: DEFAULT
-      - literal: '1'
+      - numeric_literal: '1'
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -623,7 +623,7 @@ file:
                   end_bracket: )
               comparison_operator:
                 raw_comparison_operator: '='
-              literal: '5'
+              numeric_literal: '5'
             end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -653,7 +653,7 @@ file:
                   end_bracket: )
               comparison_operator:
                 raw_comparison_operator: '='
-              literal: '5'
+              numeric_literal: '5'
             end_bracket: )
         - keyword: 'NO'
         - keyword: INHERIT
@@ -905,7 +905,7 @@ file:
           parameter: parameter_1
           comparison_operator:
             raw_comparison_operator: '='
-          literal: '1'
+          numeric_literal: '1'
           end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -921,7 +921,7 @@ file:
         - parameter: parameter_1
         - comparison_operator:
             raw_comparison_operator: '='
-        - literal: '1'
+        - numeric_literal: '1'
         - comma: ','
         - parameter: parameter_2
         - comparison_operator:
@@ -1029,10 +1029,10 @@ file:
         bracketed:
         - start_bracket: (
         - keyword: MODULUS
-        - literal: '4'
+        - numeric_literal: '4'
         - comma: ','
         - keyword: REMAINDER
-        - literal: '3'
+        - numeric_literal: '3'
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -1150,7 +1150,7 @@ file:
         - start_bracket: (
         - alter_sequence_options_segment:
             keyword: INCREMENT
-            literal: '4'
+            numeric_literal: '4'
         - alter_sequence_options_segment:
           - keyword: 'NO'
           - keyword: MAXVALUE
@@ -1171,7 +1171,7 @@ file:
       - alter_sequence_options_segment:
         - keyword: RESTART
         - keyword: WITH
-        - literal: '3'
+        - numeric_literal: '3'
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -1195,10 +1195,10 @@ file:
           - start_bracket: (
           - alter_sequence_options_segment:
               keyword: CACHE
-              literal: '3'
+              numeric_literal: '3'
           - alter_sequence_options_segment:
               keyword: MAXVALUE
-              literal: '63'
+              numeric_literal: '63'
           - alter_sequence_options_segment:
             - keyword: OWNED
             - keyword: BY

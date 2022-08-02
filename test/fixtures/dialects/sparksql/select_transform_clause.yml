@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 857f756b6c36b03aeafa22cc4ac46f0855996a08870e9064a24dc6694ba654ab
+_hash: 041fd298e4e6984676d4c60389fd8993a5fbb035f14eb881b553b70545706d3c
 file:
 - statement:
     select_statement:
@@ -44,7 +44,7 @@ file:
             naked_identifier: zip_code
           comparison_operator:
             raw_comparison_operator: '>'
-          literal: '94511'
+          numeric_literal: '94511'
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -88,7 +88,7 @@ file:
             naked_identifier: zip_code
           comparison_operator:
             raw_comparison_operator: '>'
-          literal: '94511'
+          numeric_literal: '94511'
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -222,7 +222,7 @@ file:
             naked_identifier: zip_code
           comparison_operator:
             raw_comparison_operator: '>'
-          literal: '94511'
+          numeric_literal: '94511'
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -254,5 +254,5 @@ file:
             naked_identifier: zip_code
           comparison_operator:
             raw_comparison_operator: '>'
-          literal: '94500'
+          numeric_literal: '94500'
 - statement_terminator: ;

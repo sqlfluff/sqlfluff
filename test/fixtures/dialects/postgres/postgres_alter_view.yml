@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bbeaabbbacbba058a8df520704ab02dd3024ae3499783c7f952d3b726551ec4f
+_hash: c35328dd8b5e4defd9cc728caaa122305f9c5317e2ccfaf00b4446b8f12ff409
 file:
 - statement:
     alter_view_statement:
@@ -34,7 +34,7 @@ file:
         naked_identifier: int_column
     - keyword: SET
     - keyword: DEFAULT
-    - literal: '1'
+    - numeric_literal: '1'
 - statement_terminator: ;
 - statement:
     alter_view_statement:
@@ -176,7 +176,7 @@ file:
         naked_identifier: int_column
     - keyword: SET
     - keyword: DEFAULT
-    - literal: '1'
+    - numeric_literal: '1'
 - statement_terminator: ;
 - statement:
     alter_view_statement:
@@ -545,7 +545,7 @@ file:
         parameter: view_option_name
         comparison_operator:
           raw_comparison_operator: '='
-        literal: '1'
+        numeric_literal: '1'
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -560,7 +560,7 @@ file:
       - parameter: view_option_name
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: '1'
+      - numeric_literal: '1'
       - comma: ','
       - parameter: view_option_name2
       - comparison_operator:
@@ -603,7 +603,7 @@ file:
         parameter: view_option_name
         comparison_operator:
           raw_comparison_operator: '='
-        literal: '1'
+        numeric_literal: '1'
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -622,7 +622,7 @@ file:
       - parameter: view_option_name2
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: '1'
+      - numeric_literal: '1'
       - comma: ','
       - parameter: view_option_name3
       - end_bracket: )

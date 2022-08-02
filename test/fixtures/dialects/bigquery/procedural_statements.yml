@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7e91ca55711299bc1e6dc431e3cc95257325a3ff4ecb0686c9e02b0345305b73
+_hash: c0f080db908906d750c6204125990b52d6d37b21bd173359fcf77ee795356633
 file:
 - statement:
     declare_segment:
@@ -274,7 +274,7 @@ file:
                   select_clause:
                     keyword: SELECT
                     select_clause_element:
-                      literal: "'Heads!'"
+                      quoted_literal: "'Heads!'"
             - statement_terminator: ;
             - statement:
                 set_segment:
@@ -300,7 +300,7 @@ file:
             select_clause:
               keyword: SELECT
               select_clause_element:
-                literal: "'Tails!'"
+                quoted_literal: "'Tails!'"
       - statement_terminator: ;
       - statement:
           break_statement:
@@ -334,6 +334,6 @@ file:
                     end_bracket: )
             - comma: ','
             - expression:
-                literal: "' heads in a row'"
+                quoted_literal: "' heads in a row'"
             - end_bracket: )
 - statement_terminator: ;

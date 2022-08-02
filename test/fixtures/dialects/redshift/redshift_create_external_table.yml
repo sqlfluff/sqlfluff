@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 85fab487b42db251c5a75a73fb961d42937af65510311489d6bd67bbff171e69
+_hash: 2de0a7cf7ce24a8aa514bf3e83098c3fb92a1907b3e803e6f40ce71789bb3a8e
 file:
 - statement:
     create_external_table_statement:
@@ -283,9 +283,9 @@ file:
           keyword: decimal
           bracketed:
           - start_bracket: (
-          - literal: '8'
+          - numeric_literal: '8'
           - comma: ','
-          - literal: '2'
+          - numeric_literal: '2'
           - end_bracket: )
       - comma: ','
       - column_reference:
@@ -350,7 +350,7 @@ file:
           keyword: varchar
           bracketed:
             start_bracket: (
-            literal: '10'
+            numeric_literal: '10'
             end_bracket: )
       - comma: ','
       - column_reference:
@@ -404,7 +404,7 @@ file:
           keyword: varchar
           bracketed:
             start_bracket: (
-            literal: '15'
+            numeric_literal: '15'
             end_bracket: )
       - comma: ','
       - column_reference:
@@ -413,9 +413,9 @@ file:
           keyword: decimal
           bracketed:
           - start_bracket: (
-          - literal: '6'
+          - numeric_literal: '6'
           - comma: ','
-          - literal: '2'
+          - numeric_literal: '2'
           - end_bracket: )
       - comma: ','
       - column_reference:
@@ -470,7 +470,7 @@ file:
           keyword: varchar
           bracketed:
             start_bracket: (
-            literal: '10'
+            numeric_literal: '10'
             end_bracket: )
       - end_bracket: )
     - keyword: ROW
@@ -516,5 +516,5 @@ file:
         select_clause:
           keyword: SELECT
           select_clause_element:
-            literal: '1'
+            numeric_literal: '1'
 - statement_terminator: ;

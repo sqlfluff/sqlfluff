@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 67c3d5ec8df59a534dc057a829d8fad3c94c62ae6e043382e93ce458bd9019fd
+_hash: fd18d6c074ee444d9f2fbceaba5217db5d96183e9bc2d4bc025ed79d311b8d9c
 file:
   statement:
     select_statement:
@@ -26,19 +26,19 @@ file:
         - column_reference:
             naked_identifier: a
         - comparison_operator: '!~'
-        - literal: "'[a-z]'"
+        - quoted_literal: "'[a-z]'"
         - binary_operator: AND
         - column_reference:
             naked_identifier: d
         - comparison_operator: '!~~*'
-        - literal: "'[a-z]'"
+        - quoted_literal: "'[a-z]'"
         - binary_operator: AND
         - column_reference:
             naked_identifier: b
         - keyword: LIKE
-        - literal: "'Spec\\'s%'"
+        - quoted_literal: "'Spec\\'s%'"
         - binary_operator: AND
         - column_reference:
             naked_identifier: c
         - comparison_operator: '!~*'
-        - literal: "'^([0-9]){1,}(\\.)([0-9]{1,})$'"
+        - quoted_literal: "'^([0-9]){1,}(\\.)([0-9]{1,})$'"

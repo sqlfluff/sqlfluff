@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bd8f63b8580d81424237ee5a89575371104067e2905c93c253007b13114044e2
+_hash: ad1d9abd13e8ba86dee71e83e8d19856891b3a75a42f45960e554444de1cc8f7
 file:
 - statement:
     select_statement:
@@ -22,7 +22,7 @@ file:
                   end_square_bracket: ']'
             - comma: ','
             - expression:
-                literal: '0'
+                numeric_literal: '0'
             - comma: ','
             - expression:
               - bracketed:
@@ -62,15 +62,15 @@ file:
                 array_literal:
                 - keyword: ARRAY
                 - start_square_bracket: '['
-                - literal: '5'
+                - numeric_literal: '5'
                 - comma: ','
-                - literal: '20'
+                - numeric_literal: '20'
                 - comma: ','
-                - literal: '50'
+                - numeric_literal: '50'
                 - end_square_bracket: ']'
             - comma: ','
             - expression:
-                literal: '0'
+                numeric_literal: '0'
             - comma: ','
             - expression:
               - bracketed:
@@ -110,17 +110,17 @@ file:
                 array_literal:
                 - keyword: ARRAY
                 - start_square_bracket: '['
-                - literal: '5'
+                - numeric_literal: '5'
                 - comma: ','
-                - literal: '20'
+                - numeric_literal: '20'
                 - comma: ','
                 - null_literal: 'NULL'
                 - comma: ','
-                - literal: '50'
+                - numeric_literal: '50'
                 - end_square_bracket: ']'
             - comma: ','
             - expression:
-                literal: '0'
+                numeric_literal: '0'
             - comma: ','
             - expression:
               - bracketed:
@@ -160,17 +160,17 @@ file:
                 array_literal:
                 - keyword: ARRAY
                 - start_square_bracket: '['
-                - literal: '5'
+                - numeric_literal: '5'
                 - comma: ','
-                - literal: '20'
+                - numeric_literal: '20'
                 - comma: ','
                 - null_literal: 'NULL'
                 - comma: ','
-                - literal: '50'
+                - numeric_literal: '50'
                 - end_square_bracket: ']'
             - comma: ','
             - expression:
-                literal: '0'
+                numeric_literal: '0'
             - comma: ','
             - expression:
               - bracketed:
@@ -195,7 +195,7 @@ file:
                         naked_identifier: x
                   - comma: ','
                   - expression:
-                      literal: '0'
+                      numeric_literal: '0'
                   - end_bracket: )
             - comma: ','
             - expression:
@@ -220,17 +220,17 @@ file:
                 array_literal:
                 - keyword: ARRAY
                 - start_square_bracket: '['
-                - literal: '5'
+                - numeric_literal: '5'
                 - comma: ','
-                - literal: '20'
+                - numeric_literal: '20'
                 - comma: ','
                 - null_literal: 'NULL'
                 - comma: ','
-                - literal: '50'
+                - numeric_literal: '50'
                 - end_square_bracket: ']'
             - comma: ','
             - expression:
-                literal: '0'
+                numeric_literal: '0'
             - comma: ','
             - expression:
                 bracketed:
@@ -287,9 +287,9 @@ file:
                 array_literal:
                 - keyword: ARRAY
                 - start_square_bracket: '['
-                - literal: '2147483647'
+                - numeric_literal: '2147483647'
                 - comma: ','
-                - literal: '1'
+                - numeric_literal: '1'
                 - end_square_bracket: ']'
             - comma: ','
             - expression:
@@ -299,7 +299,7 @@ file:
                   bracketed:
                     start_bracket: (
                     expression:
-                      literal: '0'
+                      numeric_literal: '0'
                     keyword: AS
                     data_type:
                       primitive_type:
@@ -344,13 +344,13 @@ file:
                 array_literal:
                 - keyword: ARRAY
                 - start_square_bracket: '['
-                - literal: '5'
+                - numeric_literal: '5'
                 - comma: ','
-                - literal: '6'
+                - numeric_literal: '6'
                 - comma: ','
-                - literal: '10'
+                - numeric_literal: '10'
                 - comma: ','
-                - literal: '20'
+                - numeric_literal: '20'
                 - end_square_bracket: ']'
             - comma: ','
             - expression:
@@ -366,10 +366,10 @@ file:
                         bracketed:
                         - start_bracket: (
                         - expression:
-                            literal: '0.0'
+                            numeric_literal: '0.0'
                         - comma: ','
                         - expression:
-                            literal: '0'
+                            numeric_literal: '0'
                         - end_bracket: )
                     keyword: AS
                     data_type:
@@ -424,7 +424,7 @@ file:
                             - dot: .
                             - naked_identifier: count
                             binary_operator: +
-                            literal: '1'
+                            numeric_literal: '1'
                         - end_bracket: )
                     keyword: AS
                     data_type:
@@ -459,7 +459,7 @@ file:
                       - naked_identifier: count
                       comparison_operator:
                         raw_comparison_operator: '='
-                      literal: '0'
+                      numeric_literal: '0'
                   - comma: ','
                   - expression:
                       null_literal: 'NULL'

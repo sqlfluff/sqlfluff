@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d556e3933d0ed0845a9651dfa461b9ff243bc689f1ec950932364c0c8117354e
+_hash: 6ed863caa9a7eab7e2c71c52f49b316faee0ebd9cc2f9407ba9fa7d343d2385e
 file:
   statement:
     create_materialized_view_statement:
@@ -102,7 +102,7 @@ file:
                                       naked_identifier: total_sales
                                   end_bracket: )
                               binary_operator: /
-                              literal: '10'
+                              numeric_literal: '10'
                         from_clause:
                           keyword: FROM
                           from_expression:

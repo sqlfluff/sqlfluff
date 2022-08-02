@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 08778e025b1407c1d55d5a139d27268e9d98f73ce6381e472eb703b30f375ef6
+_hash: c8a4ce0043e8afa1675113c93ec6f9b85a230ecc31e7f5a2bb0fc4dd6ac5e824
 file:
 - statement:
     select_statement:
@@ -23,12 +23,12 @@ file:
                   keyword: STRUCT
                   bracketed:
                   - start_bracket: (
-                  - literal: "'hello'"
+                  - quoted_literal: "'hello'"
                   - alias_expression:
                       keyword: AS
                       naked_identifier: greeting
                   - comma: ','
-                  - literal: "'world'"
+                  - quoted_literal: "'world'"
                   - alias_expression:
                       keyword: AS
                       naked_identifier: subject
@@ -39,12 +39,12 @@ file:
                   keyword: STRUCT
                   bracketed:
                   - start_bracket: (
-                  - literal: "'hi'"
+                  - quoted_literal: "'hi'"
                   - alias_expression:
                       keyword: AS
                       naked_identifier: greeting
                   - comma: ','
-                  - literal: "'there'"
+                  - quoted_literal: "'there'"
                   - alias_expression:
                       keyword: AS
                       naked_identifier: subject

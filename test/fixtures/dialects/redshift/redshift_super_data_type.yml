@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9d6b512c230a29227c6110be66bbcd0da6a0f5b813f7fe9c67e275100373195f
+_hash: 8ccb74adc863fb3c44a010173d8b64666c6b05513e690fa1a1e5ca91460a3092
 file:
 - statement:
     select_statement:
@@ -14,7 +14,7 @@ file:
             naked_identifier: c
         - array_accessor:
             start_square_bracket: '['
-            literal: '0'
+            numeric_literal: '0'
             end_square_bracket: ']'
         - dot: .
         - column_reference:
@@ -69,7 +69,7 @@ file:
             naked_identifier: c_orders
         - array_accessor:
             start_square_bracket: '['
-            literal: '0'
+            numeric_literal: '0'
             end_square_bracket: ']'
         - dot: .
         - column_reference:
@@ -110,7 +110,7 @@ file:
                         naked_identifier: c_orders
                     - array_accessor:
                         start_square_bracket: '['
-                        literal: '0'
+                        numeric_literal: '0'
                         end_square_bracket: ']'
                     - dot: .
                     - column_reference:
@@ -125,7 +125,7 @@ file:
                   naked_identifier: c_orders
               - array_accessor:
                   start_square_bracket: '['
-                  literal: '0'
+                  numeric_literal: '0'
                   end_square_bracket: ']'
               - dot: .
               - column_reference:
@@ -153,19 +153,19 @@ file:
             naked_identifier: c
         - array_accessor:
           - start_square_bracket: '['
-          - literal: '0'
+          - numeric_literal: '0'
           - end_square_bracket: ']'
           - start_square_bracket: '['
-          - literal: '1'
+          - numeric_literal: '1'
           - end_square_bracket: ']'
           - start_square_bracket: '['
-          - literal: '2'
+          - numeric_literal: '2'
           - end_square_bracket: ']'
           - start_square_bracket: '['
-          - literal: '3'
+          - numeric_literal: '3'
           - end_square_bracket: ']'
           - start_square_bracket: '['
-          - literal: '4'
+          - numeric_literal: '4'
           - end_square_bracket: ']'
         - dot: .
         - column_reference:
@@ -237,7 +237,7 @@ file:
             naked_identifier: messages
         - array_accessor:
             start_square_bracket: '['
-            literal: '0'
+            numeric_literal: '0'
             end_square_bracket: ']'
         - dot: .
         - column_reference:
@@ -248,7 +248,7 @@ file:
             naked_identifier: messages
         - array_accessor:
             start_square_bracket: '['
-            literal: '0'
+            numeric_literal: '0'
             end_square_bracket: ']'
         - dot: .
         - column_reference:
@@ -267,7 +267,7 @@ file:
             naked_identifier: messages
         - array_accessor:
             start_square_bracket: '['
-            literal: '0'
+            numeric_literal: '0'
             end_square_bracket: ']'
         - dot: .
         - column_reference:
@@ -278,7 +278,7 @@ file:
           - quoted_identifier: '"assetId"'
         - comparison_operator:
             raw_comparison_operator: '>'
-        - literal: '0'
+        - numeric_literal: '0'
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -289,7 +289,7 @@ file:
             naked_identifier: messages
         - array_accessor:
             start_square_bracket: '['
-            literal: '0'
+            numeric_literal: '0'
             end_square_bracket: ']'
         - dot: .
         - column_reference:
@@ -306,7 +306,7 @@ file:
                   naked_identifier: messages
               - array_accessor:
                   start_square_bracket: '['
-                  literal: '0'
+                  numeric_literal: '0'
                   end_square_bracket: ']'
               - dot: .
               - column_reference:
@@ -326,7 +326,7 @@ file:
             naked_identifier: messages
         - array_accessor:
             start_square_bracket: '['
-            literal: '0'
+            numeric_literal: '0'
             end_square_bracket: ']'
         - dot: .
         - column_reference:
@@ -345,7 +345,7 @@ file:
           naked_identifier: messages
       - array_accessor:
           start_square_bracket: '['
-          literal: '0'
+          numeric_literal: '0'
           end_square_bracket: ']'
       - dot: .
       - column_reference:

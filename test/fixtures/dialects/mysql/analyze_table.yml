@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ec2bf2ebe4a5e599ecd6d94f817f56dbd95b0c8bd660d9872555f5e81d6218c6
+_hash: da31a67c607ae72d4f415cdc0446249963c84a488dfa30c0355b264bc81d221c
 file:
 - statement:
     analyze_table_statement:
@@ -157,7 +157,7 @@ file:
     - column_reference:
         naked_identifier: some_col
     - keyword: WITH
-    - literal: '10'
+    - numeric_literal: '10'
     - keyword: BUCKETS
 - statement_terminator: ;
 - statement:
@@ -175,7 +175,7 @@ file:
     - column_reference:
         naked_identifier: some_col2
     - keyword: WITH
-    - literal: '10'
+    - numeric_literal: '10'
     - keyword: BUCKETS
 - statement_terminator: ;
 - statement:

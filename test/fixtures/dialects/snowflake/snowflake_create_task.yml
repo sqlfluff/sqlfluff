@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: baaa900d709900217b58a39a3eb5a39a9619d92e6c13e296c34cccf52ddb4291
+_hash: 0048cef814362672e14a630dbe118232bdfb10a9f68bada2e65b4890dd37eba0
 file:
 - statement:
     create_task_statement:
@@ -40,7 +40,7 @@ file:
             bracketed:
               start_bracket: (
               expression:
-                literal: '1'
+                numeric_literal: '1'
               end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -79,13 +79,13 @@ file:
             bracketed:
             - start_bracket: (
             - expression:
-                literal: '1'
+                numeric_literal: '1'
             - comma: ','
             - expression:
-                literal: '2'
+                numeric_literal: '2'
             - comma: ','
             - expression:
-                literal: '3'
+                numeric_literal: '3'
             - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -114,7 +114,7 @@ file:
     - keyword: USER_TASK_TIMEOUT_MS
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: '25'
+    - numeric_literal: '25'
     - keyword: USER_TASK_MANAGED_INITIAL_WAREHOUSE_SIZE
     - comparison_operator:
         raw_comparison_operator: '='
@@ -145,7 +145,7 @@ file:
             bracketed:
               start_bracket: (
               expression:
-                literal: '1'
+                numeric_literal: '1'
               end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -171,7 +171,7 @@ file:
             bracketed:
               start_bracket: (
               expression:
-                literal: '1'
+                numeric_literal: '1'
               end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -489,7 +489,7 @@ file:
     - keyword: USER_TASK_TIMEOUT_MS
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: '10800000'
+    - numeric_literal: '10800000'
     - keyword: WHEN
     - snowflake_task_expression_segment:
         system_function_name: SYSTEM$STREAM_HAS_DATA
@@ -499,10 +499,10 @@ file:
           end_bracket: )
         binary_operator: AND
         expression:
-        - literal: '1'
+        - numeric_literal: '1'
         - comparison_operator:
             raw_comparison_operator: '='
-        - literal: '1'
+        - numeric_literal: '1'
     - keyword: AS
     - statement:
         call_segment:

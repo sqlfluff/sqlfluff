@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 68990137a43c435e410cfe55030aa7065b1137143c1de9def3fddb028a46a0c7
+_hash: 6bc3c02fc648cb830e03576656136fbc00c666846eec82602e50eb1ab48945f2
 file:
 - statement:
     alter_table_statement:
@@ -99,7 +99,7 @@ file:
           keyword: varchar
           bracketed:
             start_bracket: (
-            literal: '300'
+            numeric_literal: '300'
             end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -132,7 +132,7 @@ file:
           keyword: varchar
           bracketed:
             start_bracket: (
-            literal: '16'
+            numeric_literal: '16'
             end_bracket: )
       - column_attribute_segment:
         - keyword: encode
@@ -144,7 +144,7 @@ file:
           keyword: varchar
           bracketed:
             start_bracket: (
-            literal: '32'
+            numeric_literal: '32'
             end_bracket: )
       - column_attribute_segment:
         - keyword: encode

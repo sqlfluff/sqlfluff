@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1e55806548eff6ea0190bea85954230ae9d20c230860649d4f834a2541bf395a
+_hash: 2634ea84fd5feb6fa65bd7b5eca2c5188b8b7edd366773f3d4ab85bcc5c0474e
 file:
 - statement:
     explain_statement:
@@ -69,7 +69,7 @@ file:
                 naked_identifier: zip_code
               comparison_operator:
                 raw_comparison_operator: '>'
-              literal: '94511'
+              numeric_literal: '94511'
 - statement_terminator: ;
 - statement:
     explain_statement:
@@ -335,7 +335,7 @@ file:
               naked_identifier: age
             comparison_operator:
               raw_comparison_operator: '='
-            literal: '10'
+            numeric_literal: '10'
             end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -408,7 +408,7 @@ file:
                 literal: "'123 Park Ave, San Jose'"
             - comma: ','
             - expression:
-                literal: '111111'
+                numeric_literal: '111111'
             - end_bracket: )
 - statement_terminator: ;
 - statement:

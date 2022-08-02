@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9afc6cd27e844f7ae670ef30721c169eed7cd00dcaaae71449a9be931bf1632a
+_hash: e851d87e3ebda5d3ec6f3ca26f5469e0df1d1b0ac631d9604af720ae8d102689
 file:
   batch:
   - statement:
@@ -23,7 +23,7 @@ file:
           comparison_operator:
             raw_comparison_operator: '='
         expression:
-          literal: '1'
+          numeric_literal: '1'
         statement_terminator: ;
   - statement:
       set_segment:
@@ -33,14 +33,14 @@ file:
           comparison_operator:
             raw_comparison_operator: '='
       - expression:
-          literal: '1'
+          numeric_literal: '1'
       - comma: ','
       - parameter: '@param2'
       - assignment_operator:
           comparison_operator:
             raw_comparison_operator: '='
       - expression:
-          literal: '2'
+          numeric_literal: '2'
       - statement_terminator: ;
   - statement:
       set_segment:
@@ -58,7 +58,7 @@ file:
           comparison_operator:
             raw_comparison_operator: '='
       - expression:
-          literal: '2'
+          numeric_literal: '2'
       - statement_terminator: ;
   - statement:
       set_segment:
@@ -82,7 +82,7 @@ file:
           comparison_operator:
             raw_comparison_operator: '='
       - expression:
-          literal: '2'
+          numeric_literal: '2'
       - statement_terminator: ;
   - statement:
       set_segment:
@@ -93,7 +93,7 @@ file:
           comparison_operator:
             raw_comparison_operator: '='
       - expression:
-          literal: '1'
+          numeric_literal: '1'
       - comma: ','
       - parameter: '@param2'
       - assignment_operator:
@@ -101,7 +101,7 @@ file:
           comparison_operator:
             raw_comparison_operator: '='
       - expression:
-          literal: '2'
+          numeric_literal: '2'
       - comma: ','
       - parameter: '@param3'
       - assignment_operator:
@@ -109,7 +109,7 @@ file:
           comparison_operator:
             raw_comparison_operator: '='
       - expression:
-          literal: '3'
+          numeric_literal: '3'
       - comma: ','
       - parameter: '@param4'
       - assignment_operator:
@@ -117,7 +117,7 @@ file:
           comparison_operator:
             raw_comparison_operator: '='
       - expression:
-          literal: '4'
+          numeric_literal: '4'
       - comma: ','
       - parameter: '@param5'
       - assignment_operator:
@@ -125,7 +125,7 @@ file:
           comparison_operator:
             raw_comparison_operator: '='
       - expression:
-          literal: '5'
+          numeric_literal: '5'
       - comma: ','
       - parameter: '@param5'
       - assignment_operator:
@@ -133,7 +133,7 @@ file:
           comparison_operator:
             raw_comparison_operator: '='
       - expression:
-          literal: '6'
+          numeric_literal: '6'
       - comma: ','
       - parameter: '@param5'
       - assignment_operator:
@@ -142,7 +142,7 @@ file:
           comparison_operator:
             raw_comparison_operator: '='
       - expression:
-          literal: '7'
+          numeric_literal: '7'
       - comma: ','
       - parameter: '@param5'
       - assignment_operator:
@@ -151,5 +151,5 @@ file:
           comparison_operator:
             raw_comparison_operator: '='
       - expression:
-          literal: '8'
+          numeric_literal: '8'
       - statement_terminator: ;

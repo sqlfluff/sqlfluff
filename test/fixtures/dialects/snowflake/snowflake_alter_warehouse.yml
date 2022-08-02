@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3467f694bafcd38abdf74f5d146e05ef49acd178908374ae7862b193586c2706
+_hash: c7b1c77a6745044065b3ebc7b98aa8d71a3c1ddf1332d1f0f8a97195ad1e451a
 file:
 - statement:
     alter_warehouse_statement:
@@ -62,7 +62,7 @@ file:
         keyword: MAX_CLUSTER_COUNT
         comparison_operator:
           raw_comparison_operator: '='
-        literal: '5'
+        numeric_literal: '5'
 - statement_terminator: ;
 - statement:
     alter_warehouse_statement:
@@ -74,7 +74,7 @@ file:
         keyword: MIN_CLUSTER_COUNT
         comparison_operator:
           raw_comparison_operator: '='
-        literal: '1'
+        numeric_literal: '1'
 - statement_terminator: ;
 - statement:
     alter_warehouse_statement:
@@ -98,7 +98,7 @@ file:
         keyword: AUTO_SUSPEND
         comparison_operator:
           raw_comparison_operator: '='
-        literal: '1'
+        numeric_literal: '1'
 - statement_terminator: ;
 - statement:
     alter_warehouse_statement:
@@ -146,7 +146,7 @@ file:
         keyword: MAX_CONCURRENCY_LEVEL
         comparison_operator:
           raw_comparison_operator: '='
-        literal: '1'
+        numeric_literal: '1'
 - statement_terminator: ;
 - statement:
     alter_warehouse_statement:
@@ -158,7 +158,7 @@ file:
         keyword: STATEMENT_QUEUED_TIMEOUT_IN_SECONDS
         comparison_operator:
           raw_comparison_operator: '='
-        literal: '300'
+        numeric_literal: '300'
 - statement_terminator: ;
 - statement:
     alter_warehouse_statement:
@@ -170,7 +170,7 @@ file:
         keyword: STATEMENT_TIMEOUT_IN_SECONDS
         comparison_operator:
           raw_comparison_operator: '='
-        literal: '300'
+        numeric_literal: '300'
 - statement_terminator: ;
 - statement:
     alter_warehouse_statement:
@@ -240,7 +240,7 @@ file:
         keyword: MAX_CONCURRENCY_LEVEL
         comparison_operator:
           raw_comparison_operator: '='
-        literal: '1'
+        numeric_literal: '1'
 - statement_terminator: ;
 - statement:
     alter_warehouse_statement:

@@ -3,34 +3,34 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2bde5a70a0fad3a256491bf73320a3b9de3e13e903728ffae04e72211eb22661
+_hash: 16ee861ffacdc80133052b99b8ce0559c901a48d4342937e72dd5aac2e7c1b97
 file:
 - batch:
   - statement:
       update_statement:
         keyword: UPDATE
         table_reference:
-        - identifier: HumanResources
+        - naked_identifier: HumanResources
         - dot: .
-        - identifier: Employee
+        - naked_identifier: Employee
         set_clause_list:
           keyword: SET
           set_clause:
             column_reference:
-              identifier: JobTitle
+              naked_identifier: JobTitle
             assignment_operator:
               comparison_operator:
                 raw_comparison_operator: '='
             expression:
-              literal: "N'Executive'"
+              quoted_literal: "N'Executive'"
         where_clause:
           keyword: WHERE
           expression:
             column_reference:
-              identifier: NationalIDNumber
+              naked_identifier: NationalIDNumber
             comparison_operator:
               raw_comparison_operator: '='
-            literal: '123456789'
+            numeric_literal: '123456789'
   - statement:
       if_then_statement:
         if_clause:
@@ -39,12 +39,12 @@ file:
             system_variable: '@@ROWCOUNT'
             comparison_operator:
               raw_comparison_operator: '='
-            literal: '0'
+            numeric_literal: '0'
         statement:
           print_statement:
             keyword: PRINT
             expression:
-              literal: "'Warning: No rows were updated'"
+              quoted_literal: "'Warning: No rows were updated'"
             statement_terminator: ;
   - statement:
       if_then_statement:
@@ -54,7 +54,7 @@ file:
             system_variable: '@@ERROR'
             comparison_operator:
               raw_comparison_operator: '='
-            literal: '547'
+            numeric_literal: '547'
         statement:
           begin_end_block:
           - keyword: BEGIN
@@ -62,7 +62,7 @@ file:
               print_statement:
                 keyword: PRINT
                 expression:
-                  literal: "N'A check constraint violation occurred.'"
+                  quoted_literal: "N'A check constraint violation occurred.'"
                 statement_terminator: ;
           - keyword: END
 - go_statement:

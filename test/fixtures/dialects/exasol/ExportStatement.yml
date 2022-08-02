@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8745d0f1c313142630763f87cb775f79ae23c975bbe14426369279d8fe515b95
+_hash: ff7361bc091cc9599a91f186e7b3cee7edee5f949a8cea05a25827bf36f91b73
 file:
 - statement:
     export_statement:
@@ -16,24 +16,24 @@ file:
         - keyword: CSV
         - keyword: AT
         - connection_definition:
-          - literal: "'ftp://192.168.1.1/'"
+          - quoted_literal: "'ftp://192.168.1.1/'"
           - keyword: USER
-          - literal: "'agent_007'"
+          - quoted_literal: "'agent_007'"
           - keyword: IDENTIFIED
           - keyword: BY
-          - literal: "'secret'"
+          - quoted_literal: "'secret'"
         - keyword: FILE
-        - literal: "'tab1.csv'"
+        - quoted_literal: "'tab1.csv'"
         - file_opts:
           - keyword: COLUMN
           - keyword: SEPARATOR
           - comparison_operator:
               raw_comparison_operator: '='
-          - literal: "';'"
+          - quoted_literal: "';'"
           - keyword: ENCODING
           - comparison_operator:
               raw_comparison_operator: '='
-          - literal: "'Latin1'"
+          - quoted_literal: "'Latin1'"
           - keyword: WITH
           - keyword: COLUMN
           - keyword: NAMES
@@ -49,26 +49,26 @@ file:
         - keyword: CSV
         - keyword: AT
         - connection_definition:
-          - literal: "'ftp://192.168.1.1/'"
+          - quoted_literal: "'ftp://192.168.1.1/'"
           - keyword: USER
-          - literal: "'agent_007'"
+          - quoted_literal: "'agent_007'"
           - keyword: IDENTIFIED
           - keyword: BY
-          - literal: "'secret'"
+          - quoted_literal: "'secret'"
         - keyword: FILE
-        - literal: "'tab1.csv'"
+        - quoted_literal: "'tab1.csv'"
         - csv_cols:
             bracketed:
             - start_bracket: (
-            - literal: '1'
+            - numeric_literal: '1'
             - keyword: FORMAT
             - comparison_operator:
                 raw_comparison_operator: '='
-            - literal: "'DD.MM.YYYY'"
+            - quoted_literal: "'DD.MM.YYYY'"
             - comma: ','
-            - literal: '2'
+            - numeric_literal: '2'
             - range_operator: ..
-            - literal: '3'
+            - numeric_literal: '3'
             - keyword: DELIMIT
             - comparison_operator:
                 raw_comparison_operator: '='
@@ -79,11 +79,11 @@ file:
           - keyword: SEPARATOR
           - comparison_operator:
               raw_comparison_operator: '='
-          - literal: "';'"
+          - quoted_literal: "';'"
           - keyword: ENCODING
           - comparison_operator:
               raw_comparison_operator: '='
-          - literal: "'Latin1'"
+          - quoted_literal: "'Latin1'"
           - keyword: WITH
           - keyword: COLUMN
           - keyword: NAMES
@@ -114,7 +114,7 @@ file:
                 naked_identifier: id
               comparison_operator:
                 raw_comparison_operator: '='
-              literal: '3295'
+              numeric_literal: '3295'
         end_bracket: )
       export_into_clause:
         keyword: INTO
@@ -124,9 +124,9 @@ file:
         - connection_definition:
             naked_identifier: my_connection
         - keyword: FILE
-        - literal: "'t1.fbv'"
+        - quoted_literal: "'t1.fbv'"
         - keyword: FILE
-        - literal: "'t2.fbv'"
+        - quoted_literal: "'t2.fbv'"
         - file_opts:
             keyword: REPLACE
 - statement_terminator: ;
@@ -156,12 +156,12 @@ file:
         - keyword: EXA
         - keyword: AT
         - connection_definition:
-          - literal: "'192.168.6.11..14:8563'"
+          - quoted_literal: "'192.168.6.11..14:8563'"
           - keyword: USER
-          - literal: "'my_user'"
+          - quoted_literal: "'my_user'"
           - keyword: IDENTIFIED
           - keyword: BY
-          - literal: "'my_secret'"
+          - quoted_literal: "'my_secret'"
         - keyword: TABLE
         - table_reference:
           - naked_identifier: my_schema
@@ -169,7 +169,7 @@ file:
           - naked_identifier: my_table
         - keyword: CREATED
         - keyword: BY
-        - literal: "'CREATE TABLE my_table(order_id INT, price DEC(18,2))'"
+        - quoted_literal: "'CREATE TABLE my_table(order_id INT, price DEC(18,2))'"
 - statement_terminator: ;
 - statement:
     export_statement:
@@ -183,15 +183,15 @@ file:
         - keyword: DRIVER
         - comparison_operator:
             raw_comparison_operator: '='
-        - literal: "'MSSQL'"
+        - quoted_literal: "'MSSQL'"
         - keyword: AT
         - connection_definition:
-          - literal: "'jdbc:sqlserver://dbserver;databaseName=testdb'"
+          - quoted_literal: "'jdbc:sqlserver://dbserver;databaseName=testdb'"
           - keyword: USER
-          - literal: "'agent_007'"
+          - quoted_literal: "'agent_007'"
           - keyword: IDENTIFIED
           - keyword: BY
-          - literal: "'secret'"
+          - quoted_literal: "'secret'"
         - keyword: TABLE
         - table_reference:
           - naked_identifier: my_schema
@@ -209,9 +209,9 @@ file:
         - keyword: CSV
         - keyword: AT
         - connection_definition:
-            literal: "'http://HadoopNode:50070/webhdfs/v1/tmp'"
+            quoted_literal: "'http://HadoopNode:50070/webhdfs/v1/tmp'"
         - keyword: FILE
-        - literal: "'file.csv?op=CREATE&user.name=user'"
+        - quoted_literal: "'file.csv?op=CREATE&user.name=user'"
 - statement_terminator: ;
 - statement:
     export_statement:
@@ -224,14 +224,14 @@ file:
         - keyword: CSV
         - keyword: AT
         - connection_definition:
-          - literal: "'https://testbucket.s3.amazonaws.com'"
+          - quoted_literal: "'https://testbucket.s3.amazonaws.com'"
           - keyword: USER
-          - literal: "'<AccessKeyID>'"
+          - quoted_literal: "'<AccessKeyID>'"
           - keyword: IDENTIFIED
           - keyword: BY
-          - literal: "'<SecretAccessKey>'"
+          - quoted_literal: "'<SecretAccessKey>'"
         - keyword: FILE
-        - literal: "'file.csv'"
+        - quoted_literal: "'file.csv'"
 - statement_terminator: ;
 - statement:
     export_statement:
@@ -250,19 +250,19 @@ file:
         - parameter: HCAT_DB
         - comparison_operator:
             raw_comparison_operator: '='
-        - literal: "'default'"
+        - quoted_literal: "'default'"
         - parameter: HCAT_TABLE
         - comparison_operator:
             raw_comparison_operator: '='
-        - literal: "'my_hcat_table'"
+        - quoted_literal: "'my_hcat_table'"
         - parameter: HCAT_ADDRESS
         - comparison_operator:
             raw_comparison_operator: '='
-        - literal: "'hcatalog-server:50111'"
+        - quoted_literal: "'hcatalog-server:50111'"
         - parameter: HDFS_USER
         - comparison_operator:
             raw_comparison_operator: '='
-        - literal: "'hdfs'"
+        - quoted_literal: "'hdfs'"
 - statement_terminator: ;
 - statement:
     export_statement:
@@ -275,11 +275,11 @@ file:
         - keyword: LOCAL
         - keyword: CSV
         - keyword: FILE
-        - literal: "'/tmp/my_table.csv'"
+        - quoted_literal: "'/tmp/my_table.csv'"
         - file_opts:
           - keyword: COLUMN
           - keyword: SEPARATOR
           - comparison_operator:
               raw_comparison_operator: '='
-          - literal: "';'"
+          - quoted_literal: "';'"
 - statement_terminator: ;

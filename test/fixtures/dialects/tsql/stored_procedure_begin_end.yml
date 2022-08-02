@@ -3,16 +3,16 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a9b73b631282e142a63ae0f9ec3dc3f89c09e166c98bda81928aba95e87e6572
+_hash: bda275337a514353248e0a73540dcd239b19ae80144f7563bb385e709b301be6
 file:
 - batch:
     create_procedure_statement:
     - keyword: CREATE
     - keyword: PROCEDURE
     - object_reference:
-      - identifier: dbo
+      - naked_identifier: dbo
       - dot: .
-      - identifier: Test_Begin_End
+      - naked_identifier: Test_Begin_End
     - keyword: AS
     - procedure_statement:
         statement:
@@ -23,7 +23,7 @@ file:
                 select_clause:
                   keyword: SELECT
                   select_clause_element:
-                    literal: "'Weekend'"
+                    quoted_literal: "'Weekend'"
                 statement_terminator: ;
           - statement:
               select_statement:
@@ -31,14 +31,14 @@ file:
                   keyword: select
                   select_clause_element:
                     column_reference:
-                      identifier: a
+                      naked_identifier: a
                 from_clause:
                   keyword: from
                   from_expression:
                     from_expression_element:
                       table_expression:
                         table_reference:
-                          identifier: tbl1
+                          naked_identifier: tbl1
                   statement_terminator: ;
           - statement:
               select_statement:
@@ -46,14 +46,14 @@ file:
                   keyword: select
                   select_clause_element:
                     column_reference:
-                      identifier: b
+                      naked_identifier: b
                 from_clause:
                   keyword: from
                   from_expression:
                     from_expression_element:
                       table_expression:
                         table_reference:
-                          identifier: tbl2
+                          naked_identifier: tbl2
                   statement_terminator: ;
           - keyword: END
         statement_terminator: ;
@@ -64,9 +64,9 @@ file:
     - keyword: CREATE
     - keyword: PROCEDURE
     - object_reference:
-      - identifier: '[dbo]'
+      - quoted_identifier: '[dbo]'
       - dot: .
-      - identifier: '[usp_process_tran_log]'
+      - quoted_identifier: '[usp_process_tran_log]'
     - procedure_parameter_list:
       - parameter: '@out_vchCode'
       - data_type:
@@ -84,7 +84,7 @@ file:
       - comparison_operator:
           raw_comparison_operator: '='
       - expression:
-          literal: '1'
+          numeric_literal: '1'
     - keyword: AS
     - procedure_statement:
       - statement:
@@ -101,7 +101,7 @@ file:
                 select_clause:
                   keyword: SELECT
                   select_clause_element:
-                    literal: "'8'"
+                    quoted_literal: "'8'"
           - keyword: END
       - statement_terminator: ;
 - go_statement:
@@ -111,9 +111,9 @@ file:
     - keyword: CREATE
     - keyword: PROCEDURE
     - object_reference:
-      - identifier: '[dbo]'
+      - quoted_identifier: '[dbo]'
       - dot: .
-      - identifier: '[usp_process_tran_log]'
+      - quoted_identifier: '[usp_process_tran_log]'
     - procedure_parameter_list:
       - parameter: '@out_vchCode'
       - data_type:
@@ -131,7 +131,7 @@ file:
       - comparison_operator:
           raw_comparison_operator: '='
       - expression:
-          literal: '1'
+          numeric_literal: '1'
       - keyword: READONLY
     - keyword: AS
     - procedure_statement:
@@ -149,7 +149,7 @@ file:
                 select_clause:
                   keyword: SELECT
                   select_clause_element:
-                    literal: "'8'"
+                    quoted_literal: "'8'"
           - keyword: END
       - statement_terminator: ;
 - go_statement:
@@ -159,9 +159,9 @@ file:
     - keyword: CREATE
     - keyword: PROCEDURE
     - object_reference:
-      - identifier: '[dbo]'
+      - quoted_identifier: '[dbo]'
       - dot: .
-      - identifier: '[usp_process_tran_log]'
+      - quoted_identifier: '[usp_process_tran_log]'
     - procedure_parameter_list:
       - parameter: '@out_vchCode'
       - data_type:
@@ -179,7 +179,7 @@ file:
       - comparison_operator:
           raw_comparison_operator: '='
       - expression:
-          literal: '1'
+          numeric_literal: '1'
     - keyword: AS
     - procedure_statement:
       - statement:
@@ -200,7 +200,7 @@ file:
                     select_clause:
                       keyword: SELECT
                       select_clause_element:
-                        literal: "'8'"
+                        quoted_literal: "'8'"
                     statement_terminator: ;
               - keyword: END
               - keyword: TRY
@@ -244,7 +244,7 @@ file:
                       comparison_operator:
                         raw_comparison_operator: '='
                     expression:
-                      literal: "N'Missing control type.'"
+                      quoted_literal: "N'Missing control type.'"
                     statement_terminator: ;
               - statement:
                   set_segment:
@@ -256,7 +256,7 @@ file:
                     expression:
                     - parameter: '@v_vchMsg'
                     - binary_operator: +
-                    - literal: "N' SQL Error = '"
+                    - quoted_literal: "N' SQL Error = '"
                     - binary_operator: +
                     - function:
                         function_name:
@@ -268,7 +268,7 @@ file:
               - statement:
                   goto_statement:
                     keyword: GOTO
-                    identifier: ERROR_HANDLER
+                    naked_identifier: ERROR_HANDLER
               - statement_terminator: ;
               - keyword: END
               - keyword: CATCH

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6df3a97edb3528cfa955bb2766ca5920434f2218b39457f7d502b8e83ade520d
+_hash: 6516297807ea02447c003c12cfdba79eb76ffd1aafcd4f953bb361f79a5acd8d
 file:
 - statement:
     select_statement:
@@ -93,7 +93,7 @@ file:
                 bare_function: sysdate
               end_bracket: )
         - binary_operator: '-'
-        - literal: '120'
+        - numeric_literal: '120'
         - keyword: AND
         - function:
             function_name:

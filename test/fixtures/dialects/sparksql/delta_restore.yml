@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 54144846cb6f25480e30006e01a31cbcbf11b00fde4086fe1569ab114e5519af
+_hash: a9c967f06d8aba247c5ab8159dba03d36418f9fb8bb02d6e6b77061bef576422
 file:
 - statement:
     restore_table_statement:
@@ -59,7 +59,7 @@ file:
                 end_bracket: )
         - comma: ','
         - expression:
-            literal: '1'
+            numeric_literal: '1'
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -88,7 +88,7 @@ file:
     - keyword: VERSION
     - keyword: AS
     - keyword: OF
-    - literal: '5238'
+    - numeric_literal: '5238'
 - statement_terminator: ;
 - statement:
     restore_table_statement:
@@ -102,5 +102,5 @@ file:
     - keyword: VERSION
     - keyword: AS
     - keyword: OF
-    - literal: '5238'
+    - numeric_literal: '5238'
 - statement_terminator: ;

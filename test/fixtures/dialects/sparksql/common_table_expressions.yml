@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: eb656f4b411e73537c13e39a0ca61deb631a283e248d05f8e3103bf989c715ff
+_hash: f6284ad17cca775e8dc9aee5fe276a1e65b6d4f00bfdaa01ddbc5827a1ac8761
 file:
 - statement:
     with_compound_statement:
@@ -25,10 +25,10 @@ file:
             select_clause:
             - keyword: SELECT
             - select_clause_element:
-                literal: '1'
+                numeric_literal: '1'
             - comma: ','
             - select_clause_element:
-                literal: '2'
+                numeric_literal: '2'
           end_bracket: )
       select_statement:
         select_clause:
@@ -51,13 +51,13 @@ file:
               naked_identifier: x
           - comparison_operator:
               raw_comparison_operator: '='
-          - literal: '1'
+          - numeric_literal: '1'
           - binary_operator: AND
           - column_reference:
               naked_identifier: y
           - comparison_operator:
               raw_comparison_operator: '='
-          - literal: '2'
+          - numeric_literal: '2'
 - statement_terminator: ;
 - statement:
     with_compound_statement:
@@ -78,7 +78,7 @@ file:
                   select_clause:
                     keyword: SELECT
                     select_clause_element:
-                      literal: '1'
+                      numeric_literal: '1'
                 end_bracket: )
             select_statement:
               select_clause:
@@ -148,7 +148,7 @@ file:
                         select_clause:
                           keyword: SELECT
                           select_clause_element:
-                            literal: '1'
+                            numeric_literal: '1'
                       end_bracket: )
                   select_statement:
                     select_clause:
@@ -185,7 +185,7 @@ file:
                       select_clause:
                         keyword: SELECT
                         select_clause_element:
-                          literal: '1'
+                          numeric_literal: '1'
                     end_bracket: )
                 select_statement:
                   select_clause:
@@ -233,16 +233,16 @@ file:
               select_clause:
               - keyword: SELECT
               - select_clause_element:
-                  literal: '1'
+                  numeric_literal: '1'
               - comma: ','
               - select_clause_element:
-                  literal: '2'
+                  numeric_literal: '2'
               - comma: ','
               - select_clause_element:
-                  literal: '3'
+                  numeric_literal: '3'
               - comma: ','
               - select_clause_element:
-                  literal: '4'
+                  numeric_literal: '4'
             end_bracket: )
         select_statement:
           select_clause:
@@ -287,7 +287,7 @@ file:
             select_clause:
               keyword: SELECT
               select_clause_element:
-                literal: '1'
+                numeric_literal: '1'
           end_bracket: )
     - comma: ','
     - common_table_expression:
@@ -306,7 +306,7 @@ file:
                   select_clause:
                     keyword: SELECT
                     select_clause_element:
-                      literal: '2'
+                      numeric_literal: '2'
                 end_bracket: )
             select_statement:
               select_clause:

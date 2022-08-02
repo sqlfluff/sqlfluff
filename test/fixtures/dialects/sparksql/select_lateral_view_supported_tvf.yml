@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 36eb784afb1422f871d7a151504e47eb4aa29a8dde687442413e13432ee2aa97
+_hash: 277e69ba6a673faa5d53252e4759246b58381e040667c144a745a4ed35495cb4
 file:
 - statement:
     select_statement:
@@ -22,10 +22,10 @@ file:
                   bracketed:
                   - start_bracket: (
                   - expression:
-                      literal: '10'
+                      numeric_literal: '10'
                   - comma: ','
                   - expression:
-                      literal: '20'
+                      numeric_literal: '20'
                   - end_bracket: )
               end_bracket: )
 - statement_terminator: ;
@@ -46,10 +46,10 @@ file:
                   bracketed:
                   - start_bracket: (
                   - expression:
-                      literal: '10'
+                      numeric_literal: '10'
                   - comma: ','
                   - expression:
-                      literal: '20'
+                      numeric_literal: '20'
                   - end_bracket: )
               end_bracket: )
 - statement_terminator: ;
@@ -90,10 +90,10 @@ file:
                       bracketed:
                       - start_bracket: (
                       - expression:
-                          literal: '3'
+                          numeric_literal: '3'
                       - comma: ','
                       - expression:
-                          literal: '4'
+                          numeric_literal: '4'
                       - end_bracket: )
                   end_bracket: )
             - keyword: AS
@@ -136,10 +136,10 @@ file:
                       bracketed:
                       - start_bracket: (
                       - expression:
-                          literal: '3'
+                          numeric_literal: '3'
                       - comma: ','
                       - expression:
-                          literal: '4'
+                          numeric_literal: '4'
                       - end_bracket: )
                   end_bracket: )
             - keyword: AS
@@ -168,7 +168,7 @@ file:
                         bracketed:
                         - start_bracket: (
                         - expression:
-                            literal: '1'
+                            numeric_literal: '1'
                         - comma: ','
                         - expression:
                             literal: "'a'"
@@ -181,7 +181,7 @@ file:
                         bracketed:
                         - start_bracket: (
                         - expression:
-                            literal: '2'
+                            numeric_literal: '2'
                         - comma: ','
                         - expression:
                             literal: "'b'"
@@ -212,7 +212,7 @@ file:
                         bracketed:
                         - start_bracket: (
                         - expression:
-                            literal: '1'
+                            numeric_literal: '1'
                         - comma: ','
                         - expression:
                             literal: "'a'"
@@ -225,7 +225,7 @@ file:
                         bracketed:
                         - start_bracket: (
                         - expression:
-                            literal: '2'
+                            numeric_literal: '2'
                         - comma: ','
                         - expression:
                             literal: "'b'"
@@ -276,7 +276,7 @@ file:
                             bracketed:
                             - start_bracket: (
                             - expression:
-                                literal: '1'
+                                numeric_literal: '1'
                             - comma: ','
                             - expression:
                                 literal: "'a'"
@@ -289,7 +289,7 @@ file:
                             bracketed:
                             - start_bracket: (
                             - expression:
-                                literal: '2'
+                                numeric_literal: '2'
                             - comma: ','
                             - expression:
                                 literal: "'b'"
@@ -344,7 +344,7 @@ file:
                             bracketed:
                             - start_bracket: (
                             - expression:
-                                literal: '1'
+                                numeric_literal: '1'
                             - comma: ','
                             - expression:
                                 literal: "'a'"
@@ -357,7 +357,7 @@ file:
                             bracketed:
                             - start_bracket: (
                             - expression:
-                                literal: '2'
+                                numeric_literal: '2'
                             - comma: ','
                             - expression:
                                 literal: "'b'"
@@ -386,10 +386,10 @@ file:
                   bracketed:
                   - start_bracket: (
                   - expression:
-                      literal: '10'
+                      numeric_literal: '10'
                   - comma: ','
                   - expression:
-                      literal: '20'
+                      numeric_literal: '20'
                   - end_bracket: )
               end_bracket: )
 - statement_terminator: ;
@@ -410,10 +410,10 @@ file:
                   bracketed:
                   - start_bracket: (
                   - expression:
-                      literal: '10'
+                      numeric_literal: '10'
                   - comma: ','
                   - expression:
-                      literal: '20'
+                      numeric_literal: '20'
                   - end_bracket: )
               end_bracket: )
 - statement_terminator: ;
@@ -454,10 +454,10 @@ file:
                       bracketed:
                       - start_bracket: (
                       - expression:
-                          literal: '10'
+                          numeric_literal: '10'
                       - comma: ','
                       - expression:
-                          literal: '20'
+                          numeric_literal: '20'
                       - end_bracket: )
                   end_bracket: )
             - keyword: AS
@@ -500,10 +500,10 @@ file:
                       bracketed:
                       - start_bracket: (
                       - expression:
-                          literal: '10'
+                          numeric_literal: '10'
                       - comma: ','
                       - expression:
-                          literal: '20'
+                          numeric_literal: '20'
                       - end_bracket: )
                   end_bracket: )
             - keyword: AS
@@ -520,16 +520,16 @@ file:
             bracketed:
             - start_bracket: (
             - expression:
-                literal: '2'
+                numeric_literal: '2'
             - comma: ','
             - expression:
-                literal: '1'
+                numeric_literal: '1'
             - comma: ','
             - expression:
-                literal: '2'
+                numeric_literal: '2'
             - comma: ','
             - expression:
-                literal: '3'
+                numeric_literal: '3'
             - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -563,16 +563,16 @@ file:
                 bracketed:
                 - start_bracket: (
                 - expression:
-                    literal: '2'
+                    numeric_literal: '2'
                 - comma: ','
                 - expression:
-                    literal: '1'
+                    numeric_literal: '1'
                 - comma: ','
                 - expression:
-                    literal: '2'
+                    numeric_literal: '2'
                 - comma: ','
                 - expression:
-                    literal: '3'
+                    numeric_literal: '3'
                 - end_bracket: )
             - keyword: AS
             - naked_identifier: c1

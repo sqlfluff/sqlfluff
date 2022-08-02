@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e95ead146906620849c55d715e69dc4d449f48b1b673b4529cb9eb9dec7f88a4
+_hash: 9c4df4bc451697763a63f72353e16d68127913db625f1b309fd65bccac00232f
 file:
   batch:
     statement:
@@ -11,41 +11,41 @@ file:
       - keyword: CREATE
       - keyword: TABLE
       - table_reference:
-        - identifier: '[dbo]'
+        - quoted_identifier: '[dbo]'
         - dot: .
-        - identifier: '[EC DC]'
+        - quoted_identifier: '[EC DC]'
       - bracketed:
         - start_bracket: (
         - column_definition:
-            identifier: '[Column B]'
+            quoted_identifier: '[Column B]'
             data_type:
               data_type_identifier: '[varchar]'
               bracketed:
                 start_bracket: (
                 expression:
-                  literal: '100'
+                  numeric_literal: '100'
                 end_bracket: )
         - comma: ','
         - column_definition:
-            identifier: '[ColumnC]'
+            quoted_identifier: '[ColumnC]'
             data_type:
               data_type_identifier: varchar
               bracketed:
                 start_bracket: (
                 expression:
-                  literal: '100'
+                  numeric_literal: '100'
                 end_bracket: )
         - comma: ','
         - column_definition:
-            identifier: '[ColumnDecimal]'
+            quoted_identifier: '[ColumnDecimal]'
             data_type:
               data_type_identifier: decimal
               bracketed:
               - start_bracket: (
               - expression:
-                  literal: '10'
+                  numeric_literal: '10'
               - comma: ','
               - expression:
-                  literal: '3'
+                  numeric_literal: '3'
               - end_bracket: )
         - end_bracket: )

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0918d8e2908f7c1b45d44f605d615592772392ca7795805d2d2b53338ca83e9a
+_hash: 49f11ac3710251e70d56b2401c43c5cde0e08d3f81d5913210af6c8af06ce0b0
 file:
 - statement:
     select_statement:
@@ -53,13 +53,13 @@ file:
             - keyword: IN
             - bracketed:
               - start_bracket: (
-              - literal: "'Q1'"
+              - quoted_literal: "'Q1'"
               - comma: ','
-              - literal: "'Q2'"
+              - quoted_literal: "'Q2'"
               - comma: ','
-              - literal: "'Q3'"
+              - quoted_literal: "'Q3'"
               - comma: ','
-              - literal: "'Q4'"
+              - quoted_literal: "'Q4'"
               - end_bracket: )
             - end_bracket: )
 - statement_terminator: ;
@@ -114,13 +114,13 @@ file:
             - keyword: IN
             - bracketed:
               - start_bracket: (
-              - literal: "'Q1'"
+              - quoted_literal: "'Q1'"
               - comma: ','
-              - literal: "'Q2'"
+              - quoted_literal: "'Q2'"
               - comma: ','
-              - literal: "'Q3'"
+              - quoted_literal: "'Q3'"
               - comma: ','
-              - literal: "'Q4'"
+              - quoted_literal: "'Q4'"
               - end_bracket: )
             - end_bracket: )
 - statement_terminator: ;
@@ -172,11 +172,11 @@ file:
             - keyword: IN
             - bracketed:
               - start_bracket: (
-              - literal: "'Q1'"
+              - quoted_literal: "'Q1'"
               - comma: ','
-              - literal: "'Q2'"
+              - quoted_literal: "'Q2'"
               - comma: ','
-              - literal: "'Q3'"
+              - quoted_literal: "'Q3'"
               - end_bracket: )
             - end_bracket: )
 - statement_terminator: ;
@@ -231,11 +231,11 @@ file:
             - keyword: IN
             - bracketed:
               - start_bracket: (
-              - literal: "'Q1'"
+              - quoted_literal: "'Q1'"
               - comma: ','
-              - literal: "'Q2'"
+              - quoted_literal: "'Q2'"
               - comma: ','
-              - literal: "'Q3'"
+              - quoted_literal: "'Q3'"
               - end_bracket: )
             - end_bracket: )
 - statement_terminator: ;
@@ -300,11 +300,11 @@ file:
             - keyword: IN
             - bracketed:
               - start_bracket: (
-              - literal: "'Q1'"
+              - quoted_literal: "'Q1'"
               - comma: ','
-              - literal: "'Q2'"
+              - quoted_literal: "'Q2'"
               - comma: ','
-              - literal: "'Q3'"
+              - quoted_literal: "'Q3'"
               - end_bracket: )
             - end_bracket: )
 - statement_terminator: ;

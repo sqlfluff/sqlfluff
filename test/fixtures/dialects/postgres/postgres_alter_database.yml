@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0657258b215f3cf2b74d91551b55532f68b4e493c506f6ca75589f4d4fc27070
+_hash: ab60c1beb820b1bc2a5122bd1ca0f722c4e14323e2cf3a50eb71013edcbd7d1b
 file:
 - statement:
     alter_database_statement:
@@ -39,7 +39,7 @@ file:
         naked_identifier: db
     - keyword: CONNECTION
     - keyword: LIMIT
-    - literal: '10'
+    - numeric_literal: '10'
 - statement_terminator: ;
 - statement:
     alter_database_statement:
@@ -50,7 +50,7 @@ file:
     - keyword: WITH
     - keyword: CONNECTION
     - keyword: LIMIT
-    - literal: '10'
+    - numeric_literal: '10'
 - statement_terminator: ;
 - statement:
     alter_database_statement:
@@ -102,7 +102,7 @@ file:
         naked_identifier: db
     - keyword: CONNECTION
     - keyword: LIMIT
-    - literal: '10'
+    - numeric_literal: '10'
     - keyword: IS_TEMPLATE
     - boolean_literal: 'true'
     - keyword: ALLOW_CONNECTIONS
@@ -117,7 +117,7 @@ file:
     - keyword: WITH
     - keyword: CONNECTION
     - keyword: LIMIT
-    - literal: '10'
+    - numeric_literal: '10'
     - keyword: IS_TEMPLATE
     - boolean_literal: 'true'
     - keyword: ALLOW_CONNECTIONS
@@ -207,7 +207,7 @@ file:
     - keyword: SET
     - parameter: parameter1
     - keyword: TO
-    - literal: '1'
+    - numeric_literal: '1'
 - statement_terminator: ;
 - statement:
     alter_database_statement:
@@ -241,7 +241,7 @@ file:
     - parameter: parameter1
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: '1'
+    - numeric_literal: '1'
 - statement_terminator: ;
 - statement:
     alter_database_statement:

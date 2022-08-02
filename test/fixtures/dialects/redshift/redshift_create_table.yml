@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0978982cf063922c16e061ca3b11a6587d1b56f236b23f5bc6757d6e23641010
+_hash: a2b51cb8a76355701372426af12374b845e5aa4dc7013371eaa94cb1b8e35b1b
 file:
 - statement:
     create_table_statement:
@@ -27,7 +27,7 @@ file:
           keyword: VARCHAR
           bracketed:
             start_bracket: (
-            literal: '5'
+            numeric_literal: '5'
             end_bracket: )
       - column_constraint_segment:
         - keyword: NOT
@@ -69,7 +69,7 @@ file:
           keyword: VARCHAR
           bracketed:
             start_bracket: (
-            literal: '5'
+            numeric_literal: '5'
             end_bracket: )
       - column_attribute_segment:
         - keyword: GENERATED
@@ -79,9 +79,9 @@ file:
         - keyword: IDENTITY
         - bracketed:
           - start_bracket: (
-          - literal: '1'
+          - numeric_literal: '1'
           - comma: ','
-          - literal: '1'
+          - numeric_literal: '1'
           - end_bracket: )
       - end_bracket: )
     - table_constraint:
@@ -120,7 +120,7 @@ file:
           keyword: VARCHAR
           bracketed:
             start_bracket: (
-            literal: '5'
+            numeric_literal: '5'
             end_bracket: )
       - comma: ','
       - column_reference:
@@ -129,7 +129,7 @@ file:
           keyword: VARCHAR
           bracketed:
             start_bracket: (
-            literal: '5'
+            numeric_literal: '5'
             end_bracket: )
       - comma: ','
       - column_reference:
@@ -138,7 +138,7 @@ file:
           keyword: VARCHAR
           bracketed:
             start_bracket: (
-            literal: '5'
+            numeric_literal: '5'
             end_bracket: )
       - comma: ','
       - column_reference:
@@ -147,7 +147,7 @@ file:
           keyword: VARCHAR
           bracketed:
             start_bracket: (
-            literal: '5'
+            numeric_literal: '5'
             end_bracket: )
       - comma: ','
       - column_reference:
@@ -156,7 +156,7 @@ file:
           keyword: VARCHAR
           bracketed:
             start_bracket: (
-            literal: '5'
+            numeric_literal: '5'
             end_bracket: )
       - end_bracket: )
     - table_constraint:
@@ -202,7 +202,7 @@ file:
           keyword: VARCHAR
           bracketed:
             start_bracket: (
-            literal: '5'
+            numeric_literal: '5'
             end_bracket: )
       - column_constraint_segment:
           keyword: REFERENCES
@@ -253,7 +253,7 @@ file:
           keyword: VARCHAR
           bracketed:
             start_bracket: (
-            literal: '5'
+            numeric_literal: '5'
             end_bracket: )
       - end_bracket: )
     - table_constraint:
@@ -293,7 +293,7 @@ file:
           keyword: VARCHAR
           bracketed:
             start_bracket: (
-            literal: '5'
+            numeric_literal: '5'
             end_bracket: )
       - end_bracket: )
     - table_constraint:
@@ -333,7 +333,7 @@ file:
           keyword: VARCHAR
           bracketed:
             start_bracket: (
-            literal: '5'
+            numeric_literal: '5'
             end_bracket: )
       - end_bracket: )
     - table_constraint:
@@ -373,7 +373,7 @@ file:
           keyword: VARCHAR
           bracketed:
             start_bracket: (
-            literal: '5'
+            numeric_literal: '5'
             end_bracket: )
       - end_bracket: )
     - keyword: BACKUP
@@ -402,7 +402,7 @@ file:
           keyword: VARCHAR
           bracketed:
             start_bracket: (
-            literal: '5'
+            numeric_literal: '5'
             end_bracket: )
       - end_bracket: )
     - keyword: BACKUP
@@ -449,7 +449,7 @@ file:
           keyword: VARCHAR
           bracketed:
             start_bracket: (
-            literal: '5'
+            numeric_literal: '5'
             end_bracket: )
       - column_attribute_segment:
         - keyword: ENCODE
@@ -494,7 +494,7 @@ file:
           keyword: VARCHAR
           bracketed:
             start_bracket: (
-            literal: '5'
+            numeric_literal: '5'
             end_bracket: )
       - column_attribute_segment:
         - keyword: ENCODE
@@ -506,7 +506,7 @@ file:
           keyword: VARCHAR
           bracketed:
             start_bracket: (
-            literal: '5'
+            numeric_literal: '5'
             end_bracket: )
       - column_attribute_segment:
         - keyword: COLLATE
@@ -518,7 +518,7 @@ file:
           keyword: VARCHAR
           bracketed:
             start_bracket: (
-            literal: '5'
+            numeric_literal: '5'
             end_bracket: )
       - column_attribute_segment:
         - keyword: COLLATE
@@ -554,7 +554,7 @@ file:
           keyword: VARCHAR
           bracketed:
             start_bracket: (
-            literal: '60'
+            numeric_literal: '60'
             end_bracket: )
       - comma: ','
       - table_constraint:
@@ -612,7 +612,7 @@ file:
           keyword: VARCHAR
           bracketed:
             start_bracket: (
-            literal: '60'
+            numeric_literal: '60'
             end_bracket: )
       - comma: ','
       - table_constraint:
@@ -675,7 +675,7 @@ file:
           keyword: VARCHAR
           bracketed:
             start_bracket: (
-            literal: '60'
+            numeric_literal: '60'
             end_bracket: )
       - comma: ','
       - table_constraint:
@@ -767,7 +767,7 @@ file:
         column_attribute_segment:
           keyword: DEFAULT
           expression:
-            literal: '1'
+            numeric_literal: '1'
         end_bracket: )
 - statement_terminator: ;
 - statement:

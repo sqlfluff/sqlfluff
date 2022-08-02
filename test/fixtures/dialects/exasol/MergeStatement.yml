@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: eeb05b20c1265a9c8effdcdbbd1b363f664c2793a2a98161ab72b2d1e0e51fef
+_hash: cf69f6048a644afca395a0752a97e0e6780fb56107cf14f96e1ff0e2fe09cd20
 file:
 - statement:
     merge_statement:
@@ -201,13 +201,13 @@ file:
           - bracketed:
             - start_bracket: (
             - expression:
-                literal: '1'
+                numeric_literal: '1'
             - comma: ','
             - expression:
-                literal: '2'
+                numeric_literal: '2'
             - comma: ','
             - expression:
-                literal: '3'
+                numeric_literal: '3'
             - end_bracket: )
         merge_when_matched_clause:
         - keyword: WHEN

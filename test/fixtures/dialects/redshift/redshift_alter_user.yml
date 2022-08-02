@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3588da476ef782ed8df123880a09bacd07b9d7124a3417b9ac16f9f49155ba22
+_hash: 716360cf5074e9649b480c59a6dd51b0f9edb1dfe792ca9c77e57098faa33d35
 file:
 - statement:
     alter_role_statement:
@@ -230,7 +230,7 @@ file:
         naked_identifier: admin
     - keyword: connection
     - keyword: limit
-    - literal: '10'
+    - numeric_literal: '10'
 - statement_terminator: ;
 - statement:
     alter_role_statement:
@@ -241,7 +241,7 @@ file:
     - keyword: with
     - keyword: connection
     - keyword: limit
-    - literal: '10'
+    - numeric_literal: '10'
 - statement_terminator: ;
 - statement:
     alter_user_statement:
@@ -272,7 +272,7 @@ file:
         naked_identifier: dbuser
     - keyword: session
     - keyword: timeout
-    - literal: '300'
+    - numeric_literal: '300'
 - statement_terminator: ;
 - statement:
     alter_user_statement:
@@ -283,7 +283,7 @@ file:
     - keyword: with
     - keyword: session
     - keyword: timeout
-    - literal: '300'
+    - numeric_literal: '300'
 - statement_terminator: ;
 - statement:
     alter_user_statement:
@@ -316,7 +316,7 @@ file:
     - object_reference:
         naked_identifier: var
     - keyword: to
-    - literal: '100'
+    - numeric_literal: '100'
 - statement_terminator: ;
 - statement:
     alter_user_statement:
@@ -329,7 +329,7 @@ file:
     - object_reference:
         naked_identifier: var
     - keyword: to
-    - literal: '100'
+    - numeric_literal: '100'
 - statement_terminator: ;
 - statement:
     alter_role_statement:

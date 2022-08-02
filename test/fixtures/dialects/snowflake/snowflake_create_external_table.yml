@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: fcd09d8ca050898246234879ce66e44eb273a041068b6ed0fd2d40835d051a4c
+_hash: 16937b45e680bc676ee100a595e436294b1b01e3af3da0f03015f6ab99911c90
 file:
 - statement:
     create_external_table_statement:
@@ -471,10 +471,10 @@ file:
                     identifier: metadata$filename
               - comma: ','
               - expression:
-                  literal: '22'
+                  numeric_literal: '22'
               - comma: ','
               - expression:
-                  literal: '4'
+                  numeric_literal: '4'
               - end_bracket: )
             cast_expression:
               casting_operator: '::'

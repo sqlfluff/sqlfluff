@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b26eeed1e5e5f79d9e06995b640f56cbd4d4f9497a9f2634bfc8395063f22787
+_hash: 281250a06c7d06983ca786117c7db4e1538f24abd5ced9f04294354f805cf667
 file:
 - statement:
     vacuum_statement:
@@ -32,7 +32,7 @@ file:
         dot: .
         identifier: '`/data/events/`'
     - keyword: RETAIN
-    - literal: '100'
+    - numeric_literal: '100'
     - date_part: HOURS
 - statement_terminator: ;
 - statement:
