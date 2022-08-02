@@ -15,6 +15,7 @@ from typing import (
 from sqlfluff.core.dialects.base import Dialect
 from sqlfluff.core.parser.segments.base import BaseSegment
 from sqlfluff.core.parser.segments.raw import (
+    CodeSegment,
     KeywordSegment,
     NewlineSegment,
     SymbolSegment,
@@ -466,7 +467,9 @@ def _create_cte_seg(
     alias_name: str, subquery: BaseSegment, case_preference: str, dialect: Dialect
 ) -> CTEDefinitionSegment:
     CTESegment = _get_seg(CTEDefinitionSegment, dialect)
-    IdentifierSegment = dialect.get_segment("IdentifierSegment")
+    IdentifierSegment = cast(
+        Type[CodeSegment], dialect.get_segment("IdentifierSegment")
+    )
     element: CTEDefinitionSegment = CTESegment(
         segments=(
             IdentifierSegment(
@@ -486,7 +489,9 @@ def _create_table_ref(table_name: str, dialect: Dialect) -> TableExpressionSegme
     Seg = partial(_get_seg, dialect=dialect)
     TableExpressionSeg = Seg(TableExpressionSegment)
     TableReferenceSeg = Seg(TableReferenceSegment)
-    IdentifierSegment = dialect.get_segment("IdentifierSegment")
+    IdentifierSegment = cast(
+        Type[CodeSegment], dialect.get_segment("IdentifierSegment")
+    )
     table_seg = TableExpressionSeg(
         segments=(
             TableReferenceSeg(

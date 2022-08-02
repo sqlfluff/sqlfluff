@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 240f20d291aa5dbcaf9e278d17ba7a578496a7cb672bb4e20d82acb29a8d7f93
+_hash: 01075778ce77abf9d5bcb2d8dfca902ba23f560da637a86fea2019c8ffd89089
 file:
 - statement:
     with_compound_statement:
@@ -179,7 +179,7 @@ file:
       - select_clause_element:
           expression:
             column_reference:
-              identifier: value_a
+              naked_identifier: value_a
             cast_expression:
               casting_operator: '::'
               data_type:
@@ -188,12 +188,12 @@ file:
       - select_clause_element:
           expression:
             column_reference:
-              identifier: array_b
+              naked_identifier: array_b
             array_accessor:
               start_square_bracket: '['
               expression:
                 column_reference:
-                  identifier: idx
+                  naked_identifier: idx
               end_square_bracket: ']'
             cast_expression:
               casting_operator: '::'
@@ -201,12 +201,12 @@ file:
                 keyword: VARCHAR
           alias_expression:
             keyword: AS
-            identifier: value_b
+            naked_identifier: value_b
       - comma: ','
       - select_clause_element:
           expression:
             column_reference:
-              identifier: array_c
+              naked_identifier: array_c
             array_accessor:
               start_square_bracket: '['
               expression:
@@ -217,13 +217,13 @@ file:
                   - start_bracket: (
                   - expression:
                       column_reference:
-                        identifier: idx
+                        naked_identifier: idx
                   - comma: ','
                   - expression:
-                      literal: '3'
+                      numeric_literal: '3'
                   - end_bracket: )
                 binary_operator: +
-                literal: '1'
+                numeric_literal: '1'
               end_square_bracket: ']'
             cast_expression:
               casting_operator: '::'
@@ -231,27 +231,27 @@ file:
                 keyword: FLOAT8
           alias_expression:
             keyword: AS
-            identifier: value_c
+            naked_identifier: value_c
       from_clause:
       - keyword: FROM
       - from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: mytable
+                naked_identifier: mytable
             alias_expression:
-              identifier: t
+              naked_identifier: t
       - comma: ','
       - from_expression:
           from_expression_element:
             table_expression:
               array_unnesting:
               - object_reference:
-                - identifier: t
+                - naked_identifier: t
                 - dot: .
-                - identifier: array_a
+                - naked_identifier: array_a
               - keyword: AS
-              - identifier: value_a
+              - naked_identifier: value_a
               - keyword: AT
-              - identifier: idx
+              - naked_identifier: idx
 - statement_terminator: ;
