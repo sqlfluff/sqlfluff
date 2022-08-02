@@ -33,6 +33,7 @@ class Selectable:
     """A "SELECT" query segment."""
 
     selectable: BaseSegment
+    parent: Optional[BaseSegment]
     dialect: Dialect
 
     @cached_property
@@ -267,7 +268,9 @@ class SelectCrawler:
                             append_query(query)
                         else:
                             # It's a select_statement or values_clause.
-                            selectable = Selectable(path[-1], dialect)
+                            selectable = Selectable(
+                                path[-1], path[-2] if len(path) >= 2 else None, dialect
+                            )
                             # Determine if this is part of a set_expression.
                             if len(path) >= 2 and path[-2].is_type("set_expression"):
                                 # It's part of a set_expression. Append to the
@@ -295,7 +298,13 @@ class SelectCrawler:
                                 "select_statement", "values_clause", "update_statement"
                             ):
                                 # Add to the Query object we just created.
-                                query.selectables.append(Selectable(path[-1], dialect))
+                                query.selectables.append(
+                                    Selectable(
+                                        path[-1],
+                                        path[-2] if len(path) >= 2 else None,
+                                        dialect,
+                                    )
+                                )
                             else:
                                 # Processing a set_expression. Nothing
                                 # additional to do here; we'll add selectables
@@ -323,7 +332,11 @@ class SelectCrawler:
                                     # Processing a select_statement. Add it to the
                                     # Query object on top of the stack.
                                     query_stack[-1].selectables.append(
-                                        Selectable(path[-1], dialect)
+                                        Selectable(
+                                            path[-1],
+                                            path[-2] if len(path) >= 2 else None,
+                                            dialect,
+                                        )
                                     )
                                 else:
                                     # Processing a set_expression. Nothing

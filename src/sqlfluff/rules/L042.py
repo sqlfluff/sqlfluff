@@ -237,20 +237,18 @@ def _calculate_fixes(
                 alias_name, is_new_name = ctes.create_cte_alias(
                     selectable.select_info.table_aliases
                 )
+                assert selectable.parent
                 new_cte = _create_cte_seg(
                     alias_name=alias_name,
-                    subquery=clone_map[selectable.selectable],
+                    subquery=clone_map[selectable.parent],
                     case_preference=case_preference,
                     dialect=dialect,
                 )
                 print(f"Creating new CTE: {new_cte.raw}")
                 insert_position = ctes.insert_cte(new_cte)
                 print(f"Inserted new CTE: {ctes.ctes[insert_position].raw}")
-                from_expression = (
-                    query.selectables[0]
-                    .select_info.table_aliases[0]
-                    .from_expression_element
-                )
+                from_expression = _find_from_expression(query, selectable.selectable)
+
                 # this_seg_clone = clone_map[from_expression]
                 # new_table_ref = _create_table_ref(alias_name, dialect)
                 # this_seg_clone.segments = [new_table_ref]
@@ -267,10 +265,22 @@ def _calculate_fixes(
                     "should not contain subqueries. Use CTEs instead",
                     fixes=[],
                 )
+                assert len(query.selectables) == 1
                 lint_results.append(
                     (res, from_expression, alias_name, query.selectables[0].selectable)
                 )
     return lint_results
+
+
+def _find_from_expression(query: Query, subquery: BaseSegment):
+    """Given parent and child, find 'from expression' containing the child."""
+    for s in query.selectables:
+        for a in s.select_info.table_aliases:
+            if any(
+                subquery is s2 for s2 in a.from_expression_element.recursive_crawl_all()
+            ):
+                return a.from_expression_element
+    assert False
 
 
 def _get_first_select_statement_descendant(
@@ -480,8 +490,9 @@ class _CTEBuilder:
             if any(segment is seg for seg in cte.recursive_crawl_all()):
                 self.ctes[idx] = clone_map[self.ctes[idx]]
                 return
-        else:
-            assert False
+        # else:
+        #     import pdb; pdb.set_trace()
+        #     assert False
 
 
 def _is_child(maybe_parent: Segments, maybe_child: Segments) -> bool:
@@ -523,9 +534,9 @@ def _create_cte_seg(
             WhitespaceSegment(),
             _segmentify("AS", casing=case_preference),
             WhitespaceSegment(),
-            SymbolSegment("(", name="start_bracket", type="start_bracket"),
+            # SymbolSegment("(", name="start_bracket", type="start_bracket"),
             subquery,
-            SymbolSegment(")", name="end_bracket", type="end_bracket"),
+            # SymbolSegment(")", name="end_bracket", type="end_bracket"),
         )
     )
     return element
