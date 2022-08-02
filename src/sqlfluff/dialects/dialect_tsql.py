@@ -174,17 +174,17 @@ tsql_dialect.patch_lexer_matchers(
 
 tsql_dialect.add(
     BracketedIdentifierSegment=NamedParser(
-        "square_quote", CodeSegment, name="quoted_identifier", type="identifier"
+        "square_quote", ansi.IdentifierSegment, type="quoted_identifier"
     ),
     HashIdentifierSegment=NamedParser(
-        "hash_prefix", CodeSegment, name="hash_identifier", type="identifier"
+        "hash_prefix", ansi.IdentifierSegment, type="hash_identifier"
     ),
     VariableIdentifierSegment=NamedParser(
-        "var_prefix", CodeSegment, name="variable_identifier", type="identifier"
+        "var_prefix", ansi.IdentifierSegment, type="variable_identifier"
     ),
     BatchDelimiterGrammar=Ref("GoStatementSegment"),
     QuotedLiteralSegmentWithN=NamedParser(
-        "single_quote_with_n", CodeSegment, name="quoted_literal", type="literal"
+        "single_quote_with_n", ansi.LiteralSegment, type="quoted_literal"
     ),
     QuotedLiteralSegmentOptWithN=OneOf(
         Ref("QuotedLiteralSegment"),
@@ -195,7 +195,7 @@ tsql_dialect.add(
         "TRAN",
     ),
     SystemVariableSegment=RegexParser(
-        r"@@[A-Za-z0-9_]+", CodeSegment, name="system_variable", type="system_variable"
+        r"@@[A-Za-z0-9_]+", CodeSegment, type="system_variable"
     ),
     StatementAndDelimiterGrammar=Sequence(
         Ref("StatementSegment"),
@@ -233,9 +233,8 @@ tsql_dialect.replace(
         # Generate the anti template from the set of reserved keywords
         lambda dialect: RegexParser(
             r"[A-Z_][A-Z0-9_@$#]*",
-            CodeSegment,
-            name="naked_identifier",
-            type="identifier",
+            ansi.IdentifierSegment,
+            type="naked_identifier",
             anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
         )
     ),

@@ -96,7 +96,7 @@ class Rule_L064(BaseRule):
         self.force_enable: bool
 
         # Only care about quoted literal segments.
-        if context.segment.name != "quoted_literal":
+        if not context.segment.is_type("quoted_literal"):
             return None
 
         if not (

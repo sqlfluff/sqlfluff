@@ -325,13 +325,13 @@ ansi_dialect.add(
         "double_quote", IdentifierSegment, type="quoted_identifier"
     ),
     QuotedLiteralSegment=NamedParser(
-        "single_quote", LiteralSegment, name="quoted_literal", type="literal"
+        "single_quote", LiteralSegment, type="quoted_literal"
     ),
     SingleQuotedIdentifierSegment=NamedParser(
         "single_quote", IdentifierSegment, type="quoted_identifier"
     ),
     NumericLiteralSegment=NamedParser(
-        "numeric_literal", LiteralSegment, name="numeric_literal", type="literal"
+        "numeric_literal", LiteralSegment, type="numeric_literal"
     ),
     # NullSegment is defined seperately to the keyword so we can give it a different
     # type

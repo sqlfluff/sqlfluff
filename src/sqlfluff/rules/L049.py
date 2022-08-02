@@ -65,7 +65,7 @@ class Rule_L049(Rule_L006):
         # equals". Once found, check if the next code segment is a NULL literal.
 
         children = segment.children()
-        operators = segment.children(sp.is_name("equals", "not_equal_to"))
+        operators = segment.children(sp.raw_is("=", "!=", "<>"))
         if len(operators) == 0:
             return None
 
@@ -75,7 +75,7 @@ class Rule_L049(Rule_L006):
             after_op_list = children.select(start_seg=operator)
             null_literal = after_op_list.first(sp.is_code())
             # if the next bit of code isnt a NULL then we are good
-            if not null_literal.all(sp.is_name("null_literal")):
+            if not null_literal.all(sp.is_type("null_literal")):
                 continue
 
             sub_seg = null_literal.get()
@@ -87,7 +87,7 @@ class Rule_L049(Rule_L006):
             )
             edit = _create_base_is_null_sequence(
                 is_upper=sub_seg.raw[0] == "N",
-                operator_name=operator.name,
+                operator_raw=operator.raw,
             )
             prev_seg = after_op_list.first().get()
             next_seg = children.select(stop_seg=operator).last().get()
@@ -112,11 +112,11 @@ class Rule_L049(Rule_L006):
 
 def _create_base_is_null_sequence(
     is_upper: bool,
-    operator_name: str,
+    operator_raw: str,
 ) -> CorrectionListType:
     is_seg = KeywordSegment("IS" if is_upper else "is")
     not_seg = KeywordSegment("NOT" if is_upper else "not")
-    if operator_name == "equals":
+    if operator_raw == "=":
         return [is_seg]
 
     return [

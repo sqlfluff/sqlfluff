@@ -20,6 +20,15 @@ from sqlfluff.core.templaters.base import (
 )
 
 
+def raw_is(*raws: str) -> Callable[[BaseSegment], bool]:
+    """Returns a function that determines if segment matches one of the raw inputs."""
+
+    def _(segment: BaseSegment):
+        return segment.raw in raws
+
+    return _
+
+
 def is_type(*seg_type: str) -> Callable[[BaseSegment], bool]:
     """Returns a function that determines if segment is one of the types."""
 
