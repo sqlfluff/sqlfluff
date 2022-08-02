@@ -402,7 +402,9 @@ class _CTEBuilder:
     def insert_cte(self, cte: CTEDefinitionSegment) -> int:
         """Add a new CTE to the list as late as possible but before all its parents."""
         # This should still have the position markers of its true position
-        inbound_subquery = Segments(cte).children().last()
+        inbound_subquery = (
+            Segments(cte).children().last(lambda seg: bool(seg.pos_marker))
+        )
         insert_position = next(
             (
                 i
@@ -521,7 +523,9 @@ def _create_cte_seg(
             WhitespaceSegment(),
             _segmentify("AS", casing=case_preference),
             WhitespaceSegment(),
+            SymbolSegment("(", name="start_bracket", type="start_bracket"),
             subquery,
+            SymbolSegment(")", name="end_bracket", type="end_bracket"),
         )
     )
     return element
