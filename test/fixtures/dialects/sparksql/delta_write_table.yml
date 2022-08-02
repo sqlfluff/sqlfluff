@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b5dafd2a7caf54fea1ff0ed42afdb1d69386a78083f29a3e7703c7ed147c248c
+_hash: 3701321590713305bb67b6c867b1d19318a4f46c706df55d2269bfdf8e1ae68b
 file:
 - statement:
     insert_statement:
@@ -56,15 +56,15 @@ file:
     set_statement:
       keyword: SET
       property_name_identifier:
-      - identifier: spark
+      - properties_naked_identifier: spark
       - dot: .
-      - identifier: databricks
+      - properties_naked_identifier: databricks
       - dot: .
-      - identifier: delta
+      - properties_naked_identifier: delta
       - dot: .
-      - identifier: commitInfo
+      - properties_naked_identifier: commitInfo
       - dot: .
-      - identifier: userMetadata
+      - properties_naked_identifier: userMetadata
       comparison_operator:
         raw_comparison_operator: '='
       quoted_literal: '"overwritten-for-fixing-incorrect-data"'

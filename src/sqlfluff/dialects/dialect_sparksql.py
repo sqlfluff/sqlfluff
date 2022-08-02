@@ -467,8 +467,8 @@ sparksql_dialect.add(
     ),
     # Adding Hint related segments so they are not treated as generic comments
     # https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-hints.html
-    StartHintSegment=StringParser("/*+", KeywordSegment, name="start_hint"),
-    EndHintSegment=StringParser("*/", KeywordSegment, name="end_hint"),
+    StartHintSegment=StringParser("/*+", KeywordSegment, type="start_hint"),
+    EndHintSegment=StringParser("*/", KeywordSegment, type="end_hint"),
     PartitionSpecGrammar=Sequence(
         OneOf(
             "PARTITION",
@@ -493,9 +493,8 @@ sparksql_dialect.add(
     # and runtime properties.
     PropertiesNakedIdentifierSegment=RegexParser(
         r"[A-Z0-9]*[A-Z][A-Z0-9]*",
-        CodeSegment,
-        name="properties_naked_identifier",
-        type="identifier",
+        ansi.IdentifierSegment,
+        type="properties_naked_identifier",
     ),
     ResourceFileGrammar=OneOf(
         Ref("JarKeywordSegment"),

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 28e95c6c60e5e4c763d7f0e0c9dd4a8beae8855765a61b864a626e081c339992
+_hash: 25c9fd6dd10711ed57f7bed499adc04d5252f92e27b212ed9ade578c0bd5e6d1
 file:
 - statement:
     insert_overwrite_directory_statement:
@@ -17,19 +17,19 @@ file:
     - bracketed:
       - start_bracket: (
       - property_name_identifier:
-          identifier: col1
+          properties_naked_identifier: col1
       - comparison_operator:
           raw_comparison_operator: '='
       - quoted_literal: '"1"'
       - comma: ','
       - property_name_identifier:
-          identifier: col2
+          properties_naked_identifier: col2
       - comparison_operator:
           raw_comparison_operator: '='
       - quoted_literal: '"2"'
       - comma: ','
       - property_name_identifier:
-          identifier: col3
+          properties_naked_identifier: col3
       - comparison_operator:
           raw_comparison_operator: '='
       - quoted_literal: "'test'"
@@ -65,25 +65,25 @@ file:
     - bracketed:
       - start_bracket: (
       - property_name_identifier:
-          identifier: path
+          properties_naked_identifier: path
       - comparison_operator:
           raw_comparison_operator: '='
       - quoted_literal: "'/tmp/destination'"
       - comma: ','
       - property_name_identifier:
-          identifier: col1
+          properties_naked_identifier: col1
       - comparison_operator:
           raw_comparison_operator: '='
       - quoted_literal: '"1"'
       - comma: ','
       - property_name_identifier:
-          identifier: col2
+          properties_naked_identifier: col2
       - comparison_operator:
           raw_comparison_operator: '='
       - quoted_literal: '"2"'
       - comma: ','
       - property_name_identifier:
-          identifier: col3
+          properties_naked_identifier: col3
       - comparison_operator:
           raw_comparison_operator: '='
       - quoted_literal: "'test'"
@@ -113,19 +113,19 @@ file:
     - bracketed:
       - start_bracket: (
       - property_name_identifier:
-          identifier: path
+          properties_naked_identifier: path
       - quoted_literal: "'/tmp/destination'"
       - comma: ','
       - property_name_identifier:
-          identifier: col1
+          properties_naked_identifier: col1
       - numeric_literal: '1'
       - comma: ','
       - property_name_identifier:
-          identifier: col2
+          properties_naked_identifier: col2
       - numeric_literal: '2'
       - comma: ','
       - property_name_identifier:
-          identifier: col3
+          properties_naked_identifier: col3
       - quoted_literal: "'test'"
       - end_bracket: )
     - select_statement:
@@ -154,15 +154,15 @@ file:
     - bracketed:
       - start_bracket: (
       - property_name_identifier:
-          identifier: col1
+          properties_naked_identifier: col1
       - numeric_literal: '1'
       - comma: ','
       - property_name_identifier:
-          identifier: col2
+          properties_naked_identifier: col2
       - numeric_literal: '2'
       - comma: ','
       - property_name_identifier:
-          identifier: col3
+          properties_naked_identifier: col3
       - quoted_literal: "'test'"
       - end_bracket: )
     - select_statement:

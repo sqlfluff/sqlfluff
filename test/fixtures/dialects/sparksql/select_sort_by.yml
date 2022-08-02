@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7ba5d5fb94c026cc67a589438c45823e9ab18f8db8ef40b60a6ab3b73a3be618
+_hash: 165a27d604367bcfd0b6120bd77f56eb432074fd3ca1bed5785f1491971e8cea
 file:
 - statement:
     select_statement:
@@ -11,15 +11,15 @@ file:
       - keyword: SELECT
       - select_clause_modifier:
           select_hint:
-          - keyword: /*+
-          - hint_function:
+            start_hint: /*+
+            hint_function:
               function_name:
                 function_name_identifier: REPARTITION
               bracketed:
                 start_bracket: (
                 naked_identifier: zip_code
                 end_bracket: )
-          - keyword: '*/'
+            end_hint: '*/'
       - select_clause_element:
           column_reference:
             naked_identifier: name
@@ -78,15 +78,15 @@ file:
       - keyword: SELECT
       - select_clause_modifier:
           select_hint:
-          - keyword: /*+
-          - hint_function:
+            start_hint: /*+
+            hint_function:
               function_name:
                 function_name_identifier: REPARTITION
               bracketed:
                 start_bracket: (
                 naked_identifier: zip_code
                 end_bracket: )
-          - keyword: '*/'
+            end_hint: '*/'
       - select_clause_element:
           column_reference:
             naked_identifier: name
@@ -143,15 +143,15 @@ file:
       - keyword: SELECT
       - select_clause_modifier:
           select_hint:
-          - keyword: /*+
-          - hint_function:
+            start_hint: /*+
+            hint_function:
               function_name:
                 function_name_identifier: REPARTITION
               bracketed:
                 start_bracket: (
                 naked_identifier: zip_code
                 end_bracket: )
-          - keyword: '*/'
+            end_hint: '*/'
       - select_clause_element:
           column_reference:
             naked_identifier: age
@@ -214,15 +214,15 @@ file:
       - keyword: SELECT
       - select_clause_modifier:
           select_hint:
-          - keyword: /*+
-          - hint_function:
+            start_hint: /*+
+            hint_function:
               function_name:
                 function_name_identifier: REPARTITION
               bracketed:
                 start_bracket: (
                 naked_identifier: zip_code
                 end_bracket: )
-          - keyword: '*/'
+            end_hint: '*/'
       - select_clause_element:
           column_reference:
             naked_identifier: age
@@ -283,15 +283,15 @@ file:
       - keyword: SELECT
       - select_clause_modifier:
           select_hint:
-          - keyword: /*+
-          - hint_function:
+            start_hint: /*+
+            hint_function:
               function_name:
                 function_name_identifier: REPARTITION
               bracketed:
                 start_bracket: (
                 naked_identifier: zip_code
                 end_bracket: )
-          - keyword: '*/'
+            end_hint: '*/'
       - select_clause_element:
           column_reference:
             naked_identifier: age
@@ -356,15 +356,15 @@ file:
       - keyword: SELECT
       - select_clause_modifier:
           select_hint:
-          - keyword: /*+
-          - hint_function:
+            start_hint: /*+
+            hint_function:
               function_name:
                 function_name_identifier: REPARTITION
               bracketed:
                 start_bracket: (
                 naked_identifier: zip_code
                 end_bracket: )
-          - keyword: '*/'
+            end_hint: '*/'
       - select_clause_element:
           column_reference:
             naked_identifier: name

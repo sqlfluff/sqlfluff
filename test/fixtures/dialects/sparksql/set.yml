@@ -3,19 +3,19 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3a93296c5ef161e31291bf9e0738105b0c9321c07850fb7051a0ea5aff275e8e
+_hash: 4ef91ba14d85ec220902cd702397a63e317afcad3f65a7b72b861ab7142503f4
 file:
 - statement:
     set_statement:
       keyword: SET
       property_name_identifier:
-      - identifier: spark
+      - properties_naked_identifier: spark
       - dot: .
-      - identifier: sql
+      - properties_naked_identifier: sql
       - dot: .
-      - identifier: variable
+      - properties_naked_identifier: variable
       - dot: .
-      - identifier: substitute
+      - properties_naked_identifier: substitute
       comparison_operator:
         raw_comparison_operator: '='
       boolean_literal: 'FALSE'
@@ -34,11 +34,11 @@ file:
     set_statement:
       keyword: SET
       property_name_identifier:
-      - identifier: spark
+      - properties_naked_identifier: spark
       - dot: .
-      - identifier: sql
+      - properties_naked_identifier: sql
       - dot: .
-      - identifier: variable
+      - properties_naked_identifier: variable
       - dot: .
-      - identifier: substitute
+      - properties_naked_identifier: substitute
 - statement_terminator: ;

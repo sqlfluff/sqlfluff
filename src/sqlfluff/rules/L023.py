@@ -67,7 +67,7 @@ class Rule_L023(BaseRule):
                         raw_inner = "".join(s.raw for s in mid_segs)
                         if raw_inner != " " and not (
                             self.allow_newline
-                            and any(s.name == "newline" for s in mid_segs)
+                            and any(s.is_type("newline") for s in mid_segs)
                         ):
                             if not raw_inner.strip():
                                 # There's some whitespace and/or newlines, or nothing

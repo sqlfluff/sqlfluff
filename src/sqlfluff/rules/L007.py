@@ -94,7 +94,7 @@ class Rule_L007(BaseRule):
             # If the anchor side of the list has no newline
             # then everything is ok already
             if not anchor_list.any(
-                sp.and_(sp.is_name("newline"), sp.not_(sp.is_templated()))
+                sp.and_(sp.is_type("newline"), sp.not_(sp.is_templated()))
             ):
                 continue
 
