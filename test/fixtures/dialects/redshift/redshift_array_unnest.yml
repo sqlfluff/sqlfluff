@@ -172,3 +172,86 @@ file:
       - column_reference:
           naked_identifier: orderkey_index
 - statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          expression:
+            column_reference:
+              identifier: value_a
+            cast_expression:
+              casting_operator: '::'
+              data_type:
+                keyword: BIGINT
+      - comma: ','
+      - select_clause_element:
+          expression:
+            column_reference:
+              identifier: array_b
+            array_accessor:
+              start_square_bracket: '['
+              expression:
+                column_reference:
+                  identifier: idx
+              end_square_bracket: ']'
+            cast_expression:
+              casting_operator: '::'
+              data_type:
+                keyword: VARCHAR
+          alias_expression:
+            keyword: AS
+            identifier: value_b
+      - comma: ','
+      - select_clause_element:
+          expression:
+            column_reference:
+              identifier: array_c
+            array_accessor:
+              start_square_bracket: '['
+              expression:
+                function:
+                  function_name:
+                    function_name_identifier: MOD
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      column_reference:
+                        identifier: idx
+                  - comma: ','
+                  - expression:
+                      literal: '3'
+                  - end_bracket: )
+                binary_operator: +
+                literal: '1'
+              end_square_bracket: ']'
+            cast_expression:
+              casting_operator: '::'
+              data_type:
+                keyword: FLOAT8
+          alias_expression:
+            keyword: AS
+            identifier: value_c
+      from_clause:
+      - keyword: FROM
+      - from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: mytable
+            alias_expression:
+              identifier: t
+      - comma: ','
+      - from_expression:
+          from_expression_element:
+            table_expression:
+              array_unnesting:
+              - object_reference:
+                - identifier: t
+                - dot: .
+                - identifier: array_a
+              - keyword: AS
+              - identifier: value_a
+              - keyword: AT
+              - identifier: idx
+- statement_terminator: ;

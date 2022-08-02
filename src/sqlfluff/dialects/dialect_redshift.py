@@ -2272,6 +2272,25 @@ class ObjectUnpivotSegment(BaseSegment):
     )
 
 
+class ArrayAccessorSegment(ansi.ArrayAccessorSegment):
+    """Array element accessor.
+
+    Redshift allows multiple levels of array access, like Postgres,
+    but it
+    * doesn't allow ranges like `myarray[1:2]`
+    * does allow function or column expressions `myarray[idx]`
+    """
+
+    match_grammar = Sequence(
+        AnyNumberOf(
+            Bracketed(
+                OneOf(Ref("NumericLiteralSegment"), Ref("ExpressionSegment")),
+                bracket_type="square",
+            )
+        )
+    )
+
+
 class ArrayUnnestSegment(BaseSegment):
     """Array unnesting.
 
