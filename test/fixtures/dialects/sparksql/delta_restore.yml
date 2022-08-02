@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a9c967f06d8aba247c5ab8159dba03d36418f9fb8bb02d6e6b77061bef576422
+_hash: 1ddae447540dc1323ae51345ae4ed3a42eb638b8522502512036757526b1376b
 file:
 - statement:
     restore_table_statement:
@@ -17,7 +17,7 @@ file:
     - keyword: TIMESTAMP
     - keyword: AS
     - keyword: OF
-    - literal: '"2019-01-01"'
+    - quoted_literal: '"2019-01-01"'
 - statement_terminator: ;
 - statement:
     restore_table_statement:
@@ -31,7 +31,7 @@ file:
     - keyword: TIMESTAMP
     - keyword: AS
     - keyword: OF
-    - literal: '"2019-01-01"'
+    - quoted_literal: '"2019-01-01"'
 - statement_terminator: ;
 - statement:
     restore_table_statement:
@@ -74,7 +74,7 @@ file:
     - keyword: TIMESTAMP
     - keyword: AS
     - keyword: OF
-    - literal: '"2019-01-01 01:30:00.000"'
+    - quoted_literal: '"2019-01-01 01:30:00.000"'
 - statement_terminator: ;
 - statement:
     restore_table_statement:

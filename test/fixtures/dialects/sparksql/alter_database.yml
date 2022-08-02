@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7c54cc8620417a1205646d441442134bd3f9934a032964fd94a92789aca2b02e
+_hash: ac38d2239b9a4d6f5bfbca9f35cabd66d1cc1f2dded465f7773b63f14469a8f9
 file:
 - statement:
     alter_database_statement:
@@ -19,7 +19,7 @@ file:
           quoted_identifier: "'Edited-by'"
         comparison_operator:
           raw_comparison_operator: '='
-        literal: "'John'"
+        quoted_literal: "'John'"
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -36,13 +36,13 @@ file:
           quoted_identifier: "'Edited-by'"
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'John'"
+      - quoted_literal: "'John'"
       - comma: ','
       - property_name_identifier:
           quoted_identifier: "'Edit-date'"
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'01/01/2001'"
+      - quoted_literal: "'01/01/2001'"
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -59,7 +59,7 @@ file:
           quoted_identifier: "'Edited-by'"
         comparison_operator:
           raw_comparison_operator: '='
-        literal: "'John'"
+        quoted_literal: "'John'"
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -76,12 +76,12 @@ file:
           quoted_identifier: "'Edited-by'"
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'John'"
+      - quoted_literal: "'John'"
       - comma: ','
       - property_name_identifier:
           quoted_identifier: "'Edit-date'"
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'01/01/2001'"
+      - quoted_literal: "'01/01/2001'"
       - end_bracket: )
 - statement_terminator: ;

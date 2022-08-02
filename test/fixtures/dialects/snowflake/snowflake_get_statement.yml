@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5222d2e8dde119d591d0abc01f599dc8b5fcb3c7ebb7387d2eb800bf6c0612a9
+_hash: 1c921ddcc2c8f6f3c27682d75150a8ce766b71e7a2379d2bfa60f6ca6559c6eb
 file:
 - statement:
     get_statement:
@@ -25,7 +25,7 @@ file:
     - keyword: PATTERN
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: "'.*foo.*'"
+    - quoted_literal: "'.*foo.*'"
 - statement_terminator: ;
 - statement:
     get_statement:
@@ -45,5 +45,5 @@ file:
     - keyword: PARALLEL
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: '1'
+    - integer_literal: '1'
 - statement_terminator: ;

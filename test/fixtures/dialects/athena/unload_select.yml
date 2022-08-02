@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5bcc6ceee0d0b2c5fde4f6fc9686761fbdbcdca0177f7bb504eeb6eeb9bcf783
+_hash: fee23c92023bf3d3cc4811b1bde6f35bc684d179d3f3ed3377345add96fe6e4d
 file:
   statement:
     unload_statement:
@@ -29,24 +29,24 @@ file:
                     naked_identifier: my_table
         end_bracket: )
     - keyword: TO
-    - literal: "'s3://my_athena_data_location/my_folder/'"
+    - quoted_literal: "'s3://my_athena_data_location/my_folder/'"
     - keyword: WITH
     - bracketed:
       - start_bracket: (
       - keyword: format
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'CSV'"
+      - quoted_literal: "'CSV'"
       - comma: ','
       - keyword: compression
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'gzip'"
+      - quoted_literal: "'gzip'"
       - comma: ','
       - keyword: field_delimiter
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "','"
+      - quoted_literal: "','"
       - comma: ','
       - keyword: partitioned_by
       - comparison_operator:

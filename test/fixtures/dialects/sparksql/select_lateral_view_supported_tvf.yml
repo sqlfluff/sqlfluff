@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 277e69ba6a673faa5d53252e4759246b58381e040667c144a745a4ed35495cb4
+_hash: 178acfd014cf9b8b0815c26e4b85e0121265e0f2aa05a2f1146a3c8f60f91449
 file:
 - statement:
     select_statement:
@@ -171,7 +171,7 @@ file:
                             numeric_literal: '1'
                         - comma: ','
                         - expression:
-                            literal: "'a'"
+                            quoted_literal: "'a'"
                         - end_bracket: )
                   - comma: ','
                   - expression:
@@ -184,7 +184,7 @@ file:
                             numeric_literal: '2'
                         - comma: ','
                         - expression:
-                            literal: "'b'"
+                            quoted_literal: "'b'"
                         - end_bracket: )
                   - end_bracket: )
               end_bracket: )
@@ -215,7 +215,7 @@ file:
                             numeric_literal: '1'
                         - comma: ','
                         - expression:
-                            literal: "'a'"
+                            quoted_literal: "'a'"
                         - end_bracket: )
                   - comma: ','
                   - expression:
@@ -228,7 +228,7 @@ file:
                             numeric_literal: '2'
                         - comma: ','
                         - expression:
-                            literal: "'b'"
+                            quoted_literal: "'b'"
                         - end_bracket: )
                   - end_bracket: )
               end_bracket: )
@@ -279,7 +279,7 @@ file:
                                 numeric_literal: '1'
                             - comma: ','
                             - expression:
-                                literal: "'a'"
+                                quoted_literal: "'a'"
                             - end_bracket: )
                       - comma: ','
                       - expression:
@@ -292,7 +292,7 @@ file:
                                 numeric_literal: '2'
                             - comma: ','
                             - expression:
-                                literal: "'b'"
+                                quoted_literal: "'b'"
                             - end_bracket: )
                       - end_bracket: )
                   end_bracket: )
@@ -347,7 +347,7 @@ file:
                                 numeric_literal: '1'
                             - comma: ','
                             - expression:
-                                literal: "'a'"
+                                quoted_literal: "'a'"
                             - end_bracket: )
                       - comma: ','
                       - expression:
@@ -360,7 +360,7 @@ file:
                                 numeric_literal: '2'
                             - comma: ','
                             - expression:
-                                literal: "'b'"
+                                quoted_literal: "'b'"
                             - end_bracket: )
                       - end_bracket: )
                   end_bracket: )
@@ -590,13 +590,13 @@ file:
             bracketed:
             - start_bracket: (
             - expression:
-                literal: "'{\"a\":1, \"b\":2}'"
+                quoted_literal: "'{\"a\":1, \"b\":2}'"
             - comma: ','
             - expression:
-                literal: "'a'"
+                quoted_literal: "'a'"
             - comma: ','
             - expression:
-                literal: "'b'"
+                quoted_literal: "'b'"
             - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -630,13 +630,13 @@ file:
                 bracketed:
                 - start_bracket: (
                 - expression:
-                    literal: "'{\"a\":1, \"b\":2}'"
+                    quoted_literal: "'{\"a\":1, \"b\":2}'"
                 - comma: ','
                 - expression:
-                    literal: "'a'"
+                    quoted_literal: "'a'"
                 - comma: ','
                 - expression:
-                    literal: "'b'"
+                    quoted_literal: "'b'"
                 - end_bracket: )
             - keyword: AS
             - naked_identifier: c1
@@ -654,10 +654,10 @@ file:
             bracketed:
             - start_bracket: (
             - expression:
-                literal: "'http://spark.apache.org/path?query=1'"
+                quoted_literal: "'http://spark.apache.org/path?query=1'"
             - comma: ','
             - expression:
-                literal: "'HOST'"
+                quoted_literal: "'HOST'"
             - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -691,10 +691,10 @@ file:
                 bracketed:
                 - start_bracket: (
                 - expression:
-                    literal: "'http://spark.apache.org/path?query=1'"
+                    quoted_literal: "'http://spark.apache.org/path?query=1'"
                 - comma: ','
                 - expression:
-                    literal: "'HOST'"
+                    quoted_literal: "'HOST'"
                 - end_bracket: )
             - keyword: AS
             - naked_identifier: c1

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5b636913f0c94b81de4b955c6ab1a4efa3cac354910c2a09cc1b6bacc8b817ba
+_hash: 62bea3497151ebfa259941460254c0fd91f7ae6f411c0415639b6eaf7b088bf7
 file:
 - statement:
     create_stage_statement:
@@ -133,11 +133,11 @@ file:
         - keyword: AWS_KEY_ID
         - comparison_operator:
             raw_comparison_operator: '='
-        - literal: "'1a2b3c'"
+        - quoted_literal: "'1a2b3c'"
         - keyword: AWS_SECRET_KEY
         - comparison_operator:
             raw_comparison_operator: '='
-        - literal: "'4x5y6z'"
+        - quoted_literal: "'4x5y6z'"
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -159,11 +159,11 @@ file:
         - keyword: AWS_KEY_ID
         - comparison_operator:
             raw_comparison_operator: '='
-        - literal: "'1a2b3c'"
+        - quoted_literal: "'1a2b3c'"
         - keyword: AWS_SECRET_KEY
         - comparison_operator:
             raw_comparison_operator: '='
-        - literal: "'4x5y6z'"
+        - quoted_literal: "'4x5y6z'"
         - end_bracket: )
       - keyword: ENCRYPTION
       - comparison_operator:
@@ -173,7 +173,7 @@ file:
           keyword: MASTER_KEY
           comparison_operator:
             raw_comparison_operator: '='
-          literal: "'eSxX0jzYfIamtnBKOEOwq80Au6NbSgPH5r4BDDwOaO8='"
+          quoted_literal: "'eSxX0jzYfIamtnBKOEOwq80Au6NbSgPH5r4BDDwOaO8='"
           end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -195,11 +195,11 @@ file:
         - keyword: AWS_KEY_ID
         - comparison_operator:
             raw_comparison_operator: '='
-        - literal: "'1a2b3c'"
+        - quoted_literal: "'1a2b3c'"
         - keyword: AWS_SECRET_KEY
         - comparison_operator:
             raw_comparison_operator: '='
-        - literal: "'4x5y6z'"
+        - quoted_literal: "'4x5y6z'"
         - end_bracket: )
       - keyword: ENCRYPTION
       - comparison_operator:
@@ -213,7 +213,7 @@ file:
         - keyword: KMS_KEY_ID
         - comparison_operator:
             raw_comparison_operator: '='
-        - literal: "'aws/key'"
+        - quoted_literal: "'aws/key'"
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -235,7 +235,7 @@ file:
           keyword: AWS_ROLE
           comparison_operator:
             raw_comparison_operator: '='
-          literal: "'arn:aws:iam::001234567890:role/mysnowflakerole'"
+          quoted_literal: "'arn:aws:iam::001234567890:role/mysnowflakerole'"
           end_bracket: )
       - keyword: ENCRYPTION
       - comparison_operator:
@@ -249,7 +249,7 @@ file:
         - keyword: KMS_KEY_ID
         - comparison_operator:
             raw_comparison_operator: '='
-        - literal: "'aws/key'"
+        - quoted_literal: "'aws/key'"
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -332,7 +332,7 @@ file:
       - keyword: NOTIFICATION_INTEGRATION
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'MY_NOTIFICATION_INT'"
+      - quoted_literal: "'MY_NOTIFICATION_INT'"
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -371,7 +371,7 @@ file:
           keyword: AZURE_SAS_TOKEN
           comparison_operator:
             raw_comparison_operator: '='
-          literal: "'?sv=2016-05-31&ss=b&srt=sco&sp=rwdl&se=2018-06-27T10:05:50Z&st=2017-06-27T02:05:50Z&spr=https,http&sig=bgqQwoXwxzuD2GJfagRg7VOS8hzNr3QLT7rhS8OFRLQ%3D'"
+          quoted_literal: "'?sv=2016-05-31&ss=b&srt=sco&sp=rwdl&se=2018-06-27T10:05:50Z&st=2017-06-27T02:05:50Z&spr=https,http&sig=bgqQwoXwxzuD2GJfagRg7VOS8hzNr3QLT7rhS8OFRLQ%3D'"
           end_bracket: )
       - keyword: ENCRYPTION
       - comparison_operator:
@@ -385,7 +385,7 @@ file:
         - keyword: MASTER_KEY
         - comparison_operator:
             raw_comparison_operator: '='
-        - literal: "'kPxX0jzYfIamtnJEUTHwq80Au6NbSgPH5r4BDDwOaO8='"
+        - quoted_literal: "'kPxX0jzYfIamtnJEUTHwq80Au6NbSgPH5r4BDDwOaO8='"
         - end_bracket: )
     - keyword: FILE_FORMAT
     - comparison_operator:
@@ -426,7 +426,7 @@ file:
       - keyword: NOTIFICATION_INTEGRATION
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'MY_NOTIFICATION_INT'"
+      - quoted_literal: "'MY_NOTIFICATION_INT'"
       - end_bracket: )
 - statement_terminator: ;
 - statement:

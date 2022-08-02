@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 50d48be5c65f0483dcaa979662f5087e6d688ead2e1b512d8ac86095e7c9109b
+_hash: 8891f999d204f5ecaae8e896c7a6e185578e86c73f67978e1c5881a8b231eda1
 file:
 - statement:
     delete_statement:
@@ -37,7 +37,7 @@ file:
           - naked_identifier: name
           comparison_operator:
             raw_comparison_operator: '='
-          literal: "'example'"
+          quoted_literal: "'example'"
 - statement_terminator: ;
 - statement:
     delete_statement:
@@ -56,7 +56,7 @@ file:
             naked_identifier: user
           comparison_operator:
             raw_comparison_operator: '='
-          literal: "'jcole'"
+          quoted_literal: "'jcole'"
       orderby_clause:
       - keyword: ORDER
       - keyword: BY
@@ -101,7 +101,7 @@ file:
           - naked_identifier: name
           comparison_operator:
             raw_comparison_operator: '='
-          literal: "'example'"
+          quoted_literal: "'example'"
 - statement_terminator: ;
 - statement:
     delete_statement:
@@ -129,7 +129,7 @@ file:
           - naked_identifier: name
           comparison_operator:
             raw_comparison_operator: '='
-          literal: "'example'"
+          quoted_literal: "'example'"
 - statement_terminator: ;
 - statement:
     delete_statement:

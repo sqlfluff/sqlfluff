@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3318552a8bae155341e2099c9fd25b723c3b5b050b74ad747f9d016196eb8b9d
+_hash: 379a9d589d67c92e1168c626767879eca530bdac1a7a79a2fe47b689d29d681f
 file:
 - statement:
     show_statement:
@@ -11,7 +11,7 @@ file:
     - keyword: TABLE
     - keyword: EXTENDED
     - keyword: LIKE
-    - literal: "'employee'"
+    - quoted_literal: "'employee'"
 - statement_terminator: ;
 - statement:
     show_statement:
@@ -19,7 +19,7 @@ file:
     - keyword: TABLE
     - keyword: EXTENDED
     - keyword: LIKE
-    - literal: "'employe*'"
+    - quoted_literal: "'employe*'"
 - statement_terminator: ;
 - statement:
     show_statement:
@@ -30,7 +30,7 @@ file:
     - database_reference:
         naked_identifier: default
     - keyword: LIKE
-    - literal: "'employee'"
+    - quoted_literal: "'employee'"
     - keyword: PARTITION
     - bracketed:
         start_bracket: (
@@ -50,7 +50,7 @@ file:
     - database_reference:
         naked_identifier: default
     - keyword: LIKE
-    - literal: "'empl*'"
+    - quoted_literal: "'empl*'"
     - keyword: PARTITION
     - bracketed:
         start_bracket: (

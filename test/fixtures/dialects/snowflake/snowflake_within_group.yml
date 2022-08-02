@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 60c5dd3ff7195590c685a85243f84698856dfa453f852b3dbe8c52ef197730a2
+_hash: 4b3521b472f965ee721e4ce72a3b87bee0097375a80c648614d51e112fc92c9b
 file:
 - statement:
     with_compound_statement:
@@ -41,55 +41,55 @@ file:
                       - bracketed:
                         - start_bracket: (
                         - expression:
-                            literal: "'apple'"
+                            quoted_literal: "'apple'"
                         - comma: ','
                         - expression:
-                            literal: "'green'"
+                            quoted_literal: "'green'"
                         - end_bracket: )
                       - comma: ','
                       - bracketed:
                         - start_bracket: (
                         - expression:
-                            literal: "'unripe banana'"
+                            quoted_literal: "'unripe banana'"
                         - comma: ','
                         - expression:
-                            literal: "'green'"
+                            quoted_literal: "'green'"
                         - end_bracket: )
                       - comma: ','
                       - bracketed:
                         - start_bracket: (
                         - expression:
-                            literal: "'kiwi'"
+                            quoted_literal: "'kiwi'"
                         - comma: ','
                         - expression:
-                            literal: "'green'"
+                            quoted_literal: "'green'"
                         - end_bracket: )
                       - comma: ','
                       - bracketed:
                         - start_bracket: (
                         - expression:
-                            literal: "'blueberry'"
+                            quoted_literal: "'blueberry'"
                         - comma: ','
                         - expression:
-                            literal: "'blue'"
+                            quoted_literal: "'blue'"
                         - end_bracket: )
                       - comma: ','
                       - bracketed:
                         - start_bracket: (
                         - expression:
-                            literal: "'strawberry'"
+                            quoted_literal: "'strawberry'"
                         - comma: ','
                         - expression:
-                            literal: "'red'"
+                            quoted_literal: "'red'"
                         - end_bracket: )
                       - comma: ','
                       - bracketed:
                         - start_bracket: (
                         - expression:
-                            literal: "'grape'"
+                            quoted_literal: "'grape'"
                         - comma: ','
                         - expression:
-                            literal: "'red'"
+                            quoted_literal: "'red'"
                         - end_bracket: )
                     end_bracket: )
           end_bracket: )
@@ -111,7 +111,7 @@ file:
                     identifier: name
               - comma: ','
               - expression:
-                  literal: "', '"
+                  quoted_literal: "', '"
               - end_bracket: )
               withingroup_clause:
               - keyword: within
@@ -337,7 +337,7 @@ file:
                   identifier: o_orderkey
             - comma: ','
             - expression:
-                literal: "' '"
+                quoted_literal: "' '"
             - end_bracket: )
       from_clause:
         keyword: from
@@ -371,7 +371,7 @@ file:
                   identifier: o_orderstatus
             - comma: ','
             - expression:
-                literal: "'|'"
+                quoted_literal: "'|'"
             - end_bracket: )
       from_clause:
         keyword: from
@@ -408,7 +408,7 @@ file:
                   identifier: o_clerk
             - comma: ','
             - expression:
-                literal: "', '"
+                quoted_literal: "', '"
             - end_bracket: )
             withingroup_clause:
             - keyword: within
@@ -458,7 +458,7 @@ file:
                   identifier: spanish_phrase
             - comma: ','
             - expression:
-                literal: "'|'"
+                quoted_literal: "'|'"
             - end_bracket: )
             withingroup_clause:
             - keyword: within
@@ -479,7 +479,7 @@ file:
                             identifier: spanish_phrase
                       - comma: ','
                       - expression:
-                          literal: "'sp'"
+                          quoted_literal: "'sp'"
                       - end_bracket: )
                 end_bracket: )
       from_clause:
@@ -510,7 +510,7 @@ file:
                   identifier: spanish_phrase
             - comma: ','
             - expression:
-                literal: "'|'"
+                quoted_literal: "'|'"
             - end_bracket: )
             withingroup_clause:
             - keyword: within
@@ -531,7 +531,7 @@ file:
                             identifier: spanish_phrase
                       - comma: ','
                       - expression:
-                          literal: "'utf8'"
+                          quoted_literal: "'utf8'"
                       - end_bracket: )
                 end_bracket: )
       from_clause:

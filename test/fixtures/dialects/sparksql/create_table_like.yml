@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5f3ce6e288c91784d4305a4e555d9e328b8ea1b6e007ac49b0ee031074cda01e
+_hash: 4a9441c495d439f8c047af003862b6a20eefe224ba3cd7d57e9efffa9e4f43bb
 file:
 - statement:
     create_table_statement:
@@ -26,7 +26,7 @@ file:
       - keyword: FIELDS
       - keyword: TERMINATED
       - keyword: BY
-      - literal: "','"
+      - quoted_literal: "','"
     - keyword: STORED
     - keyword: AS
     - keyword: PARQUET
@@ -37,16 +37,16 @@ file:
           quoted_identifier: '"key1"'
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: '"val1"'
+      - quoted_literal: '"val1"'
       - comma: ','
       - property_name_identifier:
           quoted_identifier: '"key2"'
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: '"val2"'
+      - quoted_literal: '"val2"'
       - end_bracket: )
     - keyword: LOCATION
-    - literal: '"path/to/files"'
+    - quoted_literal: '"path/to/files"'
 - statement_terminator: ;
 - statement:
     create_table_statement:
@@ -80,7 +80,7 @@ file:
     - table_reference:
         naked_identifier: student
     - keyword: LOCATION
-    - literal: "'/root1/home'"
+    - quoted_literal: "'/root1/home'"
 - statement_terminator: ;
 - statement:
     create_table_statement:
@@ -98,7 +98,7 @@ file:
       - keyword: FIELDS
       - keyword: TERMINATED
       - keyword: BY
-      - literal: "','"
+      - quoted_literal: "','"
     - keyword: STORED
     - keyword: AS
     - file_format: TEXTFILE
@@ -109,6 +109,6 @@ file:
           quoted_identifier: "'owner'"
         comparison_operator:
           raw_comparison_operator: '='
-        literal: "'xxxx'"
+        quoted_literal: "'xxxx'"
         end_bracket: )
 - statement_terminator: ;

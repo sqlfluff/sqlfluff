@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: be9ae65eacc2fc18bb93fbf89ffad4355e2ced2a916f64b63770a26eb2fac6af
+_hash: b9c65c1477ba5ee9674e2c6d78a096c9faa9e75e3c2e86d7c9650f0b99cc55c7
 file:
   statement:
     create_table_statement:
@@ -46,5 +46,5 @@ file:
               keyword: date
       - end_bracket: )
     - keyword: LOCATION
-    - literal: "'hdfs://path'"
+    - quoted_literal: "'hdfs://path'"
   statement_terminator: ;

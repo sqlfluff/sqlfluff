@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6096ce5edfbdca1488f804df724a0c10c765f6711c0d1fda301f7768645bdd85
+_hash: 413a3e631dda3ac322923173545eb45268a3051bb70d6e94ed812fefef1b3c04
 file:
 - statement:
     select_statement:
@@ -922,7 +922,7 @@ file:
         keyword: SELECT
         select_clause_element:
           keyword: date
-          literal: "'2021-09-21'"
+          date_constructor_literal: "'2021-09-21'"
       from_clause:
         keyword: FROM
         from_expression:
@@ -1741,7 +1741,7 @@ file:
       - select_clause_element:
           expression:
           - keyword: DATE
-          - literal: "'2020-10-26'"
+          - date_constructor_literal: "'2020-10-26'"
           - binary_operator: +
           - column_reference:
               naked_identifier: v

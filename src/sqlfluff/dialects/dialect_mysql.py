@@ -139,9 +139,8 @@ mysql_dialect.replace(
         OneOf(
             NamedParser(
                 "single_quote",
-                CodeSegment,
-                name="date_constructor_literal",
-                type="literal",
+                ansi.LiteralSegment,
+                type="date_constructor_literal",
             ),
             Ref("NumericLiteralSegment"),
         ),
@@ -153,9 +152,8 @@ mysql_dialect.replace(
             # we use grammar to handle this.
             NamedParser(
                 "single_quote",
-                CodeSegment,
-                name="quoted_literal",
-                type="literal",
+                ansi.LiteralSegment,
+                type="quoted_literal",
             ),
             min_times=1,
         ),
@@ -172,47 +170,42 @@ mysql_dialect.replace(
         "~", SymbolSegment, name="tilde", type="statement_terminator"
     ),
     ParameterNameSegment=RegexParser(
-        r"`?[A-Za-z0-9_]*`?", CodeSegment, name="parameter", type="parameter"
+        r"`?[A-Za-z0-9_]*`?", CodeSegment, type="parameter"
     ),
     SingleIdentifierGrammar=ansi_dialect.get_grammar("SingleIdentifierGrammar").copy(
         insert=[Ref("SessionVariableNameSegment")]
     ),
     AndOperatorGrammar=OneOf(
         StringParser("AND", KeywordSegment, type="binary_operator"),
-        StringParser(
-            "&&", CodeSegment, name="double_ampersand", type="binary_operator"
-        ),
+        StringParser("&&", CodeSegment, type="binary_operator"),
     ),
     OrOperatorGrammar=OneOf(
         StringParser("OR", KeywordSegment, type="binary_operator"),
-        StringParser("||", CodeSegment, name="double_pipe", type="binary_operator"),
+        StringParser("||", CodeSegment, type="binary_operator"),
         StringParser("XOR", KeywordSegment, type="binary_operator"),
     ),
     NotOperatorGrammar=OneOf(
         StringParser("NOT", KeywordSegment, type="keyword"),
-        StringParser("!", CodeSegment, name="not_operator", type="not_operator"),
+        StringParser("!", CodeSegment, type="not_operator"),
     ),
 )
 
 mysql_dialect.add(
     DoubleQuotedLiteralSegment=NamedParser(
         "double_quote",
-        CodeSegment,
-        name="quoted_literal",
-        type="literal",
+        ansi.LiteralSegment,
+        type="quoted_literal",
         trim_chars=('"',),
     ),
     AtSignLiteralSegment=NamedParser(
         "at_sign",
-        CodeSegment,
-        name="at_sign_literal",
-        type="literal",
+        ansi.LiteralSegment,
+        type="at_sign_literal",
         trim_chars=("@",),
     ),
     SystemVariableSegment=RegexParser(
         r"@@(session|global)\.[A-Za-z0-9_]+",
         CodeSegment,
-        name="system_variable",
         type="system_variable",
     ),
 )

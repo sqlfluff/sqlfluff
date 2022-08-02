@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 59675168860815eb9603e388f8926a7872dd381a2661625c9b5c1a879ef45644
+_hash: 9f2539a6a38958dd4cd8368fc08379402cf4bbe7952432de498b905d68d5d545
 file:
 - statement:
     comment_statement:
@@ -15,7 +15,7 @@ file:
       - dot: .
       - identifier: my_column
     - keyword: is
-    - literal: "'comment'"
+    - quoted_literal: "'comment'"
 - statement_terminator: ;
 - statement:
     comment_statement:
@@ -25,7 +25,7 @@ file:
     - object_reference:
         identifier: foo
     - keyword: is
-    - literal: "'comment'"
+    - quoted_literal: "'comment'"
 - statement_terminator: ;
 - statement:
     comment_statement:
@@ -35,7 +35,7 @@ file:
     - object_reference:
         identifier: foo
     - keyword: is
-    - literal: "'comment'"
+    - quoted_literal: "'comment'"
 - statement_terminator: ;
 - statement:
     comment_statement:
@@ -45,7 +45,7 @@ file:
     - object_reference:
         identifier: foo
     - keyword: is
-    - literal: "'comment'"
+    - quoted_literal: "'comment'"
 - statement_terminator: ;
 - statement:
     comment_statement:
@@ -55,7 +55,7 @@ file:
     - object_reference:
         identifier: foo
     - keyword: is
-    - literal: "'comment'"
+    - quoted_literal: "'comment'"
 - statement_terminator: ;
 - statement:
     comment_statement:
@@ -65,7 +65,7 @@ file:
     - object_reference:
         identifier: foo
     - keyword: is
-    - literal: "'comment'"
+    - quoted_literal: "'comment'"
 - statement_terminator: ;
 - statement:
     comment_statement:
@@ -75,7 +75,7 @@ file:
     - object_reference:
         identifier: foo
     - keyword: is
-    - literal: "'comment'"
+    - quoted_literal: "'comment'"
 - statement_terminator: ;
 - statement:
     comment_statement:
@@ -85,7 +85,7 @@ file:
     - object_reference:
         identifier: foo
     - keyword: is
-    - literal: "'comment'"
+    - quoted_literal: "'comment'"
 - statement_terminator: ;
 - statement:
     comment_statement:
@@ -95,7 +95,7 @@ file:
     - object_reference:
         identifier: foo
     - keyword: is
-    - literal: "'comment'"
+    - quoted_literal: "'comment'"
 - statement_terminator: ;
 - statement:
     comment_statement:
@@ -105,7 +105,7 @@ file:
     - object_reference:
         identifier: foo
     - keyword: is
-    - literal: "'comment'"
+    - quoted_literal: "'comment'"
 - statement_terminator: ;
 - statement:
     comment_statement:
@@ -115,7 +115,7 @@ file:
     - object_reference:
         identifier: foo
     - keyword: is
-    - literal: "'comment'"
+    - quoted_literal: "'comment'"
 - statement_terminator: ;
 - statement:
     comment_statement:
@@ -125,7 +125,7 @@ file:
     - object_reference:
         identifier: foo
     - keyword: is
-    - literal: "'comment'"
+    - quoted_literal: "'comment'"
 - statement_terminator: ;
 - statement:
     comment_statement:
@@ -135,7 +135,7 @@ file:
     - object_reference:
         identifier: foo
     - keyword: is
-    - literal: "'comment'"
+    - quoted_literal: "'comment'"
 - statement_terminator: ;
 - statement:
     comment_statement:
@@ -145,7 +145,7 @@ file:
     - object_reference:
         identifier: foo
     - keyword: is
-    - literal: "'comment'"
+    - quoted_literal: "'comment'"
 - statement_terminator: ;
 - statement:
     comment_statement:
@@ -155,7 +155,7 @@ file:
     - object_reference:
         identifier: foo
     - keyword: is
-    - literal: "'comment'"
+    - quoted_literal: "'comment'"
 - statement_terminator: ;
 - statement:
     comment_statement:
@@ -166,7 +166,7 @@ file:
     - object_reference:
         identifier: foo
     - keyword: is
-    - literal: "'comment'"
+    - quoted_literal: "'comment'"
 - statement_terminator: ;
 - statement:
     comment_statement:
@@ -177,7 +177,7 @@ file:
     - object_reference:
         identifier: foo
     - keyword: is
-    - literal: "'comment'"
+    - quoted_literal: "'comment'"
 - statement_terminator: ;
 - statement:
     comment_statement:
@@ -188,7 +188,7 @@ file:
     - object_reference:
         identifier: foo
     - keyword: is
-    - literal: "'comment'"
+    - quoted_literal: "'comment'"
 - statement_terminator: ;
 - statement:
     comment_statement:
@@ -199,7 +199,7 @@ file:
     - object_reference:
         identifier: foo
     - keyword: is
-    - literal: "'comment'"
+    - quoted_literal: "'comment'"
 - statement_terminator: ;
 - statement:
     comment_statement:
@@ -210,7 +210,7 @@ file:
     - object_reference:
         identifier: foo
     - keyword: is
-    - literal: "'comment'"
+    - quoted_literal: "'comment'"
 - statement_terminator: ;
 - statement:
     comment_statement:
@@ -221,7 +221,7 @@ file:
     - object_reference:
         identifier: foo
     - keyword: is
-    - literal: "'comment'"
+    - quoted_literal: "'comment'"
 - statement_terminator: ;
 - statement:
     comment_statement:
@@ -232,7 +232,7 @@ file:
     - object_reference:
         identifier: foo
     - keyword: is
-    - literal: "'comment'"
+    - quoted_literal: "'comment'"
 - statement_terminator: ;
 - statement:
     comment_statement:
@@ -243,7 +243,7 @@ file:
     - object_reference:
         identifier: foo
     - keyword: is
-    - literal: "'comment'"
+    - quoted_literal: "'comment'"
 - statement_terminator: ;
 - statement:
     comment_statement:
@@ -254,7 +254,7 @@ file:
     - object_reference:
         identifier: foo
     - keyword: is
-    - literal: "'comment'"
+    - quoted_literal: "'comment'"
 - statement_terminator: ;
 - statement:
     comment_statement:
@@ -266,7 +266,7 @@ file:
     - object_reference:
         identifier: foo
     - keyword: is
-    - literal: "'comment'"
+    - quoted_literal: "'comment'"
 - statement_terminator: ;
 - statement:
     comment_statement:
@@ -277,5 +277,5 @@ file:
     - object_reference:
         identifier: foo
     - keyword: is
-    - literal: "'comment'"
+    - quoted_literal: "'comment'"
 - statement_terminator: ;

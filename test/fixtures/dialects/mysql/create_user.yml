@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 07fff92b57616c64fe57200da973fd7cca02d0b22371feb5825165d82769425b
+_hash: 1ea9914e303e26b666613722ee83aee91cf1db8c01c047f7e8473f2508359039
 file:
 - statement:
     create_user_statement:
@@ -33,7 +33,7 @@ file:
     - object_reference:
         naked_identifier: AWSAuthenticationPlugin
     - keyword: AS
-    - literal: "'RDS'"
+    - quoted_literal: "'RDS'"
 - statement_terminator: ;
 - statement:
     create_user_statement:
@@ -41,23 +41,23 @@ file:
     - keyword: USER
     - role_reference:
       - quoted_identifier: "'jeffrey'"
-      - literal: '@'
+      - at_sign_literal: '@'
       - quoted_identifier: "'localhost'"
     - keyword: IDENTIFIED
     - keyword: BY
-    - literal: "'password'"
+    - quoted_literal: "'password'"
 - statement_terminator: ;
 - statement:
     create_user_statement:
     - keyword: CREATE
     - keyword: USER
     - role_reference:
-      - literal: '"jeffrey"'
-      - literal: '@'
-      - literal: '"localhost"'
+      - quoted_literal: '"jeffrey"'
+      - at_sign_literal: '@'
+      - quoted_literal: '"localhost"'
     - keyword: IDENTIFIED
     - keyword: BY
-    - literal: '"password"'
+    - quoted_literal: '"password"'
 - statement_terminator: ;
 - statement:
     create_user_statement:
@@ -65,11 +65,11 @@ file:
     - keyword: USER
     - role_reference:
       - identifier: '`jeffrey`'
-      - literal: '@'
+      - at_sign_literal: '@'
       - identifier: '`localhost`'
     - keyword: IDENTIFIED
     - keyword: BY
-    - literal: '"password"'
+    - quoted_literal: '"password"'
 - statement_terminator: ;
 - statement:
     create_user_statement:
@@ -77,11 +77,11 @@ file:
     - keyword: USER
     - role_reference:
       - quoted_identifier: "'jeffrey'"
-      - literal: '@'
+      - at_sign_literal: '@'
       - quoted_identifier: "'localhost'"
     - keyword: IDENTIFIED
     - keyword: BY
-    - literal: "'new_password'"
+    - quoted_literal: "'new_password'"
     - keyword: PASSWORD
     - keyword: EXPIRE
 - statement_terminator: ;
@@ -91,14 +91,14 @@ file:
     - keyword: USER
     - role_reference:
       - quoted_identifier: "'jeffrey'"
-      - literal: '@'
+      - at_sign_literal: '@'
       - quoted_identifier: "'localhost'"
     - keyword: IDENTIFIED
     - keyword: WITH
     - object_reference:
         naked_identifier: caching_sha2_password
     - keyword: BY
-    - literal: "'new_password'"
+    - quoted_literal: "'new_password'"
     - keyword: PASSWORD
     - keyword: EXPIRE
     - keyword: INTERVAL
@@ -115,25 +115,25 @@ file:
     - keyword: USER
     - role_reference:
       - quoted_identifier: "'jeffrey'"
-      - literal: '@'
+      - at_sign_literal: '@'
       - quoted_identifier: "'localhost'"
     - keyword: IDENTIFIED
     - keyword: WITH
     - object_reference:
         naked_identifier: mysql_native_password
     - keyword: BY
-    - literal: "'new_password1'"
+    - quoted_literal: "'new_password1'"
     - comma: ','
     - role_reference:
       - quoted_identifier: "'jeanne'"
-      - literal: '@'
+      - at_sign_literal: '@'
       - quoted_identifier: "'localhost'"
     - keyword: IDENTIFIED
     - keyword: WITH
     - object_reference:
         naked_identifier: caching_sha2_password
     - keyword: BY
-    - literal: "'new_password2'"
+    - quoted_literal: "'new_password2'"
     - keyword: REQUIRE
     - keyword: X509
     - keyword: WITH
@@ -151,14 +151,14 @@ file:
     - keyword: USER
     - role_reference:
       - quoted_identifier: "'jeffrey'"
-      - literal: '@'
+      - at_sign_literal: '@'
       - quoted_identifier: "'localhost'"
     - keyword: IDENTIFIED
     - keyword: WITH
     - object_reference:
         naked_identifier: mysql_native_password
     - keyword: BY
-    - literal: "'password'"
+    - quoted_literal: "'password'"
 - statement_terminator: ;
 - statement:
     create_user_statement:
@@ -166,21 +166,21 @@ file:
     - keyword: USER
     - role_reference:
       - quoted_identifier: "'u1'"
-      - literal: '@'
+      - at_sign_literal: '@'
       - quoted_identifier: "'localhost'"
     - keyword: IDENTIFIED
     - keyword: WITH
     - object_reference:
         naked_identifier: caching_sha2_password
     - keyword: BY
-    - literal: "'sha2_password'"
+    - quoted_literal: "'sha2_password'"
     - keyword: AND
     - keyword: IDENTIFIED
     - keyword: WITH
     - object_reference:
         naked_identifier: authentication_ldap_sasl
     - keyword: AS
-    - literal: "'uid=u1_ldap,ou=People,dc=example,dc=com'"
+    - quoted_literal: "'uid=u1_ldap,ou=People,dc=example,dc=com'"
 - statement_terminator: ;
 - statement:
     create_user_statement:
@@ -188,21 +188,21 @@ file:
     - keyword: USER
     - role_reference:
       - quoted_identifier: "'u1'"
-      - literal: '@'
+      - at_sign_literal: '@'
       - quoted_identifier: "'localhost'"
     - keyword: IDENTIFIED
     - keyword: WITH
     - object_reference:
         naked_identifier: caching_sha2_password
     - keyword: BY
-    - literal: "'sha2_password'"
+    - quoted_literal: "'sha2_password'"
     - keyword: AND
     - keyword: IDENTIFIED
     - keyword: WITH
     - object_reference:
         naked_identifier: authentication_ldap_sasl
     - keyword: AS
-    - literal: "'uid=u1_ldap,ou=People,dc=example,dc=com'"
+    - quoted_literal: "'uid=u1_ldap,ou=People,dc=example,dc=com'"
     - keyword: AND
     - keyword: IDENTIFIED
     - keyword: WITH
@@ -232,7 +232,7 @@ file:
     - keyword: USER
     - role_reference:
       - quoted_identifier: "'joe'"
-      - literal: '@'
+      - at_sign_literal: '@'
       - quoted_identifier: "'10.0.0.1'"
     - keyword: DEFAULT
     - keyword: ROLE
@@ -248,7 +248,7 @@ file:
     - keyword: USER
     - role_reference:
       - quoted_identifier: "'jeffrey'"
-      - literal: '@'
+      - at_sign_literal: '@'
       - quoted_identifier: "'localhost'"
     - keyword: REQUIRE
     - keyword: NONE
@@ -259,7 +259,7 @@ file:
     - keyword: USER
     - role_reference:
       - quoted_identifier: "'jeffrey'"
-      - literal: '@'
+      - at_sign_literal: '@'
       - quoted_identifier: "'localhost'"
     - keyword: REQUIRE
     - keyword: SSL
@@ -270,7 +270,7 @@ file:
     - keyword: USER
     - role_reference:
       - quoted_identifier: "'jeffrey'"
-      - literal: '@'
+      - at_sign_literal: '@'
       - quoted_identifier: "'localhost'"
     - keyword: REQUIRE
     - keyword: X509
@@ -281,11 +281,11 @@ file:
     - keyword: USER
     - role_reference:
       - quoted_identifier: "'jeffrey'"
-      - literal: '@'
+      - at_sign_literal: '@'
       - quoted_identifier: "'localhost'"
     - keyword: REQUIRE
     - keyword: ISSUER
-    - literal: "'/C=SE/ST=Stockholm/L=Stockholm/\n    O=MySQL/CN=CA/emailAddress=ca@example.com'"
+    - quoted_literal: "'/C=SE/ST=Stockholm/L=Stockholm/\n    O=MySQL/CN=CA/emailAddress=ca@example.com'"
 - statement_terminator: ;
 - statement:
     create_user_statement:
@@ -293,11 +293,11 @@ file:
     - keyword: USER
     - role_reference:
       - quoted_identifier: "'jeffrey'"
-      - literal: '@'
+      - at_sign_literal: '@'
       - quoted_identifier: "'localhost'"
     - keyword: REQUIRE
     - keyword: SUBJECT
-    - literal: "'/C=SE/ST=Stockholm/L=Stockholm/\n    O=MySQL demo client certificate/\n\
+    - quoted_literal: "'/C=SE/ST=Stockholm/L=Stockholm/\n    O=MySQL demo client certificate/\n\
         \    CN=client/emailAddress=client@example.com'"
 - statement_terminator: ;
 - statement:
@@ -306,11 +306,11 @@ file:
     - keyword: USER
     - role_reference:
       - quoted_identifier: "'jeffrey'"
-      - literal: '@'
+      - at_sign_literal: '@'
       - quoted_identifier: "'localhost'"
     - keyword: REQUIRE
     - keyword: CIPHER
-    - literal: "'EDH-RSA-DES-CBC3-SHA'"
+    - quoted_literal: "'EDH-RSA-DES-CBC3-SHA'"
 - statement_terminator: ;
 - statement:
     create_user_statement:
@@ -318,18 +318,18 @@ file:
     - keyword: USER
     - role_reference:
       - quoted_identifier: "'jeffrey'"
-      - literal: '@'
+      - at_sign_literal: '@'
       - quoted_identifier: "'localhost'"
     - keyword: REQUIRE
     - keyword: SUBJECT
-    - literal: "'/C=SE/ST=Stockholm/L=Stockholm/\n    O=MySQL demo client certificate/\n\
+    - quoted_literal: "'/C=SE/ST=Stockholm/L=Stockholm/\n    O=MySQL demo client certificate/\n\
         \    CN=client/emailAddress=client@example.com'"
     - keyword: AND
     - keyword: ISSUER
-    - literal: "'/C=SE/ST=Stockholm/L=Stockholm/\n    O=MySQL/CN=CA/emailAddress=ca@example.com'"
+    - quoted_literal: "'/C=SE/ST=Stockholm/L=Stockholm/\n    O=MySQL/CN=CA/emailAddress=ca@example.com'"
     - keyword: AND
     - keyword: CIPHER
-    - literal: "'EDH-RSA-DES-CBC3-SHA'"
+    - quoted_literal: "'EDH-RSA-DES-CBC3-SHA'"
 - statement_terminator: ;
 - statement:
     create_user_statement:
@@ -337,7 +337,7 @@ file:
     - keyword: USER
     - role_reference:
       - quoted_identifier: "'jeffrey'"
-      - literal: '@'
+      - at_sign_literal: '@'
       - quoted_identifier: "'localhost'"
     - keyword: WITH
     - keyword: MAX_QUERIES_PER_HOUR
@@ -351,7 +351,7 @@ file:
     - keyword: USER
     - role_reference:
       - quoted_identifier: "'jeffrey'"
-      - literal: '@'
+      - at_sign_literal: '@'
       - quoted_identifier: "'localhost'"
     - keyword: PASSWORD
     - keyword: EXPIRE
@@ -362,7 +362,7 @@ file:
     - keyword: USER
     - role_reference:
       - quoted_identifier: "'jeffrey'"
-      - literal: '@'
+      - at_sign_literal: '@'
       - quoted_identifier: "'localhost'"
     - keyword: PASSWORD
     - keyword: EXPIRE
@@ -374,7 +374,7 @@ file:
     - keyword: USER
     - role_reference:
       - quoted_identifier: "'jeffrey'"
-      - literal: '@'
+      - at_sign_literal: '@'
       - quoted_identifier: "'localhost'"
     - keyword: PASSWORD
     - keyword: EXPIRE
@@ -386,7 +386,7 @@ file:
     - keyword: USER
     - role_reference:
       - quoted_identifier: "'jeffrey'"
-      - literal: '@'
+      - at_sign_literal: '@'
       - quoted_identifier: "'localhost'"
     - keyword: PASSWORD
     - keyword: EXPIRE
@@ -400,7 +400,7 @@ file:
     - keyword: USER
     - role_reference:
       - quoted_identifier: "'jeffrey'"
-      - literal: '@'
+      - at_sign_literal: '@'
       - quoted_identifier: "'localhost'"
     - keyword: PASSWORD
     - keyword: HISTORY
@@ -412,7 +412,7 @@ file:
     - keyword: USER
     - role_reference:
       - quoted_identifier: "'jeffrey'"
-      - literal: '@'
+      - at_sign_literal: '@'
       - quoted_identifier: "'localhost'"
     - keyword: PASSWORD
     - keyword: HISTORY
@@ -424,7 +424,7 @@ file:
     - keyword: USER
     - role_reference:
       - quoted_identifier: "'jeffrey'"
-      - literal: '@'
+      - at_sign_literal: '@'
       - quoted_identifier: "'localhost'"
     - keyword: PASSWORD
     - keyword: REUSE
@@ -437,7 +437,7 @@ file:
     - keyword: USER
     - role_reference:
       - quoted_identifier: "'jeffrey'"
-      - literal: '@'
+      - at_sign_literal: '@'
       - quoted_identifier: "'localhost'"
     - keyword: PASSWORD
     - keyword: REUSE
@@ -451,7 +451,7 @@ file:
     - keyword: USER
     - role_reference:
       - quoted_identifier: "'jeffrey'"
-      - literal: '@'
+      - at_sign_literal: '@'
       - quoted_identifier: "'localhost'"
     - keyword: PASSWORD
     - keyword: REQUIRE
@@ -463,7 +463,7 @@ file:
     - keyword: USER
     - role_reference:
       - quoted_identifier: "'jeffrey'"
-      - literal: '@'
+      - at_sign_literal: '@'
       - quoted_identifier: "'localhost'"
     - keyword: PASSWORD
     - keyword: REQUIRE
@@ -476,7 +476,7 @@ file:
     - keyword: USER
     - role_reference:
       - quoted_identifier: "'jeffrey'"
-      - literal: '@'
+      - at_sign_literal: '@'
       - quoted_identifier: "'localhost'"
     - keyword: PASSWORD
     - keyword: REQUIRE
@@ -489,7 +489,7 @@ file:
     - keyword: USER
     - role_reference:
       - quoted_identifier: "'jeffrey'"
-      - literal: '@'
+      - at_sign_literal: '@'
       - quoted_identifier: "'localhost'"
     - keyword: FAILED_LOGIN_ATTEMPTS
     - numeric_literal: '4'
@@ -502,10 +502,10 @@ file:
     - keyword: USER
     - role_reference:
       - quoted_identifier: "'jon'"
-      - literal: '@'
+      - at_sign_literal: '@'
       - quoted_identifier: "'localhost'"
     - keyword: COMMENT
-    - literal: "'Some information about Jon'"
+    - quoted_literal: "'Some information about Jon'"
 - statement_terminator: ;
 - statement:
     create_user_statement:
@@ -513,9 +513,9 @@ file:
     - keyword: USER
     - role_reference:
       - quoted_identifier: "'jim'"
-      - literal: '@'
+      - at_sign_literal: '@'
       - quoted_identifier: "'localhost'"
     - keyword: ATTRIBUTE
-    - literal: "'{\"fname\": \"James\", \"lname\": \"Scott\", \"phone\": \"123-456-7890\"\
-        }'"
+    - quoted_literal: "'{\"fname\": \"James\", \"lname\": \"Scott\", \"phone\": \"\
+        123-456-7890\"}'"
 - statement_terminator: ;

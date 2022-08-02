@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 16937b45e680bc676ee100a595e436294b1b01e3af3da0f03015f6ab99911c90
+_hash: 82c28cf0eff8c58c2cedebef102c22a57d7983f2c103abfb0c8774dd0e06d60a
 file:
 - statement:
     create_external_table_statement:
@@ -34,7 +34,7 @@ file:
     - keyword: aws_sns_topic
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: "'arn:aws:sns:us-west-2:001234567890:s3_mybucket'"
+    - quoted_literal: "'arn:aws:sns:us-west-2:001234567890:s3_mybucket'"
 - statement_terminator: ;
 - statement:
     create_external_table_statement:
@@ -69,7 +69,7 @@ file:
     - keyword: pattern
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: "'.*[.]parquet.*'"
+    - quoted_literal: "'.*[.]parquet.*'"
 - statement_terminator: ;
 - statement:
     create_external_table_statement:
@@ -506,6 +506,6 @@ file:
           - keyword: FIELD_OPTIONALLY_ENCLOSED_BY
           - comparison_operator:
               raw_comparison_operator: '='
-          - literal: "'\"'"
+          - quoted_literal: "'\"'"
           end_bracket: )
 - statement_terminator: ;

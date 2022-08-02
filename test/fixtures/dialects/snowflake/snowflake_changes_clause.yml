@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 345a00ed52dc3605465c3c04b2282272ace5cd7c3b2eb8284ec59e13d41ec1ce
+_hash: a9681ed5902bfc922e1304e670eb5a7a6b43fa5fff130e900cd5f615893f49ec
 file:
 - statement:
     select_statement:
@@ -34,7 +34,7 @@ file:
               keyword: timestamp
               parameter_assigner: =>
               expression:
-                literal: "'Fri, 01 May 2015 16:20:00 -0700'"
+                quoted_literal: "'Fri, 01 May 2015 16:20:00 -0700'"
                 cast_expression:
                   casting_operator: '::'
                   data_type:
@@ -105,7 +105,7 @@ file:
               keyword: timestamp
               parameter_assigner: =>
               expression:
-                literal: "'Fri, 01 May 2015 16:20:00 -0700'"
+                quoted_literal: "'Fri, 01 May 2015 16:20:00 -0700'"
                 cast_expression:
                   casting_operator: '::'
                   data_type:
@@ -117,7 +117,7 @@ file:
               keyword: timestamp
               parameter_assigner: =>
               expression:
-                literal: "'Fri, 05 May 2015 16:20:00 -0700'"
+                quoted_literal: "'Fri, 05 May 2015 16:20:00 -0700'"
                 cast_expression:
                   casting_operator: '::'
                   data_type:
@@ -153,6 +153,6 @@ file:
               keyword: statement
               parameter_assigner: =>
               expression:
-                literal: "'8e5d0ca9-005e-44e6-b858-a8f5b37c5726'"
+                quoted_literal: "'8e5d0ca9-005e-44e6-b858-a8f5b37c5726'"
               end_bracket: )
 - statement_terminator: ;

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6a06788b382b8a4fad414efc9b072489a98b0295aec0dfea68dba02d3c8b5942
+_hash: 01406cca80cb6ce1bdf4b067df84c931120f02ceef41f19804bc12220f07b16b
 file:
 - statement:
     cache_table:
@@ -16,7 +16,7 @@ file:
         start_bracket: (
         property_name_identifier:
           quoted_identifier: "'storageLevel'"
-        literal: "'DISK_ONLY'"
+        quoted_literal: "'DISK_ONLY'"
         end_bracket: )
     - select_statement:
         select_clause:
@@ -48,7 +48,7 @@ file:
         start_bracket: (
         property_name_identifier:
           quoted_identifier: "'storageLevel'"
-        literal: "'DISK_ONLY'"
+        quoted_literal: "'DISK_ONLY'"
         end_bracket: )
     - select_statement:
         select_clause:
@@ -75,7 +75,7 @@ file:
         start_bracket: (
         property_name_identifier:
           quoted_identifier: "'storageLevel'"
-        literal: "'DISK_ONLY'"
+        quoted_literal: "'DISK_ONLY'"
         end_bracket: )
     - keyword: AS
     - select_statement:
@@ -105,7 +105,7 @@ file:
           quoted_identifier: "'storageLevel'"
         comparison_operator:
           raw_comparison_operator: '='
-        literal: "'DISK_ONLY'"
+        quoted_literal: "'DISK_ONLY'"
         end_bracket: )
     - keyword: AS
     - select_statement:

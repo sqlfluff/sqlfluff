@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 041fd298e4e6984676d4c60389fd8993a5fbb035f14eb881b553b70545706d3c
+_hash: 560671c74a7cc311a7cf61ae385f36cd1f9d7d654cd375027baa13097f0b7b7f
 file:
 - statement:
     select_statement:
@@ -20,7 +20,7 @@ file:
           - naked_identifier: age
           - end_bracket: )
         - keyword: USING
-        - literal: "'cat'"
+        - quoted_literal: "'cat'"
         - keyword: AS
         - bracketed:
           - start_bracket: (
@@ -61,7 +61,7 @@ file:
           - naked_identifier: age
           - end_bracket: )
         - keyword: USING
-        - literal: "'cat'"
+        - quoted_literal: "'cat'"
         - keyword: AS
         - bracketed:
           - start_bracket: (
@@ -109,17 +109,17 @@ file:
           - keyword: FIELDS
           - keyword: TERMINATED
           - keyword: BY
-          - literal: "','"
+          - quoted_literal: "','"
           - keyword: LINES
           - keyword: TERMINATED
           - keyword: BY
-          - literal: "'\\n'"
+          - quoted_literal: "'\\n'"
           - keyword: 'NULL'
           - keyword: DEFINED
           - keyword: AS
-          - literal: "'NULL'"
+          - quoted_literal: "'NULL'"
         - keyword: USING
-        - literal: "'cat'"
+        - quoted_literal: "'cat'"
         - keyword: AS
         - bracketed:
           - start_bracket: (
@@ -133,15 +133,15 @@ file:
           - keyword: FIELDS
           - keyword: TERMINATED
           - keyword: BY
-          - literal: "'@'"
+          - quoted_literal: "'@'"
           - keyword: LINES
           - keyword: TERMINATED
           - keyword: BY
-          - literal: "'\\n'"
+          - quoted_literal: "'\\n'"
           - keyword: 'NULL'
           - keyword: DEFINED
           - keyword: AS
-          - literal: "'NULL'"
+          - quoted_literal: "'NULL'"
       from_clause:
         keyword: FROM
         from_expression:
@@ -168,7 +168,7 @@ file:
           - keyword: ROW
           - keyword: FORMAT
           - keyword: SERDE
-          - literal: "'org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe'"
+          - quoted_literal: "'org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe'"
           - keyword: WITH
           - keyword: SERDEPROPERTIES
           - bracketed:
@@ -177,10 +177,10 @@ file:
                 quoted_identifier: "'field.delim'"
               comparison_operator:
                 raw_comparison_operator: '='
-              literal: "'\\t'"
+              quoted_literal: "'\\t'"
               end_bracket: )
         - keyword: USING
-        - literal: "'cat'"
+        - quoted_literal: "'cat'"
         - keyword: AS
         - bracketed:
           - start_bracket: (
@@ -197,7 +197,7 @@ file:
           - keyword: ROW
           - keyword: FORMAT
           - keyword: SERDE
-          - literal: "'org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe'"
+          - quoted_literal: "'org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe'"
           - keyword: WITH
           - keyword: SERDEPROPERTIES
           - bracketed:
@@ -206,7 +206,7 @@ file:
                 quoted_identifier: "'field.delim'"
               comparison_operator:
                 raw_comparison_operator: '='
-              literal: "'\\t'"
+              quoted_literal: "'\\t'"
               end_bracket: )
       from_clause:
         keyword: FROM
@@ -239,7 +239,7 @@ file:
           - naked_identifier: age
           - end_bracket: )
         - keyword: USING
-        - literal: "'cat'"
+        - quoted_literal: "'cat'"
       from_clause:
         keyword: FROM
         from_expression:

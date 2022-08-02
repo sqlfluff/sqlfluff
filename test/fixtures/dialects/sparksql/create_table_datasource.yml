@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: fa2ce574bc134ffb00766c77813f4bb77c21394cb110fc0f464c42e8c012ddc7
+_hash: ddf0a83aecc77d186c30f8acd2b202adf10c0c4d39343501f2f7a63a52ccbbe1
 file:
 - statement:
     create_table_statement:
@@ -24,7 +24,7 @@ file:
           column_constraint_segment:
             comment_clause:
               keyword: COMMENT
-              literal: '"col_comment1"'
+              quoted_literal: '"col_comment1"'
         end_bracket: )
     - keyword: USING
     - keyword: PARQUET
@@ -35,13 +35,13 @@ file:
           quoted_identifier: '"key1"'
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: '"val1"'
+      - quoted_literal: '"val1"'
       - comma: ','
       - property_name_identifier:
           quoted_identifier: '"key2"'
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: '"val2"'
+      - quoted_literal: '"val2"'
       - end_bracket: )
     - keyword: PARTITIONED
     - keyword: BY
@@ -79,9 +79,9 @@ file:
     - numeric_literal: '4'
     - keyword: BUCKETS
     - keyword: LOCATION
-    - literal: "'root/database/table'"
+    - quoted_literal: "'root/database/table'"
     - keyword: COMMENT
-    - literal: "'this is a comment'"
+    - quoted_literal: "'this is a comment'"
     - keyword: TBLPROPERTIES
     - bracketed:
       - start_bracket: (
@@ -89,13 +89,13 @@ file:
           quoted_identifier: '"key1"'
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: '"val1"'
+      - quoted_literal: '"val1"'
       - comma: ','
       - property_name_identifier:
           quoted_identifier: '"key2"'
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: '"val2"'
+      - quoted_literal: '"val2"'
       - end_bracket: )
     - keyword: AS
     - select_statement:
@@ -228,7 +228,7 @@ file:
     - keyword: USING
     - keyword: CSV
     - keyword: COMMENT
-    - literal: "'this is a comment'"
+    - quoted_literal: "'this is a comment'"
     - keyword: TBLPROPERTIES
     - bracketed:
         start_bracket: (
@@ -236,7 +236,7 @@ file:
           quoted_identifier: "'foo'"
         comparison_operator:
           raw_comparison_operator: '='
-        literal: "'bar'"
+        quoted_literal: "'bar'"
         end_bracket: )
 - statement_terminator: ;
 - statement:

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1a7033881d2907c072919937c02ffb38198b693af885d29f4a82c5955a0a99cc
+_hash: 8381964744a2723edcf42ca3a6389fac06143cf17b41ef1794ff592b1213f03e
 file:
 - statement:
     create_table_statement:
@@ -25,10 +25,10 @@ file:
           column_constraint_segment:
             comment_clause:
               keyword: COMMENT
-              literal: '"col_comment1"'
+              quoted_literal: '"col_comment1"'
         end_bracket: )
     - keyword: COMMENT
-    - literal: '"table_comment"'
+    - quoted_literal: '"table_comment"'
     - keyword: PARTITIONED
     - keyword: BY
     - bracketed:
@@ -41,7 +41,7 @@ file:
           column_constraint_segment:
             comment_clause:
               keyword: COMMENT
-              literal: '"col_comment2"'
+              quoted_literal: '"col_comment2"'
         end_bracket: )
     - keyword: CLUSTERED
     - keyword: BY
@@ -75,12 +75,12 @@ file:
       - keyword: FIELDS
       - keyword: TERMINATED
       - keyword: BY
-      - literal: "','"
+      - quoted_literal: "','"
     - keyword: STORED
     - keyword: AS
     - keyword: PARQUET
     - keyword: LOCATION
-    - literal: '"path/to/files"'
+    - quoted_literal: '"path/to/files"'
     - keyword: TBLPROPERTIES
     - bracketed:
       - start_bracket: (
@@ -88,13 +88,13 @@ file:
           quoted_identifier: '"key1"'
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: '"val1"'
+      - quoted_literal: '"val1"'
       - comma: ','
       - property_name_identifier:
           quoted_identifier: '"key2"'
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: '"val2"'
+      - quoted_literal: '"val2"'
       - end_bracket: )
     - keyword: AS
     - bracketed:
@@ -197,7 +197,7 @@ file:
               keyword: INT
       - end_bracket: )
     - keyword: COMMENT
-    - literal: "'this is a comment'"
+    - quoted_literal: "'this is a comment'"
     - keyword: STORED
     - keyword: AS
     - keyword: ORC
@@ -208,7 +208,7 @@ file:
           quoted_identifier: "'foo'"
         comparison_operator:
           raw_comparison_operator: '='
-        literal: "'bar'"
+        quoted_literal: "'bar'"
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -247,10 +247,10 @@ file:
           quoted_identifier: "'foo'"
         comparison_operator:
           raw_comparison_operator: '='
-        literal: "'bar'"
+        quoted_literal: "'bar'"
         end_bracket: )
     - keyword: COMMENT
-    - literal: "'this is a comment'"
+    - quoted_literal: "'this is a comment'"
 - statement_terminator: ;
 - statement:
     create_table_statement:
@@ -347,7 +347,7 @@ file:
       - keyword: FIELDS
       - keyword: TERMINATED
       - keyword: BY
-      - literal: "','"
+      - quoted_literal: "','"
     - keyword: STORED
     - keyword: AS
     - file_format: TEXTFILE
@@ -415,33 +415,33 @@ file:
       - keyword: FIELDS
       - keyword: TERMINATED
       - keyword: BY
-      - literal: "','"
+      - quoted_literal: "','"
       - keyword: ESCAPED
       - keyword: BY
-      - literal: "'\\\\'"
+      - quoted_literal: "'\\\\'"
       - keyword: COLLECTION
       - keyword: ITEMS
       - keyword: TERMINATED
       - keyword: BY
-      - literal: "'_'"
+      - quoted_literal: "'_'"
       - keyword: MAP
       - keyword: KEYS
       - keyword: TERMINATED
       - keyword: BY
-      - literal: "':'"
+      - quoted_literal: "':'"
       - keyword: LINES
       - keyword: TERMINATED
       - keyword: BY
-      - literal: "'\\n'"
+      - quoted_literal: "'\\n'"
       - keyword: 'NULL'
       - keyword: DEFINED
       - keyword: AS
-      - literal: "'foonull'"
+      - quoted_literal: "'foonull'"
     - keyword: STORED
     - keyword: AS
     - file_format: TEXTFILE
     - keyword: LOCATION
-    - literal: "'/tmp/family/'"
+    - quoted_literal: "'/tmp/family/'"
 - statement_terminator: ;
 - statement:
     create_table_statement:
@@ -453,13 +453,13 @@ file:
       - keyword: ROW
       - keyword: FORMAT
       - keyword: SERDE
-      - literal: "'org.apache.hadoop.hive.serde2.avro.AvroSerDe'"
+      - quoted_literal: "'org.apache.hadoop.hive.serde2.avro.AvroSerDe'"
     - keyword: STORED
     - keyword: AS
     - keyword: INPUTFORMAT
-    - literal: "'org.apache.hadoop.hive.ql.io.avro.AvroContainerInputFormat'"
+    - quoted_literal: "'org.apache.hadoop.hive.ql.io.avro.AvroContainerInputFormat'"
     - keyword: OUTPUTFORMAT
-    - literal: "'org.apache.hadoop.hive.ql.io.avro.AvroContainerOutputFormat'"
+    - quoted_literal: "'org.apache.hadoop.hive.ql.io.avro.AvroContainerOutputFormat'"
     - keyword: TBLPROPERTIES
     - bracketed:
         start_bracket: (
@@ -467,17 +467,17 @@ file:
           quoted_identifier: "'avro.schema.literal'"
         comparison_operator:
           raw_comparison_operator: '='
-        literal: "'{\n        \"namespace\": \"org.apache.hive\",\n        \"name\"\
-          : \"first_schema\",\n        \"type\": \"record\",\n        \"fields\":\
-          \ [ { \"name\":\"string1\", \"type\":\"string\" }, { \"name\":\"string2\"\
-          , \"type\":\"string\" }]\n    }'"
+        quoted_literal: "'{\n        \"namespace\": \"org.apache.hive\",\n       \
+          \ \"name\": \"first_schema\",\n        \"type\": \"record\",\n        \"\
+          fields\": [ { \"name\":\"string1\", \"type\":\"string\" }, { \"name\":\"\
+          string2\", \"type\":\"string\" }]\n    }'"
         end_bracket: )
 - statement_terminator: ;
 - statement:
     add_jar_statement:
       keyword: ADD
       file_keyword: JAR
-      literal: "'/tmp/hive_serde_example.jar'"
+      quoted_literal: "'/tmp/hive_serde_example.jar'"
 - statement_terminator: ;
 - statement:
     create_table_statement:
@@ -504,15 +504,15 @@ file:
       - keyword: ROW
       - keyword: FORMAT
       - keyword: SERDE
-      - literal: "'com.ly.spark.serde.SerDeExample'"
+      - quoted_literal: "'com.ly.spark.serde.SerDeExample'"
     - keyword: STORED
     - keyword: AS
     - keyword: INPUTFORMAT
-    - literal: "'com.ly.spark.example.serde.io.SerDeExampleInputFormat'"
+    - quoted_literal: "'com.ly.spark.example.serde.io.SerDeExampleInputFormat'"
     - keyword: OUTPUTFORMAT
-    - literal: "'com.ly.spark.example.serde.io.SerDeExampleOutputFormat'"
+    - quoted_literal: "'com.ly.spark.example.serde.io.SerDeExampleOutputFormat'"
     - keyword: LOCATION
-    - literal: "'/tmp/family/'"
+    - quoted_literal: "'/tmp/family/'"
 - statement_terminator: ;
 - statement:
     create_table_statement:

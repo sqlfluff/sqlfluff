@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2634ea84fd5feb6fa65bd7b5eca2c5188b8b7edd366773f3d4ab85bcc5c0474e
+_hash: e8419b6c809320f4b5a85b9aefbd1e6867c23f2e9753dfbda7191afbd87630dd
 file:
 - statement:
     explain_statement:
@@ -45,7 +45,7 @@ file:
               - naked_identifier: age
               - end_bracket: )
             - keyword: USING
-            - literal: "'cat'"
+            - quoted_literal: "'cat'"
             - keyword: AS
             - bracketed:
               - start_bracket: (
@@ -88,7 +88,7 @@ file:
               quoted_identifier: "'Edited-by'"
             comparison_operator:
               raw_comparison_operator: '='
-            literal: "'John'"
+            quoted_literal: "'John'"
             end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -132,9 +132,9 @@ file:
         - database_reference:
             naked_identifier: database_name
         - keyword: COMMENT
-        - literal: '"database_comment"'
+        - quoted_literal: '"database_comment"'
         - keyword: LOCATION
-        - literal: '"root/database_directory"'
+        - quoted_literal: '"root/database_directory"'
         - keyword: WITH
         - keyword: DBPROPERTIES
         - bracketed:
@@ -143,7 +143,7 @@ file:
               quoted_identifier: '"property_name"'
             comparison_operator:
               raw_comparison_operator: '='
-            literal: '"property_value"'
+            quoted_literal: '"property_value"'
             end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -161,10 +161,10 @@ file:
         - keyword: EXISTS
         - function_name_identifier: function_name
         - keyword: AS
-        - literal: '"class_name"'
+        - quoted_literal: '"class_name"'
         - keyword: USING
         - file_keyword: FILE
-        - literal: '"resource_locations"'
+        - quoted_literal: '"resource_locations"'
 - statement_terminator: ;
 - statement:
     explain_statement:
@@ -250,7 +250,7 @@ file:
           - keyword: FIELDS
           - keyword: TERMINATED
           - keyword: BY
-          - literal: "','"
+          - quoted_literal: "','"
         - keyword: STORED
         - keyword: AS
         - file_format: TEXTFILE
@@ -261,7 +261,7 @@ file:
               quoted_identifier: "'owner'"
             comparison_operator:
               raw_comparison_operator: '='
-            literal: "'xxxx'"
+            quoted_literal: "'xxxx'"
             end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -380,7 +380,7 @@ file:
         - keyword: DATA
         - keyword: LOCAL
         - keyword: INPATH
-        - literal: "'/user/hive/warehouse/students'"
+        - quoted_literal: "'/user/hive/warehouse/students'"
         - keyword: OVERWRITE
         - keyword: INTO
         - keyword: TABLE
@@ -402,10 +402,10 @@ file:
             bracketed:
             - start_bracket: (
             - expression:
-                literal: "'Amy Smith'"
+                quoted_literal: "'Amy Smith'"
             - comma: ','
             - expression:
-                literal: "'123 Park Ave, San Jose'"
+                quoted_literal: "'123 Park Ave, San Jose'"
             - comma: ','
             - expression:
                 numeric_literal: '111111'

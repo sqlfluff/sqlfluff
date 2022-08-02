@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0048cef814362672e14a630dbe118232bdfb10a9f68bada2e65b4890dd37eba0
+_hash: c7713f79167a69c8d92ee817f70137553f7466e1e0b79819cde29671d6a773bc
 file:
 - statement:
     create_task_statement:
@@ -14,11 +14,11 @@ file:
     - keyword: SCHEDULE
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: "'USING CRON 0 9-17 * * SUN America/Los_Angeles'"
+    - quoted_literal: "'USING CRON 0 9-17 * * SUN America/Los_Angeles'"
     - parameter: TIMESTAMP_INPUT_FORMAT
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: "'YYYY-MM-DD HH24'"
+    - quoted_literal: "'YYYY-MM-DD HH24'"
     - keyword: USER_TASK_MANAGED_INITIAL_WAREHOUSE_SIZE
     - comparison_operator:
         raw_comparison_operator: '='
@@ -57,11 +57,11 @@ file:
     - keyword: SCHEDULE
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: "'USING CRON 0 9-17 * * SUN America/Los_Angeles'"
+    - quoted_literal: "'USING CRON 0 9-17 * * SUN America/Los_Angeles'"
     - parameter: TIMESTAMP_INPUT_FORMAT
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: "'YYYY-MM-DD HH24'"
+    - quoted_literal: "'YYYY-MM-DD HH24'"
     - keyword: AS
     - statement:
         insert_statement:
@@ -102,7 +102,7 @@ file:
     - keyword: SCHEDULE
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: "'USING CRON 0 9-17 * * SUN America/Los_Angeles'"
+    - quoted_literal: "'USING CRON 0 9-17 * * SUN America/Los_Angeles'"
     - keyword: ALLOW_OVERLAPPING_EXECUTION
     - comparison_operator:
         raw_comparison_operator: '='
@@ -110,7 +110,7 @@ file:
     - parameter: TIMESTAMP_INPUT_FORMAT
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: "'YYYY-MM-DD HH24'"
+    - quoted_literal: "'YYYY-MM-DD HH24'"
     - keyword: USER_TASK_TIMEOUT_MS
     - comparison_operator:
         raw_comparison_operator: '='
@@ -124,7 +124,7 @@ file:
     - parameter: COMMENT
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: "'Hello world'"
+    - quoted_literal: "'Hello world'"
     - keyword: AFTER
     - object_reference:
         identifier: dependency_task
@@ -190,7 +190,7 @@ file:
     - keyword: SCHEDULE
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: "'USING CRON 45 6 * * * UTC'"
+    - quoted_literal: "'USING CRON 45 6 * * * UTC'"
     - keyword: AS
     - statement:
         insert_statement:
@@ -455,7 +455,7 @@ file:
     - keyword: SCHEDULE
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: "'USING CRON 15 7 2 * * UTC'"
+    - quoted_literal: "'USING CRON 15 7 2 * * UTC'"
     - keyword: AS
     - statement:
         call_segment:
@@ -485,7 +485,7 @@ file:
     - keyword: SCHEDULE
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: "'USING CRON 15 7 2 * * UTC'"
+    - quoted_literal: "'USING CRON 15 7 2 * * UTC'"
     - keyword: USER_TASK_TIMEOUT_MS
     - comparison_operator:
         raw_comparison_operator: '='
@@ -495,7 +495,7 @@ file:
         system_function_name: SYSTEM$STREAM_HAS_DATA
         bracketed:
           start_bracket: (
-          literal: "'SCH.MY_STREAM'"
+          quoted_literal: "'SCH.MY_STREAM'"
           end_bracket: )
         binary_operator: AND
         expression:

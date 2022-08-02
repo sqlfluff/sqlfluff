@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 584167b27e2d5f60c370650eada2d310a4668bbee72c952d3b12296f1db744c7
+_hash: db2e12ac321232b6aa1c8924d1a378a997935f495df2c0f127bf97ca2ee7b192
 file:
   statement:
     alter_task_statement:
@@ -21,7 +21,7 @@ file:
       - keyword: SCHEDULE
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'2 MINUTE'"
+      - quoted_literal: "'2 MINUTE'"
       - keyword: ALLOW_OVERLAPPING_EXECUTION
       - comparison_operator:
           raw_comparison_operator: '='

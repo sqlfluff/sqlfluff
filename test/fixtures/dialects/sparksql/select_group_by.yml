@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e803ed2023c6a8f4c8fcb03eb06f6aca2973cbb63b5f1e9a78a0a65ee610d7ce
+_hash: 921eceb0d2e15a0e1c03307e2f22cb0e2a7010676c335313f382b302c52d4c91
 file:
 - statement:
     select_statement:
@@ -197,9 +197,9 @@ file:
                 keyword: IN
                 bracketed:
                 - start_bracket: (
-                - literal: "'Honda Civic'"
+                - quoted_literal: "'Honda Civic'"
                 - comma: ','
-                - literal: "'Honda CRV'"
+                - quoted_literal: "'Honda CRV'"
                 - end_bracket: )
               end_bracket: )
           alias_expression:

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5dc7f2563fd804a0f2eafba9b76574df8f8924bdf6833ce6620051d6f5c873db
+_hash: d9f2fa67c3657b3407abedc9a51b480bcc2fefb5fa6eb8baec799aeec959b27f
 file:
 - statement:
     copy_into_statement:
@@ -55,7 +55,7 @@ file:
           keyword: format_name
           comparison_operator:
             raw_comparison_operator: '='
-          literal: "'mycsv'"
+          quoted_literal: "'mycsv'"
           end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -82,7 +82,7 @@ file:
     - keyword: pattern
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: "'.*/.*/.*[.]csv[.]gz'"
+    - quoted_literal: "'.*/.*/.*[.]csv[.]gz'"
 - statement_terminator: ;
 - statement:
     copy_into_statement:
@@ -108,7 +108,7 @@ file:
     - keyword: pattern
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: "'.*sales.*[.]csv'"
+    - quoted_literal: "'.*sales.*[.]csv'"
 - statement_terminator: ;
 - statement:
     copy_into_statement:
@@ -312,7 +312,7 @@ file:
           - keyword: SKIP_HEADER
           - comparison_operator:
               raw_comparison_operator: '='
-          - literal: '1'
+          - integer_literal: '1'
           end_bracket: )
 - statement_terminator: ;
 - statement:

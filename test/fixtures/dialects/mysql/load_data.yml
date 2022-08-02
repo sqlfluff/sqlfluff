@@ -3,14 +3,14 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ec467efc0cdd369a18970c82bd6e7996d9d7318379fbd84c2e5774ed4c1a4ee2
+_hash: 7610b5ec0a154c31730562158b16546585d4a37fa41e73ebf38f4d2b5db87091
 file:
 - statement:
     load_data_statement:
     - keyword: LOAD
     - keyword: DATA
     - keyword: INFILE
-    - literal: "'/var/lib/mysql-files/libaccess.csv'"
+    - quoted_literal: "'/var/lib/mysql-files/libaccess.csv'"
     - keyword: INTO
     - keyword: TABLE
     - table_reference:
@@ -18,11 +18,11 @@ file:
     - keyword: FIELDS
     - keyword: TERMINATED
     - keyword: BY
-    - literal: "'\\t'"
+    - quoted_literal: "'\\t'"
     - keyword: OPTIONALLY
     - keyword: ENCLOSED
     - keyword: BY
-    - literal: "'\"'"
+    - quoted_literal: "'\"'"
     - keyword: IGNORE
     - numeric_literal: '1'
     - keyword: LINES
@@ -32,7 +32,7 @@ file:
     - keyword: LOAD
     - keyword: DATA
     - keyword: INFILE
-    - literal: "'data.txt'"
+    - quoted_literal: "'data.txt'"
     - keyword: INTO
     - keyword: TABLE
     - table_reference:
@@ -45,7 +45,7 @@ file:
     - keyword: LOAD
     - keyword: DATA
     - keyword: INFILE
-    - literal: "'/tmp/test.txt'"
+    - quoted_literal: "'/tmp/test.txt'"
     - keyword: INTO
     - keyword: TABLE
     - table_reference:
@@ -53,18 +53,18 @@ file:
     - keyword: FIELDS
     - keyword: TERMINATED
     - keyword: BY
-    - literal: "','"
+    - quoted_literal: "','"
     - keyword: LINES
     - keyword: STARTING
     - keyword: BY
-    - literal: "'xxx'"
+    - quoted_literal: "'xxx'"
 - statement_terminator: ;
 - statement:
     load_data_statement:
     - keyword: LOAD
     - keyword: DATA
     - keyword: INFILE
-    - literal: "'/tmp/test.txt'"
+    - quoted_literal: "'/tmp/test.txt'"
     - keyword: INTO
     - keyword: TABLE
     - table_reference:
@@ -78,7 +78,7 @@ file:
     - keyword: LOAD
     - keyword: DATA
     - keyword: INFILE
-    - literal: "'data.txt'"
+    - quoted_literal: "'data.txt'"
     - keyword: INTO
     - keyword: TABLE
     - table_reference:
@@ -86,14 +86,14 @@ file:
     - keyword: FIELDS
     - keyword: TERMINATED
     - keyword: BY
-    - literal: "','"
+    - quoted_literal: "','"
 - statement_terminator: ;
 - statement:
     load_data_statement:
     - keyword: LOAD
     - keyword: DATA
     - keyword: INFILE
-    - literal: "'data.txt'"
+    - quoted_literal: "'data.txt'"
     - keyword: INTO
     - keyword: TABLE
     - table_reference:
@@ -101,14 +101,14 @@ file:
     - keyword: FIELDS
     - keyword: TERMINATED
     - keyword: BY
-    - literal: "'\\t'"
+    - quoted_literal: "'\\t'"
 - statement_terminator: ;
 - statement:
     load_data_statement:
     - keyword: LOAD
     - keyword: DATA
     - keyword: INFILE
-    - literal: "'data.txt'"
+    - quoted_literal: "'data.txt'"
     - keyword: INTO
     - keyword: TABLE
     - table_reference:
@@ -116,14 +116,14 @@ file:
     - keyword: FIELDS
     - keyword: TERMINATED
     - keyword: BY
-    - literal: "','"
+    - quoted_literal: "','"
     - keyword: ENCLOSED
     - keyword: BY
-    - literal: "'\"'"
+    - quoted_literal: "'\"'"
     - keyword: LINES
     - keyword: TERMINATED
     - keyword: BY
-    - literal: "'\\r\\n'"
+    - quoted_literal: "'\\r\\n'"
     - keyword: IGNORE
     - numeric_literal: '1'
     - keyword: LINES
@@ -133,7 +133,7 @@ file:
     - keyword: LOAD
     - keyword: DATA
     - keyword: INFILE
-    - literal: "'/tmp/jokes.txt'"
+    - quoted_literal: "'/tmp/jokes.txt'"
     - keyword: INTO
     - keyword: TABLE
     - table_reference:
@@ -141,11 +141,11 @@ file:
     - keyword: FIELDS
     - keyword: TERMINATED
     - keyword: BY
-    - literal: "''"
+    - quoted_literal: "''"
     - keyword: LINES
     - keyword: TERMINATED
     - keyword: BY
-    - literal: "'\\n%%\\n'"
+    - quoted_literal: "'\\n%%\\n'"
     - bracketed:
         start_bracket: (
         column_reference:
@@ -157,7 +157,7 @@ file:
     - keyword: LOAD
     - keyword: DATA
     - keyword: INFILE
-    - literal: "'persondata.txt'"
+    - quoted_literal: "'persondata.txt'"
     - keyword: INTO
     - keyword: TABLE
     - table_reference:
@@ -168,7 +168,7 @@ file:
     - keyword: LOAD
     - keyword: DATA
     - keyword: INFILE
-    - literal: "'file.txt'"
+    - quoted_literal: "'file.txt'"
     - keyword: INTO
     - keyword: TABLE
     - table_reference:
@@ -196,7 +196,7 @@ file:
     - keyword: LOAD
     - keyword: DATA
     - keyword: INFILE
-    - literal: "'file.txt'"
+    - quoted_literal: "'file.txt'"
     - keyword: INTO
     - keyword: TABLE
     - table_reference:
@@ -221,7 +221,7 @@ file:
     - keyword: LOAD
     - keyword: DATA
     - keyword: INFILE
-    - literal: "'file.txt'"
+    - quoted_literal: "'file.txt'"
     - keyword: INTO
     - keyword: TABLE
     - table_reference:

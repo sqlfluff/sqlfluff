@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3291c5b93861ea4d31510e9aea54d507f493c457447ddf26a34ddc4c59af0720
+_hash: 7eb4fb1603f437728979d755c7316334d6dd9673f296aabfacf858596c696296
 file:
   statement:
     create_table_statement:
@@ -17,7 +17,7 @@ file:
     - bracketed:
       - start_bracket: (
       - column_definition:
-          identifier: '`date`'
+          quoted_identifier: '`date`'
           data_type:
             primitive_type:
               keyword: string
@@ -317,14 +317,14 @@ file:
       - keyword: FIELDS
       - keyword: TERMINATED
       - keyword: BY
-      - literal: "','"
+      - quoted_literal: "','"
       - keyword: ESCAPED
       - keyword: BY
-      - literal: "'\\\\'"
+      - quoted_literal: "'\\\\'"
       - keyword: LINES
       - keyword: TERMINATED
       - keyword: BY
-      - literal: "'\\n'"
+      - quoted_literal: "'\\n'"
     - keyword: LOCATION
     - raw: "'s3://athena-examples-myregion/flight/csv/'"
   statement_terminator: ;

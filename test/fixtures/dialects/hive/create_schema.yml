@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a7dfdd8aaba6d0e80666b504db476a9eb83ec69d1fc52f63d701bc8ac5e9f4ef
+_hash: d2afc92273acb32b004f31d3072610f06db97ec4f12c26894040452da396c24d
 file:
   statement:
     create_database_statement:
@@ -15,7 +15,7 @@ file:
     - database_reference:
         naked_identifier: foo
     - keyword: COMMENT
-    - literal: "'test schema'"
+    - quoted_literal: "'test schema'"
     - keyword: MANAGEDLOCATION
-    - literal: "'hdfs://path'"
+    - quoted_literal: "'hdfs://path'"
   statement_terminator: ;

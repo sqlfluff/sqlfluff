@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ce81c4895d2e8b1cb82d8a89e8c3832e1a4efb0067d2357f15fd1e66f5ee8004
+_hash: ccf4ffdc0f68eaf23ce059c9d2a983085cc59b4987e8a0a14ed79fe72dab123e
 file:
 - statement:
     insert_statement:
@@ -17,10 +17,10 @@ file:
         bracketed:
         - start_bracket: (
         - expression:
-            literal: "'Amy Smith'"
+            quoted_literal: "'Amy Smith'"
         - comma: ','
         - expression:
-            literal: "'123 Park Ave, San Jose'"
+            quoted_literal: "'123 Park Ave, San Jose'"
         - comma: ','
         - expression:
             numeric_literal: '111111'
@@ -37,10 +37,10 @@ file:
         bracketed:
         - start_bracket: (
         - expression:
-            literal: "'Amy Smith'"
+            quoted_literal: "'Amy Smith'"
         - comma: ','
         - expression:
-            literal: "'123 Park Ave, San Jose'"
+            quoted_literal: "'123 Park Ave, San Jose'"
         - comma: ','
         - expression:
             numeric_literal: '111111'
@@ -57,10 +57,10 @@ file:
         bracketed:
         - start_bracket: (
         - expression:
-            literal: "'Amy Smith'"
+            quoted_literal: "'Amy Smith'"
         - comma: ','
         - expression:
-            literal: "'123 Park Ave, San Jose'"
+            quoted_literal: "'123 Park Ave, San Jose'"
         - comma: ','
         - expression:
             numeric_literal: '111111'
@@ -77,10 +77,10 @@ file:
       - bracketed:
         - start_bracket: (
         - expression:
-            literal: "'Bob Brown'"
+            quoted_literal: "'Bob Brown'"
         - comma: ','
         - expression:
-            literal: "'456 Taylor St, Cupertino'"
+            quoted_literal: "'456 Taylor St, Cupertino'"
         - comma: ','
         - expression:
             numeric_literal: '222222'
@@ -89,10 +89,10 @@ file:
       - bracketed:
         - start_bracket: (
         - expression:
-            literal: "'Cathy Johnson'"
+            quoted_literal: "'Cathy Johnson'"
         - comma: ','
         - expression:
-            literal: "'789 Race Ave, Palo Alto'"
+            quoted_literal: "'789 Race Ave, Palo Alto'"
         - comma: ','
         - expression:
             numeric_literal: '333333'
@@ -109,10 +109,10 @@ file:
       - bracketed:
         - start_bracket: (
         - expression:
-            literal: "'Bob Brown'"
+            quoted_literal: "'Bob Brown'"
         - comma: ','
         - expression:
-            literal: "'456 Taylor St, Cupertino'"
+            quoted_literal: "'456 Taylor St, Cupertino'"
         - comma: ','
         - expression:
             numeric_literal: '222222'
@@ -121,10 +121,10 @@ file:
       - bracketed:
         - start_bracket: (
         - expression:
-            literal: "'Cathy Johnson'"
+            quoted_literal: "'Cathy Johnson'"
         - comma: ','
         - expression:
-            literal: "'789 Race Ave, Palo Alto'"
+            quoted_literal: "'789 Race Ave, Palo Alto'"
         - comma: ','
         - expression:
             numeric_literal: '333333'
@@ -169,7 +169,7 @@ file:
               naked_identifier: name
             comparison_operator:
               raw_comparison_operator: '='
-            literal: '"Dora Williams"'
+            quoted_literal: '"Dora Williams"'
 - statement_terminator: ;
 - statement:
     insert_statement:
@@ -210,7 +210,7 @@ file:
               naked_identifier: name
             comparison_operator:
               raw_comparison_operator: '='
-            literal: '"Dora Williams"'
+            quoted_literal: '"Dora Williams"'
 - statement_terminator: ;
 - statement:
     insert_statement:
@@ -307,10 +307,10 @@ file:
         bracketed:
         - start_bracket: (
         - expression:
-            literal: "'Amy Smith'"
+            quoted_literal: "'Amy Smith'"
         - comma: ','
         - expression:
-            literal: "'123 Park Ave, San Jose'"
+            quoted_literal: "'123 Park Ave, San Jose'"
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -334,10 +334,10 @@ file:
         bracketed:
         - start_bracket: (
         - expression:
-            literal: "'Amy Smith'"
+            quoted_literal: "'Amy Smith'"
         - comma: ','
         - expression:
-            literal: "'123 Park Ave, San Jose'"
+            quoted_literal: "'123 Park Ave, San Jose'"
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -368,10 +368,10 @@ file:
         bracketed:
         - start_bracket: (
         - expression:
-            literal: "'Hangzhou, China'"
+            quoted_literal: "'Hangzhou, China'"
         - comma: ','
         - expression:
-            literal: "'Kent Yao Jr.'"
+            quoted_literal: "'Kent Yao Jr.'"
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -402,9 +402,9 @@ file:
         bracketed:
         - start_bracket: (
         - expression:
-            literal: "'Hangzhou, China'"
+            quoted_literal: "'Hangzhou, China'"
         - comma: ','
         - expression:
-            literal: "'Kent Yao Jr.'"
+            quoted_literal: "'Kent Yao Jr.'"
         - end_bracket: )
 - statement_terminator: ;

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e3fba87b6fa43be59b30db9b41306806a6f504bb9d2ba76e6092150112399cde
+_hash: 7c0b2e6ac2cd08fd1a952c69b2e883eba62447ddc49638469330e7d163875753
 file:
 - statement:
     access_statement:
@@ -60,7 +60,7 @@ file:
         naked_identifier: prj_table
     - keyword: TO
     - role_reference:
-        literal: '"prj_svc"'
+        quoted_literal: '"prj_svc"'
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -99,7 +99,7 @@ file:
     - keyword: TO
     - role_reference:
       - quoted_identifier: "'prj_svc'"
-      - literal: '@'
+      - at_sign_literal: '@'
       - quoted_identifier: "'%'"
 - statement_terminator: ;
 - statement:
@@ -119,9 +119,9 @@ file:
         naked_identifier: prj_table
     - keyword: TO
     - role_reference:
-      - literal: '"prj_svc"'
-      - literal: '@'
-      - literal: '"%"'
+      - quoted_literal: '"prj_svc"'
+      - at_sign_literal: '@'
+      - quoted_literal: '"%"'
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -141,7 +141,7 @@ file:
     - keyword: TO
     - role_reference:
       - identifier: '`prj_svc`'
-      - literal: '@'
+      - at_sign_literal: '@'
       - identifier: '`%`'
 - statement_terminator: ;
 - statement:
@@ -162,6 +162,6 @@ file:
     - keyword: TO
     - role_reference:
       - identifier: '`prj_svc`'
-      - literal: '@'
+      - at_sign_literal: '@'
       - identifier: '`%`'
 - statement_terminator: ;

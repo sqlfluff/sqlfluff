@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5e44dfd15bced3b7ecf3e68bed7e8fd14795f3f8f59ceadfadf7522e8f830ea7
+_hash: cc37cc13dd4c0f8fa749d3a979221aff04f86f70c50d8f9e18bf771127fd2155
 file:
 - statement:
     select_statement:
@@ -41,7 +41,7 @@ file:
               - bracketed:
                   start_bracket: (
                   expression:
-                    literal: "'John'"
+                    quoted_literal: "'John'"
                   alias_expression:
                     keyword: AS
                     naked_identifier: john
@@ -84,13 +84,13 @@ file:
               - bracketed:
                 - start_bracket: (
                 - expression:
-                    literal: "'John'"
+                    quoted_literal: "'John'"
                 - alias_expression:
                     keyword: AS
                     naked_identifier: john
                 - comma: ','
                 - expression:
-                    literal: "'Mike'"
+                    quoted_literal: "'Mike'"
                 - alias_expression:
                     keyword: AS
                     naked_identifier: mike
@@ -136,13 +136,13 @@ file:
               - bracketed:
                 - start_bracket: (
                 - expression:
-                    literal: "'John'"
+                    quoted_literal: "'John'"
                 - alias_expression:
                     keyword: AS
                     naked_identifier: john
                 - comma: ','
                 - expression:
-                    literal: "'Mike'"
+                    quoted_literal: "'Mike'"
                 - alias_expression:
                     keyword: AS
                     naked_identifier: mike
@@ -185,13 +185,13 @@ file:
               - bracketed:
                 - start_bracket: (
                 - expression:
-                    literal: "'John'"
+                    quoted_literal: "'John'"
                 - alias_expression:
                     keyword: AS
                     naked_identifier: john
                 - comma: ','
                 - expression:
-                    literal: "'Mike'"
+                    quoted_literal: "'Mike'"
                 - alias_expression:
                     keyword: AS
                     naked_identifier: mike
@@ -251,13 +251,13 @@ file:
               - bracketed:
                 - start_bracket: (
                 - expression:
-                    literal: "'John'"
+                    quoted_literal: "'John'"
                 - alias_expression:
                     keyword: AS
                     naked_identifier: john
                 - comma: ','
                 - expression:
-                    literal: "'Mike'"
+                    quoted_literal: "'Mike'"
                 - alias_expression:
                     keyword: AS
                     naked_identifier: mike
@@ -317,13 +317,13 @@ file:
               - bracketed:
                 - start_bracket: (
                 - expression:
-                    literal: "'John'"
+                    quoted_literal: "'John'"
                 - alias_expression:
                     keyword: AS
                     naked_identifier: john
                 - comma: ','
                 - expression:
-                    literal: "'Mike'"
+                    quoted_literal: "'Mike'"
                 - alias_expression:
                     keyword: AS
                     naked_identifier: mike
@@ -387,7 +387,7 @@ file:
                 - bracketed:
                   - start_bracket: (
                   - expression:
-                      literal: "'John'"
+                      quoted_literal: "'John'"
                   - comma: ','
                   - expression:
                       numeric_literal: '30'
@@ -399,7 +399,7 @@ file:
                 - bracketed:
                   - start_bracket: (
                   - expression:
-                      literal: "'Mike'"
+                      quoted_literal: "'Mike'"
                   - comma: ','
                   - expression:
                       numeric_literal: '40'
@@ -474,7 +474,7 @@ file:
                 - bracketed:
                   - start_bracket: (
                   - expression:
-                      literal: "'John'"
+                      quoted_literal: "'John'"
                   - comma: ','
                   - expression:
                       numeric_literal: '30'
@@ -486,7 +486,7 @@ file:
                 - bracketed:
                   - start_bracket: (
                   - expression:
-                      literal: "'Mike'"
+                      quoted_literal: "'Mike'"
                   - comma: ','
                   - expression:
                       numeric_literal: '40'
@@ -555,7 +555,7 @@ file:
               - bracketed:
                 - start_bracket: (
                 - expression:
-                    literal: "'John'"
+                    quoted_literal: "'John'"
                 - alias_expression:
                     keyword: AS
                     naked_identifier: c1
@@ -563,7 +563,7 @@ file:
                 - bracketed:
                   - start_bracket: (
                   - expression:
-                      literal: "'Mike'"
+                      quoted_literal: "'Mike'"
                   - comma: ','
                   - expression:
                       numeric_literal: '40'

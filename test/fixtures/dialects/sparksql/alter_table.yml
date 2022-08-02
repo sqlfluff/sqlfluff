@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 26160edae3c35eb2b1df2bb4f32b6bcf02cfa0407ff5645a30c95cf0f750d508
+_hash: 47c08b741747f2d549c6f21ef99b0c776b6d47865d93bbc022ec7feb7f0a851c
 file:
 - statement:
     alter_table_statement:
@@ -31,7 +31,7 @@ file:
           naked_identifier: Age
         comparison_operator:
           raw_comparison_operator: '='
-        literal: "'10'"
+        quoted_literal: "'10'"
         end_bracket: )
     - keyword: RENAME
     - keyword: TO
@@ -42,7 +42,7 @@ file:
           naked_identifier: Age
         comparison_operator:
           raw_comparison_operator: '='
-        literal: "'15'"
+        quoted_literal: "'15'"
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -79,7 +79,7 @@ file:
     - column_reference:
         naked_identifier: Name
     - keyword: COMMENT
-    - literal: '"new comment"'
+    - quoted_literal: '"new comment"'
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -92,7 +92,7 @@ file:
     - column_reference:
         naked_identifier: Name
     - keyword: COMMENT
-    - literal: '"new comment"'
+    - quoted_literal: '"new comment"'
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -178,7 +178,7 @@ file:
           quoted_identifier: "'winner'"
         comparison_operator:
           raw_comparison_operator: '='
-        literal: "'loser'"
+        quoted_literal: "'loser'"
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -197,7 +197,7 @@ file:
           quoted_identifier: "'comment'"
         comparison_operator:
           raw_comparison_operator: '='
-        literal: "'A table comment.'"
+        quoted_literal: "'A table comment.'"
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -216,7 +216,7 @@ file:
           quoted_identifier: "'comment'"
         comparison_operator:
           raw_comparison_operator: '='
-        literal: "'This is a new comment.'"
+        quoted_literal: "'This is a new comment.'"
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -249,13 +249,13 @@ file:
           quoted_identifier: '"key1"'
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: '"val1"'
+      - quoted_literal: '"val1"'
       - comma: ','
       - property_name_identifier:
           quoted_identifier: '"key2"'
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: '"val2"'
+      - quoted_literal: '"val2"'
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -266,7 +266,7 @@ file:
         naked_identifier: Test_Tab
     - keyword: SET
     - keyword: SERDE
-    - literal: "'org.apache.hadoop.hive.serde2.columnar.LazyBinaryColumnarSerDe'"
+    - quoted_literal: "'org.apache.hadoop.hive.serde2.columnar.LazyBinaryColumnarSerDe'"
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -278,7 +278,7 @@ file:
       - naked_identifier: Tab1
     - keyword: SET
     - keyword: SERDE
-    - literal: "'org.apache.hadoop'"
+    - quoted_literal: "'org.apache.hadoop'"
     - keyword: WITH
     - keyword: SERDEPROPERTIES
     - bracketed:
@@ -287,13 +287,13 @@ file:
           quoted_identifier: "'k'"
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'v'"
+      - quoted_literal: "'v'"
       - comma: ','
       - property_name_identifier:
           quoted_identifier: "'kay'"
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'vee'"
+      - quoted_literal: "'vee'"
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -346,17 +346,17 @@ file:
           naked_identifier: A
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'1'"
+      - quoted_literal: "'1'"
       - comma: ','
       - column_reference:
           naked_identifier: B
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'2'"
+      - quoted_literal: "'2'"
       - end_bracket: )
     - keyword: SET
     - keyword: LOCATION
-    - literal: "'/path/to/part/ways'"
+    - quoted_literal: "'/path/to/part/ways'"
 - statement_terminator: ;
 - statement:
     alter_table_statement:

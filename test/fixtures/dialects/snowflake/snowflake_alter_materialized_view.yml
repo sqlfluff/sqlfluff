@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 26e98484e7efd942e9865e0639c293dc32afc4d77f9a002887ef51070757ef97
+_hash: a750dbc0c2826ee4dffcc0bb99028a0c2ab265d865258d91d8133ad0ec8712a5
 file:
 - statement:
     alter_materialized_view_statement:
@@ -105,7 +105,7 @@ file:
         keyword: comment
         comparison_operator:
           raw_comparison_operator: '='
-        literal: "'Sample view'"
+        quoted_literal: "'Sample view'"
 - statement_terminator: ;
 - statement:
     alter_materialized_view_statement:
@@ -120,7 +120,7 @@ file:
         identifier: my_tag
         comparison_operator:
           raw_comparison_operator: '='
-        literal: "'my tag'"
+        quoted_literal: "'my tag'"
 - statement_terminator: ;
 - statement:
     alter_materialized_view_statement:
@@ -135,5 +135,5 @@ file:
         identifier: my_tag
         comparison_operator:
           raw_comparison_operator: '='
-        literal: "'not my tag anymore'"
+        quoted_literal: "'not my tag anymore'"
 - statement_terminator: ;

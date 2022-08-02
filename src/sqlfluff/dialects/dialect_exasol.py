@@ -127,7 +127,7 @@ exasol_dialect.add(
     ),
     RangeOperator=NamedParser("range_operator", SymbolSegment, type="range_operator"),
     UnknownSegment=StringParser(
-        "unknown", KeywordSegment, name="boolean_literal", type="literal"
+        "unknown", ansi.LiteralKeywordSegment, type="boolean_literal"
     ),
     ForeignKeyReferencesClauseGrammar=Sequence(
         "REFERENCES",
@@ -285,7 +285,7 @@ exasol_dialect.replace(
     DateTimeLiteralGrammar=Sequence(
         OneOf("DATE", "TIMESTAMP"),
         NamedParser(
-            "single_quote", CodeSegment, name="date_constructor_literal", type="literal"
+            "single_quote", ansi.LiteralSegment, type="date_constructor_literal"
         ),
     ),
     CharCharacterSetGrammar=OneOf(

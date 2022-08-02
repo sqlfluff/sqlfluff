@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0ef06c265b20e941a444217e14ba7deadd66d09a64496910037fb0c2bf36cdf9
+_hash: 0cbca08dc935648cfc41b8f023b108c9d931dde9b687859bf660e6557639680b
 file:
 - statement:
     create_database_statement:
@@ -15,9 +15,9 @@ file:
     - database_reference:
         naked_identifier: database_name
     - keyword: COMMENT
-    - literal: '"database_comment"'
+    - quoted_literal: '"database_comment"'
     - keyword: LOCATION
-    - literal: '"root/database_directory"'
+    - quoted_literal: '"root/database_directory"'
     - keyword: WITH
     - keyword: DBPROPERTIES
     - bracketed:
@@ -26,7 +26,7 @@ file:
           quoted_identifier: '"property_name"'
         comparison_operator:
           raw_comparison_operator: '='
-        literal: '"property_value"'
+        quoted_literal: '"property_value"'
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -39,9 +39,9 @@ file:
     - database_reference:
         naked_identifier: database_name
     - keyword: COMMENT
-    - literal: '"database_comment"'
+    - quoted_literal: '"database_comment"'
     - keyword: LOCATION
-    - literal: '"root/database_directory"'
+    - quoted_literal: '"root/database_directory"'
     - keyword: WITH
     - keyword: DBPROPERTIES
     - bracketed:
@@ -50,7 +50,7 @@ file:
           quoted_identifier: '"property_name"'
         comparison_operator:
           raw_comparison_operator: '='
-        literal: '"property_value"'
+        quoted_literal: '"property_value"'
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -80,9 +80,9 @@ file:
     - database_reference:
         naked_identifier: customer_db
     - keyword: COMMENT
-    - literal: "'This is customer database'"
+    - quoted_literal: "'This is customer database'"
     - keyword: LOCATION
-    - literal: "'/user'"
+    - quoted_literal: "'/user'"
     - keyword: WITH
     - keyword: DBPROPERTIES
     - bracketed:
@@ -91,13 +91,13 @@ file:
           quoted_identifier: '"ID"'
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: '"001"'
+      - quoted_literal: '"001"'
       - comma: ','
       - property_name_identifier:
           quoted_identifier: '"Name"'
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'John'"
+      - quoted_literal: "'John'"
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -107,5 +107,5 @@ file:
     - database_reference:
         naked_identifier: inventory_db
     - keyword: COMMENT
-    - literal: "'This database is used to maintain Inventory'"
+    - quoted_literal: "'This database is used to maintain Inventory'"
 - statement_terminator: ;

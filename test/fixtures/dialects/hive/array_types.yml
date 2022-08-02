@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9265d3fd4c37d4dc81b80d95048478d6efaf65f3abfcad06832008be0605ae9a
+_hash: ae7c029c61edcc47c841a14b2575a6025ddafe6b24eb425b83a25f5241c2b741
 file:
 - statement:
     select_statement:
@@ -96,7 +96,7 @@ file:
                     bracketed:
                     - start_bracket: (
                     - expression:
-                        literal: "'pending.freebet'"
+                        quoted_literal: "'pending.freebet'"
                     - comma: ','
                     - expression:
                         column_reference:
@@ -109,7 +109,7 @@ file:
                     bracketed:
                     - start_bracket: (
                     - expression:
-                        literal: "'bonus.balance'"
+                        quoted_literal: "'bonus.balance'"
                     - comma: ','
                     - expression:
                         column_reference:
@@ -135,11 +135,11 @@ file:
           array_literal:
           - keyword: array
           - start_square_bracket: '['
-          - literal: "'a'"
+          - quoted_literal: "'a'"
           - comma: ','
-          - literal: "'b'"
+          - quoted_literal: "'b'"
           - comma: ','
-          - literal: "'c'"
+          - quoted_literal: "'c'"
           - end_square_bracket: ']'
           alias_expression:
             keyword: as
@@ -162,7 +162,7 @@ file:
           array_literal:
             keyword: array
             start_square_bracket: '['
-            literal: "'a'"
+            quoted_literal: "'a'"
             comma: ','
             null_literal: 'null'
             end_square_bracket: ']'

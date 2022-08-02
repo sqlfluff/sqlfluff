@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e99ca75d19d11eb2e9fa08237ae4cb076fc42fbca3f2d2dcba74239025c8cc82
+_hash: 15c4fe10cc15fc7441bca2a8f0834d57ec51832fba95cb2e625ca8f22f7ad7d0
 file:
 - statement:
     select_statement:
@@ -63,11 +63,11 @@ file:
               - keyword: file_format
               - parameter_assigner: =>
               - file_format_segment:
-                  literal: "'myformat'"
+                  quoted_literal: "'myformat'"
               - comma: ','
               - keyword: pattern
               - parameter_assigner: =>
-              - literal: "'.*data.*[.]csv.gz'"
+              - quoted_literal: "'.*data.*[.]csv.gz'"
               - end_bracket: )
             alias_expression:
               identifier: t
@@ -97,12 +97,12 @@ file:
               - start_bracket: (
               - keyword: pattern
               - parameter_assigner: =>
-              - literal: "'.*data.*[.]csv.gz'"
+              - quoted_literal: "'.*data.*[.]csv.gz'"
               - comma: ','
               - keyword: file_format
               - parameter_assigner: =>
               - file_format_segment:
-                  literal: "'myformat'"
+                  quoted_literal: "'myformat'"
               - end_bracket: )
             alias_expression:
               identifier: t
@@ -132,7 +132,7 @@ file:
                 start_bracket: (
                 keyword: pattern
                 parameter_assigner: =>
-                literal: "'.*data.*[.]csv.gz'"
+                quoted_literal: "'.*data.*[.]csv.gz'"
                 end_bracket: )
             alias_expression:
               identifier: t

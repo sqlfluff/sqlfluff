@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c7b1c77a6745044065b3ebc7b98aa8d71a3c1ddf1332d1f0f8a97195ad1e451a
+_hash: f1bd7a8bd92f3e435555e129c447cae21468e762fd3e29da08a650cdadc64608
 file:
 - statement:
     alter_warehouse_statement:
@@ -134,7 +134,7 @@ file:
         keyword: COMMENT
         comparison_operator:
           raw_comparison_operator: '='
-        literal: "'This is a comment'"
+        quoted_literal: "'This is a comment'"
 - statement_terminator: ;
 - statement:
     alter_warehouse_statement:
@@ -183,7 +183,7 @@ file:
         identifier: thetag
         comparison_operator:
           raw_comparison_operator: '='
-        literal: "'tag1'"
+        quoted_literal: "'tag1'"
 - statement_terminator: ;
 - statement:
     alter_warehouse_statement:
@@ -196,12 +196,12 @@ file:
       - identifier: thetag1
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'tag1'"
+      - quoted_literal: "'tag1'"
       - comma: ','
       - identifier: thetag2
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'tag2'"
+      - quoted_literal: "'tag2'"
 - statement_terminator: ;
 - statement:
     alter_warehouse_statement:

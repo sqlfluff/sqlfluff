@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9c45e91fe7171ccaa616e36f1289fbe25b0d8999fec39ba98c7cf6b72d98b97e
+_hash: c126a9037518daed2db82455d9d3b1fdbdc72ce0ce521835403f730cf1540866
 file:
 - statement:
     select_statement:
@@ -45,7 +45,7 @@ file:
             naked_identifier: city
           comparison_operator:
             raw_comparison_operator: '='
-          literal: "'Fremont'"
+          quoted_literal: "'Fremont'"
 - statement_terminator: ;
 - statement:
     select_statement:

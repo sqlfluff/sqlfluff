@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 17cec756228720399b5042aea5f50b21b726eaed41e95e97956af33f5edd9bfe
+_hash: 18a31d16af219137d7a5f3afefcf402eba2153c32c6afbb07c5640826af148c7
 file:
 - statement:
     alter_external_table_statement:
@@ -22,7 +22,7 @@ file:
     - table_reference:
         identifier: foo
     - keyword: refresh
-    - literal: "'2018/08/05/'"
+    - quoted_literal: "'2018/08/05/'"
 - statement_terminator: ;
 - statement:
     alter_external_table_statement:
@@ -35,9 +35,9 @@ file:
     - keyword: files
     - bracketed:
       - start_bracket: (
-      - literal: "'foo/bar.json.gz'"
+      - quoted_literal: "'foo/bar.json.gz'"
       - comma: ','
-      - literal: "'bar/foo.json.gz'"
+      - quoted_literal: "'bar/foo.json.gz'"
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -51,9 +51,9 @@ file:
     - keyword: files
     - bracketed:
       - start_bracket: (
-      - literal: "'foo/bar.json.gz'"
+      - quoted_literal: "'foo/bar.json.gz'"
       - comma: ','
-      - literal: "'bar/foo.json.gz'"
+      - quoted_literal: "'bar/foo.json.gz'"
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -71,22 +71,22 @@ file:
           identifier: foo
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'baz'"
+      - quoted_literal: "'baz'"
       - comma: ','
       - column_reference:
           identifier: bar
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'bar'"
+      - quoted_literal: "'bar'"
       - comma: ','
       - column_reference:
           identifier: baz
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'foo'"
+      - quoted_literal: "'foo'"
       - end_bracket: )
     - keyword: location
-    - literal: "'2022/01'"
+    - quoted_literal: "'2022/01'"
 - statement_terminator: ;
 - statement:
     alter_external_table_statement:
@@ -98,7 +98,7 @@ file:
     - keyword: drop
     - keyword: partition
     - keyword: location
-    - literal: "'2022/01'"
+    - quoted_literal: "'2022/01'"
 - statement_terminator: ;
 - statement:
     alter_external_table_statement:
@@ -130,12 +130,12 @@ file:
       - identifier: foo
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'foo'"
+      - quoted_literal: "'foo'"
       - comma: ','
       - identifier: bar
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'bar'"
+      - quoted_literal: "'bar'"
 - statement_terminator: ;
 - statement:
     alter_external_table_statement:
@@ -150,5 +150,5 @@ file:
         identifier: foo
         comparison_operator:
           raw_comparison_operator: '='
-        literal: "'foo'"
+        quoted_literal: "'foo'"
 - statement_terminator: ;

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 55b86faccf106a552c9213dbd06abbc687edccfee1e3c4c40fd5f5efed2cd61d
+_hash: a8424ed6b464bbf9d21199a3457a8b45022d4b1812cafd6bece6bb62926d95e8
 file:
   statement:
     create_table_statement:
@@ -45,20 +45,20 @@ file:
       - keyword: ROW
       - keyword: FORMAT
       - keyword: SERDE
-      - literal: "'org.apache.hadoop.hive.serde2.RegexSerDe'"
+      - quoted_literal: "'org.apache.hadoop.hive.serde2.RegexSerDe'"
       - keyword: WITH
       - keyword: SERDEPROPERTIES
       - bracketed:
         - start_bracket: (
-        - literal: '"input.regex"'
+        - quoted_literal: '"input.regex"'
         - comparison_operator:
             raw_comparison_operator: '='
-        - literal: '"([^]*) ([^]*) ([^]*) (-|\\[^\\]*\\]) ([^ \"]*|\"[^\"]*\") (-|[0-9]*)
-            (-|[0-9]*)(?: ([^ \"]*|\".*\") ([^ \"]*|\".*\"))?"'
+        - quoted_literal: '"([^]*) ([^]*) ([^]*) (-|\\[^\\]*\\]) ([^ \"]*|\"[^\"]*\")
+            (-|[0-9]*) (-|[0-9]*)(?: ([^ \"]*|\".*\") ([^ \"]*|\".*\"))?"'
         - end_bracket: )
     - keyword: STORED
     - keyword: AS
     - file_format: TEXTFILE
     - keyword: LOCATION
-    - literal: "'hdfs://path'"
+    - quoted_literal: "'hdfs://path'"
   statement_terminator: ;

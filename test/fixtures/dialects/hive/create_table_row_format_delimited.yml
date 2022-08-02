@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e5d2d6428e40161484182e64ab989f3987dadcec1dc2122333376177285c7a1e
+_hash: ac9e95c49548942f83bb6d6b5237911e69fd7b18e546df7ae7e7d844c43c2547
 file:
   statement:
     create_table_statement:
@@ -45,10 +45,10 @@ file:
           column_constraint_segment:
             comment_clause:
               keyword: COMMENT
-              literal: "'Column 4'"
+              quoted_literal: "'Column 4'"
       - end_bracket: )
     - keyword: COMMENT
-    - literal: "'This is a test table'"
+    - quoted_literal: "'This is a test table'"
     - row_format_clause:
       - keyword: ROW
       - keyword: FORMAT
@@ -56,25 +56,25 @@ file:
       - keyword: FIELDS
       - keyword: TERMINATED
       - keyword: BY
-      - literal: "'\\001'"
+      - quoted_literal: "'\\001'"
       - keyword: COLLECTION
       - keyword: ITEMS
       - keyword: TERMINATED
       - keyword: BY
-      - literal: "'\\002'"
+      - quoted_literal: "'\\002'"
       - keyword: MAP
       - keyword: KEYS
       - keyword: TERMINATED
       - keyword: BY
-      - literal: "'\\003'"
+      - quoted_literal: "'\\003'"
       - keyword: LINES
       - keyword: TERMINATED
       - keyword: BY
-      - literal: "'\\004'"
+      - quoted_literal: "'\\004'"
       - keyword: 'NULL'
       - keyword: DEFINED
       - keyword: AS
-      - literal: "'\\005'"
+      - quoted_literal: "'\\005'"
     - keyword: STORED
     - keyword: AS
     - file_format: SEQUENCEFILE

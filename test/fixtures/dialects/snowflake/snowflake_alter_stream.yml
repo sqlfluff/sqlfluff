@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bd88fe88973ab79edcf7d05c92e2b89a6e717bf8d46a7ec15cb7ec3e81806408
+_hash: c5353212e43f875878eed5e8067a1c51f0b76b7e959afe6573308d4076006478
 file:
 - statement:
     alter_stream_statement:
@@ -16,7 +16,7 @@ file:
         keyword: comment
         comparison_operator:
           raw_comparison_operator: '='
-        literal: "'New comment for stream'"
+        quoted_literal: "'New comment for stream'"
 - statement_terminator: ;
 - statement:
     alter_stream_statement:
@@ -32,7 +32,7 @@ file:
         identifier: mytag
         comparison_operator:
           raw_comparison_operator: '='
-        literal: "'myvalue'"
+        quoted_literal: "'myvalue'"
 - statement_terminator: ;
 - statement:
     alter_stream_statement:
@@ -52,17 +52,17 @@ file:
       - identifier: mytag1
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'myvalue1'"
+      - quoted_literal: "'myvalue1'"
       - comma: ','
       - identifier: mytag2
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'myvalue2'"
+      - quoted_literal: "'myvalue2'"
     - comment_equals_clause:
         keyword: COMMENT
         comparison_operator:
           raw_comparison_operator: '='
-        literal: "'amazing comment'"
+        quoted_literal: "'amazing comment'"
 - statement_terminator: ;
 - statement:
     alter_stream_statement:
@@ -81,7 +81,7 @@ file:
         keyword: COMMENT
         comparison_operator:
           raw_comparison_operator: '='
-        literal: "'amazing comment'"
+        quoted_literal: "'amazing comment'"
 - statement_terminator: ;
 - statement:
     alter_stream_statement:

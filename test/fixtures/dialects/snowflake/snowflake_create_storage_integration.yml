@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3686d12735d00624a7e87959ebddf04fc3e5463c4738a654b3624c0c942568a0
+_hash: 96c44a12e536d0a8ee5852d9be201486ce72e601e84a068fb1ee0e3eb9d138e6
 file:
 - statement:
     create_statement:
@@ -24,7 +24,7 @@ file:
       - keyword: storage_aws_role_arn
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'arn:aws:iam::001234567890:role/myrole'"
+      - quoted_literal: "'arn:aws:iam::001234567890:role/myrole'"
     - keyword: enabled
     - comparison_operator:
         raw_comparison_operator: '='
@@ -93,7 +93,7 @@ file:
         keyword: azure_tenant_id
         comparison_operator:
           raw_comparison_operator: '='
-        literal: "'<tenant_id>'"
+        quoted_literal: "'<tenant_id>'"
     - keyword: storage_allowed_locations
     - comparison_operator:
         raw_comparison_operator: '='
@@ -125,7 +125,7 @@ file:
       - keyword: storage_aws_role_arn
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'arn:aws:iam::001234567890:role/myrole'"
+      - quoted_literal: "'arn:aws:iam::001234567890:role/myrole'"
     - keyword: enabled
     - comparison_operator:
         raw_comparison_operator: '='
@@ -212,7 +212,7 @@ file:
         keyword: azure_tenant_id
         comparison_operator:
           raw_comparison_operator: '='
-        literal: "'a123b4c5-1234-123a-a12b-1a23b45678c9'"
+        quoted_literal: "'a123b4c5-1234-123a-a12b-1a23b45678c9'"
     - keyword: storage_allowed_locations
     - comparison_operator:
         raw_comparison_operator: '='

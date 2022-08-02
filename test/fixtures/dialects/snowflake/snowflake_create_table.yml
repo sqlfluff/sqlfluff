@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1abd16bae48fc9b1710228e240016c5089192bd940c51aa77c29c37b9fc73f30
+_hash: c4ca130da5577aa28ae6c5c164be7c6e8a52f9435338ba07667b6ff8ac31039d
 file:
 - statement:
     create_table_statement:
@@ -324,13 +324,13 @@ file:
             data_type_identifier: number
         comment_clause:
           keyword: comment
-          literal: "'a column comment'"
+          quoted_literal: "'a column comment'"
         end_bracket: )
     - comment_equals_clause:
         keyword: comment
         comparison_operator:
           raw_comparison_operator: '='
-        literal: "'a table comment'"
+        quoted_literal: "'a table comment'"
 - statement_terminator: ;
 - statement:
     create_table_statement:
@@ -559,7 +559,7 @@ file:
             data_type_identifier: varchar
           column_constraint_segment:
             keyword: collate
-            literal: "'utf8'"
+            quoted_literal: "'utf8'"
       - comma: ','
       - column_definition:
           identifier: english_phrase
@@ -567,7 +567,7 @@ file:
             data_type_identifier: varchar
           column_constraint_segment:
             keyword: collate
-            literal: "'en'"
+            quoted_literal: "'en'"
       - comma: ','
       - column_definition:
           identifier: spanish_phrase
@@ -575,7 +575,7 @@ file:
             data_type_identifier: varchar
           column_constraint_segment:
             keyword: collate
-            literal: "'sp'"
+            quoted_literal: "'sp'"
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -625,12 +625,12 @@ file:
                           - snowflake_keyword_expression:
                               parameter: location
                               parameter_assigner: =>
-                              literal: "'@mystage'"
+                              quoted_literal: "'@mystage'"
                           - comma: ','
                           - snowflake_keyword_expression:
                               parameter: file_format
                               parameter_assigner: =>
-                              literal: "'my_parquet_format'"
+                              quoted_literal: "'my_parquet_format'"
                           - end_bracket: )
                       end_bracket: )
         end_bracket: )

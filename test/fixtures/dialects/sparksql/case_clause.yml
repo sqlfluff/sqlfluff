@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 92642fbd27c00135f2480b91ac9358145d911fc761f5812102f8fc99eaa19a09
+_hash: 0b778250fdcce13dff7f32fa97a4100fea959a433afca2dbbdeb79d46a6a42f0
 file:
 - statement:
     select_statement:
@@ -27,11 +27,11 @@ file:
                   numeric_literal: '200'
               - keyword: THEN
               - expression:
-                  literal: "'bigger'"
+                  quoted_literal: "'bigger'"
             - else_clause:
                 keyword: ELSE
                 expression:
-                  literal: "'small'"
+                  quoted_literal: "'small'"
             - keyword: END
       from_clause:
         keyword: FROM
@@ -63,11 +63,11 @@ file:
                   numeric_literal: '200'
               - keyword: THEN
               - expression:
-                  literal: "'bigger'"
+                  quoted_literal: "'bigger'"
             - else_clause:
                 keyword: ELSE
                 expression:
-                  literal: "'small'"
+                  quoted_literal: "'small'"
             - keyword: END
           alias_expression:
             keyword: AS
@@ -101,7 +101,7 @@ file:
                   numeric_literal: '100'
               - keyword: THEN
               - expression:
-                  literal: "'bigger'"
+                  quoted_literal: "'bigger'"
             - when_clause:
               - keyword: WHEN
               - expression:
@@ -112,11 +112,11 @@ file:
                   numeric_literal: '300'
               - keyword: THEN
               - expression:
-                  literal: "'300'"
+                  quoted_literal: "'300'"
             - else_clause:
                 keyword: ELSE
                 expression:
-                  literal: "'small'"
+                  quoted_literal: "'small'"
             - keyword: END
       from_clause:
         keyword: FROM
@@ -156,27 +156,27 @@ file:
                 numeric_literal: '100'
             - keyword: THEN
             - expression:
-                literal: "'big'"
+                quoted_literal: "'big'"
           - when_clause:
             - keyword: WHEN
             - expression:
                 numeric_literal: '200'
             - keyword: THEN
             - expression:
-                literal: "'bigger'"
+                quoted_literal: "'bigger'"
           - when_clause:
             - keyword: WHEN
             - expression:
                 numeric_literal: '300'
             - keyword: THEN
             - expression:
-                literal: "'biggest'"
+                quoted_literal: "'biggest'"
           - else_clause:
               keyword: ELSE
               expression:
-                literal: "'small'"
+                quoted_literal: "'small'"
           - keyword: END
           comparison_operator:
             raw_comparison_operator: '='
-          literal: "'small'"
+          quoted_literal: "'small'"
 - statement_terminator: ;

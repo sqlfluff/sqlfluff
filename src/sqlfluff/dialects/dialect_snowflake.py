@@ -243,28 +243,23 @@ snowflake_dialect.add(
     ),
     CopyOptionOnErrorSegment=RegexParser(
         r"'?CONTINUE'?|'?SKIP_FILE(?:_[0-9]+%?)?'?|'?ABORT_STATEMENT'?",
-        CodeSegment,
-        name="literal",
-        type="literal",
+        ansi.LiteralSegment,
     ),
     DoubleQuotedUDFBody=NamedParser(
         "double_quote",
         CodeSegment,
-        name="udf_body",
         type="udf_body",
         trim_chars=('"',),
     ),
     SingleQuotedUDFBody=NamedParser(
         "single_quote",
         CodeSegment,
-        name="udf_body",
         type="udf_body",
         trim_chars=("'",),
     ),
     DollarQuotedUDFBody=NamedParser(
         "dollar_quote",
         CodeSegment,
-        name="udf_body",
         type="udf_body",
         trim_chars=("$",),
     ),
@@ -343,14 +338,12 @@ snowflake_dialect.add(
     IntegerSegment=RegexParser(
         # An unquoted integer that can be passed as an argument to Snowflake functions.
         r"[0-9]+",
-        CodeSegment,
-        name="integer_literal",
-        type="literal",
+        ansi.LiteralSegment,
+        type="integer_literal",
     ),
     SystemFunctionName=RegexParser(
         r"SYSTEM\$([A-Za-z0-9_]*)",
         CodeSegment,
-        name="system_function_name",
         type="system_function_name",
     ),
     GroupByContentsGrammar=Delimited(
@@ -585,15 +578,13 @@ snowflake_dialect.replace(
         # https://docs.snowflake.com/en/sql-reference/data-types-text.html#string-constants
         NamedParser(
             "single_quote",
-            CodeSegment,
-            name="quoted_literal",
-            type="literal",
+            ansi.LiteralSegment,
+            type="quoted_literal",
         ),
         NamedParser(
             "dollar_quote",
-            CodeSegment,
-            name="quoted_literal",
-            type="literal",
+            ansi.LiteralSegment,
+            type="quoted_literal",
         ),
     ),
     LikeGrammar=OneOf(
@@ -3698,7 +3689,7 @@ class S3StorageIntegrationParameters(BaseSegment):
         Sequence(
             "STORAGE_AWS_OBJECT_ACL",
             Ref("EqualsSegment"),
-            StringParser("'bucket-owner-full-control'", CodeSegment, type="literal"),
+            StringParser("'bucket-owner-full-control'", ansi.LiteralSegment),
         ),
     )
 

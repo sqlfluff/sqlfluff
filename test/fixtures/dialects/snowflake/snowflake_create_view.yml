@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3ac59f8ad587e1e90df819902166ea2c0f7eef429f32587286b0d51ddde1bcfa
+_hash: 9c4ad013d4d5252468aad7d58e97eab435fdbb3b27549356e9c7d431023e5527
 file:
 - statement:
     create_view_statement:
@@ -15,7 +15,7 @@ file:
         keyword: comment
         comparison_operator:
           raw_comparison_operator: '='
-        literal: "'a great description'"
+        quoted_literal: "'a great description'"
     - keyword: as
     - select_statement:
         select_clause:
@@ -70,7 +70,7 @@ file:
         keyword: COMMENT
         comparison_operator:
           raw_comparison_operator: '='
-        literal: "'my comment'"
+        quoted_literal: "'my comment'"
     - keyword: AS
     - select_statement:
         select_clause:
@@ -102,7 +102,7 @@ file:
         keyword: COMMENT
         comparison_operator:
           raw_comparison_operator: '='
-        literal: "'my comment'"
+        quoted_literal: "'my comment'"
     - keyword: AS
     - select_statement:
         select_clause:
@@ -139,7 +139,7 @@ file:
         keyword: COMMENT
         comparison_operator:
           raw_comparison_operator: '='
-        literal: "'my comment'"
+        quoted_literal: "'my comment'"
     - keyword: AS
     - select_statement:
         select_clause:
@@ -171,7 +171,7 @@ file:
         keyword: COMMENT
         comparison_operator:
           raw_comparison_operator: '='
-        literal: "'my comment'"
+        quoted_literal: "'my comment'"
     - keyword: COPY
     - keyword: GRANTS
     - keyword: AS
@@ -209,12 +209,12 @@ file:
         - identifier: foo
         - comparison_operator:
             raw_comparison_operator: '='
-        - literal: "'bar'"
+        - quoted_literal: "'bar'"
         - comma: ','
         - identifier: hello
         - comparison_operator:
             raw_comparison_operator: '='
-        - literal: "'world'"
+        - quoted_literal: "'world'"
         - end_bracket: )
     - keyword: COPY
     - keyword: GRANTS
@@ -254,7 +254,7 @@ file:
           identifier: col2
       - comment_clause:
           keyword: COMMENT
-          literal: "'some comment'"
+          quoted_literal: "'some comment'"
       - end_bracket: )
     - keyword: AS
     - select_statement:
@@ -292,7 +292,7 @@ file:
         keyword: COMMENT
         comparison_operator:
           raw_comparison_operator: '='
-        literal: "'table-level comment'"
+        quoted_literal: "'table-level comment'"
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -302,7 +302,7 @@ file:
           identifier: col2
       - comment_clause:
           keyword: COMMENT
-          literal: "'some comment'"
+          quoted_literal: "'some comment'"
       - end_bracket: )
     - keyword: AS
     - with_compound_statement:

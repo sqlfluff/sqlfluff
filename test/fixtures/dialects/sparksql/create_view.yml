@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a3fc71b145f1b7f7ed2b0ad0a66618e04a38c981615aaa63a2446aba208a77ef
+_hash: b2533ee6f925cd7b21d6150acbe56fdae6a2b46b2654f08c08bf26b7efa7d16d
 file:
 - statement:
     create_view_statement:
@@ -45,13 +45,13 @@ file:
       - column_reference:
           naked_identifier: ID
       - keyword: COMMENT
-      - literal: "'Unique identification number'"
+      - quoted_literal: "'Unique identification number'"
       - comma: ','
       - column_reference:
           naked_identifier: Name
       - end_bracket: )
     - keyword: COMMENT
-    - literal: "'View for experienced employees'"
+    - quoted_literal: "'View for experienced employees'"
     - keyword: TBLPROPERTIES
     - bracketed:
       - start_bracket: (
@@ -59,13 +59,13 @@ file:
           quoted_identifier: '"key1"'
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: '"val1"'
+      - quoted_literal: '"val1"'
       - comma: ','
       - property_name_identifier:
           quoted_identifier: '"key2"'
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: '"val2"'
+      - quoted_literal: '"val2"'
       - end_bracket: )
     - keyword: AS
     - select_statement:

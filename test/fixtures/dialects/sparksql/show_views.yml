@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 86ce71dbc424aea44956d7887f284ae2c97a2ad2e3f2a7027f49d21acdd1625a
+_hash: ecb3226351cde262a4ad4856b1622d4b1e275830a8f0a4319b2ea77de159aed3
 file:
 - statement:
     show_statement:
@@ -34,12 +34,12 @@ file:
     - database_reference:
         naked_identifier: default
     - keyword: LIKE
-    - literal: "'sam*'"
+    - quoted_literal: "'sam*'"
 - statement_terminator: ;
 - statement:
     show_statement:
     - keyword: SHOW
     - keyword: VIEWS
     - keyword: LIKE
-    - literal: "'sam|suj|temp*'"
+    - quoted_literal: "'sam|suj|temp*'"
 - statement_terminator: ;

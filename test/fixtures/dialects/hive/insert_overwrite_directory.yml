@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: fe1888fd2a56d03fe89a631f5e5f32f43722d58a00a03c81872f969b3ada627e
+_hash: 4104e48f686af7243fb0baa28f274a99d313d6a28d408db7c2379e970b52638b
 file:
   statement:
     insert_statement:
@@ -11,7 +11,7 @@ file:
     - keyword: OVERWRITE
     - keyword: LOCAL
     - keyword: DIRECTORY
-    - literal: "'/path'"
+    - quoted_literal: "'/path'"
     - select_statement:
         select_clause:
         - keyword: SELECT

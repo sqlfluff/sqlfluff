@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 281250a06c7d06983ca786117c7db4e1538f24abd5ced9f04294354f805cf667
+_hash: 2ec2be2b25f178ab60940616c568345240f8bac547ebe085079b26ee0ec9262b
 file:
 - statement:
     vacuum_statement:
@@ -14,7 +14,7 @@ file:
 - statement:
     vacuum_statement:
       keyword: VACUUM
-      literal: "'/data/events'"
+      quoted_literal: "'/data/events'"
 - statement_terminator: ;
 - statement:
     vacuum_statement:

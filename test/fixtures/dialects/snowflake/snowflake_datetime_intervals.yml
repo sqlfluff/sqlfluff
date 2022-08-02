@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a6a72c691e94aceb1eff35201ea1e6f3f34d564c7dca5824ba8527901a023a31
+_hash: e0553ea31fc12ed69b61e857f352a76b3175ba90f77cf6f68e08b3cc952eeb13
 file:
 - statement:
     select_statement:
@@ -23,7 +23,7 @@ file:
                   numeric_literal: '1'
             - comma: ','
             - expression:
-                literal: "'2020-01-01'"
+                quoted_literal: "'2020-01-01'"
             - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -38,7 +38,7 @@ file:
               bracketed:
                 start_bracket: (
                 expression:
-                  literal: "'2018-04-15'"
+                  quoted_literal: "'2018-04-15'"
                 end_bracket: )
             binary_operator: +
             keyword: INTERVAL
@@ -56,7 +56,7 @@ file:
               bracketed:
                 start_bracket: (
                 expression:
-                  literal: "'04:15:29'"
+                  quoted_literal: "'04:15:29'"
                 end_bracket: )
             binary_operator: +
             keyword: INTERVAL
@@ -90,7 +90,7 @@ file:
               bracketed:
                 start_bracket: (
                 expression:
-                  literal: "'2025-01-17'"
+                  quoted_literal: "'2025-01-17'"
                 end_bracket: )
             binary_operator: +
             keyword: INTERVAL
@@ -162,6 +162,6 @@ file:
             bracketed:
               start_bracket: (
               expression:
-                literal: "'2014-04-05 01:02:03'"
+                quoted_literal: "'2014-04-05 01:02:03'"
               end_bracket: )
 - statement_terminator: ;

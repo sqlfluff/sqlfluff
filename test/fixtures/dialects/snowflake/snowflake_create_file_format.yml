@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d97db044e449416c957b8a5aaa507cb820ea9830ec63f2dd3da9bb246961c8ae
+_hash: 60220d0a1a6fecd2f312a5b83ffd9559a4bc5cc2be9e7f70495ef7ad6a986378
 file:
 - statement:
     create_file_format_segment:
@@ -51,12 +51,12 @@ file:
       - keyword: FILE_EXTENSION
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'foobar'"
+      - quoted_literal: "'foobar'"
       - comma: ','
       - keyword: SKIP_HEADER
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: '1'
+      - integer_literal: '1'
       - comma: ','
       - keyword: SKIP_BLANK_LINES
       - comparison_operator:
@@ -93,9 +93,9 @@ file:
           raw_comparison_operator: '='
       - bracketed:
         - start_bracket: (
-        - literal: "'foo'"
+        - quoted_literal: "'foo'"
         - comma: ','
-        - literal: "'bar'"
+        - quoted_literal: "'bar'"
         - end_bracket: )
       - comma: ','
       - keyword: FIELD_OPTIONALLY_ENCLOSED_BY
@@ -155,19 +155,19 @@ file:
       - keyword: RECORD_DELIMITER
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'foo'"
+      - quoted_literal: "'foo'"
       - keyword: FIELD_DELIMITER
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'bar'"
+      - quoted_literal: "'bar'"
       - keyword: FILE_EXTENSION
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'foobar'"
+      - quoted_literal: "'foobar'"
       - keyword: SKIP_HEADER
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: '99'
+      - integer_literal: '99'
       - keyword: SKIP_BLANK_LINES
       - comparison_operator:
           raw_comparison_operator: '='
@@ -175,15 +175,15 @@ file:
       - keyword: DATE_FORMAT
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'foo'"
+      - quoted_literal: "'foo'"
       - keyword: TIME_FORMAT
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'bar'"
+      - quoted_literal: "'bar'"
       - keyword: TIMESTAMP_FORMAT
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'foobar'"
+      - quoted_literal: "'foobar'"
       - keyword: BINARY_FORMAT
       - comparison_operator:
           raw_comparison_operator: '='
@@ -197,14 +197,14 @@ file:
           raw_comparison_operator: '='
       - bracketed:
         - start_bracket: (
-        - literal: "'foo'"
+        - quoted_literal: "'foo'"
         - comma: ','
-        - literal: "'bar'"
+        - quoted_literal: "'bar'"
         - end_bracket: )
       - keyword: FIELD_OPTIONALLY_ENCLOSED_BY
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'foo'"
+      - quoted_literal: "'foo'"
       - keyword: ERROR_ON_COLUMN_COUNT_MISMATCH
       - comparison_operator:
           raw_comparison_operator: '='
@@ -228,12 +228,12 @@ file:
       - keyword: ENCODING
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'foo'"
+      - quoted_literal: "'foo'"
     - comment_equals_clause:
         keyword: COMMENT
         comparison_operator:
           raw_comparison_operator: '='
-        literal: "'FOOBAR'"
+        quoted_literal: "'FOOBAR'"
 - statement_terminator: ;
 - statement:
     create_file_format_segment:
@@ -285,15 +285,15 @@ file:
           raw_comparison_operator: '='
       - bracketed:
         - start_bracket: (
-        - literal: "'foo'"
+        - quoted_literal: "'foo'"
         - comma: ','
-        - literal: "'bar'"
+        - quoted_literal: "'bar'"
         - end_bracket: )
       - comma: ','
       - keyword: FILE_EXTENSION
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'foobar'"
+      - quoted_literal: "'foobar'"
       - comma: ','
       - keyword: ENABLE_OCTAL
       - comparison_operator:
@@ -352,15 +352,15 @@ file:
       - keyword: DATE_FORMAT
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'foobar'"
+      - quoted_literal: "'foobar'"
       - keyword: TIME_FORMAT
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'foobar'"
+      - quoted_literal: "'foobar'"
       - keyword: TIMESTAMP_FORMAT
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'foobar'"
+      - quoted_literal: "'foobar'"
       - keyword: BINARY_FORMAT
       - comparison_operator:
           raw_comparison_operator: '='
@@ -374,14 +374,14 @@ file:
           raw_comparison_operator: '='
       - bracketed:
         - start_bracket: (
-        - literal: "'foo'"
+        - quoted_literal: "'foo'"
         - comma: ','
-        - literal: "'bar'"
+        - quoted_literal: "'bar'"
         - end_bracket: )
       - keyword: FILE_EXTENSION
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'foobar'"
+      - quoted_literal: "'foobar'"
       - keyword: ENABLE_OCTAL
       - comparison_operator:
           raw_comparison_operator: '='
@@ -414,7 +414,7 @@ file:
         keyword: COMMENT
         comparison_operator:
           raw_comparison_operator: '='
-        literal: "'FOOBAR'"
+        quoted_literal: "'FOOBAR'"
 - statement_terminator: ;
 - statement:
     create_file_format_segment:
@@ -446,9 +446,9 @@ file:
           raw_comparison_operator: '='
       - bracketed:
         - start_bracket: (
-        - literal: "'foo'"
+        - quoted_literal: "'foo'"
         - comma: ','
-        - literal: "'bar'"
+        - quoted_literal: "'bar'"
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -479,15 +479,15 @@ file:
           raw_comparison_operator: '='
       - bracketed:
         - start_bracket: (
-        - literal: "'foo'"
+        - quoted_literal: "'foo'"
         - comma: ','
-        - literal: "'bar'"
+        - quoted_literal: "'bar'"
         - end_bracket: )
     - comment_equals_clause:
         keyword: COMMENT
         comparison_operator:
           raw_comparison_operator: '='
-        literal: "'FOOBAR'"
+        quoted_literal: "'FOOBAR'"
 - statement_terminator: ;
 - statement:
     create_file_format_segment:
@@ -514,9 +514,9 @@ file:
           raw_comparison_operator: '='
       - bracketed:
         - start_bracket: (
-        - literal: "'foo'"
+        - quoted_literal: "'foo'"
         - comma: ','
-        - literal: "'bar'"
+        - quoted_literal: "'bar'"
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -543,15 +543,15 @@ file:
           raw_comparison_operator: '='
       - bracketed:
         - start_bracket: (
-        - literal: "'foo'"
+        - quoted_literal: "'foo'"
         - comma: ','
-        - literal: "'bar'"
+        - quoted_literal: "'bar'"
         - end_bracket: )
     - comment_equals_clause:
         keyword: COMMENT
         comparison_operator:
           raw_comparison_operator: '='
-        literal: "'FOOBAR'"
+        quoted_literal: "'FOOBAR'"
 - statement_terminator: ;
 - statement:
     create_file_format_segment:
@@ -588,9 +588,9 @@ file:
           raw_comparison_operator: '='
       - bracketed:
         - start_bracket: (
-        - literal: "'foo'"
+        - quoted_literal: "'foo'"
         - comma: ','
-        - literal: "'bar'"
+        - quoted_literal: "'bar'"
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -625,15 +625,15 @@ file:
           raw_comparison_operator: '='
       - bracketed:
         - start_bracket: (
-        - literal: "'foo'"
+        - quoted_literal: "'foo'"
         - comma: ','
-        - literal: "'bar'"
+        - quoted_literal: "'bar'"
         - end_bracket: )
     - comment_equals_clause:
         keyword: COMMENT
         comparison_operator:
           raw_comparison_operator: '='
-        literal: "'FOOBAR'"
+        quoted_literal: "'FOOBAR'"
 - statement_terminator: ;
 - statement:
     create_file_format_segment:
@@ -732,5 +732,5 @@ file:
         keyword: COMMENT
         comparison_operator:
           raw_comparison_operator: '='
-        literal: "'FOOBAR'"
+        quoted_literal: "'FOOBAR'"
 - statement_terminator: ;

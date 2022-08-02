@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3b9249e20ce323516dccca39b953990bd11d212dce95910a4029b95c17ebd33c
+_hash: 05619db361beff493f527530a6b446b1c3afdf76b2706c69d342a98e0515f98b
 file:
 - statement:
     select_statement:
@@ -28,7 +28,7 @@ file:
                       numeric_literal: '1'
                   - comma: ','
                   - expression:
-                      literal: "'one'"
+                      quoted_literal: "'one'"
                   - end_bracket: )
                 - comma: ','
                 - bracketed:
@@ -37,7 +37,7 @@ file:
                       numeric_literal: '2'
                   - comma: ','
                   - expression:
-                      literal: "'two'"
+                      quoted_literal: "'two'"
                   - end_bracket: )
                 - comma: ','
                 - bracketed:
@@ -46,7 +46,7 @@ file:
                       numeric_literal: '3'
                   - comma: ','
                   - expression:
-                      literal: "'three'"
+                      quoted_literal: "'three'"
                   - end_bracket: )
               end_bracket: )
 - statement_terminator: ;
@@ -71,7 +71,7 @@ file:
                     numeric_literal: '1'
                 - comma: ','
                 - expression:
-                    literal: "'one'"
+                    quoted_literal: "'one'"
                 - end_bracket: )
               - comma: ','
               - bracketed:
@@ -80,7 +80,7 @@ file:
                     numeric_literal: '2'
                 - comma: ','
                 - expression:
-                    literal: "'two'"
+                    quoted_literal: "'two'"
                 - end_bracket: )
               - comma: ','
               - bracketed:
@@ -89,6 +89,6 @@ file:
                     numeric_literal: '3'
                 - comma: ','
                 - expression:
-                    literal: "'three'"
+                    quoted_literal: "'three'"
                 - end_bracket: )
 - statement_terminator: ;

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 714b9caf361207815e08c2cc355068daf0ca335b6da94e3582da4efb9c8115c1
+_hash: 52da7a5df9dfda4557ee76e393ae01131e49672948024075ef05d62ee806f43f
 file:
 - statement:
     select_statement:
@@ -29,7 +29,7 @@ file:
           column_reference:
             identifier: name
           keyword: LIKE
-          literal: "'M%'"
+          quoted_literal: "'M%'"
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -56,7 +56,7 @@ file:
             identifier: name
         - keyword: NOT
         - keyword: ILIKE
-        - literal: "'M_ry'"
+        - quoted_literal: "'M_ry'"
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -82,7 +82,7 @@ file:
           column_reference:
             identifier: name
           keyword: RLIKE
-          literal: "'M+'"
+          quoted_literal: "'M+'"
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -108,7 +108,7 @@ file:
           column_reference:
             identifier: name
           keyword: REGEXP
-          literal: "'M+'"
+          quoted_literal: "'M+'"
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -134,9 +134,9 @@ file:
         - column_reference:
             identifier: name
         - keyword: LIKE
-        - literal: "'%$_%'"
+        - quoted_literal: "'%$_%'"
         - keyword: ESCAPE
-        - literal: "'$'"
+        - quoted_literal: "'$'"
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -165,9 +165,9 @@ file:
         - keyword: ANY
         - bracketed:
           - start_bracket: (
-          - literal: "'%an%'"
+          - quoted_literal: "'%an%'"
           - comma: ','
-          - literal: "'%an'"
+          - quoted_literal: "'%an'"
           - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -198,9 +198,9 @@ file:
         - keyword: ANY
         - bracketed:
           - start_bracket: (
-          - literal: "'%an%'"
+          - quoted_literal: "'%an%'"
           - comma: ','
-          - literal: "'%an'"
+          - quoted_literal: "'%an'"
           - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -230,9 +230,9 @@ file:
         - keyword: ALL
         - bracketed:
           - start_bracket: (
-          - literal: "'%an%'"
+          - quoted_literal: "'%an%'"
           - comma: ','
-          - literal: "'%an'"
+          - quoted_literal: "'%an'"
           - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -263,9 +263,9 @@ file:
         - keyword: ALL
         - bracketed:
           - start_bracket: (
-          - literal: "'%an%'"
+          - quoted_literal: "'%an%'"
           - comma: ','
-          - literal: "'%an'"
+          - quoted_literal: "'%an'"
           - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -295,9 +295,9 @@ file:
         - keyword: ANY
         - bracketed:
           - start_bracket: (
-          - literal: "'%an%'"
+          - quoted_literal: "'%an%'"
           - comma: ','
-          - literal: "'%an'"
+          - quoted_literal: "'%an'"
           - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -328,8 +328,8 @@ file:
         - keyword: ANY
         - bracketed:
           - start_bracket: (
-          - literal: "'%an%'"
+          - quoted_literal: "'%an%'"
           - comma: ','
-          - literal: "'%an'"
+          - quoted_literal: "'%an'"
           - end_bracket: )
 - statement_terminator: ;

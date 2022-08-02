@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 476d04af3b656b7546c67f010053702b9924e3ce1a73f4fb2f4f9d0734009522
+_hash: ce3d0b82f3c015b2f5ba507519cc208d3b73ba2a50b5563a778c90f42be40e29
 file:
 - statement:
     create_statement:
@@ -44,7 +44,7 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    literal: "'SNOWFLAKE_PII'"
+                    quoted_literal: "'SNOWFLAKE_PII'"
                   end_bracket: )
           - keyword: THEN
           - expression:
@@ -53,12 +53,12 @@ file:
         - else_clause:
             keyword: ELSE
             expression:
-              literal: "'*** masked ***'"
+              quoted_literal: "'*** masked ***'"
         - keyword: END
     - keyword: COMMENT
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: "'Applied 2021-07-13T03:12:16+0000'"
+    - quoted_literal: "'Applied 2021-07-13T03:12:16+0000'"
 - statement_terminator: ;
 - statement:
     create_statement:
@@ -98,7 +98,7 @@ file:
               keyword: in
               bracketed:
                 start_bracket: (
-                literal: "'ANALYST'"
+                quoted_literal: "'ANALYST'"
                 end_bracket: )
           - keyword: then
           - expression:
@@ -107,7 +107,7 @@ file:
         - else_clause:
             keyword: else
             expression:
-              literal: "'*********'"
+              quoted_literal: "'*********'"
         - keyword: end
 - statement_terminator: ;
 - statement:
@@ -148,7 +148,7 @@ file:
               keyword: in
               bracketed:
                 start_bracket: (
-                literal: "'<prod_account_identifier>'"
+                quoted_literal: "'<prod_account_identifier>'"
                 end_bracket: )
           - keyword: then
           - expression:
@@ -157,7 +157,7 @@ file:
         - else_clause:
             keyword: else
             expression:
-              literal: "'*********'"
+              quoted_literal: "'*********'"
         - keyword: end
 - statement_terminator: ;
 - statement:
@@ -198,7 +198,7 @@ file:
               keyword: IN
               bracketed:
                 start_bracket: (
-                literal: "'ANALYST'"
+                quoted_literal: "'ANALYST'"
                 end_bracket: )
           - keyword: then
           - expression:
@@ -248,7 +248,7 @@ file:
               keyword: in
               bracketed:
                 start_bracket: (
-                literal: "'ANALYST'"
+                quoted_literal: "'ANALYST'"
                 end_bracket: )
           - keyword: then
           - expression:
@@ -257,7 +257,7 @@ file:
         - else_clause:
             keyword: else
             expression:
-              literal: "'********'"
+              quoted_literal: "'********'"
         - keyword: end
 - statement_terminator: ;
 - statement:
@@ -298,7 +298,7 @@ file:
               keyword: in
               bracketed:
                 start_bracket: (
-                literal: "'ANALYST'"
+                quoted_literal: "'ANALYST'"
                 end_bracket: )
           - keyword: then
           - expression:
@@ -356,7 +356,7 @@ file:
               keyword: in
               bracketed:
                 start_bracket: (
-                literal: "'ANALYST'"
+                quoted_literal: "'ANALYST'"
                 end_bracket: )
           - keyword: then
           - expression:
@@ -374,7 +374,7 @@ file:
               keyword: in
               bracketed:
                 start_bracket: (
-                literal: "'SUPPORT'"
+                quoted_literal: "'SUPPORT'"
                 end_bracket: )
           - keyword: then
           - expression:
@@ -388,15 +388,15 @@ file:
                       identifier: val
                 - comma: ','
                 - expression:
-                    literal: "'.+\\@'"
+                    quoted_literal: "'.+\\@'"
                 - comma: ','
                 - expression:
-                    literal: "'*****@'"
+                    quoted_literal: "'*****@'"
                 - end_bracket: )
         - else_clause:
             keyword: else
             expression:
-              literal: "'********'"
+              quoted_literal: "'********'"
         - keyword: end
 - statement_terminator: ;
 - statement:
@@ -437,7 +437,7 @@ file:
               keyword: in
               bracketed:
                 start_bracket: (
-                literal: "'SUPPORT'"
+                quoted_literal: "'SUPPORT'"
                 end_bracket: )
           - keyword: then
           - expression:
@@ -504,7 +504,7 @@ file:
               keyword: in
               bracketed:
                 start_bracket: (
-                literal: "'ANALYST'"
+                quoted_literal: "'ANALYST'"
                 end_bracket: )
           - keyword: then
           - expression:
@@ -562,7 +562,7 @@ file:
               keyword: in
               bracketed:
                 start_bracket: (
-                literal: "'ANALYST'"
+                quoted_literal: "'ANALYST'"
                 end_bracket: )
           - keyword: then
           - expression:
@@ -581,10 +581,10 @@ file:
                       identifier: val
                 - comma: ','
                 - expression:
-                    literal: "'USER_IPADDRESS'"
+                    quoted_literal: "'USER_IPADDRESS'"
                 - comma: ','
                 - expression:
-                    literal: "'****'"
+                    quoted_literal: "'****'"
                 - comma: ','
                 - expression:
                     boolean_literal: 'true'

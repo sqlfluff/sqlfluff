@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 592389a2d4a83749398fc8068f3d122c0909af0a54eb1892dca6e1016aba05c7
+_hash: 63ea3f968b4add320516f1caca79f87260d6f9e5f221ae9d11b739b4767ef2d1
 file:
 - statement:
     alter_table_statement:
@@ -72,7 +72,7 @@ file:
         column_constraint_segment:
           comment_clause:
             keyword: COMMENT
-            literal: '"col_comment"'
+            quoted_literal: '"col_comment"'
     - keyword: FIRST
 - statement_terminator: ;
 - statement:
@@ -91,7 +91,7 @@ file:
         column_constraint_segment:
           comment_clause:
             keyword: COMMENT
-            literal: '"col_comment"'
+            quoted_literal: '"col_comment"'
     - keyword: FIRST
     - comma: ','
     - column_definition:
@@ -102,7 +102,7 @@ file:
         column_constraint_segment:
           comment_clause:
             keyword: COMMENT
-            literal: '"col_2_comment"'
+            quoted_literal: '"col_2_comment"'
     - keyword: AFTER
     - column_reference:
         naked_identifier: col_b_name
@@ -154,7 +154,7 @@ file:
         primitive_type:
           keyword: STRING
     - keyword: COMMENT
-    - literal: '"new_col_comment"'
+    - quoted_literal: '"new_col_comment"'
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -172,7 +172,7 @@ file:
         primitive_type:
           keyword: STRING
     - keyword: COMMENT
-    - literal: '"new_col_comment"'
+    - quoted_literal: '"new_col_comment"'
     - keyword: FIRST
 - statement_terminator: ;
 - statement:
@@ -191,7 +191,7 @@ file:
         primitive_type:
           keyword: STRING
     - keyword: COMMENT
-    - literal: '"new_col_comment"'
+    - quoted_literal: '"new_col_comment"'
     - keyword: AFTER
     - column_reference:
         naked_identifier: col_a_name
@@ -249,7 +249,7 @@ file:
         primitive_type:
           keyword: STRING
     - keyword: COMMENT
-    - literal: '"new_col_comment"'
+    - quoted_literal: '"new_col_comment"'
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -269,7 +269,7 @@ file:
         primitive_type:
           keyword: STRING
     - keyword: COMMENT
-    - literal: '"new_col_comment"'
+    - quoted_literal: '"new_col_comment"'
     - keyword: FIRST
 - statement_terminator: ;
 - statement:
@@ -290,7 +290,7 @@ file:
         primitive_type:
           keyword: STRING
     - keyword: COMMENT
-    - literal: '"new_col_comment"'
+    - quoted_literal: '"new_col_comment"'
     - keyword: AFTER
     - column_reference:
         naked_identifier: col_a_name
@@ -332,7 +332,7 @@ file:
           column_constraint_segment:
             comment_clause:
               keyword: COMMENT
-              literal: '"col_comment1"'
+              quoted_literal: '"col_comment1"'
         end_bracket: )
 - statement_terminator: ;
 - statement:

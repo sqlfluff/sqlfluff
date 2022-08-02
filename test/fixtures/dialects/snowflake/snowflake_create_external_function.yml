@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 87dd05785ad3220e7bac745305c6618f19eabfbd42c11daea449ffef47ce2407
+_hash: eb06a55098be7c34dc1354280ff4983e194e6eeb279718288ffabc7dd3bade7b
 file:
 - statement:
     create_external_function_statement:
@@ -218,7 +218,7 @@ file:
         keyword: COMMENT
         comparison_operator:
           raw_comparison_operator: '='
-        literal: "'SQLFluff rocks!'"
+        quoted_literal: "'SQLFluff rocks!'"
     - keyword: API_INTEGRATION
     - comparison_operator:
         raw_comparison_operator: '='

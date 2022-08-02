@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2ee38a6a474c38c78534e84f0b716cb1458f82c4cd29b79c994f1bcd9b17b88e
+_hash: ac825d9375b5de6d73ea53678420ccf3dd3651f96e4adaaa5c154747e9c41704
 file:
 - statement:
     create_table_statement:
@@ -74,7 +74,7 @@ file:
               primitive_type:
                 keyword: STRING
           - keyword: COMMENT
-          - literal: "'struct_comment'"
+          - quoted_literal: "'struct_comment'"
           - comma: ','
           - naked_identifier: c
           - colon: ':'
@@ -85,7 +85,7 @@ file:
           column_constraint_segment:
             comment_clause:
               keyword: COMMENT
-              literal: "'col_comment'"
+              quoted_literal: "'col_comment'"
       - comma: ','
       - column_definition:
           naked_identifier: d
@@ -102,7 +102,7 @@ file:
           column_constraint_segment:
             comment_clause:
               keyword: COMMENT
-              literal: "'col_comment'"
+              quoted_literal: "'col_comment'"
       - comma: ','
       - column_definition:
           naked_identifier: e
@@ -116,7 +116,7 @@ file:
           column_constraint_segment:
             comment_clause:
               keyword: COMMENT
-              literal: "'col_comment'"
+              quoted_literal: "'col_comment'"
       - end_bracket: )
 - statement_terminator: ;
 - statement:

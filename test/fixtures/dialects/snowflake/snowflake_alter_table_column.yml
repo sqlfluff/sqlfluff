@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b4178f0d1a17e126b56728f03667e80493bee8b36dac7aa276c3477395d5fc42
+_hash: 7e86d26377d5702184d52a374c828e9ee6f7418621c2d9b5b185c99075c9134e
 file:
 - statement:
     alter_table_statement:
@@ -254,7 +254,7 @@ file:
           data_type_identifier: VARCHAR
       - comment_clause:
           keyword: COMMENT
-          literal: "'internal reporting group defined by DE team'"
+          quoted_literal: "'internal reporting group defined by DE team'"
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -298,7 +298,7 @@ file:
           identifier: c5
         comment_clause:
           keyword: comment
-          literal: "'50 character column'"
+          quoted_literal: "'50 character column'"
 - statement_terminator: ;
 - statement:
     alter_table_statement:

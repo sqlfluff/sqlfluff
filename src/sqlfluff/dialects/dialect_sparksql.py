@@ -213,8 +213,8 @@ sparksql_dialect.replace(
         OneOf("TEMP", "TEMPORARY"),
     ),
     QuotedLiteralSegment=OneOf(
-        NamedParser("single_quote", CodeSegment, name="quoted_literal", type="literal"),
-        NamedParser("double_quote", CodeSegment, name="quoted_literal", type="literal"),
+        NamedParser("single_quote", ansi.LiteralSegment, type="quoted_literal"),
+        NamedParser("double_quote", ansi.LiteralSegment, type="quoted_literal"),
     ),
     LiteralGrammar=ansi_dialect.get_grammar("LiteralGrammar").copy(
         insert=[
@@ -532,15 +532,13 @@ sparksql_dialect.add(
     BytesQuotedLiteralSegment=OneOf(
         NamedParser(
             "bytes_single_quote",
-            CodeSegment,
-            name="bytes_quoted_literal",
-            type="literal",
+            ansi.LiteralSegment,
+            type="bytes_quoted_literal",
         ),
         NamedParser(
             "bytes_double_quote",
-            CodeSegment,
-            name="bytes_quoted_literal",
-            type="literal",
+            ansi.LiteralSegment,
+            type="bytes_quoted_literal",
         ),
     ),
     JoinTypeKeywords=OneOf(
@@ -565,9 +563,8 @@ sparksql_dialect.add(
     ),
     AtSignLiteralSegment=NamedParser(
         "at_sign_literal",
-        CodeSegment,
-        name="at_sign_literal",
-        type="literal",
+        ansi.LiteralSegment,
+        type="at_sign_literal",
         trim_chars="@",
     ),
     # This is the same as QuotedLiteralSegment but
@@ -575,15 +572,13 @@ sparksql_dialect.add(
     SignedQuotedLiteralSegment=OneOf(
         NamedParser(
             "single_quote",
-            CodeSegment,
-            name="signed_quoted_literal",
-            type="literal",
+            ansi.LiteralSegment,
+            type="signed_quoted_literal",
         ),
         NamedParser(
             "double_quote",
-            CodeSegment,
-            name="signed_quoted_literal",
-            type="literal",
+            ansi.LiteralSegment,
+            type="signed_quoted_literal",
         ),
     ),
 )

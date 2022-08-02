@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 70b0822e0c1b4403a83e22e8dc09ff63d23a9ed95907107279e79d5a189f4ccf
+_hash: 5b98500ac1d8d369b55f1cae19c75f1a43416be9c6d4f9dbd7c81056e5ac629c
 file:
 - statement:
     select_statement:
@@ -29,7 +29,7 @@ file:
           column_reference:
             naked_identifier: name
           keyword: LIKE
-          literal: "'M%'"
+          quoted_literal: "'M%'"
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -55,7 +55,7 @@ file:
           column_reference:
             naked_identifier: name
           keyword: LIKE
-          literal: "'M_ry'"
+          quoted_literal: "'M_ry'"
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -82,7 +82,7 @@ file:
             naked_identifier: name
         - keyword: NOT
         - keyword: LIKE
-        - literal: "'M_ry'"
+        - quoted_literal: "'M_ry'"
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -108,7 +108,7 @@ file:
           column_reference:
             naked_identifier: name
           keyword: RLIKE
-          literal: "'M+'"
+          quoted_literal: "'M+'"
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -134,7 +134,7 @@ file:
           column_reference:
             naked_identifier: name
           keyword: REGEXP
-          literal: "'M+'"
+          quoted_literal: "'M+'"
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -160,7 +160,7 @@ file:
           column_reference:
             naked_identifier: name
           keyword: LIKE
-          literal: "'%\\_%'"
+          quoted_literal: "'%\\_%'"
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -186,9 +186,9 @@ file:
         - column_reference:
             naked_identifier: name
         - keyword: LIKE
-        - literal: "'%$_%'"
+        - quoted_literal: "'%$_%'"
         - keyword: ESCAPE
-        - literal: "'$'"
+        - quoted_literal: "'$'"
 - statement_terminator: ;
 - statement:
     select_statement:

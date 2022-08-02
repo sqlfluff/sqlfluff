@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 880b257f542bda09a7be5254ba66c09803ab97403a098d138c0805112ef7b925
+_hash: af6cb652ee02b2d4e1c6cd6688a18a87e220ebc33c8b364acc65f578f0c91a0d
 file:
 - statement:
     select_statement:
@@ -35,7 +35,7 @@ file:
                 identifier: title
               comparison_operator:
                 raw_comparison_operator: '='
-              literal: "'President'"
+              quoted_literal: "'President'"
           - keyword: connect
           - keyword: by
           - column_reference:
@@ -66,7 +66,7 @@ file:
                   identifier: title
             - comma: ','
             - expression:
-                literal: "' -> '"
+                quoted_literal: "' -> '"
             - end_bracket: )
       - comma: ','
       - select_clause_element:
@@ -95,7 +95,7 @@ file:
                 identifier: title
               comparison_operator:
                 raw_comparison_operator: '='
-              literal: "'President'"
+              quoted_literal: "'President'"
           - keyword: connect
           - keyword: by
           - column_reference:
@@ -142,7 +142,7 @@ file:
                   identifier: component_id
             - comma: ','
             - expression:
-                literal: "' -> '"
+                quoted_literal: "' -> '"
             - end_bracket: )
           alias_expression:
             keyword: as
@@ -216,7 +216,7 @@ file:
                 identifier: title
               comparison_operator:
                 raw_comparison_operator: '='
-              literal: "'President'"
+              quoted_literal: "'President'"
           - keyword: connect
           - keyword: by
           - column_reference:

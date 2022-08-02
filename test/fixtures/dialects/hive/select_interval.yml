@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1278f481b5ca93a55b5f00bcd91aa87b66092472c858313d35ee1b6b24d4aa02
+_hash: c322d8cc3fd616da40547b7098c14333a8fef354726448120c756ca563fddf2b
 file:
 - statement:
     select_statement:
@@ -15,7 +15,7 @@ file:
             binary_operator: +
             interval_expression:
               keyword: INTERVAL
-              literal: "'2'"
+              quoted_literal: "'2'"
               date_part: DAY
 - statement_terminator: ;
 - statement:
@@ -28,7 +28,7 @@ file:
             binary_operator: '-'
             interval_expression:
               keyword: INTERVAL
-              literal: "'1'"
+              quoted_literal: "'1'"
               date_part: DAY
           alias_expression:
             keyword: AS
@@ -44,7 +44,7 @@ file:
             binary_operator: +
             interval_expression:
               keyword: INTERVAL
-              literal: "'12'"
+              quoted_literal: "'12'"
               date_part: HOUR
 - statement_terminator: ;
 - statement:
@@ -54,7 +54,7 @@ file:
         select_clause_element:
           interval_expression:
             keyword: INTERVAL
-            literal: "'1'"
+            quoted_literal: "'1'"
             date_part: DAY
 - statement_terminator: ;
 - statement:
@@ -64,7 +64,7 @@ file:
         select_clause_element:
           interval_expression:
           - keyword: INTERVAL
-          - literal: "'1-2'"
+          - quoted_literal: "'1-2'"
           - date_part: YEAR
           - keyword: TO
           - date_part: MONTH
@@ -77,12 +77,12 @@ file:
           expression:
           - interval_expression:
               keyword: INTERVAL
-              literal: "'1'"
+              quoted_literal: "'1'"
               date_part: YEAR
           - binary_operator: +
           - interval_expression:
               keyword: INTERVAL
-              literal: "'2'"
+              quoted_literal: "'2'"
               date_part: MONTH
 - statement_terminator: ;
 - statement:
@@ -92,7 +92,7 @@ file:
         select_clause_element:
           interval_expression:
             keyword: INTERVAL
-            literal: "'1 2:3:4.000005'"
+            quoted_literal: "'1 2:3:4.000005'"
             date_part: DAY
 - statement_terminator: ;
 - statement:
@@ -103,27 +103,27 @@ file:
           expression:
           - interval_expression:
               keyword: INTERVAL
-              literal: "'1'"
+              quoted_literal: "'1'"
               date_part: DAY
           - binary_operator: +
           - interval_expression:
               keyword: INTERVAL
-              literal: "'2'"
+              quoted_literal: "'2'"
               date_part: HOUR
           - binary_operator: +
           - interval_expression:
               keyword: INTERVAL
-              literal: "'3'"
+              quoted_literal: "'3'"
               date_part: MINUTE
           - binary_operator: +
           - interval_expression:
               keyword: INTERVAL
-              literal: "'4'"
+              quoted_literal: "'4'"
               date_part: SECOND
           - binary_operator: +
           - interval_expression:
               keyword: INTERVAL
-              literal: "'5'"
+              quoted_literal: "'5'"
               date_part: NANO
 - statement_terminator: ;
 - statement:
@@ -178,7 +178,7 @@ file:
         keyword: SELECT
         select_clause_element:
           interval_expression:
-          - literal: "'1-2'"
+          - quoted_literal: "'1-2'"
           - date_part: YEAR
           - keyword: TO
           - date_part: MONTH
@@ -190,7 +190,7 @@ file:
         select_clause_element:
           interval_expression:
           - keyword: INTERVAL
-          - literal: "'1-2'"
+          - quoted_literal: "'1-2'"
           - date_part: YEARS
           - keyword: TO
           - date_part: MONTH
