@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e5ba5147791b90969390e0ec99274b5745a2480f6f92f1eba0e99c2d35b5c2d0
+_hash: 27ac5fd6c297c22bff2b586e7f84732c3265df121931dcf21fd71f0086a96ce3
 file:
 - statement:
     select_statement:
@@ -325,7 +325,7 @@ file:
           interval_expression:
             keyword: INTERVAL
             interval_literal:
-            - literal: "'2-3'"
+            - signed_quoted_literal: "'2-3'"
             - date_part: YEAR
             - keyword: TO
             - date_part: MONTH
@@ -342,7 +342,7 @@ file:
             keyword: INTERVAL
             interval_literal:
             - sign_indicator: '-'
-            - literal: "'20 15:40:32.99899999'"
+            - signed_quoted_literal: "'20 15:40:32.99899999'"
             - date_part: DAY
             - keyword: TO
             - date_part: SECOND
@@ -376,7 +376,7 @@ file:
               numeric_literal: '2'
               date_part: HOUR
           - interval_literal:
-              literal: "'3'"
+              signed_quoted_literal: "'3'"
               date_part: MINUTE
           alias_expression:
             keyword: AS
