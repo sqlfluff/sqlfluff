@@ -84,7 +84,7 @@ class Rule_L049(Rule_L006):
                 continue
 
             sub_seg = null_literal.get()
-            assert sub_seg, "TypeGaurd: Segment must exist"
+            assert sub_seg, "TypeGuard: Segment must exist"
             self.logger.debug(
                 "Found NULL literal following equals/not equals @%s: %r",
                 sub_seg.pos_marker,
