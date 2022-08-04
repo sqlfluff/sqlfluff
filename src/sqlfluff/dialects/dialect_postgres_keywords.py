@@ -735,6 +735,7 @@ postgres_docs_keywords = [
     ("SPECIFIC", "not-keyword"),
     ("SPECIFICTYPE", "not-keyword"),
     ("SPECIFIC_NAME", "not-keyword"),
+    ("SPLIT_PART", "not-keyword"),
     ("SQL", "non-reserved"),
     ("SQLCODE", "not-keyword"),
     ("SQLERROR", "not-keyword"),
