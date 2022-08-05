@@ -213,8 +213,8 @@ sparksql_dialect.replace(
         OneOf("TEMP", "TEMPORARY"),
     ),
     QuotedLiteralSegment=OneOf(
-        NamedParser("single_quote", CodeSegment, name="quoted_literal", type="literal"),
-        NamedParser("double_quote", CodeSegment, name="quoted_literal", type="literal"),
+        NamedParser("single_quote", ansi.LiteralSegment, type="quoted_literal"),
+        NamedParser("double_quote", ansi.LiteralSegment, type="quoted_literal"),
     ),
     LiteralGrammar=ansi_dialect.get_grammar("LiteralGrammar").copy(
         insert=[
@@ -318,61 +318,42 @@ sparksql_dialect.replace(
 sparksql_dialect.add(
     BackQuotedIdentifierSegment=NamedParser(
         "back_quote",
-        CodeSegment,
-        name="quoted_identifier",
-        type="identifier",
+        ansi.IdentifierSegment,
+        type="quoted_identifier",
         trim_chars=("`",),
     ),
     BinaryfileKeywordSegment=StringParser(
         "BINARYFILE",
         KeywordSegment,
-        name="binary_file",
         type="file_format",
     ),
     JsonfileKeywordSegment=StringParser(
         "JSONFILE",
         KeywordSegment,
-        name="json_file",
         type="file_format",
     ),
-    RcfileKeywordSegment=StringParser(
-        "RCFILE", KeywordSegment, name="rc_file", type="file_format"
-    ),
+    RcfileKeywordSegment=StringParser("RCFILE", KeywordSegment, type="file_format"),
     SequencefileKeywordSegment=StringParser(
-        "SEQUENCEFILE", KeywordSegment, name="sequence_file", type="file_format"
+        "SEQUENCEFILE", KeywordSegment, type="file_format"
     ),
-    TextfileKeywordSegment=StringParser(
-        "TEXTFILE", KeywordSegment, name="text_file", type="file_format"
-    ),
+    TextfileKeywordSegment=StringParser("TEXTFILE", KeywordSegment, type="file_format"),
     StartAngleBracketSegment=StringParser(
-        "<", SymbolSegment, name="start_angle_bracket", type="start_angle_bracket"
+        "<", SymbolSegment, type="start_angle_bracket"
     ),
-    EndAngleBracketSegment=StringParser(
-        ">", SymbolSegment, name="end_angle_bracket", type="end_angle_bracket"
-    ),
-    EqualsSegment_a=StringParser(
-        "==", SymbolSegment, name="equals", type="comparison_operator"
-    ),
-    EqualsSegment_b=StringParser(
-        "<=>", SymbolSegment, name="equals", type="comparison_operator"
-    ),
+    EndAngleBracketSegment=StringParser(">", SymbolSegment, type="end_angle_bracket"),
+    EqualsSegment_a=StringParser("==", SymbolSegment, type="comparison_operator"),
+    EqualsSegment_b=StringParser("<=>", SymbolSegment, type="comparison_operator"),
     FileKeywordSegment=MultiStringParser(
-        ["FILE", "FILES"], KeywordSegment, name="file", type="file_keyword"
+        ["FILE", "FILES"], KeywordSegment, type="file_keyword"
     ),
     JarKeywordSegment=MultiStringParser(
-        ["JAR", "JARS"], KeywordSegment, name="jar", type="file_keyword"
+        ["JAR", "JARS"], KeywordSegment, type="file_keyword"
     ),
-    NoscanKeywordSegment=StringParser(
-        "NOSCAN", KeywordSegment, name="noscan_keyword", type="keyword"
-    ),
-    WhlKeywordSegment=StringParser(
-        "WHL", KeywordSegment, name="whl", type="file_keyword"
-    ),
+    NoscanKeywordSegment=StringParser("NOSCAN", KeywordSegment, type="keyword"),
+    WhlKeywordSegment=StringParser("WHL", KeywordSegment, type="file_keyword"),
     SQLConfPropertiesSegment=Sequence(
-        StringParser("-", SymbolSegment, name="dash", type="dash"),
-        StringParser(
-            "v", SymbolSegment, name="sql_conf_option_set", type="sql_conf_option"
-        ),
+        StringParser("-", SymbolSegment, type="dash"),
+        StringParser("v", SymbolSegment, type="sql_conf_option"),
         allow_gaps=False,
     ),
     # Add relevant Hive Grammar
@@ -469,8 +450,8 @@ sparksql_dialect.add(
     ),
     # Adding Hint related segments so they are not treated as generic comments
     # https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-hints.html
-    StartHintSegment=StringParser("/*+", KeywordSegment, name="start_hint"),
-    EndHintSegment=StringParser("*/", KeywordSegment, name="end_hint"),
+    StartHintSegment=StringParser("/*+", KeywordSegment, type="start_hint"),
+    EndHintSegment=StringParser("*/", KeywordSegment, type="end_hint"),
     PartitionSpecGrammar=Sequence(
         OneOf(
             "PARTITION",
@@ -495,9 +476,8 @@ sparksql_dialect.add(
     # and runtime properties.
     PropertiesNakedIdentifierSegment=RegexParser(
         r"[A-Z0-9]*[A-Z][A-Z0-9]*",
-        CodeSegment,
-        name="properties_naked_identifier",
-        type="identifier",
+        ansi.IdentifierSegment,
+        type="properties_naked_identifier",
     ),
     ResourceFileGrammar=OneOf(
         Ref("JarKeywordSegment"),
@@ -534,15 +514,13 @@ sparksql_dialect.add(
     BytesQuotedLiteralSegment=OneOf(
         NamedParser(
             "bytes_single_quote",
-            CodeSegment,
-            name="bytes_quoted_literal",
-            type="literal",
+            ansi.LiteralSegment,
+            type="bytes_quoted_literal",
         ),
         NamedParser(
             "bytes_double_quote",
-            CodeSegment,
-            name="bytes_quoted_literal",
-            type="literal",
+            ansi.LiteralSegment,
+            type="bytes_quoted_literal",
         ),
     ),
     JoinTypeKeywords=OneOf(
@@ -567,9 +545,8 @@ sparksql_dialect.add(
     ),
     AtSignLiteralSegment=NamedParser(
         "at_sign_literal",
-        CodeSegment,
-        name="at_sign_literal",
-        type="literal",
+        ansi.LiteralSegment,
+        type="at_sign_literal",
         trim_chars="@",
     ),
     # This is the same as QuotedLiteralSegment but
@@ -577,15 +554,13 @@ sparksql_dialect.add(
     SignedQuotedLiteralSegment=OneOf(
         NamedParser(
             "single_quote",
-            CodeSegment,
-            name="signed_quoted_literal",
-            type="literal",
+            ansi.LiteralSegment,
+            type="signed_quoted_literal",
         ),
         NamedParser(
             "double_quote",
-            CodeSegment,
-            name="signed_quoted_literal",
-            type="literal",
+            ansi.LiteralSegment,
+            type="signed_quoted_literal",
         ),
     ),
 )
@@ -2775,7 +2750,7 @@ class GenerateManifestFileStatementSegment(BaseSegment):
         StringParser(
             "symlink_format_manifest",
             CodeSegment,
-            name="symlink_format_manifest",
+            type="symlink_format_manifest",
         ),
         "FOR",
         "TABLE",

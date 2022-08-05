@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a022c78ad4d75f76ab9480b703acc95fb968edefe1494e9ac83f106a774d8b33
+_hash: 8ab76c0358b7b17419c23a31a4dc142f91cef693d91f9693909b77d005229120
 file:
   statement:
     select_statement:
@@ -15,36 +15,36 @@ file:
             - keyword: case
             - expression:
                 column_reference:
-                  identifier: fruit_code
+                  naked_identifier: fruit_code
             - when_clause:
               - keyword: when
               - expression:
-                  literal: '0'
+                  numeric_literal: '0'
               - keyword: then
               - expression:
-                  literal: "'apple'"
+                  quoted_literal: "'apple'"
             - when_clause:
               - keyword: when
               - expression:
-                  literal: '1'
+                  numeric_literal: '1'
               - keyword: then
               - expression:
-                  literal: "'banana'"
+                  quoted_literal: "'banana'"
             - when_clause:
               - keyword: when
               - expression:
-                  literal: '2'
+                  numeric_literal: '2'
               - keyword: then
               - expression:
-                  literal: "'cashew'"
+                  quoted_literal: "'cashew'"
             - keyword: end
           alias_expression:
             keyword: as
-            identifier: fruit
+            naked_identifier: fruit
       from_clause:
         keyword: from
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: some_table
+                naked_identifier: some_table

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d33139f238571fdbf4160477e448645fbe2db15cc827a9ade81794007e23fff9
+_hash: 379a9d589d67c92e1168c626767879eca530bdac1a7a79a2fe47b689d29d681f
 file:
 - statement:
     show_statement:
@@ -11,7 +11,7 @@ file:
     - keyword: TABLE
     - keyword: EXTENDED
     - keyword: LIKE
-    - literal: "'employee'"
+    - quoted_literal: "'employee'"
 - statement_terminator: ;
 - statement:
     show_statement:
@@ -19,7 +19,7 @@ file:
     - keyword: TABLE
     - keyword: EXTENDED
     - keyword: LIKE
-    - literal: "'employe*'"
+    - quoted_literal: "'employe*'"
 - statement_terminator: ;
 - statement:
     show_statement:
@@ -28,17 +28,17 @@ file:
     - keyword: EXTENDED
     - keyword: IN
     - database_reference:
-        identifier: default
+        naked_identifier: default
     - keyword: LIKE
-    - literal: "'employee'"
+    - quoted_literal: "'employee'"
     - keyword: PARTITION
     - bracketed:
         start_bracket: (
         column_reference:
-          identifier: grade
+          naked_identifier: grade
         comparison_operator:
           raw_comparison_operator: '='
-        literal: '1'
+        numeric_literal: '1'
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -48,16 +48,16 @@ file:
     - keyword: EXTENDED
     - keyword: IN
     - database_reference:
-        identifier: default
+        naked_identifier: default
     - keyword: LIKE
-    - literal: "'empl*'"
+    - quoted_literal: "'empl*'"
     - keyword: PARTITION
     - bracketed:
         start_bracket: (
         column_reference:
-          identifier: grade
+          naked_identifier: grade
         comparison_operator:
           raw_comparison_operator: '='
-        literal: '1'
+        numeric_literal: '1'
         end_bracket: )
 - statement_terminator: ;

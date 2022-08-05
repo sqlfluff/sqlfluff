@@ -3,14 +3,14 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0b45e290f826bc9201ea95b8c6b6e47578a46b13345bb4199bfc0fd798519615
+_hash: 438a76e77b3742e90d4210c0c4a3d87fb85e62dbdc161c859542d5e31b93341c
 file:
   statement:
     insert_statement:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-        identifier: canada_pageviews
+        naked_identifier: canada_pageviews
     - select_statement:
         select_clause:
           keyword: SELECT
@@ -24,16 +24,16 @@ file:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: vancouver_pageviews
+                  naked_identifier: vancouver_pageviews
         where_clause:
           keyword: WHERE
           expression:
           - column_reference:
-              identifier: pageview_date
+              naked_identifier: pageview_date
           - keyword: BETWEEN
           - keyword: date
-          - literal: "'2019-07-01'"
+          - date_constructor_literal: "'2019-07-01'"
           - keyword: AND
           - keyword: date
-          - literal: "'2019-07-31'"
+          - date_constructor_literal: "'2019-07-31'"
   statement_terminator: ;

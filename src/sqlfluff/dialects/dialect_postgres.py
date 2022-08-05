@@ -197,7 +197,7 @@ postgres_dialect.sets("value_table_functions").update(["UNNEST", "GENERATE_SERIE
 
 postgres_dialect.add(
     JsonOperatorSegment=NamedParser(
-        "json_operator", SymbolSegment, name="json_operator", type="binary_operator"
+        "json_operator", SymbolSegment, type="binary_operator"
     ),
     SimpleGeometryGrammar=AnyNumberOf(Ref("NumericLiteralSegment")),
     # N.B. this MultilineConcatenateDelimiterGrammar is only created
@@ -207,7 +207,6 @@ postgres_dialect.add(
     MultilineConcatenateNewline=NamedParser(
         "newline",
         NewlineSegment,
-        name="newline",
         type="newline",
     ),
     MultilineConcatenateDelimiterGrammar=AnyNumberOf(
@@ -216,9 +215,8 @@ postgres_dialect.add(
     # Add a Full equivalent which also allow keywords
     NakedIdentifierFullSegment=RegexParser(
         r"[A-Z_][A-Z0-9_]*",
-        CodeSegment,
-        name="naked_identifier_all",
-        type="identifier",
+        ansi.IdentifierSegment,
+        type="naked_identifier_all",
     ),
     SingleIdentifierFullGrammar=OneOf(
         Ref("NakedIdentifierSegment"),
@@ -252,19 +250,17 @@ postgres_dialect.replace(
             # Can’t begin with $, must only contain digits, letters, underscore it $ but
             # can’t be all digits.
             r"([A-Z_]+|[0-9]+[A-Z_$])[A-Z0-9_$]*",
-            CodeSegment,
-            name="naked_identifier",
-            type="identifier",
+            ansi.IdentifierSegment,
+            type="naked_identifier",
             anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
         )
     ),
     ParameterNameSegment=RegexParser(
-        r'[A-Z_][A-Z0-9_$]*|"[^"]*"', CodeSegment, name="parameter", type="parameter"
+        r'[A-Z_][A-Z0-9_$]*|"[^"]*"', CodeSegment, type="parameter"
     ),
     FunctionNameIdentifierSegment=RegexParser(
         r"[A-Z_][A-Z0-9_$]*",
         CodeSegment,
-        name="function_name_identifier",
         type="function_name_identifier",
     ),
     QuotedLiteralSegment=OneOf(
@@ -276,79 +272,67 @@ postgres_dialect.replace(
         Sequence(
             NamedParser(
                 "single_quote",
-                CodeSegment,
-                name="quoted_literal",
-                type="literal",
+                ansi.LiteralSegment,
+                type="quoted_literal",
             ),
             AnyNumberOf(
                 Ref("MultilineConcatenateDelimiterGrammar"),
                 NamedParser(
                     "single_quote",
-                    CodeSegment,
-                    name="quoted_literal",
-                    type="literal",
+                    ansi.LiteralSegment,
+                    type="quoted_literal",
                 ),
             ),
         ),
         Delimited(
             NamedParser(
                 "unicode_single_quote",
-                CodeSegment,
-                name="quoted_literal",
-                type="literal",
+                ansi.LiteralSegment,
+                type="quoted_literal",
             ),
             AnyNumberOf(
                 Ref("MultilineConcatenateDelimiterGrammar"),
                 NamedParser(
                     "unicode_single_quote",
-                    CodeSegment,
-                    name="quoted_literal",
-                    type="literal",
+                    ansi.LiteralSegment,
+                    type="quoted_literal",
                 ),
             ),
         ),
         Delimited(
             NamedParser(
                 "escaped_single_quote",
-                CodeSegment,
-                name="quoted_literal",
-                type="literal",
+                ansi.LiteralSegment,
+                type="quoted_literal",
             ),
             AnyNumberOf(
                 Ref("MultilineConcatenateDelimiterGrammar"),
                 NamedParser(
                     "escaped_single_quote",
-                    CodeSegment,
-                    name="quoted_literal",
-                    type="literal",
+                    ansi.LiteralSegment,
+                    type="quoted_literal",
                 ),
             ),
         ),
         Delimited(
             NamedParser(
                 "dollar_quote",
-                CodeSegment,
-                name="quoted_literal",
-                type="literal",
+                ansi.LiteralSegment,
+                type="quoted_literal",
             ),
             AnyNumberOf(
                 Ref("MultilineConcatenateDelimiterGrammar"),
                 NamedParser(
                     "dollar_quote",
-                    CodeSegment,
-                    name="quoted_literal",
-                    type="literal",
+                    ansi.LiteralSegment,
+                    type="quoted_literal",
                 ),
             ),
         ),
     ),
     QuotedIdentifierSegment=OneOf(
-        NamedParser(
-            "double_quote", CodeSegment, name="quoted_identifier", type="identifier"
-        ),
-        NamedParser(
-            "unicode_double_quote", CodeSegment, name="quoted_literal", type="literal"
-        ),
+        NamedParser("double_quote", ansi.IdentifierSegment, type="quoted_identifier"),
+        NamedParser("unicode_double_quote", ansi.LiteralSegment, type="quoted_literal"),
     ),
     PostFunctionGrammar=AnyNumberOf(
         Ref("WithinGroupClauseSegment"),

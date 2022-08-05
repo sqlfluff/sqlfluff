@@ -3,16 +3,16 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 99398ed9b74a3cf75c4bf8f7e552b63a75fe3b113e9363574160ebc3868441d2
+_hash: 18990817d9700a4630edc7caf16f00fcaee62f490269d80f93ed1084f69d9f33
 file:
 - statement:
     drop_object_statement:
     - keyword: DROP
     - keyword: CONNECTION
     - object_reference:
-      - identifier: MY_SCHEMA
+      - naked_identifier: MY_SCHEMA
       - dot: .
-      - identifier: T1
+      - naked_identifier: T1
 - statement_terminator: ;
 - statement:
     drop_object_statement:
@@ -21,25 +21,16 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - object_reference:
-      - identifier: MY_SCHEMA
+      - naked_identifier: MY_SCHEMA
       - dot: .
-      - identifier: T1
+      - naked_identifier: T1
 - statement_terminator: ;
 - statement:
     drop_database_statement:
     - keyword: DROP
     - keyword: DATABASE
     - database_reference:
-        identifier: MYTESTDB2
-- statement_terminator: ;
-- statement:
-    drop_database_statement:
-    - keyword: DROP
-    - keyword: DATABASE
-    - keyword: IF
-    - keyword: EXISTS
-    - database_reference:
-        identifier: MYTESTDB2
+        naked_identifier: MYTESTDB2
 - statement_terminator: ;
 - statement:
     drop_database_statement:
@@ -48,7 +39,16 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - database_reference:
-        identifier: MYTESTDB2
+        naked_identifier: MYTESTDB2
+- statement_terminator: ;
+- statement:
+    drop_database_statement:
+    - keyword: DROP
+    - keyword: DATABASE
+    - keyword: IF
+    - keyword: EXISTS
+    - database_reference:
+        naked_identifier: MYTESTDB2
     - keyword: CASCADE
 - statement_terminator: ;
 - statement:
@@ -57,9 +57,9 @@ file:
     - keyword: EXTERNAL
     - keyword: TABLE
     - table_reference:
-      - identifier: MY_SCHEMA
+      - naked_identifier: MY_SCHEMA
       - dot: .
-      - identifier: T1
+      - naked_identifier: T1
 - statement_terminator: ;
 - statement:
     drop_external_table_statement:
@@ -69,9 +69,9 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - table_reference:
-      - identifier: MY_SCHEMA
+      - naked_identifier: MY_SCHEMA
       - dot: .
-      - identifier: T1
+      - naked_identifier: T1
 - statement_terminator: ;
 - statement:
     drop_external_table_statement:
@@ -81,9 +81,9 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - table_reference:
-      - identifier: MY_SCHEMA
+      - naked_identifier: MY_SCHEMA
       - dot: .
-      - identifier: T1
+      - naked_identifier: T1
     - keyword: RESTRICT
 - statement_terminator: ;
 - statement:
@@ -92,9 +92,9 @@ file:
     - keyword: FILE
     - keyword: FORMAT
     - object_reference:
-      - identifier: MY_SCHEMA
+      - naked_identifier: MY_SCHEMA
       - dot: .
-      - identifier: MY_FORMAT
+      - naked_identifier: MY_FORMAT
 - statement_terminator: ;
 - statement:
     drop_object_statement:
@@ -104,16 +104,16 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - object_reference:
-      - identifier: MY_SCHEMA
+      - naked_identifier: MY_SCHEMA
       - dot: .
-      - identifier: MY_FORMAT
+      - naked_identifier: MY_FORMAT
 - statement_terminator: ;
 - statement:
     drop_function_statement:
     - keyword: DROP
     - keyword: FUNCTION
     - function_name:
-        identifier: MY_SCHEMA
+        naked_identifier: MY_SCHEMA
         dot: .
         function_name_identifier: MY_FUNCTION
     - function_parameter_list:
@@ -133,7 +133,7 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - function_name:
-        identifier: MY_SCHEMA
+        naked_identifier: MY_SCHEMA
         dot: .
         function_name_identifier: MY_FUNCTION
     - function_parameter_list:
@@ -151,7 +151,7 @@ file:
     - keyword: DROP
     - keyword: INTEGRATION
     - object_reference:
-        identifier: T2
+        naked_identifier: T2
 - statement_terminator: ;
 - statement:
     drop_object_statement:
@@ -161,21 +161,21 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - object_reference:
-        identifier: T2
+        naked_identifier: T2
 - statement_terminator: ;
 - statement:
     drop_object_statement:
     - keyword: DROP
     - keyword: MANAGED
     - keyword: ACCOUNT
-    - identifier: READER_ACCT1
+    - naked_identifier: READER_ACCT1
 - statement_terminator: ;
 - statement:
     drop_object_statement:
     - keyword: DROP
     - keyword: MASKING
     - keyword: POLICY
-    - identifier: SSN_MASK
+    - naked_identifier: SSN_MASK
 - statement_terminator: ;
 - statement:
     drop_materialized_view_statement:
@@ -183,9 +183,9 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-      - identifier: MY_SCHEMA
+      - naked_identifier: MY_SCHEMA
       - dot: .
-      - identifier: MV1
+      - naked_identifier: MV1
 - statement_terminator: ;
 - statement:
     drop_materialized_view_statement:
@@ -195,16 +195,16 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - table_reference:
-      - identifier: MY_SCHEMA
+      - naked_identifier: MY_SCHEMA
       - dot: .
-      - identifier: MV1
+      - naked_identifier: MV1
 - statement_terminator: ;
 - statement:
     drop_object_statement:
     - keyword: DROP
     - keyword: NETWORK
     - keyword: POLICY
-    - identifier: MY_POLICY
+    - naked_identifier: MY_POLICY
 - statement_terminator: ;
 - statement:
     drop_object_statement:
@@ -213,16 +213,16 @@ file:
     - keyword: POLICY
     - keyword: IF
     - keyword: EXISTS
-    - identifier: MY_POLICY
+    - naked_identifier: MY_POLICY
 - statement_terminator: ;
 - statement:
     drop_object_statement:
     - keyword: DROP
     - keyword: PIPE
     - object_reference:
-      - identifier: MY_SCHEMA
+      - naked_identifier: MY_SCHEMA
       - dot: .
-      - identifier: MYPIPE
+      - naked_identifier: MYPIPE
 - statement_terminator: ;
 - statement:
     drop_object_statement:
@@ -231,16 +231,16 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - object_reference:
-      - identifier: MY_SCHEMA
+      - naked_identifier: MY_SCHEMA
       - dot: .
-      - identifier: MYPIPE
+      - naked_identifier: MYPIPE
 - statement_terminator: ;
 - statement:
     drop_procedure_statement:
     - keyword: DROP
     - keyword: PROCEDURE
     - function_name:
-        identifier: MY_SCHEMA
+        naked_identifier: MY_SCHEMA
         dot: .
         function_name_identifier: ADD_ACCOUNTING_USER
     - function_parameter_list:
@@ -257,7 +257,7 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - function_name:
-        identifier: MY_SCHEMA
+        naked_identifier: MY_SCHEMA
         dot: .
         function_name_identifier: ADD_ACCOUNTING_USER
     - function_parameter_list:
@@ -273,13 +273,13 @@ file:
     - keyword: RESOURCE
     - keyword: MONITOR
     - object_reference:
-        identifier: MY_MONITOR_RESOURCE
+        naked_identifier: MY_MONITOR_RESOURCE
 - statement_terminator: ;
 - statement:
     drop_role_statement:
     - keyword: DROP
     - keyword: ROLE
-    - identifier: MYROLE
+    - naked_identifier: MYROLE
 - statement_terminator: ;
 - statement:
     drop_role_statement:
@@ -287,7 +287,7 @@ file:
     - keyword: ROLE
     - keyword: IF
     - keyword: EXISTS
-    - identifier: MYROLE
+    - naked_identifier: MYROLE
 - statement_terminator: ;
 - statement:
     drop_object_statement:
@@ -296,7 +296,7 @@ file:
     - keyword: ACCESS
     - keyword: POLICY
     - object_reference:
-        identifier: RAP_TABLE_EMPLOYEE_INFO
+        naked_identifier: RAP_TABLE_EMPLOYEE_INFO
 - statement_terminator: ;
 - statement:
     drop_object_statement:
@@ -307,23 +307,14 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - object_reference:
-        identifier: RAP_TABLE_EMPLOYEE_INFO
+        naked_identifier: RAP_TABLE_EMPLOYEE_INFO
 - statement_terminator: ;
 - statement:
     drop_schema_statement:
     - keyword: DROP
     - keyword: SCHEMA
     - schema_reference:
-        identifier: MY_SCHEMA
-- statement_terminator: ;
-- statement:
-    drop_schema_statement:
-    - keyword: DROP
-    - keyword: SCHEMA
-    - keyword: IF
-    - keyword: EXISTS
-    - schema_reference:
-        identifier: MY_SCHEMA
+        naked_identifier: MY_SCHEMA
 - statement_terminator: ;
 - statement:
     drop_schema_statement:
@@ -332,7 +323,16 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - schema_reference:
-        identifier: MY_SCHEMA
+        naked_identifier: MY_SCHEMA
+- statement_terminator: ;
+- statement:
+    drop_schema_statement:
+    - keyword: DROP
+    - keyword: SCHEMA
+    - keyword: IF
+    - keyword: EXISTS
+    - schema_reference:
+        naked_identifier: MY_SCHEMA
     - keyword: CASCADE
 - statement_terminator: ;
 - statement:
@@ -340,9 +340,9 @@ file:
     - keyword: DROP
     - keyword: SEQUENCE
     - sequence_reference:
-      - identifier: MY_SCHEMA
+      - naked_identifier: MY_SCHEMA
       - dot: .
-      - identifier: INVOICE_SEQUENCE_NUMBER
+      - naked_identifier: INVOICE_SEQUENCE_NUMBER
 - statement_terminator: ;
 - statement:
     drop_object_statement:
@@ -351,9 +351,9 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - object_reference:
-      - identifier: MY_SCHEMA
+      - naked_identifier: MY_SCHEMA
       - dot: .
-      - identifier: INVOICE_SEQUENCE_NUMBER
+      - naked_identifier: INVOICE_SEQUENCE_NUMBER
 - statement_terminator: ;
 - statement:
     drop_object_statement:
@@ -362,9 +362,9 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - object_reference:
-      - identifier: MY_SCHEMA
+      - naked_identifier: MY_SCHEMA
       - dot: .
-      - identifier: INVOICE_SEQUENCE_NUMBER
+      - naked_identifier: INVOICE_SEQUENCE_NUMBER
     - keyword: CASCADE
 - statement_terminator: ;
 - statement:
@@ -372,7 +372,7 @@ file:
     - keyword: DROP
     - keyword: SESSION
     - keyword: POLICY
-    - identifier: SESSION_POLICY_PRODUCTION_1
+    - naked_identifier: SESSION_POLICY_PRODUCTION_1
 - statement_terminator: ;
 - statement:
     drop_object_statement:
@@ -381,23 +381,23 @@ file:
     - keyword: POLICY
     - keyword: IF
     - keyword: EXISTS
-    - identifier: SESSION_POLICY_PRODUCTION_1
+    - naked_identifier: SESSION_POLICY_PRODUCTION_1
 - statement_terminator: ;
 - statement:
     drop_object_statement:
     - keyword: DROP
     - keyword: SHARE
     - object_reference:
-        identifier: SALES_S
+        naked_identifier: SALES_S
 - statement_terminator: ;
 - statement:
     drop_object_statement:
     - keyword: DROP
     - keyword: STAGE
     - object_reference:
-      - identifier: MY_SCHEMA
+      - naked_identifier: MY_SCHEMA
       - dot: .
-      - identifier: MY_STAGE
+      - naked_identifier: MY_STAGE
 - statement_terminator: ;
 - statement:
     drop_object_statement:
@@ -406,18 +406,18 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - object_reference:
-      - identifier: MY_SCHEMA
+      - naked_identifier: MY_SCHEMA
       - dot: .
-      - identifier: MY_STAGE
+      - naked_identifier: MY_STAGE
 - statement_terminator: ;
 - statement:
     drop_object_statement:
     - keyword: DROP
     - keyword: STREAM
     - object_reference:
-      - identifier: MY_SCHEMA
+      - naked_identifier: MY_SCHEMA
       - dot: .
-      - identifier: T2
+      - naked_identifier: T2
 - statement_terminator: ;
 - statement:
     drop_object_statement:
@@ -426,29 +426,18 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - object_reference:
-      - identifier: MY_SCHEMA
+      - naked_identifier: MY_SCHEMA
       - dot: .
-      - identifier: T2
+      - naked_identifier: T2
 - statement_terminator: ;
 - statement:
     drop_table_statement:
     - keyword: DROP
     - keyword: TABLE
     - table_reference:
-      - identifier: MY_SCHEMA
+      - naked_identifier: MY_SCHEMA
       - dot: .
-      - identifier: T2
-- statement_terminator: ;
-- statement:
-    drop_table_statement:
-    - keyword: DROP
-    - keyword: TABLE
-    - keyword: IF
-    - keyword: EXISTS
-    - table_reference:
-      - identifier: MY_SCHEMA
-      - dot: .
-      - identifier: T2
+      - naked_identifier: T2
 - statement_terminator: ;
 - statement:
     drop_table_statement:
@@ -457,9 +446,20 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - table_reference:
-      - identifier: MY_SCHEMA
+      - naked_identifier: MY_SCHEMA
       - dot: .
-      - identifier: T2
+      - naked_identifier: T2
+- statement_terminator: ;
+- statement:
+    drop_table_statement:
+    - keyword: DROP
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+      - naked_identifier: MY_SCHEMA
+      - dot: .
+      - naked_identifier: T2
     - keyword: CASCADE
 - statement_terminator: ;
 - statement:
@@ -467,7 +467,7 @@ file:
     - keyword: DROP
     - keyword: TAG
     - object_reference:
-        identifier: COST_CENTER
+        naked_identifier: COST_CENTER
 - statement_terminator: ;
 - statement:
     drop_object_statement:
@@ -476,16 +476,16 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - object_reference:
-        identifier: COST_CENTER
+        naked_identifier: COST_CENTER
 - statement_terminator: ;
 - statement:
     drop_object_statement:
     - keyword: DROP
     - keyword: TASK
     - object_reference:
-      - identifier: MY_SCHEAM
+      - naked_identifier: MY_SCHEAM
       - dot: .
-      - identifier: T2
+      - naked_identifier: T2
 - statement_terminator: ;
 - statement:
     drop_object_statement:
@@ -494,16 +494,16 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - object_reference:
-      - identifier: MY_SCHEAM
+      - naked_identifier: MY_SCHEAM
       - dot: .
-      - identifier: T2
+      - naked_identifier: T2
 - statement_terminator: ;
 - statement:
     drop_user_statement:
     - keyword: DROP
     - keyword: USER
     - role_reference:
-        identifier: USER1
+        naked_identifier: USER1
 - statement_terminator: ;
 - statement:
     drop_user_statement:
@@ -512,16 +512,16 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - role_reference:
-        identifier: USER1
+        naked_identifier: USER1
 - statement_terminator: ;
 - statement:
     drop_view_statement:
     - keyword: DROP
     - keyword: VIEW
     - table_reference:
-      - identifier: MY_SCHEMA
+      - naked_identifier: MY_SCHEMA
       - dot: .
-      - identifier: MY_VIEW
+      - naked_identifier: MY_VIEW
 - statement_terminator: ;
 - statement:
     drop_view_statement:
@@ -530,15 +530,15 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - table_reference:
-      - identifier: MY_SCHEMA
+      - naked_identifier: MY_SCHEMA
       - dot: .
-      - identifier: MY_VIEW
+      - naked_identifier: MY_VIEW
 - statement_terminator: ;
 - statement:
     drop_object_statement:
     - keyword: DROP
     - keyword: WAREHOUSE
-    - identifier: MY_WAREHOUSE
+    - naked_identifier: MY_WAREHOUSE
 - statement_terminator: ;
 - statement:
     drop_object_statement:
@@ -546,5 +546,5 @@ file:
     - keyword: WAREHOUSE
     - keyword: IF
     - keyword: EXISTS
-    - identifier: MY_WAREHOUSE
+    - naked_identifier: MY_WAREHOUSE
 - statement_terminator: ;

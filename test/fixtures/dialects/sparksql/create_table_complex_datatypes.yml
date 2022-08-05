@@ -3,28 +3,28 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9822eb92654515e7a9ec03ff46964af3530db1f5d8a016a8547de8de0073972a
+_hash: 51bbf5a827b5e2ba4aefdea69bee7821d3755ed83bf2761759a9ef850ac21bee
 file:
 - statement:
     create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: table_identifier
+        naked_identifier: table_identifier
     - bracketed:
       - start_bracket: (
       - column_definition:
-          identifier: a
+          naked_identifier: a
           data_type:
           - keyword: STRUCT
           - start_angle_bracket: <
-          - identifier: b
+          - naked_identifier: b
           - colon: ':'
           - data_type:
               primitive_type:
                 keyword: STRING
           - comma: ','
-          - identifier: c
+          - naked_identifier: c
           - colon: ':'
           - data_type:
               primitive_type:
@@ -32,7 +32,7 @@ file:
           - end_angle_bracket: '>'
       - comma: ','
       - column_definition:
-          identifier: d
+          naked_identifier: d
           data_type:
             keyword: MAP
             start_angle_bracket: <
@@ -45,7 +45,7 @@ file:
             end_angle_bracket: '>'
       - comma: ','
       - column_definition:
-          identifier: e
+          naked_identifier: e
           data_type:
             keyword: ARRAY
             start_angle_bracket: <
@@ -60,23 +60,23 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: table_identifier
+        naked_identifier: table_identifier
     - bracketed:
       - start_bracket: (
       - column_definition:
-          identifier: a
+          naked_identifier: a
           data_type:
           - keyword: STRUCT
           - start_angle_bracket: <
-          - identifier: b
+          - naked_identifier: b
           - colon: ':'
           - data_type:
               primitive_type:
                 keyword: STRING
           - keyword: COMMENT
-          - literal: "'struct_comment'"
+          - quoted_literal: "'struct_comment'"
           - comma: ','
-          - identifier: c
+          - naked_identifier: c
           - colon: ':'
           - data_type:
               primitive_type:
@@ -85,10 +85,10 @@ file:
           column_constraint_segment:
             comment_clause:
               keyword: COMMENT
-              literal: "'col_comment'"
+              quoted_literal: "'col_comment'"
       - comma: ','
       - column_definition:
-          identifier: d
+          naked_identifier: d
           data_type:
             keyword: MAP
             start_angle_bracket: <
@@ -102,10 +102,10 @@ file:
           column_constraint_segment:
             comment_clause:
               keyword: COMMENT
-              literal: "'col_comment'"
+              quoted_literal: "'col_comment'"
       - comma: ','
       - column_definition:
-          identifier: e
+          naked_identifier: e
           data_type:
             keyword: ARRAY
             start_angle_bracket: <
@@ -116,7 +116,7 @@ file:
           column_constraint_segment:
             comment_clause:
               keyword: COMMENT
-              literal: "'col_comment'"
+              quoted_literal: "'col_comment'"
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -124,21 +124,21 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: table_identifier
+        naked_identifier: table_identifier
     - bracketed:
       - start_bracket: (
       - column_definition:
-          identifier: a
+          naked_identifier: a
           data_type:
           - keyword: STRUCT
           - start_angle_bracket: <
-          - identifier: b
+          - naked_identifier: b
           - colon: ':'
           - data_type:
               primitive_type:
                 keyword: STRING
           - comma: ','
-          - identifier: c
+          - naked_identifier: c
           - colon: ':'
           - data_type:
               keyword: MAP
@@ -153,7 +153,7 @@ file:
           - end_angle_bracket: '>'
       - comma: ','
       - column_definition:
-          identifier: d
+          naked_identifier: d
           data_type:
             keyword: MAP
             start_angle_bracket: <
@@ -163,13 +163,13 @@ file:
             data_type:
             - keyword: STRUCT
             - start_angle_bracket: <
-            - identifier: e
+            - naked_identifier: e
             - colon: ':'
             - data_type:
                 primitive_type:
                   keyword: STRING
             - comma: ','
-            - identifier: f
+            - naked_identifier: f
             - colon: ':'
             - data_type:
                 keyword: MAP
@@ -185,20 +185,20 @@ file:
             end_angle_bracket: '>'
       - comma: ','
       - column_definition:
-          identifier: g
+          naked_identifier: g
           data_type:
             keyword: ARRAY
             start_angle_bracket: <
             data_type:
             - keyword: STRUCT
             - start_angle_bracket: <
-            - identifier: h
+            - naked_identifier: h
             - colon: ':'
             - data_type:
                 primitive_type:
                   keyword: STRING
             - comma: ','
-            - identifier: i
+            - naked_identifier: i
             - colon: ':'
             - data_type:
                 keyword: MAP
@@ -219,21 +219,21 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: table_identifier
+        naked_identifier: table_identifier
     - bracketed:
       - start_bracket: (
       - column_definition:
-          identifier: a
+          naked_identifier: a
           data_type:
           - keyword: STRUCT
           - start_angle_bracket: <
-          - identifier: '`b`'
+          - quoted_identifier: '`b`'
           - colon: ':'
           - data_type:
               primitive_type:
                 keyword: STRING
           - comma: ','
-          - identifier: c
+          - naked_identifier: c
           - colon: ':'
           - data_type:
               primitive_type:
@@ -241,7 +241,7 @@ file:
           - end_angle_bracket: '>'
       - comma: ','
       - column_definition:
-          identifier: '`d`'
+          quoted_identifier: '`d`'
           data_type:
             keyword: MAP
             start_angle_bracket: <
@@ -254,7 +254,7 @@ file:
             end_angle_bracket: '>'
       - comma: ','
       - column_definition:
-          identifier: e
+          naked_identifier: e
           data_type:
             keyword: ARRAY
             start_angle_bracket: <

@@ -4,7 +4,7 @@ from typing import Iterator, List, Optional, Set
 
 from sqlfluff.core.dialects.common import AliasInfo, ColumnAliasInfo
 from sqlfluff.core.parser.segments.base import BaseSegment
-from sqlfluff.core.parser.segments.raw import CodeSegment, SymbolSegment
+from sqlfluff.core.parser.segments.raw import SymbolSegment
 from sqlfluff.core.rules.analysis.select_crawler import Query, SelectCrawler
 from sqlfluff.core.rules import (
     BaseRule,
@@ -19,6 +19,7 @@ from sqlfluff.core.rules.doc_decorators import (
     document_fix_compatible,
     document_groups,
 )
+from sqlfluff.dialects.dialect_ansi import IdentifierSegment
 
 
 @document_groups
@@ -258,12 +259,11 @@ def _validate_one_reference(
                     ref.segments[0] if len(ref.segments) else ref,
                     source=[table_ref_str_source] if table_ref_str_source else None,
                     edit_segments=[
-                        CodeSegment(
+                        IdentifierSegment(
                             raw=table_ref_str,
-                            name="naked_identifier",
-                            type="identifier",
+                            type="naked_identifier",
                         ),
-                        SymbolSegment(raw=".", type="symbol", name="dot"),
+                        SymbolSegment(raw=".", type="symbol"),
                     ],
                 )
             ]

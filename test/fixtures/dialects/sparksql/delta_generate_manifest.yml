@@ -3,33 +3,33 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: faf4f2753aeae3b1d57875ef7becfd1994517e58f49a9ee3ca54bb8c76db2ff5
+_hash: 948d1aa854413e5a6814df2afa04d9391abf9f565944b9545153ba86f4eb075f
 file:
 - statement:
     generate_manifest_file_statement:
     - keyword: GENERATE
-    - raw: symlink_format_manifest
+    - symlink_format_manifest: symlink_format_manifest
     - keyword: FOR
     - keyword: TABLE
     - file_reference:
         keyword: DELTA
         dot: .
-        identifier: '`/data/events/`'
+        quoted_identifier: '`/data/events/`'
 - statement_terminator: ;
 - statement:
     generate_manifest_file_statement:
     - keyword: GENERATE
-    - raw: symlink_format_manifest
+    - symlink_format_manifest: symlink_format_manifest
     - keyword: FOR
     - keyword: TABLE
-    - literal: "'/data/events/'"
+    - quoted_literal: "'/data/events/'"
 - statement_terminator: ;
 - statement:
     generate_manifest_file_statement:
     - keyword: GENERATE
-    - raw: symlink_format_manifest
+    - symlink_format_manifest: symlink_format_manifest
     - keyword: FOR
     - keyword: TABLE
     - table_reference:
-        identifier: events
+        naked_identifier: events
 - statement_terminator: ;

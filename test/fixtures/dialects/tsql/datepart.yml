@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6178c02c375d73445a741139a586236270723a4390dbdd51c1f7b58d1a9b9f6c
+_hash: 3d8b1b8b053f8cc176ef243b44288a0b382680912425f31cb6e90a7832855ee2
 file:
   batch:
     statement:
@@ -20,18 +20,18 @@ file:
                 comma: ','
                 expression:
                   column_reference:
-                  - identifier: my_table
+                  - naked_identifier: my_table
                   - dot: .
-                  - identifier: date
+                  - naked_identifier: date
                 end_bracket: )
             alias_expression:
               keyword: AS
-              identifier: dayofweek
+              naked_identifier: dayofweek
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: my_table
+                  naked_identifier: my_table
           statement_terminator: ;

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 49a2d0045329866000f11c619a091c8e67e87d8b96d455f038bff2d1277175d6
+_hash: a1fbac192cf02d98f28a924f4b894fce63a8c73ecd867e5eea4d56c1fa6f49da
 file:
 - statement:
     explain_statement:
@@ -12,7 +12,7 @@ file:
         select_clause:
           keyword: select
           select_clause_element:
-            literal: '1'
+            numeric_literal: '1'
 - statement_terminator: ;
 - statement:
     explain_statement:
@@ -23,23 +23,23 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl
+                naked_identifier: tbl
         set_clause_list:
           keyword: set
           set_clause:
             column_reference:
-              identifier: foo
+              naked_identifier: foo
             comparison_operator:
               raw_comparison_operator: '='
-            literal: '1'
+            numeric_literal: '1'
         where_clause:
           keyword: where
           expression:
             column_reference:
-              identifier: bar
+              naked_identifier: bar
             comparison_operator:
               raw_comparison_operator: '='
-            literal: '2'
+            numeric_literal: '2'
 - statement_terminator: ;
 - statement:
     explain_statement:
@@ -52,15 +52,15 @@ file:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: tbl
+                  naked_identifier: tbl
         where_clause:
           keyword: where
           expression:
             column_reference:
-              identifier: foo
+              naked_identifier: foo
             comparison_operator:
               raw_comparison_operator: '='
-            literal: '1'
+            numeric_literal: '1'
 - statement_terminator: ;
 - statement:
     explain_statement:
@@ -69,17 +69,17 @@ file:
       - keyword: insert
       - keyword: into
       - table_reference:
-          identifier: tbl
+          naked_identifier: tbl
       - bracketed:
           start_bracket: (
           column_reference:
-            identifier: col1
+            naked_identifier: col1
           end_bracket: )
       - values_clause:
           keyword: values
           bracketed:
             start_bracket: (
             expression:
-              literal: '123'
+              numeric_literal: '123'
             end_bracket: )
 - statement_terminator: ;

@@ -3,86 +3,86 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 304ece91d8540fd10a09ebec75402ff76d951690615eac803dee97975aa9c73f
+_hash: ccec964f5d1d6a5487cf768b3f963f6a47fe9b86abda53240e605d8e8580a8e1
 file:
 - statement:
     use_statement:
     - keyword: use
     - keyword: role
     - object_reference:
-        identifier: my_role
+        naked_identifier: my_role
 - statement_terminator: ;
 - statement:
     use_statement:
     - keyword: use
     - keyword: warehouse
     - object_reference:
-        identifier: my_warehouse
+        naked_identifier: my_warehouse
 - statement_terminator: ;
 - statement:
     use_statement:
     - keyword: use
     - keyword: database
     - database_reference:
-        identifier: my_database
+        naked_identifier: my_database
 - statement_terminator: ;
 - statement:
     use_statement:
     - keyword: use
     - keyword: schema
     - schema_reference:
-        identifier: my_schema
+        naked_identifier: my_schema
 - statement_terminator: ;
 - statement:
     use_statement:
     - keyword: USE
     - keyword: ROLE
     - object_reference:
-        identifier: '"MY_ROLE"'
+        quoted_identifier: '"MY_ROLE"'
 - statement_terminator: ;
 - statement:
     use_statement:
     - keyword: USE
     - keyword: WAREHOUSE
     - object_reference:
-        identifier: '"MY_WAREHOUSE"'
+        quoted_identifier: '"MY_WAREHOUSE"'
 - statement_terminator: ;
 - statement:
     use_statement:
     - keyword: USE
     - keyword: DATABASE
     - database_reference:
-        identifier: '"MY_DATABASE"'
+        quoted_identifier: '"MY_DATABASE"'
 - statement_terminator: ;
 - statement:
     use_statement:
       keyword: USE
       database_reference:
-        identifier: '"MY_DATABASE"'
+        quoted_identifier: '"MY_DATABASE"'
 - statement_terminator: ;
 - statement:
     use_statement:
     - keyword: USE
     - keyword: SCHEMA
     - schema_reference:
-      - identifier: '"MY_DATABASE"'
+      - quoted_identifier: '"MY_DATABASE"'
       - dot: .
-      - identifier: '"MY_SCHEMA"'
+      - quoted_identifier: '"MY_SCHEMA"'
 - statement_terminator: ;
 - statement:
     use_statement:
     - keyword: USE
     - keyword: SCHEMA
     - schema_reference:
-        identifier: '"MY_SCHEMA"'
+        quoted_identifier: '"MY_SCHEMA"'
 - statement_terminator: ;
 - statement:
     use_statement:
       keyword: USE
       database_reference:
-      - identifier: '"MY_DATABASE"'
+      - quoted_identifier: '"MY_DATABASE"'
       - dot: .
-      - identifier: '"MY_SCHEMA"'
+      - quoted_identifier: '"MY_SCHEMA"'
 - statement_terminator: ;
 - statement:
     use_statement:

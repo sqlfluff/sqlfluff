@@ -3,15 +3,15 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 552fd1d751752cf3ff213ac044fe72154b22be3497ddf49eef5ac1ef06c1c598
+_hash: d7765299469a748d088e3edfca77fc480c6e422fe904acf1e0aa2adf6b20b167
 file:
 - statement:
     load_statement:
       keyword: LOAD
-      literal: "'funzioniGDB.so'"
+      quoted_literal: "'funzioniGDB.so'"
 - statement_terminator: ;
 - statement:
     load_statement:
       keyword: LOAD
-      literal: "'/some/path/funzioniGDB.so'"
+      quoted_literal: "'/some/path/funzioniGDB.so'"
 - statement_terminator: ;

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bbdfebdf5f418e88cbcfd4ac1fa893903d0383f87cd2212c7763c567534e4398
+_hash: f69e82d537f53274885f22d0d50064f386a37892894385e9d24aeb7ecffe0777
 file:
 - statement:
     select_statement:
@@ -19,13 +19,13 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                  identifier: some_timestamp
+                  naked_identifier: some_timestamp
                 time_zone_grammar:
                 - keyword: AT
                 - keyword: TIME
                 - keyword: ZONE
                 - expression:
-                    literal: '"UTC"'
+                    quoted_literal: '"UTC"'
               end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -42,21 +42,21 @@ file:
               keyword: FROM
               expression:
                 column_reference:
-                  identifier: some_timestamp
+                  naked_identifier: some_timestamp
                 time_zone_grammar:
                 - keyword: AT
                 - keyword: TIME
                 - keyword: ZONE
                 - expression:
                     column_reference:
-                      identifier: timezone_column
+                      naked_identifier: timezone_column
               end_bracket: )
 - statement_terminator: ;
 - statement:
     with_compound_statement:
       keyword: WITH
       common_table_expression:
-        identifier: Input
+        naked_identifier: Input
         keyword: AS
         bracketed:
           start_bracket: (
@@ -70,11 +70,11 @@ file:
                   bracketed:
                     start_bracket: (
                     expression:
-                      literal: '"2008-12-25 05:30:00+00"'
+                      quoted_literal: '"2008-12-25 05:30:00+00"'
                     end_bracket: )
                 alias_expression:
                   keyword: AS
-                  identifier: timestamp_value
+                  naked_identifier: timestamp_value
           end_bracket: )
       select_statement:
         select_clause:
@@ -89,17 +89,17 @@ file:
                 keyword: FROM
                 expression:
                   column_reference:
-                    identifier: timestamp_value
+                    naked_identifier: timestamp_value
                   time_zone_grammar:
                   - keyword: AT
                   - keyword: TIME
                   - keyword: ZONE
                   - expression:
-                      literal: '"UTC"'
+                      quoted_literal: '"UTC"'
                 end_bracket: )
             alias_expression:
               keyword: AS
-              identifier: the_day_utc
+              naked_identifier: the_day_utc
         - comma: ','
         - select_clause_element:
             function:
@@ -111,22 +111,22 @@ file:
                 keyword: FROM
                 expression:
                   column_reference:
-                    identifier: timestamp_value
+                    naked_identifier: timestamp_value
                   time_zone_grammar:
                   - keyword: AT
                   - keyword: TIME
                   - keyword: ZONE
                   - expression:
-                      literal: '"America/Los_Angeles"'
+                      quoted_literal: '"America/Los_Angeles"'
                 end_bracket: )
             alias_expression:
               keyword: AS
-              identifier: the_day_california
+              naked_identifier: the_day_california
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: Input
+                  naked_identifier: Input
 - statement_terminator: ;

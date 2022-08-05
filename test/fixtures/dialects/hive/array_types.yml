@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 788285352e6b5559cf4d4da552762c6ee5e76d6847b4253ddf8a96d021f5f6a9
+_hash: ae7c029c61edcc47c841a14b2575a6025ddafe6b24eb425b83a25f5241c2b741
 file:
 - statement:
     select_statement:
@@ -14,26 +14,26 @@ file:
           - keyword: array
           - start_square_bracket: '['
           - column_reference:
-              identifier: a
+              naked_identifier: a
           - comma: ','
           - column_reference:
-              identifier: b
+              naked_identifier: b
           - comma: ','
           - column_reference:
-              identifier: c
+              naked_identifier: c
           - end_square_bracket: ']'
           alias_expression:
             keyword: as
-            identifier: arr
+            naked_identifier: arr
       from_clause:
         keyword: from
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-              - identifier: sch
+              - naked_identifier: sch
               - dot: .
-              - identifier: tbl
+              - naked_identifier: tbl
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -41,9 +41,9 @@ file:
         keyword: select
         select_clause_element:
           column_reference:
-          - identifier: t
+          - naked_identifier: t
           - dot: .
-          - identifier: a
+          - naked_identifier: a
       from_clause:
         keyword: from
         from_expression:
@@ -58,22 +58,22 @@ file:
                     array_literal:
                     - keyword: array
                     - start_square_bracket: '['
-                    - literal: '1'
+                    - numeric_literal: '1'
                     - comma: ','
-                    - literal: '3'
+                    - numeric_literal: '3'
                     - comma: ','
-                    - literal: '6'
+                    - numeric_literal: '6'
                     - comma: ','
-                    - literal: '12'
+                    - numeric_literal: '12'
                     - end_square_bracket: ']'
                   end_bracket: )
             alias_expression:
               keyword: as
-              identifier: t
+              naked_identifier: t
               bracketed:
                 start_bracket: (
                 identifier_list:
-                  identifier: f
+                  naked_identifier: f
                 end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -96,11 +96,11 @@ file:
                     bracketed:
                     - start_bracket: (
                     - expression:
-                        literal: "'pending.freebet'"
+                        quoted_literal: "'pending.freebet'"
                     - comma: ','
                     - expression:
                         column_reference:
-                          identifier: pending_fb
+                          naked_identifier: pending_fb
                     - end_bracket: )
                 - comma: ','
                 - function:
@@ -109,11 +109,11 @@ file:
                     bracketed:
                     - start_bracket: (
                     - expression:
-                        literal: "'bonus.balance'"
+                        quoted_literal: "'bonus.balance'"
                     - comma: ','
                     - expression:
                         column_reference:
-                          identifier: bonus
+                          naked_identifier: bonus
                     - end_bracket: )
                 - end_square_bracket: ']'
               end_bracket: )
@@ -123,9 +123,9 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-              - identifier: sch
+              - naked_identifier: sch
               - dot: .
-              - identifier: tbl
+              - naked_identifier: tbl
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -135,24 +135,24 @@ file:
           array_literal:
           - keyword: array
           - start_square_bracket: '['
-          - literal: "'a'"
+          - quoted_literal: "'a'"
           - comma: ','
-          - literal: "'b'"
+          - quoted_literal: "'b'"
           - comma: ','
-          - literal: "'c'"
+          - quoted_literal: "'c'"
           - end_square_bracket: ']'
           alias_expression:
             keyword: as
-            identifier: arr
+            naked_identifier: arr
       from_clause:
         keyword: from
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-              - identifier: sch
+              - naked_identifier: sch
               - dot: .
-              - identifier: tbl
+              - naked_identifier: tbl
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -160,24 +160,24 @@ file:
         keyword: select
         select_clause_element:
           array_literal:
-          - keyword: array
-          - start_square_bracket: '['
-          - literal: "'a'"
-          - comma: ','
-          - literal: 'null'
-          - end_square_bracket: ']'
+            keyword: array
+            start_square_bracket: '['
+            quoted_literal: "'a'"
+            comma: ','
+            null_literal: 'null'
+            end_square_bracket: ']'
           alias_expression:
             keyword: as
-            identifier: arr
+            naked_identifier: arr
       from_clause:
         keyword: from
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-              - identifier: sch
+              - naked_identifier: sch
               - dot: .
-              - identifier: tbl
+              - naked_identifier: tbl
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -190,14 +190,14 @@ file:
             end_square_bracket: ']'
           alias_expression:
             keyword: as
-            identifier: arr
+            naked_identifier: arr
       from_clause:
         keyword: from
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-              - identifier: sch
+              - naked_identifier: sch
               - dot: .
-              - identifier: tbl
+              - naked_identifier: tbl
 - statement_terminator: ;

@@ -3,117 +3,117 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bb84ff38d649298761a2732029334e2b1b7d9493d71b86a5f5c3f5368fa03c44
+_hash: d861350ac870b76d40cd5f810b294da273c5218402d8210df4b1bd3b7b9fd416
 file:
 - statement:
     create_consumer_group_statement:
     - keyword: CREATE
     - keyword: CONSUMER
     - keyword: GROUP
-    - identifier: CEO
+    - naked_identifier: CEO
     - keyword: WITH
     - consumer_group_parameter:
         keyword: PRECEDENCE
         comparison_operator:
           raw_comparison_operator: '='
-        literal: "'1000'"
+        quoted_literal: "'1000'"
     - comma: ','
     - consumer_group_parameter:
         keyword: CPU_WEIGHT
         comparison_operator:
           raw_comparison_operator: '='
-        literal: "'900'"
+        quoted_literal: "'900'"
 - statement_terminator: ;
 - statement:
     create_consumer_group_statement:
     - keyword: CREATE
     - keyword: CONSUMER
     - keyword: GROUP
-    - identifier: BI_TEAM
+    - naked_identifier: BI_TEAM
     - keyword: WITH
     - consumer_group_parameter:
         keyword: PRECEDENCE
         comparison_operator:
           raw_comparison_operator: '='
-        literal: "'900'"
+        quoted_literal: "'900'"
     - comma: ','
     - consumer_group_parameter:
         keyword: CPU_WEIGHT
         comparison_operator:
           raw_comparison_operator: '='
-        literal: "'500'"
+        quoted_literal: "'500'"
     - comma: ','
     - consumer_group_parameter:
         keyword: GROUP_TEMP_DB_RAM_LIMIT
         comparison_operator:
           raw_comparison_operator: '='
-        literal: "'200G'"
+        quoted_literal: "'200G'"
     - comma: ','
     - consumer_group_parameter:
         keyword: USER_TEMP_DB_RAM_LIMIT
         comparison_operator:
           raw_comparison_operator: '='
-        literal: "'100G'"
+        quoted_literal: "'100G'"
 - statement_terminator: ;
 - statement:
     create_consumer_group_statement:
     - keyword: CREATE
     - keyword: CONSUMER
     - keyword: GROUP
-    - identifier: TEST_TEAM
+    - naked_identifier: TEST_TEAM
     - keyword: WITH
     - consumer_group_parameter:
         keyword: PRECEDENCE
         comparison_operator:
           raw_comparison_operator: '='
-        literal: "'800'"
+        quoted_literal: "'800'"
     - comma: ','
     - consumer_group_parameter:
         keyword: CPU_WEIGHT
         comparison_operator:
           raw_comparison_operator: '='
-        literal: "'100'"
+        quoted_literal: "'100'"
     - comma: ','
     - consumer_group_parameter:
         keyword: GROUP_TEMP_DB_RAM_LIMIT
         comparison_operator:
           raw_comparison_operator: '='
-        literal: "'10G'"
+        quoted_literal: "'10G'"
     - comma: ','
     - consumer_group_parameter:
         keyword: SESSION_TEMP_DB_RAM_LIMIT
         comparison_operator:
           raw_comparison_operator: '='
-        literal: "'5G'"
+        quoted_literal: "'5G'"
     - comma: ','
     - consumer_group_parameter:
         keyword: QUERY_TIMEOUT
         comparison_operator:
           raw_comparison_operator: '='
-        literal: '60'
+        numeric_literal: '60'
     - comma: ','
     - consumer_group_parameter:
         keyword: IDLE_TIMEOUT
         comparison_operator:
           raw_comparison_operator: '='
-        literal: '3600'
+        numeric_literal: '3600'
 - statement_terminator: ;
 - statement:
     create_consumer_group_statement:
     - keyword: CREATE
     - keyword: CONSUMER
     - keyword: GROUP
-    - identifier: '"ADMIN"'
+    - quoted_identifier: '"ADMIN"'
     - keyword: WITH
     - consumer_group_parameter:
         keyword: PRECEDENCE
         comparison_operator:
           raw_comparison_operator: '='
-        literal: "'1000'"
+        quoted_literal: "'1000'"
     - comma: ','
     - consumer_group_parameter:
         keyword: CPU_WEIGHT
         comparison_operator:
           raw_comparison_operator: '='
-        literal: "'900'"
+        quoted_literal: "'900'"
 - statement_terminator: ;

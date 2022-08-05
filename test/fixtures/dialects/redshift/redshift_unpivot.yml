@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c794445a9e51a1199cf64f44c88ee5f4949803a0d1a5bc4913c64518c4614b4c
+_hash: 58f86ae6e875aed843978608324e1d5dd05ac7fa1779722e60e6533aa71cb41f
 file:
 - statement:
     select_statement:
@@ -25,43 +25,43 @@ file:
                   - keyword: SELECT
                   - select_clause_element:
                       column_reference:
-                        identifier: red
+                        naked_identifier: red
                   - comma: ','
                   - select_clause_element:
                       column_reference:
-                        identifier: green
+                        naked_identifier: green
                   - comma: ','
                   - select_clause_element:
                       column_reference:
-                        identifier: blue
+                        naked_identifier: blue
                   from_clause:
                     keyword: FROM
                     from_expression:
                       from_expression_element:
                         table_expression:
                           table_reference:
-                            identifier: count_by_color
+                            naked_identifier: count_by_color
                 end_bracket: )
           from_unpivot_expression:
             keyword: UNPIVOT
             bracketed:
             - start_bracket: (
             - column_reference:
-                identifier: cnt
+                naked_identifier: cnt
             - keyword: FOR
             - column_reference:
-                identifier: color
+                naked_identifier: color
             - keyword: IN
             - bracketed:
               - start_bracket: (
               - column_reference:
-                  identifier: red
+                  naked_identifier: red
               - comma: ','
               - column_reference:
-                  identifier: green
+                  naked_identifier: green
               - comma: ','
               - column_reference:
-                  identifier: blue
+                  naked_identifier: blue
               - end_bracket: )
             - end_bracket: )
 - statement_terminator: ;
@@ -85,22 +85,22 @@ file:
                   - keyword: SELECT
                   - select_clause_element:
                       column_reference:
-                        identifier: red
+                        naked_identifier: red
                   - comma: ','
                   - select_clause_element:
                       column_reference:
-                        identifier: green
+                        naked_identifier: green
                   - comma: ','
                   - select_clause_element:
                       column_reference:
-                        identifier: blue
+                        naked_identifier: blue
                   from_clause:
                     keyword: FROM
                     from_expression:
                       from_expression_element:
                         table_expression:
                           table_reference:
-                            identifier: count_by_color
+                            naked_identifier: count_by_color
                 end_bracket: )
           from_unpivot_expression:
           - keyword: UNPIVOT
@@ -109,21 +109,21 @@ file:
           - bracketed:
             - start_bracket: (
             - column_reference:
-                identifier: cnt
+                naked_identifier: cnt
             - keyword: FOR
             - column_reference:
-                identifier: color
+                naked_identifier: color
             - keyword: IN
             - bracketed:
               - start_bracket: (
               - column_reference:
-                  identifier: red
+                  naked_identifier: red
               - comma: ','
               - column_reference:
-                  identifier: green
+                  naked_identifier: green
               - comma: ','
               - column_reference:
-                  identifier: blue
+                  naked_identifier: blue
               - end_bracket: )
             - end_bracket: )
 - statement_terminator: ;
@@ -141,27 +141,27 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: count_by_color
+                naked_identifier: count_by_color
           from_unpivot_expression:
             keyword: UNPIVOT
             bracketed:
             - start_bracket: (
             - column_reference:
-                identifier: cnt
+                naked_identifier: cnt
             - keyword: FOR
             - column_reference:
-                identifier: color
+                naked_identifier: color
             - keyword: IN
             - bracketed:
               - start_bracket: (
               - column_reference:
-                  identifier: red
+                  naked_identifier: red
               - comma: ','
               - column_reference:
-                  identifier: green
+                  naked_identifier: green
               - comma: ','
               - column_reference:
-                  identifier: blue
+                  naked_identifier: blue
               - end_bracket: )
             - end_bracket: )
 - statement_terminator: ;
@@ -179,36 +179,36 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: count_by_color
+                naked_identifier: count_by_color
           from_unpivot_expression:
             keyword: UNPIVOT
             bracketed:
             - start_bracket: (
             - column_reference:
-                identifier: cnt
+                naked_identifier: cnt
             - keyword: FOR
             - column_reference:
-                identifier: color
+                naked_identifier: color
             - keyword: IN
             - bracketed:
               - start_bracket: (
               - column_reference:
-                  identifier: red
+                  naked_identifier: red
               - alias_expression:
                   keyword: AS
-                  identifier: r
+                  naked_identifier: r
               - comma: ','
               - column_reference:
-                  identifier: green
+                  naked_identifier: green
               - alias_expression:
                   keyword: AS
-                  identifier: g
+                  naked_identifier: g
               - comma: ','
               - column_reference:
-                  identifier: blue
+                  naked_identifier: blue
               - alias_expression:
                   keyword: AS
-                  identifier: b
+                  naked_identifier: b
               - end_bracket: )
             - end_bracket: )
 - statement_terminator: ;
@@ -232,22 +232,22 @@ file:
                   - keyword: SELECT
                   - select_clause_element:
                       column_reference:
-                        identifier: red
+                        naked_identifier: red
                   - comma: ','
                   - select_clause_element:
                       column_reference:
-                        identifier: green
+                        naked_identifier: green
                   - comma: ','
                   - select_clause_element:
                       column_reference:
-                        identifier: blue
+                        naked_identifier: blue
                   from_clause:
                     keyword: FROM
                     from_expression:
                       from_expression_element:
                         table_expression:
                           table_reference:
-                            identifier: count_by_color
+                            naked_identifier: count_by_color
                 end_bracket: )
           from_unpivot_expression:
           - keyword: UNPIVOT
@@ -256,21 +256,21 @@ file:
           - bracketed:
             - start_bracket: (
             - column_reference:
-                identifier: cnt
+                naked_identifier: cnt
             - keyword: FOR
             - column_reference:
-                identifier: color
+                naked_identifier: color
             - keyword: IN
             - bracketed:
               - start_bracket: (
               - column_reference:
-                  identifier: red
+                  naked_identifier: red
               - comma: ','
               - column_reference:
-                  identifier: green
+                  naked_identifier: green
               - comma: ','
               - column_reference:
-                  identifier: blue
+                  naked_identifier: blue
               - end_bracket: )
             - end_bracket: )
 - statement_terminator: ;
@@ -278,7 +278,7 @@ file:
     with_compound_statement:
       keyword: WITH
       common_table_expression:
-        identifier: subset_color_counts
+        naked_identifier: subset_color_counts
         keyword: AS
         bracketed:
           start_bracket: (
@@ -287,22 +287,22 @@ file:
             - keyword: SELECT
             - select_clause_element:
                 column_reference:
-                  identifier: red
+                  naked_identifier: red
             - comma: ','
             - select_clause_element:
                 column_reference:
-                  identifier: green
+                  naked_identifier: green
             - comma: ','
             - select_clause_element:
                 column_reference:
-                  identifier: blue
+                  naked_identifier: blue
             from_clause:
               keyword: FROM
               from_expression:
                 from_expression_element:
                   table_expression:
                     table_reference:
-                      identifier: count_by_color
+                      naked_identifier: count_by_color
           end_bracket: )
       select_statement:
         select_clause:
@@ -317,27 +317,27 @@ file:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: subset_color_counts
+                  naked_identifier: subset_color_counts
             from_unpivot_expression:
               keyword: UNPIVOT
               bracketed:
               - start_bracket: (
               - column_reference:
-                  identifier: cnt
+                  naked_identifier: cnt
               - keyword: FOR
               - column_reference:
-                  identifier: color
+                  naked_identifier: color
               - keyword: IN
               - bracketed:
                 - start_bracket: (
                 - column_reference:
-                    identifier: red
+                    naked_identifier: red
                 - comma: ','
                 - column_reference:
-                    identifier: green
+                    naked_identifier: green
                 - comma: ','
                 - column_reference:
-                    identifier: blue
+                    naked_identifier: blue
                 - end_bracket: )
               - end_bracket: )
 - statement_terminator: ;
@@ -355,27 +355,27 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: count_by_color
+                naked_identifier: count_by_color
           from_unpivot_expression:
             keyword: UNPIVOT
             bracketed:
             - start_bracket: (
             - column_reference:
-                identifier: cnt
+                naked_identifier: cnt
             - keyword: FOR
             - column_reference:
-                identifier: color
+                naked_identifier: color
             - keyword: IN
             - bracketed:
               - start_bracket: (
               - column_reference:
-                  identifier: red
+                  naked_identifier: red
               - comma: ','
               - column_reference:
-                  identifier: green
+                  naked_identifier: green
               - comma: ','
               - column_reference:
-                  identifier: blue
+                  naked_identifier: blue
               - end_bracket: )
             - end_bracket: )
 - statement_terminator: ;
@@ -393,27 +393,27 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: count_of_bears
+                naked_identifier: count_of_bears
           from_unpivot_expression:
             keyword: UNPIVOT
             bracketed:
             - start_bracket: (
             - column_reference:
-                identifier: cnt
+                naked_identifier: cnt
             - keyword: FOR
             - column_reference:
-                identifier: species
+                naked_identifier: species
             - keyword: IN
             - bracketed:
               - start_bracket: (
               - column_reference:
-                  identifier: giant_panda
+                  naked_identifier: giant_panda
               - comma: ','
               - column_reference:
-                  identifier: moon_bear
+                  naked_identifier: moon_bear
               - end_bracket: )
             - end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: floofy_bears
+            naked_identifier: floofy_bears
 - statement_terminator: ;

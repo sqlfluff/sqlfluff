@@ -3,24 +3,24 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e3763487178dc2a32b3d317afc4aff4ba2bc64022fa4018366e4fbba5fad49b1
+_hash: 13cb7d7e697ed0d1d7583c297ca51108f94d7f81d604da6e3f5634b2693f3951
 file:
 - statement:
     alter_role_statement:
     - keyword: ALTER
     - keyword: ROLE
     - role_reference:
-        identifier: davide
+        naked_identifier: davide
     - keyword: WITH
     - keyword: PASSWORD
-    - literal: "'hu8jmn3'"
+    - quoted_literal: "'hu8jmn3'"
 - statement_terminator: ;
 - statement:
     alter_role_statement:
     - keyword: ALTER
     - keyword: ROLE
     - role_reference:
-        identifier: davide
+        naked_identifier: davide
     - keyword: WITH
     - keyword: PASSWORD
     - keyword: 'NULL'
@@ -30,47 +30,47 @@ file:
     - keyword: ALTER
     - keyword: ROLE
     - role_reference:
-        identifier: chris
+        naked_identifier: chris
     - keyword: VALID
     - keyword: UNTIL
-    - literal: "'May 4 12:00:00 2015 +1'"
+    - quoted_literal: "'May 4 12:00:00 2015 +1'"
 - statement_terminator: ;
 - statement:
     alter_role_statement:
     - keyword: ALTER
     - keyword: ROLE
     - role_reference:
-        identifier: fred
+        naked_identifier: fred
     - keyword: VALID
     - keyword: UNTIL
-    - literal: "'infinity'"
+    - quoted_literal: "'infinity'"
 - statement_terminator: ;
 - statement:
     alter_role_statement:
     - keyword: ALTER
     - keyword: ROLE
     - role_reference:
-        identifier: worker_bee
+        naked_identifier: worker_bee
     - keyword: SET
     - object_reference:
-        identifier: maintenance_work_mem
+        naked_identifier: maintenance_work_mem
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: "'100000'"
+    - quoted_literal: "'100000'"
 - statement_terminator: ;
 - statement:
     alter_role_statement:
     - keyword: ALTER
     - keyword: ROLE
     - role_reference:
-        identifier: fred
+        naked_identifier: fred
     - keyword: IN
     - keyword: DATABASE
     - object_reference:
-        identifier: devel
+        naked_identifier: devel
     - keyword: SET
     - object_reference:
-        identifier: client_min_messages
+        naked_identifier: client_min_messages
     - keyword: TO
     - keyword: DEFAULT
 - statement_terminator: ;
@@ -79,14 +79,14 @@ file:
     - keyword: ALTER
     - keyword: ROLE
     - role_reference:
-        identifier: fred
+        naked_identifier: fred
     - keyword: IN
     - keyword: DATABASE
     - object_reference:
-        identifier: devel
+        naked_identifier: devel
     - keyword: SET
     - object_reference:
-        identifier: client_min_messages
+        naked_identifier: client_min_messages
     - keyword: FROM
     - keyword: CURRENT
 - statement_terminator: ;
@@ -95,11 +95,11 @@ file:
     - keyword: ALTER
     - keyword: ROLE
     - role_reference:
-        identifier: fred
+        naked_identifier: fred
     - keyword: IN
     - keyword: DATABASE
     - object_reference:
-        identifier: devel
+        naked_identifier: devel
     - keyword: RESET
     - keyword: ALL
 - statement_terminator: ;
@@ -108,7 +108,7 @@ file:
     - keyword: ALTER
     - keyword: ROLE
     - role_reference:
-        identifier: miriam
+        naked_identifier: miriam
     - keyword: CREATEROLE
     - keyword: CREATEDB
 - statement_terminator: ;
@@ -117,17 +117,17 @@ file:
     - keyword: ALTER
     - keyword: USER
     - role_reference:
-        identifier: davide
+        naked_identifier: davide
     - keyword: WITH
     - keyword: PASSWORD
-    - literal: "'hu8jmn3'"
+    - quoted_literal: "'hu8jmn3'"
 - statement_terminator: ;
 - statement:
     alter_role_statement:
     - keyword: ALTER
     - keyword: USER
     - role_reference:
-        identifier: davide
+        naked_identifier: davide
     - keyword: WITH
     - keyword: PASSWORD
     - keyword: 'NULL'
@@ -137,47 +137,47 @@ file:
     - keyword: ALTER
     - keyword: USER
     - role_reference:
-        identifier: chris
+        naked_identifier: chris
     - keyword: VALID
     - keyword: UNTIL
-    - literal: "'May 4 12:00:00 2015 +1'"
+    - quoted_literal: "'May 4 12:00:00 2015 +1'"
 - statement_terminator: ;
 - statement:
     alter_role_statement:
     - keyword: ALTER
     - keyword: USER
     - role_reference:
-        identifier: fred
+        naked_identifier: fred
     - keyword: VALID
     - keyword: UNTIL
-    - literal: "'infinity'"
+    - quoted_literal: "'infinity'"
 - statement_terminator: ;
 - statement:
     alter_role_statement:
     - keyword: ALTER
     - keyword: USER
     - role_reference:
-        identifier: worker_bee
+        naked_identifier: worker_bee
     - keyword: SET
     - object_reference:
-        identifier: maintenance_work_mem
+        naked_identifier: maintenance_work_mem
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: "'100000'"
+    - quoted_literal: "'100000'"
 - statement_terminator: ;
 - statement:
     alter_role_statement:
     - keyword: ALTER
     - keyword: USER
     - role_reference:
-        identifier: fred
+        naked_identifier: fred
     - keyword: IN
     - keyword: DATABASE
     - object_reference:
-        identifier: devel
+        naked_identifier: devel
     - keyword: SET
     - object_reference:
-        identifier: client_min_messages
+        naked_identifier: client_min_messages
     - keyword: TO
     - keyword: DEFAULT
 - statement_terminator: ;
@@ -186,14 +186,14 @@ file:
     - keyword: ALTER
     - keyword: USER
     - role_reference:
-        identifier: fred
+        naked_identifier: fred
     - keyword: IN
     - keyword: DATABASE
     - object_reference:
-        identifier: devel
+        naked_identifier: devel
     - keyword: SET
     - object_reference:
-        identifier: client_min_messages
+        naked_identifier: client_min_messages
     - keyword: FROM
     - keyword: CURRENT
 - statement_terminator: ;
@@ -202,11 +202,11 @@ file:
     - keyword: ALTER
     - keyword: USER
     - role_reference:
-        identifier: fred
+        naked_identifier: fred
     - keyword: IN
     - keyword: DATABASE
     - object_reference:
-        identifier: devel
+        naked_identifier: devel
     - keyword: RESET
     - keyword: ALL
 - statement_terminator: ;
@@ -215,7 +215,7 @@ file:
     - keyword: ALTER
     - keyword: USER
     - role_reference:
-        identifier: miriam
+        naked_identifier: miriam
     - keyword: CREATEROLE
     - keyword: CREATEDB
 - statement_terminator: ;

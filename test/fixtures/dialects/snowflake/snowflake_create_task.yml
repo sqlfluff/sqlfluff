@@ -3,22 +3,22 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 83f68e6b6527766cec861ad292d0e24643ee6e4d95f8009241cdd6b5c3d99459
+_hash: 840a52361e794d5324d9d7859afb34f2a8552f2f8f6038f77fe60cc7169f8316
 file:
 - statement:
     create_task_statement:
     - keyword: CREATE
     - keyword: TASK
     - object_reference:
-        identifier: t1
+        naked_identifier: t1
     - keyword: SCHEDULE
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: "'USING CRON 0 9-17 * * SUN America/Los_Angeles'"
+    - quoted_literal: "'USING CRON 0 9-17 * * SUN America/Los_Angeles'"
     - parameter: TIMESTAMP_INPUT_FORMAT
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: "'YYYY-MM-DD HH24'"
+    - quoted_literal: "'YYYY-MM-DD HH24'"
     - keyword: USER_TASK_MANAGED_INITIAL_WAREHOUSE_SIZE
     - comparison_operator:
         raw_comparison_operator: '='
@@ -29,18 +29,18 @@ file:
         - keyword: INSERT
         - keyword: INTO
         - table_reference:
-            identifier: mytable
+            naked_identifier: mytable
         - bracketed:
             start_bracket: (
             column_reference:
-              identifier: ts
+              naked_identifier: ts
             end_bracket: )
         - values_clause:
             keyword: VALUES
             bracketed:
               start_bracket: (
               expression:
-                literal: '1'
+                numeric_literal: '1'
               end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -48,44 +48,44 @@ file:
     - keyword: CREATE
     - keyword: TASK
     - object_reference:
-        identifier: mytask_hour
+        naked_identifier: mytask_hour
     - keyword: WAREHOUSE
     - comparison_operator:
         raw_comparison_operator: '='
     - object_reference:
-        identifier: mywh
+        naked_identifier: mywh
     - keyword: SCHEDULE
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: "'USING CRON 0 9-17 * * SUN America/Los_Angeles'"
+    - quoted_literal: "'USING CRON 0 9-17 * * SUN America/Los_Angeles'"
     - parameter: TIMESTAMP_INPUT_FORMAT
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: "'YYYY-MM-DD HH24'"
+    - quoted_literal: "'YYYY-MM-DD HH24'"
     - keyword: AS
     - statement:
         insert_statement:
         - keyword: INSERT
         - keyword: INTO
         - table_reference:
-            identifier: mytable
+            naked_identifier: mytable
         - bracketed:
             start_bracket: (
             column_reference:
-              identifier: ts
+              naked_identifier: ts
             end_bracket: )
         - values_clause:
             keyword: VALUES
             bracketed:
             - start_bracket: (
             - expression:
-                literal: '1'
+                numeric_literal: '1'
             - comma: ','
             - expression:
-                literal: '2'
+                numeric_literal: '2'
             - comma: ','
             - expression:
-                literal: '3'
+                numeric_literal: '3'
             - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -98,23 +98,23 @@ file:
     - keyword: NOT
     - keyword: EXISTS
     - object_reference:
-        identifier: t1
+        naked_identifier: t1
     - keyword: SCHEDULE
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: "'USING CRON 0 9-17 * * SUN America/Los_Angeles'"
+    - quoted_literal: "'USING CRON 0 9-17 * * SUN America/Los_Angeles'"
     - keyword: ALLOW_OVERLAPPING_EXECUTION
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: 'TRUE'
+    - boolean_literal: 'TRUE'
     - parameter: TIMESTAMP_INPUT_FORMAT
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: "'YYYY-MM-DD HH24'"
+    - quoted_literal: "'YYYY-MM-DD HH24'"
     - keyword: USER_TASK_TIMEOUT_MS
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: '25'
+    - numeric_literal: '25'
     - keyword: USER_TASK_MANAGED_INITIAL_WAREHOUSE_SIZE
     - comparison_operator:
         raw_comparison_operator: '='
@@ -124,28 +124,28 @@ file:
     - parameter: COMMENT
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: "'Hello world'"
+    - quoted_literal: "'Hello world'"
     - keyword: AFTER
     - object_reference:
-        identifier: dependency_task
+        naked_identifier: dependency_task
     - keyword: AS
     - statement:
         insert_statement:
         - keyword: INSERT
         - keyword: INTO
         - table_reference:
-            identifier: mytable
+            naked_identifier: mytable
         - bracketed:
             start_bracket: (
             column_reference:
-              identifier: ts
+              naked_identifier: ts
             end_bracket: )
         - values_clause:
             keyword: VALUES
             bracketed:
               start_bracket: (
               expression:
-                literal: '1'
+                numeric_literal: '1'
               end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -153,25 +153,25 @@ file:
     - keyword: CREATE
     - keyword: TASK
     - object_reference:
-        identifier: t1
+        naked_identifier: t1
     - keyword: AS
     - statement:
         insert_statement:
         - keyword: INSERT
         - keyword: INTO
         - table_reference:
-            identifier: mytable
+            naked_identifier: mytable
         - bracketed:
             start_bracket: (
             column_reference:
-              identifier: ts
+              naked_identifier: ts
             end_bracket: )
         - values_clause:
             keyword: VALUES
             bracketed:
               start_bracket: (
               expression:
-                literal: '1'
+                numeric_literal: '1'
               end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -181,25 +181,25 @@ file:
     - keyword: REPLACE
     - keyword: TASK
     - object_reference:
-        identifier: insert_session
+        naked_identifier: insert_session
     - keyword: WAREHOUSE
     - comparison_operator:
         raw_comparison_operator: '='
     - object_reference:
-        identifier: eng_wh
+        naked_identifier: eng_wh
     - keyword: SCHEDULE
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: "'USING CRON 45 6 * * * UTC'"
+    - quoted_literal: "'USING CRON 45 6 * * * UTC'"
     - keyword: AS
     - statement:
         insert_statement:
         - keyword: INSERT
         - keyword: INTO
         - table_reference:
-          - identifier: sch
+          - naked_identifier: sch
           - dot: .
-          - identifier: s_session
+          - naked_identifier: s_session
         - select_statement:
             select_clause:
             - keyword: SELECT
@@ -216,7 +216,7 @@ file:
                     start_bracket: (
                     expression:
                       column_reference:
-                        identifier: break
+                        naked_identifier: break
                     end_bracket: )
                   over_clause:
                     keyword: OVER
@@ -228,16 +228,16 @@ file:
                         - keyword: BY
                         - expression:
                             column_reference:
-                              identifier: serial
+                              naked_identifier: serial
                         orderby_clause:
                         - keyword: ORDER
                         - keyword: BY
                         - column_reference:
-                            identifier: datetime
+                            naked_identifier: datetime
                       end_bracket: )
                 alias_expression:
                   keyword: AS
-                  identifier: session_id
+                  naked_identifier: session_id
             from_clause:
               keyword: FROM
               from_expression:
@@ -258,7 +258,7 @@ file:
                             from_expression_element:
                               table_expression:
                                 table_reference:
-                                  identifier: base_table
+                                  naked_identifier: base_table
                       end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -268,44 +268,44 @@ file:
     - keyword: REPLACE
     - keyword: TASK
     - object_reference:
-        identifier: update_session
+        naked_identifier: update_session
     - keyword: WAREHOUSE
     - comparison_operator:
         raw_comparison_operator: '='
     - object_reference:
-        identifier: eng_wh
+        naked_identifier: eng_wh
     - keyword: AFTER
     - object_reference:
-        identifier: insert_session
+        naked_identifier: insert_session
     - keyword: AS
     - statement:
         update_statement:
           keyword: UPDATE
           table_reference:
-          - identifier: sch
+          - naked_identifier: sch
           - dot: .
-          - identifier: s_session
+          - naked_identifier: s_session
           set_clause_list:
           - keyword: SET
           - set_clause:
             - column_reference:
-                identifier: lag_datetime
+                naked_identifier: lag_datetime
             - comparison_operator:
                 raw_comparison_operator: '='
             - column_reference:
-              - identifier: v
+              - naked_identifier: v
               - dot: .
-              - identifier: lag_datetime
+              - naked_identifier: lag_datetime
           - comma: ','
           - set_clause:
             - column_reference:
-                identifier: row_number
+                naked_identifier: row_number
             - comparison_operator:
                 raw_comparison_operator: '='
             - column_reference:
-              - identifier: v
+              - naked_identifier: v
               - dot: .
-              - identifier: row_number
+              - naked_identifier: row_number
           from_clause:
             keyword: FROM
             from_expression:
@@ -333,7 +333,7 @@ file:
                                     start_bracket: (
                                     expression:
                                       column_reference:
-                                        identifier: break
+                                        naked_identifier: break
                                     end_bracket: )
                                   over_clause:
                                     keyword: OVER
@@ -345,17 +345,17 @@ file:
                                         - keyword: BY
                                         - expression:
                                             column_reference:
-                                              identifier: serial
+                                              naked_identifier: serial
                                         orderby_clause:
                                         - keyword: ORDER
                                         - keyword: BY
                                         - column_reference:
-                                            identifier: datetime
+                                            naked_identifier: datetime
                                       end_bracket: )
                               end_bracket: )
                           alias_expression:
                             keyword: AS
-                            identifier: session_id
+                            naked_identifier: session_id
                       from_clause:
                         keyword: FROM
                         from_expression:
@@ -376,35 +376,35 @@ file:
                                       from_expression_element:
                                         table_expression:
                                           table_reference:
-                                            identifier: derived_table
+                                            naked_identifier: derived_table
                                 end_bracket: )
                       orderby_clause:
                       - keyword: ORDER
                       - keyword: BY
                       - column_reference:
-                          identifier: serial
+                          naked_identifier: serial
                       - comma: ','
                       - column_reference:
-                          identifier: datetime
+                          naked_identifier: datetime
                     end_bracket: )
                 alias_expression:
                   keyword: AS
-                  identifier: v
+                  naked_identifier: v
           where_clause:
             keyword: WHERE
             expression:
             - column_reference:
-              - identifier: sch
+              - naked_identifier: sch
               - dot: .
-              - identifier: s_session
+              - naked_identifier: s_session
               - dot: .
-              - identifier: event_id
+              - naked_identifier: event_id
             - comparison_operator:
                 raw_comparison_operator: '='
             - column_reference:
-              - identifier: v
+              - naked_identifier: v
               - dot: .
-              - identifier: event_id
+              - naked_identifier: event_id
 - statement_terminator: ;
 - statement:
     create_task_statement:
@@ -413,26 +413,26 @@ file:
     - keyword: REPLACE
     - keyword: TASK
     - object_reference:
-      - identifier: sch
+      - naked_identifier: sch
       - dot: .
-      - identifier: truncate_session
+      - naked_identifier: truncate_session
     - keyword: WAREHOUSE
     - comparison_operator:
         raw_comparison_operator: '='
     - object_reference:
-        identifier: eng_wh
+        naked_identifier: eng_wh
     - keyword: AFTER
     - object_reference:
-      - identifier: sch
+      - naked_identifier: sch
       - dot: .
-      - identifier: update_session
+      - naked_identifier: update_session
     - keyword: AS
     - statement:
         call_segment:
           keyword: CALL
           function:
             function_name:
-              identifier: sch
+              naked_identifier: sch
               dot: .
               function_name_identifier: session_agg_insert
             bracketed:
@@ -446,16 +446,16 @@ file:
     - keyword: REPLACE
     - keyword: TASK
     - object_reference:
-        identifier: insert__agg
+        naked_identifier: insert__agg
     - keyword: WAREHOUSE
     - comparison_operator:
         raw_comparison_operator: '='
     - object_reference:
-        identifier: eng_wh
+        naked_identifier: eng_wh
     - keyword: SCHEDULE
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: "'USING CRON 15 7 2 * * UTC'"
+    - quoted_literal: "'USING CRON 15 7 2 * * UTC'"
     - keyword: AS
     - statement:
         call_segment:
@@ -474,42 +474,42 @@ file:
     - keyword: REPLACE
     - keyword: TASK
     - object_reference:
-      - identifier: SCH
+      - naked_identifier: SCH
       - dot: .
-      - identifier: MY_TASK
+      - naked_identifier: MY_TASK
     - keyword: WAREHOUSE
     - comparison_operator:
         raw_comparison_operator: '='
     - object_reference:
-        identifier: MY_WH
+        naked_identifier: MY_WH
     - keyword: SCHEDULE
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: "'USING CRON 15 7 2 * * UTC'"
+    - quoted_literal: "'USING CRON 15 7 2 * * UTC'"
     - keyword: USER_TASK_TIMEOUT_MS
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: '10800000'
+    - numeric_literal: '10800000'
     - keyword: WHEN
     - snowflake_task_expression_segment:
         system_function_name: SYSTEM$STREAM_HAS_DATA
         bracketed:
           start_bracket: (
-          literal: "'SCH.MY_STREAM'"
+          quoted_literal: "'SCH.MY_STREAM'"
           end_bracket: )
         binary_operator: AND
         expression:
-        - literal: '1'
+        - numeric_literal: '1'
         - comparison_operator:
             raw_comparison_operator: '='
-        - literal: '1'
+        - numeric_literal: '1'
     - keyword: AS
     - statement:
         call_segment:
           keyword: CALL
           function:
             function_name:
-              identifier: SCH
+              naked_identifier: SCH
               dot: .
               function_name_identifier: MY_SPROC
             bracketed:

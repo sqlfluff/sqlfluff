@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: aec8fb095882be815f27b983b94b42aad467d6bda1379b69e52ad74f5bc7d956
+_hash: 0c1ce432be9da30551e18365143c2c554a35889cc3de9d463285f929d5eca94e
 file:
 - statement:
     select_statement:
@@ -11,16 +11,16 @@ file:
         keyword: select
         select_clause_element:
           column_reference:
-            identifier: '`delimited``with escaped`'
+            quoted_identifier: '`delimited``with escaped`'
       from_clause:
         keyword: from
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: '`some``table`'
+                quoted_identifier: '`some``table`'
             alias_expression:
-              identifier: '`some``alias`'
+              quoted_identifier: '`some``alias`'
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -28,17 +28,17 @@ file:
         keyword: select
         select_clause_element:
           column_reference:
-            identifier: '`delimited``with escaped`'
+            quoted_identifier: '`delimited``with escaped`'
       from_clause:
         keyword: from
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: '`some``table`'
+                quoted_identifier: '`some``table`'
             alias_expression:
               keyword: as
-              identifier: '`some``alias`'
+              quoted_identifier: '`some``alias`'
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -46,18 +46,18 @@ file:
         keyword: select
         select_clause_element:
           column_reference:
-            identifier: '```delimited`'
+            quoted_identifier: '```delimited`'
           alias_expression:
-            identifier: '`alias`'
+            quoted_identifier: '`alias`'
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: '`some``table`'
+                quoted_identifier: '`some``table`'
             alias_expression:
-              identifier: '`some````alias`'
+              quoted_identifier: '`some````alias`'
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -65,18 +65,18 @@ file:
         keyword: select
         select_clause_element:
           column_reference:
-            identifier: '`delimited```'
+            quoted_identifier: '`delimited```'
           alias_expression:
-            identifier: '`alias`'
+            quoted_identifier: '`alias`'
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: '`some``table`'
+                quoted_identifier: '`some``table`'
             alias_expression:
-              identifier: '```some````alias```'
+              quoted_identifier: '```some````alias```'
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -84,18 +84,18 @@ file:
         keyword: SELECT
         select_clause_element:
           column_reference:
-            identifier: '`delimited ``identifier`'
+            quoted_identifier: '`delimited ``identifier`'
           alias_expression:
-            identifier: '`alias`'
+            quoted_identifier: '`alias`'
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: '`some``table`'
+                quoted_identifier: '`some``table`'
             alias_expression:
-              identifier: '`some``alias`'
+              quoted_identifier: '`some``alias`'
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -103,18 +103,18 @@ file:
         keyword: SELECT
         select_clause_element:
           column_reference:
-            identifier: '`delimited ``identifier`'
+            quoted_identifier: '`delimited ``identifier`'
           alias_expression:
             keyword: AS
-            identifier: '`alias`'
+            quoted_identifier: '`alias`'
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: '`some``table`'
+                quoted_identifier: '`some``table`'
             alias_expression:
               keyword: AS
-              identifier: '`some``alias`'
+              quoted_identifier: '`some``alias`'
 - statement_terminator: ;

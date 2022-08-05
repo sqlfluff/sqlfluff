@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7fa8bc8b3ac07a86cbff391a22b35d8e6eadef81751b3cdf02dc9e808bd765fd
+_hash: b8f22c87a7c42b555349270f25b8e7a4678df7ba7ffbd79b0e85b983148a8bb5
 file:
 - statement:
     create_table_as_statement:
@@ -11,7 +11,7 @@ file:
     - keyword: TEMP
     - keyword: TABLE
     - object_reference:
-        identifier: t1
+        naked_identifier: t1
     - keyword: AS
     - bracketed:
         start_bracket: (
@@ -20,14 +20,14 @@ file:
             keyword: SELECT
             select_clause_element:
               column_reference:
-                identifier: something
+                naked_identifier: something
           from_clause:
             keyword: FROM
             from_expression:
               from_expression_element:
                 table_expression:
                   table_reference:
-                    identifier: t2
+                    naked_identifier: t2
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -36,21 +36,21 @@ file:
     - keyword: TEMP
     - keyword: TABLE
     - object_reference:
-        identifier: t1
+        naked_identifier: t1
     - keyword: AS
     - select_statement:
         select_clause:
           keyword: SELECT
           select_clause_element:
             column_reference:
-              identifier: something
+              naked_identifier: something
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: t2
+                  naked_identifier: t2
 - statement_terminator: ;
 - statement:
     create_table_as_statement:
@@ -58,28 +58,28 @@ file:
     - keyword: TEMPORARY
     - keyword: TABLE
     - object_reference:
-        identifier: t1
+        naked_identifier: t1
     - keyword: AS
     - select_statement:
         select_clause:
           keyword: SELECT
           select_clause_element:
             column_reference:
-              identifier: something
+              naked_identifier: something
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: t2
+                  naked_identifier: t2
 - statement_terminator: ;
 - statement:
     create_table_as_statement:
     - keyword: CREATE
     - keyword: TABLE
     - object_reference:
-        identifier: t1
+        naked_identifier: t1
     - keyword: AS
     - bracketed:
         start_bracket: (
@@ -88,14 +88,14 @@ file:
             keyword: SELECT
             select_clause_element:
               column_reference:
-                identifier: something
+                naked_identifier: something
           from_clause:
             keyword: FROM
             from_expression:
               from_expression_element:
                 table_expression:
                   table_reference:
-                    identifier: t2
+                    naked_identifier: t2
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -103,21 +103,21 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - object_reference:
-        identifier: t1
+        naked_identifier: t1
     - keyword: AS
     - select_statement:
         select_clause:
           keyword: SELECT
           select_clause_element:
             column_reference:
-              identifier: something
+              naked_identifier: something
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: t2
+                  naked_identifier: t2
 - statement_terminator: ;
 - statement:
     create_table_as_statement:
@@ -126,21 +126,21 @@ file:
     - keyword: TEMP
     - keyword: TABLE
     - object_reference:
-        identifier: t1
+        naked_identifier: t1
     - keyword: AS
     - select_statement:
         select_clause:
           keyword: SELECT
           select_clause_element:
             column_reference:
-              identifier: something
+              naked_identifier: something
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: t2
+                  naked_identifier: t2
 - statement_terminator: ;
 - statement:
     create_table_as_statement:
@@ -148,13 +148,13 @@ file:
     - keyword: TEMP
     - keyword: TABLE
     - object_reference:
-        identifier: t1
+        naked_identifier: t1
     - table_constraint:
         keyword: SORTKEY
         bracketed:
           start_bracket: (
           column_reference:
-            identifier: col1
+            naked_identifier: col1
           end_bracket: )
     - keyword: AS
     - select_statement:
@@ -162,27 +162,27 @@ file:
           keyword: SELECT
           select_clause_element:
             column_reference:
-              identifier: col1
+              naked_identifier: col1
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: t2
+                  naked_identifier: t2
 - statement_terminator: ;
 - statement:
     create_table_as_statement:
     - keyword: CREATE
     - keyword: TABLE
     - object_reference:
-        identifier: t1
+        naked_identifier: t1
     - table_constraint:
         keyword: SORTKEY
         bracketed:
           start_bracket: (
           column_reference:
-            identifier: col1
+            naked_identifier: col1
           end_bracket: )
     - keyword: AS
     - select_statement:
@@ -190,27 +190,27 @@ file:
           keyword: SELECT
           select_clause_element:
             column_reference:
-              identifier: col1
+              naked_identifier: col1
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: t2
+                  naked_identifier: t2
 - statement_terminator: ;
 - statement:
     create_table_as_statement:
     - keyword: CREATE
     - keyword: TABLE
     - object_reference:
-        identifier: t1
+        naked_identifier: t1
     - table_constraint:
         keyword: DISTKEY
         bracketed:
           start_bracket: (
           column_reference:
-            identifier: col1
+            naked_identifier: col1
           end_bracket: )
     - keyword: AS
     - select_statement:
@@ -218,33 +218,33 @@ file:
           keyword: SELECT
           select_clause_element:
             column_reference:
-              identifier: col1
+              naked_identifier: col1
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: t2
+                  naked_identifier: t2
 - statement_terminator: ;
 - statement:
     create_table_as_statement:
     - keyword: CREATE
     - keyword: TABLE
     - object_reference:
-        identifier: t1
+        naked_identifier: t1
     - table_constraint:
       - keyword: DISTKEY
       - bracketed:
           start_bracket: (
           column_reference:
-            identifier: col1
+            naked_identifier: col1
           end_bracket: )
       - keyword: SORTKEY
       - bracketed:
           start_bracket: (
           column_reference:
-            identifier: col1
+            naked_identifier: col1
           end_bracket: )
     - keyword: AS
     - select_statement:
@@ -252,21 +252,21 @@ file:
           keyword: SELECT
           select_clause_element:
             column_reference:
-              identifier: col1
+              naked_identifier: col1
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: t2
+                  naked_identifier: t2
 - statement_terminator: ;
 - statement:
     create_table_as_statement:
     - keyword: CREATE
     - keyword: TABLE
     - object_reference:
-        identifier: t1
+        naked_identifier: t1
     - table_constraint:
       - keyword: DISTSTYLE
       - keyword: EVEN
@@ -276,21 +276,21 @@ file:
           keyword: SELECT
           select_clause_element:
             column_reference:
-              identifier: col1
+              naked_identifier: col1
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: t2
+                  naked_identifier: t2
 - statement_terminator: ;
 - statement:
     create_table_as_statement:
     - keyword: CREATE
     - keyword: TABLE
     - object_reference:
-        identifier: t1
+        naked_identifier: t1
     - table_constraint:
       - keyword: DISTSTYLE
       - keyword: ALL
@@ -298,13 +298,13 @@ file:
       - bracketed:
           start_bracket: (
           column_reference:
-            identifier: col1
+            naked_identifier: col1
           end_bracket: )
       - keyword: SORTKEY
       - bracketed:
           start_bracket: (
           column_reference:
-            identifier: col1
+            naked_identifier: col1
           end_bracket: )
     - keyword: AS
     - select_statement:
@@ -312,21 +312,21 @@ file:
           keyword: SELECT
           select_clause_element:
             column_reference:
-              identifier: col1
+              naked_identifier: col1
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: t2
+                  naked_identifier: t2
 - statement_terminator: ;
 - statement:
     create_table_as_statement:
     - keyword: CREATE
     - keyword: TABLE
     - object_reference:
-        identifier: t1
+        naked_identifier: t1
     - table_constraint:
       - keyword: DISTSTYLE
       - keyword: ALL
@@ -334,17 +334,17 @@ file:
       - bracketed:
           start_bracket: (
           column_reference:
-            identifier: col1
+            naked_identifier: col1
           end_bracket: )
       - keyword: COMPOUND
       - keyword: SORTKEY
       - bracketed:
         - start_bracket: (
         - column_reference:
-            identifier: col1
+            naked_identifier: col1
         - comma: ','
         - column_reference:
-            identifier: col2
+            naked_identifier: col2
         - end_bracket: )
     - keyword: AS
     - select_statement:
@@ -352,25 +352,25 @@ file:
         - keyword: SELECT
         - select_clause_element:
             column_reference:
-              identifier: col1
+              naked_identifier: col1
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: col2
+              naked_identifier: col2
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: t2
+                  naked_identifier: t2
 - statement_terminator: ;
 - statement:
     create_table_as_statement:
     - keyword: CREATE
     - keyword: TABLE
     - object_reference:
-        identifier: t1
+        naked_identifier: t1
     - table_constraint:
       - keyword: DISTSTYLE
       - keyword: ALL
@@ -378,17 +378,17 @@ file:
       - bracketed:
           start_bracket: (
           column_reference:
-            identifier: col1
+            naked_identifier: col1
           end_bracket: )
       - keyword: INTERLEAVED
       - keyword: SORTKEY
       - bracketed:
         - start_bracket: (
         - column_reference:
-            identifier: col1
+            naked_identifier: col1
         - comma: ','
         - column_reference:
-            identifier: col2
+            naked_identifier: col2
         - end_bracket: )
     - keyword: AS
     - select_statement:
@@ -396,32 +396,32 @@ file:
         - keyword: SELECT
         - select_clause_element:
             column_reference:
-              identifier: col1
+              naked_identifier: col1
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: col2
+              naked_identifier: col2
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: t2
+                  naked_identifier: t2
 - statement_terminator: ;
 - statement:
     create_table_as_statement:
     - keyword: CREATE
     - keyword: TABLE
     - object_reference:
-        identifier: t1
+        naked_identifier: t1
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: col1
+          naked_identifier: col1
       - comma: ','
       - column_reference:
-          identifier: col2
+          naked_identifier: col2
       - end_bracket: )
     - keyword: AS
     - select_statement:
@@ -429,32 +429,32 @@ file:
         - keyword: SELECT
         - select_clause_element:
             column_reference:
-              identifier: col1
+              naked_identifier: col1
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: col2
+              naked_identifier: col2
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: t2
+                  naked_identifier: t2
 - statement_terminator: ;
 - statement:
     create_table_as_statement:
     - keyword: CREATE
     - keyword: TABLE
     - object_reference:
-        identifier: t1
+        naked_identifier: t1
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: col1
+          naked_identifier: col1
       - comma: ','
       - column_reference:
-          identifier: col2
+          naked_identifier: col2
       - end_bracket: )
     - keyword: BACKUP
     - keyword: 'YES'
@@ -464,32 +464,32 @@ file:
         - keyword: SELECT
         - select_clause_element:
             column_reference:
-              identifier: col1
+              naked_identifier: col1
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: col2
+              naked_identifier: col2
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: t2
+                  naked_identifier: t2
 - statement_terminator: ;
 - statement:
     create_table_as_statement:
     - keyword: CREATE
     - keyword: TABLE
     - object_reference:
-        identifier: t1
+        naked_identifier: t1
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: col1
+          naked_identifier: col1
       - comma: ','
       - column_reference:
-          identifier: col2
+          naked_identifier: col2
       - end_bracket: )
     - keyword: BACKUP
     - keyword: 'NO'
@@ -499,32 +499,32 @@ file:
         - keyword: SELECT
         - select_clause_element:
             column_reference:
-              identifier: col1
+              naked_identifier: col1
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: col2
+              naked_identifier: col2
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: t2
+                  naked_identifier: t2
 - statement_terminator: ;
 - statement:
     create_table_as_statement:
     - keyword: CREATE
     - keyword: TABLE
     - object_reference:
-        identifier: t1
+        naked_identifier: t1
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: col1
+          naked_identifier: col1
       - comma: ','
       - column_reference:
-          identifier: col2
+          naked_identifier: col2
       - end_bracket: )
     - keyword: AS
     - bracketed:
@@ -534,14 +534,14 @@ file:
             keyword: SELECT
             select_clause_element:
               column_reference:
-                identifier: col1
+                naked_identifier: col1
           from_clause:
             keyword: FROM
             from_expression:
               from_expression_element:
                 table_expression:
                   table_reference:
-                    identifier: tbl2
+                    naked_identifier: tbl2
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -549,14 +549,14 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - object_reference:
-        identifier: t1
+        naked_identifier: t1
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: col1
+          naked_identifier: col1
       - comma: ','
       - column_reference:
-          identifier: col2
+          naked_identifier: col2
       - end_bracket: )
     - keyword: BACKUP
     - keyword: 'NO'
@@ -567,17 +567,17 @@ file:
       - bracketed:
           start_bracket: (
           column_reference:
-            identifier: col1
+            naked_identifier: col1
           end_bracket: )
       - keyword: INTERLEAVED
       - keyword: SORTKEY
       - bracketed:
         - start_bracket: (
         - column_reference:
-            identifier: col1
+            naked_identifier: col1
         - comma: ','
         - column_reference:
-            identifier: col2
+            naked_identifier: col2
         - end_bracket: )
     - keyword: AS
     - bracketed:
@@ -588,14 +588,14 @@ file:
               keyword: SELECT
               select_clause_element:
                 column_reference:
-                  identifier: col1
+                  naked_identifier: col1
             from_clause:
               keyword: FROM
               from_expression:
                 from_expression_element:
                   table_expression:
                     table_reference:
-                      identifier: tbl2
+                      naked_identifier: tbl2
         - set_operator:
           - keyword: UNION
           - keyword: ALL
@@ -604,13 +604,13 @@ file:
               keyword: SELECT
               select_clause_element:
                 column_reference:
-                  identifier: col2
+                  naked_identifier: col2
             from_clause:
               keyword: FROM
               from_expression:
                 from_expression_element:
                   table_expression:
                     table_reference:
-                      identifier: tbl3
+                      naked_identifier: tbl3
         end_bracket: )
 - statement_terminator: ;

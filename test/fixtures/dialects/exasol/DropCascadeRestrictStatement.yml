@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d50ad5c8d5c362f1dbd549820b0fd329d7b15e1ce2f0d626fd490ab85e57b9c0
+_hash: f0e330e5f9012ac663311a479e2de220a366ba3e3b494fc360efbdf734d33a5d
 file:
 - statement:
     drop_view_statement:
@@ -12,7 +12,7 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - view_reference:
-        identifier: my_view
+        naked_identifier: my_view
     - keyword: RESTRICT
 - statement_terminator: ;
 - statement:

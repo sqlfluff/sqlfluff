@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ca9f31e8bd097609cd1ca93d1aafda7d11922f8c93c49c34fee378b46b5dded3
+_hash: 02ff595f7414aaa7b2d4ba4d6602d3c51c72bee1801a8b0911aa961c95ef1f8b
 file:
   statement:
     select_statement:
@@ -11,7 +11,7 @@ file:
       - keyword: select
       - select_clause_element:
           column_reference:
-            identifier: dataset_id
+            naked_identifier: dataset_id
       - comma: ','
       - select_clause_element:
           expression:
@@ -24,7 +24,7 @@ file:
                   bracketed:
                     start_bracket: (
                     expression:
-                      literal: '0.20'
+                      numeric_literal: '0.20'
                     end_bracket: )
                   withingroup_clause:
                   - keyword: within
@@ -35,7 +35,7 @@ file:
                       - keyword: order
                       - keyword: by
                       - column_reference:
-                          identifier: tract_percent_below_poverty
+                          naked_identifier: tract_percent_below_poverty
                       - keyword: asc
                       end_bracket: )
                   over_clause:
@@ -48,12 +48,12 @@ file:
                         - keyword: by
                         - expression:
                             column_reference:
-                              identifier: dataset_id
+                              naked_identifier: dataset_id
                       end_bracket: )
               end_bracket: )
           alias_expression:
             keyword: as
-            identifier: percentile_20
+            naked_identifier: percentile_20
       - comma: ','
       - select_clause_element:
           function:
@@ -62,7 +62,7 @@ file:
             bracketed:
               start_bracket: (
               expression:
-                literal: '0.40'
+                numeric_literal: '0.40'
               end_bracket: )
             withingroup_clause:
             - keyword: within
@@ -73,7 +73,7 @@ file:
                 - keyword: order
                 - keyword: by
                 - column_reference:
-                    identifier: tract_percent_below_poverty
+                    naked_identifier: tract_percent_below_poverty
                 - keyword: asc
                 end_bracket: )
             over_clause:
@@ -86,15 +86,15 @@ file:
                   - keyword: by
                   - expression:
                       column_reference:
-                        identifier: dataset_id
+                        naked_identifier: dataset_id
                 end_bracket: )
           alias_expression:
             keyword: as
-            identifier: percentile_40
+            naked_identifier: percentile_40
       from_clause:
         keyword: from
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: dataset_with_census
+                naked_identifier: dataset_with_census

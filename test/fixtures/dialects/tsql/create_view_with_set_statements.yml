@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 66252494bfa7b7050f17b5411aea55ad4a2a639e878a0c74cc8279d87537046d
+_hash: 656520aa2e7522804e41ecca3c15d63d0b2b577a15e343308a7f904d97128eaf
 file:
 - batch:
     statement:
@@ -29,36 +29,36 @@ file:
       - keyword: ALTER
       - keyword: VIEW
       - object_reference:
-        - identifier: '[DEST]'
+        - quoted_identifier: '[DEST]'
         - dot: .
-        - identifier: '[V_DIFFERENCE_NURSING_HOME__INFECTED_LOCATIONS_TOTAL_PER_REGION]'
+        - quoted_identifier: '[V_DIFFERENCE_NURSING_HOME__INFECTED_LOCATIONS_TOTAL_PER_REGION]'
       - keyword: AS
       - select_statement:
           select_clause:
           - keyword: SELECT
           - select_clause_element:
               column_reference:
-                identifier: DATE_OF_REPORT
+                naked_identifier: DATE_OF_REPORT
           - comma: ','
           - select_clause_element:
               column_reference:
-                identifier: NEW_DATE_OF_REPORT_UNIX
+                naked_identifier: NEW_DATE_OF_REPORT_UNIX
               alias_expression:
                 keyword: AS
-                identifier: NEW_DATE_UNIX
+                naked_identifier: NEW_DATE_UNIX
           - comma: ','
           - select_clause_element:
               column_reference:
-                identifier: OLD_DATE_OF_REPORT_UNIX
+                naked_identifier: OLD_DATE_OF_REPORT_UNIX
               alias_expression:
                 keyword: AS
-                identifier: OLD_DATE_UNIX
+                naked_identifier: OLD_DATE_UNIX
           - comma: ','
           - select_clause_element:
               column_reference:
-              - identifier: T1
+              - naked_identifier: T1
               - dot: .
-              - identifier: VRCODE
+              - naked_identifier: VRCODE
           - comma: ','
           - select_clause_element:
               expression:
@@ -68,21 +68,21 @@ file:
                   - keyword: WHEN
                   - expression:
                     - column_reference:
-                        identifier: OLD_VALUE
+                        naked_identifier: OLD_VALUE
                     - keyword: IS
                     - keyword: 'NULL'
                   - keyword: THEN
                   - expression:
-                      literal: '0'
+                      numeric_literal: '0'
                 - else_clause:
                     keyword: ELSE
                     expression:
                       column_reference:
-                        identifier: OLD_VALUE
+                        naked_identifier: OLD_VALUE
                 - keyword: END
               alias_expression:
                 keyword: AS
-                identifier: OLD_VALUE
+                naked_identifier: OLD_VALUE
           - comma: ','
           - select_clause_element:
               expression:
@@ -92,61 +92,61 @@ file:
                   - keyword: WHEN
                   - expression:
                     - column_reference:
-                        identifier: '[DIFFERENCE]'
+                        quoted_identifier: '[DIFFERENCE]'
                     - keyword: IS
                     - keyword: 'NULL'
                   - keyword: THEN
                   - expression:
-                      literal: '0'
+                      numeric_literal: '0'
                 - else_clause:
                     keyword: ELSE
                     expression:
                       column_reference:
-                        identifier: '[DIFFERENCE]'
+                        quoted_identifier: '[DIFFERENCE]'
                 - keyword: END
               alias_expression:
                 keyword: AS
-                identifier: '[DIFFERENCE]'
+                quoted_identifier: '[DIFFERENCE]'
           from_clause:
             keyword: FROM
             from_expression:
               from_expression_element:
                 table_expression:
                   table_reference:
-                    identifier: BASE_CTE
+                    naked_identifier: BASE_CTE
                 alias_expression:
-                  identifier: T1
+                  naked_identifier: T1
               join_clause:
               - keyword: LEFT
               - keyword: JOIN
               - from_expression_element:
                   table_expression:
                     table_reference:
-                      identifier: LAST_DATE_OF_REPORT
+                      naked_identifier: LAST_DATE_OF_REPORT
                   alias_expression:
-                    identifier: T2
+                    naked_identifier: T2
               - join_on_condition:
                   keyword: 'ON'
                   expression:
                   - column_reference:
-                    - identifier: T1
-                    - dot: .
-                    - identifier: '[VRCODE]'
+                      naked_identifier: T1
+                      dot: .
+                      quoted_identifier: '[VRCODE]'
                   - comparison_operator:
                       raw_comparison_operator: '='
                   - column_reference:
-                    - identifier: T2
-                    - dot: .
-                    - identifier: '[VRCODE]'
+                      naked_identifier: T2
+                      dot: .
+                      quoted_identifier: '[VRCODE]'
           where_clause:
             keyword: WHERE
             expression:
             - column_reference:
-                identifier: DATE_OF_REPORT
+                naked_identifier: DATE_OF_REPORT
             - comparison_operator:
                 raw_comparison_operator: '='
             - column_reference:
-                identifier: LAST_DATE_OF_REPORT
+                naked_identifier: LAST_DATE_OF_REPORT
           statement_terminator: ;
 - go_statement:
     keyword: GO

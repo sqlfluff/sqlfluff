@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1bdb7cb7eb0876edefbc4468db7e7060574b8ec8349ab1c96eb5ea17bdbce5ab
+_hash: c737f9e45be0fab74b2a65be0f9dfee377c8004e59cc09a4de27301ec509f30b
 file:
 - statement:
     set_statement:
@@ -19,18 +19,18 @@ file:
     - keyword: SET
     - parameter: search_path
     - keyword: TO
-    - identifier: my_schema
+    - naked_identifier: my_schema
     - comma: ','
-    - identifier: public
+    - naked_identifier: public
 - statement_terminator: ;
 - statement:
     set_statement:
     - keyword: SET
     - parameter: datestyle
     - keyword: TO
-    - identifier: postgres
+    - naked_identifier: postgres
     - comma: ','
-    - identifier: dmy
+    - naked_identifier: dmy
 - statement_terminator: ;
 - statement:
     set_statement:
@@ -38,23 +38,23 @@ file:
     - keyword: SESSION
     - parameter: datestyle
     - keyword: TO
-    - identifier: postgres
+    - naked_identifier: postgres
     - comma: ','
-    - literal: "'dmy'"
+    - quoted_literal: "'dmy'"
 - statement_terminator: ;
 - statement:
     set_statement:
     - keyword: SET
     - keyword: TIME
     - keyword: ZONE
-    - literal: "'PST8PDT'"
+    - quoted_literal: "'PST8PDT'"
 - statement_terminator: ;
 - statement:
     set_statement:
     - keyword: SET
     - keyword: TIME
     - keyword: ZONE
-    - literal: "'Europe/Rome'"
+    - quoted_literal: "'Europe/Rome'"
 - statement_terminator: ;
 - statement:
     set_statement:

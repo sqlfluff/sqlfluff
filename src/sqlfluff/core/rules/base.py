@@ -838,7 +838,9 @@ class BaseRule:
         parent: Optional[BaseSegment] = None,
     ):
         """Does the given segment match any of the given type tuples?"""
-        if seg.name in [elem[1] for elem in target_tuples if elem[0] == "name"]:
+        if seg.raw_upper in [
+            elem[1] for elem in target_tuples if elem[0] == "raw_upper"
+        ]:
             return True
         elif seg.is_type(*[elem[1] for elem in target_tuples if elem[0] == "type"]):
             return True

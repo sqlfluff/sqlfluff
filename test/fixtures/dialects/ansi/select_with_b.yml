@@ -3,13 +3,13 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bbaee47516555b6082ece21fd3e90454de941e7c663893ade1ee071b890d8635
+_hash: d30f0d1b4b6f309151e12d5aa38d0a47c9cd50518fa65e4f4634e17c573ad731
 file:
   statement:
     with_compound_statement:
       keyword: WITH
       common_table_expression:
-        identifier: blah
+        naked_identifier: blah
         keyword: AS
         bracketed:
           start_bracket: (
@@ -18,42 +18,42 @@ file:
             - keyword: select
             - select_clause_element:
                 column_reference:
-                  identifier: x
+                  naked_identifier: x
             - comma: ','
             - select_clause_element:
                 column_reference:
-                  identifier: y
+                  naked_identifier: y
             - comma: ','
             - select_clause_element:
                 column_reference:
-                  identifier: z
+                  naked_identifier: z
             from_clause:
               keyword: FROM
               from_expression:
                 from_expression_element:
                   table_expression:
                     table_reference:
-                      identifier: foo
+                      naked_identifier: foo
           end_bracket: )
       select_statement:
         select_clause:
         - keyword: select
         - select_clause_element:
             column_reference:
-              identifier: z
+              naked_identifier: z
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: y
+              naked_identifier: y
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: x
+              naked_identifier: x
         from_clause:
           keyword: from
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: blah
+                  naked_identifier: blah
   statement_terminator: ;

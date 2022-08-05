@@ -3,14 +3,14 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9c60d7f03836f977999a5ad56c70f44448fef6e0cadd94dfe772a82624f91e41
+_hash: f22d569afdcb89d848ee18f33b4b2e6266e14a562eaafb3c38dc15add5be1c80
 file:
 - statement:
     create_schema_statement:
     - keyword: CREATE
     - keyword: SCHEMA
     - schema_reference:
-        identifier: s1
+        naked_identifier: s1
 - statement_terminator: ;
 - statement:
     create_schema_statement:
@@ -20,17 +20,17 @@ file:
     - keyword: NOT
     - keyword: EXISTS
     - schema_reference:
-        identifier: s1
+        naked_identifier: s1
 - statement_terminator: ;
 - statement:
     create_schema_statement:
     - keyword: CREATE
     - keyword: SCHEMA
     - schema_reference:
-        identifier: s1
+        naked_identifier: s1
     - keyword: AUTHORIZATION
     - object_reference:
-        identifier: dwuser
+        naked_identifier: dwuser
 - statement_terminator: ;
 - statement:
     create_schema_statement:
@@ -40,22 +40,22 @@ file:
     - keyword: NOT
     - keyword: EXISTS
     - schema_reference:
-        identifier: s1
+        naked_identifier: s1
     - keyword: AUTHORIZATION
     - object_reference:
-        identifier: dwuser
+        naked_identifier: dwuser
 - statement_terminator: ;
 - statement:
     create_schema_statement:
     - keyword: CREATE
     - keyword: SCHEMA
     - schema_reference:
-        identifier: s1
+        naked_identifier: s1
     - keyword: AUTHORIZATION
     - object_reference:
-        identifier: dwuser
+        naked_identifier: dwuser
     - keyword: QUOTA
-    - literal: '100'
+    - numeric_literal: '100'
     - keyword: MB
 - statement_terminator: ;
 - statement:
@@ -66,12 +66,12 @@ file:
     - keyword: NOT
     - keyword: EXISTS
     - schema_reference:
-        identifier: s1
+        naked_identifier: s1
     - keyword: AUTHORIZATION
     - object_reference:
-        identifier: dwuser
+        naked_identifier: dwuser
     - keyword: QUOTA
-    - literal: '100'
+    - numeric_literal: '100'
     - keyword: MB
 - statement_terminator: ;
 - statement:
@@ -79,12 +79,12 @@ file:
     - keyword: CREATE
     - keyword: SCHEMA
     - schema_reference:
-        identifier: s1
+        naked_identifier: s1
     - keyword: AUTHORIZATION
     - object_reference:
-        identifier: dwuser
+        naked_identifier: dwuser
     - keyword: QUOTA
-    - literal: '5'
+    - numeric_literal: '5'
     - keyword: GB
 - statement_terminator: ;
 - statement:
@@ -95,12 +95,12 @@ file:
     - keyword: NOT
     - keyword: EXISTS
     - schema_reference:
-        identifier: s1
+        naked_identifier: s1
     - keyword: AUTHORIZATION
     - object_reference:
-        identifier: dwuser
+        naked_identifier: dwuser
     - keyword: QUOTA
-    - literal: '5'
+    - numeric_literal: '5'
     - keyword: GB
 - statement_terminator: ;
 - statement:
@@ -108,12 +108,12 @@ file:
     - keyword: CREATE
     - keyword: SCHEMA
     - schema_reference:
-        identifier: s1
+        naked_identifier: s1
     - keyword: AUTHORIZATION
     - object_reference:
-        identifier: dwuser
+        naked_identifier: dwuser
     - keyword: QUOTA
-    - literal: '0.1'
+    - numeric_literal: '0.1'
     - keyword: TB
 - statement_terminator: ;
 - statement:
@@ -124,12 +124,12 @@ file:
     - keyword: NOT
     - keyword: EXISTS
     - schema_reference:
-        identifier: s1
+        naked_identifier: s1
     - keyword: AUTHORIZATION
     - object_reference:
-        identifier: dwuser
+        naked_identifier: dwuser
     - keyword: QUOTA
-    - literal: '0.1'
+    - numeric_literal: '0.1'
     - keyword: TB
 - statement_terminator: ;
 - statement:
@@ -137,10 +137,10 @@ file:
     - keyword: CREATE
     - keyword: SCHEMA
     - schema_reference:
-        identifier: s1
+        naked_identifier: s1
     - keyword: AUTHORIZATION
     - object_reference:
-        identifier: dwuser
+        naked_identifier: dwuser
     - keyword: QUOTA
     - keyword: UNLIMITED
 - statement_terminator: ;
@@ -152,10 +152,10 @@ file:
     - keyword: NOT
     - keyword: EXISTS
     - schema_reference:
-        identifier: s1
+        naked_identifier: s1
     - keyword: AUTHORIZATION
     - object_reference:
-        identifier: dwuser
+        naked_identifier: dwuser
     - keyword: QUOTA
     - keyword: UNLIMITED
 - statement_terminator: ;
@@ -165,7 +165,7 @@ file:
     - keyword: SCHEMA
     - keyword: AUTHORIZATION
     - object_reference:
-        identifier: dwuser
+        naked_identifier: dwuser
 - statement_terminator: ;
 - statement:
     create_schema_statement:
@@ -173,9 +173,9 @@ file:
     - keyword: SCHEMA
     - keyword: AUTHORIZATION
     - object_reference:
-        identifier: dwuser
+        naked_identifier: dwuser
     - keyword: QUOTA
-    - literal: '100'
+    - numeric_literal: '100'
     - keyword: MB
 - statement_terminator: ;
 - statement:
@@ -184,9 +184,9 @@ file:
     - keyword: SCHEMA
     - keyword: AUTHORIZATION
     - object_reference:
-        identifier: dwuser
+        naked_identifier: dwuser
     - keyword: QUOTA
-    - literal: '5'
+    - numeric_literal: '5'
     - keyword: GB
 - statement_terminator: ;
 - statement:
@@ -195,9 +195,9 @@ file:
     - keyword: SCHEMA
     - keyword: AUTHORIZATION
     - object_reference:
-        identifier: dwuser
+        naked_identifier: dwuser
     - keyword: QUOTA
-    - literal: '0.1'
+    - numeric_literal: '0.1'
     - keyword: TB
 - statement_terminator: ;
 - statement:
@@ -206,7 +206,7 @@ file:
     - keyword: SCHEMA
     - keyword: AUTHORIZATION
     - object_reference:
-        identifier: dwuser
+        naked_identifier: dwuser
     - keyword: QUOTA
     - keyword: UNLIMITED
 - statement_terminator: ;

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6c77abc538b50d08252bdc0dafb4d314eb73cbca6f550a570824fbd76532cb64
+_hash: dea545107ae74b4b6b065945481cf2301d6d483c6526ece7dd103b6cc8aa6eef
 file:
 - statement:
     select_statement:
@@ -11,7 +11,7 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: id
+            naked_identifier: id
       - comma: ','
       - select_clause_element:
           function:
@@ -21,28 +21,28 @@ file:
               start_bracket: (
               expression:
                 column_reference:
-                  identifier: quantity
+                  naked_identifier: quantity
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: sum_quantity
+            naked_identifier: sum_quantity
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: dealer
+                naked_identifier: dealer
       groupby_clause:
       - keyword: GROUP
       - keyword: BY
       - column_reference:
-          identifier: id
+          naked_identifier: id
       orderby_clause:
       - keyword: ORDER
       - keyword: BY
       - column_reference:
-          identifier: id
+          naked_identifier: id
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -50,7 +50,7 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: id
+            naked_identifier: id
       - comma: ','
       - select_clause_element:
           function:
@@ -60,26 +60,26 @@ file:
               start_bracket: (
               expression:
                 column_reference:
-                  identifier: quantity
+                  naked_identifier: quantity
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: sum_quantity
+            naked_identifier: sum_quantity
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: dealer
+                naked_identifier: dealer
       groupby_clause:
       - keyword: GROUP
       - keyword: BY
-      - literal: '1'
+      - numeric_literal: '1'
       orderby_clause:
       - keyword: ORDER
       - keyword: BY
-      - literal: '1'
+      - numeric_literal: '1'
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -87,7 +87,7 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: id
+            naked_identifier: id
       - comma: ','
       - select_clause_element:
           function:
@@ -97,11 +97,11 @@ file:
               start_bracket: (
               expression:
                 column_reference:
-                  identifier: quantity
+                  naked_identifier: quantity
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: sum_quantity
+            naked_identifier: sum_quantity
       - comma: ','
       - select_clause_element:
           function:
@@ -111,28 +111,28 @@ file:
               start_bracket: (
               expression:
                 column_reference:
-                  identifier: quantity
+                  naked_identifier: quantity
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: max_quantity
+            naked_identifier: max_quantity
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: dealer
+                naked_identifier: dealer
       groupby_clause:
       - keyword: GROUP
       - keyword: BY
       - column_reference:
-          identifier: id
+          naked_identifier: id
       orderby_clause:
       - keyword: ORDER
       - keyword: BY
       - column_reference:
-          identifier: id
+          naked_identifier: id
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -140,7 +140,7 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: car_model
+            naked_identifier: car_model
       - comma: ','
       - select_clause_element:
           function:
@@ -151,23 +151,23 @@ file:
               keyword: DISTINCT
               expression:
                 column_reference:
-                  identifier: city
+                  naked_identifier: city
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: count_distinct_city
+            naked_identifier: count_distinct_city
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: dealer
+                naked_identifier: dealer
       groupby_clause:
       - keyword: GROUP
       - keyword: BY
       - column_reference:
-          identifier: car_model
+          naked_identifier: car_model
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -175,7 +175,7 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: id
+            naked_identifier: id
       - comma: ','
       - select_clause_element:
           function:
@@ -185,7 +185,7 @@ file:
               start_bracket: (
               expression:
                 column_reference:
-                  identifier: quantity
+                  naked_identifier: quantity
               end_bracket: )
           - keyword: FILTER
           - bracketed:
@@ -193,35 +193,35 @@ file:
               keyword: WHERE
               expression:
                 column_reference:
-                  identifier: car_model
+                  naked_identifier: car_model
                 keyword: IN
                 bracketed:
                 - start_bracket: (
-                - literal: "'Honda Civic'"
+                - quoted_literal: "'Honda Civic'"
                 - comma: ','
-                - literal: "'Honda CRV'"
+                - quoted_literal: "'Honda CRV'"
                 - end_bracket: )
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: '`sum(quantity)`'
+            quoted_identifier: '`sum(quantity)`'
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: dealer
+                naked_identifier: dealer
       groupby_clause:
       - keyword: GROUP
       - keyword: BY
       - column_reference:
-          identifier: id
+          naked_identifier: id
       orderby_clause:
       - keyword: ORDER
       - keyword: BY
       - column_reference:
-          identifier: id
+          naked_identifier: id
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -229,11 +229,11 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: city
+            naked_identifier: city
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: car_model
+            naked_identifier: car_model
       - comma: ','
       - select_clause_element:
           function:
@@ -243,18 +243,18 @@ file:
               start_bracket: (
               expression:
                 column_reference:
-                  identifier: quantity
+                  naked_identifier: quantity
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: sum_quantity
+            naked_identifier: sum_quantity
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: dealer
+                naked_identifier: dealer
       groupby_clause:
       - keyword: GROUP
       - keyword: BY
@@ -268,25 +268,25 @@ file:
               - start_bracket: (
               - expression:
                   column_reference:
-                    identifier: city
+                    naked_identifier: city
               - comma: ','
               - expression:
                   column_reference:
-                    identifier: car_model
+                    naked_identifier: car_model
               - end_bracket: )
             - comma: ','
             - bracketed:
                 start_bracket: (
                 expression:
                   column_reference:
-                    identifier: city
+                    naked_identifier: city
                 end_bracket: )
             - comma: ','
             - bracketed:
                 start_bracket: (
                 expression:
                   column_reference:
-                    identifier: car_model
+                    naked_identifier: car_model
                 end_bracket: )
             - comma: ','
             - bracketed:
@@ -297,7 +297,7 @@ file:
       - keyword: ORDER
       - keyword: BY
       - column_reference:
-          identifier: city
+          naked_identifier: city
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -305,11 +305,11 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: city
+            naked_identifier: city
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: car_model
+            naked_identifier: car_model
       - comma: ','
       - select_clause_element:
           function:
@@ -319,26 +319,26 @@ file:
               start_bracket: (
               expression:
                 column_reference:
-                  identifier: quantity
+                  naked_identifier: quantity
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: sum_quantity
+            naked_identifier: sum_quantity
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: dealer
+                naked_identifier: dealer
       groupby_clause:
       - keyword: GROUP
       - keyword: BY
       - column_reference:
-          identifier: city
+          naked_identifier: city
       - comma: ','
       - column_reference:
-          identifier: car_model
+          naked_identifier: car_model
       - with_cube_rollup_clause:
         - keyword: WITH
         - keyword: ROLLUP
@@ -346,10 +346,10 @@ file:
       - keyword: ORDER
       - keyword: BY
       - column_reference:
-          identifier: city
+          naked_identifier: city
       - comma: ','
       - column_reference:
-          identifier: car_model
+          naked_identifier: car_model
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -357,11 +357,11 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: city
+            naked_identifier: city
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: car_model
+            naked_identifier: car_model
       - comma: ','
       - select_clause_element:
           function:
@@ -371,26 +371,26 @@ file:
               start_bracket: (
               expression:
                 column_reference:
-                  identifier: quantity
+                  naked_identifier: quantity
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: sum_quantity
+            naked_identifier: sum_quantity
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: dealer
+                naked_identifier: dealer
       groupby_clause:
       - keyword: GROUP
       - keyword: BY
       - column_reference:
-          identifier: city
+          naked_identifier: city
       - comma: ','
       - column_reference:
-          identifier: car_model
+          naked_identifier: car_model
       - with_cube_rollup_clause:
         - keyword: WITH
         - keyword: CUBE
@@ -398,10 +398,10 @@ file:
       - keyword: ORDER
       - keyword: BY
       - column_reference:
-          identifier: city
+          naked_identifier: city
       - comma: ','
       - column_reference:
-          identifier: car_model
+          naked_identifier: car_model
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -415,7 +415,7 @@ file:
               start_bracket: (
               expression:
                 column_reference:
-                  identifier: age
+                  naked_identifier: age
               end_bracket: )
       from_clause:
         keyword: FROM
@@ -423,7 +423,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: person
+                naked_identifier: person
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -437,13 +437,13 @@ file:
             - start_bracket: (
             - expression:
                 column_reference:
-                  identifier: age
+                  naked_identifier: age
             - keyword: IGNORE
             - keyword: NULLS
             - end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: first_age
+            naked_identifier: first_age
       - comma: ','
       - select_clause_element:
           function:
@@ -453,11 +453,11 @@ file:
               start_bracket: (
               expression:
                 column_reference:
-                  identifier: id
+                  naked_identifier: id
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: last_id
+            naked_identifier: last_id
       - comma: ','
       - select_clause_element:
           function:
@@ -467,18 +467,18 @@ file:
               start_bracket: (
               expression:
                 column_reference:
-                  identifier: id
+                  naked_identifier: id
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: sum_id
+            naked_identifier: sum_id
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: person
+                naked_identifier: person
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -486,11 +486,11 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: name
+            naked_identifier: name
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: age
+            naked_identifier: age
       - comma: ','
       - select_clause_element:
           function:
@@ -502,14 +502,14 @@ file:
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: record_count
+            naked_identifier: record_count
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: people
+                naked_identifier: people
       groupby_clause:
       - keyword: GROUP
       - keyword: BY
@@ -521,11 +521,11 @@ file:
             - start_bracket: (
             - expression:
                 column_reference:
-                  identifier: name
+                  naked_identifier: name
             - comma: ','
             - expression:
                 column_reference:
-                  identifier: age
+                  naked_identifier: age
             - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -534,11 +534,11 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: name
+            naked_identifier: name
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: age
+            naked_identifier: age
       - comma: ','
       - select_clause_element:
           function:
@@ -550,14 +550,14 @@ file:
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: record_count
+            naked_identifier: record_count
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: people
+                naked_identifier: people
       groupby_clause:
       - keyword: GROUP
       - keyword: BY
@@ -569,10 +569,10 @@ file:
             - start_bracket: (
             - expression:
                 column_reference:
-                  identifier: name
+                  naked_identifier: name
             - comma: ','
             - expression:
                 column_reference:
-                  identifier: age
+                  naked_identifier: age
             - end_bracket: )
 - statement_terminator: ;

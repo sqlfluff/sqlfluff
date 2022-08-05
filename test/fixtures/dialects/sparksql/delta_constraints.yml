@@ -3,20 +3,20 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3b1125b049fcd18459e7ff55487c4ab6ecaf0f04e53d4170f60136d17e6db763
+_hash: 6cb5616dfacdb4d462880862d15122a820e15134e1282a001ece3c737e93c2b8
 file:
 - statement:
     alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - identifier: default
+      - naked_identifier: default
       - dot: .
-      - identifier: people10m
+      - naked_identifier: people10m
     - keyword: CHANGE
     - keyword: COLUMN
     - column_reference:
-        identifier: middle_name
+        naked_identifier: middle_name
     - keyword: DROP
     - keyword: NOT
     - keyword: 'NULL'
@@ -26,22 +26,22 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - identifier: default
+      - naked_identifier: default
       - dot: .
-      - identifier: people10m
+      - naked_identifier: people10m
     - keyword: ADD
     - keyword: CONSTRAINT
     - column_reference:
-        identifier: date_within_range
+        naked_identifier: date_within_range
     - keyword: CHECK
     - bracketed:
         start_bracket: (
         expression:
           column_reference:
-            identifier: birthDate
+            naked_identifier: birthDate
           comparison_operator:
             raw_comparison_operator: '>'
-          literal: "'1900-01-01'"
+          quoted_literal: "'1900-01-01'"
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -49,40 +49,40 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - identifier: default
+      - naked_identifier: default
       - dot: .
-      - identifier: people10m
+      - naked_identifier: people10m
     - keyword: DROP
     - keyword: CONSTRAINT
     - column_reference:
-        identifier: date_within_range
+        naked_identifier: date_within_range
 - statement_terminator: ;
 - statement:
     alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - identifier: default
+      - naked_identifier: default
       - dot: .
-      - identifier: people10m
+      - naked_identifier: people10m
     - keyword: ADD
     - keyword: CONSTRAINT
     - column_reference:
-        identifier: valid_ids
+        naked_identifier: valid_ids
     - keyword: CHECK
     - bracketed:
         start_bracket: (
         expression:
         - column_reference:
-            identifier: id
+            naked_identifier: id
         - comparison_operator:
             raw_comparison_operator: '>'
-        - literal: '1'
+        - numeric_literal: '1'
         - binary_operator: and
         - column_reference:
-            identifier: id
+            naked_identifier: id
         - comparison_operator:
             raw_comparison_operator: <
-        - literal: '99999999'
+        - numeric_literal: '99999999'
         end_bracket: )
 - statement_terminator: ;

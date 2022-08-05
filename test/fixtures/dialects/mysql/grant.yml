@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 29bbbad5f865af360d629bd828fc9c690d913e55e1237d8f5698f3eeb73abf9b
+_hash: fd535f609b65d22497d484902183cbfed83028e566ddc56502d9f7cf064c78aa
 file:
 - statement:
     access_statement:
@@ -19,10 +19,10 @@ file:
     - keyword: REFERENCES
     - keyword: 'ON'
     - object_reference:
-        identifier: prj_table
+        naked_identifier: prj_table
     - keyword: TO
     - role_reference:
-        identifier: prj_svc
+        naked_identifier: prj_svc
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -38,10 +38,10 @@ file:
     - keyword: REFERENCES
     - keyword: 'ON'
     - object_reference:
-        identifier: prj_table
+        naked_identifier: prj_table
     - keyword: TO
     - role_reference:
-        identifier: "'prj_svc'"
+        quoted_identifier: "'prj_svc'"
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -57,10 +57,10 @@ file:
     - keyword: REFERENCES
     - keyword: 'ON'
     - object_reference:
-        identifier: prj_table
+        naked_identifier: prj_table
     - keyword: TO
     - role_reference:
-        literal: '"prj_svc"'
+        quoted_literal: '"prj_svc"'
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -76,10 +76,10 @@ file:
     - keyword: REFERENCES
     - keyword: 'ON'
     - object_reference:
-        identifier: prj_table
+        naked_identifier: prj_table
     - keyword: TO
     - role_reference:
-        identifier: '`prj_svc`'
+        quoted_identifier: '`prj_svc`'
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -95,12 +95,12 @@ file:
     - keyword: REFERENCES
     - keyword: 'ON'
     - object_reference:
-        identifier: prj_table
+        naked_identifier: prj_table
     - keyword: TO
     - role_reference:
-      - identifier: "'prj_svc'"
-      - literal: '@'
-      - identifier: "'%'"
+      - quoted_identifier: "'prj_svc'"
+      - at_sign_literal: '@'
+      - quoted_identifier: "'%'"
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -116,12 +116,12 @@ file:
     - keyword: REFERENCES
     - keyword: 'ON'
     - object_reference:
-        identifier: prj_table
+        naked_identifier: prj_table
     - keyword: TO
     - role_reference:
-      - literal: '"prj_svc"'
-      - literal: '@'
-      - literal: '"%"'
+      - quoted_literal: '"prj_svc"'
+      - at_sign_literal: '@'
+      - quoted_literal: '"%"'
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -137,12 +137,12 @@ file:
     - keyword: REFERENCES
     - keyword: 'ON'
     - object_reference:
-        identifier: prj_table
+        naked_identifier: prj_table
     - keyword: TO
     - role_reference:
-      - identifier: '`prj_svc`'
-      - literal: '@'
-      - identifier: '`%`'
+      - quoted_identifier: '`prj_svc`'
+      - at_sign_literal: '@'
+      - quoted_identifier: '`%`'
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -158,10 +158,10 @@ file:
     - keyword: REFERENCES
     - keyword: 'ON'
     - object_reference:
-        identifier: prj_table
+        naked_identifier: prj_table
     - keyword: TO
     - role_reference:
-      - identifier: '`prj_svc`'
-      - literal: '@'
-      - identifier: '`%`'
+      - quoted_identifier: '`prj_svc`'
+      - at_sign_literal: '@'
+      - quoted_identifier: '`%`'
 - statement_terminator: ;

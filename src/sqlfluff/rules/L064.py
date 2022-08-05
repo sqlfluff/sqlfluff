@@ -4,7 +4,6 @@ from typing import Optional
 
 import regex
 
-from sqlfluff.core.parser.segments.raw import CodeSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
@@ -13,6 +12,7 @@ from sqlfluff.core.rules.doc_decorators import (
 )
 from sqlfluff.core.rules.functional import rsp
 from sqlfluff.core.parser.markers import PositionMarker
+from sqlfluff.dialects.dialect_ansi import LiteralSegment
 
 
 @document_groups
@@ -96,7 +96,7 @@ class Rule_L064(BaseRule):
         self.force_enable: bool
 
         # Only care about quoted literal segments.
-        if context.segment.name != "quoted_literal":
+        if not context.segment.is_type("quoted_literal"):
             return None
 
         if not (
@@ -175,10 +175,9 @@ class Rule_L064(BaseRule):
                     LintFix.replace(
                         context.segment,
                         [
-                            CodeSegment(
+                            LiteralSegment(
                                 raw=fixed_string,
-                                name="quoted_literal",
-                                type="literal",
+                                type="quoted_literal",
                             )
                         ],
                     )

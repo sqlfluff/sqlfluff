@@ -3,14 +3,14 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6a7e6ea93b0701a9576b885228fd7c195781a7f71603e3a0097c199e100cd8d4
+_hash: 9626d2bc3f5efcefdc2860f3cc69f9760838065666af759ea6458370cc1e6b6f
 file:
 - statement:
     create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: table_1
+        naked_identifier: table_1
     - options_segment:
         keyword: OPTIONS
         bracketed:
@@ -35,7 +35,7 @@ file:
                 interval_expression:
                   keyword: INTERVAL
                   expression:
-                    literal: '24'
+                    numeric_literal: '24'
                   date_part: HOUR
             - end_bracket: )
           end_bracket: )
@@ -45,7 +45,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: table_1
+        naked_identifier: table_1
     - options_segment:
         keyword: OPTIONS
         bracketed:
@@ -59,7 +59,7 @@ file:
             bracketed:
               start_bracket: (
               expression:
-                literal: '"2023-01-01 00:00:00 UTC"'
+                quoted_literal: '"2023-01-01 00:00:00 UTC"'
               end_bracket: )
           end_bracket: )
 - statement_terminator: ;
@@ -68,7 +68,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: table_1
+        naked_identifier: table_1
     - options_segment:
         keyword: OPTIONS
         bracketed:
@@ -76,7 +76,7 @@ file:
         - parameter: description
         - comparison_operator:
             raw_comparison_operator: '='
-        - literal: '"Test mixed options"'
+        - quoted_literal: '"Test mixed options"'
         - comma: ','
         - parameter: expiration_timestamp
         - comparison_operator:
@@ -87,7 +87,7 @@ file:
             bracketed:
               start_bracket: (
               expression:
-                literal: '"2023-01-01 00:00:00 UTC"'
+                quoted_literal: '"2023-01-01 00:00:00 UTC"'
               end_bracket: )
         - end_bracket: )
 - statement_terminator: ;

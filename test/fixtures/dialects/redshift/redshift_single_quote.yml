@@ -3,72 +3,72 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f86931cf92d17d4ddf311a5b3d0c8b504aaaf33fa10b27a88f150960d624c6a0
+_hash: 737a716df4c07a67449fbe8f37caac2b4a08b8088c06f6861699dd1b7937ca1e
 file:
 - statement:
     select_statement:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          literal: "''"
+          quoted_literal: "''"
 - statement_terminator: ;
 - statement:
     select_statement:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          literal: "''''"
+          quoted_literal: "''''"
 - statement_terminator: ;
 - statement:
     select_statement:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          literal: "'\n\n'"
+          quoted_literal: "'\n\n'"
 - statement_terminator: ;
 - statement:
     select_statement:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          literal: "'''aaa'''"
+          quoted_literal: "'''aaa'''"
 - statement_terminator: ;
 - statement:
     select_statement:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          literal: "'\n''\n'"
+          quoted_literal: "'\n''\n'"
 - statement_terminator: ;
 - statement:
     select_statement:
       select_clause:
         keyword: SELECT
         select_clause_element:
-        - literal: "'foo'"
-        - literal: "'bar'"
+        - quoted_literal: "'foo'"
+        - quoted_literal: "'bar'"
 - statement_terminator: ;
 - statement:
     select_statement:
       select_clause:
         keyword: SELECT
         select_clause_element:
-        - literal: "'foo'"
-        - literal: "'bar'"
+        - quoted_literal: "'foo'"
+        - quoted_literal: "'bar'"
 - statement_terminator: ;
 - statement:
     select_statement:
       select_clause:
         keyword: SELECT
         select_clause_element:
-        - literal: "'foo'"
-        - literal: "'bar'"
+        - quoted_literal: "'foo'"
+        - quoted_literal: "'bar'"
 - statement_terminator: ;
 - statement:
     select_statement:
       select_clause:
         keyword: SELECT
         select_clause_element:
-        - literal: "'foo'"
-        - literal: "'bar'"
+        - quoted_literal: "'foo'"
+        - quoted_literal: "'bar'"
 - statement_terminator: ;

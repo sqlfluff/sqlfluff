@@ -46,8 +46,8 @@ class Rule_L029(BaseRule):
     groups = ("all",)
     # Binary operators behave like keywords too.
     _target_elems: List[Tuple[str, str]] = [
-        ("name", "naked_identifier"),
-        ("name", "quoted_identifier"),
+        ("type", "naked_identifier"),
+        ("type", "quoted_identifier"),
     ]
 
     config_keywords = [
@@ -91,7 +91,7 @@ class Rule_L029(BaseRule):
 
         if (
             (
-                context.segment.name == "naked_identifier"
+                context.segment.is_type("naked_identifier")
                 and identifiers_policy_applicable(
                     self.unquoted_identifiers_policy,  # type: ignore
                     context.parent_stack,
@@ -103,7 +103,7 @@ class Rule_L029(BaseRule):
             )
         ) or (
             (
-                context.segment.name == "quoted_identifier"
+                context.segment.is_type("quoted_identifier")
                 and identifiers_policy_applicable(
                     self.quoted_identifiers_policy, context.parent_stack  # type: ignore
                 )

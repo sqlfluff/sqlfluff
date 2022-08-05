@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5edc8237281865faa18cc8d39b37eb227d501b9a1a7dfcb67d1df4a6299b83a7
+_hash: 149db629af0164d27dc37ef59df84f570101734b0f14157185888321791fddb1
 file:
 - statement:
     transaction_statement:
@@ -18,11 +18,11 @@ file:
     - keyword: NOT
     - keyword: EXISTS
     - table_reference:
-        identifier: '"tbl"'
+        quoted_identifier: '"tbl"'
     - bracketed:
         start_bracket: (
         column_definition:
-        - identifier: '"col"'
+        - quoted_identifier: '"col"'
         - data_type:
             keyword: TIMESTAMP
         - column_constraint_segment:

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 77dc50fc4b994d8dea128d49acba1f7cc050519943e0aa268e8749cd1266e344
+_hash: ad1d9abd13e8ba86dee71e83e8d19856891b3a75a42f45960e554444de1cc8f7
 file:
 - statement:
     select_statement:
@@ -22,30 +22,30 @@ file:
                   end_square_bracket: ']'
             - comma: ','
             - expression:
-                literal: '0'
+                numeric_literal: '0'
             - comma: ','
             - expression:
               - bracketed:
                 - start_bracket: (
                 - column_reference:
-                    identifier: s
+                    naked_identifier: s
                 - comma: ','
                 - column_reference:
-                    identifier: x
+                    naked_identifier: x
                 - end_bracket: )
               - binary_operator: ->
               - column_reference:
-                  identifier: s
+                  naked_identifier: s
               - binary_operator: +
               - column_reference:
-                  identifier: x
+                  naked_identifier: x
             - comma: ','
             - expression:
               - column_reference:
-                  identifier: s
+                  naked_identifier: s
               - binary_operator: ->
               - column_reference:
-                  identifier: s
+                  naked_identifier: s
             - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -62,38 +62,38 @@ file:
                 array_literal:
                 - keyword: ARRAY
                 - start_square_bracket: '['
-                - literal: '5'
+                - numeric_literal: '5'
                 - comma: ','
-                - literal: '20'
+                - numeric_literal: '20'
                 - comma: ','
-                - literal: '50'
+                - numeric_literal: '50'
                 - end_square_bracket: ']'
             - comma: ','
             - expression:
-                literal: '0'
+                numeric_literal: '0'
             - comma: ','
             - expression:
               - bracketed:
                 - start_bracket: (
                 - column_reference:
-                    identifier: s
+                    naked_identifier: s
                 - comma: ','
                 - column_reference:
-                    identifier: x
+                    naked_identifier: x
                 - end_bracket: )
               - binary_operator: ->
               - column_reference:
-                  identifier: s
+                  naked_identifier: s
               - binary_operator: +
               - column_reference:
-                  identifier: x
+                  naked_identifier: x
             - comma: ','
             - expression:
               - column_reference:
-                  identifier: s
+                  naked_identifier: s
               - binary_operator: ->
               - column_reference:
-                  identifier: s
+                  naked_identifier: s
             - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -110,40 +110,40 @@ file:
                 array_literal:
                 - keyword: ARRAY
                 - start_square_bracket: '['
-                - literal: '5'
+                - numeric_literal: '5'
                 - comma: ','
-                - literal: '20'
+                - numeric_literal: '20'
                 - comma: ','
-                - literal: 'NULL'
+                - null_literal: 'NULL'
                 - comma: ','
-                - literal: '50'
+                - numeric_literal: '50'
                 - end_square_bracket: ']'
             - comma: ','
             - expression:
-                literal: '0'
+                numeric_literal: '0'
             - comma: ','
             - expression:
               - bracketed:
                 - start_bracket: (
                 - column_reference:
-                    identifier: s
+                    naked_identifier: s
                 - comma: ','
                 - column_reference:
-                    identifier: x
+                    naked_identifier: x
                 - end_bracket: )
               - binary_operator: ->
               - column_reference:
-                  identifier: s
+                  naked_identifier: s
               - binary_operator: +
               - column_reference:
-                  identifier: x
+                  naked_identifier: x
             - comma: ','
             - expression:
               - column_reference:
-                  identifier: s
+                  naked_identifier: s
               - binary_operator: ->
               - column_reference:
-                  identifier: s
+                  naked_identifier: s
             - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -160,30 +160,30 @@ file:
                 array_literal:
                 - keyword: ARRAY
                 - start_square_bracket: '['
-                - literal: '5'
+                - numeric_literal: '5'
                 - comma: ','
-                - literal: '20'
+                - numeric_literal: '20'
                 - comma: ','
-                - literal: 'NULL'
+                - null_literal: 'NULL'
                 - comma: ','
-                - literal: '50'
+                - numeric_literal: '50'
                 - end_square_bracket: ']'
             - comma: ','
             - expression:
-                literal: '0'
+                numeric_literal: '0'
             - comma: ','
             - expression:
               - bracketed:
                 - start_bracket: (
                 - column_reference:
-                    identifier: s
+                    naked_identifier: s
                 - comma: ','
                 - column_reference:
-                    identifier: x
+                    naked_identifier: x
                 - end_bracket: )
               - binary_operator: ->
               - column_reference:
-                  identifier: s
+                  naked_identifier: s
               - binary_operator: +
               - function:
                   function_name:
@@ -192,18 +192,18 @@ file:
                   - start_bracket: (
                   - expression:
                       column_reference:
-                        identifier: x
+                        naked_identifier: x
                   - comma: ','
                   - expression:
-                      literal: '0'
+                      numeric_literal: '0'
                   - end_bracket: )
             - comma: ','
             - expression:
               - column_reference:
-                  identifier: s
+                  naked_identifier: s
               - binary_operator: ->
               - column_reference:
-                  identifier: s
+                  naked_identifier: s
             - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -220,26 +220,26 @@ file:
                 array_literal:
                 - keyword: ARRAY
                 - start_square_bracket: '['
-                - literal: '5'
+                - numeric_literal: '5'
                 - comma: ','
-                - literal: '20'
+                - numeric_literal: '20'
                 - comma: ','
-                - literal: 'NULL'
+                - null_literal: 'NULL'
                 - comma: ','
-                - literal: '50'
+                - numeric_literal: '50'
                 - end_square_bracket: ']'
             - comma: ','
             - expression:
-                literal: '0'
+                numeric_literal: '0'
             - comma: ','
             - expression:
                 bracketed:
                 - start_bracket: (
                 - column_reference:
-                    identifier: s
+                    naked_identifier: s
                 - comma: ','
                 - column_reference:
-                    identifier: x
+                    naked_identifier: x
                 - end_bracket: )
                 binary_operator: ->
                 function:
@@ -249,28 +249,28 @@ file:
                   - start_bracket: (
                   - expression:
                     - column_reference:
-                        identifier: x
+                        naked_identifier: x
                     - keyword: IS
                     - keyword: 'NULL'
                   - comma: ','
                   - expression:
                       column_reference:
-                        identifier: s
+                        naked_identifier: s
                   - comma: ','
                   - expression:
                     - column_reference:
-                        identifier: s
+                        naked_identifier: s
                     - binary_operator: +
                     - column_reference:
-                        identifier: x
+                        naked_identifier: x
                   - end_bracket: )
             - comma: ','
             - expression:
               - column_reference:
-                  identifier: s
+                  naked_identifier: s
               - binary_operator: ->
               - column_reference:
-                  identifier: s
+                  naked_identifier: s
             - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -287,9 +287,9 @@ file:
                 array_literal:
                 - keyword: ARRAY
                 - start_square_bracket: '['
-                - literal: '2147483647'
+                - numeric_literal: '2147483647'
                 - comma: ','
-                - literal: '1'
+                - numeric_literal: '1'
                 - end_square_bracket: ']'
             - comma: ','
             - expression:
@@ -299,7 +299,7 @@ file:
                   bracketed:
                     start_bracket: (
                     expression:
-                      literal: '0'
+                      numeric_literal: '0'
                     keyword: AS
                     data_type:
                       primitive_type:
@@ -310,24 +310,24 @@ file:
               - bracketed:
                 - start_bracket: (
                 - column_reference:
-                    identifier: s
+                    naked_identifier: s
                 - comma: ','
                 - column_reference:
-                    identifier: x
+                    naked_identifier: x
                 - end_bracket: )
               - binary_operator: ->
               - column_reference:
-                  identifier: s
+                  naked_identifier: s
               - binary_operator: +
               - column_reference:
-                  identifier: x
+                  naked_identifier: x
             - comma: ','
             - expression:
               - column_reference:
-                  identifier: s
+                  naked_identifier: s
               - binary_operator: ->
               - column_reference:
-                  identifier: s
+                  naked_identifier: s
             - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -344,13 +344,13 @@ file:
                 array_literal:
                 - keyword: ARRAY
                 - start_square_bracket: '['
-                - literal: '5'
+                - numeric_literal: '5'
                 - comma: ','
-                - literal: '6'
+                - numeric_literal: '6'
                 - comma: ','
-                - literal: '10'
+                - numeric_literal: '10'
                 - comma: ','
-                - literal: '20'
+                - numeric_literal: '20'
                 - end_square_bracket: ']'
             - comma: ','
             - expression:
@@ -366,22 +366,22 @@ file:
                         bracketed:
                         - start_bracket: (
                         - expression:
-                            literal: '0.0'
+                            numeric_literal: '0.0'
                         - comma: ','
                         - expression:
-                            literal: '0'
+                            numeric_literal: '0'
                         - end_bracket: )
                     keyword: AS
                     data_type:
                       keyword: ROW
                       bracketed:
                       - start_bracket: (
-                      - identifier: sum
+                      - naked_identifier: sum
                       - data_type:
                           primitive_type:
                             keyword: DOUBLE
                       - comma: ','
-                      - identifier: count
+                      - naked_identifier: count
                       - data_type:
                           primitive_type:
                             keyword: INTEGER
@@ -392,10 +392,10 @@ file:
                 bracketed:
                 - start_bracket: (
                 - column_reference:
-                    identifier: s
+                    naked_identifier: s
                 - comma: ','
                 - column_reference:
-                    identifier: x
+                    naked_identifier: x
                 - end_bracket: )
                 binary_operator: ->
                 function:
@@ -411,32 +411,32 @@ file:
                         - start_bracket: (
                         - expression:
                           - column_reference:
-                              identifier: x
+                              naked_identifier: x
                           - binary_operator: +
                           - column_reference:
-                            - identifier: s
+                            - naked_identifier: s
                             - dot: .
-                            - identifier: sum
+                            - naked_identifier: sum
                         - comma: ','
                         - expression:
                             column_reference:
-                            - identifier: s
+                            - naked_identifier: s
                             - dot: .
-                            - identifier: count
+                            - naked_identifier: count
                             binary_operator: +
-                            literal: '1'
+                            numeric_literal: '1'
                         - end_bracket: )
                     keyword: AS
                     data_type:
                       keyword: ROW
                       bracketed:
                       - start_bracket: (
-                      - identifier: sum
+                      - naked_identifier: sum
                       - data_type:
                           primitive_type:
                             keyword: DOUBLE
                       - comma: ','
-                      - identifier: count
+                      - naked_identifier: count
                       - data_type:
                           primitive_type:
                             keyword: INTEGER
@@ -445,7 +445,7 @@ file:
             - comma: ','
             - expression:
                 column_reference:
-                  identifier: s
+                  naked_identifier: s
                 binary_operator: ->
                 function:
                   function_name:
@@ -454,26 +454,26 @@ file:
                   - start_bracket: (
                   - expression:
                       column_reference:
-                      - identifier: s
+                      - naked_identifier: s
                       - dot: .
-                      - identifier: count
+                      - naked_identifier: count
                       comparison_operator:
                         raw_comparison_operator: '='
-                      literal: '0'
+                      numeric_literal: '0'
                   - comma: ','
                   - expression:
-                      literal: 'NULL'
+                      null_literal: 'NULL'
                   - comma: ','
                   - expression:
                     - column_reference:
-                      - identifier: s
+                      - naked_identifier: s
                       - dot: .
-                      - identifier: sum
+                      - naked_identifier: sum
                     - binary_operator: /
                     - column_reference:
-                      - identifier: s
+                      - naked_identifier: s
                       - dot: .
-                      - identifier: count
+                      - naked_identifier: count
                   - end_bracket: )
             - end_bracket: )
 - statement_terminator: ;
