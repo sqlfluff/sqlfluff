@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3eb035ad6a9e506b38d3d348e1c087663508038dca9a3bf29c2b26835bfea600
+_hash: b60f1ebfcd8254f2a20c4714da4d12aa00ba2d83045dc50cb84ff86645e41b68
 file:
   statement:
     select_statement:
@@ -11,28 +11,28 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: col_a
+            naked_identifier: col_a
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: col_b
+            naked_identifier: col_b
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: date_col_a
+            naked_identifier: date_col_a
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: date_col_b
+            naked_identifier: date_col_b
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-              - identifier: '"database"'
+              - quoted_identifier: '"database"'
               - dot: .
-              - identifier: '"sample_table"'
+              - quoted_identifier: '"sample_table"'
       where_clause:
         keyword: WHERE
         expression:
@@ -43,7 +43,7 @@ file:
               start_bracket: (
               expression:
                 column_reference:
-                  identifier: date_col_b
+                  naked_identifier: date_col_b
               end_bracket: )
         - comparison_operator:
           - raw_comparison_operator: '>'
@@ -57,16 +57,16 @@ file:
               start_bracket: (
               expression:
                 column_reference:
-                  identifier: col_a
+                  naked_identifier: col_a
               end_bracket: )
         - comparison_operator:
             raw_comparison_operator: '='
-        - literal: '4'
+        - numeric_literal: '4'
       orderby_clause:
       - keyword: ORDER
       - keyword: BY
       - column_reference:
-          identifier: date_col_a
+          naked_identifier: date_col_a
       - keyword: DESC
       - keyword: NULLS
       - keyword: LAST

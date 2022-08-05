@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8cc4592199910ed207659040f0ac0f2ea8fbc0e76ba29ec274c7f7deeb540e3b
+_hash: 6d6e22405c4f26a72f1a4ba75356cb6bd3ab0f8ece2336ba8ac2dfad7b4782e8
 file:
   statement:
     comment_clause:
@@ -11,9 +11,9 @@ file:
     - keyword: 'on'
     - keyword: table
     - table_reference:
-      - identifier: sandbox_db
+      - naked_identifier: sandbox_db
       - dot: .
-      - identifier: Org_Descendant
+      - naked_identifier: Org_Descendant
     - keyword: is
-    - literal: "'View with all Org_Unit_Ids on all levels'"
+    - quoted_literal: "'View with all Org_Unit_Ids on all levels'"
   statement_terminator: ;

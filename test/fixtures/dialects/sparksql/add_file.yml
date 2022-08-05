@@ -3,36 +3,36 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 02756c58c110d9f6c6e34a1486641eed13933c4ef527eaf2fe9a515bd1601df9
+_hash: 5e12d4826b7072fddd53e9e4c040cd96ae651d7999d1230aac1ae9466599d511
 file:
 - statement:
     add_file_statement:
       keyword: ADD
       file_keyword: FILE
-      literal: '"/path/to/file/abc.txt"'
+      quoted_literal: '"/path/to/file/abc.txt"'
 - statement_terminator: ;
 - statement:
     add_file_statement:
       keyword: ADD
       file_keyword: FILE
-      literal: "'/another/test.txt'"
+      quoted_literal: "'/another/test.txt'"
 - statement_terminator: ;
 - statement:
     add_file_statement:
       keyword: ADD
       file_keyword: FILE
-      literal: '"/path with space/abc.txt"'
+      quoted_literal: '"/path with space/abc.txt"'
 - statement_terminator: ;
 - statement:
     add_file_statement:
       keyword: ADD
       file_keyword: FILE
-      literal: '"/path/to/some/directory"'
+      quoted_literal: '"/path/to/some/directory"'
 - statement_terminator: ;
 - statement:
     add_file_statement:
     - keyword: ADD
     - file_keyword: FILES
-    - literal: '"/path with space/cde.txt"'
-    - literal: "'/path with space/fgh.txt'"
+    - quoted_literal: '"/path with space/cde.txt"'
+    - quoted_literal: "'/path with space/fgh.txt'"
 - statement_terminator: ;

@@ -3,24 +3,24 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 41ba2fedfe3a84c15f2c9ebee05b9fb4fa166e8de1cb12e0bed8d62ff0ac8664
+_hash: da31a67c607ae72d4f415cdc0446249963c84a488dfa30c0355b264bc81d221c
 file:
 - statement:
     analyze_table_statement:
     - keyword: ANALYZE
     - keyword: TABLE
     - table_reference:
-        identifier: some_table
+        naked_identifier: some_table
 - statement_terminator: ;
 - statement:
     analyze_table_statement:
     - keyword: ANALYZE
     - keyword: TABLE
     - table_reference:
-        identifier: some_table1
+        naked_identifier: some_table1
     - comma: ','
     - table_reference:
-        identifier: some_table2
+        naked_identifier: some_table2
 - statement_terminator: ;
 - statement:
     analyze_table_statement:
@@ -28,7 +28,7 @@ file:
     - keyword: NO_WRITE_TO_BINLOG
     - keyword: TABLE
     - table_reference:
-        identifier: some_table
+        naked_identifier: some_table
 - statement_terminator: ;
 - statement:
     analyze_table_statement:
@@ -36,10 +36,10 @@ file:
     - keyword: NO_WRITE_TO_BINLOG
     - keyword: TABLE
     - table_reference:
-        identifier: some_table1
+        naked_identifier: some_table1
     - comma: ','
     - table_reference:
-        identifier: some_table2
+        naked_identifier: some_table2
 - statement_terminator: ;
 - statement:
     analyze_table_statement:
@@ -47,7 +47,7 @@ file:
     - keyword: LOCAL
     - keyword: TABLE
     - table_reference:
-        identifier: some_table
+        naked_identifier: some_table
 - statement_terminator: ;
 - statement:
     analyze_table_statement:
@@ -55,37 +55,37 @@ file:
     - keyword: LOCAL
     - keyword: TABLE
     - table_reference:
-        identifier: some_table1
+        naked_identifier: some_table1
     - comma: ','
     - table_reference:
-        identifier: some_table2
+        naked_identifier: some_table2
 - statement_terminator: ;
 - statement:
     analyze_table_statement:
     - keyword: ANALYZE
     - keyword: TABLE
     - table_reference:
-        identifier: some_table
+        naked_identifier: some_table
     - keyword: UPDATE
     - keyword: HISTOGRAM
     - keyword: 'ON'
     - column_reference:
-        identifier: some_col
+        naked_identifier: some_col
 - statement_terminator: ;
 - statement:
     analyze_table_statement:
     - keyword: ANALYZE
     - keyword: TABLE
     - table_reference:
-        identifier: some_table
+        naked_identifier: some_table
     - keyword: UPDATE
     - keyword: HISTOGRAM
     - keyword: 'ON'
     - column_reference:
-        identifier: some_col1
+        naked_identifier: some_col1
     - comma: ','
     - column_reference:
-        identifier: some_col2
+        naked_identifier: some_col2
 - statement_terminator: ;
 - statement:
     analyze_table_statement:
@@ -93,12 +93,12 @@ file:
     - keyword: NO_WRITE_TO_BINLOG
     - keyword: TABLE
     - table_reference:
-        identifier: some_table
+        naked_identifier: some_table
     - keyword: UPDATE
     - keyword: HISTOGRAM
     - keyword: 'ON'
     - column_reference:
-        identifier: some_col
+        naked_identifier: some_col
 - statement_terminator: ;
 - statement:
     analyze_table_statement:
@@ -106,15 +106,15 @@ file:
     - keyword: NO_WRITE_TO_BINLOG
     - keyword: TABLE
     - table_reference:
-        identifier: some_table
+        naked_identifier: some_table
     - keyword: UPDATE
     - keyword: HISTOGRAM
     - keyword: 'ON'
     - column_reference:
-        identifier: some_col1
+        naked_identifier: some_col1
     - comma: ','
     - column_reference:
-        identifier: some_col2
+        naked_identifier: some_col2
 - statement_terminator: ;
 - statement:
     analyze_table_statement:
@@ -122,12 +122,12 @@ file:
     - keyword: LOCAL
     - keyword: TABLE
     - table_reference:
-        identifier: some_table
+        naked_identifier: some_table
     - keyword: UPDATE
     - keyword: HISTOGRAM
     - keyword: 'ON'
     - column_reference:
-        identifier: some_col
+        naked_identifier: some_col
 - statement_terminator: ;
 - statement:
     analyze_table_statement:
@@ -135,29 +135,29 @@ file:
     - keyword: LOCAL
     - keyword: TABLE
     - table_reference:
-        identifier: some_table
+        naked_identifier: some_table
     - keyword: UPDATE
     - keyword: HISTOGRAM
     - keyword: 'ON'
     - column_reference:
-        identifier: some_col1
+        naked_identifier: some_col1
     - comma: ','
     - column_reference:
-        identifier: some_col2
+        naked_identifier: some_col2
 - statement_terminator: ;
 - statement:
     analyze_table_statement:
     - keyword: ANALYZE
     - keyword: TABLE
     - table_reference:
-        identifier: some_table
+        naked_identifier: some_table
     - keyword: UPDATE
     - keyword: HISTOGRAM
     - keyword: 'ON'
     - column_reference:
-        identifier: some_col
+        naked_identifier: some_col
     - keyword: WITH
-    - literal: '10'
+    - numeric_literal: '10'
     - keyword: BUCKETS
 - statement_terminator: ;
 - statement:
@@ -165,17 +165,17 @@ file:
     - keyword: ANALYZE
     - keyword: TABLE
     - table_reference:
-        identifier: some_table
+        naked_identifier: some_table
     - keyword: UPDATE
     - keyword: HISTOGRAM
     - keyword: 'ON'
     - column_reference:
-        identifier: some_col1
+        naked_identifier: some_col1
     - comma: ','
     - column_reference:
-        identifier: some_col2
+        naked_identifier: some_col2
     - keyword: WITH
-    - literal: '10'
+    - numeric_literal: '10'
     - keyword: BUCKETS
 - statement_terminator: ;
 - statement:
@@ -183,27 +183,27 @@ file:
     - keyword: ANALYZE
     - keyword: TABLE
     - table_reference:
-        identifier: some_table
+        naked_identifier: some_table
     - keyword: DROP
     - keyword: HISTOGRAM
     - keyword: 'ON'
     - column_reference:
-        identifier: some_col
+        naked_identifier: some_col
 - statement_terminator: ;
 - statement:
     analyze_table_statement:
     - keyword: ANALYZE
     - keyword: TABLE
     - table_reference:
-        identifier: some_table
+        naked_identifier: some_table
     - keyword: DROP
     - keyword: HISTOGRAM
     - keyword: 'ON'
     - column_reference:
-        identifier: some_col1
+        naked_identifier: some_col1
     - comma: ','
     - column_reference:
-        identifier: some_col2
+        naked_identifier: some_col2
 - statement_terminator: ;
 - statement:
     analyze_table_statement:
@@ -211,12 +211,12 @@ file:
     - keyword: NO_WRITE_TO_BINLOG
     - keyword: TABLE
     - table_reference:
-        identifier: some_table
+        naked_identifier: some_table
     - keyword: DROP
     - keyword: HISTOGRAM
     - keyword: 'ON'
     - column_reference:
-        identifier: some_col
+        naked_identifier: some_col
 - statement_terminator: ;
 - statement:
     analyze_table_statement:
@@ -224,15 +224,15 @@ file:
     - keyword: NO_WRITE_TO_BINLOG
     - keyword: TABLE
     - table_reference:
-        identifier: some_table
+        naked_identifier: some_table
     - keyword: DROP
     - keyword: HISTOGRAM
     - keyword: 'ON'
     - column_reference:
-        identifier: some_col1
+        naked_identifier: some_col1
     - comma: ','
     - column_reference:
-        identifier: some_col2
+        naked_identifier: some_col2
 - statement_terminator: ;
 - statement:
     analyze_table_statement:
@@ -240,12 +240,12 @@ file:
     - keyword: LOCAL
     - keyword: TABLE
     - table_reference:
-        identifier: some_table
+        naked_identifier: some_table
     - keyword: DROP
     - keyword: HISTOGRAM
     - keyword: 'ON'
     - column_reference:
-        identifier: some_col
+        naked_identifier: some_col
 - statement_terminator: ;
 - statement:
     analyze_table_statement:
@@ -253,13 +253,13 @@ file:
     - keyword: LOCAL
     - keyword: TABLE
     - table_reference:
-        identifier: some_table
+        naked_identifier: some_table
     - keyword: DROP
     - keyword: HISTOGRAM
     - keyword: 'ON'
     - column_reference:
-        identifier: some_col1
+        naked_identifier: some_col1
     - comma: ','
     - column_reference:
-        identifier: some_col2
+        naked_identifier: some_col2
 - statement_terminator: ;

@@ -2,7 +2,7 @@
 
 from typing import Optional
 
-from sqlfluff.core.parser.segments.raw import CodeSegment
+from sqlfluff.core.parser.segments.raw import SymbolSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
 from sqlfluff.core.rules.functional import sp
@@ -56,15 +56,11 @@ class Rule_L061(BaseRule):
         fixes = [
             LintFix.replace(
                 raw_comparison_operators[0],
-                [CodeSegment(raw="!", name="raw_not", type="raw_comparison_operator")],
+                [SymbolSegment(raw="!", type="raw_comparison_operator")],
             ),
             LintFix.replace(
                 raw_comparison_operators[1],
-                [
-                    CodeSegment(
-                        raw="=", name="raw_equals", type="raw_comparison_operator"
-                    )
-                ],
+                [SymbolSegment(raw="=", type="raw_comparison_operator")],
             ),
         ]
 

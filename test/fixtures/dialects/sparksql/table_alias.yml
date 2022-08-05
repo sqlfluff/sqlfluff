@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ddc5e355f785104a2fc8c2054ba2dcedf18fc99c6af642851fd6651ebbb3ebd7
+_hash: 43acb142a2b99c8a0367242bbe6504e7e919b34848ccebdb634949e0ee7297e1
 file:
 - statement:
     select_statement:
@@ -19,16 +19,16 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: u
+                naked_identifier: u
             alias_expression:
               keyword: as
-              identifier: t
+              naked_identifier: t
               bracketed:
                 start_bracket: (
                 identifier_list:
-                - identifier: a
+                - naked_identifier: a
                 - comma: ','
-                - identifier: b
+                - naked_identifier: b
                 end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -45,16 +45,16 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: u
+                naked_identifier: u
             alias_expression:
               keyword: as
-              identifier: t
+              naked_identifier: t
               bracketed:
                 start_bracket: (
                 identifier_list:
-                - identifier: a
+                - naked_identifier: a
                 - comma: ','
-                - identifier: b
+                - naked_identifier: b
                 end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -71,16 +71,16 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: u
+                naked_identifier: u
             alias_expression:
               keyword: as
-              identifier: t
+              naked_identifier: t
               bracketed:
                 start_bracket: (
                 identifier_list:
-                - identifier: a
+                - naked_identifier: a
                 - comma: ','
-                - identifier: b
+                - naked_identifier: b
                 end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -97,15 +97,15 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: u
+                naked_identifier: u
             alias_expression:
               keyword: as
               bracketed:
                 start_bracket: (
                 identifier_list:
-                - identifier: a
+                - naked_identifier: a
                 - comma: ','
-                - identifier: b
+                - naked_identifier: b
                 end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -122,15 +122,15 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: u
+                naked_identifier: u
             alias_expression:
-              identifier: t
+              naked_identifier: t
               bracketed:
                 start_bracket: (
                 identifier_list:
-                - identifier: a
+                - naked_identifier: a
                 - comma: ','
-                - identifier: b
+                - naked_identifier: b
                 end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -147,15 +147,15 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: u
+                naked_identifier: u
             alias_expression:
-              identifier: t
+              naked_identifier: t
               bracketed:
                 start_bracket: (
                 identifier_list:
-                - identifier: a
+                - naked_identifier: a
                 - comma: ','
-                - identifier: b
+                - naked_identifier: b
                 end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -172,15 +172,15 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: u
+                naked_identifier: u
             alias_expression:
-              identifier: t
+              naked_identifier: t
               bracketed:
                 start_bracket: (
                 identifier_list:
-                - identifier: a
+                - naked_identifier: a
                 - comma: ','
-                - identifier: b
+                - naked_identifier: b
                 end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -203,10 +203,10 @@ file:
                 - start_bracket: (
                 - expression:
                     column_reference:
-                      identifier: a
+                      naked_identifier: a
                 - comma: ','
                 - expression:
                     column_reference:
-                      identifier: b
+                      naked_identifier: b
                 - end_bracket: )
 - statement_terminator: ;

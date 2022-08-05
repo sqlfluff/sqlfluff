@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 908b929740fdc0861b50699b76b236963a55f4a015128286232da105b5831c8e
+_hash: f49b9b7af9353f7d07866b8964a00f9de08c3000e479e3d4a6349a5badd15bf9
 file:
 - batch:
     statement:
@@ -14,12 +14,12 @@ file:
       - keyword: OBJECT
       - casting_operator: '::'
       - object_reference:
-        - identifier: Person
+        - naked_identifier: Person
         - dot: .
-        - identifier: Address
+        - naked_identifier: Address
       - keyword: TO
       - role_reference:
-          identifier: RosaQdM
+          naked_identifier: RosaQdM
     statement_terminator: ;
 - go_statement:
     keyword: GO
@@ -28,7 +28,7 @@ file:
       use_statement:
         keyword: USE
         database_reference:
-          identifier: AdventureWorks2012
+          naked_identifier: AdventureWorks2012
   - statement_terminator: ;
   - statement:
       access_statement:
@@ -38,12 +38,12 @@ file:
       - keyword: OBJECT
       - casting_operator: '::'
       - object_reference:
-        - identifier: HumanResources
+        - naked_identifier: HumanResources
         - dot: .
-        - identifier: uspUpdateEmployeeHireInfo
+        - naked_identifier: uspUpdateEmployeeHireInfo
       - keyword: TO
       - role_reference:
-          identifier: Recruiting11
+          naked_identifier: Recruiting11
   - statement_terminator: ;
 - go_statement:
     keyword: GO
@@ -55,18 +55,18 @@ file:
       - bracketed:
           start_bracket: (
           column_reference:
-            identifier: BusinessEntityID
+            naked_identifier: BusinessEntityID
           end_bracket: )
       - keyword: 'ON'
       - keyword: OBJECT
       - casting_operator: '::'
       - object_reference:
-        - identifier: HumanResources
+        - naked_identifier: HumanResources
         - dot: .
-        - identifier: vEmployee
+        - naked_identifier: vEmployee
       - keyword: TO
       - role_reference:
-          identifier: Wanida
+          naked_identifier: Wanida
       - keyword: WITH
       - keyword: GRANT
       - keyword: OPTION
@@ -80,12 +80,12 @@ file:
       - keyword: SELECT
       - keyword: 'ON'
       - object_reference:
-        - identifier: Person
+        - naked_identifier: Person
         - dot: .
-        - identifier: Address
+        - naked_identifier: Address
       - keyword: TO
       - role_reference:
-          identifier: RosaQdM
+          naked_identifier: RosaQdM
     statement_terminator: ;
 - go_statement:
     keyword: GO
@@ -96,12 +96,12 @@ file:
       - keyword: SELECT
       - keyword: 'ON'
       - object_reference:
-        - identifier: Person
+        - naked_identifier: Person
         - dot: .
-        - identifier: Address
+        - naked_identifier: Address
       - keyword: TO
       - role_reference:
-          identifier: '[AdventureWorks2012\RosaQdM]'
+          quoted_identifier: '[AdventureWorks2012\RosaQdM]'
     statement_terminator: ;
 - go_statement:
     keyword: GO
@@ -111,7 +111,7 @@ file:
       - keyword: CREATE
       - keyword: ROLE
       - role_reference:
-          identifier: newrole
+          naked_identifier: newrole
   - statement_terminator: ;
   - statement:
       access_statement:
@@ -119,12 +119,12 @@ file:
       - keyword: EXECUTE
       - keyword: 'ON'
       - object_reference:
-        - identifier: dbo
+        - naked_identifier: dbo
         - dot: .
-        - identifier: uspGetBillOfMaterials
+        - naked_identifier: uspGetBillOfMaterials
       - keyword: TO
       - role_reference:
-          identifier: newrole
+          naked_identifier: newrole
   - statement_terminator: ;
 - go_statement:
     keyword: GO
@@ -137,10 +137,10 @@ file:
       - keyword: SCHEMA
       - casting_operator: '::'
       - object_reference:
-          identifier: Sales
+          naked_identifier: Sales
       - keyword: TO
       - role_reference:
-          identifier: Vendors
+          naked_identifier: Vendors
     statement_terminator: ;
 - go_statement:
     keyword: GO
@@ -153,10 +153,10 @@ file:
       - keyword: SCHEMA
       - casting_operator: '::'
       - object_reference:
-          identifier: Sales
+          naked_identifier: Sales
       - keyword: TO
       - role_reference:
-          identifier: Vendors
+          naked_identifier: Vendors
     statement_terminator: ;
 - go_statement:
     keyword: GO
@@ -169,12 +169,12 @@ file:
       - keyword: OBJECT
       - casting_operator: '::'
       - object_reference:
-        - identifier: Person
+        - naked_identifier: Person
         - dot: .
-        - identifier: Address
+        - naked_identifier: Address
       - keyword: TO
       - role_reference:
-          identifier: RosaQdM
+          naked_identifier: RosaQdM
     statement_terminator: ;
 - go_statement:
     keyword: GO
@@ -187,12 +187,12 @@ file:
       - keyword: OBJECT
       - casting_operator: '::'
       - object_reference:
-        - identifier: HumanResources
+        - naked_identifier: HumanResources
         - dot: .
-        - identifier: uspUpdateEmployeeHireInfo
+        - naked_identifier: uspUpdateEmployeeHireInfo
       - keyword: TO
       - role_reference:
-          identifier: Recruiting11
+          naked_identifier: Recruiting11
     statement_terminator: ;
 - go_statement:
     keyword: GO
@@ -204,18 +204,18 @@ file:
       - bracketed:
           start_bracket: (
           column_reference:
-            identifier: BusinessEntityID
+            naked_identifier: BusinessEntityID
           end_bracket: )
       - keyword: 'ON'
       - keyword: OBJECT
       - casting_operator: '::'
       - object_reference:
-        - identifier: HumanResources
+        - naked_identifier: HumanResources
         - dot: .
-        - identifier: vEmployee
+        - naked_identifier: vEmployee
       - keyword: TO
       - role_reference:
-          identifier: Wanida
+          naked_identifier: Wanida
       - keyword: CASCADE
     statement_terminator: ;
 - go_statement:

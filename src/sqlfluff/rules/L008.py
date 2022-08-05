@@ -78,7 +78,7 @@ class Rule_L008(BaseRule):
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         # We only care about commas.
-        if context.segment.name != "comma":
+        if not context.segment.is_type("comma"):
             return None
 
         # Get subsequent whitespace segment and the first non-whitespace segment.

@@ -64,23 +64,15 @@ hive_dialect.sets("datetime_units").update(
 
 hive_dialect.add(
     StartAngleBracketSegment=StringParser(
-        "<", SymbolSegment, name="start_angle_bracket", type="start_angle_bracket"
+        "<", SymbolSegment, type="start_angle_bracket"
     ),
-    EndAngleBracketSegment=StringParser(
-        ">", SymbolSegment, name="end_angle_bracket", type="end_angle_bracket"
-    ),
-    JsonfileKeywordSegment=StringParser(
-        "JSONFILE", KeywordSegment, name="json_file", type="file_format"
-    ),
-    RcfileKeywordSegment=StringParser(
-        "RCFILE", KeywordSegment, name="rc_file", type="file_format"
-    ),
+    EndAngleBracketSegment=StringParser(">", SymbolSegment, type="end_angle_bracket"),
+    JsonfileKeywordSegment=StringParser("JSONFILE", KeywordSegment, type="file_format"),
+    RcfileKeywordSegment=StringParser("RCFILE", KeywordSegment, type="file_format"),
     SequencefileKeywordSegment=StringParser(
-        "SEQUENCEFILE", KeywordSegment, name="sequence_file", type="file_format"
+        "SEQUENCEFILE", KeywordSegment, type="file_format"
     ),
-    TextfileKeywordSegment=StringParser(
-        "TEXTFILE", KeywordSegment, name="text_file", type="file_format"
-    ),
+    TextfileKeywordSegment=StringParser("TEXTFILE", KeywordSegment, type="file_format"),
     LocationGrammar=Sequence("LOCATION", Ref("QuotedLiteralSegment")),
     PropertyGrammar=Sequence(
         Ref("QuotedLiteralSegment"),
@@ -142,9 +134,8 @@ hive_dialect.add(
     ),
     BackQuotedIdentifierSegment=NamedParser(
         "back_quote",
-        CodeSegment,
-        name="quoted_identifier",
-        type="identifier",
+        ansi.IdentifierSegment,
+        type="quoted_identifier",
     ),
 )
 
@@ -152,9 +143,9 @@ hive_dialect.add(
 hive_dialect.replace(
     JoinKeywordsGrammar=Sequence(Sequence("SEMI", optional=True), "JOIN"),
     QuotedLiteralSegment=OneOf(
-        NamedParser("single_quote", CodeSegment, name="quoted_literal", type="literal"),
-        NamedParser("double_quote", CodeSegment, name="quoted_literal", type="literal"),
-        NamedParser("back_quote", CodeSegment, name="quoted_literal", type="literal"),
+        NamedParser("single_quote", ansi.LiteralSegment, type="quoted_literal"),
+        NamedParser("double_quote", ansi.LiteralSegment, type="quoted_literal"),
+        NamedParser("back_quote", ansi.LiteralSegment, type="quoted_literal"),
     ),
     SimpleArrayTypeGrammar=Ref.keyword("ARRAY"),
     TrimParametersGrammar=Nothing(),
@@ -794,7 +785,6 @@ class SamplingExpressionSegment(BaseSegment):
                 RegexParser(
                     r"\d+[bBkKmMgG]",
                     CodeSegment,
-                    name="byte_length_literal",
                     type="byte_length_literal",
                 ),
             ),

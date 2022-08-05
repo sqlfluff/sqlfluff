@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 801cf0f380d56aedb024a307209a5f0d16164f721546c2c62d161a9dae7c6c64
+_hash: 19d48e39bc87b05358abcf06a2d2edd289d9e249da43532890fd301fe03d83df
 file:
 - statement:
     flush_statement:
@@ -54,7 +54,7 @@ file:
     - keyword: FOR
     - keyword: CHANNEL
     - object_reference:
-        identifier: my_channel
+        naked_identifier: my_channel
 - statement_terminator: ;
 - statement:
     flush_statement:
@@ -74,31 +74,31 @@ file:
     - keyword: FLUSH
     - keyword: TABLES
     - table_reference:
-        identifier: table1
+        naked_identifier: table1
 - statement_terminator: ;
 - statement:
     flush_statement:
     - keyword: FLUSH
     - keyword: TABLES
     - table_reference:
-        identifier: table1
+        naked_identifier: table1
     - comma: ','
     - table_reference:
-      - identifier: '`foo`'
+      - quoted_identifier: '`foo`'
       - dot: .
-      - identifier: '`bar`'
+      - quoted_identifier: '`bar`'
 - statement_terminator: ;
 - statement:
     flush_statement:
     - keyword: FLUSH
     - keyword: TABLES
     - table_reference:
-        identifier: table1
+        naked_identifier: table1
     - comma: ','
     - table_reference:
-      - identifier: '`foo`'
+      - quoted_identifier: '`foo`'
       - dot: .
-      - identifier: '`bar`'
+      - quoted_identifier: '`bar`'
     - keyword: WITH
     - keyword: READ
     - keyword: LOCK
@@ -108,12 +108,12 @@ file:
     - keyword: FLUSH
     - keyword: TABLES
     - table_reference:
-        identifier: table1
+        naked_identifier: table1
     - comma: ','
     - table_reference:
-      - identifier: '`foo`'
+      - quoted_identifier: '`foo`'
       - dot: .
-      - identifier: '`bar`'
+      - quoted_identifier: '`bar`'
     - keyword: FOR
     - keyword: EXPORT
 - statement_terminator: ;

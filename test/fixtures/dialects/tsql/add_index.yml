@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d559127fe266f7daa798a41c46b707b2718435292dc11c6fc78beaa07957c169
+_hash: 4172155ce5d189b38e2ec9c3093e05f8befcbe9f96af2084c423e2e687828322
 file:
 - batch:
     statement:
@@ -28,17 +28,17 @@ file:
                     from_expression_element:
                       table_expression:
                         table_reference:
-                        - identifier: sys
+                        - naked_identifier: sys
                         - dot: .
-                        - identifier: indexes
+                        - naked_identifier: indexes
                 where_clause:
                   keyword: WHERE
                   expression:
                     column_reference:
-                      identifier: NAME
+                      naked_identifier: NAME
                     comparison_operator:
                       raw_comparison_operator: '='
-                    literal: "'IX_INTER_VIMR_INFECTIOUS_PEOPLE'"
+                    quoted_literal: "'IX_INTER_VIMR_INFECTIOUS_PEOPLE'"
               end_bracket: )
         statement:
           create_index_statement:
@@ -46,17 +46,17 @@ file:
           - keyword: NONCLUSTERED
           - keyword: INDEX
           - index_reference:
-              identifier: IX_INTER_VIMR_INFECTIOUS_PEOPLE
+              naked_identifier: IX_INTER_VIMR_INFECTIOUS_PEOPLE
           - keyword: 'ON'
           - table_reference:
-            - identifier: dbo
+            - naked_identifier: dbo
             - dot: .
-            - identifier: VIMR_INFECTIOUS_PEOPLE
+            - naked_identifier: VIMR_INFECTIOUS_PEOPLE
           - bracketed_index_column_list_grammar:
               bracketed:
                 start_bracket: (
                 index_column_definition:
-                  identifier: DATE_LAST_INSERTED
+                  naked_identifier: DATE_LAST_INSERTED
                 end_bracket: )
           - statement_terminator: ;
 - go_statement:
@@ -84,17 +84,17 @@ file:
                     from_expression_element:
                       table_expression:
                         table_reference:
-                        - identifier: sys
+                        - naked_identifier: sys
                         - dot: .
-                        - identifier: indexes
+                        - naked_identifier: indexes
                 where_clause:
                   keyword: WHERE
                   expression:
                     column_reference:
-                      identifier: NAME
+                      naked_identifier: NAME
                     comparison_operator:
                       raw_comparison_operator: '='
-                    literal: "'IX_INTER_FOUNDATION_NICE_IC_INTAKE_COUNT'"
+                    quoted_literal: "'IX_INTER_FOUNDATION_NICE_IC_INTAKE_COUNT'"
               end_bracket: )
         statement:
           create_index_statement:
@@ -102,17 +102,17 @@ file:
           - keyword: NONCLUSTERED
           - keyword: INDEX
           - index_reference:
-              identifier: IX_INTER_FOUNDATION_NICE_IC_INTAKE_COUNT
+              naked_identifier: IX_INTER_FOUNDATION_NICE_IC_INTAKE_COUNT
           - keyword: 'ON'
           - table_reference:
-            - identifier: dbo
+            - naked_identifier: dbo
             - dot: .
-            - identifier: FOUNDATION_NICE_IC_INTAKE_COUNT
+            - naked_identifier: FOUNDATION_NICE_IC_INTAKE_COUNT
           - bracketed_index_column_list_grammar:
               bracketed:
                 start_bracket: (
                 index_column_definition:
-                  identifier: DATE_LAST_INSERTED
+                  naked_identifier: DATE_LAST_INSERTED
                 end_bracket: )
           - statement_terminator: ;
 - go_statement:
@@ -139,17 +139,17 @@ file:
                     from_expression_element:
                       table_expression:
                         table_reference:
-                        - identifier: sys
+                        - naked_identifier: sys
                         - dot: .
-                        - identifier: indexes
+                        - naked_identifier: indexes
                 where_clause:
                   keyword: WHERE
                   expression:
                     column_reference:
-                      identifier: NAME
+                      naked_identifier: NAME
                     comparison_operator:
                       raw_comparison_operator: '='
-                    literal: "'IX_INTER_VIMR_REPRODUCTION_NUMBER'"
+                    quoted_literal: "'IX_INTER_VIMR_REPRODUCTION_NUMBER'"
               end_bracket: )
         statement:
           create_index_statement:
@@ -157,17 +157,17 @@ file:
           - keyword: CLUSTERED
           - keyword: INDEX
           - index_reference:
-              identifier: IX_INTER_VIMR_REPRODUCTION_NUMBER
+              naked_identifier: IX_INTER_VIMR_REPRODUCTION_NUMBER
           - keyword: 'ON'
           - table_reference:
-            - identifier: dbo
+            - naked_identifier: dbo
             - dot: .
-            - identifier: VIMR_INFECTIOUS_PEOPLE
+            - naked_identifier: VIMR_INFECTIOUS_PEOPLE
           - bracketed_index_column_list_grammar:
               bracketed:
                 start_bracket: (
                 index_column_definition:
-                  identifier: DATE_LAST_INSERTED
+                  naked_identifier: DATE_LAST_INSERTED
                 end_bracket: )
           - statement_terminator: ;
 - go_statement:
@@ -179,24 +179,24 @@ file:
       - keyword: NONCLUSTERED
       - keyword: INDEX
       - index_reference:
-          identifier: '[ind_1]'
+          quoted_identifier: '[ind_1]'
       - keyword: 'ON'
       - table_reference:
-        - identifier: '[schema1]'
+        - quoted_identifier: '[schema1]'
         - dot: .
-        - identifier: '[table1]'
+        - quoted_identifier: '[table1]'
       - bracketed_index_column_list_grammar:
           bracketed:
             start_bracket: (
             index_column_definition:
-              identifier: '[column1]'
+              quoted_identifier: '[column1]'
               keyword: ASC
             end_bracket: )
       - keyword: INCLUDE
       - bracketed:
           start_bracket: (
           column_reference:
-            identifier: '[column2]'
+            quoted_identifier: '[column2]'
           end_bracket: )
       - where_clause:
           keyword: WHERE
@@ -204,7 +204,7 @@ file:
             start_bracket: (
             expression:
             - column_reference:
-                identifier: '[column3]'
+                quoted_identifier: '[column3]'
             - keyword: IS
             - keyword: 'NULL'
             end_bracket: )
@@ -218,24 +218,24 @@ file:
       - keyword: NONCLUSTERED
       - keyword: INDEX
       - index_reference:
-          identifier: '[NI_name]'
+          quoted_identifier: '[NI_name]'
       - keyword: 'ON'
       - table_reference:
-        - identifier: '[schema1]'
+        - quoted_identifier: '[schema1]'
         - dot: .
-        - identifier: '[table1]'
+        - quoted_identifier: '[table1]'
       - bracketed_index_column_list_grammar:
           bracketed:
             start_bracket: (
             index_column_definition:
-              identifier: '[column1]'
+              quoted_identifier: '[column1]'
               keyword: DESC
             end_bracket: )
       - on_partition_or_filegroup_statement:
           filegroup_clause:
             keyword: 'ON'
             filegroup_name:
-              identifier: '[PRIMARY]'
+              quoted_identifier: '[PRIMARY]'
       - statement_terminator: ;
 - go_statement:
     keyword: GO
@@ -246,27 +246,27 @@ file:
       - keyword: UNIQUE
       - keyword: INDEX
       - index_reference:
-          identifier: '[ix_name]'
+          quoted_identifier: '[ix_name]'
       - keyword: 'ON'
       - table_reference:
-        - identifier: '[schema1]'
+        - quoted_identifier: '[schema1]'
         - dot: .
-        - identifier: '[table1]'
+        - quoted_identifier: '[table1]'
       - bracketed_index_column_list_grammar:
           bracketed:
           - start_bracket: (
           - index_column_definition:
-              identifier: '[column1]'
+              quoted_identifier: '[column1]'
           - comma: ','
           - index_column_definition:
-              identifier: '[column2]'
+              quoted_identifier: '[column2]'
           - end_bracket: )
       - relational_index_options:
         - keyword: WITH
         - keyword: FILLFACTOR
         - comparison_operator:
             raw_comparison_operator: '='
-        - literal: '80'
+        - numeric_literal: '80'
       - statement_terminator: ;
 - go_statement:
     keyword: GO
@@ -277,17 +277,17 @@ file:
       - keyword: UNIQUE
       - keyword: INDEX
       - index_reference:
-          identifier: '[ix_name]'
+          quoted_identifier: '[ix_name]'
       - keyword: 'ON'
       - table_reference:
-        - identifier: '[schema1]'
+        - quoted_identifier: '[schema1]'
         - dot: .
-        - identifier: '[table1]'
+        - quoted_identifier: '[table1]'
       - bracketed_index_column_list_grammar:
           bracketed:
             start_bracket: (
             index_column_definition:
-              identifier: '[column1]'
+              quoted_identifier: '[column1]'
             end_bracket: )
       - relational_index_options:
           keyword: WITH
@@ -310,17 +310,17 @@ file:
       - keyword: UNIQUE
       - keyword: INDEX
       - index_reference:
-          identifier: '[ix_name]'
+          quoted_identifier: '[ix_name]'
       - keyword: 'ON'
       - table_reference:
-        - identifier: '[schema1]'
+        - quoted_identifier: '[schema1]'
         - dot: .
-        - identifier: '[table1]'
+        - quoted_identifier: '[table1]'
       - bracketed_index_column_list_grammar:
           bracketed:
             start_bracket: (
             index_column_definition:
-              identifier: '[column1]'
+              quoted_identifier: '[column1]'
             end_bracket: )
       - relational_index_options:
           keyword: WITH
@@ -341,17 +341,17 @@ file:
       - keyword: UNIQUE
       - keyword: INDEX
       - index_reference:
-          identifier: '[ix_name]'
+          quoted_identifier: '[ix_name]'
       - keyword: 'ON'
       - table_reference:
-        - identifier: '[schema1]'
+        - quoted_identifier: '[schema1]'
         - dot: .
-        - identifier: '[table1]'
+        - quoted_identifier: '[table1]'
       - bracketed_index_column_list_grammar:
           bracketed:
             start_bracket: (
             index_column_definition:
-              identifier: '[column1]'
+              quoted_identifier: '[column1]'
             end_bracket: )
       - relational_index_options:
           keyword: WITH
@@ -370,7 +370,7 @@ file:
                 - keyword: MAX_DURATION
                 - comparison_operator:
                     raw_comparison_operator: '='
-                - literal: '5'
+                - numeric_literal: '5'
                 - keyword: MINUTES
               - comma: ','
               - keyword: ABORT_AFTER_WAIT
@@ -390,17 +390,17 @@ file:
       - keyword: UNIQUE
       - keyword: INDEX
       - index_reference:
-          identifier: '[ix_name]'
+          quoted_identifier: '[ix_name]'
       - keyword: 'ON'
       - table_reference:
-        - identifier: '[schema1]'
+        - quoted_identifier: '[schema1]'
         - dot: .
-        - identifier: '[table1]'
+        - quoted_identifier: '[table1]'
       - bracketed_index_column_list_grammar:
           bracketed:
             start_bracket: (
             index_column_definition:
-              identifier: '[column1]'
+              quoted_identifier: '[column1]'
             end_bracket: )
       - relational_index_options:
         - keyword: WITH
@@ -413,13 +413,13 @@ file:
           - keyword: PARTITIONS
           - bracketed:
             - start_bracket: (
-            - literal: '2'
+            - numeric_literal: '2'
             - comma: ','
-            - literal: '4'
+            - numeric_literal: '4'
             - comma: ','
-            - literal: '6'
+            - numeric_literal: '6'
             - keyword: TO
-            - literal: '8'
+            - numeric_literal: '8'
             - end_bracket: )
 - go_statement:
     keyword: GO
@@ -429,23 +429,23 @@ file:
       - keyword: CREATE
       - keyword: STATISTICS
       - index_reference:
-          identifier: Stats_Population
+          naked_identifier: Stats_Population
       - keyword: 'ON'
       - table_reference:
-        - identifier: '[Reporting]'
+        - quoted_identifier: '[Reporting]'
         - dot: .
-        - identifier: '[Population]'
+        - quoted_identifier: '[Population]'
       - bracketed_index_column_list_grammar:
           bracketed:
           - start_bracket: (
           - index_column_definition:
-              identifier: '[ID]'
+              quoted_identifier: '[ID]'
           - comma: ','
           - index_column_definition:
-              identifier: '[Facility]'
+              quoted_identifier: '[Facility]'
           - comma: ','
           - index_column_definition:
-              identifier: '[Population]'
+              quoted_identifier: '[Population]'
           - end_bracket: )
 - go_statement:
     keyword: GO
@@ -455,10 +455,10 @@ file:
       - keyword: UPDATE
       - keyword: STATISTICS
       - object_reference:
-        - identifier: Reporting
+        - naked_identifier: Reporting
         - dot: .
-        - identifier: Population
-      - identifier: Stats_Population
+        - naked_identifier: Population
+      - naked_identifier: Stats_Population
       - statement_terminator: ;
 - go_statement:
     keyword: GO
@@ -468,14 +468,14 @@ file:
       - keyword: UPDATE
       - keyword: STATISTICS
       - object_reference:
-        - identifier: Reporting
+        - naked_identifier: Reporting
         - dot: .
-        - identifier: Population
+        - naked_identifier: Population
       - bracketed:
         - start_bracket: (
-        - identifier: Stats_Facility
+        - naked_identifier: Stats_Facility
         - comma: ','
-        - identifier: Stats_Population
+        - naked_identifier: Stats_Population
         - end_bracket: )
       - statement_terminator: ;
 - go_statement:
@@ -486,11 +486,11 @@ file:
       - keyword: DROP
       - keyword: STATISTICS
       - index_reference:
-        - identifier: Reporting
+        - naked_identifier: Reporting
         - dot: .
-        - identifier: Population
+        - naked_identifier: Population
         - dot: .
-        - identifier: Stats_Population
+        - naked_identifier: Stats_Population
 - go_statement:
     keyword: GO
 - batch:
@@ -499,12 +499,12 @@ file:
       - keyword: DROP
       - keyword: INDEX
       - index_reference:
-          identifier: IX_INTER_VIMR_REPRODUCTION_NUMBER
+          naked_identifier: IX_INTER_VIMR_REPRODUCTION_NUMBER
       - keyword: 'ON'
       - table_reference:
-        - identifier: dbo
+        - naked_identifier: dbo
         - dot: .
-        - identifier: VIMR_INFECTIOUS_PEOPLE
+        - naked_identifier: VIMR_INFECTIOUS_PEOPLE
       - statement_terminator: ;
 - go_statement:
     keyword: GO

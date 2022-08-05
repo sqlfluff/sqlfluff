@@ -3,41 +3,41 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: deefccb1c98ca8bdebd54a564f4cf10e894f1b693420d756d34beea7b580a00f
+_hash: 0e42fd85a50adbe93a29b3dd9037595c4f09a3a7a5c67c84eebd2daa2369f7cd
 file:
 - statement:
     create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - identifier: myschema
+      - naked_identifier: myschema
       - dot: .
-      - identifier: t1
+      - naked_identifier: t1
     - bracketed:
       - start_bracket: (
       - table_content_definition:
           column_definition:
             column_datatype_definition:
-              identifier: a
+              naked_identifier: a
               data_type:
               - keyword: VARCHAR
               - bracketed:
                   start_bracket: (
-                  literal: '20'
+                  numeric_literal: '20'
                   end_bracket: )
               - keyword: UTF8
       - comma: ','
       - table_content_definition:
           column_definition:
             column_datatype_definition:
-              identifier: b
+              naked_identifier: b
               data_type:
                 keyword: DECIMAL
                 bracketed:
                 - start_bracket: (
-                - literal: '24'
+                - numeric_literal: '24'
                 - comma: ','
-                - literal: '4'
+                - numeric_literal: '4'
                 - end_bracket: )
             column_constraint_segment:
               table_constraint_definition:
@@ -46,29 +46,29 @@ file:
               comment_clause:
               - keyword: COMMENT
               - keyword: IS
-              - literal: "'The B column'"
+              - quoted_literal: "'The B column'"
       - comma: ','
       - table_content_definition:
           column_definition:
             column_datatype_definition:
-              identifier: c
+              naked_identifier: c
               data_type:
                 keyword: DECIMAL
             column_constraint_segment:
               keyword: DEFAULT
-              literal: '122'
+              numeric_literal: '122'
       - comma: ','
       - table_content_definition:
           column_definition:
             column_datatype_definition:
-              identifier: d
+              naked_identifier: d
               data_type:
                 keyword: DOUBLE
       - comma: ','
       - table_content_definition:
           column_definition:
             column_datatype_definition:
-              identifier: e
+              naked_identifier: e
               data_type:
                 keyword: TIMESTAMP
             column_constraint_segment:
@@ -78,7 +78,7 @@ file:
       - table_content_definition:
           column_definition:
             column_datatype_definition:
-              identifier: f
+              naked_identifier: f
               data_type:
                 keyword: BOOL
       - end_bracket: )
@@ -88,9 +88,9 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - identifier: '"MYSCHEMA"'
+      - quoted_identifier: '"MYSCHEMA"'
       - dot: .
-      - identifier: '"T2"'
+      - quoted_identifier: '"T2"'
     - keyword: AS
     - bracketed:
         start_bracket: (
@@ -107,7 +107,7 @@ file:
               from_expression_element:
                 table_expression:
                   table_reference:
-                    identifier: t1
+                    naked_identifier: t1
         end_bracket: )
     - with_data_clause:
       - keyword: WITH
@@ -121,44 +121,44 @@ file:
     - keyword: REPLACE
     - keyword: TABLE
     - table_reference:
-      - identifier: '"MYSCHEMA"'
-      - dot: .
-      - identifier: T2
+        quoted_identifier: '"MYSCHEMA"'
+        dot: .
+        naked_identifier: T2
     - keyword: AS
     - select_statement:
         select_clause:
         - keyword: SELECT
         - select_clause_element:
             column_reference:
-              identifier: a
+              naked_identifier: a
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: b
+              naked_identifier: b
         - comma: ','
         - select_clause_element:
             expression:
               column_reference:
-                identifier: c
+                naked_identifier: c
               binary_operator: +
-              literal: '1'
+              numeric_literal: '1'
             alias_expression:
               keyword: AS
-              identifier: c
+              naked_identifier: c
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: t1
+                  naked_identifier: t1
 - statement_terminator: ;
 - statement:
     create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: t3
+        naked_identifier: t3
     - keyword: AS
     - bracketed:
         start_bracket: (
@@ -175,14 +175,14 @@ file:
                   end_bracket: )
               alias_expression:
                 keyword: AS
-                identifier: my_count
+                naked_identifier: my_count
           from_clause:
             keyword: FROM
             from_expression:
               from_expression_element:
                 table_expression:
                   table_reference:
-                    identifier: t1
+                    naked_identifier: t1
         end_bracket: )
     - with_data_clause:
       - keyword: WITH
@@ -194,24 +194,24 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: t4
+        naked_identifier: t4
     - table_like_clause:
         keyword: LIKE
         table_reference:
-          identifier: t1
+          naked_identifier: t1
 - statement_terminator: ;
 - statement:
     create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: t5
+        naked_identifier: t5
     - bracketed:
       - start_bracket: (
       - table_content_definition:
           column_definition:
             column_datatype_definition:
-              identifier: id
+              naked_identifier: id
               data_type:
                 keyword: int
             column_constraint_segment:
@@ -225,14 +225,14 @@ file:
           table_like_clause:
           - keyword: LIKE
           - table_reference:
-              identifier: t1
+              naked_identifier: t1
           - keyword: INCLUDING
           - keyword: DEFAULTS
       - comma: ','
       - table_content_definition:
           column_definition:
             column_datatype_definition:
-              identifier: g
+              naked_identifier: g
               data_type:
                 keyword: DOUBLE
       - comma: ','
@@ -240,10 +240,10 @@ file:
         - keyword: DISTRIBUTE
         - keyword: BY
         - column_reference:
-            identifier: a
+            naked_identifier: a
         - comma: ','
         - column_reference:
-            identifier: b
+            naked_identifier: b
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -251,78 +251,78 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: t6
+        naked_identifier: t6
     - bracketed:
       - start_bracket: (
       - table_content_definition:
           column_definition:
             column_datatype_definition:
-              identifier: order_id
+              naked_identifier: order_id
               data_type:
                 keyword: INT
       - comma: ','
       - table_content_definition:
           column_definition:
             column_datatype_definition:
-              identifier: sales_id
+              naked_identifier: sales_id
               data_type:
                 keyword: INT
       - comma: ','
       - table_content_definition:
           column_definition:
             column_datatype_definition:
-              identifier: order_price
+              naked_identifier: order_price
               data_type:
                 keyword: DOUBLE
       - comma: ','
       - table_content_definition:
           column_definition:
             column_datatype_definition:
-              identifier: order_date
+              naked_identifier: order_date
               data_type:
                 keyword: DATE
       - comma: ','
       - table_content_definition:
           column_definition:
             column_datatype_definition:
-              identifier: country
+              naked_identifier: country
               data_type:
                 keyword: VARCHAR
                 bracketed:
                   start_bracket: (
-                  literal: '40'
+                  numeric_literal: '40'
                   end_bracket: )
       - comma: ','
       - table_content_definition:
           table_constraint_definition:
           - keyword: CONSTRAINT
-          - identifier: t6_pk
+          - naked_identifier: t6_pk
           - keyword: PRIMARY
           - keyword: KEY
           - bracketed:
             - start_bracket: (
             - column_reference:
-                identifier: order_id
+                naked_identifier: order_id
             - comma: ','
             - column_reference:
-                identifier: sales_id
+                naked_identifier: sales_id
             - end_bracket: )
       - comma: ','
       - table_distribution_partition_clause:
         - keyword: DISTRIBUTE
         - keyword: BY
         - column_reference:
-            identifier: order_id
+            naked_identifier: order_id
         - comma: ','
         - keyword: PARTITION
         - keyword: BY
         - column_reference:
-            identifier: order_date
+            naked_identifier: order_date
       - end_bracket: )
     - comment_clause:
       - keyword: COMMENT
       - keyword: IS
-      - literal: "'a great table'"
+      - quoted_literal: "'a great table'"
 - statement_terminator: ;
 - statement:
     create_table_statement:
@@ -331,38 +331,38 @@ file:
     - keyword: REPLACE
     - keyword: TABLE
     - table_reference:
-        identifier: t8
+        naked_identifier: t8
     - bracketed:
       - start_bracket: (
       - table_content_definition:
           column_definition:
             column_datatype_definition:
-              identifier: ref_id
+              naked_identifier: ref_id
               data_type:
                 keyword: int
             column_constraint_segment:
               table_constraint_definition:
               - keyword: CONSTRAINT
-              - identifier: FK_T5
+              - naked_identifier: FK_T5
               - keyword: REFERENCES
               - table_reference:
-                  identifier: t5
+                  naked_identifier: t5
               - bracketed:
                   start_bracket: (
                   column_reference:
-                    identifier: id
+                    naked_identifier: id
                   end_bracket: )
               - keyword: DISABLE
       - comma: ','
       - table_content_definition:
           column_definition:
             column_datatype_definition:
-              identifier: b
+              naked_identifier: b
               data_type:
                 keyword: VARCHAR
                 bracketed:
                   start_bracket: (
-                  literal: '20'
+                  numeric_literal: '20'
                   end_bracket: )
       - end_bracket: )
 - statement_terminator: ;
@@ -374,22 +374,22 @@ file:
     - keyword: NOT
     - keyword: EXISTS
     - table_reference:
-      - identifier: SCHEM
+      - naked_identifier: SCHEM
       - dot: .
-      - identifier: TAB
+      - naked_identifier: TAB
     - bracketed:
         start_bracket: (
         table_content_definition:
           column_definition:
             column_datatype_definition:
-              identifier: ID
+              naked_identifier: ID
               data_type:
                 keyword: DECIMAL
                 bracketed:
                 - start_bracket: (
-                - literal: '18'
+                - numeric_literal: '18'
                 - comma: ','
-                - literal: '0'
+                - numeric_literal: '0'
                 - end_bracket: )
             column_constraint_segment:
               keyword: IDENTITY
@@ -401,45 +401,45 @@ file:
               comment_clause:
               - keyword: COMMENT
               - keyword: IS
-              - literal: "'without constraint name'"
+              - quoted_literal: "'without constraint name'"
         end_bracket: )
     - comment_clause:
       - keyword: COMMENT
       - keyword: IS
-      - literal: "'a nice table'"
+      - quoted_literal: "'a nice table'"
 - statement_terminator: ;
 - statement:
     create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - identifier: SCHEM
+      - naked_identifier: SCHEM
       - dot: .
-      - identifier: TAB
+      - naked_identifier: TAB
     - bracketed:
       - start_bracket: (
       - table_content_definition:
           column_definition:
             column_datatype_definition:
-              identifier: ID
+              naked_identifier: ID
               data_type:
                 keyword: DECIMAL
                 bracketed:
                 - start_bracket: (
-                - literal: '18'
+                - numeric_literal: '18'
                 - comma: ','
-                - literal: '0'
+                - numeric_literal: '0'
                 - end_bracket: )
       - comma: ','
       - table_content_definition:
           column_definition:
             column_datatype_definition:
-              identifier: C1
+              naked_identifier: C1
               data_type:
                 keyword: CHAR
                 bracketed:
                   start_bracket: (
-                  literal: '1'
+                  numeric_literal: '1'
                   end_bracket: )
       - comma: ','
       - table_content_definition:
@@ -450,7 +450,7 @@ file:
           - bracketed:
               start_bracket: (
               column_reference:
-                identifier: id
+                naked_identifier: id
               end_bracket: )
       - end_bracket: )
 - statement_terminator: ;
@@ -459,45 +459,45 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - identifier: SCHEM
+      - naked_identifier: SCHEM
       - dot: .
-      - identifier: TAB
+      - naked_identifier: TAB
     - bracketed:
       - start_bracket: (
       - table_content_definition:
           column_definition:
             column_datatype_definition:
-              identifier: ID
+              naked_identifier: ID
               data_type:
                 keyword: DECIMAL
                 bracketed:
                 - start_bracket: (
-                - literal: '18'
+                - numeric_literal: '18'
                 - comma: ','
-                - literal: '0'
+                - numeric_literal: '0'
                 - end_bracket: )
       - comma: ','
       - table_content_definition:
           column_definition:
             column_datatype_definition:
-              identifier: C1
+              naked_identifier: C1
               data_type:
                 keyword: CHAR
                 bracketed:
                   start_bracket: (
-                  literal: '1'
+                  numeric_literal: '1'
                   end_bracket: )
       - comma: ','
       - table_content_definition:
           table_constraint_definition:
           - keyword: CONSTRAINT
-          - identifier: '"ADMIN"'
+          - quoted_identifier: '"ADMIN"'
           - keyword: PRIMARY
           - keyword: KEY
           - bracketed:
               start_bracket: (
               column_reference:
-                identifier: id
+                naked_identifier: id
               end_bracket: )
       - end_bracket: )
 - statement_terminator: ;
@@ -506,25 +506,25 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - identifier: SCHEM
+      - naked_identifier: SCHEM
       - dot: .
-      - identifier: TAB
+      - naked_identifier: TAB
     - bracketed:
         start_bracket: (
         table_content_definition:
           column_definition:
             column_datatype_definition:
-              identifier: C1
+              naked_identifier: C1
               data_type:
                 keyword: CHAR
                 bracketed:
                   start_bracket: (
-                  literal: '1'
+                  numeric_literal: '1'
                   end_bracket: )
             column_constraint_segment:
               table_constraint_definition:
               - keyword: CONSTRAINT
-              - identifier: '"ADMIN"'
+              - quoted_identifier: '"ADMIN"'
               - keyword: PRIMARY
               - keyword: KEY
         end_bracket: )
@@ -534,7 +534,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: T
+        naked_identifier: T
     - keyword: AS
     - select_statement:
         select_clause:
@@ -549,20 +549,20 @@ file:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: A
+                  naked_identifier: A
     - comment_clause:
       - keyword: COMMENT
       - keyword: IS
-      - literal: "'BLABLA'"
+      - quoted_literal: "'BLABLA'"
 - statement_terminator: ;
 - statement:
     create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - identifier: '"MYSCHEMA"'
+      - quoted_identifier: '"MYSCHEMA"'
       - dot: .
-      - identifier: '"T2"'
+      - quoted_identifier: '"T2"'
     - keyword: AS
     - select_statement:
         select_clause:
@@ -577,7 +577,7 @@ file:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: t1
+                  naked_identifier: t1
     - with_data_clause:
       - keyword: WITH
       - keyword: 'NO'
@@ -588,9 +588,9 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - identifier: '"MYSCHEMA"'
+      - quoted_identifier: '"MYSCHEMA"'
       - dot: .
-      - identifier: '"T2"'
+      - quoted_identifier: '"T2"'
     - keyword: AS
     - select_statement:
         select_clause:
@@ -605,7 +605,7 @@ file:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: t1
+                  naked_identifier: t1
     - with_data_clause:
       - keyword: WITH
       - keyword: 'NO'
@@ -613,5 +613,5 @@ file:
     - comment_clause:
       - keyword: COMMENT
       - keyword: IS
-      - literal: "'ABC'"
+      - quoted_literal: "'ABC'"
 - statement_terminator: ;

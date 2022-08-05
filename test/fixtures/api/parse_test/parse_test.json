@@ -26,7 +26,7 @@
                     },
                     {
                         "select_clause_element": {
-                            "literal": "1"
+                            "numeric_literal": "1"
                         }
                     },
                     {
@@ -38,13 +38,13 @@
                     {
                         "select_clause_element": {
                             "column_reference": {
-                                "identifier": "blah"
+                                "naked_identifier": "blah"
                             },
                             "whitespace": " ",
                             "alias_expression": {
                                 "keyword": "as",
                                 "whitespace": "  ",
-                                "identifier": "fOO"
+                                "naked_identifier": "fOO"
                             }
                         }
                     }
@@ -57,7 +57,7 @@
                         "from_expression_element": {
                             "table_expression": {
                                 "table_reference": {
-                                    "identifier": "myTable"
+                                    "naked_identifier": "myTable"
                                 }
                             }
                         }

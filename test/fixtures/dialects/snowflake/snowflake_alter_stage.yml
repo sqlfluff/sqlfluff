@@ -3,25 +3,25 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b7a991b939e18a8c2f6a48cb3134a9ece9338ad8fc39b5ded3aef48ebc9f99fa
+_hash: 1e138be38f4d4af06d8e5e2b9ae66a8c867cc1b83859d927584ff6f9f886aa6f
 file:
 - statement:
     alter_stage_statement:
     - keyword: ALTER
     - keyword: STAGE
     - object_reference:
-        identifier: my_int_stage
+        naked_identifier: my_int_stage
     - keyword: RENAME
     - keyword: TO
     - object_reference:
-        identifier: new_int_stage
+        naked_identifier: new_int_stage
 - statement_terminator: ;
 - statement:
     alter_stage_statement:
     - keyword: ALTER
     - keyword: STAGE
     - object_reference:
-        identifier: my_ext_stage
+        naked_identifier: my_ext_stage
     - keyword: SET
     - keyword: URL
     - comparison_operator:
@@ -44,21 +44,21 @@ file:
     - keyword: ALTER
     - keyword: STAGE
     - object_reference:
-        identifier: my_ext_stage
+        naked_identifier: my_ext_stage
     - keyword: SET
     - stage_parameters:
         keyword: STORAGE_INTEGRATION
         comparison_operator:
           raw_comparison_operator: '='
         object_reference:
-          identifier: myint
+          naked_identifier: myint
 - statement_terminator: ;
 - statement:
     alter_stage_statement:
     - keyword: ALTER
     - keyword: STAGE
     - object_reference:
-        identifier: my_ext_stage
+        naked_identifier: my_ext_stage
     - keyword: SET
     - stage_parameters:
         keyword: CREDENTIALS
@@ -69,11 +69,11 @@ file:
         - keyword: AWS_KEY_ID
         - comparison_operator:
             raw_comparison_operator: '='
-        - literal: "'d4c3b2a1'"
+        - quoted_literal: "'d4c3b2a1'"
         - keyword: AWS_SECRET_KEY
         - comparison_operator:
             raw_comparison_operator: '='
-        - literal: "'z9y8x7w6'"
+        - quoted_literal: "'z9y8x7w6'"
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -81,7 +81,7 @@ file:
     - keyword: ALTER
     - keyword: STAGE
     - object_reference:
-        identifier: my_ext_stage3
+        naked_identifier: my_ext_stage3
     - keyword: SET
     - stage_parameters:
         keyword: ENCRYPTION
@@ -100,7 +100,7 @@ file:
     - keyword: ALTER
     - keyword: STAGE
     - object_reference:
-        identifier: mystage
+        naked_identifier: mystage
     - keyword: REFRESH
 - statement_terminator: ;
 - statement:
@@ -108,10 +108,10 @@ file:
     - keyword: ALTER
     - keyword: STAGE
     - object_reference:
-        identifier: mystage
+        naked_identifier: mystage
     - keyword: REFRESH
     - keyword: SUBPATH
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: "'data'"
+    - quoted_literal: "'data'"
 - statement_terminator: ;

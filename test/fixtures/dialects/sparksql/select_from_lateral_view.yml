@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1db790b8df97b1fc79b959e5ae7c7e2c24e3830f13a6cc7120cc768811634f9d
+_hash: 8124d5d4d98bab9117a490802c9613bc6853607423e55c20293fc72b30691f84
 file:
 - statement:
     select_statement:
@@ -11,38 +11,38 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: id
+            naked_identifier: id
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: name
+            naked_identifier: name
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: age
+            naked_identifier: age
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: class
+            naked_identifier: class
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: address
+            naked_identifier: address
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: c_age
+            naked_identifier: c_age
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: d_age
+            naked_identifier: d_age
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
           - table_expression:
               table_reference:
-                identifier: person
+                naked_identifier: person
           - lateral_view_clause:
             - keyword: LATERAL
             - keyword: VIEW
@@ -58,15 +58,15 @@ file:
                       bracketed:
                       - start_bracket: (
                       - expression:
-                          literal: '30'
+                          numeric_literal: '30'
                       - comma: ','
                       - expression:
-                          literal: '60'
+                          numeric_literal: '60'
                       - end_bracket: )
                   end_bracket: )
-            - identifier: tbl_name
+            - naked_identifier: tbl_name
             - keyword: AS
-            - identifier: c_age
+            - naked_identifier: c_age
           - lateral_view_clause:
             - keyword: LATERAL
             - keyword: VIEW
@@ -82,14 +82,14 @@ file:
                       bracketed:
                       - start_bracket: (
                       - expression:
-                          literal: '40'
+                          numeric_literal: '40'
                       - comma: ','
                       - expression:
-                          literal: '80'
+                          numeric_literal: '80'
                       - end_bracket: )
                   end_bracket: )
             - keyword: AS
-            - identifier: d_age
+            - naked_identifier: d_age
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -97,7 +97,7 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: c_age
+            naked_identifier: c_age
       - comma: ','
       - select_clause_element:
           function:
@@ -109,14 +109,14 @@ file:
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: record_count
+            naked_identifier: record_count
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
           - table_expression:
               table_reference:
-                identifier: person
+                naked_identifier: person
           - lateral_view_clause:
             - keyword: LATERAL
             - keyword: VIEW
@@ -132,14 +132,14 @@ file:
                       bracketed:
                       - start_bracket: (
                       - expression:
-                          literal: '30'
+                          numeric_literal: '30'
                       - comma: ','
                       - expression:
-                          literal: '60'
+                          numeric_literal: '60'
                       - end_bracket: )
                   end_bracket: )
             - keyword: AS
-            - identifier: c_age
+            - naked_identifier: c_age
           - lateral_view_clause:
             - keyword: LATERAL
             - keyword: VIEW
@@ -155,19 +155,19 @@ file:
                       bracketed:
                       - start_bracket: (
                       - expression:
-                          literal: '40'
+                          numeric_literal: '40'
                       - comma: ','
                       - expression:
-                          literal: '80'
+                          numeric_literal: '80'
                       - end_bracket: )
                   end_bracket: )
             - keyword: AS
-            - identifier: d_age
+            - naked_identifier: d_age
       groupby_clause:
       - keyword: GROUP
       - keyword: BY
       - column_reference:
-          identifier: c_age
+          naked_identifier: c_age
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -175,38 +175,38 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: id
+            naked_identifier: id
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: name
+            naked_identifier: name
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: age
+            naked_identifier: age
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: class
+            naked_identifier: class
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: address
+            naked_identifier: address
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: c_age
+            naked_identifier: c_age
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: d_age
+            naked_identifier: d_age
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: person
+                naked_identifier: person
             lateral_view_clause:
             - keyword: LATERAL
             - keyword: VIEW
@@ -223,9 +223,9 @@ file:
                         start_bracket: (
                         end_bracket: )
                   end_bracket: )
-            - identifier: tbl_name
+            - naked_identifier: tbl_name
             - keyword: AS
-            - identifier: c_age
+            - naked_identifier: c_age
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -233,34 +233,34 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: id
+            naked_identifier: id
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: name
+            naked_identifier: name
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: age
+            naked_identifier: age
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: class
+            naked_identifier: class
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: address
+            naked_identifier: address
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: c_age
+            naked_identifier: c_age
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: person
+                naked_identifier: person
             lateral_view_clause:
             - keyword: LATERAL
             - keyword: VIEW
@@ -278,9 +278,9 @@ file:
                         start_bracket: (
                         end_bracket: )
                   end_bracket: )
-            - identifier: tbl_name
+            - naked_identifier: tbl_name
             - keyword: AS
-            - identifier: c_age
+            - naked_identifier: c_age
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -288,34 +288,34 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: person
+          - naked_identifier: person
           - dot: .
-          - identifier: id
+          - naked_identifier: id
       - comma: ','
       - select_clause_element:
           column_reference:
-          - identifier: exploded_people
+          - naked_identifier: exploded_people
           - dot: .
-          - identifier: name
+          - naked_identifier: name
       - comma: ','
       - select_clause_element:
           column_reference:
-          - identifier: exploded_people
+          - naked_identifier: exploded_people
           - dot: .
-          - identifier: age
+          - naked_identifier: age
       - comma: ','
       - select_clause_element:
           column_reference:
-          - identifier: exploded_people
+          - naked_identifier: exploded_people
           - dot: .
-          - identifier: state
+          - naked_identifier: state
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: person
+                naked_identifier: person
             lateral_view_clause:
             - keyword: LATERAL
             - keyword: VIEW
@@ -326,15 +326,15 @@ file:
                   start_bracket: (
                   expression:
                     column_reference:
-                      identifier: array_of_structs
+                      naked_identifier: array_of_structs
                   end_bracket: )
-            - identifier: exploded_people
+            - naked_identifier: exploded_people
             - keyword: AS
-            - identifier: name
+            - naked_identifier: name
             - comma: ','
-            - identifier: age
+            - naked_identifier: age
             - comma: ','
-            - identifier: state
+            - naked_identifier: state
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -342,37 +342,37 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: p
+          - naked_identifier: p
           - dot: .
-          - identifier: id
+          - naked_identifier: id
       - comma: ','
       - select_clause_element:
           column_reference:
-          - identifier: exploded_people
+          - naked_identifier: exploded_people
           - dot: .
-          - identifier: name
+          - naked_identifier: name
       - comma: ','
       - select_clause_element:
           column_reference:
-          - identifier: exploded_people
+          - naked_identifier: exploded_people
           - dot: .
-          - identifier: age
+          - naked_identifier: age
       - comma: ','
       - select_clause_element:
           column_reference:
-          - identifier: exploded_people
+          - naked_identifier: exploded_people
           - dot: .
-          - identifier: state
+          - naked_identifier: state
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: person
+                naked_identifier: person
             alias_expression:
               keyword: AS
-              identifier: p
+              naked_identifier: p
             lateral_view_clause:
             - keyword: LATERAL
             - keyword: VIEW
@@ -383,13 +383,13 @@ file:
                   start_bracket: (
                   expression:
                     column_reference:
-                      identifier: array_of_structs
+                      naked_identifier: array_of_structs
                   end_bracket: )
-            - identifier: exploded_people
+            - naked_identifier: exploded_people
             - keyword: AS
-            - identifier: name
+            - naked_identifier: name
             - comma: ','
-            - identifier: age
+            - naked_identifier: age
             - comma: ','
-            - identifier: state
+            - naked_identifier: state
 - statement_terminator: ;

@@ -4,4 +4,4 @@ file:
       select_clause:
       - keyword: SELECT
       - select_clause_element:
-          literal: 'TRUE'
+          boolean_literal: 'TRUE'

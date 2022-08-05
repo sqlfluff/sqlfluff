@@ -5,4 +5,4 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: item
+            naked_identifier: item

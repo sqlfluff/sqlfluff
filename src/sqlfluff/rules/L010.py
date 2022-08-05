@@ -56,8 +56,8 @@ class Rule_L010(BaseRule):
     # Skip boolean and null literals (which are also keywords)
     # as they have their own rule (L040)
     _exclude_elements: List[Tuple[str, str]] = [
-        ("name", "null_literal"),
-        ("name", "boolean_literal"),
+        ("type", "null_literal"),
+        ("type", "boolean_literal"),
         ("parenttype", "data_type"),
         ("parenttype", "datetime_type_identifier"),
         ("parenttype", "primitive_type"),

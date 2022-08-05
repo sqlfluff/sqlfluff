@@ -3,34 +3,34 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 25cdef9a3ec912a49c2bcd1643e1f7f4a7630094708eaf753443a5dfb9c20c64
+_hash: 0ca0a589ad98d8a2f91b99db2f29bc962416ea5cef4eaaee8fb4d1d07bd1e7c3
 file:
 - statement:
     insert_statement:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-        identifier: t
+        naked_identifier: t
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: n1
+          naked_identifier: n1
       - comma: ','
       - column_reference:
-          identifier: n2
+          naked_identifier: n2
       - comma: ','
       - column_reference:
-          identifier: t1
+          naked_identifier: t1
       - end_bracket: )
     - values_insert_clause:
         keyword: VALUES
         bracketed:
         - start_bracket: (
-        - literal: '1'
+        - numeric_literal: '1'
         - comma: ','
-        - literal: '2.34'
+        - numeric_literal: '2.34'
         - comma: ','
-        - literal: "'abc'"
+        - quoted_literal: "'abc'"
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -38,25 +38,25 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-        identifier: t
+        naked_identifier: t
     - values_insert_clause:
       - keyword: VALUES
       - bracketed:
         - start_bracket: (
-        - literal: '2'
+        - numeric_literal: '2'
         - comma: ','
-        - literal: '1.56'
+        - numeric_literal: '1.56'
         - comma: ','
-        - literal: "'ghi'"
+        - quoted_literal: "'ghi'"
         - end_bracket: )
       - comma: ','
       - bracketed:
         - start_bracket: (
-        - literal: '3'
+        - numeric_literal: '3'
         - comma: ','
-        - literal: '5.92'
+        - numeric_literal: '5.92'
         - comma: ','
-        - literal: "'pqr'"
+        - quoted_literal: "'pqr'"
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -64,16 +64,16 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-        identifier: t
+        naked_identifier: t
     - values_insert_clause:
         keyword: VALUES
         bracketed:
         - start_bracket: (
-        - literal: '4'
+        - numeric_literal: '4'
         - comma: ','
         - keyword: DEFAULT
         - comma: ','
-        - literal: "'xyz'"
+        - quoted_literal: "'xyz'"
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -81,14 +81,14 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-        identifier: t
+        naked_identifier: t
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: i
+          naked_identifier: i
       - comma: ','
       - column_reference:
-          identifier: k
+          naked_identifier: k
       - end_bracket: )
     - select_statement:
         select_clause:
@@ -103,18 +103,18 @@ file:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: u
+                  naked_identifier: u
 - statement_terminator: ;
 - statement:
     insert_statement:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-        identifier: t
+        naked_identifier: t
     - bracketed:
         start_bracket: (
         column_reference:
-          identifier: i
+          naked_identifier: i
         end_bracket: )
     - select_statement:
         select_clause:
@@ -127,7 +127,7 @@ file:
                 start_bracket: (
                 expression:
                   column_reference:
-                    identifier: j
+                    naked_identifier: j
                 end_bracket: )
         from_clause:
           keyword: FROM
@@ -135,14 +135,14 @@ file:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: u
+                  naked_identifier: u
 - statement_terminator: ;
 - statement:
     insert_statement:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-        identifier: t
+        naked_identifier: t
     - keyword: DEFAULT
     - keyword: VALUES
 - statement_terminator: ;
@@ -151,7 +151,7 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-        identifier: t
+        naked_identifier: t
     - bracketed:
         start_bracket: (
         select_statement:
@@ -167,7 +167,7 @@ file:
               from_expression_element:
                 table_expression:
                   table_reference:
-                    identifier: u
+                    naked_identifier: u
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -175,19 +175,19 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-      - identifier: s
+      - naked_identifier: s
       - dot: .
-      - identifier: t
+      - naked_identifier: t
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: c1
+          naked_identifier: c1
       - comma: ','
       - column_reference:
-          identifier: c2
+          naked_identifier: c2
       - comma: ','
       - column_reference:
-          identifier: c3
+          naked_identifier: c3
       - end_bracket: )
     - values_insert_clause:
         keyword: VALUES
@@ -200,19 +200,19 @@ file:
                 keyword: SELECT
                 select_clause_element:
                   column_reference:
-                    identifier: x
+                    naked_identifier: x
               from_clause:
                 keyword: FROM
                 from_expression:
                   from_expression_element:
                     table_expression:
                       table_reference:
-                        identifier: y
+                        naked_identifier: y
             end_bracket: )
         - comma: ','
-        - literal: "'val1'"
+        - quoted_literal: "'val1'"
         - comma: ','
-        - literal: "'val2'"
+        - quoted_literal: "'val2'"
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -220,11 +220,11 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-        identifier: t
+        naked_identifier: t
     - bracketed:
         start_bracket: (
         column_reference:
-          identifier: adate
+          naked_identifier: adate
         end_bracket: )
     - values_insert_clause:
         keyword: values
@@ -238,32 +238,32 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-        identifier: t
+        naked_identifier: t
     - values_range_clause:
       - keyword: VALUES
       - keyword: BETWEEN
-      - literal: '1'
+      - numeric_literal: '1'
       - keyword: AND
-      - literal: '100'
+      - numeric_literal: '100'
 - statement_terminator: ;
 - statement:
     insert_statement:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-        identifier: t
+        naked_identifier: t
     - bracketed:
         start_bracket: (
         column_reference:
-          identifier: i
+          naked_identifier: i
         end_bracket: )
     - values_range_clause:
       - keyword: VALUES
       - keyword: BETWEEN
-      - literal: '1'
+      - numeric_literal: '1'
       - keyword: AND
-      - literal: '100'
+      - numeric_literal: '100'
       - keyword: WITH
       - keyword: STEP
-      - literal: '4'
+      - numeric_literal: '4'
 - statement_terminator: ;

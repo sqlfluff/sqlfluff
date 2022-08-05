@@ -105,7 +105,7 @@ class Rule_L052(BaseRule):
                 if (
                     comment_segment.pos_marker.working_line_no
                     == anchor_segment.pos_marker.working_line_no
-                ) and (comment_segment.name != "block_comment"):
+                ) and (not comment_segment.is_type("block_comment")):
                     anchor_segment = comment_segment
 
         return anchor_segment
@@ -179,7 +179,7 @@ class Rule_L052(BaseRule):
             info.anchor_segment,
             info.whitespace_deletions,
             [
-                SymbolSegment(raw=";", type="symbol", name="semicolon"),
+                SymbolSegment(raw=";", type="statement_terminator"),
             ],
         )
         return LintResult(
@@ -216,7 +216,7 @@ class Rule_L052(BaseRule):
                     anchor_segment,
                     [
                         NewlineSegment(),
-                        SymbolSegment(raw=";", type="symbol", name="semicolon"),
+                        SymbolSegment(raw=";", type="statement_terminator"),
                     ],
                 )
             )
@@ -228,7 +228,7 @@ class Rule_L052(BaseRule):
                     info.whitespace_deletions,
                     [
                         NewlineSegment(),
-                        SymbolSegment(raw=";", type="symbol", name="semicolon"),
+                        SymbolSegment(raw=";", type="statement_terminator"),
                     ],
                 )
             )
@@ -286,7 +286,7 @@ class Rule_L052(BaseRule):
         is_one_line = False
         before_segment = []
         for segment in complete_stack[::-1]:
-            if segment.name == "semicolon":
+            if segment.is_type("statement_terminator"):
                 semi_colon_exist_flag = True
             elif segment.is_code:
                 is_one_line = self._is_one_line_statement(context, segment)
@@ -308,7 +308,7 @@ class Rule_L052(BaseRule):
                             context, "create_after", anchor_segment, filter_meta=True
                         ),
                         [
-                            SymbolSegment(raw=";", type="symbol", name="semicolon"),
+                            SymbolSegment(raw=";", type="statement_terminator"),
                         ],
                     )
                 ]
@@ -329,7 +329,7 @@ class Rule_L052(BaseRule):
                         ),
                         [
                             NewlineSegment(),
-                            SymbolSegment(raw=";", type="symbol", name="semicolon"),
+                            SymbolSegment(raw=";", type="statement_terminator"),
                         ],
                     )
                 ]
@@ -347,7 +347,7 @@ class Rule_L052(BaseRule):
 
         # First we can simply handle the case of existing semi-colon alignment.
         result = None
-        if context.segment.name == "semicolon":
+        if context.segment.is_type("statement_terminator"):
             result = self._handle_semicolon(context)
         elif self.require_final_semicolon:
             result = self._ensure_final_semicolon(context)

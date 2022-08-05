@@ -3,35 +3,35 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a940d38e12fcc659904cee7eb28d019e78514f448767bf022a1152257a7a9ca1
+_hash: 47c08b741747f2d549c6f21ef99b0c776b6d47865d93bbc022ec7feb7f0a851c
 file:
 - statement:
     alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: Student
+        naked_identifier: Student
     - keyword: RENAME
     - keyword: TO
     - table_reference:
-        identifier: StudentInfo
+        naked_identifier: StudentInfo
 - statement_terminator: ;
 - statement:
     alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - identifier: Default
+      - naked_identifier: Default
       - dot: .
-      - identifier: StudentInfo
+      - naked_identifier: StudentInfo
     - keyword: PARTITION
     - bracketed:
         start_bracket: (
         column_reference:
-          identifier: Age
+          naked_identifier: Age
         comparison_operator:
           raw_comparison_operator: '='
-        literal: "'10'"
+        quoted_literal: "'10'"
         end_bracket: )
     - keyword: RENAME
     - keyword: TO
@@ -39,10 +39,10 @@ file:
     - bracketed:
         start_bracket: (
         column_reference:
-          identifier: Age
+          naked_identifier: Age
         comparison_operator:
           raw_comparison_operator: '='
-        literal: "'15'"
+        quoted_literal: "'15'"
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -50,19 +50,19 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: StudentInfo
+        naked_identifier: StudentInfo
     - keyword: ADD
     - keyword: COLUMNS
     - bracketed:
       - start_bracket: (
       - column_definition:
-          identifier: LastName
+          naked_identifier: LastName
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          identifier: DOB
+          naked_identifier: DOB
           data_type:
             primitive_type:
               keyword: TIMESTAMP
@@ -73,33 +73,33 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: StudentInfo
+        naked_identifier: StudentInfo
     - keyword: ALTER
     - keyword: COLUMN
     - column_reference:
-        identifier: Name
+        naked_identifier: Name
     - keyword: COMMENT
-    - literal: '"new comment"'
+    - quoted_literal: '"new comment"'
 - statement_terminator: ;
 - statement:
     alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: StudentInfo
+        naked_identifier: StudentInfo
     - keyword: CHANGE
     - keyword: COLUMN
     - column_reference:
-        identifier: Name
+        naked_identifier: Name
     - keyword: COMMENT
-    - literal: '"new comment"'
+    - quoted_literal: '"new comment"'
 - statement_terminator: ;
 - statement:
     alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: StudentInfo
+        naked_identifier: StudentInfo
     - keyword: ADD
     - keyword: IF
     - keyword: NOT
@@ -108,10 +108,10 @@ file:
     - bracketed:
         start_bracket: (
         column_reference:
-          identifier: Age
+          naked_identifier: Age
         comparison_operator:
           raw_comparison_operator: '='
-        literal: '18'
+        numeric_literal: '18'
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -119,7 +119,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: StudentInfo
+        naked_identifier: StudentInfo
     - keyword: ADD
     - keyword: IF
     - keyword: NOT
@@ -128,19 +128,19 @@ file:
     - bracketed:
         start_bracket: (
         column_reference:
-          identifier: Age
+          naked_identifier: Age
         comparison_operator:
           raw_comparison_operator: '='
-        literal: '18'
+        numeric_literal: '18'
         end_bracket: )
     - keyword: PARTITION
     - bracketed:
         start_bracket: (
         column_reference:
-          identifier: Age
+          naked_identifier: Age
         comparison_operator:
           raw_comparison_operator: '='
-        literal: '20'
+        numeric_literal: '20'
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -148,7 +148,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: StudentInfo
+        naked_identifier: StudentInfo
     - keyword: DROP
     - keyword: IF
     - keyword: EXISTS
@@ -156,10 +156,10 @@ file:
     - bracketed:
         start_bracket: (
         column_reference:
-          identifier: Age
+          naked_identifier: Age
         comparison_operator:
           raw_comparison_operator: '='
-        literal: '18'
+        numeric_literal: '18'
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -167,18 +167,18 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - identifier: Dbx
+      - naked_identifier: Dbx
       - dot: .
-      - identifier: Tab1
+      - naked_identifier: Tab1
     - keyword: SET
     - keyword: TBLPROPERTIES
     - bracketed:
         start_bracket: (
         property_name_identifier:
-          identifier: "'winner'"
+          quoted_identifier: "'winner'"
         comparison_operator:
           raw_comparison_operator: '='
-        literal: "'loser'"
+        quoted_literal: "'loser'"
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -186,18 +186,18 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - identifier: Dbx
+      - naked_identifier: Dbx
       - dot: .
-      - identifier: Tab1
+      - naked_identifier: Tab1
     - keyword: SET
     - keyword: TBLPROPERTIES
     - bracketed:
         start_bracket: (
         property_name_identifier:
-          identifier: "'comment'"
+          quoted_identifier: "'comment'"
         comparison_operator:
           raw_comparison_operator: '='
-        literal: "'A table comment.'"
+        quoted_literal: "'A table comment.'"
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -205,18 +205,18 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - identifier: Dbx
+      - naked_identifier: Dbx
       - dot: .
-      - identifier: Tab1
+      - naked_identifier: Tab1
     - keyword: SET
     - keyword: TBLPROPERTIES
     - bracketed:
         start_bracket: (
         property_name_identifier:
-          identifier: "'comment'"
+          quoted_identifier: "'comment'"
         comparison_operator:
           raw_comparison_operator: '='
-        literal: "'This is a new comment.'"
+        quoted_literal: "'This is a new comment.'"
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -224,15 +224,15 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - identifier: Dbx
+      - naked_identifier: Dbx
       - dot: .
-      - identifier: Tab1
+      - naked_identifier: Tab1
     - keyword: UNSET
     - keyword: TBLPROPERTIES
     - bracketed:
         start_bracket: (
         property_name_identifier:
-          identifier: "'winner'"
+          quoted_identifier: "'winner'"
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -240,22 +240,22 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: Table_Identifier
+        naked_identifier: Table_Identifier
     - keyword: SET
     - keyword: SERDEPROPERTIES
     - bracketed:
       - start_bracket: (
       - property_name_identifier:
-          identifier: '"key1"'
+          quoted_identifier: '"key1"'
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: '"val1"'
+      - quoted_literal: '"val1"'
       - comma: ','
       - property_name_identifier:
-          identifier: '"key2"'
+          quoted_identifier: '"key2"'
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: '"val2"'
+      - quoted_literal: '"val2"'
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -263,37 +263,37 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: Test_Tab
+        naked_identifier: Test_Tab
     - keyword: SET
     - keyword: SERDE
-    - literal: "'org.apache.hadoop.hive.serde2.columnar.LazyBinaryColumnarSerDe'"
+    - quoted_literal: "'org.apache.hadoop.hive.serde2.columnar.LazyBinaryColumnarSerDe'"
 - statement_terminator: ;
 - statement:
     alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - identifier: Dbx
+      - naked_identifier: Dbx
       - dot: .
-      - identifier: Tab1
+      - naked_identifier: Tab1
     - keyword: SET
     - keyword: SERDE
-    - literal: "'org.apache.hadoop'"
+    - quoted_literal: "'org.apache.hadoop'"
     - keyword: WITH
     - keyword: SERDEPROPERTIES
     - bracketed:
       - start_bracket: (
       - property_name_identifier:
-          identifier: "'k'"
+          quoted_identifier: "'k'"
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'v'"
+      - quoted_literal: "'v'"
       - comma: ','
       - property_name_identifier:
-          identifier: "'kay'"
+          quoted_identifier: "'kay'"
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'vee'"
+      - quoted_literal: "'vee'"
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -301,7 +301,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: Loc_Orc
+        naked_identifier: Loc_Orc
     - keyword: SET
     - keyword: FILEFORMAT
     - keyword: ORC
@@ -311,21 +311,21 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: P1
+        naked_identifier: P1
     - keyword: PARTITION
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: Month
+          naked_identifier: Month
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: '2'
+      - numeric_literal: '2'
       - comma: ','
       - column_reference:
-          identifier: Day
+          naked_identifier: Day
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: '2'
+      - numeric_literal: '2'
       - end_bracket: )
     - keyword: SET
     - keyword: FILEFORMAT
@@ -336,36 +336,36 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - identifier: Dbx
+      - naked_identifier: Dbx
       - dot: .
-      - identifier: Tab1
+      - naked_identifier: Tab1
     - keyword: PARTITION
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: A
+          naked_identifier: A
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'1'"
+      - quoted_literal: "'1'"
       - comma: ','
       - column_reference:
-          identifier: B
+          naked_identifier: B
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'2'"
+      - quoted_literal: "'2'"
       - end_bracket: )
     - keyword: SET
     - keyword: LOCATION
-    - literal: "'/path/to/part/ways'"
+    - quoted_literal: "'/path/to/part/ways'"
 - statement_terminator: ;
 - statement:
     alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - identifier: Dbx
+      - naked_identifier: Dbx
       - dot: .
-      - identifier: Tab1
+      - naked_identifier: Tab1
     - keyword: RECOVER
     - keyword: PARTITIONS
 - statement_terminator: ;

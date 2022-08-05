@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 745134e648385cd3998d82f5ac863b5fafab194c53ab95bf9ff86c44e56cad34
+_hash: 2db271fceda6ccd8c8d621d9b6d8774a19de4d4c85bd20d81494d816ed3249f4
 file:
   batch:
     statement:
@@ -11,14 +11,14 @@ file:
       - keyword: CREATE
       - keyword: VIEW
       - object_reference:
-          identifier: my_view
+          naked_identifier: my_view
       - bracketed:
         - start_bracket: (
         - index_column_definition:
-            identifier: col1
+            naked_identifier: col1
         - comma: ','
         - index_column_definition:
-            identifier: col2
+            naked_identifier: col2
         - end_bracket: )
       - keyword: AS
       - select_statement:
@@ -26,16 +26,16 @@ file:
           - keyword: SELECT
           - select_clause_element:
               column_reference:
-                identifier: col1
+                naked_identifier: col1
           - comma: ','
           - select_clause_element:
               column_reference:
-                identifier: col2
+                naked_identifier: col2
           from_clause:
             keyword: FROM
             from_expression:
               from_expression_element:
                 table_expression:
                   table_reference:
-                    identifier: source_table
+                    naked_identifier: source_table
             statement_terminator: ;

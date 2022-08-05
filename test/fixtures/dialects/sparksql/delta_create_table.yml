@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8be67f0052ec5a2ee20ffe12a87cb9d994df6ec389404f03311f6ec7e653226c
+_hash: fa7337a921e487f7776e8da6a78aa388f08e3e68f24b66267800800b6e757ee9
 file:
 - statement:
     create_table_statement:
@@ -13,55 +13,55 @@ file:
     - keyword: NOT
     - keyword: EXISTS
     - table_reference:
-      - identifier: default
+      - naked_identifier: default
       - dot: .
-      - identifier: people10m
+      - naked_identifier: people10m
     - bracketed:
       - start_bracket: (
       - column_definition:
-          identifier: id
+          naked_identifier: id
           data_type:
             primitive_type:
               keyword: INT
       - comma: ','
       - column_definition:
-          identifier: first_name
+          naked_identifier: first_name
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          identifier: middle_name
+          naked_identifier: middle_name
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          identifier: last_name
+          naked_identifier: last_name
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          identifier: gender
+          naked_identifier: gender
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          identifier: birth_date
+          naked_identifier: birth_date
           data_type:
             primitive_type:
               keyword: TIMESTAMP
       - comma: ','
       - column_definition:
-          identifier: ssn
+          naked_identifier: ssn
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          identifier: salary
+          naked_identifier: salary
           data_type:
             primitive_type:
               keyword: INT
@@ -76,55 +76,55 @@ file:
     - keyword: REPLACE
     - keyword: TABLE
     - table_reference:
-      - identifier: default
+      - naked_identifier: default
       - dot: .
-      - identifier: people10m
+      - naked_identifier: people10m
     - bracketed:
       - start_bracket: (
       - column_definition:
-          identifier: id
+          naked_identifier: id
           data_type:
             primitive_type:
               keyword: INT
       - comma: ','
       - column_definition:
-          identifier: first_name
+          naked_identifier: first_name
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          identifier: middle_name
+          naked_identifier: middle_name
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          identifier: last_name
+          naked_identifier: last_name
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          identifier: gender
+          naked_identifier: gender
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          identifier: birth_date
+          naked_identifier: birth_date
           data_type:
             primitive_type:
               keyword: TIMESTAMP
       - comma: ','
       - column_definition:
-          identifier: ssn
+          naked_identifier: ssn
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          identifier: salary
+          naked_identifier: salary
           data_type:
             primitive_type:
               keyword: INT
@@ -141,53 +141,53 @@ file:
     - file_reference:
         keyword: DELTA
         dot: .
-        identifier: '`/delta/people10m`'
+        quoted_identifier: '`/delta/people10m`'
     - bracketed:
       - start_bracket: (
       - column_definition:
-          identifier: id
+          naked_identifier: id
           data_type:
             primitive_type:
               keyword: INT
       - comma: ','
       - column_definition:
-          identifier: first_name
+          naked_identifier: first_name
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          identifier: middle_name
+          naked_identifier: middle_name
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          identifier: last_name
+          naked_identifier: last_name
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          identifier: gender
+          naked_identifier: gender
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          identifier: birth_date
+          naked_identifier: birth_date
           data_type:
             primitive_type:
               keyword: TIMESTAMP
       - comma: ','
       - column_definition:
-          identifier: ssn
+          naked_identifier: ssn
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          identifier: salary
+          naked_identifier: salary
           data_type:
             primitive_type:
               keyword: INT
@@ -200,55 +200,55 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - identifier: default
+      - naked_identifier: default
       - dot: .
-      - identifier: people10m
+      - naked_identifier: people10m
     - bracketed:
       - start_bracket: (
       - column_definition:
-          identifier: id
+          naked_identifier: id
           data_type:
             primitive_type:
               keyword: INT
       - comma: ','
       - column_definition:
-          identifier: first_name
+          naked_identifier: first_name
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          identifier: middle_name
+          naked_identifier: middle_name
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          identifier: last_name
+          naked_identifier: last_name
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          identifier: gender
+          naked_identifier: gender
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          identifier: birth_date
+          naked_identifier: birth_date
           data_type:
             primitive_type:
               keyword: TIMESTAMP
       - comma: ','
       - column_definition:
-          identifier: ssn
+          naked_identifier: ssn
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          identifier: salary
+          naked_identifier: salary
           data_type:
             primitive_type:
               keyword: INT
@@ -260,7 +260,7 @@ file:
     - bracketed:
         start_bracket: (
         column_reference:
-          identifier: gender
+          naked_identifier: gender
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -268,62 +268,62 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - identifier: default
+      - naked_identifier: default
       - dot: .
-      - identifier: people10m
+      - naked_identifier: people10m
     - keyword: USING
     - keyword: DELTA
     - keyword: LOCATION
-    - literal: "'/delta/people10m'"
+    - quoted_literal: "'/delta/people10m'"
 - statement_terminator: ;
 - statement:
     create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - identifier: default
+      - naked_identifier: default
       - dot: .
-      - identifier: people10m
+      - naked_identifier: people10m
     - bracketed:
       - start_bracket: (
       - column_definition:
-          identifier: id
+          naked_identifier: id
           data_type:
             primitive_type:
               keyword: INT
       - comma: ','
       - column_definition:
-          identifier: first_name
+          naked_identifier: first_name
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          identifier: middle_name
+          naked_identifier: middle_name
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          identifier: last_name
+          naked_identifier: last_name
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          identifier: gender
+          naked_identifier: gender
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          identifier: birth_date
+          naked_identifier: birth_date
           data_type:
             primitive_type:
               keyword: TIMESTAMP
       - comma: ','
       - generated_column_definition:
-        - identifier: date_of_birth
+        - naked_identifier: date_of_birth
         - data_type:
             primitive_type:
               keyword: DATE
@@ -339,7 +339,7 @@ file:
                 start_bracket: (
                 expression:
                   column_reference:
-                    identifier: birth_date
+                    naked_identifier: birth_date
                 keyword: AS
                 data_type:
                   primitive_type:
@@ -348,13 +348,13 @@ file:
             end_bracket: )
       - comma: ','
       - column_definition:
-          identifier: ssn
+          naked_identifier: ssn
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          identifier: salary
+          naked_identifier: salary
           data_type:
             primitive_type:
               keyword: INT
@@ -366,6 +366,6 @@ file:
     - bracketed:
         start_bracket: (
         column_reference:
-          identifier: gender
+          naked_identifier: gender
         end_bracket: )
 - statement_terminator: ;

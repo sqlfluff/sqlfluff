@@ -3,13 +3,13 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: db4407a651c3b398e9151fea9ef2d46140cafa39e18452d43f49cf56ad5c19ae
+_hash: ab3cc93c4fd69f7cfaf790028d61e8eadc03e958315323fece411b6d0c45c75b
 file:
 - statement:
     describe_history_statement:
     - keyword: DESCRIBE
     - keyword: HISTORY
-    - literal: "'/data/events/'"
+    - quoted_literal: "'/data/events/'"
 - statement_terminator: ;
 - statement:
     describe_history_statement:
@@ -18,21 +18,21 @@ file:
     - file_reference:
         keyword: DELTA
         dot: .
-        identifier: '`/data/events/`'
+        quoted_identifier: '`/data/events/`'
 - statement_terminator: ;
 - statement:
     describe_history_statement:
     - keyword: DESCRIBE
     - keyword: HISTORY
-    - literal: "'/data/events/'"
+    - quoted_literal: "'/data/events/'"
     - limit_clause:
         keyword: LIMIT
-        literal: '1'
+        numeric_literal: '1'
 - statement_terminator: ;
 - statement:
     describe_history_statement:
     - keyword: DESCRIBE
     - keyword: HISTORY
     - table_reference:
-        identifier: EVENTSTABLE
+        naked_identifier: EVENTSTABLE
 - statement_terminator: ;

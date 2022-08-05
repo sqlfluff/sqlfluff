@@ -56,7 +56,7 @@ class Selectable:
             values = Segments(self.selectable)
             alias_expression = values.children().first(sp.is_type("alias_expression"))
             name = alias_expression.children().first(
-                sp.is_name("naked_identifier", "quoted_identifier")
+                sp.is_type("naked_identifier", "quoted_identifier")
             )
             alias_info = AliasInfo(
                 name[0].raw if name else "",

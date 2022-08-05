@@ -170,9 +170,8 @@ redshift_dialect.replace(
             # must only contain digits, letters, underscore, and $ but
             # can’t be all digits.
             r"#?([A-Z_]+|[0-9]+[A-Z_$])[A-Z0-9_$]*",
-            CodeSegment,
-            name="naked_identifier",
-            type="identifier",
+            ansi.IdentifierSegment,
+            type="naked_identifier",
             anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
         )
     ),

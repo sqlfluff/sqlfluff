@@ -5,7 +5,7 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: job_id
+            naked_identifier: job_id
       - comma: ","
       - select_clause_element:
           function:
@@ -20,22 +20,22 @@ file:
                   - keyword: WHEN
                   - expression:
                       column_reference:
-                        identifier: word
+                        naked_identifier: word
                       comparison_operator:
                         raw_comparison_operator: '='
-                      literal: "'shop'"
+                      quoted_literal: "'shop'"
                   - keyword: THEN
                   - expression:
-                      literal: "1"
+                      numeric_literal: "1"
                 - else_clause:
                   - keyword: ELSE
                   - expression:
-                      literal: "0"
+                      numeric_literal: "0"
                 - keyword: END
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: shop_word
+            naked_identifier: shop_word
       - comma: ","
       - select_clause_element:
           function:
@@ -50,22 +50,22 @@ file:
                   - keyword: WHEN
                   - expression:
                       column_reference:
-                        identifier: word
+                        naked_identifier: word
                       comparison_operator:
                         raw_comparison_operator: '='
-                      literal: "'products'"
+                      quoted_literal: "'products'"
                   - keyword: THEN
                   - expression:
-                      literal: "1"
+                      numeric_literal: "1"
                 - else_clause:
                   - keyword: ELSE
                   - expression:
-                      literal: "0"
+                      numeric_literal: "0"
                 - keyword: END
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: products_word
+            naked_identifier: products_word
       - comma: ","
       - select_clause_element:
           function:
@@ -80,22 +80,22 @@ file:
                   - keyword: WHEN
                   - expression:
                       column_reference:
-                        identifier: word
+                        naked_identifier: word
                       comparison_operator:
                         raw_comparison_operator: '='
-                      literal: "'code'"
+                      quoted_literal: "'code'"
                   - keyword: THEN
                   - expression:
-                      literal: "1"
+                      numeric_literal: "1"
                 - else_clause:
                   - keyword: ELSE
                   - expression:
-                      literal: "0"
+                      numeric_literal: "0"
                 - keyword: END
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: code_word
+            naked_identifier: code_word
       - comma: ","
       - select_clause_element:
           function:
@@ -105,7 +105,7 @@ file:
               start_bracket: (
               expression:
                 column_reference:
-                  identifier: vector_array
+                  naked_identifier: vector_array
                 array_accessor:
                   start_square_bracket: "["
                   expression:
@@ -115,7 +115,7 @@ file:
                       bracketed:
                         start_bracket: (
                         expression:
-                          literal: "0"
+                          numeric_literal: "0"
                         end_bracket: )
                   end_square_bracket: "]"
               keyword: AS
@@ -124,7 +124,7 @@ file:
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: v0
+            naked_identifier: v0
       - comma: ","
       - select_clause_element:
           function:
@@ -134,7 +134,7 @@ file:
               start_bracket: (
               expression:
                 column_reference:
-                  identifier: vector_array
+                  naked_identifier: vector_array
                 array_accessor:
                   start_square_bracket: "["
                   expression:
@@ -144,7 +144,7 @@ file:
                       bracketed:
                         start_bracket: (
                         expression:
-                          literal: "1"
+                          numeric_literal: "1"
                         end_bracket: )
                   end_square_bracket: "]"
               keyword: AS
@@ -153,14 +153,14 @@ file:
               end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: v1
+            naked_identifier: v1
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl
+                naked_identifier: tbl
       limit_clause:
         keyword: LIMIT
-        literal: "1"
+        numeric_literal: "1"

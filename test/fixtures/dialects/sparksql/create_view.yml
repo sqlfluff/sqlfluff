@@ -3,14 +3,14 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9e10721d1a47c2550a33841a339e394cc5065024905b63bd7c51fc104edf9ee6
+_hash: b2533ee6f925cd7b21d6150acbe56fdae6a2b46b2654f08c08bf26b7efa7d16d
 file:
 - statement:
     create_view_statement:
     - keyword: CREATE
     - keyword: VIEW
     - table_reference:
-        identifier: experienced_employee_extended
+        naked_identifier: experienced_employee_extended
     - keyword: AS
     - select_statement:
         select_clause:
@@ -25,7 +25,7 @@ file:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: experienced_employee
+                  naked_identifier: experienced_employee
 - statement_terminator: ;
 - statement:
     create_view_statement:
@@ -39,33 +39,33 @@ file:
     - keyword: NOT
     - keyword: EXISTS
     - table_reference:
-        identifier: experienced_employee
+        naked_identifier: experienced_employee
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: ID
+          naked_identifier: ID
       - keyword: COMMENT
-      - literal: "'Unique identification number'"
+      - quoted_literal: "'Unique identification number'"
       - comma: ','
       - column_reference:
-          identifier: Name
+          naked_identifier: Name
       - end_bracket: )
     - keyword: COMMENT
-    - literal: "'View for experienced employees'"
+    - quoted_literal: "'View for experienced employees'"
     - keyword: TBLPROPERTIES
     - bracketed:
       - start_bracket: (
       - property_name_identifier:
-          identifier: '"key1"'
+          quoted_identifier: '"key1"'
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: '"val1"'
+      - quoted_literal: '"val1"'
       - comma: ','
       - property_name_identifier:
-          identifier: '"key2"'
+          quoted_identifier: '"key2"'
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: '"val2"'
+      - quoted_literal: '"val2"'
       - end_bracket: )
     - keyword: AS
     - select_statement:
@@ -73,18 +73,18 @@ file:
         - keyword: SELECT
         - select_clause_element:
             column_reference:
-              identifier: ID
+              naked_identifier: ID
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: Name
+              naked_identifier: Name
         from_clause:
           keyword: from
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: temp2
+                  naked_identifier: temp2
 - statement_terminator: ;
 - statement:
     create_view_statement:
@@ -92,7 +92,7 @@ file:
     - keyword: TEMP
     - keyword: VIEW
     - table_reference:
-        identifier: experienced_employee_temp
+        naked_identifier: experienced_employee_temp
     - keyword: AS
     - select_statement:
         select_clause:
@@ -107,10 +107,10 @@ file:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: experienced_employee
+                  naked_identifier: experienced_employee
         limit_clause:
           keyword: limit
-          literal: '2'
+          numeric_literal: '2'
 - statement_terminator: ;
 - statement:
     create_view_statement:
@@ -119,7 +119,7 @@ file:
     - keyword: REPLACE
     - keyword: VIEW
     - table_reference:
-        identifier: experienced_employee_rep
+        naked_identifier: experienced_employee_rep
     - keyword: AS
     - select_statement:
         select_clause:
@@ -134,8 +134,8 @@ file:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: experienced_employee
+                  naked_identifier: experienced_employee
         limit_clause:
           keyword: limit
-          literal: '2'
+          numeric_literal: '2'
 - statement_terminator: ;

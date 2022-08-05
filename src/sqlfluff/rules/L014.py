@@ -72,8 +72,8 @@ class Rule_L014(Rule_L010):
     groups = ("all", "core")
     lint_phase = "post"
     _target_elems: List[Tuple[str, str]] = [
-        ("name", "naked_identifier"),
-        ("name", "properties_naked_identifier"),
+        ("type", "naked_identifier"),
+        ("type", "properties_naked_identifier"),
     ]
     config_keywords = [
         "extended_capitalisation_policy",

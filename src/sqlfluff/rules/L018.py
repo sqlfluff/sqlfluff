@@ -85,7 +85,7 @@ class Rule_L018(BaseRule):
                     cte.children()
                     .last(sp.is_type("bracketed"))
                     .children()
-                    .last(sp.is_name("end_bracket"))
+                    .last(sp.is_type("end_bracket"))
                 )
                 if cte_end_bracket:
                     cte_end_brackets.add(cte_end_bracket[0])
@@ -93,7 +93,7 @@ class Rule_L018(BaseRule):
                 expanding=["common_table_expression", "bracketed"], pass_through=True
             ):
                 if seg not in cte_end_brackets:
-                    if seg.name != "start_bracket":
+                    if not seg.is_type("start_bracket"):
                         raw_stack_buff.append(seg)
                     continue
 

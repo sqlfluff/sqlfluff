@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f431d563c5931e4d4fb91085960c8dacea0bc78d2e6beee9ee23dfbd102575c8
+_hash: e49b6d2bea54dae9c4a29e63e5f8dbc165525e0b9b91100b981a377ab6dfa1c1
 file:
   statement:
     select_statement:
@@ -17,7 +17,7 @@ file:
       - select_clause_element:
           array_literal:
             start_square_bracket: '['
-            literal: 'false'
+            boolean_literal: 'false'
             end_square_bracket: ']'
       - comma: ','
       - select_clause_element:
@@ -28,17 +28,17 @@ file:
               data_type_identifier: BOOLEAN
             end_angle_bracket: '>'
             start_square_bracket: '['
-            literal: 'false'
+            boolean_literal: 'false'
             end_square_bracket: ']'
       - comma: ','
       - select_clause_element:
           array_literal:
             start_square_bracket: '['
-            literal: "'a'"
+            quoted_literal: "'a'"
             end_square_bracket: ']'
           alias_expression:
             keyword: AS
-            identifier: strcol1
+            naked_identifier: strcol1
       - comma: ','
       - select_clause_element:
           array_literal:
@@ -48,20 +48,20 @@ file:
               data_type_identifier: string
             end_angle_bracket: '>'
             start_square_bracket: '['
-            literal: "'b'"
+            quoted_literal: "'b'"
             end_square_bracket: ']'
           alias_expression:
             keyword: AS
-            identifier: strcol2
+            naked_identifier: strcol2
       - comma: ','
       - select_clause_element:
           array_literal:
             start_square_bracket: '['
-            literal: '1.0'
+            numeric_literal: '1.0'
             end_square_bracket: ']'
           alias_expression:
             keyword: AS
-            identifier: numcol1
+            naked_identifier: numcol1
       - comma: ','
       - select_clause_element:
           array_literal:
@@ -71,11 +71,11 @@ file:
               data_type_identifier: NUMERIC
             end_angle_bracket: '>'
             start_square_bracket: '['
-            literal: '1.4'
+            numeric_literal: '1.4'
             end_square_bracket: ']'
           alias_expression:
             keyword: AS
-            identifier: numcol2
+            naked_identifier: numcol2
       - comma: ','
       - select_clause_element:
           array_literal:
@@ -85,36 +85,36 @@ file:
                 keyword: STRUCT
                 bracketed:
                 - start_bracket: (
-                - literal: '"Rudisha"'
+                - quoted_literal: '"Rudisha"'
                 - alias_expression:
                     keyword: AS
-                    identifier: name
+                    naked_identifier: name
                 - comma: ','
                 - array_literal:
                   - start_square_bracket: '['
-                  - literal: '23.4'
+                  - numeric_literal: '23.4'
                   - comma: ','
-                  - literal: '26.3'
+                  - numeric_literal: '26.3'
                   - comma: ','
-                  - literal: '26.4'
+                  - numeric_literal: '26.4'
                   - comma: ','
-                  - literal: '26.1'
+                  - numeric_literal: '26.1'
                   - end_square_bracket: ']'
                 - alias_expression:
                     keyword: AS
-                    identifier: splits
+                    naked_identifier: splits
                 - end_bracket: )
             end_square_bracket: ']'
           alias_expression:
             keyword: AS
-            identifier: struct1
+            naked_identifier: struct1
       - comma: ','
       - select_clause_element:
           expression:
             column_reference:
-            - identifier: col1
+            - naked_identifier: col1
             - dot: .
-            - identifier: obj1
+            - naked_identifier: obj1
             array_accessor:
               start_square_bracket: '['
               expression:
@@ -124,12 +124,12 @@ file:
                   bracketed:
                     start_bracket: (
                     expression:
-                      literal: '1'
+                      numeric_literal: '1'
                     end_bracket: )
               end_square_bracket: ']'
             semi_structured_expression:
               dot: .
-              identifier: a
+              naked_identifier: a
           alias_expression:
             keyword: AS
-            identifier: struct_safe_offset
+            naked_identifier: struct_safe_offset

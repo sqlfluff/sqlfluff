@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 319fba64d197da9e3f35446e209b468b4c081517cb4ca371edc6b1c7d231d7be
+_hash: dae7edf9b4f2ced19f8ec4581f665819a6a0fe87cea7e5c233c5d26a09120828
 file:
   batch:
   - statement:
@@ -11,17 +11,17 @@ file:
         keyword: RAISERROR
         bracketed:
         - start_bracket: (
-        - literal: '15600'
+        - numeric_literal: '15600'
         - comma: ','
         - numeric_literal:
             sign_indicator: '-'
-            literal: '1'
+            numeric_literal: '1'
         - comma: ','
         - numeric_literal:
             sign_indicator: '-'
-            literal: '1'
+            numeric_literal: '1'
         - comma: ','
-        - literal: "'mysp_CreateCustomer'"
+        - quoted_literal: "'mysp_CreateCustomer'"
         - end_bracket: )
   - statement_terminator: ;
   - statement:
@@ -29,13 +29,13 @@ file:
         keyword: RAISERROR
         bracketed:
         - start_bracket: (
-        - literal: "'This is message %s %d.'"
+        - quoted_literal: "'This is message %s %d.'"
         - comma: ','
-        - literal: '10'
+        - numeric_literal: '10'
         - comma: ','
-        - literal: '1'
+        - numeric_literal: '1'
         - comma: ','
-        - literal: "'number'"
+        - quoted_literal: "'number'"
         - end_bracket: )
   - statement_terminator: ;
   - statement:
@@ -43,11 +43,11 @@ file:
         keyword: RAISERROR
         bracketed:
         - start_bracket: (
-        - literal: "'Error raised in TRY block.'"
+        - quoted_literal: "'Error raised in TRY block.'"
         - comma: ','
-        - literal: '16'
+        - numeric_literal: '16'
         - comma: ','
-        - literal: '1'
+        - numeric_literal: '1'
         - end_bracket: )
   - statement_terminator: ;
   - statement:
@@ -55,11 +55,11 @@ file:
         keyword: RAISERROR
         bracketed:
         - start_bracket: (
-        - literal: "N'Unicode error'"
+        - quoted_literal: "N'Unicode error'"
         - comma: ','
-        - literal: '16'
+        - numeric_literal: '16'
         - comma: ','
-        - literal: '1'
+        - numeric_literal: '1'
         - end_bracket: )
   - statement_terminator: ;
   - statement:
@@ -67,11 +67,11 @@ file:
       - keyword: RAISERROR
       - bracketed:
         - start_bracket: (
-        - literal: "'WITH option'"
+        - quoted_literal: "'WITH option'"
         - comma: ','
-        - literal: '16'
+        - numeric_literal: '16'
         - comma: ','
-        - literal: '1'
+        - numeric_literal: '1'
         - end_bracket: )
       - keyword: WITH
       - keyword: LOG
@@ -81,52 +81,52 @@ file:
         keyword: RAISERROR
         bracketed:
         - start_bracket: (
-        - literal: "'Error with lots of arguments %a %b %c %d %e %f %g %h %i %j %k\
-            \ %l %m %n %o %p %q %r %s %t'"
+        - quoted_literal: "'Error with lots of arguments %a %b %c %d %e %f %g %h %i\
+            \ %j %k %l %m %n %o %p %q %r %s %t'"
         - comma: ','
-        - literal: '16'
+        - numeric_literal: '16'
         - comma: ','
-        - literal: '1'
+        - numeric_literal: '1'
         - comma: ','
-        - literal: "'a'"
+        - quoted_literal: "'a'"
         - comma: ','
-        - literal: "N'b'"
+        - quoted_literal: "N'b'"
         - comma: ','
         - parameter: '@c'
         - comma: ','
-        - literal: '4'
+        - numeric_literal: '4'
         - comma: ','
-        - literal: '5'
+        - numeric_literal: '5'
         - comma: ','
-        - literal: '6'
+        - numeric_literal: '6'
         - comma: ','
-        - literal: '7'
+        - numeric_literal: '7'
         - comma: ','
-        - literal: '8'
+        - numeric_literal: '8'
         - comma: ','
-        - literal: '9'
+        - numeric_literal: '9'
         - comma: ','
-        - literal: '10'
+        - numeric_literal: '10'
         - comma: ','
-        - literal: '11'
+        - numeric_literal: '11'
         - comma: ','
-        - literal: '12'
+        - numeric_literal: '12'
         - comma: ','
-        - literal: '13'
+        - numeric_literal: '13'
         - comma: ','
-        - literal: '14'
+        - numeric_literal: '14'
         - comma: ','
-        - literal: '15'
+        - numeric_literal: '15'
         - comma: ','
-        - literal: '16'
+        - numeric_literal: '16'
         - comma: ','
-        - literal: '17'
+        - numeric_literal: '17'
         - comma: ','
-        - literal: '18'
+        - numeric_literal: '18'
         - comma: ','
-        - literal: '19'
+        - numeric_literal: '19'
         - comma: ','
-        - literal: '20'
+        - numeric_literal: '20'
         - end_bracket: )
   - statement_terminator: ;
   - statement:
@@ -146,13 +146,13 @@ file:
         keyword: RAISERROR
         bracketed:
         - start_bracket: (
-        - literal: "'The specified table does not exist. Please enter @tableName in\
-            \ the following format: Schemaname.Tablename OR [Schemaname].[Tablename]'"
+        - quoted_literal: "'The specified table does not exist. Please enter @tableName\
+            \ in the following format: Schemaname.Tablename OR [Schemaname].[Tablename]'"
         - comma: ','
-        - literal: '11'
+        - numeric_literal: '11'
         - comma: ','
         - numeric_literal:
             sign_indicator: '-'
-            literal: '1'
+            numeric_literal: '1'
         - end_bracket: )
   - statement_terminator: ;

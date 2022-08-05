@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: aac7954107c1761667a4534e5b794ad43818d0549693a22242daa108d29db59d
+_hash: cda21556c8c2d93b02b3817f5e0eb3616d69740b706d026b8f7f6fb2a4477da5
 file:
   statement:
     select_statement:
@@ -11,21 +11,21 @@ file:
         keyword: SELECT
         select_clause_element:
           column_reference:
-            identifier: count_correctly_substituted
+            naked_identifier: count_correctly_substituted
       from_clause:
         keyword: FROM
         from_expression:
         - from_expression_element:
             table_expression:
               table_reference:
-                identifier: correctly_substituted
+                naked_identifier: correctly_substituted
         - join_clause:
           - keyword: CROSS
           - keyword: JOIN
           - from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: needs_substitution
+                  naked_identifier: needs_substitution
         - join_clause:
           - keyword: LEFT
           - keyword: OUTER
@@ -33,4 +33,4 @@ file:
           - from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: some_other_table
+                  naked_identifier: some_other_table

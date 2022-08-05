@@ -3,30 +3,30 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ce9e9f1939c690a78a038f601ff3f5251ef9ad9a180b89b1b91790ec2c2f4195
+_hash: c4059991d0b3d710932cb8c93294b824cb99997a328bde7be4272f3feb3b92bb
 file:
 - statement:
     merge_statement:
     - keyword: MERGE
     - keyword: INTO
     - table_reference:
-        identifier: people10m
+        naked_identifier: people10m
     - keyword: USING
     - table_reference:
-        identifier: people10mupdates
+        naked_identifier: people10mupdates
     - join_on_condition:
         keyword: 'ON'
         expression:
         - column_reference:
-          - identifier: people10m
+          - naked_identifier: people10m
           - dot: .
-          - identifier: id
+          - naked_identifier: id
         - comparison_operator:
             raw_comparison_operator: '='
         - column_reference:
-          - identifier: people10mupdates
+          - naked_identifier: people10mupdates
           - dot: .
-          - identifier: id
+          - naked_identifier: id
     - merge_match:
         merge_when_matched_clause:
         - keyword: WHEN
@@ -38,83 +38,83 @@ file:
             - keyword: SET
             - set_clause:
               - column_reference:
-                  identifier: id
+                  naked_identifier: id
               - comparison_operator:
                   raw_comparison_operator: '='
               - column_reference:
-                - identifier: people10mupdates
+                - naked_identifier: people10mupdates
                 - dot: .
-                - identifier: id
+                - naked_identifier: id
             - comma: ','
             - set_clause:
               - column_reference:
-                  identifier: first_name
+                  naked_identifier: first_name
               - comparison_operator:
                   raw_comparison_operator: '='
               - column_reference:
-                - identifier: people10mupdates
+                - naked_identifier: people10mupdates
                 - dot: .
-                - identifier: first_name
+                - naked_identifier: first_name
             - comma: ','
             - set_clause:
               - column_reference:
-                  identifier: middle_name
+                  naked_identifier: middle_name
               - comparison_operator:
                   raw_comparison_operator: '='
               - column_reference:
-                - identifier: people10mupdates
+                - naked_identifier: people10mupdates
                 - dot: .
-                - identifier: middle_name
+                - naked_identifier: middle_name
             - comma: ','
             - set_clause:
               - column_reference:
-                  identifier: last_name
+                  naked_identifier: last_name
               - comparison_operator:
                   raw_comparison_operator: '='
               - column_reference:
-                - identifier: people10mupdates
+                - naked_identifier: people10mupdates
                 - dot: .
-                - identifier: last_name
+                - naked_identifier: last_name
             - comma: ','
             - set_clause:
               - column_reference:
-                  identifier: gender
+                  naked_identifier: gender
               - comparison_operator:
                   raw_comparison_operator: '='
               - column_reference:
-                - identifier: people10mupdates
+                - naked_identifier: people10mupdates
                 - dot: .
-                - identifier: gender
+                - naked_identifier: gender
             - comma: ','
             - set_clause:
               - column_reference:
-                  identifier: birth_date
+                  naked_identifier: birth_date
               - comparison_operator:
                   raw_comparison_operator: '='
               - column_reference:
-                - identifier: people10mupdates
+                - naked_identifier: people10mupdates
                 - dot: .
-                - identifier: birth_date
+                - naked_identifier: birth_date
             - comma: ','
             - set_clause:
               - column_reference:
-                  identifier: ssn
+                  naked_identifier: ssn
               - comparison_operator:
                   raw_comparison_operator: '='
               - column_reference:
-                - identifier: people10mupdates
+                - naked_identifier: people10mupdates
                 - dot: .
-                - identifier: ssn
+                - naked_identifier: ssn
             - comma: ','
             - set_clause:
               - column_reference:
-                  identifier: salary
+                  naked_identifier: salary
               - comparison_operator:
                   raw_comparison_operator: '='
               - column_reference:
-                - identifier: people10mupdates
+                - naked_identifier: people10mupdates
                 - dot: .
-                - identifier: salary
+                - naked_identifier: salary
         merge_when_not_matched_clause:
         - keyword: WHEN
         - keyword: NOT
@@ -125,28 +125,28 @@ file:
             bracketed:
             - start_bracket: (
             - column_reference:
-                identifier: id
+                naked_identifier: id
             - comma: ','
             - column_reference:
-                identifier: first_name
+                naked_identifier: first_name
             - comma: ','
             - column_reference:
-                identifier: middle_name
+                naked_identifier: middle_name
             - comma: ','
             - column_reference:
-                identifier: last_name
+                naked_identifier: last_name
             - comma: ','
             - column_reference:
-                identifier: gender
+                naked_identifier: gender
             - comma: ','
             - column_reference:
-                identifier: birth_date
+                naked_identifier: birth_date
             - comma: ','
             - column_reference:
-                identifier: ssn
+                naked_identifier: ssn
             - comma: ','
             - column_reference:
-                identifier: salary
+                naked_identifier: salary
             - end_bracket: )
             values_clause:
               keyword: VALUES
@@ -154,51 +154,51 @@ file:
               - start_bracket: (
               - expression:
                   column_reference:
-                  - identifier: people10mupdates
+                  - naked_identifier: people10mupdates
                   - dot: .
-                  - identifier: id
+                  - naked_identifier: id
               - comma: ','
               - expression:
                   column_reference:
-                  - identifier: people10mupdates
+                  - naked_identifier: people10mupdates
                   - dot: .
-                  - identifier: first_name
+                  - naked_identifier: first_name
               - comma: ','
               - expression:
                   column_reference:
-                  - identifier: people10mupdates
+                  - naked_identifier: people10mupdates
                   - dot: .
-                  - identifier: middle_name
+                  - naked_identifier: middle_name
               - comma: ','
               - expression:
                   column_reference:
-                  - identifier: people10mupdates
+                  - naked_identifier: people10mupdates
                   - dot: .
-                  - identifier: last_name
+                  - naked_identifier: last_name
               - comma: ','
               - expression:
                   column_reference:
-                  - identifier: people10mupdates
+                  - naked_identifier: people10mupdates
                   - dot: .
-                  - identifier: gender
+                  - naked_identifier: gender
               - comma: ','
               - expression:
                   column_reference:
-                  - identifier: people10mupdates
+                  - naked_identifier: people10mupdates
                   - dot: .
-                  - identifier: birth_date
+                  - naked_identifier: birth_date
               - comma: ','
               - expression:
                   column_reference:
-                  - identifier: people10mupdates
+                  - naked_identifier: people10mupdates
                   - dot: .
-                  - identifier: ssn
+                  - naked_identifier: ssn
               - comma: ','
               - expression:
                   column_reference:
-                  - identifier: people10mupdates
+                  - naked_identifier: people10mupdates
                   - dot: .
-                  - identifier: salary
+                  - naked_identifier: salary
               - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -206,23 +206,23 @@ file:
     - keyword: MERGE
     - keyword: INTO
     - table_reference:
-        identifier: logs
+        naked_identifier: logs
     - keyword: USING
     - table_reference:
-        identifier: new_deduped_logs
+        naked_identifier: new_deduped_logs
     - join_on_condition:
         keyword: 'ON'
         expression:
         - column_reference:
-          - identifier: logs
+          - naked_identifier: logs
           - dot: .
-          - identifier: unique_id
+          - naked_identifier: unique_id
         - comparison_operator:
             raw_comparison_operator: '='
         - column_reference:
-          - identifier: new_deduped_logs
+          - naked_identifier: new_deduped_logs
           - dot: .
-          - identifier: unique_id
+          - naked_identifier: unique_id
     - merge_match:
         merge_when_not_matched_clause:
         - keyword: WHEN
@@ -239,28 +239,28 @@ file:
     - keyword: MERGE
     - keyword: INTO
     - table_reference:
-        identifier: logs
+        naked_identifier: logs
     - keyword: USING
     - table_reference:
-        identifier: new_deduped_logs
+        naked_identifier: new_deduped_logs
     - join_on_condition:
         keyword: 'ON'
         expression:
         - column_reference:
-          - identifier: logs
+          - naked_identifier: logs
           - dot: .
-          - identifier: unique_id
+          - naked_identifier: unique_id
         - comparison_operator:
             raw_comparison_operator: '='
         - column_reference:
-          - identifier: new_deduped_logs
+          - naked_identifier: new_deduped_logs
           - dot: .
-          - identifier: unique_id
+          - naked_identifier: unique_id
         - binary_operator: AND
         - column_reference:
-          - identifier: logs
+          - naked_identifier: logs
           - dot: .
-          - identifier: date
+          - naked_identifier: date
         - comparison_operator:
             raw_comparison_operator: '>'
         - function:
@@ -273,7 +273,7 @@ file:
         - interval_expression:
             keyword: INTERVAL
             interval_literal:
-              literal: '7'
+              numeric_literal: '7'
               date_part: DAYS
     - merge_match:
         merge_when_not_matched_clause:
@@ -283,9 +283,9 @@ file:
         - keyword: AND
         - expression:
             column_reference:
-            - identifier: new_deduped_logs
+            - naked_identifier: new_deduped_logs
             - dot: .
-            - identifier: date
+            - naked_identifier: date
             comparison_operator:
               raw_comparison_operator: '>'
             function:
@@ -298,7 +298,7 @@ file:
             interval_expression:
               keyword: INTERVAL
               interval_literal:
-                literal: '7'
+                numeric_literal: '7'
                 date_part: DAYS
         - keyword: THEN
         - merge_insert_clause:
@@ -311,7 +311,7 @@ file:
     - keyword: MERGE
     - keyword: INTO
     - table_reference:
-        identifier: customers
+        naked_identifier: customers
     - keyword: USING
     - bracketed:
         start_bracket: (
@@ -321,17 +321,17 @@ file:
             - keyword: SELECT
             - select_clause_element:
                 column_reference:
-                - identifier: updates
+                - naked_identifier: updates
                 - dot: .
-                - identifier: customer_id
+                - naked_identifier: customer_id
                 alias_expression:
                   keyword: AS
-                  identifier: merge_unique_key
+                  naked_identifier: merge_unique_key
             - comma: ','
             - select_clause_element:
                 wildcard_expression:
                   wildcard_identifier:
-                    identifier: updates
+                    naked_identifier: updates
                     dot: .
                     star: '*'
             from_clause:
@@ -340,7 +340,7 @@ file:
                 from_expression_element:
                   table_expression:
                     table_reference:
-                      identifier: updates
+                      naked_identifier: updates
         - set_operator:
           - keyword: UNION
           - keyword: ALL
@@ -348,15 +348,15 @@ file:
             select_clause:
             - keyword: SELECT
             - select_clause_element:
-                literal: 'NULL'
+                null_literal: 'NULL'
                 alias_expression:
                   keyword: AS
-                  identifier: merge_unique_key
+                  naked_identifier: merge_unique_key
             - comma: ','
             - select_clause_element:
                 wildcard_expression:
                   wildcard_identifier:
-                    identifier: updates
+                    naked_identifier: updates
                     dot: .
                     star: '*'
             from_clause:
@@ -365,63 +365,63 @@ file:
                 from_expression_element:
                   table_expression:
                     table_reference:
-                      identifier: updates
+                      naked_identifier: updates
                 join_clause:
                 - keyword: INNER
                 - keyword: JOIN
                 - from_expression_element:
                     table_expression:
                       table_reference:
-                        identifier: customers
+                        naked_identifier: customers
                 - join_on_condition:
                     keyword: 'ON'
                     expression:
                     - column_reference:
-                      - identifier: updates
+                      - naked_identifier: updates
                       - dot: .
-                      - identifier: customer_id
+                      - naked_identifier: customer_id
                     - comparison_operator:
                         raw_comparison_operator: '='
                     - column_reference:
-                      - identifier: customers
+                      - naked_identifier: customers
                       - dot: .
-                      - identifier: customer_id
+                      - naked_identifier: customer_id
             where_clause:
               keyword: WHERE
               expression:
               - column_reference:
-                - identifier: customers
+                - naked_identifier: customers
                 - dot: .
-                - identifier: current
+                - naked_identifier: current
               - comparison_operator:
                   raw_comparison_operator: '='
-              - literal: 'TRUE'
+              - boolean_literal: 'TRUE'
               - binary_operator: AND
               - column_reference:
-                - identifier: updates
+                - naked_identifier: updates
                 - dot: .
-                - identifier: address
+                - naked_identifier: address
               - comparison_operator:
                 - raw_comparison_operator: '!'
                 - raw_comparison_operator: '='
               - column_reference:
-                - identifier: customers
+                - naked_identifier: customers
                 - dot: .
-                - identifier: address
+                - naked_identifier: address
         end_bracket: )
     - alias_expression:
-        identifier: staged_updates
+        naked_identifier: staged_updates
     - join_on_condition:
         keyword: 'ON'
         expression:
         - column_reference:
-          - identifier: customers
+          - naked_identifier: customers
           - dot: .
-          - identifier: customer_id
+          - naked_identifier: customer_id
         - comparison_operator:
             raw_comparison_operator: '='
         - column_reference:
-            identifier: merge_unique_key
+            naked_identifier: merge_unique_key
     - merge_match:
         merge_when_matched_clause:
         - keyword: WHEN
@@ -429,24 +429,24 @@ file:
         - keyword: AND
         - expression:
           - column_reference:
-            - identifier: customers
+            - naked_identifier: customers
             - dot: .
-            - identifier: current
+            - naked_identifier: current
           - comparison_operator:
               raw_comparison_operator: '='
-          - literal: 'TRUE'
+          - boolean_literal: 'TRUE'
           - binary_operator: AND
           - column_reference:
-            - identifier: customers
+            - naked_identifier: customers
             - dot: .
-            - identifier: address
+            - naked_identifier: address
           - comparison_operator:
             - raw_comparison_operator: '!'
             - raw_comparison_operator: '='
           - column_reference:
-            - identifier: staged_updates
+            - naked_identifier: staged_updates
             - dot: .
-            - identifier: address
+            - naked_identifier: address
         - keyword: THEN
         - merge_update_clause:
             keyword: UPDATE
@@ -454,20 +454,20 @@ file:
             - keyword: SET
             - set_clause:
                 column_reference:
-                  identifier: current
+                  naked_identifier: current
                 comparison_operator:
                   raw_comparison_operator: '='
-                literal: 'FALSE'
+                boolean_literal: 'FALSE'
             - comma: ','
             - set_clause:
               - column_reference:
-                  identifier: end_date
+                  naked_identifier: end_date
               - comparison_operator:
                   raw_comparison_operator: '='
               - column_reference:
-                - identifier: staged_updates
+                - naked_identifier: staged_updates
                 - dot: .
-                - identifier: effective_date
+                - naked_identifier: effective_date
         merge_when_not_matched_clause:
         - keyword: WHEN
         - keyword: NOT
@@ -478,19 +478,19 @@ file:
             bracketed:
             - start_bracket: (
             - column_reference:
-                identifier: customer_id
+                naked_identifier: customer_id
             - comma: ','
             - column_reference:
-                identifier: address
+                naked_identifier: address
             - comma: ','
             - column_reference:
-                identifier: current
+                naked_identifier: current
             - comma: ','
             - column_reference:
-                identifier: effective_date
+                naked_identifier: effective_date
             - comma: ','
             - column_reference:
-                identifier: end_date
+                naked_identifier: end_date
             - end_bracket: )
             values_clause:
               keyword: VALUES
@@ -498,24 +498,24 @@ file:
               - start_bracket: (
               - expression:
                   column_reference:
-                  - identifier: staged_updates
+                  - naked_identifier: staged_updates
                   - dot: .
-                  - identifier: customer_id
+                  - naked_identifier: customer_id
               - comma: ','
               - expression:
                   column_reference:
-                  - identifier: staged_updates
+                  - naked_identifier: staged_updates
                   - dot: .
-                  - identifier: address
+                  - naked_identifier: address
               - comma: ','
               - expression:
-                  literal: 'TRUE'
+                  boolean_literal: 'TRUE'
               - comma: ','
               - expression:
                   column_reference:
-                  - identifier: staged_updates
+                  - naked_identifier: staged_updates
                   - dot: .
-                  - identifier: effective_date
+                  - naked_identifier: effective_date
               - comma: ','
               - keyword: 'NULL'
               - end_bracket: )
@@ -525,9 +525,9 @@ file:
     - keyword: MERGE
     - keyword: INTO
     - table_reference:
-        identifier: target
+        naked_identifier: target
     - alias_expression:
-        identifier: t
+        naked_identifier: t
     - keyword: USING
     - bracketed:
         start_bracket: (
@@ -536,31 +536,31 @@ file:
           - keyword: SELECT
           - select_clause_element:
               column_reference:
-              - identifier: changes
+              - naked_identifier: changes
               - dot: .
-              - identifier: unique_key
+              - naked_identifier: unique_key
           - comma: ','
           - select_clause_element:
               column_reference:
-              - identifier: changes
+              - naked_identifier: changes
               - dot: .
-              - identifier: latest
+              - naked_identifier: latest
               - dot: .
-              - identifier: new_value
+              - naked_identifier: new_value
               alias_expression:
                 keyword: AS
-                identifier: new_value
+                naked_identifier: new_value
           - comma: ','
           - select_clause_element:
               column_reference:
-              - identifier: changes
+              - naked_identifier: changes
               - dot: .
-              - identifier: latest
+              - naked_identifier: latest
               - dot: .
-              - identifier: deleted
+              - naked_identifier: deleted
               alias_expression:
                 keyword: AS
-                identifier: deleted
+                naked_identifier: deleted
           from_clause:
             keyword: FROM
             from_expression:
@@ -573,7 +573,7 @@ file:
                       - keyword: SELECT
                       - select_clause_element:
                           column_reference:
-                            identifier: unique_key
+                            naked_identifier: unique_key
                       - comma: ','
                       - select_clause_element:
                           function:
@@ -589,49 +589,49 @@ file:
                                   - start_bracket: (
                                   - expression:
                                       column_reference:
-                                        identifier: change_time
+                                        naked_identifier: change_time
                                   - comma: ','
                                   - expression:
                                       column_reference:
-                                        identifier: new_value
+                                        naked_identifier: new_value
                                   - comma: ','
                                   - expression:
                                       column_reference:
-                                        identifier: deleted
+                                        naked_identifier: deleted
                                   - end_bracket: )
                               end_bracket: )
                           alias_expression:
                             keyword: AS
-                            identifier: latest
+                            naked_identifier: latest
                       from_clause:
                         keyword: FROM
                         from_expression:
                           from_expression_element:
                             table_expression:
                               table_reference:
-                                identifier: changes
+                                naked_identifier: changes
                       groupby_clause:
                       - keyword: GROUP
                       - keyword: BY
                       - column_reference:
-                          identifier: unique_key
+                          naked_identifier: unique_key
                     end_bracket: )
         end_bracket: )
     - alias_expression:
-        identifier: s
+        naked_identifier: s
     - join_on_condition:
         keyword: 'ON'
         expression:
         - column_reference:
-          - identifier: s
+          - naked_identifier: s
           - dot: .
-          - identifier: unique_key
+          - naked_identifier: unique_key
         - comparison_operator:
             raw_comparison_operator: '='
         - column_reference:
-          - identifier: t
+          - naked_identifier: t
           - dot: .
-          - identifier: unique_key
+          - naked_identifier: unique_key
     - merge_match:
       - merge_when_matched_clause:
         - keyword: WHEN
@@ -639,12 +639,12 @@ file:
         - keyword: AND
         - expression:
             column_reference:
-            - identifier: s
+            - naked_identifier: s
             - dot: .
-            - identifier: deleted
+            - naked_identifier: deleted
             comparison_operator:
               raw_comparison_operator: '='
-            literal: 'TRUE'
+            boolean_literal: 'TRUE'
         - keyword: THEN
         - merge_delete_clause:
             keyword: DELETE
@@ -658,23 +658,23 @@ file:
             - keyword: SET
             - set_clause:
               - column_reference:
-                  identifier: unique_key
+                  naked_identifier: unique_key
               - comparison_operator:
                   raw_comparison_operator: '='
               - column_reference:
-                - identifier: s
+                - naked_identifier: s
                 - dot: .
-                - identifier: unique_key
+                - naked_identifier: unique_key
             - comma: ','
             - set_clause:
               - column_reference:
-                  identifier: record_value
+                  naked_identifier: record_value
               - comparison_operator:
                   raw_comparison_operator: '='
               - column_reference:
-                - identifier: s
+                - naked_identifier: s
                 - dot: .
-                - identifier: new_value
+                - naked_identifier: new_value
       - merge_when_not_matched_clause:
         - keyword: WHEN
         - keyword: NOT
@@ -682,22 +682,22 @@ file:
         - keyword: AND
         - expression:
             column_reference:
-            - identifier: s
+            - naked_identifier: s
             - dot: .
-            - identifier: deleted
+            - naked_identifier: deleted
             comparison_operator:
               raw_comparison_operator: '='
-            literal: 'FALSE'
+            boolean_literal: 'FALSE'
         - keyword: THEN
         - merge_insert_clause:
             keyword: INSERT
             bracketed:
             - start_bracket: (
             - column_reference:
-                identifier: unique_key
+                naked_identifier: unique_key
             - comma: ','
             - column_reference:
-                identifier: record_value
+                naked_identifier: record_value
             - end_bracket: )
             values_clause:
               keyword: VALUES
@@ -705,10 +705,10 @@ file:
               - start_bracket: (
               - expression:
                   column_reference:
-                    identifier: unique_key
+                    naked_identifier: unique_key
               - comma: ','
               - expression:
                   column_reference:
-                    identifier: new_value
+                    naked_identifier: new_value
               - end_bracket: )
 - statement_terminator: ;

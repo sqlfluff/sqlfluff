@@ -3,35 +3,35 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b48839242732786fa04eb942fffb75a3fc7f0e195dd2da275337d7fe481be2d8
+_hash: 5b3af45b738a10f8b39d63c9d068e8931c6b259b24bda06e49e1797314c99d7f
 file:
 - statement:
     truncate_table:
       keyword: TRUNCATE
       table_reference:
-        identifier: bigtable
+        naked_identifier: bigtable
 - statement_terminator: ;
 - statement:
     truncate_table:
       keyword: TRUNCATE
       table_reference:
-      - identifier: some_schema
+      - naked_identifier: some_schema
       - dot: .
-      - identifier: bigtable
+      - naked_identifier: bigtable
 - statement_terminator: ;
 - statement:
     truncate_table:
     - keyword: TRUNCATE
     - keyword: TABLE
     - table_reference:
-        identifier: bigtable
+        naked_identifier: bigtable
 - statement_terminator: ;
 - statement:
     truncate_table:
     - keyword: TRUNCATE
     - keyword: ONLY
     - table_reference:
-        identifier: bigtable
+        naked_identifier: bigtable
 - statement_terminator: ;
 - statement:
     truncate_table:
@@ -39,13 +39,13 @@ file:
     - keyword: TABLE
     - keyword: ONLY
     - table_reference:
-        identifier: bigtable
+        naked_identifier: bigtable
 - statement_terminator: ;
 - statement:
     truncate_table:
       keyword: TRUNCATE
       table_reference:
-        identifier: bigtable
+        naked_identifier: bigtable
       star: '*'
 - statement_terminator: ;
 - statement:
@@ -53,44 +53,44 @@ file:
     - keyword: TRUNCATE
     - keyword: TABLE
     - table_reference:
-        identifier: bigtable
+        naked_identifier: bigtable
     - star: '*'
 - statement_terminator: ;
 - statement:
     truncate_table:
     - keyword: TRUNCATE
     - table_reference:
-        identifier: bigtable
+        naked_identifier: bigtable
     - comma: ','
     - table_reference:
-        identifier: fattable
+        naked_identifier: fattable
 - statement_terminator: ;
 - statement:
     truncate_table:
     - keyword: TRUNCATE
     - keyword: TABLE
     - table_reference:
-        identifier: bigtable
+        naked_identifier: bigtable
     - comma: ','
     - table_reference:
-        identifier: fattable
+        naked_identifier: fattable
 - statement_terminator: ;
 - statement:
     truncate_table:
     - keyword: TRUNCATE
     - keyword: ONLY
     - table_reference:
-        identifier: bigtable
+        naked_identifier: bigtable
     - comma: ','
     - table_reference:
-        identifier: fattable
+        naked_identifier: fattable
     - star: '*'
 - statement_terminator: ;
 - statement:
     truncate_table:
     - keyword: TRUNCATE
     - table_reference:
-        identifier: bigtable
+        naked_identifier: bigtable
     - keyword: RESTART
     - keyword: IDENTITY
 - statement_terminator: ;
@@ -98,7 +98,7 @@ file:
     truncate_table:
     - keyword: TRUNCATE
     - table_reference:
-        identifier: bigtable
+        naked_identifier: bigtable
     - keyword: CONTINUE
     - keyword: IDENTITY
 - statement_terminator: ;
@@ -106,14 +106,14 @@ file:
     truncate_table:
     - keyword: TRUNCATE
     - table_reference:
-        identifier: bigtable
+        naked_identifier: bigtable
     - keyword: CASCADE
 - statement_terminator: ;
 - statement:
     truncate_table:
     - keyword: TRUNCATE
     - table_reference:
-        identifier: bigtable
+        naked_identifier: bigtable
     - keyword: RESTRICT
 - statement_terminator: ;
 - statement:
@@ -122,15 +122,15 @@ file:
     - keyword: TABLE
     - keyword: ONLY
     - table_reference:
-        identifier: bigtable
+        naked_identifier: bigtable
     - comma: ','
     - table_reference:
-        identifier: fattable
+        naked_identifier: fattable
     - star: '*'
     - comma: ','
     - keyword: ONLY
     - table_reference:
-        identifier: slimtable
+        naked_identifier: slimtable
     - keyword: CONTINUE
     - keyword: IDENTITY
     - keyword: CASCADE

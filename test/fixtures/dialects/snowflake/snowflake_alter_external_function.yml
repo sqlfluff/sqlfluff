@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0358ab911af6b71a0be4d7af8cf4f370cd07e767576a85199ca407ced21de539
+_hash: c6a2bf22f3b84a2339aa80cc957b7f89796f16670cc913876d6fdaeaf53dd83e
 file:
 - statement:
     alter_function_statement:
@@ -72,7 +72,7 @@ file:
     - keyword: API_INTEGRATION
     - comparison_operator:
         raw_comparison_operator: '='
-    - identifier: API_INTEGRATION_2
+    - naked_identifier: API_INTEGRATION_2
 - statement_terminator: ;
 - statement:
     alter_function_statement:
@@ -90,7 +90,7 @@ file:
     - keyword: MAX_BATCH_ROWS
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: '100'
+    - numeric_literal: '100'
 - statement_terminator: ;
 - statement:
     alter_function_statement:
@@ -108,7 +108,7 @@ file:
     - keyword: COMPRESSION
     - comparison_operator:
         raw_comparison_operator: '='
-    - keyword: GZIP
+    - compression_type: GZIP
 - statement_terminator: ;
 - statement:
     alter_function_statement:
@@ -166,10 +166,10 @@ file:
         raw_comparison_operator: '='
     - bracketed:
       - start_bracket: (
-      - identifier: "'abc'"
+      - quoted_identifier: "'abc'"
       - comparison_operator:
           raw_comparison_operator: '='
-      - identifier: "'def'"
+      - quoted_identifier: "'def'"
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -212,5 +212,5 @@ file:
         keyword: COMMENT
         comparison_operator:
           raw_comparison_operator: '='
-        literal: "'Woohoo!'"
+        quoted_literal: "'Woohoo!'"
 - statement_terminator: ;

@@ -3,19 +3,19 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: dd1ce1d08cf75b8c091b58d76579820ec0849003ebbd8ead8579d044cc6bcd7a
+_hash: 77dfeed770d7d6ba167bd221b10d00dfcb9e2c78a9c3b38975352b733f9e00d3
 file:
 - statement:
     create_trigger:
     - keyword: CREATE
     - keyword: TRIGGER
     - trigger_reference:
-        identifier: foo
+        naked_identifier: foo
     - keyword: BEFORE
     - keyword: INSERT
     - keyword: 'ON'
     - table_reference:
-        identifier: bar
+        naked_identifier: bar
     - keyword: EXECUTE
     - keyword: PROCEDURE
     - function_name_identifier: proc
@@ -23,7 +23,7 @@ file:
         start_bracket: (
         expression:
           column_reference:
-            identifier: args
+            naked_identifier: args
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -31,12 +31,12 @@ file:
     - keyword: CREATE
     - keyword: TRIGGER
     - trigger_reference:
-        identifier: foo
+        naked_identifier: foo
     - keyword: BEFORE
     - keyword: INSERT
     - keyword: 'on'
     - table_reference:
-        identifier: bar
+        naked_identifier: bar
     - keyword: EXECUTE
     - keyword: PROCEDURE
     - function_name_identifier: proc
@@ -44,7 +44,7 @@ file:
         start_bracket: (
         expression:
           column_reference:
-            identifier: args
+            naked_identifier: args
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -52,18 +52,18 @@ file:
     - keyword: CREATE
     - keyword: TRIGGER
     - trigger_reference:
-        identifier: foo
+        naked_identifier: foo
     - keyword: AFTER
     - keyword: UPDATE
     - keyword: OF
     - column_reference:
-        identifier: bar
+        naked_identifier: bar
     - comma: ','
     - column_reference:
-        identifier: baz
+        naked_identifier: baz
     - keyword: 'ON'
     - table_reference:
-        identifier: bar
+        naked_identifier: bar
     - keyword: EXECUTE
     - keyword: PROCEDURE
     - function_name_identifier: proc
@@ -71,7 +71,7 @@ file:
         start_bracket: (
         expression:
           column_reference:
-            identifier: args
+            naked_identifier: args
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -79,16 +79,16 @@ file:
     - keyword: CREATE
     - keyword: TRIGGER
     - trigger_reference:
-        identifier: foo
+        naked_identifier: foo
     - keyword: INSTEAD
     - keyword: OF
     - keyword: DELETE
     - keyword: 'ON'
     - table_reference:
-        identifier: bar
+        naked_identifier: bar
     - keyword: FROM
     - table_reference:
-        identifier: baz
+        naked_identifier: baz
     - keyword: DEFERRABLE
     - keyword: INITIALLY
     - keyword: IMMEDIATE
@@ -102,7 +102,7 @@ file:
         start_bracket: (
         expression:
           column_reference:
-            identifier: args
+            naked_identifier: args
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -110,22 +110,22 @@ file:
     - keyword: CREATE
     - keyword: TRIGGER
     - trigger_reference:
-        identifier: foo
+        naked_identifier: foo
     - keyword: BEFORE
     - keyword: INSERT
     - keyword: 'ON'
     - table_reference:
-        identifier: bar
+        naked_identifier: bar
     - keyword: WHEN
     - bracketed:
         start_bracket: (
         expression:
         - column_reference:
-            identifier: a
+            naked_identifier: a
         - comparison_operator:
             raw_comparison_operator: '='
         - column_reference:
-            identifier: b
+            naked_identifier: b
         end_bracket: )
     - keyword: EXECUTE
     - keyword: PROCEDURE
@@ -134,6 +134,6 @@ file:
         start_bracket: (
         expression:
           column_reference:
-            identifier: args
+            naked_identifier: args
         end_bracket: )
 - statement_terminator: ;

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 329e55be39a7349a7287d79e714fda51f7b32a85a774f23da0404dd729b73de7
+_hash: 830de392062d8919d6406b638f6a147ab37532248dd51fec82eaf3a04c3689c9
 file:
 - statement:
     alter_table_statement:
@@ -11,7 +11,7 @@ file:
       - keyword: ALTER
       - keyword: TABLE
       - table_reference:
-          identifier: t
+          naked_identifier: t
       - alter_table_add_column:
         - keyword: ADD
         - keyword: COLUMN
@@ -20,14 +20,14 @@ file:
         - keyword: EXISTS
         - column_definition:
             column_datatype_definition:
-              identifier: new_dec
+              naked_identifier: new_dec
               data_type:
                 keyword: DECIMAL
                 bracketed:
                 - start_bracket: (
-                - literal: '18'
+                - numeric_literal: '18'
                 - comma: ','
-                - literal: '0'
+                - numeric_literal: '0'
                 - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -36,23 +36,23 @@ file:
       - keyword: ALTER
       - keyword: TABLE
       - table_reference:
-          identifier: t
+          naked_identifier: t
       - alter_table_add_column:
           keyword: ADD
           bracketed:
             start_bracket: (
             column_definition:
               column_datatype_definition:
-                identifier: new_char
+                naked_identifier: new_char
                 data_type:
                   keyword: CHAR
                   bracketed:
                     start_bracket: (
-                    literal: '10'
+                    numeric_literal: '10'
                     end_bracket: )
               column_constraint_segment:
                 keyword: DEFAULT
-                literal: "'some text'"
+                quoted_literal: "'some text'"
             end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -61,13 +61,13 @@ file:
       - keyword: ALTER
       - keyword: TABLE
       - table_reference:
-        - identifier: myschema
+        - naked_identifier: myschema
         - dot: .
-        - identifier: t
+        - naked_identifier: t
       - alter_table_drop_column:
         - keyword: DROP
         - keyword: COLUMN
-        - identifier: i
+        - naked_identifier: i
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -75,10 +75,10 @@ file:
       - keyword: ALTER
       - keyword: TABLE
       - table_reference:
-          identifier: t
+          naked_identifier: t
       - alter_table_drop_column:
           keyword: DROP
-          identifier: j
+          naked_identifier: j
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -86,19 +86,19 @@ file:
       - keyword: ALTER
       - keyword: TABLE
       - table_reference:
-          identifier: t
+          naked_identifier: t
       - alter_table_modify_column:
           keyword: MODIFY
           bracketed:
             start_bracket: (
-            identifier: i
+            naked_identifier: i
             data_type:
               keyword: DECIMAL
               bracketed:
               - start_bracket: (
-              - literal: '10'
+              - numeric_literal: '10'
               - comma: ','
-              - literal: '2'
+              - numeric_literal: '2'
               - end_bracket: )
             end_bracket: )
 - statement_terminator: ;
@@ -108,21 +108,21 @@ file:
       - keyword: ALTER
       - keyword: TABLE
       - table_reference:
-          identifier: t
+          naked_identifier: t
       - alter_table_modify_column:
           keyword: MODIFY
           bracketed:
             start_bracket: (
-            identifier: j
+            naked_identifier: j
             data_type:
               keyword: VARCHAR
               bracketed:
                 start_bracket: (
-                literal: '5'
+                numeric_literal: '5'
                 end_bracket: )
             column_constraint_segment:
               keyword: DEFAULT
-              literal: "'text'"
+              quoted_literal: "'text'"
             end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -131,17 +131,17 @@ file:
       - keyword: ALTER
       - keyword: TABLE
       - table_reference:
-          identifier: t
+          naked_identifier: t
       - alter_table_modify_column:
           keyword: MODIFY
-          identifier: k
+          naked_identifier: k
           data_type:
             keyword: INTEGER
           column_constraint_segment:
             keyword: IDENTITY
             bracketed:
               start_bracket: (
-              literal: '1000'
+              numeric_literal: '1000'
               end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -150,13 +150,13 @@ file:
       - keyword: ALTER
       - keyword: TABLE
       - table_reference:
-          identifier: t
+          naked_identifier: t
       - alter_table_rename_column:
         - keyword: RENAME
         - keyword: COLUMN
-        - identifier: i
+        - naked_identifier: i
         - keyword: TO
-        - identifier: j
+        - naked_identifier: j
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -164,11 +164,11 @@ file:
       - keyword: ALTER
       - keyword: TABLE
       - table_reference:
-          identifier: t
+          naked_identifier: t
       - alter_table_alter_column:
         - keyword: ALTER
         - keyword: COLUMN
-        - identifier: v
+        - naked_identifier: v
         - keyword: SET
         - keyword: DEFAULT
         - bare_function: CURRENT_USER
@@ -179,13 +179,13 @@ file:
       - keyword: ALTER
       - keyword: TABLE
       - table_reference:
-        - identifier: '"SCHEMA"'
+        - quoted_identifier: '"SCHEMA"'
         - dot: .
-        - identifier: '"TABLE"'
+        - quoted_identifier: '"TABLE"'
       - alter_table_alter_column:
         - keyword: ALTER
         - keyword: COLUMN
-        - identifier: v
+        - naked_identifier: v
         - keyword: DROP
         - keyword: DEFAULT
 - statement_terminator: ;
@@ -195,14 +195,14 @@ file:
       - keyword: ALTER
       - keyword: TABLE
       - table_reference:
-          identifier: t
+          naked_identifier: t
       - alter_table_alter_column:
         - keyword: ALTER
         - keyword: COLUMN
-        - identifier: id
+        - naked_identifier: id
         - keyword: SET
         - keyword: IDENTITY
-        - literal: '1000'
+        - numeric_literal: '1000'
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -210,11 +210,11 @@ file:
       - keyword: ALTER
       - keyword: TABLE
       - table_reference:
-          identifier: t
+          naked_identifier: t
       - alter_table_alter_column:
         - keyword: ALTER
         - keyword: COLUMN
-        - identifier: id
+        - naked_identifier: id
         - keyword: DROP
         - keyword: IDENTITY
 - statement_terminator: ;

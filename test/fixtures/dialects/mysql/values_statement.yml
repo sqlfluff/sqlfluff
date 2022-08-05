@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 61fe61f9ec9fc6536dfa997d315e7487164aed23166472826132415009c5f96d
+_hash: 1a7cb6b0f38f546f67eb9e65afe4e6128acc32f236820b9b88d2a3300ce1b3fe
 file:
 - statement:
     values_clause:
@@ -12,20 +12,20 @@ file:
     - bracketed:
       - start_bracket: (
       - expression:
-          literal: "'a'"
+          quoted_literal: "'a'"
       - comma: ','
       - expression:
-          literal: '1'
+          numeric_literal: '1'
       - end_bracket: )
     - comma: ','
     - keyword: ROW
     - bracketed:
       - start_bracket: (
       - expression:
-          literal: "'b'"
+          quoted_literal: "'b'"
       - comma: ','
       - expression:
-          literal: '2'
+          numeric_literal: '2'
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -35,10 +35,10 @@ file:
     - bracketed:
       - start_bracket: (
       - expression:
-          literal: "'a'"
+          quoted_literal: "'a'"
       - comma: ','
       - expression:
-          literal: '1'
+          numeric_literal: '1'
       - end_bracket: )
     - comma: ','
     - keyword: ROW
@@ -51,13 +51,13 @@ file:
             bracketed:
               start_bracket: (
               expression:
-                literal: "'b'"
+                quoted_literal: "'b'"
               end_bracket: )
       - comma: ','
       - expression:
-        - literal: '2'
+        - numeric_literal: '2'
         - binary_operator: +
-        - literal: '1'
+        - numeric_literal: '1'
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -70,14 +70,14 @@ file:
           bare_function: CURRENT_DATE
       - comma: ','
       - expression:
-          literal: "'2020-06-04'"
+          quoted_literal: "'2020-06-04'"
           binary_operator: +
           interval_expression:
             keyword: interval
             expression:
               numeric_literal:
                 sign_indicator: '-'
-                literal: '5'
+                numeric_literal: '5'
             date_part: day
       - end_bracket: )
 - statement_terminator: ;

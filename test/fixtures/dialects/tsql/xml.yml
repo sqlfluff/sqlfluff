@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 87f2457cf4ab2d51acb4b6e20f7a9cb456cc7166fabd050bfc4b6a1a6f3437b6
+_hash: a422ecc512afbe91b18ea0821af5756317bb749bc5abe4ec0cc4ed63e6bcde5d
 file:
   batch:
   - statement:
@@ -12,34 +12,34 @@ file:
         - keyword: SELECT
         - select_clause_element:
             column_reference:
-              identifier: ProductModelID
+              naked_identifier: ProductModelID
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: Name
+              naked_identifier: Name
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                - identifier: Production
+                - naked_identifier: Production
                 - dot: .
-                - identifier: ProductModel
+                - naked_identifier: ProductModel
         where_clause:
           keyword: WHERE
           expression:
           - column_reference:
-              identifier: ProductModelID
+              naked_identifier: ProductModelID
           - comparison_operator:
               raw_comparison_operator: '='
-          - literal: '122'
+          - numeric_literal: '122'
           - binary_operator: or
           - column_reference:
-              identifier: ProductModelID
+              naked_identifier: ProductModelID
           - comparison_operator:
               raw_comparison_operator: '='
-          - literal: '119'
+          - numeric_literal: '119'
         for_xml_segment:
         - keyword: FOR
         - keyword: XML
@@ -51,28 +51,28 @@ file:
         - keyword: SELECT
         - select_clause_element:
             column_reference:
-              identifier: ProductPhotoID
+              naked_identifier: ProductPhotoID
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: ThumbNailPhoto
+              naked_identifier: ThumbNailPhoto
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                - identifier: Production
+                - naked_identifier: Production
                 - dot: .
-                - identifier: ProductPhoto
+                - naked_identifier: ProductPhoto
         where_clause:
           keyword: WHERE
           expression:
             column_reference:
-              identifier: ProductPhotoID
+              naked_identifier: ProductPhotoID
             comparison_operator:
               raw_comparison_operator: '='
-            literal: '70'
+            numeric_literal: '70'
         for_xml_segment:
         - keyword: FOR
         - keyword: XML
@@ -83,22 +83,22 @@ file:
         select_clause:
           keyword: SELECT
           select_clause_element:
-            literal: '1'
+            numeric_literal: '1'
             alias_expression:
               keyword: as
-              identifier: Tag
+              naked_identifier: Tag
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                - identifier: HumanResources
+                - naked_identifier: HumanResources
                 - dot: .
-                - identifier: Employee
+                - naked_identifier: Employee
               alias_expression:
                 keyword: AS
-                identifier: E
+                naked_identifier: E
         for_xml_segment:
         - keyword: FOR
         - keyword: XML
@@ -110,40 +110,40 @@ file:
         - keyword: SELECT
         - select_clause_element:
             column_reference:
-              identifier: ProductModelID
+              naked_identifier: ProductModelID
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: Name
+              naked_identifier: Name
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                - identifier: Production
+                - naked_identifier: Production
                 - dot: .
-                - identifier: ProductModel
+                - naked_identifier: ProductModel
         where_clause:
           keyword: WHERE
           expression:
           - column_reference:
-              identifier: ProductModelID
+              naked_identifier: ProductModelID
           - comparison_operator:
               raw_comparison_operator: '='
-          - literal: '122'
+          - numeric_literal: '122'
           - binary_operator: OR
           - column_reference:
-              identifier: ProductModelID
+              naked_identifier: ProductModelID
           - comparison_operator:
               raw_comparison_operator: '='
-          - literal: '119'
+          - numeric_literal: '119'
         for_xml_segment:
         - keyword: FOR
         - keyword: XML
         - keyword: PATH
         - bracketed:
             start_bracket: (
-            literal: "'root'"
+            quoted_literal: "'root'"
             end_bracket: )
   - statement_terminator: ;

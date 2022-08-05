@@ -3,14 +3,14 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ce458f5b72558099c2f391e8a4c67cad1a22b131e31e1d97e225f2bb73afe2f9
+_hash: 0b634bc3cad1afb1344957fa51eeb1e7115d94e2c30635877c25bbed99daad50
 file:
 - statement:
     lock_table_statement:
     - keyword: LOCK
     - keyword: TABLE
     - table_reference:
-        identifier: films
+        naked_identifier: films
     - keyword: IN
     - keyword: SHARE
     - keyword: MODE
@@ -20,7 +20,7 @@ file:
     - keyword: LOCK
     - keyword: TABLE
     - table_reference:
-        identifier: films
+        naked_identifier: films
     - keyword: IN
     - keyword: SHARE
     - keyword: ROW
@@ -32,7 +32,7 @@ file:
     - keyword: LOCK
     - keyword: TABLE
     - table_reference:
-        identifier: team
+        naked_identifier: team
     - keyword: IN
     - keyword: ACCESS
     - keyword: EXCLUSIVE
@@ -43,7 +43,7 @@ file:
     - keyword: lock
     - keyword: table
     - table_reference:
-        identifier: stud1
+        naked_identifier: stud1
     - keyword: IN
     - keyword: SHARE
     - keyword: UPDATE
@@ -55,6 +55,6 @@ file:
     - keyword: LOCK
     - keyword: TABLE
     - table_reference:
-        identifier: crontable
+        naked_identifier: crontable
     - keyword: NOWAIT
 - statement_terminator: ;

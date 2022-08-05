@@ -3,24 +3,24 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6201c9745bafb2ee8470431a9479f32f3625cbed8dff6e19e22558f9a5326e55
+_hash: feffb21d789f331a3e487e1b8d5d71deb4fbfc668e677fd34995e77e3cd87c4d
 file:
 - statement:
     optimize_table_statement:
     - keyword: OPTIMIZE
     - keyword: TABLE
     - table_reference:
-        identifier: some_table
+        naked_identifier: some_table
 - statement_terminator: ;
 - statement:
     optimize_table_statement:
     - keyword: OPTIMIZE
     - keyword: TABLE
     - table_reference:
-        identifier: some_table1
+        naked_identifier: some_table1
     - comma: ','
     - table_reference:
-        identifier: some_table2
+        naked_identifier: some_table2
 - statement_terminator: ;
 - statement:
     optimize_table_statement:
@@ -28,7 +28,7 @@ file:
     - keyword: NO_WRITE_TO_BINLOG
     - keyword: TABLE
     - table_reference:
-        identifier: some_table
+        naked_identifier: some_table
 - statement_terminator: ;
 - statement:
     optimize_table_statement:
@@ -36,10 +36,10 @@ file:
     - keyword: NO_WRITE_TO_BINLOG
     - keyword: TABLE
     - table_reference:
-        identifier: some_table1
+        naked_identifier: some_table1
     - comma: ','
     - table_reference:
-        identifier: some_table2
+        naked_identifier: some_table2
 - statement_terminator: ;
 - statement:
     optimize_table_statement:
@@ -47,7 +47,7 @@ file:
     - keyword: LOCAL
     - keyword: TABLE
     - table_reference:
-        identifier: some_table
+        naked_identifier: some_table
 - statement_terminator: ;
 - statement:
     optimize_table_statement:
@@ -55,8 +55,8 @@ file:
     - keyword: LOCAL
     - keyword: TABLE
     - table_reference:
-        identifier: some_table1
+        naked_identifier: some_table1
     - comma: ','
     - table_reference:
-        identifier: some_table2
+        naked_identifier: some_table2
 - statement_terminator: ;

@@ -3,62 +3,62 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 19a4b60bb37fe240999f4b2764857ed37d5b55f8fc02c5650924adb22c8a4c7c
+_hash: faa22d59324432fe8ffce992f299c79436e9cf770ed6e801ff2498c5d0c6dcd1
 file:
 - statement:
     alter_user_statement:
     - keyword: ALTER
     - keyword: USER
     - role_reference:
-        identifier: user_1
+        naked_identifier: user_1
     - keyword: IDENTIFIED
     - password_auth:
         keyword: BY
-        identifier: '"h22_xhz"'
+        quoted_identifier: '"h22_xhz"'
     - keyword: REPLACE
-    - identifier: '"h12_xhz"'
+    - quoted_identifier: '"h12_xhz"'
 - statement_terminator: ;
 - statement:
     alter_user_statement:
     - keyword: ALTER
     - keyword: USER
     - role_reference:
-        identifier: user_1
+        naked_identifier: user_1
     - keyword: IDENTIFIED
     - password_auth:
         keyword: BY
-        identifier: '"h12_xhz"'
+        quoted_identifier: '"h12_xhz"'
 - statement_terminator: ;
 - statement:
     alter_user_statement:
     - keyword: ALTER
     - keyword: USER
     - role_reference:
-        identifier: user_2
+        naked_identifier: user_2
     - keyword: IDENTIFIED
     - ldap_auth:
       - keyword: AT
       - keyword: LDAP
       - keyword: AS
-      - literal: "'cn=user_2,dc=authorization,dc=exasol,dc=com'"
+      - quoted_literal: "'cn=user_2,dc=authorization,dc=exasol,dc=com'"
 - statement_terminator: ;
 - statement:
     alter_user_statement:
     - keyword: ALTER
     - keyword: USER
     - role_reference:
-        identifier: user_3
+        naked_identifier: user_3
     - keyword: PASSWORD_EXPIRY_POLICY
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: "'42 days'"
+    - quoted_literal: "'42 days'"
 - statement_terminator: ;
 - statement:
     alter_user_statement:
     - keyword: ALTER
     - keyword: USER
     - role_reference:
-        identifier: user_4
+        naked_identifier: user_4
     - keyword: PASSWORD
     - keyword: EXPIRE
 - statement_terminator: ;
@@ -67,7 +67,7 @@ file:
     - keyword: ALTER
     - keyword: USER
     - role_reference:
-        identifier: user_5
+        naked_identifier: user_5
     - keyword: RESET
     - keyword: FAILED
     - keyword: LOGIN
@@ -78,19 +78,19 @@ file:
     - keyword: ALTER
     - keyword: USER
     - role_reference:
-        identifier: userx
+        naked_identifier: userx
     - keyword: SET
     - keyword: CONSUMER_GROUP
     - comparison_operator:
         raw_comparison_operator: '='
-    - identifier: CEO
+    - naked_identifier: CEO
 - statement_terminator: ;
 - statement:
     alter_user_statement:
     - keyword: ALTER
     - keyword: USER
     - role_reference:
-        identifier: userx
+        naked_identifier: userx
     - keyword: SET
     - keyword: CONSUMER_GROUP
     - comparison_operator:
@@ -102,12 +102,12 @@ file:
     - keyword: ALTER
     - keyword: USER
     - role_reference:
-        identifier: '"ADMIN"'
+        quoted_identifier: '"ADMIN"'
     - keyword: SET
     - keyword: CONSUMER_GROUP
     - comparison_operator:
         raw_comparison_operator: '='
-    - identifier: '"TABLE"'
+    - quoted_identifier: '"TABLE"'
 - statement_terminator: ;
 - statement:
     alter_user_statement:
@@ -119,14 +119,14 @@ file:
     - keyword: CONSUMER_GROUP
     - comparison_operator:
         raw_comparison_operator: '='
-    - identifier: '"DAY"'
+    - quoted_identifier: '"DAY"'
 - statement_terminator: ;
 - statement:
     alter_user_statement:
     - keyword: ALTER
     - keyword: USER
     - role_reference:
-        identifier: '"ADMIN"'
+        quoted_identifier: '"ADMIN"'
     - keyword: SET
     - keyword: CONSUMER_GROUP
     - comparison_operator:
@@ -138,11 +138,11 @@ file:
     - keyword: ALTER
     - keyword: USER
     - role_reference:
-        identifier: oidctestuser
+        naked_identifier: oidctestuser
     - keyword: IDENTIFIED
     - openid_auth:
       - keyword: BY
       - keyword: OPENID
       - keyword: SUBJECT
-      - literal: "'database-user@exasol.example'"
+      - quoted_literal: "'database-user@exasol.example'"
 - statement_terminator: ;
