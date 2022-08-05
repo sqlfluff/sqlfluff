@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c4059991d0b3d710932cb8c93294b824cb99997a328bde7be4272f3feb3b92bb
+_hash: 444bfd276e73f490534cdc104e8a2cac0ed77c88d331cfb6ea5bfdf7a281b859
 file:
 - statement:
     merge_statement:
@@ -22,7 +22,7 @@ file:
           - dot: .
           - naked_identifier: id
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - column_reference:
           - naked_identifier: people10mupdates
           - dot: .
@@ -40,7 +40,7 @@ file:
               - column_reference:
                   naked_identifier: id
               - comparison_operator:
-                  raw_comparison_operator: '='
+                  comparison_operator: '='
               - column_reference:
                 - naked_identifier: people10mupdates
                 - dot: .
@@ -50,7 +50,7 @@ file:
               - column_reference:
                   naked_identifier: first_name
               - comparison_operator:
-                  raw_comparison_operator: '='
+                  comparison_operator: '='
               - column_reference:
                 - naked_identifier: people10mupdates
                 - dot: .
@@ -60,7 +60,7 @@ file:
               - column_reference:
                   naked_identifier: middle_name
               - comparison_operator:
-                  raw_comparison_operator: '='
+                  comparison_operator: '='
               - column_reference:
                 - naked_identifier: people10mupdates
                 - dot: .
@@ -70,7 +70,7 @@ file:
               - column_reference:
                   naked_identifier: last_name
               - comparison_operator:
-                  raw_comparison_operator: '='
+                  comparison_operator: '='
               - column_reference:
                 - naked_identifier: people10mupdates
                 - dot: .
@@ -80,7 +80,7 @@ file:
               - column_reference:
                   naked_identifier: gender
               - comparison_operator:
-                  raw_comparison_operator: '='
+                  comparison_operator: '='
               - column_reference:
                 - naked_identifier: people10mupdates
                 - dot: .
@@ -90,7 +90,7 @@ file:
               - column_reference:
                   naked_identifier: birth_date
               - comparison_operator:
-                  raw_comparison_operator: '='
+                  comparison_operator: '='
               - column_reference:
                 - naked_identifier: people10mupdates
                 - dot: .
@@ -100,7 +100,7 @@ file:
               - column_reference:
                   naked_identifier: ssn
               - comparison_operator:
-                  raw_comparison_operator: '='
+                  comparison_operator: '='
               - column_reference:
                 - naked_identifier: people10mupdates
                 - dot: .
@@ -110,7 +110,7 @@ file:
               - column_reference:
                   naked_identifier: salary
               - comparison_operator:
-                  raw_comparison_operator: '='
+                  comparison_operator: '='
               - column_reference:
                 - naked_identifier: people10mupdates
                 - dot: .
@@ -218,7 +218,7 @@ file:
           - dot: .
           - naked_identifier: unique_id
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - column_reference:
           - naked_identifier: new_deduped_logs
           - dot: .
@@ -251,7 +251,7 @@ file:
           - dot: .
           - naked_identifier: unique_id
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - column_reference:
           - naked_identifier: new_deduped_logs
           - dot: .
@@ -262,7 +262,7 @@ file:
           - dot: .
           - naked_identifier: date
         - comparison_operator:
-            raw_comparison_operator: '>'
+            comparison_operator: '>'
         - function:
             function_name:
               function_name_identifier: current_date
@@ -287,7 +287,7 @@ file:
             - dot: .
             - naked_identifier: date
             comparison_operator:
-              raw_comparison_operator: '>'
+              comparison_operator: '>'
             function:
               function_name:
                 function_name_identifier: current_date
@@ -381,7 +381,7 @@ file:
                       - dot: .
                       - naked_identifier: customer_id
                     - comparison_operator:
-                        raw_comparison_operator: '='
+                        comparison_operator: '='
                     - column_reference:
                       - naked_identifier: customers
                       - dot: .
@@ -394,7 +394,7 @@ file:
                 - dot: .
                 - naked_identifier: current
               - comparison_operator:
-                  raw_comparison_operator: '='
+                  comparison_operator: '='
               - boolean_literal: 'TRUE'
               - binary_operator: AND
               - column_reference:
@@ -402,8 +402,8 @@ file:
                 - dot: .
                 - naked_identifier: address
               - comparison_operator:
-                - raw_comparison_operator: '!'
-                - raw_comparison_operator: '='
+                - comparison_operator: '!'
+                - comparison_operator: '='
               - column_reference:
                 - naked_identifier: customers
                 - dot: .
@@ -419,7 +419,7 @@ file:
           - dot: .
           - naked_identifier: customer_id
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - column_reference:
             naked_identifier: merge_unique_key
     - merge_match:
@@ -433,7 +433,7 @@ file:
             - dot: .
             - naked_identifier: current
           - comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
           - boolean_literal: 'TRUE'
           - binary_operator: AND
           - column_reference:
@@ -441,8 +441,8 @@ file:
             - dot: .
             - naked_identifier: address
           - comparison_operator:
-            - raw_comparison_operator: '!'
-            - raw_comparison_operator: '='
+            - comparison_operator: '!'
+            - comparison_operator: '='
           - column_reference:
             - naked_identifier: staged_updates
             - dot: .
@@ -456,14 +456,14 @@ file:
                 column_reference:
                   naked_identifier: current
                 comparison_operator:
-                  raw_comparison_operator: '='
+                  comparison_operator: '='
                 boolean_literal: 'FALSE'
             - comma: ','
             - set_clause:
               - column_reference:
                   naked_identifier: end_date
               - comparison_operator:
-                  raw_comparison_operator: '='
+                  comparison_operator: '='
               - column_reference:
                 - naked_identifier: staged_updates
                 - dot: .
@@ -627,7 +627,7 @@ file:
           - dot: .
           - naked_identifier: unique_key
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - column_reference:
           - naked_identifier: t
           - dot: .
@@ -643,7 +643,7 @@ file:
             - dot: .
             - naked_identifier: deleted
             comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
             boolean_literal: 'TRUE'
         - keyword: THEN
         - merge_delete_clause:
@@ -660,7 +660,7 @@ file:
               - column_reference:
                   naked_identifier: unique_key
               - comparison_operator:
-                  raw_comparison_operator: '='
+                  comparison_operator: '='
               - column_reference:
                 - naked_identifier: s
                 - dot: .
@@ -670,7 +670,7 @@ file:
               - column_reference:
                   naked_identifier: record_value
               - comparison_operator:
-                  raw_comparison_operator: '='
+                  comparison_operator: '='
               - column_reference:
                 - naked_identifier: s
                 - dot: .
@@ -686,7 +686,7 @@ file:
             - dot: .
             - naked_identifier: deleted
             comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
             boolean_literal: 'FALSE'
         - keyword: THEN
         - merge_insert_clause:

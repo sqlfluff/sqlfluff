@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 560671c74a7cc311a7cf61ae385f36cd1f9d7d654cd375027baa13097f0b7b7f
+_hash: 83a3fe960ffdfd202a9f68d9c4a07291b1418a7c3b4445534bc70642ca6ed531
 file:
 - statement:
     select_statement:
@@ -43,7 +43,7 @@ file:
           column_reference:
             naked_identifier: zip_code
           comparison_operator:
-            raw_comparison_operator: '>'
+            comparison_operator: '>'
           numeric_literal: '94511'
 - statement_terminator: ;
 - statement:
@@ -87,7 +87,7 @@ file:
           column_reference:
             naked_identifier: zip_code
           comparison_operator:
-            raw_comparison_operator: '>'
+            comparison_operator: '>'
           numeric_literal: '94511'
 - statement_terminator: ;
 - statement:
@@ -176,7 +176,7 @@ file:
               property_name_identifier:
                 quoted_identifier: "'field.delim'"
               comparison_operator:
-                raw_comparison_operator: '='
+                comparison_operator: '='
               quoted_literal: "'\\t'"
               end_bracket: )
         - keyword: USING
@@ -205,7 +205,7 @@ file:
               property_name_identifier:
                 quoted_identifier: "'field.delim'"
               comparison_operator:
-                raw_comparison_operator: '='
+                comparison_operator: '='
               quoted_literal: "'\\t'"
               end_bracket: )
       from_clause:
@@ -221,7 +221,7 @@ file:
           column_reference:
             naked_identifier: zip_code
           comparison_operator:
-            raw_comparison_operator: '>'
+            comparison_operator: '>'
           numeric_literal: '94511'
 - statement_terminator: ;
 - statement:
@@ -253,6 +253,6 @@ file:
           column_reference:
             naked_identifier: zip_code
           comparison_operator:
-            raw_comparison_operator: '>'
+            comparison_operator: '>'
           numeric_literal: '94500'
 - statement_terminator: ;

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5f5efb217212b97c6ea3f52e5a265c8dc25e078729131d82262c8a1cbd33285d
+_hash: 9493b55dfcafc62a658be3cbf9f01980b34bbc00cc9c470e8c26c8ad04250907
 file:
 - statement:
     with_compound_statement:
@@ -123,7 +123,7 @@ file:
           - column_reference:
               naked_identifier: EventDate
           - comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
           - function:
               function_name:
                 function_name_identifier: toDate
@@ -137,8 +137,8 @@ file:
           - column_reference:
               naked_identifier: EventTime
           - comparison_operator:
-            - raw_comparison_operator: <
-            - raw_comparison_operator: '='
+            - comparison_operator: <
+            - comparison_operator: '='
           - column_reference:
               naked_identifier: ts_upper_bound
 - statement_terminator: ;

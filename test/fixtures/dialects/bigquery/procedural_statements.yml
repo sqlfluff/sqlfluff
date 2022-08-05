@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c0f080db908906d750c6204125990b52d6d37b21bd173359fcf77ee795356633
+_hash: fbfe89eccd8764385cb676b9f6d4e4b3eed5f78fd1fc9eee261ec9ee7449a4a3
 file:
 - statement:
     declare_segment:
@@ -23,7 +23,7 @@ file:
             keyword: SET
             naked_identifier: x
             comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
             expression:
               column_reference:
                 naked_identifier: x
@@ -43,8 +43,8 @@ file:
         column_reference:
           naked_identifier: x
         comparison_operator:
-        - raw_comparison_operator: '>'
-        - raw_comparison_operator: '='
+        - comparison_operator: '>'
+        - comparison_operator: '='
         numeric_literal: '3'
     - keyword: END
     - keyword: REPEAT
@@ -77,8 +77,8 @@ file:
         column_reference:
           naked_identifier: x
         comparison_operator:
-        - raw_comparison_operator: '>'
-        - raw_comparison_operator: '='
+        - comparison_operator: '>'
+        - comparison_operator: '='
         numeric_literal: '10'
     - keyword: THEN
     - if_statements:
@@ -100,8 +100,8 @@ file:
         column_reference:
           naked_identifier: x
         comparison_operator:
-        - raw_comparison_operator: '>'
-        - raw_comparison_operator: '='
+        - comparison_operator: '>'
+        - comparison_operator: '='
         numeric_literal: '10'
     - keyword: THEN
     - if_statements:
@@ -110,7 +110,7 @@ file:
             keyword: SET
             naked_identifier: x
             comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
             expression:
               column_reference:
                 naked_identifier: x
@@ -122,7 +122,7 @@ file:
         column_reference:
           naked_identifier: x
         comparison_operator:
-          raw_comparison_operator: <
+          comparison_operator: <
         numeric_literal: '0'
     - keyword: THEN
     - if_statements:
@@ -131,7 +131,7 @@ file:
             keyword: SET
             naked_identifier: x
             comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
             expression:
               column_reference:
                 naked_identifier: x
@@ -143,7 +143,7 @@ file:
         column_reference:
           naked_identifier: x
         comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
         numeric_literal: '0'
     - keyword: THEN
     - if_statements:
@@ -152,7 +152,7 @@ file:
             keyword: SET
             naked_identifier: x
             comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
             expression:
               column_reference:
                 naked_identifier: x
@@ -181,7 +181,7 @@ file:
             keyword: SET
             naked_identifier: x
             comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
             expression:
               column_reference:
                 naked_identifier: x
@@ -195,8 +195,8 @@ file:
               column_reference:
                 naked_identifier: x
               comparison_operator:
-              - raw_comparison_operator: '>'
-              - raw_comparison_operator: '='
+              - comparison_operator: '>'
+              - comparison_operator: '='
               numeric_literal: '10'
           - keyword: THEN
           - if_statements:
@@ -249,7 +249,7 @@ file:
             keyword: SET
             naked_identifier: heads
             comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
             expression:
               function:
                 function_name:
@@ -258,7 +258,7 @@ file:
                   start_bracket: (
                   end_bracket: )
               comparison_operator:
-                raw_comparison_operator: <
+                comparison_operator: <
               numeric_literal: '0.5'
       - statement_terminator: ;
       - multi_statement_segment:
@@ -281,7 +281,7 @@ file:
                   keyword: SET
                   naked_identifier: heads_count
                   comparison_operator:
-                    raw_comparison_operator: '='
+                    comparison_operator: '='
                   expression:
                     column_reference:
                       naked_identifier: heads_count

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 76a544b5e2171a7f7b36125275635082014c8b6e883fec398e9ae091664ec4a2
+_hash: 68e1723206ca4980a2af7165a64c1eb2d52d6a3787453240a9e9126805a35647
 file:
   statement:
     alter_user_statement:
@@ -14,12 +14,12 @@ file:
     - keyword: SET
     - parameter: password
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - quoted_literal: "'abc123'"
     - comma: ','
     - parameter: DEFAULT_ROLE
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - object_reference:
         naked_identifier: user_role
   statement_terminator: ;

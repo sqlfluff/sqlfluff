@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1972e838880e449d4187a8c7cc9fce8f821e315f5ceceb01e1859bdeb28b0f0b
+_hash: fbd21ae6444eb74a802848d0de85f8dac4552b5060ef1cb7582bdb5b9e5ed4fb
 file:
 - statement:
     insert_statement:
@@ -236,7 +236,7 @@ file:
             column_reference:
               naked_identifier: date_prod
             comparison_operator:
-              raw_comparison_operator: <
+              comparison_operator: <
             quoted_literal: "'2004-05-07'"
 - statement_terminator: ;
 - statement:
@@ -420,7 +420,7 @@ file:
       - column_reference:
           naked_identifier: baz
       - comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
       - expression:
           column_reference:
           - naked_identifier: EXCLUDED
@@ -505,7 +505,7 @@ file:
       - column_reference:
           naked_identifier: baz
       - comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
       - expression:
         - column_reference:
           - naked_identifier: EXCLUDED
@@ -533,8 +533,8 @@ file:
           - dot: .
           - naked_identifier: zipcode
           comparison_operator:
-          - raw_comparison_operator: '!'
-          - raw_comparison_operator: '='
+          - comparison_operator: '!'
+          - comparison_operator: '='
           quoted_literal: "'21201'"
 - statement_terminator: ;
 - statement:
@@ -653,7 +653,7 @@ file:
             naked_identifier: baz
           end_bracket: )
       - comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
       - bracketed:
           start_bracket: (
           expression:
@@ -676,7 +676,7 @@ file:
                   column_reference:
                     naked_identifier: bar
                   comparison_operator:
-                    raw_comparison_operator: '='
+                    comparison_operator: '='
                   numeric_literal: '1'
           end_bracket: )
 - statement_terminator: ;
@@ -749,7 +749,7 @@ file:
                     - dot: .
                     - naked_identifier: megacolumn
                   - comparison_operator:
-                      raw_comparison_operator: '='
+                      comparison_operator: '='
                   - column_reference:
                     - naked_identifier: tmp
                     - dot: .

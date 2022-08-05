@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e792124e4dba56d419b38a95009216a85af675298eecd00f637c3e5ebc45a6cd
+_hash: bcd2512119d85914b2603ff01a8fe23373b84d240931e97d2dbedac35566796b
 file:
 - statement:
     select_statement:
@@ -47,7 +47,7 @@ file:
                 - dot: .
                 - naked_identifier: id
               - comparison_operator:
-                  raw_comparison_operator: '='
+                  comparison_operator: '='
               - column_reference:
                 - naked_identifier: memberships
                 - dot: .
@@ -68,7 +68,7 @@ file:
                 - dot: .
                 - naked_identifier: id
               - comparison_operator:
-                  raw_comparison_operator: '='
+                  comparison_operator: '='
               - column_reference:
                 - naked_identifier: rona_mms_charge_accounts
                 - dot: .
@@ -81,7 +81,7 @@ file:
           - dot: .
           - naked_identifier: code
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - bracketed:
             start_bracket: (
             expression:
@@ -99,7 +99,7 @@ file:
           - dot: .
           - naked_identifier: account_number
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - function:
             function_name:
               function_name_identifier: lpad
@@ -167,7 +167,7 @@ file:
                 - dot: .
                 - naked_identifier: id
               - comparison_operator:
-                  raw_comparison_operator: '='
+                  comparison_operator: '='
               - column_reference:
                 - naked_identifier: memberships
                 - dot: .
@@ -188,7 +188,7 @@ file:
                 - dot: .
                 - naked_identifier: id
               - comparison_operator:
-                  raw_comparison_operator: '='
+                  comparison_operator: '='
               - column_reference:
                 - naked_identifier: rona_mms_charge_accounts
                 - dot: .
@@ -201,7 +201,7 @@ file:
           - dot: .
           - naked_identifier: code
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - psql_variable:
             colon: ':'
             quoted_literal: "'m1'"
@@ -211,7 +211,7 @@ file:
           - dot: .
           - naked_identifier: account_number
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - function:
             function_name:
               function_name_identifier: lpad

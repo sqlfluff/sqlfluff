@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 25c9fd6dd10711ed57f7bed499adc04d5252f92e27b212ed9ade578c0bd5e6d1
+_hash: 343d8d6d898a0863456858fa530023c3c6ef1ce8cdc4f46d7a88f3a958ffe4c2
 file:
 - statement:
     insert_overwrite_directory_statement:
@@ -19,25 +19,25 @@ file:
       - property_name_identifier:
           properties_naked_identifier: col1
       - comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
       - quoted_literal: '"1"'
       - comma: ','
       - property_name_identifier:
           properties_naked_identifier: col2
       - comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
       - quoted_literal: '"2"'
       - comma: ','
       - property_name_identifier:
           properties_naked_identifier: col3
       - comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
       - quoted_literal: "'test'"
       - comma: ','
       - property_name_identifier:
           quoted_identifier: '"user"'
       - comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
       - quoted_literal: '"a person"'
       - end_bracket: )
     - select_statement:
@@ -67,25 +67,25 @@ file:
       - property_name_identifier:
           properties_naked_identifier: path
       - comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
       - quoted_literal: "'/tmp/destination'"
       - comma: ','
       - property_name_identifier:
           properties_naked_identifier: col1
       - comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
       - quoted_literal: '"1"'
       - comma: ','
       - property_name_identifier:
           properties_naked_identifier: col2
       - comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
       - quoted_literal: '"2"'
       - comma: ','
       - property_name_identifier:
           properties_naked_identifier: col3
       - comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
       - quoted_literal: "'test'"
       - end_bracket: )
     - select_statement:

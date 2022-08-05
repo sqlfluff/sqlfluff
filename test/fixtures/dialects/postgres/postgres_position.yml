@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e6d06db599e49ebcc64c788b834d49b40648199852b1a274d69fc41ec08e530f
+_hash: 7f197f046d7ecc3f1b36305a1b7cdf841d66c07149d37d49956e902544fbf640
 file:
   statement:
     select_statement:
@@ -54,7 +54,7 @@ file:
                 - dot: .
                 - naked_identifier: user_id
               - comparison_operator:
-                  raw_comparison_operator: '='
+                  comparison_operator: '='
               - column_reference:
                 - naked_identifier: p
                 - dot: .
@@ -73,5 +73,5 @@ file:
                     - naked_identifier: user_email
                     end_bracket: )
               - comparison_operator:
-                  raw_comparison_operator: '='
+                  comparison_operator: '='
               - numeric_literal: '0'

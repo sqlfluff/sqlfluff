@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e7134cf8b6e1843c7a784f6ca4de6637a21009117c00cd69bbcec9c8d25e306b
+_hash: 4d8b5f7fea9fdcd6d3c66a0db8197de432136bc810c034c525ca531f4ff7111b
 file:
 - statement:
     select_statement:
@@ -54,7 +54,7 @@ file:
                 - dot: .
                 - naked_identifier: deptno
               - comparison_operator:
-                  raw_comparison_operator: '='
+                  comparison_operator: '='
               - column_reference:
                 - naked_identifier: department
                 - dot: .
@@ -109,7 +109,7 @@ file:
                 - dot: .
                 - naked_identifier: deptno
               - comparison_operator:
-                  raw_comparison_operator: '='
+                  comparison_operator: '='
               - column_reference:
                 - naked_identifier: department
                 - dot: .
@@ -164,7 +164,7 @@ file:
                 - dot: .
                 - naked_identifier: deptno
               - comparison_operator:
-                  raw_comparison_operator: '='
+                  comparison_operator: '='
               - column_reference:
                 - naked_identifier: department
                 - dot: .
@@ -219,7 +219,7 @@ file:
                 - dot: .
                 - naked_identifier: deptno
               - comparison_operator:
-                  raw_comparison_operator: '='
+                  comparison_operator: '='
               - column_reference:
                 - naked_identifier: department
                 - dot: .
@@ -275,7 +275,7 @@ file:
                 - dot: .
                 - naked_identifier: deptno
               - comparison_operator:
-                  raw_comparison_operator: '='
+                  comparison_operator: '='
               - column_reference:
                 - naked_identifier: department
                 - dot: .
@@ -354,7 +354,7 @@ file:
                 - dot: .
                 - naked_identifier: deptno
               - comparison_operator:
-                  raw_comparison_operator: '='
+                  comparison_operator: '='
               - column_reference:
                 - naked_identifier: department
                 - dot: .
@@ -392,7 +392,7 @@ file:
                 - dot: .
                 - naked_identifier: deptno
               - comparison_operator:
-                  raw_comparison_operator: '='
+                  comparison_operator: '='
               - column_reference:
                 - naked_identifier: department
                 - dot: .
@@ -429,7 +429,7 @@ file:
                 - dot: .
                 - naked_identifier: deptno
               - comparison_operator:
-                  raw_comparison_operator: '='
+                  comparison_operator: '='
               - column_reference:
                 - naked_identifier: department
                 - dot: .
@@ -467,7 +467,7 @@ file:
                 - dot: .
                 - naked_identifier: deptno
               - comparison_operator:
-                  raw_comparison_operator: '='
+                  comparison_operator: '='
               - column_reference:
                 - naked_identifier: department
                 - dot: .
@@ -877,7 +877,7 @@ file:
                 - dot: .
                 - naked_identifier: a
               - comparison_operator:
-                  raw_comparison_operator: '='
+                  comparison_operator: '='
               - column_reference:
                 - naked_identifier: table2
                 - dot: .
@@ -897,7 +897,7 @@ file:
                 - dot: .
                 - naked_identifier: a
               - comparison_operator:
-                  raw_comparison_operator: '='
+                  comparison_operator: '='
               - column_reference:
                 - naked_identifier: table3
                 - dot: .

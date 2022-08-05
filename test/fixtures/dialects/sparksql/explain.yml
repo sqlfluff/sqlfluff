@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e8419b6c809320f4b5a85b9aefbd1e6867c23f2e9753dfbda7191afbd87630dd
+_hash: fb4b130433f2215b00f8d43a3d583f6c5d8469c4932937a7df4df27795978d64
 file:
 - statement:
     explain_statement:
@@ -68,7 +68,7 @@ file:
               column_reference:
                 naked_identifier: zip_code
               comparison_operator:
-                raw_comparison_operator: '>'
+                comparison_operator: '>'
               numeric_literal: '94511'
 - statement_terminator: ;
 - statement:
@@ -87,7 +87,7 @@ file:
             property_name_identifier:
               quoted_identifier: "'Edited-by'"
             comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
             quoted_literal: "'John'"
             end_bracket: )
 - statement_terminator: ;
@@ -142,7 +142,7 @@ file:
             property_name_identifier:
               quoted_identifier: '"property_name"'
             comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
             quoted_literal: '"property_value"'
             end_bracket: )
 - statement_terminator: ;
@@ -260,7 +260,7 @@ file:
             property_name_identifier:
               quoted_identifier: "'owner'"
             comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
             quoted_literal: "'xxxx'"
             end_bracket: )
 - statement_terminator: ;
@@ -334,7 +334,7 @@ file:
             column_reference:
               naked_identifier: age
             comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
             numeric_literal: '10'
             end_bracket: )
 - statement_terminator: ;

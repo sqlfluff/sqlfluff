@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: cf69f6048a644afca395a0752a97e0e6780fb56107cf14f96e1ff0e2fe09cd20
+_hash: 93e414e8ac0f84d021a4d3ce280ab725d92656f6dee91033708624964fb371fa
 file:
 - statement:
     merge_statement:
@@ -26,7 +26,7 @@ file:
           - dot: .
           - naked_identifier: name
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - column_reference:
           - naked_identifier: U
           - dot: .
@@ -46,7 +46,7 @@ file:
                 - dot: .
                 - naked_identifier: salary
                 comparison_operator:
-                  raw_comparison_operator: '='
+                  comparison_operator: '='
                 expression:
                   column_reference:
                   - naked_identifier: U
@@ -59,7 +59,7 @@ file:
                 - dot: .
                 - naked_identifier: lastChange
                 comparison_operator:
-                  raw_comparison_operator: '='
+                  comparison_operator: '='
                 expression:
                   bare_function: CURRENT_DATE
             where_clause:
@@ -70,7 +70,7 @@ file:
                 - dot: .
                 - naked_identifier: salary
               - comparison_operator:
-                  raw_comparison_operator: <
+                  comparison_operator: <
               - column_reference:
                 - naked_identifier: U
                 - dot: .
@@ -136,7 +136,7 @@ file:
           - dot: .
           - naked_identifier: name
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - column_reference:
           - naked_identifier: U
           - dot: .
@@ -184,7 +184,7 @@ file:
           - dot: .
           - naked_identifier: name
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - column_reference:
           - naked_identifier: U
           - dot: .

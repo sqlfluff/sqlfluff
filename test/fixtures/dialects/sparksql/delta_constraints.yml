@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6cb5616dfacdb4d462880862d15122a820e15134e1282a001ece3c737e93c2b8
+_hash: f06d2ebe6835a66d43d84b6b8965ae14980088c202cd8711f082afd11391a13e
 file:
 - statement:
     alter_table_statement:
@@ -40,7 +40,7 @@ file:
           column_reference:
             naked_identifier: birthDate
           comparison_operator:
-            raw_comparison_operator: '>'
+            comparison_operator: '>'
           quoted_literal: "'1900-01-01'"
         end_bracket: )
 - statement_terminator: ;
@@ -76,13 +76,13 @@ file:
         - column_reference:
             naked_identifier: id
         - comparison_operator:
-            raw_comparison_operator: '>'
+            comparison_operator: '>'
         - numeric_literal: '1'
         - binary_operator: and
         - column_reference:
             naked_identifier: id
         - comparison_operator:
-            raw_comparison_operator: <
+            comparison_operator: <
         - numeric_literal: '99999999'
         end_bracket: )
 - statement_terminator: ;

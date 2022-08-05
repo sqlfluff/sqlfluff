@@ -263,12 +263,10 @@ ansi_dialect.add(
     LikeOperatorSegment=NamedParser(
         "like_operator", SymbolSegment, type="comparison_operator"
     ),
-    RawNotSegment=StringParser("!", SymbolSegment, type="raw_comparison_operator"),
-    RawEqualsSegment=StringParser("=", SymbolSegment, type="raw_comparison_operator"),
-    RawGreaterThanSegment=StringParser(
-        ">", SymbolSegment, type="raw_comparison_operator"
-    ),
-    RawLessThanSegment=StringParser("<", SymbolSegment, type="raw_comparison_operator"),
+    RawNotSegment=StringParser("!", SymbolSegment, type="comparison_operator"),
+    RawEqualsSegment=StringParser("=", SymbolSegment, type="comparison_operator"),
+    RawGreaterThanSegment=StringParser(">", SymbolSegment, type="comparison_operator"),
+    RawLessThanSegment=StringParser("<", SymbolSegment, type="comparison_operator"),
     # The following functions can be called without parentheses per ANSI specification
     BareFunctionSegment=SegmentGenerator(
         lambda dialect: MultiStringParser(

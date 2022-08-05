@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b0dafb65360d9c10e9c56627e02ea35220e8528526ebed4bb9d3a47f8053c304
+_hash: 08a799c8ed64e323b01b3dfdf1d18e005ef672797924b9d429bcbfe7d83f84d3
 file:
   statement:
     alter_task_statement:
@@ -15,15 +15,15 @@ file:
       - keyword: SET
       - keyword: WAREHOUSE
       - comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
       - object_reference:
           naked_identifier: my_warehouse
       - keyword: SCHEDULE
       - comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
       - quoted_literal: "'2 MINUTE'"
       - keyword: ALLOW_OVERLAPPING_EXECUTION
       - comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
       - boolean_literal: 'TRUE'
   statement_terminator: ;

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c81a669cbc95ca3267e1921e9cc2f7ffc3c85658f61264472a624464eb8837e8
+_hash: fe5b4ca18dc75eefd0014d8f8e05548682a8928766f93a178d26764d15772c05
 file:
 - statement:
     insert_statement:
@@ -140,7 +140,7 @@ file:
             column_reference:
               naked_identifier: date_prod
             comparison_operator:
-              raw_comparison_operator: <
+              comparison_operator: <
             quoted_literal: "'2004-05-07'"
 - statement_terminator: ;
 - statement:
@@ -425,7 +425,7 @@ file:
             - dot: .
             - naked_identifier: key
           - comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
           - column_reference:
             - naked_identifier: src2
             - dot: .
@@ -440,7 +440,7 @@ file:
         column_reference:
           naked_identifier: n1
         comparison_operator:
-          raw_comparison_operator: '>'
+          comparison_operator: '>'
         numeric_literal: '100'
     - keyword: then
     - keyword: into
@@ -451,7 +451,7 @@ file:
         column_reference:
           naked_identifier: n1
         comparison_operator:
-          raw_comparison_operator: '>'
+          comparison_operator: '>'
         numeric_literal: '10'
     - keyword: then
     - keyword: into
@@ -487,7 +487,7 @@ file:
         column_reference:
           naked_identifier: n1
         comparison_operator:
-          raw_comparison_operator: '>'
+          comparison_operator: '>'
         numeric_literal: '100'
     - keyword: then
     - keyword: into
@@ -498,7 +498,7 @@ file:
         column_reference:
           naked_identifier: n1
         comparison_operator:
-          raw_comparison_operator: '>'
+          comparison_operator: '>'
         numeric_literal: '10'
     - keyword: then
     - keyword: into
@@ -534,7 +534,7 @@ file:
         column_reference:
           naked_identifier: c
         comparison_operator:
-          raw_comparison_operator: '>'
+          comparison_operator: '>'
         numeric_literal: '10'
     - keyword: then
     - keyword: into

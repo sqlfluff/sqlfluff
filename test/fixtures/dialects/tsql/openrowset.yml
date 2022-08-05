@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3711edeb255f7411613a876ef888e2da9cab67a2a5f15523df1a0e9fc71ec47c
+_hash: 62d5e34d6f06d13b6ad4716c3f87ec72abfa88f4e31e3aae912ae581b7438619
 file:
 - batch:
     statement:
@@ -225,17 +225,17 @@ file:
                   - comma: ','
                   - keyword: FORMATFILE
                   - comparison_operator:
-                      raw_comparison_operator: '='
+                      comparison_operator: '='
                   - quoted_literal: "N'D:\\XChange\\test-csv.fmt'"
                   - comma: ','
                   - keyword: FIRSTROW
                   - comparison_operator:
-                      raw_comparison_operator: '='
+                      comparison_operator: '='
                   - numeric_literal: '2'
                   - comma: ','
                   - keyword: FORMAT
                   - comparison_operator:
-                      raw_comparison_operator: '='
+                      comparison_operator: '='
                   - quoted_literal: "'CSV'"
                   - end_bracket: )
               alias_expression:

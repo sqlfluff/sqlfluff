@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bc6640b52894d99c9c6bb382dcaa1de71630c65eaa51007683569191d4fa7057
+_hash: 60edee612c4eb367e7de111213dc6ba5dedac05ae71215294e379f103836298d
 file:
   batch:
   - statement:
@@ -13,7 +13,7 @@ file:
         data_type:
           data_type_identifier: date
         comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
         expression:
           function:
             function_name:
@@ -99,7 +99,7 @@ file:
             keyword: max
             end_bracket: )
         comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
         expression:
           function:
             function_name:

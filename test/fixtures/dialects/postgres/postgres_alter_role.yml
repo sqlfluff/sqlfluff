@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 13cb7d7e697ed0d1d7583c297ca51108f94d7f81d604da6e3f5634b2693f3951
+_hash: 96872e717e24041c8cb542a58b4e7347e5bf93ddf3cb157c302c75cc80faa88e
 file:
 - statement:
     alter_role_statement:
@@ -55,7 +55,7 @@ file:
     - object_reference:
         naked_identifier: maintenance_work_mem
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - quoted_literal: "'100000'"
 - statement_terminator: ;
 - statement:
@@ -162,7 +162,7 @@ file:
     - object_reference:
         naked_identifier: maintenance_work_mem
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - quoted_literal: "'100000'"
 - statement_terminator: ;
 - statement:

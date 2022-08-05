@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8381964744a2723edcf42ca3a6389fac06143cf17b41ef1794ff592b1213f03e
+_hash: c9e34c894642bbd1c270031d9d5635f87791cf098b1a4680138f904ea13d2c6b
 file:
 - statement:
     create_table_statement:
@@ -87,13 +87,13 @@ file:
       - property_name_identifier:
           quoted_identifier: '"key1"'
       - comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
       - quoted_literal: '"val1"'
       - comma: ','
       - property_name_identifier:
           quoted_identifier: '"key2"'
       - comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
       - quoted_literal: '"val2"'
       - end_bracket: )
     - keyword: AS
@@ -207,7 +207,7 @@ file:
         property_name_identifier:
           quoted_identifier: "'foo'"
         comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
         quoted_literal: "'bar'"
         end_bracket: )
 - statement_terminator: ;
@@ -246,7 +246,7 @@ file:
         property_name_identifier:
           quoted_identifier: "'foo'"
         comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
         quoted_literal: "'bar'"
         end_bracket: )
     - keyword: COMMENT
@@ -466,7 +466,7 @@ file:
         property_name_identifier:
           quoted_identifier: "'avro.schema.literal'"
         comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
         quoted_literal: "'{\n        \"namespace\": \"org.apache.hive\",\n       \
           \ \"name\": \"first_schema\",\n        \"type\": \"record\",\n        \"\
           fields\": [ { \"name\":\"string1\", \"type\":\"string\" }, { \"name\":\"\

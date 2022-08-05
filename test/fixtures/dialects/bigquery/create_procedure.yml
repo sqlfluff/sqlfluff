@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b6e3d437bfcd1728d0466ceeaf60034b799468b6393673dabe02d5d6fccbc004
+_hash: 624cf1fbcff8c413d1db5635d59d829d585dd0a185532dd843d9d14d2f2f6ba8
 file:
 - multi_statement_segment:
     create_procedure_statement:
@@ -99,7 +99,7 @@ file:
             keyword: SET
             naked_identifier: x
             comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
             expression:
             - column_reference:
                 naked_identifier: x
@@ -190,7 +190,7 @@ file:
                         - dot: .
                         - naked_identifier: id
                       - comparison_operator:
-                          raw_comparison_operator: '='
+                          comparison_operator: '='
                       - column_reference:
                         - naked_identifier: t2
                         - dot: .
@@ -203,7 +203,7 @@ file:
                   - dot: .
                   - naked_identifier: date
                 - comparison_operator:
-                    raw_comparison_operator: '='
+                    comparison_operator: '='
                 - column_reference:
                     naked_identifier: target_date
                 - binary_operator: AND
@@ -212,7 +212,7 @@ file:
                   - dot: .
                   - naked_identifier: date
                 - comparison_operator:
-                    raw_comparison_operator: '='
+                    comparison_operator: '='
                 - column_reference:
                     naked_identifier: target_date
       - statement_terminator: ;
@@ -221,7 +221,7 @@ file:
             keyword: SET
             naked_identifier: rows_added
             comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
             bracketed:
               start_bracket: (
               select_statement:
@@ -308,7 +308,7 @@ file:
             keyword: SET
             naked_identifier: id
             comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
             function:
               function_name:
                 function_name_identifier: GENERATE_UUID
@@ -389,7 +389,7 @@ file:
             keyword: SET
             naked_identifier: id
             comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
             function:
               function_name:
                 function_name_identifier: GENERATE_UUID
@@ -479,7 +479,7 @@ file:
             keyword: SET
             naked_identifier: id
             comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
             function:
               function_name:
                 function_name_identifier: GENERATE_UUID
@@ -573,7 +573,7 @@ file:
           - keyword: USING
           - keyword: MESSAGE
           - comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
           - expression:
               quoted_literal: '"Test"'
       - statement_terminator: ;
@@ -583,7 +583,7 @@ file:
           - keyword: USING
           - keyword: MESSAGE
           - comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
           - expression:
               column_reference:
                 naked_identifier: error_message

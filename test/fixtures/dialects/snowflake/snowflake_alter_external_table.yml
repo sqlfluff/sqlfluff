@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d18cf30b49749b2f879ef2161d131cdba0ff5fc279442ebbd71f1d4e47f7dd58
+_hash: 4f6901b4f09f28be701103d5fd3be4dc7e3e9478b3ed3a9ff836db65d78b69ba
 file:
 - statement:
     alter_external_table_statement:
@@ -70,19 +70,19 @@ file:
       - column_reference:
           naked_identifier: foo
       - comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
       - quoted_literal: "'baz'"
       - comma: ','
       - column_reference:
           naked_identifier: bar
       - comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
       - quoted_literal: "'bar'"
       - comma: ','
       - column_reference:
           naked_identifier: baz
       - comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
       - quoted_literal: "'foo'"
       - end_bracket: )
     - keyword: location
@@ -112,7 +112,7 @@ file:
     - keyword: set
     - keyword: auto_refresh
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - boolean_literal: 'true'
 - statement_terminator: ;
 - statement:
@@ -129,12 +129,12 @@ file:
       - keyword: tag
       - naked_identifier: foo
       - comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
       - quoted_literal: "'foo'"
       - comma: ','
       - naked_identifier: bar
       - comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
       - quoted_literal: "'bar'"
 - statement_terminator: ;
 - statement:
@@ -149,6 +149,6 @@ file:
         keyword: tag
         naked_identifier: foo
         comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
         quoted_literal: "'foo'"
 - statement_terminator: ;

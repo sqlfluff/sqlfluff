@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6caef570ecdf6ec635d22eccd23434c239efca88596bf79cd99ab8f7db1be3ba
+_hash: de28d60437a9a70807c82da02ce9f7c35c8b0a1a63809cfc476f5c9b9f5bd498
 file:
 - statement:
     alter_schema_statement:
@@ -34,7 +34,7 @@ file:
     - keyword: SET
     - keyword: RAW_SIZE_LIMIT
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - numeric_literal: '128'
     - star: '*'
     - numeric_literal: '1024'

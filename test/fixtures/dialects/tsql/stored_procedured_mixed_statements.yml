@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3a5423cf8242fc1fc58c65ffccfd6dd113b24a15010966fc3d6007a77dd35486
+_hash: dcbf16d8388bd28193bc07c615a3b6269ca5be53237f5eb101bbb0d9dd033d2c
 file:
   batch:
     create_procedure_statement:
@@ -22,7 +22,7 @@ file:
             data_type:
               data_type_identifier: DATE
             comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
             expression:
               function:
                 function_name:
@@ -61,7 +61,7 @@ file:
                     table_distribution_clause:
                     - keyword: DISTRIBUTION
                     - comparison_operator:
-                        raw_comparison_operator: '='
+                        comparison_operator: '='
                     - keyword: ROUND_ROBIN
                     comma: ','
                     table_index_clause:

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ebfa67a74f2c11ab6f7f3b464b9046dc119fef9e7938acc264322711dfc5c4d1
+_hash: f93b4c182539a8f1c2f1172e779ff022e18b5deccff053a677745c08eba7da34
 file:
 - statement:
     delete_statement:
@@ -48,7 +48,7 @@ file:
         expression:
         - numeric_literal: '1'
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - numeric_literal: '2'
 - statement_terminator: ;
 - statement:
@@ -69,7 +69,7 @@ file:
           - dot: .
           - naked_identifier: bicycle_id
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - column_reference:
           - naked_identifier: returned_bicycles
           - dot: .
@@ -99,7 +99,7 @@ file:
           - dot: .
           - naked_identifier: bicycle_id
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - column_reference:
           - naked_identifier: rb
           - dot: .
@@ -127,7 +127,7 @@ file:
           - dot: .
           - naked_identifier: bicycle_id
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - column_reference:
           - naked_identifier: rb
           - dot: .
@@ -155,7 +155,7 @@ file:
           - dot: .
           - naked_identifier: bicycle_id
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - column_reference:
           - naked_identifier: returned_bicycles
           - dot: .
@@ -166,7 +166,7 @@ file:
           - dot: .
           - naked_identifier: bicycle_id
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - column_reference:
           - naked_identifier: broken_bicycles
           - dot: .
@@ -203,7 +203,7 @@ file:
           - dot: .
           - naked_identifier: bicycle_id
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - column_reference:
           - naked_identifier: rb
           - dot: .
@@ -214,7 +214,7 @@ file:
           - dot: .
           - naked_identifier: bicycle_id
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - column_reference:
           - naked_identifier: bb
           - dot: .
@@ -248,7 +248,7 @@ file:
           - dot: .
           - naked_identifier: bicycle_id
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - column_reference:
           - naked_identifier: rb
           - dot: .
@@ -259,7 +259,7 @@ file:
           - dot: .
           - naked_identifier: bicycle_id
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - column_reference:
           - naked_identifier: bb
           - dot: .
@@ -303,7 +303,7 @@ file:
           - dot: .
           - naked_identifier: bicycle_id
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - column_reference:
           - naked_identifier: returned
           - dot: .
@@ -340,7 +340,7 @@ file:
               expression:
               - numeric_literal: '1'
               - comparison_operator:
-                  raw_comparison_operator: '='
+                  comparison_operator: '='
               - numeric_literal: '2'
           end_bracket: )
     - alias_expression:
@@ -354,7 +354,7 @@ file:
           - dot: .
           - naked_identifier: bicycle_id
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - column_reference:
           - naked_identifier: returned
           - dot: .

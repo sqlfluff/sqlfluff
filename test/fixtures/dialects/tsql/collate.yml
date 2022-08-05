@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6da6849d0cf0e48809d62b8bdfce5180ca01fd95df5005628ca1532711c76fca
+_hash: 47418c12bb87098a0f58d05c00fa4584ffff0b3e1f1d05c60e20ae7e3792029d
 file:
   batch:
   - statement:
@@ -37,7 +37,7 @@ file:
                   - dot: .
                   - naked_identifier: col
                 - comparison_operator:
-                    raw_comparison_operator: '='
+                    comparison_operator: '='
                 - column_reference:
                   - naked_identifier: table2
                   - dot: .
@@ -78,7 +78,7 @@ file:
                 - keyword: COLLATE
                 - collation: Latin1_GENERAL_CS_AS
                 - comparison_operator:
-                    raw_comparison_operator: '='
+                    comparison_operator: '='
                 - column_reference:
                   - naked_identifier: table2
                   - dot: .

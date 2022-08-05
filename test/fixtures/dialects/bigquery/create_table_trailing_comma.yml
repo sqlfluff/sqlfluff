@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 018364a69b948f44088a1b9f4dd3793605a728e0f7404b540764dd923a4f9917
+_hash: 620b7b568f57d211c30a2c25ad275deef06a5a29698d13391fa1af72cac8be8a
 file:
 - statement:
     create_table_statement:
@@ -46,7 +46,7 @@ file:
               start_bracket: (
               parameter: description
               comparison_operator:
-                raw_comparison_operator: '='
+                comparison_operator: '='
               quoted_literal: '"An INTEGER field that is NOT NULL"'
               end_bracket: )
       - comma: ','

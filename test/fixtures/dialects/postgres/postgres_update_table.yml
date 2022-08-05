@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 86626a1823ad820cb0c4a708ab00298f00e1fb7a615911bd384bc95204644b16
+_hash: 0a45c5fdf34ce7539393166361b98ac3ff73707d311c2d4ebef6cea8b8c99af1
 file:
 - statement:
     update_statement:
@@ -16,7 +16,7 @@ file:
           column_reference:
             naked_identifier: kind
           comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
           quoted_literal: "'Dramatic'"
       where_clause:
         keyword: WHERE
@@ -24,7 +24,7 @@ file:
           column_reference:
             naked_identifier: kind
           comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
           quoted_literal: "'Drama'"
 - statement_terminator: ;
 - statement:
@@ -38,7 +38,7 @@ file:
           column_reference:
             naked_identifier: temp_lo
           comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
           expression:
             column_reference:
               naked_identifier: temp_lo
@@ -49,7 +49,7 @@ file:
           column_reference:
             naked_identifier: temp_hi
           comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
           expression:
             column_reference:
               naked_identifier: temp_lo
@@ -60,7 +60,7 @@ file:
           column_reference:
             naked_identifier: prcp
           comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
           keyword: DEFAULT
       where_clause:
         keyword: WHERE
@@ -68,13 +68,13 @@ file:
         - column_reference:
             naked_identifier: city
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - quoted_literal: "'San Francisco'"
         - binary_operator: AND
         - column_reference:
             naked_identifier: date
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - quoted_literal: "'2003-07-03'"
 - statement_terminator: ;
 - statement:
@@ -88,7 +88,7 @@ file:
           column_reference:
             naked_identifier: temp_lo
           comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
           expression:
             column_reference:
               naked_identifier: temp_lo
@@ -99,7 +99,7 @@ file:
           column_reference:
             naked_identifier: temp_hi
           comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
           expression:
             column_reference:
               naked_identifier: temp_lo
@@ -110,7 +110,7 @@ file:
           column_reference:
             naked_identifier: prcp
           comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
           keyword: DEFAULT
     - where_clause:
         keyword: WHERE
@@ -118,13 +118,13 @@ file:
         - column_reference:
             naked_identifier: city
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - quoted_literal: "'San Francisco'"
         - binary_operator: AND
         - column_reference:
             naked_identifier: date
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - quoted_literal: "'2003-07-03'"
     - keyword: RETURNING
     - expression:
@@ -159,7 +159,7 @@ file:
               naked_identifier: prcp
           - end_bracket: )
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - bracketed:
           - start_bracket: (
           - expression:
@@ -182,13 +182,13 @@ file:
         - column_reference:
             naked_identifier: city
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - quoted_literal: "'San Francisco'"
         - binary_operator: AND
         - column_reference:
             naked_identifier: date
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - quoted_literal: "'2003-07-03'"
 - statement_terminator: ;
 - statement:
@@ -202,7 +202,7 @@ file:
           column_reference:
             naked_identifier: sales_count
           comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
           expression:
             column_reference:
               naked_identifier: sales_count
@@ -223,7 +223,7 @@ file:
           - dot: .
           - naked_identifier: name
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - quoted_literal: "'Acme Corporation'"
         - binary_operator: AND
         - column_reference:
@@ -231,7 +231,7 @@ file:
           - dot: .
           - naked_identifier: id
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - column_reference:
           - naked_identifier: accounts
           - dot: .
@@ -248,7 +248,7 @@ file:
           column_reference:
             naked_identifier: sales_count
           comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
           expression:
             column_reference:
               naked_identifier: sales_count
@@ -260,7 +260,7 @@ file:
           column_reference:
             naked_identifier: id
           comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
           bracketed:
             start_bracket: (
             expression:
@@ -283,7 +283,7 @@ file:
                     column_reference:
                       naked_identifier: name
                     comparison_operator:
-                      raw_comparison_operator: '='
+                      comparison_operator: '='
                     quoted_literal: "'Acme Corporation'"
             end_bracket: )
 - statement_terminator: ;
@@ -304,7 +304,7 @@ file:
               naked_identifier: contact_last_name
           - end_bracket: )
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - bracketed:
             start_bracket: (
             expression:
@@ -333,7 +333,7 @@ file:
                     - dot: .
                     - naked_identifier: id
                   - comparison_operator:
-                      raw_comparison_operator: '='
+                      comparison_operator: '='
                   - column_reference:
                     - naked_identifier: accounts
                     - dot: .
@@ -351,7 +351,7 @@ file:
         - column_reference:
             naked_identifier: contact_first_name
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - column_reference:
             naked_identifier: first_name
       - comma: ','
@@ -359,7 +359,7 @@ file:
         - column_reference:
             naked_identifier: contact_last_name
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - column_reference:
             naked_identifier: last_name
       from_clause:
@@ -377,7 +377,7 @@ file:
           - dot: .
           - naked_identifier: id
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - column_reference:
           - naked_identifier: accounts
           - dot: .
@@ -408,7 +408,7 @@ file:
               naked_identifier: avg_y
           - end_bracket: )
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - bracketed:
             start_bracket: (
             expression:
@@ -475,7 +475,7 @@ file:
                     - dot: .
                     - naked_identifier: group_id
                   - comparison_operator:
-                      raw_comparison_operator: '='
+                      comparison_operator: '='
                   - column_reference:
                     - naked_identifier: s
                     - dot: .
@@ -493,7 +493,7 @@ file:
           column_reference:
             naked_identifier: kind
           comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
           quoted_literal: "'Dramatic'"
     - keyword: WHERE
     - keyword: CURRENT
@@ -512,7 +512,7 @@ file:
         - column_reference:
             naked_identifier: my_column
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - column_reference:
             quoted_identifier: '"SQLFluff rules!"'
     - keyword: RETURNING

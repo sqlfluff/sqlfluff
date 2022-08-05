@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d861350ac870b76d40cd5f810b294da273c5218402d8210df4b1bd3b7b9fd416
+_hash: 647153231bbd9667117c7a24fe6e48d58e06b61545e8dd9d01c35d6442599fd0
 file:
 - statement:
     create_consumer_group_statement:
@@ -15,13 +15,13 @@ file:
     - consumer_group_parameter:
         keyword: PRECEDENCE
         comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
         quoted_literal: "'1000'"
     - comma: ','
     - consumer_group_parameter:
         keyword: CPU_WEIGHT
         comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
         quoted_literal: "'900'"
 - statement_terminator: ;
 - statement:
@@ -34,25 +34,25 @@ file:
     - consumer_group_parameter:
         keyword: PRECEDENCE
         comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
         quoted_literal: "'900'"
     - comma: ','
     - consumer_group_parameter:
         keyword: CPU_WEIGHT
         comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
         quoted_literal: "'500'"
     - comma: ','
     - consumer_group_parameter:
         keyword: GROUP_TEMP_DB_RAM_LIMIT
         comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
         quoted_literal: "'200G'"
     - comma: ','
     - consumer_group_parameter:
         keyword: USER_TEMP_DB_RAM_LIMIT
         comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
         quoted_literal: "'100G'"
 - statement_terminator: ;
 - statement:
@@ -65,37 +65,37 @@ file:
     - consumer_group_parameter:
         keyword: PRECEDENCE
         comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
         quoted_literal: "'800'"
     - comma: ','
     - consumer_group_parameter:
         keyword: CPU_WEIGHT
         comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
         quoted_literal: "'100'"
     - comma: ','
     - consumer_group_parameter:
         keyword: GROUP_TEMP_DB_RAM_LIMIT
         comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
         quoted_literal: "'10G'"
     - comma: ','
     - consumer_group_parameter:
         keyword: SESSION_TEMP_DB_RAM_LIMIT
         comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
         quoted_literal: "'5G'"
     - comma: ','
     - consumer_group_parameter:
         keyword: QUERY_TIMEOUT
         comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
         numeric_literal: '60'
     - comma: ','
     - consumer_group_parameter:
         keyword: IDLE_TIMEOUT
         comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
         numeric_literal: '3600'
 - statement_terminator: ;
 - statement:
@@ -108,12 +108,12 @@ file:
     - consumer_group_parameter:
         keyword: PRECEDENCE
         comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
         quoted_literal: "'1000'"
     - comma: ','
     - consumer_group_parameter:
         keyword: CPU_WEIGHT
         comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
         quoted_literal: "'900'"
 - statement_terminator: ;

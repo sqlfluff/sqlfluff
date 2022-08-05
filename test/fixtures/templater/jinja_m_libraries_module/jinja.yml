@@ -20,11 +20,11 @@ file:
           - column_reference:
               naked_identifier: x
           - comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
           - numeric_literal: '23'
           - binary_operator: and
           - column_reference:
               naked_identifier: y
           - comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
           - numeric_literal: '42'

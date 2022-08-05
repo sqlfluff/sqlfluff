@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: fee23c92023bf3d3cc4811b1bde6f35bc684d179d3f3ed3377345add96fe6e4d
+_hash: 259afba2bcec8dddd2999d1f51c5b70f16233d2bd80aadc97fe0c9709bddda1e
 file:
   statement:
     unload_statement:
@@ -35,22 +35,22 @@ file:
       - start_bracket: (
       - keyword: format
       - comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
       - quoted_literal: "'CSV'"
       - comma: ','
       - keyword: compression
       - comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
       - quoted_literal: "'gzip'"
       - comma: ','
       - keyword: field_delimiter
       - comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
       - quoted_literal: "','"
       - comma: ','
       - keyword: partitioned_by
       - comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
       - array_literal:
           keyword: ARRAY
           start_square_bracket: '['

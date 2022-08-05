@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 278f9dc7be7cdaf294f628d98a3bea1d73ef6ed55204b57790a2bf5a901258f9
+_hash: 60c1d93b6a4ccbdbf9c79e934c899de17fd17c31de1a063691316b2fdd5c4f8f
 file:
 - batch:
     statement:
@@ -414,7 +414,7 @@ file:
             naked_identifier: FindEmployeesFunc
           parameter: '@lastName'
           comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
           quoted_literal: "'Picard'"
 - go_statement:
     keyword: GO

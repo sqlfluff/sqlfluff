@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 10866693896cdecd8390324d3138cc43804895595bcda91c8e64c983aa9365cc
+_hash: 9c1ef946971c31e959feec4615a93d1234595c5984a5cd31ae739c99f907bec7
 file:
   batch:
     statement:
@@ -15,7 +15,7 @@ file:
             expression:
             - numeric_literal: '1'
             - comparison_operator:
-                raw_comparison_operator: '='
+                comparison_operator: '='
             - numeric_literal: '1'
             end_bracket: )
         statement:
@@ -49,7 +49,7 @@ file:
                             column_reference:
                               naked_identifier: EventCode
                             comparison_operator:
-                              raw_comparison_operator: '='
+                              comparison_operator: '='
                             quoted_literal: "'Done'"
                       end_bracket: )
                 statement:

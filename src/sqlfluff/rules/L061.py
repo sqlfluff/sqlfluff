@@ -41,12 +41,12 @@ class Rule_L061(BaseRule):
             return None
 
         # Get the comparison operator children
-        raw_comparison_operators = context.functional.segment.children().select(
-            select_if=sp.is_type("raw_comparison_operator")
+        comparison_operators = context.functional.segment.children().select(
+            select_if=sp.is_type("comparison_operator")
         )
 
         # Only care about ``<>``
-        if [r.raw for r in raw_comparison_operators] != ["<", ">"]:
+        if [r.raw for r in comparison_operators] != ["<", ">"]:
             return None
 
         # Provide a fix and replace ``<>`` with ``!=``
@@ -55,12 +55,12 @@ class Rule_L061(BaseRule):
         # 2. Replace > with =
         fixes = [
             LintFix.replace(
-                raw_comparison_operators[0],
-                [SymbolSegment(raw="!", type="raw_comparison_operator")],
+                comparison_operators[0],
+                [SymbolSegment(raw="!", type="comparison_operator")],
             ),
             LintFix.replace(
-                raw_comparison_operators[1],
-                [SymbolSegment(raw="=", type="raw_comparison_operator")],
+                comparison_operators[1],
+                [SymbolSegment(raw="=", type="comparison_operator")],
             ),
         ]
 

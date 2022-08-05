@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2e4ecf246343b39a5fee5592a9c83fbe965bf86696b864abfde617fc031dc779
+_hash: 6cf3731df5ebcbd7d29c69927d93ca07e42c0946420dd95f6a4178f29c1d861b
 file:
 - statement:
     select_statement:
@@ -383,7 +383,7 @@ file:
                 - dot: .
                 - naked_identifier: key
               - comparison_operator:
-                  raw_comparison_operator: '='
+                  comparison_operator: '='
               - column_reference:
                 - naked_identifier: t2
                 - dot: .
@@ -443,7 +443,7 @@ file:
                 - dot: .
                 - naked_identifier: key
               - comparison_operator:
-                  raw_comparison_operator: '='
+                  comparison_operator: '='
               - column_reference:
                 - naked_identifier: t2
                 - dot: .
@@ -503,7 +503,7 @@ file:
                 - dot: .
                 - naked_identifier: key
               - comparison_operator:
-                  raw_comparison_operator: '='
+                  comparison_operator: '='
               - column_reference:
                 - naked_identifier: t2
                 - dot: .
@@ -563,7 +563,7 @@ file:
                 - dot: .
                 - naked_identifier: key
               - comparison_operator:
-                  raw_comparison_operator: '='
+                  comparison_operator: '='
               - column_reference:
                 - naked_identifier: t2
                 - dot: .
@@ -623,7 +623,7 @@ file:
                 - dot: .
                 - naked_identifier: key
               - comparison_operator:
-                  raw_comparison_operator: '='
+                  comparison_operator: '='
               - column_reference:
                 - naked_identifier: t2
                 - dot: .
@@ -683,7 +683,7 @@ file:
                 - dot: .
                 - naked_identifier: key
               - comparison_operator:
-                  raw_comparison_operator: '='
+                  comparison_operator: '='
               - column_reference:
                 - naked_identifier: t2
                 - dot: .
@@ -743,7 +743,7 @@ file:
                 - dot: .
                 - naked_identifier: key
               - comparison_operator:
-                  raw_comparison_operator: '='
+                  comparison_operator: '='
               - column_reference:
                 - naked_identifier: t2
                 - dot: .
@@ -803,7 +803,7 @@ file:
                 - dot: .
                 - naked_identifier: key
               - comparison_operator:
-                  raw_comparison_operator: '='
+                  comparison_operator: '='
               - column_reference:
                 - naked_identifier: t2
                 - dot: .
@@ -873,7 +873,7 @@ file:
                 - dot: .
                 - naked_identifier: key
               - comparison_operator:
-                  raw_comparison_operator: '='
+                  comparison_operator: '='
               - column_reference:
                 - naked_identifier: t2
                 - dot: .

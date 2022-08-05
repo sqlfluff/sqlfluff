@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 840a52361e794d5324d9d7859afb34f2a8552f2f8f6038f77fe60cc7169f8316
+_hash: 167777ec913cb78ab10bb97a3627e98879cd96a636699d566f5e8bd963589778
 file:
 - statement:
     create_task_statement:
@@ -13,15 +13,15 @@ file:
         naked_identifier: t1
     - keyword: SCHEDULE
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - quoted_literal: "'USING CRON 0 9-17 * * SUN America/Los_Angeles'"
     - parameter: TIMESTAMP_INPUT_FORMAT
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - quoted_literal: "'YYYY-MM-DD HH24'"
     - keyword: USER_TASK_MANAGED_INITIAL_WAREHOUSE_SIZE
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - warehouse_size: "'XSMALL'"
     - keyword: AS
     - statement:
@@ -51,16 +51,16 @@ file:
         naked_identifier: mytask_hour
     - keyword: WAREHOUSE
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - object_reference:
         naked_identifier: mywh
     - keyword: SCHEDULE
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - quoted_literal: "'USING CRON 0 9-17 * * SUN America/Los_Angeles'"
     - parameter: TIMESTAMP_INPUT_FORMAT
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - quoted_literal: "'YYYY-MM-DD HH24'"
     - keyword: AS
     - statement:
@@ -101,29 +101,29 @@ file:
         naked_identifier: t1
     - keyword: SCHEDULE
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - quoted_literal: "'USING CRON 0 9-17 * * SUN America/Los_Angeles'"
     - keyword: ALLOW_OVERLAPPING_EXECUTION
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - boolean_literal: 'TRUE'
     - parameter: TIMESTAMP_INPUT_FORMAT
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - quoted_literal: "'YYYY-MM-DD HH24'"
     - keyword: USER_TASK_TIMEOUT_MS
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - numeric_literal: '25'
     - keyword: USER_TASK_MANAGED_INITIAL_WAREHOUSE_SIZE
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - warehouse_size: "'XSMALL'"
     - keyword: COPY
     - keyword: GRANTS
     - parameter: COMMENT
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - quoted_literal: "'Hello world'"
     - keyword: AFTER
     - object_reference:
@@ -184,12 +184,12 @@ file:
         naked_identifier: insert_session
     - keyword: WAREHOUSE
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - object_reference:
         naked_identifier: eng_wh
     - keyword: SCHEDULE
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - quoted_literal: "'USING CRON 45 6 * * * UTC'"
     - keyword: AS
     - statement:
@@ -271,7 +271,7 @@ file:
         naked_identifier: update_session
     - keyword: WAREHOUSE
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - object_reference:
         naked_identifier: eng_wh
     - keyword: AFTER
@@ -291,7 +291,7 @@ file:
             - column_reference:
                 naked_identifier: lag_datetime
             - comparison_operator:
-                raw_comparison_operator: '='
+                comparison_operator: '='
             - column_reference:
               - naked_identifier: v
               - dot: .
@@ -301,7 +301,7 @@ file:
             - column_reference:
                 naked_identifier: row_number
             - comparison_operator:
-                raw_comparison_operator: '='
+                comparison_operator: '='
             - column_reference:
               - naked_identifier: v
               - dot: .
@@ -400,7 +400,7 @@ file:
               - dot: .
               - naked_identifier: event_id
             - comparison_operator:
-                raw_comparison_operator: '='
+                comparison_operator: '='
             - column_reference:
               - naked_identifier: v
               - dot: .
@@ -418,7 +418,7 @@ file:
       - naked_identifier: truncate_session
     - keyword: WAREHOUSE
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - object_reference:
         naked_identifier: eng_wh
     - keyword: AFTER
@@ -449,12 +449,12 @@ file:
         naked_identifier: insert__agg
     - keyword: WAREHOUSE
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - object_reference:
         naked_identifier: eng_wh
     - keyword: SCHEDULE
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - quoted_literal: "'USING CRON 15 7 2 * * UTC'"
     - keyword: AS
     - statement:
@@ -479,16 +479,16 @@ file:
       - naked_identifier: MY_TASK
     - keyword: WAREHOUSE
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - object_reference:
         naked_identifier: MY_WH
     - keyword: SCHEDULE
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - quoted_literal: "'USING CRON 15 7 2 * * UTC'"
     - keyword: USER_TASK_TIMEOUT_MS
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - numeric_literal: '10800000'
     - keyword: WHEN
     - snowflake_task_expression_segment:
@@ -501,7 +501,7 @@ file:
         expression:
         - numeric_literal: '1'
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - numeric_literal: '1'
     - keyword: AS
     - statement:

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bbaa4a03f49727439bf083228d7f2b6949e04930c348c175f8a43f85c5fb078c
+_hash: 035b9b60f1ddd0182fcc42b32a2e4d6e12bd9db4c93a284adef13f81cc3fa387
 file:
 - statement:
     truncate_table:
@@ -23,7 +23,7 @@ file:
         column_reference:
           naked_identifier: col
         comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
         quoted_literal: "'val'"
         end_bracket: )
 - statement_terminator: ;

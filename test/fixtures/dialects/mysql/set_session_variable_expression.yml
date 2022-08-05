@@ -3,14 +3,14 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6dbb54d45f1b9ec0f0802f990ae79589b3b07f58353743dc22554fb032e4ed8e
+_hash: cb4ad01f4d7563f20a62b8a27e3708859df815a39742f723ae5aee1a8ee9ccc1
 file:
 - statement:
     set_statement:
       keyword: set
       variable: '@abc'
       comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
       expression:
       - numeric_literal: '1'
       - binary_operator: +
@@ -21,7 +21,7 @@ file:
       keyword: set
       variable: '@abc'
       comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
       expression:
         bracketed:
           start_bracket: (
@@ -38,7 +38,7 @@ file:
       keyword: SET
       variable: '@id'
       comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
       expression:
         bracketed:
           start_bracket: (
@@ -62,7 +62,7 @@ file:
                   column_reference:
                     naked_identifier: field
                   comparison_operator:
-                    raw_comparison_operator: '='
+                    comparison_operator: '='
                   boolean_literal: 'TRUE'
               limit_clause:
                 keyword: LIMIT

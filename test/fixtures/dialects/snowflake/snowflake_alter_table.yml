@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 829cd2e0d6a1ab5aa48115e491b6c911731eda6e48b2560a6bdc721a3d4aaba1
+_hash: 41df1429774a2c78b30c829efcb671410a61f85d49c544f6774921d995d53166
 file:
 - statement:
     alter_table_statement:
@@ -56,7 +56,7 @@ file:
     - keyword: SET
     - parameter: DATA_RETENTION_TIME_IN_DAYS
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - numeric_literal: '30'
 - statement_terminator: ;
 - statement:
@@ -68,7 +68,7 @@ file:
     - keyword: SET
     - parameter: DEFAULT_DDL_COLLATION
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - quoted_literal: "'en-ci'"
 - statement_terminator: ;
 - statement:
@@ -80,6 +80,6 @@ file:
     - keyword: SET
     - parameter: COMMENT
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - quoted_literal: "'my table comment'"
 - statement_terminator: ;

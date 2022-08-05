@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ffec6e9074ce8a42448d7c3d36e8a74fc167e756673f39e2140078afcc746d79
+_hash: b377689b216ff4cc95dd731b916c2f914fbbe8520d3c3b361853e1246954544c
 file:
 - statement:
     select_statement:
@@ -90,7 +90,7 @@ file:
                 - column_reference:
                     naked_identifier: order_month
                 - comparison_operator:
-                    raw_comparison_operator: '='
+                    comparison_operator: '='
                 - column_reference:
                     naked_identifier: max_month
               - keyword: THEN

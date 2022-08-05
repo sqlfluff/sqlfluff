@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 59a2bc011fdb7b3367b1d7ce3761037c884ce8298414f1fd7d7de2b2e5f349b8
+_hash: c137564369717061bcaf43871790ab8a2f52dd5ff8ffa9f75095324ebc862b2c
 file:
 - statement:
     select_statement:
@@ -29,7 +29,7 @@ file:
           column_reference:
             naked_identifier: id
           comparison_operator:
-            raw_comparison_operator: '>'
+            comparison_operator: '>'
           numeric_literal: '200'
       orderby_clause:
       - keyword: ORDER
@@ -61,13 +61,13 @@ file:
         - column_reference:
             naked_identifier: id
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - numeric_literal: '200'
         - binary_operator: OR
         - column_reference:
             naked_identifier: id
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - numeric_literal: '300'
       orderby_clause:
       - keyword: ORDER
@@ -106,7 +106,7 @@ file:
                   naked_identifier: name
               end_bracket: )
           comparison_operator:
-            raw_comparison_operator: '>'
+            comparison_operator: '>'
           numeric_literal: '3'
       orderby_clause:
       - keyword: ORDER
@@ -171,7 +171,7 @@ file:
           column_reference:
             naked_identifier: age
           comparison_operator:
-            raw_comparison_operator: '>'
+            comparison_operator: '>'
           bracketed:
             start_bracket: (
             expression:
@@ -241,7 +241,7 @@ file:
                   - dot: .
                   - naked_identifier: id
                 - comparison_operator:
-                    raw_comparison_operator: '='
+                    comparison_operator: '='
                 - column_reference:
                   - naked_identifier: person
                   - dot: .

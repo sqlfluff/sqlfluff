@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0b778250fdcce13dff7f32fa97a4100fea959a433afca2dbbdeb79d46a6a42f0
+_hash: 0c0dd21410a604a78895d811cfcb19a413205a483659c0b1ac902068cfa5bb35
 file:
 - statement:
     select_statement:
@@ -23,7 +23,7 @@ file:
                   column_reference:
                     naked_identifier: id
                   comparison_operator:
-                    raw_comparison_operator: '>'
+                    comparison_operator: '>'
                   numeric_literal: '200'
               - keyword: THEN
               - expression:
@@ -59,7 +59,7 @@ file:
                   column_reference:
                     naked_identifier: id
                   comparison_operator:
-                    raw_comparison_operator: '>'
+                    comparison_operator: '>'
                   numeric_literal: '200'
               - keyword: THEN
               - expression:
@@ -108,7 +108,7 @@ file:
                   column_reference:
                     naked_identifier: id
                   comparison_operator:
-                    raw_comparison_operator: '>'
+                    comparison_operator: '>'
                   numeric_literal: '300'
               - keyword: THEN
               - expression:
@@ -148,7 +148,7 @@ file:
           - expression:
             - numeric_literal: '1'
             - comparison_operator:
-                raw_comparison_operator: '='
+                comparison_operator: '='
             - numeric_literal: '1'
           - when_clause:
             - keyword: WHEN
@@ -177,6 +177,6 @@ file:
                 quoted_literal: "'small'"
           - keyword: END
           comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
           quoted_literal: "'small'"
 - statement_terminator: ;

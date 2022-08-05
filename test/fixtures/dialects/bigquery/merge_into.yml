@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: feac558779eab5cd039ec703125209de00ded78733b832070559793932bc656b
+_hash: 4b27fd3622f65a8dc1444716812affe89b66284e0a7c402ab1a5a54aab10e472
 file:
 - statement:
     merge_statement:
@@ -29,7 +29,7 @@ file:
           - dot: .
           - naked_identifier: product
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - column_reference:
           - naked_identifier: s
           - dot: .
@@ -44,7 +44,7 @@ file:
             column_reference:
               naked_identifier: quantity
             comparison_operator:
-              raw_comparison_operator: <
+              comparison_operator: <
             numeric_literal: '20'
         - keyword: THEN
         - merge_insert_clause:
@@ -137,7 +137,7 @@ file:
           - dot: .
           - naked_identifier: product
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - column_reference:
           - naked_identifier: s
           - dot: .
@@ -152,7 +152,7 @@ file:
             column_reference:
               naked_identifier: quantity
             comparison_operator:
-              raw_comparison_operator: <
+              comparison_operator: <
             numeric_literal: '20'
         - keyword: THEN
         - merge_insert_clause:
@@ -244,7 +244,7 @@ file:
           - dot: .
           - naked_identifier: product
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - column_reference:
           - naked_identifier: s
           - dot: .
@@ -262,7 +262,7 @@ file:
                 column_reference:
                   naked_identifier: quantity
                 comparison_operator:
-                  raw_comparison_operator: '='
+                  comparison_operator: '='
                 expression:
                 - column_reference:
                   - naked_identifier: t
@@ -335,8 +335,8 @@ file:
               column_reference:
                 naked_identifier: warehouse
               comparison_operator:
-              - raw_comparison_operator: '!'
-              - raw_comparison_operator: '='
+              - comparison_operator: '!'
+              - comparison_operator: '='
               quoted_literal: "'warehouse #2'"
         end_bracket: )
     - alias_expression:
@@ -349,7 +349,7 @@ file:
           - dot: .
           - naked_identifier: product
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - column_reference:
           - naked_identifier: s
           - dot: .
@@ -365,7 +365,7 @@ file:
             - dot: .
             - naked_identifier: warehouse
             comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
             quoted_literal: "'warehouse #1'"
         - keyword: THEN
         - merge_update_clause:
@@ -376,7 +376,7 @@ file:
                 column_reference:
                   naked_identifier: quantity
                 comparison_operator:
-                  raw_comparison_operator: '='
+                  comparison_operator: '='
                 expression:
                   column_reference:
                   - naked_identifier: t
@@ -445,7 +445,7 @@ file:
                     - dot: .
                     - naked_identifier: warehouse
                   - comparison_operator:
-                      raw_comparison_operator: '='
+                      comparison_operator: '='
                   - column_reference:
                     - naked_identifier: dataset
                     - dot: .
@@ -463,7 +463,7 @@ file:
           - dot: .
           - naked_identifier: product
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - column_reference:
           - naked_identifier: s
           - dot: .
@@ -477,7 +477,7 @@ file:
             column_reference:
               naked_identifier: state
             comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
             quoted_literal: "'CA'"
         - keyword: THEN
         - merge_update_clause:
@@ -488,7 +488,7 @@ file:
                 column_reference:
                   naked_identifier: quantity
                 comparison_operator:
-                  raw_comparison_operator: '='
+                  comparison_operator: '='
                 expression:
                 - column_reference:
                   - naked_identifier: t
@@ -530,7 +530,7 @@ file:
           - dot: .
           - naked_identifier: product
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - column_reference:
           - naked_identifier: s
           - dot: .
@@ -548,7 +548,7 @@ file:
                 column_reference:
                   naked_identifier: quantity
                 comparison_operator:
-                  raw_comparison_operator: '='
+                  comparison_operator: '='
                 expression:
                 - column_reference:
                   - naked_identifier: t
@@ -584,7 +584,7 @@ file:
           - dot: .
           - naked_identifier: product
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - column_reference:
           - naked_identifier: s
           - dot: .
@@ -623,7 +623,7 @@ file:
           - dot: .
           - naked_identifier: product
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - column_reference:
           - naked_identifier: s
           - dot: .
@@ -640,7 +640,7 @@ file:
             column_reference:
               naked_identifier: quantity
             comparison_operator:
-              raw_comparison_operator: <
+              comparison_operator: <
             numeric_literal: '20'
         - keyword: THEN
         - merge_insert_clause:
@@ -734,7 +734,7 @@ file:
           - dot: .
           - naked_identifier: product
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - column_reference:
           - naked_identifier: s
           - dot: .
@@ -755,7 +755,7 @@ file:
                 column_reference:
                   naked_identifier: quantity
                 comparison_operator:
-                  raw_comparison_operator: '='
+                  comparison_operator: '='
                 expression:
                 - column_reference:
                   - naked_identifier: t
@@ -799,8 +799,8 @@ file:
               column_reference:
                 naked_identifier: warehouse
               comparison_operator:
-              - raw_comparison_operator: <
-              - raw_comparison_operator: '>'
+              - comparison_operator: <
+              - comparison_operator: '>'
               quoted_literal: "'warehouse #2'"
         end_bracket: )
     - join_on_condition:

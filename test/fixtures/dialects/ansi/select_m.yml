@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2eea1fa41db10c8151633f3fd9f63f4bd1c2849ca484e69fc3eefaccdfcd08b2
+_hash: d9ea9628b377ab935a954d86295c6f78430a9807511c35d13f2376568ce7a2cd
 file:
 - statement:
     select_statement:
@@ -34,7 +34,7 @@ file:
                 - dot: .
                 - naked_identifier: ticket_id
               - comparison_operator:
-                  raw_comparison_operator: '='
+                  comparison_operator: '='
               - column_reference:
                 - naked_identifier: ticket
                 - dot: .
@@ -69,7 +69,7 @@ file:
                   - column_reference:
                       naked_identifier: business_type
                   - comparison_operator:
-                      raw_comparison_operator: '='
+                      comparison_operator: '='
                   - column_reference:
                       naked_identifier: low_business_type
                   end_bracket: )
@@ -80,14 +80,14 @@ file:
                   - column_reference:
                       naked_identifier: business_type
                   - comparison_operator:
-                      raw_comparison_operator: '='
+                      comparison_operator: '='
                   - column_reference:
                       naked_identifier: low_business_type
                   - binary_operator: OR
                   - column_reference:
                       naked_identifier: size_label
                   - comparison_operator:
-                      raw_comparison_operator: '='
+                      comparison_operator: '='
                   - column_reference:
                       naked_identifier: low_size_label
                   end_bracket: )

@@ -3,14 +3,14 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f5a859bc75f6b63c6c5c7fbf8ebe8f7d0a248c0674ca8469ad493e7cacd0ca14
+_hash: 51cb1dce9da046cb53cfaf6e26430538c2ee790c89a95c8d206f7152fe696c72
 file:
 - statement:
     set_statement:
     - keyword: SET
     - variable: some_bool_param
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - keyword: 'ON'
 - statement_terminator: ;
 - statement:
@@ -18,7 +18,7 @@ file:
     - keyword: SET
     - variable: some_bool_param
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - keyword: 'OFF'
 - statement_terminator: ;
 - statement:
@@ -26,7 +26,7 @@ file:
     - keyword: SET
     - variable: some_bool_param
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - keyword: 'TRUE'
 - statement_terminator: ;
 - statement:
@@ -34,7 +34,7 @@ file:
     - keyword: SET
     - variable: some_bool_param
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - keyword: 'FALSE'
 - statement_terminator: ;
 - statement:
@@ -42,7 +42,7 @@ file:
     - keyword: SET
     - variable: some_bool_param
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - variable: '0'
 - statement_terminator: ;
 - statement:
@@ -50,6 +50,6 @@ file:
     - keyword: SET
     - variable: some_bool_param
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - variable: '1'
 - statement_terminator: ;

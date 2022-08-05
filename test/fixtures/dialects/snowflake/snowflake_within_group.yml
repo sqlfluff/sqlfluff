@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ae4bc291752c96f5835abc1f446a4e45477ab253bf6de7d14866ce4c403909cd
+_hash: 1769505c4d875cfcaf60c7a50f252ce00759e5b98b4ccc9c0cea621702e76e14
 file:
 - statement:
     with_compound_statement:
@@ -213,7 +213,7 @@ file:
           column_reference:
             naked_identifier: o_totalprice
           comparison_operator:
-            raw_comparison_operator: '>'
+            comparison_operator: '>'
           numeric_literal: '450000'
 - statement_terminator: ;
 - statement:
@@ -256,7 +256,7 @@ file:
           column_reference:
             naked_identifier: o_totalprice
           comparison_operator:
-            raw_comparison_operator: '>'
+            comparison_operator: '>'
           numeric_literal: '450000'
       orderby_clause:
       - keyword: order
@@ -308,7 +308,7 @@ file:
           column_reference:
             naked_identifier: o_totalprice
           comparison_operator:
-            raw_comparison_operator: '>'
+            comparison_operator: '>'
           numeric_literal: '450000'
       groupby_clause:
       - keyword: group
@@ -352,7 +352,7 @@ file:
           column_reference:
             naked_identifier: o_totalprice
           comparison_operator:
-            raw_comparison_operator: '>'
+            comparison_operator: '>'
           numeric_literal: '450000'
 - statement_terminator: ;
 - statement:
@@ -386,7 +386,7 @@ file:
           column_reference:
             naked_identifier: o_totalprice
           comparison_operator:
-            raw_comparison_operator: '>'
+            comparison_operator: '>'
           numeric_literal: '450000'
 - statement_terminator: ;
 - statement:
@@ -435,7 +435,7 @@ file:
           column_reference:
             naked_identifier: o_totalprice
           comparison_operator:
-            raw_comparison_operator: '>'
+            comparison_operator: '>'
           numeric_literal: '450000'
       groupby_clause:
       - keyword: group

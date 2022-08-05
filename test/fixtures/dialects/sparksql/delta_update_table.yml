@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ed30f4be30e506cc082f7ec9f657e666a5c481314f3b68a2931be0b6933d3a03
+_hash: c84706fa168ace394c081da733b47fac0c7cd2cfbb92c4ecd0e0c91a3ec51f30
 file:
 - statement:
     update_statement:
@@ -16,7 +16,7 @@ file:
           column_reference:
             naked_identifier: event_type
           comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
           quoted_literal: "'click'"
       where_clause:
         keyword: WHERE
@@ -24,7 +24,7 @@ file:
           column_reference:
             naked_identifier: event_type
           comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
           quoted_literal: "'clck'"
 - statement_terminator: ;
 - statement:
@@ -40,7 +40,7 @@ file:
           column_reference:
             naked_identifier: event_type
           comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
           quoted_literal: "'click'"
       where_clause:
         keyword: WHERE
@@ -48,7 +48,7 @@ file:
           column_reference:
             naked_identifier: event_type
           comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
           quoted_literal: "'clck'"
 - statement_terminator: ;
 - statement:
@@ -62,14 +62,14 @@ file:
           column_reference:
             naked_identifier: session_time
           comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
           numeric_literal: '0'
       - comma: ','
       - set_clause:
           column_reference:
             naked_identifier: ignored
           comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
           boolean_literal: 'true'
       where_clause:
         keyword: WHERE
@@ -77,7 +77,7 @@ file:
           column_reference:
             naked_identifier: session_time
           comparison_operator:
-            raw_comparison_operator: <
+            comparison_operator: <
           bracketed:
             start_bracket: (
             expression:
@@ -117,7 +117,7 @@ file:
           column_reference:
             naked_identifier: order_status
           comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
           quoted_literal: "'returned'"
       where_clause:
         keyword: WHERE
@@ -148,7 +148,7 @@ file:
                   - dot: .
                   - naked_identifier: oid
                 - comparison_operator:
-                    raw_comparison_operator: '='
+                    comparison_operator: '='
                 - column_reference:
                   - naked_identifier: returned_orders
                   - dot: .
@@ -166,7 +166,7 @@ file:
           column_reference:
             naked_identifier: category
           comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
           quoted_literal: "'undefined'"
       where_clause:
         keyword: WHERE
@@ -196,7 +196,7 @@ file:
                   column_reference:
                     naked_identifier: date
                   comparison_operator:
-                    raw_comparison_operator: '>'
+                    comparison_operator: '>'
                   quoted_literal: "'2001-01-01'"
             end_bracket: )
 - statement_terminator: ;

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7cbf5938384c1ea604a0b07ea850f8a356d98fcbfdd4e80c991f4a0ef5e9814d
+_hash: 23c667d702498b7503b3b3cde11c5045ed6450400144d2907be5224bf3d95443
 file:
 - batch:
     statement:
@@ -46,7 +46,7 @@ file:
                     - dot: .
                     - naked_identifier: Pcd
                   - comparison_operator:
-                      raw_comparison_operator: '='
+                      comparison_operator: '='
                   - column_reference:
                     - naked_identifier: P
                     - dot: .
@@ -59,7 +59,7 @@ file:
                   - dot: .
                   - naked_identifier: Iid
                 - comparison_operator:
-                    raw_comparison_operator: '='
+                    comparison_operator: '='
                 - column_reference:
                   - naked_identifier: I
                   - dot: .
@@ -119,7 +119,7 @@ file:
                       - dot: .
                       - naked_identifier: NID
                     - comparison_operator:
-                        raw_comparison_operator: '='
+                        comparison_operator: '='
                     - column_reference:
                       - naked_identifier: IP_1
                       - dot: .
@@ -132,7 +132,7 @@ file:
                     - dot: .
                     - naked_identifier: PID
                     comparison_operator:
-                      raw_comparison_operator: '='
+                      comparison_operator: '='
                     function:
                       function_name:
                         keyword: CAST
@@ -177,7 +177,7 @@ file:
                       - dot: .
                       - naked_identifier: NID
                     - comparison_operator:
-                        raw_comparison_operator: '='
+                        comparison_operator: '='
                     - column_reference:
                       - naked_identifier: IP_2
                       - dot: .
@@ -190,7 +190,7 @@ file:
                     - dot: .
                     - naked_identifier: SecondaryPID
                     comparison_operator:
-                      raw_comparison_operator: '='
+                      comparison_operator: '='
                     function:
                       function_name:
                         keyword: CAST
@@ -223,7 +223,7 @@ file:
                         data_type_identifier: varchar
                       end_bracket: )
                   comparison_operator:
-                    raw_comparison_operator: '='
+                    comparison_operator: '='
                   column_reference:
                   - naked_identifier: I
                   - dot: .
@@ -269,7 +269,7 @@ file:
                           - dot: .
                           - naked_identifier: Pcd
                         - comparison_operator:
-                            raw_comparison_operator: '='
+                            comparison_operator: '='
                         - column_reference:
                           - naked_identifier: P
                           - dot: .
@@ -283,7 +283,7 @@ file:
                   - dot: .
                   - naked_identifier: Iid
                 - comparison_operator:
-                    raw_comparison_operator: '='
+                    comparison_operator: '='
                 - column_reference:
                   - naked_identifier: I
                   - dot: .

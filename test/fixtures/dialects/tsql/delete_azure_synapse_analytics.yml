@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 263d90711353d53f5f77479efc5bd525ccbf67b45fc4382aba7ee621eb1d836d
+_hash: 7e4bbf30f75a566162e975fade3b217ca93fdc7b635ba03afdd29fc60d31d620
 file:
   batch:
   - statement:
@@ -43,7 +43,7 @@ file:
                     - dot: .
                     - naked_identifier: ColA
                   - comparison_operator:
-                      raw_comparison_operator: '='
+                      comparison_operator: '='
                   - column_reference:
                     - naked_identifier: dbo
                     - dot: .
@@ -59,7 +59,7 @@ file:
             - dot: .
             - naked_identifier: ColA
             comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
             numeric_literal: '1'
         statement_terminator: ;
   - statement:
@@ -101,7 +101,7 @@ file:
             column_reference:
               naked_identifier: StandardCost
             comparison_operator:
-              raw_comparison_operator: '>'
+              comparison_operator: '>'
             numeric_literal: '1000.00'
       - statement_terminator: ;
   - statement:
@@ -117,7 +117,7 @@ file:
             query_hint_segment:
               keyword: LABEL
               comparison_operator:
-                raw_comparison_operator: '='
+                comparison_operator: '='
               quoted_literal: "N'label1'"
             end_bracket: )
       - statement_terminator: ;
@@ -174,7 +174,7 @@ file:
                           - dot: .
                           - naked_identifier: ProductSubcategoryKey
                         - comparison_operator:
-                            raw_comparison_operator: '='
+                            comparison_operator: '='
                         - column_reference:
                           - naked_identifier: T2
                           - dot: .
@@ -187,7 +187,7 @@ file:
                     - dot: .
                     - naked_identifier: EnglishProductSubcategoryName
                     comparison_operator:
-                      raw_comparison_operator: '='
+                      comparison_operator: '='
                     quoted_literal: "'Road Bikes'"
               end_bracket: )
       - option_clause:
@@ -197,7 +197,7 @@ file:
           - query_hint_segment:
               keyword: LABEL
               comparison_operator:
-                raw_comparison_operator: '='
+                comparison_operator: '='
               quoted_literal: "N'CustomJoin'"
           - comma: ','
           - query_hint_segment:
@@ -242,7 +242,7 @@ file:
                     - dot: .
                     - naked_identifier: col1
                   - comparison_operator:
-                      raw_comparison_operator: '='
+                      comparison_operator: '='
                   - column_reference:
                     - naked_identifier: tableA
                     - dot: .
@@ -285,7 +285,7 @@ file:
                     - dot: .
                     - naked_identifier: ColA
                   - comparison_operator:
-                      raw_comparison_operator: '='
+                      comparison_operator: '='
                   - column_reference:
                     - naked_identifier: dbo
                     - dot: .
@@ -301,6 +301,6 @@ file:
             - dot: .
             - naked_identifier: ColA
             comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
             numeric_literal: '1'
         statement_terminator: ;

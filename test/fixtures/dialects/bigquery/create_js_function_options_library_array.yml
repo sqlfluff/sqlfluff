@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 47cac850e15c1ef1e0669f66f3ffa81e3550e3ec3e11b2e458dee27710119c67
+_hash: c65c8a0a839f495baa5927604e842b3d185a10d70e76804b14230067bfa4e59c
 file:
   statement:
     create_function_statement:
@@ -44,7 +44,7 @@ file:
         - start_bracket: (
         - parameter: library
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - start_square_bracket: '['
         - raw: '"gs://my-bucket/path/to/lib1.js"'
         - comma: ','

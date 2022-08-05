@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 76ffb6c247bc1ab4862e89a0b33e56c584e6a7f02a4c60a987ee3b4c748402b0
+_hash: 95aaed574a5b18bf7a1bceb9fbfa5fc7dada1acded40f65ed5dbf6300478defa
 file:
   batch:
     statement:
@@ -70,8 +70,8 @@ file:
             - dot: .
             - naked_identifier: activity_month
             comparison_operator:
-            - raw_comparison_operator: '>'
-            - raw_comparison_operator: '='
+            - comparison_operator: '>'
+            - comparison_operator: '='
             function:
               function_name:
                 keyword: convert

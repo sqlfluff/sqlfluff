@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: fd7206234d3089bf40aa15d903a2a756abe694096830bbd9e25d37311ce22728
+_hash: 985894e6a391199f39c052496d65643dd5ac3dc504d42767921c12e641ba7bd2
 file:
 - statement:
     create_function_statement:
@@ -122,7 +122,7 @@ file:
       - keyword: SET
       - parameter: test_param
       - comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
       - numeric_literal: '3'
 - statement_terminator: ;
 - statement:
@@ -170,7 +170,7 @@ file:
       - keyword: SET
       - parameter: test_param
       - comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
       - numeric_literal: '3'
       - keyword: WITH
       - bracketed:
@@ -497,7 +497,7 @@ file:
       - keyword: SET
       - parameter: search_path
       - comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
       - parameter: admin
       - comma: ','
       - parameter: pg_temp
@@ -712,7 +712,7 @@ file:
             datetime_type_identifier:
               keyword: date
           comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
           expression:
             bare_function: current_date
           end_bracket: )

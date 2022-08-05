@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c7f82e72dc37ec47d9013ba40c43b4e16f1722417eb887b0763fb164e4f3045e
+_hash: cecb11b412842a09b07e787b8a407e7d0f3c20c4e6b20878e98f5baf3e04ba20
 file:
   statement:
     select_statement:
@@ -46,7 +46,7 @@ file:
                 - dot: .
                 - naked_identifier: page_id
               - comparison_operator:
-                  raw_comparison_operator: '='
+                  comparison_operator: '='
               - column_reference:
                 - naked_identifier: word
                 - dot: .
@@ -91,8 +91,8 @@ file:
           - dot: .
           - naked_identifier: character_range
         - binary_operator:
-          - raw_comparison_operator: <
-          - raw_comparison_operator: <
+          - comparison_operator: <
+          - comparison_operator: <
         - column_reference:
           - naked_identifier: paragraph
           - dot: .
@@ -103,8 +103,8 @@ file:
           - dot: .
           - naked_identifier: character_range
         - binary_operator:
-          - raw_comparison_operator: '>'
-          - raw_comparison_operator: '>'
+          - comparison_operator: '>'
+          - comparison_operator: '>'
         - column_reference:
           - naked_identifier: paragraph
           - dot: .
@@ -116,7 +116,7 @@ file:
           - naked_identifier: character_range
         - comparison_operator:
             ampersand: '&'
-            raw_comparison_operator: '>'
+            comparison_operator: '>'
         - column_reference:
           - naked_identifier: paragraph
           - dot: .
@@ -128,7 +128,7 @@ file:
           - naked_identifier: character_range
         - comparison_operator:
             ampersand: '&'
-            raw_comparison_operator: <
+            comparison_operator: <
         - column_reference:
           - naked_identifier: paragraph
           - dot: .

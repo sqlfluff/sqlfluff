@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ccf4ffdc0f68eaf23ce059c9d2a983085cc59b4987e8a0a14ed79fe72dab123e
+_hash: 2f698cee0d9a436de22ba72d46ea485ab45c68ffe84235c43688c3b78b015220
 file:
 - statement:
     insert_statement:
@@ -142,7 +142,7 @@ file:
         column_reference:
           naked_identifier: student_id
         comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
         numeric_literal: '444444'
         end_bracket: )
     - select_statement:
@@ -168,7 +168,7 @@ file:
             column_reference:
               naked_identifier: name
             comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
             quoted_literal: '"Dora Williams"'
 - statement_terminator: ;
 - statement:
@@ -183,7 +183,7 @@ file:
         column_reference:
           naked_identifier: student_id
         comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
         numeric_literal: '444444'
         end_bracket: )
     - select_statement:
@@ -209,7 +209,7 @@ file:
             column_reference:
               naked_identifier: name
             comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
             quoted_literal: '"Dora Williams"'
 - statement_terminator: ;
 - statement:
@@ -256,7 +256,7 @@ file:
           column_reference:
             naked_identifier: qualified
           comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
           boolean_literal: 'TRUE'
 - statement_terminator: ;
 - statement:
@@ -283,7 +283,7 @@ file:
           column_reference:
             naked_identifier: qualified
           comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
           boolean_literal: 'TRUE'
 - statement_terminator: ;
 - statement:
@@ -298,7 +298,7 @@ file:
         column_reference:
           naked_identifier: birthday
         comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
         keyword: DATE
         date_constructor_literal: "'2019-01-02'"
         end_bracket: )
@@ -325,7 +325,7 @@ file:
         column_reference:
           naked_identifier: birthday
         comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
         keyword: DATE
         date_constructor_literal: "'2019-01-02'"
         end_bracket: )
@@ -352,7 +352,7 @@ file:
         column_reference:
           naked_identifier: student_id
         comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
         numeric_literal: '11215017'
         end_bracket: )
     - bracketed:
@@ -386,7 +386,7 @@ file:
         column_reference:
           naked_identifier: student_id
         comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
         numeric_literal: '11215017'
         end_bracket: )
     - bracketed:

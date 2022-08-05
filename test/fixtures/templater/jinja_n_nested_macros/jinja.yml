@@ -80,8 +80,8 @@ file:
                                   quoted_literal: "'DD Mon YYYY'"
                               - end_bracket: )
                           - comparison_operator:
-                            - raw_comparison_operator: <
-                            - raw_comparison_operator: '='
+                            - comparison_operator: <
+                            - comparison_operator: '='
                           - function:
                               function_name:
                                 function_name_identifier: CONVERT_TIMEZONE

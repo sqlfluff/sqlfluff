@@ -20,5 +20,5 @@ file:
           column_reference:
             naked_identifier: x
           comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
           numeric_literal: '23'

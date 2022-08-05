@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4172155ce5d189b38e2ec9c3093e05f8befcbe9f96af2084c423e2e687828322
+_hash: bba99749f927fc853b1f54fac7bd68d236d88d41eec4fe8dcb2dc6dc630475a8
 file:
 - batch:
     statement:
@@ -37,7 +37,7 @@ file:
                     column_reference:
                       naked_identifier: NAME
                     comparison_operator:
-                      raw_comparison_operator: '='
+                      comparison_operator: '='
                     quoted_literal: "'IX_INTER_VIMR_INFECTIOUS_PEOPLE'"
               end_bracket: )
         statement:
@@ -93,7 +93,7 @@ file:
                     column_reference:
                       naked_identifier: NAME
                     comparison_operator:
-                      raw_comparison_operator: '='
+                      comparison_operator: '='
                     quoted_literal: "'IX_INTER_FOUNDATION_NICE_IC_INTAKE_COUNT'"
               end_bracket: )
         statement:
@@ -148,7 +148,7 @@ file:
                     column_reference:
                       naked_identifier: NAME
                     comparison_operator:
-                      raw_comparison_operator: '='
+                      comparison_operator: '='
                     quoted_literal: "'IX_INTER_VIMR_REPRODUCTION_NUMBER'"
               end_bracket: )
         statement:
@@ -265,7 +265,7 @@ file:
         - keyword: WITH
         - keyword: FILLFACTOR
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - numeric_literal: '80'
       - statement_terminator: ;
 - go_statement:
@@ -295,12 +295,12 @@ file:
           - start_bracket: (
           - keyword: PAD_INDEX
           - comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
           - keyword: 'OFF'
           - comma: ','
           - keyword: SORT_IN_TEMPDB
           - comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
           - keyword: 'ON'
           - end_bracket: )
       - statement_terminator: ;
@@ -328,7 +328,7 @@ file:
           - start_bracket: (
           - keyword: ONLINE
           - comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
           - keyword: 'ON'
           - end_bracket: )
       - statement_terminator: ;
@@ -359,7 +359,7 @@ file:
           - start_bracket: (
           - keyword: ONLINE
           - comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
           - keyword: 'ON'
           - bracketed:
               start_bracket: (
@@ -369,13 +369,13 @@ file:
               - max_duration:
                 - keyword: MAX_DURATION
                 - comparison_operator:
-                    raw_comparison_operator: '='
+                    comparison_operator: '='
                 - numeric_literal: '5'
                 - keyword: MINUTES
               - comma: ','
               - keyword: ABORT_AFTER_WAIT
               - comparison_operator:
-                  raw_comparison_operator: '='
+                  comparison_operator: '='
               - keyword: NONE
               - end_bracket: )
               end_bracket: )
@@ -406,7 +406,7 @@ file:
         - keyword: WITH
         - keyword: DATA_COMPRESSION
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - keyword: ROW
         - on_partitions_clause:
           - keyword: 'ON'

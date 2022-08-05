@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b0eb41bbfff930069d2dee1c38806061e4d02c975049a911ff45b4c6f5f2f892
+_hash: f358dbd14bba398090e5025ffa1ab5fd1b33b1a6f8d51b4d405c5291ccf5c3cd
 file:
 - statement:
     create_materialized_view_statement:
@@ -189,7 +189,7 @@ file:
               column_reference:
                 naked_identifier: y
               comparison_operator:
-                raw_comparison_operator: '='
+                comparison_operator: '='
               quoted_literal: "'value'"
         end_bracket: )
 - statement_terminator: ;
@@ -229,7 +229,7 @@ file:
               column_reference:
                 naked_identifier: y
               comparison_operator:
-                raw_comparison_operator: '='
+                comparison_operator: '='
               quoted_literal: "'value'"
         end_bracket: )
 - statement_terminator: ;
@@ -264,7 +264,7 @@ file:
             column_reference:
               naked_identifier: y
             comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
             quoted_literal: "'value'"
 - statement_terminator: ;
 - statement:
@@ -301,7 +301,7 @@ file:
             column_reference:
               naked_identifier: y
             comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
             quoted_literal: "'value'"
 - statement_terminator: ;
 - statement:
@@ -437,17 +437,17 @@ file:
       - start_bracket: (
       - parameter: prop_a
       - comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
       - numeric_literal: '1'
       - comma: ','
       - parameter: prob_b
       - comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
       - quoted_literal: "'some_value'"
       - comma: ','
       - parameter: prop_c
       - comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
       - boolean_literal: 'FALSE'
       - comma: ','
       - parameter: prop_d
@@ -505,7 +505,7 @@ file:
               column_reference:
                 naked_identifier: col
               comparison_operator:
-                raw_comparison_operator: '>'
+                comparison_operator: '>'
               numeric_literal: '2'
         end_bracket: )
     - with_data_clause:
@@ -532,17 +532,17 @@ file:
       - start_bracket: (
       - parameter: prop_a
       - comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
       - numeric_literal: '1'
       - comma: ','
       - parameter: prob_b
       - comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
       - quoted_literal: "'some_value'"
       - comma: ','
       - parameter: prop_c
       - comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
       - boolean_literal: 'FALSE'
       - comma: ','
       - parameter: prop_d
@@ -600,7 +600,7 @@ file:
               column_reference:
                 naked_identifier: col
               comparison_operator:
-                raw_comparison_operator: '>'
+                comparison_operator: '>'
               numeric_literal: '2'
         end_bracket: )
     - with_data_clause:

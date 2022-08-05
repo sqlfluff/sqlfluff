@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d283c172dcd9eb54ec2eabecafdedf10a50b417d0aef72fa8f6d88751b259ac6
+_hash: b8d730619f577854e0357a04134aec8d997dfc467bc9cf701e4cc17093e953c6
 file:
   batch:
   - statement:
@@ -21,7 +21,7 @@ file:
             table_distribution_clause:
             - keyword: DISTRIBUTION
             - comparison_operator:
-                raw_comparison_operator: '='
+                comparison_operator: '='
             - keyword: HASH
             - bracketed:
                 start_bracket: (
@@ -128,7 +128,7 @@ file:
                         dot: .
                         quoted_identifier: '[ID]'
                     - comparison_operator:
-                        raw_comparison_operator: '='
+                        comparison_operator: '='
                     - column_reference:
                         naked_identifier: f
                         dot: .
@@ -156,7 +156,7 @@ file:
             table_distribution_clause:
             - keyword: DISTRIBUTION
             - comparison_operator:
-                raw_comparison_operator: '='
+                comparison_operator: '='
             - keyword: HASH
             - bracketed:
                 start_bracket: (
@@ -247,7 +247,7 @@ file:
                       dot: .
                       quoted_identifier: '[ID]'
                   - comparison_operator:
-                      raw_comparison_operator: '='
+                      comparison_operator: '='
                   - column_reference:
                       naked_identifier: f
                       dot: .
@@ -277,7 +277,7 @@ file:
             table_distribution_clause:
             - keyword: DISTRIBUTION
             - comparison_operator:
-                raw_comparison_operator: '='
+                comparison_operator: '='
             - keyword: HASH
             - bracketed:
                 start_bracket: (
@@ -370,7 +370,7 @@ file:
                         dot: .
                         quoted_identifier: '[ID]'
                     - comparison_operator:
-                        raw_comparison_operator: '='
+                        comparison_operator: '='
                     - column_reference:
                         naked_identifier: f
                         dot: .
@@ -383,6 +383,6 @@ file:
             query_hint_segment:
               keyword: LABEL
               comparison_operator:
-                raw_comparison_operator: '='
+                comparison_operator: '='
               quoted_literal: "'Test_Label'"
             end_bracket: )

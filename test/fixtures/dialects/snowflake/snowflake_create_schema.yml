@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: eed3060f41e8069e3a69783e69a256fa4efb6e75648ea0daca4b4aee76a48bea
+_hash: 774ce86af5ca461d239e3f3b4b072e42dbe41f48e93366e35e367f09871ec02d
 file:
 - statement:
     create_clone_statement:
@@ -69,7 +69,7 @@ file:
         comment_equals_clause:
           keyword: comment
           comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
           quoted_literal: "'My test schema.'"
 - statement_terminator: ;
 - statement:
@@ -84,12 +84,12 @@ file:
         - start_bracket: (
         - naked_identifier: tag1
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - quoted_literal: "'foo'"
         - comma: ','
         - naked_identifier: tag2
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - quoted_literal: "'bar'"
         - end_bracket: )
 - statement_terminator: ;
@@ -116,6 +116,6 @@ file:
     - schema_object_properties:
         keyword: default_ddl_collation
         comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
         quoted_literal: "'de_DE'"
 - statement_terminator: ;

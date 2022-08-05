@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7b602a6619c523b8402544ee5be40c4a95fb1bbfec9d9cc16c842ea40846cb50
+_hash: 0ef9c973d52cf61952d646f6d3a6ae9eb538c2bb66db4481a12f2fea8ecafac4
 file:
 - statement:
     alter_table_statement:
@@ -41,7 +41,7 @@ file:
           - dot: .
           - naked_identifier: id
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - column_reference:
           - naked_identifier: source_table
           - dot: .
@@ -61,7 +61,7 @@ file:
                 - dot: .
                 - naked_identifier: description
               - comparison_operator:
-                  raw_comparison_operator: '='
+                  comparison_operator: '='
               - column_reference:
                 - naked_identifier: source_table
                 - dot: .
@@ -84,7 +84,7 @@ file:
           - dot: .
           - naked_identifier: t1key
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - column_reference:
           - naked_identifier: t2
           - dot: .
@@ -100,7 +100,7 @@ file:
             - dot: .
             - naked_identifier: marked
             comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
             numeric_literal: '1'
         - keyword: then
         - merge_delete_clause:
@@ -123,7 +123,7 @@ file:
           - dot: .
           - naked_identifier: t1key
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - column_reference:
           - naked_identifier: t2
           - dot: .
@@ -140,7 +140,7 @@ file:
             - dot: .
             - naked_identifier: marked
             comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
             numeric_literal: '1'
         - keyword: then
         - merge_insert_clause:

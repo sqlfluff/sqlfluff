@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c126a9037518daed2db82455d9d3b1fdbdc72ce0ce521835403f730cf1540866
+_hash: c209fc87e6ae7e5ca8c6d84788e914c87031f05fc5bbf37d6e435c37e26ce258
 file:
 - statement:
     select_statement:
@@ -44,7 +44,7 @@ file:
           column_reference:
             naked_identifier: city
           comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
           quoted_literal: "'Fremont'"
 - statement_terminator: ;
 - statement:
@@ -93,7 +93,7 @@ file:
                   naked_identifier: quantity
               end_bracket: )
           comparison_operator:
-            raw_comparison_operator: '>'
+            comparison_operator: '>'
           numeric_literal: '15'
 - statement_terminator: ;
 - statement:
@@ -135,7 +135,7 @@ file:
           column_reference:
             naked_identifier: sum_quantity
           comparison_operator:
-            raw_comparison_operator: '>'
+            comparison_operator: '>'
           numeric_literal: '15'
 - statement_terminator: ;
 - statement:
@@ -184,7 +184,7 @@ file:
                   naked_identifier: quantity
               end_bracket: )
           comparison_operator:
-            raw_comparison_operator: '>'
+            comparison_operator: '>'
           numeric_literal: '15'
 - statement_terminator: ;
 - statement:
@@ -225,7 +225,7 @@ file:
         expression:
         - numeric_literal: '1'
         - comparison_operator:
-            raw_comparison_operator: '>'
+            comparison_operator: '>'
         - numeric_literal: '0'
       orderby_clause:
       - keyword: ORDER
@@ -270,6 +270,6 @@ file:
                   naked_identifier: quantity
               end_bracket: )
           comparison_operator:
-            raw_comparison_operator: '>'
+            comparison_operator: '>'
           numeric_literal: '10'
 - statement_terminator: ;

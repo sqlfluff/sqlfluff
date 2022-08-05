@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 78eb4b7335b845c9d9533762c7710a67691acd763acbeede3a6807a5b21ec22c
+_hash: 9c7667557472deafa4b3fe59d1d23ac5d90075e2232d40e9663ea242415babda
 file:
 - statement:
     import_statement:
@@ -135,7 +135,7 @@ file:
             - numeric_literal: '1'
             - keyword: FORMAT
             - comparison_operator:
-                raw_comparison_operator: '='
+                comparison_operator: '='
             - quoted_literal: "'DD-MM-YYYY'"
             - comma: ','
             - numeric_literal: '2'
@@ -143,18 +143,18 @@ file:
             - numeric_literal: '4'
             - keyword: FORMAT
             - comparison_operator:
-                raw_comparison_operator: '='
+                comparison_operator: '='
             - quoted_literal: "'YYYYMMDD'"
             - end_bracket: )
         - file_opts:
           - keyword: COLUMN
           - keyword: SEPARATOR
           - comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
           - quoted_literal: "';'"
           - keyword: SKIP
           - comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
           - numeric_literal: '5'
 - statement_terminator: ;
 - statement:
@@ -177,34 +177,34 @@ file:
             - start_bracket: (
             - keyword: SIZE
             - comparison_operator:
-                raw_comparison_operator: '='
+                comparison_operator: '='
             - numeric_literal: '8'
             - keyword: PADDING
             - comparison_operator:
-                raw_comparison_operator: '='
+                comparison_operator: '='
             - quoted_literal: "'+'"
             - keyword: ALIGN
             - comparison_operator:
-                raw_comparison_operator: '='
+                comparison_operator: '='
             - keyword: RIGHT
             - comma: ','
             - keyword: SIZE
             - comparison_operator:
-                raw_comparison_operator: '='
+                comparison_operator: '='
             - numeric_literal: '4'
             - comma: ','
             - keyword: SIZE
             - comparison_operator:
-                raw_comparison_operator: '='
+                comparison_operator: '='
             - numeric_literal: '8'
             - comma: ','
             - keyword: SIZE
             - comparison_operator:
-                raw_comparison_operator: '='
+                comparison_operator: '='
             - numeric_literal: '32'
             - keyword: FORMAT
             - comparison_operator:
-                raw_comparison_operator: '='
+                comparison_operator: '='
             - quoted_literal: "'DD-MM-YYYY'"
             - end_bracket: )
         - file_opts:
@@ -235,19 +235,19 @@ file:
         - keyword: WITH
         - parameter: HCAT_DB
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - quoted_literal: "'default'"
         - parameter: HCAT_TABLE
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - quoted_literal: "'my_hcat_table'"
         - parameter: HCAT_ADDRESS
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - quoted_literal: "'hcatalog-server:50111'"
         - parameter: HDFS_USER
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - quoted_literal: "'hdfs'"
 - statement_terminator: ;
 - statement:
@@ -262,7 +262,7 @@ file:
         - keyword: JDBC
         - keyword: DRIVER
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - quoted_literal: "'MSSQL'"
         - keyword: AT
         - connection_definition:
@@ -350,11 +350,11 @@ file:
           - keyword: COLUMN
           - keyword: SEPARATOR
           - comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
           - quoted_literal: "';'"
           - keyword: SKIP
           - comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
           - numeric_literal: '5'
 - statement_terminator: ;
 - statement:

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 07939b1502c3d5a56b29565a8927c4229cf388ead897001f227365c5e5a1143f
+_hash: c2cf58ead2a6fa3520a52b8cab2d9870f67b6c8aed62fc4b176cdce514e079a5
 file:
   statement:
     create_function_statement:
@@ -33,7 +33,7 @@ file:
                   column_reference:
                     naked_identifier: y
                   comparison_operator:
-                    raw_comparison_operator: '='
+                    comparison_operator: '='
                   numeric_literal: '1'
               - keyword: THEN
               - expression:
@@ -44,7 +44,7 @@ file:
                   column_reference:
                     naked_identifier: y
                   comparison_operator:
-                    raw_comparison_operator: '='
+                    comparison_operator: '='
                   numeric_literal: '2'
               - keyword: THEN
               - expression:
@@ -55,7 +55,7 @@ file:
                   column_reference:
                     naked_identifier: y
                   comparison_operator:
-                    raw_comparison_operator: '='
+                    comparison_operator: '='
                   numeric_literal: '3'
               - keyword: THEN
               - expression:
@@ -66,7 +66,7 @@ file:
                   column_reference:
                     naked_identifier: y
                   comparison_operator:
-                    raw_comparison_operator: '='
+                    comparison_operator: '='
                   numeric_literal: '4'
               - keyword: THEN
               - expression:
@@ -77,7 +77,7 @@ file:
                   column_reference:
                     naked_identifier: y
                   comparison_operator:
-                    raw_comparison_operator: '='
+                    comparison_operator: '='
                   numeric_literal: '5'
               - keyword: THEN
               - expression:

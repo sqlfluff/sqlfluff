@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b2ea3dbc494b78abe541194309260d24ae0a2a77bf63f9da74da0b73cdb74e19
+_hash: 8c2c9d9149a537743e2ef73d09bb334a30d1747b5f93cc2907a3d2b3ac0d9f28
 file:
 - statement:
     select_statement:
@@ -34,14 +34,14 @@ file:
               column_reference:
                 naked_identifier: title
               comparison_operator:
-                raw_comparison_operator: '='
+                comparison_operator: '='
               quoted_literal: "'President'"
           - keyword: connect
           - keyword: by
           - column_reference:
               naked_identifier: manager_id
           - comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
           - keyword: prior
           - column_reference:
               naked_identifier: employee_id
@@ -94,14 +94,14 @@ file:
               column_reference:
                 naked_identifier: title
               comparison_operator:
-                raw_comparison_operator: '='
+                comparison_operator: '='
               quoted_literal: "'President'"
           - keyword: connect
           - keyword: by
           - column_reference:
               naked_identifier: manager_id
           - comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
           - keyword: prior
           - column_reference:
               naked_identifier: employee_id
@@ -161,14 +161,14 @@ file:
               column_reference:
                 naked_identifier: component_id
               comparison_operator:
-                raw_comparison_operator: '='
+                comparison_operator: '='
               numeric_literal: '1'
           - keyword: connect
           - keyword: by
           - column_reference:
               naked_identifier: parent_component_id
           - comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
           - keyword: prior
           - column_reference:
               naked_identifier: component_id
@@ -215,14 +215,14 @@ file:
               column_reference:
                 naked_identifier: title
               comparison_operator:
-                raw_comparison_operator: '='
+                comparison_operator: '='
               quoted_literal: "'President'"
           - keyword: connect
           - keyword: by
           - column_reference:
               naked_identifier: manager_id
           - comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
           - keyword: prior
           - column_reference:
               naked_identifier: employee_id

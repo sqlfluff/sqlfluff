@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a155b30a76ea8dc167ff827e171f4c86fd931ab6e3365743f68cef6e793efd02
+_hash: d52955cdc209a6f7a27f08310817008dd5fdab9d61eea87fa6cbcb432277ddf2
 file:
 - statement:
     update_statement:
@@ -16,7 +16,7 @@ file:
           column_reference:
             naked_identifier: salary
           comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
           expression:
             column_reference:
               naked_identifier: salary
@@ -28,7 +28,7 @@ file:
           column_reference:
             naked_identifier: name
           comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
           quoted_literal: "'SMITH'"
 - statement_terminator: ;
 - statement:
@@ -47,7 +47,7 @@ file:
           - dot: .
           - naked_identifier: salary
           comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
           expression:
             column_reference:
             - naked_identifier: U
@@ -62,7 +62,7 @@ file:
           - dot: .
           - naked_identifier: currency
           comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
           expression:
             quoted_literal: "'EUR'"
       where_clause:
@@ -73,7 +73,7 @@ file:
           - dot: .
           - naked_identifier: currency
           comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
           quoted_literal: "'DM'"
 - statement_terminator: ;
 - statement:
@@ -92,7 +92,7 @@ file:
           - dot: .
           - naked_identifier: salary
           comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
           expression:
             column_reference:
             - naked_identifier: V
@@ -105,7 +105,7 @@ file:
           - dot: .
           - naked_identifier: currency
           comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
           expression:
             column_reference:
             - naked_identifier: V
@@ -138,7 +138,7 @@ file:
           - dot: .
           - naked_identifier: name
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - column_reference:
           - naked_identifier: V
           - dot: .
@@ -155,7 +155,7 @@ file:
           column_reference:
             naked_identifier: stocks
           comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
           expression:
             column_reference:
               naked_identifier: stocks
@@ -198,7 +198,7 @@ file:
           column_reference:
             naked_identifier: x
           comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
           expression:
             column_reference:
             - naked_identifier: t2
@@ -209,7 +209,7 @@ file:
           column_reference:
             naked_identifier: w
           comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
           expression:
             column_reference:
             - naked_identifier: t4
@@ -238,7 +238,7 @@ file:
                 - dot: .
                 - naked_identifier: c1
               - comparison_operator:
-                  raw_comparison_operator: '='
+                  comparison_operator: '='
               - column_reference:
                 - naked_identifier: t3
                 - dot: .
@@ -258,7 +258,7 @@ file:
                 - dot: .
                 - naked_identifier: c3
               - comparison_operator:
-                  raw_comparison_operator: '='
+                  comparison_operator: '='
               - column_reference:
                 - naked_identifier: t3
                 - dot: .

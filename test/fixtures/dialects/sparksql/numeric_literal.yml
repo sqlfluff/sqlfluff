@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 72d4e1b192aea1c4eaf970bf27f493e205d6c131d1e6e09bd636f9f51e4a5245
+_hash: eedf80820ec02f3841ae69b225ca7cd0885c73dab1419de45e06ddfdbc787e8e
 file:
   statement:
     select_statement:
@@ -25,7 +25,7 @@ file:
         - column_reference:
             naked_identifier: baz
         - comparison_operator:
-            raw_comparison_operator: '>'
+            comparison_operator: '>'
         - numeric_literal:
             sign_indicator: '-'
             numeric_literal: '2147483648'
@@ -33,19 +33,19 @@ file:
         - column_reference:
             naked_identifier: baz
         - comparison_operator:
-            raw_comparison_operator: '>'
+            comparison_operator: '>'
         - numeric_literal: 9223372036854775807l
         - binary_operator: AND
         - column_reference:
             naked_identifier: baz
         - comparison_operator:
-            raw_comparison_operator: '>'
+            comparison_operator: '>'
         - numeric_literal: 9223372036854775807L
         - binary_operator: AND
         - column_reference:
             naked_identifier: baz
         - comparison_operator:
-            raw_comparison_operator: '>'
+            comparison_operator: '>'
         - numeric_literal:
             sign_indicator: '-'
             numeric_literal: 32y
@@ -53,7 +53,7 @@ file:
         - column_reference:
             naked_identifier: baz
         - comparison_operator:
-            raw_comparison_operator: '>'
+            comparison_operator: '>'
         - numeric_literal:
             sign_indicator: '-'
             numeric_literal: 32Y
@@ -61,25 +61,25 @@ file:
         - column_reference:
             naked_identifier: baz
         - comparison_operator:
-            raw_comparison_operator: '>'
+            comparison_operator: '>'
         - numeric_literal: 482s
         - binary_operator: AND
         - column_reference:
             naked_identifier: baz
         - comparison_operator:
-            raw_comparison_operator: '>'
+            comparison_operator: '>'
         - numeric_literal: 482S
         - binary_operator: AND
         - column_reference:
             naked_identifier: baz
         - comparison_operator:
-            raw_comparison_operator: '>'
+            comparison_operator: '>'
         - numeric_literal: '12.578'
         - binary_operator: AND
         - column_reference:
             naked_identifier: baz
         - comparison_operator:
-            raw_comparison_operator: '>'
+            comparison_operator: '>'
         - numeric_literal:
             sign_indicator: '-'
             numeric_literal: '0.1234567'
@@ -87,7 +87,7 @@ file:
         - column_reference:
             naked_identifier: baz
         - comparison_operator:
-            raw_comparison_operator: '>'
+            comparison_operator: '>'
         - numeric_literal:
             sign_indicator: '-'
             numeric_literal: '.1234567'
@@ -95,7 +95,7 @@ file:
         - column_reference:
             naked_identifier: baz
         - comparison_operator:
-            raw_comparison_operator: '>'
+            comparison_operator: '>'
         - numeric_literal:
             sign_indicator: '-'
             numeric_literal: '123.'
@@ -103,43 +103,43 @@ file:
         - column_reference:
             naked_identifier: baz
         - comparison_operator:
-            raw_comparison_operator: '>'
+            comparison_operator: '>'
         - numeric_literal: 123.bd
         - binary_operator: AND
         - column_reference:
             naked_identifier: baz
         - comparison_operator:
-            raw_comparison_operator: '>'
+            comparison_operator: '>'
         - numeric_literal: 123.BD
         - binary_operator: AND
         - column_reference:
             naked_identifier: baz
         - comparison_operator:
-            raw_comparison_operator: '>'
+            comparison_operator: '>'
         - numeric_literal: 5e2
         - binary_operator: AND
         - column_reference:
             naked_identifier: baz
         - comparison_operator:
-            raw_comparison_operator: '>'
+            comparison_operator: '>'
         - numeric_literal: 5E2
         - binary_operator: AND
         - column_reference:
             naked_identifier: baz
         - comparison_operator:
-            raw_comparison_operator: '>'
+            comparison_operator: '>'
         - numeric_literal: 5d
         - binary_operator: AND
         - column_reference:
             naked_identifier: baz
         - comparison_operator:
-            raw_comparison_operator: '>'
+            comparison_operator: '>'
         - numeric_literal: 5D
         - binary_operator: AND
         - column_reference:
             naked_identifier: baz
         - comparison_operator:
-            raw_comparison_operator: '>'
+            comparison_operator: '>'
         - numeric_literal:
             sign_indicator: '-'
             numeric_literal: 5bd
@@ -147,7 +147,7 @@ file:
         - column_reference:
             naked_identifier: baz
         - comparison_operator:
-            raw_comparison_operator: '>'
+            comparison_operator: '>'
         - numeric_literal:
             sign_indicator: '-'
             numeric_literal: 5BD
@@ -155,19 +155,19 @@ file:
         - column_reference:
             naked_identifier: baz
         - comparison_operator:
-            raw_comparison_operator: '>'
+            comparison_operator: '>'
         - numeric_literal: 12.578e-2d
         - binary_operator: AND
         - column_reference:
             naked_identifier: baz
         - comparison_operator:
-            raw_comparison_operator: '>'
+            comparison_operator: '>'
         - numeric_literal: 12.578E-2D
         - binary_operator: AND
         - column_reference:
             naked_identifier: baz
         - comparison_operator:
-            raw_comparison_operator: '>'
+            comparison_operator: '>'
         - numeric_literal:
             sign_indicator: '-'
             numeric_literal: .1234567e+2bd
@@ -175,7 +175,7 @@ file:
         - column_reference:
             naked_identifier: baz
         - comparison_operator:
-            raw_comparison_operator: '>'
+            comparison_operator: '>'
         - numeric_literal:
             sign_indicator: '-'
             numeric_literal: .1234567E+2BD
@@ -183,7 +183,7 @@ file:
         - column_reference:
             naked_identifier: baz
         - comparison_operator:
-            raw_comparison_operator: '>'
+            comparison_operator: '>'
         - numeric_literal:
             sign_indicator: +
             numeric_literal: '3.e+3'
@@ -191,7 +191,7 @@ file:
         - column_reference:
             naked_identifier: baz
         - comparison_operator:
-            raw_comparison_operator: '>'
+            comparison_operator: '>'
         - numeric_literal:
             sign_indicator: +
             numeric_literal: '3.E+3'
@@ -199,7 +199,7 @@ file:
         - column_reference:
             naked_identifier: baz
         - comparison_operator:
-            raw_comparison_operator: '>'
+            comparison_operator: '>'
         - numeric_literal:
             sign_indicator: '-'
             numeric_literal: 3.E-3D
@@ -207,7 +207,7 @@ file:
         - column_reference:
             naked_identifier: baz
         - comparison_operator:
-            raw_comparison_operator: '>'
+            comparison_operator: '>'
         - numeric_literal:
             sign_indicator: '-'
             numeric_literal: 3.e-3d
@@ -215,7 +215,7 @@ file:
         - column_reference:
             naked_identifier: baz
         - comparison_operator:
-            raw_comparison_operator: '>'
+            comparison_operator: '>'
         - numeric_literal:
           - sign_indicator: '-'
           - sign_indicator: +
@@ -225,7 +225,7 @@ file:
         - column_reference:
             naked_identifier: baz
         - comparison_operator:
-            raw_comparison_operator: '>'
+            comparison_operator: '>'
         - numeric_literal:
           - sign_indicator: '-'
           - sign_indicator: +

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e929b61b11d4ebbe7dcba4df45f5ee2d5e92b28ec812fd6032b7076f1ec4c3c2
+_hash: 847258ecc33168160f47375b958e6eb137a56625e2a14dedc00f534429a8736f
 file:
 - statement:
     update_statement:
@@ -19,7 +19,7 @@ file:
           column_reference:
             naked_identifier: col1
           comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
           expression:
             column_reference:
               naked_identifier: col1
@@ -40,7 +40,7 @@ file:
           column_reference:
             naked_identifier: col1
           comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
           expression:
             column_reference:
               naked_identifier: col1
@@ -51,7 +51,7 @@ file:
         - column_reference:
             naked_identifier: col2
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - column_reference:
             naked_identifier: col1
 - statement_terminator: ;
@@ -74,7 +74,7 @@ file:
           - dot: .
           - naked_identifier: price
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - column_reference:
           - naked_identifier: month
           - dot: .
@@ -87,7 +87,7 @@ file:
           - dot: .
           - naked_identifier: id
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - column_reference:
           - naked_identifier: month
           - dot: .
@@ -107,7 +107,7 @@ file:
           column_reference:
             naked_identifier: id
           comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
           expression:
             column_reference:
               naked_identifier: id
@@ -134,7 +134,7 @@ file:
           column_reference:
             naked_identifier: retail
           comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
           expression:
             column_reference:
               naked_identifier: retail
@@ -170,14 +170,14 @@ file:
                 - column_reference:
                     naked_identifier: wholesale
                 - comparison_operator:
-                  - raw_comparison_operator: '>'
-                  - raw_comparison_operator: '='
+                  - comparison_operator: '>'
+                  - comparison_operator: '='
                 - numeric_literal: '1.3'
                 - binary_operator: AND
                 - column_reference:
                     naked_identifier: quantity
                 - comparison_operator:
-                    raw_comparison_operator: '>'
+                    comparison_operator: '>'
                 - numeric_literal: '100'
             end_bracket: )
 - statement_terminator: ;
@@ -235,14 +235,14 @@ file:
                           - column_reference:
                               naked_identifier: wholesale
                           - comparison_operator:
-                            - raw_comparison_operator: '>'
-                            - raw_comparison_operator: '='
+                            - comparison_operator: '>'
+                            - comparison_operator: '='
                           - numeric_literal: '1.3'
                           - binary_operator: AND
                           - column_reference:
                               naked_identifier: quantity
                           - comparison_operator:
-                              raw_comparison_operator: <
+                              comparison_operator: <
                           - numeric_literal: '100'
                       end_bracket: )
               end_bracket: )
@@ -257,7 +257,7 @@ file:
           - dot: .
           - naked_identifier: retail
           comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
           expression:
             column_reference:
             - naked_identifier: items
@@ -273,7 +273,7 @@ file:
           - dot: .
           - naked_identifier: id
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - column_reference:
           - naked_identifier: discounted
           - dot: .
@@ -330,7 +330,7 @@ file:
           - dot: .
           - naked_identifier: retail
           comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
           expression:
             column_reference:
             - naked_identifier: items
@@ -346,8 +346,8 @@ file:
           - dot: .
           - naked_identifier: markup
         - comparison_operator:
-          - raw_comparison_operator: '>'
-          - raw_comparison_operator: '='
+          - comparison_operator: '>'
+          - comparison_operator: '='
         - numeric_literal: '1.3'
         - binary_operator: AND
         - column_reference:
@@ -355,7 +355,7 @@ file:
           - dot: .
           - naked_identifier: quantity
         - comparison_operator:
-            raw_comparison_operator: <
+            comparison_operator: <
         - numeric_literal: '100'
         - binary_operator: AND
         - column_reference:
@@ -363,7 +363,7 @@ file:
           - dot: .
           - naked_identifier: id
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - column_reference:
           - naked_identifier: discounted
           - dot: .
@@ -384,7 +384,7 @@ file:
           column_reference:
             naked_identifier: bar
           comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
           numeric_literal: '7'
     - limit_clause:
         keyword: LIMIT
@@ -409,7 +409,7 @@ file:
           - dot: .
           - naked_identifier: name
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - column_reference:
           - naked_identifier: b
           - dot: .
@@ -422,7 +422,7 @@ file:
           - dot: .
           - naked_identifier: id
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - column_reference:
           - naked_identifier: b
           - dot: .
@@ -450,7 +450,7 @@ file:
               - dot: .
               - naked_identifier: id
             - comparison_operator:
-                raw_comparison_operator: '='
+                comparison_operator: '='
             - column_reference:
               - naked_identifier: b
               - dot: .
@@ -463,7 +463,7 @@ file:
           - dot: .
           - naked_identifier: type
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - column_reference:
           - naked_identifier: b
           - dot: .

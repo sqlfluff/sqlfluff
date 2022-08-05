@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ff7361bc091cc9599a91f186e7b3cee7edee5f949a8cea05a25827bf36f91b73
+_hash: aa4aa623473bef46404f37b173ece4224d4f1d85dca4b7dc39e2013e5fa4c3b7
 file:
 - statement:
     export_statement:
@@ -28,11 +28,11 @@ file:
           - keyword: COLUMN
           - keyword: SEPARATOR
           - comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
           - quoted_literal: "';'"
           - keyword: ENCODING
           - comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
           - quoted_literal: "'Latin1'"
           - keyword: WITH
           - keyword: COLUMN
@@ -63,7 +63,7 @@ file:
             - numeric_literal: '1'
             - keyword: FORMAT
             - comparison_operator:
-                raw_comparison_operator: '='
+                comparison_operator: '='
             - quoted_literal: "'DD.MM.YYYY'"
             - comma: ','
             - numeric_literal: '2'
@@ -71,18 +71,18 @@ file:
             - numeric_literal: '3'
             - keyword: DELIMIT
             - comparison_operator:
-                raw_comparison_operator: '='
+                comparison_operator: '='
             - keyword: NEVER
             - end_bracket: )
         - file_opts:
           - keyword: COLUMN
           - keyword: SEPARATOR
           - comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
           - quoted_literal: "';'"
           - keyword: ENCODING
           - comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
           - quoted_literal: "'Latin1'"
           - keyword: WITH
           - keyword: COLUMN
@@ -113,7 +113,7 @@ file:
               column_reference:
                 naked_identifier: id
               comparison_operator:
-                raw_comparison_operator: '='
+                comparison_operator: '='
               numeric_literal: '3295'
         end_bracket: )
       export_into_clause:
@@ -182,7 +182,7 @@ file:
         - keyword: JDBC
         - keyword: DRIVER
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - quoted_literal: "'MSSQL'"
         - keyword: AT
         - connection_definition:
@@ -249,19 +249,19 @@ file:
         - keyword: WITH
         - parameter: HCAT_DB
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - quoted_literal: "'default'"
         - parameter: HCAT_TABLE
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - quoted_literal: "'my_hcat_table'"
         - parameter: HCAT_ADDRESS
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - quoted_literal: "'hcatalog-server:50111'"
         - parameter: HDFS_USER
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - quoted_literal: "'hdfs'"
 - statement_terminator: ;
 - statement:
@@ -280,6 +280,6 @@ file:
           - keyword: COLUMN
           - keyword: SEPARATOR
           - comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
           - quoted_literal: "';'"
 - statement_terminator: ;

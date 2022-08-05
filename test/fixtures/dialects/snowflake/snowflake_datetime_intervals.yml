@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 36aac154cc29a8174068e6e2c01eaa791f94c0af65b03ae16a94ff319675d85f
+_hash: 5145663ebc4d4cb5e120f4f1063db3116d790aa7df89e3b4508a305c2201047a
 file:
 - statement:
     select_statement:
@@ -125,7 +125,7 @@ file:
           column_reference:
             naked_identifier: hire_date
           comparison_operator:
-            raw_comparison_operator: '>'
+            comparison_operator: '>'
           bare_function: current_date
           binary_operator: '-'
           keyword: INTERVAL
@@ -155,7 +155,7 @@ file:
           column_reference:
             naked_identifier: ts
           comparison_operator:
-            raw_comparison_operator: '>'
+            comparison_operator: '>'
           function:
             function_name:
               function_name_identifier: to_timestamp

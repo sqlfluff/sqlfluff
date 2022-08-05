@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f5189a71f81828e83117fdfcf84db19cd6ad2423d302ee1285375a3c90e6f193
+_hash: 8a37f47201743bb53808bf48006eb894e3fa651572b7282b7e098368bf604783
 file:
 - statement:
     alter_function_statement:
@@ -1389,7 +1389,7 @@ file:
         keyword: SET
         parameter: param1
         comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
         numeric_literal: '1'
 - statement_terminator: ;
 - statement:
@@ -1402,7 +1402,7 @@ file:
         keyword: SET
         parameter: param1
         comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
         quoted_literal: "'value'"
 - statement_terminator: ;
 - statement:
@@ -1415,7 +1415,7 @@ file:
         keyword: SET
         parameter: param1
         comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
         naked_identifier: avalue
 - statement_terminator: ;
 - statement:
@@ -1428,7 +1428,7 @@ file:
       - keyword: SET
       - parameter: param1
       - comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
       - keyword: DEFAULT
 - statement_terminator: ;
 - statement:
@@ -1452,7 +1452,7 @@ file:
         keyword: SET
         parameter: param1
         comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
         quoted_literal: "'value'"
 - statement_terminator: ;
 - statement:
@@ -1471,7 +1471,7 @@ file:
         keyword: SET
         parameter: param1
         comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
         naked_identifier: avalue
 - statement_terminator: ;
 - statement:
@@ -1493,7 +1493,7 @@ file:
         keyword: SET
         parameter: param1
         comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
         naked_identifier: avalue
 - statement_terminator: ;
 - statement:

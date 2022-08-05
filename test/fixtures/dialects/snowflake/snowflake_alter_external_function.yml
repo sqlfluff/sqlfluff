@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c6a2bf22f3b84a2339aa80cc957b7f89796f16670cc913876d6fdaeaf53dd83e
+_hash: 5dd1d7d2fbafa0247caa0b5c8cfa70358283cf0e5efc6c8d4005e018c5a65913
 file:
 - statement:
     alter_function_statement:
@@ -71,7 +71,7 @@ file:
     - keyword: SET
     - keyword: API_INTEGRATION
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - naked_identifier: API_INTEGRATION_2
 - statement_terminator: ;
 - statement:
@@ -89,7 +89,7 @@ file:
     - keyword: SET
     - keyword: MAX_BATCH_ROWS
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - numeric_literal: '100'
 - statement_terminator: ;
 - statement:
@@ -107,7 +107,7 @@ file:
     - keyword: SET
     - keyword: COMPRESSION
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - compression_type: GZIP
 - statement_terminator: ;
 - statement:
@@ -125,7 +125,7 @@ file:
     - keyword: SET
     - keyword: REQUEST_TRANSLATOR
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - function_name:
         function_name_identifier: TRANSLATOR_FUNCTION
 - statement_terminator: ;
@@ -144,7 +144,7 @@ file:
     - keyword: SET
     - keyword: RESPONSE_TRANSLATOR
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - function_name:
         function_name_identifier: TRANSLATOR_FUNCTION
 - statement_terminator: ;
@@ -163,12 +163,12 @@ file:
     - keyword: SET
     - keyword: HEADERS
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - bracketed:
       - start_bracket: (
       - quoted_identifier: "'abc'"
       - comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
       - quoted_identifier: "'def'"
       - end_bracket: )
 - statement_terminator: ;
@@ -187,7 +187,7 @@ file:
     - keyword: SET
     - keyword: CONTEXT_HEADERS
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - bracketed:
       - start_bracket: (
       - keyword: CURRENT_ROLE
@@ -211,6 +211,6 @@ file:
     - comment_equals_clause:
         keyword: COMMENT
         comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
         quoted_literal: "'Woohoo!'"
 - statement_terminator: ;

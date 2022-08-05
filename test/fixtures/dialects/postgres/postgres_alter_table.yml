@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 41dfc3fcb84393e15f3b50236490fe3e599c6ddb098c8aa1b70ecfeccf168bf1
+_hash: 2fcb3e21447bbcd46e352c080b86349c840c700b7e10b853ba9cfdd3d2aa0131
 file:
 - statement:
     alter_table_statement:
@@ -622,7 +622,7 @@ file:
                       naked_identifier: zipcode
                   end_bracket: )
               comparison_operator:
-                raw_comparison_operator: '='
+                comparison_operator: '='
               numeric_literal: '5'
             end_bracket: )
 - statement_terminator: ;
@@ -652,7 +652,7 @@ file:
                       naked_identifier: zipcode
                   end_bracket: )
               comparison_operator:
-                raw_comparison_operator: '='
+                comparison_operator: '='
               numeric_literal: '5'
             end_bracket: )
         - keyword: 'NO'
@@ -888,7 +888,7 @@ file:
           start_bracket: (
           parameter: parameter_1
           comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
           quoted_literal: "'value'"
           end_bracket: )
 - statement_terminator: ;
@@ -904,7 +904,7 @@ file:
           start_bracket: (
           parameter: parameter_1
           comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
           numeric_literal: '1'
           end_bracket: )
 - statement_terminator: ;
@@ -920,12 +920,12 @@ file:
         - start_bracket: (
         - parameter: parameter_1
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - numeric_literal: '1'
         - comma: ','
         - parameter: parameter_2
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - quoted_literal: "'value'"
         - end_bracket: )
 - statement_terminator: ;

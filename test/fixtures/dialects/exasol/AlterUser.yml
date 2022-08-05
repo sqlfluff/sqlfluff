@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: faa22d59324432fe8ffce992f299c79436e9cf770ed6e801ff2498c5d0c6dcd1
+_hash: 4e491de79ab004f4b4dea3cb56f32a654aed850bc80211300b076e31177ba05c
 file:
 - statement:
     alter_user_statement:
@@ -50,7 +50,7 @@ file:
         naked_identifier: user_3
     - keyword: PASSWORD_EXPIRY_POLICY
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - quoted_literal: "'42 days'"
 - statement_terminator: ;
 - statement:
@@ -82,7 +82,7 @@ file:
     - keyword: SET
     - keyword: CONSUMER_GROUP
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - naked_identifier: CEO
 - statement_terminator: ;
 - statement:
@@ -94,7 +94,7 @@ file:
     - keyword: SET
     - keyword: CONSUMER_GROUP
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - keyword: 'NULL'
 - statement_terminator: ;
 - statement:
@@ -106,7 +106,7 @@ file:
     - keyword: SET
     - keyword: CONSUMER_GROUP
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - quoted_identifier: '"TABLE"'
 - statement_terminator: ;
 - statement:
@@ -118,7 +118,7 @@ file:
     - keyword: SET
     - keyword: CONSUMER_GROUP
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - quoted_identifier: '"DAY"'
 - statement_terminator: ;
 - statement:
@@ -130,7 +130,7 @@ file:
     - keyword: SET
     - keyword: CONSUMER_GROUP
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - identifier: '[day]'
 - statement_terminator: ;
 - statement:

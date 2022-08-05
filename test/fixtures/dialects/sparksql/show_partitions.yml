@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 117afb5bf8f20db6b3c88fad946fdd821caf02a19e8dd624360f772c770b6fe0
+_hash: e69a0812fc5c471eacb4f5dea74e4fae133931bc9ba7d59d0c644e1adbfe144f
 file:
 - statement:
     show_statement:
@@ -33,13 +33,13 @@ file:
       - column_reference:
           naked_identifier: state
       - comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
       - quoted_literal: "'CA'"
       - comma: ','
       - column_reference:
           naked_identifier: city
       - comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
       - quoted_literal: "'Fremont'"
       - end_bracket: )
 - statement_terminator: ;
@@ -55,7 +55,7 @@ file:
         column_reference:
           naked_identifier: state
         comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
         quoted_literal: "'CA'"
         end_bracket: )
 - statement_terminator: ;
@@ -71,7 +71,7 @@ file:
         column_reference:
           naked_identifier: city
         comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
         quoted_literal: "'San Jose'"
         end_bracket: )
 - statement_terminator: ;

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2de0a7cf7ce24a8aa514bf3e83098c3fb92a1907b3e803e6f40ce71789bb3a8e
+_hash: ea93210ef95998ff24e2aa1fe1da0cbb68b753c6499ec5283215d6099f82cbbc
 file:
 - statement:
     create_external_table_statement:
@@ -241,12 +241,12 @@ file:
       - start_bracket: (
       - quoted_literal: "'some_property1'"
       - comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
       - quoted_literal: "'some_value1'"
       - comma: ','
       - quoted_literal: "'some_property2'"
       - comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
       - quoted_literal: "'some_value2'"
       - end_bracket: )
 - statement_terminator: ;
@@ -313,7 +313,7 @@ file:
       - start_bracket: (
       - quoted_literal: "'numRows'"
       - comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
       - quoted_literal: "'170000'"
       - end_bracket: )
 - statement_terminator: ;
@@ -368,12 +368,12 @@ file:
       - start_bracket: (
       - quoted_literal: "'dots.in.keys'"
       - comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
       - quoted_literal: "'true'"
       - comma: ','
       - quoted_literal: "'mapping.requesttime'"
       - comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
       - quoted_literal: "'requesttimestamp'"
       - end_bracket: )
     - keyword: stored
@@ -446,7 +446,7 @@ file:
       - start_bracket: (
       - quoted_literal: "'skip.header.line.count'"
       - comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
       - quoted_literal: "'1'"
       - end_bracket: )
 - statement_terminator: ;

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 473c65321c316f23d9a239e9fb8073e1434e4e3e6068a33fc762c5efb3756ad8
+_hash: c1c4d3f27938ec9c16efabc87287c505488cf300fd755a9499eb9158cad6005c
 file:
 - statement:
     remove_statement:
@@ -31,7 +31,7 @@ file:
     - stage_path: '@~'
     - keyword: pattern
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - quoted_literal: "'.*jun.*'"
 - statement_terminator: ;
 - statement:
@@ -40,7 +40,7 @@ file:
     - stage_path: '@foo.bar'
     - keyword: PATTERN
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - quoted_literal: "'\\w'"
 - statement_terminator: ;
 - statement:
@@ -49,6 +49,6 @@ file:
     - stage_path: '@foo.foo'
     - keyword: PATTERN
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - variable: $bar
 - statement_terminator: ;

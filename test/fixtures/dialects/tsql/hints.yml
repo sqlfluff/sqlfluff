@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: eeab16a5d253654456bd6dfb921b0de87110742f93451e56a9c5f697e4c3d014
+_hash: d547ff52d07e3644cc32540e54fc93b4534a4476546ff3a706b30b1fb103e02b
 file:
 - batch:
     statement:
@@ -46,7 +46,7 @@ file:
                   - dot: .
                   - naked_identifier: CustomerID
                 - comparison_operator:
-                    raw_comparison_operator: '='
+                    comparison_operator: '='
                 - column_reference:
                   - naked_identifier: ca
                   - dot: .
@@ -57,7 +57,7 @@ file:
             column_reference:
               naked_identifier: TerritoryID
             comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
             numeric_literal: '5'
         option_clause:
           keyword: OPTION
@@ -121,13 +121,13 @@ file:
               - column_reference:
                   naked_identifier: City
               - comparison_operator:
-                  raw_comparison_operator: '='
+                  comparison_operator: '='
               - parameter: '@city_name'
               - binary_operator: AND
               - column_reference:
                   naked_identifier: PostalCode
               - comparison_operator:
-                  raw_comparison_operator: '='
+                  comparison_operator: '='
               - parameter: '@postal_code'
             option_clause:
               keyword: OPTION
@@ -140,7 +140,7 @@ file:
                   - start_bracket: (
                   - parameter: '@city_name'
                   - comparison_operator:
-                      raw_comparison_operator: '='
+                      comparison_operator: '='
                   - quoted_literal: "'Seattle'"
                   - comma: ','
                   - parameter: '@postal_code'
@@ -250,7 +250,7 @@ file:
                           - dot: .
                           - naked_identifier: PersonID
                         - comparison_operator:
-                            raw_comparison_operator: '='
+                            comparison_operator: '='
                         - column_reference:
                           - naked_identifier: e
                           - dot: .
@@ -383,7 +383,7 @@ file:
             column_reference:
               naked_identifier: UnitPrice
             comparison_operator:
-              raw_comparison_operator: <
+              comparison_operator: <
             numeric_literal: '5'
         groupby_clause:
         - keyword: GROUP
@@ -457,7 +457,7 @@ file:
             column_reference:
               naked_identifier: UnitPrice
             comparison_operator:
-              raw_comparison_operator: <
+              comparison_operator: <
             numeric_literal: '5'
         groupby_clause:
         - keyword: GROUP
@@ -510,13 +510,13 @@ file:
           - column_reference:
               naked_identifier: City
           - comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
           - quoted_literal: "'SEATTLE'"
           - binary_operator: AND
           - column_reference:
               naked_identifier: PostalCode
           - comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
           - numeric_literal: '98104'
         option_clause:
           keyword: OPTION
@@ -562,13 +562,13 @@ file:
           - column_reference:
               naked_identifier: City
           - comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
           - quoted_literal: "'SEATTLE'"
           - binary_operator: AND
           - column_reference:
               naked_identifier: PostalCode
           - comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
           - numeric_literal: '98104'
         option_clause:
           keyword: OPTION
@@ -605,13 +605,13 @@ file:
           - column_reference:
               naked_identifier: City
           - comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
           - quoted_literal: "'SEATTLE'"
           - binary_operator: AND
           - column_reference:
               naked_identifier: PostalCode
           - comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
           - numeric_literal: '98104'
         option_clause:
           keyword: OPTION
@@ -650,7 +650,7 @@ file:
               naked_identifier: ListPrice
             assignment_operator:
               comparison_operator:
-                raw_comparison_operator: '='
+                comparison_operator: '='
             expression:
               column_reference:
                 naked_identifier: ListPrice
@@ -714,7 +714,7 @@ file:
                   - dot: .
                   - naked_identifier: SalesOrderID
                 - comparison_operator:
-                    raw_comparison_operator: '='
+                    comparison_operator: '='
                 - column_reference:
                   - naked_identifier: d
                   - dot: .
@@ -727,7 +727,7 @@ file:
             - dot: .
             - naked_identifier: TotalDue
             comparison_operator:
-              raw_comparison_operator: '>'
+              comparison_operator: '>'
             numeric_literal: '100'
             binary_operator: AND
             bracketed:
@@ -738,7 +738,7 @@ file:
                 - dot: .
                 - naked_identifier: OrderQty
               - comparison_operator:
-                  raw_comparison_operator: '>'
+                  comparison_operator: '>'
               - numeric_literal: '5'
               - binary_operator: OR
               - column_reference:
@@ -746,7 +746,7 @@ file:
                 - dot: .
                 - naked_identifier: LineTotal
               - comparison_operator:
-                  raw_comparison_operator: <
+                  comparison_operator: <
               - numeric_literal: '1000.00'
               end_bracket: )
         statement_terminator: ;
@@ -822,7 +822,7 @@ file:
                   - dot: .
                   - naked_identifier: SalesOrderID
                 - comparison_operator:
-                    raw_comparison_operator: '='
+                    comparison_operator: '='
                 - column_reference:
                   - naked_identifier: d
                   - dot: .
@@ -835,7 +835,7 @@ file:
             - dot: .
             - naked_identifier: TotalDue
             comparison_operator:
-              raw_comparison_operator: '>'
+              comparison_operator: '>'
             numeric_literal: '100'
             binary_operator: AND
             bracketed:
@@ -846,7 +846,7 @@ file:
                 - dot: .
                 - naked_identifier: OrderQty
               - comparison_operator:
-                  raw_comparison_operator: '>'
+                  comparison_operator: '>'
               - numeric_literal: '5'
               - binary_operator: OR
               - column_reference:
@@ -854,7 +854,7 @@ file:
                 - dot: .
                 - naked_identifier: LineTotal
               - comparison_operator:
-                  raw_comparison_operator: <
+                  comparison_operator: <
               - numeric_literal: '1000.00'
               end_bracket: )
         statement_terminator: ;
@@ -921,7 +921,7 @@ file:
                   - dot: .
                   - naked_identifier: SalesOrderID
                 - comparison_operator:
-                    raw_comparison_operator: '='
+                    comparison_operator: '='
                 - column_reference:
                   - naked_identifier: d
                   - dot: .
@@ -934,7 +934,7 @@ file:
             - dot: .
             - naked_identifier: TotalDue
             comparison_operator:
-              raw_comparison_operator: '>'
+              comparison_operator: '>'
             numeric_literal: '100'
             binary_operator: AND
             bracketed:
@@ -945,7 +945,7 @@ file:
                 - dot: .
                 - naked_identifier: OrderQty
               - comparison_operator:
-                  raw_comparison_operator: '>'
+                  comparison_operator: '>'
               - numeric_literal: '5'
               - binary_operator: OR
               - column_reference:
@@ -953,7 +953,7 @@ file:
                 - dot: .
                 - naked_identifier: LineTotal
               - comparison_operator:
-                  raw_comparison_operator: <
+                  comparison_operator: <
               - numeric_literal: '1000.00'
               end_bracket: )
         statement_terminator: ;

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6150e790936ff209de8c5e251c3cd23d8901e8139f6e75b1db9c7329f5d2f83d
+_hash: 5de11b5d7e2f56ebf2c5955e28ce30ff933db0b980c87a6e6d9121c0cf1575ba
 file:
 - statement:
     merge_statement:
@@ -22,7 +22,7 @@ file:
           - column_reference:
               naked_identifier: a
           - comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
           - column_reference:
               naked_identifier: b
           end_bracket: )
@@ -39,7 +39,7 @@ file:
               - column_reference:
                   naked_identifier: a
               - comparison_operator:
-                  raw_comparison_operator: '='
+                  comparison_operator: '='
               - column_reference:
                   naked_identifier: b
         merge_when_not_matched_clause:
@@ -98,7 +98,7 @@ file:
           - column_reference:
               naked_identifier: a
           - comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
           - column_reference:
               naked_identifier: b
           end_bracket: )
@@ -115,7 +115,7 @@ file:
               - column_reference:
                   naked_identifier: a
               - comparison_operator:
-                  raw_comparison_operator: '='
+                  comparison_operator: '='
               - column_reference:
                   naked_identifier: b
         merge_when_not_matched_clause:
@@ -156,7 +156,7 @@ file:
           - column_reference:
               naked_identifier: a
           - comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
           - column_reference:
               naked_identifier: b
           end_bracket: )
@@ -173,7 +173,7 @@ file:
               - column_reference:
                   naked_identifier: a
               - comparison_operator:
-                  raw_comparison_operator: '='
+                  comparison_operator: '='
               - column_reference:
                   naked_identifier: b
       - merge_when_matched_clause:
@@ -200,7 +200,7 @@ file:
           - column_reference:
               naked_identifier: a
           - comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
           - column_reference:
               naked_identifier: b
           end_bracket: )
@@ -213,7 +213,7 @@ file:
           - column_reference:
               naked_identifier: a
           - comparison_operator:
-              raw_comparison_operator: '>'
+              comparison_operator: '>'
           - column_reference:
               naked_identifier: b
         - keyword: THEN
@@ -225,7 +225,7 @@ file:
               - column_reference:
                   naked_identifier: a
               - comparison_operator:
-                  raw_comparison_operator: '='
+                  comparison_operator: '='
               - column_reference:
                   naked_identifier: b
       - merge_when_matched_clause:
@@ -239,14 +239,14 @@ file:
               - column_reference:
                   naked_identifier: a
               - comparison_operator:
-                  raw_comparison_operator: <
+                  comparison_operator: <
               - column_reference:
                   naked_identifier: b
               - binary_operator: AND
               - column_reference:
                   naked_identifier: c
               - comparison_operator:
-                  raw_comparison_operator: <
+                  comparison_operator: <
               - column_reference:
                   naked_identifier: d
               end_bracket: )
@@ -298,7 +298,7 @@ file:
           - column_reference:
               naked_identifier: a
           - comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
           - column_reference:
               naked_identifier: b
           end_bracket: )
@@ -314,14 +314,14 @@ file:
               - column_reference:
                   naked_identifier: a
               - comparison_operator:
-                  raw_comparison_operator: <
+                  comparison_operator: <
               - column_reference:
                   naked_identifier: b
               - binary_operator: AND
               - column_reference:
                   naked_identifier: c
               - comparison_operator:
-                  raw_comparison_operator: <
+                  comparison_operator: <
               - column_reference:
                   naked_identifier: d
               end_bracket: )

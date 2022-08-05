@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 70ec57eefb21ce252ea064da0052afe669a4df06d2e5491af6b3da821a2b8043
+_hash: 03bdc8a61d5f2c3c59dca4686546bf4f1f2e1c9c7263ab90920c584e0bdf08ab
 file:
 - statement:
     alter_table_statement:
@@ -109,7 +109,7 @@ file:
       - keyword: RECLUSTER
       - keyword: MAX_SIZE
       - comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
       - numeric_literal: '100'
 - statement_terminator: ;
 - statement:
@@ -148,7 +148,7 @@ file:
       - keyword: RECLUSTER
       - keyword: MAX_SIZE
       - comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
       - numeric_literal: '100'
       - where_clause:
           keyword: WHERE

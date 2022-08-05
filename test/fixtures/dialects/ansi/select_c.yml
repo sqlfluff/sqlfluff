@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b60f1ebfcd8254f2a20c4714da4d12aa00ba2d83045dc50cb84ff86645e41b68
+_hash: d2edecf35a50f8de95b70d9b668be197cd702ff0fc5d4d4fa7d127f8487b06cc
 file:
   statement:
     select_statement:
@@ -46,8 +46,8 @@ file:
                   naked_identifier: date_col_b
               end_bracket: )
         - comparison_operator:
-          - raw_comparison_operator: '>'
-          - raw_comparison_operator: '='
+          - comparison_operator: '>'
+          - comparison_operator: '='
         - bare_function: current_date
         - binary_operator: AND
         - function:
@@ -60,7 +60,7 @@ file:
                   naked_identifier: col_a
               end_bracket: )
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - numeric_literal: '4'
       orderby_clause:
       - keyword: ORDER

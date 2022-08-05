@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f3be0ce4a7bdbfe38682bbbcca6f44e8eec5dd1ce10ceb56e0cfd3056f4acd74
+_hash: 82da24e81f492c33229caaa20a2999a38ae200dbf9566cd3cf915774e42aee87
 file:
 - statement:
     alter_session_statement:
@@ -12,7 +12,7 @@ file:
     - keyword: SET
     - session_parameter: TIME_ZONE
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - quoted_literal: "'EUROPE/BERLIN'"
 - statement_terminator: ;
 - statement:
@@ -22,7 +22,7 @@ file:
     - keyword: SET
     - session_parameter: QUERY_TIMEOUT
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - numeric_literal: '120'
 - statement_terminator: ;
 - statement:
@@ -32,7 +32,7 @@ file:
     - keyword: SET
     - session_parameter: NLS_DATE_FORMAT
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - quoted_literal: "'DDD-YYYY'"
 - statement_terminator: ;
 - statement:
@@ -42,7 +42,7 @@ file:
     - keyword: SET
     - session_parameter: SESSION_TEMP_DB_RAM_LIMIT
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - quoted_literal: "'10240M'"
 - statement_terminator: ;
 - statement:
@@ -52,7 +52,7 @@ file:
     - keyword: SET
     - session_parameter: SNAPSHOT_MODE
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - quoted_literal: "'OFF'"
 - statement_terminator: ;
 - statement:
@@ -62,7 +62,7 @@ file:
     - keyword: SET
     - session_parameter: SNAPSHOT_MODE
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - quoted_literal: "'SYSTEM TABLES'"
 - statement_terminator: ;
 - statement:
@@ -72,6 +72,6 @@ file:
     - keyword: SET
     - session_parameter: IDLE_TIMEOUT
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - numeric_literal: '2400'
 - statement_terminator: ;

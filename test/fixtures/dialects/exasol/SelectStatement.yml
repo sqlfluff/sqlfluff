@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 413a3e631dda3ac322923173545eb45268a3051bb70d6e94ed812fefef1b3c04
+_hash: fe5b09c6a7f3b6e631d85eed8f7325b4d1d45f40b443a53ef803804489011777
 file:
 - statement:
     select_statement:
@@ -82,14 +82,14 @@ file:
         - column_reference:
             naked_identifier: employee_id
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - column_reference:
             naked_identifier: manager_id
         - binary_operator: AND
         - column_reference:
             naked_identifier: dept_no
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - column_reference:
             naked_identifier: dno
       - keyword: START
@@ -98,7 +98,7 @@ file:
           column_reference:
             naked_identifier: last_name
           comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
           quoted_literal: "'Clark'"
       orderby_clause:
       - keyword: ORDER
@@ -239,7 +239,7 @@ file:
                 - dot: .
                 - naked_identifier: c_id
               - comparison_operator:
-                  raw_comparison_operator: '='
+                  comparison_operator: '='
               - column_reference:
                 - naked_identifier: sales
                 - dot: .
@@ -1076,7 +1076,7 @@ file:
             dot: .
             naked_identifier: x
           comparison_operator:
-            raw_comparison_operator: '>'
+            comparison_operator: '>'
           numeric_literal: '10'
 - statement_terminator: ;
 - statement:
@@ -1181,7 +1181,7 @@ file:
             dot: .
             naked_identifier: c
           comparison_operator:
-            raw_comparison_operator: '>'
+            comparison_operator: '>'
           numeric_literal: '1'
 - statement_terminator: ;
 - statement:
@@ -1242,7 +1242,7 @@ file:
             dot: .
             naked_identifier: NUM
           comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
           numeric_literal: '1'
 - statement_terminator: ;
 - statement:
@@ -1511,7 +1511,7 @@ file:
             dot: .
             naked_identifier: c1
           comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
           quoted_literal: "'ABC'"
 - statement_terminator: ;
 - statement:

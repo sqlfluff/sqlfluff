@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9626d2bc3f5efcefdc2860f3cc69f9760838065666af759ea6458370cc1e6b6f
+_hash: 7a5dfe3312cf6417b84d5f11497ee844ef20be7b021510adf8421789e6660ead
 file:
 - statement:
     create_table_statement:
@@ -17,7 +17,7 @@ file:
           start_bracket: (
           parameter: expiration_timestamp
           comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
           function:
             function_name:
               function_name_identifier: TIMESTAMP_ADD
@@ -52,7 +52,7 @@ file:
           start_bracket: (
           parameter: expiration_timestamp
           comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
           function:
             function_name:
               function_name_identifier: TIMESTAMP
@@ -75,12 +75,12 @@ file:
         - start_bracket: (
         - parameter: description
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - quoted_literal: '"Test mixed options"'
         - comma: ','
         - parameter: expiration_timestamp
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - function:
             function_name:
               function_name_identifier: TIMESTAMP

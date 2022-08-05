@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4c0d00939f332938116d72a004183e9ae8fe5cd618de9085c57db5a673646e32
+_hash: 08bfae3dffb7dd5394d8d5b20b0d91b1d5898018bc1840cc54f13d6ef574c2fd
 file:
 - statement:
     create_external_table_statement:
@@ -17,23 +17,23 @@ file:
     - keyword: with
     - keyword: location
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - stage_path: '@mystage/path1/'
     - keyword: file_format
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - file_format_segment:
         bracketed:
           start_bracket: (
           json_file_format_type_parameters:
             keyword: type
             comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
             file_type: json
           end_bracket: )
     - keyword: aws_sns_topic
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - quoted_literal: "'arn:aws:sns:us-west-2:001234567890:s3_mybucket'"
 - statement_terminator: ;
 - statement:
@@ -48,27 +48,27 @@ file:
     - keyword: with
     - keyword: location
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - stage_path: '@carpe_datastore_commercial/p08'
     - keyword: auto_refresh
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - boolean_literal: 'true'
     - keyword: file_format
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - file_format_segment:
         bracketed:
           start_bracket: (
           parquet_file_format_type_parameters:
             keyword: type
             comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
             file_type: parquet
           end_bracket: )
     - keyword: pattern
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - quoted_literal: "'.*[.]parquet.*'"
 - statement_terminator: ;
 - statement:
@@ -490,22 +490,22 @@ file:
         end_bracket: )
     - keyword: LOCATION
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - stage_path: '@external_tables.citibike_trips'
     - keyword: FILE_FORMAT
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - file_format_segment:
         bracketed:
           start_bracket: (
           csv_file_format_type_parameters:
           - keyword: TYPE
           - comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
           - file_type: "'CSV'"
           - keyword: FIELD_OPTIONALLY_ENCLOSED_BY
           - comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
           - quoted_literal: "'\"'"
           end_bracket: )
 - statement_terminator: ;

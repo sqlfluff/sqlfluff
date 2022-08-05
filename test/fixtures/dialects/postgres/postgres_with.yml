@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 54e36cd157ed51f1b6e1d291ba93aa5eaa2c2a18744dd35bb06ee2cbbd7fce20
+_hash: ebd07ef6cb19fad655fd5b425f9e86da7f9ef74cb97ce1b14151b30364a063e3
 file:
 - statement:
     with_compound_statement:
@@ -64,7 +64,7 @@ file:
                   - dot: .
                   - naked_identifier: key
                 - comparison_operator:
-                    raw_comparison_operator: '='
+                    comparison_operator: '='
                 - column_reference:
                   - naked_identifier: w2
                   - dot: .
@@ -77,7 +77,7 @@ file:
             - dot: .
             - naked_identifier: key
             comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
             numeric_literal: '123'
 - statement_terminator: ;
 - statement:
@@ -177,7 +177,7 @@ file:
                   - dot: .
                   - naked_identifier: id
                 - comparison_operator:
-                    raw_comparison_operator: '='
+                    comparison_operator: '='
                 - column_reference:
                   - naked_identifier: st
                   - dot: .
@@ -309,7 +309,7 @@ file:
                   - dot: .
                   - naked_identifier: id
                 - comparison_operator:
-                    raw_comparison_operator: '='
+                    comparison_operator: '='
                 - column_reference:
                   - naked_identifier: st
                   - dot: .
@@ -455,7 +455,7 @@ file:
                   - dot: .
                   - naked_identifier: id
                 - comparison_operator:
-                    raw_comparison_operator: '='
+                    comparison_operator: '='
                 - column_reference:
                   - naked_identifier: sg
                   - dot: .

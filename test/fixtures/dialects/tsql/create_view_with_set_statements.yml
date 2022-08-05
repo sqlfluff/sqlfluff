@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 656520aa2e7522804e41ecca3c15d63d0b2b577a15e343308a7f904d97128eaf
+_hash: 73c62bd076b18ed516d9a9bf4f8c3cf6d16b76860e8f026c62f88fb00ca92a21
 file:
 - batch:
     statement:
@@ -133,7 +133,7 @@ file:
                       dot: .
                       quoted_identifier: '[VRCODE]'
                   - comparison_operator:
-                      raw_comparison_operator: '='
+                      comparison_operator: '='
                   - column_reference:
                       naked_identifier: T2
                       dot: .
@@ -144,7 +144,7 @@ file:
             - column_reference:
                 naked_identifier: DATE_OF_REPORT
             - comparison_operator:
-                raw_comparison_operator: '='
+                comparison_operator: '='
             - column_reference:
                 naked_identifier: LAST_DATE_OF_REPORT
           statement_terminator: ;

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 47c08b741747f2d549c6f21ef99b0c776b6d47865d93bbc022ec7feb7f0a851c
+_hash: 4d2f5083d53a1c50a884540cebec8af874eba903a5a3a1932b73ff9b8dc04f09
 file:
 - statement:
     alter_table_statement:
@@ -30,7 +30,7 @@ file:
         column_reference:
           naked_identifier: Age
         comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
         quoted_literal: "'10'"
         end_bracket: )
     - keyword: RENAME
@@ -41,7 +41,7 @@ file:
         column_reference:
           naked_identifier: Age
         comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
         quoted_literal: "'15'"
         end_bracket: )
 - statement_terminator: ;
@@ -110,7 +110,7 @@ file:
         column_reference:
           naked_identifier: Age
         comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
         numeric_literal: '18'
         end_bracket: )
 - statement_terminator: ;
@@ -130,7 +130,7 @@ file:
         column_reference:
           naked_identifier: Age
         comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
         numeric_literal: '18'
         end_bracket: )
     - keyword: PARTITION
@@ -139,7 +139,7 @@ file:
         column_reference:
           naked_identifier: Age
         comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
         numeric_literal: '20'
         end_bracket: )
 - statement_terminator: ;
@@ -158,7 +158,7 @@ file:
         column_reference:
           naked_identifier: Age
         comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
         numeric_literal: '18'
         end_bracket: )
 - statement_terminator: ;
@@ -177,7 +177,7 @@ file:
         property_name_identifier:
           quoted_identifier: "'winner'"
         comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
         quoted_literal: "'loser'"
         end_bracket: )
 - statement_terminator: ;
@@ -196,7 +196,7 @@ file:
         property_name_identifier:
           quoted_identifier: "'comment'"
         comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
         quoted_literal: "'A table comment.'"
         end_bracket: )
 - statement_terminator: ;
@@ -215,7 +215,7 @@ file:
         property_name_identifier:
           quoted_identifier: "'comment'"
         comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
         quoted_literal: "'This is a new comment.'"
         end_bracket: )
 - statement_terminator: ;
@@ -248,13 +248,13 @@ file:
       - property_name_identifier:
           quoted_identifier: '"key1"'
       - comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
       - quoted_literal: '"val1"'
       - comma: ','
       - property_name_identifier:
           quoted_identifier: '"key2"'
       - comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
       - quoted_literal: '"val2"'
       - end_bracket: )
 - statement_terminator: ;
@@ -286,13 +286,13 @@ file:
       - property_name_identifier:
           quoted_identifier: "'k'"
       - comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
       - quoted_literal: "'v'"
       - comma: ','
       - property_name_identifier:
           quoted_identifier: "'kay'"
       - comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
       - quoted_literal: "'vee'"
       - end_bracket: )
 - statement_terminator: ;
@@ -318,13 +318,13 @@ file:
       - column_reference:
           naked_identifier: Month
       - comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
       - numeric_literal: '2'
       - comma: ','
       - column_reference:
           naked_identifier: Day
       - comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
       - numeric_literal: '2'
       - end_bracket: )
     - keyword: SET
@@ -345,13 +345,13 @@ file:
       - column_reference:
           naked_identifier: A
       - comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
       - quoted_literal: "'1'"
       - comma: ','
       - column_reference:
           naked_identifier: B
       - comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
       - quoted_literal: "'2'"
       - end_bracket: )
     - keyword: SET

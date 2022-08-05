@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 553a622220bf6d28a299ea98be359e711753afc5a911a494ec15d8b49db728d4
+_hash: c91c6e905b04f806c2eb43ea640629011317148dffd603e15310225fb9177788
 file:
   batch:
   - statement:
@@ -22,7 +22,7 @@ file:
         - naked_identifier: ProcTestDefaults
         parameter: '@p2'
         comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
         quoted_literal: "'A'"
         statement_terminator: ;
   - statement:
@@ -58,12 +58,12 @@ file:
         - naked_identifier: ProcTestDefaults
       - parameter: '@p1'
       - comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
       - keyword: DEFAULT
       - comma: ','
       - parameter: '@p2'
       - comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
       - quoted_literal: "'D'"
       - statement_terminator: ;
   - statement:
@@ -77,12 +77,12 @@ file:
       - comma: ','
       - parameter: '@p3'
       - comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
       - quoted_literal: "'Local'"
       - comma: ','
       - parameter: '@p2'
       - comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
       - quoted_literal: "'E'"
       - statement_terminator: ;
   - statement:
@@ -111,7 +111,7 @@ file:
       - comma: ','
       - parameter: '@p3'
       - comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
       - keyword: DEFAULT
       - statement_terminator: ;
   - statement:
@@ -121,39 +121,39 @@ file:
           naked_identifier: sp_addextendedproperty
       - parameter: '@name'
       - comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
       - quoted_literal: "N'MS_Description'"
       - comma: ','
       - parameter: '@value'
       - comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
       - quoted_literal: "'my text description'"
       - comma: ','
       - parameter: '@level0type'
       - comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
       - quoted_literal: "N'SCHEMA'"
       - comma: ','
       - parameter: '@level0name'
       - comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
       - quoted_literal: "N'my_schema_name'"
       - comma: ','
       - parameter: '@level1type'
       - comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
       - quoted_literal: "N'my_object_type'"
       - comma: ','
       - parameter: '@level1name'
       - comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
       - quoted_literal: "N'my_object_name'"
   - statement:
       execute_script_statement:
         keyword: EXEC
         parameter: '@pRes'
         comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
         object_reference:
         - naked_identifier: dbo
         - dot: .
@@ -164,14 +164,14 @@ file:
       - keyword: EXEC
       - parameter: '@pRes'
       - comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
       - object_reference:
         - naked_identifier: dbo
         - dot: .
         - naked_identifier: ProcTestDefaults
       - parameter: '@p1'
       - comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
       - keyword: DEFAULT
       - statement_terminator: ;
   - statement:
@@ -179,7 +179,7 @@ file:
         keyword: EXECUTE
         parameter: '@pRes'
         comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
         object_reference:
         - naked_identifier: dbo
         - dot: .
@@ -190,14 +190,14 @@ file:
       - keyword: EXECUTE
       - parameter: '@pRes'
       - comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
       - object_reference:
         - naked_identifier: dbo
         - dot: .
         - naked_identifier: ProcTestDefaults
       - parameter: '@p1'
       - comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
       - keyword: DEFAULT
       - statement_terminator: ;
   - statement:
@@ -211,7 +211,7 @@ file:
             keyword: max
             end_bracket: )
         comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
         expression:
           quoted_literal: "'SELECT 1'"
   - statement:

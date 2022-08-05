@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8c2304cccb04982c6abb2941c7c46fdda339d134893c5970f249015f75f04b34
+_hash: f357884905c934fe754757200f47b8586d14b063c1432b6e793d7460042432a8
 file:
 - statement:
     list_statement:
@@ -21,7 +21,7 @@ file:
     - stage_path: '@%mytable'
     - keyword: pattern
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - quoted_literal: "'.*data_0.*'"
 - statement_terminator: ;
 - statement:
@@ -30,7 +30,7 @@ file:
     - stage_path: '@my_csv_stage/analysis/'
     - keyword: pattern
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - quoted_literal: "'.*data_0.*'"
 - statement_terminator: ;
 - statement:

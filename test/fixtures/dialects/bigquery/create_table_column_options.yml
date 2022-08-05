@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 739a8e7f8f105b16fc898fe7c28ec270b485e155f93df0877a0b35d9ad15320f
+_hash: e5193a4747701cbdb97532a5387237546189bb4eeb9d4bd552b15ca088bea91d
 file:
 - statement:
     create_table_statement:
@@ -23,7 +23,7 @@ file:
               start_bracket: (
               parameter: description
               comparison_operator:
-                raw_comparison_operator: '='
+                comparison_operator: '='
               quoted_literal: '"An INTEGER field"'
               end_bracket: )
         end_bracket: )
@@ -49,7 +49,7 @@ file:
               start_bracket: (
               parameter: description
               comparison_operator:
-                raw_comparison_operator: '='
+                comparison_operator: '='
               quoted_literal: '"An INTEGER field that is NOT NULL"'
               end_bracket: )
         end_bracket: )
@@ -77,7 +77,7 @@ file:
                   start_bracket: (
                   parameter: description
                   comparison_operator:
-                    raw_comparison_operator: '='
+                    comparison_operator: '='
                   quoted_literal: '"An INTEGER field in a STRUCT"'
                   end_bracket: )
               end_angle_bracket: '>'
@@ -100,7 +100,7 @@ file:
                     start_bracket: (
                     parameter: description
                     comparison_operator:
-                      raw_comparison_operator: '='
+                      comparison_operator: '='
                     quoted_literal: '"An INTEGER field in a REPEATED STRUCT"'
                     end_bracket: )
                 end_angle_bracket: '>'

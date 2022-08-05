@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a422ecc512afbe91b18ea0821af5756317bb749bc5abe4ec0cc4ed63e6bcde5d
+_hash: 62c45c2aaced4c89a47ee57eea00ca5f7a40cd065efa378331db297872eab065
 file:
   batch:
   - statement:
@@ -32,13 +32,13 @@ file:
           - column_reference:
               naked_identifier: ProductModelID
           - comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
           - numeric_literal: '122'
           - binary_operator: or
           - column_reference:
               naked_identifier: ProductModelID
           - comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
           - numeric_literal: '119'
         for_xml_segment:
         - keyword: FOR
@@ -71,7 +71,7 @@ file:
             column_reference:
               naked_identifier: ProductPhotoID
             comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
             numeric_literal: '70'
         for_xml_segment:
         - keyword: FOR
@@ -130,13 +130,13 @@ file:
           - column_reference:
               naked_identifier: ProductModelID
           - comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
           - numeric_literal: '122'
           - binary_operator: OR
           - column_reference:
               naked_identifier: ProductModelID
           - comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
           - numeric_literal: '119'
         for_xml_segment:
         - keyword: FOR

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 546e7d3c6499fa9a0d9eed09ff47ad0b47ff23d6443a1c61e311fe00425dd943
+_hash: 0801479f08b8c32ed7827c2ebd4fcac808b4febb8eea4b56745d8dc9c97998e0
 file:
 - statement:
     create_database_statement:
@@ -30,7 +30,7 @@ file:
         naked_identifier: db
     - keyword: OWNER
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - object_reference:
         naked_identifier: user_name
 - statement_terminator: ;
@@ -43,7 +43,7 @@ file:
     - keyword: WITH
     - keyword: OWNER
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - object_reference:
         naked_identifier: user_name
 - statement_terminator: ;
@@ -55,7 +55,7 @@ file:
         naked_identifier: db
     - keyword: ENCODING
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - quoted_literal: "'UTF8'"
 - statement_terminator: ;
 - statement:
@@ -66,7 +66,7 @@ file:
         naked_identifier: db
     - keyword: TEMPLATE
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - object_reference:
         naked_identifier: template_name
 - statement_terminator: ;
@@ -79,7 +79,7 @@ file:
     - keyword: WITH
     - keyword: TEMPLATE
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - object_reference:
         naked_identifier: template_name
 - statement_terminator: ;
@@ -101,7 +101,7 @@ file:
     - keyword: WITH
     - keyword: ENCODING
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - quoted_literal: "'UTF8'"
 - statement_terminator: ;
 - statement:
@@ -121,7 +121,7 @@ file:
         naked_identifier: db
     - keyword: LOCALE
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - quoted_literal: "'en_US.UTF-8'"
 - statement_terminator: ;
 - statement:
@@ -133,7 +133,7 @@ file:
     - keyword: WITH
     - keyword: LOCALE
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - quoted_literal: "'en_US.UTF-8'"
 - statement_terminator: ;
 - statement:
@@ -197,11 +197,11 @@ file:
         naked_identifier: db
     - keyword: LC_COLLATE
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - quoted_literal: "'en_US.UTF-8'"
     - keyword: LC_CTYPE
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - quoted_literal: "'en_US.UTF-8'"
 - statement_terminator: ;
 - statement:
@@ -213,11 +213,11 @@ file:
     - keyword: WITH
     - keyword: LC_COLLATE
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - quoted_literal: "'en_US.UTF-8'"
     - keyword: LC_CTYPE
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - quoted_literal: "'en_US.UTF-8'"
 - statement_terminator: ;
 - statement:
@@ -229,11 +229,11 @@ file:
     - keyword: WITH
     - keyword: LC_CTYPE
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - quoted_literal: "'en_US.UTF-8'"
     - keyword: LC_COLLATE
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - quoted_literal: "'en_US.UTF-8'"
 - statement_terminator: ;
 - statement:
@@ -253,7 +253,7 @@ file:
         naked_identifier: db
     - keyword: TABLESPACE
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - keyword: DEFAULT
 - statement_terminator: ;
 - statement:
@@ -274,7 +274,7 @@ file:
         naked_identifier: db
     - keyword: TABLESPACE
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - tablespace_reference:
         naked_identifier: new_tablespace
 - statement_terminator: ;
@@ -287,7 +287,7 @@ file:
     - keyword: WITH
     - keyword: TABLESPACE
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - tablespace_reference:
         naked_identifier: new_tablespace
 - statement_terminator: ;
@@ -308,7 +308,7 @@ file:
         naked_identifier: db
     - keyword: ALLOW_CONNECTIONS
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - boolean_literal: 'true'
 - statement_terminator: ;
 - statement:
@@ -330,7 +330,7 @@ file:
     - keyword: CONNECTION
     - keyword: LIMIT
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - numeric_literal: '10'
 - statement_terminator: ;
 - statement:
@@ -350,7 +350,7 @@ file:
         naked_identifier: db
     - keyword: IS_TEMPLATE
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - boolean_literal: 'true'
 - statement_terminator: ;
 - statement:
@@ -361,14 +361,14 @@ file:
         naked_identifier: db
     - keyword: IS_TEMPLATE
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - boolean_literal: 'true'
     - keyword: CONNECTION
     - keyword: LIMIT
     - numeric_literal: '10'
     - keyword: ALLOW_CONNECTIONS
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - boolean_literal: 'true'
 - statement_terminator: ;
 - statement:
@@ -380,14 +380,14 @@ file:
     - keyword: WITH
     - keyword: IS_TEMPLATE
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - boolean_literal: 'true'
     - keyword: CONNECTION
     - keyword: LIMIT
     - numeric_literal: '10'
     - keyword: ALLOW_CONNECTIONS
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - boolean_literal: 'true'
 - statement_terminator: ;
 - statement:
@@ -399,23 +399,23 @@ file:
     - keyword: WITH
     - keyword: IS_TEMPLATE
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - boolean_literal: 'true'
     - keyword: CONNECTION
     - keyword: LIMIT
     - numeric_literal: '10'
     - keyword: ALLOW_CONNECTIONS
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - boolean_literal: 'true'
     - keyword: TEMPLATE
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - object_reference:
         naked_identifier: template_name
     - keyword: ENCODING
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - quoted_literal: "'UTF8'"
     - keyword: LOCALE
     - quoted_literal: "'en_US.UTF-8'"
@@ -431,27 +431,27 @@ file:
         naked_identifier: db
     - keyword: IS_TEMPLATE
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - boolean_literal: 'true'
     - keyword: CONNECTION
     - keyword: LIMIT
     - numeric_literal: '10'
     - keyword: ALLOW_CONNECTIONS
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - boolean_literal: 'true'
     - keyword: TEMPLATE
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - object_reference:
         naked_identifier: template_name
     - keyword: ENCODING
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - quoted_literal: "'UTF8'"
     - keyword: LOCALE
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - quoted_literal: "'en_US.UTF-8'"
     - keyword: OWNER
     - object_reference:
@@ -465,23 +465,23 @@ file:
         naked_identifier: db
     - keyword: IS_TEMPLATE
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - boolean_literal: 'true'
     - keyword: CONNECTION
     - keyword: LIMIT
     - numeric_literal: '10'
     - keyword: ALLOW_CONNECTIONS
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - boolean_literal: 'true'
     - keyword: TEMPLATE
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - object_reference:
         naked_identifier: template_name
     - keyword: ENCODING
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - quoted_literal: "'UTF8'"
     - keyword: LC_COLLATE
     - quoted_literal: "'en_US.UTF-8'"

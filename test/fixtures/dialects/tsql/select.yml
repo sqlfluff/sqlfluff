@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f14433f16770a941263b7c0cea9e103376dadf963aa05366c53f1c37c4379a69
+_hash: 24eaae289fdd3bb82e87a50759d1e741430c53f5bacaa88b634eb072b6e206ef
 file:
   batch:
     statement:
@@ -19,7 +19,7 @@ file:
                 - expression:
                   - numeric_literal: '1'
                   - comparison_operator:
-                      raw_comparison_operator: '='
+                      comparison_operator: '='
                   - numeric_literal: '1'
                 - keyword: THEN
                 - expression:
@@ -29,7 +29,7 @@ file:
                 - expression:
                   - numeric_literal: '1'
                   - comparison_operator:
-                      raw_comparison_operator: '>'
+                      comparison_operator: '>'
                   - numeric_literal: '1'
                 - keyword: THEN
                 - expression:
@@ -39,7 +39,7 @@ file:
                 - expression:
                   - numeric_literal: '1'
                   - comparison_operator:
-                      raw_comparison_operator: <
+                      comparison_operator: <
                   - numeric_literal: '1'
                 - keyword: THEN
                 - expression:
@@ -49,8 +49,8 @@ file:
                 - expression:
                   - numeric_literal: '1'
                   - comparison_operator:
-                    - raw_comparison_operator: '>'
-                    - raw_comparison_operator: '='
+                    - comparison_operator: '>'
+                    - comparison_operator: '='
                   - numeric_literal: '1'
                 - keyword: THEN
                 - expression:
@@ -60,8 +60,8 @@ file:
                 - expression:
                   - numeric_literal: '1'
                   - comparison_operator:
-                    - raw_comparison_operator: '>'
-                    - raw_comparison_operator: '='
+                    - comparison_operator: '>'
+                    - comparison_operator: '='
                   - numeric_literal: '1'
                 - keyword: THEN
                 - expression:
@@ -71,8 +71,8 @@ file:
                 - expression:
                   - numeric_literal: '1'
                   - comparison_operator:
-                    - raw_comparison_operator: <
-                    - raw_comparison_operator: '='
+                    - comparison_operator: <
+                    - comparison_operator: '='
                   - numeric_literal: '1'
                 - keyword: THEN
                 - expression:
@@ -82,8 +82,8 @@ file:
                 - expression:
                   - numeric_literal: '1'
                   - comparison_operator:
-                    - raw_comparison_operator: <
-                    - raw_comparison_operator: '='
+                    - comparison_operator: <
+                    - comparison_operator: '='
                   - numeric_literal: '1'
                 - keyword: THEN
                 - expression:
@@ -93,8 +93,8 @@ file:
                 - expression:
                   - numeric_literal: '1'
                   - comparison_operator:
-                    - raw_comparison_operator: <
-                    - raw_comparison_operator: '>'
+                    - comparison_operator: <
+                    - comparison_operator: '>'
                   - numeric_literal: '1'
                 - keyword: THEN
                 - expression:
@@ -104,8 +104,8 @@ file:
                 - expression:
                   - numeric_literal: '1'
                   - comparison_operator:
-                    - raw_comparison_operator: <
-                    - raw_comparison_operator: '>'
+                    - comparison_operator: <
+                    - comparison_operator: '>'
                   - numeric_literal: '1'
                 - keyword: THEN
                 - expression:
@@ -115,8 +115,8 @@ file:
                 - expression:
                   - numeric_literal: '1'
                   - comparison_operator:
-                    - raw_comparison_operator: '!'
-                    - raw_comparison_operator: <
+                    - comparison_operator: '!'
+                    - comparison_operator: <
                   - numeric_literal: '1'
                 - keyword: THEN
                 - expression:
@@ -126,8 +126,8 @@ file:
                 - expression:
                   - numeric_literal: '1'
                   - comparison_operator:
-                    - raw_comparison_operator: '!'
-                    - raw_comparison_operator: <
+                    - comparison_operator: '!'
+                    - comparison_operator: <
                   - numeric_literal: '1'
                 - keyword: THEN
                 - expression:
@@ -137,8 +137,8 @@ file:
                 - expression:
                   - numeric_literal: '1'
                   - comparison_operator:
-                    - raw_comparison_operator: '!'
-                    - raw_comparison_operator: '='
+                    - comparison_operator: '!'
+                    - comparison_operator: '='
                   - numeric_literal: '1'
                 - keyword: THEN
                 - expression:
@@ -148,8 +148,8 @@ file:
                 - expression:
                   - numeric_literal: '1'
                   - comparison_operator:
-                    - raw_comparison_operator: '!'
-                    - raw_comparison_operator: '='
+                    - comparison_operator: '!'
+                    - comparison_operator: '='
                   - numeric_literal: '1'
                 - keyword: THEN
                 - expression:
@@ -159,8 +159,8 @@ file:
                 - expression:
                   - numeric_literal: '1'
                   - comparison_operator:
-                    - raw_comparison_operator: '!'
-                    - raw_comparison_operator: '>'
+                    - comparison_operator: '!'
+                    - comparison_operator: '>'
                   - numeric_literal: '1'
                 - keyword: THEN
                 - expression:
@@ -170,8 +170,8 @@ file:
                 - expression:
                   - numeric_literal: '1'
                   - comparison_operator:
-                    - raw_comparison_operator: '!'
-                    - raw_comparison_operator: '>'
+                    - comparison_operator: '!'
+                    - comparison_operator: '>'
                   - numeric_literal: '1'
                 - keyword: THEN
                 - expression:
@@ -596,7 +596,7 @@ file:
                           - dot: .
                           - naked_identifier: MediaTypeID
                         - comparison_operator:
-                            raw_comparison_operator: '='
+                            comparison_operator: '='
                         - column_reference:
                           - naked_identifier: f
                           - dot: .
@@ -697,7 +697,7 @@ file:
         - select_clause_element:
             alias_expression:
               quoted_identifier: '[preceding]'
-              raw_comparison_operator: '='
+              comparison_operator: '='
             function:
               function_name:
                 function_name_identifier: count
@@ -728,7 +728,7 @@ file:
         - select_clause_element:
             alias_expression:
               quoted_identifier: '[central]'
-              raw_comparison_operator: '='
+              comparison_operator: '='
             function:
               function_name:
                 function_name_identifier: count
@@ -759,7 +759,7 @@ file:
         - select_clause_element:
             alias_expression:
               quoted_identifier: '[following]'
-              raw_comparison_operator: '='
+              comparison_operator: '='
             function:
               function_name:
                 function_name_identifier: count
@@ -790,7 +790,7 @@ file:
         - select_clause_element:
             alias_expression:
               naked_identifier: EqualsAlias
-              raw_comparison_operator: '='
+              comparison_operator: '='
             column_reference:
               naked_identifier: ColumnName
         - comma: ','

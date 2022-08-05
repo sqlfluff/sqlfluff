@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4231f1ad0afda72d3bf827f7d841e80a423dfec0a772844a467110f18f99cf4d
+_hash: a0b46bf97444b983fe5e9d832698fbd31f262fb33cf7e1aac82a378f1b59fa65
 file:
 - statement:
     create_stream_statement:
@@ -178,16 +178,16 @@ file:
         naked_identifier: table_name
     - keyword: APPEND_ONLY
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - boolean_literal: 'TRUE'
     - keyword: SHOW_INITIAL_ROWS
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - boolean_literal: 'TRUE'
     - comment_equals_clause:
         keyword: COMMENT
         comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
         quoted_literal: "'amazing comment'"
 - statement_terminator: ;
 - statement:
@@ -205,12 +205,12 @@ file:
         naked_identifier: table_name
     - keyword: INSERT_ONLY
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - boolean_literal: 'TRUE'
     - comment_equals_clause:
         keyword: COMMENT
         comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
         quoted_literal: "'amazing comment'"
 - statement_terminator: ;
 - statement:
@@ -229,7 +229,7 @@ file:
     - comment_equals_clause:
         keyword: COMMENT
         comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
         quoted_literal: "'amazing comment'"
 - statement_terminator: ;
 - statement:
@@ -247,15 +247,15 @@ file:
         naked_identifier: view_name
     - keyword: APPEND_ONLY
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - boolean_literal: 'FALSE'
     - keyword: SHOW_INITIAL_ROWS
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - boolean_literal: 'FALSE'
     - comment_equals_clause:
         keyword: COMMENT
         comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
         quoted_literal: "'amazing comment'"
 - statement_terminator: ;

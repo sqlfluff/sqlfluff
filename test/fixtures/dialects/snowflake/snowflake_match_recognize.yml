@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8ea694be243e70ae116b2449b81f5fb611ed7909eb3d8d15f48196f9619094bc
+_hash: d43eb0437d8731e372e9f68ceaff4379425f4e191988a4c24c76fbd16364b8af
 file:
 - statement:
     select_statement:
@@ -142,7 +142,7 @@ file:
                 column_reference:
                   naked_identifier: price
                 comparison_operator:
-                  raw_comparison_operator: <
+                  comparison_operator: <
                 function:
                   function_name:
                     function_name_identifier: lag
@@ -159,7 +159,7 @@ file:
                 column_reference:
                   naked_identifier: price
                 comparison_operator:
-                  raw_comparison_operator: '>'
+                  comparison_operator: '>'
                 function:
                   function_name:
                     function_name_identifier: lag
@@ -229,7 +229,7 @@ file:
                       column_reference:
                         naked_identifier: company
                       comparison_operator:
-                        raw_comparison_operator: '='
+                        comparison_operator: '='
                       quoted_literal: "'ABCD'"
                 end_bracket: )
           match_recognize_clause:
@@ -297,7 +297,7 @@ file:
                 column_reference:
                   naked_identifier: price
                 comparison_operator:
-                  raw_comparison_operator: '>'
+                  comparison_operator: '>'
                 function:
                   function_name:
                     function_name_identifier: lag
@@ -378,7 +378,7 @@ file:
                 column_reference:
                   naked_identifier: price
                 comparison_operator:
-                  raw_comparison_operator: '>'
+                  comparison_operator: '>'
                 function:
                   function_name:
                     function_name_identifier: avg
@@ -484,7 +484,7 @@ file:
                 column_reference:
                   naked_identifier: price
                 comparison_operator:
-                  raw_comparison_operator: '>'
+                  comparison_operator: '>'
                 function:
                   function_name:
                     function_name_identifier: avg
@@ -620,7 +620,7 @@ file:
                 column_reference:
                   naked_identifier: price
                 comparison_operator:
-                  raw_comparison_operator: <
+                  comparison_operator: <
                 numeric_literal: '45.00'
             - end_bracket: )
       where_clause:
@@ -629,7 +629,7 @@ file:
           column_reference:
             naked_identifier: company
           comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
           quoted_literal: "'ABCD'"
       orderby_clause:
       - keyword: order
@@ -800,7 +800,7 @@ file:
                 column_reference:
                   naked_identifier: price
                 comparison_operator:
-                  raw_comparison_operator: <
+                  comparison_operator: <
                 function:
                   function_name:
                     function_name_identifier: lag
@@ -817,7 +817,7 @@ file:
                 column_reference:
                   naked_identifier: price
                 comparison_operator:
-                  raw_comparison_operator: '>'
+                  comparison_operator: '>'
                 function:
                   function_name:
                     function_name_identifier: lag
@@ -996,7 +996,7 @@ file:
                 column_reference:
                   naked_identifier: price
                 comparison_operator:
-                  raw_comparison_operator: <
+                  comparison_operator: <
                 function:
                   function_name:
                     function_name_identifier: lag
@@ -1013,7 +1013,7 @@ file:
                 column_reference:
                   naked_identifier: price
                 comparison_operator:
-                  raw_comparison_operator: '>'
+                  comparison_operator: '>'
                 function:
                   function_name:
                     function_name_identifier: lag
@@ -1178,7 +1178,7 @@ file:
                 column_reference:
                   naked_identifier: price
                 comparison_operator:
-                  raw_comparison_operator: <
+                  comparison_operator: <
                 function:
                   function_name:
                     function_name_identifier: lag
@@ -1195,7 +1195,7 @@ file:
                 column_reference:
                   naked_identifier: price
                 comparison_operator:
-                  raw_comparison_operator: '>'
+                  comparison_operator: '>'
                 function:
                   function_name:
                     function_name_identifier: lag
@@ -1359,7 +1359,7 @@ file:
                 column_reference:
                   naked_identifier: price
                 comparison_operator:
-                  raw_comparison_operator: <
+                  comparison_operator: <
                 function:
                   function_name:
                     function_name_identifier: lag
@@ -1376,7 +1376,7 @@ file:
                 column_reference:
                   naked_identifier: price
                 comparison_operator:
-                  raw_comparison_operator: '>'
+                  comparison_operator: '>'
                 function:
                   function_name:
                     function_name_identifier: lag

@@ -3,14 +3,14 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b6a01ccb10ee6afc5a2fd0c802d14c70616fa9cfb74a0541f04ea5e4034e88f1
+_hash: 0fb9796971d298ec0112de63fdb31023fc75bf7e370b0a8f5943e187494637db
 file:
 - statement:
     set_statement:
       keyword: set
       variable: v1
       comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
       expression:
         numeric_literal: '10'
 - statement_terminator: ;
@@ -19,7 +19,7 @@ file:
       keyword: set
       variable: v2
       comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
       expression:
         quoted_literal: "'example'"
 - statement_terminator: ;
@@ -33,7 +33,7 @@ file:
       - variable: v2
       - end_bracket: )
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - bracketed:
       - start_bracket: (
       - expression:
@@ -48,7 +48,7 @@ file:
       keyword: set
       variable: id_threshold
       comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
       expression:
         bracketed:
           start_bracket: (
@@ -85,7 +85,7 @@ file:
       - variable: max
       - end_bracket: )
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - bracketed:
       - start_bracket: (
       - expression:
@@ -105,7 +105,7 @@ file:
       - variable: max
       - end_bracket: )
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - bracketed:
       - start_bracket: (
       - expression:
@@ -122,7 +122,7 @@ file:
       keyword: SET
       variable: THIS_ROLE
       comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
       expression:
         function:
           function_name:

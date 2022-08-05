@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: beb61c1eb1b60969bb801f17c7f11c9c65e9124f5c743c444410ebd6565cd5f6
+_hash: b44bbf2d45cdb98d449e8b24624a4545afe8e7e1fcef37fb01d643f13194bb55
 file:
 - statement:
     select_statement:
@@ -462,7 +462,7 @@ file:
           - column_reference:
               quoted_identifier: '"de_DE"'
           - comparison_operator:
-              raw_comparison_operator: <
+              comparison_operator: <
           - column_reference:
               naked_identifier: b
       from_clause:
@@ -482,7 +482,7 @@ file:
             column_reference:
               naked_identifier: a
             comparison_operator:
-              raw_comparison_operator: <
+              comparison_operator: <
             bracketed:
               start_bracket: (
               expression:
@@ -508,7 +508,7 @@ file:
           - column_reference:
               naked_identifier: a
           - comparison_operator:
-              raw_comparison_operator: <
+              comparison_operator: <
           - column_reference:
               naked_identifier: b
           - keyword: COLLATE
@@ -534,7 +534,7 @@ file:
           - column_reference:
               quoted_identifier: '"de_DE"'
           - comparison_operator:
-              raw_comparison_operator: <
+              comparison_operator: <
           - column_reference:
               naked_identifier: b
       from_clause:

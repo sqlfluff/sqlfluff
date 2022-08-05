@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f61ec5dd4a6ba9978e233cba06f0b7d6a9d3483827a18fe8f7b594c545c6224d
+_hash: 35fb14969a5e15655a656d40cd8ef5a8365ef96ebf6a9ffe9674fa720974f5be
 file:
 - batch:
     statement:
@@ -32,7 +32,7 @@ file:
             column_reference:
               naked_identifier: StandardCost
             comparison_operator:
-              raw_comparison_operator: '>'
+              comparison_operator: '>'
             numeric_literal: '1000.00'
       - statement_terminator: ;
 - go_statement:
@@ -118,8 +118,8 @@ file:
               column_reference:
                 naked_identifier: RateChangeDate
               comparison_operator:
-              - raw_comparison_operator: <
-              - raw_comparison_operator: '>'
+              - comparison_operator: <
+              - comparison_operator: '>'
               bracketed:
                 start_bracket: (
                 expression:
@@ -156,7 +156,7 @@ file:
                         - dot: .
                         - naked_identifier: BusinessEntityID
                       - comparison_operator:
-                          raw_comparison_operator: '='
+                          comparison_operator: '='
                       - column_reference:
                         - naked_identifier: b
                         - dot: .
@@ -237,7 +237,7 @@ file:
                     column_reference:
                       naked_identifier: SalesYTD
                     comparison_operator:
-                      raw_comparison_operator: '>'
+                      comparison_operator: '>'
                     numeric_literal: '2500000.00'
               end_bracket: )
       - statement_terminator: ;
@@ -284,7 +284,7 @@ file:
                   - dot: .
                   - naked_identifier: BusinessEntityID
                 - comparison_operator:
-                    raw_comparison_operator: '='
+                    comparison_operator: '='
                 - column_reference:
                   - naked_identifier: sp
                   - dot: .
@@ -297,7 +297,7 @@ file:
             - dot: .
             - naked_identifier: SalesYTD
             comparison_operator:
-              raw_comparison_operator: '>'
+              comparison_operator: '>'
             numeric_literal: '2500000.00'
       - statement_terminator: ;
 - go_statement:
@@ -340,7 +340,7 @@ file:
                   - dot: .
                   - naked_identifier: BusinessEntityID
                 - comparison_operator:
-                    raw_comparison_operator: '='
+                    comparison_operator: '='
                 - column_reference:
                   - naked_identifier: sp
                   - dot: .
@@ -353,7 +353,7 @@ file:
             - dot: .
             - naked_identifier: SalesYTD
             comparison_operator:
-              raw_comparison_operator: '>'
+              comparison_operator: '>'
             numeric_literal: '2500000.00'
         statement_terminator: ;
   - statement:
@@ -376,7 +376,7 @@ file:
             column_reference:
               naked_identifier: DueDate
             comparison_operator:
-              raw_comparison_operator: <
+              comparison_operator: <
             quoted_literal: "'20020701'"
       - statement_terminator: ;
 - go_statement:
@@ -445,7 +445,7 @@ file:
             column_reference:
               naked_identifier: DepartmentID
             comparison_operator:
-              raw_comparison_operator: '>'
+              comparison_operator: '>'
             numeric_literal: '16'
         statement_terminator: ;
 - go_statement:
@@ -507,7 +507,7 @@ file:
             column_reference:
               naked_identifier: DepartmentID
             comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
             numeric_literal: '17'
       - statement_terminator: ;
   - statement:
@@ -530,7 +530,7 @@ file:
             column_reference:
               naked_identifier: ShoppingCartID
             comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
             numeric_literal: '20621'
         statement_terminator: ;
   - statement:
@@ -640,7 +640,7 @@ file:
                   - dot: .
                   - naked_identifier: ProductID
                 - comparison_operator:
-                    raw_comparison_operator: '='
+                    comparison_operator: '='
                 - column_reference:
                   - naked_identifier: p
                   - dot: .

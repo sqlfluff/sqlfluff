@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 807bc630f751ca3385876e9134d7b8d6e4a64f4898fca5dcfe14f3cf656b92b2
+_hash: 8c4cfd5df58756a2183cc6d46d3d47c8635c8ebb14d84d53cfadae59195a8e49
 file:
 - statement:
     delete_statement:
@@ -63,7 +63,7 @@ file:
         - column_reference:
             naked_identifier: producer_id
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - column_reference:
           - naked_identifier: producers
           - dot: .
@@ -74,7 +74,7 @@ file:
           - dot: .
           - naked_identifier: name
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - quoted_literal: "'foo'"
 - statement_terminator: ;
 - statement:
@@ -101,7 +101,7 @@ file:
           - dot: .
           - naked_identifier: producer_id
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - column_reference:
           - naked_identifier: p
           - dot: .
@@ -112,7 +112,7 @@ file:
           - dot: .
           - naked_identifier: name
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - quoted_literal: "'foo'"
 - statement_terminator: ;
 - statement:
@@ -146,7 +146,7 @@ file:
           - dot: .
           - naked_identifier: producer_id
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - column_reference:
           - naked_identifier: p
           - dot: .
@@ -157,7 +157,7 @@ file:
           - dot: .
           - naked_identifier: name
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - quoted_literal: "'foo'"
         - binary_operator: AND
         - column_reference:
@@ -165,7 +165,7 @@ file:
           - dot: .
           - naked_identifier: actor_id
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - column_reference:
           - naked_identifier: a
           - dot: .
@@ -176,7 +176,7 @@ file:
           - dot: .
           - naked_identifier: name
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - quoted_literal: "'joe cool'"
 - statement_terminator: ;
 - statement:
@@ -201,7 +201,7 @@ file:
           - dot: .
           - naked_identifier: producer_id
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - column_reference:
           - naked_identifier: p
           - dot: .
@@ -212,7 +212,7 @@ file:
           - dot: .
           - naked_identifier: name
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - quoted_literal: "'foo'"
 - statement_terminator: ;
 - statement:
@@ -243,7 +243,7 @@ file:
           - dot: .
           - naked_identifier: producer_id
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - column_reference:
           - naked_identifier: p
           - dot: .
@@ -254,7 +254,7 @@ file:
           - dot: .
           - naked_identifier: name
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - quoted_literal: "'foo'"
         - binary_operator: AND
         - column_reference:
@@ -262,7 +262,7 @@ file:
           - dot: .
           - naked_identifier: actor_id
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - column_reference:
           - naked_identifier: a
           - dot: .
@@ -273,7 +273,7 @@ file:
           - dot: .
           - naked_identifier: name
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - quoted_literal: "'joe cool'"
 - statement_terminator: ;
 - statement:
@@ -300,8 +300,8 @@ file:
           column_reference:
             naked_identifier: kind
           comparison_operator:
-          - raw_comparison_operator: <
-          - raw_comparison_operator: '>'
+          - comparison_operator: <
+          - comparison_operator: '>'
           quoted_literal: "'Musical'"
 - statement_terminator: ;
 - statement:
@@ -316,7 +316,7 @@ file:
           column_reference:
             naked_identifier: status
           comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
           quoted_literal: "'DONE'"
     - keyword: RETURNING
     - star: '*'
@@ -333,7 +333,7 @@ file:
           column_reference:
             naked_identifier: status
           comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
           quoted_literal: "'DONE'"
     - keyword: RETURNING
     - expression:
@@ -352,7 +352,7 @@ file:
           column_reference:
             naked_identifier: status
           comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
           quoted_literal: "'DONE'"
     - keyword: RETURNING
     - expression:
@@ -374,7 +374,7 @@ file:
           column_reference:
             naked_identifier: status
           comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
           quoted_literal: "'DONE'"
     - keyword: RETURNING
     - expression:
@@ -395,7 +395,7 @@ file:
           column_reference:
             naked_identifier: status
           comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
           quoted_literal: "'DONE'"
     - keyword: RETURNING
     - expression:
@@ -418,7 +418,7 @@ file:
           column_reference:
             naked_identifier: status
           comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
           quoted_literal: "'DONE'"
     - keyword: RETURNING
     - expression:
@@ -447,7 +447,7 @@ file:
           column_reference:
             naked_identifier: status
           comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
           quoted_literal: "'DONE'"
     - keyword: RETURNING
     - expression:
@@ -538,7 +538,7 @@ file:
                   column_reference:
                     naked_identifier: n
                   comparison_operator:
-                    raw_comparison_operator: <
+                    comparison_operator: <
                   numeric_literal: '100'
           end_bracket: )
     - delete_statement:

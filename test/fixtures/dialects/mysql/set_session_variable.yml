@@ -3,14 +3,14 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9e4ffffc861f4647dfc51be1591f5df5931d712fe5083c39fde3ce9942d8ad60
+_hash: 770972390c60573409e49b40b777619bd175ec21e80cd525b8ca4594bfd55a8e
 file:
 - statement:
     set_statement:
     - keyword: set
     - variable: '@abc'
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - variable: '1'
 - statement_terminator: ;
 - statement:
@@ -18,7 +18,7 @@ file:
     - keyword: set
     - variable: '@my_var'
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - variable: '1'
 - statement_terminator: ;
 - statement:
@@ -26,7 +26,7 @@ file:
     - keyword: set
     - variable: '@my$currency'
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - variable: '1'
 - statement_terminator: ;
 - statement:
@@ -34,6 +34,6 @@ file:
     - keyword: set
     - variable: '@sha256enabled'
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - variable: '1'
 - statement_terminator: ;

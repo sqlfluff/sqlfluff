@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8891f999d204f5ecaae8e896c7a6e185578e86c73f67978e1c5881a8b231eda1
+_hash: 259439ea16c2483dadba8b816ad7c93da151e4538e25a7f53c87ce1c658fbc21
 file:
 - statement:
     delete_statement:
@@ -36,7 +36,7 @@ file:
           - dot: .
           - naked_identifier: name
           comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
           quoted_literal: "'example'"
 - statement_terminator: ;
 - statement:
@@ -55,7 +55,7 @@ file:
           column_reference:
             naked_identifier: user
           comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
           quoted_literal: "'jcole'"
       orderby_clause:
       - keyword: ORDER
@@ -100,7 +100,7 @@ file:
           - dot: .
           - naked_identifier: name
           comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
           quoted_literal: "'example'"
 - statement_terminator: ;
 - statement:
@@ -128,7 +128,7 @@ file:
           - dot: .
           - naked_identifier: name
           comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
           quoted_literal: "'example'"
 - statement_terminator: ;
 - statement:
@@ -168,7 +168,7 @@ file:
           - dot: .
           - naked_identifier: id
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - column_reference:
           - naked_identifier: t2
           - dot: .
@@ -179,7 +179,7 @@ file:
           - dot: .
           - naked_identifier: id
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - column_reference:
           - naked_identifier: t3
           - dot: .
@@ -225,7 +225,7 @@ file:
           - dot: .
           - naked_identifier: id
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - column_reference:
           - naked_identifier: t2
           - dot: .
@@ -236,7 +236,7 @@ file:
           - dot: .
           - naked_identifier: id
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - column_reference:
           - naked_identifier: t3
           - dot: .
@@ -280,7 +280,7 @@ file:
           - dot: .
           - naked_identifier: id
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - column_reference:
           - naked_identifier: t2
           - dot: .
@@ -291,7 +291,7 @@ file:
           - dot: .
           - naked_identifier: id
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - column_reference:
           - naked_identifier: t3
           - dot: .
@@ -338,7 +338,7 @@ file:
           - dot: .
           - naked_identifier: id
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - column_reference:
           - naked_identifier: t2
           - dot: .
@@ -349,7 +349,7 @@ file:
           - dot: .
           - naked_identifier: id
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - column_reference:
           - naked_identifier: t3
           - dot: .
@@ -391,7 +391,7 @@ file:
           - dot: .
           - naked_identifier: id
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - column_reference:
           - naked_identifier: a2
           - dot: .

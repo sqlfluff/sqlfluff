@@ -22,7 +22,7 @@ file:
                       column_reference:
                         naked_identifier: word
                       comparison_operator:
-                        raw_comparison_operator: '='
+                        comparison_operator: '='
                       quoted_literal: "'shop'"
                   - keyword: THEN
                   - expression:
@@ -52,7 +52,7 @@ file:
                       column_reference:
                         naked_identifier: word
                       comparison_operator:
-                        raw_comparison_operator: '='
+                        comparison_operator: '='
                       quoted_literal: "'products'"
                   - keyword: THEN
                   - expression:
@@ -82,7 +82,7 @@ file:
                       column_reference:
                         naked_identifier: word
                       comparison_operator:
-                        raw_comparison_operator: '='
+                        comparison_operator: '='
                       quoted_literal: "'code'"
                   - keyword: THEN
                   - expression:

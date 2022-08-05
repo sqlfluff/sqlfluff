@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5004c7943db9940697b546dbae8f8053c5060bb03e5c625652b9ea5bbe9a0803
+_hash: abba99ddca3f67ca623e4a1b774cd6131a274309165030744ad2f6159994a279
 file:
 - batch:
     statement:
@@ -66,22 +66,22 @@ file:
             - naked_identifier: sp_send_dbmail
           - parameter: '@profile_name'
           - comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
           - quoted_literal: "'AdventureWorks2012 Administrator'"
           - comma: ','
           - parameter: '@recipients'
           - comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
           - quoted_literal: "'danw@Adventure-Works.com'"
           - comma: ','
           - parameter: '@body'
           - comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
           - quoted_literal: "'Don''t forget to print a report for the sales force.'"
           - comma: ','
           - parameter: '@subject'
           - comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
           - quoted_literal: "'Reminder'"
           - statement_terminator: ;
 - go_statement:
@@ -118,7 +118,7 @@ file:
                         start_bracket: (
                         end_bracket: )
                     comparison_operator:
-                      raw_comparison_operator: '='
+                      comparison_operator: '='
                     numeric_literal: '0'
                   end_bracket: )
             statement:
@@ -167,7 +167,7 @@ file:
                               - dot: .
                               - naked_identifier: BusinessEntityID
                             - comparison_operator:
-                                raw_comparison_operator: '='
+                                comparison_operator: '='
                             - column_reference:
                               - naked_identifier: i
                               - dot: .
@@ -180,7 +180,7 @@ file:
                         - dot: .
                         - naked_identifier: CreditRating
                         comparison_operator:
-                          raw_comparison_operator: '='
+                          comparison_operator: '='
                         numeric_literal: '5'
                   end_bracket: )
             statement:
@@ -233,7 +233,7 @@ file:
                   expression:
                     system_variable: '@@ROWCOUNT'
                     comparison_operator:
-                      raw_comparison_operator: '='
+                      comparison_operator: '='
                     numeric_literal: '0'
                   end_bracket: )
             statement:
@@ -366,7 +366,7 @@ file:
                         start_bracket: (
                         end_bracket: )
                   - comparison_operator:
-                      raw_comparison_operator: '='
+                      comparison_operator: '='
                   - quoted_literal: "'login_test'"
                   - binary_operator: AND
                   - bracketed:
@@ -398,17 +398,17 @@ file:
                             - column_reference:
                                 naked_identifier: is_user_process
                             - comparison_operator:
-                                raw_comparison_operator: '='
+                                comparison_operator: '='
                             - numeric_literal: '1'
                             - binary_operator: AND
                             - column_reference:
                                 naked_identifier: original_login_name
                             - comparison_operator:
-                                raw_comparison_operator: '='
+                                comparison_operator: '='
                             - quoted_literal: "'login_test'"
                       end_bracket: )
                   - comparison_operator:
-                      raw_comparison_operator: '>'
+                      comparison_operator: '>'
                   - numeric_literal: '3'
                 statement:
                   transaction_statement:
@@ -449,7 +449,7 @@ file:
                   naked_identifier: PDW_LAST_UPDATED
                 assignment_operator:
                   comparison_operator:
-                    raw_comparison_operator: '='
+                    comparison_operator: '='
                 expression:
                   function:
                     function_name:
@@ -485,7 +485,7 @@ file:
                       - dot: .
                       - naked_identifier: PK_L2_BALS
                     - comparison_operator:
-                        raw_comparison_operator: '='
+                        comparison_operator: '='
                     - column_reference:
                       - naked_identifier: i
                       - dot: .
@@ -539,7 +539,7 @@ file:
                   naked_identifier: PDW_LAST_UPDATED
                 assignment_operator:
                   comparison_operator:
-                    raw_comparison_operator: '='
+                    comparison_operator: '='
                 expression:
                   function:
                     function_name:
@@ -575,7 +575,7 @@ file:
                       - dot: .
                       - naked_identifier: PK_L2_BALS
                     - comparison_operator:
-                        raw_comparison_operator: '='
+                        comparison_operator: '='
                     - column_reference:
                       - naked_identifier: i
                       - dot: .

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2e5f4282870203bb218cfe9656c1475a83f328312317f4a6c17f56643b3e2a27
+_hash: a8657410192f0567bf09333b33b38706d059b894dd1b56af19fcef3de21c336e
 file:
 - statement:
     create_function_statement:
@@ -149,7 +149,7 @@ file:
                   column_reference:
                     naked_identifier: input_variable
                   comparison_operator:
-                    raw_comparison_operator: <
+                    comparison_operator: <
                   numeric_literal: '0'
               - keyword: THEN
               - expression:
@@ -238,7 +238,7 @@ file:
             column_reference:
               naked_identifier: input_variable
             comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
             numeric_literal: '0'
         - keyword: THEN
         - function_body:
@@ -252,7 +252,7 @@ file:
             column_reference:
               naked_identifier: input_variable
             comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
             numeric_literal: '1'
         - keyword: THEN
         - function_body:
@@ -266,7 +266,7 @@ file:
             column_reference:
               naked_identifier: input_variable
             comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
             numeric_literal: '2'
         - keyword: THEN
         - function_body:
@@ -437,8 +437,8 @@ file:
           - column_reference:
               naked_identifier: cnt
           - comparison_operator:
-            - raw_comparison_operator: <
-            - raw_comparison_operator: '='
+            - comparison_operator: <
+            - comparison_operator: '='
           - column_reference:
               naked_identifier: input_variable
         - keyword: DO
@@ -541,7 +541,7 @@ file:
                 column_reference:
                   naked_identifier: p1
                 comparison_operator:
-                  raw_comparison_operator: '='
+                  comparison_operator: '='
                 numeric_literal: '1'
             - keyword: THEN
             - function_body:
@@ -558,7 +558,7 @@ file:
                     column_reference:
                       naked_identifier: p2
                     comparison_operator:
-                      raw_comparison_operator: '='
+                      comparison_operator: '='
                     numeric_literal: '3'
                 - keyword: THEN
                 - function_body:

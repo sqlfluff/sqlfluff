@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: db28f921856ff81069b50adffd26b6355e3611d71897aa8f86aa4e2d2eaaa9f5
+_hash: f6e574e5cf0550eac5b87af984a3d46a3e5955fad4afb5008a4b961bf8ac1240
 file:
   statement:
     select_statement:
@@ -25,5 +25,5 @@ file:
           column_reference:
             naked_identifier: CreatedDate
           comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
           bare_function: NEXT_90_DAYS

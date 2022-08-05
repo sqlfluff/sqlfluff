@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c1a2b25cdbdf47210e66ae07cab232d7a6820dfc411e0505064e56c472390cfd
+_hash: a07b5b226cb31e2c55ae7c38863c72a4631c5d62af381b3f7aa97af172a153c8
 file:
 - statement:
     create_external_table_statement:
@@ -20,12 +20,12 @@ file:
         - start_bracket: (
         - parameter: format
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - quoted_literal: "'CSV'"
         - comma: ','
         - parameter: uris
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - array_literal:
           - start_square_bracket: '['
           - quoted_literal: "'gs://bucket/path1.csv'"
@@ -63,12 +63,12 @@ file:
         - start_bracket: (
         - parameter: format
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - quoted_literal: "'CSV'"
         - comma: ','
         - parameter: uris
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - array_literal:
             start_square_bracket: '['
             quoted_literal: "'gs://bucket/path1.csv'"
@@ -76,12 +76,12 @@ file:
         - comma: ','
         - parameter: field_delimiter
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - quoted_literal: "'|'"
         - comma: ','
         - parameter: max_bad_records
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - numeric_literal: '5'
         - end_bracket: )
 - statement_terminator: ;
@@ -103,7 +103,7 @@ file:
         - start_bracket: (
         - parameter: uris
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - array_literal:
             start_square_bracket: '['
             quoted_literal: "'gs://bucket/path/*'"
@@ -111,13 +111,13 @@ file:
         - comma: ','
         - parameter: format
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - column_reference:
             naked_identifier: csv
         - comma: ','
         - parameter: hive_partition_uri_prefix
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - quoted_literal: "'gs://bucket/path'"
         - end_bracket: )
 - statement_terminator: ;
@@ -151,7 +151,7 @@ file:
         - start_bracket: (
         - parameter: uris
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - array_literal:
             start_square_bracket: '['
             quoted_literal: "'gs://bucket/path/*'"
@@ -159,13 +159,13 @@ file:
         - comma: ','
         - parameter: format
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - column_reference:
             naked_identifier: csv
         - comma: ','
         - parameter: hive_partition_uri_prefix
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - quoted_literal: "'gs://bucket/path'"
         - end_bracket: )
 - statement_terminator: ;
@@ -184,7 +184,7 @@ file:
         - start_bracket: (
         - parameter: uris
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - array_literal:
             start_square_bracket: '['
             quoted_literal: "'gs://bucket/path/*'"
@@ -192,13 +192,13 @@ file:
         - comma: ','
         - parameter: format
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - column_reference:
             naked_identifier: csv
         - comma: ','
         - parameter: hive_partition_uri_prefix
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - quoted_literal: "'gs://bucket/path'"
         - end_bracket: )
     - keyword: WITH

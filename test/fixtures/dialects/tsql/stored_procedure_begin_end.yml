@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bda275337a514353248e0a73540dcd239b19ae80144f7563bb385e709b301be6
+_hash: b96759f84972e2fcff3db162a8cf7069159c81a310e1726f499669031aafa79c
 file:
 - batch:
     create_procedure_statement:
@@ -82,7 +82,7 @@ file:
       - data_type:
           data_type_identifier: INT
       - comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
       - expression:
           numeric_literal: '1'
     - keyword: AS
@@ -129,7 +129,7 @@ file:
       - data_type:
           data_type_identifier: INT
       - comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
       - expression:
           numeric_literal: '1'
       - keyword: READONLY
@@ -177,7 +177,7 @@ file:
       - data_type:
           data_type_identifier: INT
       - comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
       - expression:
           numeric_literal: '1'
     - keyword: AS
@@ -212,7 +212,7 @@ file:
                     parameter: '@v_nSysErrorNum'
                     assignment_operator:
                       comparison_operator:
-                        raw_comparison_operator: '='
+                        comparison_operator: '='
                     expression:
                       function:
                         function_name:
@@ -227,7 +227,7 @@ file:
                     parameter: '@v_vchCode'
                     assignment_operator:
                       comparison_operator:
-                        raw_comparison_operator: '='
+                        comparison_operator: '='
                     expression:
                       function:
                         function_name:
@@ -242,7 +242,7 @@ file:
                     parameter: '@v_vchMsg'
                     assignment_operator:
                       comparison_operator:
-                        raw_comparison_operator: '='
+                        comparison_operator: '='
                     expression:
                       quoted_literal: "N'Missing control type.'"
                     statement_terminator: ;
@@ -252,7 +252,7 @@ file:
                     parameter: '@v_vchMsg'
                     assignment_operator:
                       comparison_operator:
-                        raw_comparison_operator: '='
+                        comparison_operator: '='
                     expression:
                     - parameter: '@v_vchMsg'
                     - binary_operator: +

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e8d6e7c005fdc570dc9a08ccd787476aa3adff9797cdb618e173430f4e60b207
+_hash: 240566d9ecb1eacbd0aeab788449dd437b234d80b03f7028dd8a4c3bebee8a71
 file:
 - batch:
     statement:
@@ -48,7 +48,7 @@ file:
                   parameter: '@ISOweek'
                   assignment_operator:
                     comparison_operator:
-                      raw_comparison_operator: '='
+                      comparison_operator: '='
                   expression:
                   - function:
                       function_name:
@@ -110,7 +110,7 @@ file:
                         expression:
                           parameter: '@ISOweek'
                           comparison_operator:
-                            raw_comparison_operator: '='
+                            comparison_operator: '='
                           numeric_literal: '0'
                         end_bracket: )
                   statement:
@@ -119,7 +119,7 @@ file:
                       parameter: '@ISOweek'
                       assignment_operator:
                         comparison_operator:
-                          raw_comparison_operator: '='
+                          comparison_operator: '='
                       expression:
                         function:
                           function_name:
@@ -212,7 +212,7 @@ file:
                                     parameter: '@DATE'
                                   end_bracket: )
                               comparison_operator:
-                                raw_comparison_operator: '='
+                                comparison_operator: '='
                               numeric_literal: '12'
                             end_bracket: )
                         - binary_operator: AND
@@ -245,8 +245,8 @@ file:
                                       end_bracket: )
                                 end_bracket: )
                               comparison_operator:
-                              - raw_comparison_operator: '>'
-                              - raw_comparison_operator: '='
+                              - comparison_operator: '>'
+                              - comparison_operator: '='
                               numeric_literal: '28'
                             end_bracket: )
                         end_bracket: )
@@ -256,7 +256,7 @@ file:
                       parameter: '@ISOweek'
                       assignment_operator:
                         comparison_operator:
-                          raw_comparison_operator: '='
+                          comparison_operator: '='
                       expression:
                         numeric_literal: '1'
                       statement_terminator: ;

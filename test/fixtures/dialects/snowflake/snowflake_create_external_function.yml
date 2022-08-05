@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 30cc5c94b78e31be517e738d44b5c3cd8bec96e130bf1cd285a66ce642433734
+_hash: 68a275a3bb0a1522ee0a9d180be5a4faae7dae0a9eb7c2cf24fe09585d8da622
 file:
 - statement:
     create_external_function_statement:
@@ -26,7 +26,7 @@ file:
         data_type_identifier: VARIANT
     - keyword: API_INTEGRATION
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - naked_identifier: DEMONSTRATION_EXTERNAL_API_INTEGRATION_01
     - keyword: AS
     - quoted_identifier: "'https://xyz.execute-api.us-west-2.amazonaws.com/prod/remote_echo'"
@@ -58,48 +58,48 @@ file:
     - keyword: VOLATILE
     - keyword: API_INTEGRATION
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - naked_identifier: DEMONSTRATION_EXTERNAL_API_INTEGRATION_01
     - keyword: HEADERS
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - bracketed:
       - start_bracket: (
       - quoted_identifier: "'volume-measure'"
       - comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
       - quoted_identifier: "'liters'"
       - comma: ','
       - quoted_identifier: "'distance-measure'"
       - comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
       - quoted_identifier: "'kilometers'"
       - end_bracket: )
     - keyword: CONTEXT_HEADERS
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - bracketed:
         start_bracket: (
         keyword: CURRENT_TIMESTAMP
         end_bracket: )
     - keyword: MAX_BATCH_ROWS
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - numeric_literal: '50'
     - keyword: COMPRESSION
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - compression_type: NONE
     - keyword: REQUEST_TRANSLATOR
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - function_name:
         naked_identifier: UTILITY
         dot: .
         function_name_identifier: SOME_FUNCTION
     - keyword: RESPONSE_TRANSLATOR
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - function_name:
         naked_identifier: UTILITY
         dot: .
@@ -138,48 +138,48 @@ file:
     - keyword: VOLATILE
     - keyword: API_INTEGRATION
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - naked_identifier: DEMONSTRATION_EXTERNAL_API_INTEGRATION_01
     - keyword: HEADERS
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - bracketed:
       - start_bracket: (
       - quoted_identifier: "'volume-measure'"
       - comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
       - quoted_identifier: "'liters'"
       - comma: ','
       - quoted_identifier: "'distance-measure'"
       - comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
       - quoted_identifier: "'kilometers'"
       - end_bracket: )
     - keyword: CONTEXT_HEADERS
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - bracketed:
         start_bracket: (
         keyword: CURRENT_TIMESTAMP
         end_bracket: )
     - keyword: MAX_BATCH_ROWS
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - numeric_literal: '50'
     - keyword: COMPRESSION
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - compression_type: NONE
     - keyword: REQUEST_TRANSLATOR
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - function_name:
         naked_identifier: UTILITY
         dot: .
         function_name_identifier: SOME_FUNCTION
     - keyword: RESPONSE_TRANSLATOR
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - function_name:
         naked_identifier: UTILITY
         dot: .
@@ -217,52 +217,52 @@ file:
     - comment_equals_clause:
         keyword: COMMENT
         comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
         quoted_literal: "'SQLFluff rocks!'"
     - keyword: API_INTEGRATION
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - naked_identifier: DEMONSTRATION_EXTERNAL_API_INTEGRATION_01
     - keyword: HEADERS
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - bracketed:
       - start_bracket: (
       - quoted_identifier: "'volume-measure'"
       - comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
       - quoted_identifier: "'liters'"
       - comma: ','
       - quoted_identifier: "'distance-measure'"
       - comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
       - quoted_identifier: "'kilometers'"
       - end_bracket: )
     - keyword: CONTEXT_HEADERS
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - bracketed:
         start_bracket: (
         keyword: CURRENT_TIMESTAMP
         end_bracket: )
     - keyword: MAX_BATCH_ROWS
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - numeric_literal: '50'
     - keyword: COMPRESSION
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - compression_type: NONE
     - keyword: REQUEST_TRANSLATOR
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - function_name:
         naked_identifier: UTILITY
         dot: .
         function_name_identifier: SOME_FUNCTION
     - keyword: RESPONSE_TRANSLATOR
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - function_name:
         naked_identifier: UTILITY
         dot: .

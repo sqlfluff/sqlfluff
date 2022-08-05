@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1bad013dedbfea5e554ea3f923c67d68c17ace2d864143f106729147b9a966e5
+_hash: 3bac0046a4e6824ce2f9aca5b44aa6a4a41d820d8a74b4e8d79dfbbec51d95f9
 file:
 - statement:
     put_statement:
@@ -18,7 +18,7 @@ file:
     - stage_path: '@%orderstiny_ext'
     - keyword: auto_compress
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - boolean_literal: 'false'
 - statement_terminator: ;
 - statement:
@@ -28,7 +28,7 @@ file:
     - stage_path: '@%orderstiny_ext'
     - keyword: auto_compress
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - boolean_literal: 'false'
 - statement_terminator: ;
 - statement:
@@ -38,7 +38,7 @@ file:
     - stage_path: '@~'
     - keyword: auto_compress
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - boolean_literal: 'true'
 - statement_terminator: ;
 - statement:
@@ -48,7 +48,7 @@ file:
     - stage_path: '@~'
     - keyword: parallel
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - integer_literal: '1'
 - statement_terminator: ;
 - statement:
@@ -58,7 +58,7 @@ file:
     - stage_path: '@~'
     - keyword: source_compression
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - compression_type: "'auto_detect'"
 - statement_terminator: ;
 - statement:
@@ -68,6 +68,6 @@ file:
     - stage_path: '@~'
     - keyword: overwrite
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - boolean_literal: 'true'
 - statement_terminator: ;

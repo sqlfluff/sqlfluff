@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8ccb74adc863fb3c44a010173d8b64666c6b05513e690fa1a1e5ca91460a3092
+_hash: 9729624684fe360369fac215fd33a44623b870c4009a1d95d7649fa6182c334d
 file:
 - statement:
     select_statement:
@@ -117,7 +117,7 @@ file:
                         naked_identifier: o_orderstatus
                     end_bracket: )
                 comparison_operator:
-                  raw_comparison_operator: '='
+                  comparison_operator: '='
                 quoted_literal: "'string'"
             - keyword: THEN
             - expression:
@@ -135,8 +135,8 @@ file:
                   data_type:
                     keyword: VARCHAR
               - comparison_operator:
-                - raw_comparison_operator: <
-                - raw_comparison_operator: '='
+                - comparison_operator: <
+                - comparison_operator: '='
               - quoted_literal: "'P'"
           - else_clause:
               keyword: ELSE
@@ -277,7 +277,7 @@ file:
           - dot: .
           - quoted_identifier: '"assetId"'
         - comparison_operator:
-            raw_comparison_operator: '>'
+            comparison_operator: '>'
         - numeric_literal: '0'
 - statement_terminator: ;
 - statement:
@@ -336,7 +336,7 @@ file:
           - dot: .
           - quoted_identifier: '"assetId"'
         - comparison_operator:
-            raw_comparison_operator: '>'
+            comparison_operator: '>'
         - quoted_literal: "'abc'"
       groupby_clause:
       - keyword: GROUP

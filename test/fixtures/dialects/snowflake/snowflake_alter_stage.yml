@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1e138be38f4d4af06d8e5e2b9ae66a8c867cc1b83859d927584ff6f9f886aa6f
+_hash: c5c479bc8feb0791dd8e064fcf750efa2daa4d730d78d65821700ded20310598
 file:
 - statement:
     alter_stage_statement:
@@ -25,17 +25,17 @@ file:
     - keyword: SET
     - keyword: URL
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - bucket_path: "'s3://loading/files/new/'"
     - keyword: COPY_OPTIONS
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - bracketed:
         start_bracket: (
         copy_options:
           keyword: ON_ERROR
           comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
           literal: "'skip_file'"
         end_bracket: )
 - statement_terminator: ;
@@ -49,7 +49,7 @@ file:
     - stage_parameters:
         keyword: STORAGE_INTEGRATION
         comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
         object_reference:
           naked_identifier: myint
 - statement_terminator: ;
@@ -63,16 +63,16 @@ file:
     - stage_parameters:
         keyword: CREDENTIALS
         comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
         bracketed:
         - start_bracket: (
         - keyword: AWS_KEY_ID
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - quoted_literal: "'d4c3b2a1'"
         - keyword: AWS_SECRET_KEY
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - quoted_literal: "'z9y8x7w6'"
         - end_bracket: )
 - statement_terminator: ;
@@ -86,12 +86,12 @@ file:
     - stage_parameters:
         keyword: ENCRYPTION
         comparison_operator:
-          raw_comparison_operator: '='
+          comparison_operator: '='
         bracketed:
           start_bracket: (
           keyword: TYPE
           comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
           stage_encryption_option: "'AWS_SSE_S3'"
           end_bracket: )
 - statement_terminator: ;
@@ -112,6 +112,6 @@ file:
     - keyword: REFRESH
     - keyword: SUBPATH
     - comparison_operator:
-        raw_comparison_operator: '='
+        comparison_operator: '='
     - quoted_literal: "'data'"
 - statement_terminator: ;

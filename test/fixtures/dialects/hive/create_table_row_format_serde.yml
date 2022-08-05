@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a8424ed6b464bbf9d21199a3457a8b45022d4b1812cafd6bece6bb62926d95e8
+_hash: 827bf47b0f715afab11d1ca38eadf880c2b829c439513f4ad92841846c06eda3
 file:
   statement:
     create_table_statement:
@@ -52,7 +52,7 @@ file:
         - start_bracket: (
         - quoted_literal: '"input.regex"'
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - quoted_literal: '"([^]*) ([^]*) ([^]*) (-|\\[^\\]*\\]) ([^ \"]*|\"[^\"]*\")
             (-|[0-9]*) (-|[0-9]*)(?: ([^ \"]*|\".*\") ([^ \"]*|\".*\"))?"'
         - end_bracket: )

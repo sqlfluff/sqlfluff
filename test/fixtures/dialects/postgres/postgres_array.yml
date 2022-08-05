@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b01e4f374a650fe3899b026a64a9d850eda424da09af1354fc359118d1b0bb39
+_hash: 79563a9d6ff070340fb67f78daff97a3cceafeb946f0512ecd470fe12bec1b56
 file:
 - statement:
     select_statement:
@@ -129,7 +129,7 @@ file:
             numeric_literal: '1'
             end_square_bracket: ']'
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - numeric_literal: '10000'
         - binary_operator: OR
         - column_reference:
@@ -139,7 +139,7 @@ file:
             numeric_literal: '2'
             end_square_bracket: ']'
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - numeric_literal: '10000'
         - binary_operator: OR
         - column_reference:
@@ -149,7 +149,7 @@ file:
             numeric_literal: '3'
             end_square_bracket: ']'
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - numeric_literal: '10000'
         - binary_operator: OR
         - column_reference:
@@ -159,7 +159,7 @@ file:
             numeric_literal: '4'
             end_square_bracket: ']'
         - comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
         - numeric_literal: '10000'
 - statement_terminator: ;
 - statement:
@@ -278,8 +278,8 @@ file:
             numeric_literal: '1'
             end_square_bracket: ']'
         - comparison_operator:
-          - raw_comparison_operator: <
-          - raw_comparison_operator: '>'
+          - comparison_operator: <
+          - comparison_operator: '>'
         - column_reference:
             naked_identifier: pay_by_quarter
         - array_accessor:
@@ -319,7 +319,7 @@ file:
           column_reference:
             naked_identifier: name
           comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
           quoted_literal: "'Bill'"
 - statement_terminator: ;
 - statement:
@@ -337,7 +337,7 @@ file:
             numeric_literal: '4'
             end_square_bracket: ']'
           comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
           numeric_literal: '15000'
       where_clause:
         keyword: WHERE
@@ -345,7 +345,7 @@ file:
           column_reference:
             naked_identifier: name
           comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
           quoted_literal: "'Bill'"
 - statement_terminator: ;
 - statement:
@@ -365,7 +365,7 @@ file:
           - numeric_literal: '2'
           - end_square_bracket: ']'
           comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
           quoted_literal: "'{27000,27000}'"
       where_clause:
         keyword: WHERE
@@ -373,7 +373,7 @@ file:
           column_reference:
             naked_identifier: name
           comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
           quoted_literal: "'Carol'"
 - statement_terminator: ;
 - statement:
@@ -589,7 +589,7 @@ file:
                         column_reference:
                           naked_identifier: direction
                         comparison_operator:
-                          raw_comparison_operator: '='
+                          comparison_operator: '='
                         quoted_literal: "'forward'"
                     - keyword: THEN
                     - expression:

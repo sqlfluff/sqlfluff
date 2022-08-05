@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 51cea7f86c4be1b83f868067d11bcbd0c221335a114248ff60d4d47d239851a8
+_hash: 66fb6fd3c66617283ab58447411fa5176cc019d9128acbaee34ee4d8d8b03e56
 file:
   batch:
   - statement:
@@ -20,7 +20,7 @@ file:
               quoted_identifier: '[Flg]'
             assignment_operator:
               comparison_operator:
-                raw_comparison_operator: '='
+                comparison_operator: '='
             expression:
               numeric_literal: '1'
         where_clause:
@@ -56,7 +56,7 @@ file:
             query_hint_segment:
               keyword: Label
               comparison_operator:
-                raw_comparison_operator: '='
+                comparison_operator: '='
               quoted_literal: "'Cases'"
             end_bracket: )
         statement_terminator: ;
@@ -75,7 +75,7 @@ file:
             assignment_operator:
               binary_operator: +
               comparison_operator:
-                raw_comparison_operator: '='
+                comparison_operator: '='
             expression:
               numeric_literal: '1'
         from_clause:
@@ -102,7 +102,7 @@ file:
                   - dot: .
                   - naked_identifier: _id
                 - comparison_operator:
-                    raw_comparison_operator: '='
+                    comparison_operator: '='
                 - column_reference:
                   - naked_identifier: src
                   - dot: .
@@ -120,7 +120,7 @@ file:
               naked_identifier: deleted
             assignment_operator:
               comparison_operator:
-                raw_comparison_operator: '='
+                comparison_operator: '='
             expression:
               numeric_literal: '1'
         output_clause:
@@ -137,5 +137,5 @@ file:
             column_reference:
               naked_identifier: useless
             comparison_operator:
-              raw_comparison_operator: '='
+              comparison_operator: '='
             numeric_literal: '1'

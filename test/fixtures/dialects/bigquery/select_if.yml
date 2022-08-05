@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 125abd1f84366271677a502bf8200380d0d52a3ecb5009f497b421ccaff8a845
+_hash: 4205086bf10536932ee61ecb6fcc1dbab5197d4e2313368d5126ea88fea1d4ab
 file:
   statement:
     select_statement:
@@ -31,8 +31,8 @@ file:
                 column_reference:
                   naked_identifier: _cdn_provider
                 comparison_operator:
-                - raw_comparison_operator: '!'
-                - raw_comparison_operator: '='
+                - comparison_operator: '!'
+                - comparison_operator: '='
                 quoted_literal: "''"
             - comma: ','
             - expression:
@@ -129,7 +129,7 @@ file:
           column_reference:
             naked_identifier: date
           comparison_operator:
-            raw_comparison_operator: '='
+            comparison_operator: '='
           quoted_literal: "'2019-07-01'"
       groupby_clause:
       - keyword: GROUP
@@ -151,8 +151,8 @@ file:
         - column_reference:
             naked_identifier: vary
         - comparison_operator:
-          - raw_comparison_operator: '!'
-          - raw_comparison_operator: '='
+          - comparison_operator: '!'
+          - comparison_operator: '='
         - quoted_literal: "''"
         - binary_operator: AND
         - column_reference:
