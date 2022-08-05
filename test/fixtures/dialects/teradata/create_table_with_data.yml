@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 492e93b76b107341b67c9f5d492c09919b69bf9869640912c9e6df241a69d053
+_hash: 0d145b42e1c65fac3ae8baa67e1af6c8cf92b42aea57d3485a7e3cc785e38a33
 file:
 - statement:
     create_table_statement:
@@ -11,7 +11,7 @@ file:
     - keyword: VOLATILE
     - keyword: TABLE
     - table_reference:
-        identifier: a
+        naked_identifier: a
     - keyword: AS
     - bracketed:
         start_bracket: (
@@ -19,10 +19,10 @@ file:
           select_clause:
             keyword: SELECT
             select_clause_element:
-              literal: "'A'"
+              quoted_literal: "'A'"
               alias_expression:
                 keyword: AS
-                identifier: B
+                naked_identifier: B
         end_bracket: )
     - td_table_constraint:
       - keyword: WITH
@@ -38,7 +38,7 @@ file:
     - keyword: VOLATILE
     - keyword: TABLE
     - table_reference:
-        identifier: b
+        naked_identifier: b
     - keyword: AS
     - bracketed:
         start_bracket: (
@@ -46,10 +46,10 @@ file:
           select_clause:
             keyword: SELECT
             select_clause_element:
-              literal: "'A'"
+              quoted_literal: "'A'"
               alias_expression:
                 keyword: AS
-                identifier: B
+                naked_identifier: B
         end_bracket: )
     - td_table_constraint:
       - keyword: WITH
@@ -65,7 +65,7 @@ file:
     - keyword: VOLATILE
     - keyword: TABLE
     - table_reference:
-        identifier: c
+        naked_identifier: c
     - keyword: AS
     - bracketed:
         start_bracket: (
@@ -73,10 +73,10 @@ file:
           select_clause:
             keyword: SELECT
             select_clause_element:
-              literal: "'A'"
+              quoted_literal: "'A'"
               alias_expression:
                 keyword: AS
-                identifier: B
+                naked_identifier: B
         end_bracket: )
     - td_table_constraint:
       - keyword: WITH
