@@ -471,7 +471,7 @@ class BaseGrammar(Matchable):
     def _bracket_sensitive_look_ahead_match(
         cls,
         segments,
-        matchers,
+        matchers: List[MatchableType],
         parse_context,
         start_bracket=None,
         end_bracket=None,
