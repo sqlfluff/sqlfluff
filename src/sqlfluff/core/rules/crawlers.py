@@ -56,7 +56,12 @@ class SegmentSeekerCrawler(BaseCrawler):
 
         We assume that segments are yielded by their parent.
         """
-        # First check the segment itself
+        # Check whether we should consider this segment _or it's children_
+        # at all.
+        if not self.passes_filter(context.segment):
+            return
+
+        # Then check the segment itself, yield if it's a match
         if self.is_self_match(context.segment):
             yield context
 
