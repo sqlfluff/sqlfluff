@@ -190,11 +190,11 @@ class BaseGrammar(Matchable):
     def _longest_trimmed_match(
         cls,
         segments: Tuple[BaseSegment, ...],
-        matchers: List["MatchableType"],
+        matchers: List[MatchableType],
         parse_context: ParseContext,
         trim_noncode=True,
-        terminators: List["MatchableType"] = None,
-    ) -> Tuple[MatchResult, Optional["MatchableType"]]:
+        terminators: List[MatchableType] = None,
+    ) -> Tuple[MatchResult, Optional[MatchableType]]:
         """Return longest match from a selection of matchers.
 
         Prioritise the first match, and if multiple match at the same point the longest.
@@ -281,9 +281,9 @@ class BaseGrammar(Matchable):
     def _look_ahead_match(
         cls,
         segments: Tuple[BaseSegment, ...],
-        matchers: List["MatchableType"],
+        matchers: List[MatchableType],
         parse_context: ParseContext,
-    ) -> Tuple[Tuple[BaseSegment, ...], MatchResult, Optional["MatchableType"]]:
+    ) -> Tuple[Tuple[BaseSegment, ...], MatchResult, Optional[MatchableType]]:
         """Look ahead for matches beyond the first element of the segments list.
 
         This function also contains the performance improved hash-matching approach to
