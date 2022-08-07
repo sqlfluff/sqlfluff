@@ -72,6 +72,7 @@ class Rule_L004(BaseRule):
             fixes = []
             description = "Incorrect indentation type found in file."
             edit_indent = context.segment.raw.replace(wrong_indent, correct_indent)
+            pre_seg = context.raw_stack[-1] if context.raw_stack else None
             # Ensure that the number of space indents is a multiple of tab_space_size
             # before attempting to convert spaces to tabs to avoid mixed indents
             # unless we are converted tabs to spaces (indent_unit = space)
@@ -81,10 +82,7 @@ class Rule_L004(BaseRule):
                     or context.segment.raw.count(space) % self.tab_space_size == 0
                 )
                 # Only attempt a fix at the start of a newline for now
-                and (
-                    context.raw_stack[-1] is None
-                    or context.raw_stack[-1].is_type("newline")
-                )
+                and (pre_seg is None or pre_seg.is_type("newline"))
             ):
                 fixes = [
                     LintFix.replace(
@@ -94,10 +92,7 @@ class Rule_L004(BaseRule):
                         ],
                     )
                 ]
-            elif not (
-                context.raw_stack[-1] is None
-                or context.raw_stack[-1].is_type("newline")
-            ):
+            elif not (pre_seg is None or pre_seg.is_type("newline")):
                 # give a helpful message if the wrong indent has been found and is not
                 # at the start of a newline
                 description += (

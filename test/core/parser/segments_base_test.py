@@ -1,7 +1,6 @@
 """The Test file for The New Parser (Base Segment Classes)."""
 
 import pytest
-from sqlfluff.core.dialects import base
 
 from sqlfluff.core.parser import (
     PositionMarker,

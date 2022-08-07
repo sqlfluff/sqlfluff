@@ -59,9 +59,7 @@ class Rule_L002(BaseRule):
 
         if context.segment.is_type("whitespace"):
             if " " in context.segment.raw and "\t" in context.segment.raw:
-                if context.raw_stack[-1] is None or context.raw_stack[-1].is_type(
-                    "newline"
-                ):
+                if not context.raw_stack or context.raw_stack[-1].is_type("newline"):
                     # We've got a single whitespace at the beginning of a line.
                     # It's got a mix of spaces and tabs. Replace each tab with
                     # a multiple of spaces
