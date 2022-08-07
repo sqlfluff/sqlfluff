@@ -54,7 +54,7 @@ from sqlfluff.core.templaters.base import TemplatedFile
 
 if TYPE_CHECKING:
     from sqlfluff.core.rules import LintFix  # pragma: no cover
-    from sqlfluff.core.parser.segments import RawSegment
+    from sqlfluff.core.parser.segments import RawSegment  # pragma: no cover
 
 # Instantiate the linter logger (only for use in methods involved with fixing.)
 linter_logger = logging.getLogger("sqlfluff.linter")

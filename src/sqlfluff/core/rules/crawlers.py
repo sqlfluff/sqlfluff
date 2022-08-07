@@ -34,7 +34,7 @@ class RootOnlyCrawler(BaseCrawler):
     def crawl(self, context: RuleContext) -> Iterator[RuleContext]:
         """Yields a RuleContext for each segment the rule should process."""
         if not self.passes_filter(context.segment):
-            return
+            return  # pragma: no cover
         yield context
 
 
