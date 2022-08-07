@@ -232,6 +232,8 @@ bigquery_dialect.replace(
         # Add in semi structured expressions
         Ref("SemiStructuredAccessorSegment"),
     ),
+    PrimaryKeyGrammar=Nothing(),
+    ForeignKeyGrammar=Nothing(),
 )
 
 
