@@ -170,7 +170,7 @@ class BaseGrammar(Matchable):
 
     @match_wrapper()
     @allow_ephemeral
-    def match(self, segments: Tuple["BaseSegment", ...], parse_context: ParseContext):
+    def match(self, segments: Tuple[BaseSegment, ...], parse_context: ParseContext):
         """Match a list of segments against this segment.
 
         Matching can be done from either the raw or the segments.
@@ -477,7 +477,7 @@ class BaseGrammar(Matchable):
     @classmethod
     def _bracket_sensitive_look_ahead_match(
         cls,
-        segments: Union[BaseSegment, Tuple[BaseSegment, ...]],
+        segments: Tuple[BaseSegment, ...],
         matchers: List[MatchableType],
         parse_context: ParseContext,
         start_bracket: Optional[Matchable] = None,
@@ -499,10 +499,8 @@ class BaseGrammar(Matchable):
         """
         # Type munging
         matchers = list(matchers)
-        if isinstance(segments, BaseSegment):  # pragma: no cover TODO?
-            segments = (segments,)
 
-        # Have we been passed an empty list?
+        # Have we been passed an empty tuple?
         if len(segments) == 0:
             return ((), MatchResult.from_unmatched(segments), None)
 
