@@ -189,7 +189,7 @@ class BaseGrammar(Matchable):
     @classmethod
     def _longest_trimmed_match(
         cls,
-        segments: Tuple["BaseSegment", ...],
+        segments: Tuple[BaseSegment, ...],
         matchers: List["MatchableType"],
         parse_context: ParseContext,
         trim_noncode=True,
@@ -278,7 +278,12 @@ class BaseGrammar(Matchable):
         return MatchResult.from_unmatched(segments), None
 
     @classmethod
-    def _look_ahead_match(cls, segments, matchers, parse_context):
+    def _look_ahead_match(
+        cls,
+        segments: Tuple[BaseSegment, ...],
+        matchers: List["MatchableType"],
+        parse_context: ParseContext,
+    ) -> Tuple[Tuple[BaseSegment, ...], MatchResult, Optional["MatchableType"]]:
         """Look ahead for matches beyond the first element of the segments list.
 
         This function also contains the performance improved hash-matching approach to
@@ -304,8 +309,6 @@ class BaseGrammar(Matchable):
 
         # Do some type munging
         matchers = list(matchers)
-        if isinstance(segments, BaseSegment):  # pragma: no cover TODO?
-            segments = [segments]
 
         # Have we been passed an empty list?
         if len(segments) == 0:  # pragma: no cover TODO?
@@ -346,6 +349,7 @@ class BaseGrammar(Matchable):
 
             for matcher, simple in simple_matchers:
                 # Simple will be a tuple of options
+                assert simple
                 for simple_option in simple:
                     # NOTE: We use iter_indices to make sure we capture
                     # all instances of potential matches if there are many.
@@ -413,7 +417,7 @@ class BaseGrammar(Matchable):
 
         # Make some buffers
         seg_buff = segments  # pragma: no cover
-        pre_seg_buff = ()  # pragma: no cover
+        pre_seg_buff: Tuple[BaseSegment, ...] = ()  # pragma: no cover
 
         # Loop
         while True:  # pragma: no cover
@@ -436,6 +440,9 @@ class BaseGrammar(Matchable):
             if mat and not best_simple_match:
                 return (pre_seg_buff, mat, m)
             elif mat:
+                # Given we have mat - we should always have these two.
+                assert m
+                assert best_simple_match
                 # It will be earlier than the simple one if we've even checked,
                 # but there's a chance that this might be *longer*, or just FIRST.
                 pre_lengths = (len(pre_seg_buff), len(best_simple_match[0]))
@@ -470,12 +477,12 @@ class BaseGrammar(Matchable):
     @classmethod
     def _bracket_sensitive_look_ahead_match(
         cls,
-        segments,
+        segments: Union[BaseSegment, Tuple[BaseSegment, ...]],
         matchers: List[MatchableType],
-        parse_context,
-        start_bracket=None,
-        end_bracket=None,
-        bracket_pairs_set="bracket_pairs",
+        parse_context: ParseContext,
+        start_bracket: Optional[Matchable] = None,
+        end_bracket: Optional[Matchable] = None,
+        bracket_pairs_set: str = "bracket_pairs",
     ) -> Tuple[Tuple[BaseSegment, ...], MatchResult, Optional[MatchableType]]:
         """Same as `_look_ahead_match` but with bracket counting.
 
@@ -493,7 +500,7 @@ class BaseGrammar(Matchable):
         # Type munging
         matchers = list(matchers)
         if isinstance(segments, BaseSegment):  # pragma: no cover TODO?
-            segments = [segments]
+            segments = (segments,)
 
         # Have we been passed an empty list?
         if len(segments) == 0:
@@ -863,7 +870,9 @@ class Ref(BaseGrammar):
 
     @match_wrapper(v_level=4)  # Log less for Ref
     @allow_ephemeral
-    def match(self, segments, parse_context):
+    def match(
+        self, segments: Tuple[BaseSegment, ...], parse_context: ParseContext
+    ) -> "MatchResult":
         """Match a list of segments against this segment.
 
         Matching can be done from either the raw or the segments.
@@ -928,7 +937,9 @@ class Ref(BaseGrammar):
 class Anything(BaseGrammar):
     """Matches anything."""
 
-    def match(self, segments, parse_context):
+    def match(
+        self, segments: Tuple[BaseSegment, ...], parse_context: ParseContext
+    ) -> "MatchResult":
         """Matches... Anything.
 
         Most useful in match grammars, where a later parse grammar
@@ -944,7 +955,9 @@ class Nothing(BaseGrammar):
     dialects.
     """
 
-    def match(self, segments, parse_context):
+    def match(
+        self, segments: Tuple[BaseSegment, ...], parse_context: ParseContext
+    ) -> "MatchResult":
         """Matches... nothing.
 
         Useful for placeholders which might be overwritten by other
