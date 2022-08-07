@@ -19,7 +19,7 @@ from sqlfluff.core.parser.matchable import Matchable
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.parsers import BaseParser
 
-# Either a Grammar or a Segment CLASS
+# Either a Matchable (a grammar or parser) or a Segment CLASS
 MatchableType = Union[Matchable, Type[BaseSegment]]
 
 
