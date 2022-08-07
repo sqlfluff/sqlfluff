@@ -1,6 +1,7 @@
 """Implementation of Rule L004."""
 from sqlfluff.core.parser import WhitespaceSegment
 from sqlfluff.core.rules import BaseRule, LintResult, LintFix, RuleContext
+from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
@@ -48,6 +49,7 @@ class Rule_L004(BaseRule):
 
     groups = ("all", "core")
     config_keywords = ["indent_unit", "tab_space_size"]
+    crawl_behaviour = SegmentSeekerCrawler({"whitespace"}, provide_raw_stack=True)
 
     # TODO fix indents after text:
     # https://github.com/sqlfluff/sqlfluff/pull/590#issuecomment-739484190
@@ -80,8 +82,8 @@ class Rule_L004(BaseRule):
                 )
                 # Only attempt a fix at the start of a newline for now
                 and (
-                    context.raw_segment_pre is None
-                    or context.raw_segment_pre.is_type("newline")
+                    context.raw_stack[-1] is None
+                    or context.raw_stack[-1].is_type("newline")
                 )
             ):
                 fixes = [
@@ -93,8 +95,8 @@ class Rule_L004(BaseRule):
                     )
                 ]
             elif not (
-                context.raw_segment_pre is None
-                or context.raw_segment_pre.is_type("newline")
+                context.raw_stack[-1] is None
+                or context.raw_stack[-1].is_type("newline")
             ):
                 # give a helpful message if the wrong indent has been found and is not
                 # at the start of a newline

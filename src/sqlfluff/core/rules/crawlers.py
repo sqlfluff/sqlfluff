@@ -1,7 +1,8 @@
 """Definitions of crawlers."""
 
-from typing import Iterator, Set
+from typing import Iterator, Set, cast
 from sqlfluff.core.parser.segments.base import BaseSegment
+from sqlfluff.core.parser.segments.raw import RawSegment
 
 from sqlfluff.core.rules.context import RuleContext
 
@@ -43,8 +44,12 @@ class SegmentSeekerCrawler(BaseCrawler):
     The segment type(s) are specified on creation.
     """
 
-    def __init__(self, types: Set[str], **kwargs):
+    def __init__(self, types: Set[str], provide_raw_stack=False, **kwargs):
         self.types = types
+        # Tracking a raw stack involves a lot of tuple manipulation, so we
+        # only do it when required - otherwise we skip it. Rules can explicitly
+        # request it when defining their crawler.
+        self.provide_raw_stack = provide_raw_stack
         super().__init__(**kwargs)
 
     def is_self_match(self, segment: BaseSegment) -> bool:
@@ -59,21 +64,29 @@ class SegmentSeekerCrawler(BaseCrawler):
         # Check whether we should consider this segment _or it's children_
         # at all.
         if not self.passes_filter(context.segment):
+            if self.provide_raw_stack:
+                context.raw_stack += tuple(context.segment.raw_segments)
             return
 
-        # Then check the segment itself, yield if it's a match
+        # Then check the segment itself, yield if it's a match.
         if self.is_self_match(context.segment):
             yield context
 
         # Check whether any children?
         # Abort if not - we've already yielded self.
         if not context.segment.segments:
+            # Add self to raw stack first if so.
+            if self.provide_raw_stack:
+                context.raw_stack += (cast(RawSegment, context.segment),)
             return
 
         # Check whether one of the targets is present (set intersection)
         if not self.types & context.segment.child_type_set:
             # None present. Don't look further.
             # This aggressive pruning helps performance.
+            # Track raw stack if required.
+            if self.provide_raw_stack:
+                context.raw_stack += tuple(context.segment.raw_segments)
             return
 
         # NOTE: Full context is not implemented yet. More dev work required

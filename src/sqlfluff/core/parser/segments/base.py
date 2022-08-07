@@ -54,6 +54,7 @@ from sqlfluff.core.templaters.base import TemplatedFile
 
 if TYPE_CHECKING:
     from sqlfluff.core.rules import LintFix  # pragma: no cover
+    from sqlfluff.core.parser.segments import RawSegment
 
 # Instantiate the linter logger (only for use in methods involved with fixing.)
 linter_logger = logging.getLogger("sqlfluff.linter")
@@ -434,7 +435,7 @@ class BaseSegment:
         return sum(seg.matched_length for seg in self.segments)
 
     @cached_property
-    def raw_segments(self) -> List["BaseSegment"]:
+    def raw_segments(self) -> List["RawSegment"]:
         """Returns a list of raw segments in this segment."""
         return self.get_raw_segments()
 
