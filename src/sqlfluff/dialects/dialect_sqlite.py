@@ -17,9 +17,14 @@ ansi_dialect = load_raw_dialect("ansi")
 
 sqlite_dialect = ansi_dialect.copy_as("sqlite")
 
+sqlite_dialect.sets("reserved_keywords").update(["AUTOINCREMENT"])
+
 sqlite_dialect.replace(
     BooleanBinaryOperatorGrammar=OneOf(
-        Ref("AndKeywordSegment"), Ref("OrKeywordSegment"), "REGEXP"
+        Ref("AndOperatorGrammar"), Ref("OrOperatorGrammar"), "REGEXP"
+    ),
+    PrimaryKeyGrammar=Sequence(
+        "PRIMARY", "KEY", Sequence("AUTOINCREMENT", optional=True)
     ),
 )
 

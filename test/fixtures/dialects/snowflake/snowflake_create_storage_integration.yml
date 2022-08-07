@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5876a68b60db0d5347597107bca8742d1b3794812e6b7bc93ca0a871ac6208ce
+_hash: 6b64b643c85caa9b20790dad10a2f0b075a9326e3cdfb1318fdb43057172b5e8
 file:
 - statement:
     create_statement:
@@ -11,7 +11,7 @@ file:
     - keyword: storage
     - keyword: integration
     - object_reference:
-        identifier: s3_int
+        naked_identifier: s3_int
     - keyword: type
     - comparison_operator:
         raw_comparison_operator: '='
@@ -24,11 +24,11 @@ file:
       - keyword: storage_aws_role_arn
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'arn:aws:iam::001234567890:role/myrole'"
+      - quoted_literal: "'arn:aws:iam::001234567890:role/myrole'"
     - keyword: enabled
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: 'true'
+    - boolean_literal: 'true'
     - keyword: storage_allowed_locations
     - comparison_operator:
         raw_comparison_operator: '='
@@ -45,7 +45,7 @@ file:
     - keyword: storage
     - keyword: integration
     - object_reference:
-        identifier: gcs_int
+        naked_identifier: gcs_int
     - keyword: type
     - comparison_operator:
         raw_comparison_operator: '='
@@ -58,7 +58,7 @@ file:
     - keyword: enabled
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: 'true'
+    - boolean_literal: 'true'
     - keyword: storage_allowed_locations
     - comparison_operator:
         raw_comparison_operator: '='
@@ -75,7 +75,7 @@ file:
     - keyword: storage
     - keyword: integration
     - object_reference:
-        identifier: azure_int
+        naked_identifier: azure_int
     - keyword: type
     - comparison_operator:
         raw_comparison_operator: '='
@@ -88,12 +88,12 @@ file:
     - keyword: enabled
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: 'true'
+    - boolean_literal: 'true'
     - storage_integration_parameters:
         keyword: azure_tenant_id
         comparison_operator:
           raw_comparison_operator: '='
-        literal: "'<tenant_id>'"
+        quoted_literal: "'<tenant_id>'"
     - keyword: storage_allowed_locations
     - comparison_operator:
         raw_comparison_operator: '='
@@ -107,12 +107,12 @@ file:
 - statement:
     create_statement:
     - keyword: create
-    - binary_operator: or
+    - keyword: or
     - keyword: replace
     - keyword: storage
     - keyword: integration
     - object_reference:
-        identifier: s3_int
+        naked_identifier: s3_int
     - keyword: type
     - comparison_operator:
         raw_comparison_operator: '='
@@ -125,17 +125,17 @@ file:
       - keyword: storage_aws_role_arn
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'arn:aws:iam::001234567890:role/myrole'"
+      - quoted_literal: "'arn:aws:iam::001234567890:role/myrole'"
     - keyword: enabled
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: 'true'
+    - boolean_literal: 'true'
     - keyword: storage_allowed_locations
     - comparison_operator:
         raw_comparison_operator: '='
     - bracketed:
         start_bracket: (
-        identifier: "'*'"
+        quoted_star: "'*'"
         end_bracket: )
     - keyword: storage_blocked_locations
     - comparison_operator:
@@ -150,12 +150,12 @@ file:
 - statement:
     create_statement:
     - keyword: create
-    - binary_operator: or
+    - keyword: or
     - keyword: replace
     - keyword: storage
     - keyword: integration
     - object_reference:
-        identifier: gcs_int
+        naked_identifier: gcs_int
     - keyword: type
     - comparison_operator:
         raw_comparison_operator: '='
@@ -168,13 +168,13 @@ file:
     - keyword: enabled
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: 'true'
+    - boolean_literal: 'true'
     - keyword: storage_allowed_locations
     - comparison_operator:
         raw_comparison_operator: '='
     - bracketed:
         start_bracket: (
-        identifier: "'*'"
+        quoted_star: "'*'"
         end_bracket: )
     - keyword: storage_blocked_locations
     - comparison_operator:
@@ -189,12 +189,12 @@ file:
 - statement:
     create_statement:
     - keyword: create
-    - binary_operator: or
+    - keyword: or
     - keyword: replace
     - keyword: storage
     - keyword: integration
     - object_reference:
-        identifier: azure_int
+        naked_identifier: azure_int
     - keyword: type
     - comparison_operator:
         raw_comparison_operator: '='
@@ -207,18 +207,18 @@ file:
     - keyword: enabled
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: 'false'
+    - boolean_literal: 'false'
     - storage_integration_parameters:
         keyword: azure_tenant_id
         comparison_operator:
           raw_comparison_operator: '='
-        literal: "'a123b4c5-1234-123a-a12b-1a23b45678c9'"
+        quoted_literal: "'a123b4c5-1234-123a-a12b-1a23b45678c9'"
     - keyword: storage_allowed_locations
     - comparison_operator:
         raw_comparison_operator: '='
     - bracketed:
         start_bracket: (
-        identifier: "'*'"
+        quoted_star: "'*'"
         end_bracket: )
     - keyword: storage_blocked_locations
     - comparison_operator:

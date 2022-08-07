@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 83109c48c23d6565c4a497d5e965b7b11d58babfdaa8438304d7c696e9b9637f
+_hash: 1c12c3673e61617399ed12ec453a59f43e5bf00d2b38e6117f3ef08efb25ddc3
 file:
 - statement:
     access_statement:
@@ -11,13 +11,13 @@ file:
     - keyword: INSERT
     - keyword: 'ON'
     - object_reference:
-        identifier: my_table
+        naked_identifier: my_table
     - comma: ','
     - object_reference:
-        identifier: my_table2
+        naked_identifier: my_table2
     - keyword: TO
-    - object_reference:
-        identifier: public
+    - role_reference:
+        naked_identifier: public
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -25,29 +25,13 @@ file:
     - keyword: INSERT
     - keyword: 'ON'
     - object_reference:
-        identifier: my_table
+        naked_identifier: my_table
     - comma: ','
     - object_reference:
-        identifier: my_table2
+        naked_identifier: my_table2
     - keyword: TO
-    - object_reference:
-        identifier: '"public"'
-- statement_terminator: ;
-- statement:
-    access_statement:
-    - keyword: GRANT
-    - keyword: INSERT
-    - comma: ','
-    - keyword: UPDATE
-    - keyword: 'ON'
-    - object_reference:
-        identifier: my_table
-    - comma: ','
-    - object_reference:
-        identifier: my_table2
-    - keyword: TO
-    - object_reference:
-        identifier: public
+    - role_reference:
+        quoted_identifier: '"public"'
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -57,13 +41,13 @@ file:
     - keyword: UPDATE
     - keyword: 'ON'
     - object_reference:
-        identifier: my_table
+        naked_identifier: my_table
     - comma: ','
     - object_reference:
-        identifier: my_table2
+        naked_identifier: my_table2
     - keyword: TO
-    - object_reference:
-        identifier: '"public"'
+    - role_reference:
+        naked_identifier: public
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -71,17 +55,15 @@ file:
     - keyword: INSERT
     - comma: ','
     - keyword: UPDATE
-    - comma: ','
-    - keyword: DELETE
     - keyword: 'ON'
     - object_reference:
-        identifier: my_table
+        naked_identifier: my_table
     - comma: ','
     - object_reference:
-        identifier: my_table2
+        naked_identifier: my_table2
     - keyword: TO
-    - object_reference:
-        identifier: public
+    - role_reference:
+        quoted_identifier: '"public"'
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -93,13 +75,13 @@ file:
     - keyword: DELETE
     - keyword: 'ON'
     - object_reference:
-        identifier: my_table
+        naked_identifier: my_table
     - comma: ','
     - object_reference:
-        identifier: my_table2
+        naked_identifier: my_table2
     - keyword: TO
-    - object_reference:
-        identifier: '"public"'
+    - role_reference:
+        naked_identifier: public
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -109,17 +91,15 @@ file:
     - keyword: UPDATE
     - comma: ','
     - keyword: DELETE
-    - comma: ','
-    - keyword: SELECT
     - keyword: 'ON'
     - object_reference:
-        identifier: my_table
+        naked_identifier: my_table
     - comma: ','
     - object_reference:
-        identifier: my_table2
+        naked_identifier: my_table2
     - keyword: TO
-    - object_reference:
-        identifier: public
+    - role_reference:
+        quoted_identifier: '"public"'
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -133,11 +113,31 @@ file:
     - keyword: SELECT
     - keyword: 'ON'
     - object_reference:
-        identifier: my_table
+        naked_identifier: my_table
     - comma: ','
     - object_reference:
-        identifier: my_table2
+        naked_identifier: my_table2
     - keyword: TO
+    - role_reference:
+        naked_identifier: public
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: INSERT
+    - comma: ','
+    - keyword: UPDATE
+    - comma: ','
+    - keyword: DELETE
+    - comma: ','
+    - keyword: SELECT
+    - keyword: 'ON'
     - object_reference:
-        identifier: '"public"'
+        naked_identifier: my_table
+    - comma: ','
+    - object_reference:
+        naked_identifier: my_table2
+    - keyword: TO
+    - role_reference:
+        quoted_identifier: '"public"'
 - statement_terminator: ;

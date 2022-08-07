@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2ac14552506be39c7f8cb304071dd62b0f075b16dc4632cc94609fe8bbaac8bc
+_hash: beb61c1eb1b60969bb801f17c7f11c9c65e9124f5c743c444410ebd6565cd5f6
 file:
 - statement:
     select_statement:
@@ -17,12 +17,12 @@ file:
               - keyword: with
               - keyword: time
               - keyword: zone
-              literal: "'2005-04-02 12:00:00-07'"
+              quoted_literal: "'2005-04-02 12:00:00-07'"
           - binary_operator: +
           - datetime_literal:
               datetime_type_identifier:
                 keyword: interval
-              literal: "'1 day'"
+              quoted_literal: "'1 day'"
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -36,12 +36,12 @@ file:
             - start_bracket: (
             - expression:
                 column_reference:
-                  identifier: day
+                  naked_identifier: day
             - comma: ','
             - expression:
                 numeric_literal:
                   sign_indicator: '-'
-                  literal: '2'
+                  numeric_literal: '2'
             - comma: ','
             - expression:
                 bare_function: current_date
@@ -56,12 +56,12 @@ file:
           - datetime_literal:
               datetime_type_identifier:
                 keyword: timestamptz
-              literal: "'2013-07-01 12:00:00'"
+              quoted_literal: "'2013-07-01 12:00:00'"
           - binary_operator: '-'
           - datetime_literal:
               datetime_type_identifier:
                 keyword: timestamptz
-              literal: "'2013-03-01 12:00:00'"
+              quoted_literal: "'2013-03-01 12:00:00'"
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -69,7 +69,7 @@ file:
         keyword: SELECT
         select_clause_element:
           expression:
-            literal: '1.0'
+            numeric_literal: '1.0'
             cast_expression:
               casting_operator: '::'
               data_type:
@@ -81,7 +81,7 @@ file:
         keyword: SELECT
         select_clause_element:
           expression:
-            literal: "'2015-10-24 16:38:46'"
+            quoted_literal: "'2015-10-24 16:38:46'"
             cast_expression:
               casting_operator: '::'
               data_type:
@@ -94,7 +94,7 @@ file:
         keyword: SELECT
         select_clause_element:
           expression:
-            literal: "'2015-10-24 16:38:46'"
+            quoted_literal: "'2015-10-24 16:38:46'"
             cast_expression:
               casting_operator: '::'
               data_type:
@@ -105,7 +105,7 @@ file:
             - keyword: TIME
             - keyword: ZONE
             - expression:
-                literal: "'UTC'"
+                quoted_literal: "'UTC'"
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -113,7 +113,7 @@ file:
         keyword: SELECT
         select_clause_element:
           expression:
-            literal: "'2015-10-24 16:38:46'"
+            quoted_literal: "'2015-10-24 16:38:46'"
             cast_expression:
               casting_operator: '::'
               data_type:
@@ -129,7 +129,7 @@ file:
         keyword: SELECT
         select_clause_element:
           expression:
-            literal: "'2015-10-24 16:38:46'"
+            quoted_literal: "'2015-10-24 16:38:46'"
             cast_expression:
               casting_operator: '::'
               data_type:
@@ -143,7 +143,7 @@ file:
             - keyword: TIME
             - keyword: ZONE
             - expression:
-                literal: "'UTC'"
+                quoted_literal: "'UTC'"
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -151,7 +151,7 @@ file:
         keyword: SELECT
         select_clause_element:
           expression:
-            literal: "'2015-10-24 16:38:46'"
+            quoted_literal: "'2015-10-24 16:38:46'"
             cast_expression:
               casting_operator: '::'
               data_type:
@@ -167,7 +167,7 @@ file:
         keyword: SELECT
         select_clause_element:
           expression:
-            literal: "'2015-10-24 16:38:46'"
+            quoted_literal: "'2015-10-24 16:38:46'"
             cast_expression:
               casting_operator: '::'
               data_type:
@@ -180,7 +180,7 @@ file:
         keyword: SELECT
         select_clause_element:
           expression:
-            literal: "'2015-10-24 16:38:46'"
+            quoted_literal: "'2015-10-24 16:38:46'"
             cast_expression:
               casting_operator: '::'
               data_type:
@@ -191,7 +191,7 @@ file:
             - keyword: TIME
             - keyword: ZONE
             - expression:
-                literal: "'UTC'"
+                quoted_literal: "'UTC'"
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -205,13 +205,13 @@ file:
               - keyword: with
               - keyword: time
               - keyword: zone
-              literal: "'2025-11-20 00:00:00+00'"
+              quoted_literal: "'2025-11-20 00:00:00+00'"
             time_zone_grammar:
             - keyword: AT
             - keyword: TIME
             - keyword: ZONE
             - expression:
-                literal: "'Africa/Cairo'"
+                quoted_literal: "'Africa/Cairo'"
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -224,7 +224,7 @@ file:
             - keyword: with
             - keyword: time
             - keyword: zone
-            literal: "'2025-11-20 00:00:00'"
+            quoted_literal: "'2025-11-20 00:00:00'"
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -238,13 +238,13 @@ file:
               - keyword: without
               - keyword: time
               - keyword: zone
-              literal: "'2025-11-20 00:00:00'"
+              quoted_literal: "'2025-11-20 00:00:00'"
             time_zone_grammar:
             - keyword: AT
             - keyword: TIME
             - keyword: ZONE
             - expression:
-                literal: "'Africa/Cairo'"
+                quoted_literal: "'Africa/Cairo'"
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -258,13 +258,13 @@ file:
               - keyword: without
               - keyword: time
               - keyword: zone
-              literal: "'2025-11-20 00:00:00+12'"
+              quoted_literal: "'2025-11-20 00:00:00+12'"
             time_zone_grammar:
             - keyword: AT
             - keyword: TIME
             - keyword: ZONE
             - expression:
-                literal: "'Africa/Cairo'"
+                quoted_literal: "'Africa/Cairo'"
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -277,7 +277,7 @@ file:
             - keyword: without
             - keyword: time
             - keyword: zone
-            literal: "'2025-11-20 00:00:00+12'"
+            quoted_literal: "'2025-11-20 00:00:00+12'"
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -291,13 +291,13 @@ file:
               - keyword: with
               - keyword: time
               - keyword: zone
-              literal: "'00:00:00+00'"
+              quoted_literal: "'00:00:00+00'"
             time_zone_grammar:
             - keyword: AT
             - keyword: TIME
             - keyword: ZONE
             - expression:
-                literal: "'Africa/Cairo'"
+                quoted_literal: "'Africa/Cairo'"
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -311,13 +311,13 @@ file:
               - keyword: without
               - keyword: time
               - keyword: zone
-              literal: "'00:00:00'"
+              quoted_literal: "'00:00:00'"
             time_zone_grammar:
             - keyword: AT
             - keyword: TIME
             - keyword: ZONE
             - expression:
-                literal: "'Africa/Cairo'"
+                quoted_literal: "'Africa/Cairo'"
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -326,20 +326,20 @@ file:
         select_clause_element:
           expression:
             column_reference:
-              identifier: c_timestamp
+              naked_identifier: c_timestamp
             time_zone_grammar:
             - keyword: AT
             - keyword: TIME
             - keyword: ZONE
             - expression:
-                literal: "'Africa/Cairo'"
+                quoted_literal: "'Africa/Cairo'"
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t_table
+                naked_identifier: t_table
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -351,13 +351,13 @@ file:
               start_bracket: (
               expression:
                 column_reference:
-                  identifier: c_timestamp
+                  naked_identifier: c_timestamp
                 time_zone_grammar:
                 - keyword: AT
                 - keyword: TIME
                 - keyword: ZONE
                 - expression:
-                    literal: "'Africa/Cairo'"
+                    quoted_literal: "'Africa/Cairo'"
               end_bracket: )
             cast_expression:
               casting_operator: '::'
@@ -370,7 +370,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t_table
+                naked_identifier: t_table
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -379,7 +379,7 @@ file:
         select_clause_element:
           expression:
             column_reference:
-              identifier: a
+              naked_identifier: a
             cast_expression:
               casting_operator: '::'
               data_type:
@@ -391,7 +391,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: my_table
+                naked_identifier: my_table
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -399,26 +399,26 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: schema1
+          - naked_identifier: schema1
           - dot: .
-          - identifier: table1
+          - naked_identifier: table1
           - dot: .
-          - identifier: columna
+          - naked_identifier: columna
       - comma: ','
       - select_clause_element:
           column_reference:
-          - identifier: t
+          - naked_identifier: t
           - dot: .
-          - identifier: col2
+          - naked_identifier: col2
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-              - identifier: schema1
+              - naked_identifier: schema1
               - dot: .
-              - identifier: table1
+              - naked_identifier: table1
           join_clause:
           - keyword: CROSS
           - keyword: JOIN
@@ -432,13 +432,13 @@ file:
                     start_bracket: (
                     expression:
                       column_reference:
-                      - identifier: tb
+                      - naked_identifier: tb
                       - dot: .
-                      - identifier: columnb
+                      - naked_identifier: columnb
                     end_bracket: )
               alias_expression:
                 keyword: as
-                identifier: t
+                naked_identifier: t
                 bracketed:
                 - start_bracket: (
                 - parameter: col1
@@ -457,21 +457,21 @@ file:
         select_clause_element:
           expression:
           - column_reference:
-              identifier: a
+              naked_identifier: a
           - keyword: COLLATE
           - column_reference:
-              identifier: '"de_DE"'
+              quoted_identifier: '"de_DE"'
           - comparison_operator:
               raw_comparison_operator: <
           - column_reference:
-              identifier: b
+              naked_identifier: b
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: test1
+                naked_identifier: test1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -480,16 +480,16 @@ file:
         select_clause_element:
           expression:
             column_reference:
-              identifier: a
+              naked_identifier: a
             comparison_operator:
               raw_comparison_operator: <
             bracketed:
               start_bracket: (
               expression:
-                literal: "'foo'"
+                quoted_literal: "'foo'"
                 keyword: COLLATE
                 column_reference:
-                  identifier: '"fr_FR"'
+                  quoted_identifier: '"fr_FR"'
               end_bracket: )
       from_clause:
         keyword: FROM
@@ -497,7 +497,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: test1
+                naked_identifier: test1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -506,21 +506,21 @@ file:
         select_clause_element:
           expression:
           - column_reference:
-              identifier: a
+              naked_identifier: a
           - comparison_operator:
               raw_comparison_operator: <
           - column_reference:
-              identifier: b
+              naked_identifier: b
           - keyword: COLLATE
           - column_reference:
-              identifier: '"de_DE"'
+              quoted_identifier: '"de_DE"'
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: test1
+                naked_identifier: test1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -529,21 +529,21 @@ file:
         select_clause_element:
           expression:
           - column_reference:
-              identifier: a
+              naked_identifier: a
           - keyword: COLLATE
           - column_reference:
-              identifier: '"de_DE"'
+              quoted_identifier: '"de_DE"'
           - comparison_operator:
               raw_comparison_operator: <
           - column_reference:
-              identifier: b
+              naked_identifier: b
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: test1
+                naked_identifier: test1
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -559,19 +559,56 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: test1
+                naked_identifier: test1
       orderby_clause:
       - keyword: ORDER
       - keyword: BY
       - expression:
         - column_reference:
-            identifier: a
+            naked_identifier: a
         - binary_operator:
           - pipe: '|'
           - pipe: '|'
         - column_reference:
-            identifier: b
+            naked_identifier: b
         - keyword: COLLATE
         - column_reference:
-            identifier: '"fr_FR"'
+            quoted_identifier: '"fr_FR"'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: test1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: select
+      - select_clause_element:
+          column_reference:
+            naked_identifier: id
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: start
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: periods
+            dot: .
+            naked_identifier_all: end
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: periods
 - statement_terminator: ;

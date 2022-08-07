@@ -1,12 +1,12 @@
 rule: L003
 
 test_fail_reindent_first_line_1:
-  fail_str: '     SELECT 1'
+  fail_str: "     SELECT 1"
   fix_str: SELECT 1
 
 test_fail_reindent_first_line_2:
   # Github Bug #99. Python2 Issues with fixing L003
-  fail_str: '  select 1 from tbl;'
+  fail_str: "  select 1 from tbl;"
   fix_str: select 1 from tbl;
 
 test_pass_indentation_of_comments_1:
@@ -219,6 +219,80 @@ test_pass_indented_using_on_merge_statment_false:
     indentation:
       indented_using_on: false
 
+test_pass_indented_on_contents_default:
+  # Test indented_on_contents when default (true)
+  pass_str: |
+    SELECT
+        r.a,
+        s.b
+    FROM r
+    JOIN s
+        ON r.a = s.a
+            AND true
+
+test_pass_indented_on_contents_true:
+  # Test indented_on_contents when true (default)
+  pass_str: |
+    SELECT
+        r.a,
+        s.b
+    FROM r
+    JOIN s
+        ON r.a = s.a
+            AND true
+  configs:
+    indentation:
+      indented_on_contents: true
+
+test_pass_indented_on_contents_false:
+  # Test indented_on_contents when false (non-default)
+  pass_str: |
+    SELECT
+        r.a,
+        s.b
+    FROM r
+    JOIN s
+        ON r.a = s.a
+        AND true
+  configs:
+    indentation:
+      indented_on_contents: false
+test_fail_indented_on_contents_default_fix:
+  # Default config for indented_on_contents is true
+  fail_str: |
+    SELECT *
+    FROM t1
+    JOIN t2
+        ON true
+    AND true
+  fix_str: |
+    SELECT *
+    FROM t1
+    JOIN t2
+        ON true
+            AND true
+
+test_fail_indented_on_contents_false_fix:
+  fail_str: |
+    SELECT
+        t1.a,
+        t2.b
+    FROM t1
+    JOIN t2
+        ON true
+    AND true
+  fix_str: |
+    SELECT
+        t1.a,
+        t2.b
+    FROM t1
+    JOIN t2
+        ON true
+        AND true
+  configs:
+    indentation:
+      indented_on_contents: false
+
 test_pass_indented_from_with_comment:
   pass_str: |
     SELECT *
@@ -320,7 +394,6 @@ test_fail_consecutive_hangers:
           and e like 'e%'
           and f like 'f%'
 
-
 test_fail_clean_reindent_fix:
   # A "clean" indent is where the previous line ends with an
   # indent token (as per this example). We should use the
@@ -360,7 +433,6 @@ test_pass_indent_indent_bigquery:
   configs:
     core:
       dialect: bigquery
-
 
 test_jinja_indent_templated_table_name_a:
   fail_str: |
@@ -847,31 +919,31 @@ test_pass_exasol_func_indent:
 
 test_fail_fix_exa_func_format:
   fail_str: |
-      CREATE FUNCTION schem.func (
-          p1 VARCHAR(6)
-      ) RETURN VARCHAR (20)
-      IS
-      res VARCHAR(20);
-      BEGIN
-      IF p1 = 1 THEN
-        res:= 'Hello World';
-          END IF;
-      RETURN res;
-      END schem.func;
-      /
+    CREATE FUNCTION schem.func (
+        p1 VARCHAR(6)
+    ) RETURN VARCHAR (20)
+    IS
+    res VARCHAR(20);
+    BEGIN
+    IF p1 = 1 THEN
+      res:= 'Hello World';
+        END IF;
+    RETURN res;
+    END schem.func;
+    /
   fix_str: |
-      CREATE FUNCTION schem.func (
-          p1 VARCHAR(6)
-      ) RETURN VARCHAR (20)
-      IS
-          res VARCHAR(20);
-      BEGIN
-          IF p1 = 1 THEN
-              res:= 'Hello World';
-          END IF;
-          RETURN res;
-      END schem.func;
-      /
+    CREATE FUNCTION schem.func (
+        p1 VARCHAR(6)
+    ) RETURN VARCHAR (20)
+    IS
+        res VARCHAR(20);
+    BEGIN
+        IF p1 = 1 THEN
+            res:= 'Hello World';
+        END IF;
+        RETURN res;
+    END schem.func;
+    /
   configs:
     core:
       dialect: exasol
@@ -1004,6 +1076,76 @@ test_fail_unindented_procedure_parameters:
         @param1 nvarchar(100),
         @param2 nvarchar(20)
     AS SELECT * FROM dbo
+  configs:
+    core:
+      dialect: tsql
+
+test_tsql_bubble_up_newline_after_fix:
+  # Tests issue 3303, where an L003 fix leaves a newline as the final child
+  # segment that has to be "bubbled up" two levels to avoid violating the
+  # _is_code_or_meta() check in core/parser/segments/base.py.
+  fail_str: |
+    create procedure name as
+    begin
+    drop table if exists #something
+      end
+  fix_str: |
+    create procedure name as
+    begin
+        drop table if exists #something
+    end
+  configs:
+    core:
+      dialect: tsql
+
+test_tsql_cross_apply_indentation:
+  # Test for behavior in issue #3672
+  pass_str: |
+    SELECT
+        table1.col,
+        table2.col
+    FROM table1
+    CROSS APPLY (
+        VALUES ((1), (2))
+    ) AS table2(col)
+    INNER JOIN table3
+        ON table1.col = table3.col;
+  configs:
+    core:
+      dialect: tsql
+
+test_tsql_cross_join_indentation:
+  # Test for behavior in issue #3672
+  pass_str: |
+    SELECT
+        table1.col,
+        table2.col
+    FROM table1
+    CROSS JOIN table2
+    INNER JOIN table3
+        ON table1.col = table3.col;
+  configs:
+    core:
+      dialect: tsql
+
+test_tsql_nested_join:
+  # Test for behavior prior to issue #3672
+  fail_str: |
+    SELECT
+        table1.col,
+        table2.col
+    FROM table1
+    INNER JOIN table2
+    INNER JOIN table3
+        ON table1.col = table2.col AND table1.col = table3.col;
+  fix_str: |
+    SELECT
+        table1.col,
+        table2.col
+    FROM table1
+    INNER JOIN table2
+        INNER JOIN table3
+            ON table1.col = table2.col AND table1.col = table3.col;
   configs:
     core:
       dialect: tsql

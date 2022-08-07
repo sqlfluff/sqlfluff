@@ -177,3 +177,38 @@ test_fail_bigquery_week:
     rules:
       L010:
         capitalisation_policy: upper
+
+test_fail_select_lower:
+  # Test for issue #3399, a bug in the core apply_fixes() function that surfaced
+  # with various rules, including this one.
+  fail_str: |
+    select *
+    FROM
+        {{ source("ids","shop") }}
+  fix_str: |
+    SELECT *
+    FROM
+        {{ source("ids","shop") }}
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      L010:
+        capitalisation_policy: upper
+
+test_fail_select_lower_keyword_functions:
+  # Test for issue #3520
+  fail_str: |
+    SELECT
+    cast(5 AS int) AS test1,
+    coalesce(1, 2) AS test3
+  fix_str: |
+    SELECT
+    CAST(5 AS int) AS test1,
+    COALESCE(1, 2) AS test3
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      L010:
+        capitalisation_policy: upper

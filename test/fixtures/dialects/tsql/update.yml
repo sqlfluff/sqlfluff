@@ -3,31 +3,31 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f4d0f0156b3a4a242c31eb7f365ac0a1b15e0d9fee75d71ad0a22023abc4f468
+_hash: 51cea7f86c4be1b83f868067d11bcbd0c221335a114248ff60d4d47d239851a8
 file:
   batch:
   - statement:
       update_statement:
         keyword: update
         table_reference:
-        - identifier: dbo
+        - naked_identifier: dbo
         - dot: .
-        - identifier: Cases
+        - naked_identifier: Cases
         set_clause_list:
           keyword: set
           set_clause:
             column_reference:
-              identifier: '[Flg]'
+              quoted_identifier: '[Flg]'
             assignment_operator:
               comparison_operator:
                 raw_comparison_operator: '='
             expression:
-              literal: '1'
+              numeric_literal: '1'
         where_clause:
           keyword: where
           expression:
             column_reference:
-              identifier: ID
+              naked_identifier: ID
             keyword: in
             bracketed:
               start_bracket: (
@@ -38,16 +38,16 @@ file:
                     keyword: distinct
                   select_clause_element:
                     column_reference:
-                      identifier: '[ID]'
+                      quoted_identifier: '[ID]'
                 from_clause:
                   keyword: from
                   from_expression:
                     from_expression_element:
                       table_expression:
                         table_reference:
-                        - identifier: dbo
+                        - naked_identifier: dbo
                         - dot: .
-                        - identifier: CX
+                        - naked_identifier: CX
               end_bracket: )
         option_clause:
           keyword: OPTION
@@ -57,72 +57,72 @@ file:
               keyword: Label
               comparison_operator:
                 raw_comparison_operator: '='
-              literal: "'Cases'"
+              quoted_literal: "'Cases'"
             end_bracket: )
         statement_terminator: ;
   - statement:
       update_statement:
         keyword: update
         table_reference:
-          identifier: tt
+          naked_identifier: tt
         set_clause_list:
           keyword: set
           set_clause:
             column_reference:
-            - identifier: tt
+            - naked_identifier: tt
             - dot: .
-            - identifier: rn
+            - naked_identifier: rn
             assignment_operator:
               binary_operator: +
               comparison_operator:
                 raw_comparison_operator: '='
             expression:
-              literal: '1'
+              numeric_literal: '1'
         from_clause:
           keyword: from
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: table1
+                  naked_identifier: table1
               alias_expression:
                 keyword: as
-                identifier: tt
+                naked_identifier: tt
             join_clause:
               keyword: join
               from_expression_element:
                 table_expression:
                   table_reference:
-                    identifier: src
+                    naked_identifier: src
               join_on_condition:
                 keyword: 'on'
                 expression:
                 - column_reference:
-                  - identifier: tt
+                  - naked_identifier: tt
                   - dot: .
-                  - identifier: _id
+                  - naked_identifier: _id
                 - comparison_operator:
                     raw_comparison_operator: '='
                 - column_reference:
-                  - identifier: src
+                  - naked_identifier: src
                   - dot: .
-                  - identifier: _id
+                  - naked_identifier: _id
           statement_terminator: ;
   - statement:
       update_statement:
         keyword: UPDATE
         table_reference:
-          identifier: stuff
+          naked_identifier: stuff
         set_clause_list:
           keyword: SET
           set_clause:
             column_reference:
-              identifier: deleted
+              naked_identifier: deleted
             assignment_operator:
               comparison_operator:
                 raw_comparison_operator: '='
             expression:
-              literal: '1'
+              numeric_literal: '1'
         output_clause:
         - keyword: OUTPUT
         - wildcard_expression:
@@ -130,12 +130,12 @@ file:
               star: '*'
         - keyword: INTO
         - table_reference:
-            identifier: trash
+            naked_identifier: trash
         where_clause:
           keyword: WHERE
           expression:
             column_reference:
-              identifier: useless
+              naked_identifier: useless
             comparison_operator:
               raw_comparison_operator: '='
-            literal: '1'
+            numeric_literal: '1'

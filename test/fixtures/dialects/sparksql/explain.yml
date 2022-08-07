@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5d8eaa50bcb0caebd89adc11b2e7edd1c27db0eb9b99c26e18394ddc40e52362
+_hash: e8419b6c809320f4b5a85b9aefbd1e6867c23f2e9753dfbda7191afbd87630dd
 file:
 - statement:
     explain_statement:
@@ -14,18 +14,18 @@ file:
           - keyword: SELECT
           - select_clause_element:
               column_reference:
-                identifier: a
+                naked_identifier: a
           - comma: ','
           - select_clause_element:
               column_reference:
-                identifier: b
+                naked_identifier: b
           from_clause:
             keyword: FROM
             from_expression:
               from_expression_element:
                 table_expression:
                   table_reference:
-                    identifier: person
+                    naked_identifier: person
 - statement_terminator: ;
 - statement:
     explain_statement:
@@ -38,22 +38,22 @@ file:
             - keyword: TRANSFORM
             - bracketed:
               - start_bracket: (
-              - identifier: zip_code
+              - naked_identifier: zip_code
               - comma: ','
-              - identifier: name
+              - naked_identifier: name
               - comma: ','
-              - identifier: age
+              - naked_identifier: age
               - end_bracket: )
             - keyword: USING
-            - literal: "'cat'"
+            - quoted_literal: "'cat'"
             - keyword: AS
             - bracketed:
               - start_bracket: (
-              - identifier: a
+              - naked_identifier: a
               - comma: ','
-              - identifier: b
+              - naked_identifier: b
               - comma: ','
-              - identifier: c
+              - naked_identifier: c
               - end_bracket: )
           from_clause:
             keyword: FROM
@@ -61,15 +61,15 @@ file:
               from_expression_element:
                 table_expression:
                   table_reference:
-                    identifier: person
+                    naked_identifier: person
           where_clause:
             keyword: WHERE
             expression:
               column_reference:
-                identifier: zip_code
+                naked_identifier: zip_code
               comparison_operator:
                 raw_comparison_operator: '>'
-              literal: '94511'
+              numeric_literal: '94511'
 - statement_terminator: ;
 - statement:
     explain_statement:
@@ -79,16 +79,16 @@ file:
         - keyword: ALTER
         - keyword: DATABASE
         - database_reference:
-            identifier: inventory
+            naked_identifier: inventory
         - keyword: SET
         - keyword: DBPROPERTIES
         - bracketed:
             start_bracket: (
             property_name_identifier:
-              identifier: "'Edited-by'"
+              quoted_identifier: "'Edited-by'"
             comparison_operator:
               raw_comparison_operator: '='
-            literal: "'John'"
+            quoted_literal: "'John'"
             end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -99,11 +99,11 @@ file:
         - keyword: ALTER
         - keyword: TABLE
         - table_reference:
-            identifier: student
+            naked_identifier: student
         - keyword: RENAME
         - keyword: TO
         - table_reference:
-            identifier: studentinfo
+            naked_identifier: studentinfo
 - statement_terminator: ;
 - statement:
     explain_statement:
@@ -113,11 +113,11 @@ file:
         - keyword: ALTER
         - keyword: VIEW
         - table_reference:
-            identifier: view_identifier
+            naked_identifier: view_identifier
         - keyword: RENAME
         - keyword: TO
         - table_reference:
-            identifier: view_identifier
+            naked_identifier: view_identifier
 - statement_terminator: ;
 - statement:
     explain_statement:
@@ -130,20 +130,20 @@ file:
         - keyword: NOT
         - keyword: EXISTS
         - database_reference:
-            identifier: database_name
+            naked_identifier: database_name
         - keyword: COMMENT
-        - literal: '"database_comment"'
+        - quoted_literal: '"database_comment"'
         - keyword: LOCATION
-        - literal: '"root/database_directory"'
+        - quoted_literal: '"root/database_directory"'
         - keyword: WITH
         - keyword: DBPROPERTIES
         - bracketed:
             start_bracket: (
             property_name_identifier:
-              identifier: '"property_name"'
+              quoted_identifier: '"property_name"'
             comparison_operator:
               raw_comparison_operator: '='
-            literal: '"property_value"'
+            quoted_literal: '"property_value"'
             end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -152,7 +152,7 @@ file:
       statement:
         create_function_statement:
         - keyword: CREATE
-        - binary_operator: OR
+        - keyword: OR
         - keyword: REPLACE
         - keyword: TEMPORARY
         - keyword: FUNCTION
@@ -161,10 +161,10 @@ file:
         - keyword: EXISTS
         - function_name_identifier: function_name
         - keyword: AS
-        - literal: '"class_name"'
+        - quoted_literal: '"class_name"'
         - keyword: USING
         - file_keyword: FILE
-        - literal: '"resource_locations"'
+        - quoted_literal: '"resource_locations"'
 - statement_terminator: ;
 - statement:
     explain_statement:
@@ -174,23 +174,23 @@ file:
         - keyword: CREATE
         - keyword: TABLE
         - table_reference:
-            identifier: student
+            naked_identifier: student
         - bracketed:
           - start_bracket: (
           - column_definition:
-              identifier: id
+              naked_identifier: id
               data_type:
                 primitive_type:
                   keyword: INT
           - comma: ','
           - column_definition:
-              identifier: student_name
+              naked_identifier: student_name
               data_type:
                 primitive_type:
                   keyword: STRING
           - comma: ','
           - column_definition:
-              identifier: age
+              naked_identifier: age
               data_type:
                 primitive_type:
                   keyword: INT
@@ -206,23 +206,23 @@ file:
         - keyword: CREATE
         - keyword: TABLE
         - table_reference:
-            identifier: student
+            naked_identifier: student
         - bracketed:
           - start_bracket: (
           - column_definition:
-              identifier: id
+              naked_identifier: id
               data_type:
                 primitive_type:
                   keyword: INT
           - comma: ','
           - column_definition:
-              identifier: student_name
+              naked_identifier: student_name
               data_type:
                 primitive_type:
                   keyword: STRING
           - comma: ','
           - column_definition:
-              identifier: age
+              naked_identifier: age
               data_type:
                 primitive_type:
                   keyword: INT
@@ -239,10 +239,10 @@ file:
         - keyword: CREATE
         - keyword: TABLE
         - table_reference:
-            identifier: student_dupli
+            naked_identifier: student_dupli
         - keyword: LIKE
         - table_reference:
-            identifier: student
+            naked_identifier: student
         - row_format_clause:
           - keyword: ROW
           - keyword: FORMAT
@@ -250,7 +250,7 @@ file:
           - keyword: FIELDS
           - keyword: TERMINATED
           - keyword: BY
-          - literal: "','"
+          - quoted_literal: "','"
         - keyword: STORED
         - keyword: AS
         - file_format: TEXTFILE
@@ -258,10 +258,10 @@ file:
         - bracketed:
             start_bracket: (
             property_name_identifier:
-              identifier: "'owner'"
+              quoted_identifier: "'owner'"
             comparison_operator:
               raw_comparison_operator: '='
-            literal: "'xxxx'"
+            quoted_literal: "'xxxx'"
             end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -272,21 +272,21 @@ file:
         - keyword: CREATE
         - keyword: VIEW
         - table_reference:
-            identifier: experienced_employee_extended
+            naked_identifier: experienced_employee_extended
         - keyword: AS
         - select_statement:
             select_clause:
               keyword: SELECT
               select_clause_element:
                 column_reference:
-                  identifier: a
+                  naked_identifier: a
             from_clause:
               keyword: FROM
               from_expression:
                 from_expression_element:
                   table_expression:
                     table_reference:
-                      identifier: experienced_employee
+                      naked_identifier: experienced_employee
 - statement_terminator: ;
 - statement:
     explain_statement:
@@ -298,7 +298,7 @@ file:
         - keyword: IF
         - keyword: EXISTS
         - database_reference:
-            identifier: dbname
+            naked_identifier: dbname
 - statement_terminator: ;
 - statement:
     explain_statement:
@@ -317,7 +317,7 @@ file:
         use_statement:
           keyword: USE
           database_reference:
-            identifier: database_name
+            naked_identifier: database_name
 - statement_terminator: ;
 - statement:
     explain_statement:
@@ -327,15 +327,15 @@ file:
         - keyword: TRUNCATE
         - keyword: TABLE
         - table_reference:
-            identifier: student
+            naked_identifier: student
         - keyword: PARTITION
         - bracketed:
             start_bracket: (
             column_reference:
-              identifier: age
+              naked_identifier: age
             comparison_operator:
               raw_comparison_operator: '='
-            literal: '10'
+            numeric_literal: '10'
             end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -347,7 +347,7 @@ file:
         - keyword: REPAIR
         - keyword: TABLE
         - table_reference:
-            identifier: table_identifier
+            naked_identifier: table_identifier
         - keyword: ADD
         - keyword: PARTITIONS
 - statement_terminator: ;
@@ -359,7 +359,7 @@ file:
         - keyword: REFRESH
         - keyword: TABLE
         - table_reference:
-            identifier: tbl1
+            naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
     explain_statement:
@@ -380,12 +380,12 @@ file:
         - keyword: DATA
         - keyword: LOCAL
         - keyword: INPATH
-        - literal: "'/user/hive/warehouse/students'"
+        - quoted_literal: "'/user/hive/warehouse/students'"
         - keyword: OVERWRITE
         - keyword: INTO
         - keyword: TABLE
         - table_reference:
-            identifier: test_load
+            naked_identifier: test_load
 - statement_terminator: ;
 - statement:
     explain_statement:
@@ -396,19 +396,19 @@ file:
         - keyword: INTO
         - keyword: TABLE
         - table_reference:
-            identifier: students
+            naked_identifier: students
         - values_clause:
             keyword: VALUES
             bracketed:
             - start_bracket: (
             - expression:
-                literal: "'Amy Smith'"
+                quoted_literal: "'Amy Smith'"
             - comma: ','
             - expression:
-                literal: "'123 Park Ave, San Jose'"
+                quoted_literal: "'123 Park Ave, San Jose'"
             - comma: ','
             - expression:
-                literal: '111111'
+                numeric_literal: '111111'
             - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -421,5 +421,5 @@ file:
         - keyword: IF
         - keyword: EXISTS
         - table_reference:
-            identifier: view_identifier
+            naked_identifier: view_identifier
 - statement_terminator: ;

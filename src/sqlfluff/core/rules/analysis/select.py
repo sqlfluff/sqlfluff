@@ -61,7 +61,7 @@ def get_select_statement_info(
         for join_clause in fc.recursive_crawl("join_clause"):
             seen_using = False
             for seg in join_clause.iter_segments():
-                if seg.is_type("keyword") and seg.name == "using":
+                if seg.is_type("keyword") and seg.raw_upper == "USING":
                     seen_using = True
                 elif seg.is_type("join_on_condition"):
                     for on_seg in seg.segments:
@@ -134,7 +134,7 @@ def _has_value_table_function(table_expr, dialect):
         # Other rules can increase whitespace in the function name, so use strip to
         # remove
         # See: https://github.com/sqlfluff/sqlfluff/issues/1304
-        if function_name.raw.lower().strip() in dialect.sets("value_table_functions"):
+        if function_name.raw.upper().strip() in dialect.sets("value_table_functions"):
             return True
     return False
 
@@ -145,10 +145,10 @@ def _get_pivot_table_columns(segment, dialect):
         # we don't have it, assume the clause does not have a pivot table
         return []  # pragma: no cover
 
-    fc = segment.get_child("from_pivot_expression")
+    fc = segment.recursive_crawl("from_pivot_expression")
     if not fc:
         # If there's no pivot clause then just abort.
-        return []
+        return []  # pragma: no cover
 
     pivot_table_column_aliases = []
 

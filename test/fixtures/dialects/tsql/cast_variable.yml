@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 477864755d8e0946c51abd12e90d9c7120af83d169bfb9b5e3e572033348697b
+_hash: bc6640b52894d99c9c6bb382dcaa1de71630c65eaa51007683569191d4fa7057
 file:
   batch:
   - statement:
@@ -23,7 +23,7 @@ file:
             - expression:
                 function:
                   function_name:
-                    identifier: Shared
+                    naked_identifier: Shared
                     dot: .
                     function_name_identifier: GetESTDateTime
                   bracketed:
@@ -51,12 +51,12 @@ file:
         - keyword: select
         - select_clause_element:
             column_reference:
-            - identifier: enc
+            - naked_identifier: enc
             - dot: .
-            - identifier: personid
+            - naked_identifier: personid
             alias_expression:
               keyword: as
-              identifier: personid
+              naked_identifier: personid
         - comma: ','
         - select_clause_element:
             function:
@@ -65,28 +65,28 @@ file:
               bracketed:
                 start_bracket: (
                 expression:
-                  literal: "'1900-01-01'"
+                  quoted_literal: "'1900-01-01'"
                 keyword: as
                 data_type:
                   data_type_identifier: datetime2
                   bracketed:
                     start_bracket: (
                     expression:
-                      literal: '7'
+                      numeric_literal: '7'
                     end_bracket: )
                 end_bracket: )
             alias_expression:
               keyword: as
-              identifier: DataRefreshDate
+              naked_identifier: DataRefreshDate
         from_clause:
           keyword: from
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: encounter
+                  naked_identifier: encounter
               alias_expression:
-                identifier: enc
+                naked_identifier: enc
           statement_terminator: ;
   - statement:
       declare_segment:
@@ -107,7 +107,7 @@ file:
             bracketed:
               start_bracket: (
               expression:
-                literal: '100'
+                numeric_literal: '100'
               keyword: as
               data_type:
                 data_type_identifier: nvarchar

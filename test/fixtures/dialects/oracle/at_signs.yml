@@ -3,36 +3,36 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 60284384705beb18d09cd14422636d65e8b4f5af2718a3acf4a99518a08473ba
+_hash: d687c62efbf650d4457868fae33d95c534fc475817ebf2075348fd2b89f86bcf
 file:
 - execute_file_statement:
   - at_sign: '@'
   - at_sign: '@'
-  - identifier: some_other_sql_file
+  - naked_identifier: some_other_sql_file
   - dot: .
-  - identifier: sql
+  - naked_identifier: sql
 - execute_file_statement:
   - at_sign: '@'
   - at_sign: '@'
-  - identifier: some_other_sql_file_with_args
+  - naked_identifier: some_other_sql_file_with_args
   - dot: .
-  - identifier: sql
-  - identifier: foo
-  - identifier: bar
-  - identifier: baz
+  - naked_identifier: sql
+  - naked_identifier: foo
+  - naked_identifier: bar
+  - naked_identifier: baz
 - execute_file_statement:
   - at_sign: '@'
-  - identifier: some_other_sql_file
+  - naked_identifier: some_other_sql_file
   - dot: .
-  - identifier: sql
+  - naked_identifier: sql
 - execute_file_statement:
   - at_sign: '@'
-  - identifier: some_other_sql_file_with_args
+  - naked_identifier: some_other_sql_file_with_args
   - dot: .
-  - identifier: sql
-  - identifier: foo
-  - identifier: bar
-  - identifier: baz
+  - naked_identifier: sql
+  - naked_identifier: foo
+  - naked_identifier: bar
+  - naked_identifier: baz
 - statement:
     select_statement:
       select_clause:
@@ -47,5 +47,5 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: some_table
+                naked_identifier: some_table
 - statement_terminator: ;

@@ -64,6 +64,11 @@ CREATE FUNCTION dup(int) RETURNS TABLE(f1 int, f2 text)
     AS $$ SELECT $1, CAST($1 AS text) || ' is text' $$
     LANGUAGE SQL;
 
+CREATE FUNCTION dup(int) RETURNS TABLE("f1" int, "f2" text)
+    AS $$ SELECT $1, CAST($1 AS text) || ' is text' $$
+    LANGUAGE SQL;
+
+
 SELECT * FROM dup(42);
 
 CREATE FUNCTION check_password(uname TEXT, pass TEXT)
@@ -120,3 +125,23 @@ CREATE FUNCTION _add(integer, integer) RETURNS integer
 CREATE FUNCTION _$add(integer, integer) RETURNS integer
     AS 'select $1 + $2;'
     LANGUAGE SQL;
+
+create function test2(
+  x date = current_date
+)
+returns date
+as $$
+  begin
+    return x;
+  end;
+$$;
+
+create function test3(
+  x date default current_date
+)
+returns date
+as $$
+  begin
+    return x;
+  end;
+$$;

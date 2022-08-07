@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e1c1f4d96321835b7782bb39121ae2c66a14483e6981eb8fb9226b9a457e44d0
+_hash: 1bd12039e6f42fc17a4d325703a2c1ec44307e77fc9a4ea4f90e0bce8f7aae2e
 file:
 - batch:
     statement:
@@ -28,14 +28,14 @@ file:
                     from_expression_element:
                       table_expression:
                         table_reference:
-                        - identifier: sys
+                        - naked_identifier: sys
                         - dot: .
-                        - identifier: sequences
+                        - naked_identifier: sequences
                 where_clause:
                   keyword: WHERE
                   expression:
                   - column_reference:
-                      identifier: object_id
+                      naked_identifier: object_id
                   - comparison_operator:
                       raw_comparison_operator: '='
                   - function:
@@ -44,29 +44,29 @@ file:
                       bracketed:
                         start_bracket: (
                         expression:
-                          literal: "N'[dbo].[SEQ_SCHEMA_NAME_TABLE_NAME]'"
+                          quoted_literal: "N'[dbo].[SEQ_SCHEMA_NAME_TABLE_NAME]'"
                         end_bracket: )
                   - binary_operator: AND
                   - column_reference:
-                      identifier: type
+                      naked_identifier: type
                   - comparison_operator:
                       raw_comparison_operator: '='
-                  - literal: "'SO'"
+                  - quoted_literal: "'SO'"
               end_bracket: )
         statement:
           create_sequence_statement:
           - keyword: CREATE
           - keyword: SEQUENCE
           - sequence_reference:
-              identifier: SEQ_SCHEMA_NAME_TABLE_NAME
+              naked_identifier: SEQ_SCHEMA_NAME_TABLE_NAME
           - create_sequence_options_segment:
             - keyword: START
             - keyword: WITH
-            - literal: '1'
+            - numeric_literal: '1'
           - create_sequence_options_segment:
             - keyword: INCREMENT
             - keyword: BY
-            - literal: '1'
+            - numeric_literal: '1'
         statement_terminator: ;
 - go_statement:
     keyword: GO
@@ -76,13 +76,13 @@ file:
       - keyword: CREATE
       - keyword: TABLE
       - table_reference:
-        - identifier: SCHEMA_NAME
+        - naked_identifier: SCHEMA_NAME
         - dot: .
-        - identifier: TABLE_NAME
+        - naked_identifier: TABLE_NAME
       - bracketed:
         - start_bracket: (
         - column_definition:
-          - identifier: '[ID]'
+          - quoted_identifier: '[ID]'
           - data_type:
               data_type_identifier: INT
           - column_constraint_segment:
@@ -100,64 +100,64 @@ file:
                 - keyword: VALUE
                 - keyword: FOR
                 - object_reference:
-                  - identifier: '[dbo]'
+                  - quoted_identifier: '[dbo]'
                   - dot: .
-                  - identifier: '[SEQ_SCHEMA_NAME_TABLE_NAME]'
+                  - quoted_identifier: '[SEQ_SCHEMA_NAME_TABLE_NAME]'
                 end_bracket: )
         - comma: ','
         - column_definition:
-            identifier: '[WEEK_UNIX]'
+            quoted_identifier: '[WEEK_UNIX]'
             data_type:
               data_type_identifier: BIGINT
         - comma: ','
         - column_definition:
-            identifier: GMCODE
+            naked_identifier: GMCODE
             data_type:
               data_type_identifier: VARCHAR
               bracketed:
                 start_bracket: (
                 expression:
-                  literal: '100'
+                  numeric_literal: '100'
                 end_bracket: )
         - comma: ','
         - column_definition:
-            identifier: AVERAGE_RNA_FLOW_PER_100000
+            naked_identifier: AVERAGE_RNA_FLOW_PER_100000
             data_type:
               data_type_identifier: DECIMAL
               bracketed:
               - start_bracket: (
               - expression:
-                  literal: '16'
+                  numeric_literal: '16'
               - comma: ','
               - expression:
-                  literal: '2'
+                  numeric_literal: '2'
               - end_bracket: )
             column_constraint_segment:
               keyword: 'NULL'
         - comma: ','
         - column_definition:
-            identifier: NUMBER_OF_MEASUREMENTS
+            naked_identifier: NUMBER_OF_MEASUREMENTS
             data_type:
               data_type_identifier: INT
             column_constraint_segment:
               keyword: 'NULL'
         - comma: ','
         - column_definition:
-            identifier: NUMBER_OF_LOCATIONS
+            naked_identifier: NUMBER_OF_LOCATIONS
             data_type:
               data_type_identifier: INT
             column_constraint_segment:
               keyword: 'NULL'
         - comma: ','
         - column_definition:
-            identifier: TOTAL_LOCATIONS
+            naked_identifier: TOTAL_LOCATIONS
             data_type:
               data_type_identifier: INT
             column_constraint_segment:
               keyword: 'NULL'
         - comma: ','
         - column_definition:
-            identifier: DATE_LAST_INSERTED
+            naked_identifier: DATE_LAST_INSERTED
             data_type:
               data_type_identifier: DATETIME
             column_constraint_segment:
@@ -192,14 +192,14 @@ file:
                     from_expression_element:
                       table_expression:
                         table_reference:
-                        - identifier: sys
+                        - naked_identifier: sys
                         - dot: .
-                        - identifier: sequences
+                        - naked_identifier: sequences
                 where_clause:
                   keyword: WHERE
                   expression:
                   - column_reference:
-                      identifier: object_id
+                      naked_identifier: object_id
                   - comparison_operator:
                       raw_comparison_operator: '='
                   - function:
@@ -208,29 +208,29 @@ file:
                       bracketed:
                         start_bracket: (
                         expression:
-                          literal: "N'[dbo].[SEQ_STAGE_CBS_POPULATION_BASE]'"
+                          quoted_literal: "N'[dbo].[SEQ_STAGE_CBS_POPULATION_BASE]'"
                         end_bracket: )
                   - binary_operator: AND
                   - column_reference:
-                      identifier: type
+                      naked_identifier: type
                   - comparison_operator:
                       raw_comparison_operator: '='
-                  - literal: "'SO'"
+                  - quoted_literal: "'SO'"
               end_bracket: )
         statement:
           create_sequence_statement:
           - keyword: CREATE
           - keyword: SEQUENCE
           - sequence_reference:
-              identifier: SEQ_STAGE_CBS_POPULATION_BASE
+              naked_identifier: SEQ_STAGE_CBS_POPULATION_BASE
           - create_sequence_options_segment:
             - keyword: START
             - keyword: WITH
-            - literal: '1'
+            - numeric_literal: '1'
           - create_sequence_options_segment:
             - keyword: INCREMENT
             - keyword: BY
-            - literal: '1'
+            - numeric_literal: '1'
         statement_terminator: ;
 - go_statement:
     keyword: GO
@@ -240,13 +240,13 @@ file:
       - keyword: CREATE
       - keyword: TABLE
       - table_reference:
-        - identifier: STAGE
+        - naked_identifier: STAGE
         - dot: .
-        - identifier: CBS_POPULATION_BASE
+        - naked_identifier: CBS_POPULATION_BASE
       - bracketed:
         - start_bracket: (
         - column_definition:
-          - identifier: '[ID]'
+          - quoted_identifier: '[ID]'
           - data_type:
               data_type_identifier: INT
           - column_constraint_segment:
@@ -265,157 +265,157 @@ file:
                 - keyword: VALUE
                 - keyword: FOR
                 - object_reference:
-                  - identifier: '[dbo]'
+                  - quoted_identifier: '[dbo]'
                   - dot: .
-                  - identifier: '[SEQ_STAGE_CBS_POPULATION_BASE]'
+                  - quoted_identifier: '[SEQ_STAGE_CBS_POPULATION_BASE]'
                 end_bracket: )
         - comma: ','
         - column_definition:
-            identifier: GEMEENTE_CODE
+            naked_identifier: GEMEENTE_CODE
             data_type:
               data_type_identifier: VARCHAR
               bracketed:
                 start_bracket: (
                 expression:
-                  literal: '100'
+                  numeric_literal: '100'
                 end_bracket: )
             column_constraint_segment:
               keyword: 'NULL'
         - comma: ','
         - column_definition:
-            identifier: GEMEENTE
+            naked_identifier: GEMEENTE
             data_type:
               data_type_identifier: VARCHAR
               bracketed:
                 start_bracket: (
                 expression:
-                  literal: '100'
+                  numeric_literal: '100'
                 end_bracket: )
             column_constraint_segment:
               keyword: 'NULL'
         - comma: ','
         - column_definition:
-            identifier: LEEFTIJD
+            naked_identifier: LEEFTIJD
             data_type:
               data_type_identifier: VARCHAR
               bracketed:
                 start_bracket: (
                 expression:
-                  literal: '100'
+                  numeric_literal: '100'
                 end_bracket: )
             column_constraint_segment:
               keyword: 'NULL'
         - comma: ','
         - column_definition:
-            identifier: GESLACHT
+            naked_identifier: GESLACHT
             data_type:
               data_type_identifier: VARCHAR
               bracketed:
                 start_bracket: (
                 expression:
-                  literal: '100'
+                  numeric_literal: '100'
                 end_bracket: )
             column_constraint_segment:
               keyword: 'NULL'
         - comma: ','
         - column_definition:
-            identifier: DATUM_PEILING
+            naked_identifier: DATUM_PEILING
             data_type:
               data_type_identifier: VARCHAR
               bracketed:
                 start_bracket: (
                 expression:
-                  literal: '100'
+                  numeric_literal: '100'
                 end_bracket: )
             column_constraint_segment:
               keyword: 'NULL'
         - comma: ','
         - column_definition:
-            identifier: POPULATIE
+            naked_identifier: POPULATIE
             data_type:
               data_type_identifier: VARCHAR
               bracketed:
                 start_bracket: (
                 expression:
-                  literal: '100'
+                  numeric_literal: '100'
                 end_bracket: )
             column_constraint_segment:
               keyword: 'NULL'
         - comma: ','
         - column_definition:
-            identifier: VEILIGHEIDSREGIO_CODE
+            naked_identifier: VEILIGHEIDSREGIO_CODE
             data_type:
               data_type_identifier: VARCHAR
               bracketed:
                 start_bracket: (
                 expression:
-                  literal: '100'
+                  numeric_literal: '100'
                 end_bracket: )
             column_constraint_segment:
               keyword: 'NULL'
         - comma: ','
         - column_definition:
-            identifier: VEILIGHEIDSREGIO_NAAM
+            naked_identifier: VEILIGHEIDSREGIO_NAAM
             data_type:
               data_type_identifier: VARCHAR
               bracketed:
                 start_bracket: (
                 expression:
-                  literal: '100'
+                  numeric_literal: '100'
                 end_bracket: )
             column_constraint_segment:
               keyword: 'NULL'
         - comma: ','
         - column_definition:
-            identifier: PROVINCIE_CODE
+            naked_identifier: PROVINCIE_CODE
             data_type:
               data_type_identifier: VARCHAR
               bracketed:
                 start_bracket: (
                 expression:
-                  literal: '100'
+                  numeric_literal: '100'
                 end_bracket: )
             column_constraint_segment:
               keyword: 'NULL'
         - comma: ','
         - column_definition:
-            identifier: PROVINCIE_NAAM
+            naked_identifier: PROVINCIE_NAAM
             data_type:
               data_type_identifier: VARCHAR
               bracketed:
                 start_bracket: (
                 expression:
-                  literal: '100'
+                  numeric_literal: '100'
                 end_bracket: )
             column_constraint_segment:
               keyword: 'NULL'
         - comma: ','
         - column_definition:
-            identifier: GGD_CODE
+            naked_identifier: GGD_CODE
             data_type:
               data_type_identifier: VARCHAR
               bracketed:
                 start_bracket: (
                 expression:
-                  literal: '100'
+                  numeric_literal: '100'
                 end_bracket: )
             column_constraint_segment:
               keyword: 'NULL'
         - comma: ','
         - column_definition:
-            identifier: GGD_NAAM
+            naked_identifier: GGD_NAAM
             data_type:
               data_type_identifier: VARCHAR
               bracketed:
                 start_bracket: (
                 expression:
-                  literal: '100'
+                  numeric_literal: '100'
                 end_bracket: )
             column_constraint_segment:
               keyword: 'NULL'
         - comma: ','
         - column_definition:
-            identifier: DATE_LAST_INSERTED
+            naked_identifier: DATE_LAST_INSERTED
             data_type:
               data_type_identifier: DATETIME
             column_constraint_segment:
@@ -437,17 +437,17 @@ file:
       - keyword: CLUSTERED
       - keyword: INDEX
       - index_reference:
-          identifier: CI_DLI_STAGE_CBS_POPULATION_BASE
+          naked_identifier: CI_DLI_STAGE_CBS_POPULATION_BASE
       - keyword: 'ON'
       - table_reference:
-        - identifier: STAGE
+        - naked_identifier: STAGE
         - dot: .
-        - identifier: CBS_POPULATION_BASE
+        - naked_identifier: CBS_POPULATION_BASE
       - bracketed_index_column_list_grammar:
           bracketed:
             start_bracket: (
             index_column_definition:
-              identifier: DATE_LAST_INSERTED
+              naked_identifier: DATE_LAST_INSERTED
             end_bracket: )
 - go_statement:
     keyword: GO
@@ -458,53 +458,53 @@ file:
       - keyword: NONCLUSTERED
       - keyword: INDEX
       - index_reference:
-          identifier: NCI_DLI_STAGE_CIMS_VACCINATED_AGE_GROUP
+          naked_identifier: NCI_DLI_STAGE_CIMS_VACCINATED_AGE_GROUP
       - keyword: 'ON'
       - table_reference:
-        - identifier: STAGE
+        - naked_identifier: STAGE
         - dot: .
-        - identifier: CBS_POPULATION_BASE
+        - naked_identifier: CBS_POPULATION_BASE
       - bracketed_index_column_list_grammar:
           bracketed:
           - start_bracket: (
           - index_column_definition:
-              identifier: DATE_LAST_INSERTED
+              naked_identifier: DATE_LAST_INSERTED
           - comma: ','
           - index_column_definition:
-              identifier: GEMEENTE_CODE
+              naked_identifier: GEMEENTE_CODE
           - comma: ','
           - index_column_definition:
-              identifier: GEMEENTE
+              naked_identifier: GEMEENTE
           - comma: ','
           - index_column_definition:
-              identifier: LEEFTIJD
+              naked_identifier: LEEFTIJD
           - comma: ','
           - index_column_definition:
-              identifier: GESLACHT
+              naked_identifier: GESLACHT
           - comma: ','
           - index_column_definition:
-              identifier: DATUM_PEILING
+              naked_identifier: DATUM_PEILING
           - comma: ','
           - index_column_definition:
-              identifier: POPULATIE
+              naked_identifier: POPULATIE
           - comma: ','
           - index_column_definition:
-              identifier: VEILIGHEIDSREGIO_CODE
+              naked_identifier: VEILIGHEIDSREGIO_CODE
           - comma: ','
           - index_column_definition:
-              identifier: VEILIGHEIDSREGIO_NAAM
+              naked_identifier: VEILIGHEIDSREGIO_NAAM
           - comma: ','
           - index_column_definition:
-              identifier: PROVINCIE_CODE
+              naked_identifier: PROVINCIE_CODE
           - comma: ','
           - index_column_definition:
-              identifier: PROVINCIE_NAAM
+              naked_identifier: PROVINCIE_NAAM
           - comma: ','
           - index_column_definition:
-              identifier: GGD_CODE
+              naked_identifier: GGD_CODE
           - comma: ','
           - index_column_definition:
-              identifier: GGD_NAAM
+              naked_identifier: GGD_NAAM
           - end_bracket: )
       - statement_terminator: ;
   - statement:
@@ -512,13 +512,13 @@ file:
       - keyword: CREATE
       - keyword: TABLE
       - table_reference:
-        - identifier: DEST
+        - naked_identifier: DEST
         - dot: .
-        - identifier: POSITIVE_TESTED_PEOPLE
+        - naked_identifier: POSITIVE_TESTED_PEOPLE
       - bracketed:
         - start_bracket: (
         - column_definition:
-          - identifier: '[ID]'
+          - quoted_identifier: '[ID]'
           - data_type:
               data_type_identifier: INT
           - column_constraint_segment:
@@ -536,49 +536,49 @@ file:
                 - keyword: VALUE
                 - keyword: FOR
                 - object_reference:
-                  - identifier: '[dbo]'
+                  - quoted_identifier: '[dbo]'
                   - dot: .
-                  - identifier: '[SEQ_DEST_POSITIVE_TESTED_PEOPLE]'
+                  - quoted_identifier: '[SEQ_DEST_POSITIVE_TESTED_PEOPLE]'
                 end_bracket: )
         - comma: ','
         - column_definition:
-            identifier: DATE_OF_REPORT
+            naked_identifier: DATE_OF_REPORT
             data_type:
               data_type_identifier: DATETIME
             column_constraint_segment:
               keyword: 'NULL'
         - comma: ','
         - column_definition:
-            identifier: DATE_OF_REPORT_UNIX
+            naked_identifier: DATE_OF_REPORT_UNIX
             data_type:
               data_type_identifier: BIGINT
             column_constraint_segment:
               keyword: 'NULL'
         - comma: ','
         - column_definition:
-            identifier: INFECTED_DAILY_INCREASE
+            naked_identifier: INFECTED_DAILY_INCREASE
             data_type:
               data_type_identifier: DECIMAL
               bracketed:
               - start_bracket: (
               - expression:
-                  literal: '16'
+                  numeric_literal: '16'
               - comma: ','
               - expression:
-                  literal: '1'
+                  numeric_literal: '1'
               - end_bracket: )
             column_constraint_segment:
               keyword: 'NULL'
         - comma: ','
         - column_definition:
-            identifier: INFECTED_DAILY_TOTAL
+            naked_identifier: INFECTED_DAILY_TOTAL
             data_type:
               data_type_identifier: INT
             column_constraint_segment:
               keyword: 'NULL'
         - comma: ','
         - column_definition:
-            identifier: DATE_LAST_INSERTED
+            naked_identifier: DATE_LAST_INSERTED
             data_type:
               data_type_identifier: DATETIME
             column_constraint_segment:
@@ -591,57 +591,57 @@ file:
                   end_bracket: )
         - comma: ','
         - column_definition:
-            identifier: '[DATE_RANGE_START]'
+            quoted_identifier: '[DATE_RANGE_START]'
             data_type:
               data_type_identifier: datetime
         - comma: ','
         - column_definition:
-            identifier: '[DATE_OF_REPORTS_LAG]'
+            quoted_identifier: '[DATE_OF_REPORTS_LAG]'
             data_type:
               data_type_identifier: datetime
         - comma: ','
         - column_definition:
-            identifier: '[DATE_RANGE_START_LAG]'
+            quoted_identifier: '[DATE_RANGE_START_LAG]'
             data_type:
               data_type_identifier: datetime
         - comma: ','
         - column_definition:
-            identifier: '[7D_AVERAGE_INFECTED_DAILY_INCREASE_TOTAL]'
+            quoted_identifier: '[7D_AVERAGE_INFECTED_DAILY_INCREASE_TOTAL]'
             data_type:
               data_type_identifier: decimal
               bracketed:
               - start_bracket: (
               - expression:
-                  literal: '16'
+                  numeric_literal: '16'
               - comma: ','
               - expression:
-                  literal: '2'
+                  numeric_literal: '2'
               - end_bracket: )
         - comma: ','
         - column_definition:
-            identifier: '[7D_AVERAGE_INFECTED_DAILY_INCREASE_LAG]'
+            quoted_identifier: '[7D_AVERAGE_INFECTED_DAILY_INCREASE_LAG]'
             data_type:
               data_type_identifier: decimal
               bracketed:
               - start_bracket: (
               - expression:
-                  literal: '16'
+                  numeric_literal: '16'
               - comma: ','
               - expression:
-                  literal: '2'
+                  numeric_literal: '2'
               - end_bracket: )
         - comma: ','
         - column_definition:
-            identifier: '[7D_AVERAGE_INFECTED_DAILY_INCREASE_ABSOLUTE]'
+            quoted_identifier: '[7D_AVERAGE_INFECTED_DAILY_INCREASE_ABSOLUTE]'
             data_type:
               data_type_identifier: decimal
               bracketed:
               - start_bracket: (
               - expression:
-                  literal: '16'
+                  numeric_literal: '16'
               - comma: ','
               - expression:
-                  literal: '2'
+                  numeric_literal: '2'
               - end_bracket: )
         - end_bracket: )
       - statement_terminator: ;

@@ -4,27 +4,33 @@ For now the only change is the parsing of comments.
 https://dev.mysql.com/doc/refman/8.0/en/differences-from-ansi.html
 """
 
+from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
-    BaseSegment,
-    Ref,
     AnyNumberOf,
-    Sequence,
-    OneOf,
+    AnySetOf,
+    Anything,
+    BaseSegment,
     Bracketed,
-    RegexLexer,
-    CommentSegment,
-    NamedParser,
     CodeSegment,
+    CommentSegment,
+    Delimited,
+    KeywordSegment,
+    Matchable,
+    NamedParser,
+    OneOf,
+    Ref,
+    RegexLexer,
+    RegexParser,
+    Sequence,
     StartsWith,
+    StringLexer,
     StringParser,
     SymbolSegment,
-    Delimited,
-    RegexParser,
-    Anything,
-    AnySetOf,
-    Matchable,
 )
-from sqlfluff.core.dialects import load_raw_dialect
+from sqlfluff.dialects.dialect_mysql_keywords import (
+    mysql_reserved_keywords,
+    mysql_unreserved_keywords,
+)
 from sqlfluff.dialects import dialect_ansi as ansi
 
 ansi_dialect = load_raw_dialect("ansi")
@@ -38,120 +44,57 @@ mysql_dialect.patch_lexer_matchers(
             CommentSegment,
             segment_kwargs={"trim_start": ("-- ", "#")},
         ),
+        # Pattern breakdown:
+        # (?s)                     DOTALL (dot matches newline)
+        #     ('')+?               group1 match consecutive single quotes
+        #     (?!')                negative lookahead single quote
+        #     |(                   group2 start
+        #         '.*?             single quote wildcard zero or more, lazy
+        #         (?<!'|\\)        negative lookbehind: no single quote or backslash
+        #         (?:'')*          non-capturing group: consecutive single quotes
+        #         '                single quote
+        #         (?!')            negative lookahead: not single quote
+        #     )                    group2 end
         RegexLexer(
-            "single_quote", r"(?s)('')+?(?!')|('.*?(?<!')(?:'')*'(?!'))", CodeSegment
+            "single_quote", r"(?s)('')+?(?!')|('.*?(?<!'|\\)(?:'')*'(?!'))", CodeSegment
         ),
     ]
 )
 
-# Reserve USE, FORCE & IGNORE
-mysql_dialect.sets("unreserved_keywords").difference_update(
-    [
-        "BTREE",
-        "FORCE",
-        "HASH",
-        "IGNORE",
-        "INVISIBLE",
-        "KEY_BLOCK_SIZE",
-        "PARSER",
-        "USE",
-        "SQL_BUFFER_RESULT",
-        "SQL_NO_CACHE",
-        "SQL_CACHE",
-        "DUMPFILE",
-        "SKIP",
-        "LOCKED",
-        "CLASS_ORIGIN",
-        "SUBCLASS_ORIGIN",
-        "RETURNED_SQLSTATE",
-        "MESSAGE_TEXT",
-        "MYSQL_ERRNO",
-        "CONSTRAINT_CATALOG",
-        "CONSTRAINT_SCHEMA",
-        "CONSTRAINT_NAME",
-        "CATALOG_NAME",
-        "SCHEMA_NAME",
-        "TABLE_NAME",
-        "COLUMN_NAME",
-        "CURSOR_NAME",
-        "STACKED",
-        "VISIBLE",
-    ]
-)
+# Set Keywords
+# Do not clear inherited unreserved ansi keywords. Too many are needed to parse well.
+# Just add MySQL unreserved keywords.
 mysql_dialect.sets("unreserved_keywords").update(
-    [
-        "QUICK",
-        "FAST",
-        "SLOW",
-        "MEDIUM",
-        "EXTENDED",
-        "CHANGED",
-        "UPGRADE",
-        "HISTOGRAM",
-        "BUCKETS",
-        "USE_FRM",
-        "REPAIR",
-        "DUPLICATE",
-        "NOW",
-        "ENGINE",
-        "ERROR",
-        "OPTIMIZER_COSTS",
-        "RELAY",
-        "STATUS",
-        "USER_RESOURCES",
-        "CHANNEL",
-        "EXPORT",
-    ]
+    [n.strip().upper() for n in mysql_unreserved_keywords.split("\n")]
 )
+
+mysql_dialect.sets("reserved_keywords").clear()
 mysql_dialect.sets("reserved_keywords").update(
-    [
-        "HELP",
-        "FORCE",
-        "IGNORE",
-        "USE",
-        "SQL_BUFFER_RESULT",
-        "SQL_NO_CACHE",
-        "SQL_CACHE",
-        "DUMPFILE",
-        "SKIP",
-        "LOCKED",
-        "CLASS_ORIGIN",
-        "SUBCLASS_ORIGIN",
-        "RETURNED_SQLSTATE",
-        "MESSAGE_TEXT",
-        "MYSQL_ERRNO",
-        "CONSTRAINT_CATALOG",
-        "CONSTRAINT_SCHEMA",
-        "CONSTRAINT_NAME",
-        "CATALOG_NAME",
-        "SCHEMA_NAME",
-        "TABLE_NAME",
-        "COLUMN_NAME",
-        "CURSOR_NAME",
-        "STACKED",
-        "ALGORITHM",
-        "LOCK",
-        "DEFAULT",
-        "INPLACE",
-        "COPY",
-        "NONE",
-        "SHARED",
-        "EXCLUSIVE",
-        "MASTER",
-    ]
+    [n.strip().upper() for n in mysql_reserved_keywords.split("\n")]
 )
+
+# Remove these reserved keywords to avoid issue in interval.sql
+# TODO - resolve this properly
+mysql_dialect.sets("reserved_keywords").difference_update(
+    ["MINUTE_SECOND", "SECOND_MICROSECOND"]
+)
+
+# Remove this reserved keyword to avoid issue in create_table_primary_foreign_keys.sql
+# TODO - resolve this properly
+mysql_dialect.sets("reserved_keywords").difference_update(["INDEX"])
+
 
 mysql_dialect.replace(
     QuotedIdentifierSegment=NamedParser(
         "back_quote",
-        CodeSegment,
-        name="quoted_identifier",
-        type="identifier",
+        ansi.IdentifierSegment,
+        type="quoted_identifier",
         trim_chars=("`",),
     ),
     LiteralGrammar=ansi_dialect.get_grammar("LiteralGrammar").copy(
         insert=[
             Ref("DoubleQuotedLiteralSegment"),
+            Ref("SystemVariableSegment"),
         ]
     ),
     FromClauseTerminatorGrammar=ansi_dialect.get_grammar(
@@ -163,7 +106,15 @@ mysql_dialect.replace(
             Ref("ForClauseSegment"),
             Ref("SetOperatorSegment"),
             Ref("WithNoSchemaBindingClauseSegment"),
+            Ref("IntoClauseSegment"),
         ]
+    ),
+    WhereClauseTerminatorGrammar=ansi_dialect.get_grammar(
+        "WhereClauseTerminatorGrammar"
+    ).copy(
+        insert=[
+            Ref("IntoClauseSegment"),
+        ],
     ),
     BaseExpressionElementGrammar=ansi_dialect.get_grammar(
         "BaseExpressionElementGrammar"
@@ -187,24 +138,25 @@ mysql_dialect.replace(
         OneOf(
             NamedParser(
                 "single_quote",
-                CodeSegment,
-                name="date_constructor_literal",
-                type="literal",
+                ansi.LiteralSegment,
+                type="date_constructor_literal",
             ),
             Ref("NumericLiteralSegment"),
         ),
     ),
-    QuotedLiteralSegment=AnyNumberOf(
-        # MySQL allows whitespace-concatenated string literals (#1488).
-        # Since these string literals can have comments between them,
-        # we use grammar to handle this.
-        NamedParser(
-            "single_quote",
-            CodeSegment,
-            name="quoted_literal",
-            type="literal",
+    QuotedLiteralSegment=OneOf(
+        AnyNumberOf(
+            # MySQL allows whitespace-concatenated string literals (#1488).
+            # Since these string literals can have comments between them,
+            # we use grammar to handle this.
+            NamedParser(
+                "single_quote",
+                ansi.LiteralSegment,
+                type="quoted_literal",
+            ),
+            min_times=1,
         ),
-        min_times=1,
+        Ref("DoubleQuotedLiteralSegment"),
     ),
     UniqueKeyGrammar=Sequence(
         "UNIQUE",
@@ -212,22 +164,46 @@ mysql_dialect.replace(
     ),
     # Odd syntax, but pr
     CharCharacterSetGrammar=Ref.keyword("BINARY"),
+    DelimiterGrammar=OneOf(Ref("SemicolonSegment"), Ref("TildeSegment")),
+    TildeSegment=StringParser("~", SymbolSegment, type="statement_terminator"),
+    ParameterNameSegment=RegexParser(
+        r"`?[A-Za-z0-9_]*`?", CodeSegment, type="parameter"
+    ),
+    SingleIdentifierGrammar=ansi_dialect.get_grammar("SingleIdentifierGrammar").copy(
+        insert=[Ref("SessionVariableNameSegment")]
+    ),
+    AndOperatorGrammar=OneOf(
+        StringParser("AND", KeywordSegment, type="binary_operator"),
+        StringParser("&&", CodeSegment, type="binary_operator"),
+    ),
+    OrOperatorGrammar=OneOf(
+        StringParser("OR", KeywordSegment, type="binary_operator"),
+        StringParser("||", CodeSegment, type="binary_operator"),
+        StringParser("XOR", KeywordSegment, type="binary_operator"),
+    ),
+    NotOperatorGrammar=OneOf(
+        StringParser("NOT", KeywordSegment, type="keyword"),
+        StringParser("!", CodeSegment, type="not_operator"),
+    ),
 )
 
 mysql_dialect.add(
     DoubleQuotedLiteralSegment=NamedParser(
         "double_quote",
-        CodeSegment,
-        name="quoted_literal",
-        type="literal",
+        ansi.LiteralSegment,
+        type="quoted_literal",
         trim_chars=('"',),
     ),
     AtSignLiteralSegment=NamedParser(
         "at_sign",
-        CodeSegment,
-        name="at_sign_literal",
-        type="literal",
+        ansi.LiteralSegment,
+        type="at_sign_literal",
         trim_chars=("@",),
+    ),
+    SystemVariableSegment=RegexParser(
+        r"@@(session|global)\.[A-Za-z0-9_]+",
+        CodeSegment,
+        type="system_variable",
     ),
 )
 
@@ -311,6 +287,164 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                 ),
             ),
         ],
+    )
+
+
+class CreateUserStatementSegment(ansi.CreateUserStatementSegment):
+    """`CREATE USER` statement.
+
+    https://dev.mysql.com/doc/refman/8.0/en/create-user.html
+    """
+
+    match_grammar = Sequence(
+        "CREATE",
+        "USER",
+        Ref("IfNotExistsGrammar", optional=True),
+        Delimited(
+            Sequence(
+                Ref("RoleReferenceSegment"),
+                Sequence(
+                    Delimited(
+                        Sequence(
+                            "IDENTIFIED",
+                            OneOf(
+                                Sequence(
+                                    "BY",
+                                    OneOf(
+                                        Sequence("RANDOM", "PASSWORD"),
+                                        Ref("QuotedLiteralSegment"),
+                                    ),
+                                ),
+                                Sequence(
+                                    "WITH",
+                                    Ref("ObjectReferenceSegment"),
+                                    Sequence(
+                                        OneOf(
+                                            Sequence(
+                                                "BY",
+                                                OneOf(
+                                                    Sequence("RANDOM", "PASSWORD"),
+                                                    Ref("QuotedLiteralSegment"),
+                                                ),
+                                            ),
+                                            Sequence("AS", Ref("QuotedLiteralSegment")),
+                                            Sequence(
+                                                "INITIAL",
+                                                "AUTHENTICATION",
+                                                "IDENTIFIED",
+                                                OneOf(
+                                                    Sequence(
+                                                        "BY",
+                                                        OneOf(
+                                                            Sequence(
+                                                                "RANDOM", "PASSWORD"
+                                                            ),
+                                                            Ref("QuotedLiteralSegment"),
+                                                        ),
+                                                    ),
+                                                    Sequence(
+                                                        "WITH",
+                                                        Ref("ObjectReferenceSegment"),
+                                                        "AS",
+                                                        Ref("QuotedLiteralSegment"),
+                                                    ),
+                                                ),
+                                            ),
+                                        ),
+                                        optional=True,
+                                    ),
+                                ),
+                            ),
+                        ),
+                        delimiter="AND",
+                    ),
+                    optional=True,
+                ),
+            ),
+        ),
+        Sequence(
+            "DEFAULT",
+            "ROLE",
+            Delimited(Ref("RoleReferenceSegment")),
+            optional=True,
+        ),
+        Sequence(
+            "REQUIRE",
+            OneOf(
+                "NONE",
+                Delimited(
+                    OneOf(
+                        "SSL",
+                        "X509",
+                        Sequence("CIPHER", Ref("QuotedLiteralSegment")),
+                        Sequence("ISSUER", Ref("QuotedLiteralSegment")),
+                        Sequence("SUBJECT", Ref("QuotedLiteralSegment")),
+                    ),
+                    delimiter="AND",
+                ),
+            ),
+            optional=True,
+        ),
+        Sequence(
+            "WITH",
+            AnyNumberOf(
+                Sequence(
+                    OneOf(
+                        "MAX_QUERIES_PER_HOUR",
+                        "MAX_UPDATES_PER_HOUR",
+                        "MAX_CONNECTIONS_PER_HOUR",
+                        "MAX_USER_CONNECTIONS",
+                    ),
+                    Ref("NumericLiteralSegment"),
+                )
+            ),
+            optional=True,
+        ),
+        Sequence(
+            AnyNumberOf(
+                Sequence(
+                    "PASSWORD",
+                    "EXPIRE",
+                    Sequence(
+                        OneOf(
+                            "DEFAULT",
+                            "NEVER",
+                            Sequence("INTERVAL", Ref("NumericLiteralSegment"), "DAY"),
+                        ),
+                        optional=True,
+                    ),
+                ),
+                Sequence(
+                    "PASSWORD",
+                    "HISTORY",
+                    OneOf("DEFAULT", Ref("NumericLiteralSegment")),
+                ),
+                Sequence(
+                    "PASSWORD",
+                    "REUSE",
+                    "INTERVAL",
+                    OneOf("DEFAULT", Sequence(Ref("NumericLiteralSegment"), "DAY")),
+                ),
+                Sequence(
+                    "PASSWORD",
+                    "REQUIRE",
+                    "CURRENT",
+                    Sequence(OneOf("DEFAULT", "OPTIONAL"), optional=True),
+                ),
+                Sequence("FAILED_LOGIN_ATTEMPTS", Ref("NumericLiteralSegment")),
+                Sequence(
+                    "PASSWORD_LOCK_TIME",
+                    OneOf(Ref("NumericLiteralSegment"), "UNBOUNDED"),
+                ),
+            ),
+            optional=True,
+        ),
+        Sequence("ACCOUNT", OneOf("UNLOCK", "LOCK"), optional=True),
+        Sequence(
+            OneOf("COMMENT", "ATTRIBUTE"),
+            Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
     )
 
 
@@ -524,23 +658,12 @@ class IntervalExpressionSegment(BaseSegment):
 
 
 mysql_dialect.add(
-    DoubleForwardSlashSegment=StringParser(
-        "//", SymbolSegment, name="doubleforwardslash", type="statement_terminator"
-    ),
-    DoubleDollarSignSegment=StringParser(
-        "$$", SymbolSegment, name="doubledollarsign", type="statement_terminator"
-    ),
-    AtSignSignSegment=StringParser(
-        "@", SymbolSegment, name="at_sign", type="user_designator"
-    ),
     OutputParameterSegment=StringParser(
-        "OUT", SymbolSegment, name="inputparameter", type="parameter_direction"
+        "OUT", SymbolSegment, type="parameter_direction"
     ),
-    InputParameterSegment=StringParser(
-        "IN", SymbolSegment, name="outputparameter", type="parameter_direction"
-    ),
+    InputParameterSegment=StringParser("IN", SymbolSegment, type="parameter_direction"),
     InputOutputParameterSegment=StringParser(
-        "INOUT", SymbolSegment, name="inputoutputparameter", type="parameter_direction"
+        "INOUT", SymbolSegment, type="parameter_direction"
     ),
     ProcedureParameterGrammar=OneOf(
         Sequence(
@@ -556,15 +679,13 @@ mysql_dialect.add(
         Ref("DatatypeSegment"),
     ),
     LocalVariableNameSegment=RegexParser(
-        r"`?[a-zA-Z0-9_]*`?",
+        r"`?[a-zA-Z0-9_$]*`?",
         CodeSegment,
-        name="declared_variable",
         type="variable",
     ),
     SessionVariableNameSegment=RegexParser(
-        r"[@][a-zA-Z0-9_]*",
+        r"[@][a-zA-Z0-9_$]*",
         CodeSegment,
-        name="declared_variable",
         type="variable",
     ),
     BooleanDynamicSystemVariablesGrammar=OneOf(
@@ -577,29 +698,62 @@ mysql_dialect.add(
     ),
 )
 
-mysql_dialect.replace(
-    DelimiterGrammar=OneOf(Ref("SemicolonSegment"), Ref("TildeSegment")),
-    TildeSegment=StringParser(
-        "~", SymbolSegment, name="tilde", type="statement_terminator"
-    ),
-    ParameterNameSegment=RegexParser(
-        r"`?[A-Za-z0-9_]*`?", CodeSegment, name="parameter", type="parameter"
-    ),
-    SingleIdentifierGrammar=ansi_dialect.get_grammar("SingleIdentifierGrammar").copy(
-        insert=[Ref("SessionVariableNameSegment")]
-    ),
-)
 
 mysql_dialect.insert_lexer_matchers(
     [
         RegexLexer(
             "at_sign",
-            r"[@][a-zA-Z0-9_]*",
+            r"@@?[a-zA-Z0-9_$]*(\.[a-zA-Z0-9_$]+)?",
             CodeSegment,
         ),
     ],
     before="code",
 )
+
+
+mysql_dialect.insert_lexer_matchers(
+    [
+        StringLexer("double_ampersand", "&&", CodeSegment),
+    ],
+    before="ampersand",
+)
+
+
+mysql_dialect.insert_lexer_matchers(
+    [
+        StringLexer("double_vertical_bar", "||", CodeSegment),
+    ],
+    before="vertical_bar",
+)
+
+
+class RoleReferenceSegment(ansi.RoleReferenceSegment):
+    """A reference to an account, role, or user.
+
+    https://dev.mysql.com/doc/refman/8.0/en/account-names.html
+    https://dev.mysql.com/doc/refman/8.0/en/role-names.html
+    """
+
+    match_grammar: Matchable = Sequence(
+        OneOf(
+            Ref("NakedIdentifierSegment"),
+            Ref("QuotedIdentifierSegment"),
+            Ref("SingleQuotedIdentifierSegment"),
+            Ref("DoubleQuotedLiteralSegment"),
+        ),
+        Sequence(
+            Ref("AtSignLiteralSegment"),
+            OneOf(
+                Ref("NakedIdentifierSegment"),
+                Ref("QuotedIdentifierSegment"),
+                Ref("SingleQuotedIdentifierSegment"),
+                Ref("DoubleQuotedLiteralSegment"),
+            ),
+            optional=True,
+            allow_gaps=False,
+        ),
+        allow_gaps=True,
+    )
 
 
 class DeclareStatement(BaseSegment):
@@ -704,6 +858,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("UpsertClauseListSegment"),
             Ref("InsertRowAliasSegment"),
             Ref("FlushStatementSegment"),
+            Ref("LoadDataSegment"),
         ],
     )
 
@@ -903,7 +1058,6 @@ class ProcedureParameterListGrammar(BaseSegment):
     match_grammar = Bracketed(
         Delimited(
             Ref("ProcedureParameterGrammar"),
-            delimiter=Ref("CommaSegment"),
             optional=True,
         ),
     )
@@ -919,17 +1073,24 @@ class SetAssignmentStatementSegment(BaseSegment):
 
     match_grammar = Sequence(
         "SET",
-        OneOf(Ref("SessionVariableNameSegment"), Ref("LocalVariableNameSegment")),
-        Ref("EqualsSegment"),
-        AnyNumberOf(
-            Ref("QuotedLiteralSegment"),
-            Ref("DoubleQuotedLiteralSegment"),
-            Ref("SessionVariableNameSegment"),
-            # Match boolean keywords before local variables.
-            Ref("BooleanDynamicSystemVariablesGrammar"),
-            Ref("LocalVariableNameSegment"),
-            Ref("FunctionSegment"),
-            Ref("ArithmeticBinaryOperatorGrammar"),
+        Delimited(
+            Sequence(
+                OneOf(
+                    Ref("SessionVariableNameSegment"), Ref("LocalVariableNameSegment")
+                ),
+                Ref("EqualsSegment"),
+                AnyNumberOf(
+                    Ref("QuotedLiteralSegment"),
+                    Ref("DoubleQuotedLiteralSegment"),
+                    Ref("SessionVariableNameSegment"),
+                    # Match boolean keywords before local variables.
+                    Ref("BooleanDynamicSystemVariablesGrammar"),
+                    Ref("LocalVariableNameSegment"),
+                    Ref("FunctionSegment"),
+                    Ref("ArithmeticBinaryOperatorGrammar"),
+                    Ref("ExpressionSegment"),
+                ),
+            ),
         ),
     )
 
@@ -997,6 +1158,7 @@ class IfExpressionStatement(BaseSegment):
             Ref("StatementSegment"),
         ),
         Sequence("ELSE", Ref("StatementSegment"), optional=True),
+        Sequence("END", "IF"),
     )
 
 
@@ -1008,9 +1170,7 @@ class DefinerSegment(BaseSegment):
     match_grammar = Sequence(
         "DEFINER",
         Ref("EqualsSegment"),
-        Ref("SingleIdentifierGrammar"),
-        Ref("AtSignLiteralSegment"),
-        Ref("SingleIdentifierGrammar"),
+        Ref("RoleReferenceSegment"),
     )
 
 
@@ -1041,7 +1201,11 @@ class IntoClauseSegment(BaseSegment):
 
     type = "into_clause"
 
-    match_grammar = Sequence(
+    match_grammar = StartsWith(
+        "INTO", terminator=Ref("SelectClauseElementTerminatorGrammar")
+    )
+
+    parse_grammar = Sequence(
         "INTO",
         OneOf(
             Delimited(
@@ -1166,6 +1330,7 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
             Ref("OrderByClauseSegment", optional=True),
             Ref("LimitClauseSegment", optional=True),
             Ref("NamedWindowSegment", optional=True),
+            Ref("IntoClauseSegment", optional=True),
         ]
     )
 
@@ -1894,5 +2059,63 @@ class FlushStatementSegment(BaseSegment):
                 ),
                 Sequence("FOR", "EXPORT", optional=True),
             ),
+        ),
+    )
+
+
+class LoadDataSegment(BaseSegment):
+    """A `LOAD DATA` statement.
+
+    As per https://dev.mysql.com/doc/refman/8.0/en/load-data.html
+    """
+
+    type = "load_data_statement"
+
+    match_grammar = Sequence(
+        "LOAD",
+        "DATA",
+        OneOf("LOW_PRIORITY", "CONCURRENT", optional=True),
+        Sequence("LOCAL", optional=True),
+        "INFILE",
+        Ref("QuotedLiteralSegment"),
+        OneOf("REPLACE", "IGNORE", optional=True),
+        "INTO",
+        "TABLE",
+        Ref("TableReferenceSegment"),
+        Sequence("PARTITION", Ref("SelectPartitionClauseSegment"), optional=True),
+        Sequence("CHARACTER", "SET", Ref("NakedIdentifierSegment"), optional=True),
+        Sequence(
+            OneOf("FIELDS", "COLUMNS"),
+            Sequence("TERMINATED", "BY", Ref("QuotedLiteralSegment"), optional=True),
+            Sequence(
+                Sequence("OPTIONALLY", optional=True),
+                "ENCLOSED",
+                "BY",
+                Ref("QuotedLiteralSegment"),
+                optional=True,
+            ),
+            Sequence("ESCAPED", "BY", Ref("QuotedLiteralSegment"), optional=True),
+            optional=True,
+        ),
+        Sequence(
+            "LINES",
+            Sequence("STARTING", "BY", Ref("QuotedLiteralSegment"), optional=True),
+            Sequence("TERMINATED", "BY", Ref("QuotedLiteralSegment"), optional=True),
+            optional=True,
+        ),
+        Sequence(
+            "IGNORE",
+            Ref("NumericLiteralSegment"),
+            OneOf("LINES", "ROWS"),
+            optional=True,
+        ),
+        Sequence(
+            Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+            optional=True,
+        ),
+        Sequence(
+            "SET",
+            Ref("Expression_B_Grammar"),
+            optional=True,
         ),
     )

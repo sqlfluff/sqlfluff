@@ -1,0 +1,1 @@
+DATABASE database1;

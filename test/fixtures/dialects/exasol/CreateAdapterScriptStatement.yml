@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f0cd1f084b6632614727d428c6e6940b0d8353cb9d9f2b3975f365ff4da8ab7b
+_hash: b87f121a3a332ea493e2fd8ad1ea6fe664730e1e893f755596b80e59f4831d9e
 file:
 - statement:
     create_adapter_script:
@@ -12,7 +12,7 @@ file:
     - keyword: ADAPTER
     - keyword: SCRIPT
     - script_reference:
-        identifier: my_script
+        naked_identifier: my_script
     - keyword: AS
     - script_content:
       - raw: '%'
@@ -25,15 +25,15 @@ file:
 - statement:
     create_adapter_script:
     - keyword: CREATE
-    - binary_operator: OR
+    - keyword: OR
     - keyword: REPLACE
     - keyword: PYTHON
     - keyword: ADAPTER
     - keyword: SCRIPT
     - script_reference:
-      - identifier: test
+      - naked_identifier: test
       - dot: .
-      - identifier: adapter_dummy
+      - naked_identifier: adapter_dummy
     - keyword: AS
     - script_content:
       - raw: def
@@ -49,15 +49,15 @@ file:
 - statement:
     create_adapter_script:
     - keyword: CREATE
-    - binary_operator: OR
+    - keyword: OR
     - keyword: REPLACE
     - keyword: LUA
     - keyword: ADAPTER
     - keyword: SCRIPT
     - script_reference:
-      - identifier: test
+      - naked_identifier: test
       - dot: .
-      - identifier: adapter_dummy
+      - naked_identifier: adapter_dummy
     - keyword: AS
     - script_content:
       - raw: function

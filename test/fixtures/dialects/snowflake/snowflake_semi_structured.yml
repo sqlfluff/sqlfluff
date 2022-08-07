@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c357c39cff84cefb40112f8f244be931a4177efeb1f826717442e3b7b6e3e465
+_hash: 432e899a0e895fb09959978e6d2096acc2b27d4f57221754a46426bdae669b85
 file:
 - statement:
     select_statement:
@@ -11,23 +11,23 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: ticket_id
+            naked_identifier: ticket_id
       - comma: ','
       - select_clause_element:
           expression:
             column_reference:
-              identifier: value
+              naked_identifier: value
             snowflake_semi_structured_expression:
               colon: ':'
               semi_structured_element: value
           alias_expression:
             keyword: AS
-            identifier: uncasted
+            naked_identifier: uncasted
       - comma: ','
       - select_clause_element:
           expression:
             column_reference:
-              identifier: value
+              naked_identifier: value
             snowflake_semi_structured_expression:
               colon: ':'
               semi_structured_element: id
@@ -37,12 +37,12 @@ file:
                 data_type_identifier: bigint
           alias_expression:
             keyword: AS
-            identifier: field_id
+            naked_identifier: field_id
       - comma: ','
       - select_clause_element:
           expression:
             column_reference:
-              identifier: value
+              naked_identifier: value
             snowflake_semi_structured_expression:
               colon: ':'
               semi_structured_element: value
@@ -52,35 +52,35 @@ file:
                 data_type_identifier: STRING
           alias_expression:
             keyword: AS
-            identifier: field_val
+            naked_identifier: field_val
       - comma: ','
       - select_clause_element:
           expression:
             column_reference:
-              identifier: value
+              naked_identifier: value
             snowflake_semi_structured_expression:
             - colon: ':'
             - semi_structured_element: thing
             - array_accessor:
                 start_square_bracket: '['
-                literal: '4'
+                numeric_literal: '4'
                 end_square_bracket: ']'
             - dot: .
             - semi_structured_element: foo
           alias_expression:
             keyword: AS
-            identifier: another_val
+            naked_identifier: another_val
       - comma: ','
       - select_clause_element:
           expression:
             column_reference:
-              identifier: value
+              naked_identifier: value
             snowflake_semi_structured_expression:
             - colon: ':'
             - semi_structured_element: thing
             - array_accessor:
                 start_square_bracket: '['
-                literal: '4'
+                numeric_literal: '4'
                 end_square_bracket: ']'
             - dot: .
             - semi_structured_element: bar
@@ -88,7 +88,7 @@ file:
             - semi_structured_element: baz
             - array_accessor:
                 start_square_bracket: '['
-                literal: '0'
+                numeric_literal: '0'
                 end_square_bracket: ']'
             - dot: .
             - semi_structured_element: foo
@@ -98,29 +98,29 @@ file:
                 data_type_identifier: bigint
           alias_expression:
             keyword: AS
-            identifier: another_val
+            naked_identifier: another_val
       - comma: ','
       - select_clause_element:
           expression:
             column_reference:
-              identifier: array_field
+              naked_identifier: array_field
             array_accessor:
               start_square_bracket: '['
-              literal: '0'
+              numeric_literal: '0'
               end_square_bracket: ']'
             snowflake_semi_structured_expression:
               dot: .
               semi_structured_element: array_element_property
           alias_expression:
             keyword: as
-            identifier: test_array_access
+            naked_identifier: test_array_access
       from_clause:
       - keyword: FROM
       - from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: raw_tickets
+                naked_identifier: raw_tickets
       - comma: ','
       - from_expression:
           from_expression_element:
@@ -135,7 +135,7 @@ file:
                     parameter: INPUT
                     parameter_assigner: =>
                     column_reference:
-                      identifier: custom_fields
+                      naked_identifier: custom_fields
                   end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -145,7 +145,7 @@ file:
       - select_clause_element:
           expression:
             column_reference:
-              identifier: value
+              naked_identifier: value
             snowflake_semi_structured_expression:
             - colon: ':'
             - semi_structured_element: point
@@ -160,19 +160,19 @@ file:
                 bracketed:
                 - start_bracket: (
                 - expression:
-                    literal: '10'
+                    numeric_literal: '10'
                 - comma: ','
                 - expression:
-                    literal: '6'
+                    numeric_literal: '6'
                 - end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: lat
+            naked_identifier: lat
       - comma: ','
       - select_clause_element:
           expression:
             column_reference:
-              identifier: value
+              naked_identifier: value
             snowflake_semi_structured_expression:
             - colon: ':'
             - semi_structured_element: point
@@ -187,19 +187,19 @@ file:
                 bracketed:
                 - start_bracket: (
                 - expression:
-                    literal: '10'
+                    numeric_literal: '10'
                 - comma: ','
                 - expression:
-                    literal: '6'
+                    numeric_literal: '6'
                 - end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: lng
+            naked_identifier: lng
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: table1
+                naked_identifier: table1
 - statement_terminator: ;

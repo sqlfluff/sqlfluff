@@ -20,7 +20,10 @@
 Although SQL is reasonably consistent in its implementations, there are several different dialects available with variations of syntax and grammar. **SQLFluff** currently supports the following SQL dialects (though perhaps not in full):
 
 - ANSI SQL - this is the base version and on occasion may not strictly follow the ANSI/ISO SQL definition
+- [Athena](https://aws.amazon.com/athena/)
 - [BigQuery](https://cloud.google.com/bigquery/)
+- [ClickHouse](https://clickhouse.com/)
+- [Databricks](https://databricks.com/) (note: currently this is just an alias for the `sparksql` dialect).
 - [Db2](https://www.ibm.com/analytics/db2)
 - [Exasol](https://www.exasol.com/)
 - [Hive](https://hive.apache.org/)
@@ -29,6 +32,7 @@ Although SQL is reasonably consistent in its implementations, there are several 
 - [PostgreSQL](https://www.postgresql.org/) (aka Postgres)
 - [Redshift](https://docs.aws.amazon.com/redshift/index.html)
 - [Snowflake](https://www.snowflake.com/)
+- [SOQL](https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_soql.htm)
 - [SparkSQL](https://spark.apache.org/docs/latest/)
 - [SQLite](https://www.sqlite.org/)
 - [Teradata](https://www.teradata.com/)
@@ -56,7 +60,7 @@ To get started, install the package and run `sqlfluff lint` or `sqlfluff fix`.
 $ pip install sqlfluff
 $ echo "  SELECT a  +  b FROM tbl;  " > test.sql
 $ sqlfluff lint test.sql --dialect ansi
-== [test.sql] FAIL                                                                                                                                       
+== [test.sql] FAIL
 L:   1 | P:   1 | L050 | Files must not begin with newlines or whitespace.
 L:   1 | P:   3 | L003 | First line has unexpected indent
 L:   1 | P:  11 | L039 | Unnecessary whitespace found.
@@ -74,7 +78,10 @@ For full documentation visit [docs.sqlfluff.com](https://docs.sqlfluff.com/en/st
 
 # Releases
 
-**SQLFluff** is in beta phase - expect the tool to change significantly with potentially non-backwards compatible API and configuration changes in future releases. If you would like to join in please consider [contributing](CONTRIBUTING.md).
+**SQLFluff** adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html), so breaking changes
+should be restricted to major versions releases. Some elements (such as the python API) are in a less
+stable state and may see more significant changes more often. See the [changelog](CHANGELOG.md) for more details.
+If you would like to join in please consider [contributing](CONTRIBUTING.md).
 
 New releases are made monthly. For more information, visit [Releases](https://github.com/sqlfluff/sqlfluff/releases).
 

@@ -7,7 +7,7 @@
                     "whitespace": " ",
                     "select_clause_element": {
                         "column_reference": {
-                            "identifier": "foo"
+                            "naked_identifier": "foo"
                         }
                     }
                 },
@@ -19,7 +19,7 @@
                         "from_expression_element": {
                             "table_expression": {
                                 "table_reference": {
-                                    "identifier": "bar"
+                                    "naked_identifier": "bar"
                                 }
                             }
                         }

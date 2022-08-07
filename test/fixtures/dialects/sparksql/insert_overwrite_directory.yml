@@ -3,56 +3,56 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 92783b6b9ef4342e1734ddbfcbe748ea5185b06424c64c3c59eb40746f7ab328
+_hash: 25c9fd6dd10711ed57f7bed499adc04d5252f92e27b212ed9ade578c0bd5e6d1
 file:
 - statement:
     insert_overwrite_directory_statement:
     - keyword: INSERT
     - keyword: OVERWRITE
     - keyword: DIRECTORY
-    - literal: "'/tmp/destination'"
+    - quoted_literal: "'/tmp/destination'"
     - keyword: USING
     - keyword: PARQUET
     - keyword: OPTIONS
     - bracketed:
       - start_bracket: (
       - property_name_identifier:
-          identifier: col1
+          properties_naked_identifier: col1
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: '"1"'
+      - quoted_literal: '"1"'
       - comma: ','
       - property_name_identifier:
-          identifier: col2
+          properties_naked_identifier: col2
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: '"2"'
+      - quoted_literal: '"2"'
       - comma: ','
       - property_name_identifier:
-          identifier: col3
+          properties_naked_identifier: col3
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'test'"
+      - quoted_literal: "'test'"
       - comma: ','
       - property_name_identifier:
-          identifier: '"user"'
+          quoted_identifier: '"user"'
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: '"a person"'
+      - quoted_literal: '"a person"'
       - end_bracket: )
     - select_statement:
         select_clause:
           keyword: SELECT
           select_clause_element:
             column_reference:
-              identifier: a
+              naked_identifier: a
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: test_table
+                  naked_identifier: test_table
 - statement_terminator: ;
 - statement:
     insert_overwrite_directory_statement:
@@ -65,42 +65,42 @@ file:
     - bracketed:
       - start_bracket: (
       - property_name_identifier:
-          identifier: path
+          properties_naked_identifier: path
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'/tmp/destination'"
+      - quoted_literal: "'/tmp/destination'"
       - comma: ','
       - property_name_identifier:
-          identifier: col1
+          properties_naked_identifier: col1
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: '"1"'
+      - quoted_literal: '"1"'
       - comma: ','
       - property_name_identifier:
-          identifier: col2
+          properties_naked_identifier: col2
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: '"2"'
+      - quoted_literal: '"2"'
       - comma: ','
       - property_name_identifier:
-          identifier: col3
+          properties_naked_identifier: col3
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'test'"
+      - quoted_literal: "'test'"
       - end_bracket: )
     - select_statement:
         select_clause:
           keyword: SELECT
           select_clause_element:
             column_reference:
-              identifier: a
+              naked_identifier: a
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: test_table
+                  naked_identifier: test_table
 - statement_terminator: ;
 - statement:
     insert_overwrite_directory_statement:
@@ -113,69 +113,69 @@ file:
     - bracketed:
       - start_bracket: (
       - property_name_identifier:
-          identifier: path
-      - literal: "'/tmp/destination'"
+          properties_naked_identifier: path
+      - quoted_literal: "'/tmp/destination'"
       - comma: ','
       - property_name_identifier:
-          identifier: col1
-      - literal: '1'
+          properties_naked_identifier: col1
+      - numeric_literal: '1'
       - comma: ','
       - property_name_identifier:
-          identifier: col2
-      - literal: '2'
+          properties_naked_identifier: col2
+      - numeric_literal: '2'
       - comma: ','
       - property_name_identifier:
-          identifier: col3
-      - literal: "'test'"
+          properties_naked_identifier: col3
+      - quoted_literal: "'test'"
       - end_bracket: )
     - select_statement:
         select_clause:
           keyword: SELECT
           select_clause_element:
             column_reference:
-              identifier: a
+              naked_identifier: a
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: test_table
+                  naked_identifier: test_table
 - statement_terminator: ;
 - statement:
     insert_overwrite_directory_statement:
     - keyword: INSERT
     - keyword: OVERWRITE
     - keyword: DIRECTORY
-    - literal: "'/tmp/destination'"
+    - quoted_literal: "'/tmp/destination'"
     - keyword: USING
     - keyword: PARQUET
     - keyword: OPTIONS
     - bracketed:
       - start_bracket: (
       - property_name_identifier:
-          identifier: col1
-      - literal: '1'
+          properties_naked_identifier: col1
+      - numeric_literal: '1'
       - comma: ','
       - property_name_identifier:
-          identifier: col2
-      - literal: '2'
+          properties_naked_identifier: col2
+      - numeric_literal: '2'
       - comma: ','
       - property_name_identifier:
-          identifier: col3
-      - literal: "'test'"
+          properties_naked_identifier: col3
+      - quoted_literal: "'test'"
       - end_bracket: )
     - select_statement:
         select_clause:
           keyword: SELECT
           select_clause_element:
             column_reference:
-              identifier: a
+              naked_identifier: a
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: test_table
+                  naked_identifier: test_table
 - statement_terminator: ;

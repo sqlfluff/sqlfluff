@@ -3,21 +3,21 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b6669741d2f2f6aad1aaf1e6a18c6541ba5fc55433650fc8ae5672a4e184b8a5
+_hash: 7b602a6619c523b8402544ee5be40c4a95fb1bbfec9d9cc16c842ea40846cb50
 file:
 - statement:
     alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - identifier: xxxx
+      - naked_identifier: xxxx
       - dot: .
-      - identifier: example_table
+      - naked_identifier: example_table
     - alter_table_table_column_action:
       - keyword: MODIFY
       - keyword: COLUMN
       - column_reference:
-          identifier: employeeCode
+          naked_identifier: employeeCode
       - keyword: SET
       - keyword: MASKING
       - keyword: POLICY
@@ -29,23 +29,23 @@ file:
     - keyword: merge
     - keyword: into
     - table_reference:
-        identifier: target_table
+        naked_identifier: target_table
     - keyword: using
     - table_reference:
-        identifier: source_table
+        naked_identifier: source_table
     - join_on_condition:
         keyword: 'on'
         expression:
         - column_reference:
-          - identifier: target_table
+          - naked_identifier: target_table
           - dot: .
-          - identifier: id
+          - naked_identifier: id
         - comparison_operator:
             raw_comparison_operator: '='
         - column_reference:
-          - identifier: source_table
+          - naked_identifier: source_table
           - dot: .
-          - identifier: id
+          - naked_identifier: id
     - merge_match:
         merge_when_matched_clause:
         - keyword: when
@@ -57,51 +57,51 @@ file:
               keyword: set
               set_clause:
               - column_reference:
-                - identifier: target_table
+                - naked_identifier: target_table
                 - dot: .
-                - identifier: description
+                - naked_identifier: description
               - comparison_operator:
                   raw_comparison_operator: '='
               - column_reference:
-                - identifier: source_table
+                - naked_identifier: source_table
                 - dot: .
-                - identifier: description
+                - naked_identifier: description
 - statement_terminator: ;
 - statement:
     merge_statement:
     - keyword: merge
     - keyword: into
     - table_reference:
-        identifier: t1
+        naked_identifier: t1
     - keyword: using
     - table_reference:
-        identifier: t2
+        naked_identifier: t2
     - join_on_condition:
         keyword: 'on'
         expression:
         - column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: t1key
+          - naked_identifier: t1key
         - comparison_operator:
             raw_comparison_operator: '='
         - column_reference:
-          - identifier: t2
+          - naked_identifier: t2
           - dot: .
-          - identifier: t2key
+          - naked_identifier: t2key
     - merge_match:
         merge_when_matched_clause:
         - keyword: when
         - keyword: matched
-        - binary_operator: and
+        - keyword: and
         - expression:
             column_reference:
-            - identifier: t2
+            - naked_identifier: t2
             - dot: .
-            - identifier: marked
+            - naked_identifier: marked
             comparison_operator:
               raw_comparison_operator: '='
-            literal: '1'
+            numeric_literal: '1'
         - keyword: then
         - merge_delete_clause:
             keyword: delete
@@ -111,49 +111,49 @@ file:
     - keyword: merge
     - keyword: into
     - table_reference:
-        identifier: t1
+        naked_identifier: t1
     - keyword: using
     - table_reference:
-        identifier: t2
+        naked_identifier: t2
     - join_on_condition:
         keyword: 'on'
         expression:
         - column_reference:
-          - identifier: t1
+          - naked_identifier: t1
           - dot: .
-          - identifier: t1key
+          - naked_identifier: t1key
         - comparison_operator:
             raw_comparison_operator: '='
         - column_reference:
-          - identifier: t2
+          - naked_identifier: t2
           - dot: .
-          - identifier: t2key
+          - naked_identifier: t2key
     - merge_match:
         merge_when_not_matched_clause:
         - keyword: when
         - keyword: not
         - keyword: matched
-        - binary_operator: and
+        - keyword: and
         - expression:
             column_reference:
-            - identifier: t2
+            - naked_identifier: t2
             - dot: .
-            - identifier: marked
+            - naked_identifier: marked
             comparison_operator:
               raw_comparison_operator: '='
-            literal: '1'
+            numeric_literal: '1'
         - keyword: then
         - merge_insert_clause:
           - keyword: insert
           - bracketed:
               start_bracket: (
               column_reference:
-                identifier: marked
+                naked_identifier: marked
               end_bracket: )
           - keyword: values
           - bracketed:
               start_bracket: (
               expression:
-                literal: '1'
+                numeric_literal: '1'
               end_bracket: )
 - statement_terminator: ;

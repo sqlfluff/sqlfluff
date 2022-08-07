@@ -2,7 +2,7 @@
 import pytest
 
 from sqlfluff.core import Linter
-from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix
+from sqlfluff.core.rules import BaseRule, LintResult, LintFix
 from sqlfluff.core.rules import get_ruleset
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,

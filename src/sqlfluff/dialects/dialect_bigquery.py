@@ -6,19 +6,18 @@ and
 https://cloud.google.com/bigquery/docs/reference/standard-sql/lexical#string_and_bytes_literals
 """
 
-import itertools
-
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
     Anything,
+    BaseFileSegment,
     BaseSegment,
     Bracketed,
     CodeSegment,
     Dedent,
     Delimited,
+    GreedyUntil,
     Indent,
-    KeywordSegment,
     Matchable,
     NamedParser,
     Nothing,
@@ -33,6 +32,7 @@ from sqlfluff.core.parser import (
     StringLexer,
     StringParser,
     SymbolSegment,
+    MultiStringParser,
 )
 from sqlfluff.core.parser.segments.base import BracketedSegment
 from sqlfluff.dialects.dialect_bigquery_keywords import (
@@ -81,64 +81,50 @@ bigquery_dialect.patch_lexer_matchers(
 bigquery_dialect.add(
     DoubleQuotedLiteralSegment=NamedParser(
         "double_quote",
-        CodeSegment,
-        name="quoted_literal",
-        type="literal",
+        ansi.LiteralSegment,
+        type="quoted_literal",
         trim_chars=('"',),
     ),
     SingleQuotedLiteralSegment=NamedParser(
         "single_quote",
-        CodeSegment,
-        name="quoted_literal",
-        type="literal",
+        ansi.LiteralSegment,
+        type="quoted_literal",
         trim_chars=("'",),
     ),
     DoubleQuotedUDFBody=NamedParser(
         "double_quote",
         CodeSegment,
-        name="udf_body",
         type="udf_body",
         trim_chars=('"',),
     ),
     SingleQuotedUDFBody=NamedParser(
         "single_quote",
         CodeSegment,
-        name="udf_body",
         type="udf_body",
         trim_chars=("'",),
     ),
-    StructKeywordSegment=StringParser("struct", KeywordSegment, name="struct"),
     StartAngleBracketSegment=StringParser(
-        "<", SymbolSegment, name="start_angle_bracket", type="start_angle_bracket"
+        "<", SymbolSegment, type="start_angle_bracket"
     ),
-    EndAngleBracketSegment=StringParser(
-        ">", SymbolSegment, name="end_angle_bracket", type="end_angle_bracket"
-    ),
-    RightArrowSegment=StringParser(
-        "=>", SymbolSegment, name="right_arrow", type="right_arrow"
-    ),
-    DashSegment=StringParser("-", SymbolSegment, name="dash", type="dash"),
+    EndAngleBracketSegment=StringParser(">", SymbolSegment, type="end_angle_bracket"),
+    RightArrowSegment=StringParser("=>", SymbolSegment, type="right_arrow"),
+    DashSegment=StringParser("-", SymbolSegment, type="dash"),
     SelectClauseElementListGrammar=Delimited(
         Ref("SelectClauseElementSegment"),
-        delimiter=Ref("CommaSegment"),
         allow_trailing=True,
     ),
-    QuestionMarkSegment=StringParser(
-        "?", SymbolSegment, name="question_mark", type="question_mark"
-    ),
+    QuestionMarkSegment=StringParser("?", SymbolSegment, type="question_mark"),
     AtSignLiteralSegment=NamedParser(
         "at_sign_literal",
-        CodeSegment,
-        name="at_sign_literal",
-        type="literal",
+        ansi.LiteralSegment,
+        type="at_sign_literal",
         trim_chars=("@",),
     ),
     # Add a Full equivalent which also allow keywords
     NakedIdentifierFullSegment=RegexParser(
         r"[A-Z_][A-Z0-9_]*",
-        CodeSegment,
-        name="naked_identifier_all",
-        type="identifier",
+        ansi.IdentifierSegment,
+        type="naked_identifier_all",
     ),
     SingleIdentifierFullGrammar=OneOf(
         Ref("NakedIdentifierSegment"),
@@ -158,12 +144,33 @@ bigquery_dialect.add(
         ),
     ),
     ExtendedDatetimeUnitSegment=SegmentGenerator(
-        lambda dialect: RegexParser(
-            r"^(" + r"|".join(dialect.sets("extended_datetime_units")) + r")$",
+        lambda dialect: MultiStringParser(
+            dialect.sets("extended_datetime_units"),
             CodeSegment,
-            name="date_part",
             type="date_part",
         )
+    ),
+    ProcedureNameIdentifierSegment=OneOf(
+        # In BigQuery struct() has a special syntax, so we don't treat it as a function
+        RegexParser(
+            r"[A-Z_][A-Z0-9_]*",
+            CodeSegment,
+            type="procedure_name_identifier",
+            anti_template=r"STRUCT",
+        ),
+        RegexParser(
+            r"`[^`]*`",
+            CodeSegment,
+            type="procedure_name_identifier",
+        ),
+    ),
+    ProcedureParameterGrammar=OneOf(
+        Sequence(
+            OneOf("IN", "OUT", "INOUT", optional=True),
+            Ref("ParameterNameSegment", optional=True),
+            OneOf(Sequence("ANY", "TYPE"), Ref("DatatypeSegment")),
+        ),
+        OneOf(Sequence("ANY", "TYPE"), Ref("DatatypeSegment")),
     ),
 )
 
@@ -176,9 +183,8 @@ bigquery_dialect.replace(
         # Generate the anti template from the set of reserved keywords
         lambda dialect: RegexParser(
             r"[A-Z_][A-Z0-9_]*",
-            CodeSegment,
-            name="naked_identifier",
-            type="identifier",
+            ansi.IdentifierSegment,
+            type="naked_identifier",
             anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
         )
     ),
@@ -199,42 +205,16 @@ bigquery_dialect.replace(
             bracket_pairs_set="angle_bracket_pairs",
         ),
     ),
-    StructTypeGrammar=Sequence(
-        "STRUCT",
-        Bracketed(
-            Delimited(  # Comma-separated list of field names/types
-                Sequence(
-                    OneOf(
-                        # ParameterNames can look like Datatypes so can't use
-                        # Optional=True here and instead do a OneOf in order
-                        # with DataType only first, followed by both.
-                        Ref("DatatypeSegment"),
-                        Sequence(
-                            Ref("ParameterNameSegment"),
-                            Ref("DatatypeSegment"),
-                        ),
-                    ),
-                    Ref("OptionsSegment", optional=True),
-                ),
-                delimiter=Ref("CommaSegment"),
-                bracket_pairs_set="angle_bracket_pairs",
-            ),
-            bracket_type="angle",
-            bracket_pairs_set="angle_bracket_pairs",
-        ),
-    ),
     # BigQuery allows underscore in parameter names, and also anything if quoted in
     # backticks
     ParameterNameSegment=OneOf(
-        RegexParser(
-            r"[A-Z_][A-Z0-9_]*", CodeSegment, name="parameter", type="parameter"
-        ),
-        RegexParser(r"`[^`]*`", CodeSegment, name="parameter", type="parameter"),
+        RegexParser(r"[A-Z_][A-Z0-9_]*", CodeSegment, type="parameter"),
+        RegexParser(r"`[^`]*`", CodeSegment, type="parameter"),
     ),
     DateTimeLiteralGrammar=Sequence(
         OneOf("DATE", "DATETIME", "TIME", "TIMESTAMP"),
         NamedParser(
-            "single_quote", CodeSegment, name="date_constructor_literal", type="literal"
+            "single_quote", ansi.LiteralSegment, type="date_constructor_literal"
         ),
     ),
     JoinLikeClauseGrammar=Sequence(
@@ -317,7 +297,7 @@ bigquery_dialect.sets("date_part_function_name").update(
 
 # In BigQuery, UNNEST() returns a "value table".
 # https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax#value_tables
-bigquery_dialect.sets("value_table_functions").update(["unnest"])
+bigquery_dialect.sets("value_table_functions").update(["UNNEST"])
 
 # Bracket pairs (a set of tuples). Note that BigQuery inherits the default
 # "bracket_pairs" set from ANSI. Here, we're adding a different set of bracket
@@ -383,6 +363,48 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     )
 
 
+class MultiStatementSegment(BaseSegment):
+    """Overriding StatementSegment to allow for additional segment parsing."""
+
+    type = "multi_statement_segment"
+    match_grammar: Matchable = OneOf(
+        Ref("ForInStatementSegment"),
+        Ref("RepeatStatementSegment"),
+        Ref("WhileStatementSegment"),
+        Ref("LoopStatementSegment"),
+        Ref("IfStatementSegment"),
+        Ref("CreateProcedureStatementSegment"),
+    )
+
+
+class FileSegment(BaseFileSegment):
+    """A segment representing a whole file or script.
+
+    This is also the default "root" segment of the dialect,
+    and so is usually instantiated directly. It therefore
+    has no match_grammar.
+    """
+
+    # NB: We don't need a match_grammar here because we're
+    # going straight into instantiating it directly usually.
+    parse_grammar = Sequence(
+        Sequence(
+            OneOf(
+                Ref("MultiStatementSegment"),
+                Ref("StatementSegment"),
+            ),
+        ),
+        AnyNumberOf(
+            Ref("DelimiterGrammar"),
+            OneOf(
+                Ref("MultiStatementSegment"),
+                Ref("StatementSegment"),
+            ),
+        ),
+        Ref("DelimiterGrammar", optional=True),
+    )
+
+
 class StatementSegment(ansi.StatementSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
 
@@ -393,7 +415,248 @@ class StatementSegment(ansi.StatementSegment):
             Ref("SetStatementSegment"),
             Ref("ExportStatementSegment"),
             Ref("CreateExternalTableStatementSegment"),
+            Ref("AssertStatementSegment"),
+            Ref("CallStatementSegment"),
+            Ref("ReturnStatementSegment"),
+            Ref("BreakStatementSegment"),
+            Ref("LeaveStatementSegment"),
+            Ref("ContinueStatementSegment"),
+            Ref("RaiseStatementSegment"),
         ],
+    )
+
+
+class AssertStatementSegment(BaseSegment):
+    """ASSERT segment.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/debugging-statements
+    """
+
+    type = "assert_statement"
+    match_grammar: Matchable = Sequence(
+        "ASSERT",
+        Ref("ExpressionSegment"),
+    )
+
+
+class ForInStatementsSegment(BaseSegment):
+    """Statements within a FOR..IN...DO...END FOR statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/procedural-language#for-in
+    """
+
+    type = "for_in_statements"
+    match_grammar = GreedyUntil(Sequence("END", "FOR"))
+    parse_grammar = AnyNumberOf(
+        Sequence(
+            OneOf(
+                Ref("StatementSegment"),
+                Ref("MultiStatementSegment"),
+            ),
+            Ref("DelimiterGrammar"),
+        ),
+    )
+
+
+class ForInStatementSegment(BaseSegment):
+    """FOR..IN...DO...END FOR statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/procedural-language#for-in
+    """
+
+    type = "for_in_statement"
+    match_grammar = StartsWith(
+        "FOR", terminator=Sequence("END", "FOR"), include_terminator=True
+    )
+    parse_grammar = Sequence(
+        "FOR",
+        Ref("SingleIdentifierGrammar"),
+        "IN",
+        Indent,
+        Ref("SelectableGrammar"),
+        Dedent,
+        "DO",
+        Indent,
+        Ref("ForInStatementsSegment"),
+        Dedent,
+        "END",
+        "FOR",
+    )
+
+
+class RepeatStatementsSegment(BaseSegment):
+    """Statements within a REPEAT...UNTIL... END REPEAT statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/procedural-language#repeat
+    """
+
+    type = "repeat_statements"
+    match_grammar = GreedyUntil(Ref.keyword("UNTIL"))
+    parse_grammar = AnyNumberOf(
+        Sequence(
+            OneOf(
+                Ref("StatementSegment"),
+                Ref("MultiStatementSegment"),
+            ),
+            Ref("DelimiterGrammar"),
+        ),
+    )
+
+
+class RepeatStatementSegment(BaseSegment):
+    """REPEAT...END REPEAT statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/procedural-language#repeat
+    """
+
+    type = "repeat_statement"
+    match_grammar = StartsWith(
+        "REPEAT", terminator=Sequence("END", "REPEAT"), include_terminator=True
+    )
+    parse_grammar = Sequence(
+        "REPEAT",
+        Indent,
+        Ref("RepeatStatementsSegment"),
+        "UNTIL",
+        Ref("ExpressionSegment"),
+        Dedent,
+        "END",
+        "REPEAT",
+    )
+
+
+class IfStatementsSegment(BaseSegment):
+    """Statements within a IF... END IF statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/procedural-language#if
+    """
+
+    type = "if_statements"
+    match_grammar = GreedyUntil(OneOf("ELSE", "ELSEIF", Sequence("END", "IF")))
+    parse_grammar = AnyNumberOf(
+        Sequence(
+            OneOf(
+                Ref("StatementSegment"),
+                Ref("MultiStatementSegment"),
+            ),
+            Ref("DelimiterGrammar"),
+        ),
+    )
+
+
+class IfStatementSegment(BaseSegment):
+    """IF...END IF statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/procedural-language#if
+    """
+
+    type = "if_statement"
+    match_grammar = StartsWith(
+        "IF", terminator=Sequence("END", "IF"), include_terminator=True
+    )
+    parse_grammar = Sequence(
+        "IF",
+        Ref("ExpressionSegment"),
+        "THEN",
+        Indent,
+        Ref("IfStatementsSegment"),
+        Dedent,
+        AnyNumberOf(
+            Sequence(
+                "ELSEIF",
+                Ref("ExpressionSegment"),
+                "THEN",
+                Indent,
+                Ref("IfStatementsSegment"),
+                Dedent,
+            ),
+        ),
+        Sequence(
+            "ELSE",
+            Indent,
+            Ref("IfStatementsSegment"),
+            Dedent,
+            optional=True,
+        ),
+        "END",
+        "IF",
+    )
+
+
+class LoopStatementsSegment(BaseSegment):
+    """Statements within a LOOP... END LOOP statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/procedural-language#loop
+    """
+
+    type = "loop_statements"
+    match_grammar = GreedyUntil(Sequence("END", "LOOP"))
+    parse_grammar = AnyNumberOf(
+        Sequence(
+            OneOf(
+                Ref("StatementSegment"),
+                Ref("MultiStatementSegment"),
+            ),
+            Ref("DelimiterGrammar"),
+        ),
+    )
+
+
+class LoopStatementSegment(BaseSegment):
+    """LOOP...END LOOP statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/procedural-language#loop
+    """
+
+    type = "loop_statement"
+    match_grammar = StartsWith(
+        "LOOP", terminator=Sequence("END", "LOOP"), include_terminator=True
+    )
+    parse_grammar = Sequence(
+        "LOOP",
+        Indent,
+        Ref("LoopStatementsSegment"),
+        Dedent,
+        "END",
+        "LOOP",
+    )
+
+
+class WhileStatementsSegment(BaseSegment):
+    """Statements within a WHILE... END WHILE statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/procedural-language#while
+    """
+
+    type = "while_statements"
+    match_grammar = GreedyUntil(Sequence("END", "WHILE"))
+    parse_grammar = AnyNumberOf(
+        Sequence(
+            Ref("StatementSegment"),
+            Ref("DelimiterGrammar"),
+        ),
+    )
+
+
+class WhileStatementSegment(BaseSegment):
+    """WHILE...END WHILE statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/procedural-language#while
+    """
+
+    type = "while_statement"
+    match_grammar = StartsWith(
+        "WHILE", terminator=Sequence("END", "WHILE"), include_terminator=True
+    )
+    parse_grammar = Sequence(
+        "WHILE",
+        Ref("ExpressionSegment"),
+        "DO",
+        Indent,
+        Ref("WhileStatementsSegment"),
+        Dedent,
+        "END",
+        "WHILE",
     )
 
 
@@ -421,16 +684,13 @@ class IntervalExpressionSegment(ansi.IntervalExpressionSegment):
 bigquery_dialect.replace(
     QuotedIdentifierSegment=NamedParser(
         "back_quote",
-        CodeSegment,
-        name="quoted_identifier",
-        type="identifier",
+        ansi.IdentifierSegment,
+        type="quoted_identifier",
         trim_chars=("`",),
     ),
     # Add ParameterizedSegment to the ansi NumericLiteralSegment
     NumericLiteralSegment=OneOf(
-        NamedParser(
-            "numeric_literal", CodeSegment, name="numeric_literal", type="literal"
-        ),
+        NamedParser("numeric_literal", ansi.LiteralSegment, type="numeric_literal"),
         Ref("ParameterizedSegment"),
     ),
     # Add three elements to the ansi LiteralGrammar
@@ -452,18 +712,17 @@ bigquery_dialect.replace(
         ),
     ),
     FunctionNameIdentifierSegment=OneOf(
-        # In BigQuery struct() has a special syntax, so we don't treat it as a function
+        # In BigQuery struct() and array() have a special syntax,
+        # so we don't treat them as functions
         RegexParser(
             r"[A-Z_][A-Z0-9_]*",
             CodeSegment,
-            name="function_name_identifier",
             type="function_name_identifier",
-            anti_template=r"STRUCT",
+            anti_template=r"^(STRUCT|ARRAY)$",
         ),
         RegexParser(
             r"`[^`]*`",
             CodeSegment,
-            name="function_name_identifier",
             type="function_name_identifier",
         ),
     ),
@@ -481,7 +740,6 @@ class ExtractFunctionNameSegment(BaseSegment):
     match_grammar: Matchable = StringParser(
         "EXTRACT",
         CodeSegment,
-        name="function_name_identifier",
         type="function_name_identifier",
     )
 
@@ -498,13 +756,11 @@ class NormalizeFunctionNameSegment(BaseSegment):
         StringParser(
             "NORMALIZE",
             CodeSegment,
-            name="function_name_identifier",
             type="function_name_identifier",
         ),
         StringParser(
             "NORMALIZE_AND_CASEFOLD",
             CodeSegment,
-            name="function_name_identifier",
             type="function_name_identifier",
         ),
     )
@@ -635,7 +891,6 @@ class FunctionDefinitionGrammar(ansi.FunctionDefinitionGrammar):
                                 Ref("EqualsSegment"),
                                 Anything(),
                             ),
-                            delimiter=Ref("CommaSegment"),
                         )
                     ),
                     optional=True,
@@ -675,9 +930,7 @@ class ExceptClauseSegment(BaseSegment):
     type = "select_except_clause"
     match_grammar = Sequence(
         "EXCEPT",
-        Bracketed(
-            Delimited(Ref("SingleIdentifierGrammar"), delimiter=Ref("CommaSegment"))
-        ),
+        Bracketed(Delimited(Ref("SingleIdentifierGrammar"))),
     )
 
 
@@ -692,7 +945,6 @@ class ReplaceClauseSegment(BaseSegment):
                 # Not *really* a select target element. It behaves exactly
                 # the same way however.
                 Ref("SelectClauseElementSegment"),
-                delimiter=Ref("CommaSegment"),
             )
         ),
     )
@@ -709,22 +961,34 @@ class DatatypeSegment(ansi.DatatypeSegment):
         Ref("DatatypeIdentifierSegment"),  # Simple type
         Sequence("ANY", "TYPE"),  # SQL UDFs can specify this "type"
         Ref("SimpleArrayTypeGrammar"),
-        Ref("StructTypeGrammar"),
+        Ref("StructTypeSegment"),
     )
 
 
-class FunctionParameterListGrammar(ansi.FunctionParameterListGrammar):
-    """The parameters for a function ie. `(string, number)`."""
+class StructTypeSegment(ansi.StructTypeSegment):
+    """Expression to construct a STRUCT datatype."""
 
-    # Function parameter list. Note that the only difference from the ANSI
-    # grammar is that BigQuery provides overrides bracket_pairs_set.
-    match_grammar = Bracketed(
-        Delimited(
-            Ref("FunctionParameterGrammar"),
-            delimiter=Ref("CommaSegment"),
+    match_grammar = Sequence(
+        "STRUCT",
+        Bracketed(
+            Delimited(  # Comma-separated list of field names/types
+                Sequence(
+                    OneOf(
+                        # ParameterNames can look like Datatypes so can't use
+                        # Optional=True here and instead do a OneOf in order
+                        # with DataType only first, followed by both.
+                        Ref("DatatypeSegment"),
+                        Sequence(
+                            Ref("ParameterNameSegment"),
+                            Ref("DatatypeSegment"),
+                        ),
+                    ),
+                    Ref("OptionsSegment", optional=True),
+                ),
+            ),
+            bracket_type="angle",
             bracket_pairs_set="angle_bracket_pairs",
-            optional=True,
-        )
+        ),
     )
 
 
@@ -743,6 +1007,20 @@ class TypelessStructSegment(ansi.TypelessStructSegment):
                     Ref("AliasExpressionSegment", optional=True),
                 ),
             ),
+        ),
+    )
+
+
+class TypelessArraySegment(ansi.TypelessArraySegment):
+    """Expression to construct a ARRAY from a subquery.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/array_functions#array
+    """
+
+    match_grammar = Sequence(
+        "ARRAY",
+        Bracketed(
+            Ref("SelectableGrammar"),
         ),
     )
 
@@ -889,7 +1167,7 @@ class ColumnReferenceSegment(ObjectReferenceSegment):
         return super().extract_possible_multipart_references(levels)
 
 
-class HyphenatedTableReferenceSegment(ObjectReferenceSegment):
+class TableReferenceSegment(ObjectReferenceSegment):
     """A reference to an object that may contain embedded hyphens."""
 
     type = "table_reference"
@@ -936,24 +1214,42 @@ class HyphenatedTableReferenceSegment(ObjectReferenceSegment):
         """
         # For each descendant element, group them, using "dot" elements as a
         # delimiter.
-        for is_dot, elems in itertools.groupby(
-            self.recursive_crawl("identifier", "literal", "dash", "dot"),
-            lambda e: e.is_type("dot"),
+        parts = []
+        elems_for_parts = []
+
+        def flush():
+            nonlocal parts, elems_for_parts
+            result = self.ObjectReferencePart("".join(parts), elems_for_parts)
+            parts = []
+            elems_for_parts = []
+            return result
+
+        for elem in self.recursive_crawl(
+            "identifier", "literal", "dash", "dot", "star"
         ):
-            if not is_dot:
-                segments = list(elems)
-                parts = [seg.raw_trimmed() for seg in segments]
-                yield self.ObjectReferencePart("".join(parts), segments)
+            if not elem.is_type("dot"):
+                if elem.is_type("identifier"):
+                    # Found an identifier (potentially with embedded dots).
+                    elem_subparts = elem.raw_trimmed().split(".")
+                    for idx, part in enumerate(elem_subparts):
+                        # Save each part of the segment.
+                        parts.append(part)
+                        elems_for_parts.append(elem)
 
+                        if idx != len(elem_subparts) - 1:
+                            # For each part except the last, flush.
+                            yield flush()
 
-class TableExpressionSegment(ansi.TableExpressionSegment):
-    """Main table expression e.g. within a FROM clause, with hyphen support."""
+                else:
+                    # For non-identifier segments, save the whole segment.
+                    parts.append(elem.raw_trimmed())
+                    elems_for_parts.append(elem)
+            else:
+                yield flush()
 
-    match_grammar = ansi.TableExpressionSegment.match_grammar.copy(
-        insert=[
-            Ref("HyphenatedTableReferenceSegment"),
-        ]
-    )
+        # Flush any leftovers.
+        if parts:
+            yield flush()
 
 
 class DeclareStatementSegment(BaseSegment):
@@ -1008,6 +1304,7 @@ class SetStatementSegment(BaseSegment):
                     )
                 ),
                 Ref("ArrayLiteralSegment"),
+                Ref("ExpressionSegment"),
             ),
         ),
     )
@@ -1306,16 +1603,8 @@ class InsertStatementSegment(ansi.InsertStatementSegment):
         "INSERT",
         Ref.keyword("INTO", optional=True),
         Ref("TableReferenceSegment"),
-        OneOf(
-            # As SelectableGrammar can be bracketed too, the parse gets confused
-            # so we need slightly odd syntax here to allow those to parse (rather
-            # than just add optional=True to BracketedColumnReferenceListGrammar).
-            Ref("SelectableGrammar"),
-            Sequence(
-                Ref("BracketedColumnReferenceListGrammar"),
-                Ref("SelectableGrammar"),
-            ),
-        ),
+        Ref("BracketedColumnReferenceListGrammar", optional=True),
+        Ref("SelectableGrammar"),
     )
 
 
@@ -1509,4 +1798,178 @@ class ExportStatementSegment(BaseSegment):
         ),
         "AS",
         Ref("SelectableGrammar"),
+    )
+
+
+class ProcedureNameSegment(BaseSegment):
+    """Prcoedure name, including any prefix bits, e.g. project or schema."""
+
+    type = "procedure_name"
+    match_grammar: Matchable = Sequence(
+        # Project name, schema identifier, etc.
+        AnyNumberOf(
+            Sequence(
+                Ref("SingleIdentifierGrammar"),
+                Ref("DotSegment"),
+            ),
+        ),
+        # Base procedure name
+        OneOf(
+            Ref("ProcedureNameIdentifierSegment"),
+            Ref("QuotedIdentifierSegment"),
+        ),
+        allow_gaps=False,
+    )
+
+
+class ProcedureParameterListSegment(BaseSegment):
+    """The parameters for a prcoedure ie. `(string, number)`."""
+
+    # Procedure parameter list (based on FunctionsParameterListGrammar)
+    type = "procedure_parameter_list"
+    match_grammar = Bracketed(
+        Delimited(
+            Ref("ProcedureParameterGrammar"),
+            optional=True,
+        )
+    )
+
+
+class ProcedureStatements(BaseSegment):
+    """Statements within a CREATE PROCEDURE statement.
+
+    https://cloud.google.com/bigquery/docs/procedures
+    """
+
+    type = "procedure_statements"
+    match_grammar = GreedyUntil("END")
+    parse_grammar = AnyNumberOf(
+        Sequence(
+            Ref("StatementSegment"),
+            Ref("DelimiterGrammar"),
+        ),
+    )
+
+
+class CreateProcedureStatementSegment(BaseSegment):
+    """A `CREATE PROCEDURE` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#create_procedure
+    """
+
+    type = "create_procedure_statement"
+
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        "PROCEDURE",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("ProcedureNameSegment"),
+        Ref("ProcedureParameterListSegment"),
+        Sequence(
+            "OPTIONS",
+            "strict_mode",
+            StringParser("strict_mode", CodeSegment, type="procedure_option"),
+            Ref("EqualsSegment"),
+            Ref("BooleanLiteralGrammar"),
+            optional=True,
+        ),
+        "BEGIN",
+        Indent,
+        Ref("ProcedureStatements"),
+        Dedent,
+        "END",
+    )
+
+
+class CallStatementSegment(BaseSegment):
+    """A `CALL` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/procedural-language#call
+    """
+
+    type = "call_statement"
+
+    match_grammar: Matchable = Sequence(
+        "CALL",
+        Ref("ProcedureNameSegment"),
+        Bracketed(
+            Delimited(
+                Ref("ExpressionSegment"),
+                optional=True,
+            ),
+        ),
+    )
+
+
+class ReturnStatementSegment(BaseSegment):
+    """A `RETURN` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/procedural-language#return
+    """
+
+    type = "return_statement"
+
+    match_grammar: Matchable = Sequence(
+        "RETURN",
+    )
+
+
+class BreakStatementSegment(BaseSegment):
+    """A `BREAK` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/procedural-language#break
+    """
+
+    type = "break_statement"
+
+    match_grammar: Matchable = Sequence(
+        "BREAK",
+    )
+
+
+class LeaveStatementSegment(BaseSegment):
+    """A `LEAVE` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/procedural-language#leave
+    """
+
+    type = "leave_statement"
+
+    match_grammar: Matchable = Sequence(
+        "LEAVE",
+    )
+
+
+class ContinueStatementSegment(BaseSegment):
+    """A `CONTINUE` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/procedural-language#continue
+    """
+
+    type = "continue_statement"
+
+    match_grammar: Matchable = OneOf(
+        "CONTINUE",
+        "ITERATE",
+    )
+
+
+class RaiseStatementSegment(BaseSegment):
+    """A `RAISE` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/procedural-language#raise
+    """
+
+    type = "raise_statement"
+
+    match_grammar: Matchable = Sequence(
+        "RAISE",
+        Sequence(
+            "USING",
+            "MESSAGE",
+            Ref("EqualsSegment"),
+            Ref("ExpressionSegment"),
+            optional=True,
+        ),
     )

@@ -3,14 +3,14 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e33726d725dd6273ccc05b7738d653e7cc253c13a98309c1f34048dffcf1c657
+_hash: 9d792b932b3b37301c279ea86aec744c42da10d2dcf6d2c17936b0980cb1c714
 file:
 - statement:
     uncache_table:
     - keyword: UNCACHE
     - keyword: TABLE
     - table_reference:
-        identifier: t1
+        naked_identifier: t1
 - statement_terminator: ;
 - statement:
     uncache_table:
@@ -19,5 +19,5 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - table_reference:
-        identifier: t1
+        naked_identifier: t1
 - statement_terminator: ;

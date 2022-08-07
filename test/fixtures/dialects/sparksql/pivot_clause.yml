@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5f41f160aaf03561963146f4dd64842aeb6173bcd360561fcf7a9fa81f762027
+_hash: cc37cc13dd4c0f8fa749d3a979221aff04f86f70c50d8f9e18bf771127fd2155
 file:
 - statement:
     select_statement:
@@ -11,14 +11,14 @@ file:
         keyword: SELECT
         select_clause_element:
           column_reference:
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: person
+                naked_identifier: person
             pivot_clause:
               keyword: PIVOT
               bracketed:
@@ -30,21 +30,21 @@ file:
                     start_bracket: (
                     expression:
                       column_reference:
-                        identifier: age
+                        naked_identifier: age
                     end_bracket: )
               - alias_expression:
                   keyword: AS
-                  identifier: a
+                  naked_identifier: a
               - keyword: FOR
-              - identifier: name
+              - naked_identifier: name
               - keyword: IN
               - bracketed:
                   start_bracket: (
                   expression:
-                    literal: "'John'"
+                    quoted_literal: "'John'"
                   alias_expression:
                     keyword: AS
-                    identifier: john
+                    naked_identifier: john
                   end_bracket: )
               - end_bracket: )
 - statement_terminator: ;
@@ -54,14 +54,14 @@ file:
         keyword: SELECT
         select_clause_element:
           column_reference:
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: person
+                naked_identifier: person
             pivot_clause:
               keyword: PIVOT
               bracketed:
@@ -73,27 +73,27 @@ file:
                     start_bracket: (
                     expression:
                       column_reference:
-                        identifier: age
+                        naked_identifier: age
                     end_bracket: )
               - alias_expression:
                   keyword: AS
-                  identifier: a
+                  naked_identifier: a
               - keyword: FOR
-              - identifier: name
+              - naked_identifier: name
               - keyword: IN
               - bracketed:
                 - start_bracket: (
                 - expression:
-                    literal: "'John'"
+                    quoted_literal: "'John'"
                 - alias_expression:
                     keyword: AS
-                    identifier: john
+                    naked_identifier: john
                 - comma: ','
                 - expression:
-                    literal: "'Mike'"
+                    quoted_literal: "'Mike'"
                 - alias_expression:
                     keyword: AS
-                    identifier: mike
+                    naked_identifier: mike
                 - end_bracket: )
               - end_bracket: )
 - statement_terminator: ;
@@ -103,14 +103,14 @@ file:
         keyword: SELECT
         select_clause_element:
           column_reference:
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: person
+                naked_identifier: person
             pivot_clause:
               keyword: PIVOT
               bracketed:
@@ -122,30 +122,30 @@ file:
                     start_bracket: (
                     expression:
                       column_reference:
-                        identifier: age
+                        naked_identifier: age
                     end_bracket: )
               - alias_expression:
                   keyword: AS
-                  identifier: a
+                  naked_identifier: a
               - keyword: FOR
               - bracketed:
                   start_bracket: (
-                  identifier: name
+                  naked_identifier: name
                   end_bracket: )
               - keyword: IN
               - bracketed:
                 - start_bracket: (
                 - expression:
-                    literal: "'John'"
+                    quoted_literal: "'John'"
                 - alias_expression:
                     keyword: AS
-                    identifier: john
+                    naked_identifier: john
                 - comma: ','
                 - expression:
-                    literal: "'Mike'"
+                    quoted_literal: "'Mike'"
                 - alias_expression:
                     keyword: AS
-                    identifier: mike
+                    naked_identifier: mike
                 - end_bracket: )
               - end_bracket: )
 - statement_terminator: ;
@@ -155,14 +155,14 @@ file:
         keyword: SELECT
         select_clause_element:
           column_reference:
-            identifier: a
+            naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: person
+                naked_identifier: person
             pivot_clause:
               keyword: PIVOT
               bracketed:
@@ -174,27 +174,27 @@ file:
                     start_bracket: (
                     expression:
                       column_reference:
-                        identifier: age
+                        naked_identifier: age
                     end_bracket: )
               - alias_expression:
                   keyword: AS
-                  identifier: a
+                  naked_identifier: a
               - keyword: FOR
-              - identifier: name
+              - naked_identifier: name
               - keyword: IN
               - bracketed:
                 - start_bracket: (
                 - expression:
-                    literal: "'John'"
+                    quoted_literal: "'John'"
                 - alias_expression:
                     keyword: AS
-                    identifier: john
+                    naked_identifier: john
                 - comma: ','
                 - expression:
-                    literal: "'Mike'"
+                    quoted_literal: "'Mike'"
                 - alias_expression:
                     keyword: AS
-                    identifier: mike
+                    naked_identifier: mike
                 - end_bracket: )
               - end_bracket: )
 - statement_terminator: ;
@@ -204,18 +204,18 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: a
+            naked_identifier: a
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: c
+            naked_identifier: c
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: person
+                naked_identifier: person
             pivot_clause:
               keyword: PIVOT
               bracketed:
@@ -227,11 +227,11 @@ file:
                     start_bracket: (
                     expression:
                       column_reference:
-                        identifier: age
+                        naked_identifier: age
                     end_bracket: )
               - alias_expression:
                   keyword: AS
-                  identifier: a
+                  naked_identifier: a
               - comma: ','
               - function:
                   function_name:
@@ -240,27 +240,27 @@ file:
                     start_bracket: (
                     expression:
                       column_reference:
-                        identifier: class
+                        naked_identifier: class
                     end_bracket: )
               - alias_expression:
                   keyword: AS
-                  identifier: c
+                  naked_identifier: c
               - keyword: FOR
-              - identifier: name
+              - naked_identifier: name
               - keyword: IN
               - bracketed:
                 - start_bracket: (
                 - expression:
-                    literal: "'John'"
+                    quoted_literal: "'John'"
                 - alias_expression:
                     keyword: AS
-                    identifier: john
+                    naked_identifier: john
                 - comma: ','
                 - expression:
-                    literal: "'Mike'"
+                    quoted_literal: "'Mike'"
                 - alias_expression:
                     keyword: AS
-                    identifier: mike
+                    naked_identifier: mike
                 - end_bracket: )
               - end_bracket: )
 - statement_terminator: ;
@@ -270,18 +270,18 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: a
+            naked_identifier: a
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: c
+            naked_identifier: c
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: person
+                naked_identifier: person
             pivot_clause:
               keyword: PIVOT
               bracketed:
@@ -293,11 +293,11 @@ file:
                     start_bracket: (
                     expression:
                       column_reference:
-                        identifier: age
+                        naked_identifier: age
                     end_bracket: )
               - alias_expression:
                   keyword: AS
-                  identifier: a
+                  naked_identifier: a
               - comma: ','
               - function:
                   function_name:
@@ -306,27 +306,27 @@ file:
                     start_bracket: (
                     expression:
                       column_reference:
-                        identifier: class
+                        naked_identifier: class
                     end_bracket: )
               - alias_expression:
                   keyword: AS
-                  identifier: c
+                  naked_identifier: c
               - keyword: FOR
-              - identifier: name
+              - naked_identifier: name
               - keyword: IN
               - bracketed:
                 - start_bracket: (
                 - expression:
-                    literal: "'John'"
+                    quoted_literal: "'John'"
                 - alias_expression:
                     keyword: AS
-                    identifier: john
+                    naked_identifier: john
                 - comma: ','
                 - expression:
-                    literal: "'Mike'"
+                    quoted_literal: "'Mike'"
                 - alias_expression:
                     keyword: AS
-                    identifier: mike
+                    naked_identifier: mike
                 - end_bracket: )
               - end_bracket: )
 - statement_terminator: ;
@@ -336,18 +336,18 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: a
+            naked_identifier: a
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: c
+            naked_identifier: c
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: person
+                naked_identifier: person
             pivot_clause:
               keyword: PIVOT
               bracketed:
@@ -359,11 +359,11 @@ file:
                     start_bracket: (
                     expression:
                       column_reference:
-                        identifier: age
+                        naked_identifier: age
                     end_bracket: )
               - alias_expression:
                   keyword: AS
-                  identifier: a
+                  naked_identifier: a
               - comma: ','
               - function:
                   function_name:
@@ -372,41 +372,41 @@ file:
                     start_bracket: (
                     expression:
                       column_reference:
-                        identifier: class
+                        naked_identifier: class
                     end_bracket: )
               - alias_expression:
                   keyword: AS
-                  identifier: c
+                  naked_identifier: c
               - keyword: FOR
-              - identifier: name
+              - naked_identifier: name
               - comma: ','
-              - identifier: age
+              - naked_identifier: age
               - keyword: IN
               - bracketed:
                 - start_bracket: (
                 - bracketed:
                   - start_bracket: (
                   - expression:
-                      literal: "'John'"
+                      quoted_literal: "'John'"
                   - comma: ','
                   - expression:
-                      literal: '30'
+                      numeric_literal: '30'
                   - end_bracket: )
                 - alias_expression:
                     keyword: AS
-                    identifier: c1
+                    naked_identifier: c1
                 - comma: ','
                 - bracketed:
                   - start_bracket: (
                   - expression:
-                      literal: "'Mike'"
+                      quoted_literal: "'Mike'"
                   - comma: ','
                   - expression:
-                      literal: '40'
+                      numeric_literal: '40'
                   - end_bracket: )
                 - alias_expression:
                     keyword: AS
-                    identifier: c2
+                    naked_identifier: c2
                 - end_bracket: )
               - end_bracket: )
 - statement_terminator: ;
@@ -416,25 +416,25 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: p
+          - naked_identifier: p
           - dot: .
-          - identifier: a
+          - naked_identifier: a
       - comma: ','
       - select_clause_element:
           column_reference:
-          - identifier: p
+          - naked_identifier: p
           - dot: .
-          - identifier: c
+          - naked_identifier: c
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: person
+                naked_identifier: person
             alias_expression:
               keyword: AS
-              identifier: p
+              naked_identifier: p
             pivot_clause:
               keyword: PIVOT
               bracketed:
@@ -446,11 +446,11 @@ file:
                     start_bracket: (
                     expression:
                       column_reference:
-                        identifier: age
+                        naked_identifier: age
                     end_bracket: )
               - alias_expression:
                   keyword: AS
-                  identifier: a
+                  naked_identifier: a
               - comma: ','
               - function:
                   function_name:
@@ -459,41 +459,41 @@ file:
                     start_bracket: (
                     expression:
                       column_reference:
-                        identifier: class
+                        naked_identifier: class
                     end_bracket: )
               - alias_expression:
                   keyword: AS
-                  identifier: c
+                  naked_identifier: c
               - keyword: FOR
-              - identifier: name
+              - naked_identifier: name
               - comma: ','
-              - identifier: age
+              - naked_identifier: age
               - keyword: IN
               - bracketed:
                 - start_bracket: (
                 - bracketed:
                   - start_bracket: (
                   - expression:
-                      literal: "'John'"
+                      quoted_literal: "'John'"
                   - comma: ','
                   - expression:
-                      literal: '30'
+                      numeric_literal: '30'
                   - end_bracket: )
                 - alias_expression:
                     keyword: AS
-                    identifier: c1
+                    naked_identifier: c1
                 - comma: ','
                 - bracketed:
                   - start_bracket: (
                   - expression:
-                      literal: "'Mike'"
+                      quoted_literal: "'Mike'"
                   - comma: ','
                   - expression:
-                      literal: '40'
+                      numeric_literal: '40'
                   - end_bracket: )
                 - alias_expression:
                     keyword: AS
-                    identifier: c2
+                    naked_identifier: c2
                 - end_bracket: )
               - end_bracket: )
 - statement_terminator: ;
@@ -503,18 +503,18 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: a
+            naked_identifier: a
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: c
+            naked_identifier: c
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: person
+                naked_identifier: person
             pivot_clause:
               keyword: PIVOT
               bracketed:
@@ -526,11 +526,11 @@ file:
                     start_bracket: (
                     expression:
                       column_reference:
-                        identifier: age
+                        naked_identifier: age
                     end_bracket: )
               - alias_expression:
                   keyword: AS
-                  identifier: a
+                  naked_identifier: a
               - comma: ','
               - function:
                   function_name:
@@ -539,38 +539,38 @@ file:
                     start_bracket: (
                     expression:
                       column_reference:
-                        identifier: class
+                        naked_identifier: class
                     end_bracket: )
               - alias_expression:
                   keyword: AS
-                  identifier: c
+                  naked_identifier: c
               - keyword: FOR
               - bracketed:
                 - start_bracket: (
-                - identifier: name
+                - naked_identifier: name
                 - comma: ','
-                - identifier: age
+                - naked_identifier: age
                 - end_bracket: )
               - keyword: IN
               - bracketed:
                 - start_bracket: (
                 - expression:
-                    literal: "'John'"
+                    quoted_literal: "'John'"
                 - alias_expression:
                     keyword: AS
-                    identifier: c1
+                    naked_identifier: c1
                 - comma: ','
                 - bracketed:
                   - start_bracket: (
                   - expression:
-                      literal: "'Mike'"
+                      quoted_literal: "'Mike'"
                   - comma: ','
                   - expression:
-                      literal: '40'
+                      numeric_literal: '40'
                   - end_bracket: )
                 - alias_expression:
                     keyword: AS
-                    identifier: c2
+                    naked_identifier: c2
                 - end_bracket: )
               - end_bracket: )
 - statement_terminator: ;

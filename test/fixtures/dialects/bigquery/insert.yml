@@ -3,55 +3,55 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 107b92d6e0fc3978121b3b9bcb3abb21c66fd9106f8dd1afac4dd490903914fd
+_hash: 070409e28b6b4bc14acd531925db47a93eb0244d204f6d51bea9b81391735c5a
 file:
 - statement:
     insert_statement:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-        identifier: books
+        naked_identifier: books
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: title
+          naked_identifier: title
       - comma: ','
       - column_reference:
-          identifier: author
+          naked_identifier: author
       - end_bracket: )
     - values_clause:
         keyword: VALUES
         bracketed:
         - start_bracket: (
         - expression:
-            literal: "'The Great Gatsby'"
+            quoted_literal: "'The Great Gatsby'"
         - comma: ','
         - expression:
-            literal: "'F. Scott Fitzgerald'"
+            quoted_literal: "'F. Scott Fitzgerald'"
         - end_bracket: )
 - statement_terminator: ;
 - statement:
     insert_statement:
       keyword: INSERT
       table_reference:
-        identifier: books
+        naked_identifier: books
       bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: title
+          naked_identifier: title
       - comma: ','
       - column_reference:
-          identifier: author
+          naked_identifier: author
       - end_bracket: )
       values_clause:
         keyword: VALUES
         bracketed:
         - start_bracket: (
         - expression:
-            literal: "'The Great Gatsby'"
+            quoted_literal: "'The Great Gatsby'"
         - comma: ','
         - expression:
-            literal: "'F. Scott Fitzgerald'"
+            quoted_literal: "'F. Scott Fitzgerald'"
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -59,7 +59,7 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-        identifier: '`project.dataset.table`'
+        quoted_identifier: '`project.dataset.table`'
     - bracketed:
         start_bracket: (
         select_statement:
@@ -75,6 +75,6 @@ file:
               from_expression_element:
                 table_expression:
                   table_reference:
-                    identifier: table1
+                    naked_identifier: table1
         end_bracket: )
 - statement_terminator: ;

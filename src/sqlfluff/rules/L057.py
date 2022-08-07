@@ -1,8 +1,9 @@
 """Implementation of Rule L057."""
-import regex
-from typing import Optional
+from typing import Optional, Set
 
-from sqlfluff.core.rules.base import BaseRule, LintResult, RuleContext
+import regex
+
+from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.doc_decorators import document_configuration, document_groups
 from sqlfluff.rules.L014 import identifiers_policy_applicable
 
@@ -52,6 +53,16 @@ class Rule_L057(BaseRule):
         "ignore_words_regex",
     ]
 
+    def _get_additional_allowed_characters(self, dialect_name: str) -> str:
+        """Returns additional allowed characters, with adjustments for dialect."""
+        result: Set[str] = set()
+        if self.additional_allowed_characters:
+            result.update(self.additional_allowed_characters)
+        if dialect_name == "bigquery":
+            # In BigQuery, also allow hyphens.
+            result.update("-")
+        return "".join(result)
+
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Do not use special characters in object names."""
         # Config type hints
@@ -63,7 +74,7 @@ class Rule_L057(BaseRule):
         self.ignore_words_regex: str
 
         # Exit early if not a single identifier.
-        if context.segment.name not in ("naked_identifier", "quoted_identifier"):
+        if not context.segment.is_type("naked_identifier", "quoted_identifier"):
             return None
 
         # Get the ignore_words_list configuration.
@@ -90,7 +101,7 @@ class Rule_L057(BaseRule):
             return LintResult(memory=context.memory)
 
         # Do some extra processing for quoted identifiers.
-        if context.segment.name == "quoted_identifier":
+        if context.segment.is_type("quoted_identifier"):
 
             # Update the default policy to quoted
             policy = self.quoted_identifiers_policy
@@ -117,7 +128,7 @@ class Rule_L057(BaseRule):
             if (
                 context.dialect.name in ["bigquery"]
                 and context.parent_stack
-                and context.parent_stack[-1].name == "TableReferenceSegment"
+                and context.parent_stack[-1].is_type("table_reference")
             ):
                 if identifier[-1] == "*":
                     identifier = identifier[:-1]
@@ -142,7 +153,7 @@ class Rule_L057(BaseRule):
                 # Path Glob Filters (done inline for SQL direct file query)
                 # https://spark.apache.org/docs/latest/sql-data-sources-generic-options.html#path-global-filter
                 #
-                if context.parent_stack[-1].name == "FileReferenceSegment":
+                if context.parent_stack[-1].is_type("file_reference"):
                     return None
 
                 # SparkSQL properties keys used for setting table and runtime
@@ -153,7 +164,7 @@ class Rule_L057(BaseRule):
                 # Example configurations for table:
                 # https://spark.apache.org/docs/latest/sql-data-sources-parquet.html#configuration
                 #
-                if context.parent_stack[-1].name == "PropertyNameSegment":
+                if context.parent_stack[-1].is_type("property_name_identifier"):
                     identifier = identifier.replace(".", "")
 
             # Strip spaces if allowed (note a separate config as only valid for quoted
@@ -164,10 +175,22 @@ class Rule_L057(BaseRule):
         # We always allow underscores so strip them out
         identifier = identifier.replace("_", "")
 
+        # redshift allows a # at the beginning of temporary table names
+        if (
+            context.dialect.name == "redshift"
+            and identifier[0] == "#"
+            and context.parent_stack
+            and context.parent_stack[-1].is_type("table_reference")
+        ):
+            identifier = identifier[1:]
+
         # Set the identified minus the allowed characters
-        if self.additional_allowed_characters:
+        additional_allowed_characters = self._get_additional_allowed_characters(
+            context.dialect.name
+        )
+        if additional_allowed_characters:
             identifier = identifier.translate(
-                str.maketrans("", "", self.additional_allowed_characters)
+                str.maketrans("", "", additional_allowed_characters)
             )
 
         # Finally test if the remaining identifier is only made up of alphanumerics

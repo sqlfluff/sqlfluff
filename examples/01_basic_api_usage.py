@@ -75,6 +75,6 @@ print(table_references)
 
 # Retrieve raw table name from last identifier in the table reference.
 for table_reference in table_references:
-    table_name = list(get_json_segment(parse_result, "identifier"))[-1]
+    table_name = list(get_json_segment(parse_result, "naked_identifier"))[-1]
     print(f"table_name: {table_name}")
 # table_name: myTable

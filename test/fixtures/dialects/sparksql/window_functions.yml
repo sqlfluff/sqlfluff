@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0f03068e5eaa35880b0e4e0d5b627652afeb0cb5e7ade98dff3f04c77e9def60
+_hash: ee5f830c8e113fe87f49dcb120b0fe14735f8fe695a632db77f4cde8a6d003bf
 file:
 - statement:
     select_statement:
@@ -11,11 +11,11 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: name
+            naked_identifier: name
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: dept
+            naked_identifier: dept
       - comma: ','
       - select_clause_element:
           function:
@@ -34,23 +34,23 @@ file:
                   - keyword: BY
                   - expression:
                       column_reference:
-                        identifier: dept
+                        naked_identifier: dept
                   orderby_clause:
                   - keyword: ORDER
                   - keyword: BY
                   - column_reference:
-                      identifier: salary
+                      naked_identifier: salary
                 end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: row_rank
+            naked_identifier: row_rank
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: employees
+                naked_identifier: employees
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -58,11 +58,11 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: name
+            naked_identifier: name
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: dept
+            naked_identifier: dept
       - comma: ','
       - select_clause_element:
           function:
@@ -81,31 +81,31 @@ file:
                   - keyword: BY
                   - expression:
                       column_reference:
-                        identifier: dept
+                        naked_identifier: dept
                   orderby_clause:
                   - keyword: ORDER
                   - keyword: BY
                   - column_reference:
-                      identifier: salary
+                      naked_identifier: salary
                   frame_clause:
                   - keyword: ROWS
                   - keyword: BETWEEN
                   - keyword: UNBOUNDED
                   - keyword: PRECEDING
-                  - binary_operator: AND
+                  - keyword: AND
                   - keyword: CURRENT
                   - keyword: ROW
                 end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: row_dense_rank
+            naked_identifier: row_dense_rank
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: employees
+                naked_identifier: employees
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -113,15 +113,15 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: name
+            naked_identifier: name
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: dept
+            naked_identifier: dept
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: age
+            naked_identifier: age
       - comma: ','
       - select_clause_element:
           function:
@@ -140,31 +140,31 @@ file:
                   - keyword: BY
                   - expression:
                       column_reference:
-                        identifier: dept
+                        naked_identifier: dept
                   orderby_clause:
                   - keyword: ORDER
                   - keyword: BY
                   - column_reference:
-                      identifier: age
+                      naked_identifier: age
                   frame_clause:
                   - keyword: RANGE
                   - keyword: BETWEEN
                   - keyword: UNBOUNDED
                   - keyword: PRECEDING
-                  - binary_operator: AND
+                  - keyword: AND
                   - keyword: CURRENT
                   - keyword: ROW
                 end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: data_cume_dist
+            naked_identifier: data_cume_dist
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: employees
+                naked_identifier: employees
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -172,15 +172,15 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: name
+            naked_identifier: name
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: dept
+            naked_identifier: dept
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: salary
+            naked_identifier: salary
       - comma: ','
       - select_clause_element:
           function:
@@ -190,7 +190,7 @@ file:
               start_bracket: (
               expression:
                 column_reference:
-                  identifier: salary
+                  naked_identifier: salary
               end_bracket: )
             over_clause:
               keyword: OVER
@@ -202,23 +202,23 @@ file:
                   - keyword: BY
                   - expression:
                       column_reference:
-                        identifier: dept
+                        naked_identifier: dept
                   orderby_clause:
                   - keyword: ORDER
                   - keyword: BY
                   - column_reference:
-                      identifier: salary
+                      naked_identifier: salary
                 end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: salary_min
+            naked_identifier: salary_min
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: employees
+                naked_identifier: employees
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -226,11 +226,11 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: name
+            naked_identifier: name
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: salary
+            naked_identifier: salary
       - comma: ','
       - select_clause_element:
           function:
@@ -240,7 +240,7 @@ file:
               start_bracket: (
               expression:
                 column_reference:
-                  identifier: salary
+                  naked_identifier: salary
               end_bracket: )
             over_clause:
               keyword: OVER
@@ -252,16 +252,16 @@ file:
                   - keyword: BY
                   - expression:
                       column_reference:
-                        identifier: dept
+                        naked_identifier: dept
                   orderby_clause:
                   - keyword: ORDER
                   - keyword: BY
                   - column_reference:
-                      identifier: salary
+                      naked_identifier: salary
                 end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: salary_lag
+            naked_identifier: salary_lag
       - comma: ','
       - select_clause_element:
           function:
@@ -271,13 +271,13 @@ file:
             - start_bracket: (
             - expression:
                 column_reference:
-                  identifier: salary
+                  naked_identifier: salary
             - comma: ','
             - expression:
-                literal: '1'
+                numeric_literal: '1'
             - comma: ','
             - expression:
-                literal: '0'
+                numeric_literal: '0'
             - end_bracket: )
             over_clause:
               keyword: OVER
@@ -289,23 +289,23 @@ file:
                   - keyword: BY
                   - expression:
                       column_reference:
-                        identifier: dept
+                        naked_identifier: dept
                   orderby_clause:
                   - keyword: ORDER
                   - keyword: BY
                   - column_reference:
-                      identifier: salary
+                      naked_identifier: salary
                 end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: salary_lead
+            naked_identifier: salary_lead
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: employees
+                naked_identifier: employees
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -313,11 +313,11 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: name
+            naked_identifier: name
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: salary
+            naked_identifier: salary
       - comma: ','
       - select_clause_element:
           function:
@@ -327,7 +327,7 @@ file:
               start_bracket: (
               expression:
                 column_reference:
-                  identifier: salary
+                  naked_identifier: salary
               end_bracket: )
             over_clause:
             - keyword: IGNORE
@@ -341,16 +341,16 @@ file:
                   - keyword: BY
                   - expression:
                       column_reference:
-                        identifier: dept
+                        naked_identifier: dept
                   orderby_clause:
                   - keyword: ORDER
                   - keyword: BY
                   - column_reference:
-                      identifier: salary
+                      naked_identifier: salary
                 end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: salary_lag
+            naked_identifier: salary_lag
       - comma: ','
       - select_clause_element:
           function:
@@ -360,13 +360,13 @@ file:
             - start_bracket: (
             - expression:
                 column_reference:
-                  identifier: salary
+                  naked_identifier: salary
             - comma: ','
             - expression:
-                literal: '1'
+                numeric_literal: '1'
             - comma: ','
             - expression:
-                literal: '0'
+                numeric_literal: '0'
             - end_bracket: )
             over_clause:
             - keyword: IGNORE
@@ -380,23 +380,23 @@ file:
                   - keyword: BY
                   - expression:
                       column_reference:
-                        identifier: dept
+                        naked_identifier: dept
                   orderby_clause:
                   - keyword: ORDER
                   - keyword: BY
                   - column_reference:
-                      identifier: salary
+                      naked_identifier: salary
                 end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: salary_lead
+            naked_identifier: salary_lead
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: employees
+                naked_identifier: employees
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -404,11 +404,11 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: name
+            naked_identifier: name
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: salary
+            naked_identifier: salary
       - comma: ','
       - select_clause_element:
           function:
@@ -418,7 +418,7 @@ file:
               start_bracket: (
               expression:
                 column_reference:
-                  identifier: salary
+                  naked_identifier: salary
               end_bracket: )
             over_clause:
             - keyword: RESPECT
@@ -432,16 +432,16 @@ file:
                   - keyword: BY
                   - expression:
                       column_reference:
-                        identifier: dept
+                        naked_identifier: dept
                   orderby_clause:
                   - keyword: ORDER
                   - keyword: BY
                   - column_reference:
-                      identifier: salary
+                      naked_identifier: salary
                 end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: salary_lag
+            naked_identifier: salary_lag
       - comma: ','
       - select_clause_element:
           function:
@@ -451,13 +451,13 @@ file:
             - start_bracket: (
             - expression:
                 column_reference:
-                  identifier: salary
+                  naked_identifier: salary
             - comma: ','
             - expression:
-                literal: '1'
+                numeric_literal: '1'
             - comma: ','
             - expression:
-                literal: '0'
+                numeric_literal: '0'
             - end_bracket: )
             over_clause:
             - keyword: RESPECT
@@ -471,23 +471,23 @@ file:
                   - keyword: BY
                   - expression:
                       column_reference:
-                        identifier: dept
+                        naked_identifier: dept
                   orderby_clause:
                   - keyword: ORDER
                   - keyword: BY
                   - column_reference:
-                      identifier: salary
+                      naked_identifier: salary
                 end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: salary_lead
+            naked_identifier: salary_lead
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: employees
+                naked_identifier: employees
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -495,11 +495,11 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: id
+            naked_identifier: id
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: v
+            naked_identifier: v
       - comma: ','
       - select_clause_element:
           function:
@@ -509,19 +509,19 @@ file:
             - start_bracket: (
             - expression:
                 column_reference:
-                  identifier: v
+                  naked_identifier: v
             - comma: ','
             - expression:
-                literal: '0'
+                numeric_literal: '0'
             - end_bracket: )
             over_clause:
             - keyword: IGNORE
             - keyword: NULLS
             - keyword: OVER
-            - identifier: w
+            - naked_identifier: w
           alias_expression:
             keyword: AS
-            identifier: v_lead
+            naked_identifier: v_lead
       - comma: ','
       - select_clause_element:
           function:
@@ -531,19 +531,19 @@ file:
             - start_bracket: (
             - expression:
                 column_reference:
-                  identifier: v
+                  naked_identifier: v
             - comma: ','
             - expression:
-                literal: '0'
+                numeric_literal: '0'
             - end_bracket: )
             over_clause:
             - keyword: IGNORE
             - keyword: NULLS
             - keyword: OVER
-            - identifier: w
+            - naked_identifier: w
           alias_expression:
             keyword: AS
-            identifier: v_lag
+            naked_identifier: v_lag
       - comma: ','
       - select_clause_element:
           function:
@@ -553,19 +553,19 @@ file:
             - start_bracket: (
             - expression:
                 column_reference:
-                  identifier: v
+                  naked_identifier: v
             - comma: ','
             - expression:
-                literal: '2'
+                numeric_literal: '2'
             - end_bracket: )
             over_clause:
             - keyword: IGNORE
             - keyword: NULLS
             - keyword: OVER
-            - identifier: w
+            - naked_identifier: w
           alias_expression:
             keyword: AS
-            identifier: v_nth_value
+            naked_identifier: v_nth_value
       - comma: ','
       - select_clause_element:
           function:
@@ -575,16 +575,16 @@ file:
               start_bracket: (
               expression:
                 column_reference:
-                  identifier: v
+                  naked_identifier: v
               end_bracket: )
             over_clause:
             - keyword: IGNORE
             - keyword: NULLS
             - keyword: OVER
-            - identifier: w
+            - naked_identifier: w
           alias_expression:
             keyword: AS
-            identifier: v_first_value
+            naked_identifier: v_first_value
       - comma: ','
       - select_clause_element:
           function:
@@ -594,27 +594,27 @@ file:
               start_bracket: (
               expression:
                 column_reference:
-                  identifier: v
+                  naked_identifier: v
               end_bracket: )
             over_clause:
             - keyword: IGNORE
             - keyword: NULLS
             - keyword: OVER
-            - identifier: w
+            - naked_identifier: w
           alias_expression:
             keyword: AS
-            identifier: v_last_value
+            naked_identifier: v_last_value
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: test_ignore_null
+                naked_identifier: test_ignore_null
             named_window:
               keyword: WINDOW
               named_window_expression:
-                identifier: w
+                naked_identifier: w
                 keyword: AS
                 bracketed:
                   start_bracket: (
@@ -623,13 +623,13 @@ file:
                     - keyword: ORDER
                     - keyword: BY
                     - column_reference:
-                        identifier: id
+                        naked_identifier: id
                   end_bracket: )
       orderby_clause:
       - keyword: ORDER
       - keyword: BY
       - column_reference:
-          identifier: id
+          naked_identifier: id
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -637,11 +637,11 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: id
+            naked_identifier: id
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: v
+            naked_identifier: v
       - comma: ','
       - select_clause_element:
           function:
@@ -651,19 +651,19 @@ file:
             - start_bracket: (
             - expression:
                 column_reference:
-                  identifier: v
+                  naked_identifier: v
             - comma: ','
             - expression:
-                literal: '0'
+                numeric_literal: '0'
             - end_bracket: )
             over_clause:
             - keyword: RESPECT
             - keyword: NULLS
             - keyword: OVER
-            - identifier: w
+            - naked_identifier: w
           alias_expression:
             keyword: AS
-            identifier: v_lead
+            naked_identifier: v_lead
       - comma: ','
       - select_clause_element:
           function:
@@ -673,19 +673,19 @@ file:
             - start_bracket: (
             - expression:
                 column_reference:
-                  identifier: v
+                  naked_identifier: v
             - comma: ','
             - expression:
-                literal: '0'
+                numeric_literal: '0'
             - end_bracket: )
             over_clause:
             - keyword: RESPECT
             - keyword: NULLS
             - keyword: OVER
-            - identifier: w
+            - naked_identifier: w
           alias_expression:
             keyword: AS
-            identifier: v_lag
+            naked_identifier: v_lag
       - comma: ','
       - select_clause_element:
           function:
@@ -695,19 +695,19 @@ file:
             - start_bracket: (
             - expression:
                 column_reference:
-                  identifier: v
+                  naked_identifier: v
             - comma: ','
             - expression:
-                literal: '2'
+                numeric_literal: '2'
             - end_bracket: )
             over_clause:
             - keyword: RESPECT
             - keyword: NULLS
             - keyword: OVER
-            - identifier: w
+            - naked_identifier: w
           alias_expression:
             keyword: AS
-            identifier: v_nth_value
+            naked_identifier: v_nth_value
       - comma: ','
       - select_clause_element:
           function:
@@ -717,16 +717,16 @@ file:
               start_bracket: (
               expression:
                 column_reference:
-                  identifier: v
+                  naked_identifier: v
               end_bracket: )
             over_clause:
             - keyword: RESPECT
             - keyword: NULLS
             - keyword: OVER
-            - identifier: w
+            - naked_identifier: w
           alias_expression:
             keyword: AS
-            identifier: v_first_value
+            naked_identifier: v_first_value
       - comma: ','
       - select_clause_element:
           function:
@@ -736,27 +736,27 @@ file:
               start_bracket: (
               expression:
                 column_reference:
-                  identifier: v
+                  naked_identifier: v
               end_bracket: )
             over_clause:
             - keyword: RESPECT
             - keyword: NULLS
             - keyword: OVER
-            - identifier: w
+            - naked_identifier: w
           alias_expression:
             keyword: AS
-            identifier: v_last_value
+            naked_identifier: v_last_value
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: test_ignore_null
+                naked_identifier: test_ignore_null
             named_window:
               keyword: WINDOW
               named_window_expression:
-                identifier: w
+                naked_identifier: w
                 keyword: AS
                 bracketed:
                   start_bracket: (
@@ -765,13 +765,13 @@ file:
                     - keyword: ORDER
                     - keyword: BY
                     - column_reference:
-                        identifier: id
+                        naked_identifier: id
                   end_bracket: )
       orderby_clause:
       - keyword: ORDER
       - keyword: BY
       - column_reference:
-          identifier: id
+          naked_identifier: id
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -779,15 +779,15 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: ignore_nulls
+          - naked_identifier: ignore_nulls
           - dot: .
-          - identifier: id
+          - naked_identifier: id
       - comma: ','
       - select_clause_element:
           column_reference:
-          - identifier: ignore_nulls
+          - naked_identifier: ignore_nulls
           - dot: .
-          - identifier: v
+          - naked_identifier: v
       - comma: ','
       - select_clause_element:
           function:
@@ -797,21 +797,21 @@ file:
             - start_bracket: (
             - expression:
                 column_reference:
-                - identifier: ignore_nulls
+                - naked_identifier: ignore_nulls
                 - dot: .
-                - identifier: v
+                - naked_identifier: v
             - comma: ','
             - expression:
-                literal: '0'
+                numeric_literal: '0'
             - end_bracket: )
             over_clause:
             - keyword: RESPECT
             - keyword: NULLS
             - keyword: OVER
-            - identifier: w
+            - naked_identifier: w
           alias_expression:
             keyword: AS
-            identifier: v_lead
+            naked_identifier: v_lead
       - comma: ','
       - select_clause_element:
           function:
@@ -821,21 +821,21 @@ file:
             - start_bracket: (
             - expression:
                 column_reference:
-                - identifier: ignore_nulls
+                - naked_identifier: ignore_nulls
                 - dot: .
-                - identifier: v
+                - naked_identifier: v
             - comma: ','
             - expression:
-                literal: '0'
+                numeric_literal: '0'
             - end_bracket: )
             over_clause:
             - keyword: RESPECT
             - keyword: NULLS
             - keyword: OVER
-            - identifier: w
+            - naked_identifier: w
           alias_expression:
             keyword: AS
-            identifier: v_lag
+            naked_identifier: v_lag
       - comma: ','
       - select_clause_element:
           function:
@@ -845,21 +845,21 @@ file:
             - start_bracket: (
             - expression:
                 column_reference:
-                - identifier: ignore_nulls
+                - naked_identifier: ignore_nulls
                 - dot: .
-                - identifier: v
+                - naked_identifier: v
             - comma: ','
             - expression:
-                literal: '2'
+                numeric_literal: '2'
             - end_bracket: )
             over_clause:
             - keyword: RESPECT
             - keyword: NULLS
             - keyword: OVER
-            - identifier: w
+            - naked_identifier: w
           alias_expression:
             keyword: AS
-            identifier: v_nth_value
+            naked_identifier: v_nth_value
       - comma: ','
       - select_clause_element:
           function:
@@ -869,18 +869,18 @@ file:
               start_bracket: (
               expression:
                 column_reference:
-                - identifier: ignore_nulls
+                - naked_identifier: ignore_nulls
                 - dot: .
-                - identifier: v
+                - naked_identifier: v
               end_bracket: )
             over_clause:
             - keyword: RESPECT
             - keyword: NULLS
             - keyword: OVER
-            - identifier: w
+            - naked_identifier: w
           alias_expression:
             keyword: AS
-            identifier: v_first_value
+            naked_identifier: v_first_value
       - comma: ','
       - select_clause_element:
           function:
@@ -890,32 +890,32 @@ file:
               start_bracket: (
               expression:
                 column_reference:
-                - identifier: ignore_nulls
+                - naked_identifier: ignore_nulls
                 - dot: .
-                - identifier: v
+                - naked_identifier: v
               end_bracket: )
             over_clause:
             - keyword: RESPECT
             - keyword: NULLS
             - keyword: OVER
-            - identifier: w
+            - naked_identifier: w
           alias_expression:
             keyword: AS
-            identifier: v_last_value
+            naked_identifier: v_last_value
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: test_ignore_null
+                naked_identifier: test_ignore_null
             alias_expression:
               keyword: AS
-              identifier: ignore_nulls
+              naked_identifier: ignore_nulls
             named_window:
               keyword: WINDOW
               named_window_expression:
-                identifier: w
+                naked_identifier: w
                 keyword: AS
                 bracketed:
                   start_bracket: (
@@ -924,15 +924,15 @@ file:
                     - keyword: ORDER
                     - keyword: BY
                     - column_reference:
-                      - identifier: ignore_nulls
+                      - naked_identifier: ignore_nulls
                       - dot: .
-                      - identifier: id
+                      - naked_identifier: id
                   end_bracket: )
       orderby_clause:
       - keyword: ORDER
       - keyword: BY
       - column_reference:
-        - identifier: ignore_nulls
+        - naked_identifier: ignore_nulls
         - dot: .
-        - identifier: id
+        - naked_identifier: id
 - statement_terminator: ;

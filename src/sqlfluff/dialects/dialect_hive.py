@@ -1,4 +1,5 @@
 """The Hive dialect."""
+from typing import Optional
 
 from sqlfluff.core.parser import (
     AnyNumberOf,
@@ -14,6 +15,10 @@ from sqlfluff.core.parser import (
     StringParser,
     OptionallyBracketed,
     RegexParser,
+    Matchable,
+    StartsWith,
+    Indent,
+    Dedent,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -59,23 +64,15 @@ hive_dialect.sets("datetime_units").update(
 
 hive_dialect.add(
     StartAngleBracketSegment=StringParser(
-        "<", SymbolSegment, name="start_angle_bracket", type="start_angle_bracket"
+        "<", SymbolSegment, type="start_angle_bracket"
     ),
-    EndAngleBracketSegment=StringParser(
-        ">", SymbolSegment, name="end_angle_bracket", type="end_angle_bracket"
-    ),
-    JsonfileKeywordSegment=StringParser(
-        "JSONFILE", KeywordSegment, name="json_file", type="file_format"
-    ),
-    RcfileKeywordSegment=StringParser(
-        "RCFILE", KeywordSegment, name="rc_file", type="file_format"
-    ),
+    EndAngleBracketSegment=StringParser(">", SymbolSegment, type="end_angle_bracket"),
+    JsonfileKeywordSegment=StringParser("JSONFILE", KeywordSegment, type="file_format"),
+    RcfileKeywordSegment=StringParser("RCFILE", KeywordSegment, type="file_format"),
     SequencefileKeywordSegment=StringParser(
-        "SEQUENCEFILE", KeywordSegment, name="sequence_file", type="file_format"
+        "SEQUENCEFILE", KeywordSegment, type="file_format"
     ),
-    TextfileKeywordSegment=StringParser(
-        "TEXTFILE", KeywordSegment, name="text_file", type="file_format"
-    ),
+    TextfileKeywordSegment=StringParser("TEXTFILE", KeywordSegment, type="file_format"),
     LocationGrammar=Sequence("LOCATION", Ref("QuotedLiteralSegment")),
     PropertyGrammar=Sequence(
         Ref("QuotedLiteralSegment"),
@@ -137,9 +134,8 @@ hive_dialect.add(
     ),
     BackQuotedIdentifierSegment=NamedParser(
         "back_quote",
-        CodeSegment,
-        name="quoted_identifier",
-        type="identifier",
+        ansi.IdentifierSegment,
+        type="quoted_identifier",
     ),
 )
 
@@ -147,20 +143,9 @@ hive_dialect.add(
 hive_dialect.replace(
     JoinKeywordsGrammar=Sequence(Sequence("SEMI", optional=True), "JOIN"),
     QuotedLiteralSegment=OneOf(
-        NamedParser("single_quote", CodeSegment, name="quoted_literal", type="literal"),
-        NamedParser("double_quote", CodeSegment, name="quoted_literal", type="literal"),
-        NamedParser("back_quote", CodeSegment, name="quoted_literal", type="literal"),
-    ),
-    LiteralGrammar=OneOf(
-        Ref("QuotedLiteralSegment"),
-        Ref("NumericLiteralSegment"),
-        Ref("BooleanLiteralGrammar"),
-        Ref("QualifiedNumericLiteralSegment"),
-        # NB: Null is included in the literals, because it is a keyword which
-        # can otherwise be easily mistaken for an identifier.
-        Ref("NullLiteralSegment"),
-        Ref("DateTimeLiteralGrammar"),
-        Sequence(Ref("SimpleArrayTypeGrammar"), Ref("ArrayLiteralSegment")),
+        NamedParser("single_quote", ansi.LiteralSegment, type="quoted_literal"),
+        NamedParser("double_quote", ansi.LiteralSegment, type="quoted_literal"),
+        NamedParser("back_quote", ansi.LiteralSegment, type="quoted_literal"),
     ),
     SimpleArrayTypeGrammar=Ref.keyword("ARRAY"),
     TrimParametersGrammar=Nothing(),
@@ -168,6 +153,60 @@ hive_dialect.replace(
         insert=[
             Ref("BackQuotedIdentifierSegment"),
         ]
+    ),
+    SelectClauseElementTerminatorGrammar=ansi_dialect.get_grammar(
+        "SelectClauseElementTerminatorGrammar"
+    ).copy(
+        insert=[
+            Sequence("CLUSTER", "BY"),
+            Sequence("DISTRIBUTE", "BY"),
+            Sequence("SORT", "BY"),
+        ],
+        before=Sequence("ORDER", "BY"),
+    ),
+    FromClauseTerminatorGrammar=ansi_dialect.get_grammar(
+        "FromClauseTerminatorGrammar"
+    ).copy(
+        insert=[
+            Sequence("CLUSTER", "BY"),
+            Sequence("DISTRIBUTE", "BY"),
+            Sequence("SORT", "BY"),
+        ],
+        before=Sequence("ORDER", "BY"),
+    ),
+    WhereClauseTerminatorGrammar=ansi_dialect.get_grammar(
+        "WhereClauseTerminatorGrammar"
+    ).copy(
+        insert=[
+            Sequence("CLUSTER", "BY"),
+            Sequence("DISTRIBUTE", "BY"),
+            Sequence("SORT", "BY"),
+        ],
+        before=Sequence("ORDER", "BY"),
+    ),
+    GroupByClauseTerminatorGrammar=OneOf(
+        Sequence(
+            OneOf("ORDER", "CLUSTER", "DISTRIBUTE", "SORT"),
+            "BY",
+        ),
+        "LIMIT",
+        "HAVING",
+        "QUALIFY",
+        "WINDOW",
+    ),
+    HavingClauseTerminatorGrammar=OneOf(
+        Sequence(
+            OneOf(
+                "ORDER",
+                "CLUSTER",
+                "DISTRIBUTE",
+                "SORT",
+            ),
+            "BY",
+        ),
+        "LIMIT",
+        "QUALIFY",
+        "WINDOW",
     ),
 )
 
@@ -746,7 +785,6 @@ class SamplingExpressionSegment(BaseSegment):
                 RegexParser(
                     r"\d+[bBkKmMgG]",
                     CodeSegment,
-                    name="byte_length_literal",
                     type="byte_length_literal",
                 ),
             ),
@@ -755,4 +793,187 @@ class SamplingExpressionSegment(BaseSegment):
             "AliasExpressionSegment",
             optional=True,
         ),
+    )
+
+
+class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
+    """Enhance unordered SELECT statement to include CLUSTER, DISTRIBUTE, SORT BY."""
+
+    match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar.copy()
+    match_grammar.terminator = match_grammar.terminator.copy(  # type: ignore
+        insert=[
+            Ref("ClusterByClauseSegment"),
+            Ref("DistributeByClauseSegment"),
+            Ref("SortByClauseSegment"),
+        ],
+        before=Ref("LimitClauseSegment"),
+    )
+
+    parse_grammar = ansi.UnorderedSelectStatementSegment.parse_grammar.copy()
+
+
+class SelectStatementSegment(ansi.SelectStatementSegment):
+    """Overriding SelectStatementSegment to allow for additional segment parsing."""
+
+    match_grammar = ansi.SelectStatementSegment.match_grammar.copy()
+    parse_grammar = ansi.SelectStatementSegment.parse_grammar.copy(
+        insert=[
+            Ref("ClusterByClauseSegment", optional=True),
+            Ref("DistributeByClauseSegment", optional=True),
+            Ref("SortByClauseSegment", optional=True),
+        ],
+        before=Ref("LimitClauseSegment", optional=True),
+    )
+
+
+class SelectClauseSegment(ansi.SelectClauseSegment):
+    """Overriding SelectClauseSegment to allow for additional segment parsing."""
+
+    match_grammar = ansi.SelectClauseSegment.match_grammar.copy()
+    match_grammar.terminator = match_grammar.terminator.copy(  # type: ignore
+        insert=[
+            Sequence("CLUSTER", "BY"),
+            Sequence("DISTRIBUTE", "BY"),
+            Sequence("SORT", "BY"),
+        ],
+        before=Ref.keyword("LIMIT"),
+    )
+    parse_grammar = ansi.SelectClauseSegment.parse_grammar.copy()
+
+
+class SetExpressionSegment(ansi.SetExpressionSegment):
+    """Overriding SetExpressionSegment to allow for additional segment parsing."""
+
+    match_grammar = ansi.SetExpressionSegment.match_grammar.copy(
+        insert=[
+            Ref("ClusterByClauseSegment", optional=True),
+            Ref("DistributeByClauseSegment", optional=True),
+            Ref("SortByClauseSegment", optional=True),
+        ],
+        before=Ref("LimitClauseSegment", optional=True),
+    )
+
+
+class PartitionClauseSegment(ansi.PartitionClauseSegment):
+    """Overriding SetExpressionSegment to allow for additional segment parsing."""
+
+    match_grammar = ansi.PartitionClauseSegment.match_grammar.copy()
+    match_grammar.terminator = match_grammar.terminator.copy(  # type: ignore
+        insert=[
+            Sequence("CLUSTER", "BY"),
+            Sequence("DISTRIBUTE", "BY"),
+            Sequence("SORT", "BY"),
+        ],
+        before=Ref("FrameClauseUnitGrammar"),
+    )
+    parse_grammar = ansi.PartitionClauseSegment.parse_grammar
+
+
+class OrderByClauseSegment(ansi.OrderByClauseSegment):
+    """A `ORDER BY` clause like in `SELECT`."""
+
+    match_grammar = ansi.OrderByClauseSegment.match_grammar.copy()
+    match_grammar.terminator = OneOf(  # type: ignore
+        "CLUSTER",
+        "DISTRIBUTE",
+        "SORT",
+        "LIMIT",
+        "HAVING",
+        "QUALIFY",
+        # For window functions
+        "WINDOW",
+        Ref("FrameClauseUnitGrammar"),
+        "SEPARATOR",
+    )
+    parse_grammar = ansi.OrderByClauseSegment.parse_grammar
+
+
+class ClusterByClauseSegment(ansi.OrderByClauseSegment):
+    """A `CLUSTER BY` clause like in `SELECT`."""
+
+    type = "clusterby_clause"
+    match_grammar: Matchable = StartsWith(
+        Sequence("CLUSTER", "BY"),
+        terminator=ansi.OrderByClauseSegment.match_grammar.terminator,  # type: ignore
+    )
+    parse_grammar: Optional[Matchable] = Sequence(
+        "CLUSTER",
+        "BY",
+        Indent,
+        Delimited(
+            Sequence(
+                OneOf(
+                    Ref("ColumnReferenceSegment"),
+                    Ref("NumericLiteralSegment"),
+                    Ref("ExpressionSegment"),
+                ),
+            ),
+            terminator=OneOf(Ref.keyword("LIMIT"), Ref("FrameClauseUnitGrammar")),
+        ),
+        Dedent,
+    )
+
+
+class DistributeByClauseSegment(ansi.OrderByClauseSegment):
+    """A `DISTRIBUTE BY` clause like in `SELECT`."""
+
+    type = "distributeby_clause"
+    match_grammar: Matchable = StartsWith(
+        Sequence("DISTRIBUTE", "BY"),
+        terminator=OneOf(
+            "SORT",
+            "LIMIT",
+            "HAVING",
+            "QUALIFY",
+            # For window functions
+            "WINDOW",
+            Ref("FrameClauseUnitGrammar"),
+            "SEPARATOR",
+        ),
+    )
+    parse_grammar: Optional[Matchable] = Sequence(
+        "DISTRIBUTE",
+        "BY",
+        Indent,
+        Delimited(
+            Sequence(
+                OneOf(
+                    Ref("ColumnReferenceSegment"),
+                    Ref("NumericLiteralSegment"),
+                    Ref("ExpressionSegment"),
+                ),
+            ),
+            terminator=OneOf(
+                Ref.keyword("LIMIT"), Ref("FrameClauseUnitGrammar"), Ref.keyword("SORT")
+            ),
+        ),
+        Dedent,
+    )
+
+
+class SortByClauseSegment(ansi.OrderByClauseSegment):
+    """A `SORT BY` clause like in `SELECT`."""
+
+    type = "sortby_clause"
+    match_grammar: Matchable = StartsWith(
+        Sequence("SORT", "BY"),
+        terminator=ansi.OrderByClauseSegment.match_grammar.terminator,  # type: ignore
+    )
+    parse_grammar: Optional[Matchable] = Sequence(
+        "SORT",
+        "BY",
+        Indent,
+        Delimited(
+            Sequence(
+                OneOf(
+                    Ref("ColumnReferenceSegment"),
+                    Ref("NumericLiteralSegment"),
+                    Ref("ExpressionSegment"),
+                ),
+                OneOf("ASC", "DESC", optional=True),
+                Sequence("NULLS", OneOf("FIRST", "LAST"), optional=True),
+            ),
+            terminator=OneOf(Ref.keyword("LIMIT"), Ref("FrameClauseUnitGrammar")),
+        ),
+        Dedent,
     )

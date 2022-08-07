@@ -3,7 +3,7 @@
 from typing import Any, Dict, Optional, Tuple
 
 from sqlfluff.core.parser import RawSegment, WhitespaceSegment
-from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
+from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,

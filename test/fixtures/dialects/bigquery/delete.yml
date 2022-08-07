@@ -3,40 +3,40 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e6a575613121122202d2ed58afd9c844e14c3374ee9a30a92e42a200c8608358
+_hash: fe5d02ee53e337f806fc3921393afde1c4edc4c03d5c94e3a7fbfd5b21fd5d56
 file:
 - statement:
     delete_statement:
       keyword: DELETE
       object_reference:
-      - identifier: dataset
+      - naked_identifier: dataset
       - dot: .
-      - identifier: Inventory
+      - naked_identifier: Inventory
       where_clause:
         keyword: WHERE
         expression:
           column_reference:
-            identifier: quantity
+            naked_identifier: quantity
           comparison_operator:
             raw_comparison_operator: '='
-          literal: '0'
+          numeric_literal: '0'
 - statement_terminator: ;
 - statement:
     delete_statement:
       keyword: DELETE
       object_reference:
-      - identifier: dataset
+      - naked_identifier: dataset
       - dot: .
-      - identifier: Inventory
+      - naked_identifier: Inventory
       alias_expression:
-        identifier: i
+        naked_identifier: i
       where_clause:
         keyword: WHERE
         expression:
         - column_reference:
-          - identifier: i
+          - naked_identifier: i
           - dot: .
-          - identifier: product
+          - naked_identifier: product
         - keyword: NOT
         - keyword: IN
         - bracketed:
@@ -46,25 +46,25 @@ file:
                 keyword: SELECT
                 select_clause_element:
                   column_reference:
-                    identifier: product
+                    naked_identifier: product
               from_clause:
                 keyword: from
                 from_expression:
                   from_expression_element:
                     table_expression:
                       table_reference:
-                      - identifier: dataset
+                      - naked_identifier: dataset
                       - dot: .
-                      - identifier: NewArrivals
+                      - naked_identifier: NewArrivals
             end_bracket: )
 - statement_terminator: ;
 - statement:
     delete_statement:
       keyword: DELETE
       object_reference:
-      - identifier: dataset
+      - naked_identifier: dataset
       - dot: .
-      - identifier: Inventory
+      - naked_identifier: Inventory
       where_clause:
         keyword: WHERE
         expression:
@@ -85,21 +85,21 @@ file:
                   from_expression_element:
                     table_expression:
                       table_reference:
-                      - identifier: dataset
+                      - naked_identifier: dataset
                       - dot: .
-                      - identifier: NewArrivals
+                      - naked_identifier: NewArrivals
               where_clause:
                 keyword: WHERE
                 expression:
                 - column_reference:
-                  - identifier: Inventory
+                  - naked_identifier: Inventory
                   - dot: .
-                  - identifier: product
+                  - naked_identifier: product
                 - comparison_operator:
                     raw_comparison_operator: '='
                 - column_reference:
-                  - identifier: NewArrivals
+                  - naked_identifier: NewArrivals
                   - dot: .
-                  - identifier: product
+                  - naked_identifier: product
             end_bracket: )
 - statement_terminator: ;

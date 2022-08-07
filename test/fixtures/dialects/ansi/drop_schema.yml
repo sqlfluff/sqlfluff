@@ -3,21 +3,21 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8d8f7272ea3b8b46ef5f59a469f863849ad83436f60b9c33a97412eadc8ada47
+_hash: 54f1225c5247d92c341517d4b0626dd3b5b9f6df4fe91e4fb61e27c12f81b68a
 file:
 - statement:
     drop_schema_statement:
     - keyword: drop
     - keyword: schema
     - schema_reference:
-        identifier: my_schema
+        naked_identifier: my_schema
 - statement_terminator: ;
 - statement:
     drop_schema_statement:
     - keyword: drop
     - keyword: schema
     - schema_reference:
-        identifier: my_schema
+        naked_identifier: my_schema
     - keyword: cascade
 - statement_terminator: ;
 - statement:
@@ -25,7 +25,7 @@ file:
     - keyword: drop
     - keyword: schema
     - schema_reference:
-        identifier: my_schema
+        naked_identifier: my_schema
     - keyword: restrict
 - statement_terminator: ;
 - statement:
@@ -35,7 +35,7 @@ file:
     - keyword: if
     - keyword: exists
     - schema_reference:
-        identifier: my_schema
+        naked_identifier: my_schema
 - statement_terminator: ;
 - statement:
     drop_schema_statement:
@@ -44,7 +44,7 @@ file:
     - keyword: if
     - keyword: exists
     - schema_reference:
-        identifier: my_schema
+        naked_identifier: my_schema
     - keyword: cascade
 - statement_terminator: ;
 - statement:
@@ -54,6 +54,6 @@ file:
     - keyword: if
     - keyword: exists
     - schema_reference:
-        identifier: my_schema
+        naked_identifier: my_schema
     - keyword: restrict
 - statement_terminator: ;

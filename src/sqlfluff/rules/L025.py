@@ -4,12 +4,13 @@ from dataclasses import dataclass, field
 from typing import cast, List, Set
 
 from sqlfluff.core.dialects.base import Dialect
+from sqlfluff.core.parser.segments import BaseSegment
 from sqlfluff.core.rules.analysis.select import get_select_statement_info
 from sqlfluff.core.rules.analysis.select_crawler import (
     Query as SelectCrawlerQuery,
     SelectCrawler,
 )
-from sqlfluff.core.rules.base import (
+from sqlfluff.core.rules import (
     BaseRule,
     LintFix,
     LintResult,
@@ -62,6 +63,10 @@ class Rule_L025(BaseRule):
     """
 
     groups = ("all", "core")
+    _dialects_requiring_alias_for_values_clause = [
+        "snowflake",
+        "tsql",
+    ]
 
     def _eval(self, context: RuleContext) -> EvalResultType:
         violations: List[LintResult] = []
@@ -80,10 +85,59 @@ class Rule_L025(BaseRule):
 
             alias: AliasInfo
             for alias in query.aliases:
+
+                # Skip alias if it's required (some dialects require aliases for
+                # VALUES clauses).
+                if alias.from_expression_element and self.is_alias_required(
+                    alias.from_expression_element, context.dialect.name
+                ):
+                    continue
+
                 if alias.aliased and alias.ref_str not in query.tbl_refs:
                     # Unused alias. Report and fix.
                     violations.append(self._report_unused_alias(alias))
         return violations or None
+
+    @classmethod
+    def is_alias_required(
+        cls, from_expression_element: BaseSegment, dialect_name: str
+    ) -> bool:
+        """Given an alias, is it REQUIRED to be present?
+
+        Aliases are required in SOME, but not all dialects when there's a VALUES
+        clause.
+        """
+        # Look for a table_expression (i.e. VALUES clause) as a descendant of
+        # the FROM expression, potentially nested inside brackets. The reason we
+        # allow nesting in brackets is that in some dialects (e.g. TSQL), this
+        # is actually *required* in order for SQL Server to parse it.
+        for segment in from_expression_element.iter_segments(expanding=("bracketed",)):
+            if segment.is_type("table_expression"):
+                # Found a table expression. Does it have a VALUES clause?
+                if segment.get_child("values_clause"):
+                    # Found a VALUES clause. Is this a dialect that requires
+                    # VALUE clauses to be aliased?
+                    return (
+                        dialect_name in cls._dialects_requiring_alias_for_values_clause
+                    )
+                elif any(
+                    seg.is_type(
+                        "select_statement", "set_expression", "with_compound_statement"
+                    )
+                    for seg in segment.iter_segments(expanding=("bracketed",))
+                ):
+                    # The FROM expression is a derived table, i.e. a nested
+                    # SELECT. In this case, the alias is required in every
+                    # dialect we checked (MySQL, Postgres, T-SQL).
+                    # https://pganalyze.com/docs/log-insights/app-errors/U115
+                    return True
+                else:
+                    # None of the special cases above applies, so the alias is
+                    # not required.
+                    return False
+
+        # This should never happen. Return False just to be safe.
+        return False  # pragma: no cover
 
     @classmethod
     def _analyze_table_aliases(cls, query: L025Query, dialect: Dialect):

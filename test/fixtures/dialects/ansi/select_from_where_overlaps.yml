@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7c6ddde17dc7f5e0d372264f4b8f377aabcaf37e7673a6f953fba6f873760b8c
+_hash: 9cedfe94bf4b39aa6ab3800f1ff478ea2e253d375df4aea21e254523c2923827
 file:
   statement:
     select_statement:
@@ -11,21 +11,21 @@ file:
         keyword: SELECT
         select_clause_element:
           column_reference:
-            identifier: column_name
+            naked_identifier: column_name
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: table_name
+                naked_identifier: table_name
       where_clause:
         keyword: WHERE
         expression:
           column_reference:
-            identifier: period1
+            naked_identifier: period1
       overlaps_clause:
         keyword: OVERLAPS
         column_reference:
-          identifier: period2
+          naked_identifier: period2
   statement_terminator: ;

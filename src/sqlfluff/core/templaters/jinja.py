@@ -22,6 +22,7 @@ from sqlfluff.core.templaters.base import (
     RawFileSlice,
     TemplatedFile,
     TemplatedFileSlice,
+    large_file_check,
 )
 from sqlfluff.core.templaters.python import PythonTemplater
 from sqlfluff.core.templaters.slicers.tracer import JinjaAnalyzer
@@ -67,12 +68,12 @@ class JinjaTemplater(PythonTemplater):
     @classmethod
     def _extract_macros_from_path(cls, path: List[str], env: Environment, ctx: Dict):
         """Take a path and extract macros from it."""
+        macro_ctx = {}
         for path_entry in path:
             # Does it exist? It should as this check was done on config load.
             if not os.path.exists(path_entry):
                 raise ValueError(f"Path does not exist: {path_entry}")
 
-            macro_ctx = {}
             if os.path.isfile(path_entry):
                 # It's a file. Extract macros from it.
                 with open(path_entry) as opened_file:
@@ -307,6 +308,7 @@ class JinjaTemplater(PythonTemplater):
 
         return env, live_context, make_template
 
+    @large_file_check
     def process(
         self, *, in_str: str, fname: str, config=None, formatter=None
     ) -> Tuple[Optional[TemplatedFile], list]:

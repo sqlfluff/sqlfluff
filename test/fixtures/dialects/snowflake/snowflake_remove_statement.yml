@@ -3,57 +3,50 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: cd9e811f34be07f4341d3fa91a2fe72783752db69c3efcc4b2837a210159829c
+_hash: 473c65321c316f23d9a239e9fb8073e1434e4e3e6068a33fc762c5efb3756ad8
 file:
 - statement:
     remove_statement:
       keyword: rm
-      object_reference:
-        identifier: '@%mytable/myobject'
+      stage_path: '@%mytable/myobject'
 - statement_terminator: ;
 - statement:
     remove_statement:
       keyword: rm
-      object_reference:
-        identifier: '@%mytable/myobject/'
+      stage_path: '@%mytable/myobject/'
 - statement_terminator: ;
 - statement:
     remove_statement:
       keyword: remove
-      object_reference:
-        identifier: '@mystage/path1/subpath2'
+      stage_path: '@mystage/path1/subpath2'
 - statement_terminator: ;
 - statement:
     remove_statement:
       keyword: remove
-      object_reference:
-        identifier: '@%orders'
+      stage_path: '@%orders'
 - statement_terminator: ;
 - statement:
     remove_statement:
     - keyword: rm
-    - object_reference:
-        identifier: '@~'
+    - stage_path: '@~'
     - keyword: pattern
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: "'.*jun.*'"
+    - quoted_literal: "'.*jun.*'"
 - statement_terminator: ;
 - statement:
     remove_statement:
     - keyword: REMOVE
-    - object_reference:
-        identifier: '@foo.bar'
+    - stage_path: '@foo.bar'
     - keyword: PATTERN
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: "'\\w'"
+    - quoted_literal: "'\\w'"
 - statement_terminator: ;
 - statement:
     remove_statement:
     - keyword: RM
-    - object_reference:
-        identifier: '@foo.foo'
+    - stage_path: '@foo.foo'
     - keyword: PATTERN
     - comparison_operator:
         raw_comparison_operator: '='

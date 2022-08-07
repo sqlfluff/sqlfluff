@@ -9,20 +9,21 @@ Teradata Database SQL Data Definition Language Syntax and Examples
 """
 
 from sqlfluff.core.parser import (
+    AnyNumberOf,
+    Anything,
     BaseSegment,
+    Bracketed,
+    CodeSegment,
+    Dedent,
+    Delimited,
+    Indent,
+    Matchable,
+    OneOf,
+    OptionallyBracketed,
+    Ref,
+    RegexLexer,
     Sequence,
     StartsWith,
-    OneOf,
-    Delimited,
-    Bracketed,
-    AnyNumberOf,
-    Ref,
-    Anything,
-    RegexLexer,
-    CodeSegment,
-    Indent,
-    Dedent,
-    OptionallyBracketed,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -78,6 +79,7 @@ teradata_dialect.sets("unreserved_keywords").update(
         "RUN",
         "SAMPLE",
         "SEL",
+        "SS",
         "STAT",
         "SUMMARY",
         "THRESHOLD",
@@ -224,11 +226,7 @@ class TdCollectStatisticsStatementSegment(BaseSegment):
                     "INDEX",
                     Ref("IndexReferenceSegment", optional=True),
                     Ref.keyword("ALL", optional=True),
-                    Bracketed(
-                        Delimited(
-                            Ref("ColumnReferenceSegment"), delimiter=Ref("CommaSegment")
-                        )
-                    ),
+                    Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
                     Ref("TdOrderByStatClauseSegment", optional=True),
                 ),
                 # UNIQUE INDEX index_name
@@ -247,7 +245,6 @@ class TdCollectStatisticsStatementSegment(BaseSegment):
                                 Ref.keyword("PARTITION"),
                                 # TODO: expression
                             ),
-                            delimiter=Ref("CommaSegment"),
                         ),
                     ),
                     Sequence(
@@ -257,7 +254,6 @@ class TdCollectStatisticsStatementSegment(BaseSegment):
                     ),
                 ),
             ),
-            delimiter=Ref("CommaSegment"),
             optional=True,
         ),
         "ON",
@@ -341,7 +337,7 @@ class DatatypeSegment(ansi.DatatypeSegment):
         Ref("DatatypeIdentifierSegment"),
         Bracketed(
             OneOf(
-                Delimited(Ref("ExpressionSegment"), delimiter=Ref("CommaSegment")),
+                Delimited(Ref("ExpressionSegment")),
                 # The brackets might be empty for some cases...
                 optional=True,
             ),
@@ -428,9 +424,7 @@ class TdColumnConstraintSegment(BaseSegment):
             Sequence(  # COMPRESS [(1.,3.) | 3. | NULL],
                 "COMPRESS",
                 OneOf(
-                    Bracketed(
-                        Delimited(Ref("LiteralGrammar"), delimiter=Ref("CommaSegment"))
-                    ),
+                    Bracketed(Delimited(Ref("LiteralGrammar"))),
                     Ref("LiteralGrammar"),
                     "NULL",
                     optional=True,
@@ -523,7 +517,6 @@ class TdTablePartitioningLevel(BaseSegment):
                     Ref("FunctionNameSegment"),
                     Bracketed(Anything(optional=True)),
                 ),
-                delimiter=Ref("CommaSegment"),
             ),
         ),
     )
@@ -539,46 +532,45 @@ class TdTableConstraints(BaseSegment):
     """
 
     type = "td_table_constraint"
-    match_grammar = Sequence(
-        AnyNumberOf(
-            # PRIMARY Index
-            OneOf(
-                Sequence(  # UNIQUE PRIMARY INDEX Column_name | ( Column_name, ... )
-                    Ref.keyword("UNIQUE", optional=True),
-                    "PRIMARY",
-                    "INDEX",
-                    Ref("ObjectReferenceSegment", optional=True),  # primary index name
-                    OneOf(
-                        Bracketed(
-                            Delimited(
-                                Ref("SingleIdentifierGrammar"),
-                                delimiter=Ref("CommaSegment"),
-                            )
-                        ),
-                        Ref("SingleIdentifierGrammar"),
-                    ),
-                ),
-                Sequence("NO", "PRIMARY", "INDEX"),  # NO PRIMARY INDEX
-            ),
-            # PARTITION BY ...
-            Sequence(  # INDEX HOPR_TRN_TRAV_SIN_MP_I ( IND_TIPO_TARJETA );
-                "PARTITION",
-                "BY",
-                Ref("TdTablePartitioningLevel"),
-            ),
-            # Index
-            Sequence(  # INDEX HOPR_TRN_TRAV_SIN_MP_I ( IND_TIPO_TARJETA );
+    match_grammar = AnyNumberOf(
+        # PRIMARY Index
+        OneOf(
+            Sequence(  # UNIQUE PRIMARY INDEX Column_name | ( Column_name, ... )
                 Ref.keyword("UNIQUE", optional=True),
+                "PRIMARY",
                 "INDEX",
-                Ref("ObjectReferenceSegment"),  # Index name
-                Ref.keyword("ALL", optional=True),
-                Bracketed(  # Columns making up  constraint
-                    Delimited(
-                        Ref("ColumnReferenceSegment"), delimiter=Ref("CommaSegment")
+                Ref("ObjectReferenceSegment", optional=True),  # primary index name
+                OneOf(
+                    Bracketed(
+                        Delimited(
+                            Ref("SingleIdentifierGrammar"),
+                        )
                     ),
+                    Ref("SingleIdentifierGrammar"),
                 ),
             ),
-        )
+            Sequence("NO", "PRIMARY", "INDEX"),  # NO PRIMARY INDEX
+        ),
+        # PARTITION BY ...
+        Sequence(  # INDEX HOPR_TRN_TRAV_SIN_MP_I ( IND_TIPO_TARJETA );
+            "PARTITION",
+            "BY",
+            Ref("TdTablePartitioningLevel"),
+        ),
+        # Index
+        Sequence(  # INDEX HOPR_TRN_TRAV_SIN_MP_I ( IND_TIPO_TARJETA );
+            Ref.keyword("UNIQUE", optional=True),
+            "INDEX",
+            Ref("ObjectReferenceSegment"),  # Index name
+            Ref.keyword("ALL", optional=True),
+            Bracketed(  # Columns making up  constraint
+                Delimited(Ref("ColumnReferenceSegment")),
+            ),
+        ),
+        # WITH DATA
+        Sequence("WITH", Sequence("NO", optional=True), "DATA"),
+        # ON COMMIT PRESERVE ROWS
+        Sequence("ON", "COMMIT", OneOf("PRESERVE", "DELETE"), "ROWS"),
     )
 
 
@@ -606,7 +598,6 @@ class CreateTableStatementSegment(BaseSegment):
                             Ref("ColumnDefinitionSegment"),
                             Ref("TableConstraintSegment"),
                         ),
-                        delimiter=Ref("CommaSegment"),
                     )
                 ),
                 Ref("CommentClauseSegment", optional=True),
@@ -658,7 +649,6 @@ class FromUpdateClauseSegment(BaseSegment):
         Delimited(
             # Optional old school delimited joins
             Ref("FromExpressionElementSegment"),
-            delimiter=Ref("CommaSegment"),
         ),
     )
 
@@ -676,6 +666,8 @@ class StatementSegment(ansi.StatementSegment):
             Ref("TdRenameStatementSegment"),
             Ref("QualifyClauseSegment"),
             Ref("TdCommentStatementSegment"),
+            Ref("DatabaseStatementSegment"),
+            Ref("SetSessionStatementSegment"),
         ],
     )
 
@@ -805,3 +797,34 @@ class SelectClauseSegment(ansi.SelectClauseSegment):
         enforce_whitespace_preceding_terminator=True,
     )
     parse_grammar = ansi.SelectClauseSegment.parse_grammar
+
+
+class DatabaseStatementSegment(BaseSegment):
+    """A `DATABASE` statement.
+
+    https://docs.teradata.com/r/Teradata-Database-SQL-Data-Definition-Language-Syntax-and-Examples/December-2015/Database-Statements/DATABASE
+    """
+
+    type = "database_statement"
+    match_grammar: Matchable = Sequence(
+        "DATABASE",
+        Ref("DatabaseReferenceSegment"),
+    )
+
+
+# Limited to SET SESSION DATABASE for now.
+# Many other session parameters may be set via SET SESSION.
+class SetSessionStatementSegment(BaseSegment):
+    """A `SET SESSION` statement.
+
+    https://docs.teradata.com/r/Teradata-Database-SQL-Data-Definition-Language-Syntax-and-Examples/December-2015/Session-Statements/SET-SESSION-DATABASE
+    """
+
+    type = "set_session_statement"
+    match_grammar: Matchable = Sequence(
+        OneOf(
+            Sequence("SET", "SESSION"),
+            "SS",
+        ),
+        Ref("DatabaseStatementSegment"),
+    )

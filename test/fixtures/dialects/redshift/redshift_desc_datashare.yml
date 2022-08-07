@@ -3,34 +3,34 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 31cba5301928af7b20ed0e369eeaa82a7c4aa6179769e3914f31ed300821cbb3
+_hash: 4691d7c04dfbf142b4bb020f5eae0d0ef92bda7559061c3005d1b80c0a5a8a1b
 file:
 - statement:
     desc_datashare_statement:
     - keyword: DESC
     - keyword: DATASHARE
     - object_reference:
-        identifier: salesshare
+        naked_identifier: salesshare
 - statement_terminator: ;
 - statement:
     desc_datashare_statement:
     - keyword: DESC
     - keyword: DATASHARE
     - object_reference:
-        identifier: salesshare
+        naked_identifier: salesshare
     - keyword: of
     - keyword: ACCOUNT
-    - literal: "'123456789012'"
+    - quoted_literal: "'123456789012'"
     - keyword: NAMESPACE
-    - literal: "'13b8833d-17c6-4f16-8fe4-1a018f5ed00d'"
+    - quoted_literal: "'13b8833d-17c6-4f16-8fe4-1a018f5ed00d'"
 - statement_terminator: ;
 - statement:
     desc_datashare_statement:
     - keyword: DESC
     - keyword: DATASHARE
     - object_reference:
-        identifier: salesshare
+        naked_identifier: salesshare
     - keyword: of
     - keyword: NAMESPACE
-    - literal: "'13b8833d-17c6-4f16-8fe4-1a018f5ed00d'"
+    - quoted_literal: "'13b8833d-17c6-4f16-8fe4-1a018f5ed00d'"
 - statement_terminator: ;

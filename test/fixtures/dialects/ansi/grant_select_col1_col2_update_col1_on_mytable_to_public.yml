@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 85f0fc07307f50eed7ea9a35cb09dd282f730d97bb6e245bb25c0d747928d5eb
+_hash: 7723482a8f471de4ce6b952aead403d556fd48795cad2d947d68d5d7baeee290
 file:
   statement:
     access_statement:
@@ -12,21 +12,21 @@ file:
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: col1
+          naked_identifier: col1
       - comma: ','
       - column_reference:
-          identifier: col2
+          naked_identifier: col2
       - end_bracket: )
     - comma: ','
     - keyword: update
     - bracketed:
         start_bracket: (
         column_reference:
-          identifier: col1
+          naked_identifier: col1
         end_bracket: )
     - keyword: 'on'
     - object_reference:
-        identifier: mytable
+        naked_identifier: mytable
     - keyword: to
-    - object_reference:
-        identifier: public
+    - role_reference:
+        naked_identifier: public

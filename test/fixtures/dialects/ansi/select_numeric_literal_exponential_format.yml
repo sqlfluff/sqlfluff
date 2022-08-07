@@ -3,41 +3,55 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 69b5de97ece69009ad4d99e515c1eabed87fd3b4aacb0bff6f2603a2a3fab082
+_hash: e84987da703b2565d55268ce089edd8ec71b9e94963f4e7216f0c82dfe3d7107
 file:
   statement:
     select_statement:
       select_clause:
       - keyword: SELECT
       - select_clause_element:
-          literal: 1e-9
+          numeric_literal: 1e-9
       - comma: ','
       - select_clause_element:
           numeric_literal:
             sign_indicator: '-'
-            literal: 12.345e12
+            numeric_literal: 12.345e12
       - comma: ','
       - select_clause_element:
-          literal: '.0123E-6'
+          numeric_literal: '.0123E-6'
       - comma: ','
       - select_clause_element:
-          literal: '25'
+          numeric_literal: '25'
       - comma: ','
       - select_clause_element:
           numeric_literal:
             sign_indicator: +
-            literal: '6.34'
+            numeric_literal: '6.34'
       - comma: ','
       - select_clause_element:
-          literal: '0.5'
+          numeric_literal: '0.5'
       - comma: ','
       - select_clause_element:
-          literal: 25e-03
+          numeric_literal: 25e-03
       - comma: ','
       - select_clause_element:
           numeric_literal:
             sign_indicator: '-'
-            literal: '1'
+            numeric_literal: '1'
       - comma: ','
       - select_clause_element:
-          literal: '25'
+          numeric_literal: '25'
+      - comma: ','
+      - select_clause_element:
+          expression:
+            sign_indicator: '-'
+            column_reference:
+              naked_identifier: col1
+      - comma: ','
+      - select_clause_element:
+          expression:
+          - sign_indicator: '-'
+          - sign_indicator: +
+          - sign_indicator: '-'
+          - column_reference:
+              naked_identifier: col2

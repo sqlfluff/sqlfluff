@@ -221,43 +221,6 @@ test_pass_rowtype_with_join:
     core:
       dialect: hive
 
-test_fail_column_name_not_found_in_table_aliases_bigquery:
-  # qualified reference should actually exists in table aliases
-  fail_str: |
-    SELECT
-        a.bar,
-        b.foo,
-        this_is.some_struct.id
-    FROM
-        a LEFT JOIN b ON TRUE
-  configs:
-    core:
-      dialect: bigquery
-
-test_pass_column_name_is_a_struct_bigquery:
-  # check structs work as expected
-  pass_str: |
-    SELECT
-        a.bar,
-        b.this_is.some_struct.id
-    FROM
-        a LEFT JOIN b ON TRUE
-  configs:
-    core:
-      dialect: bigquery
-
-test_pass_column_name_from_unnest_bigquery:
-  # Check that we allow an table alias come from UNNEST statement
-  pass_str: |
-    SELECT
-        a.bar,
-        e.foo
-    FROM
-        a LEFT JOIN UNEST(a.events) AS e
-  configs:
-    core:
-      dialect: bigquery
-
 test_fail_table_plus_flatten_snowflake_1:
   # FLATTEN() returns a table, thus there are two tables, thus lint failure.
   fail_str: |
@@ -292,3 +255,97 @@ test_pass_table_plus_flatten_snowflake_1:
   configs:
     core:
       dialect: snowflake
+
+test_pass_ignore_words_column_name:
+  pass_str: |
+    SELECT test1, test2
+    FROM t_table1
+    LEFT JOIN t_table_2
+        ON TRUE
+  configs:
+    rules:
+      L027:
+        ignore_words: test1,test2
+
+test_pass_ignore_words_regex_column_name:
+  pass_str: |
+    SELECT _test1, _test2
+    FROM t_table1
+    LEFT JOIN t_table_2
+        ON TRUE
+  configs:
+    rules:
+      L027:
+        ignore_words_regex: ^_
+
+test_pass_ignore_words_regex_bigquery_declare_example:
+  pass_str:
+    DECLARE _test INT64 DEFAULT 42;
+    SELECT _test
+    FROM t_table1
+    LEFT JOIN t_table_2
+        ON TRUE
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      L027:
+        ignore_words_regex: ^_
+
+test_pass_redshift:
+  # This was failing in issue 3380.
+  pass_str:
+    SELECT account.id
+    FROM salesforce_sd.account
+    INNER JOIN salesforce_sd."user" ON salesforce_sd."user".id = account.ownerid
+  configs:
+    core:
+      dialect: redshift
+
+test_pass_tsql:
+  # This was failing in issue 3342.
+  pass_str:
+    select
+        psc.col1
+    from
+        tbl1 as psc
+    where
+        exists
+        (
+            select 1 as data
+            from
+                tbl2 as pr
+            join tbl2 as c on c.cid = pr.cid
+            where
+                c.col1 = 'x'
+                and pr.col2 <= convert(date, getdate())
+                and pr.pid = psc.pid
+        )
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_ansi:
+  # This was failing in issue 3055.
+  pass_str: |
+    SELECT my_col
+    FROM my_table
+    WHERE EXISTS (
+        SELECT 1
+        FROM other_table
+        INNER JOIN mapping_table ON (mapping_table.other_fk = other_table.id_pk)
+        WHERE mapping_table.kind = my_table.kind
+    )
+
+test_pass_redshift_convert:
+  # This was failing in issue 3651.
+  pass_str: |
+    SELECT
+        sellers.name,
+        CONVERT(integer, sales.pricepaid) AS price
+    FROM sales
+    LEFT JOIN sellers ON sales.sellerid = sellers.sellerid
+    WHERE sales.salesid = 100
+  configs:
+    core:
+      dialect: redshift

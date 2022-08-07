@@ -3,6 +3,9 @@
 import logging
 from bisect import bisect_left
 from typing import Dict, Iterator, List, Tuple, Optional, NamedTuple, Iterable
+from sqlfluff.core.config import FluffConfig
+
+from sqlfluff.core.errors import SQLTemplaterSkipFile
 
 # Instantiate the templater logger
 templater_logger = logging.getLogger("sqlfluff.templater")
@@ -18,6 +21,32 @@ def iter_indices_of_newlines(raw_str: str) -> Iterator[int]:
             init_idx = nl_pos
         else:
             break  # pragma: no cover TODO?
+
+
+def large_file_check(func):
+    """Raise an exception if the file is over a defined size.
+
+    Designed to be implemented as a decorator on `.process()` methods.
+
+    If no config is provided or the relevant config value is set
+    to zero then the check is skipped.
+    """
+
+    def _wrapped(
+        self, *, in_str: str, fname: str, config: FluffConfig = None, **kwargs
+    ):
+        if config:
+            limit = config.get("large_file_skip_char_limit")
+            if limit and len(in_str) > limit:
+                raise SQLTemplaterSkipFile(
+                    f"Length of file {fname!r} is over {limit} characters. "
+                    "Skipping to avoid parser lock. Users can increase this limit "
+                    "in their config by setting the 'large_file_skip_char_limit' "
+                    "value, or disable by setting it to zero."
+                )
+        return func(self, in_str=in_str, fname=fname, config=config, **kwargs)
+
+    return _wrapped
 
 
 class RawFileSlice(NamedTuple):
@@ -132,14 +161,29 @@ class TemplatedFile:
             tfs: Optional[TemplatedFileSlice] = None
             for idx, tfs in enumerate(self.sliced_file):
                 if previous_slice:
-                    assert (
-                        tfs.templated_slice.start == previous_slice.templated_slice.stop
-                    )
+                    if tfs.templated_slice.start != previous_slice.templated_slice.stop:
+                        raise SQLTemplaterSkipFile(  # pragma: no cover
+                            "Templated slices found to be non contigious. "
+                            f"{tfs.templated_slice} (starting"
+                            f" {self.templated_str[tfs.templated_slice]!r})"
+                            f" does not follow {previous_slice.templated_slice} "
+                            "(starting "
+                            f"{self.templated_str[previous_slice.templated_slice]!r}"
+                            ")"
+                        )
                 else:
-                    assert tfs.templated_slice.start == 0
+                    if tfs.templated_slice.start != 0:
+                        raise SQLTemplaterSkipFile(  # pragma: no cover
+                            "First Templated slice not started at index 0 "
+                            f"(found slice {tfs.templated_slice})"
+                        )
                 previous_slice = tfs
             if self.sliced_file and templated_str is not None:
-                assert tfs.templated_slice.stop == len(templated_str)
+                if tfs.templated_slice.stop != len(templated_str):
+                    raise SQLTemplaterSkipFile(  # pragma: no cover
+                        "Length of templated file mismatch with final slice: "
+                        f"{len(templated_str)} != {tfs.templated_slice.stop}."
+                    )
 
     @classmethod
     def from_string(cls, raw):
@@ -415,14 +459,15 @@ class RawTemplater:
         """
 
     def sequence_files(
-        self, fnames: List[str], config=None, formatter=None
+        self, fnames: List[str], config: FluffConfig = None, formatter=None
     ) -> Iterable[str]:
         """Given files to be processed, return a valid processing sequence."""
         # Default is to process in the original order.
         return fnames
 
+    @large_file_check
     def process(
-        self, *, in_str: str, fname: str, config=None, formatter=None
+        self, *, in_str: str, fname: str, config: FluffConfig = None, formatter=None
     ) -> Tuple[Optional[TemplatedFile], list]:
         """Process a string and return a TemplatedFile.
 

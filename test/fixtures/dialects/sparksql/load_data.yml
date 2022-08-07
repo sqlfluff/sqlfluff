@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8a9ab5365ee7f3653d54b75a82620859c51daeab4429e7b86b99968c7db3be2d
+_hash: f894e518d619e59530c501d643a4c8dfad08c6ea737037b5c56ea799502159cb
 file:
 - statement:
     load_data_statement:
@@ -11,12 +11,12 @@ file:
     - keyword: DATA
     - keyword: LOCAL
     - keyword: INPATH
-    - literal: "'/user/hive/warehouse/students'"
+    - quoted_literal: "'/user/hive/warehouse/students'"
     - keyword: OVERWRITE
     - keyword: INTO
     - keyword: TABLE
     - table_reference:
-        identifier: test_load
+        naked_identifier: test_load
 - statement_terminator: ;
 - statement:
     load_data_statement:
@@ -24,26 +24,26 @@ file:
     - keyword: DATA
     - keyword: LOCAL
     - keyword: INPATH
-    - literal: "'/user/hive/warehouse/test_partition/c2=2/c3=3'"
+    - quoted_literal: "'/user/hive/warehouse/test_partition/c2=2/c3=3'"
     - keyword: OVERWRITE
     - keyword: INTO
     - keyword: TABLE
     - table_reference:
-        identifier: test_load_partition
+        naked_identifier: test_load_partition
     - keyword: PARTITION
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: c2
+          naked_identifier: c2
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: '2'
+      - numeric_literal: '2'
       - comma: ','
       - column_reference:
-          identifier: c3
+          naked_identifier: c3
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: '3'
+      - numeric_literal: '3'
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -51,12 +51,12 @@ file:
     - keyword: LOAD
     - keyword: DATA
     - keyword: INPATH
-    - literal: "'/user/hive/warehouse/students'"
+    - quoted_literal: "'/user/hive/warehouse/students'"
     - keyword: OVERWRITE
     - keyword: INTO
     - keyword: TABLE
     - table_reference:
-        identifier: test_load
+        naked_identifier: test_load
 - statement_terminator: ;
 - statement:
     load_data_statement:
@@ -64,25 +64,25 @@ file:
     - keyword: DATA
     - keyword: LOCAL
     - keyword: INPATH
-    - literal: "'/user/hive/warehouse/test_partition/c2=2/c3=3'"
+    - quoted_literal: "'/user/hive/warehouse/test_partition/c2=2/c3=3'"
     - keyword: INTO
     - keyword: TABLE
     - table_reference:
-        identifier: test_load_partition
+        naked_identifier: test_load_partition
     - keyword: PARTITION
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: c2
+          naked_identifier: c2
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: '2'
+      - numeric_literal: '2'
       - comma: ','
       - column_reference:
-          identifier: c3
+          naked_identifier: c3
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: '3'
+      - numeric_literal: '3'
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -90,24 +90,24 @@ file:
     - keyword: LOAD
     - keyword: DATA
     - keyword: INPATH
-    - literal: "'/user/hive/warehouse/test_partition/c2=2/c3=3'"
+    - quoted_literal: "'/user/hive/warehouse/test_partition/c2=2/c3=3'"
     - keyword: INTO
     - keyword: TABLE
     - table_reference:
-        identifier: test_load_partition
+        naked_identifier: test_load_partition
     - keyword: PARTITION
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: c2
+          naked_identifier: c2
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: '2'
+      - numeric_literal: '2'
       - comma: ','
       - column_reference:
-          identifier: c3
+          naked_identifier: c3
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: '3'
+      - numeric_literal: '3'
       - end_bracket: )
 - statement_terminator: ;

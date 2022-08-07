@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c745daf68d6bbcd2509c5f7eeaf3ea49dab3516841f2ba07aca21a1a972277fb
+_hash: 17f0f80265b930088ba878c6f6bbd5d10633ceef5a760c5135d4b1e0763e135b
 file:
   statement:
     set_expression:
@@ -12,7 +12,7 @@ file:
         - keyword: SELECT
         - select_clause_element:
             column_reference:
-              identifier: item
+              naked_identifier: item
         - comma: ','
         - select_clause_element:
             function:
@@ -31,43 +31,43 @@ file:
                     - keyword: BY
                     - expression:
                         column_reference:
-                          identifier: category
+                          naked_identifier: category
                     orderby_clause:
                     - keyword: ORDER
                     - keyword: BY
                     - column_reference:
-                        identifier: purchases
+                        naked_identifier: purchases
                     - keyword: DESC
                   end_bracket: )
             alias_expression:
               keyword: AS
-              identifier: rank
+              naked_identifier: rank
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: Produce
+                  naked_identifier: Produce
         where_clause:
           keyword: WHERE
           expression:
             column_reference:
-            - identifier: Produce
+            - naked_identifier: Produce
             - dot: .
-            - identifier: category
+            - naked_identifier: category
             comparison_operator:
               raw_comparison_operator: '='
-            literal: "'vegetable'"
+            quoted_literal: "'vegetable'"
         qualify_clause:
           keyword: QUALIFY
           expression:
             column_reference:
-              identifier: rank
+              naked_identifier: rank
             comparison_operator:
             - raw_comparison_operator: <
             - raw_comparison_operator: '='
-            literal: '3'
+            numeric_literal: '3'
     - set_operator:
       - keyword: UNION
       - keyword: ALL
@@ -76,7 +76,7 @@ file:
         - keyword: SELECT
         - select_clause_element:
             column_reference:
-              identifier: item
+              naked_identifier: item
         - comma: ','
         - select_clause_element:
             function:
@@ -95,40 +95,40 @@ file:
                     - keyword: BY
                     - expression:
                         column_reference:
-                          identifier: category
+                          naked_identifier: category
                     orderby_clause:
                     - keyword: ORDER
                     - keyword: BY
                     - column_reference:
-                        identifier: purchases
+                        naked_identifier: purchases
                     - keyword: DESC
                   end_bracket: )
             alias_expression:
               keyword: AS
-              identifier: rank
+              naked_identifier: rank
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: Produce
+                  naked_identifier: Produce
         where_clause:
           keyword: WHERE
           expression:
             column_reference:
-            - identifier: Produce
+            - naked_identifier: Produce
             - dot: .
-            - identifier: category
+            - naked_identifier: category
             comparison_operator:
               raw_comparison_operator: '='
-            literal: "'vegetable'"
+            quoted_literal: "'vegetable'"
         qualify_clause:
           keyword: QUALIFY
           expression:
             column_reference:
-              identifier: rank
+              naked_identifier: rank
             comparison_operator:
             - raw_comparison_operator: <
             - raw_comparison_operator: '='
-            literal: '3'
+            numeric_literal: '3'

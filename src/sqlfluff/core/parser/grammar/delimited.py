@@ -24,6 +24,15 @@ class Delimited(OneOf):
     as different options of what can be delimited, rather than a sequence.
     """
 
+    equality_kwargs = (
+        "optional",
+        "allow_gaps",
+        "delimiter",
+        "allow_trailing",
+        "terminator",
+        "min_delimiters",
+    )
+
     def __init__(
         self,
         *args,

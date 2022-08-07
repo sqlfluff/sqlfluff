@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: db26b93d572fe6a6c16cf46d5b4ceec8c7d22b40caec0db28211a2e841261171
+_hash: cd8f3e10bf068f2f584490bf849aea4d78e236541141370781db6c530c204886
 file:
   batch:
   - statement:
@@ -18,12 +18,12 @@ file:
               - start_bracket: (
               - expression:
                   column_reference:
-                  - identifier: t
+                  - naked_identifier: t
                   - dot: .
-                  - identifier: v
+                  - naked_identifier: v
               - comma: ','
               - expression:
-                  literal: "'; '"
+                  quoted_literal: "'; '"
               - end_bracket: )
               within_group_clause:
               - keyword: within
@@ -34,11 +34,11 @@ file:
                   - keyword: order
                   - keyword: by
                   - column_reference:
-                      identifier: v
+                      naked_identifier: v
                   end_bracket: )
             alias_expression:
               keyword: as
-              identifier: column_name1
+              naked_identifier: column_name1
         - comma: ','
         - select_clause_element:
             function:
@@ -47,7 +47,7 @@ file:
               bracketed:
                 start_bracket: (
                 expression:
-                  literal: '0.5'
+                  numeric_literal: '0.5'
                 end_bracket: )
               within_group_clause:
               - keyword: WITHIN
@@ -58,9 +58,9 @@ file:
                   - keyword: ORDER
                   - keyword: BY
                   - column_reference:
-                    - identifier: t
+                    - naked_identifier: t
                     - dot: .
-                    - identifier: Rate
+                    - naked_identifier: Rate
                   end_bracket: )
               - keyword: OVER
               - bracketed:
@@ -69,11 +69,11 @@ file:
                   - keyword: PARTITION
                   - keyword: BY
                   - column_reference:
-                      identifier: Name
+                      naked_identifier: Name
                   end_bracket: )
             alias_expression:
               keyword: AS
-              identifier: MedianCont
+              naked_identifier: MedianCont
         - comma: ','
         - select_clause_element:
             function:
@@ -82,7 +82,7 @@ file:
               bracketed:
                 start_bracket: (
                 expression:
-                  literal: '0.5'
+                  numeric_literal: '0.5'
                 end_bracket: )
               within_group_clause:
               - keyword: WITHIN
@@ -93,9 +93,9 @@ file:
                   - keyword: ORDER
                   - keyword: BY
                   - column_reference:
-                    - identifier: t
+                    - naked_identifier: t
                     - dot: .
-                    - identifier: Rate
+                    - naked_identifier: Rate
                   end_bracket: )
               - keyword: OVER
               - bracketed:
@@ -104,25 +104,25 @@ file:
                   - keyword: PARTITION
                   - keyword: BY
                   - column_reference:
-                      identifier: Name
+                      naked_identifier: Name
                   end_bracket: )
             alias_expression:
               keyword: AS
-              identifier: MedianDisc
+              naked_identifier: MedianDisc
         from_clause:
           keyword: from
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: table1
+                  naked_identifier: table1
               alias_expression:
-                identifier: t
+                naked_identifier: t
         groupby_clause:
         - keyword: group
         - keyword: by
         - column_reference:
-            identifier: employee_id
+            naked_identifier: employee_id
         having_clause:
           keyword: HAVING
           expression:
@@ -133,7 +133,7 @@ file:
                 start_bracket: (
                 expression:
                   column_reference:
-                    identifier: '[ArrivalDt]'
+                    quoted_identifier: '[ArrivalDt]'
                 end_bracket: )
           - comparison_operator:
             - raw_comparison_operator: <
@@ -145,12 +145,12 @@ file:
                 start_bracket: (
                 expression:
                   column_reference:
-                    identifier: '[DischargeDt]'
+                    quoted_identifier: '[DischargeDt]'
                 end_bracket: )
   - statement:
       drop_table_statement:
       - keyword: DROP
       - keyword: TABLE
       - table_reference:
-          identifier: '#Mercury'
+          hash_identifier: '#Mercury'
       - statement_terminator: ;

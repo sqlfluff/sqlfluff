@@ -3,7 +3,7 @@ from typing import Optional
 
 from sqlfluff.core.rules.analysis.select_crawler import Query, SelectCrawler
 from sqlfluff.core.parser import BaseSegment
-from sqlfluff.core.rules.base import BaseRule, LintResult, RuleContext
+from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.doc_decorators import document_groups
 from sqlfluff.core.rules.functional import sp
 
@@ -89,7 +89,7 @@ class Rule_L044(BaseRule):
         # wildcard columns in the select targets. If every wildcard evdentually
         # resolves to a query without wildcards, all is well. Otherwise, warn.
         if not query.selectables:
-            return
+            return  # pragma: no cover
         for selectable in query.selectables:
             self.logger.debug(f"Analyzing query: {selectable.selectable.raw}")
             for wildcard in selectable.get_wildcard_info():

@@ -8,7 +8,7 @@ from sqlfluff.core.rules.analysis.select_crawler import (
     Query as SelectCrawlerQuery,
     SelectCrawler,
 )
-from sqlfluff.core.rules.base import (
+from sqlfluff.core.rules import (
     BaseRule,
     LintResult,
     RuleContext,
@@ -24,6 +24,7 @@ class L026Query(SelectCrawlerQuery):
     """SelectCrawler Query with custom L026 info."""
 
     aliases: List[AliasInfo] = field(default_factory=list)
+    standalone_aliases: List[str] = field(default_factory=list)
 
 
 @document_groups
@@ -32,9 +33,9 @@ class Rule_L026(BaseRule):
     """References cannot reference objects not present in ``FROM`` clause.
 
     .. note::
-       This rule is disabled by default for BigQuery, Hive, Redshift, and SparkSQL
-       due to the use of structs and lateral views which trigger false positives.
-       It can be enabled with the ``force_enable = True`` flag.
+       This rule is disabled by default for BigQuery, Hive, Redshift, SOQL, and SparkSQL
+       due to the support of things like structs and lateral views which trigger false
+       positives. It can be enabled with the ``force_enable = True`` flag.
 
     **Anti-pattern**
 
@@ -60,32 +61,40 @@ class Rule_L026(BaseRule):
 
     groups = ("all", "core")
     config_keywords = ["force_enable"]
+    _dialects_disabled_by_default = ["bigquery", "hive", "redshift", "soql", "sparksql"]
 
     def _eval(self, context: RuleContext) -> EvalResultType:
         # Config type hints
         self.force_enable: bool
 
         if (
-            context.dialect.name in ["bigquery", "hive", "redshift", "sparksql"]
+            context.dialect.name in self._dialects_disabled_by_default
             and not self.force_enable
         ):
             return LintResult()
 
         violations: List[LintResult] = []
-        start_types = ["select_statement", "delete_statement", "update_statement"]
+        start_types = [
+            "delete_statement",
+            "merge_statement",
+            "select_statement",
+            "update_statement",
+        ]
         if context.segment.is_type(
             *start_types
         ) and not context.functional.parent_stack.any(sp.is_type(*start_types)):
             dml_target_table: Optional[Tuple[str, ...]] = None
+            self.logger.debug("Trigger on: %s", context.segment)
             if not context.segment.is_type("select_statement"):
                 # Extract first table reference. This will be the target
-                # table in a DELETE or UPDATE statement.
+                # table in a DML statement.
                 table_reference = next(
                     context.segment.recursive_crawl("table_reference"), None
                 )
                 if table_reference:
                     dml_target_table = self._table_ref_as_tuple(table_reference)
 
+            self.logger.debug("DML Reference Table: %s", dml_target_table)
             # Verify table references in any SELECT statements found in or
             # below context.segment in the parser tree.
             crawler = SelectCrawler(
@@ -121,9 +130,19 @@ class Rule_L026(BaseRule):
         # For each query...
         for selectable in query.selectables:
             select_info = selectable.select_info
+            self.logger.debug(
+                "Selectable: %s",
+                selectable,
+            )
             if select_info:
                 # Record the available tables.
                 query.aliases += select_info.table_aliases
+                query.standalone_aliases += select_info.standalone_aliases
+                self.logger.debug(
+                    "Aliases: %s %s",
+                    [alias.ref_str for alias in select_info.table_aliases],
+                    select_info.standalone_aliases,
+                )
 
                 # Try and resolve each reference to a value in query.aliases (or
                 # in an ancestor query).
@@ -193,6 +212,8 @@ class Rule_L026(BaseRule):
         targets = []
         for alias in query.aliases:
             targets += self._alias_info_as_tuples(alias)
+        for standalone_alias in query.standalone_aliases:
+            targets.append((standalone_alias,))
         if not object_ref_matches_table(possible_references, targets):
             # No. Check the parent query, if there is one.
             if query.parent:
@@ -200,7 +221,7 @@ class Rule_L026(BaseRule):
                     r, tbl_refs, dml_target_table, cast(L026Query, query.parent)
                 )
             # No parent query. If there's a DML statement at the root, check its
-            # target table.
+            # target table or alias.
             elif not dml_target_table or not object_ref_matches_table(
                 possible_references, [dml_target_table]
             ):

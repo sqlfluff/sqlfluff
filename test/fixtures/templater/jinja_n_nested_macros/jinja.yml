@@ -10,7 +10,7 @@ file:
             bracketed:
             - start_bracket: (
             - expression:
-                literal: "'week'"
+                quoted_literal: "'week'"
             - comma: ','
             - expression:
                 function:
@@ -19,7 +19,7 @@ file:
                   bracketed:
                   - start_bracket: (
                   - expression:
-                      literal: "'01 July'"
+                      quoted_literal: "'01 July'"
                       binary_operator:
                       - pipe: '|'
                       - pipe: '|'
@@ -34,7 +34,7 @@ file:
                               bracketed:
                               - start_bracket: (
                               - expression:
-                                  literal: "'01 July'"
+                                  quoted_literal: "'01 July'"
                                   binary_operator:
                                   - pipe: '|'
                                   - pipe: '|'
@@ -52,7 +52,7 @@ file:
                                           bracketed:
                                           - start_bracket: (
                                           - expression:
-                                              literal: "'week'"
+                                              quoted_literal: "'week'"
                                           - comma: ','
                                           - expression:
                                               function:
@@ -61,23 +61,23 @@ file:
                                                 bracketed:
                                                 - start_bracket: (
                                                 - expression:
-                                                    literal: "'UTC'"
+                                                    quoted_literal: "'UTC'"
                                                 - comma: ','
                                                 - expression:
-                                                    literal: "'America/New_York'"
+                                                    quoted_literal: "'America/New_York'"
                                                 - comma: ','
                                                 - expression:
-                                                  - literal: '2021'
+                                                  - numeric_literal: '2021'
                                                   - binary_operator: '-'
-                                                  - literal: '05'
+                                                  - numeric_literal: '05'
                                                   - binary_operator: '-'
-                                                  - literal: '01'
+                                                  - numeric_literal: '01'
                                                 - end_bracket: )
                                           - end_bracket: )
                                       end_bracket: )
                               - comma: ','
                               - expression:
-                                  literal: "'DD Mon YYYY'"
+                                  quoted_literal: "'DD Mon YYYY'"
                               - end_bracket: )
                           - comparison_operator:
                             - raw_comparison_operator: <
@@ -88,17 +88,17 @@ file:
                               bracketed:
                               - start_bracket: (
                               - expression:
-                                  literal: "'UTC'"
+                                  quoted_literal: "'UTC'"
                               - comma: ','
                               - expression:
-                                  literal: "'America/New_York'"
+                                  quoted_literal: "'America/New_York'"
                               - comma: ','
                               - expression:
-                                - literal: '2021'
+                                - numeric_literal: '2021'
                                 - binary_operator: '-'
-                                - literal: '05'
+                                - numeric_literal: '05'
                                 - binary_operator: '-'
-                                - literal: '01'
+                                - numeric_literal: '01'
                               - end_bracket: )
                         - keyword: then
                         - expression:
@@ -116,7 +116,7 @@ file:
                                     bracketed:
                                     - start_bracket: (
                                     - expression:
-                                        literal: "'week'"
+                                        quoted_literal: "'week'"
                                     - comma: ','
                                     - expression:
                                         function:
@@ -125,17 +125,17 @@ file:
                                           bracketed:
                                           - start_bracket: (
                                           - expression:
-                                              literal: "'UTC'"
+                                              quoted_literal: "'UTC'"
                                           - comma: ','
                                           - expression:
-                                              literal: "'America/New_York'"
+                                              quoted_literal: "'America/New_York'"
                                           - comma: ','
                                           - expression:
-                                            - literal: '2021'
+                                            - numeric_literal: '2021'
                                             - binary_operator: '-'
-                                            - literal: '05'
+                                            - numeric_literal: '05'
                                             - binary_operator: '-'
-                                            - literal: '01'
+                                            - numeric_literal: '01'
                                           - end_bracket: )
                                     - end_bracket: )
                                 end_bracket: )
@@ -156,7 +156,7 @@ file:
                                     bracketed:
                                     - start_bracket: (
                                     - expression:
-                                        literal: "'week'"
+                                        quoted_literal: "'week'"
                                     - comma: ','
                                     - expression:
                                         function:
@@ -165,25 +165,25 @@ file:
                                           bracketed:
                                           - start_bracket: (
                                           - expression:
-                                              literal: "'UTC'"
+                                              quoted_literal: "'UTC'"
                                           - comma: ','
                                           - expression:
-                                              literal: "'America/New_York'"
+                                              quoted_literal: "'America/New_York'"
                                           - comma: ','
                                           - expression:
-                                            - literal: '2021'
+                                            - numeric_literal: '2021'
                                             - binary_operator: '-'
-                                            - literal: '05'
+                                            - numeric_literal: '05'
                                             - binary_operator: '-'
-                                            - literal: '01'
+                                            - numeric_literal: '01'
                                           - end_bracket: )
                                     - end_bracket: )
                                 end_bracket: )
                             binary_operator: '-'
-                            literal: '1'
+                            numeric_literal: '1'
                       - keyword: end
                   - comma: ','
                   - expression:
-                      literal: "'DD Mon YYYY'"
+                      quoted_literal: "'DD Mon YYYY'"
                   - end_bracket: )
             - end_bracket: )

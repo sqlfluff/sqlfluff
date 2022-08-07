@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5c3cd942189d32e628456ae60bb5bee873e8622bd3d09c52f5beb66551fa57b5
+_hash: fd3b8479ff5e72d7996d7e9a7a1b284d2130dd66ea72112371626a50ab94b12c
 file:
   batch:
   - statement:
@@ -13,25 +13,21 @@ file:
       - statement_terminator: ;
   - statement:
       delete_statement:
-        keyword: DELETE
-        from_clause:
-          keyword: FROM
-          from_expression:
-            from_expression_element:
-              table_expression:
-                table_reference:
-                - identifier: HumanResources
-                - dot: .
-                - identifier: JobCandidate
-        where_clause:
+      - keyword: DELETE
+      - keyword: FROM
+      - table_reference:
+        - naked_identifier: HumanResources
+        - dot: .
+        - naked_identifier: JobCandidate
+      - where_clause:
           keyword: WHERE
           expression:
             column_reference:
-              identifier: JobCandidateID
+              naked_identifier: JobCandidateID
             comparison_operator:
               raw_comparison_operator: '='
-            literal: '13'
-        statement_terminator: ;
+            numeric_literal: '13'
+      - statement_terminator: ;
   - statement:
       transaction_statement:
         keyword: COMMIT
@@ -43,25 +39,21 @@ file:
       - statement_terminator: ;
   - statement:
       delete_statement:
-        keyword: DELETE
-        from_clause:
-          keyword: FROM
-          from_expression:
-            from_expression_element:
-              table_expression:
-                table_reference:
-                - identifier: HumanResources
-                - dot: .
-                - identifier: JobCandidate
-        where_clause:
+      - keyword: DELETE
+      - keyword: FROM
+      - table_reference:
+        - naked_identifier: HumanResources
+        - dot: .
+        - naked_identifier: JobCandidate
+      - where_clause:
           keyword: WHERE
           expression:
             column_reference:
-              identifier: JobCandidateID
+              naked_identifier: JobCandidateID
             comparison_operator:
               raw_comparison_operator: '='
-            literal: '13'
-        statement_terminator: ;
+            numeric_literal: '13'
+      - statement_terminator: ;
   - statement:
       transaction_statement:
       - keyword: ROLLBACK
@@ -81,12 +73,12 @@ file:
       transaction_statement:
       - keyword: BEGIN
       - keyword: TRAN
-      - identifier: namey
+      - naked_identifier: namey
       - statement_terminator: ;
   - statement:
       transaction_statement:
         keyword: ROLLBACK
-        identifier: namey
+        naked_identifier: namey
         statement_terminator: ;
   - statement:
       transaction_statement:

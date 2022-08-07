@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 673adfe5390702ee95279dfd1c4ee42f78d9142f43b05ca5a1d2be0ac7442d76
+_hash: fb7e9e23268771280db637c71225316b840dff2c1ab34bb067d00b2bf87e2433
 file:
 - statement:
     select_statement:
@@ -11,7 +11,7 @@ file:
         keyword: SELECT
         select_clause_element:
           column_reference:
-            identifier: id
+            naked_identifier: id
       from_clause:
         keyword: FROM
         from_expression:
@@ -23,7 +23,7 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    literal: '6'
+                    numeric_literal: '6'
                     binary_operator: +
                     function:
                       function_name:
@@ -31,7 +31,7 @@ file:
                       bracketed:
                         start_bracket: (
                         expression:
-                          literal: '3'
+                          numeric_literal: '3'
                         end_bracket: )
                   end_bracket: )
 - statement_terminator: ;
@@ -41,7 +41,7 @@ file:
         keyword: SELECT
         select_clause_element:
           column_reference:
-            identifier: id
+            naked_identifier: id
       from_clause:
         keyword: FROM
         from_expression:
@@ -53,7 +53,7 @@ file:
                 bracketed:
                   start_bracket: (
                   expression:
-                    literal: '5'
+                    numeric_literal: '5'
                   end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -62,7 +62,7 @@ file:
         keyword: SELECT
         select_clause_element:
           column_reference:
-            identifier: id
+            naked_identifier: id
       from_clause:
         keyword: FROM
         from_expression:
@@ -74,10 +74,10 @@ file:
                 bracketed:
                 - start_bracket: (
                 - expression:
-                    literal: '5'
+                    numeric_literal: '5'
                 - comma: ','
                 - expression:
-                    literal: '10'
+                    numeric_literal: '10'
                 - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -86,7 +86,7 @@ file:
         keyword: SELECT
         select_clause_element:
           column_reference:
-            identifier: id
+            naked_identifier: id
       from_clause:
         keyword: FROM
         from_expression:
@@ -98,13 +98,13 @@ file:
                 bracketed:
                 - start_bracket: (
                 - expression:
-                    literal: '5'
+                    numeric_literal: '5'
                 - comma: ','
                 - expression:
-                    literal: '10'
+                    numeric_literal: '10'
                 - comma: ','
                 - expression:
-                    literal: '2'
+                    numeric_literal: '2'
                 - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -113,7 +113,7 @@ file:
         keyword: SELECT
         select_clause_element:
           column_reference:
-            identifier: id
+            naked_identifier: id
       from_clause:
         keyword: FROM
         from_expression:
@@ -125,16 +125,16 @@ file:
                 bracketed:
                 - start_bracket: (
                 - expression:
-                    literal: '0'
+                    numeric_literal: '0'
                 - comma: ','
                 - expression:
-                    literal: '10'
+                    numeric_literal: '10'
                 - comma: ','
                 - expression:
-                    literal: '2'
+                    numeric_literal: '2'
                 - comma: ','
                 - expression:
-                    literal: '200'
+                    numeric_literal: '200'
                 - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -143,9 +143,9 @@ file:
         keyword: SELECT
         select_clause_element:
           column_reference:
-          - identifier: test
+          - naked_identifier: test
           - dot: .
-          - identifier: id
+          - naked_identifier: id
       from_clause:
         keyword: FROM
         from_expression:
@@ -157,14 +157,14 @@ file:
                 bracketed:
                 - start_bracket: (
                 - expression:
-                    literal: '5'
+                    numeric_literal: '5'
                 - comma: ','
                 - expression:
-                    literal: '8'
+                    numeric_literal: '8'
                 - end_bracket: )
             alias_expression:
               keyword: AS
-              identifier: test
+              naked_identifier: test
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -172,9 +172,9 @@ file:
         keyword: SELECT
         select_clause_element:
           column_reference:
-          - identifier: test
+          - naked_identifier: test
           - dot: .
-          - identifier: id
+          - naked_identifier: id
       from_clause:
         keyword: FROM
         from_expression:
@@ -186,11 +186,11 @@ file:
                 bracketed:
                 - start_bracket: (
                 - expression:
-                    literal: '5'
+                    numeric_literal: '5'
                 - comma: ','
                 - expression:
-                    literal: '8'
+                    numeric_literal: '8'
                 - end_bracket: )
             alias_expression:
-              identifier: test
+              naked_identifier: test
 - statement_terminator: ;

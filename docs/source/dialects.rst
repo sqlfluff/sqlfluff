@@ -52,6 +52,15 @@ to be a representation of vanilla SQL before any other project adds their
 spin to it, and so may contain a slightly wider set of functions than actually
 available in true ANSI SQL.
 
+.. _athena_dialect_ref:
+
+Athena
+--------
+
+The dialect for `Amazon Athena`_.
+
+.. _`Amazon Athena`: https://aws.amazon.com/athena/
+
 .. _bigquery_dialect_ref:
 
 BigQuery
@@ -60,6 +69,24 @@ BigQuery
 The dialect for `Google BigQuery`_.
 
 .. _`Google BigQuery`: https://cloud.google.com/bigquery/
+
+.. _clickhouse_dialect_ref:
+
+ClickHouse
+----------
+
+The dialect for `ClickHouse`_.
+
+.. _`ClickHouse`: https://clickhouse.com/
+
+.. _databricks_dialect_ref:
+
+Databricks
+----------
+
+The dialect `Databricks`_ is an alias for the :ref:`sparksql_dialect_ref`.
+
+.. _`Databricks`: https://databricks.com/
 
 .. _db2_dialect_ref:
 
@@ -137,13 +164,22 @@ inherited from :ref:`postgres_dialect_ref`.
 
 .. _`Snowflake`: https://docs.snowflake.com/en/sql-reference.html
 
+.. _soql_dialect_ref:
+
+SOQL
+----
+
+The dialect for `SOQL`_ (Salesforce Object Query Language).
+
+.. _`SOQL`: https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_soql.htm
+
 .. _sparksql_dialect_ref:
 
 SparkSQL
 --------
 
-The dialect for `SparkSQL`_. It inherits from :ref:`ansi_dialect_ref` and
-includes relevant syntax from :ref:`hive_dialect_ref` for commands that
+The dialect for Apache `Spark SQL`_. It inherits from :ref:`ansi_dialect_ref`
+and includes relevant syntax from :ref:`hive_dialect_ref` for commands that
 permit Hive Format.
 
 This implementation focuses on the `Ansi Compliant Mode`_ introduced in
@@ -152,7 +188,7 @@ provides better data quality and easier migration from traditional DBMS.
 
 Versions of Spark prior to 3.x will only support the Hive dialect.
 
-.. _`SparkSQL`: https://spark.apache.org/docs/latest/sql-ref.html
+.. _`Spark SQL`: https://spark.apache.org/docs/latest/sql-ref.html
 .. _`Ansi Compliant Mode`: https://spark.apache.org/docs/latest/sql-ref-ansi-compliance.html
 
 .. _sqlite_dialect_ref:

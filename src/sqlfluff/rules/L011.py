@@ -6,7 +6,7 @@ from sqlfluff.core.parser import (
     KeywordSegment,
 )
 
-from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix, RuleContext
+from sqlfluff.core.rules import BaseRule, LintResult, LintFix, RuleContext
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
@@ -48,7 +48,10 @@ class Rule_L011(BaseRule):
     groups: Tuple[str, ...] = ("all",)
     config_keywords = ["aliasing"]
 
-    _target_elems = ("from_expression_element",)
+    _target_elems: List[Tuple[str, str]] = [
+        ("type", "from_expression_element"),
+        ("type", "merge_statement"),
+    ]
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Implicit aliasing of table/column not allowed. Use explicit `AS` clause.
@@ -61,7 +64,8 @@ class Rule_L011(BaseRule):
         fixes = []
 
         if context.segment.is_type("alias_expression"):
-            if context.parent_stack[-1].is_type(*self._target_elems):
+            # if context.parent_stack[-1].is_type(*self._target_elems):
+            if self.matches_target_tuples(context.parent_stack[-1], self._target_elems):
                 if any(e.name.lower() == "as" for e in context.segment.segments):
                     if self.aliasing == "implicit":
                         if context.segment.segments[0].name.lower() == "as":
@@ -91,17 +95,17 @@ class Rule_L011(BaseRule):
 
                     # Add initial whitespace if we need to...
                     assert context.raw_segment_pre
-                    if context.raw_segment_pre.name not in ["whitespace", "newline"]:
+                    if not context.raw_segment_pre.is_type("whitespace", "newline"):
                         insert_buff.append(WhitespaceSegment())
 
                     # Add an AS (Uppercase for now, but could be corrected later)
                     insert_buff.append(KeywordSegment("AS"))
 
                     # Add a trailing whitespace if we need to
-                    if context.segment.segments[0].name not in [
+                    if not context.segment.segments[0].is_type(
                         "whitespace",
                         "newline",
-                    ]:
+                    ):
                         insert_buff.append(WhitespaceSegment())
 
                     return LintResult(

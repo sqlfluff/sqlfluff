@@ -61,7 +61,7 @@ version number.
 .. code-block:: text
 
     $ sqlfluff version
-    0.3.1
+    1.2.1
 
 Basic Usage
 -----------
@@ -76,22 +76,22 @@ same folder that you're currently in with the following content:
     SELECT a+b  AS foo,
     c AS bar from my_table
 
-You can then run :code:`sqlfluff lint test.sql` to lint this file.
+You can then run :code:`sqlfluff lint test.sql --dialect ansi` to lint this
+file.
 
 .. code-block:: text
 
-    $ sqlfluff lint test.sql
+    $ sqlfluff lint test.sql --dialect ansi
     == [test.sql] FAIL
+    L:   1 | P:   1 | L034 | Select wildcards then simple targets before calculations
+                           | and aggregates.
     L:   1 | P:   1 | L036 | Select targets should be on a new line unless there is
                            | only one select target.
-    L:   1 | P:   8 | L034 | Use wildcards then simple select targets before
-                           | calculations and aggregates.
     L:   1 | P:   9 | L006 | Missing whitespace before +
     L:   1 | P:   9 | L006 | Missing whitespace after +
     L:   1 | P:  11 | L039 | Unnecessary whitespace found.
-    L:   2 | P:   1 | L003 | Indent expected and not found compared to line #1
+    L:   2 | P:   1 | L003 | Expected 1 indentations, found 0 [compared to line 01]
     L:   2 | P:  10 | L010 | Keywords must be consistently upper case.
-    L:   2 | P:  15 | L009 | Files must end with a single trailing newline.
 
 You'll see that *SQLFluff* has failed the linting check for this file.
 On each of the following lines you can see each of the problems it has
@@ -114,16 +114,15 @@ error (violation of *L006*) no longer shows up.
 
 .. code-block:: text
 
-    $ sqlfluff lint test.sql
+    $ sqlfluff lint test.sql --dialect ansi
     == [test.sql] FAIL
+    L:   1 | P:   1 | L034 | Select wildcards then simple targets before calculations
+                           | and aggregates.
     L:   1 | P:   1 | L036 | Select targets should be on a new line unless there is
                            | only one select target.
-    L:   1 | P:   8 | L034 | Use wildcards then simple select targets before
-                           | calculations and aggregates.
     L:   1 | P:  13 | L039 | Unnecessary whitespace found.
-    L:   2 | P:   1 | L003 | Indent expected and not found compared to line #1
+    L:   2 | P:   1 | L003 | Expected 1 indentations, found 0 [compared to line 01]
     L:   2 | P:  10 | L010 | Keywords must be consistently upper case.
-    L:   2 | P:  15 | L009 | Files must end with a single trailing newline.
 
 To fix the remaining issues, we're going to use one of the more
 advanced features of *SQLFluff*, which is the *fix* command. This
@@ -137,14 +136,13 @@ For now, we only want to fix the following rules: *L003*, *L009*, *L010*
 
 .. code-block:: text
 
-    $ sqlfluff fix test.sql --rules L003,L009,L010
+    $ sqlfluff fix test.sql --rules L003,L009,L010 --dialect ansi
     ==== finding violations ====
     == [test.sql] FAIL
-    L:   2 | P:   1 | L003 | Indent expected and not found compared to line #1
+    L:   2 | P:   1 | L003 | Expected 1 indentations, found 0 [compared to line 01]
     L:   2 | P:  10 | L010 | Keywords must be consistently upper case.
-    L:   2 | P:  15 | L009 | Files must end with a single trailing newline.
     ==== fixing violations ====
-    3 fixable linting violations found
+    2 fixable linting violations found
     Are you sure you wish to attempt to fix these? [Y/n]
 
 ...at this point you'll have to confirm that you want to make the
@@ -180,13 +178,13 @@ specifying :code:`--rules`.
 
 .. code-block:: text
 
-    $ sqlfluff fix test.sql
+    $ sqlfluff fix test.sql --dialect ansi
     ==== finding violations ====
     == [test.sql] FAIL
+    L:   1 | P:   1 | L034 | Select wildcards then simple targets before calculations
+                           | and aggregates.
     L:   1 | P:   1 | L036 | Select targets should be on a new line unless there is
                            | only one select target.
-    L:   1 | P:   8 | L034 | Use wildcards then simple select targets before
-                           | calculations and aggregates.
     L:   1 | P:  13 | L039 | Unnecessary whitespace found.
     ==== fixing violations ====
     3 fixable linting violations found
@@ -203,7 +201,8 @@ been updated again.
 
     SELECT
         c AS bar,
-        a + b AS foo FROM my_table
+        a + b AS foo
+    FROM my_table
 
 The SQL statement is now well formatted according to all the
 rules defined in SQLFluff.
@@ -229,6 +228,9 @@ put the following content:
 
 .. code-block:: cfg
 
+    [sqlfluff]
+    dialect = ansi
+
     [sqlfluff:rules]
     tab_space_size = 2
 
@@ -247,8 +249,9 @@ file has been fixed accordingly.
 .. code-block:: sql
 
     select
-        c as bar,
-        a + b as foo from my_table
+    c as bar,
+    a + b as foo
+    from my_table
 
 For a full list of configuration options check out :ref:`defaultconfig`.
 To see how these options apply to specific rules check out the

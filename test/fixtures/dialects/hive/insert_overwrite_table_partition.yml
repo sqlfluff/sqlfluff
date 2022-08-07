@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 540d292d58aedff34ac6febdfa47aaac7876b23a678c30c3a37d87a18f822dbf
+_hash: 7991628915770c1bebd1f6cd929c6294bac7ee9787c46926500e4e5a7de11c7e
 file:
   statement:
     insert_statement:
@@ -11,21 +11,21 @@ file:
     - keyword: OVERWRITE
     - keyword: TABLE
     - table_reference:
-        identifier: foo
+        naked_identifier: foo
     - keyword: PARTITION
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: a
+          naked_identifier: a
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'test_foo'"
+      - quoted_literal: "'test_foo'"
       - comma: ','
       - column_reference:
-          identifier: b
+          naked_identifier: b
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: "'test_bar'"
+      - quoted_literal: "'test_bar'"
       - end_bracket: )
     - keyword: IF
     - keyword: NOT
@@ -35,24 +35,24 @@ file:
         - keyword: SELECT
         - select_clause_element:
             column_reference:
-              identifier: a
+              naked_identifier: a
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: b
+              naked_identifier: b
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: c
+              naked_identifier: c
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: d
+              naked_identifier: d
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: bar
+                  naked_identifier: bar
   statement_terminator: ;

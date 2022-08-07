@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7724f97892c49b58189b1b86fa29041e3713f1cd9fc6fa48df4ae3da212d36f9
+_hash: 82f903b527bab32939d1faabb97886364d5cc3ad173215ad572f30e922c54460
 file:
   batch:
     statement:
@@ -14,7 +14,7 @@ file:
       - bracketed:
         - start_bracket: (
         - column_definition:
-            identifier: EmpID
+            naked_identifier: EmpID
             data_type:
               data_type_identifier: INT
             column_constraint_segment:
@@ -22,17 +22,17 @@ file:
             - keyword: 'NULL'
         - comma: ','
         - column_definition:
-            identifier: OldVacationHours
+            naked_identifier: OldVacationHours
             data_type:
               data_type_identifier: INT
         - comma: ','
         - column_definition:
-            identifier: NewVacationHours
+            naked_identifier: NewVacationHours
             data_type:
               data_type_identifier: INT
         - comma: ','
         - column_definition:
-            identifier: ModifiedDate
+            naked_identifier: ModifiedDate
             data_type:
               data_type_identifier: DATETIME
         - comma: ','
@@ -43,7 +43,7 @@ file:
               bracketed:
                 start_bracket: (
                 index_column_definition:
-                  identifier: EmpID
+                  naked_identifier: EmpID
                 end_bracket: )
         - end_bracket: )
       - statement_terminator: ;

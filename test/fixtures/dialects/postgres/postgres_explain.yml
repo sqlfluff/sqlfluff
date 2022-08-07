@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 21a0a9b32e3159ef2304940cabc52cb7355f81f0a0bb0c77f6efd091d114f8f3
+_hash: b43be4e2d4d82bc59868e3fea7954af36498598340cdc0d885be35d2da8ecbf5
 file:
 - statement:
     explain_statement:
@@ -12,39 +12,39 @@ file:
       - start_bracket: (
       - explain_option:
           keyword: analyze
-          literal: 'true'
+          boolean_literal: 'true'
       - comma: ','
       - explain_option:
           keyword: analyse
-          literal: 'true'
+          boolean_literal: 'true'
       - comma: ','
       - explain_option:
           keyword: verbose
-          literal: 'true'
+          boolean_literal: 'true'
       - comma: ','
       - explain_option:
           keyword: costs
-          literal: 'true'
+          boolean_literal: 'true'
       - comma: ','
       - explain_option:
           keyword: settings
-          literal: 'true'
+          boolean_literal: 'true'
       - comma: ','
       - explain_option:
           keyword: buffers
-          literal: 'true'
+          boolean_literal: 'true'
       - comma: ','
       - explain_option:
           keyword: wal
-          literal: 'true'
+          boolean_literal: 'true'
       - comma: ','
       - explain_option:
           keyword: timing
-          literal: 'true'
+          boolean_literal: 'true'
       - comma: ','
       - explain_option:
           keyword: summary
-          literal: 'true'
+          boolean_literal: 'true'
       - comma: ','
       - explain_option:
         - keyword: format
@@ -54,7 +54,7 @@ file:
         select_clause:
           keyword: select
           select_clause_element:
-            literal: '1'
+            numeric_literal: '1'
 - statement_terminator: ;
 - statement:
     explain_statement:
@@ -63,39 +63,39 @@ file:
       - start_bracket: (
       - explain_option:
           keyword: analyze
-          literal: 'false'
+          boolean_literal: 'false'
       - comma: ','
       - explain_option:
           keyword: analyse
-          literal: 'false'
+          boolean_literal: 'false'
       - comma: ','
       - explain_option:
           keyword: verbose
-          literal: 'false'
+          boolean_literal: 'false'
       - comma: ','
       - explain_option:
           keyword: costs
-          literal: 'false'
+          boolean_literal: 'false'
       - comma: ','
       - explain_option:
           keyword: settings
-          literal: 'false'
+          boolean_literal: 'false'
       - comma: ','
       - explain_option:
           keyword: buffers
-          literal: 'false'
+          boolean_literal: 'false'
       - comma: ','
       - explain_option:
           keyword: wal
-          literal: 'false'
+          boolean_literal: 'false'
       - comma: ','
       - explain_option:
           keyword: timing
-          literal: 'false'
+          boolean_literal: 'false'
       - comma: ','
       - explain_option:
           keyword: summary
-          literal: 'false'
+          boolean_literal: 'false'
       - comma: ','
       - explain_option:
         - keyword: format
@@ -105,7 +105,7 @@ file:
         select_clause:
           keyword: select
           select_clause_element:
-            literal: '1'
+            numeric_literal: '1'
 - statement_terminator: ;
 - statement:
     explain_statement:
@@ -147,7 +147,7 @@ file:
         select_clause:
           keyword: select
           select_clause_element:
-            literal: '1'
+            numeric_literal: '1'
 - statement_terminator: ;
 - statement:
     explain_statement:
@@ -158,7 +158,7 @@ file:
         select_clause:
           keyword: select
           select_clause_element:
-            literal: '1'
+            numeric_literal: '1'
 - statement_terminator: ;
 - statement:
     explain_statement:
@@ -169,7 +169,7 @@ file:
         select_clause:
           keyword: select
           select_clause_element:
-            literal: '1'
+            numeric_literal: '1'
 - statement_terminator: ;
 - statement:
     explain_statement:
@@ -179,7 +179,7 @@ file:
         select_clause:
           keyword: select
           select_clause_element:
-            literal: '1'
+            numeric_literal: '1'
 - statement_terminator: ;
 - statement:
     explain_statement:
@@ -189,7 +189,7 @@ file:
         select_clause:
           keyword: select
           select_clause_element:
-            literal: '1'
+            numeric_literal: '1'
 - statement_terminator: ;
 - statement:
     explain_statement:
@@ -204,7 +204,7 @@ file:
         select_clause:
           keyword: select
           select_clause_element:
-            literal: '1'
+            numeric_literal: '1'
 - statement_terminator: ;
 - statement:
     explain_statement:
@@ -219,7 +219,7 @@ file:
         select_clause:
           keyword: select
           select_clause_element:
-            literal: '1'
+            numeric_literal: '1'
 - statement_terminator: ;
 - statement:
     explain_statement:
@@ -234,5 +234,5 @@ file:
         select_clause:
           keyword: select
           select_clause_element:
-            literal: '1'
+            numeric_literal: '1'
 - statement_terminator: ;

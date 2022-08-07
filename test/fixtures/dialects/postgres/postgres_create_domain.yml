@@ -3,14 +3,14 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ca51084f71d69e23ae2b5ae81e93a389717073adbad8bdbe51556d4edd4b183c
+_hash: 907a46cba133d785a5bc210b886fe9fc2383c84df61ae18b2673810ce2fddb8e
 file:
 - statement:
     create_domain_statement:
     - keyword: CREATE
     - keyword: DOMAIN
     - object_reference:
-        identifier: us_postal_code
+        naked_identifier: us_postal_code
     - keyword: AS
     - data_type:
         keyword: TEXT
@@ -20,14 +20,14 @@ file:
           start_bracket: (
           expression:
           - column_reference:
-              identifier: VALUE
+              naked_identifier: VALUE
           - comparison_operator: '~'
-          - literal: "'^\\d{5}$'"
+          - quoted_literal: "'^\\d{5}$'"
           - binary_operator: OR
           - column_reference:
-              identifier: VALUE
+              naked_identifier: VALUE
           - comparison_operator: '~'
-          - literal: "'^\\d{5}-\\d{4}$'"
+          - quoted_literal: "'^\\d{5}-\\d{4}$'"
           end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -35,8 +35,61 @@ file:
     - keyword: create
     - keyword: domain
     - object_reference:
-        identifier: oname
+        naked_identifier: oname
     - keyword: as
     - data_type:
         keyword: text
+- statement_terminator: ;
+- statement:
+    create_domain_statement:
+    - keyword: CREATE
+    - keyword: DOMAIN
+    - object_reference:
+        naked_identifier: mystr
+    - keyword: AS
+    - data_type:
+        keyword: text
+    - keyword: CONSTRAINT
+    - object_reference:
+        naked_identifier: not_empty
+    - keyword: CHECK
+    - expression:
+        bracketed:
+          start_bracket: (
+          expression:
+            function:
+              function_name:
+                function_name_identifier: LENGTH
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: value
+                end_bracket: )
+            comparison_operator:
+              raw_comparison_operator: '>'
+            numeric_literal: '0'
+          end_bracket: )
+    - keyword: CONSTRAINT
+    - object_reference:
+        naked_identifier: too_big
+    - keyword: CHECK
+    - expression:
+        bracketed:
+          start_bracket: (
+          expression:
+            function:
+              function_name:
+                function_name_identifier: LENGTH
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: value
+                end_bracket: )
+            comparison_operator:
+            - raw_comparison_operator: <
+            - raw_comparison_operator: '='
+            numeric_literal: '50000'
+          end_bracket: )
 - statement_terminator: ;

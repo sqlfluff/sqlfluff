@@ -3,26 +3,31 @@
 This is based on postgres dialect, since it was initially based off of Postgres 8.
 We should monitor in future and see if it should be rebased off of ANSI
 """
+from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
-    OneOf,
     AnyNumberOf,
     AnySetOf,
     Anything,
-    Ref,
-    Sequence,
-    Bracketed,
     BaseSegment,
+    Bracketed,
+    CodeSegment,
     Delimited,
+    Matchable,
     Nothing,
+    OneOf,
     OptionallyBracketed,
+    Ref,
+    RegexLexer,
+    RegexParser,
+    SegmentGenerator,
+    Sequence,
 )
-from sqlfluff.core.dialects import load_raw_dialect
+from sqlfluff.dialects import dialect_ansi as ansi
+from sqlfluff.dialects import dialect_postgres as postgres
 from sqlfluff.dialects.dialect_redshift_keywords import (
     redshift_reserved_keywords,
     redshift_unreserved_keywords,
 )
-from sqlfluff.dialects import dialect_postgres as postgres
-from sqlfluff.dialects import dialect_ansi as ansi
 
 postgres_dialect = load_raw_dialect("postgres")
 ansi_dialect = load_raw_dialect("ansi")
@@ -159,6 +164,17 @@ redshift_dialect.replace(
         ),
         Ref("AliasExpressionSegment", optional=True),
     ),
+    NakedIdentifierSegment=SegmentGenerator(
+        lambda dialect: RegexParser(
+            # Optionally begins with # for temporary tables. Otherwise
+            # must only contain digits, letters, underscore, and $ but
+            # can’t be all digits.
+            r"#?([A-Z_]+|[0-9]+[A-Z_$])[A-Z0-9_$]*",
+            ansi.IdentifierSegment,
+            type="naked_identifier",
+            anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
+        )
+    ),
     ColumnReferenceSegment=Delimited(
         Sequence(
             ansi.ColumnReferenceSegment,
@@ -180,6 +196,13 @@ redshift_dialect.replace(
         ),
         allow_gaps=False,
     ),
+)
+
+redshift_dialect.patch_lexer_matchers(
+    [
+        # add optional leading # to code for temporary tables
+        RegexLexer("code", r"#?[0-9a-zA-Z_]+[0-9a-zA-Z_$]*", CodeSegment),
+    ]
 )
 
 
@@ -217,6 +240,20 @@ redshift_dialect.add(
         "TEXT255",
         "TEXT32K",
         "ZSTD",
+    ),
+    QuotaGrammar=Sequence(
+        "QUOTA",
+        OneOf(
+            Sequence(
+                Ref("NumericLiteralSegment"),
+                OneOf(
+                    "MB",
+                    "GB",
+                    "TB",
+                ),
+            ),
+            "UNLIMITED",
+        ),
     ),
 )
 
@@ -381,6 +418,7 @@ class DatatypeSegment(BaseSegment):
                 optional=True,
             ),
         ),
+        "ANYELEMENT",
     )
 
 
@@ -499,7 +537,7 @@ class ColumnAttributeSegment(BaseSegment):
         Sequence("DEFAULT", Ref("ExpressionSegment")),
         Sequence(
             "IDENTITY",
-            Bracketed(Delimited(Ref("NumericLiteralSegment"))),
+            Bracketed(Delimited(Ref("NumericLiteralSegment")), optional=True),
         ),
         Sequence(
             "GENERATED",
@@ -507,7 +545,7 @@ class ColumnAttributeSegment(BaseSegment):
             "DEFAULT",
             "AS",
             "IDENTITY",
-            Bracketed(Delimited(Ref("NumericLiteralSegment"))),
+            Bracketed(Delimited(Ref("NumericLiteralSegment")), optional=True),
         ),
         Sequence("ENCODE", Ref("ColumnEncodingGrammar")),
         "DISTKEY",
@@ -527,11 +565,127 @@ class ColumnConstraintSegment(BaseSegment):
 
     match_grammar = AnySetOf(
         OneOf(Sequence("NOT", "NULL"), "NULL"),
-        OneOf("UNIQUE", Sequence("PRIMARY", "KEY")),
+        OneOf("UNIQUE", Ref("PrimaryKeyGrammar")),
         Sequence(
             "REFERENCES",
             Ref("TableReferenceSegment"),
             Bracketed(Ref("ColumnReferenceSegment"), optional=True),
+        ),
+    )
+
+
+class AlterTableActionSegment(BaseSegment):
+    """Alter Table Action Segment.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_ALTER_TABLE.html
+    """
+
+    type = "alter_table_action_segment"
+
+    match_grammar = OneOf(
+        Sequence(
+            "ADD",
+            Ref("TableConstraintSegment"),
+            Sequence("NOT", "VALID", optional=True),
+        ),
+        Sequence("VALIDATE", "CONSTRAINT", Ref("ParameterNameSegment")),
+        Sequence(
+            "DROP",
+            "CONSTRAINT",
+            Ref("ParameterNameSegment"),
+            Ref("DropBehaviorGrammar", optional=True),
+        ),
+        Sequence(
+            "OWNER",
+            "TO",
+            OneOf(
+                OneOf(Ref("ParameterNameSegment"), Ref("QuotedIdentifierSegment")),
+            ),
+        ),
+        Sequence(
+            "RENAME",
+            "TO",
+            OneOf(
+                OneOf(Ref("ParameterNameSegment"), Ref("QuotedIdentifierSegment")),
+            ),
+        ),
+        Sequence(
+            "RENAME",
+            "COLUMN",
+            "TO",
+            OneOf(
+                Ref("ColumnReferenceSegment"),
+            ),
+        ),
+        Sequence(
+            "ALTER",
+            Ref.keyword("COLUMN", optional=True),
+            Ref("ColumnReferenceSegment"),
+            OneOf(
+                Sequence(
+                    "TYPE",
+                    Ref("DatatypeSegment"),
+                ),
+                Sequence(
+                    "ENCODE",
+                    Delimited(
+                        Ref("ColumnEncodingGrammar"),
+                    ),
+                ),
+            ),
+        ),
+        Sequence(
+            "ALTER",
+            "DISTKEY",
+            Ref("ColumnReferenceSegment"),
+        ),
+        Sequence(
+            "ALTER",
+            "DISTSTYLE",
+            OneOf(
+                "ALL",
+                "EVEN",
+                Sequence("KEY", "DISTKEY", Ref("ColumnReferenceSegment")),
+                "AUTO",
+            ),
+        ),
+        Sequence(
+            "ALTER",
+            Ref.keyword("COMPOUND", optional=True),
+            "SORTKEY",
+            Bracketed(
+                Delimited(
+                    Ref("ColumnReferenceSegment"),
+                ),
+            ),
+        ),
+        Sequence(
+            "ALTER",
+            "SORTKEY",
+            OneOf(
+                "AUTO",
+                "NONE",
+            ),
+        ),
+        Sequence(
+            "ALTER",
+            "ENCODE",
+            "AUTO",
+        ),
+        Sequence(
+            "ADD",
+            Ref.keyword("COLUMN", optional=True),
+            Ref("ColumnReferenceSegment"),
+            Ref("DatatypeSegment"),
+            Sequence("DEFAULT", Ref("ExpressionSegment"), optional=True),
+            Sequence("COLLATE", Ref("QuotedLiteralSegment"), optional=True),
+            AnyNumberOf(Ref("ColumnConstraintSegment")),
+        ),
+        Sequence(
+            "DROP",
+            Ref.keyword("COLUMN", optional=True),
+            Ref("ColumnReferenceSegment"),
+            Ref("DropBehaviorGrammar", optional=True),
         ),
     )
 
@@ -570,20 +724,25 @@ class TableConstraintSegment(BaseSegment):
 
     type = "table_constraint"
 
-    match_grammar = AnySetOf(
-        Sequence("UNIQUE", Bracketed(Delimited(Ref("ColumnReferenceSegment")))),
-        Sequence(
-            "PRIMARY",
-            "KEY",
-            Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+    match_grammar = Sequence(
+        Sequence(  # [ CONSTRAINT <Constraint name> ]
+            "CONSTRAINT", Ref("ObjectReferenceSegment"), optional=True
         ),
-        Sequence(
-            "FOREIGN",
-            "KEY",
-            Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
-            "REFERENCES",
-            Ref("TableReferenceSegment"),
-            Sequence(Bracketed(Ref("ColumnReferenceSegment"))),
+        OneOf(
+            Sequence("UNIQUE", Bracketed(Delimited(Ref("ColumnReferenceSegment")))),
+            Sequence(
+                "PRIMARY",
+                "KEY",
+                Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+            ),
+            Sequence(
+                "FOREIGN",
+                "KEY",
+                Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+                "REFERENCES",
+                Ref("TableReferenceSegment"),
+                Sequence(Bracketed(Ref("ColumnReferenceSegment"))),
+            ),
         ),
     )
 
@@ -1358,21 +1517,7 @@ class CreateSchemaStatementSegment(BaseSegment):
                 Ref("ObjectReferenceSegment"),
             ),
         ),
-        Sequence(
-            "QUOTA",
-            OneOf(
-                Sequence(
-                    Ref("NumericLiteralSegment"),
-                    OneOf(
-                        "MB",
-                        "GB",
-                        "TB",
-                    ),
-                ),
-                "UNLIMITED",
-            ),
-            optional=True,
-        ),
+        Ref("QuotaGrammar", optional=True),
     )
 
 
@@ -1471,6 +1616,21 @@ class DropProcedureStatementSegment(BaseSegment):
                 Ref("ProcedureParameterListSegment", optional=True),
             ),
         ),
+    )
+
+
+class AlterDefaultPrivilegesSchemaObjectsSegment(
+    postgres.AlterDefaultPrivilegesSchemaObjectsSegment
+):
+    """`ALTER DEFAULT PRIVILEGES` schema object types.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_ALTER_DEFAULT_PRIVILEGES.html
+    """
+
+    match_grammar = (
+        postgres.AlterDefaultPrivilegesSchemaObjectsSegment.match_grammar.copy(
+            insert=[Sequence("PROCEDURES")]
+        )
     )
 
 
@@ -1767,6 +1927,7 @@ class StatementSegment(postgres.StatementSegment):
             Ref("AnalyzeCompressionStatementSegment"),
             Ref("VacuumStatementSegment"),
             Ref("AlterProcedureStatementSegment"),
+            Ref("CallStatementSegment"),
         ],
     )
 
@@ -1829,7 +1990,7 @@ class CreateUserStatementSegment(ansi.CreateUserStatementSegment):
     match_grammar = Sequence(
         "CREATE",
         "USER",
-        Ref("ObjectReferenceSegment"),
+        Ref("RoleReferenceSegment"),
         Ref.keyword("WITH", optional=True),
         "PASSWORD",
         OneOf(Ref("QuotedLiteralSegment"), "DISABLE"),
@@ -1903,7 +2064,7 @@ class AlterUserStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "ALTER",
         "USER",
-        Ref("ObjectReferenceSegment"),
+        Ref("RoleReferenceSegment"),
         Ref.keyword("WITH", optional=True),
         AnySetOf(
             OneOf(
@@ -2032,5 +2193,209 @@ class TransactionStatementSegment(BaseSegment):
             Sequence("READ", "ONLY"),
             Sequence("READ", "WRITE"),
             optional=True,
+        ),
+    )
+
+
+class AlterSchemaStatementSegment(BaseSegment):
+    """An `ALTER SCHEMA` statement.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_ALTER_SCHEMA.html
+    """
+
+    type = "alter_schema_statement"
+    match_grammar = Sequence(
+        "ALTER",
+        "SCHEMA",
+        Ref("SchemaReferenceSegment"),
+        OneOf(
+            Sequence(
+                "RENAME",
+                "TO",
+                Ref("SchemaReferenceSegment"),
+            ),
+            Sequence(
+                "OWNER",
+                "TO",
+                Ref("RoleReferenceSegment"),
+            ),
+            Ref("QuotaGrammar"),
+        ),
+    )
+
+
+class LockTableStatementSegment(BaseSegment):
+    """An `LOCK TABLE` statement.
+
+    https://www.postgresql.org/docs/14/sql-lock.html
+    """
+
+    type = "lock_table_statement"
+    match_grammar: Matchable = Sequence(
+        "LOCK",
+        Ref.keyword("TABLE", optional=True),
+        Delimited(
+            Ref("TableReferenceSegment"),
+        ),
+    )
+
+
+class TableExpressionSegment(ansi.TableExpressionSegment):
+    """The main table expression e.g. within a FROM clause.
+
+    Override to add Object unpivoting.
+    """
+
+    match_grammar = ansi.TableExpressionSegment.match_grammar.copy(
+        insert=[
+            Ref("ObjectUnpivotSegment", optional=True),
+            Ref("ArrayUnnestSegment", optional=True),
+        ],
+        before=Ref("TableReferenceSegment"),
+    )
+
+
+class ObjectUnpivotSegment(BaseSegment):
+    """Object unpivoting.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/query-super.html#unpivoting
+    """
+
+    type = "object_unpivoting"
+    match_grammar: Matchable = Sequence(
+        "UNPIVOT",
+        Ref("ObjectReferenceSegment"),
+        "AS",
+        Ref("SingleIdentifierGrammar"),
+        "AT",
+        Ref("SingleIdentifierGrammar"),
+    )
+
+
+class ArrayAccessorSegment(ansi.ArrayAccessorSegment):
+    """Array element accessor.
+
+    Redshift allows multiple levels of array access, like Postgres,
+    but it
+    * doesn't allow ranges like `myarray[1:2]`
+    * does allow function or column expressions `myarray[idx]`
+    """
+
+    match_grammar = Sequence(
+        AnyNumberOf(
+            Bracketed(
+                OneOf(Ref("NumericLiteralSegment"), Ref("ExpressionSegment")),
+                bracket_type="square",
+            )
+        )
+    )
+
+
+class ArrayUnnestSegment(BaseSegment):
+    """Array unnesting.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/query-super.html
+    """
+
+    type = "array_unnesting"
+    match_grammar: Matchable = Sequence(
+        Ref("ObjectReferenceSegment"),
+        "AS",
+        Ref("SingleIdentifierGrammar"),
+        "AT",
+        Ref("SingleIdentifierGrammar"),
+    )
+
+
+class CallStatementSegment(BaseSegment):
+    """A `CALL` statement.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_CALL_procedure.html
+    """
+
+    type = "call_statement"
+    match_grammar = Sequence(
+        "CALL",
+        Ref("FunctionSegment"),
+    )
+
+
+class SelectClauseModifierSegment(postgres.SelectClauseModifierSegment):
+    """Things that come after SELECT but before the columns."""
+
+    match_grammar = postgres.SelectClauseModifierSegment.match_grammar.copy(
+        insert=[Sequence("TOP", Ref("NumericLiteralSegment"))],
+    )
+
+
+class ConvertFunctionNameSegment(BaseSegment):
+    """CONVERT function name segment.
+
+    Function taking a data type identifier and an expression.
+    An alternative to CAST.
+    """
+
+    type = "function_name"
+    match_grammar = Sequence("CONVERT")
+
+
+class FunctionSegment(ansi.FunctionSegment):
+    """A scalar or aggregate function.
+
+    Maybe in the future we should distinguish between
+    aggregate functions and other functions. For now
+    we treat them the same because they look the same
+    for our purposes.
+    """
+
+    type = "function"
+    match_grammar: Matchable = OneOf(
+        Sequence(
+            # Treat functions which take date parts separately
+            # So those functions parse date parts as DatetimeUnitSegment
+            # rather than identifiers.
+            Sequence(
+                Ref("DatePartFunctionNameSegment"),
+                Bracketed(
+                    Delimited(
+                        Ref("DatetimeUnitSegment"),
+                        Ref(
+                            "FunctionContentsGrammar",
+                            # The brackets might be empty for some functions...
+                            optional=True,
+                            ephemeral_name="FunctionContentsGrammar",
+                        ),
+                    )
+                ),
+            ),
+        ),
+        Sequence(
+            Sequence(
+                Ref(
+                    "FunctionNameSegment",
+                    exclude=OneOf(
+                        Ref("DatePartFunctionNameSegment"),
+                        Ref("ValuesClauseSegment"),
+                        Ref("ConvertFunctionNameSegment"),
+                    ),
+                ),
+                Bracketed(
+                    Ref(
+                        "FunctionContentsGrammar",
+                        # The brackets might be empty for some functions...
+                        optional=True,
+                        ephemeral_name="FunctionContentsGrammar",
+                    )
+                ),
+            ),
+            Ref("PostFunctionGrammar", optional=True),
+        ),
+        Sequence(
+            Ref("ConvertFunctionNameSegment"),
+            Bracketed(
+                Ref("DatatypeSegment"),
+                Ref("CommaSegment"),
+                Ref("ExpressionSegment"),
+            ),
         ),
     )

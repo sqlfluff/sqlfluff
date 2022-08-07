@@ -3,17 +3,17 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5c5d0fafa7cecad9ec29c82866d2a1dcf9efc96d043d91171bd45fbe1d6514fa
+_hash: 96f38c44bd2bbf296264d6719fca15641b7a0951aa17203ad06b7e98f3db981b
 file:
   batch:
   - statement:
       goto_statement:
         keyword: GOTO
-        identifier: Branch_Three
+        naked_identifier: Branch_Three
   - statement_terminator: ;
   - statement:
       label_segment:
-        identifier: Branch_Three
+        naked_identifier: Branch_Three
         colon: ':'
   - statement:
       return_segment:

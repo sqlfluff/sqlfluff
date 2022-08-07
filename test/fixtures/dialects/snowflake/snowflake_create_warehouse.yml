@@ -3,16 +3,16 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d6c2dd688aa09b92848f4688ac1a51ba2e3af091c99f665fb1c79039e45afe41
+_hash: 7c8df6ae81d02c4db50f8ff62cdf3b498226124e9835bc0ece11583360e25e16
 file:
 - statement:
     create_statement:
     - keyword: create
-    - binary_operator: or
+    - keyword: or
     - keyword: replace
     - keyword: warehouse
     - object_reference:
-        identifier: my_wh
+        naked_identifier: my_wh
     - keyword: with
     - warehouse_object_properties:
         keyword: warehouse_size
@@ -23,11 +23,11 @@ file:
 - statement:
     create_statement:
     - keyword: create
-    - binary_operator: or
+    - keyword: or
     - keyword: replace
     - keyword: warehouse
     - object_reference:
-        identifier: my_wh
+        naked_identifier: my_wh
     - warehouse_object_properties:
       - keyword: warehouse_size
       - comparison_operator:
@@ -36,7 +36,7 @@ file:
       - keyword: initially_suspended
       - comparison_operator:
           raw_comparison_operator: '='
-      - literal: 'true'
+      - boolean_literal: 'true'
 - statement_terminator: ;
 - statement:
     create_statement:
@@ -46,7 +46,7 @@ file:
     - keyword: not
     - keyword: exists
     - object_reference:
-        identifier: LOAD_WH
+        naked_identifier: LOAD_WH
     - warehouse_object_properties:
         keyword: warehouse_size
         comparison_operator:

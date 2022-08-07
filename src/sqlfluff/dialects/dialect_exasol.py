@@ -14,7 +14,6 @@ from sqlfluff.core.parser import (
     Delimited,
     GreedyUntil,
     Indent,
-    KeywordSegment,
     Nothing,
     OneOf,
     Ref,
@@ -29,6 +28,7 @@ from sqlfluff.core.parser import (
     StringParser,
     RegexParser,
     NewlineSegment,
+    MultiStringParser,
 )
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser.segments.generator import SegmentGenerator
@@ -126,7 +126,7 @@ exasol_dialect.add(
     ),
     RangeOperator=NamedParser("range_operator", SymbolSegment, type="range_operator"),
     UnknownSegment=StringParser(
-        "unknown", KeywordSegment, name="boolean_literal", type="literal"
+        "unknown", ansi.LiteralKeywordSegment, type="boolean_literal"
     ),
     ForeignKeyReferencesClauseGrammar=Sequence(
         "REFERENCES",
@@ -170,18 +170,16 @@ exasol_dialect.add(
         "escaped_identifier", SymbolSegment, type="identifier"
     ),
     SessionParameterSegment=SegmentGenerator(
-        lambda dialect: RegexParser(
-            r"^(" + r"|".join(dialect.sets("session_parameters")) + r")$",
+        lambda dialect: MultiStringParser(
+            dialect.sets("session_parameters"),
             CodeSegment,
-            name="session_parameter",
             type="session_parameter",
         )
     ),
     SystemParameterSegment=SegmentGenerator(
-        lambda dialect: RegexParser(
-            r"^(" + r"|".join(dialect.sets("system_parameters")) + r")$",
+        lambda dialect: MultiStringParser(
+            dialect.sets("system_parameters"),
             CodeSegment,
-            name="system_parameter",
             type="system_parameter",
         )
     ),
@@ -202,7 +200,6 @@ exasol_dialect.add(
     VariableNameSegment=RegexParser(
         r"[A-Z][A-Z0-9_]*",
         CodeSegment,
-        name="function_variable",
         type="variable",
     ),
 )
@@ -216,7 +213,6 @@ exasol_dialect.replace(
     ParameterNameSegment=RegexParser(
         r"\"?[A-Z][A-Z0-9_]*\"?",
         CodeSegment,
-        name="parameter",
         type="parameter",
     ),
     LikeGrammar=Ref.keyword("LIKE"),
@@ -284,7 +280,7 @@ exasol_dialect.replace(
     DateTimeLiteralGrammar=Sequence(
         OneOf("DATE", "TIMESTAMP"),
         NamedParser(
-            "single_quote", CodeSegment, name="date_constructor_literal", type="literal"
+            "single_quote", ansi.LiteralSegment, type="date_constructor_literal"
         ),
     ),
     CharCharacterSetGrammar=OneOf(
@@ -637,7 +633,6 @@ class GroupingSetsClauseSegment(BaseSegment):
             Delimited(
                 Ref("CubeRollupClauseSegment"),
                 Ref("GroupingExpressionList"),
-                Bracketed(),  # Allows empty parentheses
             )
         ),
     )
@@ -651,6 +646,7 @@ class GroupingExpressionList(BaseSegment):
         OneOf(
             Bracketed(Delimited(Ref("ExpressionSegment"))),
             Ref("ExpressionSegment"),
+            Bracketed(),  # Allows empty parentheses
         )
     )
 
@@ -2318,7 +2314,7 @@ class CreateUserStatementSegment(ansi.CreateUserStatementSegment):
     match_grammar = Sequence(
         "CREATE",
         "USER",
-        Ref("SingleIdentifierGrammar"),
+        Ref("RoleReferenceSegment"),
         "IDENTIFIED",
         OneOf(
             Ref("UserPasswordAuthSegment"),
@@ -2345,7 +2341,7 @@ class AlterUserStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "ALTER",
         "USER",
-        Ref("SingleIdentifierGrammar"),
+        Ref("RoleReferenceSegment"),
         OneOf(
             Sequence(
                 "IDENTIFIED",
@@ -2443,7 +2439,7 @@ class DropUserStatementSegment(ansi.DropUserStatementSegment):
         "DROP",
         "USER",
         Ref("IfExistsGrammar", optional=True),
-        Ref("SingleIdentifierGrammar"),
+        Ref("RoleReferenceSegment"),
         Ref.keyword("CASCADE", optional=True),
     )
 
@@ -2530,7 +2526,7 @@ class CreateRoleStatementSegment(ansi.CreateRoleStatementSegment):
     match_grammar = Sequence(
         "CREATE",
         "ROLE",
-        Ref("SingleIdentifierGrammar"),
+        Ref("RoleReferenceSegment"),
     )
 
 
@@ -2550,7 +2546,7 @@ class AlterRoleStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "ALTER",
         "ROLE",
-        Ref("SingleIdentifierGrammar"),
+        Ref("RoleReferenceSegment"),
         "SET",
         Sequence(
             "CONSUMER_GROUP",
@@ -2575,7 +2571,7 @@ class DropRoleStatementSegment(ansi.DropRoleStatementSegment):
         "DROP",
         "ROLE",
         Ref("IfExistsGrammar", optional=True),
-        Ref("SingleIdentifierGrammar"),
+        Ref("RoleReferenceSegment"),
         Ref.keyword("CASCADE", optional=True),
     )
 
@@ -2763,10 +2759,10 @@ class GrantRevokeRolesSegment(BaseSegment):
     match_grammar = Sequence(
         OneOf(
             Sequence("ALL", "ROLES"),  # Revoke only
-            Delimited(Ref("SingleIdentifierGrammar"), terminator=OneOf("TO", "FROM")),
+            Delimited(Ref("RoleReferenceSegment"), terminator=OneOf("TO", "FROM")),
         ),
         OneOf("TO", "FROM"),
-        Delimited(Ref("SingleIdentifierGrammar")),
+        Delimited(Ref("RoleReferenceSegment")),
         Sequence("WITH", "ADMIN", "OPTION", optional=True),  # Grant only
     )
 

@@ -3,30 +3,30 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e37d8151b0873e9083d1ac467a974a194f7f4d225fba9a64b7cd53ed4e3cde27
+_hash: 6aa7cecf1e4e9c9564e77ea114924339272ff388cb0dcfe19c4a71bed8c87193
 file:
 - statement:
     select_statement:
       select_clause:
         keyword: select
         select_clause_element:
-          literal: '"1"'
+          quoted_literal: '"1"'
       from_clause:
         keyword: from
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: x
+                naked_identifier: x
       where_clause:
         keyword: where
         expression:
           column_reference:
-            identifier: y
+            naked_identifier: y
           comparison_operator:
             raw_comparison_operator: '='
           parameterized_expression:
-            literal: '@z_test1'
+            at_sign_literal: '@z_test1'
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -40,7 +40,7 @@ file:
               start_bracket: (
               expression:
                 parameterized_expression:
-                  literal: '@z2'
+                  at_sign_literal: '@z2'
               comma: ','
               date_part: week
               end_bracket: )
@@ -57,7 +57,7 @@ file:
               start_bracket: (
               expression:
                 parameterized_expression:
-                  literal: '@_ab'
+                  at_sign_literal: '@_ab'
               comma: ','
               date_part: week
               end_bracket: )
@@ -74,7 +74,7 @@ file:
               start_bracket: (
               expression:
                 parameterized_expression:
-                  literal: '@a'
+                  at_sign_literal: '@a'
               comma: ','
               date_part: week
               end_bracket: )
@@ -90,7 +90,7 @@ file:
             bracketed:
               start_bracket: (
               expression:
-                literal: '"%Y%m"'
+                quoted_literal: '"%Y%m"'
               comma: ','
               date_part: year
               end_bracket: )
@@ -100,19 +100,19 @@ file:
       select_clause:
         keyword: select
         select_clause_element:
-          literal: '"1"'
+          quoted_literal: '"1"'
       from_clause:
         keyword: from
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: x
+                naked_identifier: x
       where_clause:
         keyword: where
         expression:
           column_reference:
-            identifier: y
+            naked_identifier: y
           comparison_operator:
             raw_comparison_operator: '='
           parameterized_expression:
@@ -129,7 +129,7 @@ file:
             bracketed:
             - start_bracket: (
             - expression:
-                literal: '"1"'
+                quoted_literal: '"1"'
             - comma: ','
             - expression:
                 parameterized_expression:
@@ -142,7 +142,7 @@ file:
       - keyword: select
       - select_clause_element:
           column_reference:
-            identifier: id
+            naked_identifier: id
       - comma: ','
       - select_clause_element:
           function:
@@ -152,7 +152,7 @@ file:
               start_bracket: (
               expression:
                 parameterized_expression:
-                  literal: '@z2'
+                  at_sign_literal: '@z2'
               comma: ','
               date_part: week
               end_bracket: )
@@ -165,7 +165,7 @@ file:
               start_bracket: (
               expression:
                 column_reference:
-                  identifier: something
+                  naked_identifier: something
               end_bracket: )
             over_clause:
               keyword: over
@@ -177,39 +177,39 @@ file:
                   - keyword: by
                   - expression:
                       column_reference:
-                        identifier: some_id
+                        naked_identifier: some_id
                   orderby_clause:
                   - keyword: order
                   - keyword: by
                   - column_reference:
-                      identifier: some_date
+                      naked_identifier: some_date
                   frame_clause:
                   - keyword: rows
                   - keyword: BETWEEN
                   - parameterized_expression:
-                      literal: '@query_parameter'
+                      at_sign_literal: '@query_parameter'
                   - keyword: PRECEDING
-                  - binary_operator: AND
+                  - keyword: AND
                   - keyword: CURRENT
                   - keyword: ROW
                 end_bracket: )
           alias_expression:
             keyword: as
-            identifier: some_sum
+            naked_identifier: some_sum
       from_clause:
         keyword: from
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: some_table
+                naked_identifier: some_table
       where_clause:
         keyword: where
         expression:
           column_reference:
-            identifier: some_column
+            naked_identifier: some_column
           comparison_operator:
             raw_comparison_operator: '='
           parameterized_expression:
-            literal: '@query_parameter2'
+            at_sign_literal: '@query_parameter2'
 - statement_terminator: ;

@@ -4,6 +4,7 @@ import logging
 from typing import List, NamedTuple
 
 import pytest
+from sqlfluff.core.errors import SQLTemplaterSkipFile
 
 from sqlfluff.core.templaters import JinjaTemplater
 from sqlfluff.core.templaters.base import RawFileSlice, TemplatedFile
@@ -593,6 +594,8 @@ def assert_structure(yaml_loader, path, code_only=True, include_meta=False):
         # Test more dbt configurations
         ("jinja_o_config_override_dbt_builtins/override_dbt_builtins", True, False),
         ("jinja_p_disable_dbt_builtins/disable_dbt_builtins", True, False),
+        # Load all the macros
+        ("jinja_q_multiple_path_macros/jinja", True, False),
     ],
 )
 def test__templater_full(subpath, code_only, include_meta, yaml_loader, caplog):
@@ -692,6 +695,14 @@ def test__templater_jinja_slice_template(test, result):
         (raw_slice.raw, raw_slice.slice_type, raw_slice.source_idx)
         for raw_slice in resp
     ] == result
+
+
+def _statement(*args, **kwargs):
+    return "_statement"
+
+
+def _load_result(*args, **kwargs):
+    return "_load_result"
 
 
 @pytest.mark.parametrize(
@@ -1060,6 +1071,88 @@ FROM SOME_TABLE
                 ("block_end", slice(27, 39, None), slice(13, 13, None)),
             ],
         ),
+        (
+            # Test for issue 3434: Handle {% block %}.
+            "SELECT {% block table_name %}block_contents{% endblock %} "
+            "FROM {{ self.table_name() }}\n",
+            None,
+            [
+                ("literal", slice(0, 7, None), slice(0, 7, None)),
+                ("literal", slice(29, 43, None), slice(7, 21, None)),
+                ("block_start", slice(7, 29, None), slice(21, 21, None)),
+                ("literal", slice(29, 43, None), slice(21, 21, None)),
+                ("block_end", slice(43, 57, None), slice(21, 21, None)),
+                ("literal", slice(57, 63, None), slice(21, 27, None)),
+                ("templated", slice(63, 86, None), slice(27, 27, None)),
+                ("literal", slice(29, 43, None), slice(27, 41, None)),
+                ("literal", slice(86, 87, None), slice(41, 42, None)),
+            ],
+        ),
+        (
+            # Another test for issue 3434: Similar to the first, but uses
+            # the block inside a loop.
+            """{% block table_name %}block_contents{% endblock %}
+SELECT
+{% for j in [4, 5, 6] %}
+FROM {{ j }}{{ self.table_name() }}
+{% endfor %}
+""",
+            None,
+            [
+                ("literal", slice(22, 36, None), slice(0, 14, None)),
+                ("block_start", slice(0, 22, None), slice(14, 14, None)),
+                ("literal", slice(22, 36, None), slice(14, 14, None)),
+                ("block_end", slice(36, 50, None), slice(14, 14, None)),
+                ("literal", slice(50, 58, None), slice(14, 22, None)),
+                ("block_start", slice(58, 82, None), slice(22, 22, None)),
+                ("literal", slice(82, 88, None), slice(22, 28, None)),
+                ("templated", slice(88, 95, None), slice(28, 29, None)),
+                ("templated", slice(95, 118, None), slice(29, 29, None)),
+                ("literal", slice(22, 36, None), slice(29, 43, None)),
+                ("literal", slice(118, 119, None), slice(43, 44, None)),
+                ("block_end", slice(119, 131, None), slice(44, 44, None)),
+                ("literal", slice(82, 88, None), slice(44, 50, None)),
+                ("templated", slice(88, 95, None), slice(50, 51, None)),
+                ("templated", slice(95, 118, None), slice(51, 51, None)),
+                ("literal", slice(22, 36, None), slice(51, 65, None)),
+                ("literal", slice(118, 119, None), slice(65, 66, None)),
+                ("block_end", slice(119, 131, None), slice(66, 66, None)),
+                ("literal", slice(82, 88, None), slice(66, 72, None)),
+                ("templated", slice(88, 95, None), slice(72, 73, None)),
+                ("templated", slice(95, 118, None), slice(73, 73, None)),
+                ("literal", slice(22, 36, None), slice(73, 87, None)),
+                ("literal", slice(118, 119, None), slice(87, 88, None)),
+                ("block_end", slice(119, 131, None), slice(88, 88, None)),
+                ("literal", slice(131, 132, None), slice(88, 89, None)),
+            ],
+        ),
+        (
+            """{{ statement('variables', fetch_result=true) }}
+""",
+            dict(
+                statement=_statement,
+                load_result=_load_result,
+            ),
+            [
+                ("templated", slice(0, 47, None), slice(0, 10, None)),
+                ("literal", slice(47, 48, None), slice(10, 11, None)),
+            ],
+        ),
+        (
+            "{% call statement('variables', fetch_result=true) %}"
+            "select 1 as test"
+            "{% endcall %}\n",
+            dict(
+                statement=_statement,
+                load_result=_load_result,
+            ),
+            [
+                ("templated", slice(0, 52, None), slice(0, 10, None)),
+                ("literal", slice(52, 68, None), slice(10, 10, None)),
+                ("block_end", slice(68, 81, None), slice(10, 10, None)),
+                ("literal", slice(81, 82, None), slice(10, 11, None)),
+            ],
+        ),
     ],
 )
 def test__templater_jinja_slice_file(raw_file, override_context, result, caplog):
@@ -1101,3 +1194,37 @@ def test__templater_jinja_slice_file(raw_file, override_context, result, caplog)
         for templated_file_slice in sliced_file
     ]
     assert actual == result
+
+
+def test__templater_jinja_large_file_check():
+    """Test large file skipping.
+
+    The check is seperately called on each .process() method
+    so it makes sense to test a few templaters.
+    """
+    # First check we can process the file normally without specific config.
+    # i.e. check the defaults work and the default is high.
+    JinjaTemplater().process(
+        in_str="SELECT 1",
+        fname="<string>",
+        config=FluffConfig(overrides={"dialect": "ansi"}),
+    )
+    # Second check setting the value low disables the check
+    JinjaTemplater().process(
+        in_str="SELECT 1",
+        fname="<string>",
+        config=FluffConfig(
+            overrides={"dialect": "ansi", "large_file_skip_char_limit": 0}
+        ),
+    )
+    # Finally check we raise a skip exception when config is set low.
+    with pytest.raises(SQLTemplaterSkipFile) as excinfo:
+        JinjaTemplater().process(
+            in_str="SELECT 1",
+            fname="<string>",
+            config=FluffConfig(
+                overrides={"dialect": "ansi", "large_file_skip_char_limit": 2},
+            ),
+        )
+
+    assert "Length of file" in str(excinfo.value)

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6d4bcce063ce04990911a976249842f7a0932275f0761823582071cc9b1228f3
+_hash: e5825dad023ea7991ad9af09ca18ed8f526a197d52478b0401fa47dee1aa0bc7
 file:
 - statement:
     create_function_statement:
@@ -36,12 +36,12 @@ file:
     - bracketed:
       - start_bracket: (
       - column_definition:
-          identifier: x
+          naked_identifier: x
           data_type:
             data_type_identifier: INTEGER
       - comma: ','
       - column_definition:
-          identifier: y
+          naked_identifier: y
           data_type:
             data_type_identifier: INTEGER
       - end_bracket: )
@@ -51,7 +51,7 @@ file:
 - statement:
     create_function_statement:
     - keyword: CREATE
-    - binary_operator: OR
+    - keyword: OR
     - keyword: REPLACE
     - keyword: FUNCTION
     - function_name:
@@ -68,12 +68,12 @@ file:
     - bracketed:
       - start_bracket: (
       - column_definition:
-          identifier: country_code
+          naked_identifier: country_code
           data_type:
             data_type_identifier: char
       - comma: ','
       - column_definition:
-          identifier: country_name
+          naked_identifier: country_name
           data_type:
             data_type_identifier: varchar
       - end_bracket: )
@@ -127,12 +127,12 @@ file:
     - bracketed:
       - start_bracket: (
       - column_definition:
-          identifier: x
+          naked_identifier: x
           data_type:
             data_type_identifier: INTEGER
       - comma: ','
       - column_definition:
-          identifier: y
+          naked_identifier: y
           data_type:
             data_type_identifier: INTEGER
       - end_bracket: )

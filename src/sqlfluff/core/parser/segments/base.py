@@ -10,10 +10,10 @@ Here we define:
 
 from collections import defaultdict
 from collections.abc import MutableSet
-from copy import deepcopy
+from copy import deepcopy, copy
 from dataclasses import dataclass, field, replace
 from io import StringIO
-from itertools import takewhile
+from itertools import takewhile, chain
 from typing import (
     Any,
     Callable,
@@ -22,9 +22,10 @@ from typing import (
     List,
     Tuple,
     Iterator,
-    Union,
+    TYPE_CHECKING,
 )
 import logging
+from uuid import UUID, uuid4
 
 from tqdm import tqdm
 
@@ -48,13 +49,35 @@ from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.templaters.base import TemplatedFile
 
+if TYPE_CHECKING:
+    from sqlfluff.core.rules import LintFix  # pragma: no cover
+
 # Instantiate the linter logger (only for use in methods involved with fixing.)
 linter_logger = logging.getLogger("sqlfluff.linter")
 
 
+@dataclass(frozen=True)
+class SourceFix:
+    """A stored reference to a fix in the non-templated file."""
+
+    edit: str
+    source_slice: slice
+    # TODO: It might be possible to refactor this to not require
+    # a templated_slice (because in theory it's unnecessary).
+    # However much of the fix handling code assumes we need
+    # a position in the templated file to interpret it.
+    # More work required to achieve that if desired.
+    templated_slice: slice
+
+    def __hash__(self):
+        # Only hash based on the source slice, not the
+        # templated slice (which might change)
+        return hash((self.edit, self.source_slice.start, self.source_slice.stop))
+
+
 @dataclass
 class FixPatch:
-    """An edit patch for a templated file."""
+    """An edit patch for a source file."""
 
     templated_slice: slice
     fixed_raw: str
@@ -62,37 +85,42 @@ class FixPatch:
     # than for function. It allows traceability of *why* this patch was
     # generated. It has no significance for processing.
     patch_category: str
-
-    def enrich(self, templated_file: TemplatedFile) -> "EnrichedFixPatch":
-        """Convert patch to source space."""
-        source_slice = templated_file.templated_slice_to_source_slice(
-            self.templated_slice,
-        )
-        return EnrichedFixPatch(
-            source_slice=source_slice,
-            templated_slice=self.templated_slice,
-            patch_category=self.patch_category,
-            fixed_raw=self.fixed_raw,
-            templated_str=templated_file.templated_str[self.templated_slice],
-            source_str=templated_file.source_str[source_slice],
-        )
-
-
-@dataclass
-class EnrichedFixPatch(FixPatch):
-    """An edit patch for a source file."""
-
     source_slice: slice
     templated_str: str
     source_str: str
 
-    def enrich(self, templated_file: TemplatedFile) -> "EnrichedFixPatch":
-        """No-op override of base class function."""
-        return self
-
     def dedupe_tuple(self):
         """Generate a tuple of this fix for deduping."""
         return (self.source_slice, self.fixed_raw)
+
+    @classmethod
+    def infer_from_template(
+        cls,
+        templated_slice: slice,
+        fixed_raw: str,
+        patch_category: str,
+        templated_file: TemplatedFile,
+    ):
+        """Infer source position from just templated position.
+
+        In cases where we expect it to be uncontroversial it
+        is sometimes more straightforward to just leverage
+        the existing mapping functions to auto-generate the
+        source position rather than calculating it explicitly.
+        """
+        # NOTE: There used to be error handling here to catch ValueErrors.
+        # Removed in July 2022 because untestable.
+        source_slice = templated_file.templated_slice_to_source_slice(
+            templated_slice,
+        )
+        return cls(
+            source_slice=source_slice,
+            templated_slice=templated_slice,
+            patch_category=patch_category,
+            fixed_raw=fixed_raw,
+            templated_str=templated_file.templated_str[templated_slice],
+            source_str=templated_file.source_str[source_slice],
+        )
 
 
 @dataclass
@@ -104,10 +132,42 @@ class AnchorEditInfo:
     create_before: int = field(default=0)
     create_after: int = field(default=0)
     fixes: List = field(default_factory=list)
+    source_fixes: List = field(default_factory=list)
+    # First fix of edit_type "replace" in "fixes"
+    _first_replace: Optional["LintFix"] = field(default=None)
 
-    def add(self, fix):
-        """Adds the fix and updates stats."""
+    def add(self, fix: "LintFix"):
+        """Adds the fix and updates stats.
+
+        We also allow potentially multiple source fixes on the same
+        anchor by condensing them together here.
+        """
+        if fix.is_just_source_edit():
+            assert fix.edit
+            # is_just_source_edit confirms there will be a list
+            # so we can hint that to mypy.
+            self.source_fixes += fix.edit[0].source_fixes
+            # is there already a replace?
+            if self._first_replace:
+                assert self._first_replace.edit
+                # is_just_source_edit confirms there will be a list
+                # and that's the only way to get into _first_replace
+                # if it's populated so we can hint that to mypy.
+                linter_logger.info(
+                    "Multiple edits detected, condensing %s onto %s",
+                    fix,
+                    self._first_replace,
+                )
+                self._first_replace.edit[0] = self._first_replace.edit[0].edit(
+                    source_fixes=self.source_fixes
+                )
+                linter_logger.info("Condensed fix: %s", self._first_replace)
+                # Return without otherwise adding in this fix.
+                return
+
         self.fixes.append(fix)
+        if fix.edit_type == "replace" and not self._first_replace:
+            self._first_replace = fix
         setattr(self, fix.edit_type, getattr(self, fix.edit_type) + 1)
 
     @property
@@ -178,6 +238,7 @@ class BaseSegment:
         segments,
         pos_marker: Optional[PositionMarker] = None,
         name: Optional[str] = None,
+        uuid: Optional[UUID] = None,
     ):
         # A cache variable for expandable
         self._is_expandable: Optional[bool] = None
@@ -213,6 +274,8 @@ class BaseSegment:
                 )
 
         self.pos_marker = pos_marker
+        # Tracker for matching when things start moving.
+        self.uuid = uuid or uuid4()
 
         self._recalculate_caches()
 
@@ -344,6 +407,11 @@ class BaseSegment:
         return self.get_raw_segments()
 
     @cached_property
+    def source_fixes(self) -> List[SourceFix]:
+        """Return any source fixes as list."""
+        return list(chain.from_iterable(s.source_fixes for s in self.segments))
+
+    @cached_property
     def first_non_whitespace_segment_raw_upper(self) -> Optional[str]:
         """Returns the first non-whitespace subsegment of this segment."""
         for seg in self.raw_segments:
@@ -448,7 +516,11 @@ class BaseSegment:
         return segs
 
     @classmethod
-    def _position_segments(cls, segments, parent_pos=None):
+    def _position_segments(
+        cls,
+        segments: Tuple["BaseSegment", ...],
+        parent_pos: Optional[PositionMarker] = None,
+    ) -> Tuple["BaseSegment", ...]:
         """Refresh positions of segments within a span.
 
         This does two things:
@@ -482,47 +554,59 @@ class BaseSegment:
 
         # Use the index so that we can look forward
         # and backward.
+        segment_buffer: Tuple["BaseSegment", ...] = ()
         for idx, segment in enumerate(segments):
+            repositioned_seg = copy(segment)
             # Fill any that don't have a position.
-            if not segment.pos_marker:
+            if not repositioned_seg.pos_marker:
                 # Can we get a position from the previous?
                 if idx > 0:
-                    segment.pos_marker = segments[idx - 1].pos_marker.end_point_marker()
+                    prev_seg = segment_buffer[idx - 1]
+                    # Given we're going back in the buffer we should
+                    # have set the position marker for everything already
+                    # in there. This is mostly a hint to mypy.
+                    assert prev_seg.pos_marker
+                    repositioned_seg.pos_marker = prev_seg.pos_marker.end_point_marker()
                 # Can we get it from the parent?
                 elif parent_pos:
-                    segment.pos_marker = parent_pos.start_point_marker()
+                    repositioned_seg.pos_marker = parent_pos.start_point_marker()
                 # Search forward for a following one, if we have to?
                 else:
                     for fwd_seg in segments[idx + 1 :]:
                         if fwd_seg.pos_marker:
-                            segments[
-                                idx
-                            ].pos_marker = fwd_seg.pos_marker.start_point_marker()
+                            repositioned_seg.pos_marker = (
+                                fwd_seg.pos_marker.start_point_marker()
+                            )
                             break
                     else:  # pragma: no cover
                         raise ValueError("Unable to position new segment")
 
+            assert repositioned_seg.pos_marker  # hint for mypy
             # Update the working position.
-            segment.pos_marker = segment.pos_marker.with_working_position(
-                line_no,
-                line_pos,
+            repositioned_seg.pos_marker = (
+                repositioned_seg.pos_marker.with_working_position(
+                    line_no,
+                    line_pos,
+                )
             )
-            line_no, line_pos = segment.pos_marker.infer_next_position(
-                segment.raw, line_no, line_pos
+            line_no, line_pos = repositioned_seg.pos_marker.infer_next_position(
+                repositioned_seg.raw, line_no, line_pos
             )
 
             # If this segment has children, recurse and reposition them too.
-            if segment.segments:
-                segment.segments = cls._position_segments(
-                    segment.segments, parent_pos=segment.pos_marker
+            if repositioned_seg.segments:
+                repositioned_seg.segments = cls._position_segments(
+                    repositioned_seg.segments, parent_pos=repositioned_seg.pos_marker
                 )
 
-        return segments
+            segment_buffer += (repositioned_seg,)
+
+        return segment_buffer
 
     # ################ CLASS METHODS
 
     @classmethod
-    def simple(cls, parse_context: ParseContext) -> Optional[List[str]]:
+    def simple(cls, parse_context: ParseContext, crumbs=None) -> Optional[List[str]]:
         """Does this matcher support an uppercase hash matching route?
 
         This should be true if the MATCH grammar is simple. Most more
@@ -530,7 +614,7 @@ class BaseSegment:
         if they wish to be considered simple.
         """
         if cls.match_grammar:
-            return cls.match_grammar.simple(parse_context=parse_context)
+            return cls.match_grammar.simple(parse_context=parse_context, crumbs=crumbs)
         else:  # pragma: no cover TODO?
             # Other segments will either override this method, or aren't
             # simple.
@@ -665,6 +749,7 @@ class BaseSegment:
             "matched_length",
             "raw_segments",
             "first_non_whitespace_segment_raw_upper",
+            "source_fixes",
         ]:
             self.__dict__.pop(key, None)
 
@@ -804,6 +889,13 @@ class BaseSegment:
             )
         return result
 
+    def copy(self):
+        """Copy the segment recursively, with appropriate copying of references."""
+        new_seg = copy(self)
+        if self.segments:
+            new_seg.segments = tuple(seg.copy() for seg in self.segments)
+        return new_seg
+
     def as_record(self, **kwargs):
         """Return the segment as a structurally simplified record.
 
@@ -824,7 +916,7 @@ class BaseSegment:
         return [item for s in self.segments for item in s.raw_segments]
 
     def iter_segments(self, expanding=None, pass_through=False):
-        """Iterate raw segments, optionally expanding some chldren."""
+        """Iterate raw segments, optionally expanding some children."""
         for s in self.segments:
             if expanding and s.is_type(*expanding):
                 yield from s.iter_segments(
@@ -1123,9 +1215,9 @@ class BaseSegment:
                 else:
                     seg = todo_buffer.pop(0)
 
-                    # Look for identity not just equality.
+                    # Look for uuid match.
                     # This handles potential positioning ambiguity.
-                    anchor_info: Optional[AnchorEditInfo] = fixes.pop(id(seg), None)
+                    anchor_info: Optional[AnchorEditInfo] = fixes.pop(seg.uuid, None)
                     if anchor_info is not None:
                         seg_fixes = anchor_info.fixes
                         if (
@@ -1137,7 +1229,7 @@ class BaseSegment:
                             seg_fixes.reverse()
 
                         for f in anchor_info.fixes:
-                            assert f.anchor is seg
+                            assert f.anchor.uuid == seg.uuid
                             fixes_applied.append(f)
                             linter_logger.debug(
                                 "Matched fix against segment: %s -> %s", f, seg
@@ -1183,6 +1275,16 @@ class BaseSegment:
                 # Invalidate any caches
                 self.invalidate_caches()
 
+            # If any fixes applied, do an intermediate reposition. When applying
+            # fixes to children and then trying to reposition them, that recursion
+            # may rely on the parent having already populated positions for any
+            # of the fixes applied there first. This ensures those segments have
+            # working positions to work with.
+            if fixes_applied:
+                seg_buffer = list(
+                    self._position_segments(tuple(seg_buffer), parent_pos=r.pos_marker)
+                )
+
             # Then recurse (i.e. deal with the children) (Requeueing)
             seg_queue = seg_buffer
             seg_buffer = []
@@ -1199,9 +1301,14 @@ class BaseSegment:
 
             before = []
             after = []
-            if fixes_applied and not r.can_start_end_non_code:
+            # If there's a parse grammar and this segment is not allowed to
+            # start or end with non-code, check for (and fix) misplaced
+            # segments. The reason for the parse grammar check is autofix if and
+            # only if parse() would've complained, and it has the same parse
+            # grammar check prior to checking can_start_end_non_code.
+            if r.parse_grammar and not r.can_start_end_non_code:
                 idx_non_code = self._find_start_or_end_non_code(seg_buffer)
-                # Did the fixes leave misplaced segments?
+                # Are there misplaced segments from a fix?
                 if idx_non_code is not None:
                     # Yes. Fix the misplaced segments: Do not include them
                     # in the new segment's children. Instead, return them to the
@@ -1251,13 +1358,15 @@ class BaseSegment:
             return self, [], []
 
     @classmethod
-    def compute_anchor_edit_info(cls, fixes) -> Dict[int, AnchorEditInfo]:
+    def compute_anchor_edit_info(
+        cls, fixes: List["LintFix"]
+    ) -> Dict[int, AnchorEditInfo]:
         """Group and count fixes by anchor, return dictionary."""
         anchor_info = defaultdict(AnchorEditInfo)  # type: ignore
         for fix in fixes:
-            # :TRICKY: Use segment id() as the dictionary key since
+            # :TRICKY: Use segment uuid as the dictionary key since
             # different segments may compare as equal.
-            anchor_id = id(fix.anchor)
+            anchor_id = fix.anchor.uuid
             anchor_info[anchor_id].add(fix)
         return dict(anchor_info)
 
@@ -1290,9 +1399,26 @@ class BaseSegment:
     def _log_apply_fixes_check_issue(message, *args):  # pragma: no cover
         linter_logger.critical(message, exc_info=True, *args)
 
-    def iter_patches(
+    def _iter_source_fix_patches(
         self, templated_file: TemplatedFile
-    ) -> Iterator[Union[EnrichedFixPatch, FixPatch]]:
+    ) -> Iterator[FixPatch]:
+        """Yield any source patches as fixes now.
+
+        NOTE: This yields source fixes for the segment and any of its
+        children, so it's important to call it at the right point in
+        the recursion to avoid yielding duplicates.
+        """
+        for source_fix in self.source_fixes:
+            yield FixPatch(
+                source_fix.templated_slice,
+                source_fix.edit,
+                patch_category="source",
+                source_slice=source_fix.source_slice,
+                templated_str=templated_file.templated_str[source_fix.templated_slice],
+                source_str=templated_file.source_str[source_fix.source_slice],
+            )
+
+    def iter_patches(self, templated_file: TemplatedFile) -> Iterator[FixPatch]:
         """Iterate through the segments generating fix patches.
 
         The patches are generated in TEMPLATED space. This is important
@@ -1304,9 +1430,12 @@ class BaseSegment:
         """
         # Does it match? If so we can ignore it.
         assert self.pos_marker
-        templated_str = templated_file.templated_str
-        matches = self.raw == templated_str[self.pos_marker.templated_slice]
+        templated_raw = templated_file.templated_str[self.pos_marker.templated_slice]
+        matches = self.raw == templated_raw
         if matches:
+            # First yield any source fixes
+            yield from self._iter_source_fix_patches(templated_file)
+            # Then return.
             return
 
         # If we're here, the segment doesn't match the original.
@@ -1314,15 +1443,20 @@ class BaseSegment:
             "%s at %s: Original: [%r] Fixed: [%r]",
             type(self).__name__,
             self.pos_marker.templated_slice,
-            templated_str[self.pos_marker.templated_slice],
+            templated_raw,
             self.raw,
         )
 
         # If it's all literal, then we don't need to recurse.
         if self.pos_marker.is_literal():
-            # Yield the position in the source file and the patch
-            yield FixPatch(
-                self.pos_marker.templated_slice, self.raw, patch_category="literal"
+            # First yield any source fixes
+            yield from self._iter_source_fix_patches(templated_file)
+            # Then yield the position in the source file and the patch
+            yield FixPatch.infer_from_template(
+                self.pos_marker.templated_slice,
+                self.raw,
+                patch_category="literal",
+                templated_file=templated_file,
             )
         # Can we go deeper?
         elif not self.segments:
@@ -1362,7 +1496,7 @@ class BaseSegment:
                 if start_diff > 0 or insert_buff:
                     # If we have an insert buffer, then it's an edit, otherwise a
                     # deletion.
-                    yield FixPatch(
+                    yield FixPatch.infer_from_template(
                         slice(
                             segment.pos_marker.templated_slice.start
                             - max(start_diff, 0),
@@ -1370,7 +1504,9 @@ class BaseSegment:
                         ),
                         insert_buff,
                         patch_category="mid_point",
+                        templated_file=templated_file,
                     )
+
                     insert_buff = ""
 
                 # Now we deal with any changes *within* the segment itself.
@@ -1393,11 +1529,12 @@ class BaseSegment:
                     templated_idx,
                     self.pos_marker.templated_slice.stop,
                 )
-                # By returning an EnrichedFixPatch (rather than FixPatch), which
-                # includes a source_slice field, we ensure that fixes adjacent
-                # to source-only slices (e.g. {% endif %}) are placed
-                # appropriately relative to source-only slices.
-                yield EnrichedFixPatch(
+                # We determine the source_slice directly rather than
+                # infering it so that we can be very specific that
+                # we ensure that fixes adjacent to source-only slices
+                # (e.g. {% endif %}) are placed appropriately relative
+                # to source-only slices.
+                yield FixPatch(
                     source_slice=source_slice,
                     templated_slice=templated_slice,
                     patch_category="end_point",
@@ -1406,7 +1543,9 @@ class BaseSegment:
                     source_str=templated_file.source_str[source_slice],
                 )
 
-    def edit(self, raw):
+    def edit(
+        self, raw: Optional[str] = None, source_fixes: Optional[List[SourceFix]] = None
+    ):
         """Stub."""
         raise NotImplementedError()
 
@@ -1438,7 +1577,7 @@ class BracketedSegment(BaseSegment):
         super().__init__(*args, **kwargs)
 
     @classmethod
-    def simple(cls, parse_context: ParseContext) -> Optional[List[str]]:
+    def simple(cls, parse_context: ParseContext, crumbs=None) -> Optional[List[str]]:
         """Simple methods for bracketed and the persitent brackets."""
         start_brackets = [
             start_bracket
@@ -1449,7 +1588,9 @@ class BracketedSegment(BaseSegment):
         ]
         start_simple = []
         for ref in start_brackets:
-            start_simple += parse_context.dialect.ref(ref).simple(parse_context)
+            start_simple += parse_context.dialect.ref(ref).simple(
+                parse_context, crumbs=crumbs
+            )
         return start_simple
 
     @classmethod

@@ -4,9 +4,9 @@ from typing import Iterator, List, Optional, Set
 
 from sqlfluff.core.dialects.common import AliasInfo, ColumnAliasInfo
 from sqlfluff.core.parser.segments.base import BaseSegment
-from sqlfluff.core.parser.segments.raw import CodeSegment, SymbolSegment
+from sqlfluff.core.parser.segments.raw import SymbolSegment
 from sqlfluff.core.rules.analysis.select_crawler import Query, SelectCrawler
-from sqlfluff.core.rules.base import (
+from sqlfluff.core.rules import (
     BaseRule,
     LintFix,
     LintResult,
@@ -19,6 +19,7 @@ from sqlfluff.core.rules.doc_decorators import (
     document_fix_compatible,
     document_groups,
 )
+from sqlfluff.dialects.dialect_ansi import IdentifierSegment
 
 
 @document_groups
@@ -153,6 +154,7 @@ def _check_references(
     # A buffer to keep any violations.
     col_alias_names: List[str] = [c.alias_identifier_name for c in col_aliases]
     table_ref_str: str = table_aliases[0].ref_str
+    table_ref_str_source = table_aliases[0].segment
     # Check all the references that we have.
     seen_ref_types: Set[str] = set()
     for ref in references:
@@ -168,6 +170,7 @@ def _check_references(
             this_ref_type,
             standalone_aliases,
             table_ref_str,
+            table_ref_str_source,
             col_alias_names,
             seen_ref_types,
             fixable,
@@ -201,6 +204,7 @@ def _validate_one_reference(
     this_ref_type: str,
     standalone_aliases: List[str],
     table_ref_str: str,
+    table_ref_str_source: Optional[BaseSegment],
     col_alias_names: List[str],
     seen_ref_types: Set[str],
     fixable: bool,
@@ -215,6 +219,11 @@ def _validate_one_reference(
     # this alias, so avoid bogus warnings by just skipping them
     # entirely rather than trying to enforce anything.
     if ref.raw in standalone_aliases:
+        return None
+
+    # Oddball case: tsql table variables can't be used to qualify references.
+    # This appears here as an empty string for table_ref_str.
+    if not table_ref_str:
         return None
 
     # Certain dialects allow use of SELECT alias in WHERE clauses
@@ -248,13 +257,13 @@ def _validate_one_reference(
             fixes = [
                 LintFix.create_before(
                     ref.segments[0] if len(ref.segments) else ref,
+                    source=[table_ref_str_source] if table_ref_str_source else None,
                     edit_segments=[
-                        CodeSegment(
+                        IdentifierSegment(
                             raw=table_ref_str,
-                            name="naked_identifier",
-                            type="identifier",
+                            type="naked_identifier",
                         ),
-                        SymbolSegment(raw=".", type="symbol", name="dot"),
+                        SymbolSegment(raw=".", type="symbol"),
                     ],
                 )
             ]

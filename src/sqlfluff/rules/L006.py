@@ -5,7 +5,7 @@ from typing import Tuple, List
 
 from sqlfluff.core.parser import WhitespaceSegment
 
-from sqlfluff.core.rules.base import (
+from sqlfluff.core.rules import (
     BaseRule,
     LintResult,
     LintFix,
@@ -63,8 +63,9 @@ class Rule_L006(BaseRule):
         if seg.is_whitespace:
             return False
         # And it's not an opening/closing bracket
-        if seg.name.endswith("_bracket"):
-            if seg.name.startswith("start_" if before else "end_"):
+        seg_type = seg.get_type()
+        if seg_type.endswith("_bracket"):
+            if seg_type.startswith("start_" if before else "end_"):
                 return False
         if seg.is_meta:  # pragma: no cover
             if before:

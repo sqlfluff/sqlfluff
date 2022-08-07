@@ -3,14 +3,14 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5ba67ae516de43f28161a2962848830299bb533cd41d2e4e625d03c2e6ca3668
+_hash: 5fae24fa08e8818702a933e632e2b092005758915d5dfa79a9efa647eb0b7f2e
 file:
 - statement:
     create_role_statement:
     - keyword: CREATE
     - keyword: USER
-    - object_reference:
-        identifier: foo_role
+    - role_reference:
+        naked_identifier: foo_role
     - keyword: WITH
     - keyword: SUPERUSER
     - keyword: NOLOGIN
@@ -18,44 +18,44 @@ file:
     - keyword: IN
     - keyword: GROUP
     - role_reference:
-        identifier: foo_group
+        naked_identifier: foo_group
 - statement_terminator: ;
 - statement:
     create_user_statement:
     - keyword: CREATE
     - keyword: USER
-    - object_reference:
-        identifier: foo_role
+    - role_reference:
+        naked_identifier: foo_role
 - statement_terminator: ;
 - statement:
     create_role_statement:
     - keyword: CREATE
     - keyword: USER
-    - object_reference:
-        identifier: frank
+    - role_reference:
+        naked_identifier: frank
     - keyword: WITH
     - keyword: CONNECTION
     - keyword: LIMIT
-    - literal: '1'
+    - numeric_literal: '1'
 - statement_terminator: ;
 - statement:
     create_role_statement:
     - keyword: CREATE
     - keyword: USER
-    - object_reference:
-        identifier: frank
+    - role_reference:
+        naked_identifier: frank
     - keyword: WITH
     - keyword: IN
     - keyword: ROLE
     - role_reference:
-        identifier: frank
+        naked_identifier: frank
 - statement_terminator: ;
 - statement:
     create_role_statement:
     - keyword: CREATE
     - keyword: USER
-    - object_reference:
-        identifier: frank
+    - role_reference:
+        naked_identifier: frank
     - keyword: WITH
     - keyword: SUPERUSER
     - keyword: CREATEDB
@@ -65,8 +65,8 @@ file:
     create_role_statement:
     - keyword: CREATE
     - keyword: USER
-    - object_reference:
-        identifier: frank
+    - role_reference:
+        naked_identifier: frank
     - keyword: WITH
     - keyword: INHERIT
     - keyword: LOGIN
@@ -77,32 +77,32 @@ file:
     create_role_statement:
     - keyword: CREATE
     - keyword: USER
-    - object_reference:
-        identifier: davide
+    - role_reference:
+        naked_identifier: davide
     - keyword: WITH
     - keyword: PASSWORD
-    - literal: "'jw8s0F4'"
+    - quoted_literal: "'jw8s0F4'"
 - statement_terminator: ;
 - statement:
     create_role_statement:
     - keyword: CREATE
     - keyword: USER
-    - object_reference:
-        identifier: miriam
+    - role_reference:
+        naked_identifier: miriam
     - keyword: WITH
     - keyword: LOGIN
     - keyword: PASSWORD
-    - literal: "'jw8s0F4'"
+    - quoted_literal: "'jw8s0F4'"
     - keyword: VALID
     - keyword: UNTIL
-    - literal: "'2005-01-01'"
+    - quoted_literal: "'2005-01-01'"
 - statement_terminator: ;
 - statement:
     create_role_statement:
     - keyword: CREATE
     - keyword: ROLE
-    - object_reference:
-        identifier: foo_role
+    - role_reference:
+        naked_identifier: foo_role
     - keyword: WITH
     - keyword: SUPERUSER
     - keyword: NOLOGIN
@@ -110,44 +110,44 @@ file:
     - keyword: IN
     - keyword: GROUP
     - role_reference:
-        identifier: foo_group
+        naked_identifier: foo_group
 - statement_terminator: ;
 - statement:
     create_role_statement:
     - keyword: CREATE
     - keyword: ROLE
-    - object_reference:
-        identifier: foo_role
+    - role_reference:
+        naked_identifier: foo_role
 - statement_terminator: ;
 - statement:
     create_role_statement:
     - keyword: CREATE
     - keyword: ROLE
-    - object_reference:
-        identifier: frank
+    - role_reference:
+        naked_identifier: frank
     - keyword: WITH
     - keyword: CONNECTION
     - keyword: LIMIT
-    - literal: '1'
+    - numeric_literal: '1'
 - statement_terminator: ;
 - statement:
     create_role_statement:
     - keyword: CREATE
     - keyword: ROLE
-    - object_reference:
-        identifier: frank
+    - role_reference:
+        naked_identifier: frank
     - keyword: WITH
     - keyword: IN
     - keyword: ROLE
     - role_reference:
-        identifier: frank
+        naked_identifier: frank
 - statement_terminator: ;
 - statement:
     create_role_statement:
     - keyword: CREATE
     - keyword: ROLE
-    - object_reference:
-        identifier: frank
+    - role_reference:
+        naked_identifier: frank
     - keyword: WITH
     - keyword: SUPERUSER
     - keyword: CREATEDB
@@ -157,8 +157,8 @@ file:
     create_role_statement:
     - keyword: CREATE
     - keyword: ROLE
-    - object_reference:
-        identifier: frank
+    - role_reference:
+        naked_identifier: frank
     - keyword: WITH
     - keyword: INHERIT
     - keyword: LOGIN
@@ -169,23 +169,23 @@ file:
     create_role_statement:
     - keyword: CREATE
     - keyword: ROLE
-    - object_reference:
-        identifier: davide
+    - role_reference:
+        naked_identifier: davide
     - keyword: WITH
     - keyword: PASSWORD
-    - literal: "'jw8s0F4'"
+    - quoted_literal: "'jw8s0F4'"
 - statement_terminator: ;
 - statement:
     create_role_statement:
     - keyword: CREATE
     - keyword: ROLE
-    - object_reference:
-        identifier: miriam
+    - role_reference:
+        naked_identifier: miriam
     - keyword: WITH
     - keyword: LOGIN
     - keyword: PASSWORD
-    - literal: "'jw8s0F4'"
+    - quoted_literal: "'jw8s0F4'"
     - keyword: VALID
     - keyword: UNTIL
-    - literal: "'2005-01-01'"
+    - quoted_literal: "'2005-01-01'"
 - statement_terminator: ;

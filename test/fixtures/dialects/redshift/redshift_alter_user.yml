@@ -3,14 +3,14 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 28ef26b5f980694569c84486afda1739b41b1e127ac75bb0a9e54d733c8c4cff
+_hash: 716360cf5074e9649b480c59a6dd51b0f9edb1dfe792ca9c77e57098faa33d35
 file:
 - statement:
     alter_role_statement:
     - keyword: alter
     - keyword: user
     - role_reference:
-        identifier: admin
+        naked_identifier: admin
     - keyword: createdb
 - statement_terminator: ;
 - statement:
@@ -18,7 +18,7 @@ file:
     - keyword: alter
     - keyword: user
     - role_reference:
-        identifier: admin
+        naked_identifier: admin
     - keyword: with
     - keyword: createdb
 - statement_terminator: ;
@@ -27,7 +27,7 @@ file:
     - keyword: alter
     - keyword: user
     - role_reference:
-        identifier: admin
+        naked_identifier: admin
     - keyword: nocreatedb
 - statement_terminator: ;
 - statement:
@@ -35,7 +35,7 @@ file:
     - keyword: alter
     - keyword: user
     - role_reference:
-        identifier: admin
+        naked_identifier: admin
     - keyword: with
     - keyword: nocreatedb
 - statement_terminator: ;
@@ -43,37 +43,37 @@ file:
     alter_user_statement:
     - keyword: alter
     - keyword: user
-    - object_reference:
-        identifier: '"dbuser"'
+    - role_reference:
+        quoted_identifier: '"dbuser"'
     - keyword: reset
     - object_reference:
-        identifier: var
+        naked_identifier: var
 - statement_terminator: ;
 - statement:
     alter_user_statement:
     - keyword: alter
     - keyword: user
-    - object_reference:
-        identifier: '"dbuser"'
+    - role_reference:
+        quoted_identifier: '"dbuser"'
     - keyword: with
     - keyword: reset
     - object_reference:
-        identifier: var
+        naked_identifier: var
 - statement_terminator: ;
 - statement:
     alter_user_statement:
     - keyword: alter
     - keyword: user
-    - object_reference:
-        identifier: admin
+    - role_reference:
+        naked_identifier: admin
     - keyword: createuser
 - statement_terminator: ;
 - statement:
     alter_user_statement:
     - keyword: alter
     - keyword: user
-    - object_reference:
-        identifier: admin
+    - role_reference:
+        naked_identifier: admin
     - keyword: with
     - keyword: createuser
 - statement_terminator: ;
@@ -81,16 +81,16 @@ file:
     alter_user_statement:
     - keyword: alter
     - keyword: user
-    - object_reference:
-        identifier: admin
+    - role_reference:
+        naked_identifier: admin
     - keyword: nocreateuser
 - statement_terminator: ;
 - statement:
     alter_user_statement:
     - keyword: alter
     - keyword: user
-    - object_reference:
-        identifier: admin
+    - role_reference:
+        naked_identifier: admin
     - keyword: with
     - keyword: nocreateuser
 - statement_terminator: ;
@@ -98,8 +98,8 @@ file:
     alter_user_statement:
     - keyword: alter
     - keyword: user
-    - object_reference:
-        identifier: admin
+    - role_reference:
+        naked_identifier: admin
     - keyword: syslog
     - keyword: access
     - keyword: restricted
@@ -108,8 +108,8 @@ file:
     alter_user_statement:
     - keyword: alter
     - keyword: user
-    - object_reference:
-        identifier: admin
+    - role_reference:
+        naked_identifier: admin
     - keyword: with
     - keyword: syslog
     - keyword: access
@@ -119,8 +119,8 @@ file:
     alter_user_statement:
     - keyword: alter
     - keyword: user
-    - object_reference:
-        identifier: admin
+    - role_reference:
+        naked_identifier: admin
     - keyword: syslog
     - keyword: access
     - keyword: unrestricted
@@ -129,8 +129,8 @@ file:
     alter_user_statement:
     - keyword: alter
     - keyword: user
-    - object_reference:
-        identifier: admin
+    - role_reference:
+        naked_identifier: admin
     - keyword: with
     - keyword: syslog
     - keyword: access
@@ -141,26 +141,26 @@ file:
     - keyword: alter
     - keyword: user
     - role_reference:
-        identifier: iam_superuser
+        naked_identifier: iam_superuser
     - keyword: password
-    - literal: "'mdA51234567890123456780123456789012'"
+    - quoted_literal: "'mdA51234567890123456780123456789012'"
 - statement_terminator: ;
 - statement:
     alter_role_statement:
     - keyword: alter
     - keyword: user
     - role_reference:
-        identifier: iam_superuser
+        naked_identifier: iam_superuser
     - keyword: with
     - keyword: password
-    - literal: "'mdA51234567890123456780123456789012'"
+    - quoted_literal: "'mdA51234567890123456780123456789012'"
 - statement_terminator: ;
 - statement:
     alter_user_statement:
     - keyword: alter
     - keyword: user
-    - object_reference:
-        identifier: iam_superuser
+    - role_reference:
+        naked_identifier: iam_superuser
     - keyword: password
     - keyword: DISABLE
 - statement_terminator: ;
@@ -168,8 +168,8 @@ file:
     alter_user_statement:
     - keyword: alter
     - keyword: user
-    - object_reference:
-        identifier: iam_superuser
+    - role_reference:
+        naked_identifier: iam_superuser
     - keyword: with
     - keyword: password
     - keyword: DISABLE
@@ -179,76 +179,76 @@ file:
     - keyword: alter
     - keyword: user
     - role_reference:
-        identifier: admin
+        naked_identifier: admin
     - keyword: password
-    - literal: "'adminPass9'"
+    - quoted_literal: "'adminPass9'"
     - keyword: valid
     - keyword: until
-    - literal: "'2017-12-31 23:59'"
+    - quoted_literal: "'2017-12-31 23:59'"
 - statement_terminator: ;
 - statement:
     alter_role_statement:
     - keyword: alter
     - keyword: user
     - role_reference:
-        identifier: admin
+        naked_identifier: admin
     - keyword: with
     - keyword: password
-    - literal: "'adminPass9'"
+    - quoted_literal: "'adminPass9'"
     - keyword: valid
     - keyword: until
-    - literal: "'2017-12-31 23:59'"
+    - quoted_literal: "'2017-12-31 23:59'"
 - statement_terminator: ;
 - statement:
     alter_role_statement:
     - keyword: alter
     - keyword: user
     - role_reference:
-        identifier: admin
+        naked_identifier: admin
     - keyword: rename
     - keyword: to
-    - object_reference:
-        identifier: sysadmin
+    - role_reference:
+        naked_identifier: sysadmin
 - statement_terminator: ;
 - statement:
     alter_user_statement:
     - keyword: alter
     - keyword: user
-    - object_reference:
-        identifier: admin
+    - role_reference:
+        naked_identifier: admin
     - keyword: with
     - keyword: rename
     - keyword: to
     - object_reference:
-        identifier: sysadmin
+        naked_identifier: sysadmin
 - statement_terminator: ;
 - statement:
     alter_role_statement:
     - keyword: alter
     - keyword: user
     - role_reference:
-        identifier: admin
+        naked_identifier: admin
     - keyword: connection
     - keyword: limit
-    - literal: '10'
+    - numeric_literal: '10'
 - statement_terminator: ;
 - statement:
     alter_role_statement:
     - keyword: alter
     - keyword: user
     - role_reference:
-        identifier: admin
+        naked_identifier: admin
     - keyword: with
     - keyword: connection
     - keyword: limit
-    - literal: '10'
+    - numeric_literal: '10'
 - statement_terminator: ;
 - statement:
     alter_user_statement:
     - keyword: alter
     - keyword: user
-    - object_reference:
-        identifier: admin
+    - role_reference:
+        naked_identifier: admin
     - keyword: connection
     - keyword: limit
     - keyword: unlimited
@@ -257,8 +257,8 @@ file:
     alter_user_statement:
     - keyword: alter
     - keyword: user
-    - object_reference:
-        identifier: admin
+    - role_reference:
+        naked_identifier: admin
     - keyword: with
     - keyword: connection
     - keyword: limit
@@ -268,29 +268,29 @@ file:
     alter_user_statement:
     - keyword: alter
     - keyword: user
-    - object_reference:
-        identifier: dbuser
+    - role_reference:
+        naked_identifier: dbuser
     - keyword: session
     - keyword: timeout
-    - literal: '300'
+    - numeric_literal: '300'
 - statement_terminator: ;
 - statement:
     alter_user_statement:
     - keyword: alter
     - keyword: user
-    - object_reference:
-        identifier: dbuser
+    - role_reference:
+        naked_identifier: dbuser
     - keyword: with
     - keyword: session
     - keyword: timeout
-    - literal: '300'
+    - numeric_literal: '300'
 - statement_terminator: ;
 - statement:
     alter_user_statement:
     - keyword: alter
     - keyword: user
-    - object_reference:
-        identifier: dbuser
+    - role_reference:
+        naked_identifier: dbuser
     - keyword: reset
     - keyword: session
     - keyword: timeout
@@ -299,8 +299,8 @@ file:
     alter_user_statement:
     - keyword: alter
     - keyword: user
-    - object_reference:
-        identifier: dbuser
+    - role_reference:
+        naked_identifier: dbuser
     - keyword: with
     - keyword: reset
     - keyword: session
@@ -310,63 +310,63 @@ file:
     alter_user_statement:
     - keyword: alter
     - keyword: user
-    - object_reference:
-        identifier: dbuser
+    - role_reference:
+        naked_identifier: dbuser
     - keyword: set
     - object_reference:
-        identifier: var
+        naked_identifier: var
     - keyword: to
-    - literal: '100'
+    - numeric_literal: '100'
 - statement_terminator: ;
 - statement:
     alter_user_statement:
     - keyword: alter
     - keyword: user
-    - object_reference:
-        identifier: dbuser
+    - role_reference:
+        naked_identifier: dbuser
     - keyword: with
     - keyword: set
     - object_reference:
-        identifier: var
+        naked_identifier: var
     - keyword: to
-    - literal: '100'
+    - numeric_literal: '100'
 - statement_terminator: ;
 - statement:
     alter_role_statement:
     - keyword: alter
     - keyword: user
     - role_reference:
-        identifier: dbuser
+        naked_identifier: dbuser
     - keyword: set
     - object_reference:
-        identifier: var
+        naked_identifier: var
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: "'hi'"
+    - quoted_literal: "'hi'"
 - statement_terminator: ;
 - statement:
     alter_user_statement:
     - keyword: alter
     - keyword: user
-    - object_reference:
-        identifier: dbuser
+    - role_reference:
+        naked_identifier: dbuser
     - keyword: with
     - keyword: set
     - object_reference:
-        identifier: var
+        naked_identifier: var
     - comparison_operator:
         raw_comparison_operator: '='
-    - literal: "'hi'"
+    - quoted_literal: "'hi'"
 - statement_terminator: ;
 - statement:
     alter_role_statement:
     - keyword: alter
     - keyword: user
     - role_reference:
-        identifier: dbuser
+        naked_identifier: dbuser
     - keyword: set
     - object_reference:
-        identifier: var
+        naked_identifier: var
     - keyword: to
     - keyword: default
 - statement_terminator: ;
@@ -374,12 +374,12 @@ file:
     alter_user_statement:
     - keyword: alter
     - keyword: user
-    - object_reference:
-        identifier: dbuser
+    - role_reference:
+        naked_identifier: dbuser
     - keyword: with
     - keyword: set
     - object_reference:
-        identifier: var
+        naked_identifier: var
     - keyword: to
     - keyword: default
 - statement_terminator: ;
@@ -388,10 +388,10 @@ file:
     - keyword: alter
     - keyword: user
     - role_reference:
-        identifier: dbuser
+        naked_identifier: dbuser
     - keyword: set
     - object_reference:
-        identifier: var
+        naked_identifier: var
     - comparison_operator:
         raw_comparison_operator: '='
     - keyword: default
@@ -400,12 +400,12 @@ file:
     alter_user_statement:
     - keyword: alter
     - keyword: user
-    - object_reference:
-        identifier: dbuser
+    - role_reference:
+        naked_identifier: dbuser
     - keyword: with
     - keyword: set
     - object_reference:
-        identifier: var
+        naked_identifier: var
     - comparison_operator:
         raw_comparison_operator: '='
     - keyword: default
@@ -414,20 +414,20 @@ file:
     alter_user_statement:
     - keyword: alter
     - keyword: user
-    - object_reference:
-        identifier: dbuser
+    - role_reference:
+        naked_identifier: dbuser
     - keyword: reset
     - object_reference:
-        identifier: var
+        naked_identifier: var
 - statement_terminator: ;
 - statement:
     alter_user_statement:
     - keyword: alter
     - keyword: user
-    - object_reference:
-        identifier: dbuser
+    - role_reference:
+        naked_identifier: dbuser
     - keyword: with
     - keyword: reset
     - object_reference:
-        identifier: var
+        naked_identifier: var
 - statement_terminator: ;

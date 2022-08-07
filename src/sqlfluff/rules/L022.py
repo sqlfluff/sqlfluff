@@ -3,7 +3,7 @@
 from typing import Optional, List
 from sqlfluff.core.parser import NewlineSegment
 
-from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
+from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
@@ -63,21 +63,7 @@ class Rule_L022(BaseRule):
             )
             for idx, seg in enumerate(expanded_segments):
                 if seg.is_type("bracketed"):
-                    # Check if the preceding keyword is AS, otherwise it's a column name
-                    # definition in the CTE.
-                    preceding_keyword = next(
-                        (
-                            s
-                            for s in expanded_segments[:idx][::-1]
-                            if s.is_type("keyword")
-                        ),
-                        None,
-                    )
-                    if (
-                        preceding_keyword is not None
-                        and preceding_keyword.raw.upper() == "AS"
-                    ):
-                        bracket_indices.append(idx)
+                    bracket_indices.append(idx)
 
             # Work through each point and deal with it individually
             for bracket_idx in bracket_indices:

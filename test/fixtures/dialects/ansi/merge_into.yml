@@ -3,28 +3,28 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1f2389b1f1fee11d6b8947ea0be0fc2de33a44f90ce46804a64caa7a26ce1801
+_hash: 12b2866dcee4e144701a860bb381a3c8d3106abf8b3fa1a961543dd1fc0a4c95
 file:
 - statement:
     merge_statement:
     - keyword: MERGE
     - keyword: INTO
     - table_reference:
-        identifier: t
+        naked_identifier: t
     - keyword: USING
     - table_reference:
-        identifier: u
+        naked_identifier: u
     - join_on_condition:
         keyword: 'ON'
         bracketed:
           start_bracket: (
           expression:
           - column_reference:
-              identifier: a
+              naked_identifier: a
           - comparison_operator:
               raw_comparison_operator: '='
           - column_reference:
-              identifier: b
+              naked_identifier: b
           end_bracket: )
     - merge_match:
         merge_when_matched_clause:
@@ -37,11 +37,11 @@ file:
               keyword: SET
               set_clause:
               - column_reference:
-                  identifier: a
+                  naked_identifier: a
               - comparison_operator:
                   raw_comparison_operator: '='
               - column_reference:
-                  identifier: b
+                  naked_identifier: b
         merge_when_not_matched_clause:
         - keyword: WHEN
         - keyword: NOT
@@ -52,7 +52,7 @@ file:
             bracketed:
               start_bracket: (
               column_reference:
-                identifier: b
+                naked_identifier: b
               end_bracket: )
             values_clause:
               keyword: VALUES
@@ -60,7 +60,7 @@ file:
                 start_bracket: (
                 expression:
                   column_reference:
-                    identifier: c
+                    naked_identifier: c
                 end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -68,7 +68,7 @@ file:
     - keyword: MERGE
     - keyword: INTO
     - table_reference:
-        identifier: t
+        naked_identifier: t
     - keyword: USING
     - bracketed:
         start_bracket: (
@@ -85,22 +85,22 @@ file:
               from_expression_element:
                 table_expression:
                   table_reference:
-                    identifier: u
+                    naked_identifier: u
         end_bracket: )
     - alias_expression:
         keyword: AS
-        identifier: u
+        naked_identifier: u
     - join_on_condition:
         keyword: 'ON'
         bracketed:
           start_bracket: (
           expression:
           - column_reference:
-              identifier: a
+              naked_identifier: a
           - comparison_operator:
               raw_comparison_operator: '='
           - column_reference:
-              identifier: b
+              naked_identifier: b
           end_bracket: )
     - merge_match:
         merge_when_matched_clause:
@@ -113,11 +113,11 @@ file:
               keyword: SET
               set_clause:
               - column_reference:
-                  identifier: a
+                  naked_identifier: a
               - comparison_operator:
                   raw_comparison_operator: '='
               - column_reference:
-                  identifier: b
+                  naked_identifier: b
         merge_when_not_matched_clause:
         - keyword: WHEN
         - keyword: NOT
@@ -128,7 +128,7 @@ file:
             bracketed:
               start_bracket: (
               column_reference:
-                identifier: b
+                naked_identifier: b
               end_bracket: )
             values_clause:
               keyword: VALUES
@@ -136,7 +136,7 @@ file:
                 start_bracket: (
                 expression:
                   column_reference:
-                    identifier: c
+                    naked_identifier: c
                 end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -144,21 +144,21 @@ file:
     - keyword: MERGE
     - keyword: INTO
     - table_reference:
-        identifier: t
+        naked_identifier: t
     - keyword: USING
     - table_reference:
-        identifier: u
+        naked_identifier: u
     - join_on_condition:
         keyword: 'ON'
         bracketed:
           start_bracket: (
           expression:
           - column_reference:
-              identifier: a
+              naked_identifier: a
           - comparison_operator:
               raw_comparison_operator: '='
           - column_reference:
-              identifier: b
+              naked_identifier: b
           end_bracket: )
     - merge_match:
       - merge_when_matched_clause:
@@ -171,11 +171,11 @@ file:
               keyword: SET
               set_clause:
               - column_reference:
-                  identifier: a
+                  naked_identifier: a
               - comparison_operator:
                   raw_comparison_operator: '='
               - column_reference:
-                  identifier: b
+                  naked_identifier: b
       - merge_when_matched_clause:
         - keyword: WHEN
         - keyword: MATCHED
@@ -188,34 +188,34 @@ file:
     - keyword: MERGE
     - keyword: INTO
     - table_reference:
-        identifier: t
+        naked_identifier: t
     - keyword: USING
     - table_reference:
-        identifier: u
+        naked_identifier: u
     - join_on_condition:
         keyword: 'ON'
         bracketed:
           start_bracket: (
           expression:
           - column_reference:
-              identifier: a
+              naked_identifier: a
           - comparison_operator:
               raw_comparison_operator: '='
           - column_reference:
-              identifier: b
+              naked_identifier: b
           end_bracket: )
     - merge_match:
       - merge_when_matched_clause:
         - keyword: WHEN
         - keyword: MATCHED
-        - binary_operator: AND
+        - keyword: AND
         - expression:
           - column_reference:
-              identifier: a
+              naked_identifier: a
           - comparison_operator:
               raw_comparison_operator: '>'
           - column_reference:
-              identifier: b
+              naked_identifier: b
         - keyword: THEN
         - merge_update_clause:
             keyword: UPDATE
@@ -223,32 +223,32 @@ file:
               keyword: SET
               set_clause:
               - column_reference:
-                  identifier: a
+                  naked_identifier: a
               - comparison_operator:
                   raw_comparison_operator: '='
               - column_reference:
-                  identifier: b
+                  naked_identifier: b
       - merge_when_matched_clause:
         - keyword: WHEN
         - keyword: MATCHED
-        - binary_operator: AND
+        - keyword: AND
         - expression:
             bracketed:
               start_bracket: (
               expression:
               - column_reference:
-                  identifier: a
+                  naked_identifier: a
               - comparison_operator:
                   raw_comparison_operator: <
               - column_reference:
-                  identifier: b
+                  naked_identifier: b
               - binary_operator: AND
               - column_reference:
-                  identifier: c
+                  naked_identifier: c
               - comparison_operator:
                   raw_comparison_operator: <
               - column_reference:
-                  identifier: d
+                  naked_identifier: d
               end_bracket: )
         - keyword: THEN
         - merge_delete_clause:
@@ -263,10 +263,10 @@ file:
             bracketed:
             - start_bracket: (
             - column_reference:
-                identifier: a
+                naked_identifier: a
             - comma: ','
             - column_reference:
-                identifier: c
+                naked_identifier: c
             - end_bracket: )
             values_clause:
               keyword: VALUES
@@ -274,10 +274,10 @@ file:
               - start_bracket: (
               - expression:
                   column_reference:
-                    identifier: b
+                    naked_identifier: b
               - comma: ','
               - expression:
                   column_reference:
-                    identifier: d
+                    naked_identifier: d
               - end_bracket: )
 - statement_terminator: ;

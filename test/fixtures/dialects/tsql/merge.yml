@@ -3,53 +3,53 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 25f98e03f7bb5285fd55635b63f2304603af7b5e25583b065db56b35792accc6
+_hash: 1512c510d95e9b9cccca4e086c97b64e67ae562c49fc44d23cadb82c1c1e4198
 file:
 - batch:
     statement:
       merge_statement:
       - keyword: merge
       - table_reference:
-        - identifier: schema1
+        - naked_identifier: schema1
         - dot: .
-        - identifier: table1
+        - naked_identifier: table1
       - alias_expression:
-          identifier: dst
+          naked_identifier: dst
       - keyword: using
       - table_reference:
-        - identifier: schema1
+        - naked_identifier: schema1
         - dot: .
-        - identifier: table1
+        - naked_identifier: table1
       - alias_expression:
-          identifier: src
+          naked_identifier: src
       - join_on_condition:
           keyword: 'on'
           expression:
           - column_reference:
-            - identifier: src
+            - naked_identifier: src
             - dot: .
-            - identifier: rn
+            - naked_identifier: rn
           - comparison_operator:
               raw_comparison_operator: '='
-          - literal: '1'
+          - numeric_literal: '1'
           - binary_operator: and
           - column_reference:
-            - identifier: dst
+            - naked_identifier: dst
             - dot: .
-            - identifier: e_date_to
+            - naked_identifier: e_date_to
           - keyword: is
           - keyword: 'null'
           - binary_operator: and
           - column_reference:
-            - identifier: dst
+            - naked_identifier: dst
             - dot: .
-            - identifier: cc_id
+            - naked_identifier: cc_id
           - comparison_operator:
               raw_comparison_operator: '='
           - column_reference:
-            - identifier: src
+            - naked_identifier: src
             - dot: .
-            - identifier: cc_id
+            - naked_identifier: cc_id
       - merge_match:
           merge_when_matched_clause:
           - keyword: when
@@ -61,31 +61,31 @@ file:
               - keyword: set
               - set_clause:
                   column_reference:
-                  - identifier: dst
+                  - naked_identifier: dst
                   - dot: .
-                  - identifier: l_id
+                  - naked_identifier: l_id
                   assignment_operator:
                     comparison_operator:
                       raw_comparison_operator: '='
                   expression:
                     column_reference:
-                    - identifier: src
+                    - naked_identifier: src
                     - dot: .
-                    - identifier: l_id
+                    - naked_identifier: l_id
               - comma: ','
               - set_clause:
                   column_reference:
-                  - identifier: dst
+                  - naked_identifier: dst
                   - dot: .
-                  - identifier: e_date_to
+                  - naked_identifier: e_date_to
                   assignment_operator:
                     comparison_operator:
                       raw_comparison_operator: '='
                   expression:
                     column_reference:
-                    - identifier: src
+                    - naked_identifier: src
                     - dot: .
-                    - identifier: e_date_from
+                    - naked_identifier: e_date_from
 - go_statement:
     keyword: go
 - batch:
@@ -93,7 +93,7 @@ file:
       with_compound_statement:
         keyword: with
         common_table_expression:
-          identifier: source_data
+          naked_identifier: source_data
           keyword: as
           bracketed:
             start_bracket: (
@@ -102,78 +102,78 @@ file:
               - keyword: select
               - select_clause_element:
                   column_reference:
-                    identifier: cc_id
+                    naked_identifier: cc_id
               - comma: ','
               - select_clause_element:
                   column_reference:
-                    identifier: cc_name
+                    naked_identifier: cc_name
               - comma: ','
               - select_clause_element:
                   column_reference:
-                    identifier: cc_description
+                    naked_identifier: cc_description
               from_clause:
                 keyword: from
                 from_expression:
                   from_expression_element:
                     table_expression:
                       table_reference:
-                      - identifier: DW
+                      - naked_identifier: DW
                       - dot: .
-                      - identifier: sch1
+                      - naked_identifier: sch1
                       - dot: .
-                      - identifier: tbl1
+                      - naked_identifier: tbl1
               where_clause:
                 keyword: where
                 expression:
                 - column_reference:
-                    identifier: e_date_to
+                    naked_identifier: e_date_to
                 - keyword: is
                 - keyword: 'null'
                 - binary_operator: and
                 - column_reference:
-                    identifier: l_id
+                    naked_identifier: l_id
                 - comparison_operator:
                   - raw_comparison_operator: '>'
                   - raw_comparison_operator: '='
                 - column_reference:
-                    identifier: dd
+                    naked_identifier: dd
                 - binary_operator: and
                 - column_reference:
-                    identifier: l_id
+                    naked_identifier: l_id
                 - comparison_operator:
                   - raw_comparison_operator: <
                   - raw_comparison_operator: '='
                 - column_reference:
-                    identifier: dd
+                    naked_identifier: dd
             end_bracket: )
         merge_statement:
         - keyword: merge
         - table_reference:
-          - identifier: DM
+          - naked_identifier: DM
           - dot: .
-          - identifier: sch1
+          - naked_identifier: sch1
           - dot: .
-          - identifier: tbl2
+          - naked_identifier: tbl2
         - alias_expression:
-            identifier: dst
+            naked_identifier: dst
         - keyword: using
         - table_reference:
-            identifier: source_data
+            naked_identifier: source_data
         - alias_expression:
-            identifier: src
+            naked_identifier: src
         - join_on_condition:
             keyword: 'on'
             expression:
             - column_reference:
-              - identifier: src
+              - naked_identifier: src
               - dot: .
-              - identifier: cc_id
+              - naked_identifier: cc_id
             - comparison_operator:
                 raw_comparison_operator: '='
             - column_reference:
-              - identifier: dst
+              - naked_identifier: dst
               - dot: .
-              - identifier: cc_id
+              - naked_identifier: cc_id
         - merge_match:
             merge_when_matched_clause:
             - keyword: when
@@ -185,31 +185,31 @@ file:
                 - keyword: set
                 - set_clause:
                     column_reference:
-                    - identifier: dst
+                    - naked_identifier: dst
                     - dot: .
-                    - identifier: cc_name
+                    - naked_identifier: cc_name
                     assignment_operator:
                       comparison_operator:
                         raw_comparison_operator: '='
                     expression:
                       column_reference:
-                      - identifier: src
+                      - naked_identifier: src
                       - dot: .
-                      - identifier: cc_name
+                      - naked_identifier: cc_name
                 - comma: ','
                 - set_clause:
                     column_reference:
-                    - identifier: dst
+                    - naked_identifier: dst
                     - dot: .
-                    - identifier: cc_description
+                    - naked_identifier: cc_description
                     assignment_operator:
                       comparison_operator:
                         raw_comparison_operator: '='
                     expression:
                       column_reference:
-                      - identifier: src
+                      - naked_identifier: src
                       - dot: .
-                      - identifier: cc_description
+                      - naked_identifier: cc_description
             merge_when_not_matched_clause:
             - keyword: when
             - keyword: not
@@ -220,28 +220,28 @@ file:
               - bracketed:
                 - start_bracket: (
                 - column_reference:
-                    identifier: cc_id
+                    naked_identifier: cc_id
                 - comma: ','
                 - column_reference:
-                    identifier: cc_name
+                    naked_identifier: cc_name
                 - comma: ','
                 - column_reference:
-                    identifier: cc_description
+                    naked_identifier: cc_description
                 - end_bracket: )
               - keyword: values
               - bracketed:
                 - start_bracket: (
                 - expression:
                     column_reference:
-                      identifier: cc_id
+                      naked_identifier: cc_id
                 - comma: ','
                 - expression:
                     column_reference:
-                      identifier: cc_name
+                      naked_identifier: cc_name
                 - comma: ','
                 - expression:
                     column_reference:
-                      identifier: cc_description
+                      naked_identifier: cc_description
                 - end_bracket: )
     statement_terminator: ;
 - go_statement:
@@ -251,46 +251,46 @@ file:
       merge_statement:
       - keyword: merge
       - table_reference:
-        - identifier: DW
+        - naked_identifier: DW
         - dot: .
-        - identifier: tt
+        - naked_identifier: tt
         - dot: .
-        - identifier: dd
+        - naked_identifier: dd
       - alias_expression:
-          identifier: dst
+          naked_identifier: dst
       - keyword: using
       - table_reference:
-        - identifier: LA
+        - naked_identifier: LA
         - dot: .
-        - identifier: tt
+        - naked_identifier: tt
         - dot: .
-        - identifier: dd
+        - naked_identifier: dd
       - alias_expression:
-          identifier: src
+          naked_identifier: src
       - join_on_condition:
           keyword: 'on'
           expression:
           - column_reference:
-            - identifier: dst
+            - naked_identifier: dst
             - dot: .
-            - identifier: s_id
+            - naked_identifier: s_id
           - comparison_operator:
               raw_comparison_operator: '='
           - column_reference:
-            - identifier: src
+            - naked_identifier: src
             - dot: .
-            - identifier: s_id
+            - naked_identifier: s_id
           - binary_operator: and
           - column_reference:
-            - identifier: dst
+            - naked_identifier: dst
             - dot: .
-            - identifier: c_id
+            - naked_identifier: c_id
           - comparison_operator:
               raw_comparison_operator: '='
           - column_reference:
-            - identifier: src
+            - naked_identifier: src
             - dot: .
-            - identifier: c_id
+            - naked_identifier: c_id
       - merge_match:
         - merge_when_matched_clause:
           - keyword: when
@@ -302,57 +302,57 @@ file:
               - keyword: set
               - set_clause:
                   column_reference:
-                  - identifier: dst
+                  - naked_identifier: dst
                   - dot: .
-                  - identifier: c_name
+                  - naked_identifier: c_name
                   assignment_operator:
                     comparison_operator:
                       raw_comparison_operator: '='
                   expression:
                     column_reference:
-                    - identifier: src
+                    - naked_identifier: src
                     - dot: .
-                    - identifier: c_name
+                    - naked_identifier: c_name
               - comma: ','
               - set_clause:
                   column_reference:
-                  - identifier: dst
+                  - naked_identifier: dst
                   - dot: .
-                  - identifier: col1
+                  - naked_identifier: col1
                   assignment_operator:
                     comparison_operator:
                       raw_comparison_operator: '='
                   expression:
                     column_reference:
-                    - identifier: src
+                    - naked_identifier: src
                     - dot: .
-                    - identifier: col1
+                    - naked_identifier: col1
               - comma: ','
               - set_clause:
                   column_reference:
-                  - identifier: dst
+                  - naked_identifier: dst
                   - dot: .
-                  - identifier: col2
+                  - naked_identifier: col2
                   assignment_operator:
                     comparison_operator:
                       raw_comparison_operator: '='
                   expression:
                     column_reference:
-                    - identifier: src
+                    - naked_identifier: src
                     - dot: .
-                    - identifier: col2
+                    - naked_identifier: col2
         - merge_when_not_matched_clause:
           - keyword: when
           - keyword: not
           - keyword: matched
           - keyword: by
           - keyword: target
-          - binary_operator: and
+          - keyword: and
           - expression:
             - column_reference:
-              - identifier: src
+              - naked_identifier: src
               - dot: .
-              - identifier: c_id
+              - naked_identifier: c_id
             - keyword: is
             - keyword: not
             - keyword: 'null'
@@ -362,52 +362,52 @@ file:
             - bracketed:
               - start_bracket: (
               - column_reference:
-                  identifier: s_id
+                  naked_identifier: s_id
               - comma: ','
               - column_reference:
-                  identifier: c_id
+                  naked_identifier: c_id
               - comma: ','
               - column_reference:
-                  identifier: c_name
+                  naked_identifier: c_name
               - comma: ','
               - column_reference:
-                  identifier: col1
+                  naked_identifier: col1
               - comma: ','
               - column_reference:
-                  identifier: col2
+                  naked_identifier: col2
               - end_bracket: )
             - keyword: values
             - bracketed:
               - start_bracket: (
               - expression:
                   column_reference:
-                  - identifier: src
+                  - naked_identifier: src
                   - dot: .
-                  - identifier: s_id
+                  - naked_identifier: s_id
               - comma: ','
               - expression:
                   column_reference:
-                  - identifier: src
+                  - naked_identifier: src
                   - dot: .
-                  - identifier: c_id
+                  - naked_identifier: c_id
               - comma: ','
               - expression:
                   column_reference:
-                  - identifier: src
+                  - naked_identifier: src
                   - dot: .
-                  - identifier: c_name
+                  - naked_identifier: c_name
               - comma: ','
               - expression:
                   column_reference:
-                  - identifier: src
+                  - naked_identifier: src
                   - dot: .
-                  - identifier: col1
+                  - naked_identifier: col1
               - comma: ','
               - expression:
                   column_reference:
-                  - identifier: src
+                  - naked_identifier: src
                   - dot: .
-                  - identifier: col2
+                  - naked_identifier: col2
               - end_bracket: )
         - merge_when_not_matched_clause:
           - keyword: when
@@ -415,13 +415,13 @@ file:
           - keyword: matched
           - keyword: by
           - keyword: source
-          - binary_operator: and
+          - keyword: and
           - expression:
               column_reference:
-                identifier: s_id
+                naked_identifier: s_id
               comparison_operator:
                 raw_comparison_operator: '='
-              literal: '1'
+              numeric_literal: '1'
               keyword: in
               bracketed:
                 start_bracket: (
@@ -430,18 +430,18 @@ file:
                     keyword: select
                     select_clause_element:
                       column_reference:
-                        identifier: s_id
+                        naked_identifier: s_id
                   from_clause:
                     keyword: from
                     from_expression:
                       from_expression_element:
                         table_expression:
                           table_reference:
-                          - identifier: LA
+                          - naked_identifier: LA
                           - dot: .
-                          - identifier: g
+                          - naked_identifier: g
                           - dot: .
-                          - identifier: tbl3
+                          - naked_identifier: tbl3
                 end_bracket: )
           - keyword: then
           - merge_update_clause:
@@ -450,26 +450,26 @@ file:
               - keyword: set
               - set_clause:
                   column_reference:
-                  - identifier: dst
+                  - naked_identifier: dst
                   - dot: .
-                  - identifier: col1
+                  - naked_identifier: col1
                   assignment_operator:
                     comparison_operator:
                       raw_comparison_operator: '='
                   expression:
-                    literal: "'N'"
+                    quoted_literal: "'N'"
               - comma: ','
               - set_clause:
                   column_reference:
-                  - identifier: dst
+                  - naked_identifier: dst
                   - dot: .
-                  - identifier: col2
+                  - naked_identifier: col2
                   assignment_operator:
                     comparison_operator:
                       raw_comparison_operator: '='
                   expression:
                     column_reference:
-                      identifier: col2
+                      naked_identifier: col2
     statement_terminator: ;
 - go_statement:
     keyword: go
@@ -478,12 +478,12 @@ file:
       merge_statement:
       - keyword: MERGE
       - table_reference:
-        - identifier: Production
+        - naked_identifier: Production
         - dot: .
-        - identifier: UnitMeasure
+        - naked_identifier: UnitMeasure
       - alias_expression:
           keyword: AS
-          identifier: tgt
+          naked_identifier: tgt
       - keyword: USING
       - bracketed:
           start_bracket: (
@@ -498,13 +498,13 @@ file:
           end_bracket: )
       - alias_expression:
           keyword: as
-          identifier: src
+          naked_identifier: src
           bracketed:
             start_bracket: (
             identifier_list:
-            - identifier: UnitMeasureCode
+            - naked_identifier: UnitMeasureCode
             - comma: ','
-            - identifier: Name
+            - naked_identifier: Name
             end_bracket: )
       - join_on_condition:
           keyword: 'ON'
@@ -512,15 +512,15 @@ file:
             start_bracket: (
             expression:
             - column_reference:
-              - identifier: tgt
+              - naked_identifier: tgt
               - dot: .
-              - identifier: UnitMeasureCode
+              - naked_identifier: UnitMeasureCode
             - comparison_operator:
                 raw_comparison_operator: '='
             - column_reference:
-              - identifier: src
+              - naked_identifier: src
               - dot: .
-              - identifier: UnitMeasureCode
+              - naked_identifier: UnitMeasureCode
             end_bracket: )
       - merge_match:
           merge_when_matched_clause:
@@ -533,15 +533,15 @@ file:
                 keyword: SET
                 set_clause:
                   column_reference:
-                    identifier: Name
+                    naked_identifier: Name
                   assignment_operator:
                     comparison_operator:
                       raw_comparison_operator: '='
                   expression:
                     column_reference:
-                    - identifier: src
+                    - naked_identifier: src
                     - dot: .
-                    - identifier: Name
+                    - naked_identifier: Name
           merge_when_not_matched_clause:
           - keyword: WHEN
           - keyword: NOT
@@ -552,45 +552,45 @@ file:
             - bracketed:
               - start_bracket: (
               - column_reference:
-                  identifier: UnitMeasureCode
+                  naked_identifier: UnitMeasureCode
               - comma: ','
               - column_reference:
-                  identifier: Name
+                  naked_identifier: Name
               - end_bracket: )
             - keyword: VALUES
             - bracketed:
               - start_bracket: (
               - expression:
                   column_reference:
-                  - identifier: src
+                  - naked_identifier: src
                   - dot: .
-                  - identifier: UnitMeasureCode
+                  - naked_identifier: UnitMeasureCode
               - comma: ','
               - expression:
                   column_reference:
-                  - identifier: src
+                  - naked_identifier: src
                   - dot: .
-                  - identifier: Name
+                  - naked_identifier: Name
               - end_bracket: )
           output_clause:
           - keyword: OUTPUT
           - wildcard_expression:
               wildcard_identifier:
-                identifier: deleted
+                naked_identifier: deleted
                 dot: .
                 star: '*'
           - comma: ','
           - column_reference:
-              identifier: $action
+              variable_identifier: $action
           - comma: ','
           - wildcard_expression:
               wildcard_identifier:
-                identifier: inserted
+                naked_identifier: inserted
                 dot: .
                 star: '*'
           - keyword: INTO
           - table_reference:
-              identifier: '#MyTempTable'
+              hash_identifier: '#MyTempTable'
     statement_terminator: ;
 - go_statement:
     keyword: GO
@@ -599,12 +599,12 @@ file:
       merge_statement:
       - keyword: MERGE
       - table_reference:
-        - identifier: Production
+        - naked_identifier: Production
         - dot: .
-        - identifier: ProductInventory
+        - naked_identifier: ProductInventory
       - alias_expression:
           keyword: AS
-          identifier: tgt
+          naked_identifier: tgt
       - keyword: USING
       - bracketed:
           start_bracket: (
@@ -613,7 +613,7 @@ file:
             - keyword: SELECT
             - select_clause_element:
                 column_reference:
-                  identifier: ProductID
+                  naked_identifier: ProductID
             - comma: ','
             - select_clause_element:
                 function:
@@ -623,7 +623,7 @@ file:
                     start_bracket: (
                     expression:
                       column_reference:
-                        identifier: OrderQty
+                        naked_identifier: OrderQty
                     end_bracket: )
             from_clause:
               keyword: FROM
@@ -631,41 +631,41 @@ file:
                 from_expression_element:
                   table_expression:
                     table_reference:
-                    - identifier: Sales
+                    - naked_identifier: Sales
                     - dot: .
-                    - identifier: SalesOrderDetail
+                    - naked_identifier: SalesOrderDetail
                   alias_expression:
                     keyword: AS
-                    identifier: sod
+                    naked_identifier: sod
                 join_clause:
                   keyword: JOIN
                   from_expression_element:
                     table_expression:
                       table_reference:
-                      - identifier: Sales
+                      - naked_identifier: Sales
                       - dot: .
-                      - identifier: SalesOrderHeader
+                      - naked_identifier: SalesOrderHeader
                     alias_expression:
                       keyword: AS
-                      identifier: soh
+                      naked_identifier: soh
                   join_on_condition:
                     keyword: 'ON'
                     expression:
                     - column_reference:
-                      - identifier: sod
+                      - naked_identifier: sod
                       - dot: .
-                      - identifier: SalesOrderID
+                      - naked_identifier: SalesOrderID
                     - comparison_operator:
                         raw_comparison_operator: '='
                     - column_reference:
-                      - identifier: soh
+                      - naked_identifier: soh
                       - dot: .
-                      - identifier: SalesOrderID
+                      - naked_identifier: SalesOrderID
                     - binary_operator: AND
                     - column_reference:
-                      - identifier: soh
+                      - naked_identifier: soh
                       - dot: .
-                      - identifier: OrderDate
+                      - naked_identifier: OrderDate
                     - comparison_operator:
                         raw_comparison_operator: '='
                     - parameter: '@OrderDate'
@@ -673,17 +673,17 @@ file:
             - keyword: GROUP
             - keyword: BY
             - column_reference:
-                identifier: ProductID
+                naked_identifier: ProductID
           end_bracket: )
       - alias_expression:
           keyword: as
-          identifier: src
+          naked_identifier: src
           bracketed:
             start_bracket: (
             identifier_list:
-            - identifier: ProductID
+            - naked_identifier: ProductID
             - comma: ','
-            - identifier: OrderQty
+            - naked_identifier: OrderQty
             end_bracket: )
       - join_on_condition:
           keyword: 'ON'
@@ -691,35 +691,35 @@ file:
             start_bracket: (
             expression:
             - column_reference:
-              - identifier: tgt
+              - naked_identifier: tgt
               - dot: .
-              - identifier: ProductID
+              - naked_identifier: ProductID
             - comparison_operator:
                 raw_comparison_operator: '='
             - column_reference:
-              - identifier: src
+              - naked_identifier: src
               - dot: .
-              - identifier: ProductID
+              - naked_identifier: ProductID
             end_bracket: )
       - merge_match:
         - merge_when_matched_clause:
           - keyword: WHEN
           - keyword: MATCHED
-          - binary_operator: AND
+          - keyword: AND
           - expression:
             - column_reference:
-              - identifier: tgt
+              - naked_identifier: tgt
               - dot: .
-              - identifier: Quantity
+              - naked_identifier: Quantity
             - binary_operator: '-'
             - column_reference:
-              - identifier: src
+              - naked_identifier: src
               - dot: .
-              - identifier: OrderQty
+              - naked_identifier: OrderQty
             - comparison_operator:
               - raw_comparison_operator: <
               - raw_comparison_operator: '='
-            - literal: '0'
+            - numeric_literal: '0'
           - keyword: THEN
           - merge_delete_clause:
               keyword: DELETE
@@ -733,28 +733,28 @@ file:
               - keyword: SET
               - set_clause:
                   column_reference:
-                  - identifier: tgt
+                  - naked_identifier: tgt
                   - dot: .
-                  - identifier: Quantity
+                  - naked_identifier: Quantity
                   assignment_operator:
                     comparison_operator:
                       raw_comparison_operator: '='
                   expression:
                   - column_reference:
-                    - identifier: tgt
+                    - naked_identifier: tgt
                     - dot: .
-                    - identifier: Quantity
+                    - naked_identifier: Quantity
                   - binary_operator: '-'
                   - column_reference:
-                    - identifier: src
+                    - naked_identifier: src
                     - dot: .
-                    - identifier: OrderQty
+                    - naked_identifier: OrderQty
               - comma: ','
               - set_clause:
                   column_reference:
-                  - identifier: tgt
+                  - naked_identifier: tgt
                   - dot: .
-                  - identifier: ModifiedDate
+                  - naked_identifier: ModifiedDate
                   assignment_operator:
                     comparison_operator:
                       raw_comparison_operator: '='
@@ -768,37 +768,37 @@ file:
         - output_clause:
           - keyword: OUTPUT
           - column_reference:
-              identifier: $action
+              variable_identifier: $action
           - comma: ','
           - column_reference:
-            - identifier: Inserted
+            - naked_identifier: Inserted
             - dot: .
-            - identifier: ProductID
+            - naked_identifier: ProductID
           - comma: ','
           - column_reference:
-            - identifier: Inserted
+            - naked_identifier: Inserted
             - dot: .
-            - identifier: Quantity
+            - naked_identifier: Quantity
           - comma: ','
           - column_reference:
-            - identifier: Inserted
+            - naked_identifier: Inserted
             - dot: .
-            - identifier: ModifiedDate
+            - naked_identifier: ModifiedDate
           - comma: ','
           - column_reference:
-            - identifier: Deleted
+            - naked_identifier: Deleted
             - dot: .
-            - identifier: ProductID
+            - naked_identifier: ProductID
           - comma: ','
           - column_reference:
-            - identifier: Deleted
+            - naked_identifier: Deleted
             - dot: .
-            - identifier: Quantity
+            - naked_identifier: Quantity
           - comma: ','
           - column_reference:
-            - identifier: Deleted
+            - naked_identifier: Deleted
             - dot: .
-            - identifier: ModifiedDate
+            - naked_identifier: ModifiedDate
     statement_terminator: ;
 - go_statement:
     keyword: GO
@@ -807,12 +807,12 @@ file:
       merge_statement:
       - keyword: MERGE
       - table_reference:
-        - identifier: Production
+        - naked_identifier: Production
         - dot: .
-        - identifier: ProductInventory
+        - naked_identifier: ProductInventory
       - alias_expression:
           keyword: AS
-          identifier: pi
+          naked_identifier: pi
       - keyword: USING
       - bracketed:
           start_bracket: (
@@ -821,7 +821,7 @@ file:
             - keyword: SELECT
             - select_clause_element:
                 column_reference:
-                  identifier: ProductID
+                  naked_identifier: ProductID
             - comma: ','
             - select_clause_element:
                 function:
@@ -831,7 +831,7 @@ file:
                     start_bracket: (
                     expression:
                       column_reference:
-                        identifier: OrderQty
+                        naked_identifier: OrderQty
                     end_bracket: )
             from_clause:
               keyword: FROM
@@ -839,93 +839,93 @@ file:
                 from_expression_element:
                   table_expression:
                     table_reference:
-                    - identifier: Sales
+                    - naked_identifier: Sales
                     - dot: .
-                    - identifier: SalesOrderDetail
+                    - naked_identifier: SalesOrderDetail
                   alias_expression:
                     keyword: AS
-                    identifier: sod
+                    naked_identifier: sod
                 join_clause:
                   keyword: JOIN
                   from_expression_element:
                     table_expression:
                       table_reference:
-                      - identifier: Sales
+                      - naked_identifier: Sales
                       - dot: .
-                      - identifier: SalesOrderHeader
+                      - naked_identifier: SalesOrderHeader
                     alias_expression:
                       keyword: AS
-                      identifier: soh
+                      naked_identifier: soh
                   join_on_condition:
                     keyword: 'ON'
                     expression:
                     - column_reference:
-                      - identifier: sod
+                      - naked_identifier: sod
                       - dot: .
-                      - identifier: SalesOrderID
+                      - naked_identifier: SalesOrderID
                     - comparison_operator:
                         raw_comparison_operator: '='
                     - column_reference:
-                      - identifier: soh
+                      - naked_identifier: soh
                       - dot: .
-                      - identifier: SalesOrderID
+                      - naked_identifier: SalesOrderID
                     - binary_operator: AND
                     - column_reference:
-                      - identifier: soh
+                      - naked_identifier: soh
                       - dot: .
-                      - identifier: OrderDate
+                      - naked_identifier: OrderDate
                     - keyword: BETWEEN
-                    - literal: "'20030701'"
-                    - binary_operator: AND
-                    - literal: "'20030731'"
+                    - quoted_literal: "'20030701'"
+                    - keyword: AND
+                    - quoted_literal: "'20030731'"
             groupby_clause:
             - keyword: GROUP
             - keyword: BY
             - column_reference:
-                identifier: ProductID
+                naked_identifier: ProductID
           end_bracket: )
       - alias_expression:
           keyword: AS
-          identifier: src
+          naked_identifier: src
           bracketed:
             start_bracket: (
             identifier_list:
-            - identifier: ProductID
+            - naked_identifier: ProductID
             - comma: ','
-            - identifier: OrderQty
+            - naked_identifier: OrderQty
             end_bracket: )
       - join_on_condition:
           keyword: 'ON'
           expression:
           - column_reference:
-            - identifier: pi
+            - naked_identifier: pi
             - dot: .
-            - identifier: ProductID
+            - naked_identifier: ProductID
           - comparison_operator:
               raw_comparison_operator: '='
           - column_reference:
-            - identifier: src
+            - naked_identifier: src
             - dot: .
-            - identifier: ProductID
+            - naked_identifier: ProductID
       - merge_match:
         - merge_when_matched_clause:
           - keyword: WHEN
           - keyword: MATCHED
-          - binary_operator: AND
+          - keyword: AND
           - expression:
             - column_reference:
-              - identifier: pi
+              - naked_identifier: pi
               - dot: .
-              - identifier: Quantity
+              - naked_identifier: Quantity
             - binary_operator: '-'
             - column_reference:
-              - identifier: src
+              - naked_identifier: src
               - dot: .
-              - identifier: OrderQty
+              - naked_identifier: OrderQty
             - comparison_operator:
               - raw_comparison_operator: '>'
               - raw_comparison_operator: '='
-            - literal: '0'
+            - numeric_literal: '0'
           - keyword: THEN
           - merge_update_clause:
               keyword: UPDATE
@@ -933,73 +933,73 @@ file:
                 keyword: SET
                 set_clause:
                   column_reference:
-                  - identifier: pi
+                  - naked_identifier: pi
                   - dot: .
-                  - identifier: Quantity
+                  - naked_identifier: Quantity
                   assignment_operator:
                     comparison_operator:
                       raw_comparison_operator: '='
                   expression:
                   - column_reference:
-                    - identifier: pi
+                    - naked_identifier: pi
                     - dot: .
-                    - identifier: Quantity
+                    - naked_identifier: Quantity
                   - binary_operator: '-'
                   - column_reference:
-                    - identifier: src
+                    - naked_identifier: src
                     - dot: .
-                    - identifier: OrderQty
+                    - naked_identifier: OrderQty
         - merge_when_matched_clause:
           - keyword: WHEN
           - keyword: MATCHED
-          - binary_operator: AND
+          - keyword: AND
           - expression:
             - column_reference:
-              - identifier: pi
+              - naked_identifier: pi
               - dot: .
-              - identifier: Quantity
+              - naked_identifier: Quantity
             - binary_operator: '-'
             - column_reference:
-              - identifier: src
+              - naked_identifier: src
               - dot: .
-              - identifier: OrderQty
+              - naked_identifier: OrderQty
             - comparison_operator:
               - raw_comparison_operator: <
               - raw_comparison_operator: '='
-            - literal: '0'
+            - numeric_literal: '0'
           - keyword: THEN
           - merge_delete_clause:
               keyword: DELETE
         - output_clause:
           - keyword: OUTPUT
           - column_reference:
-              identifier: $action
+              variable_identifier: $action
           - comma: ','
           - column_reference:
-            - identifier: Inserted
+            - naked_identifier: Inserted
             - dot: .
-            - identifier: ProductID
+            - naked_identifier: ProductID
           - comma: ','
           - column_reference:
-            - identifier: Inserted
+            - naked_identifier: Inserted
             - dot: .
-            - identifier: LocationID
+            - naked_identifier: LocationID
           - comma: ','
           - column_reference:
-            - identifier: Inserted
+            - naked_identifier: Inserted
             - dot: .
-            - identifier: Quantity
+            - naked_identifier: Quantity
           - alias_expression:
               keyword: AS
-              identifier: NewQty
+              naked_identifier: NewQty
           - comma: ','
           - column_reference:
-            - identifier: Deleted
+            - naked_identifier: Deleted
             - dot: .
-            - identifier: Quantity
+            - naked_identifier: Quantity
           - alias_expression:
               keyword: AS
-              identifier: PreviousQty
+              naked_identifier: PreviousQty
     statement_terminator: ;
 - go_statement:
     keyword: GO
@@ -1009,22 +1009,22 @@ file:
       - keyword: insert
       - keyword: into
       - table_reference:
-        - identifier: sch1
+        - naked_identifier: sch1
         - dot: .
-        - identifier: table1
+        - naked_identifier: table1
       - bracketed:
           start_bracket: (
           column_reference:
-            identifier: columnC
+            naked_identifier: columnC
           end_bracket: )
       - select_statement:
           select_clause:
             keyword: select
             select_clause_element:
               column_reference:
-              - identifier: upd
+              - naked_identifier: upd
               - dot: .
-              - identifier: columnC
+              - naked_identifier: columnC
           from_clause:
             keyword: from
             from_expression:
@@ -1035,11 +1035,11 @@ file:
                     merge_statement:
                     - keyword: merge
                     - table_reference:
-                      - identifier: sch1
+                      - naked_identifier: sch1
                       - dot: .
-                      - identifier: table1
+                      - naked_identifier: table1
                     - alias_expression:
-                        identifier: trg
+                        naked_identifier: trg
                     - keyword: using
                     - bracketed:
                         start_bracket: (
@@ -1048,37 +1048,37 @@ file:
                             keyword: select
                             select_clause_element:
                               column_reference:
-                              - identifier: gr
+                              - naked_identifier: gr
                               - dot: .
-                              - identifier: columnC
+                              - naked_identifier: columnC
                           from_clause:
                             keyword: from
                             from_expression:
                               from_expression_element:
                                 table_expression:
                                   table_reference:
-                                  - identifier: sch2
+                                  - naked_identifier: sch2
                                   - dot: .
-                                  - identifier: table2
+                                  - naked_identifier: table2
                                 alias_expression:
                                   keyword: as
-                                  identifier: gr
+                                  naked_identifier: gr
                         end_bracket: )
                     - alias_expression:
-                        identifier: src
+                        naked_identifier: src
                     - join_on_condition:
                         keyword: 'on'
                         expression:
                         - column_reference:
-                          - identifier: trg
+                          - naked_identifier: trg
                           - dot: .
-                          - identifier: columnC
+                          - naked_identifier: columnC
                         - comparison_operator:
                             raw_comparison_operator: '='
                         - column_reference:
-                          - identifier: src
+                          - naked_identifier: src
                           - dot: .
-                          - identifier: columnC
+                          - naked_identifier: columnC
                     - merge_match:
                         merge_when_matched_clause:
                         - keyword: when
@@ -1090,25 +1090,25 @@ file:
                               keyword: set
                               set_clause:
                                 column_reference:
-                                  identifier: columnC
+                                  naked_identifier: columnC
                                 assignment_operator:
                                   comparison_operator:
                                     raw_comparison_operator: '='
                                 expression:
                                   column_reference:
-                                  - identifier: src
+                                  - naked_identifier: src
                                   - dot: .
-                                  - identifier: columnC
+                                  - naked_identifier: columnC
                         output_clause:
                           keyword: output
                           column_reference:
-                          - identifier: inserted
+                          - naked_identifier: inserted
                           - dot: .
-                          - identifier: columnC
+                          - naked_identifier: columnC
                     end_bracket: )
                 alias_expression:
                   keyword: as
-                  identifier: upd
+                  naked_identifier: upd
             statement_terminator: ;
 - go_statement:
     keyword: GO

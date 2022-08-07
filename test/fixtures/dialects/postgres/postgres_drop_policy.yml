@@ -3,17 +3,17 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5e9709e8abf96cd4c55171f63ddb5b2dbc1c2b9298c8d6ff94ac36e11a7675ef
+_hash: 1933526cad5db1a8339d06b992d0fb310d39f4bb001a60484304c512585d481b
 file:
 - statement:
     drop_policy_statement:
     - keyword: DROP
     - keyword: POLICY
     - object_reference:
-        identifier: account_managers
+        naked_identifier: account_managers
     - keyword: 'ON'
     - table_reference:
-        identifier: accounts
+        naked_identifier: accounts
 - statement_terminator: ;
 - statement:
     drop_policy_statement:
@@ -22,20 +22,20 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - object_reference:
-        identifier: account_managers
+        naked_identifier: account_managers
     - keyword: 'ON'
     - table_reference:
-        identifier: accounts
+        naked_identifier: accounts
 - statement_terminator: ;
 - statement:
     drop_policy_statement:
     - keyword: DROP
     - keyword: POLICY
     - object_reference:
-        identifier: account_managers
+        naked_identifier: account_managers
     - keyword: 'ON'
     - table_reference:
-        identifier: accounts
+        naked_identifier: accounts
     - keyword: CASCADE
 - statement_terminator: ;
 - statement:
@@ -43,10 +43,10 @@ file:
     - keyword: DROP
     - keyword: POLICY
     - object_reference:
-        identifier: account_managers
+        naked_identifier: account_managers
     - keyword: 'ON'
     - table_reference:
-        identifier: accounts
+        naked_identifier: accounts
     - keyword: RESTRICT
 - statement_terminator: ;
 - statement:
@@ -56,9 +56,9 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - object_reference:
-        identifier: account_managers
+        naked_identifier: account_managers
     - keyword: 'ON'
     - table_reference:
-        identifier: accounts
+        naked_identifier: accounts
     - keyword: RESTRICT
 - statement_terminator: ;

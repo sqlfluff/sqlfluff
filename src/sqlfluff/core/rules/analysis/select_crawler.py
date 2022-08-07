@@ -42,11 +42,12 @@ class Selectable:
             return get_select_statement_info(
                 self.selectable, self.dialect, early_exit=False
             )
-        else:  # values_clause
+        else:  # DML or values_clause
             # This is a bit dodgy, but a very useful abstraction. Here, we
-            # interpret a values_clause segment as if it were a SELECT. Someday,
-            # we may need to tweak this, e.g. perhaps add a separate QueryType
-            # for this (depending on the needs of the rules that use it.
+            # interpret a DML or values_clause segment as if it were a SELECT.
+            # Someday, we may need to tweak this, e.g. perhaps add a separate
+            # QueryType for this (depending on the needs of the rules that use
+            # it.
             #
             # For more info on the syntax and behavior of VALUES and its
             # similarity to a SELECT statement with literal values (no table
@@ -55,7 +56,7 @@ class Selectable:
             values = Segments(self.selectable)
             alias_expression = values.children().first(sp.is_type("alias_expression"))
             name = alias_expression.children().first(
-                sp.is_name("naked_identifier", "quoted_identifier")
+                sp.is_type("naked_identifier", "quoted_identifier")
             )
             alias_info = AliasInfo(
                 name[0].raw if name else "",
@@ -246,7 +247,11 @@ class SelectCrawler:
             if event == "start":
                 # "start" means we're starting to process a new segment.
                 if path[-1].is_type(
-                    "set_expression", "select_statement", "values_clause"
+                    "merge_statement",
+                    "select_statement",
+                    "set_expression",
+                    "update_statement",
+                    "values_clause",
                 ):
                     # Beginning a single "SELECT", a set, e.g.
                     # SELECT ... UNION ... SELECT; or a VALUES clause.
@@ -283,7 +288,9 @@ class SelectCrawler:
                                 dialect,
                                 cte_name_segment=cte_name_segment,
                             )
-                            if path[-1].is_type("select_statement", "values_clause"):
+                            if path[-1].is_type(
+                                "select_statement", "values_clause", "update_statement"
+                            ):
                                 # Add to the Query object we just created.
                                 query.selectables.append(Selectable(path[-1], dialect))
                             else:
@@ -306,7 +313,9 @@ class SelectCrawler:
                             if not any(
                                 seg.is_type("from_expression_element") for seg in path
                             ):
-                                if path[-1].is_type("select_statement"):
+                                if path[-1].is_type(
+                                    "select_statement", "update_statement"
+                                ):
                                     # Processing a select_statement. Add it to the
                                     # Query object on top of the stack.
                                     query_stack[-1].selectables.append(

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 02f397fb8dd0ebef10f043d3b5036a422e89db82582d5e73a4af64d28a4f314d
+_hash: ccf4ffdc0f68eaf23ce059c9d2a983085cc59b4987e8a0a14ed79fe72dab123e
 file:
 - statement:
     insert_statement:
@@ -11,19 +11,19 @@ file:
     - keyword: INTO
     - keyword: TABLE
     - table_reference:
-        identifier: students
+        naked_identifier: students
     - values_clause:
         keyword: VALUES
         bracketed:
         - start_bracket: (
         - expression:
-            literal: "'Amy Smith'"
+            quoted_literal: "'Amy Smith'"
         - comma: ','
         - expression:
-            literal: "'123 Park Ave, San Jose'"
+            quoted_literal: "'123 Park Ave, San Jose'"
         - comma: ','
         - expression:
-            literal: '111111'
+            numeric_literal: '111111'
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -31,19 +31,19 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-        identifier: students
+        naked_identifier: students
     - values_clause:
         keyword: VALUES
         bracketed:
         - start_bracket: (
         - expression:
-            literal: "'Amy Smith'"
+            quoted_literal: "'Amy Smith'"
         - comma: ','
         - expression:
-            literal: "'123 Park Ave, San Jose'"
+            quoted_literal: "'123 Park Ave, San Jose'"
         - comma: ','
         - expression:
-            literal: '111111'
+            numeric_literal: '111111'
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -51,19 +51,19 @@ file:
     - keyword: INSERT
     - keyword: OVERWRITE
     - table_reference:
-        identifier: students
+        naked_identifier: students
     - values_clause:
         keyword: VALUES
         bracketed:
         - start_bracket: (
         - expression:
-            literal: "'Amy Smith'"
+            quoted_literal: "'Amy Smith'"
         - comma: ','
         - expression:
-            literal: "'123 Park Ave, San Jose'"
+            quoted_literal: "'123 Park Ave, San Jose'"
         - comma: ','
         - expression:
-            literal: '111111'
+            numeric_literal: '111111'
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -71,31 +71,31 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-        identifier: students
+        naked_identifier: students
     - values_clause:
       - keyword: VALUES
       - bracketed:
         - start_bracket: (
         - expression:
-            literal: "'Bob Brown'"
+            quoted_literal: "'Bob Brown'"
         - comma: ','
         - expression:
-            literal: "'456 Taylor St, Cupertino'"
+            quoted_literal: "'456 Taylor St, Cupertino'"
         - comma: ','
         - expression:
-            literal: '222222'
+            numeric_literal: '222222'
         - end_bracket: )
       - comma: ','
       - bracketed:
         - start_bracket: (
         - expression:
-            literal: "'Cathy Johnson'"
+            quoted_literal: "'Cathy Johnson'"
         - comma: ','
         - expression:
-            literal: "'789 Race Ave, Palo Alto'"
+            quoted_literal: "'789 Race Ave, Palo Alto'"
         - comma: ','
         - expression:
-            literal: '333333'
+            numeric_literal: '333333'
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -103,31 +103,31 @@ file:
     - keyword: INSERT
     - keyword: OVERWRITE
     - table_reference:
-        identifier: students
+        naked_identifier: students
     - values_clause:
       - keyword: VALUES
       - bracketed:
         - start_bracket: (
         - expression:
-            literal: "'Bob Brown'"
+            quoted_literal: "'Bob Brown'"
         - comma: ','
         - expression:
-            literal: "'456 Taylor St, Cupertino'"
+            quoted_literal: "'456 Taylor St, Cupertino'"
         - comma: ','
         - expression:
-            literal: '222222'
+            numeric_literal: '222222'
         - end_bracket: )
       - comma: ','
       - bracketed:
         - start_bracket: (
         - expression:
-            literal: "'Cathy Johnson'"
+            quoted_literal: "'Cathy Johnson'"
         - comma: ','
         - expression:
-            literal: "'789 Race Ave, Palo Alto'"
+            quoted_literal: "'789 Race Ave, Palo Alto'"
         - comma: ','
         - expression:
-            literal: '333333'
+            numeric_literal: '333333'
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -135,182 +135,182 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-        identifier: students
+        naked_identifier: students
     - keyword: PARTITION
     - bracketed:
         start_bracket: (
         column_reference:
-          identifier: student_id
+          naked_identifier: student_id
         comparison_operator:
           raw_comparison_operator: '='
-        literal: '444444'
+        numeric_literal: '444444'
         end_bracket: )
     - select_statement:
         select_clause:
         - keyword: SELECT
         - select_clause_element:
             column_reference:
-              identifier: name
+              naked_identifier: name
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: address
+              naked_identifier: address
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: persons
+                  naked_identifier: persons
         where_clause:
           keyword: WHERE
           expression:
             column_reference:
-              identifier: name
+              naked_identifier: name
             comparison_operator:
               raw_comparison_operator: '='
-            literal: '"Dora Williams"'
+            quoted_literal: '"Dora Williams"'
 - statement_terminator: ;
 - statement:
     insert_statement:
     - keyword: INSERT
     - keyword: OVERWRITE
     - table_reference:
-        identifier: students
+        naked_identifier: students
     - keyword: PARTITION
     - bracketed:
         start_bracket: (
         column_reference:
-          identifier: student_id
+          naked_identifier: student_id
         comparison_operator:
           raw_comparison_operator: '='
-        literal: '444444'
+        numeric_literal: '444444'
         end_bracket: )
     - select_statement:
         select_clause:
         - keyword: SELECT
         - select_clause_element:
             column_reference:
-              identifier: name
+              naked_identifier: name
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: address
+              naked_identifier: address
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: persons
+                  naked_identifier: persons
         where_clause:
           keyword: WHERE
           expression:
             column_reference:
-              identifier: name
+              naked_identifier: name
             comparison_operator:
               raw_comparison_operator: '='
-            literal: '"Dora Williams"'
+            quoted_literal: '"Dora Williams"'
 - statement_terminator: ;
 - statement:
     insert_statement:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-        identifier: students
+        naked_identifier: students
     - keyword: TABLE
     - table_reference:
-        identifier: visiting_students
+        naked_identifier: visiting_students
 - statement_terminator: ;
 - statement:
     insert_statement:
     - keyword: INSERT
     - keyword: OVERWRITE
     - table_reference:
-        identifier: students
+        naked_identifier: students
     - keyword: TABLE
     - table_reference:
-        identifier: visiting_students
+        naked_identifier: visiting_students
 - statement_terminator: ;
 - statement:
     insert_statement:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-        identifier: students
+        naked_identifier: students
     - keyword: FROM
     - table_reference:
-        identifier: applicants
+        naked_identifier: applicants
     - keyword: SELECT
     - column_reference:
-        identifier: name
+        naked_identifier: name
     - comma: ','
     - column_reference:
-        identifier: address
+        naked_identifier: address
     - comma: ','
     - column_reference:
-        identifier: id
+        naked_identifier: id
     - where_clause:
         keyword: WHERE
         expression:
           column_reference:
-            identifier: qualified
+            naked_identifier: qualified
           comparison_operator:
             raw_comparison_operator: '='
-          literal: 'TRUE'
+          boolean_literal: 'TRUE'
 - statement_terminator: ;
 - statement:
     insert_statement:
     - keyword: INSERT
     - keyword: OVERWRITE
     - table_reference:
-        identifier: students
+        naked_identifier: students
     - keyword: FROM
     - table_reference:
-        identifier: applicants
+        naked_identifier: applicants
     - keyword: SELECT
     - column_reference:
-        identifier: name
+        naked_identifier: name
     - comma: ','
     - column_reference:
-        identifier: address
+        naked_identifier: address
     - comma: ','
     - column_reference:
-        identifier: id
+        naked_identifier: id
     - where_clause:
         keyword: WHERE
         expression:
           column_reference:
-            identifier: qualified
+            naked_identifier: qualified
           comparison_operator:
             raw_comparison_operator: '='
-          literal: 'TRUE'
+          boolean_literal: 'TRUE'
 - statement_terminator: ;
 - statement:
     insert_statement:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-        identifier: students
+        naked_identifier: students
     - keyword: PARTITION
     - bracketed:
         start_bracket: (
         column_reference:
-          identifier: birthday
+          naked_identifier: birthday
         comparison_operator:
           raw_comparison_operator: '='
         keyword: DATE
-        literal: "'2019-01-02'"
+        date_constructor_literal: "'2019-01-02'"
         end_bracket: )
     - values_clause:
         keyword: VALUES
         bracketed:
         - start_bracket: (
         - expression:
-            literal: "'Amy Smith'"
+            quoted_literal: "'Amy Smith'"
         - comma: ','
         - expression:
-            literal: "'123 Park Ave, San Jose'"
+            quoted_literal: "'123 Park Ave, San Jose'"
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -318,26 +318,26 @@ file:
     - keyword: INSERT
     - keyword: OVERWRITE
     - table_reference:
-        identifier: students
+        naked_identifier: students
     - keyword: PARTITION
     - bracketed:
         start_bracket: (
         column_reference:
-          identifier: birthday
+          naked_identifier: birthday
         comparison_operator:
           raw_comparison_operator: '='
         keyword: DATE
-        literal: "'2019-01-02'"
+        date_constructor_literal: "'2019-01-02'"
         end_bracket: )
     - values_clause:
         keyword: VALUES
         bracketed:
         - start_bracket: (
         - expression:
-            literal: "'Amy Smith'"
+            quoted_literal: "'Amy Smith'"
         - comma: ','
         - expression:
-            literal: "'123 Park Ave, San Jose'"
+            quoted_literal: "'123 Park Ave, San Jose'"
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -345,33 +345,33 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-        identifier: students
+        naked_identifier: students
     - keyword: PARTITION
     - bracketed:
         start_bracket: (
         column_reference:
-          identifier: student_id
+          naked_identifier: student_id
         comparison_operator:
           raw_comparison_operator: '='
-        literal: '11215017'
+        numeric_literal: '11215017'
         end_bracket: )
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: address
+          naked_identifier: address
       - comma: ','
       - column_reference:
-          identifier: name
+          naked_identifier: name
       - end_bracket: )
     - values_clause:
         keyword: VALUES
         bracketed:
         - start_bracket: (
         - expression:
-            literal: "'Hangzhou, China'"
+            quoted_literal: "'Hangzhou, China'"
         - comma: ','
         - expression:
-            literal: "'Kent Yao Jr.'"
+            quoted_literal: "'Kent Yao Jr.'"
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -379,32 +379,32 @@ file:
     - keyword: INSERT
     - keyword: OVERWRITE
     - table_reference:
-        identifier: students
+        naked_identifier: students
     - keyword: PARTITION
     - bracketed:
         start_bracket: (
         column_reference:
-          identifier: student_id
+          naked_identifier: student_id
         comparison_operator:
           raw_comparison_operator: '='
-        literal: '11215017'
+        numeric_literal: '11215017'
         end_bracket: )
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: address
+          naked_identifier: address
       - comma: ','
       - column_reference:
-          identifier: name
+          naked_identifier: name
       - end_bracket: )
     - values_clause:
         keyword: VALUES
         bracketed:
         - start_bracket: (
         - expression:
-            literal: "'Hangzhou, China'"
+            quoted_literal: "'Hangzhou, China'"
         - comma: ','
         - expression:
-            literal: "'Kent Yao Jr.'"
+            quoted_literal: "'Kent Yao Jr.'"
         - end_bracket: )
 - statement_terminator: ;
