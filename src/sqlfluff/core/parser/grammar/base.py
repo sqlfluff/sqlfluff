@@ -23,7 +23,7 @@ from sqlfluff.core.parser.parsers import BaseParser
 MatchableType = Union[Matchable, Type[BaseSegment]]
 
 if TYPE_CHECKING:
-    from sqlfluff.core.dialects.base import Dialect
+    from sqlfluff.core.dialects.base import Dialect  # pragma: no cover
 
 
 @dataclass
@@ -458,7 +458,8 @@ class BaseGrammar(Matchable):
                 ):
                     return (pre_seg_buff, mat, m)
                 else:
-                    return best_simple_match
+                    # TODO: Make a test case to cover this.
+                    return best_simple_match  # pragma: no cover
             else:
                 # If there aren't any matches, then advance the buffer and try again.
                 # Two improvements:
