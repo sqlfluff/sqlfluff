@@ -307,11 +307,8 @@ class BaseGrammar(Matchable):
             seg=LateBoundJoinSegmentsCurtailed(segments),
         )
 
-        # Do some type munging
-        matchers = list(matchers)
-
-        # Have we been passed an empty list?
-        if len(segments) == 0:  # pragma: no cover TODO?
+        # Have we been passed an empty tuple?
+        if not segments:  # pragma: no cover TODO?
             return ((), MatchResult.from_empty(), None)
 
         # Here we enable a performance optimisation. Most of the time in this cycle
@@ -497,11 +494,8 @@ class BaseGrammar(Matchable):
             `tuple` of (unmatched_segments, match_object, matcher).
 
         """
-        # Type munging
-        matchers = list(matchers)
-
         # Have we been passed an empty tuple?
-        if len(segments) == 0:
+        if not segments:
             return ((), MatchResult.from_unmatched(segments), None)
 
         # Get hold of the bracket matchers from the dialect, and append them
