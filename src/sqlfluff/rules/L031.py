@@ -5,6 +5,7 @@ from typing import Generator, NamedTuple, Optional
 
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
+from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
@@ -85,6 +86,7 @@ class Rule_L031(BaseRule):
 
     groups = ("all",)
     config_keywords = ["force_enable"]
+    crawl_behaviour = SegmentSeekerCrawler({"select_statement"})
     _dialects_disabled_by_default = ["bigquery"]
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
@@ -111,45 +113,45 @@ class Rule_L031(BaseRule):
         ):
             return LintResult()
 
-        if context.segment.is_type("select_statement"):
-            children = context.functional.segment.children()
-            from_clause_segment = children.select(sp.is_type("from_clause")).first()
-            base_table = (
-                from_clause_segment.children(sp.is_type("from_expression"))
-                .first()
-                .children(sp.is_type("from_expression_element"))
-                .first()
-                .children(sp.is_type("table_expression"))
-                .first()
-                .children(sp.is_type("object_reference"))
-                .first()
+        assert context.segment.is_type("select_statement")
+
+        children = context.functional.segment.children()
+        from_clause_segment = children.select(sp.is_type("from_clause")).first()
+        base_table = (
+            from_clause_segment.children(sp.is_type("from_expression"))
+            .first()
+            .children(sp.is_type("from_expression_element"))
+            .first()
+            .children(sp.is_type("table_expression"))
+            .first()
+            .children(sp.is_type("object_reference"))
+            .first()
+        )
+        if not base_table:
+            return None
+
+        # A buffer for all table expressions in join conditions
+        from_expression_elements = []
+        column_reference_segments = []
+
+        after_from_clause = children.select(start_seg=from_clause_segment[0])
+        for clause in from_clause_segment + after_from_clause:
+            for from_expression_element in clause.recursive_crawl(
+                "from_expression_element"
+            ):
+                from_expression_elements.append(from_expression_element)
+            for column_reference in clause.recursive_crawl("column_reference"):
+                column_reference_segments.append(column_reference)
+
+        return (
+            self._lint_aliases_in_join(
+                base_table[0] if base_table else None,
+                from_expression_elements,
+                column_reference_segments,
+                context.segment,
             )
-            if not base_table:
-                return None
-
-            # A buffer for all table expressions in join conditions
-            from_expression_elements = []
-            column_reference_segments = []
-
-            after_from_clause = children.select(start_seg=from_clause_segment[0])
-            for clause in from_clause_segment + after_from_clause:
-                for from_expression_element in clause.recursive_crawl(
-                    "from_expression_element"
-                ):
-                    from_expression_elements.append(from_expression_element)
-                for column_reference in clause.recursive_crawl("column_reference"):
-                    column_reference_segments.append(column_reference)
-
-            return (
-                self._lint_aliases_in_join(
-                    base_table[0] if base_table else None,
-                    from_expression_elements,
-                    column_reference_segments,
-                    context.segment,
-                )
-                or None
-            )
-        return None
+            or None
+        )
 
     @classmethod
     def _filter_table_expressions(

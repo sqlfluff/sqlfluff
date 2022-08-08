@@ -4,6 +4,7 @@ from typing import Optional
 from sqlfluff.core.parser import NewlineSegment, WhitespaceSegment
 
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
+from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible, document_groups
 from sqlfluff.core.rules.functional import sp
 
@@ -35,12 +36,12 @@ class Rule_L041(BaseRule):
     """
 
     groups = ("all", "core")
+    crawl_behaviour = SegmentSeekerCrawler({"select_clause"})
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Select clause modifiers must appear on same line as SELECT."""
         # We only care about select_clause.
-        if not context.segment.is_type("select_clause"):
-            return None
+        assert context.segment.is_type("select_clause")
 
         # Get children of select_clause and the corresponding select keyword.
         child_segments = context.functional.segment.children()
