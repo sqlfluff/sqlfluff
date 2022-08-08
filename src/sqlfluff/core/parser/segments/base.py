@@ -665,7 +665,7 @@ class BaseSegment:
     @classmethod
     def class_is_type(cls, *seg_type):
         """Is this segment class (or its parent) of the given type."""
-        # Work backward in the class heirachy to see if there's a match
+        # Work backward in the class hierarchy to see if there's a match
         for class_type in cls._class_types():
             if class_type in seg_type:
                 return True
