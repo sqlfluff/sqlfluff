@@ -1,5 +1,6 @@
 """Definitions of crawlers."""
 
+from abc import ABC, abstractmethod
 from typing import Iterator, Set, cast
 from sqlfluff.core.parser.segments.base import BaseSegment
 from sqlfluff.core.parser.segments.raw import RawSegment
@@ -7,7 +8,7 @@ from sqlfluff.core.parser.segments.raw import RawSegment
 from sqlfluff.core.rules.context import RuleContext
 
 
-class BaseCrawler:
+class BaseCrawler(ABC):
     """The base interface for crawler classes."""
 
     def __init__(self, works_on_unparsable: bool = False, **kwargs):
@@ -17,12 +18,9 @@ class BaseCrawler:
         """Returns true if this segment considered at all."""
         return self.works_on_unparsable or not segment.is_type("unparsable")
 
+    @abstractmethod
     def crawl(self, context: RuleContext) -> Iterator[RuleContext]:
         """Yields a RuleContext for each segment the rule should process."""
-        raise NotImplementedError(  # pragma: no cover
-            "Use a specific crawler, not the BaseCrawler. If you're seeing "
-            "this error, a rule has likely not set its crawl_behaviour attribute."
-        )
 
 
 class RootOnlyCrawler(BaseCrawler):
